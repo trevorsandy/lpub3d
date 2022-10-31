@@ -33,6 +33,7 @@
 #include "pointerplacementdialog.h"
 #include "metatypes.h"
 #include "meta.h"
+#include "commonmenus.h"
 #include "version.h"
 
 #include "QsLog.h"
@@ -61,13 +62,12 @@ const QString PointerPlacementDialog::relativeNames[PointerPlacementDialog::Poin
   "Page"  // 0 page
 };        // 1 PointerNumRelatives
 
-QString PointerPlacementDialog::relativeToName(
-  int relativeTo)
+QString PointerPlacementDialog::placementTypeName(int placementType)
 {
-  if (relativeTo >= PointerPlacementDialog::PointerNumRelatives) {
+  if (placementType >= PointerPlacementDialog::PointerNumRelatives) {
     return relativeNames[0];
   } else {
-    return relativeNames[relativeTo];
+    return relativeNames[placementType];
   }
 }
 
@@ -95,6 +95,10 @@ PointerPlacementDialog::PointerPlacementDialog(
   QString         title,
   QWidget        *parent)
 {
+  setWindowTitle(tr("%1 %2 Dialog").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
+
+  setWhatsThis(lpubWT(WT_DIALOG_POINTER_PLACEMENT,windowTitle()));
+
   goods      = &_goods;
   _parentType =  parentType;
 
@@ -223,7 +227,6 @@ PointerPlacementDialog::PointerPlacementDialog(
   outsideGrid->addWidget(buttonBox,5,0,1,3);
 
   setLayout(outsideGrid);
-  setWindowTitle(tr("%1 %2 Dialog").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
   
   setEnabled(prepositionOks[goods->relativeTo]);
   highlightPlacement(goods);

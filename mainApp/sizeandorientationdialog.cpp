@@ -26,6 +26,7 @@
 #include <QDialogButtonBox>
 
 #include "sizeandorientationdialog.h"
+#include "commonmenus.h"
 #include "metagui.h"
 #include "lpub.h"
 
@@ -38,11 +39,10 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
 {
   setWindowTitle(_name);
 
-  smeta.setRange(1,1000);
-  smeta.setFormats(6,4,"9.9999");
-  smeta.setValue(0,sgoods.sizeW);
-  smeta.setValue(1,sgoods.sizeH);
-  smeta.setValueSizeID(sgoods.sizeID);
+  setWhatsThis(lpubWT(WT_DIALOG_SIZE_ANDORIENTATION,windowTitle()));
+
+  metaS.setValue(goodsS);
+  metaO.setValue(goodsO);
 
   ometa.setValue(ogoods);
 

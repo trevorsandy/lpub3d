@@ -26,6 +26,8 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
+#include "commonmenus.h"
 #include "metagui.h"
 
 PliSortDialog::PliSortDialog(
@@ -35,6 +37,8 @@ PliSortDialog::PliSortDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_PLI_SORT,windowTitle()));
 
   meta.primary.setValue(goods.primary.value());
   meta.secondary.setValue(goods.secondary.value());

@@ -41,6 +41,8 @@
 #include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 
+#include "commonmenus.h"
+
 SubstitutePartDialog::SubstitutePartDialog(
     const QStringList &attributes,
     QWidget           *parent,
@@ -53,6 +55,8 @@ SubstitutePartDialog::SubstitutePartDialog(
     mViewWidgetEnabled(false)
 {
      ui->setupUi(this);
+
+     setWhatsThis(lpubWT(WT_DIALOG_SUBSTITUTE_PART,windowTitle()));
 
      QString title = QString("%1 Part")
              .arg(mAction == sSubstitute ?

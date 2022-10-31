@@ -44,6 +44,7 @@
 #include <QFrame>
 #include <QComboBox>
 
+#include "commonmenus.h"
 #include "QsLog.h"
 
 const QString PlacementDialog::labels[][5] =
@@ -152,7 +153,7 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
 
 const QString PlacementDialog::relativeNames[NumRelatives] =
 {
-  "Page",        		        // 0 Page
+  "Page",                       // 0 Page
   "Assem",                      // 1 Csi
   "Step Group",                 // 2 Ms
   "Step Number",                // 3 Sn
@@ -190,7 +191,7 @@ const QString PlacementDialog::relativeNames[NumRelatives] =
   "Single Step",                //33 Ss
   "Reserve",                    //34 Res
   "Cover Page",                 //35 Cvp
-  "CSI Annotation",             //36 Ca
+  "CSI Part Annotation",        //36 Ca
   "Divider Pointer"             //37 Dp
 
  /*NumRelatives               *///38 NumRelatives
@@ -215,13 +216,12 @@ bool PlacementDialog::getPlacement(
   return ok;
 }
 
-QString PlacementDialog::relativeToName(
-  int relativeTo)
+QString PlacementDialog::placementTypeName(int placementType)
 {
-  if (relativeTo >= NumRelatives) {
+  if (placementType >= NumRelatives) {
     return relativeNames[0];
   } else {
-    return relativeNames[relativeTo];
+    return relativeNames[placementType];
   }
 }
 
@@ -234,6 +234,10 @@ PlacementDialog::PlacementDialog(
   bool           pliPerStep,
   QWidget       *parent)
 {
+  setWindowTitle(tr("%1 %2 Dialogue").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
+
+  setWhatsThis(lpubWT(WT_DIALOG_PLACEMENT,windowTitle()));
+
   goods = &_goods;
 
   outsideGrid    = new QGridLayout;
@@ -578,7 +582,6 @@ PlacementDialog::PlacementDialog(
   outsideGrid->addWidget(buttonBox,7,0,1,5);
 
   setLayout(outsideGrid);
-  setWindowTitle(tr("%1 %2 Dialogue").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
   
   setEnabled(prepositionOks[goods->relativeTo]);
   highlightPlacement(goods);

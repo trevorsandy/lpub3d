@@ -26,6 +26,8 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
+#include "commonmenus.h"
 #include "metagui.h"
 
 PliAnnotationDialog::PliAnnotationDialog(
@@ -35,6 +37,8 @@ PliAnnotationDialog::PliAnnotationDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_PLI_ANNOTATION,windowTitle()));
 
   meta.display.setValue(goods.display.value());
   meta.titleAnnotation.setValue(goods.titleAnnotation.value());

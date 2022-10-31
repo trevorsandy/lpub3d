@@ -29,6 +29,7 @@
 #include <QDialogButtonBox>
 
 #include "submodelcolordialog.h"
+#include "commonmenus.h"
 #include "metagui.h"
 
 SubModelColorDialog::SubModelColorDialog(
@@ -38,6 +39,8 @@ SubModelColorDialog::SubModelColorDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_SUBMODEL_COLOR,windowTitle()));
 
   meta.setValue(goods.value());
 

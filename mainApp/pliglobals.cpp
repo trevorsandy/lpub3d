@@ -61,18 +61,20 @@ GlobalPliDialog::GlobalPliDialog(
   data = new GlobalPliPrivate(topLevelFile,meta,bom);
 
   if (bom) {
-    setWindowTitle(tr("Bill of Materials Globals Setup"));
+    setWindowTitle(tr("Bill Of Materials Globals Setup"));
+    setWhatsThis(lpubWT(WT_SETUP_PART_BOM,windowTitle()));
   } else {
     setWindowTitle(tr("Parts List Globals Setup"));
+    setWhatsThis(lpubWT(WT_SETUP_PART_PLI,windowTitle()));
   }
 
 
-  QTabWidget  *tab = new QTabWidget(nullptr);
+  QTabWidget  *tabwidget = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
   setLayout(layout);
-  layout->addWidget(tab);
+  layout->addWidget(tabwidget);
 
   QWidget *widget;
   QVBoxLayout *vlayout;
@@ -85,44 +87,47 @@ GlobalPliDialog::GlobalPliDialog(
   PliMeta *pliMeta = bom ? &data->meta.LPub.bom : &data->meta.LPub.pli;
 
   /*
-   * Background/Border tab
+   * Background/Border Tab
    */
+
+  widget   = new QWidget(nullptr);
+  widget->setObjectName(tr("Background / Border"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PART_BACKGROUND_BORDER,widget->objectName()));
   vlayout  = new QVBoxLayout(nullptr);
   svlayout = new QVBoxLayout(nullptr);
-  widget   = new QWidget(nullptr);
-
   widget->setLayout(vlayout);
 
   if ( ! bom) {
     QHBoxLayout *childHLayout = new QHBoxLayout(nullptr);
-    box = new QGroupBox("Parts List");
+    box = new QGroupBox(tr("Parts List"));
+    box->setWhatsThis(lpubWT(WT_SETUP_PART_BACKGROUND_BORDER_PARTS_LIST,box->title()));
     vlayout->addWidget(box);
     box->setLayout(childHLayout);
-    child = new CheckBoxGui("Show Parts List",&pliMeta->show);
+    child = new CheckBoxGui(tr("Show Parts List"),&pliMeta->show);
     childHLayout->addWidget(child);
     data->children.append(child);
 
-    child = new PlacementGui(&pliMeta->placement,"Pli Placement");
+    child = new PlacementGui(tr("Pli Placement"),&pliMeta->placement, PartsListType);
     childHLayout->addWidget(child);
     data->children.append(child);
   }
 
-  box = new QGroupBox("Background");
+  box = new QGroupBox(tr("Background"));
   vlayout->addWidget(box);
   child = new BackgroundGui(&pliMeta->background,box);
   data->children.append(child);
 
-  box = new QGroupBox("Border");
+  box = new QGroupBox(tr("Border"));
   vlayout->addWidget(box);
   child = new BorderGui(&pliMeta->border,box);
   data->children.append(child);
   
-  box = new QGroupBox("Margins");
+  box = new QGroupBox(tr("Margins"));
   vlayout->addWidget(box);
-  child = new UnitsGui("L/R|T/B",&pliMeta->margin,box);
+  child = new UnitsGui(tr("L/R|T/B"),&pliMeta->margin,box);
   data->children.append(child);
   
-  box = new QGroupBox("Constrain");
+  box = new QGroupBox(tr("Constrain"));
   vlayout->addWidget(box);
   child = new ConstrainGui("",&pliMeta->constrain,box);
   data->children.append(child);
@@ -131,29 +136,40 @@ GlobalPliDialog::GlobalPliDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Background/Border");
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Contents tab
+   * Contents Tab
    */
+
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Content"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PART_CONTENTS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  QTabWidget *childtab    = new QTabWidget();
-  vlayout->addWidget(childtab);
-  tab->addTab(widget, "Content");
+  QTabWidget *childtabwidget = new QTabWidget();
+  vlayout->addWidget(childtabwidget);
+
+  tabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Parts Tab
+   */
 
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Parts"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PART_PARTS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Part Images");
+  box = new QGroupBox(tr("Part Images"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_IMAGE_SIZING,box->title()));
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
   // Scale
-  child = new DoubleSpinGui("Scale",
+  child = new DoubleSpinGui(tr("Scale"),
                             &pliMeta->modelScale,
                             pliMeta->modelScale._min,
                             pliMeta->modelScale._max,
@@ -162,19 +178,20 @@ GlobalPliDialog::GlobalPliDialog(
   data->clearCache = child->modified;
   childlayout->addWidget(child);
 
-  child = new UnitsGui("Margins L/R|T/B",&pliMeta->part.margin);
+  child = new UnitsGui(tr("Margins L/R|T/B"),&pliMeta->part.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
   /* Camera settings */
 
-  box = new QGroupBox("Default Part Orientation");
+  box = new QGroupBox(tr("Default Part Orientation"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
   childlayout = new QVBoxLayout(nullptr);
   box->setLayout(childlayout);
 
   // camera field ov view
-  child = new DoubleSpinGui("Camera FOV",
+  child = new DoubleSpinGui(tr("Camera FOV"),
                             &pliMeta->cameraFoV,
                             pliMeta->cameraFoV._min,
                             pliMeta->cameraFoV._max,
@@ -183,51 +200,59 @@ GlobalPliDialog::GlobalPliDialog(
   childlayout->addWidget(child);
 
   // view angles
-  child = new FloatsGui("Latitude","Longitude",&pliMeta->cameraAngles);
+  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&pliMeta->cameraAngles);
   data->children.append(child);
   data->clearCache = child->modified;
   childlayout->addWidget(child);
 
-  box = new QGroupBox("Part Groups");
+  WT_Type wtType = bom ? WT_SETUP_PART_PARTS_MOVABLE_GROUPS_BOM : WT_SETUP_PART_PARTS_MOVABLE_GROUPS_PLI;
+
+  box = new QGroupBox(tr("Part Groups"));
+  box->setWhatsThis(lpubWT(wtType,box->title()));
   vlayout->addWidget(box);
-  QString description = "Movable part groups (part image, instance count ";
+  QString description = tr("Movable Part Groups (part image, instance count and annotation)");
   if (bom)
-    description += "annotation and element id)";
-  else
-    description += "and annotation)";
+    description = tr("Movable Part Proups (part image, instance count, annotation and element id)");
   child = new CheckBoxGui(description,&pliMeta->enablePliPartGroup,box);
   data->children.append(child);
 
-  box = new QGroupBox("Part Counts");
+  box = new QGroupBox(tr("Part Count"));
   vlayout->addWidget(box);
-  child = new NumberGui(&pliMeta->instance,box);
+  child = new NumberGui("",&pliMeta->instance,box);
   data->children.append(child);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Parts");
+  childtabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * More... Tab
+   */
 
   widget = new QWidget();
+  widget->setObjectName(tr("More..."));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PART_MORE_OPTIONS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Sort Order and Direction");
+  box = new QGroupBox(tr("Sort Order And Direction"));
   vlayout->addWidget(box);
   child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
   data->children.append(child);
 
-  box = new QGroupBox("Stud Style and Automate Edge Color");
+  box = new QGroupBox(tr("Stud Style And Automate Edge Color"));
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&pliMeta->autoEdgeColor,&pliMeta->studStyle,&pliMeta->highContrast,box);
-  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  childStudStyle->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   if ( ! bom) {
-    box = new QGroupBox("Submodels");
+    box = new QGroupBox(tr("Submodels"));
+    box->setWhatsThis(lpubWT(WT_SETUP_PART_MORE_OPTIONS_SHOW_SUBMODELS,box->title()));
     vlayout->addWidget(box);
-    child = new CheckBoxGui("Show in Parts List",&pliMeta->includeSubs,box);
+    child = new CheckBoxGui(tr("Show In Parts List"),&pliMeta->includeSubs,box);
     data->children.append(child);
   }
 
@@ -235,24 +260,34 @@ GlobalPliDialog::GlobalPliDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,tr("More..."));
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
    * PLI Annotations
    */
+
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Annotations"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PART_ANNOTATION,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  childtab    = new QTabWidget();
-  vlayout->addWidget(childtab);
-  tab->addTab(widget, "Annotations");
+  childtabwidget = new QTabWidget();
+  vlayout->addWidget(childtabwidget);
+
+  tabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Annotation Options Tab
+   */
 
   widget = new QWidget();
+  widget->setObjectName(tr("Options"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PART_ANNOTATION_OPTIONS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Annotation Options");
+  box = new QGroupBox(tr("Annotation Options"));
   vlayout->addWidget(box);
 
   childlayout = new QVBoxLayout(nullptr);
@@ -274,7 +309,7 @@ GlobalPliDialog::GlobalPliDialog(
       childlayout->addWidget(childPliPartElement);
   }
 
-  childTextFormat = new NumberGui(&pliMeta->annotate,nullptr,"Default Text Format");
+  childTextFormat = new NumberGui(tr("Default Text Format"),&pliMeta->annotate);
   childTextFormat->enableTextFormatGroup(pliMeta->annotation.display.value());
   data->children.append(childTextFormat);
   childlayout->addWidget(childTextFormat);
@@ -282,50 +317,62 @@ GlobalPliDialog::GlobalPliDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Options");
+  childtabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Edit Styles Tab
+   */
+
+  wtType = bom ? WT_SETUP_PART_ANNOTATION_STYLE_BOM : WT_SETUP_PART_ANNOTATION_STYLE_PLI;
 
   widget = new QWidget();
+  widget->setObjectName(tr("Styles"));
+  widget->setWhatsThis(lpubWT(wtType,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   //Edit PLI Annotation Style Selection
-  annotationEditStyleBox = new QGroupBox("Edit Annotation Style");
+  annotationEditStyleBox = new QGroupBox(tr("Annotation Style"));
+  annotationEditStyleBox->setWhatsThis(lpubWT(WT_GUI_PART_ANNOTATIONS_STYLES,annotationEditStyleBox->title()));
   annotationEditStyleBox->setLayout(svlayout);
   annotationEditStyleBox->setEnabled(pliMeta->annotation.display.value());
   vlayout->addWidget(annotationEditStyleBox);
 
-  QGroupBox *sbox = new QGroupBox("Select Style to Edit");
+  wtType = bom ? WT_SETUP_PART_ANNOTATION_STYLE_SELECT_BOM : WT_SETUP_PART_ANNOTATION_STYLE_SELECT_PLI;
+
+  QGroupBox *sbox = new QGroupBox(tr("Select Style To Edit"));
+  sbox->setWhatsThis(lpubWT(wtType,sbox->title()));
   svlayout->addWidget(sbox);
 
   QHBoxLayout *shlayout = new QHBoxLayout(nullptr);
   sbox->setLayout(shlayout);
 
-  noStyleButton = new QRadioButton("None",sbox);
+  noStyleButton = new QRadioButton(tr("None"),sbox);
   noStyleButton->setChecked(true);
   connect(noStyleButton,SIGNAL(clicked(bool)),
           this,   SLOT(  styleOptionChanged(bool)));
   shlayout->addWidget(noStyleButton);
 
-  squareStyleButton = new QRadioButton("Square",sbox);
+  squareStyleButton = new QRadioButton(tr("Square"),sbox);
   squareStyleButton->setChecked(false);
   connect(squareStyleButton,SIGNAL(clicked(bool)),
           this,       SLOT(  styleOptionChanged(bool)));
   shlayout->addWidget(squareStyleButton);
 
-  circleStyleButton = new QRadioButton("Circle",sbox);
+  circleStyleButton = new QRadioButton(tr("Circle"),sbox);
   circleStyleButton->setChecked(false);
   connect(circleStyleButton,SIGNAL(clicked(bool)),
           this,       SLOT(  styleOptionChanged(bool)));
   shlayout->addWidget(circleStyleButton);
 
-  rectangleStyleButton = new QRadioButton("Rectangle",sbox);
+  rectangleStyleButton = new QRadioButton(tr("Rectangle"),sbox);
   rectangleStyleButton->setChecked(false);
   connect(rectangleStyleButton,SIGNAL(clicked(bool)),
           this,          SLOT(  styleOptionChanged(bool)));
   shlayout->addWidget(rectangleStyleButton);
 
   if (bom) {
-      elementStyleButton = new QRadioButton("Element",sbox);
+      elementStyleButton = new QRadioButton(tr("Element"),sbox);
       elementStyleButton->setChecked(false);
       connect(elementStyleButton,SIGNAL(clicked(bool)),
               this,        SLOT(  styleOptionChanged(bool)));
@@ -333,135 +380,136 @@ GlobalPliDialog::GlobalPliDialog(
   }
 
   // square style settings
-  squareBkGrndStyleBox = new QGroupBox("Square Background");
+  squareBkGrndStyleBox = new QGroupBox(tr("Square Background"));
   svlayout->addWidget(squareBkGrndStyleBox);
   squareBkGrndStyleBox->hide();
   child = new BackgroundGui(&pliMeta->squareStyle.background,squareBkGrndStyleBox,false);
   data->children.append(child);
 
-  squareBorderStyleBox = new QGroupBox("Square Border");
+  squareBorderStyleBox = new QGroupBox(tr("Square Border"));
   svlayout->addWidget(squareBorderStyleBox);
   squareBorderStyleBox->hide();
   child = new BorderGui(&pliMeta->squareStyle.border,squareBorderStyleBox);
   data->children.append(child);
 
-  squareFormatStyleBox = new QGroupBox("Square Annotation Text Format");
+  squareFormatStyleBox = new QGroupBox(tr("Square Annotation Text Format"));
   svlayout->addWidget(squareFormatStyleBox);
   squareFormatStyleBox->hide();
   styleMeta = new NumberMeta();
   styleMeta->margin = pliMeta->squareStyle.margin;
   styleMeta->font   = pliMeta->squareStyle.font;
   styleMeta->color  = pliMeta->squareStyle.color;
-  child = new NumberGui(styleMeta,squareFormatStyleBox);
+  child = new NumberGui("",styleMeta,squareFormatStyleBox);
   data->children.append(child);
 
-  squareSizeStyleBox = new QGroupBox("Square Size");
+  squareSizeStyleBox = new QGroupBox(tr("Square Size"));
   svlayout->addWidget(squareSizeStyleBox);
   squareSizeStyleBox->hide();
-  child = new FloatsGui("Width","Height",&pliMeta->squareStyle.size,squareSizeStyleBox,3);
+  child = new FloatsGui(tr("Width"),tr("Height"),&pliMeta->squareStyle.size,squareSizeStyleBox,3);
   data->children.append(child);
 
   // circle style settings
-  circleBkGrndStyleBox = new QGroupBox("Circle Background");
+  circleBkGrndStyleBox = new QGroupBox(tr("Circle Background"));
   svlayout->addWidget(circleBkGrndStyleBox);
   circleBkGrndStyleBox->hide();
   child = new BackgroundGui(&pliMeta->circleStyle.background,circleBkGrndStyleBox,false);
   data->children.append(child);
 
-  circleBorderStyleBox = new QGroupBox("Circle Border");
+  circleBorderStyleBox = new QGroupBox(tr("Circle Border"));
   svlayout->addWidget(circleBorderStyleBox);
   circleBkGrndStyleBox->hide();
   child = new BorderGui(&pliMeta->circleStyle.border,circleBorderStyleBox,false,false);
   data->children.append(child);
 
-  circleFormatStyleBox = new QGroupBox("Circle Annotation Text Format");
+  circleFormatStyleBox = new QGroupBox(tr("Circle Annotation Text Format"));
   svlayout->addWidget(circleFormatStyleBox);
   circleFormatStyleBox->hide();
   styleMeta = new NumberMeta();
   styleMeta->margin = pliMeta->circleStyle.margin;
   styleMeta->font   = pliMeta->circleStyle.font;
   styleMeta->color  = pliMeta->circleStyle.color;
-  child = new NumberGui(styleMeta,circleFormatStyleBox);
+  child = new NumberGui("",styleMeta,circleFormatStyleBox);
   data->children.append(child);
 
-  circleSizeStyleBox = new QGroupBox("Circle Size");
+  circleSizeStyleBox = new QGroupBox(tr("Circle Size"));
   svlayout->addWidget(circleSizeStyleBox);
   circleSizeStyleBox->hide();
-  child = new FloatsGui("Diameter","",&pliMeta->circleStyle.size,circleSizeStyleBox,3,false/*show pair*/);
+  child = new FloatsGui(tr("Diameter"),"",&pliMeta->circleStyle.size,circleSizeStyleBox,3,false/*show pair*/);
   data->children.append(child);
 
   // rectangle style settings
-  rectangleBkGrndStyleBox = new QGroupBox("Rectangle Background");
+  rectangleBkGrndStyleBox = new QGroupBox(tr("Rectangle Background"));
   svlayout->addWidget(rectangleBkGrndStyleBox);
   rectangleBkGrndStyleBox->hide();
   child = new BackgroundGui(&pliMeta->rectangleStyle.background,rectangleBkGrndStyleBox,false);
   data->children.append(child);
 
-  rectangleBorderStyleBox = new QGroupBox("Rectangle Border");
+  rectangleBorderStyleBox = new QGroupBox(tr("Rectangle Border"));
   svlayout->addWidget(rectangleBorderStyleBox);
   rectangleBorderStyleBox->hide();
   child = new BorderGui(&pliMeta->rectangleStyle.border,rectangleBorderStyleBox);
   data->children.append(child);
 
-  rectangleFormatStyleBox = new QGroupBox("Rectangle Annotation Text Format");
+  rectangleFormatStyleBox = new QGroupBox(tr("Rectangle Annotation Text Format"));
   svlayout->addWidget(rectangleFormatStyleBox);
   rectangleFormatStyleBox->hide();
   styleMeta = new NumberMeta();
   styleMeta->margin = pliMeta->rectangleStyle.margin;
   styleMeta->font   = pliMeta->rectangleStyle.font;
   styleMeta->color  = pliMeta->rectangleStyle.color;
-  child = new NumberGui(styleMeta,rectangleFormatStyleBox);
+  child = new NumberGui("",styleMeta,rectangleFormatStyleBox);
   data->children.append(child);
 
-  rectangleSizeStyleBox = new QGroupBox("Rectangle Size");
+  rectangleSizeStyleBox = new QGroupBox(tr("Rectangle Size"));
   svlayout->addWidget(rectangleSizeStyleBox);
-  child = new FloatsGui("Width","Height",&pliMeta->rectangleStyle.size,rectangleSizeStyleBox,3);
+  child = new FloatsGui(tr("Width"),tr("Height"),&pliMeta->rectangleStyle.size,rectangleSizeStyleBox,3);
   data->children.append(child);
 
   if (bom) {
       // element style settings
-      elementBkGrndStyleBox = new QGroupBox("Element Background");
+      elementBkGrndStyleBox = new QGroupBox(tr("Element Background"));
       svlayout->addWidget(elementBkGrndStyleBox);
       elementBkGrndStyleBox->hide();
       child = new BackgroundGui(&pliMeta->elementStyle.background,elementBkGrndStyleBox,false);
       data->children.append(child);
 
-      elementBorderStyleBox = new QGroupBox("Element Border");
+      elementBorderStyleBox = new QGroupBox(tr("Element Border"));
       svlayout->addWidget(elementBorderStyleBox);
       elementBorderStyleBox->hide();
       child = new BorderGui(&pliMeta->elementStyle.border,elementBorderStyleBox);
       data->children.append(child);
 
-      elementFormatStyleBox = new QGroupBox("Element Annotation Text Format");
+      elementFormatStyleBox = new QGroupBox(tr("Element Annotation Text Format"));
       svlayout->addWidget(elementFormatStyleBox);
       elementFormatStyleBox->hide();
       styleMeta = new NumberMeta();
       styleMeta->margin = pliMeta->elementStyle.margin;
       styleMeta->font   = pliMeta->elementStyle.font;
       styleMeta->color  = pliMeta->elementStyle.color;
-      child = new NumberGui(styleMeta,elementFormatStyleBox);
+      child = new NumberGui("",styleMeta,elementFormatStyleBox);
       data->children.append(child);
 
-      elementSizeStyleBox = new QGroupBox("Element Size");
+      elementSizeStyleBox = new QGroupBox(tr("Element Size"));
       svlayout->addWidget(elementSizeStyleBox);
-      child = new FloatsGui("Width","Height",&pliMeta->elementStyle.size,elementSizeStyleBox,3);
+      child = new FloatsGui(tr("Width"),tr("Height"),&pliMeta->elementStyle.size,elementSizeStyleBox,3);
       elementSizeStyleBox->setDisabled(true);
-      elementSizeStyleBox->setToolTip("Size automatically adjusts to the size of the annotation text");
+      elementSizeStyleBox->setToolTip(tr("Size automatically adjusts to the size of the annotation text"));
       data->children.append(child);
   }
-  //Edit PLI Annotation Style Selection END
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,tr("Edit Styles"));
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
    * Submodel colors
    */
 
   widget = new QWidget();
+  widget->setObjectName(tr("Submodel Colors"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SHARED_SUBMODEL_LEVEL_COLORS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
@@ -474,7 +522,7 @@ GlobalPliDialog::GlobalPliDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Submodel Colors");
+  tabwidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox;
 

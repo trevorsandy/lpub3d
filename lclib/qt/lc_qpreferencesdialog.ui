@@ -44,7 +44,7 @@
       </spacer>
      </item>
      <item row="2" column="0" colspan="2">
-      <widget class="QGroupBox" name="renderingGroup">
+      <widget class="QGroupBox" name="ViewPointAndProjectionGroup">
        <property name="title">
         <string>ViewPoint and Projection</string>
        </property>
@@ -215,7 +215,7 @@
       </widget>
      </item>
      <item row="7" column="0" colspan="2">
-      <widget class="QGroupBox" name="groupBox_7">
+      <widget class="QGroupBox" name="CameraGroup">
        <property name="title">
         <string>Camera Defaults</string>
        </property>
@@ -402,7 +402,7 @@
       </widget>
      </item>
      <item row="0" column="0" colspan="2">
-      <widget class="QWidget" name="widget" native="true">
+      <widget class="QWidget" name="RenderingWidget" native="true">
        <layout class="QGridLayout" name="gridLayout">
         <item row="1" column="1">
          <widget class="QSlider" name="LineWidthSlider">
@@ -704,23 +704,23 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="tab_2">
+   <widget class="QWidget" name="tabViews">
     <attribute name="title">
      <string>Views</string>
     </attribute>
     <layout class="QVBoxLayout" name="verticalLayout_14">
      <item>
-      <widget class="QTabWidget" name="tabWidget_2">
+      <widget class="QTabWidget" name="tabWidgetViews">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
-       <widget class="QWidget" name="tab_3">
+       <widget class="QWidget" name="tabUserInterface">
         <attribute name="title">
          <string>Interface, Base Grid, View Sphere, Preview</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QGroupBox" name="groupBox_10">
+          <widget class="QGroupBox" name="InterfaceGroup">
            <property name="title">
             <string>Interface</string>
            </property>
@@ -780,7 +780,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_4">
+          <widget class="QGroupBox" name="BaseGridGroup">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -963,7 +963,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="PreviewGroup">
+          <widget class="QGroupBox" name="PartPreviewGroup">
            <property name="title">
             <string>Part Preview</string>
            </property>
@@ -1146,7 +1146,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab">
+       <widget class="QWidget" name="tabColors">
         <attribute name="title">
          <string>Colors</string>
         </attribute>
@@ -1175,7 +1175,7 @@
           </spacer>
          </item>
          <item row="0" column="0" colspan="4">
-          <widget class="QGroupBox" name="groupBox_9">
+          <widget class="QGroupBox" name="BackgroundColorGroup">
            <property name="title">
             <string>Background</string>
            </property>
@@ -1267,7 +1267,7 @@
           </widget>
          </item>
          <item row="4" column="0" colspan="2">
-          <widget class="QGroupBox" name="groupBox_11">
+          <widget class="QGroupBox" name="BaseGridColorGroup">
            <property name="title">
             <string>Base  Grid</string>
            </property>
@@ -1457,7 +1457,7 @@
           </spacer>
          </item>
          <item row="2" column="0" colspan="4">
-          <widget class="QGroupBox" name="groupBox_8">
+          <widget class="QGroupBox" name="InterfaceColorGroup">
            <property name="title">
             <string>Interface</string>
            </property>
@@ -1577,7 +1577,7 @@
           </widget>
          </item>
          <item row="1" column="0" colspan="4">
-          <widget class="QGroupBox" name="groupBox_13">
+          <widget class="QGroupBox" name="ObjectsColorGroup">
            <property name="title">
             <string>Objects</string>
            </property>
@@ -1724,7 +1724,7 @@
     </attribute>
     <layout class="QVBoxLayout" name="verticalLayout_13">
      <item>
-      <widget class="QGroupBox" name="groupBox_6">
+      <widget class="QGroupBox" name="CustomPathsGroup">
        <property name="title">
         <string>Custom Paths</string>
        </property>
@@ -1972,108 +1972,113 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_10">
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Default Author Name:</string>
-         </property>
-         <property name="buddy">
-          <cstring>authorName</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="authorName"/>
-       </item>
-      </layout>
+      <widget class="QWidget" name="AuthorWidget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Default Author Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="authorName"/>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_17">
-       <item>
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Mouse Sensitivity:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="mouseSensitivity">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>20</number>
-         </property>
-         <property name="pageStep">
-          <number>5</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QWidget" name="MouseWidget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_17">
+        <item>
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>Mouse Sensitivity:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="mouseSensitivity">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>20</number>
+          </property>
+          <property name="pageStep">
+           <number>5</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QRadioButton" name="viewPieceIconsRadio">
-         <property name="text">
-          <string>Show Timeline Piece Icons</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="viewColorIconsRadio">
-         <property name="text">
-          <string>Show Timeline Color Icons</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QWidget" name="TimelineWidget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QRadioButton" name="viewPieceIconsRadio">
+          <property name="text">
+           <string>Show Timeline Piece Icons</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="viewColorIconsRadio">
+          <property name="text">
+           <string>Show Timeline Color Icons</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
-      <layout class="QGridLayout" name="gridLayout_11">
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="fixedDirectionKeys">
-         <property name="text">
-          <string>Fixed Direction Keys</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="RestoreTabLayout">
-         <property name="text">
-          <string>Restore Tab Layout</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="autoLoadMostRecent">
-         <property name="text">
-          <string>Open Most Recent File On Startup</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="PromptRedrawLPubPage">
-         <property name="text">
-          <string>Prompt On Redraw LPub Document Page</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="PreferOfficialParts">
-         <property name="toolTip">
-          <string>Prefer official part when part is also present in the unofficial library </string>
-         </property>
-         <property name="text">
-          <string>Prefer Official Parts</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QWidget" name="SettingsWidget" native="true">
+       <layout class="QGridLayout" name="gridLayout_11">
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="fixedDirectionKeys">
+          <property name="text">
+           <string>Fixed Direction Keys</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="RestoreTabLayout">
+          <property name="text">
+           <string>Restore Tab Layout</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="autoLoadMostRecent">
+          <property name="text">
+           <string>Open Most Recent File On Startup</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="PromptRedrawLPubPage">
+          <property name="text">
+           <string>Prompt On Redraw LPub Document Page</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="PreferOfficialParts">
+          <property name="toolTip">
+           <string>Prefer official part when part is also present in the unofficial library </string>
+          </property>
+          <property name="text">
+           <string>Prefer Official Parts</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
       <spacer name="verticalSpacer_2">
@@ -2096,7 +2101,7 @@
     </attribute>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QGroupBox" name="groupBox_3">
+      <widget class="QGroupBox" name="CategoryGroup">
        <property name="title">
         <string>Parts Library Categories</string>
        </property>
@@ -2220,7 +2225,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="QGroupBox" name="CategoryEditGroup">
        <property name="title">
         <string>Category</string>
        </property>
@@ -2274,7 +2279,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="KeyboardShortcutsTableGroup">
            <property name="title">
             <string>Keyboard Shortcuts</string>
            </property>
@@ -2407,7 +2412,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QGroupBox" name="groupBox_5">
+        <widget class="QGroupBox" name="MouseShortcutsTableGroup">
          <property name="title">
           <string>Mouse Shortcuts</string>
          </property>
@@ -2626,7 +2631,7 @@
   <tabstop>cameraDefaultPosition</tabstop>
   <tabstop>resetDefaultPosition</tabstop>
   <tabstop>cameraDistanceFactor</tabstop>
-  <tabstop>tabWidget_2</tabstop>
+  <tabstop>tabWidgetViews</tabstop>
   <tabstop>AxisIconCheckBox</tabstop>
   <tabstop>AxisIconLocationCombo</tabstop>
   <tabstop>gridStuds</tabstop>

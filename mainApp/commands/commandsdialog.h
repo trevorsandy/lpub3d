@@ -56,7 +56,7 @@ private:
   void writeSettings();
   QPalette readOnlyPalette;
 
-  QTabWidget  *tab;
+  QTabWidget  *tabWidget;
 
   FilterLineEdit        *commandFilterEdit;
   CommandsTableModel    *commandsTableModel;

@@ -74,7 +74,7 @@ public:
     QString         title,
     QWidget        *parent = nullptr);
 
-  static QString relativeToName(int relativeTo);
+  static QString placementTypeName(int placementType);
 
 private slots:
 

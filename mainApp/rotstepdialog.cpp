@@ -30,6 +30,8 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
+#include "commonmenus.h"
 #include "metagui.h"
 
 RotStepDialog::RotStepDialog(
@@ -37,6 +39,8 @@ RotStepDialog::RotStepDialog(
   QString     _name)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_ROT_STEP,windowTitle()));
 
   meta.setValue(goods);
   QVBoxLayout *layout = new QVBoxLayout(this);

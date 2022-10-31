@@ -1992,51 +1992,6 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
 /*********************************************
  *
- * Default camera settings
- *
- *********************************************/
-
-float Gui::getDefaultCameraFoV()
-{
-    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
-            gApplication ? lcGetPreferences().mCFoV : CAMERA_FOV_NATIVE_DEFAULT :
-            Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-            CAMERA_FOV_LDVIEW_P_DEFAULT :
-            CAMERA_FOV_DEFAULT);
-}
-
-float Gui::getDefaultFOVMinRange()
-{
-    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
-            CAMERA_FOV_NATIVE_MIN_DEFAULT :
-            CAMERA_FOV_MIN_DEFAULT);
-}
-
-float Gui::getDefaultFOVMaxRange()
-{
-    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
-            CAMERA_FOV_NATIVE_MAX_DEFAULT :
-            Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-            CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
-            CAMERA_FOV_MAX_DEFAULT);
-}
-
-float Gui::getDefaultNativeCameraZNear()
-{
-    if (gApplication)
-        return lcGetPreferences().mCNear;
-    return CAMERA_ZNEAR_NATIVE_DEFAULT;
-}
-
-float Gui::getDefaultNativeCameraZFar()
-{
-    if (gApplication)
-        return lcGetPreferences().mCFar;
-    return CAMERA_ZFAR_NATIVE_DEFAULT;
-}
-
-/*********************************************
- *
  * RotStep Meta
  *
  ********************************************/
@@ -3986,4 +3941,101 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
     Preferences::ldrawFilesLoadMsgs = saveLoadMessageFlag;
 
     return true;
+}
+
+/*********************************************
+ *
+ * Default camera settings
+ *
+ *********************************************/
+
+float MetaDefaults::getCameraFOV()
+{
+    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+            gApplication ? lcGetPreferences().mCFoV : CAMERA_FOV_NATIVE_DEFAULT :
+            Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+            CAMERA_FOV_LDVIEW_P_DEFAULT :
+            CAMERA_FOV_DEFAULT);
+}
+
+float MetaDefaults::getFOVMinRange()
+{
+    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+            CAMERA_FOV_NATIVE_MIN_DEFAULT :
+            CAMERA_FOV_MIN_DEFAULT);
+}
+
+float MetaDefaults::getFOVMaxRange()
+{
+    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+            CAMERA_FOV_NATIVE_MAX_DEFAULT :
+            Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+            CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
+            CAMERA_FOV_MAX_DEFAULT);
+}
+
+float MetaDefaults::getNativeCameraZNear()
+{
+    if (gApplication)
+        return lcGetPreferences().mCNear;
+    return CAMERA_ZNEAR_NATIVE_DEFAULT;
+}
+
+float MetaDefaults::getNativeCameraZFar()
+{
+    if (gApplication)
+        return lcGetPreferences().mCFar;
+    return CAMERA_ZFAR_NATIVE_DEFAULT;
+}
+
+QString MetaDefaults::getPreferredRenderer()
+{
+    switch (Preferences::preferredRenderer)
+    {
+        case 0:
+            return QStringLiteral("Native");
+        case 1:
+            return QStringLiteral("LDView");
+        case 2:
+            return QStringLiteral("LDGLite");
+        case 3:
+            return QStringLiteral("POVRay");
+    }
+
+    return QStringLiteral("Undefined");
+}
+
+QString MetaDefaults::getPreferredUnits()
+{
+    return Preferences::preferCentimeters ? QObject::tr("dots per centimetre (DPCM) unit") : QObject::tr("dots per inch (DPI) unit");
+}
+
+float MetaDefaults::getAssemblyCameraLongitude()
+{
+    return Preferences::assemblyCameraLongitude;
+}
+
+float MetaDefaults::getAssemblyCameraLatitude()
+{
+    return Preferences::assemblyCameraLatitude;
+}
+
+float MetaDefaults::getPartCameraLongitude()
+{
+    return Preferences::partCameraLongitude;
+}
+
+float MetaDefaults::getPartCameraLatitude()
+{
+    return Preferences::partCameraLatitude;
+}
+
+float MetaDefaults::getSubmodelCameraLongitude()
+{
+    return Preferences::submodelCameraLongitude;
+}
+
+float MetaDefaults::getSubmodelCameraLatitude()
+{
+    return Preferences::submodelCameraLatitude;
 }

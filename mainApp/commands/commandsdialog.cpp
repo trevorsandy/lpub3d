@@ -48,6 +48,7 @@
 #include "version.h"
 #include "meta.h"
 #include "lpub_object.h"
+#include "commonmenus.h"
 
 #include <jsonfile.h>
 #include <commands/jsoncommandtranslatorfactory.h>
@@ -66,11 +67,13 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
 {
   setWindowTitle(tr ("%1 Commands").arg(VER_PRODUCTNAME_STR));
 
+  setWhatsThis(lpubWT(WT_COMMANDS, windowTitle()));
+
   QVBoxLayout *layout = new QVBoxLayout();
   setLayout(layout);
 
-  tab = new QTabWidget(this);
-  layout->addWidget(tab);
+  tabWidget = new QTabWidget(this);
+  layout->addWidget(tabWidget);
   
   QWidget     *widget;
   QGridLayout *widgetLayout;
@@ -82,10 +85,12 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(140));
 
   /*
-   * Commands tab
+   * Commands Tab
    */
 
   widget  = new QWidget(this);
+  widget->setObjectName(tr("Commands"));
+  widget->setWhatsThis(lpubWT(WT_COMMANDS_VIEW,widget->objectName()));
   widgetLayout = new QGridLayout(widget);
   widget->setLayout(widgetLayout);
 
@@ -131,6 +136,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   }
   commandTextEdit->setParent(widget);
   commandTextEdit->setToolTip(tr("Update the command description adding details and examples you find useful."));
+  commandTextEdit->setWhatsThis(lpubWT(WT_COMMANDS_EDIT, tr("LPub Commands")));
   commandTextEdit->setReadOnly(true);
   commandTextEdit->setPalette(readOnlyPalette);
   widgetLayout->addWidget(commandTextEdit,2,0);
@@ -150,13 +156,15 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   connect(resetCommandButton,  &QPushButton::clicked,
           this,                &CommandsDialog::resetCommandButtonClicked);
 
-  tab->addTab(widget, tr("Commands"));
+  tabWidget->addTab(widget,widget->objectName());
 
   /*
-   * Snippet tab
+   * Snippet Tab
    */
 
   widget  = new QWidget(this);
+  widget->setObjectName(tr("Snippets"));
+  widget->setWhatsThis(lpubWT(WT_SNIPPETS_VIEW,widget->objectName()));
   widgetLayout = new QGridLayout(widget);
   widget->setLayout(widgetLayout);
 
@@ -202,6 +210,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   }
   snippetTextEdit->setToolTip(tr("Create shortcuts that trigger LPub command insert or autocomplete.<br>"
                                  "Place the '$|' marker where the cursor will be after the command is inserted."));
+  snippetTextEdit->setWhatsThis(lpubWT(WT_SNIPPETS_EDIT, tr("LPub Command Snippets")));
   snippetTextEdit->setReadOnly(true);
   snippetTextEdit->setPalette(readOnlyPalette);
   widgetLayout->addWidget(snippetTextEdit,2,0);
@@ -220,7 +229,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   connect(removeSnippetButton, &QPushButton::clicked,
           this,                &CommandsDialog::removeSnippetButtonClicked);
 
-  tab->addTab(widget, tr("Snippets"));
+  tabWidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
 
@@ -566,7 +575,7 @@ void CommandsDialog::writeSettings()
     Settings.beginGroup(COMMANDSWINDOW);
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("Size", size());
-    Settings.setValue("CurrentTab", tab->currentIndex());
+    Settings.setValue("CurrentTab", tabWidget->currentIndex());
     Settings.setValue("SnippetHeader", snippetTableView->horizontalHeader()->saveState());
     Settings.endGroup();
 }
@@ -578,7 +587,7 @@ void CommandsDialog::readSettings()
     restoreGeometry(Settings.value("Geometry").toByteArray());
     QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
     resize(size);
-    tab->setCurrentIndex(Settings.value("CurrentTab").toInt());
+    tabWidget->setCurrentIndex(Settings.value("CurrentTab").toInt());
     snippetTableView->horizontalHeader()->restoreState(Settings.value("SnippetHeader").toByteArray());
     Settings.endGroup();
 }

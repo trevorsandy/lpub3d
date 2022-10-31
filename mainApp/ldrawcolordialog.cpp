@@ -25,6 +25,7 @@
 
 #include "ldrawcolordialog.h"
 #include "ui_ldrawcolordialog.h"
+#include "commonmenus.h"
 #include "lc_global.h"
 #include "lc_qcolorlist.h"
 #include "lc_colors.h"
@@ -39,6 +40,8 @@ LDrawColorDialog::LDrawColorDialog(
      ui->setupUi(this);
 
      setWindowTitle("LDraw Color Selector");
+
+     setWhatsThis(lpubWT(WT_DIALOG_LDRAW_COLOR,windowTitle()));
 
      QGridLayout* ColorLayout = new QGridLayout(ui->colorFrame);
      ColorLayout->setContentsMargins(0, 0, 0, 0);

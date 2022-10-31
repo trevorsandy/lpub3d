@@ -27,16 +27,15 @@
 #include "metagui.h"
 #include "metaitem.h"
 
+
 #include "lpub_preferences.h"
 #include "step.h"
-
 
 /**********************************************************************
  *
  * FadeStep
  *
  *********************************************************************/
-
 
 class GlobalFadeStepPrivate
 {
@@ -71,62 +70,44 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
   LPubMeta *lpubMeta = &data->meta.LPub;
 
-  setWindowTitle(tr("Fade Step Globals Setup"));
+  setWindowTitle(tr("Fade Steps Globals Setup"));
 
-  QGridLayout   *grid;
-  QGridLayout   *boxGrid;
-  QGroupBox     *box;
+  setWhatsThis(lpubWT(WT_SETUP_FADE_STEPS,windowTitle()));
 
-  grid = new QGridLayout();
-  setLayout(grid);
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  setLayout(layout);
 
-  box = new QGroupBox("Fade Previous Steps");
-  grid->addWidget(box,0,0);
-
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-
-  fadeStepChild = new FadeStepGui(fadeStepMeta);
+  QGroupBox *box = new QGroupBox(tr("Fade Previous Steps"));
+  layout->addWidget(box);
+  fadeStepChild = new FadeStepGui(fadeStepMeta,box);
+  fadeStepChild->setToolTip(tr("Enable fade previous steps"));
   data->children.append(fadeStepChild);
   connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  boxGrid->addWidget(fadeStepChild,0,0);
 
-  box = new QGroupBox("Fade Previous Steps Setup");
-  grid->addWidget(box,1,0);
-
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-
-  fadeStepSetupChild = new CheckBoxGui("Setup Fade Previous Steps",&fadeStepMeta->setup);
+  box = new QGroupBox(tr("Fade Previous Steps Setup"));
+  box->setWhatsThis(lpubWT(WT_SETUP_FADE_STEPS_SETUP,box->title()));
+  layout->addWidget(box);
+  fadeStepSetupChild = new CheckBoxGui(tr("Setup Fade Previous Steps"),&fadeStepMeta->setup,box);
   fadeStepSetupChild->setToolTip(tr("Setup fade steps. Check to enable fade previous steps locally."));
   data->children.append(fadeStepSetupChild);
   connect (fadeStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  boxGrid->addWidget(fadeStepSetupChild,0,0);
 
   box = new QGroupBox("Final Model Step");
-  grid->addWidget(box,2,0);
-
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-  box->setToolTip("Automatically, append an un-faded final step to the top level model file.");
-
-  finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
+  layout->addWidget(box);
+  finalModelEnabledChild = new FinalModelEnabledGui(tr("Enable Final Model Step"),&lpubMeta->finalModelEnabled,box);
+  finalModelEnabledChild->setToolTip(tr("Automatically, append an un-faded final step to the top level model file."));
   data->children.append(finalModelEnabledChild);
   connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  boxGrid->addWidget(finalModelEnabledChild,0,0);
 
   emit fadeStepChild->getCheckBox()->clicked(fadeStepChild->getCheckBox()->isChecked());
 
-  QDialogButtonBox *buttonBox;
-
-  buttonBox = new QDialogButtonBox();
+  QDialogButtonBox *buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
-
-  grid->addWidget(buttonBox);
+  layout->addWidget(buttonBox);
 
   setModal(true);
   setMinimumSize(40,20);

@@ -26,6 +26,7 @@
 #include <QDialogButtonBox>
 
 #include "rotateiconsizedialog.h"
+#include "commonmenus.h"
 #include "metagui.h"
 
 RotateIconSizeDialog::RotateIconSizeDialog(
@@ -35,6 +36,8 @@ RotateIconSizeDialog::RotateIconSizeDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_ROTATE_ICON_SIZE,windowTitle()));
 
   meta.setValue(0,goods[0]);
   meta.setValue(1,goods[1]);

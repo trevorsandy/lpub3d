@@ -29,7 +29,9 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
 #include "metagui.h"
+#include "commonmenus.h"
 
 DividerDialog::DividerDialog(
   SepData &goods,
@@ -38,6 +40,8 @@ DividerDialog::DividerDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_DIVIDER,windowTitle()));
 
   meta.setValue(goods);
   QVBoxLayout *layout = new QVBoxLayout(this);

@@ -273,7 +273,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="pageProcessingContinuousBox">
+       <widget class="QGroupBox" name="pageProcessingContinuousGrpBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -378,7 +378,7 @@
      <zorder>groupBoxMixedPageSizes</zorder>
      <zorder>doNotShowPageProcessDlgChk</zorder>
      <zorder></zorder>
-     <zorder>pageProcessingContinuousBox</zorder>
+     <zorder>pageProcessingContinuousGrpBox</zorder>
      <zorder>gropuBoxLDVExport</zorder>
      <zorder>groupBoxPixelRatio</zorder>
     </widget>

@@ -30,6 +30,7 @@
 #include "findreplace.h"
 #include "lpub_object.h"
 #include "historylineedit.h"
+#include "commonmenus.h"
  
  FindReplace::FindReplace(QPlainTextEdit *textEdit,
     const QString &selectedText,
@@ -37,7 +38,10 @@
     : QDialog(parent)
 {
     setWindowIcon(QIcon(":/resources/LPub32.png"));
+
     setWindowTitle("LDraw File Editor Find");
+
+    setWhatsThis(lpubWT(WT_DIALOG_FIND_REPLACE,windowTitle()));
 
     completer = new QCompleter(this);
     completer->setModel(metaCommandModel(completer));

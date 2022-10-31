@@ -24,6 +24,7 @@
 #include "qsimpleupdater.h"
 #include "texteditdialog.h"
 #include "preferencesdialog.h"
+#include "commonmenus.h"
 
 #include "lc_qpreferencesdialog.h"
 #include "lc_application.h"
@@ -85,7 +86,7 @@ void LPub::loadDialogs()
 
 void LPub::loadPreferencesDialog()
 {
-  emit messageSig(LOG_INFO_STATUS,tr("Loading preferences dialogue for main application and visual editor."));
+  emit messageSig(LOG_INFO_STATUS,tr("Loading preferences dialogs..."));
   preferencesDialog = new PreferencesDialog(gui);
   visualEditorPreferencesDialog = new lcQPreferencesDialog(nullptr);
 }

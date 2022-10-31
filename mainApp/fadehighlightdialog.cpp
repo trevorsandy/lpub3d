@@ -29,6 +29,7 @@
 #include <QDialogButtonBox>
 
 #include "fadehighlightdialog.h"
+#include "commonmenus.h"
 #include "metagui.h"
 
 FadeHighlightDialog::FadeHighlightDialog(
@@ -40,6 +41,8 @@ FadeHighlightDialog::FadeHighlightDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_FADE_HIGHLIGHT,windowTitle()));
 
   useMeta = _useMeta;
 

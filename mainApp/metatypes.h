@@ -814,6 +814,30 @@ public:
   }
 };
 
+/*********************************************
+ *
+ * Default camera settings
+ *
+ *********************************************/
+
+class MetaDefaults
+{
+public:
+  static float getCameraFOV();
+  static float getFOVMinRange();
+  static float getFOVMaxRange();
+  static float getNativeCameraZNear();
+  static float getNativeCameraZFar();
+  static float getAssemblyCameraLongitude();
+  static float getAssemblyCameraLatitude();
+  static float getPartCameraLongitude();
+  static float getPartCameraLatitude();
+  static float getSubmodelCameraLongitude();
+  static float getSubmodelCameraLatitude();
+  static QString getPreferredRenderer();
+  static QString getPreferredUnits();
+};
+
 // testing and diagnostics only
 const QString RectNames[NumSpots] =
  {                                //  placement dialogue codes:

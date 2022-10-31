@@ -141,7 +141,7 @@ public:
     bool            pliPerStep = false,
     QWidget        *parent = nullptr);
 
-  static QString relativeToName(int relativeTo);
+  static QString placementTypeName(int placementType);
 
 private slots:
   void topLeftO();

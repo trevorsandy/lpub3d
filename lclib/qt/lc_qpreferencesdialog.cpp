@@ -29,6 +29,19 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 {
 	ui->setupUi(this);
 
+/*** LPub3D Mod - Common menus help ***/
+	setWhatsThis(lpubWT(WT_PREFERENCES, tr("Visual Editor Preferences")));
+
+	ui->tabCategories->setWhatsThis(lpubWT(WT_VISUAL_PREFS_CATEGORIES, tr("Categories")));
+	ui->tabColors->setWhatsThis(lpubWT(WT_VISUAL_PREFS_COLORS, tr("Colors")));
+	ui->tabGeneral->setWhatsThis(lpubWT(WT_VISUAL_PREFS_GENERAL, tr("General")));
+	ui->tabKeyboard->setWhatsThis(lpubWT(WT_VISUAL_PREFS_KEYBOARD, tr("Keyboard Shortcuts")));
+	ui->tabMouse->setWhatsThis(lpubWT(WT_VISUAL_PREFS_MOUSE, tr("Mouse Shortcuts")));
+	ui->tabRendering->setWhatsThis(lpubWT(WT_VISUAL_PREFS_RENDERING, tr("Rendering")));
+	ui->tabUserInterface->setWhatsThis(lpubWT(WT_VISUAL_PREFS_USER_INTERFACE, tr("Interface, Base Grid, View Sphere, Preview")));
+	ui->tabViews->setWhatsThis(lpubWT(WT_VISUAL_PREFS_VIEWS, tr("Views")));
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
 /***
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
@@ -354,7 +367,7 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 		readOnlyPalette.setColor(QPalette::Base,QColor("#3E3E3E")); // THEME_DARK_PALETTE_MIDLIGHT
 	else
 		readOnlyPalette.setColor(QPalette::Base,QColor("#AEADAC")); // THEME_DEFAULT_PALETTE_LIGHT
-	readOnlyPalette.setColor(QPalette::Text,QColor("#808080"));     // LPUB3D_DISABLED_TEXT_COLOUR
+	readOnlyPalette.setColor(QPalette::Text,QColor("#808080"));		// LPUB3D_DISABLED_TEXT_COLOUR
 
 	ui->defaultCameraProperties->setChecked(mOptions->Preferences.mDefaultCameraProperties);
 	ui->cameraDefaultDistanceFactor->setValue(qreal(mOptions->Preferences.mDDF));

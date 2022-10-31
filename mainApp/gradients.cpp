@@ -49,6 +49,7 @@
 #include "gradients.h"
 #include "hoverpoints.h"
 #include "version.h"
+#include "commonmenus.h"
 
 extern QPixmap cached(const QString &img);
 
@@ -56,6 +57,8 @@ GradientDialog::GradientDialog(QSize bgSize,QGradient *bgGradient, QDialog *pare
     : QDialog(parent)
 {
     setWindowTitle(tr("Gradients"));
+
+    setWhatsThis(lpubWT(WT_DIALOG_GRADIENT,windowTitle()));
 
     QGroupBox *displayGroup = new QGroupBox(this);
     displayGroup->setTitle("Display");

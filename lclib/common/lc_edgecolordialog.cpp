@@ -1,5 +1,8 @@
 #include "lc_edgecolordialog.h"
 #include "lc_application.h"
+/*** LPub3D Mod - WhatThis help ***/
+#include "commonMenus.h"
+/*** LPub3D Mod - ***/
 
 lcAutomateEdgeColorDialog::lcAutomateEdgeColorDialog(QWidget* Parent, bool ShowHighContrastDialog)
 	:QDialog(Parent)
@@ -13,6 +16,15 @@ lcAutomateEdgeColorDialog::lcAutomateEdgeColorDialog(QWidget* Parent, bool ShowH
 	mPartColorValueLDIndex = Preferences.mPartColorValueLDIndex;
 
 	setWindowTitle(tr("Color Preferences"));
+
+/*** LPub3D Mod - WhatThis help ***/
+	if (ShowHighContrastDialog) {
+		setWhatsThis(lpubWT(WT_GUI_HIGH_CONTRAST_COLOR_SETTINGS, windowTitle()));
+	} else {
+		setWhatsThis(lpubWT(WT_GUI_AUTOMATE_EDGE_COLOR_SETTINGS, windowTitle()));
+	}
+/*** LPub3D Mod - ***/
+
 	QVBoxLayout* MainLayout = new  QVBoxLayout(this);
 
 	QGroupBox* EdgeSettingsBox = new QGroupBox(tr("Edge Colors"), this);

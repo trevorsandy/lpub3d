@@ -26,6 +26,7 @@
 #include <QDialogButtonBox>
 
 #include "pagesizedialog.h"
+#include "commonmenus.h"
 #include "metagui.h"
 
 PageSizeDialog::PageSizeDialog(
@@ -35,6 +36,8 @@ PageSizeDialog::PageSizeDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_PAGE_SIZE,windowTitle()));
 
   meta.setValue(0,goods[0]);
   meta.setValue(1,goods[1]);

@@ -62,6 +62,7 @@
 #include "lpub_preferences.h"
 #include "resolution.h"
 #include "render.h"
+#include "commonmenus.h"
 
 #include "lc_colors.h"
 #include "lc_qcolorpicker.h"
@@ -86,8 +87,10 @@ CheckBoxGui::CheckBoxGui(
 
   if (parent) {
     parent->setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_CHECK_BOX, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_CHECK_BOX, heading.isEmpty() ? tr("Enable") : heading));
   }
 
   check = new QCheckBox(heading,parent);
@@ -134,7 +137,13 @@ BoolRadioGui::BoolRadioGui(
 
   QVBoxLayout *layout = new QVBoxLayout(parent);
 
-  parent->setLayout(layout);
+  if (parent) {
+      parent->setLayout(layout);
+      setWhatsThis(lpubWT(WT_GUI_BOOL_RADIO_BUTTON, parent->title()));
+  } else {
+      setLayout(layout);
+      setWhatsThis(lpubWT(WT_GUI_BOOL_RADIO_BUTTON, tr("Option")));
+  }
 
   trueRadio = new QRadioButton(trueHeading,parent);
   connect(trueRadio,SIGNAL(clicked(bool)),
@@ -180,16 +189,21 @@ void BoolRadioGui::apply(QString &modelName)
 UnitsGui::UnitsGui(
   QString const &heading,
   UnitsMeta     *_meta,
-  QGroupBox     *parent)
+  QGroupBox     *parent,
+  bool           isMargin)
 {
   meta = _meta;
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
+  WT_Type wtType = isMargin ? WT_GUI_UNITS_MARGIN : WT_GUI_UNITS;
+
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(wtType, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(wtType, heading.isEmpty() ? isMargin ? tr("Margins") : tr("Units") : heading));
   }
 
   bool secondLabel = false;
@@ -285,8 +299,12 @@ FloatsGui::FloatsGui(
 
   if (parent) {
     parent->setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_FLOATS, parent->title()));
   } else {
     setLayout(layout);
+    bool noHeading = heading0.isEmpty() && heading1.isEmpty();
+    const QString title = QString("%1 / %2").arg(heading0, heading1);
+    setWhatsThis(lpubWT(WT_GUI_FLOATS, noHeading ? tr("X / Y") : title));
   }
 
   if (heading0 == "") {
@@ -402,8 +420,10 @@ SpinGui::SpinGui(
 
   if (parent) {
     parent->setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_SPIN, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_SPIN, heading.isEmpty() ? tr("Integer Number") : heading));
   }
 
   if (heading == "") {
@@ -466,8 +486,10 @@ DoubleSpinGui::DoubleSpinGui(
 
   if (parent) {
     parent->setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_DOUBLE_SPIN, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_DOUBLE_SPIN, heading.isEmpty() ? tr("Decimal Number") : heading));
   }
 
   if (heading == "") {
@@ -532,8 +554,10 @@ ConstrainGui::ConstrainGui(
 
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_CONSTRAIN, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_CONSTRAIN, heading.isEmpty() ? tr("Constrain") : heading));
   }
 
   if (heading != "") {
@@ -658,9 +682,9 @@ void ConstrainGui::apply(QString &modelName)
  **********************************************************************/
 
 NumberGui::NumberGui(
+  QString    title,
   NumberMeta *_meta,
-  QGroupBox  *parent,
-  QString     title)
+  QGroupBox  *parent)
 {
   meta   = _meta;
 
@@ -668,7 +692,9 @@ NumberGui::NumberGui(
 
   if (parent) {
       parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_NUMBER, parent->title()));
   } else {
+      setWhatsThis(lpubWT(WT_GUI_NUMBER, title.isEmpty() ? tr("Number") : title));
       if (!title.isEmpty()) {
           QGridLayout *gridLayout = new QGridLayout(nullptr);
           setLayout(gridLayout);
@@ -818,10 +844,13 @@ StudStyleGui::StudStyleGui(
 
   QGridLayout* gridLayout = new QGridLayout(parent);
 
-  if (parent)
+  if (parent) {
       parent->setLayout(gridLayout);
-  else
+      parent->setWhatsThis(lpubWT(WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR, parent->title()));
+  } else {
       setLayout(gridLayout);
+      setWhatsThis(lpubWT(WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR, tr("Stud Style And Automate Edge Color")));
+  }
 
   checkbox = new QCheckBox(parent);
   checkbox->setText(tr("Automate edge colors"));
@@ -848,12 +877,12 @@ StudStyleGui::StudStyleGui(
   studStyleButton->setEnabled(combo->currentIndex() > 5);
   studStyleButton->setText(tr("Settings..."));
 
-  gridLayout->addWidget(checkbox, 0, 0,1, 2);
-  gridLayout->addWidget(autoEdgeButton, 0, 2);
+  gridLayout->addWidget(label, 0, 0);
+  gridLayout->addWidget(combo, 0, 1);
+  gridLayout->addWidget(studStyleButton, 0, 2);
 
-  gridLayout->addWidget(label, 1, 0);
-  gridLayout->addWidget(combo, 1, 1);
-  gridLayout->addWidget(studStyleButton, 1, 2);
+  gridLayout->addWidget(checkbox, 1, 0,1, 2);
+  gridLayout->addWidget(autoEdgeButton, 1, 2);
 
   connect(checkbox,SIGNAL(toggled(bool)),
           this, SLOT  (checkBoxChanged(bool)));
@@ -1052,7 +1081,6 @@ PageAttributeTextGui::PageAttributeTextGui(
   QGridLayout   *gLayout;
   QHBoxLayout   *hLayout;
 
-
   meta = _meta;
 
   selection = 0;
@@ -1060,7 +1088,11 @@ PageAttributeTextGui::PageAttributeTextGui(
   grid = new QGridLayout(parent);
 
   if (parent) {
-    parent->setLayout(grid);
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_PAGE_ATTRIBUTE_TEXT, parent->title()));
+  } else {
+      setWhatsThis(lpubWT(WT_GUI_PAGE_ATTRIBUTE_TEXT, tr("Text Attribute")));
+      setLayout(grid);
   }
 
   int attributeType;
@@ -1104,8 +1136,11 @@ PageAttributeTextGui::PageAttributeTextGui(
   connect(sectionCombo,SIGNAL(currentIndexChanged(int)),SIGNAL(indexChanged(int)));
   connect(this,SIGNAL(indexChanged(int)),this,SLOT(newIndex(int)));
 
-  //Placement
-  gbPlacement = new QGroupBox("Placement",parent);
+  // Page Text Placement
+  gbPlacement = new QGroupBox(tr("%1 Placement").arg(pageAttributeName[meta->type]),parent);
+  PlacementData placementData = meta->placement.value();
+  const QString placementButtonText = tr("Change %1 Placement").arg(pageAttributeName[meta->type]);
+  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(meta->type,placementData,placementButtonText));
   gLayout = new QGridLayout();
   gbPlacement->setLayout(gLayout);
   grid->addWidget(gbPlacement,0,2);
@@ -1172,86 +1207,25 @@ PageAttributeTextGui::PageAttributeTextGui(
   grid->addWidget(gbContentEdit,4,0,1,3);
 
   content = meta->content.value();
-  contentEdit = new QLineEdit(content,parent);
 
-  connect(contentEdit,SIGNAL(textChanged(QString const &)),
-        this,  SLOT(  editChanged(QString const &)));
-  hLayout->addWidget(contentEdit);
+  if (meta->type == PagePlugType       ||
+      meta->type == PageDisclaimerType ||
+      meta->type == PageModelDescType  ||
+      meta->type == PagePublishDescType) {
+      contentTextEdit = new QTextEdit(content,parent);
 
-  //Description Dialogue
-  gbDescDialog = new QGroupBox("Description Dialogue Content",parent);
-  gbDescDialog->hide();
-  QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
-  gbDescDialog->setLayout(vLayout);
-  grid->addWidget(gbDescDialog,4,0,1,3);
+      connect(contentTextEdit,SIGNAL(textChanged()),
+            this,             SLOT(textEditChanged()));
 
-  editDesc = new QTextEdit(parent);
+      hLayout->addWidget(contentTextEdit);
 
-  vLayout->addWidget(editDesc);
+  } else {
+      contentLineEdit = new QLineEdit(content,parent);
 
-  //spacer
-  QSpacerItem *vSpacer;
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  vLayout->addSpacerItem(vSpacer);
+      connect(contentLineEdit,SIGNAL(textChanged(QString const &)),
+            this,             SLOT(lineEditChanged(QString const &)));
 
-  connect(editDesc,SIGNAL(textChanged()),
-          this,  SLOT(  editDescChanged()));
-
-  if (meta->type == PageModelDescType) {
-      gbDescDialog->show();
-      gbContentEdit->hide();
-      string = QString("%1").arg(meta->content.value());
-      editDesc->setText(string);
-  }
-
-  //Disclaimer Dialogue
-  gbDiscDialog = new QGroupBox("Disclaimer Dialogue Content",parent);
-  gbDiscDialog->hide();
-  vLayout = new QVBoxLayout(nullptr);
-  gbDiscDialog->setLayout(vLayout);
-  grid->addWidget(gbDiscDialog,4,0,1,3);
-
-  editDisc = new QTextEdit(parent);
-
-  vLayout->addWidget(editDisc);
-
-  //spacer
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  vLayout->addSpacerItem(vSpacer);
-
-  connect(editDisc,SIGNAL(textChanged()),
-          this,  SLOT(  editDiscChanged()));
-
-  if (meta->type == PageDisclaimerType) {
-      gbDiscDialog->show();
-      gbContentEdit->hide();
-      string = QString("%1").arg(meta->content.value());
-      editDisc->setText(string);
-  }
-
-  //Plug Dialogue
-  gbPlugDialog = new QGroupBox("LPub3D Plug Content",parent);
-  gbPlugDialog->hide();
-  vLayout = new QVBoxLayout(nullptr);
-  gbPlugDialog->setLayout(vLayout);
-  grid->addWidget(gbPlugDialog,4,0,1,3);
-
-  editPlug = new QTextEdit(parent);
-
-  vLayout->addWidget(editPlug);
-
-  //spacer
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  vLayout->addSpacerItem(vSpacer);
-
-  connect(editPlug,SIGNAL(textChanged()),
-          this,  SLOT(  editPlugChanged()));
-
-  if (meta->type == PagePlugType) {
-      gbPlugDialog->show();
-      gbContentEdit->hide();
-      string = QString("%1").arg(meta->content.value());
-      editPlug->setText(string);
+      hLayout->addWidget(contentLineEdit);
   }
 
   fontModified      = false;
@@ -1307,34 +1281,16 @@ void PageAttributeTextGui::value1Changed(QString const &string)
   modified = marginsModified = true;
 }
 
-void PageAttributeTextGui::editDescChanged()
+void PageAttributeTextGui::textEditChanged()
 {
-  QStringList  text = editDesc->toPlainText().split("\n");
+  QStringList  text = contentTextEdit->toPlainText().split("\n");
   if (meta->content.value() != text.join("\\n")) {
     meta->content.setValue(text.join("\\n"));
     modified = editModified = true;
   }
 }
 
-void PageAttributeTextGui::editDiscChanged()
-{
-  QStringList  text = editDisc->toPlainText().split("\n");
-  if (meta->content.value() != text.join("\\n")) {
-    meta->content.setValue(text.join("\\n"));
-    modified = editModified = true;
-  }
-}
-
-void PageAttributeTextGui::editPlugChanged()
-{
-  QStringList  text = editPlug->toPlainText().split("\n");
-  if (meta->content.value() != text.join("\\n")) {
-    meta->content.setValue(text.join("\\n"));
-    modified = editModified = true;
-  }
-}
-
-void PageAttributeTextGui::editChanged(const QString &value)
+void PageAttributeTextGui::lineEditChanged(const QString &value)
 {
   QStringList  text = value.split("\n");
   if (meta->content.value() != text.join("\\n")) {
@@ -1411,6 +1367,10 @@ void PageAttributeTextGui::apply(
 
   if (parent) {
       parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_PAGE_ATTRIBUTE_IMAGE, parent->title()));
+  } else {
+      setWhatsThis(lpubWT(WT_GUI_PAGE_ATTRIBUTE_IMAGE, tr("Image")));
+      setLayout(grid);
   }
 
   int attributeType;
@@ -1453,8 +1413,11 @@ void PageAttributeTextGui::apply(
   connect(sectionCombo,SIGNAL(currentIndexChanged(int)),SIGNAL(indexChanged(int)));
   connect(this,SIGNAL(indexChanged(int)),this,SLOT(selectionChanged(int)));
 
-  //Placement
-  gbPlacement = new QGroupBox("Placement",parent);
+  // PLI Annotation Placement
+  gbPlacement = new QGroupBox(tr("%1 Placement").arg(pageAttributeName[meta->type]),parent);
+  PlacementData placementData = meta->placement.value();
+  const QString placementButtonText = tr("Change %1 Placement").arg(pageAttributeName[meta->type]);
+  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(meta->type,placementData,placementButtonText));
   gLayout = new QGridLayout();
   gbPlacement->setLayout(gLayout);
   grid->addWidget(gbPlacement,0,2);
@@ -1518,7 +1481,7 @@ void PageAttributeTextGui::apply(
   connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
 
   // fill
-  gbFill = new QGroupBox("Image Fill Mode", parent);
+  gbFill = new QGroupBox("Image Fill", parent);
   hLayout = new QHBoxLayout();
   gbFill->setLayout(hLayout);
   grid->addWidget(gbFill,4,0,1,3);
@@ -1691,8 +1654,14 @@ HeaderFooterHeightGui::HeaderFooterHeightGui(
 
   if (parent) {
     parent->setLayout(layout);
+    bool isHeader = parent->title().contains(QString("Header"), Qt::CaseInsensitive);
+    WT_Type wtType = isHeader ? WT_GUI_HEADER_HEIGHT : WT_GUI_FOOTER_HEIGHT;
+    parent->setWhatsThis(lpubWT(wtType, parent->title()));
   } else {
     setLayout(layout);
+    bool isHeader = heading.isEmpty() ? true : heading.contains(QString("Header"), Qt::CaseInsensitive);
+    WT_Type wtType = isHeader ? WT_GUI_HEADER_HEIGHT : WT_GUI_FOOTER_HEIGHT;
+    setWhatsThis(lpubWT(wtType, heading.isEmpty() ? tr("Header Height") : heading));
   }
 
   if (heading != "") {
@@ -1758,9 +1727,15 @@ FadeStepGui::FadeStepGui(
 {
   meta = _meta;
 
-  QGridLayout *grid;
+  QGridLayout *grid = new QGridLayout(parent);
 
-  grid = new QGridLayout(parent);
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_FADE_PREVIOUS_STEPS, parent->title()));
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_FADE_PREVIOUS_STEPS, tr("Fade Previous Steps")));
+  }
 
   // enable fade step row
 
@@ -1799,7 +1774,7 @@ FadeStepGui::FadeStepGui(
 
   // use color row
 
-  useColorCheck = new QCheckBox(tr("Use fade color"), parent);
+  useColorCheck = new QCheckBox(tr("Use Fade Color"), parent);
   useColorCheck->setToolTip(tr("Use specified fade color (versus part colour"));
   useColorCheck->setChecked(meta->color.value().useColor);
 
@@ -1810,7 +1785,7 @@ FadeStepGui::FadeStepGui(
 
   // fade opacity row
 
-  QLabel *fadeOpacityLabel = new QLabel(tr("Fade opacity"));
+  QLabel *fadeOpacityLabel = new QLabel(tr("Fade Opacity"));
   grid->addWidget(fadeOpacityLabel,3,0);
 
   fadeOpacitySlider = new QSlider(Qt::Horizontal, parent);
@@ -1824,12 +1799,6 @@ FadeStepGui::FadeStepGui(
                          this,SLOT(valueChanged(int)));
 
   grid->addWidget(fadeOpacitySlider,3,1);
-
-  if (parent) {
-    parent->setLayout(grid);
-  } else {
-    setLayout(grid);
-  }
 
   emit fadeCheck->stateChanged(fadeCheck->isChecked());
 
@@ -1916,9 +1885,15 @@ HighlightStepGui::HighlightStepGui(
 {
   meta = _meta;
 
-  QGridLayout *grid;
+  QGridLayout *grid = new QGridLayout(parent);
 
-  grid = new QGridLayout(parent);
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_HIGHLIGHT_CURRENT_STEP, parent->title()));
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_HIGHLIGHT_CURRENT_STEP, tr("Highlight Current Step")));
+  }
 
   // enable highlight row
 
@@ -2037,7 +2012,7 @@ void HighlightStepGui::apply(
 
 /***********************************************************************
  *
- * JustifyStep
+ * Justify Step
  *
  **********************************************************************/
 
@@ -2054,10 +2029,12 @@ JustifyStepGui::JustifyStepGui(
   QGridLayout *grid = new QGridLayout();
 
   if (parent) {
-      parent->setLayout(grid);
-    } else {
-      setLayout(grid);
-    }
+    parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_STEP_JUSTIFICATION, parent->title()));
+  } else {
+    setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_STEP_JUSTIFICATION, _label.isEmpty() ? tr("Step Justification") : _label));
+  }
 
   QLabel    *label;
   label = new QLabel(_label, parent);
@@ -2135,9 +2112,11 @@ RotStepGui::RotStepGui(
 
   if (parent) {
       parent->setLayout(grid);
-    } else {
+      parent->setWhatsThis(lpubWT(WT_GUI_STEP_ROTATION, parent->title()));
+  } else {
       setLayout(grid);
-    }
+      setWhatsThis(lpubWT(WT_GUI_STEP_ROTATION, tr("Step Rotation")));
+  }
 
   QLabel    *rotStepLabel;
   rotStepLabel = new QLabel(tr("Rotation"), parent);
@@ -2258,8 +2237,10 @@ ContStepNumGui::ContStepNumGui(
 
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_CONTINUOUS_STEP_NUMBERS, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_CONTINUOUS_STEP_NUMBERS, heading.isEmpty() ? tr("Continuous Step Numbers") : heading));
   }
 
   check = new QCheckBox(heading,parent);
@@ -2306,13 +2287,15 @@ CountInstanceGui::CountInstanceGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_CONSOLIDATE_SUBMODEL_INSTANCE_COUNT, parent->title()));
   } else {
     setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_CONSOLIDATE_SUBMODEL_INSTANCE_COUNT, tr("Submodel Instances")));
   }
 
   countCheck = new QCheckBox(tr("Consolidate Submodel Instances"), parent);
   countCheck->setChecked(meta->value());
-  countCheck->setToolTip(tr("Consolidate submodel instances on first occurrence"));
+  countCheck->setToolTip(tr("Consolidate submodel instance count on first occurrence"));
   connect(countCheck,SIGNAL(clicked(bool)),
           this,        SLOT(valueChanged(bool)));
 
@@ -2336,7 +2319,7 @@ CountInstanceGui::CountInstanceGui(
 
   stepRadio    = new QRadioButton(tr("At Step"),parent);
   stepRadio->setChecked(meta->value() == CountAtStep);
-  stepRadio->setToolTip(tr("Consolidate instances and display count at step page of first occurrence in the current step."));
+  stepRadio->setToolTip(tr("Consolidate instances and display count at step page of first occurrence in the respective step."));
   connect(stepRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
@@ -2396,8 +2379,10 @@ BuildModEnabledGui::BuildModEnabledGui(
 
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_BUILD_MODIFICATIONS, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_BUILD_MODIFICATIONS, heading.isEmpty() ? tr("Build Modifications") : heading));
   }
 
   check = new QCheckBox(heading,parent);
@@ -2455,8 +2440,10 @@ FinalModelEnabledGui::FinalModelEnabledGui(
 
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_FINAL_FADE_HIGHLIGHT_MODEL_STEP, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_FINAL_FADE_HIGHLIGHT_MODEL_STEP, heading.isEmpty() ? tr("Final Model Step") : heading));
   }
 
   check = new QCheckBox(heading,parent);
@@ -2513,8 +2500,10 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
 
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_MODEL_VIEW_ON_COVER_PAGE, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_MODEL_VIEW_ON_COVER_PAGE, heading.isEmpty() ? tr("Cover Page Viewer Display") : heading));
   }
 
   check = new QCheckBox(heading,parent);
@@ -2570,8 +2559,10 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
 
   if (parent) {
     parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_LOAD_UNOFFICIAL_PART_IN_EDITOR, parent->title()));
   } else {
     setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_LOAD_UNOFFICIAL_PART_IN_EDITOR, heading.isEmpty() ? tr("Unofficial Parts In Editor") : heading));
   }
 
   check = new QCheckBox(heading,parent);
@@ -2629,8 +2620,22 @@ BackgroundGui::BackgroundGui(
 
   BackgroundData background = meta->value();
 
+  QDialog *parentDialog = nullptr;
+
+  grid = new QGridLayout(parent);
+
+  WT_Type wtType = pictureSettings ? WT_GUI_BACKGROUND : WT_GUI_BACKGROUND_NO_IMAGE;
+
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(wtType, parent->title()));
+      parentDialog = dynamic_cast<QDialog*>(parent->parent());
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(wtType, tr("Background")));
+  }
+
   bool rotateIcon = false;
-  QDialog *parentDialog = dynamic_cast<QDialog*>(parent->parent());
   if (parentDialog) {
       //logDebug() << "Grandparent Window TITLE " + parentDialog->windowTitle();
       rotateIcon = parentDialog->windowTitle().contains("Rotate Icon");
@@ -2651,9 +2656,6 @@ BackgroundGui::BackgroundGui(
   } else {
       color = background.string;
   }
-
-  grid = new QGridLayout(parent);
-  parent->setLayout(grid);
 
   combo = new QComboBox(parent);
   combo->addItem("None (transparent)");         // 0
@@ -2713,19 +2715,19 @@ BackgroundGui::BackgroundGui(
           this,         SLOT(  browseImage(bool)));
   grid->addWidget(pictureButton,1,1);
 
-  /* Fill */
+  /* Image Fill */
 
-  fill = new QGroupBox("Fill",parent);
+  fill = new QGroupBox("Image Fill",parent);
 
   layout = new QHBoxLayout();
   fill->setLayout(layout);
   grid->addWidget(fill,2,0,1,3);
 
-  stretchRadio = new QRadioButton("Stretch Picture",fill);
+  stretchRadio = new QRadioButton("Stretch Image",fill);
   connect(stretchRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  stretch(bool)));
   layout->addWidget(stretchRadio);
-  tileRadio    = new QRadioButton("Tile Picture",fill);
+  tileRadio    = new QRadioButton("Tile Image",fill);
   connect(tileRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  tile(bool)));
   layout->addWidget(tileRadio);
@@ -3022,7 +3024,14 @@ BorderGui::BorderGui(
   QGridLayout   *grid;
 
   grid = new QGridLayout(parent);
-  parent->setLayout(grid);
+
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_BORDER, parent->title()));
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_BORDER, tr("Border")));
+  }
 
   /* Arrows CheckBox */
   chkBoxHideArrowsText = border.hideTip ? "Rotate Icon arrows hidden" : "Hide Rotate Icon arrows";
@@ -3313,8 +3322,9 @@ void BorderGui::apply(QString &modelName)
  **********************************************************************/
 
 PlacementGui::PlacementGui(
-        PlacementMeta *_meta,
         QString        _title,
+        PlacementMeta *_meta,
+        PlacementType  _type,
         QGroupBox     *parent)
 {
     meta = _meta;
@@ -3322,17 +3332,23 @@ PlacementGui::PlacementGui(
 
     QHBoxLayout *hlayout = new QHBoxLayout(parent);
 
+    PlacementData placementData = _meta->value();
+    const QString placementName = PlacementDialog::placementTypeName(_type);
+    const QString placementButtonText = tr("Change %1 Placement").arg(placementName);
+
     if (parent) {
         parent->setLayout(hlayout);
+        parent->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_type,placementData,placementButtonText));
     } else {
         setLayout(hlayout);
+        setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_type,placementData,placementButtonText));
     }
 
-    placementLabel = new QLabel("Default placement",parent);
-        hlayout->addWidget(placementLabel);
+    placementLabel = new QLabel(tr("%1 placement").arg(placementName),parent);
+    hlayout->addWidget(placementLabel);
 
-    placementButton = new QPushButton("Change " + title,parent);
-    placementButton->setToolTip("Set default placement");
+    placementButton = new QPushButton(placementButtonText,parent);
+    placementButton->setToolTip(tr("Set default %1 placement").arg(placementName));
     hlayout->addWidget(placementButton);
     connect(placementButton,SIGNAL(clicked(   bool)),
             this,           SLOT(  placementChanged(bool)));
@@ -3385,7 +3401,17 @@ void PlacementGui::apply(QString &topLevelFile)
   QLabel        *label;
 
   grid = new QGridLayout(parent);
-  parent->setLayout(grid);
+
+  const bool isBorder = meta->value().attribType == PointerAttribData::Border;
+  WT_Type wtType = isBorder ? WT_GUI_POINTER_BORDER : isLine ? WT_GUI_POINTER_LINE : WT_GUI_POINTER_TIP;
+
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(wtType, parent->title()));
+  } else {
+      setWhatsThis(lpubWT(wtType, isBorder ? tr("Border") : isLine ? tr("Line") : tr("Tip")));
+      setLayout(grid);
+  }
 
   /*  Attributes */
 
@@ -3630,21 +3656,25 @@ SepGui::SepGui(
   meta = _meta;
 
   QGridLayout *grid = new QGridLayout(parent);
-  parent->setLayout(grid);
 
-  QLabel      *label;
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_SEPARATOR, parent->title()));
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_SEPARATOR, tr("Divider")));
+  }
+
   QLineEdit   *lineEdit;
   QPushButton *button;
   QComboBox   *typeCombo;
 
-  label = new QLabel("Width",parent);
-  grid->addWidget(label,0,0);
-
-  QString string;
-
   SepData sep = meta->value();
 
-  string = QString("%1") .arg(sep.thickness,
+  QLabel *label = new QLabel("Width",parent);
+  grid->addWidget(label,0,0);
+
+  QString string = QString("%1") .arg(sep.thickness,
                               5,'f',4);
   lineEdit = new QLineEdit(string,parent);
   connect(lineEdit,SIGNAL(textEdited(QString const &)),
@@ -3793,6 +3823,14 @@ ResolutionGui::ResolutionGui(
 
   QGridLayout *grid = new QGridLayout(parent);
 
+  if (parent) {
+    parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_DOCUMENT_RESOLUTION, parent->title()));
+  } else {
+    setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_DOCUMENT_RESOLUTION, tr("Dot Resolution")));
+  }
+
   QLabel    *label;
 
   label = new QLabel("Units",parent);
@@ -3824,6 +3862,8 @@ ResolutionGui::ResolutionGui(
   connect(valueEdit,SIGNAL(textEdited( QString const &)),
           this,     SLOT(  valueChange(QString const &)));
   grid->addWidget(valueEdit,0,2);
+
+  grid->setColumnStretch(0,3);
 
   if (parent) {
     parent->setLayout(grid);
@@ -3900,9 +3940,11 @@ PreferredRendererGui::PreferredRendererGui(
   QHBoxLayout *hLayout = new QHBoxLayout();
 
   if (parent) {
-    parent->setLayout(grid);
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_PREFERRED_RENDERER, parent->title()));
   } else {
-    setLayout(grid);
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_PREFERRED_RENDERER, tr("Preferred Renderer")));
   }
 
   meta = _meta;
@@ -3933,7 +3975,7 @@ PreferredRendererGui::PreferredRendererGui(
   grid->addWidget(ldvSingleCallBox,0,1);
 
   ldvSnapshotListBox = new QCheckBox("Use LDView Snapshot List",parent);
-  ldvSnapshotListBox->setToolTip("Capture Single Call images in a single list file");
+  ldvSnapshotListBox->setToolTip("Capture Single Call ldraw image-generation files in a single list file");
   ldvSnapshotListBox->setChecked(meta->value().useLDVSnapShotList);
   ldvSnapshotListBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW && meta->value().useLDVSingleCall);
 
@@ -4035,8 +4077,10 @@ ShowSubModelGui::ShowSubModelGui(
 
     if (parent) {
         parent->setLayout(grid);
+        parent->setWhatsThis(lpubWT(WT_GUI_SUBMODEL_PREVIEW_DISPLAY, parent->title()));
     } else {
         setLayout(grid);
+        setWhatsThis(lpubWT(WT_GUI_SUBMODEL_PREVIEW_DISPLAY, tr("Preview Display")));
     }
 
     showSubmodelsBox = new QCheckBox("Show submodel at first step",parent);
@@ -4048,12 +4092,12 @@ ShowSubModelGui::ShowSubModelGui(
 
     QSettings Settings;
     showSubmodelsDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
-    showSubmodelsDefaultBox = new QCheckBox("Set as preferences default",parent);
+    showSubmodelsDefaultBox = new QCheckBox("Set In Preferences",parent);
     showSubmodelsDefaultBox->setToolTip("Save show submodel to application settings.");
     showSubmodelsDefaultBox->setChecked(showSubmodelsDefaultSettings);
     grid->addWidget(showSubmodelsDefaultBox,1,0);
 
-    showSubmodelsMetaBox = new QCheckBox("Add meta command",parent);
+    showSubmodelsMetaBox = new QCheckBox("Add LPub Meta Command",parent);
     showSubmodelsMetaBox->setToolTip("Add show submodel as a global meta command to the LDraw file.");
     showSubmodelsMetaBox->setChecked(!showSubmodelsDefaultSettings);
     grid->addWidget(showSubmodelsMetaBox,1,1);
@@ -4070,12 +4114,12 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showTopModelBox,3,0,1,2);
 
     showTopModelDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
-    showTopModelDefaultBox = new QCheckBox("Set as preferences default",parent);
+    showTopModelDefaultBox = new QCheckBox("Set In Preferences",parent);
     showTopModelDefaultBox->setToolTip("Save show top model to application settings.");
     showTopModelDefaultBox->setChecked(showTopModelDefaultSettings);
     grid->addWidget(showTopModelDefaultBox,4,0);
 
-    showTopModelMetaBox = new QCheckBox("Add meta command",parent);
+    showTopModelMetaBox = new QCheckBox("Add LPub Meta Command",parent);
     showTopModelMetaBox->setToolTip("Add show top model  as a global meta command to the LDraw file.");
     showTopModelMetaBox->setChecked(!showTopModelDefaultSettings);
     grid->addWidget(showTopModelMetaBox,4,1);
@@ -4092,12 +4136,12 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showSubmodelInCalloutBox,6,0,1,2);
 
     showSubmodelInCalloutDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
-    showSubmodelInCalloutDefaultBox = new QCheckBox("Set as preferences default",parent);
+    showSubmodelInCalloutDefaultBox = new QCheckBox("Set In Preferences",parent);
     showSubmodelInCalloutDefaultBox->setToolTip("Save show submodel in callout to application settings.");
     showSubmodelInCalloutDefaultBox->setChecked(showSubmodelInCalloutDefaultSettings);
     grid->addWidget(showSubmodelInCalloutDefaultBox,7,0);
 
-    showSubmodelInCalloutMetaBox = new QCheckBox("Add meta command",parent);
+    showSubmodelInCalloutMetaBox = new QCheckBox("Add LPub Meta Command",parent);
     showSubmodelInCalloutMetaBox->setToolTip("Add show submodel in callout as a global meta command to the LDraw file.");
     showSubmodelInCalloutMetaBox->setChecked(!showSubmodelInCalloutDefaultSettings);
     grid->addWidget(showSubmodelInCalloutMetaBox,7,1);
@@ -4116,12 +4160,12 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showInstanceCountBox,9,0,1,2);
 
     showInstanceCountDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
-    showInstanceCountDefaultBox = new QCheckBox("Set as preferences default",parent);
+    showInstanceCountDefaultBox = new QCheckBox("Set In Preferences",parent);
     showInstanceCountDefaultBox->setToolTip("Save show submodel instance count to application settings.");
     showInstanceCountDefaultBox->setChecked(showInstanceCountDefaultSettings);
     grid->addWidget(showInstanceCountDefaultBox,10,0);
 
-    showInstanceCountMetaBox = new QCheckBox("Add meta command",parent);
+    showInstanceCountMetaBox = new QCheckBox("Add LPub Meta Command",parent);
     showInstanceCountMetaBox->setToolTip("Add show submodel instance count as a global meta command to the LDraw file.");
     showInstanceCountMetaBox->setChecked(!showInstanceCountDefaultSettings);
     grid->addWidget(showInstanceCountMetaBox,10,1);
@@ -4130,11 +4174,14 @@ ShowSubModelGui::ShowSubModelGui(
     line->setFrameShape(QFrame::HLine);
     grid->addWidget(line,11,0,1,2);
 
-    QLabel *placementLabel = new QLabel("Default placement",parent);
+    const QString placementName = PlacementDialog::placementTypeName(SubModelType);
+    QLabel *placementLabel = new QLabel(tr("%1 Placement").arg(placementName),parent);
     grid->addWidget(placementLabel,12,0);
 
-    placementButton = new QPushButton("Change Placement",parent);
-    placementButton->setToolTip("Set Submodel default placement");
+    placementButton = new QPushButton(tr("Change %1 Placement").arg(placementName),parent);
+    PlacementData placementData = meta->placement.value();
+    placementButton->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(SubModelType,placementData,placementButton->text()));
+    placementButton->setToolTip(tr("Set Submodel default placement").arg(placementName));
     connect(placementButton,SIGNAL(clicked(   bool)),
             this,           SLOT(  placementChanged(bool)));
     grid->addWidget(placementButton,12,1);
@@ -4321,6 +4368,10 @@ PliSortGui::PliSortGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_PART_SORT, parent->title()));
+  } else {
+    setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_PART_SORT, heading.isEmpty() ? tr("Pli Sort") : heading));
   }
 
   if (heading != "") {
@@ -4392,6 +4443,10 @@ PliSortOrderGui::PliSortOrderGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_PART_SORT_ORDER, parent->title()));
+  } else {
+    setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_PART_SORT_ORDER, heading.isEmpty() ? tr("Sort Order and Direction") : heading));
   }
 
   if (heading != "") {
@@ -4711,6 +4766,13 @@ PliPartElementGui::PliPartElementGui(
   } else {
       setLayout(vLayout);
   }
+  if (parent) {
+    parent->setLayout(vLayout);
+    parent->setWhatsThis(lpubWT(WT_GUI_PART_ELEMENTS_BOM, parent->title()));
+  } else {
+    setLayout(vLayout);
+    setWhatsThis(lpubWT(WT_GUI_PART_ELEMENTS_BOM, heading.isEmpty() ? tr("Part Elements") : heading));
+  }
 
   if (heading != "") {
       headingLabel = new QLabel(heading,parent);
@@ -4839,27 +4901,36 @@ PliAnnotationGui::PliAnnotationGui(
       setLayout(grid);
   }
 
-  if (heading != "") {
-      headingLabel = new QLabel(heading,parent);
-      grid->addWidget(headingLabel);
-    } else {
-      headingLabel = nullptr;
-    }
+  if (parent) {
+    parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_PART_ANNOTATION_OPTIONS, parent->title()));
+  } else {
+    setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_PART_ANNOTATION_OPTIONS, heading.isEmpty() ? tr("Annotation Options") : heading));
+  }
 
-  //PLIAnnotation
-  gbPLIAnnotation = new QGroupBox(tr("Display %1 Annotation").arg(bom ? "Bill Of Materials (BOM)" : "Part List (PLI)" ),parent);
-  gbPLIAnnotation->setCheckable(true);
-  gbPLIAnnotation->setChecked(meta->display.value());
-  gbPLIAnnotation->setLayout(hLayout);
-  grid->addWidget(gbPLIAnnotation,0,0);
-  connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
+  if (heading != "") {
+    headingLabel = new QLabel(heading,parent);
+    grid->addWidget(headingLabel);
+  } else {
+    headingLabel = nullptr;
+  }
+
+  //PLI Annotation Source
+  gbPLIAnnotationSource = new QGroupBox(tr("Display %1 Annotation From Source").arg(bom ? "Bill Of Materials (BOM)" : "Part List (PLI)" ),parent);
+  gbPLIAnnotationSource->setWhatsThis(lpubWT(WT_GUI_PART_ANNOTATIONS_SOURCE, gbPLIAnnotationSource->title()));
+  gbPLIAnnotationSource->setCheckable(true);
+  gbPLIAnnotationSource->setChecked(meta->display.value());
+  gbPLIAnnotationSource->setLayout(hLayout);
+  grid->addWidget(gbPLIAnnotationSource,0,0);
+  connect(gbPLIAnnotationSource,SIGNAL(toggled(bool)),
           this,           SIGNAL(toggled(bool)));
-  connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
+  connect(gbPLIAnnotationSource,SIGNAL(toggled(bool)),
           this,           SLOT(  gbToggled(bool)));
 
   bool titleAndFreeForm = meta->titleAndFreeformAnnotation.value();
 
-  titleAnnotationCheck = new QCheckBox("Title",gbPLIAnnotation);
+  titleAnnotationCheck = new QCheckBox("Title",gbPLIAnnotationSource);
   titleAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->titleAnnotation.value());
   titleAnnotationCheck->setToolTip("Extended background style shape annotations - user configurable");
   connect(titleAnnotationCheck,SIGNAL(clicked(bool)),
@@ -4870,7 +4941,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,                 SLOT(  enableExtendedStyle()));
   hLayout->addWidget(titleAnnotationCheck);
 
-  freeformAnnotationCheck = new QCheckBox("Free Form",gbPLIAnnotation);
+  freeformAnnotationCheck = new QCheckBox("Free Form",gbPLIAnnotationSource);
   freeformAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->freeformAnnotation.value());
   freeformAnnotationCheck->setToolTip("Extended background style shape annotations - user configurable");
   connect(freeformAnnotationCheck,SIGNAL(clicked(bool)),
@@ -4881,7 +4952,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,                    SLOT(  enableExtendedStyle()));
   hLayout->addWidget(freeformAnnotationCheck);
 
-  fixedAnnotationsCheck = new QCheckBox("Fixed",gbPLIAnnotation);
+  fixedAnnotationsCheck = new QCheckBox("Fixed",gbPLIAnnotationSource);
   fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
   fixedAnnotationsCheck->setToolTip("Fixed background style shape annotations - axle, beam, cable, connector, hose and panel.");
   connect(fixedAnnotationsCheck,SIGNAL(clicked(bool)),
@@ -4892,18 +4963,21 @@ PliAnnotationGui::PliAnnotationGui(
 
   bool styleEnabled = meta->enableStyle.value();
 
-  // PLI Annotation Style Options
-  gbPLIAnnotationStyle = new QGroupBox("Enable Annotation Style",parent);
+  WT_Type wtType = bom ? WT_GUI_PART_ANNOTATIONS_TYPE_BOM : WT_GUI_PART_ANNOTATIONS_TYPE_PLI;
+
+  // PLI Annotation Display Options
+  gbPLIAnnotationType = new QGroupBox("Display Annotation Type",parent);
+  gbPLIAnnotationType->setWhatsThis(lpubWT(wtType, gbPLIAnnotationType->title()));
   QGridLayout *sgrid = new QGridLayout();
-  gbPLIAnnotationStyle->setLayout(sgrid);
-  grid->addWidget(gbPLIAnnotationStyle,1,0);
-  gbPLIAnnotationStyle->setCheckable(true);
-  gbPLIAnnotationStyle->setChecked(styleEnabled);
-  gbPLIAnnotationStyle->setEnabled(meta->display.value());
-  connect(gbPLIAnnotationStyle,SIGNAL(toggled(bool)),
+  gbPLIAnnotationType->setLayout(sgrid);
+  grid->addWidget(gbPLIAnnotationType,1,0);
+  gbPLIAnnotationType->setCheckable(true);
+  gbPLIAnnotationType->setChecked(styleEnabled);
+  gbPLIAnnotationType->setEnabled(meta->display.value());
+  connect(gbPLIAnnotationType,SIGNAL(toggled(bool)),
           this,                SLOT(gbStyleToggled(bool)));
 
-  axleStyleCheck = new QCheckBox("Axles",gbPLIAnnotationStyle);
+  axleStyleCheck = new QCheckBox("Axles",gbPLIAnnotationType);
   axleStyleCheck->setChecked(meta->axleStyle.value());
   axleStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   axleStyleCheck->setToolTip("Fixed Axle annotation on circle background");
@@ -4911,7 +4985,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,          SLOT(  axleStyle(bool)));
   sgrid->addWidget(axleStyleCheck,0,0);
 
-  beamStyleCheck = new QCheckBox("Beams",gbPLIAnnotationStyle);
+  beamStyleCheck = new QCheckBox("Beams",gbPLIAnnotationType);
   beamStyleCheck->setChecked(meta->beamStyle.value());
   beamStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   beamStyleCheck->setToolTip("Fixed Beam annotation on square background");
@@ -4919,7 +4993,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,          SLOT(  beamStyle(bool)));
   sgrid->addWidget(beamStyleCheck,0,1);
 
-  cableStyleCheck = new QCheckBox("Cables",gbPLIAnnotationStyle);
+  cableStyleCheck = new QCheckBox("Cables",gbPLIAnnotationType);
   cableStyleCheck->setChecked(meta->cableStyle.value());
   cableStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   cableStyleCheck->setToolTip("Fixed Cable annotation on square background");
@@ -4927,7 +5001,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,           SLOT(  cableStyle(bool)));
   sgrid->addWidget(cableStyleCheck,0,2);
 
-  connectorStyleCheck = new QCheckBox("Connectors",gbPLIAnnotationStyle);
+  connectorStyleCheck = new QCheckBox("Connectors",gbPLIAnnotationType);
   connectorStyleCheck->setChecked(meta->connectorStyle.value());
   connectorStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   connectorStyleCheck->setToolTip("Fixed Connector annotation on square background");
@@ -4935,7 +5009,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,               SLOT(  connectorStyle(bool)));
   sgrid->addWidget(connectorStyleCheck,0,3);
 
-  elementStyleCheck = new QCheckBox("Elements",gbPLIAnnotationStyle);
+  elementStyleCheck = new QCheckBox("Elements",gbPLIAnnotationType);
   elementStyleCheck->setChecked(meta->elementStyle.value());
   elementStyleCheck->setToolTip("Fixed Part Element ID annotation on rectanglular background");
   elementStyleCheck->setVisible(bom);
@@ -4943,7 +5017,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,              SLOT(  elementStyle(bool)));
   sgrid->addWidget(elementStyleCheck,1,0);
 
-  hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationStyle);
+  hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationType);
   hoseStyleCheck->setChecked(meta->hoseStyle.value());
   hoseStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   hoseStyleCheck->setToolTip("Fixed Hose annotation on square background");
@@ -4951,7 +5025,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,          SLOT(  hoseStyle(bool)));
   sgrid->addWidget(hoseStyleCheck,1,bom ? 1 : 0);
 
-  panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationStyle);
+  panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationType);
   panelStyleCheck->setChecked(meta->panelStyle.value());
   panelStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   panelStyleCheck->setToolTip("Fixed Panel annotation on circle background");
@@ -4959,7 +5033,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,           SLOT(  panelStyle(bool)));
   sgrid->addWidget(panelStyleCheck,1,bom ? 2 : 1);
 
-  extendedStyleCheck = new QCheckBox("Extended",gbPLIAnnotationStyle);
+  extendedStyleCheck = new QCheckBox("Extended",gbPLIAnnotationType);
   extendedStyleCheck->setChecked(meta->extendedStyle.value());
   extendedStyleCheck->setToolTip("Title or Freeform annotation on rectanglular background");
   connect(extendedStyleCheck,SIGNAL(clicked(bool)),
@@ -5043,7 +5117,7 @@ void PliAnnotationGui::enableAnnotations()
     {
         enabled = false;
     }
-    gbPLIAnnotation->setChecked(enabled);
+    gbPLIAnnotationSource->setChecked(enabled);
     if (meta->display.value() != enabled)
     {
         meta->display.setValue(enabled);
@@ -5131,7 +5205,7 @@ void PliAnnotationGui::gbToggled(bool checked)
         fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
     }
 
-    gbPLIAnnotationStyle->setEnabled(checked);
+    gbPLIAnnotationType->setEnabled(checked);
 
     if (saveModified != meta->display.value())
         modified = displayModified = true;
@@ -5253,16 +5327,17 @@ CsiAnnotationGui::CsiAnnotationGui(
     }
 
   // CSI Annotation Display Options
-  gbCSIAnnotationDisplay = new QGroupBox("Display Assembly (CSI) Part Annotation",parent);
-  gbCSIAnnotationDisplay->setCheckable(true);
-  gbCSIAnnotationDisplay->setChecked(meta->display.value());
+  gbCSIAnnotationType = new QGroupBox("Display Assembly (CSI) Part Annotation",parent);
+  gbCSIAnnotationType->setWhatsThis(lpubWT(WT_GUI_ASSEM_ANNOTATION_TYPE, gbCSIAnnotationType->title()));
+  gbCSIAnnotationType->setCheckable(true);
+  gbCSIAnnotationType->setChecked(meta->display.value());
   QGridLayout *sgrid = new QGridLayout();
-  gbCSIAnnotationDisplay->setLayout(sgrid);
-  grid->addWidget(gbCSIAnnotationDisplay);
-  connect(gbCSIAnnotationDisplay,SIGNAL(toggled(bool)),
+  gbCSIAnnotationType->setLayout(sgrid);
+  grid->addWidget(gbCSIAnnotationType);
+  connect(gbCSIAnnotationType,SIGNAL(toggled(bool)),
           this,                  SLOT(  gbToggled(bool)));
 
-  axleDisplayCheck = new QCheckBox("Axles",gbCSIAnnotationDisplay);
+  axleDisplayCheck = new QCheckBox("Axles",gbCSIAnnotationType);
   axleDisplayCheck->setChecked(meta->axleDisplay.value());
   axleDisplayCheck->setEnabled(fixedAnnotations);
   axleDisplayCheck->setToolTip(fixedAnnotations ? "Display Axle annotation" : fixedMessage);
@@ -5270,7 +5345,7 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,            SLOT(  axleDisplay(bool)));
   sgrid->addWidget(axleDisplayCheck,0,0);
 
-  beamDisplayCheck = new QCheckBox("Beams",gbCSIAnnotationDisplay);
+  beamDisplayCheck = new QCheckBox("Beams",gbCSIAnnotationType);
   beamDisplayCheck->setChecked(meta->beamDisplay.value());
   beamDisplayCheck->setEnabled(fixedAnnotations);
   beamDisplayCheck->setToolTip(fixedAnnotations ? "Display Beam annotation" : fixedMessage);
@@ -5278,7 +5353,7 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,            SLOT(  beamDisplay(bool)));
   sgrid->addWidget(beamDisplayCheck,0,1);
 
-  cableDisplayCheck = new QCheckBox("Cables",gbCSIAnnotationDisplay);
+  cableDisplayCheck = new QCheckBox("Cables",gbCSIAnnotationType);
   cableDisplayCheck->setChecked(meta->cableDisplay.value());
   cableDisplayCheck->setEnabled(fixedAnnotations);
   cableDisplayCheck->setToolTip(fixedAnnotations ? "Display Cable annotation" : fixedMessage);
@@ -5286,7 +5361,7 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,             SLOT(  cableDisplay(bool)));
   sgrid->addWidget(cableDisplayCheck,0,2);
 
-  connectorDisplayCheck = new QCheckBox("Connectors",gbCSIAnnotationDisplay);
+  connectorDisplayCheck = new QCheckBox("Connectors",gbCSIAnnotationType);
   connectorDisplayCheck->setChecked(meta->connectorDisplay.value());
   connectorDisplayCheck->setEnabled(fixedAnnotations);
   connectorDisplayCheck->setToolTip(fixedAnnotations ? "Display Connector annotation" : fixedMessage);
@@ -5294,7 +5369,7 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,                 SLOT(  connectorDisplay(bool)));
   sgrid->addWidget(connectorDisplayCheck,0,3);
 
-  hoseDisplayCheck = new QCheckBox("Hoses",gbCSIAnnotationDisplay);
+  hoseDisplayCheck = new QCheckBox("Hoses",gbCSIAnnotationType);
   hoseDisplayCheck->setChecked(meta->hoseDisplay.value());
   hoseDisplayCheck->setEnabled(fixedAnnotations);
   hoseDisplayCheck->setToolTip(fixedAnnotations ? "Display Hose annotation" : fixedMessage);
@@ -5302,7 +5377,7 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,            SLOT(  hoseDisplay(bool)));
   sgrid->addWidget(hoseDisplayCheck,1,0);
 
-  panelDisplayCheck = new QCheckBox("Panels",gbCSIAnnotationDisplay);
+  panelDisplayCheck = new QCheckBox("Panels",gbCSIAnnotationType);
   panelDisplayCheck->setChecked(meta->panelDisplay.value());
   panelDisplayCheck->setEnabled(fixedAnnotations);
   panelDisplayCheck->setToolTip(fixedAnnotations ? "Display Panel annotation" : fixedMessage);
@@ -5310,19 +5385,23 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,             SLOT(  panelDisplay(bool)));
   sgrid->addWidget(panelDisplayCheck,1,1);
 
-  extendedDisplayCheck = new QCheckBox("Extended",gbCSIAnnotationDisplay);
+  extendedDisplayCheck = new QCheckBox("Extended",gbCSIAnnotationType);
   extendedDisplayCheck->setChecked(meta->extendedDisplay.value());
   extendedDisplayCheck->setToolTip("Display Title or Freeform annotation");
   connect(extendedDisplayCheck,SIGNAL(clicked(bool)),
           this,                SLOT(  extendedDisplay(bool)));
   sgrid->addWidget(extendedDisplayCheck,1,2);
 
-  gbPlacement = new QGroupBox("Part Annotation Default Placement",parent);
+  // CSI Annotation Placement
+  gbPlacement = new QGroupBox(tr("%1 Placement").arg(PlacementDialog::placementTypeName(CsiAnnotationType)),parent);
+  PlacementData placementData = meta->placement.value();
+  const QString placementButtonText = tr("Change %1 Placement").arg(PlacementDialog::placementTypeName(CsiAnnotationType));
+  gbPlacement->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(CsiAnnotationType,placementData,placementButtonText));
   QGridLayout *gLayout = new QGridLayout();
   gbPlacement->setLayout(gLayout);
   grid->addWidget(gbPlacement);
 
-  placementButton = new QPushButton("Change Placement",gbPlacement);
+  placementButton = new QPushButton(placementButtonText,gbPlacement);
   placementButton->setToolTip("Set annotation placement relative to CSI part");
   connect(placementButton,SIGNAL(clicked(   bool)),
           this,           SLOT(  placementChanged(bool)));
@@ -5454,8 +5533,10 @@ PageOrientationGui::PageOrientationGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_PAGE_ORIENTATION, parent->title()));
   } else {
     setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_PAGE_ORIENTATION, heading.isEmpty() ? tr("Page Orientation") : heading));
   }
 
   if (heading != "") {
@@ -5640,8 +5721,10 @@ PageSizeGui::PageSizeGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_PAGE_SIZE, parent->title()));
   } else {
     setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_PAGE_SIZE, heading.isEmpty() ? tr("Page Size") : heading));
   }
 
   if (heading != "") {
@@ -5838,8 +5921,10 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_SIZE_ORIENTATION, parent->title()));
   } else {
     setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_SIZE_ORIENTATION, heading.isEmpty() ? tr("Page Size And Orientation") : heading));
   }
 
   if (heading != "") {
@@ -6104,7 +6189,11 @@ SubModelColorGui::SubModelColorGui(
   grid = new QGridLayout(parent);
 
   if (parent) {
-    parent->setLayout(grid);
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_SUBMODEL_LEVEL_COLORS, parent->title()));
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_SUBMODEL_LEVEL_COLORS, tr("Submodel Level Colors")));
   }
 
   // 01

@@ -28,6 +28,7 @@
 #include "metaitem.h"
 #include "metagui.h"
 #include "lpub_preferences.h"
+#include "placementdialog.h"
 #include "lpub.h"
 
 /**********************************************************************
@@ -63,16 +64,17 @@ GlobalPageDialog::GlobalPageDialog(
 
   setWindowTitle(tr("Page Globals Setup"));
 
-  QTabWidget     *tab         = new QTabWidget();
+  setWhatsThis(lpubWT(WT_SETUP_PAGE,windowTitle()));
 
-  QGridLayout    *grid        = new QGridLayout();
-  QVBoxLayout    *layout      = new QVBoxLayout();
-  QTabWidget     *childtab;
-  QVBoxLayout    *childlayout;
-  QSpacerItem    *vSpacer;
+  QTabWidget  *tabwidget = new QTabWidget();
+  QVBoxLayout *layout = new QVBoxLayout();
+  QTabWidget  *childtabwidget;
+  QVBoxLayout *childlayout;
+  QSpacerItem *childspacer;
+  QWidget     *childwidget;
 
-  QWidget        *widget      = new QWidget();
-  QWidget        *childwidget;
+  setLayout(layout);
+  layout->addWidget(tabwidget);
 
   float pW                       = data->meta.LPub.page.size.value(0);
   PageMeta       *pageMeta       = &data->meta.LPub.page;
@@ -80,25 +82,33 @@ GlobalPageDialog::GlobalPageDialog(
   pageHeaderMeta->size.setValue(0, pW);
   PageFooterMeta *pageFooterMeta = &data->meta.LPub.page.pageFooter;
   pageFooterMeta->size.setValue(0, pW);
-  PageAttributeTextGui *childTextGui;
-  PageAttributeImageGui *childImageGui;
 
-  setLayout(layout);
-  layout->addWidget(tab);
-  widget->setLayout(grid);
+  QPalette readOnlyPalette       = QApplication::palette();
+  if (Preferences::displayTheme == THEME_DARK)
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
+  else
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
 
+  /*
+   * Page tab
+   */
 
-  //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
+  QWidget *widget = new QWidget();
+  widget->setObjectName(tr("Page"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_VIEW,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
   bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
   QString header = (dpi ? tr("Size and Orientation (Inches)") : tr("Size and Orientation (Centimetres)"));
 
   box = new QGroupBox(header);
-  grid->addWidget(box,0,0);
+  childlayout->addWidget(box);
   child = new SizeAndOrientationGui("",&pageMeta->size,&pageMeta->orientation,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Background"));
-  grid->addWidget(box,2,0);
+  childlayout->addWidget(box);
 
   //gradient settings
   if (pageMeta->background.value().gsize[0] == 0 &&
@@ -112,36 +122,40 @@ GlobalPageDialog::GlobalPageDialog(
       int v_off = gSize.height() / 8;
       pageMeta->background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
                                            << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
-
-    }
+  }
 
   child = new BackgroundGui(&pageMeta->background,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Border"));
-  grid->addWidget(box,3,0);
+  childlayout->addWidget(box);
   child = new BorderGui(&pageMeta->border,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Margins"));
-  grid->addWidget(box,4,0);
-  child = new UnitsGui("L/R|T/B",&pageMeta->margin,box);
+  childlayout->addWidget(box);
+  child = new UnitsGui(tr("L/R|T/B"),&pageMeta->margin,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Header Height"));
-  grid->addWidget(box,5,0);
+  childlayout->addWidget(box);
   child = new HeaderFooterHeightGui("",&pageHeaderMeta->size,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Footer Height"));
-  grid->addWidget(box,6,0);
+  childlayout->addWidget(box);
   child = new HeaderFooterHeightGui("",&pageFooterMeta->size,box);
   data->children.append(child);
 
-  tab->addTab(widget,tr("Page"));
+  tabwidget->addTab(widget,widget->objectName());
 
-  //~~~~~~~~~~~~pointer tab ~~~~~~~~~~~~~~~//
+  /*
+   * Pointers tab
+   */
+
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Pointers"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SHARED_POINTERS,widget->objectName()));
   childlayout = new QVBoxLayout(nullptr);
   widget->setLayout(childlayout);
 
@@ -150,55 +164,59 @@ GlobalPageDialog::GlobalPageDialog(
   PointerAttribData pad = pageMeta->pointerAttrib.value();
   pad.attribType = PointerAttribData::Border;
   pageMeta->pointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
-  data->children.append(child);
+  pointerBorderChild = new PointerAttribGui(&pageMeta->pointerAttrib,box);
+  data->children.append(pointerBorderChild);
 
   box = new QGroupBox(tr("Line"));
   childlayout->addWidget(box);
   pad.attribType = PointerAttribData::Line;
   pageMeta->pointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
-  data->children.append(child);
+  pointerLineChild = new PointerAttribGui(&pageMeta->pointerAttrib,box);
+  connect (pointerLineChild->getHideTipCheck(), SIGNAL(clicked(bool)),
+           this,                                SLOT(enablePointerTip(bool)));
+  data->children.append(pointerLineChild);
 
   box = new QGroupBox(("Tip"));
   childlayout->addWidget(box);
   pad.attribType = PointerAttribData::Tip;
   pageMeta->pointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
-  data->children.append(child);
+  pointerTipChild = new PointerAttribGui(&pageMeta->pointerAttrib,box);
+  data->children.append(pointerTipChild);
 
-  //spacer
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  childlayout->addSpacerItem(vSpacer);
+  childspacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  childlayout->addSpacerItem(childspacer);
 
-  tab->addTab(widget,tr("Pointers"));
-
-  //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
-  childwidget = new QWidget();                  //START DO THIS FOR MODEL, PUBLISHER AND DISCLAIMER
-  childlayout = new QVBoxLayout;                //new QVBox layout - to apply table later
-  childwidget->setLayout(childlayout);          //new 'model' widget - tab not yet added
-
-  childtab = new QTabWidget();                  // new tab object
-  childlayout->addWidget(childtab);             // new add the tab
-  tab->addTab(childwidget, tr("Model"));        // new add the tab  (This is the new 'Model' tab
-                                                // END
-
-  // child header (one) start
-  widget = new QWidget();                       // existing 'model' widget definition
-  childlayout = new QVBoxLayout();
-  widget->setLayout(childlayout);
-  // child header end
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
-    Title,
-  */
+   * Model parent tab
+   */
 
-  //child body (many) start
+  childwidget = new QWidget();
+  childwidget->setObjectName(tr("Model"));
+  childwidget->setWhatsThis(lpubWT(WT_SETUP_PAGE_MODEL,childwidget->objectName()));
+  childlayout = new QVBoxLayout;
+  childwidget->setLayout(childlayout);
+
+  childtabwidget = new QTabWidget();
+  childlayout->addWidget(childtabwidget);
+  tabwidget->addTab(childwidget,childwidget->objectName());
+
+  /*
+   * Title tab
+   */
+
+  widget = new QWidget();                       // existing 'model' widget definition
+  widget->setObjectName(tr("Title"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_TITLE,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
   titleBoxFront = new QGroupBox(tr("Display Title Front Cover"));
   childlayout->addWidget(titleBoxFront);
   titleChildFront = new PageAttributeTextGui(&pageMeta->titleFront,titleBoxFront);
-  childTextGui = static_cast<PageAttributeTextGui*>(titleChildFront);
-  childTextGui->contentEdit->setToolTip(tr("Enter model title"));
+  titleChildFront->getContentEditGBox()->setTitle(tr("Title Description"));
+  titleChildFront->getContentLineEdit()->setToolTip(tr("Enter front cover document title"));
   data->children.append(titleChildFront);
   connect(titleChildFront, SIGNAL(indexChanged(int)),
           this,            SLOT(indexChanged(int)));
@@ -207,449 +225,410 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(titleBoxBack);
   titleBoxBack->hide();
   titleChildBack = new PageAttributeTextGui(&pageMeta->titleBack,titleBoxBack);
-  childTextGui = static_cast<PageAttributeTextGui*>(titleChildBack);
-  childTextGui->contentEdit->setToolTip(tr("Enter model title"));
+  titleChildBack->getContentEditGBox()->setTitle(tr("Title Description"));
+  titleChildFront->getContentLineEdit()->setToolTip(tr("Enter back cover document title"));
   data->children.append(titleChildBack);
   connect(titleChildBack, SIGNAL(indexChanged(int)),
-          this,             SLOT(indexChanged(int)));
-  //child body end
+          this,           SLOT(indexChanged(int)));
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  // child footer (one) end
-  childtab->addTab(widget,"Title");
-  // child footer end
-
-  // child header (one) start
-  widget = new QWidget();
-  childlayout = new QVBoxLayout();
-  widget->setLayout(childlayout);
-  // child header end
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-    Cover Image
-  */
+   * Cover Image tab
+   */
 
-  //child body (many) start
+  widget = new QWidget();
+  widget->setObjectName(tr("Cover Image"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_COVER_IMAGE,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
   coverPageBox = new QGroupBox(tr("Display Cover Image"));
   childlayout->addWidget(coverPageBox);
   coverImageChildFront = new PageAttributeImageGui(&pageMeta->coverImage,coverPageBox);
-  childImageGui = static_cast<PageAttributeImageGui*>(coverImageChildFront);
-  childImageGui->imageEdit->setToolTip(tr("Enter image path"));
+  coverImageChildFront->getImageEdit()->setToolTip(tr("Enter conver page image path"));
   data->children.append(coverImageChildFront);
   connect(coverPageBox, SIGNAL(toggled(bool)),
-          this,         SLOT(  displayGroup(bool)));
-  //child body end
+          this,         SLOT(displayGroup(bool)));
 
-  //child body (many) start
   coverPageBorderBox = new QGroupBox(tr("Border"));
   coverPageBorderBox->setEnabled(coverPageBox->isChecked());
   childlayout->addWidget(coverPageBorderBox);
-  child = new BorderGui(&pageMeta->coverImage.border,coverPageBorderBox);
-  data->children.append(child);
-  //child body end
+  coverImageBorderChildFront = new BorderGui(&pageMeta->coverImage.border,coverPageBorderBox);
+  data->children.append(coverImageBorderChildFront);
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  // child footer (one) end
-  childtab->addTab(widget,tr("Cover Image"));
-  // child footer end
-
-  // child header (one) start
-  widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
-  // child header end
-  /*
-    Description,
-    Description Dialogue,
-  */
-  // child body (many) start
-  box = new QGroupBox(tr("Display Model Description"));
-  grid->addWidget(box, 0, 0);
-  modelDescChildFront = new PageAttributeTextGui(&pageMeta->modelDesc,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(modelDescChildFront);
-  childTextGui->contentEdit->setToolTip(tr("Enter model description"));
-  data->children.append(modelDescChildFront);
-  // child body end
-
-  // child footer (one) end
-  childtab->addTab(widget,tr("Description"));
-  // child footer end
-
-  // child header (one) start
-  widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
-  // child header end
-  /*
-    Model ID,
-    Parts,
-  */
-  // child body (many) start
-  box = new QGroupBox(tr("Display Model Identification"));
-  grid->addWidget(box, 0, 0);
-  modelIdChildFront = new PageAttributeTextGui(&pageMeta->modelName,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(modelIdChildFront);
-  childTextGui->contentEdit->setToolTip(tr("Enter model identification"));
-  data->children.append(modelIdChildFront);
-  // child body end
-
-  // child body (many) start
-  box = new QGroupBox(tr("Display Parts"));
-  grid->addWidget(box, 1, 0);
-  partsChildFront = new PageAttributeTextGui(&pageMeta->parts,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(partsChildFront);
-  childTextGui->contentEdit->setToolTip(tr("Enter number of parts - e.g. 420 Parts"));
-  data->children.append(partsChildFront);
-  // child body end
-
-  // child footer (one) end
-  childtab->addTab(widget,tr("Model ID/Parts"));
-  // child footer end
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-    Submodel Color,
-  */
-  // child header (one) start
+   * Description tab
+   */
+
   widget = new QWidget();
+  widget->setObjectName(tr("Description"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_DESCRIPTION,widget->objectName()));
   childlayout = new QVBoxLayout();
   widget->setLayout(childlayout);
-  // child header end
 
-  //child body (many) start
+  box = new QGroupBox(tr("Display Model Description"));
+  childlayout->addWidget(box);
+  modelDescChildFront = new PageAttributeTextGui(&pageMeta->modelDesc,box);
+  modelDescChildFront->getContentEditGBox()->setTitle(tr("Model Description"));
+  modelDescChildFront->getContentTextEdit()->setToolTip(tr("Enter model description"));
+  data->children.append(modelDescChildFront);
+
+  childtabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Model Parts and ID tab
+   */
+
+  widget = new QWidget();
+  widget->setObjectName(tr("Model ID / Parts"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_MODEL_PARTS_ID,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
+  box = new QGroupBox(tr("Display Model Identification"));
+  childlayout->addWidget(box);
+  modelIdChildFront = new PageAttributeTextGui(&pageMeta->modelName,box);
+  modelIdChildFront->getContentEditGBox()->setTitle(tr("Model Identification"));
+  modelIdChildFront->getContentLineEdit()->setToolTip(tr("Enter model identification"));
+  data->children.append(modelIdChildFront);
+
+  box = new QGroupBox(tr("Display Parts"));
+  childlayout->addWidget(box);
+  partsChildFront = new PageAttributeTextGui(&pageMeta->parts,box);
+  partsChildFront->getContentEditGBox()->setTitle(tr("Parts Count"));
+  partsChildFront->getContentLineEdit()->setToolTip(tr("Enter number of parts - e.g. 420 Parts"));
+  data->children.append(partsChildFront);
+
+  childtabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Submodel Level Color tab
+   */
+
+  widget = new QWidget();
+  widget->setObjectName(tr("Colors"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SHARED_SUBMODEL_LEVEL_COLORS,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
   box = new QGroupBox(tr("Submodel Level Colors"));
   childlayout->addWidget(box);
   child = new SubModelColorGui(&pageMeta->subModelColor,box);
   data->children.append(child);
-  //child body end
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  // child footer (one) end
-  childtab->addTab(widget,tr("Colors"));
-  // child footer end
+  childtabwidget->addTab(widget,widget->objectName());
 
-  //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
+  /*
+   * Publish parent tab
+   */
+
   childwidget = new QWidget();
+  childwidget->setObjectName(tr("Publish"));
+  childwidget->setWhatsThis(lpubWT(WT_SETUP_PAGE_PUBLISH,childwidget->objectName()));
   childlayout = new QVBoxLayout();
   childwidget->setLayout(childlayout);
 
-  childtab = new QTabWidget();
-  childlayout->addWidget(childtab);
-  tab->addTab(childwidget, tr("Publish"));
+  childtabwidget = new QTabWidget();
+  childlayout->addWidget(childtabwidget);
+  tabwidget->addTab(childwidget,childwidget->objectName());
 
-  widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
   /*
-    Author,
-    Email,
-  */
-  authorBoxFront = new QGroupBox(tr("Display Author Front Cover"));
-  grid->addWidget(authorBoxFront, 0, 0);
-  authorChildFront = new PageAttributeTextGui(&pageMeta->authorFront,authorBoxFront);
-  childTextGui = static_cast<PageAttributeTextGui*>(authorChildFront);
-  childTextGui->contentEdit->setToolTip(tr("Enter model author"));
-  data->children.append(authorChildFront);
-  connect(authorChildFront, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
-
-  authorBoxBack = new QGroupBox(tr("Display Author Back Cover"));
-  grid->addWidget(authorBoxBack, 0, 0);
-  authorBoxBack->hide();
-  authorChildBack = new PageAttributeTextGui(&pageMeta->authorBack,authorBoxBack);
-  childTextGui = static_cast<PageAttributeTextGui*>(authorChildBack);
-  childTextGui->contentEdit->setToolTip(tr("Enter model author"));
-  data->children.append(authorChildBack);
-  connect(authorChildBack, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
-
-  authorBox = new QGroupBox(tr("Display Author Header/Footer"));
-  grid->addWidget(authorBox, 0, 0);
-  authorBox->hide();
-  authorChild = new PageAttributeTextGui(&pageMeta->author,authorBox);
-  childTextGui = static_cast<PageAttributeTextGui*>(authorChild);
-  childTextGui->contentEdit->setToolTip(tr("Enter model author"));
-  data->children.append(authorChild);
-  connect(authorChild, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
-
-  emailBoxBack = new QGroupBox(tr("Display Email Back Cover"));
-  grid->addWidget(emailBoxBack, 1, 0);
-  emailChildBack = new PageAttributeTextGui(&pageMeta->emailBack,emailBoxBack);
-  childTextGui = static_cast<PageAttributeTextGui*>(emailChildBack);
-  childTextGui->contentEdit->setToolTip(tr("Enter email address"));
-  data->children.append(emailChildBack);
-  connect(emailChildBack, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
-
-  emailBox = new QGroupBox(tr("Display Email Header/Footer"));
-  grid->addWidget(emailBox, 1, 0);
-  emailBox->hide();
-  emailChild = new PageAttributeTextGui(&pageMeta->email,emailBox);
-  childTextGui = static_cast<PageAttributeTextGui*>(emailChild);
-  childTextGui->contentEdit->setToolTip("");
-  data->children.append(emailChild);
-  connect(emailChild, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
-
-  childtab->addTab(widget,tr("Author/Email"));
+   * Author and Email tab
+   */
 
   widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
-  /*
-    Publish description
-    URL
-  */
-  urlBoxBack = new QGroupBox(tr("Display URL Back Cover"));
-  grid->addWidget(urlBoxBack, 0, 0);
-  urlChildBack = new PageAttributeTextGui(&pageMeta->urlBack,urlBoxBack);
-  childTextGui = static_cast<PageAttributeTextGui*>(urlChildBack);
-  childTextGui->contentEdit->setToolTip(tr("Enter website URL"));
-  data->children.append(urlChildBack);
-  connect(urlChildBack, SIGNAL(indexChanged(int)),
-         SLOT(indexChanged(int)));
-
-  urlBox = new QGroupBox(tr("Display URL Header/Footer"));
-  grid->addWidget(urlBox, 0, 0);
-  urlBox->hide();
-  urlChild = new PageAttributeTextGui(&pageMeta->url,urlBox);
-  childTextGui = static_cast<PageAttributeTextGui*>(urlChild);
-  childTextGui->contentEdit->setToolTip(tr("Enter website URL"));
-  data->children.append(urlChild);
-  connect(urlChild, SIGNAL(indexChanged(int)),
-         SLOT(indexChanged(int)));
-
-  box = new QGroupBox(tr("Publisher Description"));
-  grid->addWidget(box, 1, 0);
-  publishDescChildFront = new PageAttributeTextGui(&pageMeta->publishDesc,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(publishDescChildFront);
-  childTextGui->contentEdit->setToolTip(tr("Enter model publisher"));
-  data->children.append(publishDescChildFront);
-
-  childtab->addTab(widget,tr("URL/Description"));
-
-  // child header (one) start
-  widget = new QWidget();
+  widget->setObjectName(tr("Author / Email"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_AUTHOR_EMAIL,widget->objectName()));
   childlayout = new QVBoxLayout();
   widget->setLayout(childlayout);
-  // child header end
+
+  authorBoxFront = new QGroupBox(tr("Display Author Front Cover"));
+  childlayout->addWidget(authorBoxFront);
+  authorChildFront = new PageAttributeTextGui(&pageMeta->authorFront,authorBoxFront);
+  authorChildFront->getContentEditGBox()->setTitle(tr("Author Name"));
+  authorChildFront->getContentLineEdit()->setToolTip(tr("Enter model author"));
+  data->children.append(authorChildFront);
+  connect(authorChildFront, SIGNAL(indexChanged(int)),
+          this,             SLOT(indexChanged(int)));
+
+  authorBoxBack = new QGroupBox(tr("Display Author Back Cover"));
+  childlayout->addWidget(authorBoxBack);
+  authorBoxBack->hide();
+  authorChildBack = new PageAttributeTextGui(&pageMeta->authorBack,authorBoxBack);
+  authorChildBack->getContentEditGBox()->setTitle(tr("Author Name"));
+  authorChildBack->getContentLineEdit()->setToolTip(tr("Enter model author"));
+  data->children.append(authorChildBack);
+  connect(authorChildBack, SIGNAL(indexChanged(int)),
+          this,            SLOT(indexChanged(int)));
+
+  authorBox = new QGroupBox(tr("Display Author Header/Footer"));
+  childlayout->addWidget(authorBox);
+  authorBox->hide();
+  authorChildHeaderFooter = new PageAttributeTextGui(&pageMeta->author,authorBox);
+  authorChildHeaderFooter->getContentEditGBox()->setTitle(tr("Author Name"));
+  authorChildHeaderFooter->getContentLineEdit()->setToolTip(tr("Enter model author"));
+  data->children.append(authorChildHeaderFooter);
+  connect(authorChildHeaderFooter, SIGNAL(indexChanged(int)),
+          this,                    SLOT(indexChanged(int)));
+
+  emailBoxBack = new QGroupBox(tr("Display Email Back Cover"));
+  childlayout->addWidget(emailBoxBack);
+  emailChildBack = new PageAttributeTextGui(&pageMeta->emailBack,emailBoxBack);
+  emailChildBack->getContentEditGBox()->setTitle(tr("Email Address"));
+  emailChildBack->getContentLineEdit()->setToolTip(tr("Enter email address"));
+  data->children.append(emailChildBack);
+  connect(emailChildBack, SIGNAL(indexChanged(int)),
+          this,           SLOT(indexChanged(int)));
+
+  emailBox = new QGroupBox(tr("Display Email Header/Footer"));
+  childlayout->addWidget(emailBox);
+  emailBox->hide();
+  emailChildHeaderFooter = new PageAttributeTextGui(&pageMeta->email,emailBox);
+  emailChildHeaderFooter->getContentEditGBox()->setTitle(tr("Email Address"));
+  emailChildHeaderFooter->getContentLineEdit()->setToolTip(tr("Enter email address"));
+  data->children.append(emailChildHeaderFooter);
+  connect(emailChildHeaderFooter, SIGNAL(indexChanged(int)),
+          this,                   SLOT(indexChanged(int)));
+
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-    Copyright
-  */
+   * URL tab
+   */
 
-  //child body (many) start
+  widget = new QWidget();
+  widget->setObjectName(tr("URL / Copyright"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_WEBSITE_URL_COPYRIGHT,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
+  urlBoxBack = new QGroupBox(tr("Display URL Back Cover"));
+  childlayout->addWidget(urlBoxBack);
+  urlChildBack = new PageAttributeTextGui(&pageMeta->urlBack,urlBoxBack);
+  urlChildBack->getContentEditGBox()->setTitle(tr("URL"));
+  urlChildBack->getContentLineEdit()->setToolTip(tr("Enter website URL (Universal Resource Locator)"));
+  data->children.append(urlChildBack);
+  connect(urlChildBack, SIGNAL(indexChanged(int)),
+          this,         SLOT(indexChanged(int)));
+
+  urlBox = new QGroupBox(tr("Display URL Header/Footer"));
+  childlayout->addWidget(urlBox);
+  urlBox->hide();
+  urlChildHeaderFooter = new PageAttributeTextGui(&pageMeta->url,urlBox);
+  urlChildHeaderFooter->getContentEditGBox()->setTitle(tr("URL"));
+  urlChildHeaderFooter->getContentLineEdit()->setToolTip(tr("Enter website URL (Universal Resource Locator)"));
+  data->children.append(urlChildHeaderFooter);
+  connect(urlChildHeaderFooter, SIGNAL(indexChanged(int)),
+          this,                 SLOT(indexChanged(int)));
+
   copyrightBoxBack = new QGroupBox(tr("Display Copyright Back Cover"));
   childlayout->addWidget(copyrightBoxBack);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
-  childTextGui = static_cast<PageAttributeTextGui*>(copyrightChildBack);
-  childTextGui->contentEdit->setToolTip(tr("Enter copyright - Copyright © 2022"));
+  copyrightChildBack->getContentEditGBox()->setTitle(tr("Copyright Description"));
+  copyrightChildBack->getContentLineEdit()->setToolTip(tr("Enter copyright - %1").arg(Preferences::copyright));
   data->children.append(copyrightChildBack);
   connect(copyrightChildBack, SIGNAL(indexChanged(int)),
-         SLOT(indexChanged(int)));
-  //child body end
+          this,               SLOT(indexChanged(int)));
 
-  //child body (many) start
   copyrightBox = new QGroupBox(tr("Display Copyright Header/Footer"));
   childlayout->addWidget(copyrightBox);
   copyrightBox->hide();
-  copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
-  childTextGui = static_cast<PageAttributeTextGui*>(copyrightChild);
-  childTextGui->contentEdit->setToolTip(tr("Enter copyright - Copyright © 2022"));
-  data->children.append(copyrightChild);
-  connect(copyrightChild, SIGNAL(indexChanged(int)),
-         SLOT(indexChanged(int)));
-  //child body end
+  copyrightChildHeaderFooter = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
+  copyrightChildHeaderFooter->getContentEditGBox()->setTitle(tr("Copyright Description"));
+  copyrightChildHeaderFooter->getContentLineEdit()->setToolTip(tr("Enter copyright - %1").arg(Preferences::copyright));
+  data->children.append(copyrightChildHeaderFooter);
+  connect(copyrightChildHeaderFooter, SIGNAL(indexChanged(int)),
+          this,                       SLOT(indexChanged(int)));
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
-
-  // child footer (one) end
-  childtab->addTab(widget,tr("Copyright"));
-  // child footer end
-
-  // child header (one) start
-  widget = new QWidget();
-  childlayout = new QVBoxLayout();
-  widget->setLayout(childlayout);
-  // child header end
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-    document logo
-  */
+   * Publish Description tab
+   */
 
-  //child body (many) start
-  documentLogoBoxFront = new QGroupBox(tr("Display Front Cover Logo"));
+  widget = new QWidget();
+  widget->setObjectName(tr("Description"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_PUBLISH_DESCRIPTION,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
+  box = new QGroupBox(tr("Publisher Description"));
+  childlayout->addWidget(box);
+  publishDescChildFront = new PageAttributeTextGui(&pageMeta->publishDesc,box);
+  publishDescChildFront->getContentEditGBox()->setTitle(tr("Model Description"));
+  publishDescChildFront->getContentTextEdit()->setToolTip(tr("Enter publisher model description"));
+  data->children.append(publishDescChildFront);
+
+  childtabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Document Logo tab
+   */
+
+  widget = new QWidget();
+  widget->setObjectName(tr("Logo"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_DOCUMENT_LOGO,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
+  documentLogoBoxFront = new QGroupBox(tr("Display Logo Front Cover"));
   childlayout->addWidget(documentLogoBoxFront);
   documentLogoChildFront = new PageAttributeImageGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
-  childImageGui = static_cast<PageAttributeImageGui*>(documentLogoChildFront);
-  childImageGui->imageEdit->setToolTip(tr("Enter logo image path"));
+  documentLogoChildFront->getImageEdit()->setToolTip(tr("Enter document logo image path"));
   data->children.append(documentLogoChildFront);
   connect(documentLogoChildFront, SIGNAL(indexChanged(int)),
-         SLOT(indexChanged(int)));
-  connect(documentLogoBoxFront, SIGNAL(toggled(bool)),
-          this,                   SLOT(  displayGroup(bool)));
-  //child body end
+          this,                   SLOT(indexChanged(int)));
+  connect(documentLogoBoxFront,   SIGNAL(toggled(bool)),
+          this,                   SLOT(displayGroup(bool)));
 
-  //child body (many) start
   documentLogoBorderBoxFront = new QGroupBox(tr("Logo Front Cover Border"));
   documentLogoBorderBoxFront->setEnabled(documentLogoBoxFront->isChecked());
   childlayout->addWidget(documentLogoBorderBoxFront);
-  child = new BorderGui(&pageMeta->plugImage.border,documentLogoBorderBoxFront);
-  data->children.append(child);
-  //child body end
+  documentLogoBorderChildFront = new BorderGui(&pageMeta->plugImage.border,documentLogoBorderBoxFront);
+  data->children.append(documentLogoBorderChildFront);
 
-  //child body (many) start
-  documentLogoBoxBack = new QGroupBox(tr("Display Back Cover Logo"));
+  documentLogoBoxBack = new QGroupBox(tr("Display Logo Back Cover"));
   childlayout->addWidget(documentLogoBoxBack);
   documentLogoBoxBack->hide();
   documentLogoChildBack = new PageAttributeImageGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
-  childImageGui = static_cast<PageAttributeImageGui*>(documentLogoChildBack);
-  childImageGui->imageEdit->setToolTip(tr("Enter logo image path"));
+  documentLogoChildBack->getImageEdit()->setToolTip(tr("Enter document logo image path"));
   data->children.append(documentLogoChildBack);
   connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
-         SLOT(indexChanged(int)));
-  connect(documentLogoBoxBack, SIGNAL(toggled(bool)),
-          this,                SLOT(  displayGroup(bool)));
-  //child body end
+          this,                  SLOT(indexChanged(int)));
+  connect(documentLogoBoxBack,   SIGNAL(toggled(bool)),
+          this,                  SLOT(displayGroup(bool)));
 
-  //child body (many) start
   documentLogoBorderBoxBack = new QGroupBox(tr("Logo Back Cover Border"));
   documentLogoBorderBoxBack->hide();
   documentLogoBorderBoxBack->setEnabled(documentLogoBoxBack->isChecked());
   childlayout->addWidget(documentLogoBorderBoxBack);
-  child = new BorderGui(&pageMeta->plugImage.border,documentLogoBorderBoxBack);
-  data->children.append(child);
-  //child body end
+  documentLogoBorderChildBack = new BorderGui(&pageMeta->plugImage.border,documentLogoBorderBoxBack);
+  data->children.append(documentLogoBorderChildBack);
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  // child footer (one) end
-  childtab->addTab(widget,tr("Logo"));
-  // child footer end
+  childtabwidget->addTab(widget,widget->objectName());
 
-  //~~~~~~~~~~~~ disclaimer tab ~~~~~~~~~~~//
+  /*
+   * Disclaimer parent tab
+   */
+
   childwidget = new QWidget();
+  childwidget->setObjectName(tr("Disclaimer"));
+  childwidget->setWhatsThis(lpubWT(WT_SETUP_PAGE_DISCLAIMER,childwidget->objectName()));
   childlayout = new QVBoxLayout;
   childwidget->setLayout(childlayout);
 
-  childtab = new QTabWidget();
-  childlayout->addWidget(childtab);
-  tab->addTab(childwidget,tr("Disclaimer"));
+  childtabwidget = new QTabWidget();
+  childlayout->addWidget(childtabwidget);
+  tabwidget->addTab(childwidget,childwidget->objectName());
+
+  /*
+   * LEGO Disclaimer tab
+   */
 
   widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
-  /*
-    LEGO disclaimer,
-  */
+  widget->setObjectName(tr("Disclaimer"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_LEGO_DISCLAIMER,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
   box = new QGroupBox(tr("Display LEGO Disclaimer"));
-  grid->addWidget(box, 0, 0);
+  childlayout->addWidget(box);
   disclaimerChildBack = new PageAttributeTextGui(&pageMeta->disclaimer,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(disclaimerChildBack);
-  childTextGui->contentEdit->setToolTip(tr("Enter disclaimer paragraph"));
+  disclaimerChildBack->getContentEditGBox()->setTitle(tr("LEGO Disclaimer"));
+  disclaimerChildBack->getContentTextEdit()->setToolTip(tr("Enter disclaimer paragraph"));
   data->children.append(disclaimerChildBack);
 
-  childtab->addTab(widget,tr("Disclaimer"));
-
-  // child header (one) start
-  widget = new QWidget();
-  childlayout = new QVBoxLayout();
-  widget->setLayout(childlayout);
-  // child header end
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-    Plug
-  */
+   * LPub3D Plug tab
+   */
 
-  //child body (many) start
-  box = new QGroupBox(tr("Display LPub3D Plug"));
+  widget = new QWidget();
+  widget->setObjectName(tr("%1 Plug").arg(VER_PRODUCTNAME_STR));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_LPUB3D_PLUG, widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
+  box = new QGroupBox(tr("Display %1 Plug").arg(VER_PRODUCTNAME_STR));
   childlayout->addWidget(box);
-  lpub3dPlugChildBack = new PageAttributeTextGui(&pageMeta->plug,box);
-  QPalette readOnlyPalette = QApplication::palette();
-  if (Preferences::displayTheme == THEME_DARK)
-      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
-  else
-      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
   readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
-  childTextGui = static_cast<PageAttributeTextGui*>(lpub3dPlugChildBack);
-  childTextGui->editPlug->setReadOnly(true);
-  childTextGui->editPlug->setPalette(readOnlyPalette);
+  lpub3dPlugChildBack = new PageAttributeTextGui(&pageMeta->plug,box);
+  lpub3dPlugChildBack->getContentEditGBox()->setTitle(tr("%1 Plug Description").arg(VER_PRODUCTNAME_STR));
+  lpub3dPlugChildBack->getContentTextEdit()->setReadOnly(true);
+  lpub3dPlugChildBack->getContentTextEdit()->setPalette(readOnlyPalette);
   data->children.append(lpub3dPlugChildBack);
-  //child body end
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  // child footer (one) end
-  childtab->addTab(widget,tr("LPub3D Plug"));
-  // child footer end
-
-
-  // child header (one) start
-  widget = new QWidget();
-  childlayout = new QVBoxLayout();
-  widget->setLayout(childlayout);
-  // child header end
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-    Logo
-  */
+   * LPub"D Logo tab
+   */
 
-  //child body (many) start
-  lpub3dLogoBox = new QGroupBox(tr("Display LPub3D Logo"));
+  widget = new QWidget();
+  widget->setObjectName(tr("%1 Logo").arg(VER_PRODUCTNAME_STR));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_LPUB3D_LOGO,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+
+  lpub3dLogoBox = new QGroupBox(tr("Display %1 Logo").arg(VER_PRODUCTNAME_STR));
   childlayout->addWidget(lpub3dLogoBox);
   lpub3dLogoChildBack = new PageAttributeImageGui(&pageMeta->plugImage,lpub3dLogoBox);
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-  childImageGui = static_cast<PageAttributeImageGui*>(lpub3dLogoChildBack);
-  childImageGui->imageEdit->setReadOnly(true);
-  childImageGui->imageEdit->setPalette(readOnlyPalette);
-  childImageGui->imageButton->setEnabled(false);
+  lpub3dLogoChildBack->getImageEdit()->setReadOnly(true);
+  lpub3dLogoChildBack->getImageEdit()->setPalette(readOnlyPalette);
+  lpub3dLogoChildBack->getImageEdit()->setEnabled(false);
   data->children.append(lpub3dLogoChildBack);
   connect(lpub3dLogoBox, SIGNAL(toggled(bool)),
-          this,    SLOT(  displayGroup(bool)));
-  //child body end
+          this,          SLOT(displayGroup(bool)));
 
-  //child body (many) start
-  lpub3dLogoBorderBox = new QGroupBox(tr("Border"));
+  lpub3dLogoBorderBox = new QGroupBox(tr("Logo Border"));
   lpub3dLogoBorderBox->setEnabled(lpub3dLogoBorderBox->isChecked());
   childlayout->addWidget(lpub3dLogoBorderBox);
-  child = new BorderGui(&pageMeta->plugImage.border,lpub3dLogoBorderBox);
-  data->children.append(child);
-  //child body end
+  lpub3dLogoBorderChildBack = new BorderGui(&pageMeta->plugImage.border,lpub3dLogoBorderBox);
+  data->children.append(lpub3dLogoBorderChildBack);
 
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  // child footer (one) end
-  childtab->addTab(widget,tr("LPub3D Logo"));
-  // child footer end
+  childtabwidget->addTab(widget,widget->objectName());
 
-  //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
+  /*
+   * Page Number and Text Placement tab
+   */
+
   widget = new QWidget();
-  QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
-  widget->setLayout(vLayout);
+  widget->setObjectName(tr("Number / Text"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PAGE_NUMBER_TEXT,widget->objectName()));
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
 
   box = new QGroupBox(tr("Display"));
-  vLayout->addWidget(box);
+  box->setWhatsThis(lpubWT(WT_SETUP_PAGE_NUMBER_DISPLAY,box->title()));
+  childlayout->addWidget(box);
   child = new CheckBoxGui(tr("Display Page Number"),&pageMeta->dpn,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Look"));
-  vLayout->addWidget(box);
-  child = new NumberGui(&pageMeta->number,box);
+  childlayout->addWidget(box);
+  child = new NumberGui("",&pageMeta->number,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Page Number Placement"));
-  //grid->addWidget(box,2,0);
-  vLayout->addWidget(box);
+  box->setWhatsThis(lpubWT(WT_SETUP_PAGE_NUMBER_PLACEMENT,box->title()));
+  childlayout->addWidget(box);
   child = new BoolRadioGui(
     tr("Alternate Corners (like books)"),
     tr("Page Number Always in Same Place"),
@@ -657,25 +636,25 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   // text placement
-  QHBoxLayout *childHLayout = new QHBoxLayout(nullptr);
   box = new QGroupBox(tr("Text Placement"));
-  vLayout->addWidget(box);
+  box->setWhatsThis(lpubWT(WT_SETUP_PAGE_TEXT_PLACEMENT,box->title()));
+  childlayout->addWidget(box);
+  QHBoxLayout *childHLayout = new QHBoxLayout(nullptr);
   box->setLayout(childHLayout);
   CheckBoxGui *childTextPlacement = new CheckBoxGui(tr("Enable Text Placement"),&pageMeta->textPlacement);
   childTextPlacement->setToolTip(tr("Launch the text placement dialog when inserting or updating text."));
   childHLayout->addWidget(childTextPlacement);
-  childTextPlacementMeta = new PlacementGui(&pageMeta->textPlacementMeta,tr("Default Placement"));
-  childTextPlacementMeta->setEnabled(pageMeta->textPlacement.value());
-  childHLayout->addWidget(childTextPlacementMeta);
+  textPlacementChild = new PlacementGui(tr("%1 Placement").arg(PlacementDialog::placementTypeName(TextType)), &pageMeta->textPlacementMeta, TextType);
+  textPlacementChild->setEnabled(pageMeta->textPlacement.value());
+  childHLayout->addWidget(textPlacementChild);
   // these are placed in reverse order so the meta commands are properly written
-  data->children.append(childTextPlacementMeta);
+  data->children.append(textPlacementChild);
   data->children.append(childTextPlacement);
   connect (childTextPlacement->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableTextPlacement(bool)));
 
-  //spacer
-  vLayout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(childspacer);
 
-  tab->addTab(widget,tr("Number / Text"));
+  tabwidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox;
 
@@ -707,8 +686,12 @@ void GlobalPageDialog::displayGroup(bool b) {
         documentLogoBorderBoxFront->setEnabled(b);
 }
 
+void GlobalPageDialog::enablePointerTip(bool b) {
+    pointerTipChild->setEnabled(b);
+}
+
 void GlobalPageDialog::enableTextPlacement(bool b) {
-    childTextPlacementMeta->setEnabled(b);
+    textPlacementChild->setEnabled(b);
 }
 
 void GlobalPageDialog::indexChanged(int selection){
@@ -722,7 +705,7 @@ void GlobalPageDialog::indexChanged(int selection){
 //               << " Sender Class Name: "  << sender()->metaObject()->className()
 //               << " Sender Object Name: " << sender()->objectName()
                   ;
-    if (obj == authorChildFront || obj == authorChildBack || obj == authorChild) {
+    if (obj == authorChildFront || obj == authorChildBack || obj == authorChildHeaderFooter) {
         switch(sectionIndex){
         case 0: //FrontCover
             logTrace() << " AUTHOR FRONT COVER: ";
@@ -759,7 +742,7 @@ void GlobalPageDialog::indexChanged(int selection){
             break;
         }
     }
-    else if (obj == urlChildBack || obj == urlChild) {
+    else if (obj == urlChildBack || obj == urlChildHeaderFooter) {
         switch(sectionIndex){
         case 0: //BackCover
             urlBoxBack->show();
@@ -772,7 +755,7 @@ void GlobalPageDialog::indexChanged(int selection){
             break;
         }
     }
-    else if (obj == emailChildBack || obj == emailChild) {
+    else if (obj == emailChildBack || obj == emailChildHeaderFooter) {
         switch(sectionIndex){
         case 0: //BackCover
             emailBoxBack->show();
@@ -785,7 +768,7 @@ void GlobalPageDialog::indexChanged(int selection){
             break;
         }
     }
-    else if (obj == copyrightChild || obj == copyrightChildBack) {
+    else if (obj == copyrightChildHeaderFooter || obj == copyrightChildBack) {
         switch(sectionIndex){
         case 0: //BackCover
             copyrightBoxBack->show();

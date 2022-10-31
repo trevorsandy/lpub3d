@@ -2964,6 +2964,7 @@ Gui::Gui()
     qRegisterMetaType<ThemeColorType>("ThemeColorType");
     qRegisterMetaType<TraverseRc>("TraverseRc");
     qRegisterMetaType<TypeLine>("TypeLine");
+    qRegisterMetaType<WT_Type>("WT_Type");
 
     Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
@@ -3339,6 +3340,8 @@ void Gui::initialize()
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 
   if (Preferences::modeGUI) {
+      commonMenus.setWhatsThis();
+
       lpub->setupChangeLogUpdate();
 
       lpub->loadCommandCollection();
@@ -7276,7 +7279,10 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
 
   dialog = new QDialog(nullptr);
+
   dialog->setWindowTitle(tr("Search Directories"));
+
+  dialog->setWhatsThis(lpubWT(WT_DIALOG_LDRAW_SEARCH_DIR,dialog->windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout();
 
@@ -7288,15 +7294,15 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   QString ldrawSearchDirsTitle = tr("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
 
-  QGroupBox *groupBoxSearchDirs = new QGroupBox(ldrawSearchDirsTitle,dialog);
+  QGroupBox *searchDirsGrpBox = new QGroupBox(ldrawSearchDirsTitle,dialog);
 
   QGroupBox *groupBoxActions = new QGroupBox(dialog);
 
   QSpacerItem *actionsSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
-  layout->addWidget(groupBoxSearchDirs);
+  layout->addWidget(searchDirsGrpBox);
 
-  groupBoxSearchDirs->setLayout(gridLayout);
+  searchDirsGrpBox->setLayout(gridLayout);
 
   groupBoxActions->setLayout(actionsLayout);
 

@@ -28,6 +28,8 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
+#include "commonmenus.h"
 #include "metagui.h"
 
 UnitsDialog::UnitsDialog(
@@ -38,15 +40,15 @@ UnitsDialog::UnitsDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+  setWhatsThis(lpubWT(WT_DIALOG_UNITS,windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
   meta.setValues(values[0],values[1]);
-  units = new UnitsGui(!_labels.isEmpty() ? _labels :"L/R|T/B",&meta,box);
+  units = new UnitsGui(_labels.isEmpty() ? tr("L/R|T/B") : _labels, &meta, box, false/*isMargin*/);
 
   QDialogButtonBox *buttonBox;
   buttonBox = new QDialogButtonBox(this);
@@ -94,4 +96,3 @@ void UnitsDialog::cancel()
 {
   QDialog::reject();
 }
-

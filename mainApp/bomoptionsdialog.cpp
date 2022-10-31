@@ -30,6 +30,7 @@
 #include <QRadioButton>
 
 #include "bomoptionsdialog.h"
+#include "commonmenus.h"
 #include "version.h"
 
 const BomOptionDialog::ButtonProps BomOptionDialog::buttonProperties[BomOptionDialog::BomOptions] =
@@ -47,6 +48,8 @@ BomOptionDialog::BomOptionDialog(int modelIndex, bool remove, QWidget *parent)
   setParent(parent);
 
   setWindowTitle(QString(VER_PRODUCTNAME_STR));
+
+  setWhatsThis(lpubWT(WT_DIALOG_BOM_OPTION,windowTitle()));
 
   QVBoxLayout *dialogLayout = new QVBoxLayout(this);
 

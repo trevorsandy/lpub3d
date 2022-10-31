@@ -29,6 +29,8 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
+#include "commonmenus.h"
 #include "metagui.h"
 
 PointerAttribDialog::PointerAttribDialog(
@@ -37,6 +39,8 @@ PointerAttribDialog::PointerAttribDialog(
   bool               isCallout)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_POINTER_ATTRIB,windowTitle()));
 
   meta.setValue(goods);
   QVBoxLayout *layout = new QVBoxLayout(this);

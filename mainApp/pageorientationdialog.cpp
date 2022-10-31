@@ -27,6 +27,7 @@
 #include <QDialogButtonBox>
 
 #include "pageorientationdialog.h"
+#include "commonmenus.h"
 #include "metagui.h"
 
 PageOrientationDialog::PageOrientationDialog(
@@ -36,6 +37,8 @@ PageOrientationDialog::PageOrientationDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_PAGE_ORIENTATION,windowTitle()));
 
   meta.setValue(goods);
 

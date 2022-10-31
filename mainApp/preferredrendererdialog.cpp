@@ -39,7 +39,9 @@ PreferredRendererDialog::PreferredRendererDialog(
 {
   setWindowTitle(_name);
 
-  meta.setValue(goods.value());
+  setWhatsThis(lpubWT(WT_DIALOG_PREFERRED_RENDERER,windowTitle()));
+
+  meta.setValue(goods);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);

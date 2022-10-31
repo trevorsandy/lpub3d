@@ -1167,12 +1167,6 @@ public:
       QStringList  &out,    // newCSIParts
       QVector<int> &tiout); // newCSIParts
 
-  static float getDefaultCameraFoV();
-  static float getDefaultFOVMinRange();
-  static float getDefaultFOVMaxRange();
-  static float getDefaultNativeCameraZNear();
-  static float getDefaultNativeCameraZFar();
-
   void restorePreferredRenderer();
 
   void setNativeRenderer();

@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>613</width>
-    <height>618</height>
+    <width>643</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -47,7 +47,7 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_17">
        <item row="0" column="0">
-        <widget class="QGroupBox" name="ldrawLibPathBox">
+        <widget class="QGroupBox" name="ldrawLibPathGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -113,13 +113,13 @@
         </widget>
        </item>
        <item row="5" column="0">
-        <widget class="QGroupBox" name="groupBox_6">
+        <widget class="QGroupBox" name="defaultsGrpBox">
          <property name="title">
           <string>Defaults</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <widget class="QGroupBox" name="groupBox">
+           <widget class="QGroupBox" name="unitsGrpBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -148,7 +148,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="applyCameraAnglesBox">
+           <widget class="QGroupBox" name="applyCameraAnglesGrpBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -183,7 +183,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="optionsGrpBox">
+           <widget class="QGroupBox" name="messagesGrpBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -220,7 +220,7 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="generalSettingsGrpBox">
          <property name="title">
           <string/>
          </property>
@@ -339,7 +339,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QGroupBox" name="altLDConfigBox">
+        <widget class="QGroupBox" name="altLDConfigGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -400,7 +400,7 @@
         </spacer>
        </item>
        <item row="4" column="0">
-        <widget class="QGroupBox" name="pliControlBox">
+        <widget class="QGroupBox" name="pliControlGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -468,7 +468,7 @@
        <item row="3" column="0">
         <layout class="QGridLayout" name="gridLayout_8">
          <item row="0" column="1">
-          <widget class="QGroupBox" name="highlightStepBox">
+          <widget class="QGroupBox" name="highlightStepGrpBox">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -591,7 +591,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QGroupBox" name="imageMatteBox">
+          <widget class="QGroupBox" name="imageMatteGrpBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -631,7 +631,7 @@
           </widget>
          </item>
          <item row="0" column="0" rowspan="2">
-          <widget class="QGroupBox" name="fadeStepBox">
+          <widget class="QGroupBox" name="fadeStepGrpBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -658,7 +658,7 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_18">
             <item row="1" column="0">
-             <widget class="QGroupBox" name="fadeStepsOpacityBox">
+             <widget class="QGroupBox" name="fadeStepsOpacityGrpBox">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -716,7 +716,7 @@
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QGroupBox" name="fadeStepsUseColourBox">
+             <widget class="QGroupBox" name="fadeStepsUseColourGrpBox">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -790,13 +790,13 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabRendering">
+     <widget class="QWidget" name="tabRenderers">
       <attribute name="title">
        <string>Renderers</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QGroupBox" name="groupBox_3">
+        <widget class="QGroupBox" name="preferredRendererGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -928,7 +928,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTabWidget" name="tabRenderers">
+        <widget class="QTabWidget" name="renderersTabWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -936,7 +936,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="NativeTab">
           <attribute name="title">
@@ -944,7 +944,7 @@
           </attribute>
           <layout class="QGridLayout" name="gridLayout_21">
            <item row="0" column="0">
-            <widget class="QWidget" name="widget" native="true">
+            <widget class="QWidget" name="renderingWidget" native="true">
              <layout class="QGridLayout" name="gridLayout_19">
               <item row="1" column="1">
                <widget class="QSlider" name="LineWidthSlider">
@@ -1245,7 +1245,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QGroupBox" name="renderingGroup">
+            <widget class="QGroupBox" name="viewpointAndProjectionGrpBox">
              <property name="title">
               <string>ViewPoint and Projection</string>
              </property>
@@ -1416,7 +1416,7 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QGroupBox" name="groupBox_7">
+            <widget class="QGroupBox" name="cameraGrpBox">
              <property name="title">
               <string>Camera Defaults</string>
              </property>
@@ -1623,7 +1623,7 @@
           </attribute>
           <layout class="QGridLayout" name="gridLayout_15">
            <item row="0" column="0">
-            <widget class="QGroupBox" name="ldviewBox">
+            <widget class="QGroupBox" name="ldviewGrpBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1679,7 +1679,7 @@
                </widget>
               </item>
               <item row="4" column="1" rowspan="3" colspan="3">
-               <widget class="QGroupBox" name="groupBox_5">
+               <widget class="QGroupBox" name="ldviewPathGrpBox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                   <horstretch>0</horstretch>
@@ -1737,7 +1737,7 @@
                </widget>
               </item>
               <item row="1" column="2" rowspan="2" colspan="2">
-               <widget class="QGroupBox" name="ldvSettingsBox">
+               <widget class="QGroupBox" name="ldvSettingsGrpBox">
                 <property name="title">
                  <string>LDView Renderer settings</string>
                 </property>
@@ -1791,7 +1791,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QGroupBox" name="ldviewInstallBox">
+            <widget class="QGroupBox" name="ldviewInstallGrpBox">
              <property name="title">
               <string>Download and install LDView</string>
              </property>
@@ -1840,7 +1840,7 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QGroupBox" name="povrayBox">
+            <widget class="QGroupBox" name="povrayGrpBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                <horstretch>0</horstretch>
@@ -1899,7 +1899,7 @@
                </spacer>
               </item>
               <item row="2" column="0" colspan="3">
-               <widget class="QGroupBox" name="povNativeGenBox">
+               <widget class="QGroupBox" name="povNativeGenGrpBox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
                   <horstretch>0</horstretch>
@@ -1937,7 +1937,7 @@
                </widget>
               </item>
               <item row="1" column="0" colspan="6">
-               <widget class="QGroupBox" name="groupBox_4">
+               <widget class="QGroupBox" name="povrayPathGrpBox">
                 <property name="title">
                  <string/>
                 </property>
@@ -1989,7 +1989,7 @@
                </widget>
               </item>
               <item row="3" column="0" colspan="6">
-               <widget class="QGroupBox" name="lgeoBox">
+               <widget class="QGroupBox" name="lgeoGrpBox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
                   <horstretch>0</horstretch>
@@ -2097,7 +2097,7 @@
                </widget>
               </item>
               <item row="2" column="3" colspan="3">
-               <widget class="QGroupBox" name="ldvPOVSettingsBox">
+               <widget class="QGroupBox" name="ldvPOVSettingsGrpBox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
                   <horstretch>0</horstretch>
@@ -2153,7 +2153,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="povrayInstallBox">
+            <widget class="QGroupBox" name="povrayInstallGrpBox">
              <property name="title">
               <string>Download and install POV-Ray</string>
              </property>
@@ -2202,7 +2202,7 @@
           </attribute>
           <layout class="QGridLayout" name="gridLayout_16">
            <item row="0" column="0">
-            <widget class="QGroupBox" name="ldgliteBox">
+            <widget class="QGroupBox" name="ldgliteGrpBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                <horstretch>0</horstretch>
@@ -2298,7 +2298,7 @@
             </spacer>
            </item>
            <item row="1" column="0">
-            <widget class="QGroupBox" name="ldgliteInstallBox">
+            <widget class="QGroupBox" name="ldgliteInstallGrpBox">
              <property name="title">
               <string>Download and install LDGLite</string>
              </property>
@@ -2331,7 +2331,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="lsynthPartsBox">
+        <widget class="QGroupBox" name="lsynthPartsGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -2406,7 +2406,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QGroupBox" name="pageProcessingContinuousBox">
+        <widget class="QGroupBox" name="pageProcessingContinuousGrpBox">
          <property name="title">
           <string>Continuous Page Display Duration</string>
          </property>
@@ -2492,84 +2492,85 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="displayAllAttributes_Chk">
-           <property name="toolTip">
-            <string>Display all checked or enabled page attributes </string>
-           </property>
-           <property name="text">
-            <string>Display all page attributes</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="generateCoverPages_Chk">
-           <property name="toolTip">
-            <string>Automatically generate front and back cover page</string>
-           </property>
-           <property name="text">
-            <string>Generate cover pages</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="publishTOC_Chk">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>Generate table of contents in pdf output</string>
-           </property>
-           <property name="text">
-            <string>Generate PDF Table of Contents</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="attributesGrpBox">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="displayAllAttributes_Chk">
+            <property name="toolTip">
+             <string>Display all checked or enabled page attributes </string>
+            </property>
+            <property name="text">
+             <string>Display all page attributes</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="generateCoverPages_Chk">
+            <property name="toolTip">
+             <string>Automatically generate front and back cover page</string>
+            </property>
+            <property name="text">
+             <string>Generate cover pages</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="publishTOC_Chk">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Generate table of contents in pdf output</string>
+            </property>
+            <property name="text">
+             <string>Generate PDF Table of Contents</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="toolTip">
-            <string>Sets the default Author on published documents</string>
-           </property>
-           <property name="text">
-            <string>Default Author:</string>
-           </property>
-           <property name="buddy">
-            <cstring>authorName_Edit</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="authorName_Edit"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Default URL:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="publishURL_Edit"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>Default Email:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="publishEmail_Edit"/>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="editorGrpBox">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="toolTip">
+             <string>Sets the default Author on published documents</string>
+            </property>
+            <property name="text">
+             <string>Default Author:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="authorName_Edit"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Default URL:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="publishURL_Edit"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>Default Email:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="publishEmail_Edit"/>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="publishLogoBox">
+        <widget class="QGroupBox" name="publishLogoGrpBox">
          <property name="toolTip">
           <string>This directory contains the document logo</string>
          </property>
@@ -2617,7 +2618,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="publishDescriptionBox">
+        <widget class="QGroupBox" name="publishDescriptionGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -2652,7 +2653,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_13">
        <item>
-        <widget class="QGroupBox" name="themesBox">
+        <widget class="QGroupBox" name="themesGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -2664,54 +2665,56 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <layout class="QGridLayout" name="gridLayout_13">
-            <item row="0" column="1">
-             <widget class="QLabel" name="themeLbl">
-              <property name="text">
-               <string>Theme</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="4">
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="2">
-             <widget class="QComboBox" name="themeCombo"/>
-            </item>
-            <item row="0" column="0">
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="3">
-             <widget class="QPushButton" name="themeColorsButton">
-              <property name="text">
-               <string>Theme Colors...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QGroupBox" name="themeSelectAndColorsGrpBox">
+            <layout class="QGridLayout" name="gridLayout_13">
+             <item row="0" column="1">
+              <widget class="QLabel" name="themeLbl">
+               <property name="text">
+                <string>Theme</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="2">
+              <widget class="QComboBox" name="themeCombo"/>
+             </item>
+             <item row="0" column="0">
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="3">
+              <widget class="QPushButton" name="themeColorsButton">
+               <property name="text">
+                <string>Theme Colors...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="sceneSettingsBox">
+           <widget class="QGroupBox" name="themeSceneColorsGrpBox">
             <property name="title">
              <string>Scene Colors</string>
             </property>
@@ -2880,28 +2883,30 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_13">
-            <item>
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Log Path</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="logPathEdit">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Log file path</string>
-              </property>
-              <property name="readOnly">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QGroupBox" name="logPathGrpBox">
+            <layout class="QHBoxLayout" name="horizontalLayout_13">
+             <item>
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Log Path</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="logPathEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Log file path</string>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
            <widget class="QGroupBox" name="includesGrpBox">
@@ -3189,131 +3194,124 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="shortcutsTab">
+     <widget class="QWidget" name="tabShortcuts">
       <attribute name="title">
        <string>Shortcuts</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_21">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_18">
+        <layout class="QVBoxLayout" name="verticalLayout_16">
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4"/>
+          <widget class="QGroupBox" name="KeyboardShortcutTableGroup">
+           <property name="title">
+            <string>Keyboard Shortcuts</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_17">
+            <item>
+             <widget class="QTreeWidget" name="commandList">
+              <property name="rootIsDecorated">
+               <bool>true</bool>
+              </property>
+              <property name="uniformRowHeights">
+               <bool>true</bool>
+              </property>
+              <property name="columnCount">
+               <number>0</number>
+              </property>
+              <attribute name="headerDefaultSectionSize">
+               <number>130</number>
+              </attribute>
+              <attribute name="headerStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="KeyboardFilterEdit">
+              <property name="placeholderText">
+               <string>Filter shortcuts</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_29">
+              <item>
+               <widget class="QPushButton" name="shortcutsImport">
+                <property name="text">
+                 <string>Import...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="shortcutsExport">
+                <property name="text">
+                 <string>Export...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="shortcutsReset">
+                <property name="text">
+                 <string>Reset...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_26">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_16">
-           <item>
-            <widget class="QGroupBox" name="groupBox_8">
-             <property name="title">
-              <string>Keyboard Shortcuts</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_17">
-              <item>
-               <widget class="QTreeWidget" name="commandList">
-                <property name="rootIsDecorated">
-                 <bool>true</bool>
-                </property>
-                <property name="uniformRowHeights">
-                 <bool>true</bool>
-                </property>
-                <property name="columnCount">
-                 <number>0</number>
-                </property>
-                <attribute name="headerDefaultSectionSize">
-                 <number>130</number>
-                </attribute>
-                <attribute name="headerStretchLastSection">
-                 <bool>false</bool>
-                </attribute>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="KeyboardFilterEdit">
-                <property name="placeholderText">
-                 <string>Filter shortcuts</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_29">
-                <item>
-                 <widget class="QPushButton" name="shortcutsImport">
-                  <property name="text">
-                   <string>Import...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="shortcutsExport">
-                  <property name="text">
-                   <string>Export...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="shortcutsReset">
-                  <property name="text">
-                   <string>Reset...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_26">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_33"/>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="shortcutGroup">
-             <property name="title">
-              <string>Shortcut</string>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_34">
-              <item>
-               <widget class="QLabel" name="label_34">
-                <property name="text">
-                 <string>Key se&amp;quence:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>shortcutEdit</cstring>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="shortcutEdit"/>
-              </item>
-              <item>
-               <widget class="QPushButton" name="shortcutAssign">
-                <property name="text">
-                 <string>Assign</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="shortcutRemove">
-                <property name="text">
-                 <string>Remove</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_33"/>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="KeyboardShortcutGroup">
+           <property name="title">
+            <string>Shortcut</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_34">
+            <item>
+             <widget class="QLabel" name="label_34">
+              <property name="text">
+               <string>Key se&amp;quence:</string>
+              </property>
+              <property name="buddy">
+               <cstring>shortcutEdit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="shortcutEdit"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="shortcutAssign">
+              <property name="text">
+               <string>Assign</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="shortcutRemove">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </item>
@@ -3325,7 +3323,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_15">
        <item>
-        <widget class="QTabWidget" name="tabOthers">
+        <widget class="QTabWidget" name="othersTabWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -3333,15 +3331,15 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
-         <widget class="QWidget" name="tab">
+         <widget class="QWidget" name="tabUpdates">
           <attribute name="title">
            <string>Updates</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <widget class="QGroupBox" name="groupBoxUpdates">
+            <widget class="QGroupBox" name="updatesGrpBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -3529,7 +3527,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBoxChangeLog">
+            <widget class="QGroupBox" name="changeLogGrpBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -3610,13 +3608,13 @@ p, li { white-space: pre-wrap; }
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_2">
+         <widget class="QWidget" name="tabDirectories">
           <attribute name="title">
            <string>Search Directories</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
-            <widget class="QGroupBox" name="groupBoxSearchDirs">
+            <widget class="QGroupBox" name="searchDirsGrpBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -3708,7 +3706,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>preferencesTabWidget</tabstop>
   <tabstop>ldrawLibPathEdit</tabstop>
   <tabstop>browseLDraw</tabstop>
-  <tabstop>altLDConfigBox</tabstop>
+  <tabstop>altLDConfigGrpBox</tabstop>
   <tabstop>altLDConfigPath</tabstop>
   <tabstop>browseAltLDConfig</tabstop>
   <tabstop>loadLastOpenedFileCheck</tabstop>
@@ -3716,16 +3714,16 @@ p, li { white-space: pre-wrap; }
   <tabstop>extendedSubfileSearchCheck</tabstop>
   <tabstop>saveOnUpdateChkBox</tabstop>
   <tabstop>saveOnRedrawChkBox</tabstop>
-  <tabstop>fadeStepBox</tabstop>
-  <tabstop>fadeStepsUseColourBox</tabstop>
+  <tabstop>fadeStepGrpBox</tabstop>
+  <tabstop>fadeStepsUseColourGrpBox</tabstop>
   <tabstop>fadeStepsColoursCombo</tabstop>
   <tabstop>fadeStepsOpacitySlider</tabstop>
-  <tabstop>highlightStepBox</tabstop>
+  <tabstop>highlightStepGrpBox</tabstop>
   <tabstop>highlightFirstStepBox</tabstop>
   <tabstop>highlightStepBtn</tabstop>
   <tabstop>highlightStepLineWidthSpin</tabstop>
   <tabstop>imageMattingChk</tabstop>
-  <tabstop>pliControlBox</tabstop>
+  <tabstop>pliControlGrpBox</tabstop>
   <tabstop>pliControlEdit</tabstop>
   <tabstop>browsePli</tabstop>
   <tabstop>Centimeters</tabstop>
@@ -3734,9 +3732,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>applyCARendererRadio</tabstop>
   <tabstop>optionsButton</tabstop>
   <tabstop>preferredRenderer</tabstop>
-  <tabstop>projectionCombo</tabstop>
   <tabstop>rendererTimeout</tabstop>
-  <tabstop>tabRenderers</tabstop>
   <tabstop>antiAliasing</tabstop>
   <tabstop>antiAliasingSamples</tabstop>
   <tabstop>edgeLines</tabstop>
@@ -3786,7 +3782,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>povGenLDViewRadio</tabstop>
   <tabstop>ldvPoVFileGenOptBtn</tabstop>
   <tabstop>ldvPoVFileGenPrefBtn</tabstop>
-  <tabstop>lgeoBox</tabstop>
+  <tabstop>lgeoGrpBox</tabstop>
   <tabstop>lgeoPath</tabstop>
   <tabstop>browseLGEO</tabstop>
   <tabstop>povrayInstall</tabstop>
@@ -3803,7 +3799,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>authorName_Edit</tabstop>
   <tabstop>publishURL_Edit</tabstop>
   <tabstop>publishEmail_Edit</tabstop>
-  <tabstop>publishLogoBox</tabstop>
+  <tabstop>publishLogoGrpBox</tabstop>
   <tabstop>publishLogoPath</tabstop>
   <tabstop>browsePublishLogo</tabstop>
   <tabstop>publishDescriptionEdit</tabstop>
@@ -3844,7 +3840,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>shortcutRemove</tabstop>
   <tabstop>lineEditIniFile</tabstop>
   <tabstop>textEditSearchDirs</tabstop>
-  <tabstop>tabOthers</tabstop>
+  <tabstop>othersTabWidget</tabstop>
   <tabstop>checkUpdateFrequency_Combo</tabstop>
   <tabstop>moduleVersion_Combo</tabstop>
   <tabstop>showAllNotificstions_Chk</tabstop>

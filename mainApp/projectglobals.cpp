@@ -50,7 +50,7 @@ public:
 
 /**********************************************************************
  *
- * 
+ * Global to project
  *
  *********************************************************************/
 
@@ -63,46 +63,43 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   setWindowTitle(tr("Project Globals Setup"));
 
-  QTabWidget  *tab = new QTabWidget();
+  setWhatsThis(lpubWT(WT_SETUP_PROJECT,windowTitle()));
+
+  QTabWidget  *tabwidget = new QTabWidget();
   QVBoxLayout *layout = new QVBoxLayout(this);
 
   setLayout(layout);
-  layout->addWidget(tab);
+  layout->addWidget(tabwidget);
 
   QWidget     *widget;
   QGroupBox   *box;
-  QGridLayout *boxGrid;
   QVBoxLayout *vlayout;
   QSpacerItem *vSpacer;
 
   /*
-   * Render options tab
+   * Renderer Options Tab
    */
 
   widget = new QWidget();
+  widget->setObjectName(tr("Renderer Options"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PROJECT_RENDERER_OPTIONS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox(tr("Renderer"));
+  box = new QGroupBox(tr("Preferred Renderer"));
   vlayout->addWidget(box);
   PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
   box->setToolTip(tr("Select the default image renderer."));
   connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
   data->children.append(rendererChild);
 
-  box = new QGroupBox(tr("Resolution"));
+  box = new QGroupBox(tr("Dot Resolution"));
   vlayout->addWidget(box);
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-
-  MetaGui *child = new ResolutionGui(&lpubMeta->resolution);
-  box->setToolTip(tr("Set the default resolution unit."));
-  boxGrid->addWidget(child,0,0);
-  boxGrid->setColumnStretch(0,1);
-  boxGrid->setColumnStretch(1,1);
+  MetaGui *child = new ResolutionGui(&lpubMeta->resolution,box);
+  box->setToolTip(tr("Set the default document resolution."));
   data->children.append(child);
 
-  box = new QGroupBox(tr("Stud Style and Automate Edge Color"));
+  box = new QGroupBox(tr("Stud Style And Automate Edge Color"));
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
   box->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
@@ -119,26 +116,29 @@ GlobalProjectDialog::GlobalProjectDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,tr("Render Options"));
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Parse options tab
+   * Parse Options Tab
    */
 
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Parse Options"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PROJECT_PARSE_OPTIONS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Build Modifications"));
   vlayout->addWidget(box);
   BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui(tr("Enable build modifications"),&lpubMeta->buildModEnabled,box);
-  box->setToolTip(tr("Enable Build Modification meta commands. This functionality replaces or accompanies MLCad BUFEXCHG framework."));
+  box->setToolTip(tr("Enable Build Modification meta commands. This functionality is a substitute for the MLCad BUFEXCHG framework."));
   data->children.append(childBuildModEnabled);
   connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Buffer Exchange");
+  box->setWhatsThis(lpubWT(WT_SETUP_PROJECT_PARSE_BUFFER_EXCHANGE,box->title()));
   vlayout->addWidget(box);
-  CheckBoxGui *childParseNoStep = new CheckBoxGui(tr("Parse Single Step with NOSTEP and BUFEXCHG commands"),&lpubMeta->parseNoStep,box);
+  CheckBoxGui *childParseNoStep = new CheckBoxGui(tr("Parse Single Step With NOSTEP And BUFEXCHG Commands"),&lpubMeta->parseNoStep,box);
   box->setToolTip(("Parse single steps containing NOSTEP and BUFEXCHG commands. Multi-step groups are automatically parsed."));
   data->children.append(childParseNoStep);
   connect (childParseNoStep->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
@@ -146,7 +146,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox(tr("Submodel Instances"));
   vlayout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
-  box->setToolTip(tr("Consolidate submodel instances on first occurrence"));
+  box->setToolTip(tr("Consolidate submodel instance count on first occurrence"));
   data->children.append(childCountInstance);
   connect (childCountInstance, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
@@ -165,24 +165,25 @@ GlobalProjectDialog::GlobalProjectDialog(
   connect (childLoadUnoffPartsEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox(tr("Start Numbers"));
+  box->setWhatsThis(lpubWT(WT_SETUP_PROJECT_START_NUMBERS,box->title()));
   vlayout->addWidget(box);
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
+  QGridLayout *grid = new QGridLayout();
+  box->setLayout(grid);
   box->setToolTip(tr("Set start step and or page number used for multi-book instruction documents."));
 
   childStartStepNumberSpin = new SpinGui(tr("Step number"), &lpubMeta->startStepNumber,0,10000,1);
   data->children.append(childStartStepNumberSpin);
-  boxGrid->addWidget(childStartStepNumberSpin,0,0);
+  grid->addWidget(childStartStepNumberSpin,0,0);
 
   childStartPageNumberSpin = new SpinGui(tr("Page number"), &lpubMeta->startPageNumber,0,10000,1);
   data->children.append(childStartPageNumberSpin);
-  boxGrid->addWidget(childStartPageNumberSpin,0,1);
+  grid->addWidget(childStartPageNumberSpin,0,1);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,tr("Parse Options"));
+  tabwidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
   buttonBox->addButton(QDialogButtonBox::Ok);

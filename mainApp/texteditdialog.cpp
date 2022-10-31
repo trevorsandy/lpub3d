@@ -35,7 +35,8 @@
 #include "messageboxresizable.h"
 #include "lpub_object.h"
 #include "version.h"
-#include "name.h"
+#include "declarations.h"
+#include "commonmenus.h"
 
 TextEditDialog *tedit;
 
@@ -52,6 +53,8 @@ TextEditDialog::TextEditDialog(QWidget *parent) :
     ui->setupUi(this);
 
     setWindowTitle(tr("Edit Text"));
+
+    setWhatsThis(lpubWT(WT_TEXT_EDIT, windowTitle()));
 
     ui->actionAccept->setObjectName("textEditAcceptAct.3");
     lpub->actions.insert(ui->actionAccept->objectName(), Action(tr("File.Accept"), ui->actionAccept));

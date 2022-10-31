@@ -33,6 +33,7 @@
 #include "lpub_preferences.h"
 #include "application.h"
 #include "updatecheck.h"
+#include "commonmenus.h"
 
 #include <LDVQt/LDVWidget.h>
 
@@ -107,18 +108,20 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 {
   ui.setupUi(this);
 
-  ui.tabGeneral->setWhatsThis(    lpubHelp[WT_PREFERENCES_GENERAL].text);
-  ui.tabRenderers->setWhatsThis(  lpubHelp[WT_PREFERENCES_RENDERERS].text);
-  ui.LDGLiteTab->setWhatsThis(    lpubHelp[WT_PREFERENCES_LDGLITE].text);
-  ui.LDViewTab->setWhatsThis(     lpubHelp[WT_PREFERENCES_LDVIEW].text);
-  ui.NativeTab->setWhatsThis(     lpubHelp[WT_PREFERENCES_NATIVE].text);
-  ui.POVRayTab->setWhatsThis(     lpubHelp[WT_PREFERENCES_POVRAY].text);
-  ui.tabPublishing->setWhatsThis( lpubHelp[WT_PREFERENCES_PUBLISHING].text);
-  ui.tabLogging->setWhatsThis(    lpubHelp[WT_PREFERENCES_LOGGING].text);
-  ui.tabShortcuts->setWhatsThis(  lpubHelp[WT_SHORTCUTS].text);
-  ui.tabOther->setWhatsThis(      lpubHelp[WT_PREFERENCES_OTHER].text);
-  ui.tabUpdates->setWhatsThis(    lpubHelp[WT_PREFERENCES_UPDATES].text);
-  ui.tabDirectories->setWhatsThis(lpubHelp[WT_PREFERENCES_DIRECTORIES].text);
+  setWhatsThis(lpubWT(WT_PREFERENCES, tr("Preferences")));
+
+  ui.tabGeneral->setWhatsThis(lpubWT(    WT_PREFERENCES_GENERAL, tr("General")));
+  ui.tabRenderers->setWhatsThis(lpubWT(  WT_PREFERENCES_RENDERERS, tr("Renderers")));
+  ui.LDGLiteTab->setWhatsThis(lpubWT(    WT_PREFERENCES_LDGLITE, tr("LDGLite")));
+  ui.LDViewTab->setWhatsThis(lpubWT(     WT_PREFERENCES_LDVIEW, tr("LDView")));
+  ui.NativeTab->setWhatsThis(lpubWT(     WT_PREFERENCES_NATIVE, tr("Native")));
+  ui.POVRayTab->setWhatsThis(lpubWT(     WT_PREFERENCES_POVRAY, tr("POV-Ray")));
+  ui.tabPublishing->setWhatsThis(lpubWT( WT_PREFERENCES_PUBLISHING, tr("Publishing")));
+  ui.tabLogging->setWhatsThis(lpubWT(    WT_PREFERENCES_LOGGING, tr("Theme / Logging")));
+  ui.tabShortcuts->setWhatsThis(lpubWT(  WT_SHORTCUTS, tr("Keyboard Shortcuts")));
+  ui.tabOther->setWhatsThis(lpubWT(      WT_PREFERENCES_OTHER, tr("Other")));
+  ui.tabUpdates->setWhatsThis(lpubWT(    WT_PREFERENCES_UPDATES, tr("Software Updates")));
+  ui.tabDirectories->setWhatsThis(lpubWT(WT_PREFERENCES_DIRECTORIES, tr("Search Directories")));
 
   // hide 3rd party application browse buttons
   ui.browseLDGLite->hide();
@@ -188,7 +191,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"PublishDescription"))) {
     ui.publishDescriptionEdit->setText(          Settings.value(QString("%1/%2").arg(DEFAULTS,"PublishDescription")).toString());
   }
-  ui.publishLogoBox->setChecked(!ui.publishLogoPath->text().isEmpty());
+  ui.publishLogoGrpBox->setChecked(!ui.publishLogoPath->text().isEmpty());
 
   // set 3rd party application dialogues to read-only
   ui.ldglitePath->setReadOnly(true);
@@ -203,7 +206,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.logPathEdit->setPalette(readOnlyPalette);
 
   // [WIP] - Experimental
-  ui.imageMatteBox->setEnabled(false);
+  ui.imageMatteGrpBox->setEnabled(false);
   ui.imageMattingChk->setEnabled(false);
 
   //search directories
@@ -221,13 +224,13 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.changeLog_txbr->setOpenExternalLinks(true);
 
   if (ui.povGenNativeRadio->isChecked()) {
-      ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+      ui.ldvPOVSettingsGrpBox->setTitle("Native POV file generation settings");
       ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
       ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
   } else {
       ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
       ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
-      ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+      ui.ldvPOVSettingsGrpBox->setTitle("LDView POV file generation settings");
   }
 
   ui.preferencesTabWidget->setCurrentIndex(0);
@@ -297,7 +300,7 @@ void PreferencesDialog::setPreferences()
   ui.ldrawLibPathEdit->setText(mLDrawLibPath);
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
-  ui.ldrawLibPathBox->setTitle(ldrawLibPathTitle);
+  ui.ldrawLibPathGrpBox->setTitle(ldrawLibPathTitle);
 
   QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
   QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
@@ -311,39 +314,39 @@ void PreferencesDialog::setPreferences()
 
   // preferred renderer
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
-  ui.ldviewBox->setVisible(                      Preferences::ldviewInstalled);
-  ui.ldviewInstallBox->setVisible(              !Preferences::ldviewInstalled);
+  ui.ldviewGrpBox->setVisible(                      Preferences::ldviewInstalled);
+  ui.ldviewInstallGrpBox->setVisible(              !Preferences::ldviewInstalled);
 
   ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
   ui.ldviewSnaphsotsList_Chk->setChecked(        Preferences::enableLDViewSnaphsotList && useLDViewSCall);
   ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
 
   ui.ldglitePath->setText(                       Preferences::ldgliteExe);
-  ui.ldgliteBox->setVisible(                     Preferences::ldgliteInstalled);
-  ui.ldgliteInstallBox->setVisible(             !Preferences::ldgliteInstalled);
+  ui.ldgliteGrpBox->setVisible(                     Preferences::ldgliteInstalled);
+  ui.ldgliteInstallGrpBox->setVisible(             !Preferences::ldgliteInstalled);
 
   ui.povrayPath->setText(                        Preferences::povrayExe);
-  ui.povrayBox->setVisible(                      Preferences::povRayInstalled);
-  ui.povrayInstallBox->setVisible(              !Preferences::povRayInstalled);
+  ui.povrayGrpBox->setVisible(                      Preferences::povRayInstalled);
+  ui.povrayInstallGrpBox->setVisible(              !Preferences::povRayInstalled);
 
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
   ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
   ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
 
-  ui.lgeoBox->setEnabled(                        Preferences::usingDefaultLibrary);
+  ui.lgeoGrpBox->setEnabled(                        Preferences::usingDefaultLibrary);
   ui.lgeoPath->setText(                          Preferences::lgeoPath);
-  ui.lgeoBox->setChecked(                        Preferences::lgeoPath != "");
+  ui.lgeoGrpBox->setChecked(                        Preferences::lgeoPath != "");
   ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
 
   setRenderers();
 
   // end preferred renderer
 
-  ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
+  ui.fadeStepsUseColourGrpBox->setTitle(            fadeStepsColorTitle);
   ui.pliControlEdit->setText(                    Preferences::pliControlFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
-  ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
-  ui.pliControlBox->setChecked(                  Preferences::pliControlFile != "");
+  ui.altLDConfigGrpBox->setChecked(                 Preferences::altLDConfigPath != "");
+  ui.pliControlGrpBox->setChecked(                  Preferences::pliControlFile != "");
 
   ui.displayAllAttributes_Chk->setChecked(       Preferences::displayAllAttributes);
   ui.generateCoverPages_Chk->setChecked(         Preferences::generateCoverPages);
@@ -381,11 +384,11 @@ void PreferencesDialog::setPreferences()
   ui.logLevelGrpBox->setChecked(                 Preferences::logLevel);
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
-  ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourBox->setEnabled(          Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourBox->setChecked(          Preferences::fadeStepsUseColour);
+  ui.fadeStepGrpBox->setChecked(                    Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourGrpBox->setEnabled(          Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourGrpBox->setChecked(          Preferences::fadeStepsUseColour);
   ui.fadeStepsColoursCombo->setEnabled(          Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
-  ui.fadeStepsOpacityBox->setEnabled(            Preferences::enableFadeSteps);
+  ui.fadeStepsOpacityGrpBox->setEnabled(            Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
@@ -401,7 +404,7 @@ void PreferencesDialog::setPreferences()
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
   }
 
-  ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
+  ui.highlightStepGrpBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
   ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
   ui.highlightFirstStepBox->setChecked(          Preferences::highlightFirstStep);
@@ -452,7 +455,7 @@ void PreferencesDialog::setPreferences()
       ui.lineEditIniFile->setToolTip(tr("Default search"));
   }
 
-  ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
+  ui.searchDirsGrpBox->setTitle(ldrawSearchDirsTitle);
   if (Preferences::ldSearchDirs.size() > 0) {
       ui.textEditSearchDirs->clear();
       Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
@@ -469,8 +472,8 @@ void PreferencesDialog::setPreferences()
   ui.applyCARendererRadio->setChecked(! applyCALocally);
 
   bool renderPOVRay = Preferences::preferredRenderer == RENDERER_POVRAY;
-  ui.povNativeGenBox->setEnabled(renderPOVRay);
-  ui.ldvPOVSettingsBox->setEnabled(renderPOVRay);
+  ui.povNativeGenGrpBox->setEnabled(renderPOVRay);
+  ui.ldvPOVSettingsGrpBox->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenOptBtn->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
   ui.povGenNativeRadio->setChecked(Preferences::useNativePovGenerator);
@@ -524,7 +527,7 @@ void PreferencesDialog::setPreferences()
   int revisionNumber = revision.toInt();
   versionInfo = tr("Change Log for version %1%2").arg(version, revisionNumber ? QString(" revision %1").arg(revision) : "");
 #endif
-  ui.groupBoxChangeLog->setTitle(versionInfo);
+  ui.changeLogGrpBox->setTitle(versionInfo);
 
   updateChangelog();
 
@@ -605,17 +608,17 @@ void PreferencesDialog::setRenderers()
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
       ui.preferredRenderer->setCurrentIndex(ldviewIndex);
       ui.preferredRenderer->setEnabled(true);
-      ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+      ui.renderersTabWidget->setCurrentWidget(ui.LDViewTab);
     } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
       ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
       ui.preferredRenderer->setEnabled(true);
-      ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
+      ui.renderersTabWidget->setCurrentWidget(ui.LDGLiteTab);
     }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
-      ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
+      ui.renderersTabWidget->setCurrentWidget(ui.POVRayTab);
     } else {
-        ui.tabRenderers->setCurrentWidget(ui.NativeTab);
+        ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
         if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           ui.preferredRenderer->setCurrentIndex(nativeIndex);
           ui.preferredRenderer->setEnabled(true);
@@ -643,18 +646,18 @@ void PreferencesDialog::installRenderer()
         {
         case RENDERER_LDVIEW:
             ui.ldviewPath->setText(           Preferences::ldviewExe);
-            ui.ldviewBox->setVisible(         Preferences::ldviewInstalled);
-            ui.ldviewInstallBox->setVisible( !Preferences::ldviewInstalled);
+            ui.ldviewGrpBox->setVisible(         Preferences::ldviewInstalled);
+            ui.ldviewInstallGrpBox->setVisible( !Preferences::ldviewInstalled);
             break;
         case RENDERER_LDGLITE:
             ui.ldglitePath->setText(          Preferences::ldgliteExe);
-            ui.ldgliteBox->setVisible(        Preferences::ldgliteInstalled);
-            ui.ldgliteInstallBox->setVisible(!Preferences::ldgliteInstalled);
+            ui.ldgliteGrpBox->setVisible(        Preferences::ldgliteInstalled);
+            ui.ldgliteInstallGrpBox->setVisible(!Preferences::ldgliteInstalled);
             break;
         case RENDERER_POVRAY:
             ui.povrayPath->setText(           Preferences::povrayExe);
-            ui.povrayBox->setVisible(         Preferences::povRayInstalled);
-            ui.povrayInstallBox->setVisible( !Preferences::povRayInstalled);
+            ui.povrayGrpBox->setVisible(         Preferences::povRayInstalled);
+            ui.povrayInstallGrpBox->setVisible( !Preferences::povRayInstalled);
             break;
         default:
             break;
@@ -752,16 +755,16 @@ void PreferencesDialog::on_ldrawLibPathEdit_editingFinished()
             box.exec();
         } else {
             if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
-                ui.lgeoBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
+                ui.lgeoGrpBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
                 QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
                                              .arg(Preferences::validLDrawLibraryChange);
-                ui.ldrawLibPathBox->setTitle(ldrawTitle);
-                ui.ldrawLibPathBox->setStyleSheet("QGroupBox::title { color : red; }");
+                ui.ldrawLibPathGrpBox->setTitle(ldrawTitle);
+                ui.ldrawLibPathGrpBox->setStyleSheet("QGroupBox::title { color : red; }");
             }
         }
     } else {
-        ui.ldrawLibPathBox->setTitle(ldrawLibPathTitle);
-        ui.ldrawLibPathBox->setStyleSheet("");
+        ui.ldrawLibPathGrpBox->setTitle(ldrawLibPathTitle);
+        ui.ldrawLibPathGrpBox->setStyleSheet("");
     }
 }
 
@@ -770,14 +773,14 @@ void PreferencesDialog::on_browseLDraw_clicked()
     Preferences::ldrawPreferences(true);
     ui.ldrawLibPathEdit->setText(Preferences::ldrawLibPath);
     if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
-        ui.lgeoBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
+        ui.lgeoGrpBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
         QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
                                      .arg(Preferences::validLDrawLibraryChange);
-        ui.ldrawLibPathBox->setTitle(ldrawTitle);
-        ui.ldrawLibPathBox->setStyleSheet("QGroupBox::title { color : red; }");
+        ui.ldrawLibPathGrpBox->setTitle(ldrawTitle);
+        ui.ldrawLibPathGrpBox->setStyleSheet("QGroupBox::title { color : red; }");
     } else {
-        ui.ldrawLibPathBox->setTitle(ldrawLibPathTitle);
-        ui.ldrawLibPathBox->setStyleSheet("");
+        ui.ldrawLibPathGrpBox->setTitle(ldrawLibPathTitle);
+        ui.ldrawLibPathGrpBox->setStyleSheet("");
     }
 }
 
@@ -796,7 +799,7 @@ void PreferencesDialog::on_browseAltLDConfig_clicked()
     if (!result.isEmpty()) {
         result = QDir::toNativeSeparators(result);
         ui.altLDConfigPath->setText(result);
-        ui.altLDConfigBox->setChecked(true);
+        ui.altLDConfigGrpBox->setChecked(true);
     }
 }
 
@@ -809,7 +812,7 @@ void PreferencesDialog::on_browseLGEO_clicked()
 
     if (!result.isEmpty()) {
             ui.lgeoPath->setText(QDir::toNativeSeparators(result));
-            ui.lgeoBox->setChecked(true);
+            ui.lgeoGrpBox->setChecked(true);
         }
 }
 
@@ -829,7 +832,7 @@ void PreferencesDialog::on_browsePli_clicked()
       if (filePath.startsWith(cwd))
         filePath = filePath.replace(cwd,".");
       ui.pliControlEdit->setText(QDir::toNativeSeparators(filePath));
-      ui.pliControlBox->setChecked(true);
+      ui.pliControlGrpBox->setChecked(true);
     }
 }
 
@@ -850,7 +853,7 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
         filePath = filePath.replace(cwd,".");
       filePath = QDir::toNativeSeparators(filePath);
       ui.publishLogoPath->setText(filePath);
-      ui.publishLogoBox->setChecked(true);
+      ui.publishLogoGrpBox->setChecked(true);
     }
 }
 
@@ -896,7 +899,7 @@ void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
   ui.logLevelsGrpBox->setChecked(!checked);
 }
 
-void PreferencesDialog::on_ldviewBox_clicked(bool checked)
+void PreferencesDialog::on_ldviewGrpBox_clicked(bool checked)
 {
   if (! checked) {
       QMessageBox box;
@@ -910,7 +913,7 @@ void PreferencesDialog::on_ldviewBox_clicked(bool checked)
     }
 }
 
-void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
+void PreferencesDialog::on_ldgliteGrpBox_clicked(bool checked)
 {
     if (! checked) {
         QMessageBox box;
@@ -924,7 +927,7 @@ void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
     }
 }
 
-void PreferencesDialog::on_povrayBox_clicked(bool checked)
+void PreferencesDialog::on_povrayGrpBox_clicked(bool checked)
 {
   if (! checked) {
       QMessageBox box;
@@ -938,7 +941,7 @@ void PreferencesDialog::on_povrayBox_clicked(bool checked)
   }
 }
 
-void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
+void PreferencesDialog::on_altLDConfigGrpBox_clicked(bool checked)
 {
   if (! checked && ! ui.altLDConfigPath->text().isEmpty()) {
     QMessageBox box;
@@ -951,7 +954,7 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
     emit gui->messageSig(LOG_STATUS,box.text());
     if (box.exec() == QMessageBox::Yes) {
       ui.altLDConfigPath->clear();
-      ui.altLDConfigBox->setChecked(false);
+      ui.altLDConfigGrpBox->setChecked(false);
     }
   }
 }
@@ -989,23 +992,23 @@ void PreferencesDialog::on_highlightStepBtn_clicked()
   }
 }
 
-void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
+void PreferencesDialog::on_fadeStepGrpBox_clicked(bool checked)
 {
-  ui.fadeStepsUseColourBox->setEnabled(checked);
+  ui.fadeStepsUseColourGrpBox->setEnabled(checked);
   ui.fadeStepsColoursCombo->setEnabled(checked);
-  ui.fadeStepsOpacityBox->setEnabled(checked);
+  ui.fadeStepsOpacityGrpBox->setEnabled(checked);
   ui.fadeStepsOpacitySlider->setEnabled(checked);
 
   /* [Experimental] LDView Image Matting */
   ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && checked);
 }
 
-void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
+void PreferencesDialog::on_fadeStepsUseColourGrpBox_clicked(bool checked)
 {
   ui.fadeStepsColoursCombo->setEnabled(checked);
 }
 
-void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
+void PreferencesDialog::on_highlightStepGrpBox_clicked(bool checked)
 {
   ui.highlightStepBtn->setEnabled(checked);
   ui.highlightStepLabel->setEnabled(checked);
@@ -1022,25 +1025,25 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       bool povrayEnabled  = (currentText == rendererNames[RENDERER_POVRAY]);
       bool ldgliteEnabled = (currentText == rendererNames[RENDERER_LDGLITE]);
       bool nativeEnabled  = (currentText == rendererNames[RENDERER_NATIVE]);
-      ui.povNativeGenBox->setEnabled(povrayEnabled);
-      ui.ldvPOVSettingsBox->setEnabled(povrayEnabled);
+      ui.povNativeGenGrpBox->setEnabled(povrayEnabled);
+      ui.ldvPOVSettingsGrpBox->setEnabled(povrayEnabled);
       ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
       ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
       ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
       if (ui.povGenNativeRadio->isChecked())
-          ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+          ui.ldvPOVSettingsGrpBox->setTitle("Native POV file generation settings");
       else
       if (ui.povGenLDViewRadio->isChecked())
-          ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+          ui.ldvPOVSettingsGrpBox->setTitle("LDView POV file generation settings");
 
       if (ldviewEnabled)
-          ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+          ui.renderersTabWidget->setCurrentWidget(ui.LDViewTab);
       else if (povrayEnabled)
-          ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
+          ui.renderersTabWidget->setCurrentWidget(ui.POVRayTab);
       else if (ldgliteEnabled)
-          ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
+          ui.renderersTabWidget->setCurrentWidget(ui.LDGLiteTab);
       else if (nativeEnabled)
-          ui.tabRenderers->setCurrentWidget(ui.NativeTab);
+          ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
 
       bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
       ui.applyCALocallyRadio->setChecked(! applyCARenderer);
@@ -1096,7 +1099,7 @@ void PreferencesDialog::on_ldvPreferencesBtn_clicked()
 void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
 {
     if (checked) {
-        ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+        ui.ldvPOVSettingsGrpBox->setTitle("Native POV file generation settings");
         ui.ldvPoVFileGenOptBtn->setToolTip("Open Native POV generation dialogue");
         ui.ldvPoVFileGenPrefBtn->setToolTip("Open Native preferences dialogue");
     }
@@ -1105,7 +1108,7 @@ void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
 void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 {
     if (checked) {
-        ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+        ui.ldvPOVSettingsGrpBox->setTitle("LDView POV file generation settings");
         ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
         ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
     }
@@ -1424,7 +1427,7 @@ QString const PreferencesDialog::ldrawLibPath()
 
 QString const PreferencesDialog::altLDConfigPath()
 {
-  if (ui.altLDConfigBox->isChecked()) {
+  if (ui.altLDConfigGrpBox->isChecked()) {
     return ui.altLDConfigPath->displayText();
   }
   return "";
@@ -1432,7 +1435,7 @@ QString const PreferencesDialog::altLDConfigPath()
 
 QString const PreferencesDialog::pliControlFile()
 {
-  if (ui.pliControlBox->isChecked()) {
+  if (ui.pliControlGrpBox->isChecked()) {
     return ui.pliControlEdit->displayText();
   }
   return "";
@@ -1440,7 +1443,7 @@ QString const PreferencesDialog::pliControlFile()
 
 QString const PreferencesDialog::lgeoPath()
 {
-    if (Preferences::povRayInstalled && ui.lgeoBox->isChecked()){
+    if (Preferences::povRayInstalled && ui.lgeoGrpBox->isChecked()){
         return ui.lgeoPath->displayText();
     }
     return "";
@@ -1555,7 +1558,7 @@ QString const PreferencesDialog::highlightStepColour()
 
 QString const PreferencesDialog::documentLogoFile()
 {
-    if (ui.publishLogoBox->isChecked()){
+    if (ui.publishLogoGrpBox->isChecked()){
         return ui.publishLogoPath->displayText();
     }
     return QString();
@@ -1593,22 +1596,22 @@ bool PreferencesDialog::applyCALocally()
 
 bool  PreferencesDialog::enableFadeSteps()
 {
-  return ui.fadeStepBox->isChecked();
+  return ui.fadeStepGrpBox->isChecked();
 }
 
 bool  PreferencesDialog::enableHighlightStep()
 {
-  return ui.highlightStepBox->isChecked();
+  return ui.highlightStepGrpBox->isChecked();
 }
 
 bool PreferencesDialog::enableDocumentLogo()
 {
-  return ui.publishLogoBox->isChecked();
+  return ui.publishLogoGrpBox->isChecked();
 }
 
 bool PreferencesDialog::fadeStepsUseColour()
 {
-    return ui.fadeStepsUseColourBox->isChecked();
+    return ui.fadeStepsUseColourGrpBox->isChecked();
 }
 
 bool PreferencesDialog::enableLDViewSingleCall()
@@ -1856,10 +1859,7 @@ bool PreferencesDialog::allLogLevels()
 
 void PreferencesDialog::updateChangelog()
 {
-    QElapsedTimer timer;
-    timer.start();
-
-    ui.groupBoxChangeLog->setTitle(LPub::m_versionInfo);
+    ui.changeLogGrpBox->setTitle(LPub::m_versionInfo);
 
     if (LPub::m_setReleaseNotesAsText)
         ui.changeLog_txbr->setPlainText(LPub::m_releaseNotesContent);
@@ -2633,7 +2633,7 @@ void PreferencesDialog::on_shortcutsExport_clicked()
     if (FileName.isEmpty())
         return;
 
-    int Count;
+    int Count = 0;
     if (!SaveKeyboardShortcuts(FileName, Count)) {
         emit lpub->messageSig(LOG_ERROR, tr("Error saving keyboard shortcuts file."));
         return;
@@ -2921,7 +2921,7 @@ void PreferencesDialog::shortcutEditReset()
         QTreeWidgetItem* currentItem = ui.commandList->currentItem();
         if (!currentItem || !currentItem->data(1, Qt::UserRole).isValid()) {
             ui.shortcutEdit->setText(QString());
-            ui.shortcutGroup->setEnabled(false);
+            ui.KeyboardShortcutGroup->setEnabled(false);
             lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
             return;
         }
@@ -2950,12 +2950,12 @@ void PreferencesDialog::commandChanged(QTreeWidgetItem *current)
 {
     if (!current || !current->data(1, Qt::UserRole).isValid()) {
         ui.shortcutEdit->setText(QString());
-        ui.shortcutGroup->setEnabled(false);
+        ui.KeyboardShortcutGroup->setEnabled(false);
         lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
         return;
     }
 
-    ui.shortcutGroup->setEnabled(true);
+    ui.KeyboardShortcutGroup->setEnabled(true);
 
     QKeySequence shortcut(qvariant_cast<QKeySequence>(current->data(1, Qt::UserRole)));
     ui.shortcutEdit->setText(shortcut.toString(QKeySequence::NativeText));

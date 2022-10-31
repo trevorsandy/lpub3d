@@ -40,6 +40,7 @@
 #include "meta.h"
 #include "metaitem.h"
 #include "metagui.h"
+#include "commonmenus.h"
 
 class Meta;
 
@@ -93,43 +94,55 @@ public:
   QGroupBox      *emailBox;
 
   MetaGui        *child;
+  MetaGui        *textPlacementChild;
 
-  MetaGui        *childTextPlacementMeta;
+  PointerAttribGui      *pointerBorderChild;
+  PointerAttribGui      *pointerLineChild;
+  PointerAttribGui      *pointerTipChild;
 
-  MetaGui        *authorChildFront;
-  MetaGui        *authorChildBack;
-  MetaGui        *authorChild;
+  PageAttributeTextGui  *titleChildFront;
+  PageAttributeTextGui  *titleChildBack;
 
-  MetaGui        *titleChildFront;
-  MetaGui        *titleChildBack;
+  PageAttributeImageGui *coverImageChildFront;
+  BorderGui             *coverImageBorderChildFront;
 
-  MetaGui        *coverImageChildFront;
-  MetaGui        *modelDescChildFront;
-  MetaGui        *modelIdChildFront;
-  MetaGui        *partsChildFront;
-  MetaGui        *publishDescChildFront;
+  PageAttributeTextGui  *modelDescChildFront;
+  PageAttributeTextGui  *modelIdChildFront;
+  PageAttributeTextGui  *partsChildFront;
 
-  MetaGui        *urlChildBack;
-  MetaGui        *urlChild;
+  PageAttributeTextGui  *authorChildFront;
+  PageAttributeTextGui  *authorChildBack;
+  PageAttributeTextGui  *authorChildHeaderFooter;
 
-  MetaGui        *documentLogoChildFront;
-  MetaGui        *documentLogoChildBack;
+  PageAttributeTextGui  *emailChildBack;
+  PageAttributeTextGui  *emailChildHeaderFooter;
 
-  MetaGui        *copyrightChildBack;
-  MetaGui        *copyrightChild;
+  PageAttributeTextGui  *urlChildBack;
+  PageAttributeTextGui  *urlChildHeaderFooter;
 
-  MetaGui        *emailChildBack;
-  MetaGui        *emailChild;
+  PageAttributeTextGui  *publishDescChildFront;
 
-  MetaGui        *disclaimerChildBack;
-  MetaGui        *lpub3dPlugChildBack;
-  MetaGui        *lpub3dLogoChildBack;
+  PageAttributeTextGui  *copyrightChildBack;
+  PageAttributeTextGui  *copyrightChildHeaderFooter;
+
+  PageAttributeImageGui *documentLogoChildFront;
+  BorderGui             *documentLogoBorderChildFront;
+
+  PageAttributeImageGui *documentLogoChildBack;
+  BorderGui             *documentLogoBorderChildBack;
+
+  PageAttributeTextGui  *disclaimerChildBack;
+  PageAttributeTextGui  *lpub3dPlugChildBack;
+
+  PageAttributeImageGui *lpub3dLogoChildBack;
+  BorderGui             *lpub3dLogoBorderChildBack;
 
 public slots:
-  void indexChanged(int selection);
   void accept();
   void cancel();
+  void indexChanged(int selection);
   void displayGroup(bool b);
+  void enablePointerTip(bool b);
   void enableTextPlacement(bool b);
 };
 

@@ -64,14 +64,16 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   setWindowTitle(tr("Assembly Globals Setup"));
 
-  QTabWidget  *tab = new QTabWidget(nullptr);
+  setWhatsThis(lpubWT(WT_SETUP_ASSEM,windowTitle()));
+
+  QTabWidget  *tabwidget = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QGridLayout *boxGrid = new QGridLayout();
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
-   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
   setLayout(layout);
-  layout->addWidget(tab);
+  layout->addWidget(tabwidget);
 
   QWidget *widget;
   QVBoxLayout *vlayout;
@@ -85,15 +87,18 @@ GlobalAssemDialog::GlobalAssemDialog(
    */
 
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Contents"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_ASSEM_CONTENTS,widget->objectName()));
   vlayout  = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Assembly");
+  box = new QGroupBox(tr("Assembly Image"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_IMAGE_SIZING,box->title()));
   vlayout->addWidget(box);
   box->setLayout(boxGrid);
 
   // Scale
-  child = new DoubleSpinGui("Scale",
+  child = new DoubleSpinGui(tr("Scale"),
                             &assem->modelScale,
                             assem->modelScale._min,
                             assem->modelScale._max,
@@ -102,19 +107,20 @@ GlobalAssemDialog::GlobalAssemDialog(
   data->clearCache = child->modified;
   boxGrid->addWidget(child,0,0);
 
-  child = new UnitsGui("Margins L/R|T/B",&assem->margin);
+  child = new UnitsGui(tr("Margins L/R|T/B"),&assem->margin);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
   /* Assembly camera settings */
 
-  box = new QGroupBox("Default Assembly Orientation");
+  box = new QGroupBox(tr("Default Assembly Orientation"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new DoubleSpinGui("Camera FOV",
+  child = new DoubleSpinGui(tr("Camera FOV"),
                             &assem->cameraFoV,
                             assem->cameraFoV._min,
                             assem->cameraFoV._max,
@@ -123,18 +129,18 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui("Latitude","Longitude",&assem->cameraAngles);
+  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&assem->cameraAngles);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
   /* Step Number */
-  box = new QGroupBox("Step Number");
+  box = new QGroupBox(tr("Step Number"));
   vlayout->addWidget(box);
   NumberPlacementMeta *stepNumber = &data->meta.LPub.stepNumber;
-  child = new NumberGui(stepNumber,box);
+  child = new NumberGui("",stepNumber,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Contents");
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
    * Display tab
@@ -144,18 +150,22 @@ GlobalAssemDialog::GlobalAssemDialog(
   bool fixedAnnotations  = data->meta.LPub.pli.annotation.fixedAnnotations.value();
 
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Display"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_ASSEM_DISPLAY,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Step");
+  box = new QGroupBox(tr("Step"));
+  box->setWhatsThis(lpubWT(WT_SETUP_ASSEM_DISPLAY_STEP,box->title()));
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  child = new CheckBoxGui("Step Number",&assem->showStepNumber);
+  child = new CheckBoxGui(tr("Step Number"),&assem->showStepNumber);
   data->children.append(child);
   childlayout->addWidget(child);
 
-  box = new QGroupBox("Annotation");
+  box = new QGroupBox(tr("Part Annotation"));
+  box->setWhatsThis(lpubWT(WT_SETUP_ASSEM_ANNOTATION,box->title()));
   vlayout->addWidget(box);
   childlayout = new QVBoxLayout();
   box->setLayout(childlayout);
@@ -165,12 +175,12 @@ GlobalAssemDialog::GlobalAssemDialog(
   childlayout->addWidget(child);
   box->setEnabled(enableAnnotations);
   if (!enableAnnotations)
-      box->setToolTip("'Display Part List (PLI) Annotations' must be enabled to set Assembly (CSI) Part annotation.");
+      box->setToolTip(tr("'Display Part List (PLI) Annotations' must be enabled to set Assembly (CSI) Part annotation."));
 
-  box = new QGroupBox("Stud Style and Automate Edge Color");
+  box = new QGroupBox("Stud Style And Automate Edge Color");
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
-  childStudStyle->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
+  childStudStyle->setToolTip(tr("Select stud style, High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(childStudStyle);
   connect(childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
@@ -178,7 +188,7 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Display");
+  tabwidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox;
 

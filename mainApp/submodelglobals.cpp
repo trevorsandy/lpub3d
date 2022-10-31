@@ -59,12 +59,14 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   setWindowTitle(tr("Submodel Globals Setup"));
 
-  QTabWidget  *tab = new QTabWidget(nullptr);
+  setWhatsThis(lpubWT(WT_SETUP_SUBMODEL,windowTitle()));
+
+  QTabWidget  *tabwidget = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
   setLayout(layout);
-  layout->addWidget(tab);
+  layout->addWidget(tabwidget);
 
   QWidget *widget;
   QGridLayout *grid;
@@ -78,24 +80,31 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   SubModelMeta *subModelMeta = &data->meta.LPub.subModel;
 
   /*
-   * Submodel tab
+   * Submodel Tab
    */
+
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Submodel"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SUBMODEL_SUBMODEL,widget->objectName()));
   grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
 
-  QTabWidget *childtab    = new QTabWidget();
-  grid->addWidget(childtab);
-  tab->addTab(widget,"Submodel");
+  QTabWidget *childtabwidget    = new QTabWidget();
+  grid->addWidget(childtabwidget);
+
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Options group
+   * Preview Tab
    */
+
   widget = new QWidget();
+  widget->setObjectName(tr("Preview"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SUBMODEL_PREVIEW,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Preview Options");
+  box = new QGroupBox(tr("Preview Display"));
   vlayout->addWidget(box);
   box->setLayout(childlayout);
   child = new ShowSubModelGui(&data->meta.LPub.subModel);
@@ -107,60 +116,70 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Preview");
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Background Tab
+   * Settings Tab
    */
+
   widget = new QWidget();
+  widget->setObjectName(tr("Settings"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SUBMODEL_BACKGROUND,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Background");
+  box = new QGroupBox(tr("Background"));
   vlayout->addWidget(box);
   child = new BackgroundGui(&subModelMeta->background,box);
   data->children.append(child);
 
-  box = new QGroupBox("Border");
+  box = new QGroupBox(tr("Border"));
   vlayout->addWidget(box);
   child = new BorderGui(&subModelMeta->border,box);
   data->children.append(child);
 
-  box = new QGroupBox("Margins");
+  box = new QGroupBox(tr("Margins"));
   vlayout->addWidget(box);
-  child = new UnitsGui("L/R|T/B",&subModelMeta->margin,box);
+  child = new UnitsGui(tr("L/R|T/B"),&subModelMeta->margin,box);
   data->children.append(child);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Settings");
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Contents tab
+   * Contents Tab
    */
 
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Contents"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SUBMODEL_CONTENTS,widget->objectName()));
   grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
   childlayout = new QVBoxLayout(nullptr);
 
-  childtab    = new QTabWidget();
-  grid->addWidget(childtab);
-  tab->addTab(widget,"Contents");
+  childtabwidget    = new QTabWidget();
+  grid->addWidget(childtabwidget);
+
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Submodel Image
+   * Image Tab
    */
+
   widget = new QWidget();
+  widget->setObjectName(tr("Image"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SUBMODEL_IMAGE,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox("Submodel Image");
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_IMAGE_SIZING,box->title()));
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  child = new DoubleSpinGui("Scale",
+  child = new DoubleSpinGui(tr("Scale"),
                             &subModelMeta->modelScale,
                             subModelMeta->modelScale._min,
                             subModelMeta->modelScale._max,
@@ -170,23 +189,24 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-  child = new UnitsGui("Margins L/R|T/B",&subModelMeta->part.margin);
+  child = new UnitsGui(tr("Margins L/R|T/B"),&subModelMeta->part.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
   /* Constraints */
-  box = new QGroupBox("Constrain");
+  box = new QGroupBox(tr("Constrain"));
   vlayout->addWidget(box);
   child = new ConstrainGui("",&subModelMeta->constrain,box);
   data->children.append(child);
 
-  box = new QGroupBox("Default Submodel Orientation");
+  box = new QGroupBox(tr("Default Submodel Orientation"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
   QGridLayout *boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new DoubleSpinGui("Camera FOV",
+  child = new DoubleSpinGui(tr("Camera FOV"),
                              &subModelMeta->cameraFoV,
                              subModelMeta->cameraFoV._min,
                              subModelMeta->cameraFoV._max,
@@ -196,12 +216,12 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui("Latitude","Longitude",&subModelMeta->cameraAngles);
+  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&subModelMeta->cameraAngles);
   data->children.append(child);
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
   boxGrid->addWidget(child,1,0);
 
-  box = new QGroupBox("Default Step Rotation");
+  box = new QGroupBox(tr("Default Step Rotation"));
   vlayout->addWidget(box);
   child = new RotStepGui(&subModelMeta->rotStep,box);
   data->children.append(child);
@@ -210,39 +230,43 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Image");
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Instance Count Tab
+   * More... Tab
    */
 
   widget = new QWidget();
+  widget->setObjectName(tr("More..."));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SUBMODEL_INSTANCE_COUNT,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  instanceCountBox = new QGroupBox("Submodel Instance Count");
+  instanceCountBox = new QGroupBox(tr("Submodel Instance Count"));
   instanceCountBox->setEnabled(subModelMeta->showInstanceCount.value());
   vlayout->addWidget(instanceCountBox);
-  child = new NumberGui(&subModelMeta->instance,instanceCountBox);
+  child = new NumberGui("",&subModelMeta->instance,instanceCountBox);
   data->children.append(child);
 
-  box = new QGroupBox("Stud Style and Automate Edge Color");
+  box = new QGroupBox(tr("Stud Style And Automate Edge Color"));
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&subModelMeta->autoEdgeColor,&subModelMeta->studStyle,&subModelMeta->highContrast,box);
-  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  childStudStyle->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"More...");
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
-   * SM Submodel level color
+   * Submodel Colors Tab
    */
 
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Submodel Colors"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_SHARED_SUBMODEL_LEVEL_COLORS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
@@ -252,11 +276,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   data->children.append(child);
 
   //spacer
-  //QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Submodel Colors");
+  tabwidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox;
 
@@ -284,7 +307,7 @@ void GlobalSubModelDialog::instanceCountClicked(bool checked)
 {
   instanceCountBox->setEnabled(checked);
   if (!checked)
-    instanceCountBox->setToolTip("Check 'Show submodel instance count' in the 'Preview' tab to enable.");
+    instanceCountBox->setToolTip(tr("Check 'Show submodel instance count' in the 'Preview' tab to enable."));
 }
 
 void GlobalSubModelDialog::clearCache(bool b)

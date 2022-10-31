@@ -3770,15 +3770,15 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
-                     Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
+                     CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -3815,10 +3815,10 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
 
 void SettingsMeta::resetCameraFoV()
 {
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(), Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(), CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
 }
 
 /* ------------------ */ 
@@ -5095,15 +5095,15 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraAngles.setValues(23,-45);
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
-                     Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
+                     CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
 
   // movable pli part groups
@@ -5289,35 +5289,35 @@ PageMeta::PageMeta() : BranchMeta()
    * Page Attribute relative Tos
    *
    *  FRONT COVER PAGE
-   *  documentLogoFront.placement  (BottomOutside,      PageHeaderType)
-   *  modelName.placement          (TopLeftOutside,	PageTitleType)
-   *  titleFront.placement         (LeftInside,         PageType)
-   *  authorFront.placement        (BottomLeftOutside,	PageTitleType)
-   *  Parts.placement              (BottomLeftOutside,	PageAuthorType)
-   *  modelDesc.placement          (BottomLeftOutside,	PagePartsType)
-   *  publishDesc.placement        (BottomLeftOutside,	PageModelDescType)
+   *  documentLogoFront.placement  (BottomOutside,      PageHeaderType)      [LineEdit]
+   *  modelName.placement          (TopLeftOutside,     PageTitleType)       [LineEdit]
+   *  titleFront.placement         (LeftInside,         PageType)            [LineEdit]
+   *  authorFront.placement        (BottomLeftOutside,  PageTitleType)       [LineEdit]
+   *  Parts.placement              (BottomLeftOutside,  PageAuthorType)      [LineEdit]
+   *  modelDesc.placement          (BottomLeftOutside,  PageModelDescType)   [TextEdit]
+   *  publishDesc.placement        (BottomLeftOutside,  PagePublishDescType) [TextEdit]
    *
    *  BACK COVER PAGE
-   *  documentLogoBack.placement   (BottomOutside,	PageHeaderType)
-   *  titleBack.placement          (CenterCenter,	PageType)
-   *  authorBack.placement         (BottomOutside,      PageTitleType)
-   *  copyrightBack.placement      (BottomOutside,      PageAuthorType)
-   *  urlBack.placement            (BottomOutside,      PageCopyrightType)
-   *  emailBack.placement          (BottomOutside,      PageURLType)
-   *  disclaimer.placement         (BottomOutside,      PageEmailType)
-   *  plug.placement               (BottomOutside,	PageDisclaimerType)
-   *  plugImage.placement          (BottomOutside,	PagePlugType)
+   *  documentLogoBack.placement   (BottomOutside,      PageHeaderType)      [LineEdit]
+   *  titleBack.placement          (CenterCenter,       PageType)            [LineEdit]
+   *  authorBack.placement         (BottomOutside,      PageTitleType)       [LineEdit]
+   *  copyrightBack.placement      (BottomOutside,      PageAuthorType)      [LineEdit]
+   *  urlBack.placement            (BottomOutside,      PageCopyrightType)   [LineEdit]
+   *  emailBack.placement          (BottomOutside,      PageURLType)         [LineEdit]
+   *  disclaimer.placement         (BottomOutside,      PageEmailType)       [LineEdit]
+   *  plug.placement               (BottomOutside,      PageDisclaimerType)  [TextEdit]
+   *  plugImage.placement          (BottomOutside,      PagePlugType)        [TextEdit]
    *
    *  HEADER
-   *  url.placement                (TopLeftInsideCorner,	 PageType)
-   *  email.placement		   (TopRightInsideCorner,	 PageType)
+   *  url.placement                (TopLeftInsideCorner, PageType)           [LineEdit]
+   *  email.placement              (TopRightInsideCorner,PageType)           [LineEdit]
    *
    *  FOOTER
-   *  copyright.placement	   (BottomLeftInsideCorner,      PageType)
-   *  author.placement		   (LeftBottomOutside,     PageNumberType)
+   *  copyright.placement	   (BottomLeftInsideCorner,  PageType)           [LineEdit]
+   *  author.placement		   (LeftBottomOutside,       PageNumberType)     [LineEdit]
    *
    *  NOT PLACED
-   *  category                     (TopLeftInsideCorner,         PageType)
+   *  category                     (TopLeftInsideCorner, PageType)
    */
 
   // FRONT COVER PAGE
@@ -5522,15 +5522,15 @@ AssemMeta::AssemMeta() : BranchMeta()
   cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
-                     Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
+                     CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -5539,10 +5539,10 @@ AssemMeta::AssemMeta() : BranchMeta()
 
 void AssemMeta::resetCameraFoV()
 {
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(), Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(), CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
 }
 
 void AssemMeta::init(BranchMeta *parent, QString name)
@@ -5642,15 +5642,15 @@ PliMeta::PliMeta() : BranchMeta()
   cameraAngles.setValues(23,-45);
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
-                     Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
+                     CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -5712,10 +5712,10 @@ void PliMeta::init(BranchMeta *parent, QString name)
 
 void PliMeta::resetCameraFoV()
 {
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(), Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(), CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
 }
 
 /* ------------------ */ 
@@ -5791,15 +5791,15 @@ BomMeta::BomMeta() : PliMeta()
   cameraAngles.setValues(23,-45);
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
-                     Gui::getDefaultFOVMaxRange());
-  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
+                     CamDef::getDefaultFOVMaxRange());
+  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);

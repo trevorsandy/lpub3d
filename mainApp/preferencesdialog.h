@@ -187,20 +187,20 @@ class PreferencesDialog : public QDialog
     void on_highlightStepBtn_clicked();
     void on_ldrawLibPathEdit_editingFinished();
 
-    void on_altLDConfigBox_clicked(bool checked);
+    void on_altLDConfigGrpBox_clicked(bool checked);
     void on_includeAllLogAttribBox_clicked(bool checked);
     void on_allLogLevelsBox_clicked(bool checked);
     void on_logLevelsGrpBox_clicked(bool checked);
     void on_logLevelGrpBox_clicked(bool checked);
     void on_archiveLSynthPartsBox_clicked(bool checked);
 
-    void on_ldviewBox_clicked(bool checked);
-    void on_ldgliteBox_clicked(bool checked);
-    void on_povrayBox_clicked(bool checked);
+    void on_ldviewGrpBox_clicked(bool checked);
+    void on_ldgliteGrpBox_clicked(bool checked);
+    void on_povrayGrpBox_clicked(bool checked);
 
-    void on_highlightStepBox_clicked(bool checked);
-    void on_fadeStepBox_clicked(bool checked);
-    void on_fadeStepsUseColourBox_clicked(bool checked);
+    void on_highlightStepGrpBox_clicked(bool checked);
+    void on_fadeStepGrpBox_clicked(bool checked);
+    void on_fadeStepsUseColourGrpBox_clicked(bool checked);
     void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
 
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);

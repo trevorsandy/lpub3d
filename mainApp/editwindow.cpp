@@ -65,6 +65,7 @@
 #include "waitingspinnerwidget.h"
 #include "threadworkers.h"
 #include "lpub_qtcompat.h"
+#include "commonmenus.h"
 
 #include "lc_mainwindow.h"
 #include "lc_viewwidget.h"
@@ -150,8 +151,10 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
         this->statusBar()->show();
         readSettings();
         cmdModEditor = this;
+        setWhatsThis(lpubWT(WT_COMMAND_EDIT_DET, tr("LDraw File Editor Detached")));
     } else {
         cmdEditor = this;
+        setWhatsThis(lpubWT(WT_COMMAND_EDIT, tr("LDraw File Editor")));
     }
 }
 
@@ -2606,6 +2609,7 @@ void EditWindow::preferences()
     // options dialogue
     QDialog *dialog = new QDialog();
     dialog->setWindowTitle(windowTitle);
+    dialog->setWhatsThis(lpubWT(WT_COMMAND_PREFS, windowTitle));
     QFormLayout *form = new QFormLayout(dialog);
 
     // options - editor font

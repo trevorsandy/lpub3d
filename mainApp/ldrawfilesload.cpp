@@ -33,8 +33,11 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QKeyEvent>
-#include "name.h"
+#include <QDebug>
+
+#include "declarations.h"
 #include "lpub_qtcompat.h"
+#include "commonmenus.h"
 #include "version.h"
 
 QVariant LdrawFilesLoadModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -58,6 +61,8 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
     ui->setupUi(this);
 
     setWindowTitle(tr("LDraw File Load Status"));
+
+    setWhatsThis(lpubWT(WT_DIALOG_LDRAW_FILES_LOAD,windowTitle()));
 
     QStringList _loadedParts = stringList;
 

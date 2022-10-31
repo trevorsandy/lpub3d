@@ -21,6 +21,7 @@
 #include "lpub.h"
 #include "metagui.h"
 #include "parmswindow.h"
+#include "commonmenus.h"
 
 #define RENDER_DEFAULT_WIDTH 1280
 #define RENDER_DEFAULT_HEIGHT 720
@@ -38,6 +39,8 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
       ui(new Ui::RenderDialog)
 {
     ui->setupUi(this);
+
+    setWhatsThis(lpubWT(WT_DIALOG_RENDER,windowTitle()));
 
 #ifndef QT_NO_PROCESS
     mProcess = nullptr;

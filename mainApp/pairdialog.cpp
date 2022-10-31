@@ -30,13 +30,19 @@
 #include <QGridLayout>
 #include <QDialogButtonBox>
 #include <QDoubleValidator>
+
 #include "version.h"
+#include "commonmenus.h"
 
 FloatDialog::FloatDialog(
   QString  title,
   QString  _label0,
   FloatMeta *leaf)
 {
+  setWindowTitle(title);
+
+  setWhatsThis(lpubWT(WT_DIALOG_FLOAT,windowTitle()));
+
   QString string = QString("%1") .arg(leaf->value(),
                                       leaf->_fieldWidth,
                                       'f',
@@ -50,8 +56,6 @@ FloatDialog::FloatDialog(
   label0 = new QLabel(_label0);
 
   grid = new QGridLayout;
-
-  setWindowTitle(title);
 
   grid->addWidget(label0,0,0);
   grid->addWidget(float0,0,1);
@@ -106,6 +110,8 @@ FloatPairDialog::FloatPairDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_FLOAT_PAIR,windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
@@ -177,7 +183,11 @@ DoubleSpinDialog::DoubleSpinDialog(
   : QDialog(parent)
 {
   setParent(parent);
+
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_DOUBLE_SPIN,windowTitle()));
+
   QVBoxLayout *layout = new QVBoxLayout;
   setLayout(layout);
 
@@ -250,6 +260,8 @@ LocalDialog::LocalDialog(
 
   setWindowTitle(title);
 
+  setWhatsThis(lpubWT(WT_DIALOG_LOCAL,windowTitle()));
+
   grid->addWidget(label);
 
   QDialogButtonBox *buttonBox;
@@ -299,6 +311,8 @@ OptionDialog::OptionDialog(
   QVBoxLayout *vLayout = new QVBoxLayout(this);
 
   setWindowTitle(titleList.first());
+
+  setWhatsThis(lpubWT(WT_DIALOG_OPTION,windowTitle()));
 
   int numOptions = optionsList.size();
   bool multiChoice = numOptions > 1;

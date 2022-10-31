@@ -47,7 +47,6 @@ public:
   }
 };
 
-
 GlobalMultiStepDialog::GlobalMultiStepDialog(
   QString &topLevelFile,
   Meta &meta)
@@ -56,12 +55,14 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   setWindowTitle(tr("Step Group Globals Setup"));
 
-  QTabWidget  *tab = new QTabWidget(nullptr);
+  setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP,windowTitle()));
+
+  QTabWidget  *tabwidget = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QGridLayout *boxGrid = new QGridLayout();
 
   setLayout(layout);
-  layout->addWidget(tab);
+  layout->addWidget(tabwidget);
 
   QVBoxLayout *vlayout;
   QSpacerItem *vSpacer;
@@ -73,94 +74,108 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   MultiStepMeta *multiStepMeta = &data->meta.LPub.multiStep;
 
   /*
-   * Step group
+   * Contents Tab
    */
+
   widget = new QWidget();
+  widget->setObjectName(tr("Contents"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_CONTENTS,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Step Group Margins");
+  box = new QGroupBox(tr("Step Group Margins"));
   vlayout->addWidget(box);
-  child = new UnitsGui("L/R|T/B",&multiStepMeta->margin,box);
+  child = new UnitsGui(tr("L/R|T/B"),&multiStepMeta->margin,box);
   data->children.append(child);
 
-  box = new QGroupBox("Step Justification");
+  box = new QGroupBox(tr("Step Justification"));
   vlayout->addWidget(box);
-  child = new JustifyStepGui("Set step justification",&multiStepMeta->justifyStep,box);
+  child = new JustifyStepGui(tr("Set Step Justification"),&multiStepMeta->justifyStep,box);
   data->children.append(child);
 
-  box = new QGroupBox("Callout and Rotate Icon");
+  box = new QGroupBox(tr("Callout And Rotate Icon"));
+  box->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_ADJUST_STEP,box->title()));
   vlayout->addWidget(box);
-  child = new CheckBoxGui("Adjust Step row or column when Callout or Rotate Icon dragged.",&multiStepMeta->adjustOnItemOffset,box);
+  child = new CheckBoxGui(tr("Adjust Step Row Or Column When Callout Or Rotate Icon Dragged."),&multiStepMeta->adjustOnItemOffset,box);
   data->children.append(child);
 
-  box = new QGroupBox("Step Number");
+  box = new QGroupBox(tr("Step Number"));
   vlayout->addWidget(box);
-  child = new NumberGui(&multiStepMeta->stepNum,box);
+  child = new NumberGui("",&multiStepMeta->stepNum,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Contents");
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
   * Display Tab
   */
 
   widget = new QWidget();
+  widget->setObjectName(tr("Display"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_DISPLAY,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
-  box = new QGroupBox("Parts List");
+  box = new QGroupBox(tr("Parts List"));
+  box->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_DISPLAY_PARTS_LIST,box->title()));
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  CheckBoxGui *childPliPerStep = new CheckBoxGui("Per Step",&multiStepMeta->pli.perStep);
+  CheckBoxGui *childPliPerStep = new CheckBoxGui(tr("Per Step"),&multiStepMeta->pli.perStep);
   connect(childPliPerStep->getCheckBox(), SIGNAL(stateChanged(int)),
           this,                           SLOT(  pliPerStepStateChanged(int)));
   data->children.append(childPliPerStep);
   childlayout->addWidget(childPliPerStep);
 
-  showGrpStepNumCheckBoxGui = new CheckBoxGui("Show Group Step Number",&multiStepMeta->showGroupStepNumber);
+  showGrpStepNumCheckBoxGui = new CheckBoxGui(tr("Show Group Step Number"),&multiStepMeta->showGroupStepNumber);
   showGrpStepNumCheckBoxGui->getCheckBox()->setEnabled(!multiStepMeta->pli.perStep.value());
   data->children.append(showGrpStepNumCheckBoxGui);
   childlayout->addWidget(showGrpStepNumCheckBoxGui);
   connect(showGrpStepNumCheckBoxGui->getCheckBox(), SIGNAL(stateChanged(int)),
           this,                                     SLOT(  showGrpStepNumStateChanged(int)));
 
-  countGrpStepsCheckBoxGui = new CheckBoxGui("Count Group Steps",&multiStepMeta->countGroupSteps);
-  countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(multiStepMeta->showGroupStepNumber.value());
+  countGrpStepsCheckBoxGui = new CheckBoxGui(tr("Count Group Steps"),&multiStepMeta->countGroupSteps);
+  countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(
+              multiStepMeta->showGroupStepNumber.value() &&
+             !multiStepMeta->pli.perStep.value());
   data->children.append(countGrpStepsCheckBoxGui);
   childlayout->addWidget(countGrpStepsCheckBoxGui);
 
-  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->pli.margin);
+  child = new UnitsGui(tr("Margins L/R|T/B"),&multiStepMeta->pli.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
-  box = new QGroupBox("Submodel");
+  box = new QGroupBox(tr("Submodel Preview"));
+  box->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_DISPLAY_SUBMODEL_PREVIEW,box->title()));
   vlayout->addWidget(box);
-  child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show,box);
+  child = new CheckBoxGui(tr("Show Submodel Preview At First Step"),&multiStepMeta->subModel.show,box);
   data->children.append(child);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Display");
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
   * CSI Assembly Tab
   */
+
   widget = new QWidget();
+  widget->setObjectName(tr("Assembly"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_ASSEMBLY,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Assembly Image");
+  box = new QGroupBox(tr("Assembly Image"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_IMAGE_SIZING,box->title()));
   vlayout->addWidget(box);
   box->setLayout(boxGrid);
 
   // Scale
-  child = new DoubleSpinGui("Scale",
+  child = new DoubleSpinGui(tr("Scale"),
                             &multiStepMeta->csi.modelScale,
                             multiStepMeta->csi.modelScale._min,
                             multiStepMeta->csi.modelScale._max,
@@ -170,19 +185,20 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->margin);
+  child = new UnitsGui(tr("Margins L/R|T/B"),&multiStepMeta->margin);
   data->children.append(child);
   boxGrid->addWidget(child);
 
   /* Assembly camera settings */
 
   box = new QGroupBox("Default Assembly Orientation");
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new DoubleSpinGui("Camera FOV",
+  child = new DoubleSpinGui(tr("Camera FOV"),
                             &multiStepMeta->csi.cameraFoV,
                             multiStepMeta->csi.cameraFoV._min,
                             multiStepMeta->csi.cameraFoV._max,
@@ -192,20 +208,20 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui("Latitude","Longitude",&multiStepMeta->csi.cameraAngles);
+  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&multiStepMeta->csi.cameraAngles);
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
-  box = new QGroupBox("Assembly Margins");
+  box = new QGroupBox(tr("Assembly Margins"));
   vlayout->addWidget(box);
-  child = new UnitsGui("L/R|T/B",&multiStepMeta->csi.margin,box);
+  child = new UnitsGui(tr("L/R|T/B"),&multiStepMeta->csi.margin,box);
   data->children.append(child);
 
-  box = new QGroupBox("Stud Style and Automate Edge Color");
+  box = new QGroupBox(tr("Stud Style And Automate Edge Color"));
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&multiStepMeta->csi.autoEdgeColor,&multiStepMeta->csi.studStyle,&multiStepMeta->csi.highContrast,box);
-  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  childStudStyle->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
@@ -213,26 +229,30 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Assembly");
+  tabwidget->addTab(widget,widget->objectName());
 
   /*
-   * Divider tab
+   * Divider Tab
    */
+
   widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Divider"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_DIVIDER,widget->objectName()));
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Divider");
+  box = new QGroupBox(tr("Divider"));
   vlayout->addWidget(box);
   child = new SepGui(&multiStepMeta->sep,box);
   data->children.append(child);
 
-  box = new QGroupBox("Divider Pointers");
+  box = new QGroupBox(tr("Divider Pointers"));
+  box->setWhatsThis(lpubWT(WT_SETUP_SHARED_POINTERS,box->title()));
   vlayout->addWidget(box);
   QVBoxLayout *childLayout = new QVBoxLayout(nullptr);
   box->setLayout(childLayout);
 
-  QGroupBox * childBox = new QGroupBox("Border");
+  QGroupBox * childBox = new QGroupBox(tr("Border"));
   childLayout->addWidget(childBox);
   PointerAttribData pad = multiStepMeta->divPointerAttrib.value();
   pad.attribType = PointerAttribData::Border;
@@ -240,14 +260,14 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   child = new PointerAttribGui(&multiStepMeta->divPointerAttrib,childBox);
   data->children.append(child);
 
-  childBox = new QGroupBox("Line");
+  childBox = new QGroupBox(tr("Line"));
   childLayout->addWidget(childBox);
   pad.attribType = PointerAttribData::Line;
   multiStepMeta->divPointerAttrib.setValue(pad);
   child = new PointerAttribGui(&multiStepMeta->divPointerAttrib,childBox);
   data->children.append(child);
 
-  childBox = new QGroupBox("Tip");
+  childBox = new QGroupBox(tr("Tip"));
   childLayout->addWidget(childBox);
   pad.attribType = PointerAttribData::Tip;
   multiStepMeta->divPointerAttrib.setValue(pad);
@@ -258,7 +278,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Divider");
+  tabwidget->addTab(widget,widget->objectName());
 
   QDialogButtonBox *buttonBox;
 

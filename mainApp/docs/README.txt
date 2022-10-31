@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2928 (31 10 2022 21:43:51)
+LPub3D 2.4.4.1.2929 (31 10 2022 21:45:30)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,8 +14,10 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 
+- Enhancement - Add full submodel file support to Build Modifications #591
 - Enhancement - Add load unofficial parts in command editor to project setup #591
 - Enhancement - Add load visual editor at cover page to project setup #593
+- Enhancement - Expand WhatsThis help to common dialogues #618
 - Enhancement - Improve performance - enable CLI, PLI and SMP multi-thread execution #598
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - LPub command editor snippet system #602

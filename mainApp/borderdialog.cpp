@@ -30,7 +30,9 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
 #include "metagui.h"
+#include "commonmenus.h"
 
 BorderDialog::BorderDialog(
   BorderData &goods,
@@ -39,6 +41,8 @@ BorderDialog::BorderDialog(
   bool        _noCorners)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_BORDER,windowTitle()));
 
   meta.setValue(goods);
   QVBoxLayout *layout = new QVBoxLayout(this);

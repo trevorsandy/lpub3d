@@ -26,6 +26,7 @@
 #include "meta.h"
 #include "metagui.h"
 #include "metaitem.h"
+#include "commonmenus.h"
 
 #include "lpub_preferences.h"
 #include "step.h"
@@ -73,61 +74,45 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
 
   setWindowTitle(tr("Highlight Step Globals Setup"));
 
-  QGridLayout   *grid;
-  QGridLayout   *boxGrid;
-  QGroupBox     *box;
+  setWhatsThis(lpubWT(WT_NUM_ENTRIES,windowTitle()));
 
-  grid = new QGridLayout();
-  setLayout(grid);
+  setWhatsThis(lpubWT(WT_SETUP_HIGHLIGHT_STEP,windowTitle()));
 
-  box = new QGroupBox("Highlight Current Step");
-  grid->addWidget(box,0,0);
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  setLayout(layout);
 
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-
-  highlightStepChild = new HighlightStepGui(highlightStepMeta);
+  QGroupBox *box = new QGroupBox(tr("Highlight Current Step"));
+  layout->addWidget(box);
+  highlightStepChild = new HighlightStepGui(highlightStepMeta,box);
   data->children.append(highlightStepChild);
   connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  boxGrid->addWidget(highlightStepChild,0,0);
 
-  box = new QGroupBox("Highlight Current Step Setup");
-  grid->addWidget(box,1,0);
-
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-
-  highlightStepSetupChild = new CheckBoxGui("Setup Highlight Current Step",&highlightStepMeta->setup);
+  box = new QGroupBox(tr("Highlight Current Step Setup"));
+  box->setWhatsThis(lpubWT(WT_SETUP_HIGHLIGHT_STEP_SETUP,box->title()));
+  layout->addWidget(box);
+  highlightStepSetupChild = new CheckBoxGui(tr("Setup Highlight Current Step"),&highlightStepMeta->setup,box);
   highlightStepSetupChild->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
   data->children.append(highlightStepSetupChild);
   connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  boxGrid->addWidget(highlightStepSetupChild,0,0);
 
-  box = new QGroupBox("Final Model Step");
-  grid->addWidget(box,2,0);
+  box = new QGroupBox(tr("Final Model Step"));
+  layout->addWidget(box);
 
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-  box->setToolTip("Automatically, append an un-faded and/or un-highlighted final step "
-                  "to the top level model file. This step will not be saved.");
-
-  finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
+  finalModelEnabledChild = new FinalModelEnabledGui(tr("Enable Final Model Step"),&lpubMeta->finalModelEnabled,box);
+  finalModelEnabledChild->setToolTip(tr("Automatically, append an un-faded and/or un-highlighted final step "
+                                        "to the top level model file. This step will not be saved."));
   data->children.append(finalModelEnabledChild);
   connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  boxGrid->addWidget(finalModelEnabledChild,0,0);
 
   emit highlightStepChild->getCheckBox()->clicked(highlightStepChild->getCheckBox()->isChecked());
 
-  QDialogButtonBox *buttonBox;
-
-  buttonBox = new QDialogButtonBox();
+  QDialogButtonBox *buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
-
-  grid->addWidget(buttonBox);
+  layout->addWidget(buttonBox);
 
   setModal(true);
   setMinimumSize(300,20);

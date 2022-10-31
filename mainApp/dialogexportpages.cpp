@@ -16,13 +16,17 @@
 #include "ui_dialogexportpages.h"
 #include "lpub_preferences.h"
 #include <LDVQt/LDVWidget.h>
+
 #include "lpub.h"
+#include "commonmenus.h"
 
 DialogExportPages::DialogExportPages(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogExportPages)
 {
     ui->setupUi(this);
+
+    setWhatsThis(lpubWT(WT_DIALOG_EXPORT_PAGES,windowTitle()));
 
     static const QString directionNames[] =
     {
@@ -66,7 +70,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
     if (Gui::m_exportMode != PAGE_PROCESS) {
         ui->doNotShowPageProcessDlgChk->hide();
-        ui->pageProcessingContinuousBox->hide();
+        ui->pageProcessingContinuousGrpBox->hide();
     }
 
     if ((! preview) &&
@@ -195,7 +199,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->checkBoxResetCache->setText(tr("Reset all caches before %1 page processing").arg(direction.toLower()));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 page processing").arg(direction.toLower()));
 
-        ui->pageProcessingContinuousBox->show();
+        ui->pageProcessingContinuousGrpBox->show();
         ui->doNotShowPageProcessDlgChk->show();
         ui->doNotShowPageProcessDlgChk->setEnabled(true);
         ui->labelCurrentPage->hide();

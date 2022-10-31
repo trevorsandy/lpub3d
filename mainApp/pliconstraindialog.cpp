@@ -29,7 +29,9 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+
 #include "metagui.h"
+#include "commonmenus.h"
 
 ConstrainDialog::ConstrainDialog(
   ConstrainData &goods,
@@ -38,6 +40,8 @@ ConstrainDialog::ConstrainDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+
+  setWhatsThis(lpubWT(WT_DIALOG_CONSTRAIN,windowTitle()));
 
   meta.setValueUnit(goods);
 

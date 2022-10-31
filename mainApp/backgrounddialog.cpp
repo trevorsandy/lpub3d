@@ -32,6 +32,7 @@
 
 #include "backgrounddialog.h"
 #include "metagui.h"
+#include "commonmenus.h"
 
 BackgroundDialog::BackgroundDialog(
   BackgroundData &goods,
@@ -41,6 +42,7 @@ BackgroundDialog::BackgroundDialog(
   : QDialog(parent)
 {
   setWindowTitle(_name);
+  setWhatsThis(lpubWT(WT_DIALOG_BACKGROUND,windowTitle()));
 
   meta.setValue(goods);
   QVBoxLayout *layout = new QVBoxLayout(this);
