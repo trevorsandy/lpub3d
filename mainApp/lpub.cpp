@@ -5268,70 +5268,70 @@ void Gui::createActions()
     lpub->actions.insert(preferencesAct->objectName(), Action(tr("Configuration.Preferences"), preferencesAct));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
-    QAction *pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup"), this);
+    QAction *pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup..."), this);
     pageSetupAct->setObjectName("pageSetupAct.1");
     pageSetupAct->setEnabled(false);
     pageSetupAct->setStatusTip(tr("Default values for your project's pages"));
     lpub->actions.insert(pageSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Page Setup"), pageSetupAct));
     connect(pageSetupAct, SIGNAL(triggered()), this, SLOT(pageSetup()));
 
-    QAction *assemSetupAct = new QAction(QIcon(":/resources/assemblysetup.png"),tr("Assembly Setup"), this);
+    QAction *assemSetupAct = new QAction(QIcon(":/resources/assemblysetup.png"),tr("Assembly Setup..."), this);
     assemSetupAct->setObjectName("assemSetupAct.1");
     assemSetupAct->setEnabled(false);
     assemSetupAct->setStatusTip(tr("Default values for your project's assembly images"));
     lpub->actions.insert(assemSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Assembly Setup"), assemSetupAct));
     connect(assemSetupAct, SIGNAL(triggered()), this, SLOT(assemSetup()));
 
-    QAction *pliSetupAct = new QAction(QIcon(":/resources/partslistsetup.png"),tr("Parts List Setup"), this);
+    QAction *pliSetupAct = new QAction(QIcon(":/resources/partslistsetup.png"),tr("Parts List Setup..."), this);
     pliSetupAct->setObjectName("pliSetupAct.1");
     pliSetupAct->setEnabled(false);
     pliSetupAct->setStatusTip(tr("Default values for your project's parts lists"));
     lpub->actions.insert(pliSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Parts List Setup"), pliSetupAct));
     connect(pliSetupAct, SIGNAL(triggered()), this, SLOT(pliSetup()));
 
-    QAction *bomSetupAct = new QAction(QIcon(":/resources/bomsetup.png"),tr("Bill of Materials Setup"), this);
+    QAction *bomSetupAct = new QAction(QIcon(":/resources/bomsetup.png"),tr("Bill of Materials Setup..."), this);
     bomSetupAct->setObjectName("bomSetupAct.1");
     bomSetupAct->setEnabled(false);
     bomSetupAct->setStatusTip(tr("Default values for your project's bill of materials"));
     lpub->actions.insert(bomSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Bill Of Materials Setup"), bomSetupAct));
     connect(bomSetupAct, SIGNAL(triggered()), this, SLOT(bomSetup()));
 
-    QAction *calloutSetupAct = new QAction(QIcon(":/resources/calloutsetup.png"),tr("Callout Setup"), this);
+    QAction *calloutSetupAct = new QAction(QIcon(":/resources/calloutsetup.png"),tr("Callout Setup..."), this);
     calloutSetupAct->setObjectName("calloutSetupAct.1");
     calloutSetupAct->setEnabled(false);
     calloutSetupAct->setStatusTip(tr("Default values for your project's callouts"));
     lpub->actions.insert(calloutSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Callout Setup"), calloutSetupAct));
     connect(calloutSetupAct, SIGNAL(triggered()), this, SLOT(calloutSetup()));
 
-    QAction *multiStepSetupAct = new QAction(QIcon(":/resources/stepgroupsetup.png"),tr("Step Group Setup"), this);
+    QAction *multiStepSetupAct = new QAction(QIcon(":/resources/stepgroupsetup.png"),tr("Step Group Setup..."), this);
     multiStepSetupAct->setObjectName("multiStepSetupAct.1");
     multiStepSetupAct->setEnabled(false);
     multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
     lpub->actions.insert(multiStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Step Group Setup"), multiStepSetupAct));
     connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
 
-    QAction *subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Preview Setup"), this);
+    QAction *subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Preview Setup..."), this);
     subModelSetupAct->setObjectName("subModelSetupAct.1");
     subModelSetupAct->setEnabled(false);
     subModelSetupAct->setStatusTip(tr("Default values for your submodel preview at first step"));
     lpub->actions.insert(subModelSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Submodel Preview Setup"), subModelSetupAct));
     connect(subModelSetupAct, SIGNAL(triggered()), this, SLOT(subModelSetup()));
 
-    QAction *projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup"), this);
+    QAction *projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup..."), this);
     projectSetupAct->setObjectName("projectSetupAct.1");
     projectSetupAct->setEnabled(false);
     projectSetupAct->setStatusTip(tr("Default values for your project"));
     lpub->actions.insert(projectSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Project Setup"), projectSetupAct));
     connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
 
-    QAction *fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup"), this);
+    QAction *fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup..."), this);
     fadeStepSetupAct->setObjectName("fadeStepSetupAct.1");
     fadeStepSetupAct->setEnabled(false);
     fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
     lpub->actions.insert(fadeStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Fade Step Setup"), fadeStepSetupAct));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
 
-    QAction *highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup"), this);
+    QAction *highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup..."), this);
     highlightStepSetupAct->setObjectName("highlightStepSetupAct.1");
     highlightStepSetupAct->setEnabled(false);
     highlightStepSetupAct->setStatusTip(tr("Highlight parts in current step"));
@@ -5591,13 +5591,13 @@ void Gui::createActions()
     lpub->actions.insert(aboutAct->objectName(), Action(tr("Help.About"), aboutAct));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
-    QAction *visitHomepageAct = new QAction(QIcon(":/resources/homepage.png"),tr("Visit Homepage"), this);
+    QAction *visitHomepageAct = new QAction(QIcon(":/resources/homepage.png"),tr("Visit Homepage..."), this);
     visitHomepageAct->setObjectName("visitHomepageAct.1");
     visitHomepageAct->setStatusTip(tr("Visit the %1 home website.").arg(VER_PRODUCTNAME_STR));
     lpub->actions.insert(visitHomepageAct->objectName(), Action(tr("Help.Visit Homepage"), visitHomepageAct));
     connect(visitHomepageAct, SIGNAL(triggered()), this, SLOT(visitHomepage()));
 
-    QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug or Issue"), this);
+    QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug or Issue..."), this);
     reportBugAct->setObjectName("reportBugAct.1");
     reportBugAct->setStatusTip(tr("Create an online ticket to report a bug or issue."));
     lpub->actions.insert(reportBugAct->objectName(), Action(tr("Help.Report Bug"), reportBugAct));
@@ -5605,7 +5605,7 @@ void Gui::createActions()
 
     // Begin Jaco's code
 
-    QAction *onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual"), this);
+    QAction *onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual..."), this);
     onlineManualAct->setObjectName("onlineManualAct.1");
     onlineManualAct->setStatusTip(tr("Visit the Online Manual Website."));
     lpub->actions.insert(onlineManualAct->objectName(), Action(tr("Help.Online Manual"), onlineManualAct));
@@ -5613,14 +5613,14 @@ void Gui::createActions()
 
     // End Jaco's code
     
-    QAction *commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
+    QAction *commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands..."), this);
     commandsDialogAct->setObjectName("commandsDialogAct.1");
     commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(tr("Ctrl+K"));
     lpub->actions.insert(commandsDialogAct->objectName(), Action(tr("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
     
-    QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands"), this);
+    QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands..."), this);
     exportMetaCommandsAct->setObjectName("exportMetaCommandsAct.1");
     exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
     lpub->actions.insert(exportMetaCommandsAct->objectName(), Action(tr("Help.Export LPub Metacommands"), exportMetaCommandsAct));
@@ -5632,14 +5632,14 @@ void Gui::createActions()
     lpub->actions.insert(updateAppAct->objectName(), Action(tr("Help.Check For Updates"), updateAppAct));
     connect(updateAppAct, SIGNAL(triggered()), this, SLOT(updateCheck()));
 
-    QAction *viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View Runtime Log"), this);
+    QAction *viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View Runtime Log..."), this);
     viewLogAct->setObjectName("viewLogAct.1");
     viewLogAct->setShortcut(tr("Alt+L"));
     viewLogAct->setStatusTip(tr("View %1 log").arg(VER_PRODUCTNAME_STR));
     lpub->actions.insert(viewLogAct->objectName(), Action(tr("Help.View Runtime Log"), viewLogAct));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
-    QAction *openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
+    QAction *openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder..."), this);
     openWorkingFolderAct->setObjectName("openWorkingFolderAct.1");
     openWorkingFolderAct->setShortcut(tr("Alt+Shift+1"));
     openWorkingFolderAct->setStatusTip(tr("Open current model file working folder"));
@@ -6595,7 +6595,7 @@ void Gui::createMenus()
 
     configMenu->addSeparator();
 
-    QMenu *cacheMenu = configMenu->addMenu("Reset Cache");
+    QMenu *cacheMenu = configMenu->addMenu("Reset Cache...");
     cacheMenu->setObjectName("cacheMenu");
     menus.insert(cacheMenu->objectName(), cacheMenu);
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));

@@ -631,7 +631,7 @@ void EditWindow::createActions()
     lpub->actions.insert(redoAct->objectName(), Action(tr("Edit.Redo"), redoAct));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
-    preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
+    preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences..."), this);
     preferencesAct->setObjectName("preferencesAct.2");
     preferencesAct->setStatusTip(tr("Set your preferences for the LDraw Command editor"));
     lpub->actions.insert(preferencesAct->objectName(), Action(tr("Edit.Preferences"), preferencesAct));
