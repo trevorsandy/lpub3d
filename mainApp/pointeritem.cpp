@@ -325,14 +325,14 @@ void PointerItem::addShaftSegment(){
                           QLineF(points[MidBase],points[Tip]).p2() * 0.5);
         linefNew       = QLineF(points[MidTip],points[Tip]);
         if (points[MidTip].y() == points[MidBase].y()){
-            emit gui->messageSig(LOG_ERROR, "Pointer segments are on the same line. Move an existing segment before creating a new one.");
+            emit gui->messageSig(LOG_ERROR, QObject::tr("Pointer segments are on the same line. Move an existing segment before creating a new one."));
             return;
         }
     }
         break;
     case ThreeSegments:
     {
-        emit gui->messageSig(LOG_ERROR, "Maximum number (%1) of pointer segments already defined.");
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Maximum number (%1) of pointer segments already defined."));
           return;
     }
     default:
@@ -378,7 +378,7 @@ void PointerItem::addShaftSegment(){
     shaft->stepNumber = stepNumber;
     shaft->setPen(pen);
     shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
-    shaft->setToolTip(QString("Pointer segment %1 - drag grabber to move; right click to modify").arg(segments()+1));
+    shaft->setToolTip(QObject::tr("Pointer segment %1 - drag grabber to move; right click to modify").arg(segments()+1));
     shaftSegments.append(shaft);
     addToGroup(shaft);
 
@@ -705,10 +705,11 @@ void PointerItem::addPointerMeta()
 void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  const QString name = QObject::tr("Pointer");
+
   Where undefined;
   bool isCallout = pointerParentType == CalloutType;
   PointerAttribData pad = pointer.pointerAttrib.value();
-  QString units = QString(" in %1").arg(Preferences::preferCentimeters ? "centimetres" : "inches");
 
   Where tipAttribTop       = Where(pad.tipHere.modelName,pad.tipHere.lineNumber);
   Where tipAttribBottom    = tipAttribTop;
@@ -717,64 +718,48 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Where borderAttribTop    = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
   Where borderAttribBottom = borderAttribTop;
 
-  QAction *setLineAttributesAction = menu.addAction("Edit Line Attributes");
-  setLineAttributesAction->setIcon(QIcon(":/resources/lineattributes.png"));
-  setLineAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
-                                         "Edit the pointer line color, thickness, and type"+units);
+  QAction *setLineAttributesAction     = lpub->getAct("setLineAttributesAction.1");
+  commonMenus.addAction(setLineAttributesAction,menu);
 
-  QAction *setBorderAttributesAction = menu.addAction("Edit Border Attributes");
-  setBorderAttributesAction->setIcon(QIcon(":/resources/borderattributes.png"));
-  setBorderAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
-                                           "Edit the pointer border color, thickness, and line type"+units);
+  QAction *setBorderAttributesAction   = lpub->getAct("setBorderAttributesAction.1");
+  commonMenus.addAction(setBorderAttributesAction,menu);
 
-  QAction *setTipAttributesAction = menu.addAction("Edit Tip Attributes");
-  setTipAttributesAction->setIcon(QIcon(":/resources/tipattributes.png"));
-  setTipAttributesAction->setWhatsThis( "Edit pointer Tip attributes:\n"
-                                        "Edit the pointer Tip width, and height"+units);
+  QAction *setTipAttributesAction      = lpub->getAct("setTipAttributesAction.1");
+  commonMenus.addAction(setTipAttributesAction,menu);
 
-  QAction *resetLineAttributesAction = nullptr;
+  QAction *resetLineAttributesAction   = nullptr;
   if (! pad.lineData.useDefault) {
-      resetLineAttributesAction = menu.addAction("Reset Line Attributes");
-      resetLineAttributesAction->setIcon(QIcon(  ":/resources/resetlineattributes.png"));
-      resetLineAttributesAction->setWhatsThis(   "Reset pointer line attributes");
+      resetLineAttributesAction        = lpub->getAct("resetLineAttributesAction.1");
+      commonMenus.addAction(resetLineAttributesAction,menu);
   }
 
   QAction *resetBorderAttributesAction = nullptr;
   if (! pad.borderData.useDefault) {
-      resetBorderAttributesAction = menu.addAction("Reset Border Attributes");
-      resetBorderAttributesAction->setIcon(QIcon(  ":/resources/resetborderattributes.png"));
-      resetBorderAttributesAction->setWhatsThis(   "Reset pointer line attributes");
+      resetBorderAttributesAction      = lpub->getAct("resetBorderAttributesAction.1");
+      commonMenus.addAction(resetBorderAttributesAction,menu);
   }
 
-  QAction *resetTipAttributesAction = nullptr;
+  QAction *resetTipAttributesAction    = nullptr;
   if (! pad.tipData.useDefault) {
-      resetTipAttributesAction = menu.addAction("Reset Tip Attributes");
-      resetTipAttributesAction->setIcon(QIcon(  ":/resources/resettipattributes.png"));
-      resetTipAttributesAction->setWhatsThis(   "Reset pointer Tip attributes");
+      resetTipAttributesAction         = lpub->getAct("resetTipAttributesAction.1");
+      commonMenus.addAction(resetTipAttributesAction,menu);
   }
 
-  QAction *removeAction = menu.addAction("Delete Pointer");
-  removeAction->setIcon(QIcon(":/resources/deletepointer.png"));
-  removeAction->setWhatsThis(            "Delete this Pointer:\n"
-                                         "Deletes this pointer");
+  QAction *deletePointerAction         = lpub->getAct("deletePointerAction.1");
+  commonMenus.addAction(deletePointerAction,menu,name);
 
-  QAction *addSegmentAction = nullptr;
+  QAction *addSegmentAction            = nullptr;
   if (segments() < 3) {
-      addSegmentAction = menu.addAction("Add Pointer Segment");
-      addSegmentAction->setIcon(QIcon(  ":/resources/addpointersegment.png"));
-      addSegmentAction->setWhatsThis(   "Add pointer segment:\n"
-                                        "Introduce a new pointer shaft segment.");
+      addSegmentAction = lpub->getAct("addSegmentAction.1");
+      commonMenus.addAction(addSegmentAction,menu);
   }
 
-  QAction *removeSegmentAction = nullptr;
+  QAction *removeSegmentAction         = nullptr;
   if (segments() > 1) {
-      removeSegmentAction = menu.addAction("Remove Pointer Segment");
-      removeSegmentAction->setIcon(QIcon(  ":/resources/removepointersegment.png"));
-      removeSegmentAction->setWhatsThis(   "Remove pointer segment:\n"
-                                           "Remove pointer shaft segment.");
+      removeSegmentAction = lpub->getAct("removeSegmentAction.1");
+      commonMenus.addAction(removeSegmentAction,menu);
   }
 
-  QString pl = "Pointer";
   Where sceneObjTop, sceneObjBottom;
   SceneObjectMeta sdm;
   switch (pointerParentType){
@@ -798,18 +783,18 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   if ( ! selectedAction ) {
       return;
-    }
+  }
 
   if (selectedAction == setLineAttributesAction) {
       pad.attribType = PointerAttribData::Line;
       pointer.pointerAttrib.setValue(pad);
       if(lineAttribTop == undefined) {
-         lineAttribTop = pointer.here;
-         lineAttribBottom = lineAttribTop;
+          lineAttribTop = pointer.here;
+          lineAttribBottom = lineAttribTop;
       } else {
-         pointer.pointerAttrib.setWhere(lineAttribTop);
+          pointer.pointerAttrib.setWhere(lineAttribTop);
       }
-      setPointerAttrib("Pointer Line Attributes",
+      setPointerAttrib(QObject::tr("%1 Line Attributes").arg(name),
                         lineAttribTop,
                         lineAttribBottom,
                        &pointer.pointerAttrib,false,1,false,isCallout);
@@ -819,12 +804,12 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       pad.attribType = PointerAttribData::Border;
       pointer.pointerAttrib.setValue(pad);
       if(borderAttribTop == undefined) {
-         borderAttribTop = pointer.here;
-         borderAttribBottom = borderAttribTop;
+          borderAttribTop = pointer.here;
+          borderAttribBottom = borderAttribTop;
       } else {
-         pointer.pointerAttrib.setWhere(borderAttribTop);
+          pointer.pointerAttrib.setWhere(borderAttribTop);
       }
-      setPointerAttrib("Pointer Border Attributes",
+      setPointerAttrib(QObject::tr("%1 Border Attributes").arg(name),
                         borderAttribTop,
                         borderAttribBottom,
                        &pointer.pointerAttrib,false,1,false,isCallout);
@@ -834,42 +819,42 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       pad.attribType = PointerAttribData::Tip;
       pointer.pointerAttrib.setValue(pad);
       if(tipAttribTop == undefined) {
-         tipAttribTop = pointer.here;
-         tipAttribBottom = tipAttribTop;
+          tipAttribTop = pointer.here;
+          tipAttribBottom = tipAttribTop;
       } else {
          pointer.pointerAttrib.setWhere(tipAttribTop);
       }
-      setPointerAttrib("Pointer Tip Attributes",
+      setPointerAttrib(QObject::tr("%1 Tip Attributes").arg(name),
                         tipAttribTop,
                         tipAttribBottom,
                        &pointer.pointerAttrib,false,1,false,isCallout);
   }
   else
   if (selectedAction == resetLineAttributesAction) {
-    deletePointerAttribute(lineAttribTop);
+      deletePointerAttribute(lineAttribTop);
   }
   else
   if (selectedAction == resetBorderAttributesAction) {
-    deletePointerAttribute(borderAttribTop);
+      deletePointerAttribute(borderAttribTop);
   }
   else
   if (selectedAction == resetTipAttributesAction) {
-    deletePointerAttribute(tipAttribTop);
+      deletePointerAttribute(tipAttribTop);
   }
   else
-  if (selectedAction == removeAction) {
-    bool line   = lineAttribTop   != undefined;
-    bool border = borderAttribTop != undefined;
-    bool tip    = tipAttribTop    != undefined;
-    deletePointer(pointer.here,line,border,tip);
+  if (selectedAction == deletePointerAction) {
+      bool line   = lineAttribTop   != undefined;
+      bool border = borderAttribTop != undefined;
+      bool tip    = tipAttribTop    != undefined;
+      deletePointer(pointer.here,line,border,tip);
   }
   else
   if (selectedAction == addSegmentAction) {
-    addShaftSegment();
+      addShaftSegment();
   }
   else
   if (selectedAction == removeSegmentAction) {
-    removeShaftSegment();
+      removeShaftSegment();
   }
 }
 
