@@ -27,9 +27,8 @@
 #include "name.h"
 #include "version.h"
 #include "lpub_preferences.h"
+#include "lpub_object.h"
 #include "qsimpleupdater.h"
-
-QString AboutDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
 AboutDialog::AboutDialog(QWidget *parent) :
 	QDialog(parent),
@@ -74,25 +73,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                   "</table>"
                                 "</td>"
                              "</tr>"
-                             "<tr>"
-                                "<td>"
-                                   "<table>"
-                                     "<tr>"
-                                       "<td>Support:</td>"
-                                       "<td><a href=\"%3\">%3</a></td>"
-                                     "</tr>"
-                                     "<tr>"
-                                       "<td>Source:</td>"
-                                       "<td><a href=\"%4\">%4</a></td>"
-                                     "</tr>"
-                                  "</table>"
-                                "</td>"
-                             "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_LICENSE_INFO_STR))
-                               .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_STR))
-                               .arg(QString::fromLatin1(VER_SOURCE_GITHUB_STR));
+                               .arg(QString::fromLatin1(VER_LICENSE_INFO_STR));
 
     ui->AppInfo->setTextFormat(Qt::RichText);
     ui->AppInfo->setOpenExternalLinks(true);
@@ -114,32 +97,27 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                    "<td>%3</td>"
                                  "</tr>"
                                  "<tr>"
-                                   "<td>Framework/Library:&nbsp;</td>"
+                                   "<td>Dev Environment:</td>"
                                    "<td>%4</td>"
                                  "</tr>"
                                  "<tr>"
-                                   "<td>Dev Environment:</td>"
+                                   "<td>LeoCAD Version:</td>"
                                    "<td>%5</td>"
                                  "</tr>"
                                  "<tr>"
-                                   "<td>LeoCAD Version:</td>"
-                                   "<td>%6</td>"
-                                 "</tr>"
-                                 "<tr>"
                                    "<td>Build Date:</td>"
-                                   "<td>%7</td>"
+                                   "<td>%6</td>"
                                  "</tr>"
                                  "<tr>"
                                    "<td></td>"
                                    "<td valign=\"right\">"
-                                     "<a href=\"%8\"><img src=\":/resources/builtwithqt.png\"></a>"
+                                     "<a href=\"%7\"><img src=\":/resources/builtwithqt.png\"></a>"
                                    "</td>"
                                  "</tr>"
                                "</table>");
     QString BuildInfo = BuildInfoFormat.arg(QString::fromLatin1(VER_COMPILED_ON))
                                        .arg(QString::fromLatin1(VER_COMPILED_FOR))
                                        .arg(QString::fromLatin1(VER_COMPILED_WITH).replace("qtver",qVersion()))
-                                       .arg(QString("Qt %1").arg(qVersion()))
                                        .arg(QString::fromLatin1(VER_IDE))
                                        .arg(tr("%1 - Commit %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
                                                                 .arg(QString::fromLatin1(LC_VERSION_SHA)))
@@ -202,11 +180,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->contentEdit->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
     ui->contentEdit->setOpenExternalLinks(true);
 
-    /* QSimpleUpdater start */
-    m_updater = QSimpleUpdater::getInstance();
-    connect (m_updater, SIGNAL (checkingFinished (QString)),
-             this,        SLOT (updateChangelog  (QString)));
-
     //buttonBar additions
     detailsButton = new QPushButton(tr("Version Details..."));
     detailsButton->setDefault(true);
@@ -222,47 +195,35 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(creditsButton,SIGNAL(clicked(bool)),
             this,SLOT(showCreditDetails(bool)));
 
-    //populate readme from the web
-    changeLogDetails = false;
-    m_updater->setChangelogOnly(DEFS_URL, true);
-    m_updater->checkForUpdates (DEFS_URL);
+    //populate readme
+    updateChangelog();
 
     setSizeGripEnabled(true);
 }
 
 AboutDialog::~AboutDialog()
 {
-	delete ui;
+    delete ui;
 }
 
 // populate readme
-void AboutDialog::updateChangelog (QString url) {
-    if (url == DEFS_URL) {
-        if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
-            ui->contentGroupBox->setTitle(tr("Change Log for version %1").arg(m_updater->getLatestVersion(url)));
-            if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
-                ui->contentEdit->setHtml(m_updater->getChangelog (url));
-            else
-                ui->contentEdit->setText(m_updater->getChangelog (url));
-            changeLogDetails = true;
-        }
-    }
+void AboutDialog::updateChangelog () {
+    ui->contentGroupBox->setTitle(LPub::m_versionInfo);
+    if (LPub::m_setReleaseNotesAsText)
+        ui->contentEdit->setPlainText(LPub::m_releaseNotesContent);
+    else
+        ui->contentEdit->setHtml(LPub::m_releaseNotesContent);
 }
 
 void AboutDialog::showChangeLogDetails(bool clicked){
     Q_UNUSED(clicked);
 
-    //populate readme from the web
-    if (!changeLogDetails) {
-        m_updater->setChangelogOnly(DEFS_URL, true);
-        m_updater->checkForUpdates (DEFS_URL);
-    }
+    updateChangelog ();
 
     if (ui->contentGroupBox->isHidden()){
         ui->contentGroupBox->show();
         this->adjustSize();
-    }
-    else{
+    } else {
         ui->contentGroupBox->hide();
         this->adjustSize();
     }
@@ -277,9 +238,7 @@ void AboutDialog::showCreditDetails(bool clicked){
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
         ui->contentEdit->setPlainText( QString("Failed to open Credits file: \n%1:\n%2")
-                                               .arg(creditsFile)
-                                               .arg(file.errorString()));
-        changeLogDetails = false;
+                                               .arg(creditsFile).arg(file.errorString()));
     } else {
         QTextStream in(&file);
         ui->contentEdit->setPlainText(in.readAll());
@@ -288,8 +247,7 @@ void AboutDialog::showCreditDetails(bool clicked){
     if (ui->contentGroupBox->isHidden()){
         ui->contentGroupBox->show();
         this->adjustSize();
-    }
-    else{
+    } else {
         ui->contentGroupBox->hide();
         this->adjustSize();
     }
@@ -390,4 +348,3 @@ OsType AboutDialog::checkOS()
 #endif
 }
 #endif
-

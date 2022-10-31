@@ -5598,7 +5598,7 @@ void Gui::createActions()
     lpub->actions.insert(visitHomepageAct->objectName(), Action(tr("Help.Visit Homepage"), visitHomepageAct));
     connect(visitHomepageAct, SIGNAL(triggered()), this, SLOT(visitHomepage()));
 
-    QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug"), this);
+    QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug or Issue"), this);
     reportBugAct->setObjectName("reportBugAct.1");
     reportBugAct->setStatusTip(tr("Create an online ticket to report a bug or issue."));
     lpub->actions.insert(reportBugAct->objectName(), Action(tr("Help.Report Bug"), reportBugAct));

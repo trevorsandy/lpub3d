@@ -20,9 +20,6 @@
 #include <Windows.h>
 #endif
 
-#include "qsimpleupdater.h"
-
-
 namespace Ui {
 class AboutDialog;
 }
@@ -34,33 +31,26 @@ typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
 class AboutDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 private slots:
     void showChangeLogDetails(bool);
     void showCreditDetails(bool);
-    void updateChangelog (QString url);
-
-private:
-    QSimpleUpdater  *m_updater;
-    static QString   DEFS_URL;
-    bool             changeLogDetails;
+    void updateChangelog ();
 
 public:
     explicit AboutDialog(QWidget *parent);
     QString osName();
     QPushButton *detailsButton;
     QPushButton *creditsButton;
-	~AboutDialog();
+    ~AboutDialog();
 
 #ifdef Q_OS_WIN
     OsType checkOS();
 #endif
 
 private:
-	Ui::AboutDialog *ui;
+    Ui::AboutDialog *ui;
 
 };
-
-
 #endif // _ABOUTDIALOG_H_
