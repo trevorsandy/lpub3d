@@ -6051,9 +6051,6 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
       if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
           prevStepPosition = Gui::savePrevStepPosition;
 
-      // save the current step position
-      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
-
 //#ifdef QT_DEBUG_MODE
 //      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
 //                      .arg(stepNum)
@@ -6064,6 +6061,8 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 //#endif
 
       QStringList argv;
+
+      int type_1_5_line_count = 0;
 
       for (int index = 0; index < csiParts.size(); index++) {
 
@@ -6080,6 +6079,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           if (argv.size() && argv[0].size() == 1 &&
               argv[0] >= "1" && argv[0] <= "5") {
               type_1_5_line = true;
+              type_1_5_line_count++;
               if (argv.size() == 15 && argv[0] == "1")
                   type_1_line = true;
           }
@@ -6204,10 +6204,16 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
               }
           }
         }
+
+        // save the current step position
+        lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
+
     } else {
+
       // save the current step position
       lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
       return csiParts;
+
     }
 
   // add the fade color list to the header of the CsiParts list
