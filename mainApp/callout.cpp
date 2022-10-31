@@ -508,27 +508,6 @@ void Callout::sizeitFreeform(
   }
 }
 
-CalloutInstanceItem::CalloutInstanceItem(
-  Callout             *_callout,
-  Meta                *_meta,
-  const char          *_format,
-  int                  _value,
-  QGraphicsItem       *_parent)
-{
-  callout = _callout;
-  stepNumber = callout->parentStep->stepNumber.number;
-  instanceTop = callout->topOfCallout();
-  instanceBottom = callout->bottomOfCallout();
-  QString toolTip(tr("Times used - right-click to modify"));
-  setAttributes(PageNumberType,
-                CalloutType,
-                _meta->LPub.callout.instance,
-                _format,
-                _value,
-                toolTip,
-                _parent);
-}
-
 void Callout::addGraphicsPointerItem(
   Pointer *pointer,
   QGraphicsItem *parent)
@@ -558,58 +537,6 @@ void Callout::drawTips(QPoint &delta, int type)
     pointer->drawTip(delta,initiator);
   }
 }
-
-void CalloutInstanceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
-{
-  QMenu menu;
-  QString name = tr("Callout Instance Count");
-
-  QAction *fontAction     = lpub->getAct("fontAction.1");
-  commonMenus.addAction(fontAction,menu, name);
-
-  QAction *colorAction    = lpub->getAct("colorAction.1");
-  commonMenus.addAction(colorAction,menu, name);
-
-  QAction *marginAction   = lpub->getAct("marginAction.1");
-  commonMenus.addAction(marginAction,menu, name);
-
-  QAction *selectedAction = menu.exec(event->screenPos());
-
-  if (selectedAction == nullptr) {
-    return;
-  }
-
-  if (selectedAction == fontAction) {
-
-    changeFont(callout->topOfCallout(), callout->bottomOfCallout(),&font);
-
-  } else if (selectedAction == colorAction) {
-
-    changeColor(callout->topOfCallout(), callout->bottomOfCallout(),&color);
-
-  } else if (selectedAction == marginAction) {
-
-    changeMargins(tr("Times Used Margin"),
-                  callout->topOfCallout(), callout->bottomOfCallout(),
-                  &margin, false);
-  }
-}
-
-void CalloutInstanceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mouseReleaseEvent(event);
-  QPointF newPosition;
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
-    // back annotate the movement of the PLI into the LDraw file.
-    newPosition = pos() - position;
-    PlacementData placementData = placement.value();
-    placementData.offsets[0] += newPosition.x()/relativeToSize[0];
-    placementData.offsets[1] += newPosition.y()/relativeToSize[1];
-    placement.setValue(placementData);
-    changePlacementOffset(callout->topOfCallout(),&placement,CalloutType,false);
-  }
-}
-
 
 QString Callout::wholeSubmodel(
   Meta    & meta,
@@ -680,4 +607,115 @@ QString Callout::wholeSubmodel(
   //logDebug() << "Called insertGeneratedModel with passed parms wholeName: " << wholeName << ", cisParts: " << csiParts;
 
   return wholeName;
+}
+
+CalloutInstanceItem::CalloutInstanceItem(
+  Callout             *_callout,
+  Meta                *_meta,
+  const char          *_format,
+  int                  _value,
+  QGraphicsItem       *_parent)
+    : isHovered(false)
+    , mouseIsDown(false)
+{
+  callout = _callout;
+  stepNumber = callout->parentStep->stepNumber.number;
+  instanceTop = callout->topOfCallout();
+  instanceBottom = callout->bottomOfCallout();
+  QString toolTip(tr("Times Used - right-click to modify"));
+  setAttributes(PageNumberType,
+                CalloutType,
+                _meta->LPub.callout.instance,
+                _format,
+                _value,
+                toolTip,
+                _parent);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  // data and zValue set from parent;
+  setAcceptHoverEvents(true);
+}
+
+void CalloutInstanceItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = !this->isSelected() && !mouseIsDown;
+  QGraphicsItem::hoverEnterEvent(event);
+}
+
+void CalloutInstanceItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = false;
+  QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void CalloutInstanceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  mouseIsDown = true;
+  QGraphicsItem::mousePressEvent(event);
+  //update();
+}
+
+void CalloutInstanceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  mouseIsDown = false;
+  QPointF newPosition;
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
+    // back annotate the movement of the PLI into the LDraw file.
+    newPosition = pos() - position;
+    PlacementData placementData = placement.value();
+    placementData.offsets[0] += newPosition.x()/relativeToSize[0];
+    placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+    placement.setValue(placementData);
+    changePlacementOffset(callout->topOfCallout(),&placement,CalloutType,false);
+  }
+  QGraphicsItem::mouseReleaseEvent(event);
+  //update();
+}
+
+void CalloutInstanceItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPen pen;
+  pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+  pen.setWidth(0/*cosmetic*/);
+  pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+  painter->setPen(pen);
+  painter->setBrush(Qt::transparent);
+  painter->drawRect(this->boundingRect());
+  QGraphicsTextItem::paint(painter,option,widget);
+}
+
+void CalloutInstanceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+  QMenu menu;
+  QString name = tr("Callout Instance Count");
+
+  QAction *fontAction     = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu, name);
+
+  QAction *colorAction    = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu, name);
+
+  QAction *marginAction   = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu, name);
+
+  QAction *selectedAction = menu.exec(event->screenPos());
+
+  if (selectedAction == nullptr) {
+    return;
+  }
+
+  if (selectedAction == fontAction) {
+
+    changeFont(callout->topOfCallout(), callout->bottomOfCallout(),&font);
+
+  } else if (selectedAction == colorAction) {
+
+    changeColor(callout->topOfCallout(), callout->bottomOfCallout(),&color);
+
+  } else if (selectedAction == marginAction) {
+
+    changeMargins(tr("Times Used Margin"),
+                  callout->topOfCallout(), callout->bottomOfCallout(),
+                  &margin, false);
+  }
 }
