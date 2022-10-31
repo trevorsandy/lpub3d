@@ -281,7 +281,7 @@
          </sizepolicy>
         </property>
         <property name="title">
-         <string>Continuous page display duration</string>
+         <string>Continuous Page Display Duration</string>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_11">
          <item>

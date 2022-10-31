@@ -14,6 +14,7 @@
 
 #include <progress_dialog.h>
 #include <ui_progress_dialog.h>
+#include "declarations.h"
 
 ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui::ProgressDialog)
 {
@@ -25,6 +26,7 @@ ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui:
     setWindowIcon (_blank);
     setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     autoHide = true;
+    pageDirection = DIRECTION_NOT_SET;
 
     // Close dialog when cancel button is clicked
     connect (ui->progressDlgCancelBtn, SIGNAL (clicked()), this, SLOT (cancel()));
@@ -35,10 +37,21 @@ ProgressDialog::~ProgressDialog()
     delete ui;
 }
 
+void ProgressDialog::setBtnToCancel()
+{
+    ui->progressDlgCancelBtn->setText(QApplication::translate("ProgressDialog", "Cancel", nullptr));
+    autoHide = false;
+}
+
 void ProgressDialog::setBtnToClose()
 {
     ui->progressDlgCancelBtn->setText(QApplication::translate("ProgressDialog", "Close", nullptr));
     autoHide = true;
+}
+
+void ProgressDialog::setPageDirection(int d)
+{
+    pageDirection = d;
 }
 
 void ProgressDialog::setAutoHide(bool b)
@@ -46,7 +59,8 @@ void ProgressDialog::setAutoHide(bool b)
     autoHide = b;
 }
 
-void ProgressDialog::setLabelText(QString text) {
+void ProgressDialog::setLabelText(QString text, bool alert) {
+    ui->progressDlgMessageLbl->setStyleSheet(alert ? QLatin1String("QLabel { color : rgb(255, 51, 0); }") : styleSheet());
     ui->progressDlgMessageLbl->setText(text);
     repaint();
 }
@@ -70,6 +84,13 @@ void ProgressDialog::cancel (void)
         hide();
         ui->progressDlgProgressBar->reset();
     }
+
+    if (pageDirection == PAGE_NEXT) {
+        emit cancelNextPageContinuous();
+    } else if (pageDirection == PAGE_PREVIOUS) {
+        emit cancelPreviousPageContinuous();
+    }
+
     emit cancelClicked();
 }
 

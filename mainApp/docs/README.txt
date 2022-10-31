@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2955 (01 11 2022 00:18:32)
+LPub3D 2.4.4.1.2956 (01 11 2022 00:20:27)
 
 Features, enhancements, fixes and changes
 ------------
@@ -29,6 +29,7 @@ Revisions:
 - Enhancement - Set default system text editor at start-up #599
 - Enhancement - Update substitute preview feature #441
 - Enhancement - View visual editor render preferences in main menu preferences #597
+- Change - Continuous page progress update #615
 - Change - Failed to resolve google drive file at path #561
 - Change - Load model editor at cover page #593
 - Change - Restore preview submodel from callout #271

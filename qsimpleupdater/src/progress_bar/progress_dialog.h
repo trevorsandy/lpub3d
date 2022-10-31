@@ -33,13 +33,17 @@ public:
     void setWindowFlags(Qt::WindowFlags type);
     void setDownloadInfo ();
     void setAutoHide(bool);
+    void setPageDirection(int);
     void setBtnToClose();
+    void setBtnToCancel();
 
 signals:
     void cancelClicked();
+    void cancelNextPageContinuous();
+    void cancelPreviousPageContinuous();
 
 public slots:
-    void setLabelText(QString text);
+    void setLabelText(QString text, bool alert = false);
     void setRange(int min, int max);
     void setValue(int value);
 
@@ -49,6 +53,7 @@ private slots:
 private:
     Ui::ProgressDialog *ui;
     bool autoHide;
+    int pageDirection;
 };
 
 #endif // PROGRESS_DIALOG_H

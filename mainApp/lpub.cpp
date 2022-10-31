@@ -487,7 +487,7 @@ void Gui::cycleEachPage()
         QSettings Settings;
         QString const cycleEachPageKey("CycleEachPage");
         Settings.setValue(QString("%1/%2").arg(SETTINGS,cycleEachPageKey), Preferences::cycleEachPage);
-        emit messageSig(LOG_INFO,QString("Cycle each page step(s) when navigating forward by more than one page is %1").arg(Preferences::cycleEachPage? "ON" : "OFF"));
+        emit messageSig(LOG_INFO,tr("Cycle each page step(s) when navigating forward by more than one page is %1").arg(Preferences::cycleEachPage? "ON" : "OFF"));
     }
 }
 
@@ -521,7 +521,7 @@ void Gui::nextPage()
   if (string.contains(rx)) {
     bool ok;
     int inputPageNum = rx.cap(1).toInt(&ok);
-    if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
+    if (ok && (inputPageNum != displayPageNum)) { // numbers are different so jump to page
       countPages();
       if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
         if (!saveBuildModification())
@@ -531,10 +531,10 @@ void Gui::nextPage()
       } else {
         statusBarMsg("Page number entered is higher than total pages");
       }
-      string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      string = tr("%1 of %2") .arg(displayPageNum) .arg(maxPages);
       setPageLineEdit->setText(string);
       return;
-  } else {						// numbers are same so goto next page
+  } else {   // numbers are same so goto next page
       countPages();
       if (displayPageNum < maxPages) {
         if (!saveBuildModification())
@@ -543,7 +543,7 @@ void Gui::nextPage()
         ++displayPageNum;
         displayPage();
       } else {
-        statusBarMsg("You are on the last page");
+        statusBarMsg(tr("You are on the last page"));
       }
     }
   }
@@ -557,41 +557,43 @@ void Gui::nextPageContinuous()
   QMessageBox box;
   box.setTextFormat (Qt::RichText);
   box.setIcon (QMessageBox::Information);
-  box.setWindowTitle(tr ("Next page continuous processing"));
+  box.setWindowTitle(tr ("Next Page Continuous Processing"));
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  QString title = "<b>       Next page continuous processing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-  QString message = QString("Next page continuous processing is running.\n");
+  QString title = tr ("<b> Next page continuous processing </b>");
+  QString message = tr ("Continuous processing is running.\n");
 
   // Request to terminate Next page process while it is still running
   if (!nextPageContinuousIsRunning) {
     box.setIcon (QMessageBox::Warning);
-    title = "<b> Stop next page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-    message = QString("Next page continuous processing has not completed.\n"
-                      "Do you want to terminate this process ?");
+    title = tr ("<b> Stop next page continuous processing ? </b>");
+    message = tr ("Continuous processing has not completed.\n\n"
+                  "Terminate this process ?");
     box.setText (title);
     box.setInformativeText (message);
 
-    if (box.exec() == QMessageBox::Yes)  // Yes, let's terminate
+    if (box.exec() == QMessageBox::Yes) { // Yes, let's terminate
+      cancelContinuousPage();
       return;
-    else                                 // Oops, do not want to terminate
+    } else {                              // Oops, do not want to terminate
       setPageContinuousIsRunning(true, PAGE_NEXT);
+    }
   }
   // If user clicks Next page process while Previous page process is still running
   else if (previousPageContinuousIsRunning && nextPageContinuousIsRunning) {
     box.setIcon (QMessageBox::Warning);
-    title = "<b>       Stop Previous page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-    message = QString("Previous page continuous processing is running.\n"
-                      "Do you want to stop this process and start Next page processing ?");
+    title = tr ("<b>Stop previous page continuous processing ? </b>");
+    message = tr ("Continuous processing is running.\n\n"
+                  "Restart continuous processing ?");
 
     box.setText (title);
     box.setInformativeText (message);
 
     // User wants to stop Previous page process
     if (box.exec() == QMessageBox::Yes){
-        setPageContinuousIsRunning(false, PAGE_PREVIOUS);
-        continuousPageDialog(PAGE_NEXT);
-      }
+      setPageContinuousIsRunning(false, PAGE_PREVIOUS);
+      continuousPageDialog(PAGE_NEXT);
+    }
     // User wants to continue running Previous page process so stop Next
     else {
       setPageContinuousIsRunning(false, PAGE_NEXT);
@@ -611,7 +613,7 @@ void Gui::previousPage()
     bool ok;
     int inputPageNum;
     inputPageNum = rx.cap(1).toInt(&ok);
-    if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
+    if (ok && (inputPageNum != displayPageNum)) { // numbers are different so jump to page
       countPages();
       if (inputPageNum >= 1 + pa && inputPageNum != displayPageNum) {
         if (!saveBuildModification())
@@ -622,12 +624,12 @@ void Gui::previousPage()
         displayPage();
         return;
       } else {
-        statusBarMsg("Page number entered is invalid");
+        statusBarMsg(tr("Page number entered is invalid"));
       }
-      string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      string = tr("%1 of %2") .arg(displayPageNum) .arg(maxPages);
       setPageLineEdit->setText(string);
       return;
-    } else {						// numbers are same so goto previous page
+    } else {               // numbers are same so goto previous page
       if (displayPageNum > 1 + pa) {
         if (!saveBuildModification())
           return;
@@ -650,50 +652,52 @@ void Gui::previousPageContinuous()
   box.setTextFormat (Qt::RichText);
   box.setIcon (QMessageBox::Information);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Previous page continuous processing"));
+  box.setWindowTitle(tr ("Previous Page Continuous Processing"));
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-  QString title = "<b> Previous page continuous processing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-  QString message = QString("Previous page continuous processing is running.\n");
+  QString title = tr ("<b> Previous page continuous processing </b>");
+  QString message = tr ("Continuous processing is running.\n");
 
   // Request to terminate Previous page process while it is still running
   if (!previousPageContinuousIsRunning) {
-      box.setIcon (QMessageBox::Warning);
-      title = "<b> Stop previous page continuous processing ?;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-      message = QString("Previous page continuous processing has not completed.\n"
-                        "Do you want to terminate this process ?");
+    box.setIcon (QMessageBox::Warning);
+    title = tr ("<b> Stop previous page continuous processing ? </b>");
+    message = tr ("Continuous processing has not completed.\n\n"
+                  "Terminate this process ?");
 
-      box.setText (title);
-      box.setInformativeText (message);
+    box.setText (title);
+    box.setInformativeText (message);
 
-      if (box.exec() == QMessageBox::Yes) // Yes, let's terminate
-          return;
-      else                                // Oops, do not want to terminate
-          setPageContinuousIsRunning(true, PAGE_PREVIOUS);
+    if (box.exec() == QMessageBox::Yes) {   // Yes, let's terminate
+      cancelContinuousPage();
+      return;
+    } else {                                // Oops, do not want to terminate
+      setPageContinuousIsRunning(true, PAGE_PREVIOUS);
     }
+  }
   // If user clicks Previous page process while Next page process is still running
   else if (nextPageContinuousIsRunning  && previousPageContinuousIsRunning) {
-      box.setIcon (QMessageBox::Warning);
-      title = "<b> Stop Next page continuous processing ?;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
-      message = QString("Next page continuous processing is running.         \n"
-                        "Do you want to terminate this process and start over ?");
+    box.setIcon (QMessageBox::Warning);
+    title = tr ("<b> Stop next page continuous processing ? </b>");
+    message = tr ("Continuous processing is running.\n\n"
+                  "Restart continuous processing ?");
 
-      box.setText (title);
-      box.setInformativeText (message);
+    box.setText (title);
+    box.setInformativeText (message);
 
     // User wants to stop Next page process
-    if (box.exec() == QMessageBox::Yes){
-        setPageContinuousIsRunning(false, PAGE_NEXT);
-        continuousPageDialog(PAGE_PREVIOUS);
-      }
-    // User wants to continue running Next page process so stop Previous
-    else {
-        setPageContinuousIsRunning(false, PAGE_PREVIOUS);
-        return;
-      }
-    // No conflicts, everything looks good, let's go
-    } else {
+    if (box.exec() == QMessageBox::Yes) {
+      setPageContinuousIsRunning(false, PAGE_NEXT);
       continuousPageDialog(PAGE_PREVIOUS);
     }
+    // User wants to continue running Next page process so stop Previous
+    else {
+      setPageContinuousIsRunning(false, PAGE_PREVIOUS);
+      return;
+    }
+  // No conflicts, everything looks good, let's go
+  } else {
+    continuousPageDialog(PAGE_PREVIOUS);
+  }
 }
 
 void Gui::setPageContinuousIsRunning(bool b, PageDirection d){
@@ -711,23 +715,23 @@ void Gui::setContinuousPageAct(PAction p) {
     if (p == SET_STOP_ACTION) {
         if (pageDirection == PAGE_NEXT) {
             getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
-            getAct("nextPageContinuousAct.1")->setStatusTip("Stop continuous next page processing - Ctrl+Shift+E");
-            getAct("nextPageContinuousAct.1")->setText("Stop Continuous Next Page");
+            getAct("nextPageContinuousAct.1")->setStatusTip(tr("Stop continuous next page processing"));
+            getAct("nextPageContinuousAct.1")->setText(tr("Stop Continuous Next Page"));
         } else {
             getAct("previousPageContinuousAct.1")->setIcon(QIcon(":/resources/prevpagecontinuousstop.png"));
-            getAct("previousPageContinuousAct.1")->setStatusTip("Stop continuous previous page processing - Ctrl+Shift+E");
-            getAct("previousPageContinuousAct.1")->setText("Stop Continuous Previous Page");
+            getAct("previousPageContinuousAct.1")->setStatusTip(tr("Stop continuous previous page processing"));
+            getAct("previousPageContinuousAct.1")->setText(tr("Stop Continuous Previous Page"));
         }
     } else { // SET_DEFAULT_ACTION
         if (pageDirection == PAGE_NEXT) {
             getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
-            getAct("nextPageContinuousAct.1")->setStatusTip(tr("Continuously process next document page - Ctrl+Shift+N"));
-            getAct("nextPageContinuousAct.1")->setText("Continuous Next Page");
+            getAct("nextPageContinuousAct.1")->setStatusTip(tr("Continuously process next document page"));
+            getAct("nextPageContinuousAct.1")->setText(tr("Continuous Next Page"));
             setPageContinuousIsRunning(false);
         } else {
             getAct("previousPageContinuousAct.1")->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
-            getAct("previousPageContinuousAct.1")->setStatusTip(tr("Continuously process previous document page - Ctrl+Shift+E"));
-            getAct("previousPageContinuousAct.1")->setText("Continuous Previous Page");
+            getAct("previousPageContinuousAct.1")->setStatusTip(tr("Continuously process previous document page"));
+            getAct("previousPageContinuousAct.1")->setText(tr("Continuous Previous Page"));
             setPageContinuousIsRunning(false);
         }
     }
@@ -739,16 +743,16 @@ bool Gui::continuousPageDialog(PageDirection d)
   int pageCount = 0;
   int _maxPages = 0;
   bool terminateProcess = false;
-  setContinuousPageSig(true);
+  emit setContinuousPageSig(true);
   QElapsedTimer continuousTimer;
-  QString direction = d == PAGE_NEXT ? "Next" : "Previous";
+  const QString direction = d == PAGE_NEXT ? tr("Next") : tr("Previous");
 
   m_exportMode = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
-              emit messageSig(LOG_STATUS,QString("%1 page processing terminated.").arg(direction));
+              emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               return false;
@@ -790,12 +794,14 @@ bool Gui::continuousPageDialog(PageDirection d)
               }
 
               // initialize progress dialogue
-              m_progressDialog->setAutoHide(false);
+              m_progressDialog->setBtnToCancel();
+              m_progressDialog->setPageDirection(d);
               disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
-              connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+              connect (   m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
+              connect (   m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
 
           } else {
-              emit messageSig(LOG_STATUS,QString("%1 page processing terminated.").arg(direction));
+              emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               return false;
@@ -813,7 +819,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   // Validate the page range
   if (processOption == EXPORT_PAGE_RANGE){
       if (! validatePageRange()){
-          emit messageSig(LOG_STATUS,QString("%1 page processing terminated.").arg(direction));
+          emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
           setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
           return false;
@@ -826,10 +832,9 @@ bool Gui::continuousPageDialog(PageDirection d)
   if(resetCache)
       resetModelCache();
 
-  QString message = QString("Continuous %1 Page Processing").arg(direction);
+  QString message = tr("Continuous %1 Page Processing").arg(direction);
 
-  // store current display page number
-  logStatus() << QString("%1 start...").arg(message);
+  emit messageSig(LOG_STATUS,tr("%1 Start...").arg(message));
 
   if (processOption == EXPORT_ALL_PAGES){
 
@@ -837,7 +842,7 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       if (Preferences::modeGUI) {
           m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
-          m_progressDialog->setLabelText(tr("%1").arg(message));
+          m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
           m_progressDialog->show();
 
@@ -859,19 +864,20 @@ bool Gui::continuousPageDialog(PageDirection d)
           }
 
           if (terminateProcess) {
-              message = QString("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
-                                .arg(direction)
-                                .arg(d == PAGE_NEXT ? (displayPageNum - 1) : (maxPages - (displayPageNum - 1)))
-                                .arg(maxPages)
-                                .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+              message = tr("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
+                           .arg(direction)
+                           .arg(d == PAGE_NEXT ? (displayPageNum - 1) : (maxPages - (displayPageNum - 1)))
+                           .arg(maxPages)
+                           .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
               emit messageSig(LOG_STATUS,message);
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
               if (Preferences::modeGUI) {
                 QApplication::restoreOverrideCursor();
                 m_progressDialog->setBtnToClose();
-                m_progressDialog->setLabelText(tr("%1").arg(message));
-                disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+                m_progressDialog->setLabelText(message, true/*alert*/);
+                disconnect (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
+                disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
                 connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
               return false;
@@ -881,14 +887,13 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           displayPage();
 
-          message = QString("%1 Page Processing - Processed page %2 of %3.").arg(direction).arg(pageCount).arg(maxPages);
+          message = tr("%1 Page Processing - Processed page %2 of %3.").arg(direction).arg(pageCount).arg(maxPages);
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
+              m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
-              m_progressDialog->setLabelText(tr("%1").arg(message));
-              qApp->processEvents();
               secSleeper::secSleep(Preferences::pageDisplayPause);
           }
       }
@@ -939,7 +944,7 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       if (Preferences::modeGUI) {
           m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
-          m_progressDialog->setLabelText(tr("%1").arg(message));
+          m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
           m_progressDialog->show();
           QApplication::setOverrideCursor(Qt::BusyCursor);
@@ -961,19 +966,20 @@ bool Gui::continuousPageDialog(PageDirection d)
           }
 
           if (terminateProcess) {
-              message = QString("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
-                                .arg(direction)
-                                .arg(d == PAGE_NEXT ? pageCount : (_maxPages - pageCount))
-                                .arg(_maxPages)
-                                .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+              message = tr("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
+                           .arg(direction)
+                           .arg(d == PAGE_NEXT ? pageCount : (_maxPages - pageCount))
+                           .arg(_maxPages)
+                           .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
               emit messageSig(LOG_STATUS,message);
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
                   m_progressDialog->setBtnToClose();
-                  m_progressDialog->setLabelText(tr("%1").arg(message));
-                  disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+                  m_progressDialog->setLabelText(message, true/*alert*/);
+                  disconnect (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
+                  disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
                   connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
               return false;
@@ -983,19 +989,18 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           displayPage();
 
-          message = QString("%1 Page Processing - Processed page %2 (%3 of %4) from the range of %5")
-                            .arg(direction)
-                            .arg(displayPageNum)
-                            .arg(pageCount)
-                            .arg(_maxPages)
-                            .arg(pageRanges.join(" "));
+          message = tr("%1 Page Processing - Processed page %2 (%3 of %4) from the range of %5")
+                       .arg(direction)
+                       .arg(displayPageNum)
+                       .arg(pageCount)
+                       .arg(_maxPages)
+                       .arg(pageRanges.join(" "));
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
+              m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(pageCount);
-              m_progressDialog->setLabelText(tr("%1").arg(message));
-              qApp->processEvents();
               secSleeper::secSleep(Preferences::pageDisplayPause);
           }
       }
@@ -1006,19 +1011,20 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       setContinuousPageAct(SET_DEFAULT_ACTION);
 
-      message = QString("%1 page processing completed. %2 of %3 %4 processed%5.")
-                        .arg(direction)
-                        .arg(d == PAGE_NEXT ? pageCount : _maxPages)
-                        .arg(_maxPages)
-                        .arg(_maxPages > 1 ? "pages" : "page")
-                        .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+      message = tr("%1 page processing completed. %2 of %3 %4 processed%5.")
+                   .arg(direction)
+                   .arg(d == PAGE_NEXT ? pageCount : _maxPages)
+                   .arg(_maxPages)
+                   .arg(_maxPages > 1 ? tr("pages") : tr("page"))
+                   .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
       emit messageSig(LOG_INFO_STATUS,message);
 
       if (Preferences::modeGUI) {
           m_progressDialog->setBtnToClose();
+          m_progressDialog->setLabelText(message);
           m_progressDialog->setValue(_maxPages);
-          m_progressDialog->setLabelText(tr("%1").arg(message));
-          disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+          disconnect (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
+          disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
           connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
       }
   }
@@ -3885,7 +3891,7 @@ bool Gui::installRenderer(int which)
     QStringList items = JlCompress::getFileList(rendererArchive);
     m_progressDialog = new ProgressDialog(nullptr);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-    m_progressDialog->setWindowTitle(QString("Installing renderer %1").arg(renderer));
+    m_progressDialog->setWindowTitle(QString("Installing Renderer %1").arg(renderer));
     m_progressDialog->setLabelText(QString("Extracting renderer %1 from %2...")
                                               .arg(renderer)
                                               .arg(QFileInfo(rendererArchive).fileName()));
@@ -6139,6 +6145,7 @@ void Gui::createActions()
         QAction *restoreCountAction = commonMenus.restoreCountMenu(*contextMenu,name);
         lpub->actions.insert(restoreCountAction->objectName(), Action(QStringLiteral("SharedContext.Restore Count"), restoreCountAction));
 
+        // 3DViewer actions
         create3DActions();
 
         // setup default shortcuts

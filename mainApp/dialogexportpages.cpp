@@ -24,17 +24,15 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogExportPages)
 {
-    ui->setupUi(this);
-
-    setWhatsThis(lpubWT(WT_DIALOG_EXPORT_PAGES,windowTitle()));
+    ui->setupUi(this); 
 
     static const QString directionNames[] =
     {
-      "Unspecified", //DIRECTION_NOT_SET,
-      "Next",        //PAGE_NEXT,
-      "Forward",     //PAGE_JUMP_FORWARD,
-      "Previous",    //PAGE_PREVIOUS,
-      "Backward"     //PAGE_JUMP_BACKWARD
+      tr("Unspecified"), //DIRECTION_NOT_SET,
+      tr("Next"),        //PAGE_NEXT,
+      tr("Forward"),     //PAGE_JUMP_FORWARD,
+      tr("Previous"),    //PAGE_PREVIOUS,
+      tr("Backward")     //PAGE_JUMP_BACKWARD
     };
 
     bool ok[2] = {false, false};
@@ -64,8 +62,8 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     }
 
     if (!ok[0] || !ok[1] || rangeMin < 1 + Gui::pa || rangeMax > Gui::maxPages)
-        QMessageBox::critical(this,QString("Invalid Range"),
-                              QString("The page range '%1' is invaid. Valid format is <number>[ <characters> <number>].")
+        QMessageBox::critical(this,tr("Invalid Range"),
+                              tr("The page range '%1' is invaid. Valid format is <number>[ <characters> <number>].")
                               .arg(gui->setPageLineEdit->displayText()));
 
     if (Gui::m_exportMode != PAGE_PROCESS) {
@@ -93,7 +91,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     }
 
     ui->spinPixelRatio->setValue(gui->exportPixelRatio);
-    ui->spinPixelRatio->setToolTip(QString("Change the export DPI pixel ratio."));
+    ui->spinPixelRatio->setToolTip(tr("Change the export DPI pixel ratio."));
 
     ui->checkBoxResetCache->setChecked(false);
 
@@ -127,75 +125,75 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
     switch(Gui::m_exportMode){
     case PRINT_FILE:
-        setWindowTitle(tr("%1 file").arg(preview ? "Print preview":"Print to"));
-        ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Print preview":"Export to file"));
-        ui->checkBoxResetCache->setText(tr("Reset all caches before %1 file").arg(preview ? "previewing":"exporting"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
+        setWindowTitle(preview ? tr("Print Preview File") : tr("Print To File"));
+        ui->groupBoxPrintOptions->setTitle(preview ? tr("Print preview options") : tr("Print to file options"));
+        ui->checkBoxResetCache->setText(preview ? tr("Reset all caches before previewing file") : tr("Reset all caches before exporting file"));
+        ui->checkBoxResetCache->setToolTip(preview ? tr("Check to reset all caches before previewing file"): tr("Check to reset all caches before exporting file"));
         break;
     case EXPORT_PDF:
-        setWindowTitle(tr("%1 pdf").arg(preview ? "Export preview":"Export to"));
-        ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Export preview":"Export to pdf"));
-        ui->checkBoxResetCache->setText(tr("Reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
+        setWindowTitle(preview ? tr("Export Preview PDF") : tr("Export To PDF"));
+        ui->groupBoxPrintOptions->setTitle(preview ? tr("Export preview options") : tr("Export to pdf options"));
+        ui->checkBoxResetCache->setText(preview ? tr("Reset all caches before previewing pdf") : tr("Reset all caches before exporting pdf"));
+        ui->checkBoxResetCache->setToolTip(preview ? tr("Check to reset all caches before previewing pdf"): tr("Check to reset all caches before exporting pdf"));
         break;
     case EXPORT_PNG:
-        setWindowTitle(tr("Export as PNG"));
-        ui->groupBoxPrintOptions->setTitle("Export as PNG options");
+        setWindowTitle(tr("Export As PNG"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as PNG options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before export to PNG"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to PNG"));
         break;
     case EXPORT_JPG:
-        setWindowTitle(tr("Export as JPG"));
-        ui->groupBoxPrintOptions->setTitle("Export as JPG options");
+        setWindowTitle(tr("Export As JPG"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as JPG options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before export to JPG"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to JPG"));
         break;
     case EXPORT_BMP:
-        setWindowTitle(tr("Export as BMP"));
-        ui->groupBoxPrintOptions->setTitle("Export as BMP options");
+        setWindowTitle(tr("Export As BMP"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as BMP options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to BMP"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to BMP"));
         break;
 
     case EXPORT_3DS_MAX:
-        setWindowTitle(tr("Export as 3DS"));
-        ui->groupBoxPrintOptions->setTitle("Export as 3DS options");
+        setWindowTitle(tr("Export As 3DS"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as 3DS options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to 3DS"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to 3DS"));
         break;
 
     case EXPORT_COLLADA:
         setWindowTitle(tr("Export as DAE"));
-        ui->groupBoxPrintOptions->setTitle("Export as DAE options");
+        ui->groupBoxPrintOptions->setTitle(tr("Export as DAE options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to DAE"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to DAE"));
         break;
 
     case EXPORT_WAVEFRONT:
-        setWindowTitle(tr("Export as OBJ"));
-        ui->groupBoxPrintOptions->setTitle("Export as OBJ options");
+        setWindowTitle(tr("Export As OBJ"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as OBJ options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to OBJ"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to OBJ"));
         break;
 
     case EXPORT_STL:
-        setWindowTitle(tr("Export as STL"));
-        ui->groupBoxPrintOptions->setTitle("Export as STL options");
+        setWindowTitle(tr("Export As STL"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as STL options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to STL"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to STL"));
         break;
 
     case EXPORT_POVRAY:
-        setWindowTitle(tr("Export as POV"));
-        ui->groupBoxPrintOptions->setTitle("Export as POV options");
+        setWindowTitle(tr("Export As POV"));
+        ui->groupBoxPrintOptions->setTitle(tr("Export as POV options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to POV"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to POV"));
         break;
 
     case PAGE_PROCESS:
         QString direction = directionNames[Gui::pageDirection];
-        setWindowTitle(tr("%1 page continuous processing").arg(direction));
-        ui->groupBoxPrintOptions->setTitle("Page processing options");
+        setWindowTitle(tr("%1 Page Continuous Processing").arg(direction));
+        ui->groupBoxPrintOptions->setTitle(tr("Page Processing Options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before %1 page processing").arg(direction.toLower()));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 page processing").arg(direction.toLower()));
 
@@ -207,6 +205,8 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxMixedPageSizes->hide();
         break;
     }
+
+    setWhatsThis(lpubWT(WT_DIALOG_EXPORT_PAGES,windowTitle()));
 
     switch(Gui::m_exportMode) {
     case EXPORT_PDF:
