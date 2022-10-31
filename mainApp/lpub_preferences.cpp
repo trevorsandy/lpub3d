@@ -51,7 +51,7 @@ Preferences preferences;
 
 QHash<QString, int> rendererMap;
 
-const QString studStyleNames[lcStudStyle::Count] =
+const QString studStyleNames[StudStyleEnc::StyleCount] =
 {
     "Plain",             // 0
     "Thin Lines Logo",   // 1

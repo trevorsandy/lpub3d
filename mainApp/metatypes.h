@@ -91,7 +91,8 @@ enum StudStyleEnc {
     StyleRoundedTopLogo,
     StyleFlattenedLogo,
     StyleHighContrast,
-    StyleHighContrastWithLogo
+    StyleHighContrastWithLogo,
+    StyleCount
 };
 
 enum RectPlacement{
