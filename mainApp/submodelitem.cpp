@@ -211,7 +211,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
             cameraAngles,
             false/*ldv*/,
             Options::SMP)) != 0) {
-       emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
+       emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
        imageName = QString(":/resources/missingimage.png");
    //    rcf = false
        return false;
@@ -296,17 +296,17 @@ int SubModel::createSubModelImage(
           parsedStack << step->parent->modelName();
           if ( ! isOlder(parsedStack,lastModified)) {
               imageOutOfDate = true;
-              emit gui->messageSig(LOG_DEBUG,QString("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
+              emit gui->messageSig(LOG_DEBUG,QObject::tr("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
               if (imageOutOfDate && ! submodel.remove()) {
-                  emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
+                  emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to remove out of date SubModel Preview PNG file."));
               }
           }
       } else {
           if ( ! isOlder(type,lastModified)) {
               imageOutOfDate = true;
-              emit gui->messageSig(LOG_DEBUG,QString("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
+              emit gui->messageSig(LOG_DEBUG,QObject::tr("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
               if (imageOutOfDate && ! submodel.remove()) {
-                  emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
+                  emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to remove out of date SubModel Preview PNG file."));
               }
           }
       }
@@ -372,7 +372,7 @@ int SubModel::createSubModelImage(
                           futureModel,
                           cameraAngles,
                           false) != 0) {
-                  emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
+                  emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate viewer Submodel"));
                   imageName = QString(":/resources/missingimage.png");
               }
 
@@ -399,7 +399,7 @@ int SubModel::createSubModelImage(
                   else
                       rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/);
                   if (rcf) {
-                      emit gui->messageSig(LOG_ERROR,QString("Failed to create merged SMI file"));
+                      emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged SMI file"));
                       imageName = QString(":/resources/missingimage.png");
                   }
                   return futureModel;
@@ -470,7 +470,7 @@ int SubModel::createSubModelImage(
 
           // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
           if (! rotateModel(ldrNames.first(),type,color,noCA)) {
-              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
+              emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.")
                                    .arg(ldrNames.first()));
               return frc = 1;
           }
@@ -500,8 +500,8 @@ int SubModel::createSubModelImage(
 
       if (!rc) {
           emit gui->messageSig(LOG_INFO,
-                               QString("%1 Submodel render call took %2 milliseconds "
-                                       "to render %3 for %4 %5 %6 on page %7.")
+                               QObject::tr("%1 Submodel render call took %2 milliseconds "
+                                           "to render %3 for %4 %5 %6 on page %7.")
                                .arg(rendererNames[Render::getRenderer()])
                                .arg(timer.elapsed())
                                .arg(imageName)
@@ -555,7 +555,7 @@ int SubModel::generateSubModelItem()
         if (createSubModelImage(key,part->type,part->color,pixmap)) {
             QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
                                                          Paths::submodelDir + QDir::separator() + key.toLower() + ".png");
-            emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create submodel image %1")
+            emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to create submodel image %1")
                                  .arg(imageName));
             return -1;
         }
@@ -1210,7 +1210,7 @@ void SubModel::getRightEdge(
 bool SubModel::loadTheViewer(){
     if (Preferences::modeGUI && ! Gui::exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
-            emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with Submodel key: %1")
+            emit gui->messageSig(LOG_ERROR,QObject::tr("Could not load Visual Editor with Submodel key: %1")
                                  .arg(viewerSubmodelKey));
             return false;
         }
@@ -1252,29 +1252,33 @@ void SMInstanceTextItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  const QString name = tr("Parts Count");
 
-  QString pl = "Parts Count ";
+  QAction *fontAction       = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
 
-  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *colorAction      = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *marginAction     = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
 
   Where top = subModel->top;
   Where bottom = subModel->bottom;
 
   if (selectedAction == fontAction) {
       changeFont(top,bottom,&subModel->subModelMeta.instance.font,1,false);
-    } else if (selectedAction == colorAction) {
+  } else if (selectedAction == colorAction) {
       changeColor(top,bottom,&subModel->subModelMeta.instance.color,1,false);
-    } else if (selectedAction == marginAction) {
-      changeMargins(pl + " Margins",top,bottom,&subModel->subModelMeta.instance.margin,true,1,false);
-    }
+  } else if (selectedAction == marginAction) {
+      changeMargins(QObject::tr("%1 Margins"),top,bottom,&subModel->subModelMeta.instance.margin,true,1,false);
+  }
 }
 
 void SMInstanceTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -1370,21 +1374,27 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   QString partlbl = part->type.size() > 15 ?
                     part->type.left(12) + "..." +
                     part->type.right(3) : part->type;
-  QString pl = QString("%1").arg(partlbl);
+  QString name = QString("%1").arg(partlbl);
 
-  QAction *previewSubModelAction = commonMenus.previewPartMenu(menu,pl);
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
-  QAction *scaleAction  = commonMenus.scaleMenu(menu,pl);
-
-  lcPreferences& Preferences = lcGetPreferences();
+  QAction *previewSubModelAction  = lpub->getAct("previewPartAction.1");
+  commonMenus.addAction(previewSubModelAction,menu,name);
+  lcPreferences& Preferences      = lcGetPreferences();
   previewSubModelAction->setEnabled(Preferences.mPreviewEnabled);
+
+  QAction *marginAction           = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *scaleAction            = lpub->getAct("scaleAction.1");
+  commonMenus.addAction(scaleAction,menu,name);
 
   QAction *resetViewerImageAction = nullptr;
   if (canUpdatePreview) {
       menu.addSeparator();
-      resetViewerImageAction = commonMenus.resetViewerImageMenu(menu,pl);
+      resetViewerImageAction      = lpub->getAct("resetViewerImageAction.1");
+      commonMenus.addAction(resetViewerImageAction,menu,name);
   }
-  QAction *selectedAction   = menu.exec(event->screenPos());
+
+  QAction *selectedAction         = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
@@ -1404,14 +1414,14 @@ void SMGraphicsPixmapItem::contextMenuEvent(
           gui->updatePreview();
       }
   } else if (selectedAction == marginAction) {
-    changeMargins(pl+" Margins",
+    changeMargins(QObject::tr("%1 Margins").arg(name),
                   top,
                   bottom,
                   &subModel->subModelMeta.part.margin);
   } else if (selectedAction == scaleAction) {
     changeFloatSpin(
-      pl,
-      "Scale",
+      name,
+      QObject::tr("Scale"),
       top,
       bottom,
      &subModel->subModelMeta.modelScale,0);
@@ -1621,11 +1631,10 @@ void SubModelBackgroundItem::contextMenuEvent(
 {
   if (subModel) {
     QMenu menu;
-    QString pl = "Submodel";
-    QString whatsThis;
+    const QString name = QObject::tr("Submodel");
 
-    QAction *constrainAction = commonMenus.constrainMenu(menu,pl);
-    constrainAction->setWhatsThis(             "Change Shape:\n"
+    QAction *constrainAction         = lpub->getAct("constrainAction.1");
+    constrainAction->setWhatsThis("Change Shape:\n"
       "  You can change the shape of this Submodel.  One way, is\n"
       "  is to ask the computer to make the Submodel as small as\n"
       "  possible (area). Another way is to ask the computer to\n"
@@ -1636,55 +1645,75 @@ void SubModelBackgroundItem::contextMenuEvent(
       "  The last way is to tell the computer how many columns it\n"
       "  can have, and then it will try to make all the columns the\n"
                                                "  same height\n");
+    commonMenus.addAction(constrainAction,menu,name);
 
-    PlacementData placementData = subModel->placement.value();
-    whatsThis = commonMenus.naturalLanguagePlacementWhatsThis(SubModelType,placementData,pl);
-    QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
-    QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
-    QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
-    QAction *placementAction     = commonMenus.placementMenu(menu, pl, whatsThis);
-    QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
-    QAction *borderAction        = commonMenus.borderMenu(menu,pl);
-    QAction *marginAction        = commonMenus.marginMenu(menu,pl);
-    QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
-    QAction *rotStepAction       = commonMenus.rotStepMenu(menu,pl);
-    QAction *hideAction          = commonMenus.hideMenu(menu,pl);
-    QAction *rendererAction      = commonMenus.preferredRendererMenu(menu,pl);
+    QAction *placementAction         = lpub->getAct("placementAction.1");
+    PlacementData placementData      = subModel->placement.value();
+    placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(SubModelType,placementData,name));
+    commonMenus.addAction(placementAction,menu,name);
+
+    QAction *cameraAnglesAction      = lpub->getAct("cameraAnglesAction.1");
+    commonMenus.addAction(cameraAnglesAction,menu,name);
+
+    QAction *scaleAction             = lpub->getAct("scaleAction.1");
+    commonMenus.addAction(scaleAction,menu,name);
+
+    QAction *cameraFoVAction         = lpub->getAct("cameraFoVAction.1");
+    commonMenus.addAction(cameraFoVAction,menu,name);
+
+    QAction *backgroundAction        = lpub->getAct("backgroundAction.1");
+    commonMenus.addAction(backgroundAction,menu,name);
+
+    QAction *borderAction            = lpub->getAct("borderAction.1");
+    commonMenus.addAction(borderAction,menu,name);
+
+    QAction *marginAction            = lpub->getAct("marginAction.1");
+    commonMenus.addAction(marginAction,menu,name);
+
+    QAction *subModelColorAction     = lpub->getAct("subModelColorAction.1");
+    commonMenus.addAction(subModelColorAction,menu,name);
+
+    QAction *rotStepAction           = lpub->getAct("rotStepAction.1");
+    commonMenus.addAction(rotStepAction,menu,name);
+
+    QAction *hideAction              = lpub->getAct("hideAction.1");
+    commonMenus.addAction(hideAction,menu,name);
+
+    QAction *rendererAction          = lpub->getAct("preferredRendererAction.1");
+    commonMenus.addAction(rendererAction,menu,name);
 
     QAction *povrayRendererArgumentsAction = nullptr;
     QAction *rendererArgumentsAction = nullptr;
     bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
-    QString rendererLabel = QString("Add %1 Arguments")
-                                   .arg(usingPovray ? "POV Generation":
-                                                      QString("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
     if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-        rendererArgumentsAction = menu.addAction(rendererLabel);
-        rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
-        rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+        rendererArgumentsAction      = lpub->getAct("rendererArgumentsAction.1");
+        commonMenus.addAction(rendererArgumentsAction,menu,name);
         if (usingPovray) {
-            povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
-                                                                    .arg(rendererNames[Render::getRenderer()]));
-            povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
-            povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+            povrayRendererArgumentsAction  = lpub->getAct("povrayRendererArgumentsAction.1");
+            commonMenus.addAction(povrayRendererArgumentsAction,menu,name);
         }
     }
 
-    QAction *copySmpImagePathAction = nullptr;
+    QAction *clearSubmodelCacheAction = lpub->getAct("clearSubmodelCacheAction.1");
+    commonMenus.addAction(clearSubmodelCacheAction,menu,name);
+
+    QAction *copySmpImagePathAction  = nullptr;
 #ifndef QT_NO_CLIPBOARD
-    copySmpImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
+    copySmpImagePathAction           = lpub->getAct("copyToClipboardAction.1");
+    commonMenus.addAction(copySmpImagePathAction,menu,name);
 #endif
 
-    QAction *selectedAction   = menu.exec(event->screenPos());
+    QAction *selectedAction          = menu.exec(event->screenPos());
 
     if (selectedAction == nullptr) {
-      return;
+        return;
     }
 
     Where top = subModel->top;
     Where bottom = subModel->bottom;
 
     if (selectedAction == constrainAction) {
-        changeConstraint(pl+" Constraint",
+        changeConstraint(QObject::tr("%1 Constraint").arg(name),
                          top,
                          bottom,
                          &subModel->subModelMeta.constrain);
@@ -1693,7 +1722,7 @@ void SubModelBackgroundItem::contextMenuEvent(
             changePlacement(parentRelativeType,
                             subModel->perStep,
                             SubModelType,
-                            pl+" Placement",
+                            QObject::tr("%1 Placement").arg(name),
                             top,
                             bottom,
                             &subModel->placement);
@@ -1701,55 +1730,55 @@ void SubModelBackgroundItem::contextMenuEvent(
             changePlacement(parentRelativeType,
                             subModel->perStep,
                             SubModelType,
-                            pl+" Placement",
+                            QObject::tr("%1 Placement").arg(name),
                             top,
                             bottom,
                             &subModel->placement,true,1,0,false);
         }
     } else if (selectedAction == rendererAction) {
-        changePreferredRenderer(pl+" Preferred Renderer",
+        changePreferredRenderer(QObject::tr("%1 Preferred Renderer").arg(name),
                                 top,
                                 bottom,
                                 &subModel->meta->LPub.assem.preferredRenderer);
     } else if (selectedAction == marginAction) {
-      changeMargins(pl+" Margins",
-                    top,
-                    bottom,
-                    &subModel->subModelMeta.margin);
+        changeMargins(QObject::tr("%1 Margins").arg(name),
+                      top,
+                      bottom,
+                      &subModel->subModelMeta.margin);
     } else if (selectedAction == backgroundAction) {
-      changeBackground(pl+" Background",
-                       top,
-                       bottom,
-                       &subModel->subModelMeta.background);
+        changeBackground(QObject::tr("%1 Background").arg(name),
+                         top,
+                         bottom,
+                         &subModel->subModelMeta.background);
     } else if (selectedAction == borderAction) {
-      changeBorder(pl+" Border",
-                   top,
-                   bottom,
-                   &subModel->subModelMeta.border);
+        changeBorder(QObject::tr("%1 Border").arg(name),
+                     top,
+                     bottom,
+                     &subModel->subModelMeta.border);
     } else if (selectedAction == subModelColorAction) {
-        changeSubModelColor(pl+" Background Color",
+        changeSubModelColor(QObject::tr("%1 Background Color").arg(name),
                          top,
                          bottom,
                          &subModel->subModelMeta.subModelColor);
     } else if (selectedAction == scaleAction){
-          changeFloatSpin(pl+" Scale",
-                          "Model Size",
-                          top,
-                          bottom,
-                          &subModel->subModelMeta.modelScale);
+        changeFloatSpin(QObject::tr("%1 Scale").arg(name),
+                        QObject::tr("Model Size"),
+                        top,
+                        bottom,
+                        &subModel->subModelMeta.modelScale);
     } else if (selectedAction == rotStepAction) {
-        changeSubmodelRotStep(pl+" Rotate",
+        changeSubmodelRotStep(QObject::tr("%1 Rotate").arg(name),
                               top,
                               bottom,
                               &subModel->subModelMeta.rotStep);
     } else if (selectedAction == cameraFoVAction) {
-      changeFloatSpin(pl+" Camera Angle",
-                      "Camera FOV",
-                      top,
-                      bottom,
-                      &subModel->subModelMeta.cameraFoV);
+        changeFloatSpin(QObject::tr("%1 Camera Angle").arg(name),
+                        QObject::tr("Camera FOV"),
+                        top,
+                        bottom,
+                        &subModel->subModelMeta.cameraFoV);
     } else if (selectedAction == cameraAnglesAction) {
-        changeCameraAngles(pl+" Camera Angles",
+        changeCameraAngles(QObject::tr("%1 Camera Angles").arg(name),
                         top,
                         bottom,
                         &subModel->subModelMeta.cameraAngles);
@@ -1758,19 +1787,25 @@ void SubModelBackgroundItem::contextMenuEvent(
                      bottom,
                      &subModel->subModelMeta.show);
     } else if (selectedAction == rendererArgumentsAction) {
-      StringMeta rendererArguments =
-                 Render::getRenderer() == RENDERER_LDVIEW ? subModel->subModelMeta.ldviewParms :
-                 Render::getRenderer() == RENDERER_LDGLITE ? subModel->subModelMeta.ldgliteParms :
-                               /*POV scene file generator*/  subModel->subModelMeta.ldviewParms ;
-      setRendererArguments(top,
-                           bottom,
-                           rendererLabel,
-                           &rendererArguments);
+        const QString rendererLabel = QObject::tr("Add %1 Arguments")
+                                                  .arg(usingPovray ? "POV Generation":
+                                                                     QObject::tr("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
+        StringMeta rendererArguments =
+                   Render::getRenderer() == RENDERER_LDVIEW ? subModel->subModelMeta.ldviewParms :
+                   Render::getRenderer() == RENDERER_LDGLITE ? subModel->subModelMeta.ldgliteParms :
+                                 /*POV scene file generator*/  subModel->subModelMeta.ldviewParms ;
+        setRendererArguments(top,
+                             bottom,
+                             rendererLabel,
+                             &rendererArguments);
     } else if (selectedAction == povrayRendererArgumentsAction) {
-      setRendererArguments(top,
-                           bottom,
-                           rendererNames[Render::getRenderer()],
-                           &subModel->subModelMeta.povrayParms);
+        setRendererArguments(top,
+                             bottom,
+                             rendererNames[Render::getRenderer()],
+                             &subModel->subModelMeta.povrayParms);
+    } else if (selectedAction == clearSubmodelCacheAction) {
+        Page *page = dynamic_cast<Page *>(subModel->steps);
+        clearPageCache(parentRelativeType,page,Options::SMP);
     } else if (selectedAction == copySmpImagePathAction) {
         QObject::connect(copySmpImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
         copySmpImagePathAction->setData(subModel->imageName);

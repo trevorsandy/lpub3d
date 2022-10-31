@@ -112,7 +112,7 @@ public:
       isHovered(false),
       mouseIsDown(false) {
     page = pageIn;
-    QString toolTip("Times used - right-click to modify");
+    QString toolTip(tr("Times used - right-click to modify"));
     setAttributes(SubmodelInstanceCountType,
                   page->relativeType,
                   numberMetaIn,
@@ -140,16 +140,29 @@ protected:
 void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString name = "Submodel Instance Count";
+  const QString name = tr("Submodel Instance Count");
 
-  QAction *fontAction          = commonMenus.fontMenu(menu,name);
-  QAction *colorAction         = commonMenus.colorMenu(menu,name);
-  QAction *marginAction        = commonMenus.marginMenu(menu,name);
-  QAction *placementAction     = commonMenus.placementMenu(menu,name,"You can move this submodel count around.");
-  QAction *overrideCountAction = commonMenus.overrideCountMenu(menu,name);
+  QAction *fontAction          = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
+
+  QAction *colorAction         = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *marginAction        = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *placementAction     = lpub->getAct("placementAction.1");
+  PlacementData placementData  = placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
+
+  QAction *overrideCountAction = lpub->getAct("overrideCountAction.1");
+  commonMenus.addAction(overrideCountAction,menu,name);
+
   QAction *restoreCountAction  = nullptr;
   if (page->meta.LPub.page.countInstanceOverride.value()) {
-    restoreCountAction         = commonMenus.restoreCountMenu(menu,name);
+    restoreCountAction         = lpub->getAct("restoreCountAction.1");
+    commonMenus.addAction(restoreCountAction,menu,name);
   }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
@@ -176,7 +189,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
     } else if (selectedAction == marginAction) {
 
-      changeMargins(name + " Margins",
+      changeMargins(tr("%1 Margins").arg(name),
                     topOfSteps,
                     bottomOfSteps,
                    &margin,
@@ -185,7 +198,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
     } else if (selectedAction == placementAction) {
       changePlacement(parentRelativeType,
                       SubmodelInstanceCountType,
-                      "Move " + name,
+                      tr("Move %1").arg(name),
                       topOfSteps,
                       bottomOfSteps,
                       &placement,
@@ -193,7 +206,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
     } else if (selectedAction == overrideCountAction) {
       bool ok;
       int max = (1 + gui->getSubmodelInstances(page->meta.LPub.countInstance.here().modelName, false)) * 4;
-      int override = QInputDialog::getInt(gui,"Submodel Instances","Submodel Instances",value,0,max,1,&ok);
+      int override = QInputDialog::getInt(gui,tr("Submodel Instances"),tr("Submodel Instances"),value,0,max,1,&ok);
       if (ok) {
           Where trueTopOfModel;
           trueTopOfModel = firstLine(topOfSteps.modelName);

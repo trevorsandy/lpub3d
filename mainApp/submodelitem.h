@@ -197,6 +197,17 @@ class SubModel : public Placement {
       margin    = from.margin;
     }
 
+    SubModelPart *getSubmodel()
+    {
+      if (parts.keys().size() == 0)
+          return nullptr;
+
+      // there's only one so take first key
+      const QString key = parts.keys().first();
+
+      return parts[key];
+    }
+
     void getLeftEdge(QImage &, QList<int> &);
     void getRightEdge(QImage &, QList<int> &);
 };
