@@ -414,8 +414,18 @@ void Gui::displayPage()
   }
 }
 
-void Gui::cyclePageDisplay(const int inputPageNum, int option/*FILE_DEFAULT*/)
+void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/)
 {
+  PageDirection operation = FILE_DEFAULT;
+
+  if (!silent || fileReload) {
+    // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
+    bool cycleEachPage = Preferences::cycleEachPage || fileReload;
+    if (!cycleEachPage && displayPageNum > 1)
+        cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, tr("Cycle each page on model file reload ?"), nullptr);
+    operation = PageDirection(cycleEachPage);
+  }
+
   int move = 0;
   int goToPageNum = inputPageNum;
 
@@ -450,7 +460,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, int option/*FILE_DEFAULT*/)
     cancelContinuousPage();
   };
 
-  if (option == FILE_RELOAD) {
+  if (operation == FILE_RELOAD) {
     int savePage = displayPageNum;
     if (openFile(curFile)) {
       goToPageNum = pa ? savePage + pa : savePage;
@@ -1613,7 +1623,8 @@ void Gui::reloadCurrentPage(){
 
     timer.start();
 
-    displayPage();
+    // displayPage();
+    cyclePageDisplay(displayPageNum, false/*silent*/);
 
     emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
                     .arg(displayPageNum)
@@ -1641,7 +1652,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     timer.start();
 
     //reload current model
-    cyclePageDisplay(displayPageNum, FILE_RELOAD);
+    cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
     emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
                     .arg(lpub->ldrawFile.getPartCount())
@@ -1742,7 +1753,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     clearTempCache();
 
     //reload current model
-    cyclePageDisplay(displayPageNum, FILE_RELOAD);
+    cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                     .arg(lpub->ldrawFile.getPartCount())
@@ -1823,14 +1834,7 @@ void Gui::clearAllCaches(bool global)
     }
 
     //reload current model
-    bool cycleEachPage = Preferences::cycleEachPage;
-    if (!cycleEachPage) {
-        cycleEachPage = global;
-        if (!cycleEachPage && displayPageNum > 1)
-            cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
-    }
-    // if dialog or global is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0)
-    cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
+    cyclePageDisplay(displayPageNum, false/*silent*/, global);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                         .arg(lpub->ldrawFile.getPartCount())

@@ -4848,7 +4848,8 @@ void Gui::pagesCounted()
 {
     topOfPages.append(current);
 
-    maxPages--;
+    if (maxPages > 1)
+        maxPages--;
 
     pageProcessRunning = PROC_NONE;
 

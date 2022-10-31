@@ -17,6 +17,7 @@
 #include "lpub.h"
 #include "commands.h"
 #include "editwindow.h"
+#include "pairdialog.h"
 
 #include "lc_view.h"
 #include "lc_model.h"
@@ -73,7 +74,7 @@ void Gui::endMacro()
   undoStack->endMacro();
   --macroNesting;
   if (!mloadingFile)
-    displayPage();
+    cyclePageDisplay(displayPageNum);
 }
 
 void Gui::contentsChange(
