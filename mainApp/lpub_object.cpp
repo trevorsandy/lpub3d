@@ -1028,6 +1028,8 @@ void LPub::removeLPubFormatting(int option)
 
   Where top;
   Where bottom;
+  bool stepFound = false;
+
   switch (option)
   {
   case RLPF_DOCUMENT:
@@ -1100,8 +1102,46 @@ void LPub::removeLPubFormatting(int option)
 #endif
       break;
   case RLPF_STEP:
-      if (!currentStep) {
+      if (currentStep) {
+          if (currentStep->multiStep) {
+              bool stepOk  = false;
+              int thisStep = 1;
+              Steps *steps = dynamic_cast<Steps *>(&page);
+              if (steps && page.relativeType == StepGroupType){
+                  /* foreach range */
+                  for (int i = 0; i < steps->list.size() && !stepFound; i++) {
+                      if (steps->list[i]->relativeType == RangeType) {
+                         Range *range = dynamic_cast<Range *>(steps->list[i]);
+                         thisStep = QInputDialog::getInt(gui,QMessageBox::tr("Steps"),QMessageBox::tr("Which Step"),1,1,range->list.size(),1,&stepOk);
+                         if (range && stepOk) {
+                             /* foreach step*/
+                             for (int j = 0; j < range->list.size(); j++) {
+                                Step *step = dynamic_cast<Step *>(range->list[j]);
+                                if ((stepFound = step && step->stepNumber.number == thisStep)) {
+                                    top = step->topOfStep();
+                                    bottom = step->bottomOfStep();
+                                    break;
+                                }
+                             }
+                         }
+                      }
+                  }
+              }
+              if (!stepFound)
+                  box.setText (tr("<b> The selected step %1 was not found. </b>").arg(thisStep));
+          } else {
+              top = currentStep->top;
+              bottom = currentStep->bottom;
+          }
+#ifdef QT_DEBUG_MODE
+          qDebug() << qPrintable(QString("COMAPARE CURRENT STEP top: %1, bottom: %2")
+                                 .arg(top.lineNumber, bottom.lineNumber));
+#endif
+      } else {
           box.setText (tr("<b> The current step is null. </b>"));
+      }
+
+      if (!stepFound) {
           box.setInformativeText (tr ("Do you want to remove formatting for the current page ?"));
           if (box.exec() == QMessageBox::Yes) {
               top = page.top;
@@ -1109,13 +1149,6 @@ void LPub::removeLPubFormatting(int option)
               option = RLPF_PAGE;
           } else
               return;
-      } else {
-          top = currentStep->top;
-          bottom = currentStep->bottom;
-#ifdef QT_DEBUG_MODE
-          qDebug() << qPrintable(QString("COMAPARE CURRENT STEP top: %1, bottom: %2")
-                                 .arg(top.lineNumber, bottom.lineNumber));
-#endif
       }
       break;
   case RLPF_BOM:
