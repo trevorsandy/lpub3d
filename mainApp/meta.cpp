@@ -40,6 +40,7 @@
 
 #include "meta.h"
 #include "lpub.h"
+#include "lc_profile.h"
 
 #include "pagesizes.h"
 
@@ -3163,7 +3164,7 @@ StudStyleMeta::StudStyleMeta() : LeafMeta()
   studStyleMap["FLATTENED_LOGO"]          = StyleFlattenedLogo;
   studStyleMap["HIGH_CONTRAST"]           = StyleHighContrast;
   studStyleMap["HIGH_CONTRAST_WITH_LOGO"] = StyleHighContrastWithLogo;
-  type[0] = StylePlain;
+  type[0] = static_cast<StudStyleEnc>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
 }
 
 Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)

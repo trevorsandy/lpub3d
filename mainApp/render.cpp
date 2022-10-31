@@ -3415,7 +3415,6 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
         }
         arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
-        arguments << QString("StudStyle: %1").arg(O->StudStyle == 0 ? "None (0)" : O->StudStyle == 1 ? "LDraw Single-Wire (1)" : O->StudStyle == 2 ? "LDraw Double-Wire (2)" : O->StudStyle == 3 ? "LDraw Raised-Flat (3)" : O->StudStyle == 4 ? "LDraw Raised-Rounded (4)" : O->StudStyle == 5 ? "LDraw Subtle-Rounded (5)" : O->StudStyle == 6 ? "LEGO No Logo (6)" : "LEGO Single-Wire (7)");
         arguments << QString("Resolution: %1").arg(double(O->Resolution));
         arguments << QString("ImageWidth: %1").arg(RenderImage ? ImageWidth : O->ImageWidth);
         arguments << QString("ImageHeight: %1").arg(RenderImage ? ImageHeight : O->ImageHeight);
