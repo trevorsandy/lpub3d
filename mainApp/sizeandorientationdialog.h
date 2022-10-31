@@ -35,7 +35,7 @@ class SizeAndOrientationDialog : public QDialog
 public:
 
   SizeAndOrientationDialog(
-    PgSizeData    &sgoods,
+    PageSizeData    &sgoods,
     OrientationEnc  &ogoods,
     QString          _name,
     QWidget         *parent);
@@ -43,13 +43,13 @@ public:
   virtual ~SizeAndOrientationDialog();
 
   static bool getSizeAndOrientation(
-    PgSizeData   &sgoods,
+    PageSizeData   &sgoods,
     OrientationEnc &ogoods,
     QString         name,
     QWidget        *parent = 0);
 
-    PageSizeMeta        smeta;
-    PageOrientationMeta ometa;
+    PageSizeMeta        metaS;
+    PageOrientationMeta metaO;
 
 public slots:
   void accept();

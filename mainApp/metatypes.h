@@ -418,20 +418,6 @@ public:
   QString action;
 };
 
-class PgSizeData
-{
-public:
-  float   sizeW;
-  float   sizeH;
-  QString sizeID;     // e.g. A4
-  OrientationEnc orientation;
-  PgSizeData(){
-    sizeW       = 0;
-    sizeH       = 0;
-    orientation = Portrait;
-  }
-};
-
 class JustifyStepData
 {
 public:
@@ -461,17 +447,17 @@ public:
   }
 };
 
-
-// TODO confirm if this is still needed
-class PageSizeData{
+class PageSizeData
+{
 public:
-//  OrientationEnc orientation; //future use
-  float          pagesize[2][2];
-  QString        sizeid;
-  PageSizeData(){
-//    orientation = Portrait;
-    pagesize[0][0] = 0;
-    pagesize[0][1] = 0;
+  float   sizeW;
+  float   sizeH;
+  QString sizeID;     // e.g. A4
+  OrientationEnc orientation;
+  PageSizeData() {
+    sizeW       = 0.0f;
+    sizeH       = 0.0f;
+    orientation = InvalidOrientation;
   }
 };
 

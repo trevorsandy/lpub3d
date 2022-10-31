@@ -1305,12 +1305,10 @@ public:
 
 private:
   ResolutionMeta *meta;
-  ResolutionType  type;
-  float           value;
+  ResolutionType  dataT;
+  float           dataV;
   QLineEdit      *valueEdit;
   QAction        *reset0Act;
-
-  void differences();
 
 private slots:
   void enableReset(QString const &);
@@ -1945,8 +1943,8 @@ public:
 
   SizeAndOrientationGui(
     QString const           &heading,
-    PageSizeMeta           *_smeta,
-    PageOrientationMeta    *_ometa,
+    PageSizeMeta           *_metaS,
+    PageOrientationMeta    *_metaO,
     QGroupBox              *parent = nullptr);
   ~SizeAndOrientationGui() {}
 
@@ -1954,19 +1952,16 @@ public:
 
   virtual void apply(QString &topLevelFile);
 
-private:
   bool                    sizeModified;
+  bool                    sizeIDModified;
   bool                    orientationModified;
-
-  float                   dataW;
-  float                   dataH;
-  QString                 dataTypeSizeID;
+private:
 
   PageSizeData            dataS;
   OrientationEnc          dataO;
 
-  PageSizeMeta           *smeta;
-  PageOrientationMeta    *ometa;
+  PageSizeMeta           *metaS;
+  PageOrientationMeta    *metaO;
   QLabel                 *label;
   QRadioButton           *portraitRadio;
   QRadioButton           *landscapeRadio;

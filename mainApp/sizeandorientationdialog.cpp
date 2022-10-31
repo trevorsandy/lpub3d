@@ -31,8 +31,8 @@
 #include "lpub.h"
 
 SizeAndOrientationDialog::SizeAndOrientationDialog(
-  PgSizeData    &sgoods,
-  OrientationEnc  &ogoods,
+  PageSizeData    &goodsS,
+  OrientationEnc  &goodsO,
   QString         _name,
   QWidget         *parent)
   : QDialog(parent)
@@ -43,9 +43,6 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
 
   metaS.setValue(goodsS);
   metaO.setValue(goodsO);
-
-  ometa.setValue(ogoods);
-
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
@@ -55,7 +52,7 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
   QGroupBox *box = new QGroupBox(header,this);
   layout->addWidget(box);
 
-  sizeAndOrientation = new SizeAndOrientationGui("",&smeta,&ometa,box);
+  sizeAndOrientation = new SizeAndOrientationGui("",&metaS,&metaO,box);
 
   QDialogButtonBox *buttonBox;
 
@@ -77,17 +74,17 @@ SizeAndOrientationDialog::~SizeAndOrientationDialog()
 }
 
 bool SizeAndOrientationDialog::getSizeAndOrientation(
-  PgSizeData     &sgoods,
-  OrientationEnc &ogoods,
+  PageSizeData   &goodsS,
+  OrientationEnc &goodsO,
   QString         name,
   QWidget        *parent)
 {
-  SizeAndOrientationDialog *dialog = new SizeAndOrientationDialog(sgoods,ogoods,name,parent);
+  SizeAndOrientationDialog *dialog = new SizeAndOrientationDialog(goodsS,goodsO,name,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
-    sgoods = dialog->smeta.value();
-    ogoods = dialog->ometa.value();
+    goodsS = dialog->metaS.value();
+    goodsO = dialog->metaO.value();
   }
   return ok;
 }
@@ -95,6 +92,7 @@ bool SizeAndOrientationDialog::getSizeAndOrientation(
 void SizeAndOrientationDialog::accept()
 {
   bool modified = sizeAndOrientation->orientationModified ||
+                  sizeAndOrientation->sizeIDModified ||
                   sizeAndOrientation->sizeModified ||
                   sizeAndOrientation->modified;
   if (modified) {

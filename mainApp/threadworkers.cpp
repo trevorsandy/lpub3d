@@ -2356,7 +2356,7 @@ int CountPageWorker::countPage(
                                   meta->rotStep.clear();
 
                                   // save Default pageSize information
-                                  PgSizeData pageSize2;
+                                  PageSizeData pageSize2;
                                   if (Gui::exporting()) {
                                       pageSize2       = Gui::getPageSize(DEF_SIZE);
                                       opts.flags.pageSizeUpdate  = false;
@@ -2836,6 +2836,11 @@ int CountPageWorker::countPage(
                     opts.pageSize.sizeW  = meta->LPub.page.size.valueInches(0);
                     opts.pageSize.sizeH  = meta->LPub.page.size.valueInches(1);
                     opts.pageSize.sizeID = meta->LPub.page.size.valueSizeID();
+
+                    if (meta->LPub.page.size.valueOrientation() != InvalidOrientation) {
+                      opts.pageSize.orientation = meta->LPub.page.size.valueOrientation();
+                      meta->LPub.page.orientation.setValue(opts.pageSize.orientation);
+                    }
 
                     Gui::removePageSize(DEF_SIZE);
                     Gui::insertPageSize(DEF_SIZE,opts.pageSize);

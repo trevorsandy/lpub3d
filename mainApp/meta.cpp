@@ -2984,73 +2984,121 @@ void PageSizeMeta::init(
 }
 Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
 {
-  float v0 = 0, v1 = 0;
+  QRegExp rx("^(PORTRAIT|LANDSCAPE)$");
+  bool ok[2];
+  bool sizeIDFound = false;
+  bool sizeWandHFound = false;
+  float v0 = 0.0f, v1 = 0.0f;
+  int orientationIndex = -1, sizeIdIndex = -1;
+
   if (argv.size() - index >= 2) {
-      bool ok[2];
-      v0 = argv[index  ].toFloat(&ok[0]);
-      v1 = argv[index+1].toFloat(&ok[1]);
-      if (ok[0] && ok[1]) {
-          if (v0 < _min || v0 > _max ||
-              v1 < _min || v1 > _max) {
-              return RangeErrorRc;
-            }
-          _value[pushed].pagesize[pushed][0] = v0;
-          _value[pushed].pagesize[pushed][1] = v1;
+    v0 = argv[index  ].toFloat(&ok[0]);
+    v1 = argv[index+1].toFloat(&ok[1]);
+    // we have 2 items that are not numbers
+    // so check which is orientation and sizeID
+    if (!ok[0] && !ok[1]) {
+      if (argv[index].contains(rx)) {
+        sizeIdIndex = index+1;
+        orientationIndex = index;
+      } else if (argv[index+1].contains(rx)) {
+        sizeIdIndex = index;
+        orientationIndex = index+1;
+      }
+      sizeIDFound = !(argv[sizeIdIndex].toLower() == "custom");
+    } else {
+      sizeWandHFound = true;
+    }
+  }
 
-          if (argv.size() - index == 3) {
-              _value[pushed].sizeid = argv[index+2];
-            } else {
-              _value[pushed].sizeid = "Custom";
-            }
-          _here[pushed] = here;
-          return PageSizeRc;
-        }
-    } else
-    if ((argv.size() - index == 1) && !(argv[index].toLower() == "custom")) {
-      QString pageType = argv[index];
-      bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
-      int  numPageTypes = PageSizes::numPageTypes();
-      for (int i = 0; i < numPageTypes; i++) {
-          if (pageType.toLower() == PageSizes::pageTypeSizeID(i).toLower()) {
-              v0 = dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i);
-              v1 = dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i);
-              break;
-            }
-        }
+  if (sizeWandHFound) {
+    if (v0 < _min || v0 > _max ||
+      v1 < _min || v1 > _max) {
+      return RangeErrorRc;
+    }
+    _value[pushed].sizeW = v0;
+    _value[pushed].sizeH = v1;
 
-      if (v0 == 0.0f || v1 == 0.0f ) {
-          return FailureRc;
-        }
+    if (argv.size() - index == 3) {
+      if (argv[index+2].contains(rx)) {
+        _value[pushed].orientation = OrientationEnc(tokenMap[argv[index+2]]);
+        _value[pushed].sizeID = "Custom";
+      } else {
+        _value[pushed].sizeID = argv[index+2];
+        _value[pushed].orientation = InvalidOrientation;
+      }
+    } else if (argv.size() - index == 4) {
+      if (argv[index+2].contains(rx)) {
+        sizeIdIndex = index+3;
+        orientationIndex = index+2;
+      } else if (argv[index+3].contains(rx)) {
+        sizeIdIndex = index+2;
+        orientationIndex = index+3;
+      }
+      _value[pushed].orientation = OrientationEnc(tokenMap[argv[orientationIndex]]);
+      _value[pushed].sizeID = argv[sizeIdIndex];
+    } else {
+      _value[pushed].sizeID = "Custom";
+      _value[pushed].orientation = InvalidOrientation;
+    }
+    _here[pushed] = here;
+    return PageSizeRc;
 
-      if (v0 < _min || v0 > _max ||
-          v1 < _min || v1 > _max) {
-          return RangeErrorRc;
-        }
-
-      _value[pushed].pagesize[pushed][0] = v0;
-      _value[pushed].pagesize[pushed][1] = v1;
-      _value[pushed].sizeid = pageType;
-      _here[pushed] = here;
-      return PageSizeRc;
+  } else if (sizeIDFound || (argv.size() - index == 1) && !(argv[index].toLower() == "custom")) {
+    QString sizeID = argv[sizeIDFound ? sizeIdIndex : index];
+    bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
+    int  numPageTypes = PageSizes::numPageTypes();
+    for (int i = 0; i < numPageTypes; i++) {
+      if (sizeID.toLower() == PageSizes::pageTypeSizeID(i).toLower()) {
+        v0 = dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i);
+        v1 = dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i);
+        break;
+      }
     }
 
+    if (v0 == 0.0f || v1 == 0.0f ) {
+      return FailureRc;
+    }
+
+    if (v0 < _min || v0 > _max ||
+      v1 < _min || v1 > _max) {
+      return RangeErrorRc;
+    }
+
+    _value[pushed].sizeW       = v0;
+    _value[pushed].sizeH       = v1;
+    _value[pushed].sizeID      = sizeID;
+    _value[pushed].orientation = sizeIDFound ? OrientationEnc(tokenMap[argv[orientationIndex]]) : InvalidOrientation;
+    _here[pushed] = here;
+    return PageSizeRc;
+  }
+
+  // suppress 'PORTRAIT or LANDSCAPE'  for now
+  // "Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) and optionally PORTRAIT or LANDSCAPE but got \"%1\""
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) but got \"%1\"") .arg(argv.join(" ")));
-    }
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) but got \"%1\"") .arg(argv.join(" ")));
+  }
 
   return FailureRc;
 }
 QString PageSizeMeta::format(bool local, bool global)
 {
   QString foo = QString("%1 %2 %3")
-      .arg(double(_value[pushed].pagesize[pushed][0]),_fieldWidth,'f',_precision)
-      .arg(double(_value[pushed].pagesize[pushed][1]),_fieldWidth,'f',_precision)
-      .arg(_value[pushed].sizeid);
+                        .arg(double(_value[pushed].sizeW),_fieldWidth,'f',_precision)
+                        .arg(double(_value[pushed].sizeH),_fieldWidth,'f',_precision)
+                        .arg(_value[pushed].sizeID);
+  if (_value[pushed].orientation == Portrait) {
+    foo += QStringLiteral(" PORTRAIT");
+  } else if (_value[pushed].orientation == Landscape) {
+    foo += QStringLiteral(" LANDSCAPE");
+  }
+
   return LeafMeta::format(local,global,foo);
 }
 void PageSizeMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <decimal width> <decimal height> [<\"page size id\">] | <\"page size id\">";
+  // suppress 'PORTRAIT or LANDSCAPE'  for now
+  // " <decimal width> <decimal height> [ <\"page size id\"> ] [ PORTRAIT | LANDSCAPE ] | <\"page size id\"> [ PORTRAIT | LANDSCAPE ]"
+  out << preamble + " <decimal width> <decimal height> [ <\"page size id\"> ] | <\"page size id\">";
 }
 
 /* ------------------ */

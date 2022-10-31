@@ -1784,40 +1784,40 @@ void MetaItem::changeSizeAndOrientation(
   QString              title,
   const Where         &topOfStep,
   const Where         &bottomOfStep,
-  PageSizeMeta        *smeta,
-  PageOrientationMeta *ometa,
+  PageSizeMeta        *metaS,
+  PageOrientationMeta *metaO,
   bool                 useTop,
   int                  append,
   bool                 local)
 {
 
-  PgSizeData sdata;
-  sdata.sizeW  = smeta->value(0);
-  sdata.sizeH  = smeta->value(1);
-  sdata.sizeID = smeta->valueSizeID();
-
-  OrientationEnc orientation;
-  orientation = ometa->value();
+  PageSizeData dataS = metaS->value();
+  OrientationEnc dataO = metaO->value();
 
   bool ok;
-  ok = SizeAndOrientationDialog::getSizeAndOrientation(sdata,orientation,title,gui);
+  ok = SizeAndOrientationDialog::getSizeAndOrientation(dataS,dataO,title,gui);
 
   if (ok) {
-      if (orientation != ometa->value()) {
-//          logDebug() << " SIZE (dialog return): Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
-          ometa->setValue(orientation);
-          setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
-        }
-
-      if (sdata.sizeW != smeta->value(0) || sdata.sizeID != smeta->valueSizeID() || sdata.sizeH != smeta->value(1)) {
-//          logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1) << " SizeID: " << smeta->valueSizeID();
-
-          smeta->setValue(0,sdata.sizeW);
-          smeta->setValue(1,sdata.sizeH);
-          smeta->setValueSizeID(sdata.sizeID);
-          setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
-        }
+    if (dataO != metaO->value()) {
+//#ifdef QT_DEBUG_MODE
+//      logDebug() << " SIZE (dialog return): Orientation: "
+//                 << (dataO == Portrait ? "Portrait" : "Landscape");
+//#endif
+      metaO->setValue(dataO);
+      setMeta(topOfStep,bottomOfStep,metaO,useTop,append,local);
     }
+
+    if (dataS.sizeW != metaS->value(0) || dataS.sizeID != metaS->valueSizeID() || dataS.sizeH != metaS->value(1)) {
+//#ifdef QT_DEBUG_MODE
+//      logDebug() << " SIZE (dialog return): Width: "
+//                 << metaS->value(0) << " Height: "
+//                 << metaS->value(1) << " SizeID: "
+//                 << metaS->valueSizeID();
+//#endif
+      metaS->setValue(dataS);
+      setMeta(topOfStep,bottomOfStep,metaS,useTop,append,local);
+    }
+  }
 }
 
 void MetaItem::hideSubmodel(

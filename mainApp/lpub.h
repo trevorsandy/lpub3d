@@ -441,7 +441,7 @@ class Page;
 class PageMeta;
 class PageNumberItem;
 class PartWorker;
-class PgSizeData;
+class PageSizeData;
 class Placement;
 class PlacementFooter;
 class PlacementHeader;
@@ -1125,12 +1125,12 @@ public:
   void clearWorkingFiles(const QStringList &filePaths);
   void addEditLDrawIniFileAction();
 
-  static QMap<int, PgSizeData> &getPageSizes()
+  static QMap<int, PageSizeData> &getPageSizes()
   {
       return pageSizes;
   }
 
-  static PgSizeData &getPageSize(int i)
+  static PageSizeData &getPageSize(int i)
   {
       return pageSizes[i];
   }
@@ -1216,7 +1216,7 @@ public slots:
       pageProcessRunning = p;
   }
 
-  static void insertPageSize(int i, const PgSizeData &pgSizeData)
+  static void insertPageSize(int i, const PageSizeData &pgSizeData)
   {
       pageSizes.insert(i,pgSizeData);
   }
@@ -1545,7 +1545,7 @@ public:
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
 
-  static QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
+  static QMap<int, PageSizeData>  pageSizes;            // page size and orientation object
 
 protected:
   // capture camera rotation from Visual Editor module

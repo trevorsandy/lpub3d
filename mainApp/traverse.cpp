@@ -3129,7 +3129,7 @@ int Gui::findPage(
                                   }
 
                                   // save Default pageSize information
-                                  PgSizeData pageSize2;
+                                  PageSizeData pageSize2;
                                   if (exporting()) {
                                       pageSize2       = pageSizes[DEF_SIZE];
                                       opts.flags.pageSizeUpdate  = false;
@@ -3836,6 +3836,11 @@ int Gui::findPage(
                     opts.pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
                     opts.pageSize.sizeID = meta.LPub.page.size.valueSizeID();
 
+                    if (meta.LPub.page.size.valueOrientation() != InvalidOrientation) {
+                      opts.pageSize.orientation = meta.LPub.page.size.valueOrientation();
+                      meta.LPub.page.orientation.setValue(opts.pageSize.orientation);
+                    }
+
                     pageSizes.remove(DEF_SIZE);
                     pageSizes.insert(DEF_SIZE,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
@@ -4516,7 +4521,7 @@ void Gui::countPages()
       Meta meta;
       QString empty;
       FindPageFlags fpFlags;
-      PgSizeData emptyPageSize;
+      PageSizeData emptyPageSize;
       QList<SubmodelStack> modelStack;
 
       current              =  Where(lpub->ldrawFile.topLevelFile(),0,0);
@@ -4700,7 +4705,7 @@ void Gui::drawPage(
   FindPageFlags fpFlags;
   QList<SubmodelStack> modelStack;
 
-  PgSizeData pageSize;
+  PageSizeData pageSize;
   if (exporting()) {
     pageSize.sizeW      = lpub->meta.LPub.page.size.valueInches(0);
     pageSize.sizeH      = lpub->meta.LPub.page.size.valueInches(1);

@@ -150,7 +150,7 @@ int          Gui::m_saveExportMode;       // saved export mode used when exporti
 QString      Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
 
 RendererData Gui::savedRendererData;      // store current renderer data when temporarily switching renderer;
-QMap<int, PgSizeData>  Gui::pageSizes;    // page size and orientation object
+QMap<int, PageSizeData>  Gui::pageSizes;    // page size and orientation object
 
 /***********************************************************************
  * set Native renderer for fast processing
@@ -2873,7 +2873,6 @@ Gui::Gui()
     qRegisterMetaType<JustifyStepData>("JustifyStepData");
     qRegisterMetaType<NativeOptions>("NativeOptions");
     qRegisterMetaType<PageSizeData>("PageSizeData");
-    qRegisterMetaType<PgSizeData>("PgSizeData");
     qRegisterMetaType<PlacementData>("PlacementData");
     qRegisterMetaType<PliPartGroupData>("PliPartGroupData");
     qRegisterMetaType<PointerAttribData>("PointerAttribData");
@@ -2935,7 +2934,7 @@ Gui::Gui()
     qRegisterMetaType<PageTypeEnc>("PageTypeEnc");
     qRegisterMetaType<PartSource>("PartSource");
     qRegisterMetaType<PartType>("PartType");
-    qRegisterMetaType<PgSizeData>("PgSizeData");
+    qRegisterMetaType<PageSizeData>("PageSizeData");
     qRegisterMetaType<PlacementEnc>("PlacementEnc");
     qRegisterMetaType<PlacementTableEnc>("PlacementTableEnc");
     qRegisterMetaType<PlacementType>("PlacementType");

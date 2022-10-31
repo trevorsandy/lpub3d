@@ -163,7 +163,7 @@ public:
 
 class Meta;
 class Where;
-class PgSizeData;
+class PageSizeData;
 class PliPartGroupMeta;
 class SubmodelStack;
 
@@ -261,7 +261,7 @@ public:
     FindPageOptions(
             int             &_pageNum,
             Where           &_current,
-            PgSizeData      &_pageSize,
+            PageSizeData      &_pageSize,
             FindPageFlags   &_flags,
             QList<SubmodelStack> &_modelStack,
 
@@ -291,7 +291,7 @@ public:
     {  }
     int            &pageNum;
     Where          &current;
-    PgSizeData     &pageSize;
+    PageSizeData     &pageSize;
     FindPageFlags  &flags;
     QList<SubmodelStack> &modelStack;
     bool            pageDisplayed;

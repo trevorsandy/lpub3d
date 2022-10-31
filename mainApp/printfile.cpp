@@ -62,7 +62,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
     }
 
 
-  QMap<int,PgSizeData>::iterator i = pageSizes.find(pageNum);
+  QMap<int,PageSizeData>::iterator i = pageSizes.find(pageNum);
   if (i != pageSizes.end()){
 
       // determine page orientation
@@ -93,7 +93,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
 
 void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 {
-  QMap<int,PgSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
+  QMap<int,PageSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
   if (i != pageSizes.end()){
 
       float pageWidthIn, pageHeightIn;
@@ -137,7 +137,7 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
       pageNum = displayPageNum + 1;            //next page
     }
 
-  QMap<int,PgSizeData>::iterator i = pageSizes.find(pageNum);   // this page
+  QMap<int,PageSizeData>::iterator i = pageSizes.find(pageNum);   // this page
   if (i != pageSizes.end()){
 
 #ifdef PAGE_PRINT_DEBUG
@@ -202,7 +202,7 @@ void Gui::checkMixedPageSizeStatus(){
 
           Q_FOREACH (key,printPages) {
 
-              QMap<int,PgSizeData>::iterator i = pageSizes.find(key);   // this page
+              QMap<int,PageSizeData>::iterator i = pageSizes.find(key);   // this page
               if (i != pageSizes.end()){
 #ifdef PAGE_PRINT_DEBUG
                   logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")

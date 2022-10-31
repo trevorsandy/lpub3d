@@ -953,10 +953,10 @@ public:
   QString      _inputMask;
   PageSizeMeta()
   {
-    _value[0].pagesize[0][0] = 0;
-    _value[0].pagesize[0][1] = 0;
-    _value[0].sizeid         = "A4";
-//    _value[0].orientation    = Portrait;
+    _value[0].sizeW       = 0.0f;
+    _value[0].sizeH       = 0.0f;
+    _value[0].sizeID      = QStringLiteral("A4");
+    _value[0].orientation = Portrait;
     _min = 0;
     _max = 0;
     _fieldWidth = 6;
@@ -966,86 +966,97 @@ public:
   }
   PageSizeMeta(const PageSizeMeta &rhs) : RcMeta(rhs)
   {
-    _value[0].pagesize[0][0] = rhs._value[0].pagesize[0][0];
-    _value[0].pagesize[0][1] = rhs._value[0].pagesize[0][1];
-    _value[0].pagesize[1][0] = rhs._value[0].pagesize[1][0];
-    _value[0].pagesize[1][1] = rhs._value[0].pagesize[1][1];
-    _value[0].sizeid         = rhs._value[0].sizeid;
-//    _value[0].orientation    = rhs._value[0].orientation;
-    _value[1].pagesize[0][0] = rhs._value[1].pagesize[0][0];
-    _value[1].pagesize[0][1] = rhs._value[1].pagesize[0][1];
-    _value[1].pagesize[1][0] = rhs._value[1].pagesize[1][0];
-    _value[1].pagesize[1][1] = rhs._value[1].pagesize[1][1];
-    _value[1].sizeid         = rhs._value[1].sizeid;
-//    _value[1].orientation    = rhs._value[1].orientation;
-    _min                     = rhs._min;
-    _max                     = rhs._max;
-    _fieldWidth              = rhs._fieldWidth;
-    _precision               = rhs._precision;
-    _inputMask               = rhs._inputMask;
+    _value[0].sizeW       = rhs._value[0].sizeW;
+    _value[0].sizeH       = rhs._value[0].sizeH;
+    _value[0].sizeID      = rhs._value[0].sizeID;
+    _value[0].orientation = rhs._value[0].orientation;
+    _value[1].sizeW       = rhs._value[1].sizeW;
+    _value[1].sizeH       = rhs._value[1].sizeH;
+    _value[1].sizeID      = rhs._value[1].sizeID;
+    _value[1].orientation = rhs._value[1].orientation;
+    _min                  = rhs._min;
+    _max                  = rhs._max;
+    _fieldWidth           = rhs._fieldWidth;
+    _precision            = rhs._precision;
+    _inputMask            = rhs._inputMask;
   }
-  PageSizeData &value()
+  // data
+  virtual PageSizeData &value()
   {
     return _value[pushed];
   }
-  void setValue(PageSizeData &value)
+  virtual void setValue(PageSizeData &value)
   {
     _value[pushed] = value;
   }
-  //page size specific
+  //size id
   virtual void setValueSizeID(QString v3) {
-    _value[pushed].sizeid     = v3;
-    _default                  = false;
+    _value[pushed].sizeID = v3;
+    _default              = false;
   }
   virtual QString valueSizeID() {
-    return _value[pushed].sizeid;
+    return _value[pushed].sizeID;
   }
-  virtual void setValuesAll(float v1, float v2, QString v3){
-    _value[pushed].pagesize[pushed][0] = v1;
-    _value[pushed].pagesize[pushed][1] = v2;
-    _value[pushed].sizeid              = v3;
-    _default                           = false;
+  //orientation
+  virtual OrientationEnc valueOrientation()
+  {
+    return _value[pushed].orientation;
   }
-  //unitMeta inherited
+  virtual void setValueOrientation(OrientationEnc value)
+  {
+    _value[pushed].orientation = value;
+  }
+  //page size values
   virtual float value(int which)
   {
-    float t = _value[pushed].pagesize[pushed][which];
+    float t = which ? _value[pushed].sizeH :
+                      _value[pushed].sizeW;
 
     if (resolutionType() == DPCM) {
-        t = inches2centimeters(t);
-      }
+      t = inches2centimeters(t);
+    }
     return t;
   }
   virtual void setValue(int which, float value)
   {
     if (resolutionType() == DPCM) {
         value = centimeters2inches(value);
-      }
-    _value[pushed].pagesize[pushed][which] = value;
-    _default                               = false;
+    }
+    if (which)
+      _value[pushed].sizeH = value;
+    else
+      _value[pushed].sizeW = value;
+    _default               = false;
   }
   virtual float valueInches(int which)
   {
-    return _value[pushed].pagesize[pushed][which];
+    return which ? _value[pushed].sizeH :
+                   _value[pushed].sizeW;
   }
   virtual void setValueInches(int which, float value)
   {
-    _value[pushed].pagesize[pushed][which] = value;
-    _default                               = false;
+    if (which)
+      _value[pushed].sizeH = value;
+    else
+      _value[pushed].sizeW = value;
+    _default               = false;
   }
   virtual void setValuesInches(float v1, float v2)
   {
-    _value[pushed].pagesize[pushed][0] = v1;
-    _value[pushed].pagesize[pushed][1] = v2;
-    _default                           = false;
+    _value[pushed].sizeW = v1;
+    _value[pushed].sizeH = v2;
+    _default             = false;
   }
   virtual void setValuePixels(int which, int pixels)
   {
     float r = resolution();
     float value = float(pixels/r);
 
-    _value[pushed].pagesize[pushed][which] = value;
-    _default                               = false;
+    if (which)
+      _value[pushed].sizeH = value;
+    else
+      _value[pushed].sizeW = value;
+    _default               = false;
   }
   virtual void setValuesPixels(float v1pixels, float v2pixels)
   {
@@ -1053,14 +1064,15 @@ public:
     float v1 = float(v1pixels/r);
     float v2 = float(v2pixels/r);
 
-    _value[pushed].pagesize[pushed][0] = v1;
-    _value[pushed].pagesize[pushed][1] = v2;
-    _value[pushed].sizeid              = QString("Custom");
-    _default                           = false;
+    _value[pushed].sizeW  = v1;
+    _value[pushed].sizeH  = v2;
+    _value[pushed].sizeID = QStringLiteral("Custom");
+    _default              = false;
   }
   virtual int valuePixels(int which)
   {
-    float t = _value[pushed].pagesize[pushed][which];
+    float t = which ? _value[pushed].sizeH :
+                      _value[pushed].sizeW;
     float r = resolution();
 
     return int(t*r);
@@ -1087,9 +1099,7 @@ public:
     return _default;
   }
 //  virtual ~PageSizeMeta() {}
-  virtual void    init(BranchMeta *parent,
-                       const QString name,
-                       Rc _rc=OkRc);
+  virtual void init(BranchMeta *parent, const QString name, Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
   virtual QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);

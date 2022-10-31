@@ -70,11 +70,12 @@
 #include "gradients.h"
 #include "pagesizes.h"
 
-
-bool notEqual(const double v1, const double v2)
+bool notEqual(const double v1, const double v2, int p = 4)
 {
-    const double epsilon  = 0.0001;
-    return fabs(v1 - v2) > epsilon * fabs(v1);
+    const QString _v1 = QString::number(v1,'f',p);
+    const QString _v2 = QString::number(v2,'f',p);
+    const bool     r  = _v1 != _v2;
+    return r;
 }
 
 QString MetaGui::formatMask(
@@ -316,9 +317,6 @@ void UnitsGui::enableReset(const QString &displayText)
   const double value = displayText.toDouble();
 
   if (sender() == value0Edit) {
-    qDebug() << qPrintable(QString("Margin Value %1, Data0: %2, Enable Reset: %3")
-                                   .arg(value).arg((double)data0)
-                                   .arg(notEqual(value, data0 ? "True" : "False"));
     reset0Act->setEnabled(notEqual(value, data0));
   } else
   if (sender() == value1Edit)
@@ -3556,7 +3554,7 @@ BorderGui::BorderGui(
           this,        SLOT(enableSpinReset(int)));
   connect(resetButton, SIGNAL(clicked(      bool)),
           this,        SLOT(  spinReset(    bool)));
-  grid->addWidget(resetButton,0,3);
+  grid->addWidget(resetButton,0,3,1,1,{Qt::AlignVCenter, Qt::AlignLeft});
 
   /* Line Combo */
 
@@ -3944,12 +3942,15 @@ void PlacementGui::placementChanged(bool clicked)
 {
   Q_UNUSED(clicked);
   PlacementData _data = meta->value();
-  bool ok;
-  ok = PlacementDialog
+  bool ok = PlacementDialog
        ::getPlacement(SingleStepType,PartsListType,_data,title,ContentPage);
   if (ok) {
       meta->setValue(_data);
-      modified = _data != data;
+      modified = _data.placement     != data.placement     ||
+                 _data.justification != data.justification ||
+                 _data.relativeTo    != data.relativeTo    ||
+                 _data.preposition   != data.preposition   ||
+                 _data.rectPlacement != data.rectPlacement;
   }
 }
 
@@ -4593,19 +4594,21 @@ ResolutionGui::ResolutionGui(
   label = new QLabel("Units",parent);
   grid->addWidget(label,0,0);
 
-  type  = _meta->type();
-  value = _meta->value();
+  dataT = _meta->type();
+  dataV = _meta->value();
+
   // default value always inches
   // so convert to centimeters if DPCM
-  if (_meta->isDefault() && type == DPCM) {
-      value = inches2centimeters(_meta->value());
+  float value = dataV;
+  if (_meta->isDefault() && dataT == DPCM) {
+    value = inches2centimeters(dataV);
   }
 
   QComboBox *combo;
   combo = new QComboBox(parent);
   combo->addItem("Dots Per Inch");
   combo->addItem("Dots Per Centimetre");
-  combo->setCurrentIndex(int(type));
+  combo->setCurrentIndex(int(dataT));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  unitsChange(        QString const &)));
   grid->addWidget(combo,0,1);
@@ -4638,8 +4641,8 @@ ResolutionGui::ResolutionGui(
 
 void ResolutionGui::enableReset(const QString &displayText)
 {
-  const int display = displayText.toInt();
-  reset0Act->setEnabled(display != (int)meta->value());
+  const int value = displayText.toInt();
+  reset0Act->setEnabled(value != (int)dataV);
 }
 
 void ResolutionGui::lineEditReset()
@@ -4647,55 +4650,42 @@ void ResolutionGui::lineEditReset()
   if (sender() == reset0Act) {
     reset0Act->setEnabled(false);
     if (valueEdit)
-      valueEdit->setText(QString::number((int)meta->value()));
+      valueEdit->setText(QString::number((int)dataV));
   }
 }
 
 void ResolutionGui::unitsChange(QString const &units)
 {
+  ResolutionType type = meta->type();
+
   if (units == "Dots Per Centimetre")
     type = DPCM;
   else
     type = DPI;
 
-  float tvalue = 0.0;
-
-  if (type == meta->type()) {
-    tvalue = value;
-  } else if (type == DPCM) { // Changed to Centimeters
-    tvalue = inches2centimeters(value)+0.5;
-  } else {
-    tvalue = centimeters2inches(value)+0.5;
+  float value = meta->value();
+  // default value always inches
+  // so convert to centimeters if DPCM
+  if (type == DPCM) {
+    value = inches2centimeters(value)+0.5f;
   }
 
-  valueEdit->setText(QString::number((int)tvalue));
+  meta->setValue(type,value);
+
+  valueEdit->setText(QString::number((int)value));
+
+  modified = type != dataT;
 }
 
 void ResolutionGui::valueChange(QString const &string)
 {
-  value = string.toFloat();
-}
-
-void ResolutionGui::differences()
-{
-  // TODO: This is redundant - don't need this call
-  if (type == meta->type()) {
-    meta->setValue(type,value)
-    modified = notEqual(value, meta->value());
-  } else if (type == DPI) {
-    // We must convert all units in project to inches
-    meta->setValue(type,value);
-    modified = true;
-  } else {
-    // We must convert all units in project to centimetres
-    meta->setValue(type,value);
-    modified = true;
-  }
+  float value = string.toFloat();
+  meta->setValue(value);
+  modified = notEqual(value, dataV);
 }
 
 void ResolutionGui::apply(QString &modelName)
 {
-  differences();
   if (modified) {
     MetaItem mi;
     mi.setGlobalMeta(modelName,meta);
@@ -6867,25 +6857,25 @@ void RotateIconSizeGui::enableReset(const QString &displayText)
 {
   const double value = displayText.toDouble();
 
-  if (sender() == valueH)
-    resetHAct->setEnabled(notEqual(value, dataH));
-  else
   if (sender() == valueW)
     resetWAct->setEnabled(notEqual(value, dataW));
+  else
+  if (sender() == valueH)
+    resetHAct->setEnabled(notEqual(value, dataH));
 }
 
 void RotateIconSizeGui::lineEditReset()
 {
-  if (sender() == resetHAct) {
-    resetHAct->setEnabled(false);
-    if (valueH)
-      valueH->setText(QString::number(dataH,'f',meta->_precision));
-  }
-  else
   if (sender() == resetWAct) {
     resetWAct->setEnabled(false);
     if (valueW)
       valueW->setText(QString::number(dataW,'f',meta->_precision));
+  }
+  else
+  if (sender() == resetHAct) {
+    resetHAct->setEnabled(false);
+    if (valueH)
+      valueH->setText(QString::number(dataH,'f',meta->_precision));
   }
 }
 
@@ -7030,27 +7020,27 @@ PageSizeGui::PageSizeGui(
 
 void PageSizeGui::enableReset(const QString &displayText)
 {
-  const double display = displayText.toDouble();
+  const double value = displayText.toDouble();
 
-  if (sender() == valueH)
-    resetHAct->setEnabled(notEqual(value, dataH));
-  else
   if (sender() == valueW)
     resetWAct->setEnabled(notEqual(value, dataW));
+  else
+    if (sender() == valueH)
+      resetHAct->setEnabled(notEqual(value, dataH));
 }
 
 void PageSizeGui::lineEditReset()
 {
-  if (sender() == resetHAct) {
-    resetHAct->setEnabled(false);
-    if (valueH)
-      valueH->setText(QString::number(dataH,'f',meta->_precision));
-  }
-  else
   if (sender() == resetWAct) {
     resetWAct->setEnabled(false);
     if (valueW)
       valueW->setText(QString::number(dataW,'f',meta->_precision));
+  }
+  else
+  if (sender() == resetHAct) {
+    resetHAct->setEnabled(false);
+    if (valueH)
+      valueH->setText(QString::number(dataH,'f',meta->_precision));
   }
 }
 
@@ -7117,7 +7107,8 @@ void PageSizeGui::typeChange(const QString &pageType){
 
 void PageSizeGui::valueWChange(QString const &string)
 {
-  dataW = string.toFloat();
+  float value = string.toFloat();
+
   if (lpub->page.meta.LPub.page.orientation.value() == Portrait) {
     meta->setValue(0,value);
     modified = notEqual(value, dataW);
@@ -7167,18 +7158,15 @@ void PageSizeGui::apply(QString &topLevelFile)
 
 SizeAndOrientationGui::SizeAndOrientationGui(
   QString const       &heading,
-  PageSizeMeta        *_smeta,
-  PageOrientationMeta *_ometa,
+  PageSizeMeta        *_metaS,
+  PageOrientationMeta *_metaO,
   QGroupBox           *parent)
 {
 
-  smeta          = _smeta;
-  ometa          = _ometa;
-  dataO          = _ometa->value();
-  dataS          = _smeta->value();
-  dataW          = _smeta->value(0);
-  dataH          = _smeta->value(1);
-  dataTypeSizeID = _smeta->valueSizeID();
+  metaS          = _metaS;
+  metaO          = _metaO;
+  dataO          = _metaO->value();
+  dataS          = _metaS->value();
 
   QGridLayout *grid   = new QGridLayout(parent);
 
@@ -7199,13 +7187,13 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
 //#ifdef QT_DEBUG_MODE
 //  logNotice() << " \nSizeAndOrientationGui Initialized:"
-//              << " \nSize 0:      " <<  _smeta->value(0)
-//              << " \nSize 1:      " <<  _smeta->value(1)
-//              << " \nField Width: " <<  _smeta->_fieldWidth
-//              << " \nPrecision:   " <<  _smeta->_precision
-//              << " \nInput Mask:  " <<  _smeta->_inputMask
-//              << " \nTypeSizeID:  " <<  _smeta->valueSizeID()
-//              << " \nOrientation: " << (_ometa->value() == Portrait ? "Portrait" : "Landscape")
+//              << " \nSize 0:      " <<  _metaS->value(0)
+//              << " \nSize 1:      " <<  _metaS->value(1)
+//              << " \nField Width: " <<  _metaS->_fieldWidth
+//              << " \nPrecision:   " <<  _metaS->_precision
+//              << " \nInput Mask:  " <<  _metaS->_inputMask
+//              << " \nTypeSizeID:  " <<  _metaS->valueSizeID()
+//              << " \nOrientation: " << (_metaO->value() == Portrait ? "Portrait" : "Landscape")
 //                 ;
 //#endif
 
@@ -7231,18 +7219,18 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
     typeCombo->addItem(type);
 
-    if (dataTypeSizeID != QStringLiteral("Custom") && PageSizes::pageTypeSizeID(i) == dataTypeSizeID){
+    if (dataS.sizeID != QStringLiteral("Custom") && PageSizes::pageTypeSizeID(i) == dataS.sizeID){
         typeIndex = i;
     }
   }
 
   if (typeIndex == -1) {
 
-    float pageWidth = _smeta->value(0);
-    float pageHeight = _smeta->value(1);
+    float pageWidth = _metaS->value(0);
+    float pageHeight = _metaS->value(1);
 
     QString customType = QString("%1 (%2 x %3)")
-        .arg(dataTypeSizeID)
+        .arg(dataS.sizeID)
         .arg(QString::number(pageWidth,'f',1))
         .arg(QString::number(pageHeight,'f',1));
     int lastItem = typeCombo->count() - 1;
@@ -7262,15 +7250,13 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   else
     grid->addWidget(typeCombo,1,0);
 
-  QString string = QString::number(_smeta->value(0),'f',_smeta->_precision);
-
   valueW = new QLineEdit(parent);
   QDoubleValidator *valueWValidator = new QDoubleValidator(valueW);
   valueWValidator->setRange(0.0f, 1000.0f);
-  valueWValidator->setDecimals(_smeta->_precision);
+  valueWValidator->setDecimals(_metaS->_precision);
   valueWValidator->setNotation(QDoubleValidator::StandardNotation);
   valueW->setValidator(valueWValidator);
-  valueW->setText(QString::number(dataW,'f',_smeta->_precision));
+  valueW->setText(QString::number(dataS.sizeW,'f',_metaS->_precision));
   resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetWAct->setText(tr("Reset"));
   resetWAct->setEnabled(false);
@@ -7286,15 +7272,13 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   else
     grid->addWidget(valueW,1,1);
 
-  string = QString::number(_smeta->value(1),'f',_smeta->_precision);
-
   valueH = new QLineEdit(parent);
   QDoubleValidator *valueHValidator = new QDoubleValidator(valueH);
   valueHValidator->setRange(0.0f, 1000.0f);
-  valueHValidator->setDecimals(_smeta->_precision);
+  valueHValidator->setDecimals(_metaS->_precision);
   valueHValidator->setNotation(QDoubleValidator::StandardNotation);
   valueH->setValidator(valueHValidator);
-  valueH->setText(QString::number(dataH,'f',_smeta->_precision));
+  valueH->setText(QString::number(dataS.sizeH,'f',_metaS->_precision));
   resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   resetHAct->setText(tr("Reset"));
   resetHAct->setEnabled(false);
@@ -7327,7 +7311,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
   /* page orientation */
   portraitRadio = new QRadioButton(tr("Portrait"),parent);
-  portraitRadio->setChecked(_ometa->value() == Portrait);
+  portraitRadio->setChecked(dataO == Portrait);
   connect(portraitRadio,SIGNAL(clicked(bool)),
           this,         SLOT(  orientationChange(bool)));
 
@@ -7337,7 +7321,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     grid->addWidget(portraitRadio,2,1);
 
   landscapeRadio    = new QRadioButton(tr("Landscape"),parent);
-  landscapeRadio->setChecked(_ometa->value() == Landscape);
+  landscapeRadio->setChecked(dataO == Landscape);
   connect(landscapeRadio,SIGNAL(clicked(bool)),
           this,          SLOT(  orientationChange(bool)));
 
@@ -7359,60 +7343,61 @@ void SizeAndOrientationGui::enableReset(const QString &displayText)
 {
   const double value = displayText.toDouble();
 
-  if (sender() == valueH)
-    resetHAct->setEnabled(notEqual(value, dataH);
-  else
   if (sender() == valueW)
-    resetWAct->setEnabled(notEqual(value, dataW);
+    resetWAct->setEnabled(notEqual(value, dataS.sizeW));
+  else
+  if (sender() == valueH)
+    resetHAct->setEnabled(notEqual(value, dataS.sizeH));
 }
 
 void SizeAndOrientationGui::lineEditReset()
 {
-  if (sender() == resetHAct) {
-    resetHAct->setEnabled(false);
-    if (valueH)
-      valueH->setText(QString::number(dataH,'f',smeta->_precision));
-  }
-  else
   if (sender() == resetWAct) {
     resetWAct->setEnabled(false);
     if (valueW)
-      valueW->setText(QString::number(dataW,'f',smeta->_precision));
+      valueW->setText(QString::number(dataS.sizeW,'f',metaS->_precision));
+  }
+  else
+  if (sender() == resetHAct) {
+    resetHAct->setEnabled(false);
+    if (valueH)
+      valueH->setText(QString::number(dataS.sizeH,'f',metaS->_precision));
   }
 }
 
 void SizeAndOrientationGui::typeChange(const QString &typeString)
 {
-  float pageWidth  = smeta->value(0);
-  float pageHeight = smeta->value(1);
   bool  staticType = true;
   int   typeIndx   = typeString.indexOf(" (");
-  const QString newType = typeString.left(typeIndx);
 
-  smeta->setValueSizeID(newType);
+  PageSizeData _data = metaS->value();
+  _data.sizeID = typeString.left(typeIndx);
 
 #ifdef QT_DEBUG_MODE
   logDebug() << qPrintable(QString("2. NewType: %3, OldType")
-                                   .arg(newType).arg(dataTypeSizeID));
+                                   .arg(_data.sizeID).arg(dataS.sizeID));
 #endif
 
-  if ((staticType = newType != QStringLiteral("Custom"))) {
+  if ((staticType = _data.sizeID != QStringLiteral("Custom"))) {
     bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
     int  numPageTypes = PageSizes::numPageTypes();
 
     for (int i = 0; i < numPageTypes; i++) {
-      if (newType == PageSizes::pageTypeSizeID(i)) {
-        pageWidth  = dpi ? PageSizes::pageWidthIn(i) : inches2centimeters(PageSizes::pageWidthIn(i));
-        pageHeight = dpi ? PageSizes::pageHeightIn(i) : inches2centimeters(PageSizes::pageHeightIn(i));
+      if (_data.sizeID == PageSizes::pageTypeSizeID(i)) {
+        _data.sizeW = dpi ? PageSizes::pageWidthIn(i) : inches2centimeters(PageSizes::pageWidthIn(i));
+        _data.sizeH = dpi ? PageSizes::pageHeightIn(i) : inches2centimeters(PageSizes::pageHeightIn(i));
         break;
       }
     }
   }
 
-  valueW->setText(QString::number(pageWidth,'f',smeta->_precision));
-  valueH->setText(QString::number(pageHeight,'f',smeta->_precision));
+  metaS->setValueSizeID(_data.sizeID);
 
-  modified = orientationModified = newType != dataTypeSizeID;
+  valueW->setText(QString::number(_data.sizeW,'f',metaS->_precision));
+  valueH->setText(QString::number(_data.sizeH,'f',metaS->_precision));
+
+  sizeIDModified = _data.sizeID != dataS.sizeID;
+  modified =  sizeIDModified || orientationModified;
 
   setEnabled(!staticType);
 }
@@ -7421,35 +7406,41 @@ void SizeAndOrientationGui::orientationChange(bool clicked)
 {
   Q_UNUSED(clicked);
 
-  QObject *radioButton = sender();
-  if (radioButton == portraitRadio)
-    ometa->setValue(Portrait);
+  OrientationEnc value;
+
+  if (sender() == portraitRadio)
+    value = Portrait;
   else
-    ometa->setValue(Landscape);
+    value = Landscape;
 
 #ifdef QT_DEBUG_MODE
   logDebug() << qPrintable(QString("1. New Orientation: %1, Old Orientation %2")
-                                   .arg(ometa->value() == Portrait ? "Portrait" : "Landscape")
+                                   .arg(value == Portrait ? "Portrait" : "Landscape")
                                    .arg(dataO == Portrait ? "Portrait" : "Landscape"));
 #endif
 
+  metaO->setValue(value);
+
   typeChange(typeCombo->currentText());
 
-  modified = orientationModified = ometa->value() != dataO;
+  orientationModified = value != dataO;
+  modified =  orientationModified || sizeIDModified;
 }
 
 void SizeAndOrientationGui::valueWChange(QString const &string)
 {
-  float value = string.toFloat(&ok);
-  smeta->setValue(0,value);
-  modified = sizeModified = notEqual(value, dataW);
+  float value = string.toFloat();
+  metaS->setValue(0,value);
+  sizeModified = notEqual(value, dataS.sizeW);
+  modified =  sizeModified || orientationModified || sizeIDModified;
 }
 
 void SizeAndOrientationGui::valueHChange(QString const &string)
 {
-  float value = string.toFloat(&ok);
-  smeta->setValue(1,value);
-  modified = sizeModified = notEqual(value, dataH);
+  float value = string.toFloat();
+  metaS->setValue(1,value);
+  sizeModified = notEqual(value, dataS.sizeH);
+  modified =  sizeModified || orientationModified || sizeIDModified;
 }
 
 void SizeAndOrientationGui::setEnabled(bool enable)
@@ -7461,12 +7452,12 @@ void SizeAndOrientationGui::setEnabled(bool enable)
 void SizeAndOrientationGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  if ((modified = orientationModified || sizeModified)) {
-    if (sizeModified) {
-        mi.setGlobalMeta(topLevelFile,smeta);
+  if (modified) {
+    if (sizeIDModified || sizeModified) {
+      mi.setGlobalMeta(topLevelFile,metaS);
     }
     if (orientationModified) {
-        mi.setGlobalMeta(topLevelFile,ometa);
+      mi.setGlobalMeta(topLevelFile,metaO);
     }
   }
 }
