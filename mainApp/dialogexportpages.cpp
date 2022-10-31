@@ -91,29 +91,35 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     ui->spinPixelRatio->setValue(gui->exportPixelRatio);
     ui->spinPixelRatio->setToolTip(QString("Change the export DPI pixel ratio."));
 
-    ui->radioButtonAllPages->setChecked(true);
     ui->checkBoxResetCache->setChecked(false);
 
     int pages = 1 + Gui::pa;
     if (Gui::pageDirection < PAGE_BACKWARD) {
-        if (Gui::m_exportMode == PAGE_PROCESS)
-            pages = Gui::displayPageNum + 1;
-        if (rangeMin == Gui::displayPageNum)
-            rangeMin = rangeMin + 1;
+        if (Gui::m_exportMode == PAGE_PROCESS) {
+            pages = Gui::displayPageNum < Gui::maxPages ? Gui::displayPageNum + 1 : Gui::displayPageNum;
+            if (rangeMin == Gui::displayPageNum && rangeMin < Gui::maxPages)
+                rangeMin = rangeMin + 1;
+        }
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(Gui::maxPages));
         ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMin).arg(rangeMax));
         allPagesInRange = pages == 1 + Gui::pa;
     } else {
         pages = Gui::maxPages;
-        if (Gui::m_exportMode == PAGE_PROCESS)
-            pages = Gui::displayPageNum - 1;
-        if (rangeMax == Gui::displayPageNum)
-            rangeMax = rangeMax - 1;
+        if (Gui::m_exportMode == PAGE_PROCESS) {
+            pages = Gui::displayPageNum > 1 ? Gui::displayPageNum - 1 : Gui::displayPageNum;
+            if (rangeMax == Gui::displayPageNum && rangeMax > 1)
+                rangeMax = rangeMax - 1;
+        }
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(1 + Gui::pa));
         ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMax).arg(rangeMin));
         allPagesInRange = pages == Gui::maxPages;
     }
     ui->labelCurrentPage->setText(QString("%1").arg(Gui::displayPageNum));
+
+    if (Gui::m_exportMode > PAGE_PROCESS && Gui::m_exportMode < POVRAY_RENDER)
+        ui->radioButtonAllPages->setChecked(true);
+    else
+        ui->radioButtonPageRange->setChecked(true);
 
     switch(Gui::m_exportMode){
     case PRINT_FILE:
