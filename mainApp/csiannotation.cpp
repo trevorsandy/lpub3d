@@ -194,9 +194,15 @@ CsiAnnotationItem::CsiAnnotationItem(
    QGraphicsItem  *_parent)
   : ResizeTextItem(_parent)
   , alignment( Qt::AlignCenter | Qt::AlignVCenter )
+  , isHovered(false)
+  , mouseIsDown(false)
 {
    relativeType         = CsiAnnotationType;
    placementCsiPart     = nullptr;
+
+   setAcceptHoverEvents(true);
+   setData(ObjectId, AssemAnnotationObj);
+   setZValue(ASSEMANNOTATION_ZVALUE_DEFAULT);
 }
 
 void CsiAnnotationItem::addGraphicsItems(
@@ -459,6 +465,13 @@ void CsiAnnotationItem::paint( QPainter *painter, const QStyleOptionGraphicsItem
         textBounds.translate(textOffset);
         painter->translate(textBounds.left(), textBounds.top());
     }
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
     QGraphicsTextItem::paint(painter, o, w);
 }
 
@@ -466,8 +479,21 @@ void CsiAnnotationItem::change() {
     updateCsiAnnotationIconMeta(metaLine, &icon);
 }
 
+void CsiAnnotationItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void CsiAnnotationItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
 void CsiAnnotationItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = true;
   position = pos();
   positionChanged = false;
   QGraphicsItem::mousePressEvent(event);
@@ -485,6 +511,7 @@ void CsiAnnotationItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void CsiAnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    mouseIsDown = false;
     QGraphicsItem::mouseReleaseEvent(event);
 
     if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {

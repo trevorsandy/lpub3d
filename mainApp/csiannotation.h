@@ -135,15 +135,19 @@ public:
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-  void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void setAnnotationStyle(QPainter *painter);
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
   void change();
 
   QPointF              textOffset;
   Qt::Alignment	       alignment;
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 #endif // CSIANNOTATION_H
