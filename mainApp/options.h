@@ -85,11 +85,12 @@ public:
        StudStyle         (0  /*Plain*/),
        IniFlag           (-1 /*NONE*/),
        ExportMode        (-1 /*EXPORT_NONE*/),
-       CameraView        (7  /*Default*/),
+       CameraView        (7  /*Viewpoint*/),
        LineWidth         (1.0f),
        Resolution        (150.0f),
        ModelScale        (1.0f),
        CameraDistance    (0.0f),
+       DDF               (0.0f),
        FoV               (0.0f),
        ZNear             (0.0f),
        ZFar              (0.0f),
@@ -135,6 +136,7 @@ public:
   float Resolution;
   float ModelScale;
   float CameraDistance;
+  float DDF;
   float FoV;
   float ZNear;
   float ZFar;

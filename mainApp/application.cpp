@@ -1094,7 +1094,8 @@ int Application::initialize()
     setlocale(LC_NUMERIC, "C");
 
 /* load sequence
-* Gui::gui()                                             (gui)           [LPub3D]
+* LPub::LPub()                                           (lpub)          [LPub3D]
+* Gui::Gui()                                             (gui)           [LPub3D]
 * lcApplication::lcApplication()                         (gApplication)  [Visual Editor]
 * lcApplication::LoadDefaults                            (gApplication)
 * lcApplication::Initialize()                            (gApplication->Initialize)

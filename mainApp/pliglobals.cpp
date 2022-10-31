@@ -180,23 +180,39 @@ GlobalPliDialog::GlobalPliDialog(
 
   /* Camera settings */
 
-  box = new QGroupBox(tr("Default Part Orientation"));
+  box = new QGroupBox(tr("Part Camera Orientation"));
   box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
-  childlayout = new QVBoxLayout(nullptr);
-  box->setLayout(childlayout);
+  QGridLayout *boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
 
-  // camera field ov view
-  child = new CameraFOVGui(tr("Camera FOV"),&pliMeta->cameraFoV);
+  // camera field of view
+  child = new CameraFOVGui(tr("FOV"),&pliMeta->cameraFoV);
+  child->setToolTip(tr("Camera field of view"));
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
-  childlayout->addWidget(child);
+  boxGrid->addWidget(child,0,0);
+
+  // camera z near
+  child = new CameraZPlaneGui(tr("Z Near"),&pliMeta->cameraZNear);
+  child->setToolTip(tr("Camera Z near plane"));
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(child);
+  boxGrid->addWidget(child,0,1);
+
+  // camera z far
+  child = new CameraZPlaneGui(tr("Z Far"),&pliMeta->cameraZFar,true/*ZFar*/);
+  child->setToolTip(tr("Camera Z far plane"));
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(child);
+  boxGrid->addWidget(child,0,2);
 
   // view angles
   child = new CameraAnglesGui(tr("Camera Angles"),&pliMeta->cameraAngles);
+  child->setToolTip(tr("Camera Latitude and Longitude angles"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
-  childlayout->addWidget(child);
+  boxGrid->addWidget(child,1,0,1,3);
 
   WT_Type wtType = bom ? WT_SETUP_PART_PARTS_MOVABLE_GROUPS_BOM : WT_SETUP_PART_PARTS_MOVABLE_GROUPS_PLI;
 

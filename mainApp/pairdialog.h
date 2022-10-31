@@ -83,23 +83,25 @@ class DoubleSpinDialog : public QDialog
 
 public:
   DoubleSpinDialog(
-    QString    title,
-    QString    heading,
-    FloatMeta *floatMeta,
-    float      step,
-    QWidget   *parent);
+    QString       title,
+    QString       heading,
+    FloatMeta    *floatMeta,
+    float         step,
+    DoubleSpinEnc spinGui,
+    QWidget       *parent);
 
   virtual ~DoubleSpinDialog()
   {
   }
 
   static bool getFloat(
-    QString     title,
-    QString     heading,
-     FloatMeta  *floatMeta,
-    float      &value,
-    float       step,
-    QWidget    *parent);
+    QString        title,
+    QString        heading,
+     FloatMeta     *floatMeta,
+    float         &value,
+    float          step,
+    DoubleSpinEnc  spinGui,
+    QWidget       *parent);
 
   FloatMeta *meta;
 
@@ -110,6 +112,51 @@ public slots:
   void accept();
   void cancel();
 };
+
+class CameraFOVDialog : public QDialog
+
+{
+
+  Q_OBJECT
+
+public:
+  CameraFOVDialog(
+    QString    title,
+    QString    heading,
+    FloatMeta *fovMeta,
+    FloatMeta *zNearMeta,
+    FloatMeta *zFarMeta,
+    QWidget   *parent);
+
+  virtual ~CameraFOVDialog()
+  {
+  }
+
+  static bool getCameraFOV(
+    QString    title,
+    QString    heading,
+    FloatMeta *fovMeta,
+    FloatMeta *zNearMeta,
+    FloatMeta *zFarMeta,
+    float     &fovData,
+    float     &zNearData,
+    float     &zFarData,
+    QWidget   *parent);
+
+  FloatMeta *fovmeta;
+  FloatMeta *znearmeta;
+  FloatMeta *zfarmeta;
+
+private:
+  MetaGui   *cameraFOV;
+  MetaGui   *cameraZNear;
+  MetaGui   *cameraZFar;
+
+public slots:
+  void accept();
+  void cancel();
+};
+
 
 class CameraAnglesDialog : public QDialog
 {
@@ -197,5 +244,4 @@ public:
 private:
     QList<QRadioButton*> buttonList;
 };
-
 #endif

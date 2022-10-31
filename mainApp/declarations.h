@@ -782,6 +782,7 @@ enum ThemeColorType {
 #define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default
 #define CAMERA_ZFAR_DEFAULT                   4000.0f    // LPub3D (L3P) default
 
+#define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT    8.0f    // LPub3D (LeoCAD) default
 #define CAMERA_ZNEAR_NATIVE_DEFAULT             25.0f    // LPub3D (LeoCAD) default
 #define CAMERA_ZFAR_NATIVE_DEFAULT           50000.0f    // LPub3D (LeoCAD) default
 

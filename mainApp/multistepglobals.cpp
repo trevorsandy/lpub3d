@@ -193,16 +193,32 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new CameraFOVGui(tr("Camera FOV"),&multiStepMeta->csi.cameraFoV);
+  child = new CameraFOVGui(tr("FOV"),&multiStepMeta->csi.cameraFoV);
+  child->setToolTip(tr("Camera field of view"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
-  boxGrid->addWidget(child,0,0,1,2);
+  boxGrid->addWidget(child,0,0);
+
+  // camera z near
+  child = new CameraZPlaneGui(tr("Z Near"),&multiStepMeta->csi.cameraZNear);
+  child->setToolTip(tr("Camera Z near plane"));
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(child);
+  boxGrid->addWidget(child,0,1);
+
+  // camera z far
+  child = new CameraZPlaneGui(tr("Z Far"),&multiStepMeta->csi.cameraZFar,true/*ZFar*/);
+  child->setToolTip(tr("Camera Z far plane"));
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(child);
+  boxGrid->addWidget(child,0,2);
 
   // view angles
   child = new CameraAnglesGui(tr("Camera Angles"),&multiStepMeta->csi.cameraAngles);
+  child->setToolTip(tr("Camera Latitude and Longitude angles"));
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
-  boxGrid->addWidget(child,1,0);
+  boxGrid->addWidget(child,1,0,1,3);
 
   box = new QGroupBox(tr("Assembly Margins"));
   vlayout->addWidget(box);

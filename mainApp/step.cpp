@@ -502,6 +502,7 @@ int Step::createCsi(
       viewerOptions->ViewerStepKey  = viewerStepKey;
       viewerOptions->ZFar           = csiStepMeta.cameraZFar.value();
       viewerOptions->ZNear          = csiStepMeta.cameraZNear.value();
+      viewerOptions->DDF            = meta.LPub.cameraDDF.value();
 
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_INFO,

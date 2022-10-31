@@ -108,23 +108,39 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid->addWidget(child,1,0);
 
   /* assembly camera settings */
-  box = new QGroupBox(tr("Default Assembly Orientation"));
+  box = new QGroupBox(tr("Assembly Camera Orientation"));
   box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new CameraFOVGui(tr("Camera FOV"),&assem->cameraFoV);
+  child = new CameraFOVGui(tr("FOV"),&assem->cameraFoV);
+  child->setToolTip(tr("Camera field of view"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,0,0);
 
+  // camera z near
+  child = new CameraZPlaneGui(tr("Z Near"),&assem->cameraZNear);
+  child->setToolTip(tr("Camera Z near plane"));
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(child);
+  boxGrid->addWidget(child,0,1);
+
+  // camera z far
+  child = new CameraZPlaneGui(tr("Z Far"),&assem->cameraZFar,true/*ZFar*/);
+  child->setToolTip(tr("Camera Z far plane"));
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(child);
+  boxGrid->addWidget(child,0,2);
+
   // view angles
   child = new CameraAnglesGui(tr("Camera Angles"),&assem->cameraAngles);
+  child->setToolTip(tr("Camera Latitude and Longitude angles"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
-  boxGrid->addWidget(child,1,0);
+  boxGrid->addWidget(child,1,0,1,3);
 
   /* Step Number */
   box = new QGroupBox(tr("Step Number"));

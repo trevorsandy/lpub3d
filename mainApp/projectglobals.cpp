@@ -88,10 +88,21 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   box = new QGroupBox(tr("Preferred Renderer"));
   vlayout->addWidget(box);
-  PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
-  box->setToolTip(tr("Select the default image renderer."));
-  connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
-  data->children.append(rendererChild);
+  QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
+  box->setLayout(childlayout);
+
+  childPreferredRenderer = new PreferredRendererGui(&lpubMeta->preferredRenderer);
+  childPreferredRenderer->setToolTip(tr("Select the default image renderer"));
+  connect (childPreferredRenderer, SIGNAL(rendererChanged(int)),  this, SLOT(enableCameraDDF(int)));
+  connect (childPreferredRenderer, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
+  data->children.append(childPreferredRenderer);
+  childlayout->addWidget(childPreferredRenderer);
+
+  childCameraDDF = new CameraDDFGui(tr("Native Camera Default Distance Factor"),&lpubMeta->cameraDDF);
+  childCameraDDF->setToolTip(tr("Camera default distance factor"));
+  connect (childCameraDDF, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
+  data->children.append(childCameraDDF);
+  childlayout->addWidget(childCameraDDF);
 
   box = new QGroupBox(tr("Dot Resolution"));
   vlayout->addWidget(box);
@@ -216,6 +227,11 @@ void GlobalProjectDialog::clearCache(bool b)
   Q_UNUSED(b)
   if (!data->clearCache)
     data->clearCache = true;
+}
+
+void GlobalProjectDialog::enableCameraDDF(int renderer)
+{
+   childCameraDDF->setEnabled(renderer == RENDERER_NATIVE);
 }
 
 void GlobalProjectDialog::checkConflict(bool b)

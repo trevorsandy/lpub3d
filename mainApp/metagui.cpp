@@ -70,7 +70,7 @@
 #include "gradients.h"
 #include "pagesizes.h"
 
-bool notEqual(const double v1, const double v2, int p = 4)
+bool MetaGui::notEqual(const double v1, const double v2, int p)
 {
     const QString _v1 = QString::number(v1,'f',p);
     const QString _v2 = QString::number(v2,'f',p);
@@ -4782,12 +4782,13 @@ void PreferredRendererGui::valueChanged(int state)
   bool checked = state == Qt::Checked;
   RendererData data = meta->value();
   if (sender() == combo) {
-    QString pick = combo->currentText();
+    const QString pick = combo->currentText();
     ldvSingleCallBox->setEnabled(pick == rendererNames[RENDERER_LDVIEW]);
     povFileGeneratorGrpBox->setEnabled(pick == rendererNames[RENDERER_POVRAY]);
     if (!modified)
       modified = data.renderer != rendererMap[pick];
     data.renderer = rendererMap[pick];
+    emit rendererChanged(data.renderer);
   } else if (sender() == ldvSnapshotListBox) {
     if (!modified)
       modified = data.useLDVSnapShotList != checked;
@@ -5076,7 +5077,7 @@ CameraFOVGui::CameraFOVGui(
     setWhatsThis(lpubWT(WT_GUI_CAMERA_FIELD_OF_VIEW, heading.isEmpty() ? tr("Camera Field Of View") : heading));
   }
 
-  label = new QLabel(heading.isEmpty() ? tr("Camera Field Of View") : heading,parent);
+  label = new QLabel(heading.isEmpty() ? tr("Field Of View") : heading,parent);
   layout->addWidget(label);
 
   data = _meta->value();
@@ -5137,6 +5138,190 @@ void CameraFOVGui::setEnabled(bool enable)
 }
 
 void CameraFOVGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
+ * CameraPlane
+ *
+ **********************************************************************/
+
+CameraZPlaneGui::CameraZPlaneGui(
+  QString const &heading,
+  FloatMeta     *_meta,
+  bool            zfar,
+  QGroupBox     *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  WT_Type wtType = zfar ? WT_GUI_CAMERA_FAR_PLANE : WT_GUI_CAMERA_NEAR_PLANE;
+
+  if (parent) {
+    parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(wtType, zfar ? tr("Camera Far Plane") : tr("Camera Near Plane")));
+  } else {
+    setLayout(layout);
+    setWhatsThis(lpubWT(wtType, zfar ? tr("Camera Far Plane") : tr("Camera Near Plane")));
+  }
+
+  label = new QLabel(heading.isEmpty() ? zfar ? tr("Z Far Plane") : tr("Z Near Plane") : heading,parent);
+  layout->addWidget(label);
+
+  data = _meta->value();
+
+  spin = new QDoubleSpinBox(parent);
+  spin->setRange(1.0f,90000.0f);
+  spin->setSingleStep(1.0f);
+  spin->setDecimals(1);
+  spin->setValue(data);
+  connect(spin,SIGNAL(valueChanged(double)),
+          this,SLOT  (valueChanged(double)));
+  layout->addWidget(spin);
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spin,   SIGNAL(valueChanged(double)),
+          this,   SLOT(  enableReset( double)));
+  connect(button, SIGNAL(clicked(     bool)),
+          this,   SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+
+  setEnabled(Preferences::preferredRenderer == RENDERER_NATIVE);
+}
+
+void CameraZPlaneGui::enableReset(double value)
+{
+  button->setEnabled(notEqual(value, data));
+}
+
+void CameraZPlaneGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spin) {
+    spin->setValue(data);
+    spin->setFocus();
+  }
+}
+
+void CameraZPlaneGui::valueChanged(double value)
+{
+  meta->setValue(value);
+  modified = notEqual(value, data);
+  emit settingsChanged(modified);
+}
+
+void CameraZPlaneGui::setEnabled(bool enable)
+{
+  label->setEnabled(enable);
+  spin->setEnabled(enable);
+}
+
+void CameraZPlaneGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
+ * CameraDDF
+ *
+ **********************************************************************/
+
+CameraDDFGui::CameraDDFGui(
+  QString const &heading,
+  FloatMeta     *_meta,
+  QGroupBox     *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_CAMERA_DEFAULT_DISTANCE_FACTOR, parent->title()));
+  } else {
+    setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_CAMERA_DEFAULT_DISTANCE_FACTOR, heading.isEmpty() ? tr("Camera Default Distance Factor") : heading));
+  }
+
+  label = new QLabel(heading.isEmpty() ? tr("Camera Default Distance Factor") : heading,parent);
+  layout->addWidget(label);
+
+  data = _meta->value();
+  const int residual = data - (int)data;
+  const int decimalSize = QString::number(residual).size();
+  const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
+
+  spin = new QDoubleSpinBox(parent);
+  spin->setRange(_meta->_min,_meta->_max);
+  spin->setSingleStep(0.01f);
+  spin->setDecimals(decimalPlaces);
+  spin->setValue(data);
+  connect(spin,SIGNAL(valueChanged(double)),
+          this,SLOT  (valueChanged(double)));
+  layout->addWidget(spin);
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spin,   SIGNAL(valueChanged(double)),
+          this,   SLOT(  enableReset( double)));
+  connect(button, SIGNAL(clicked(     bool)),
+          this,   SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+}
+
+void CameraDDFGui::enableReset(double value)
+{
+  button->setEnabled(notEqual(value, data));
+}
+
+void CameraDDFGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spin) {
+    spin->setValue(data);
+    spin->setFocus();
+  }
+}
+
+void CameraDDFGui::valueChanged(double value)
+{
+  meta->setValue(value);
+  modified = notEqual(value, data);
+  emit settingsChanged(modified);
+}
+
+void CameraDDFGui::setEnabled(bool enable)
+{
+  label->setEnabled(enable);
+  spin->setEnabled(enable);
+}
+
+void CameraDDFGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;

@@ -3958,6 +3958,13 @@ float MetaDefaults::getCameraFOV()
             CAMERA_FOV_DEFAULT);
 }
 
+float MetaDefaults::getCameraDDF()
+{
+    if (gApplication)
+        return lcGetPreferences().mDDF;
+    return CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
+}
+
 float MetaDefaults::getFOVMinRange()
 {
     return (Preferences::preferredRenderer == RENDERER_NATIVE ?

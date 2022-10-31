@@ -206,6 +206,14 @@ enum Rc {
          EndOfFileRc,
 };
 
+enum DoubleSpinEnc {
+  DoubleSpinDefault,
+  DoubleSpinScale,
+  DoubleSpinZPlane,
+  DoubleSpinFOV,
+  DoubleSpinDDF
+};
+
 // page pointer positions
 enum Positions {
   PP_TOP = 0,
@@ -1446,31 +1454,31 @@ public:
     return _value[pushed].cameraView;
   }
 
-  void setValue(CameraAnglesData &value)
+  virtual void setValue(CameraAnglesData &value)
   {
     _default = false;
     _value[pushed] = value;
   }
 
-  void setCameraView(CameraAnglesData::CameraViewEnc value)
+  virtual void setCameraView(CameraAnglesData::CameraViewEnc value)
   {
     _value[pushed].cameraView = value;
     _default = false;
   }
 
-  void setHomeViewpointLatLon(bool value)
+  virtual void setHomeViewpointLatLon(bool value)
   {
     _value[pushed].homeViewpointModified = value;
     _default = false;
   }
 
-  void setValue(int which, float value)
+  virtual void setValue(int which, float value)
   {
     _value[pushed].angles[which] = value;
     _default = false;
   }
 
-  void setValues(float value1, float value2)
+  virtual void setValues(float value1, float value2)
   {
     _value[pushed].angles[0] = value1;
     _value[pushed].angles[1] = value2;
@@ -3750,7 +3758,7 @@ public:
   HighContrastColorMeta highContrast;
   PreferredRendererMeta preferredRenderer;
 
-  // pli/smp camera settings
+  // pli/bom/smp camera settings
   FloatMeta            cameraFoV;
   FloatMeta            cameraZNear;
   FloatMeta            cameraZFar;
@@ -4115,6 +4123,7 @@ public:
   BuildModEnabledMeta  buildModEnabled;
   FinalModelEnabledMeta finalModelEnabled;
   FloatMeta            reserve;
+  FloatMeta            cameraDDF;
   PartIgnMeta          partSub;
   InsertMeta           insert;
   StringMeta           include;

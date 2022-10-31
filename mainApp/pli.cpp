@@ -1101,6 +1101,7 @@ int Pli::createPartImage(
             viewerOptions->ViewerStepKey  = viewerPliPartKey;
             viewerOptions->ZFar           = pliMeta.cameraZFar.value();
             viewerOptions->ZNear          = pliMeta.cameraZNear.value();
+            viewerOptions->DDF            = meta->LPub.cameraDDF.value();
             if (viewerOptsList.contains(keyPart1))
                 viewerOptsList.remove(keyPart1);
             viewerOptsList.insert(keyPart1,viewerOptions);
@@ -2580,6 +2581,7 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->ViewerStepKey  = viewerPliPartKey;
                     viewerOptions->ZFar           = pliMeta.cameraZFar.value();
                     viewerOptions->ZNear          = pliMeta.cameraZNear.value();
+                    viewerOptions->DDF            = meta->LPub.cameraDDF.value();
                     if (viewerOptsList.contains(keyPart1))
                         viewerOptsList.remove(keyPart1);
                     viewerOptsList.insert(keyPart1,viewerOptions);
@@ -3482,13 +3484,17 @@ void PliBackgroundItem::contextMenuEvent(
                             QObject::tr("Model Size"),
                             top,
                             bottom,
-                            &pli->pliMeta.modelScale);
+                            &pli->pliMeta.modelScale,
+                            0.01f,1,true, // step, append, checklocal
+                            DoubleSpinScale);
         } else if (selectedAction == cameraFoVAction) {
-            changeFloatSpin(QObject::tr("%1 Field Of View").arg(name),
-                            QObject::tr("Camera FOV"),
+            changeCameraFOV(QObject::tr("%1 Field Of View").arg(name),
+                            QObject::tr("FOV"),
                             top,
                             bottom,
-                            &pli->pliMeta.cameraFoV);
+                            &pli->pliMeta.cameraFoV,
+                            &pli->pliMeta.cameraZNear,
+                            &pli->pliMeta.cameraZFar);
         } else if (selectedAction == cameraAnglesAction) {
             changeCameraAngles(QObject::tr("%1 Camera Angles").arg(name),
                                top,

@@ -288,6 +288,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bCAMERA\\b"),
         QStringLiteral("\\bCAMERA_ANGLES\\b"),
         QStringLiteral("\\bCAMERA_DISTANCE\\b"),
+        QStringLiteral("\\bCAMERA_DEFAULT_DISTANCE_FACTOR\\b"),
         QStringLiteral("\\bCAMERA_DISTANCE_NATIVE\\b"),
         QStringLiteral("\\bCAMERA_FOV\\b"),
         QStringLiteral("\\bCAMERA_NAME\\b"),

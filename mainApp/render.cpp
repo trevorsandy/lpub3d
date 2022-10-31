@@ -53,6 +53,7 @@
 #include "lc_file.h"
 #include "project.h"
 #include "pieceinf.h"
+#include "lc_profile.h"
 #include "lc_model.h"
 #include "lc_view.h"
 #include "camera.h"
@@ -105,6 +106,14 @@ static double pi = 4*atan(1.0);
 
 // the default camera distance for real size
 static float LduDistance = float(10.0/tan(0.005*pi/180));
+
+bool notEqual(const double v1, const double v2, int p = 4)
+{
+    const QString _v1 = QString::number(v1,'f',p);
+    const QString _v2 = QString::number(v2,'f',p);
+    const bool     r  = _v1 != _v2;
+    return r;
+}
 
 // renderer timeout in milliseconds
 int Render::rendererTimeout(){
@@ -2871,6 +2880,7 @@ int Native::renderCsi(
     Options->PartEdgeColor     = hccm->partEdgeColor.value();
     Options->BlackEdgeColor    = hccm->blackEdgeColor.value();
     Options->DarkEdgeColor     = hccm->darkEdgeColor.value();
+    Options->DDF               = meta.LPub.cameraDDF.value();
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QString("Render CSI using viewer step key '%1' for image '%2'.")
@@ -3125,6 +3135,7 @@ int Native::renderPli(
     Options->PartEdgeColor  = hccm->partEdgeColor.value();
     Options->BlackEdgeColor = hccm->blackEdgeColor.value();
     Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
+    Options->DDF            = meta.LPub.cameraDDF.value();
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QString("Render %1 using viewer step key '%2' for image '%3'.")
@@ -3169,7 +3180,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
 
     if (!ActiveModel) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to retrieve active model."));
+        emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve active model."));
         return false;
     }
 
@@ -3178,7 +3189,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     if (!RenderImage) {
         ActiveView = gui->GetActiveView();
         if (!ActiveView) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to set active view."));
+            emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to set active view."));
             return false;
         }
         gui->enableApplyLightAction();
@@ -3207,14 +3218,41 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     bool IsOrtho          = DefaultCamera ? Preferences.mNativeProjection : O->IsOrtho;
     bool UsingViewpoint   = Preferences.mNativeViewpoint < ViewPointCompare || HasCameraView;
     bool SetTarget        = O->Target.isPopulated();
+    bool IsNativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
+    const float DefaultFoV = Preferences::preferredRenderer == RENDERER_LDVIEW &&
+                             Preferences::perspectiveProjection ?
+                             CAMERA_FOV_LDVIEW_P_DEFAULT :
+                             CAMERA_FOV_DEFAULT;
+    float SavedDDF = 0;
+    if (IsNativeRenderer && notEqual(lcGetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR),O->DDF,1))
+    {
+        SavedDDF = Preferences.mDDF;
+        gApplication->mPreferences.mDDF = O->DDF;
+    }
 
     if (DefaultCamera && ActiveView)
         Camera = ActiveView->GetCamera();
     else
         Camera = new lcCamera(false);
 
+    if (!SetTarget)
+    {
+        if (notEqual(Preferences.mCNear,O->ZNear,1))
+            Camera->m_zNear = O->ZNear;
+
+        if (notEqual(Preferences.mCFar,O->ZFar,1))
+            Camera->m_zNear = O->ZFar;
+    }
+
     if (UsingViewpoint)
     { // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+
+        if (notEqual(Preferences.mCFoV,O->FoV)) {
+            if (IsNativeRenderer)
+                Camera->m_fovy = O->FoV;
+            else
+                Camera->m_fovy = O->FoV + Camera->m_fovy - DefaultFoV;
+        }
 
         if (HasCameraView)
             Viewpoint = static_cast<lcViewpoint>(O->CameraView);
@@ -3239,14 +3277,10 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     else
     { // Default View (Angles + Distance + Perspective|Orthographic)
 
-        if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+        if (IsNativeRenderer) {
             Camera->m_fovy = O->FoV;
         } else {
-            const float defaultFov = Preferences::preferredRenderer == RENDERER_LDVIEW &&
-                                     Preferences::perspectiveProjection ?
-                                     CAMERA_FOV_LDVIEW_P_DEFAULT :
-                                     CAMERA_FOV_DEFAULT;
-            Camera->m_fovy = O->FoV + Camera->m_fovy - defaultFov;
+            Camera->m_fovy = O->FoV + Camera->m_fovy - DefaultFoV;
         }
 
         if (SetTarget) {
@@ -3408,11 +3442,11 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
             if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
             {
-                emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
+                emit gui->messageSig(LOG_ERROR,QObject::tr("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
                                      .arg(ImageType)
                                      .arg(O->ExportMode == EXPORT_NONE ?
-                                              QString("image") :
-                                              QString("%1 object")
+                                              QObject::tr("image") :
+                                              QObject::tr("%1 object")
                                               .arg(nativeExportNames[O->ExportMode]))
                                      .arg(O->OutputFileName)
                                      .arg(Writer.errorString()));
@@ -3420,19 +3454,19 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             }
             else
             {
-                emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
+                emit gui->messageSig(LOG_INFO,QObject::tr("Native %1 image file rendered '%2'")
                                      .arg(ImageType).arg(O->OutputFileName));
             }
 
             lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
 
         } else {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("BeginRenderToImage for Native %1 image returned code %2").arg(ImageType).arg(rc));
+            emit gui->messageSig(LOG_ERROR,QObject::tr("BeginRenderToImage for Native %1 image returned code %2").arg(ImageType).arg(rc));
         }
 
         if (O->ExportMode != EXPORT_NONE) {
             if (!NativeExport(O)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("%1 Objects render failed.").arg(ImageType));
+                emit gui->messageSig(LOG_ERROR,QObject::tr("%1 Objects render failed.").arg(ImageType));
                 rc = false;
             }
         }
@@ -3441,78 +3475,83 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     if (Preferences::debugLogging) {
         const QString studStyleNames[] =
         {
-            "0 Plain",
-            "1 Thin Line Logo",
-            "2 Outline Logo",
-            "3 Sharp Top Logo",
-            "4 Rounded Top Logo",
-            "5 Flattened Logo",
-            "6 High Contrast",
-            "7 High Contrast with Logo"
+            QLatin1String("0 Plain"),
+            QLatin1String("1 Thin Line Logo"),
+            QLatin1String("2 Outline Logo"),
+            QLatin1String("3 Sharp Top Logo"),
+            QLatin1String("4 Rounded Top Logo"),
+            QLatin1String("5 Flattened Logo"),
+            QLatin1String("6 High Contrast"),
+            QLatin1String("7 High Contrast with Logo")
         };
         lcPreferences& Preferences = lcGetPreferences();
         QStringList arguments;
         if (RenderImage) {
-            arguments << (O->InputFileName.isEmpty()   ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
-            arguments << (O->OutputFileName.isEmpty()  ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
-            arguments << (O->ExportFileName.isEmpty()  ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
-            arguments << (O->ImageFileName.isEmpty()   ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
-            arguments << (O->IniFlag == -1             ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
-            arguments << (O->ExportMode == EXPORT_NONE ? QString() : QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]));
-            arguments << (O->ExportArgs.size() == 0    ? QString() : QString("ExportArgs: %1").arg(O->ExportArgs.join(" ")));
-            arguments << QString("TransBackground: %1").arg(O->TransBackground ? "True" : "False");
-            arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
-            arguments << QString("UseImageSize: %1").arg(UseImageSize ? "True" : "False");
+            arguments << (O->InputFileName.isEmpty()   ? QString() : QString("InputFileName: %1,").arg(O->InputFileName));
+            arguments << (O->OutputFileName.isEmpty()  ? QString() : QString("OutputFileName: %1,").arg(O->OutputFileName));
+            arguments << (O->ExportFileName.isEmpty()  ? QString() : QString("ExportFileName: %1,").arg(O->ExportFileName));
+            arguments << (O->ImageFileName.isEmpty()   ? QString() : QString("ImageFileName: %1,").arg(O->ImageFileName));
+            arguments << (O->IniFlag == -1             ? QString() : QString("IniFlag: %1,").arg(iniFlagNames[O->IniFlag]));
+            arguments << (O->ExportMode == EXPORT_NONE ? QString() : QString("ExportMode: %1,").arg(nativeExportNames[O->ExportMode]));
+            arguments << (O->ExportArgs.size() == 0    ? QString() : QString("ExportArgs: %1,").arg(O->ExportArgs.join(" ")));
+            arguments << QString("TransBackground: %1,").arg(O->TransBackground ? "True" : "False");
+            arguments << QString("HighlightNewParts: %1,").arg(O->HighlightNewParts ? "True" : "False");
+            arguments << QString("UseImageSize: %1,").arg(UseImageSize ? "True" : "False");
         } else {
-            arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
+            arguments << QString("ViewerStepKey: %1,").arg(O->ViewerStepKey);
             if (O->RotStep.isPopulated())
-                arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
+                arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4,").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
         }
-        arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
-        arguments << QString("Resolution: %1").arg(double(O->Resolution));
-        arguments << QString("ImageWidth: %1").arg(RenderImage ? ImageWidth : O->ImageWidth);
-        arguments << QString("ImageHeight: %1").arg(RenderImage ? ImageHeight : O->ImageHeight);
-        arguments << QString("PageWidth: %1").arg(O->PageWidth);
-        arguments << QString("PageHeight: %1").arg(O->PageHeight);
-        arguments << QString("CameraFoV: %1").arg(double(Camera->m_fovy));
-        arguments << QString("CameraZNear: %1").arg(double(Camera->m_zNear));
-        arguments << QString("CameraZFar: %1").arg(double(Camera->m_zFar));
-        arguments << QString("CameraDistance (Scale %1): %2").arg(double(O->ModelScale)).arg(double(O->CameraDistance),0,'f',0);
-        arguments << QString("CameraName: %1").arg(DefaultCamera ? "Default" : O->CameraName);
-        arguments << QString("CameraProjection: %1").arg(IsOrtho ? "Orthographic" : "Perspective");
-        arguments << QString("UsingViewpoint: %1").arg(UsingViewpoint ? "True" : "False");
+        arguments << QString("LineWidth: %1,").arg(double(O->LineWidth));
+        arguments << QString("Resolution: %1,").arg(double(O->Resolution));
+        arguments << QString("ImageWidth: %1,").arg(RenderImage ? ImageWidth : O->ImageWidth);
+        arguments << QString("ImageHeight: %1,").arg(RenderImage ? ImageHeight : O->ImageHeight);
+        arguments << QString("PageWidth: %1,").arg(O->PageWidth);
+        arguments << QString("PageHeight: %1,").arg(O->PageHeight);
+        if (RenderImage) {
+            arguments << QString("PreferencesFoV: %1,").arg(double(Preferences.mCFoV));
+            arguments << QString("OptionsFoV: %1,").arg(double(O->FoV));
+        }
+        arguments << QString("CameraFoVy: %1,").arg(double(Camera->m_fovy));
+        arguments << QString("CameraZNear: %1,").arg(double(Camera->m_zNear));
+        arguments << QString("CameraZFar: %1,").arg(double(Camera->m_zFar));
+        arguments << QString("CameraDDF: %1,").arg(Preferences.mDDF);
+        arguments << QString("CameraDistance (Scale: %1): %2,").arg(double(O->ModelScale)).arg(double(O->CameraDistance),0,'f',0);
+        arguments << QString("CameraName: %1,").arg(DefaultCamera ? "Default" : O->CameraName);
+        arguments << QString("CameraProjection: %1,").arg(IsOrtho ? "Orthographic" : "Perspective");
+        arguments << QString("UsingViewpoint: %1,").arg(UsingViewpoint ? "True" : "False");
         if (UsingViewpoint) {
-          arguments << QString("CameraViewPoint: %1").arg(cameraViewNames[O->CameraView]);
-          arguments << QString("HomeViewPointModified: %1").arg(O->HomeViewMod ? "True" : "False");
+            arguments << QString("CameraViewPoint: %1,").arg(cameraViewNames[O->CameraView]);
+            arguments << QString("HomeViewPointModified: %1,").arg(O->HomeViewMod ? "True" : "False");
         }
-        arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
-        arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
-        arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
+        arguments << QString("CameraLatitude: %1,").arg(double(O->Latitude));
+        arguments << QString("CameraLongitude: %1,").arg(double(O->Longitude));
+        arguments << QString("ZoomExtents: %1,").arg(ZoomExtents ? "True" : "False");
         arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
         if (O->Position.isPopulated())
-            arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3)").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
+            arguments << QString(", CameraPosition: X(%1) Y(%2) Z(%3),").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
         if (O->UpVector.isPopulated())
-            arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
+            arguments << QString(", CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
         if (O->AutoEdgeColor) {
-          arguments << QString("AutomateEdgeColor: True");
+            arguments << QString(", AutomateEdgeColor: True");
         if (O->EdgeContrast != Preferences.mPartEdgeContrast)
-          arguments << QString("EdgeContrast: %1").arg(O->EdgeContrast);
+            arguments << QString(", EdgeContrast: %1").arg(O->EdgeContrast);
         if (O->EdgeSaturation != Preferences.mPartColorValueLDIndex)
-          arguments << QString("-Saturation: %1").arg(O->EdgeSaturation);
+            arguments << QString(", Saturation: %1").arg(O->EdgeSaturation);
         }
         if (O->StudStyle)
-            arguments << QString("StudStyle: %1").arg(studStyleNames[O->StudStyle]);
+            arguments << QString(", StudStyle: %1").arg(studStyleNames[O->StudStyle]);
         if (O->StudStyle > 5) {
             if (O->LightDarkIndex != Preferences.mPartColorValueLDIndex)
-               arguments << QString("-LDIndex: %1").arg(O->LightDarkIndex);
+               arguments << QString(", LightDarkIndex: %1").arg(O->LightDarkIndex);
             if (O->StudCylinderColor != Preferences.mStudCylinderColor)
-                arguments << QString("StudCylinderColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->StudCylinderColor)).arg(LC_RGBA_GREEN(O->StudCylinderColor)).arg(LC_RGBA_BLUE(O->StudCylinderColor)).arg(LC_RGBA_ALPHA(O->StudCylinderColor));
+                arguments << QString(", StudCylinderColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->StudCylinderColor)).arg(LC_RGBA_GREEN(O->StudCylinderColor)).arg(LC_RGBA_BLUE(O->StudCylinderColor)).arg(LC_RGBA_ALPHA(O->StudCylinderColor));
             if (O->PartEdgeColor != Preferences.mPartEdgeColor)
-                arguments << QString("PartEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->PartEdgeColor)).arg(LC_RGBA_GREEN(O->PartEdgeColor)).arg(LC_RGBA_BLUE(O->PartEdgeColor)).arg(LC_RGBA_ALPHA(O->PartEdgeColor));
+                arguments << QString(", PartEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->PartEdgeColor)).arg(LC_RGBA_GREEN(O->PartEdgeColor)).arg(LC_RGBA_BLUE(O->PartEdgeColor)).arg(LC_RGBA_ALPHA(O->PartEdgeColor));
             if (O->BlackEdgeColor != Preferences.mBlackEdgeColor)
-                arguments << QString("BlackEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->BlackEdgeColor)).arg(LC_RGBA_GREEN(O->BlackEdgeColor)).arg(LC_RGBA_BLUE(O->BlackEdgeColor)).arg(LC_RGBA_ALPHA(O->BlackEdgeColor));
+                arguments << QString(", BlackEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->BlackEdgeColor)).arg(LC_RGBA_GREEN(O->BlackEdgeColor)).arg(LC_RGBA_BLUE(O->BlackEdgeColor)).arg(LC_RGBA_ALPHA(O->BlackEdgeColor));
             if (O->DarkEdgeColor != Preferences.mDarkEdgeColor)
-                arguments << QString("DarkEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->DarkEdgeColor)).arg(LC_RGBA_GREEN(O->DarkEdgeColor)).arg(LC_RGBA_BLUE(O->DarkEdgeColor)).arg(LC_RGBA_ALPHA(O->DarkEdgeColor));
+                arguments << QString(", DarkEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->DarkEdgeColor)).arg(LC_RGBA_GREEN(O->DarkEdgeColor)).arg(LC_RGBA_BLUE(O->DarkEdgeColor)).arg(LC_RGBA_ALPHA(O->DarkEdgeColor));
         }
         removeEmptyStrings(arguments);
 
@@ -3527,6 +3566,9 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
       emit gui->messageSig(LOG_INFO, QString());
 #endif
     }
+
+    if (SavedDDF > 0)
+        gApplication->mPreferences.mDDF = SavedDDF;
 
     if (!DefaultCamera)
         delete Camera;

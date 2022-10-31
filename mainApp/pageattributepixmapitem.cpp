@@ -382,7 +382,9 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
                     QObject::tr("%1 Size").arg(name),
                     topOfSteps,
                     bottomOfSteps,
-                   &picScale);
+                   &picScale,
+                    0.01f,1,true, // step, append, checklocal
+                    DoubleSpinScale);
 
   } else if (selectedAction == changeImageAction) {
     changeImage(QObject::tr("Change %1").arg(name),

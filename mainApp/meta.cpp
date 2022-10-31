@@ -6416,18 +6416,12 @@ LPubMeta::LPubMeta() : BranchMeta()
   startStepNumber.setValue(1);
   parseNoStep.setValue(false);
   coverPageViewEnabled.setValue(true);
+  cameraDDF.setFormats(4,2,"9.99");
+  cameraDDF.setRange(1.0f,100.0f);
+  cameraDDF.setValue(MetaDefaults::getCameraDDF());
   // stepNumber - default
 }
 
-void LPubMeta::resetCamerasFoV()
-{
-  pli.resetCameraFoV();
-  assem.resetCameraFoV();
-  callout.csi.resetCameraFoV();
-  multiStep.csi.resetCameraFoV();
-  subModel.resetCameraFoV();
-  bom.resetCameraFoV();
-}
 void LPubMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
@@ -6446,6 +6440,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);
+  cameraDDF                .init(this,"CAMERA_DEFAULT_DISTANCE_FACTOR");
   partSub                  .init(this,"PART");
   resolution               .init(this,"RESOLUTION");
   insert                   .init(this,"INSERT");
@@ -6475,6 +6470,16 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   synth                    .init(this,"SYNTH",  LeoCadSynthRc);
 
   reserve.setRange(0.0,1000000.0);
+}
+
+void LPubMeta::resetCamerasFoV()
+{
+  pli.resetCameraFoV();
+  bom.resetCameraFoV();
+  subModel.resetCameraFoV();
+  assem.resetCameraFoV();
+  callout.csi.resetCameraFoV();
+  multiStep.csi.resetCameraFoV();
 }
 
 /* ------------------ */

@@ -855,6 +855,7 @@ const QString cameraViewNames[CameraAnglesData::CameraViewEnc::Default] =
 class MetaDefaults
 {
 public:
+  static float getCameraDDF();
   static float getCameraFOV();
   static float getFOVMinRange();
   static float getFOVMaxRange();

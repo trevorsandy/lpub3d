@@ -2234,7 +2234,6 @@ void MetaItem::changeFloat(
   }
 }
 
-
 void MetaItem::changeFloat(
   const Where &topOfStep,
   const Where &bottomOfStep,
@@ -2253,7 +2252,8 @@ void MetaItem::changeFloatSpin(
   FloatMeta   *floatMeta,
   float        step,
   int          append,
-  bool         local)
+  bool         local,
+  DoubleSpinEnc spinGui)
 {
   float data = floatMeta->value();
   bool ok = DoubleSpinDialog::getFloat(
@@ -2261,11 +2261,64 @@ void MetaItem::changeFloatSpin(
                                   label,
                                   floatMeta,
                                   data,
-                                  step,        // spin single step
+                                  step, // spin single step
+                                  spinGui,
                                   gui);
   if (ok) {
     floatMeta->setValue(data);
     setMetaTopOf(topOfStep,bottomOfStep,floatMeta,append,local);
+  }
+}
+
+void MetaItem::changeCameraFOV(
+  QString      title,
+  QString      label,
+  const Where &topOfStep,
+  const Where &bottomOfStep,
+  FloatMeta   *fovMeta,
+  FloatMeta   *zNearMeta,
+  FloatMeta   *zFarMeta,
+  int          append,
+  bool         local)
+{
+  float fovData   = fovMeta->value();
+  float zNearData = zNearMeta->value();
+  float zFarData  = zFarMeta->value();
+
+  bool ok = CameraFOVDialog::getCameraFOV(
+                                  title,
+                                  label,
+                                  fovMeta,
+                                  zNearMeta,
+                                  zFarMeta,
+                                  fovData,
+                                  zNearData,
+                                  zFarData,
+                                  gui);
+
+  auto notEqual = [] (const double v1, const double v2, int p)
+  {
+    const QString _v1 = QString::number(v1,'f',p);
+    const QString _v2 = QString::number(v2,'f',p);
+    const bool     r  = _v1 != _v2;
+    return r;
+  };
+
+  if (ok) {
+    if (notEqual(fovMeta->value(), fovData, 1)) {
+      fovMeta->setValue(fovData);
+      setMetaTopOf(topOfStep,bottomOfStep,fovMeta,append,local);
+    }
+    if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+      if (notEqual(zNearMeta->value(), zNearData, 1)) {
+        zNearMeta->setValue(zNearData);
+        setMetaTopOf(topOfStep,bottomOfStep,zNearMeta,append,local);
+      }
+      if (notEqual(zFarMeta->value(), zFarData, 1)) {
+        zFarMeta->setValue(zFarData);
+        setMetaTopOf(topOfStep,bottomOfStep,zFarMeta,append,local);
+      }
+    }
   }
 }
 

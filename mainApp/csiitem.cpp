@@ -627,12 +627,13 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             deleteLastMultiStep(topOfSteps,bottomOfSteps);
         }
     } else if (selectedAction == cameraFoVAction) {
-        changeFloatSpin(tr("%1 Field Of View").arg(name),
+        changeCameraFOV(tr("%1 Field Of View").arg(name),
                         tr("Camera FOV"),
                         topOfStep,
                         bottomOfStep,
                         &step->csiStepMeta.cameraFoV,
-                        0.01f,
+                        &step->csiStepMeta.cameraZNear,
+                        &step->csiStepMeta.cameraZFar,
                         1,allowLocal);
     } else if (selectedAction == cameraAnglesAction) {
           changeCameraAngles(tr("%1 Camera Angles").arg(name),
@@ -708,7 +709,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                         tr("Model Size"),
                         topOfStep,
                         bottomOfStep,
-                        &step->csiStepMeta.modelScale);
+                        &step->csiStepMeta.modelScale,
+                        0.01f,1,true, // step, append, checklocal
+                        DoubleSpinScale);
     } else if (selectedAction == marginsAction) {
         changeMargins(tr("%1 Margins").arg(name),
                       topOfStep,

@@ -355,7 +355,8 @@ public:
                         FloatMeta *,
                         float step = 0.01f,
                         int  append = 1,
-                        bool checkLocal = true);
+                        bool checkLocal = true,
+                        DoubleSpinEnc spinGui = DoubleSpinDefault);
 
   void changeUnits(     QString,
                         const Where &,
@@ -394,6 +395,16 @@ public:
                      bool useTop = true,
                      int append = 1,
                      bool local = true);
+
+  void changeCameraFOV( QString,
+                        QString,
+                        const Where &,
+                        const Where &,
+                        FloatMeta   *fovMeta,
+                        FloatMeta   *zNearMeta,
+                        FloatMeta   *zFarMeta,
+                        int  append = 1,
+                        bool checkLocal = true);
 
   void changeSubmodelRotStep(QString title,
                              const Where &,

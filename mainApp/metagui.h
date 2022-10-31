@@ -60,8 +60,10 @@ public:
 
 signals:
   void settingsChanged(bool);
+  void rendererChanged(int);
 
 protected:
+  static bool notEqual(const double v1, const double v2, int p = 4);
   static QString formatMask(
     const float value,
     const int   width = 4,
@@ -1418,6 +1420,79 @@ public:
     FloatMeta     *meta,
     QGroupBox     *parent = nullptr);
   ~CameraFOVGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  float           data;
+  FloatMeta      *meta;
+  QLabel         *label;
+  QDoubleSpinBox *spin;
+  QPushButton    *button;
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
+
+public slots:
+  void valueChanged(double);
+};
+
+/***********************************************************************
+ *
+ * CameraPlane
+ *
+ **********************************************************************/
+
+class CameraZPlaneGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  CameraZPlaneGui(
+    QString const &heading,
+    FloatMeta     *meta,
+    bool           zfar = false,
+    QGroupBox     *parent = nullptr);
+  ~CameraZPlaneGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  float           data;
+  FloatMeta      *meta;
+  QLabel         *label;
+  QDoubleSpinBox *spin;
+  QPushButton    *button;
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
+
+public slots:
+  void valueChanged(double);
+};
+
+/***********************************************************************
+ *
+ * CameraDDF
+ *
+ **********************************************************************/
+
+class CameraDDFGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  CameraDDFGui(
+    QString const &heading,
+    FloatMeta     *meta,
+    QGroupBox     *parent = nullptr);
+  ~CameraDDFGui() {}
 
   void setEnabled(bool enabled);
 

@@ -465,6 +465,7 @@ int SubModel::createSubModelImage(
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;
       viewerOptions->ZFar           = subModelMeta.cameraZFar.value();
       viewerOptions->ZNear          = subModelMeta.cameraZNear.value();
+      viewerOptions->DDF            = meta->LPub.cameraDDF.value();
       viewerOptions->ZoomExtents    = viewerSubmodel; // veiwer submodel (no image file generated)
 
 #ifdef QT_DEBUG_MODE
@@ -1438,7 +1439,9 @@ void SMGraphicsPixmapItem::contextMenuEvent(
       QObject::tr("Scale"),
       top,
       bottom,
-     &subModel->subModelMeta.modelScale,0);
+     &subModel->subModelMeta.modelScale,
+      0.01f,0,true, // step, append (was 1), checklocal
+      DoubleSpinScale);
   }
 }
 
@@ -1779,18 +1782,22 @@ void SubModelBackgroundItem::contextMenuEvent(
                         QObject::tr("Model Size"),
                         top,
                         bottom,
-                        &subModel->subModelMeta.modelScale);
+                        &subModel->subModelMeta.modelScale,
+                        0.01f,1,true, // step, append, checklocal
+                        DoubleSpinScale);
     } else if (selectedAction == rotStepAction) {
         changeSubmodelRotStep(QObject::tr("%1 Rotate").arg(name),
                               top,
                               bottom,
                               &subModel->subModelMeta.rotStep);
     } else if (selectedAction == cameraFoVAction) {
-        changeFloatSpin(QObject::tr("%1 Field Of View").arg(name),
-                        QObject::tr("Camera FOV"),
+        changeCameraFOV(QObject::tr("%1 Field Of View").arg(name),
+                        QObject::tr("FOV"),
                         top,
                         bottom,
-                        &subModel->subModelMeta.cameraFoV);
+                        &subModel->subModelMeta.cameraFoV,
+                        &subModel->subModelMeta.cameraZNear,
+                        &subModel->subModelMeta.cameraZFar);
     } else if (selectedAction == cameraAnglesAction) {
         changeCameraAngles(QObject::tr("%1 Camera Angles").arg(name),
                         top,
