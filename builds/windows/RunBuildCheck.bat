@@ -3,12 +3,13 @@
 Title Perform a stand-alone build check
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 15, 2020
+rem  Last Update: October 26, 2022
 rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 
 rem  To Run:
-rem  1. SET LP3D_APP_VERSION_LONG accordingly
-rem  2. RunBuildCheck.bat
+rem  1. Launch command prompt at root folder or this script folder.
+rem  2. Set debug configuration as appropriate: SET CONFIGURATION=Debug
+rem  3. RunBuildCheck.bat x86 | builds\windows\RunBuildCheck.bat x86
 
 CALL :ELAPSED_BUILD_TIME Start
 
@@ -24,7 +25,7 @@ CD /D %ABS_WD%
 
 rem Initialize needed variables
 SET PACKAGE=LPub3D
-SET CONFIGURATION=release
+SET BUILD_OPT=default
 SET LDRAW_DIR=%USERPROFILE%\LDraw
 SET LDRAW_LIBS=%USERPROFILE%
 SET LDRAW_INSTALL_ROOT=%LDRAW_LIBS%
@@ -84,6 +85,11 @@ IF /I "%1"=="x86_64" (
 IF NOT [%2]==[] (
   SET UPDATE_LDRAW_LIBS=%2
 )
+
+IF [%CONFIGURATION%] == [] (
+  SET CONFIGURATION=release
+)
+SET LP3D_DOWNLOADS_PATH=builds\windows\%CONFIGURATION%\Downloads
 
 rem set application version variables
 SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
