@@ -707,8 +707,9 @@ enum ThemeColorType {
 #define LINUX_SYS_EDITOR                        "gedit"
 #define MACOS_SYS_EDITOR                        "textedit"
 #define WINDOWS_SYS_EDITOR                      "notepad.exe"
-#define WINDOWS_NPP                             "C:\\Program Files (x86)\\Notepad++\\notepad++.exe"
-#define WINDOWS_NPP_X64                         "C:\\Program Files\\Notepad++\\notepad++.exe"
+#define WINDOWS_NPP                             "Program Files (x86)\\Notepad++\\notepad++.exe"
+#define WINDOWS_NPP_X64                         "Program Files\\Notepad++\\notepad++.exe"
+#define WINDOWS_NPP_LPUB3D_UDL_ARG              "-udl=LPUB3D"
 
 #define LIBXQUARTZ_MACOS_VERSION                "11.0"   // base 11.0
 #define LIBPNG_MACOS_VERSION                    "1.6.37" // base 1.6.34

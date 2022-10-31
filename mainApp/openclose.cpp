@@ -281,6 +281,9 @@ void Gui::updateOpenWithActions()
       if (!Preferences::systemEditor.isEmpty()) {
         QFileInfo fileInfo(Preferences::systemEditor);
         if (fileInfo.exists() && fileInfo.isFile()) {
+          QString arguments;
+          if (Preferences::usingNPP)
+            arguments = QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
           const int i = numPrograms;
           programPath = fileInfo.absoluteFilePath();
           programName = fileInfo.completeBaseName();
@@ -289,7 +292,7 @@ void Gui::updateOpenWithActions()
           if (text.isEmpty())
               text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
           openWithActList[i]->setText(text);
-          openWithActList[i]->setData(QString()); // arguments
+          openWithActList[i]->setData(arguments);
           openWithActList[i]->setIcon(getProgramIcon());
           openWithActList[i]->setStatusTip(QString("Open current file with %2")
                                                    .arg(fileInfo.fileName()));

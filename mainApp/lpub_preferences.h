@@ -259,6 +259,7 @@ class Preferences
     static QStringList ldSearchDirs;
     static QStringList messagesNotShown;
 
+    static bool    usingNPP;
     static bool    usingDefaultLibrary;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;

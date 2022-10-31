@@ -443,6 +443,7 @@ bool    Preferences::loadLastOpenedFile         = false;
 bool    Preferences::extendedSubfileSearch      = false;
 bool    Preferences::cycleEachPage              = false;
 
+bool    Preferences::usingNPP                   = false;
 bool    Preferences::pdfPageImage               = false;
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
@@ -3777,6 +3778,7 @@ void Preferences::userInterfacePreferences()
   QString const systemEditorKey("SystemEditor");
   systemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,systemEditorKey)).toString();
   QFileInfo systemEditorInfo(systemEditor);
+  usingNPP = systemEditorInfo.fileName() == QFileInfo(WINDOWS_NPP).fileName();
   if (!systemEditorInfo.exists() || !systemEditorInfo.isFile()) {
       bool found = false;
       bool windows = false;
@@ -3788,11 +3790,13 @@ void Preferences::userInterfacePreferences()
       arguments << LINUX_SYS_EDITOR;
 #elif defined Q_OS_WIN
       windows = true;
-      if((found = QFileInfo(WINDOWS_NPP_X64).exists())) {
-        systemEditor = WINDOWS_NPP_X64;
-      } else if ((found = QFileInfo(WINDOWS_NPP).exists())) {
-        systemEditor = WINDOWS_NPP;
+      const QString systemDrive = QProcessEnvironment::systemEnvironment().value("SYSTEMDRIVE", "C:");
+      if((found = QFileInfo(systemDrive + "\\" + WINDOWS_NPP_X64).exists())) {
+        systemEditor = systemDrive + "\\" + WINDOWS_NPP_X64;
+      } else if ((found = QFileInfo(systemDrive + "\\" + WINDOWS_NPP).exists())) {
+        systemEditor = systemDrive + "\\" + WINDOWS_NPP;
       }
+      usingNPP = found;
       if (found) {
         systemEditorInfo.setFile(systemEditor);
       } else {
