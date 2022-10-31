@@ -23,6 +23,7 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include "csiannotation.h"
 #include "commonmenus.h"
+#include "lpub_object.h"
 #include "metaitem.h"
 #include "color.h"
 #include "step.h"
@@ -235,11 +236,11 @@ void CsiAnnotationItem::addGraphicsItems(
     QString fontString  = _part->styleMeta.font.valueFoo();
     QString colorString = _part->styleMeta.color.value();
 
-    QString toolTip = QString("Part %1 %2 (%3) \"%4\" - right-click to modify")
-                              .arg(_part->type)
-                              .arg(LDrawColor::name(_part->color))
-                              .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
-                              .arg(_part->description);
+    QString toolTip = tr("CSI Part Annotation %1 %2 (%3) \"%4\" - right-click to modify")
+                         .arg(_part->type)
+                         .arg(LDrawColor::name(_part->color))
+                         .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
+                         .arg(_part->description);
 
     setText(textString,fontString,toolTip);
 
@@ -527,24 +528,24 @@ void CsiAnnotationItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  const QString name = tr("CSI Part Annotation");
 
-  QString pl = "CSI Part Annotation";
+  QAction *placementAction    = lpub->getAct("placementAction.1");
   PlacementData placementData = placement.value();
-  QString whatsThis = commonMenus.naturalLanguagePlacementWhatsThis(CsiAnnotationType,placementData,pl);
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(CsiAnnotationType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QAction *placementAction  = commonMenus.placementMenu(menu, pl, whatsThis);
+  QAction *hideAction         = lpub->getAct("hideCsiAnnotationAction.1");
+  commonMenus.addAction(hideAction,menu,name);
 
-  QAction *hideAction = menu.addAction("Hide Part Annotation");
-  hideAction->setIcon(QIcon(":/resources/hidepartannotation.png"));
-
-  QAction *toggleCsiPartRectAction = menu.addAction("Toggle Part Outline");
-  toggleCsiPartRectAction->setIcon(QIcon(":/resources/togglepartoutline.png"));
+  QAction *toggleCsiPartRectAction = lpub->getAct("toggleCsiPartRectAction.1");
+  commonMenus.addAction(toggleCsiPartRectAction,menu);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
   else if (selectedAction == toggleCsiPartRectAction) {
       placementCsiPart->toggleOutline();
       gui->pagescene()->update();
@@ -552,7 +553,7 @@ void CsiAnnotationItem::contextMenuEvent(
       changeCsiAnnotationPlacement(
               parentRelativeType,
               CsiAnnotationType,
-              pl+" Placement",
+              tr("%1 Placement").arg(name),
               metaLine,
               metaLine,
              &placement,
