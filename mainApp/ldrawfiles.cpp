@@ -1739,7 +1739,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 #endif
 
     emit gui->progressPermSetValueSig(lineCount);
-    if (!stagedSubfilesFound)
+    if (!stagedSubfiles.size()/*!stagedSubfilesFound*/)
         emit gui->progressPermStatusRemoveSig();
 
     emit gui->messageSig(LOG_NOTICE, QString("MPD file '%1' with %2 lines loaded.")
@@ -2184,7 +2184,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 #endif
 
         emit gui->progressPermSetValueSig(lineCount);
-        if (!stagedSubfilesFound)
+        if (!stagedSubfiles.size()/*!stagedSubfilesFound*/)
             emit gui->progressPermStatusRemoveSig();
 
         emit gui->messageSig(LOG_NOTICE, QString("LDR file '%1' with %2 lines loaded.")

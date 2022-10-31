@@ -4916,13 +4916,13 @@ void Gui::pagesCounted()
         if (suspendFileDisplay) {
             if (Preferences::modeGUI && ! exporting()) {
                 emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
-                                    QString("LDraw model file %1 aborted.").arg(getCurFile()) :
-                                    QString("Model loaded (%1 pages, %2 parts). %3")
+                                    tr("Load model file %1 aborted.").arg(QFileInfo(getCurFile()).fileName()) :
+                                    tr("Model file loaded (%1 pages, %2 parts). %3")
                                     .arg(maxPages)
                                     .arg(lpub->ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
                 if (!maxPages && !lpub->ldrawFile.getPartCount()) {
-                    emit messageSig(LOG_ERROR,QString("File '%1' is invalid - %2 pages, %3 parts loaded.")
+                    emit messageSig(LOG_ERROR,tr("File '%1' is invalid - %2 pages, %3 parts loaded.")
                                     .arg(getCurFile())
                                     .arg(maxPages)
                                     .arg(lpub->ldrawFile.getPartCount()));
@@ -4932,7 +4932,7 @@ void Gui::pagesCounted()
                 }
             } // modeGUI and not exporting
         } else if (! ContinuousPage()) {
-            emit messageSig(LOG_INFO_STATUS,QString("Page %1 loaded %2.")
+            emit messageSig(LOG_INFO_STATUS,tr("Page %1 loaded. %2.")
                             .arg(displayPageNum)
                             .arg(gui->elapsedTime(timer.elapsed())));
         }

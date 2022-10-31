@@ -2259,12 +2259,10 @@ int CountPageWorker::countPage(
                                 buildModStepIndex);
   };
 
-  auto documentPageCount = [&opts] ()
+  auto documentPageCount = [&] ()
   {
-      if (Preferences::modeGUI && ! Gui::exporting()) {
-          gui->messageSig(LOG_COUNT_STATUS, QString("Counting document page %1...")
-                                                  .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
-      }
+      emit gui->messageSig(LOG_COUNT_STATUS, tr("Counting document page %1...")
+                           .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
   };
 
   for ( ;

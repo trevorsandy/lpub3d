@@ -199,7 +199,7 @@ GroupStepNumberItem::GroupStepNumberItem(
   mouseIsDown(false)
 {
   page = _page;
-  QString toolTip("Group Step Number - use popup menu");
+  QString toolTip(tr("Group Step Number - right click to modify"));
   setAttributes(StepNumberType,
                 page->relativeType,
                 _number,
@@ -217,12 +217,12 @@ GroupStepNumberItem::GroupStepNumberItem(
 void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = "Group Step Number";
+  QString pl = tr("Group Step Number");
 
   QAction *fontAction   = commonMenus.fontMenu(menu,pl);
   QAction *colorAction  = commonMenus.colorMenu(menu,pl);
   QAction *marginAction = commonMenus.marginMenu(menu,pl);
-  QAction *placementAction  = commonMenus.placementMenu(menu,pl,"You can move this Group Step Number item around.");
+  QAction *placementAction  = commonMenus.placementMenu(menu,pl,tr("You can move this Group Step Number item around."));
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -237,7 +237,7 @@ void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
     changePlacement(parentRelativeType,
                     page->meta.LPub.multiStep.pli.perStep.value(),
                     StepNumberType,
-                    "Move " + pl,
+                    tr("Move %1").arg(pl),
                     topOfSteps,
                     bottomOfSteps,
                    &placement,
@@ -259,7 +259,7 @@ void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
 
   } else if (selectedAction == marginAction) {
 
-    changeMargins(pl + " Margins",
+    changeMargins(tr("%1 Margins").arg(pl),
                   topOfSteps,
                   bottomOfSteps,
                  &margin,
@@ -340,7 +340,7 @@ PageNumberItem::PageNumberItem(
   mouseIsDown(false)
 {
   page = _page;
-  QString toolTip("Page Number - use popup menu");
+  QString toolTip(tr("Page Number - right click to modify"));
   setAttributes(PageNumberType,
                 page->relativeType,                 //Trevor@vers303 changed from static value SingleStepType
                 _number,
@@ -358,7 +358,7 @@ PageNumberItem::PageNumberItem(
 void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = "Page Number";
+  QString pl = tr("Page Number");
 
   QAction *fontAction   = commonMenus.fontMenu(menu,pl);
   QAction *colorAction  = commonMenus.colorMenu(menu,pl);
@@ -377,7 +377,7 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     changePlacement(parentRelativeType,                           //Trevor@vers303 change from static PageType
                     PageNumberType,
-                    "Move " + pl,
+                    tr("Move %1").arg(pl),
                     topOfSteps,                                   //Trevor@vers303 change
                     bottomOfSteps,                                //Trevor@vers303 change
                    &placement,
@@ -399,7 +399,7 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   } else if (selectedAction == marginAction) {                    //Trevor@vers303 change
 
-    changeMargins(pl + " Margins",
+    changeMargins(tr("%1 Margins").arg(pl),
                   topOfSteps,
                   bottomOfSteps,                                  //Trevor@vers303 change
                  &margin,
@@ -484,7 +484,7 @@ StepNumberItem::StepNumberItem(
   step   = _step;
   top    = _step->topOfStep();
   bottom = _step->bottomOfStep();
-  QString _toolTip("Step Number - right-click to modify");
+  QString _toolTip(tr("Step Number - right-click to modify"));
   setAttributes(StepNumberType,
                 _parentRelativeType,
                 _number,
@@ -529,7 +529,7 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == placementAction) {
       changePlacement(parentRelativeType,
                       StepNumberType,
-                      "Move " + pl,
+                      tr("Move %1").arg(pl),
                       top,
                       bottom,
                       &placement);
@@ -542,7 +542,7 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                   bottom,
                   &color);
     } else if (selectedAction == marginAction) {
-      changeMargins(pl + " Margins",
+      changeMargins(tr("%1 Margins").arg(pl),
                     top,
                     bottom,
                     &margin);

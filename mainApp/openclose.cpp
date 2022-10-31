@@ -76,8 +76,9 @@ void Gui::open()
       enableActions();
       lpub->ldrawFile.showLoadMessages();
       emit gui->messageSig(LOG_STATUS, gui->loadAborted() ?
-                       QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                       QString("File loaded (%1 parts). %2")
+                       QString("Load model file %1 aborted.").arg(fileName) :
+                       QString("Model file loaded (%1 pages, %2 parts). %3")
+                               .arg(maxPages)
                                .arg(lpub->ldrawFile.getPartCount())
                                .arg(elapsedTime(timer.elapsed())));
       return;
@@ -107,8 +108,9 @@ void Gui::openDropFile(QString &fileName){
           enableActions();
           lpub->ldrawFile.showLoadMessages();
           emit messageSig(LOG_STATUS, gui->loadAborted() ?
-                              QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                              QString("File loaded (%1 parts). %2")
+                              QString("Load model file %1 aborted.").arg(fileName) :
+                              QString("Model file loaded (%1 pages, %2 parts). %3")
+                                      .arg(maxPages)
                                       .arg(lpub->ldrawFile.getPartCount())
                                       .arg(elapsedTime(timer.elapsed())));
         } else {
@@ -419,8 +421,9 @@ void Gui::openRecentFile()
     enableActions();
     lpub->ldrawFile.showLoadMessages();
     emit messageSig(LOG_STATUS, gui->loadAborted() ?
-                        QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                        QString("File loaded (%1 parts). %2")
+                        QString("Load model file %1 aborted.").arg(fileName) :
+                        QString("Model file loaded (%1 pages, %2 parts). %3")
+                                .arg(maxPages)
                                 .arg(lpub->ldrawFile.getPartCount())
                                 .arg(elapsedTime(timer.elapsed())));
   }
@@ -478,8 +481,9 @@ bool Gui::loadFile(const QString &file, bool console)
 
         lpub->ldrawFile.showLoadMessages();
         emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
-                            QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                            QString("File loaded (%1 parts). %2")
+                            QString("Load model file %1 aborted.").arg(fileName) :
+                            QString("Model file loaded (%1 pages, %2 parts). %3")
+                                    .arg(maxPages)
                                     .arg(lpub->ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
         emit fileLoadedSig(true);

@@ -6671,7 +6671,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
             message.replace("<br>"," ");
 
-            if (guiEnabled) {
+            if (guiEnabled && ! exporting()) {
                 statusBarMsg(message);
             } else if (!Preferences::suppressStdOutToLog) {
                 fprintf(stdout,"%s", qPrintable(QString(message).append("\n")));
