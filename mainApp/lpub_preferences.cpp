@@ -4681,6 +4681,7 @@ bool Preferences::getPreferences()
 
     if (dialog->exec() == QDialog::Accepted) {
 
+        // library paths
         if (ldrawLibPath != dialog->ldrawLibPath()) {
             ldrawLibPath = dialog->ldrawLibPath();
             if (ldrawLibPath.isEmpty()) {

@@ -54,6 +54,7 @@
         <file alias="buildmodload16.png">resources/buildmodload16.png</file>
         <file alias="buildmodremove.png">resources/buildmodremove.png</file>
         <file alias="buildmodremove16.png">resources/buildmodremove16.png</file>
+        <file alias="builtinsnippets.json">resources/builtinsnippets.json</file>
         <file alias="builtwithqt.png">resources/builtwithqt.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="cameradistfactor.png">resources/cameradistfactor.png</file>
@@ -71,6 +72,7 @@
         <file alias="clearsubmodelcache.png">resources/clearsubmodelcache.png</file>
         <file alias="cleartempcache.png">resources/cleartempcache.png</file>
         <file alias="closemodelfile.png">resources/closemodelfile.png</file>
+        <file alias="command16.png">resources/command16.png</file>
         <file alias="contentspage.png">resources/contentspage.png</file>
         <file alias="convertcallout.png">resources/convertcallout.png</file>
         <file alias="convertcallout16.png">resources/convertcallout16.png</file>

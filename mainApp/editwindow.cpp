@@ -45,6 +45,10 @@
 #include <QScrollBar>
 #include <QtConcurrent>
 
+#include <QApplication>
+#include <QTextBlock>
+#include <QTextStream>
+
 #include "lc_global.h"
 #include "editwindow.h"
 #include "lpub_object.h"
@@ -72,6 +76,11 @@
 #include "lc_previewwidget.h"
 #include "pieceinf.h"
 #include "lc_colors.h"
+
+#include <jsonfile.h>
+#include <commands/snippets/jsonsnippettranslatorfactory.h>
+#include <commands/snippets/snippetcollection.h>
+#include <commands/snippets/snippetcompleter.h>
 
 class ScrollBarFix : public QScrollBar
 {
@@ -111,13 +120,14 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     setSelectionHighlighter();
 
-    autoCompleter = new QCompleter(this);
-    autoCompleter->setModel(modelFromFile(":/resources/autocomplete.lst"));
-    autoCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-    autoCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-    autoCompleter->setWrapAround(false);
+    lpub->snippetCollection = new SnippetCollection(this);
 
-    _textEdit->setAutoCompleter(autoCompleter);
+    _textEdit->setAutoCompleter(new QCompleter(modelFromFile(":/resources/autocomplete.lst", this), this));
+    _textEdit->setSnippetCompleter(new SnippetCompleter(lpub->snippetCollection, _textEdit));
+
+    JsonFile<Snippet>::load(":/resources/builtinsnippets.json", lpub->snippetCollection);
+    const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
+    JsonFile<Snippet>::load(QDir::toNativeSeparators(userDataPath + "/user-snippets.json"), lpub->snippetCollection);
 
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
@@ -183,11 +193,11 @@ void EditWindow::gotoLine()
     _textEdit->gotoLine(line);
 }
 
-QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
+QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName, QObject *parent)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly))
-        return new QStringListModel(autoCompleter);
+        return new QStringListModel(parent);
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -203,7 +213,7 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-    return new QStringListModel(words, autoCompleter);
+    return new QStringListModel(words, parent);
 }
 
 void EditWindow::setSelectionHighlighter()
@@ -2711,6 +2721,7 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     QPlainTextEdit(parent),
     popUp(nullptr),
     ac(nullptr),
+    sc(nullptr),
     lineNumberArea(new LineNumberArea(this)),
     detachedEdit(detachedEdit),
     _fileIsUTF8(false)
@@ -2742,9 +2753,122 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
 
     updateLineNumberAreaWidth(0);
 
+    QAction * actionComplete = new QAction(tr("Snippet Complete"), this);
+    actionComplete->setObjectName("actionComplete");
+    actionComplete->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Space));
+    actionComplete->setProperty("defaultshortcut", actionComplete->shortcut());
+    connect(actionComplete, SIGNAL(triggered()),
+            this,           SLOT(  performCompletion()));
+    this->addAction(actionComplete);
+
     //highlightCurrentLine();
 }
 
+// Snippet commands
+void TextEditor::setSnippetCompleter(SnippetCompleter *completer)
+{
+    if (sc)
+        sc->disconnect(this);
+
+    sc = completer;
+
+    if (!sc)
+        return;
+
+    connect(completer,  SIGNAL(snippetSelected(QString,QString, int)),
+            this,       SLOT(  insertSnippet(QString,QString, int)));
+}
+
+void TextEditor::performCompletion()
+{
+    if (!sc)
+        return;
+
+   QRect popupRect = cursorRect();
+   popupRect.setLeft(popupRect.left() + lineNumberAreaWidth());
+
+   QStringList words = extractDistinctWordsFromDocument();
+   sc->performCompletion(retrieveTextUnderCursor(), words, popupRect);
+}
+
+void TextEditor::insertSnippet(const QString &completionPrefix, const QString &completion, int newCursorPos)
+{
+   QTextCursor cursor = this->textCursor();
+
+   // select the completion prefix
+   cursor.clearSelection();
+   cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, completionPrefix.length());
+
+   int pos = cursor.position();
+
+   // replace completion prefix with snippet
+   cursor.insertText(completion);
+
+   // move cursor to requested position
+   cursor.setPosition(pos);
+   cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, newCursorPos);
+
+   this->setTextCursor(cursor);
+}
+
+bool GreaterThanMinimumWordLength(const QString &word)
+{
+    static const int MINIMUM_WORD_LENGTH = 3;
+    return word.length() > MINIMUM_WORD_LENGTH;
+}
+
+QStringList TextEditor::extractDistinctWordsFromDocument() const
+{
+    QStringList allWords = retrieveAllWordsFromDocument();
+    allWords.removeDuplicates();
+
+    QStringList words = filterWordList(allWords, GreaterThanMinimumWordLength);
+    words.sort(Qt::CaseInsensitive);
+
+    return words;
+}
+
+QStringList TextEditor::retrieveAllWordsFromDocument() const
+{
+    return toPlainText().split(QRegExp("\\W+"), QString::SkipEmptyParts);
+}
+
+template <class UnaryPredicate>
+QStringList TextEditor::filterWordList(const QStringList &words, UnaryPredicate predicate) const
+{
+    QStringList filteredWordList;
+
+    foreach (const QString &word, words) {
+        if (predicate(word))
+        {
+           filteredWordList << word;
+        }
+    }
+
+    return filteredWordList;
+}
+
+QString TextEditor::retrieveTextUnderCursor() const
+{
+   QTextCursor cursor = this->textCursor();
+   QTextDocument *document = this->document();
+
+   // empty text if cursor at start of line
+   if (cursor.atBlockStart()) {
+       return QString();
+   }
+
+   cursor.clearSelection();
+
+   // move left until we find a space or reach the start of line
+   while(!document->characterAt(cursor.position()-1).isSpace() && !cursor.atBlockStart()) {
+       cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+   }
+
+   return cursor.selectedText();
+}
+
+// Auto complete
 void TextEditor::setAutoCompleter(QCompleter *completer)
 {
     if (ac)
@@ -2757,14 +2881,16 @@ void TextEditor::setAutoCompleter(QCompleter *completer)
 
     ac->setWidget(this);
     ac->setCompletionMode(QCompleter::PopupCompletion);
+    ac->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     ac->setCaseSensitivity(Qt::CaseInsensitive);
+    ac->setWrapAround(false);
     QObject::connect(ac, QOverload<const QString &>::of(&QCompleter::activated),
                      this, &TextEditor::insertCompletion);
 }
 
 void TextEditor::keyPressEvent(QKeyEvent *e)
 {
-    if (ac && ac->popup()->isVisible()) {
+    if ((ac && ac->popup()->isVisible()) || (sc && sc->isPopupVisible())) {
         // The following keys are forwarded by the completer to the widget
        switch (e->key()) {
        case Qt::Key_Enter:
@@ -2779,8 +2905,16 @@ void TextEditor::keyPressEvent(QKeyEvent *e)
        }
     }
 
+    const bool isSnippetShortcut = (e->modifiers().testFlag(Qt::ControlModifier) && e->key() == Qt::Key_Space); // CTRL+Space
+    if (isSnippetShortcut) { // do not popup the autocompleter when we have a snippet completer command
+      if (sc)
+          sc->hidePopup();
+      QPlainTextEdit::keyPressEvent(e);
+      return;
+    }
+
     const bool isShortcut = (e->modifiers().testFlag(Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
-    if (!ac || !isShortcut) // do not process the shortcut when we have a completer
+    if (!ac || !isShortcut) // do not process the shortcut when we have an auto completer
         QPlainTextEdit::keyPressEvent(e);
 
     const bool ctrlOrShift = e->modifiers().testFlag(Qt::ControlModifier) ||
@@ -2792,7 +2926,7 @@ void TextEditor::keyPressEvent(QKeyEvent *e)
     const bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor();
 
-    if (!isShortcut && (hasModifier || e->text().isEmpty()|| completionPrefix.length() < 3
+    if (!isShortcut && (hasModifier || e->text().isEmpty() || completionPrefix.length() < 3
                       || eow.contains(e->text().right(1)))) {
         ac->popup()->hide();
         return;

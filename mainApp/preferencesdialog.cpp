@@ -1509,7 +1509,7 @@ bool PreferencesDialog::resetSceneColors()
 }
 
 QString const PreferencesDialog::defaultURL()
-{   
+{
   return ui.publishURL_Edit->displayText();
 }
 

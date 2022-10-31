@@ -29,6 +29,8 @@ class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
 
+class SnippetCollection;
+
 enum class lcShadingMode;
 
 class LPub : public QObject
@@ -115,6 +117,9 @@ public:
   /// Contains MPD or all files used in model
   LDrawFile ldrawFile;
 
+  /// Command snippets collection
+  SnippetCollection *snippetCollection = nullptr;
+
   /// Currently loaded CSI in Visual Editor
   static QString viewerStepKey;
 
@@ -139,7 +144,6 @@ signals:
   void messageSig(LogType, QString);
   void loadFileSig(QString, bool);
   void consoleCommandSig(int, int*);
-
 
 protected:
     /// Download management members

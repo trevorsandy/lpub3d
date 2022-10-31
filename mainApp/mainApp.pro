@@ -89,6 +89,11 @@ INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include
 
 INCLUDEPATH += ../ldvlib ../ldvlib/WPngImage
 
+#
+# JSON configuration library
+#
+INCLUDEPATH += jsonconfig
+
 win32-msvc* {
     INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
@@ -470,7 +475,7 @@ update_check: DEFINES += DISABLE_UPDATE_CHECK
 
 #~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HEADERS += \
+HEADERS += \    
     aboutdialog.h \
     annotations.h \
     application.h \
@@ -485,6 +490,13 @@ HEADERS += \
     calloutpointeritem.h \
     color.h \
     commands.h \
+    commands/snippets/jsonsnippettranslator.h \
+    commands/snippets/jsonsnippettranslatorfactory.h \
+    commands/snippets/snippet.h \
+    commands/snippets/snippetcollection.h \
+    commands/snippets/snippetcompleter.h \
+    commands/snippets/snippetlistmodel.h \
+    commands/snippets/snippetstablemodel.h \
     commonmenus.h \
     csiannotation.h \
     csiitem.h \
@@ -592,6 +604,11 @@ SOURCES += \
     calloutglobals.cpp \
     calloutpointeritem.cpp \
     color.cpp \
+    commands/snippets/jsonsnippettranslator.cpp \
+    commands/snippets/snippetcollection.cpp \
+    commands/snippets/snippetcompleter.cpp \
+    commands/snippets/snippetlistmodel.cpp \
+    commands/snippets/snippetstablemodel.cpp \
     commandline.cpp \
     commands.cpp \
     commonmenus.cpp \

@@ -1,0 +1,102 @@
+{
+  "snippets": [
+        {
+            "trigger": "csng",
+            "description": "Continuous step numbers - applied globally",
+            "snippet": "0 !LPUB CONTINUOUS_STEP_NUMBERS GLOBAL TRUE",
+            "cursor": 43,
+            "builtIn": 1
+        },
+        {
+            "trigger": "smdg",
+            "description": "Display submodel at first step - applied globally",
+            "snippet": "0 !LPUB SUBMODEL_DISPLAY SHOW GLOBAL TRUE",
+            "cursor": 37,
+            "builtIn": 1
+        },        
+        {
+            "trigger": "bmeg",
+            "description": "Build modifications enabled - applied globally",
+            "snippet": "0 !LPUB BUILD_MOD_ENABLED GLOBAL TRUE",
+            "cursor": 33,
+            "builtIn": 1
+        },
+        {
+            "trigger": "polg",
+            "description": "Page orientation landscape - applied globally",
+            "snippet": "0 !LPUB PAGE ORIENTATION GLOBAL LANDSCAPE",
+            "cursor": 41,
+            "builtIn": 1
+        },        
+        {
+            "trigger": "msb",
+            "description": "Start a multi-step page",
+            "snippet": "0 !LPUB MULTI_STEP BEGIN",
+            "cursor": 24,
+            "builtIn": 1
+        },
+        {
+            "trigger": "msd",
+            "description": "Multi-step page divider",
+            "snippet": "0 !LPUB MULTI_STEP DIVIDER",
+            "cursor": 26,
+            "builtIn": 1
+        },
+        {
+            "trigger": "mse",
+            "description": "End mulit-step page",
+            "snippet": "0 !LPUB MULTI_STEP END",
+            "cursor": 22,
+            "builtIn": 1
+        },
+        {
+            "trigger": "cob",
+            "description": "Begin a callout block",
+            "snippet": "0 !LPUB CALLOUT BEGIN",
+            "cursor": 21,
+            "builtIn": 1
+        },
+        {
+            "trigger": "coe",
+            "description": "End a callout block",
+            "snippet": "0 !LPUB CALLOUT END",
+            "cursor": 19,
+            "builtIn": 1
+        },
+        {
+            "trigger": "bmb",
+            "description": "Begin a build modification block - requires a unique key",
+            "snippet": "0 !LPUB BUILD_MOD BEGIN \"mod key #\"",
+            "cursor": 25,
+            "builtIn": 1
+        },
+        {
+            "trigger": "bmem",
+            "description": "End the modified lines in the build modification",
+            "snippet": "0 !LPUB BUILD_MOD END_MOD",
+            "cursor": 25,
+            "builtIn": 1
+        },
+        {
+            "trigger": "bme",
+            "description": "End the build modification block",
+            "snippet": "0 !LPUB BUILD_MOD END",
+            "cursor": 21,
+            "builtIn": 1
+        },
+        {
+            "trigger": "bmr",
+            "description": "Remove an applied build modification - requires a unique key",
+            "snippet": "0 !LPUB BUILD_MOD REMOVE \"mod key #\"",
+            "cursor": 26,
+            "builtIn": 1
+        },
+        {
+            "trigger": "nos",
+            "description": "No step command",
+            "snippet": "0 !LPUB NOSTEP",
+            "cursor": 14,
+            "builtIn": 1
+        }
+  ]
+}

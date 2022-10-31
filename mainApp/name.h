@@ -819,5 +819,5 @@ enum ThemeColorType {
 #define MPD_COMBO_MIN_ITEMS_DEFAULT             25
 #define GO_TO_PAGE_MIN_ITEMS_DEFAULT            10
 #define FILE_LOAD_WAIT_TIME                     300000        // 5 minutes
-
+#define EDITOR_FILTER_MIN_WORD_LENGTH           3             // filter words in document that are greater than 3 characters
 #endif // NAME_H

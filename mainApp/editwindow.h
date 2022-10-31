@@ -74,7 +74,7 @@ class LoadModelWorker;
 class Where;
 class Pli;
 
-/*class Pli;*/
+class SnippetCompleter;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -198,14 +198,13 @@ protected:
     bool setValidPartLine();
     bool substitutePLIPart(QString &replaceText, const int action, const QStringList &elements);
 
-    QAbstractItemModel *modelFromFile(const QString& fileName);
+    QAbstractItemModel *modelFromFile(const QString& fileName, QObject *parent = nullptr);
 
     void closeEvent(QCloseEvent*_event);
 
     WaitingSpinnerWidget *_waitingSpinner;
     TextEditor        *_textEdit;
     LoadModelWorker   *loadModelWorker;
-    QCompleter        *autoCompleter;
     Highlighter       *highlighter;
     HighlighterSimple *highlighterSimple;
     QComboBox         *mpdCombo;
@@ -303,6 +302,7 @@ public:
     int lineNumberAreaWidth();
 
     void setAutoCompleter(QCompleter *c);
+    void setSnippetCompleter(SnippetCompleter *completer);
 
     void gotoLine(int line);
     bool modelFileEdit()
@@ -326,6 +326,8 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
     void insertCompletion(const QString &completion);
+    void insertSnippet(const QString &completionPrefix, const QString &completion, int newCursorPos);
+    void performCompletion();
 
     void showCharacters(QString findString, QString replaceString);
 
@@ -340,9 +342,16 @@ protected:
     void focusInEvent(QFocusEvent *e) override;
 
 private:
+    QStringList extractDistinctWordsFromDocument() const;
+    QStringList retrieveAllWordsFromDocument() const;
+    template <class UnaryPredicate>
+    QStringList filterWordList(const QStringList &words, UnaryPredicate predicate) const;
+    QString retrieveTextUnderCursor() const;
+
     QString textUnderCursor() const;
 
     QCompleter *ac;
+    SnippetCompleter *sc;
     QWidget    *lineNumberArea;
     bool        detachedEdit;
     std::atomic<bool> _fileIsUTF8;
