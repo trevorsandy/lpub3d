@@ -3958,13 +3958,6 @@ float MetaDefaults::getCameraFOV()
             CAMERA_FOV_DEFAULT);
 }
 
-float MetaDefaults::getCameraDDF()
-{
-    if (gApplication)
-        return lcGetPreferences().mDDF;
-    return CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
-}
-
 float MetaDefaults::getFOVMinRange()
 {
     return (Preferences::preferredRenderer == RENDERER_NATIVE ?
@@ -3983,66 +3976,63 @@ float MetaDefaults::getFOVMaxRange()
 
 float MetaDefaults::getNativeCameraZNear()
 {
-    if (gApplication)
-        return lcGetPreferences().mCNear;
-    return CAMERA_ZNEAR_NATIVE_DEFAULT;
+    return gApplication ? lcGetPreferences().mCNear : CAMERA_ZNEAR_NATIVE_DEFAULT;
 }
 
 float MetaDefaults::getNativeCameraZFar()
 {
-    if (gApplication)
-        return lcGetPreferences().mCFar;
-    return CAMERA_ZFAR_NATIVE_DEFAULT;
+    return gApplication ? lcGetPreferences().mCFar : CAMERA_ZFAR_NATIVE_DEFAULT;
+}
+
+float MetaDefaults::getCameraDDF()
+{
+    return gApplication ? lcGetPreferences().mDDF : CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 }
 
 QString MetaDefaults::getPreferredRenderer()
 {
-    switch (Preferences::preferredRenderer)
+    const QString rendererNames[NUM_RENDERERS] =
     {
-        case 0:
-            return QStringLiteral("Native");
-        case 1:
-            return QStringLiteral("LDView");
-        case 2:
-            return QStringLiteral("LDGLite");
-        case 3:
-            return QStringLiteral("POVRay");
-    }
-
-    return QStringLiteral("Undefined");
+        "Native",  // RENDERER_NATIVE
+        "LDView",  // RENDERER_LDVIEW
+        "LDGLite", // RENDERER_LDGLITE
+        "POVRay"   // RENDERER_POVRAY
+    };
+    return rendererNames[Preferences::preferredRenderer];
 }
 
 QString MetaDefaults::getPreferredUnits()
 {
-    return Preferences::preferCentimeters ? QObject::tr("dots per centimetre (DPCM) unit") : QObject::tr("dots per inch (DPI) unit");
-}
-
-float MetaDefaults::getAssemblyCameraLongitude()
-{
-    return Preferences::assemblyCameraLongitude;
+    return Preferences::preferCentimeters ? QObject::tr("dots per centimetre (DPCM) unit") :
+                                            QObject::tr("dots per inch (DPI) unit");
 }
 
 float MetaDefaults::getAssemblyCameraLatitude()
 {
-    return Preferences::assemblyCameraLatitude;
+    return (float)Preferences::assemblyCameraLatitude;
 }
 
-float MetaDefaults::getPartCameraLongitude()
+float MetaDefaults::getAssemblyCameraLongitude()
 {
-    return Preferences::partCameraLongitude;
+    return (float)Preferences::assemblyCameraLongitude;
 }
 
 float MetaDefaults::getPartCameraLatitude()
 {
-    return Preferences::partCameraLatitude;
+    return (float)Preferences::partCameraLatitude;
 }
 
-float MetaDefaults::getSubmodelCameraLongitude()
+float MetaDefaults::getPartCameraLongitude()
 {
-    return Preferences::submodelCameraLongitude;
+    return (float)Preferences::partCameraLongitude;
 }
 
 float MetaDefaults::getSubmodelCameraLatitude()
 {
-    return Preferences::submodelCameraLatitude;
+    return (float)Preferences::submodelCameraLatitude;
+}
+
+float MetaDefaults::getSubmodelCameraLongitude()
+{
+    return (float)Preferences::submodelCameraLongitude;
 }
