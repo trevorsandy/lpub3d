@@ -121,84 +121,84 @@ void ParmsWindow::createActions()
     exitAct->setObjectName("exitAct.5");
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    lpub->actions.insert(exitAct->objectName(), Action(tr("Edit.Exit"), exitAct));
+    lpub->actions.insert(exitAct->objectName(), Action(QStringLiteral("Edit.Exit"), exitAct));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open File"), this);
     openAct->setObjectName("openAct.5");
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("Open stdout or stderr log file for loaded model"));
-    lpub->actions.insert(openAct->objectName(), Action(tr("Edit.Open File"), openAct));
+    lpub->actions.insert(openAct->objectName(), Action(QStringLiteral("Edit.Open File"), openAct));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
 
     refreshAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Refresh File"), this);
     refreshAct->setObjectName("refreshAct.5");
     refreshAct->setShortcut(tr("Ctrl+Alt+O"));
     refreshAct->setStatusTip(tr("Reload the current file to see updated content"));
-    lpub->actions.insert(refreshAct->objectName(), Action(tr("Edit.Refresh File"), refreshAct));
+    lpub->actions.insert(refreshAct->objectName(), Action(QStringLiteral("Edit.Refresh File"), refreshAct));
     connect(refreshAct, SIGNAL(triggered()), this, SLOT(refreshFile()));
 
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setObjectName("cutAct.5");
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    lpub->actions.insert(cutAct->objectName(), Action(tr("Edit.Cut"), cutAct));
+    lpub->actions.insert(cutAct->objectName(), Action(QStringLiteral("Edit.Cut"), cutAct));
     connect(cutAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/resources/copy.png"), tr("&Copy"), this);
     copyAct->setObjectName("copyAct.5");
     copyAct->setShortcut(tr("Ctrl+C"));
     copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-    lpub->actions.insert(copyAct->objectName(), Action(tr("Edit.Copy"), copyAct));
+    lpub->actions.insert(copyAct->objectName(), Action(QStringLiteral("Edit.Copy"), copyAct));
     connect(copyAct, SIGNAL(triggered()), _textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/resources/paste.png"), tr("&Paste"), this);
     pasteAct->setObjectName("pasteAct.5");
     pasteAct->setShortcut(tr("Ctrl+V"));
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-    lpub->actions.insert(pasteAct->objectName(), Action(tr("Edit.Paste"), pasteAct));
+    lpub->actions.insert(pasteAct->objectName(), Action(QStringLiteral("Edit.Paste"), pasteAct));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
     findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
     findAct->setObjectName("findAct.5");
     findAct->setShortcut(tr("Ctrl+F"));
     findAct->setStatusTip(tr("Find object"));
-    lpub->actions.insert(findAct->objectName(), Action(tr("Edit.Find"), findAct));
+    lpub->actions.insert(findAct->objectName(), Action(QStringLiteral("Edit.Find"), findAct));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
 
     gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to Line"), this);
     gotoLineAct->setObjectName("gotoLineAct.5");
     gotoLineAct->setShortcut(tr("Ctrl+G"));
     gotoLineAct->setStatusTip(tr("Go to line..."));
-    lpub->actions.insert(gotoLineAct->objectName(), Action(tr("Edit.Go To Line"), gotoLineAct));
+    lpub->actions.insert(gotoLineAct->objectName(), Action(QStringLiteral("Edit.Go To Line"), gotoLineAct));
     connect(gotoLineAct, SIGNAL(triggered()), this, SLOT(gotoLine()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setObjectName("saveAct.5");
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setStatusTip(tr("Save the document to disk"));
-    lpub->actions.insert(saveAct->objectName(), Action(tr("Edit.Save"), saveAct));
+    lpub->actions.insert(saveAct->objectName(), Action(QStringLiteral("Edit.Save"), saveAct));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
 
     saveCopyAsAct = new QAction(QIcon(":/resources/saveas.png"), tr("Save Copy &As"), this);
     saveCopyAsAct->setObjectName("saveCopyAsAct.5");
     saveCopyAsAct->setShortcut(tr("Ctrl+Alt+S"));
     saveCopyAsAct->setStatusTip(tr("Save a copy of the document as... to disk"));
-    lpub->actions.insert(saveCopyAsAct->objectName(), Action(tr("Edit.Save Copy As"), saveCopyAsAct));
+    lpub->actions.insert(saveCopyAsAct->objectName(), Action(QStringLiteral("Edit.Save Copy As"), saveCopyAsAct));
     connect(saveCopyAsAct, SIGNAL(triggered()), this, SLOT(saveCopyAsFile()));
 
     topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of Document"), this);
     topAct->setObjectName("topAct.5");
     topAct->setShortcut(tr("Ctrl+T"));
     topAct->setStatusTip(tr("Go to the top of document"));
-    lpub->actions.insert(topAct->objectName(), Action(tr("File.Top Of Document"), topAct));
+    lpub->actions.insert(topAct->objectName(), Action(QStringLiteral("File.Top Of Document"), topAct));
     connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
 
     bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of Document"), this);
     bottomAct->setObjectName("bottomAct.5");
     bottomAct->setShortcut(tr("Ctrl+B"));
     bottomAct->setStatusTip(tr("Go to the bottom of document"));
-    lpub->actions.insert(bottomAct->objectName(), Action(tr("File.Bottom Of Document"), bottomAct));
+    lpub->actions.insert(bottomAct->objectName(), Action(QStringLiteral("File.Bottom Of Document"), bottomAct));
     connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
@@ -206,7 +206,7 @@ void ParmsWindow::createActions()
     delAct->setShortcut(tr("DEL"));
     delAct->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     delAct->setStatusTip(tr("Delete the selection"));
-    lpub->actions.insert(delAct->objectName(), Action(tr("File.Delete"), delAct));
+    lpub->actions.insert(delAct->objectName(), Action(QStringLiteral("File.Delete"), delAct));
     connect(delAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     QIcon systemEditorIcon;
@@ -215,14 +215,14 @@ void ParmsWindow::createActions()
     systemEditorAct = new QAction(systemEditorIcon, tr("Open With System Editor"), this);
     systemEditorAct->setObjectName("systemEditorAct.5");
     systemEditorAct->setStatusTip(tr("Open this file with the system editor"));
-    lpub->actions.insert(systemEditorAct->objectName(), Action(tr("Edit.Open With System Editor"), systemEditorAct));
+    lpub->actions.insert(systemEditorAct->objectName(), Action(QStringLiteral("Edit.Open With System Editor"), systemEditorAct));
     connect(systemEditorAct, SIGNAL(triggered()), this, SLOT(systemEditor()));
 
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
     selAllAct->setObjectName("selAllAct.5");
     selAllAct->setShortcut(tr("Ctrl+A"));
     selAllAct->setStatusTip(tr("Select all page content"));
-    lpub->actions.insert(selAllAct->objectName(), Action(tr("File.Select All"), selAllAct));
+    lpub->actions.insert(selAllAct->objectName(), Action(QStringLiteral("File.Select All"), selAllAct));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
     showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show All Characters"), this);
@@ -230,7 +230,7 @@ void ParmsWindow::createActions()
     showAllCharsAct->setShortcut(tr("Ctrl+J"));
     showAllCharsAct->setStatusTip(tr("Show all characters"));
     showAllCharsAct->setCheckable(true);
-    lpub->actions.insert(showAllCharsAct->objectName(), Action(tr("File.Show All Characters"), showAllCharsAct));
+    lpub->actions.insert(showAllCharsAct->objectName(), Action(QStringLiteral("File.Show All Characters"), showAllCharsAct));
     connect(showAllCharsAct, SIGNAL(triggered()), this, SLOT(showAllCharacters()));
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
@@ -238,7 +238,7 @@ void ParmsWindow::createActions()
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change"));
     undoAct->setEnabled(false);
-    lpub->actions.insert(undoAct->objectName(), Action(tr("Edit.Undo"), undoAct));
+    lpub->actions.insert(undoAct->objectName(), Action(QStringLiteral("Edit.Undo"), undoAct));
     connect(undoAct, SIGNAL(triggered()), _textEdit, SLOT(undo()));
 
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
@@ -251,7 +251,7 @@ void ParmsWindow::createActions()
     redoAct->setStatusTip(tr("Redo last change"));
 #endif
     redoAct->setEnabled(false);
-    lpub->actions.insert(redoAct->objectName(), Action(tr("Edit.Redo"), redoAct));
+    lpub->actions.insert(redoAct->objectName(), Action(QStringLiteral("Edit.Redo"), redoAct));
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 
     openAct->setVisible(false);

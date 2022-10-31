@@ -57,46 +57,46 @@ TextEditDialog::TextEditDialog(QWidget *parent) :
     setWhatsThis(lpubWT(WT_TEXT_EDIT, windowTitle()));
 
     ui->actionAccept->setObjectName("textEditAcceptAct.3");
-    lpub->actions.insert(ui->actionAccept->objectName(), Action(tr("File.Accept"), ui->actionAccept));
+    lpub->actions.insert(ui->actionAccept->objectName(), Action(QStringLiteral("File.Accept"), ui->actionAccept));
 
     ui->actionCancel->setObjectName("textEditCancelAct.3");
-    lpub->actions.insert(ui->actionCancel->objectName(), Action(tr("File.Cancel"), ui->actionCancel));
+    lpub->actions.insert(ui->actionCancel->objectName(), Action(QStringLiteral("File.Cancel"), ui->actionCancel));
 
     ui->actionNew->setObjectName("textEditNewAct.3");
-    lpub->actions.insert(ui->actionNew->objectName(), Action(tr("File.New"), ui->actionNew));
+    lpub->actions.insert(ui->actionNew->objectName(), Action(QStringLiteral("File.New"), ui->actionNew));
 
     ui->actionCopy->setObjectName("textEditCopyAct.3");
-    lpub->actions.insert(ui->actionCopy->objectName(), Action(tr("Edit.Copy"), ui->actionCopy));
+    lpub->actions.insert(ui->actionCopy->objectName(), Action(QStringLiteral("Edit.Copy"), ui->actionCopy));
 
     ui->actionCut->setObjectName("textEditCutAct.3");
-    lpub->actions.insert(ui->actionCut->objectName(), Action(tr("Edit.Cut"), ui->actionCut));
+    lpub->actions.insert(ui->actionCut->objectName(), Action(QStringLiteral("Edit.Cut"), ui->actionCut));
 
     ui->actionPaste->setObjectName("textEditPasteAct.3");
-    lpub->actions.insert(ui->actionPaste->objectName(), Action(tr("Edit.Paste"), ui->actionPaste));
+    lpub->actions.insert(ui->actionPaste->objectName(), Action(QStringLiteral("Edit.Paste"), ui->actionPaste));
 
     ui->actionUndo->setObjectName("textEditUndoAct.3");
-    lpub->actions.insert(ui->actionUndo->objectName(), Action(tr("Edit.Undo"), ui->actionUndo));
+    lpub->actions.insert(ui->actionUndo->objectName(), Action(QStringLiteral("Edit.Undo"), ui->actionUndo));
 
     ui->actionRedo->setObjectName("textEditRedoAct.3");
-    lpub->actions.insert(ui->actionRedo->objectName(), Action(tr("Edit.Redo"), ui->actionRedo));
+    lpub->actions.insert(ui->actionRedo->objectName(), Action(QStringLiteral("Edit.Redo"), ui->actionRedo));
 
     ui->actionFont->setObjectName("textEditFontAct.3");
-    lpub->actions.insert(ui->actionFont->objectName(), Action(tr("Edit.Font"), ui->actionFont));
+    lpub->actions.insert(ui->actionFont->objectName(), Action(QStringLiteral("Edit.Font"), ui->actionFont));
 
     ui->actionFontColor->setObjectName("textEditFontColorAct.3");
-    lpub->actions.insert(ui->actionFontColor->objectName(), Action(tr("Edit.Font Color"), ui->actionFontColor));
+    lpub->actions.insert(ui->actionFontColor->objectName(), Action(QStringLiteral("Edit.Font Color"), ui->actionFontColor));
 
     ui->actionRichText->setObjectName("textEditRichTextAct.3");
-    lpub->actions.insert(ui->actionRichText->objectName(), Action(tr("Edit.Rich Text"), ui->actionRichText));
+    lpub->actions.insert(ui->actionRichText->objectName(), Action(QStringLiteral("Edit.Rich Text"), ui->actionRichText));
 
     ui->actionBold->setObjectName("textEditBoldAct.3");
-    lpub->actions.insert(ui->actionBold->objectName(), Action(tr("Edit.Bold"), ui->actionBold));
+    lpub->actions.insert(ui->actionBold->objectName(), Action(QStringLiteral("Edit.Bold"), ui->actionBold));
 
     ui->actionItalic->setObjectName("textEditItalicAct.3");
-    lpub->actions.insert(ui->actionItalic->objectName(), Action(tr("Edit.Italic"), ui->actionItalic));
+    lpub->actions.insert(ui->actionItalic->objectName(), Action(QStringLiteral("Edit.Italic"), ui->actionItalic));
 
     ui->actionUnderline->setObjectName("textEditUnderlineAct.3");
-    lpub->actions.insert(ui->actionUnderline->objectName(), Action(tr("Edit.Underline"), ui->actionUnderline));
+    lpub->actions.insert(ui->actionUnderline->objectName(), Action(QStringLiteral("Edit.Underline"), ui->actionUnderline));
 
     ui->actionUndo->setEnabled(false);
     ui->actionRedo->setEnabled(false);

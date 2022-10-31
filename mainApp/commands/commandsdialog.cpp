@@ -348,7 +348,7 @@ void CommandsDialog::customMenuRequested(QPoint pos) {
   QAction *copyToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Copy to Clipboard"), this);
   copyToClipboardAct->setObjectName("copyToClipboardAct.6");
   copyToClipboardAct->setShortcut(QKeySequence::Copy);
-  lpub->actions.insert(copyToClipboardAct->objectName(), Action(tr("Edit.Copy To Clipboard"), copyToClipboardAct));
+  lpub->actions.insert(copyToClipboardAct->objectName(), Action(QStringLiteral("Edit.Copy To Clipboard"), copyToClipboardAct));
 
   QMenu *menu = new QMenu(this);
 #ifndef QT_NO_CLIPBOARD

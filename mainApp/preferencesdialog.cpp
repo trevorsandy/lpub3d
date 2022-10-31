@@ -154,7 +154,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   QAction *setShortcutEditResetAct = ui.shortcutEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   setShortcutEditResetAct->setText(tr("Shortcut Reset"));
   setShortcutEditResetAct->setObjectName("setShortcutEditResetAct.8");
-  lpub->actions.insert(setShortcutEditResetAct->objectName(), Action(tr("Edit.ShortcutReset"), setShortcutEditResetAct));
+  lpub->actions.insert(setShortcutEditResetAct->objectName(), Action(QStringLiteral("Edit.ShortcutReset"), setShortcutEditResetAct));
   connect(ui.shortcutEdit,         SIGNAL(textChanged(const QString&)),
           this,                    SLOT(enableShortcutEditReset(const QString&)));
   connect(setShortcutEditResetAct, SIGNAL(triggered()),

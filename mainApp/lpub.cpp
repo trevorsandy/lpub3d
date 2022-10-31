@@ -4492,7 +4492,7 @@ void Gui::createOpenWithActions(int maxPrograms)
         QAction *openWithAct = new QAction(tr("Open With Application %1").arg(i),this);
         openWithAct->setObjectName(tr("openWith%1Act.1").arg(i));
         openWithAct->setVisible(false);
-        lpub->actions.insert(openWithAct->objectName(), Action(tr("File.Open With Application %1").arg(i), openWithAct));
+        lpub->actions.insert(openWithAct->objectName(), Action(QStringLiteral("File.Open With Application %1").arg(i), openWithAct));
         connect(openWithAct, SIGNAL(triggered()), this, SLOT(openWith()));
         if (i < openWithActList.size()) {
             openWithActList.replace(i,openWithAct);
@@ -4525,7 +4525,7 @@ void Gui::createActions()
     openAct->setObjectName("openAct.1");
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("Open an existing file"));
-    lpub->actions.insert(openAct->objectName(), Action(tr("File.Open"), openAct));
+    lpub->actions.insert(openAct->objectName(), Action(QStringLiteral("File.Open"), openAct));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
     createOpenWithActions();
@@ -4535,7 +4535,7 @@ void Gui::createActions()
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setStatusTip(tr("Save the document to disk"));
     saveAct->setEnabled(false);
-    lpub->actions.insert(saveAct->objectName(), Action(tr("File.Save"), saveAct));
+    lpub->actions.insert(saveAct->objectName(), Action(QStringLiteral("File.Save"), saveAct));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
     QAction *saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save A&s..."), this);
@@ -4543,7 +4543,7 @@ void Gui::createActions()
     saveAsAct->setShortcut(tr("Ctrl+Shift+S"));
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     saveAsAct->setEnabled(false);
-    lpub->actions.insert(saveAsAct->objectName(), Action(tr("File.Save As"), saveAsAct));
+    lpub->actions.insert(saveAsAct->objectName(), Action(QStringLiteral("File.Save As"), saveAsAct));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     QAction *saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
@@ -4551,7 +4551,7 @@ void Gui::createActions()
     saveCopyAct->setShortcut(tr("Ctrl+Shift+C"));
     saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name"));
     saveCopyAct->setEnabled(false);
-    lpub->actions.insert(saveCopyAct->objectName(), Action(tr("File.Save A Copy As"), saveCopyAct));
+    lpub->actions.insert(saveCopyAct->objectName(), Action(QStringLiteral("File.Save A Copy As"), saveCopyAct));
     connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveCopy()));
 
     QAction *closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close File"), this);
@@ -4559,7 +4559,7 @@ void Gui::createActions()
     closeFileAct->setShortcut(tr("Ctrl+W"));
     closeFileAct->setStatusTip(tr("Close current model file"));
     closeFileAct->setEnabled(false);
-    lpub->actions.insert(closeFileAct->objectName(), Action(tr("File.Close File"), closeFileAct));
+    lpub->actions.insert(closeFileAct->objectName(), Action(QStringLiteral("File.Close File"), closeFileAct));
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
     QIcon printToFilePreviewIcon;
@@ -4570,7 +4570,7 @@ void Gui::createActions()
     printToFilePreviewAct->setShortcut(tr("Alt+Shift+R"));
     printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed"));
     printToFilePreviewAct->setEnabled(false);
-    lpub->actions.insert(printToFilePreviewAct->objectName(), Action(tr("File.File Print Preview"), printToFilePreviewAct));
+    lpub->actions.insert(printToFilePreviewAct->objectName(), Action(QStringLiteral("File.File Print Preview"), printToFilePreviewAct));
     connect(printToFilePreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintToFilePreview()));
 
     QIcon printToFileIcon;
@@ -4581,21 +4581,21 @@ void Gui::createActions()
     printToFileAct->setShortcut(tr("Alt+Shift+P"));
     printToFileAct->setStatusTip(tr("Print the current document"));
     printToFileAct->setEnabled(false);
-    lpub->actions.insert(printToFileAct->objectName(), Action(tr("File.File Print"), printToFileAct));
+    lpub->actions.insert(printToFileAct->objectName(), Action(QStringLiteral("File.File Print"), printToFileAct));
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
     QAction *importLDDAct = new QAction(QIcon(":/resources/importldd.png"),tr("LEGO Digital Designer File..."), this);
     importLDDAct->setObjectName("importLDDAct.1");
     importLDDAct->setShortcut(tr("Alt+Shift+L"));
     importLDDAct->setStatusTip(tr("Import LEGO Digital Designer File"));
-    lpub->actions.insert(importLDDAct->objectName(), Action(tr("File.Import.LEGO Digital Designer File"), importLDDAct));
+    lpub->actions.insert(importLDDAct->objectName(), Action(QStringLiteral("File.Import.LEGO Digital Designer File"), importLDDAct));
     connect(importLDDAct, SIGNAL(triggered()), this, SLOT(importLDD()));
 
     QAction *importSetInventoryAct = new QAction(QIcon(":/resources/importsetinventory.png"),tr("Set Inventory File..."), this);
     importSetInventoryAct->setObjectName("importSetInventoryAct.1");
     importSetInventoryAct->setShortcut(tr("Alt+Shift+S"));
     importSetInventoryAct->setStatusTip(tr("Import Rebrickable Set Inventory File"));
-    lpub->actions.insert(importSetInventoryAct->objectName(), Action(tr("File.Import.Set Inventory File"), importSetInventoryAct));
+    lpub->actions.insert(importSetInventoryAct->objectName(), Action(QStringLiteral("File.Import.Set Inventory File"), importSetInventoryAct));
     connect(importSetInventoryAct, SIGNAL(triggered()), this, SLOT(importInventory()));
 
     QAction *exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
@@ -4603,7 +4603,7 @@ void Gui::createActions()
     exportAsPdfPreviewAct->setShortcut(tr("Alt+P"));
     exportAsPdfPreviewAct->setStatusTip(tr("Preview the current pdf document to be exported"));
     exportAsPdfPreviewAct->setEnabled(false);
-    lpub->actions.insert(exportAsPdfPreviewAct->objectName(), Action(tr("File.PDF Export Preview"), exportAsPdfPreviewAct));
+    lpub->actions.insert(exportAsPdfPreviewAct->objectName(), Action(QStringLiteral("File.PDF Export Preview"), exportAsPdfPreviewAct));
     connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePdfExportPreview()));
 
     QAction *exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File..."), this);
@@ -4611,7 +4611,7 @@ void Gui::createActions()
     exportAsPdfAct->setShortcut(tr("Alt+F"));
     exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file"));
     exportAsPdfAct->setEnabled(false);
-    lpub->actions.insert(exportAsPdfAct->objectName(), Action(tr("File.Export To PDF File"), exportAsPdfAct));
+    lpub->actions.insert(exportAsPdfAct->objectName(), Action(QStringLiteral("File.Export To PDF File"), exportAsPdfAct));
     connect(exportAsPdfAct, SIGNAL(triggered()), this, SLOT(exportAsPdfDialog()));
 
     QAction *exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("P&NG Images..."), this);
@@ -4619,7 +4619,7 @@ void Gui::createActions()
     exportPngAct->setShortcut(tr("Alt+N"));
     exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images"));
     exportPngAct->setEnabled(false);
-    lpub->actions.insert(exportPngAct->objectName(), Action(tr("File.Export As.PNG Images"), exportPngAct));
+    lpub->actions.insert(exportPngAct->objectName(), Action(QStringLiteral("File.Export As.PNG Images"), exportPngAct));
     connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPngDialog()));
 
     QAction *exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("&JPEG Images..."), this);
@@ -4627,7 +4627,7 @@ void Gui::createActions()
     exportJpgAct->setShortcut(tr("Alt+J"));
     exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images"));
     exportJpgAct->setEnabled(false);
-    lpub->actions.insert(exportJpgAct->objectName(), Action(tr("File.Export As.JPEG Images"), exportJpgAct));
+    lpub->actions.insert(exportJpgAct->objectName(), Action(QStringLiteral("File.Export As.JPEG Images"), exportJpgAct));
     connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpgDialog()));
 
     QAction *exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("&Bitmap Images..."), this);
@@ -4635,7 +4635,7 @@ void Gui::createActions()
     exportBmpAct->setShortcut(tr("Alt+B"));
     exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images"));
     exportBmpAct->setEnabled(false);
-    lpub->actions.insert(exportBmpAct->objectName(), Action(tr("File.Export As.Bitmap Images"), exportBmpAct));
+    lpub->actions.insert(exportBmpAct->objectName(), Action(QStringLiteral("File.Export As.Bitmap Images"), exportBmpAct));
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
 
     QAction *exportHtmlAct = new QAction(QIcon(":/resources/html32.png"),tr("&HTML Part List..."), this);
@@ -4643,7 +4643,7 @@ void Gui::createActions()
     exportHtmlAct->setShortcut(tr("Alt+6"));
     exportHtmlAct->setStatusTip(tr("Export your document as an HTML part list"));
     exportHtmlAct->setEnabled(false);
-    lpub->actions.insert(exportHtmlAct->objectName(), Action(tr("File.Export As.HTML Part List"), exportHtmlAct));
+    lpub->actions.insert(exportHtmlAct->objectName(), Action(QStringLiteral("File.Export As.HTML Part List"), exportHtmlAct));
     connect(exportHtmlAct, SIGNAL(triggered()), this, SLOT(exportAsHtml()));
 
     QAction *exportHtmlStepsAct = new QAction(QIcon(":/resources/htmlsteps32.png"),tr("HT&ML Steps..."), this);
@@ -4651,7 +4651,7 @@ void Gui::createActions()
     exportHtmlStepsAct->setShortcut(tr("Alt+Shift+6"));
     exportHtmlStepsAct->setStatusTip(tr("Export your document as navigatable steps in HTML format"));
     exportHtmlStepsAct->setEnabled(false);
-    lpub->actions.insert(exportHtmlStepsAct->objectName(), Action(tr("File.Export As.HTML Steps"), exportHtmlStepsAct));
+    lpub->actions.insert(exportHtmlStepsAct->objectName(), Action(QStringLiteral("File.Export As.HTML Steps"), exportHtmlStepsAct));
     connect(exportHtmlStepsAct, SIGNAL(triggered()), this, SLOT(exportAsHtmlSteps()));
 
     QAction *exportColladaAct = new QAction(QIcon(":/resources/dae32.png"),tr("&COLLADA Objects..."), this);
@@ -4659,7 +4659,7 @@ void Gui::createActions()
     exportColladaAct->setShortcut(tr("Alt+4"));
     exportColladaAct->setStatusTip(tr("Export your document as a sequence of Collada objects"));
     exportColladaAct->setEnabled(false);
-    lpub->actions.insert(exportColladaAct->objectName(), Action(tr("File.Export As.COLLADA Objects"), exportColladaAct));
+    lpub->actions.insert(exportColladaAct->objectName(), Action(QStringLiteral("File.Export As.COLLADA Objects"), exportColladaAct));
     connect(exportColladaAct, SIGNAL(triggered()), this, SLOT(exportAsColladaDialog()));
 
     QAction *exportObjAct = new QAction(QIcon(":/resources/obj32.png"),tr("&Wavefront Objects..."), this);
@@ -4667,7 +4667,7 @@ void Gui::createActions()
     exportObjAct->setShortcut(tr("Alt+1"));
     exportObjAct->setStatusTip(tr("Export your document as a sequence of Wavefront objects"));
     exportObjAct->setEnabled(false);
-    lpub->actions.insert(exportObjAct->objectName(), Action(tr("File.Export As.Wavefront Objects"), exportObjAct));
+    lpub->actions.insert(exportObjAct->objectName(), Action(QStringLiteral("File.Export As.Wavefront Objects"), exportObjAct));
     connect(exportObjAct, SIGNAL(triggered()), this, SLOT(exportAsObjDialog()));
 
     QAction *export3dsAct = new QAction(QIcon(":/resources/3ds32.png"),tr("&3DStudio Objects..."), this);
@@ -4675,7 +4675,7 @@ void Gui::createActions()
     export3dsAct->setShortcut(tr("Alt+5"));
     export3dsAct->setStatusTip(tr("Export your document as a sequence of 3DStudio objects"));
     export3dsAct->setEnabled(false);
-    lpub->actions.insert(export3dsAct->objectName(), Action(tr("File.Export As.3DStudio Objects"), export3dsAct));
+    lpub->actions.insert(export3dsAct->objectName(), Action(QStringLiteral("File.Export As.3DStudio Objects"), export3dsAct));
     connect(export3dsAct, SIGNAL(triggered()), this, SLOT(exportAs3dsDialog()));
 
     QAction *exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("&Stereo Lithography Objects..."), this);
@@ -4683,7 +4683,7 @@ void Gui::createActions()
     exportStlAct->setShortcut(tr("Alt+2"));
     exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects"));
     exportStlAct->setEnabled(false);
-    lpub->actions.insert(exportStlAct->objectName(), Action(tr("File.Export As.Stereo Lithography Objects"), exportStlAct));
+    lpub->actions.insert(exportStlAct->objectName(), Action(QStringLiteral("File.Export As.Stereo Lithography Objects"), exportStlAct));
     connect(exportStlAct, SIGNAL(triggered()), this, SLOT(exportAsStlDialog()));
 
     QAction *exportPovAct = new QAction(QIcon(":/resources/povray32.png"),tr("&PovRay Scene Files..."), this);
@@ -4691,7 +4691,7 @@ void Gui::createActions()
     exportPovAct->setShortcut(tr("Alt+3"));
     exportPovAct->setStatusTip(tr("Export your document as a sequence of PovRay Scene Files"));
     exportPovAct->setEnabled(false);
-    lpub->actions.insert(exportPovAct->objectName(), Action(tr("File.Export As.PovRay Scene Files"), exportPovAct));
+    lpub->actions.insert(exportPovAct->objectName(), Action(QStringLiteral("File.Export As.PovRay Scene Files"), exportPovAct));
     connect(exportPovAct, SIGNAL(triggered()), this, SLOT(exportAsPovDialog()));
 
     QAction *exportCsvAct = new QAction(QIcon(":/resources/csv32.png"),tr("&CSV Part List..."), this);
@@ -4699,7 +4699,7 @@ void Gui::createActions()
     exportCsvAct->setShortcut(tr("Alt+8"));
     exportCsvAct->setStatusTip(tr("Export your document as a CSV part list"));
     exportCsvAct->setEnabled(false);
-    lpub->actions.insert(exportCsvAct->objectName(), Action(tr("File.Export As.CSV Part List"), exportCsvAct));
+    lpub->actions.insert(exportCsvAct->objectName(), Action(QStringLiteral("File.Export As.CSV Part List"), exportCsvAct));
     connect(exportCsvAct, SIGNAL(triggered()), this, SLOT(exportAsCsv()));
 
     QAction *exportBricklinkAct = new QAction(QIcon(":/resources/bricklink32.png"),tr("&Bricklink XML Part List..."), this);
@@ -4707,14 +4707,14 @@ void Gui::createActions()
     exportBricklinkAct->setShortcut(tr("Alt+7"));
     exportBricklinkAct->setStatusTip(tr("Export your document as a Bricklink XML Part List"));
     exportBricklinkAct->setEnabled(false);
-    lpub->actions.insert(exportBricklinkAct->objectName(), Action(tr("File.Export As.Bricklink XML Part List"), exportBricklinkAct));
+    lpub->actions.insert(exportBricklinkAct->objectName(), Action(QStringLiteral("File.Export As.Bricklink XML Part List"), exportBricklinkAct));
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
 
     QAction *exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setObjectName("exitAct.1");
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    lpub->actions.insert(exitAct->objectName(), Action(tr("File.Exit"), exitAct));
+    lpub->actions.insert(exitAct->objectName(), Action(QStringLiteral("File.Exit"), exitAct));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     QIcon blenderIcon;
@@ -4725,7 +4725,7 @@ void Gui::createActions()
     blenderRenderAct->setShortcut(tr("Alt+Shift+8"));
     blenderRenderAct->setStatusTip(tr("Render the current step using Blender Cycles"));
     blenderRenderAct->setEnabled(false);
-    lpub->actions.insert(blenderRenderAct->objectName(), Action(tr("3DViewer.Blender Render"), blenderRenderAct));
+    lpub->actions.insert(blenderRenderAct->objectName(), Action(QStringLiteral("3DViewer.Blender Render"), blenderRenderAct));
     connect(blenderRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
     blenderImportAct = new QAction(blenderIcon,tr("Blender Import..."), this);
@@ -4733,7 +4733,7 @@ void Gui::createActions()
     blenderImportAct->setShortcut(tr("Alt+Shift+9"));
     blenderImportAct->setStatusTip(tr("Import the current step and launch Blender"));
     blenderImportAct->setEnabled(false);
-    lpub->actions.insert(blenderImportAct->objectName(), Action(tr("3DViewer.Blender Import"), blenderImportAct));
+    lpub->actions.insert(blenderImportAct->objectName(), Action(QStringLiteral("3DViewer.Blender Import"), blenderImportAct));
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
     
     povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
@@ -4741,7 +4741,7 @@ void Gui::createActions()
     povrayRenderAct->setShortcut(tr("Alt+9"));
     povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray"));
     povrayRenderAct->setEnabled(false);
-    lpub->actions.insert(povrayRenderAct->objectName(), Action(tr("3DViewer.POVRay Render"), povrayRenderAct));
+    lpub->actions.insert(povrayRenderAct->objectName(), Action(QStringLiteral("3DViewer.POVRay Render"), povrayRenderAct));
     connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
     QAction *copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
@@ -4749,7 +4749,7 @@ void Gui::createActions()
     copyFilePathToClipboardAct->setShortcut(tr("Alt+Shift+0"));
     copyFilePathToClipboardAct->setStatusTip(tr("Copy current model full file path to clipboard"));
     copyFilePathToClipboardAct->setEnabled(false);
-    lpub->actions.insert(copyFilePathToClipboardAct->objectName(), Action(tr("File.Full Path To Clipboard"), copyFilePathToClipboardAct));
+    lpub->actions.insert(copyFilePathToClipboardAct->objectName(), Action(QStringLiteral("File.Full Path To Clipboard"), copyFilePathToClipboardAct));
     connect(copyFilePathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
     for (int i = 0; i < MAX_RECENT_FILES; i++) {
@@ -4757,14 +4757,14 @@ void Gui::createActions()
       recentFilesActs[i]->setObjectName(tr("recentFile%1Act.1").arg(i));
       recentFilesActs[i]->setStatusTip(tr("Clear recent file %1").arg(i));
       recentFilesActs[i]->setVisible(false);
-      lpub->actions.insert(recentFilesActs[i]->objectName(), Action(tr("Recent Files.Recent File %1").arg(i), recentFilesActs[i]));
+      lpub->actions.insert(recentFilesActs[i]->objectName(), Action(QStringLiteral("Recent Files.Recent File %1").arg(i), recentFilesActs[i]));
       connect(recentFilesActs[i], SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
 
     QAction *clearRecentAct = new QAction(tr("Clear Recent Files"),this);
     clearRecentAct->setObjectName("clearRecentAct.1");
     clearRecentAct->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(clearRecentAct->objectName(), Action(tr("Recent Files.Clear Recent Files"), clearRecentAct));
+    lpub->actions.insert(clearRecentAct->objectName(), Action(QStringLiteral("Recent Files.Clear Recent Files"), clearRecentAct));
     connect(clearRecentAct, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
 
     // Edit
@@ -4773,7 +4773,7 @@ void Gui::createActions()
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change"));
     undoAct->setEnabled(false);
-    lpub->actions.insert(undoAct->objectName(), Action(tr("Edit.Undo"), undoAct));
+    lpub->actions.insert(undoAct->objectName(), Action(QStringLiteral("Edit.Undo"), undoAct));
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
 
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("&Redo"), this);
@@ -4786,7 +4786,7 @@ void Gui::createActions()
     redoAct->setStatusTip(tr("Redo last change"));
 #endif
     redoAct->setEnabled(false);
-    lpub->actions.insert(redoAct->objectName(), Action(tr("Edit.Redo"), redoAct));
+    lpub->actions.insert(redoAct->objectName(), Action(QStringLiteral("Edit.Redo"), redoAct));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     QAction *insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Front Cover Page"),this);
@@ -4794,7 +4794,7 @@ void Gui::createActions()
     insertCoverPageAct->setShortcut(tr("Ctrl+Alt+F"));
     insertCoverPageAct->setStatusTip(tr("Insert a front cover page"));
     insertCoverPageAct->setEnabled(false);
-    lpub->actions.insert(insertCoverPageAct->objectName(), Action(tr("Edit.Insert Front Cover Page"), insertCoverPageAct));
+    lpub->actions.insert(insertCoverPageAct->objectName(), Action(QStringLiteral("Edit.Insert Front Cover Page"), insertCoverPageAct));
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 
     QAction *appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Back Cover Page"),this);
@@ -4802,7 +4802,7 @@ void Gui::createActions()
     appendCoverPageAct->setShortcut(tr("Ctrl+Alt+B"));
     appendCoverPageAct->setStatusTip(tr("Append back cover page"));
     appendCoverPageAct->setEnabled(false);
-    lpub->actions.insert(appendCoverPageAct->objectName(), Action(tr("Edit.Append Back Cover Page"), appendCoverPageAct));
+    lpub->actions.insert(appendCoverPageAct->objectName(), Action(QStringLiteral("Edit.Append Back Cover Page"), appendCoverPageAct));
     connect(appendCoverPageAct, SIGNAL(triggered()), this, SLOT(appendCoverPage()));
 
     QAction *insertNumberedPageAct = new QAction(QIcon(":/resources/insertpage.png"),tr("Insert Page"),this);
@@ -4810,7 +4810,7 @@ void Gui::createActions()
     insertNumberedPageAct->setShortcut(tr("Ctrl+Alt+I"));
     insertNumberedPageAct->setStatusTip(tr("Insert a numbered page"));
     insertNumberedPageAct->setEnabled(false);
-    lpub->actions.insert(insertNumberedPageAct->objectName(), Action(tr("Edit.Insert Page"), insertNumberedPageAct));
+    lpub->actions.insert(insertNumberedPageAct->objectName(), Action(QStringLiteral("Edit.Insert Page"), insertNumberedPageAct));
     connect(insertNumberedPageAct, SIGNAL(triggered()), this, SLOT(insertNumberedPage()));
 
     QAction *appendNumberedPageAct = new QAction(QIcon(":/resources/appendpage.png"),tr("Append Page"),this);
@@ -4818,7 +4818,7 @@ void Gui::createActions()
     appendNumberedPageAct->setShortcut(tr("Ctrl+Alt+A"));
     appendNumberedPageAct->setStatusTip(tr("Append a numbered page"));
     appendNumberedPageAct->setEnabled(false);
-    lpub->actions.insert(appendNumberedPageAct->objectName(), Action(tr("Edit.Append Page"), appendNumberedPageAct));
+    lpub->actions.insert(appendNumberedPageAct->objectName(), Action(QStringLiteral("Edit.Append Page"), appendNumberedPageAct));
     connect(appendNumberedPageAct, SIGNAL(triggered()), this, SLOT(appendNumberedPage()));
 
     QAction *deletePageAct = new QAction(QIcon(":/resources/deletepage.png"),tr("Delete Page"),this);
@@ -4826,7 +4826,7 @@ void Gui::createActions()
     deletePageAct->setShortcut(tr("Ctrl+Alt+D"));
     deletePageAct->setStatusTip(tr("Delete this page"));
     deletePageAct->setEnabled(false);
-    lpub->actions.insert(deletePageAct->objectName(), Action(tr("Edit.Delete Page"), deletePageAct));
+    lpub->actions.insert(deletePageAct->objectName(), Action(QStringLiteral("Edit.Delete Page"), deletePageAct));
     connect(deletePageAct, SIGNAL(triggered()), this, SLOT(deletePage()));
 
     QAction *addPictureAct = new QAction(QIcon(":/resources/addpicture.png"),tr("Add Picture"),this);
@@ -4834,7 +4834,7 @@ void Gui::createActions()
     addPictureAct->setShortcut(tr("Ctrl+Alt+P"));
     addPictureAct->setStatusTip(tr("Add a picture to this page"));
     addPictureAct->setEnabled(false);
-    lpub->actions.insert(addPictureAct->objectName(), Action(tr("Edit.Add Picture"), addPictureAct));
+    lpub->actions.insert(addPictureAct->objectName(), Action(QStringLiteral("Edit.Add Picture"), addPictureAct));
     connect(addPictureAct, SIGNAL(triggered()), this, SLOT(addPicture()));
 
     QAction *addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),this);
@@ -4842,7 +4842,7 @@ void Gui::createActions()
     addTextAct->setShortcut(tr("Ctrl+Alt+T"));
     addTextAct->setStatusTip(tr("Add text to this page"));
     addTextAct->setEnabled(false);
-    lpub->actions.insert(addTextAct->objectName(), Action(tr("Edit.Add Text"), addTextAct));
+    lpub->actions.insert(addTextAct->objectName(), Action(QStringLiteral("Edit.Add Text"), addTextAct));
     connect(addTextAct, SIGNAL(triggered()), this, SLOT(addText()));
 
     QAction *addBomAct = new QAction(QIcon(":/resources/addbom.png"),tr("Add Bill of Materials"),this);
@@ -4850,7 +4850,7 @@ void Gui::createActions()
     addBomAct->setShortcut(tr("Ctrl+Alt+M"));
     addBomAct->setStatusTip(tr("Add Bill of Materials to this page"));
     addBomAct->setEnabled(false);
-    lpub->actions.insert(addBomAct->objectName(), Action(tr("Edit.Add Bill Of Materials"), addBomAct));
+    lpub->actions.insert(addBomAct->objectName(), Action(QStringLiteral("Edit.Add Bill Of Materials"), addBomAct));
     connect(addBomAct, SIGNAL(triggered()), this, SLOT(addBom()));
 
     QAction *cycleEachPageAct = new QAction(QIcon(":/resources/cycleeachpage.png"),tr("Cycle Each Page"), this);
@@ -4858,7 +4858,7 @@ void Gui::createActions()
     cycleEachPageAct->setStatusTip(tr("Cycle each page step(s) when navigating forward by more than one page - click to enable"));
     cycleEachPageAct->setCheckable(true);
     cycleEachPageAct->setChecked(Preferences::cycleEachPage);
-    lpub->actions.insert(cycleEachPageAct->objectName(), Action(tr("Edit.Cycle Each Page"), cycleEachPageAct));
+    lpub->actions.insert(cycleEachPageAct->objectName(), Action(QStringLiteral("Edit.Cycle Each Page"), cycleEachPageAct));
     connect(cycleEachPageAct, SIGNAL(triggered()), this, SLOT(cycleEachPage()));
 
     QAction *removeLPubFormatBomAct = new QAction(QIcon(":/resources/removelpubformatbom.png"),tr("Unformat Bill of Materials"),this);
@@ -4866,7 +4866,7 @@ void Gui::createActions()
     removeLPubFormatBomAct->setShortcut(tr("Ctrl+Alt+J"));
     removeLPubFormatBomAct->setStatusTip(tr("Remove all LPub Bill of Materials metacommands"));
     removeLPubFormatBomAct->setEnabled(false);
-    lpub->actions.insert(removeLPubFormatBomAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Bill Of Materials"), removeLPubFormatBomAct));
+    lpub->actions.insert(removeLPubFormatBomAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Unformat Bill Of Materials"), removeLPubFormatBomAct));
     connect(removeLPubFormatBomAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
     QAction *removeLPubFormatDocumentAct = new QAction(QIcon(":/resources/removelpubformatdocument.png"),tr("Unformat Document"),this);
@@ -4874,7 +4874,7 @@ void Gui::createActions()
     removeLPubFormatDocumentAct->setShortcut(tr("Ctrl+Alt+R"));
     removeLPubFormatDocumentAct->setStatusTip(tr("Remove all LPub metacommands from entire document"));
     removeLPubFormatDocumentAct->setEnabled(false);
-    lpub->actions.insert(removeLPubFormatDocumentAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Document"), removeLPubFormatDocumentAct));
+    lpub->actions.insert(removeLPubFormatDocumentAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Unformat Document"), removeLPubFormatDocumentAct));
     connect(removeLPubFormatDocumentAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
     QAction *removeLPubFormatPageAct = new QAction(QIcon(":/resources/removelpubformatpage.png"),tr("Unformat Current Page"),this);
@@ -4882,7 +4882,7 @@ void Gui::createActions()
     removeLPubFormatPageAct->setShortcut(tr("Ctrl+Alt+E"));
     removeLPubFormatPageAct->setStatusTip(tr("Remove all LPub metacommands from the current page"));
     removeLPubFormatPageAct->setEnabled(false);
-    lpub->actions.insert(removeLPubFormatPageAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Current Page"), removeLPubFormatPageAct));
+    lpub->actions.insert(removeLPubFormatPageAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Unformat Current Page"), removeLPubFormatPageAct));
     connect(removeLPubFormatPageAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
     QAction *removeLPubFormatStepAct = new QAction(QIcon(":/resources/removelpubformatstep.png"),tr("Unformat Single Step"),this);
@@ -4890,7 +4890,7 @@ void Gui::createActions()
     removeLPubFormatStepAct->setShortcut(tr("Ctrl+Alt+L"));
     removeLPubFormatStepAct->setStatusTip(tr("Remove all LPub metacommands from the current step"));
     removeLPubFormatStepAct->setEnabled(false);
-    lpub->actions.insert(removeLPubFormatStepAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Single Step"), removeLPubFormatStepAct));
+    lpub->actions.insert(removeLPubFormatStepAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Unformat Single Step"), removeLPubFormatStepAct));
     connect(removeLPubFormatStepAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
     QAction *removeLPubFormatSubmodelAct = new QAction(QIcon(":/resources/removelpubformatsubmodel.png"),tr("Unformat Current Submodel"),this);
@@ -4898,7 +4898,7 @@ void Gui::createActions()
     removeLPubFormatSubmodelAct->setShortcut(tr("Ctrl+Alt+H"));
     removeLPubFormatSubmodelAct->setStatusTip(tr("Remove all LPub metacommands from the current submodel"));
     removeLPubFormatSubmodelAct->setEnabled(false);
-    lpub->actions.insert(removeLPubFormatSubmodelAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Current Submodel"), removeLPubFormatSubmodelAct));
+    lpub->actions.insert(removeLPubFormatSubmodelAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Unformat Current Submodel"), removeLPubFormatSubmodelAct));
     connect(removeLPubFormatSubmodelAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
     QAction *removeBuildModFormatAct = new QAction(tr("Remove Build Mod Format"),this);
@@ -4907,7 +4907,7 @@ void Gui::createActions()
     removeBuildModFormatAct->setCheckable(true);
     removeBuildModFormatAct->setEnabled(Preferences::buildModEnabled);
     removeBuildModFormatAct->setChecked(Preferences::removeBuildModFormat);
-    lpub->actions.insert(removeBuildModFormatAct->objectName(), Action(tr("Edit.Remove LPub Format.Remove Build Mod Format"), removeBuildModFormatAct));
+    lpub->actions.insert(removeBuildModFormatAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Remove Build Mod Format"), removeBuildModFormatAct));
     connect(removeBuildModFormatAct, SIGNAL(triggered()), this, SLOT(removeBuildModFormat()));
 
     QAction *removeChildSubmodelFormatAct = new QAction(tr("Remove Child Submodel Format"),this);
@@ -4915,7 +4915,7 @@ void Gui::createActions()
     removeChildSubmodelFormatAct->setStatusTip(tr("Remove child submodel formatting for submodel, step, page or callout removals."));
     removeChildSubmodelFormatAct->setCheckable(true);
     removeChildSubmodelFormatAct->setChecked(Preferences::removeChildSubmodelFormat);
-    lpub->actions.insert(removeChildSubmodelFormatAct->objectName(), Action(tr("Edit.Remove LPub Format.Remove Child Submodel Format"), removeChildSubmodelFormatAct));
+    lpub->actions.insert(removeChildSubmodelFormatAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Remove Child Submodel Format"), removeChildSubmodelFormatAct));
     connect(removeChildSubmodelFormatAct, SIGNAL(triggered()), this, SLOT(removeChildSubmodelFormat()));
 
     // View
@@ -4924,7 +4924,7 @@ void Gui::createActions()
     fitWidthAct->setShortcut(tr("Alt+W"));
     fitWidthAct->setStatusTip(tr("Fit document to width"));
     fitWidthAct->setEnabled(false);
-    lpub->actions.insert(fitWidthAct->objectName(), Action(tr("View.Fit Width"), fitWidthAct));
+    lpub->actions.insert(fitWidthAct->objectName(), Action(QStringLiteral("View.Fit Width"), fitWidthAct));
     connect(fitWidthAct, SIGNAL(triggered()), this, SLOT(fitWidth()));
 
     QAction *fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit &Visible"), this);
@@ -4932,7 +4932,7 @@ void Gui::createActions()
     fitVisibleAct->setShortcut(tr("Alt+V"));
     fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible"));
     fitVisibleAct->setEnabled(false);
-    lpub->actions.insert(fitVisibleAct->objectName(), Action(tr("View.Fit Visible"), fitVisibleAct));
+    lpub->actions.insert(fitVisibleAct->objectName(), Action(QStringLiteral("View.Fit Visible"), fitVisibleAct));
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
 
     QAction *fitSceneAct = new QAction(QIcon(":/resources/fitScene.png"), tr("Fit &Scene"), this);
@@ -4940,7 +4940,7 @@ void Gui::createActions()
     fitSceneAct->setShortcut(tr("Alt+H"));
     fitSceneAct->setStatusTip(tr("Fit document so whole scene is visible"));
     fitSceneAct->setEnabled(false);
-    lpub->actions.insert(fitSceneAct->objectName(), Action(tr("View.Fit Scene"), fitSceneAct));
+    lpub->actions.insert(fitSceneAct->objectName(), Action(QStringLiteral("View.Fit Scene"), fitSceneAct));
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
     QAction *bringToFrontAct = new QAction(QIcon(":/resources/bringtofront.png"), tr("Bring To &Front"), this);
@@ -4948,7 +4948,7 @@ void Gui::createActions()
     bringToFrontAct->setShortcut(tr("Alt+Shift+F"));
     bringToFrontAct->setStatusTip(tr("Bring item to front"));
     bringToFrontAct->setEnabled(false);
-    lpub->actions.insert(bringToFrontAct->objectName(), Action(tr("View.Bring To Front"), bringToFrontAct));
+    lpub->actions.insert(bringToFrontAct->objectName(), Action(QStringLiteral("View.Bring To Front"), bringToFrontAct));
     connect(bringToFrontAct, SIGNAL(triggered()), this, SLOT(bringToFront()));
 
     QAction *sendToBackAct = new QAction(QIcon(":/resources/sendtoback.png"), tr("Send To &Back"), this);
@@ -4956,7 +4956,7 @@ void Gui::createActions()
     sendToBackAct->setShortcut(tr("Alt+Shift+B"));
     sendToBackAct->setStatusTip(tr("Send item to back"));
     sendToBackAct->setEnabled(false);
-    lpub->actions.insert(sendToBackAct->objectName(), Action(tr("View.Send To Back"), sendToBackAct));
+    lpub->actions.insert(sendToBackAct->objectName(), Action(QStringLiteral("View.Send To Back"), sendToBackAct));
     connect(sendToBackAct, SIGNAL(triggered()), this, SLOT(sendToBack()));
 
     QAction *actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
@@ -4964,7 +4964,7 @@ void Gui::createActions()
     actualSizeAct->setShortcut(tr("Alt+A"));
     actualSizeAct->setStatusTip(tr("Show document actual size"));
     actualSizeAct->setEnabled(false);
-    lpub->actions.insert(actualSizeAct->objectName(), Action(tr("View.Actual Size"), actualSizeAct));
+    lpub->actions.insert(actualSizeAct->objectName(), Action(QStringLiteral("View.Actual Size"), actualSizeAct));
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
     // TESTING ONLY
@@ -4975,7 +4975,7 @@ void Gui::createActions()
     fullScreenViewAct->setShortcut(tr("Ctrl+M"));
     fullScreenViewAct->setStatusTip(tr("Toggle full screen view"));
     fullScreenViewAct->setCheckable(true);
-    lpub->actions.insert(fullScreenViewAct->objectName(), Action(tr("View.Full Screen View"), fullScreenViewAct));
+    lpub->actions.insert(fullScreenViewAct->objectName(), Action(QStringLiteral("View.Full Screen View"), fullScreenViewAct));
     connect(fullScreenViewAct, SIGNAL(triggered()), this, SLOT(fullScreenView()));
 
     zoomSliderAct = new QWidgetAction(nullptr);
@@ -4994,7 +4994,7 @@ void Gui::createActions()
     zoomInComboAct->setShortcut(tr("Ctrl++"));
     zoomInComboAct->setStatusTip(tr("Zoom in"));
     zoomInComboAct->setEnabled(false);
-    lpub->actions.insert(zoomInComboAct->objectName(), Action(tr("View.Zoom In"), zoomInComboAct));
+    lpub->actions.insert(zoomInComboAct->objectName(), Action(QStringLiteral("View.Zoom In"), zoomInComboAct));
     connect(zoomInComboAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
 
     QAction *zoomOutComboAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
@@ -5002,7 +5002,7 @@ void Gui::createActions()
     zoomOutComboAct->setShortcut(tr("Ctrl+-"));
     zoomOutComboAct->setStatusTip(tr("Zoom out"));
     zoomOutComboAct->setEnabled(false);
-    lpub->actions.insert(zoomOutComboAct->objectName(), Action(tr("View.Zoom Out"), zoomOutComboAct));
+    lpub->actions.insert(zoomOutComboAct->objectName(), Action(QStringLiteral("View.Zoom Out"), zoomOutComboAct));
     connect(zoomOutComboAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
     QAction *sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
@@ -5012,7 +5012,7 @@ void Gui::createActions()
     sceneRulerComboAct->setEnabled(true);
     sceneRulerComboAct->setCheckable(true);
     sceneRulerComboAct->setChecked(Preferences::sceneRuler);
-    lpub->actions.insert(sceneRulerComboAct->objectName(), Action(tr("View.Scene Ruler"), sceneRulerComboAct));
+    lpub->actions.insert(sceneRulerComboAct->objectName(), Action(QStringLiteral("View.Scene Ruler"), sceneRulerComboAct));
     connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
 
     QAction *hideRulerPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
@@ -5021,28 +5021,28 @@ void Gui::createActions()
     hideRulerPageBackgroundAct->setCheckable(true);
     hideRulerPageBackgroundAct->setChecked(Preferences::hidePageBackground);
     hideRulerPageBackgroundAct->setEnabled(Preferences::sceneRuler);
-    lpub->actions.insert(hideRulerPageBackgroundAct->objectName(), Action(tr("View.Scene Ruler.Hide Page Background"), hideRulerPageBackgroundAct));
+    lpub->actions.insert(hideRulerPageBackgroundAct->objectName(), Action(QStringLiteral("View.Scene Ruler.Hide Page Background"), hideRulerPageBackgroundAct));
     connect(hideRulerPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
     QAction *sceneRulerTrackingNoneAct = new QAction(tr("Ruler Tracking Off"),this);
     sceneRulerTrackingNoneAct->setObjectName("sceneRulerTrackingNoneAct.1");
     sceneRulerTrackingNoneAct->setStatusTip(tr("Set scene ruler tracking Off"));
     sceneRulerTrackingNoneAct->setCheckable(true);
-    lpub->actions.insert(sceneRulerTrackingNoneAct->objectName(), Action(tr("View.Scene Ruler.Ruler Tracking Off"), sceneRulerTrackingNoneAct));
+    lpub->actions.insert(sceneRulerTrackingNoneAct->objectName(), Action(QStringLiteral("View.Scene Ruler.Ruler Tracking Off"), sceneRulerTrackingNoneAct));
     connect(sceneRulerTrackingNoneAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     QAction *sceneRulerTrackingTickAct = new QAction(tr("Ruler Tracking Tick"),this);
     sceneRulerTrackingTickAct->setObjectName("sceneRulerTrackingTickAct.1");
     sceneRulerTrackingTickAct->setStatusTip(tr("Set scene ruler tracking to use ruler tick mark"));
     sceneRulerTrackingTickAct->setCheckable(true);
-    lpub->actions.insert(sceneRulerTrackingTickAct->objectName(), Action(tr("View.Scene Ruler.Ruler Tracking Tick"), sceneRulerTrackingTickAct));
+    lpub->actions.insert(sceneRulerTrackingTickAct->objectName(), Action(QStringLiteral("View.Scene Ruler.Ruler Tracking Tick"), sceneRulerTrackingTickAct));
     connect(sceneRulerTrackingTickAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     QAction *sceneRulerTrackingLineAct = new QAction(tr("Ruler Tracking Line"),this);
     sceneRulerTrackingLineAct->setObjectName("sceneRulerTrackingLineAct.1");
     sceneRulerTrackingLineAct->setStatusTip(tr("Set scene ruler tracking to use full scene line"));
     sceneRulerTrackingLineAct->setCheckable(true);
-    lpub->actions.insert(sceneRulerTrackingLineAct->objectName(), Action(tr("View.Scene Ruler.Ruler Tracking Line"), sceneRulerTrackingLineAct));
+    lpub->actions.insert(sceneRulerTrackingLineAct->objectName(), Action(QStringLiteral("View.Scene Ruler.Ruler Tracking Line"), sceneRulerTrackingLineAct));
     connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     QAction *showTrackingCoordinatesAct = new QAction(tr("Show Tracking Coordinates"),this);
@@ -5051,7 +5051,7 @@ void Gui::createActions()
     showTrackingCoordinatesAct->setCheckable(true);
     showTrackingCoordinatesAct->setChecked(Preferences::showTrackingCoordinates);
     showTrackingCoordinatesAct->setEnabled(Preferences::sceneRulerTracking == int(TRACKING_LINE));
-    lpub->actions.insert(showTrackingCoordinatesAct->objectName(), Action(tr("View.Scene Ruler.Show Tracking Coordinates"), showTrackingCoordinatesAct));
+    lpub->actions.insert(showTrackingCoordinatesAct->objectName(), Action(QStringLiteral("View.Scene Ruler.Show Tracking Coordinates"), showTrackingCoordinatesAct));
     connect(showTrackingCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
 
     SceneRulerGroup = new QActionGroup(this);
@@ -5070,21 +5070,21 @@ void Gui::createActions()
     sceneGuidesComboAct->setEnabled(true);
     sceneGuidesComboAct->setCheckable(true);
     sceneGuidesComboAct->setChecked(Preferences::sceneGuides);
-    lpub->actions.insert(sceneGuidesComboAct->objectName(), Action(tr("View.Scene Guides"), sceneGuidesComboAct));
+    lpub->actions.insert(sceneGuidesComboAct->objectName(), Action(QStringLiteral("View.Scene Guides"), sceneGuidesComboAct));
     connect(sceneGuidesComboAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
 
     QAction *sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
     sceneGuidesDashLineAct->setObjectName("sceneGuidesDashLineAct.1");
     sceneGuidesDashLineAct->setStatusTip(tr("Select dash scene guide lines"));
     sceneGuidesDashLineAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesDashLineAct->objectName(), Action(tr("View.Scene Guides.Dash Line"), sceneGuidesDashLineAct));
+    lpub->actions.insert(sceneGuidesDashLineAct->objectName(), Action(QStringLiteral("View.Scene Guides.Dash Line"), sceneGuidesDashLineAct));
     connect(sceneGuidesDashLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
     QAction *sceneGuidesSolidLineAct = new QAction(tr("Solid Line"),this);
     sceneGuidesSolidLineAct->setObjectName("sceneGuidesSolidLineAct.1");
     sceneGuidesSolidLineAct->setStatusTip(tr("Select solid scene guide lines"));
     sceneGuidesSolidLineAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesSolidLineAct->objectName(), Action(tr("View.Scene Guides.Solid Line"), sceneGuidesSolidLineAct));
+    lpub->actions.insert(sceneGuidesSolidLineAct->objectName(), Action(QStringLiteral("View.Scene Guides.Solid Line"), sceneGuidesSolidLineAct));
     connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
     SceneGuidesLineGroup = new QActionGroup(this);
@@ -5098,35 +5098,35 @@ void Gui::createActions()
     sceneGuidesPosTLeftAct->setObjectName("sceneGuidesPosTLeftAct.1");
     sceneGuidesPosTLeftAct->setStatusTip(tr("Set scene guides position to top left of graphic item"));
     sceneGuidesPosTLeftAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesPosTLeftAct->objectName(), Action(tr("View.Scene Guides.Top Left"), sceneGuidesPosTLeftAct));
+    lpub->actions.insert(sceneGuidesPosTLeftAct->objectName(), Action(QStringLiteral("View.Scene Guides.Top Left"), sceneGuidesPosTLeftAct));
     connect(sceneGuidesPosTLeftAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
     QAction *sceneGuidesPosTRightAct = new QAction(tr("Top Right"),this);
     sceneGuidesPosTRightAct->setObjectName("sceneGuidesPosTRightAct.1");
     sceneGuidesPosTRightAct->setStatusTip(tr("Set scene guides position to top right of graphic item"));
     sceneGuidesPosTRightAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesPosTRightAct->objectName(), Action(tr("View.Scene Guides.Top Right"), sceneGuidesPosTRightAct));
+    lpub->actions.insert(sceneGuidesPosTRightAct->objectName(), Action(QStringLiteral("View.Scene Guides.Top Right"), sceneGuidesPosTRightAct));
     connect(sceneGuidesPosTRightAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
     QAction *sceneGuidesPosBLeftAct = new QAction(tr("Bottom Left"),this);
     sceneGuidesPosBLeftAct->setObjectName("sceneGuidesPosBLeftAct.1");
     sceneGuidesPosBLeftAct->setStatusTip(tr("Set scene guides position to bottom left of graphic item"));
     sceneGuidesPosBLeftAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesPosBLeftAct->objectName(), Action(tr("View.Scene Guides.Bottom Left"), sceneGuidesPosBLeftAct));
+    lpub->actions.insert(sceneGuidesPosBLeftAct->objectName(), Action(QStringLiteral("View.Scene Guides.Bottom Left"), sceneGuidesPosBLeftAct));
     connect(sceneGuidesPosBLeftAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
     QAction *sceneGuidesPosBRightAct = new QAction(tr("Bottom Right"),this);
     sceneGuidesPosBRightAct->setObjectName("sceneGuidesPosBRightAct.1");
     sceneGuidesPosBRightAct->setStatusTip(tr("Set scene guides position to bottom right of graphic item"));
     sceneGuidesPosBRightAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesPosBRightAct->objectName(), Action(tr("View.Scene Guides.Bottom Right"), sceneGuidesPosBRightAct));
+    lpub->actions.insert(sceneGuidesPosBRightAct->objectName(), Action(QStringLiteral("View.Scene Guides.Bottom Right"), sceneGuidesPosBRightAct));
     connect(sceneGuidesPosBRightAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
     QAction *sceneGuidesPosCentreAct = new QAction(tr("Centre"),this);
     sceneGuidesPosCentreAct->setObjectName("sceneGuidesPosCentreAct.1");
     sceneGuidesPosCentreAct->setStatusTip(tr("Set scene guides position to centre of graphic item"));
     sceneGuidesPosCentreAct->setCheckable(true);
-    lpub->actions.insert(sceneGuidesPosCentreAct->objectName(), Action(tr("View.Scene Guides.Centre"), sceneGuidesPosCentreAct));
+    lpub->actions.insert(sceneGuidesPosCentreAct->objectName(), Action(QStringLiteral("View.Scene Guides.Centre"), sceneGuidesPosCentreAct));
     connect(sceneGuidesPosCentreAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
     QAction *showGuidesCoordinatesAct = new QAction(tr("Show Guide Coordinates"),this);
@@ -5135,7 +5135,7 @@ void Gui::createActions()
     showGuidesCoordinatesAct->setCheckable(true);
     showGuidesCoordinatesAct->setChecked(Preferences::showGuidesCoordinates);
     showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
-    lpub->actions.insert(showGuidesCoordinatesAct->objectName(), Action(tr("View.Scene Guides.Show Guide Coordinates"), showGuidesCoordinatesAct));
+    lpub->actions.insert(showGuidesCoordinatesAct->objectName(), Action(QStringLiteral("View.Scene Guides.Show Guide Coordinates"), showGuidesCoordinatesAct));
     connect(showGuidesCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
 
     SceneGuidesPosGroup = new QActionGroup(this);
@@ -5157,7 +5157,7 @@ void Gui::createActions()
     snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid"));
     snapToGridComboAct->setCheckable(true);
     snapToGridComboAct->setChecked(Preferences::snapToGrid);
-    lpub->actions.insert(snapToGridComboAct->objectName(), Action(tr("View.Snap To Grid"), snapToGridComboAct));
+    lpub->actions.insert(snapToGridComboAct->objectName(), Action(QStringLiteral("View.Snap To Grid"), snapToGridComboAct));
     connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
 
     QAction *hideGridPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
@@ -5166,7 +5166,7 @@ void Gui::createActions()
     hideGridPageBackgroundAct->setCheckable(true);
     hideGridPageBackgroundAct->setChecked(Preferences::hidePageBackground);
     hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
-    lpub->actions.insert(hideGridPageBackgroundAct->objectName(), Action(tr("View.Snap To Grid.Hide Page Background"), hideGridPageBackgroundAct));
+    lpub->actions.insert(hideGridPageBackgroundAct->objectName(), Action(QStringLiteral("View.Snap To Grid.Hide Page Background"), hideGridPageBackgroundAct));
     connect(hideGridPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
     GridStepSizeGroup = new QActionGroup(this);
@@ -5190,7 +5190,7 @@ void Gui::createActions()
     firstPageAct->setShortcut(tr("Ctrl+P"));
     firstPageAct->setStatusTip(tr("Go to first page of document"));
     firstPageAct->setEnabled(false);
-    lpub->actions.insert(firstPageAct->objectName(), Action(tr("Navigation.First Page"), firstPageAct));
+    lpub->actions.insert(firstPageAct->objectName(), Action(QStringLiteral("Navigation.First Page"), firstPageAct));
     connect(firstPageAct, SIGNAL(triggered()), this, SLOT(firstPage()));
 
     QAction *lastPageAct = new QAction(QIcon(":/resources/last.png"),tr("Last Page"), this);
@@ -5198,7 +5198,7 @@ void Gui::createActions()
     lastPageAct->setShortcut(tr("Ctrl+L"));
     lastPageAct->setStatusTip(tr("Go to last page of document"));
     lastPageAct->setEnabled(false);
-    lpub->actions.insert(lastPageAct->objectName(), Action(tr("Navigation.Last Page"), lastPageAct));
+    lpub->actions.insert(lastPageAct->objectName(), Action(QStringLiteral("Navigation.Last Page"), lastPageAct));
     connect(lastPageAct, SIGNAL(triggered()), this, SLOT(lastPage()));
 
     QAction *nextPageAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
@@ -5206,7 +5206,7 @@ void Gui::createActions()
     nextPageAct->setShortcut(tr("Ctrl+N"));
     nextPageAct->setStatusTip(tr("Go to next page of document"));
     nextPageAct->setEnabled(false);
-    lpub->actions.insert(nextPageAct->objectName(), Action(tr("Navigation.Next Page"), nextPageAct));
+    lpub->actions.insert(nextPageAct->objectName(), Action(QStringLiteral("Navigation.Next Page"), nextPageAct));
     connect(nextPageAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
     QAction *previousPageAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
@@ -5214,21 +5214,21 @@ void Gui::createActions()
     previousPageAct->setShortcut(tr("Ctrl+E"));
     previousPageAct->setStatusTip(tr("Go to previous page of document"));
     previousPageAct->setEnabled(false);
-    lpub->actions.insert(previousPageAct->objectName(), Action(tr("Navigation.Previous Page"), previousPageAct));
+    lpub->actions.insert(previousPageAct->objectName(), Action(QStringLiteral("Navigation.Previous Page"), previousPageAct));
     connect(previousPageAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
     QAction *nextPageComboAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
     nextPageComboAct->setObjectName("nextPageComboAct.1");
     nextPageComboAct->setStatusTip(tr("Go to next page of document"));
     nextPageComboAct->setEnabled(false);
-    lpub->actions.insert(nextPageComboAct->objectName(), Action(tr("Navigation.Next Page Combo"), nextPageComboAct));
+    lpub->actions.insert(nextPageComboAct->objectName(), Action(QStringLiteral("Navigation.Next Page Combo"), nextPageComboAct));
     connect(nextPageComboAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
     QAction *previousPageComboAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
     previousPageComboAct->setObjectName("previousPageComboAct.1");
     previousPageComboAct->setStatusTip(tr("Go to previous page of document"));
     previousPageComboAct->setEnabled(false);
-    lpub->actions.insert(previousPageComboAct->objectName(), Action(tr("Navigation.Previous Page Combo"), previousPageComboAct));
+    lpub->actions.insert(previousPageComboAct->objectName(), Action(QStringLiteral("Navigation.Previous Page Combo"), previousPageComboAct));
     connect(previousPageComboAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
     QAction *nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
@@ -5236,7 +5236,7 @@ void Gui::createActions()
     nextPageContinuousAct->setShortcut(tr("Ctrl+Shift+N"));
     nextPageContinuousAct->setStatusTip(tr("Continuously process next page to end of document"));
     nextPageContinuousAct->setEnabled(false);
-    lpub->actions.insert(nextPageContinuousAct->objectName(), Action(tr("Navigation.Continuous Next Page"), nextPageContinuousAct));
+    lpub->actions.insert(nextPageContinuousAct->objectName(), Action(QStringLiteral("Navigation.Continuous Next Page"), nextPageContinuousAct));
     connect(nextPageContinuousAct, SIGNAL(triggered()), this, SLOT(nextPageContinuous()));
 
     QAction *previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
@@ -5244,7 +5244,7 @@ void Gui::createActions()
     previousPageContinuousAct->setShortcut(tr("Ctrl+Shift+E"));
     previousPageContinuousAct->setStatusTip(tr("Continuously process previous page to start of document"));
     previousPageContinuousAct->setEnabled(false);
-    lpub->actions.insert(previousPageContinuousAct->objectName(), Action(tr("Navigation.Continuous Previous Page"), previousPageContinuousAct));
+    lpub->actions.insert(previousPageContinuousAct->objectName(), Action(QStringLiteral("Navigation.Continuous Previous Page"), previousPageContinuousAct));
     connect(previousPageContinuousAct, SIGNAL(triggered()), this, SLOT(previousPageContinuous()));
 
     QString pageString = "";
@@ -5259,7 +5259,7 @@ void Gui::createActions()
     setPageLineEditResetAct->setText(tr("Current Page Edit Reset"));
     setPageLineEditResetAct->setObjectName("setPageLineEditResetAct.1");
     setPageLineEditResetAct->setEnabled(false);
-    lpub->actions.insert(setPageLineEditResetAct->objectName(), Action(tr("Navigation.Current Page Edit Reset"), setPageLineEditResetAct));
+    lpub->actions.insert(setPageLineEditResetAct->objectName(), Action(QStringLiteral("Navigation.Current Page Edit Reset"), setPageLineEditResetAct));
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
     connect(setPageLineEdit, SIGNAL(textEdited(const QString &)), this, SLOT(enablePageLineReset(const QString &)));
     connect(setPageLineEditResetAct, SIGNAL(triggered()), this, SLOT(pageLineEditReset()));
@@ -5268,77 +5268,77 @@ void Gui::createActions()
     QAction *preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("&Preferences"), this);
     preferencesAct->setObjectName("preferencesAct.1");
     preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
-    lpub->actions.insert(preferencesAct->objectName(), Action(tr("Configuration.Preferences"), preferencesAct));
+    lpub->actions.insert(preferencesAct->objectName(), Action(QStringLiteral("Configuration.Preferences"), preferencesAct));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
     QAction *pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup..."), this);
     pageSetupAct->setObjectName("pageSetupAct.1");
     pageSetupAct->setEnabled(false);
     pageSetupAct->setStatusTip(tr("Default values for your project's pages"));
-    lpub->actions.insert(pageSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Page Setup"), pageSetupAct));
+    lpub->actions.insert(pageSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Page Setup"), pageSetupAct));
     connect(pageSetupAct, SIGNAL(triggered()), this, SLOT(pageSetup()));
 
     QAction *assemSetupAct = new QAction(QIcon(":/resources/assemblysetup.png"),tr("Assembly Setup..."), this);
     assemSetupAct->setObjectName("assemSetupAct.1");
     assemSetupAct->setEnabled(false);
     assemSetupAct->setStatusTip(tr("Default values for your project's assembly images"));
-    lpub->actions.insert(assemSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Assembly Setup"), assemSetupAct));
+    lpub->actions.insert(assemSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Assembly Setup"), assemSetupAct));
     connect(assemSetupAct, SIGNAL(triggered()), this, SLOT(assemSetup()));
 
     QAction *pliSetupAct = new QAction(QIcon(":/resources/partslistsetup.png"),tr("Parts List Setup..."), this);
     pliSetupAct->setObjectName("pliSetupAct.1");
     pliSetupAct->setEnabled(false);
     pliSetupAct->setStatusTip(tr("Default values for your project's parts lists"));
-    lpub->actions.insert(pliSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Parts List Setup"), pliSetupAct));
+    lpub->actions.insert(pliSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Parts List Setup"), pliSetupAct));
     connect(pliSetupAct, SIGNAL(triggered()), this, SLOT(pliSetup()));
 
     QAction *bomSetupAct = new QAction(QIcon(":/resources/bomsetup.png"),tr("Bill of Materials Setup..."), this);
     bomSetupAct->setObjectName("bomSetupAct.1");
     bomSetupAct->setEnabled(false);
     bomSetupAct->setStatusTip(tr("Default values for your project's bill of materials"));
-    lpub->actions.insert(bomSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Bill Of Materials Setup"), bomSetupAct));
+    lpub->actions.insert(bomSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Bill Of Materials Setup"), bomSetupAct));
     connect(bomSetupAct, SIGNAL(triggered()), this, SLOT(bomSetup()));
 
     QAction *calloutSetupAct = new QAction(QIcon(":/resources/calloutsetup.png"),tr("Callout Setup..."), this);
     calloutSetupAct->setObjectName("calloutSetupAct.1");
     calloutSetupAct->setEnabled(false);
     calloutSetupAct->setStatusTip(tr("Default values for your project's callouts"));
-    lpub->actions.insert(calloutSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Callout Setup"), calloutSetupAct));
+    lpub->actions.insert(calloutSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Callout Setup"), calloutSetupAct));
     connect(calloutSetupAct, SIGNAL(triggered()), this, SLOT(calloutSetup()));
 
     QAction *multiStepSetupAct = new QAction(QIcon(":/resources/stepgroupsetup.png"),tr("Step Group Setup..."), this);
     multiStepSetupAct->setObjectName("multiStepSetupAct.1");
     multiStepSetupAct->setEnabled(false);
     multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
-    lpub->actions.insert(multiStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Step Group Setup"), multiStepSetupAct));
+    lpub->actions.insert(multiStepSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Step Group Setup"), multiStepSetupAct));
     connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
 
     QAction *subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Preview Setup..."), this);
     subModelSetupAct->setObjectName("subModelSetupAct.1");
     subModelSetupAct->setEnabled(false);
     subModelSetupAct->setStatusTip(tr("Default values for your submodel preview at first step"));
-    lpub->actions.insert(subModelSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Submodel Preview Setup"), subModelSetupAct));
+    lpub->actions.insert(subModelSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Submodel Preview Setup"), subModelSetupAct));
     connect(subModelSetupAct, SIGNAL(triggered()), this, SLOT(subModelSetup()));
 
     QAction *projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup..."), this);
     projectSetupAct->setObjectName("projectSetupAct.1");
     projectSetupAct->setEnabled(false);
     projectSetupAct->setStatusTip(tr("Default values for your project"));
-    lpub->actions.insert(projectSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Project Setup"), projectSetupAct));
+    lpub->actions.insert(projectSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Project Setup"), projectSetupAct));
     connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
 
     QAction *fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup..."), this);
     fadeStepSetupAct->setObjectName("fadeStepSetupAct.1");
     fadeStepSetupAct->setEnabled(false);
     fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
-    lpub->actions.insert(fadeStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Fade Step Setup"), fadeStepSetupAct));
+    lpub->actions.insert(fadeStepSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Fade Step Setup"), fadeStepSetupAct));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
 
     QAction *highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup..."), this);
     highlightStepSetupAct->setObjectName("highlightStepSetupAct.1");
     highlightStepSetupAct->setEnabled(false);
     highlightStepSetupAct->setStatusTip(tr("Highlight parts in current step"));
-    lpub->actions.insert(highlightStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Highlight Step Setup"), highlightStepSetupAct));
+    lpub->actions.insert(highlightStepSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Highlight Step Setup"), highlightStepSetupAct));
     connect(highlightStepSetupAct, SIGNAL(triggered()), this, SLOT(highlightStepSetup()));
 
     QAction *useSystemEditorAct = new QAction(tr("Use System Editor"),this);
@@ -5348,145 +5348,145 @@ void Gui::createActions()
                                                                                 Preferences::systemEditor));
     useSystemEditorAct->setCheckable(true);
     useSystemEditorAct->setChecked(Preferences::useSystemEditor);
-    lpub->actions.insert(useSystemEditorAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Use System Editor"), useSystemEditorAct));
+    lpub->actions.insert(useSystemEditorAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Use System Editor"), useSystemEditorAct));
     connect(useSystemEditorAct, SIGNAL(triggered()), this, SLOT(useSystemEditor()));
 
     QAction *editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Part Title PLI Annotations List"), this);
     editTitleAnnotationsAct->setObjectName("editTitleAnnotationsAct.1");
     editTitleAnnotationsAct->setStatusTip(tr("Add/Edit part title PLI part annotatons"));
-    lpub->actions.insert(editTitleAnnotationsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Title PLI Annotations List"), editTitleAnnotationsAct));
+    lpub->actions.insert(editTitleAnnotationsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Part Title PLI Annotations List"), editTitleAnnotationsAct));
     connect(editTitleAnnotationsAct, SIGNAL(triggered()), this, SLOT(editTitleAnnotations()));
 
     QAction *editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Freeform PLI Annotations List"), this);
     editFreeFormAnnitationsAct->setObjectName("editFreeFormAnnitationsAct.1");
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
-    lpub->actions.insert(editFreeFormAnnitationsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Freeform PLI Annotations List"), editFreeFormAnnitationsAct));
+    lpub->actions.insert(editFreeFormAnnitationsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Freeform PLI Annotations List"), editFreeFormAnnitationsAct));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
     QAction *editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("LDraw Static Color Parts List"), this);
     editLDrawColourPartsAct->setObjectName("editLDrawColourPartsAct.1");
     editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static color parts used to process fade and highlight steps"));
-    lpub->actions.insert(editLDrawColourPartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw Static Color Parts List"), editLDrawColourPartsAct));
+    lpub->actions.insert(editLDrawColourPartsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw Static Color Parts List"), editLDrawColourPartsAct));
     connect(editLDrawColourPartsAct, SIGNAL(triggered()), this, SLOT(editLDrawColourParts()));
 
     QAction *editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute Parts List"), this);
     editPliBomSubstitutePartsAct->setObjectName("editPliBomSubstitutePartsAct.1");
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
-    lpub->actions.insert(editPliBomSubstitutePartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Substitute Parts List"), editPliBomSubstitutePartsAct));
+    lpub->actions.insert(editPliBomSubstitutePartsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Substitute Parts List"), editPliBomSubstitutePartsAct));
     connect(editPliBomSubstitutePartsAct, SIGNAL(triggered()), this, SLOT(editPliBomSubstituteParts()));
 
     QAction *editExcludedPartsAct = new QAction(QIcon(":/resources/editexcludedparts.png"),tr("Part Count Excluded Parts List"), this);
     editExcludedPartsAct->setObjectName("editExcludedPartsAct.1");
     editExcludedPartsAct->setStatusTip(tr("Add/Edit the list of part count excluded parts"));
-    lpub->actions.insert(editExcludedPartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Count Excluded Parts List"), editExcludedPartsAct));
+    lpub->actions.insert(editExcludedPartsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Part Count Excluded Parts List"), editExcludedPartsAct));
     connect(editExcludedPartsAct, SIGNAL(triggered()), this, SLOT(editExcludedParts()));
 
     QAction *editStickerPartsAct = new QAction(QIcon(":/resources/editstickerparts.png"),tr("Part Count Sticker Parts List"), this);
     editStickerPartsAct->setObjectName("editStickerPartsAct.1");
     editStickerPartsAct->setStatusTip(tr("Add/Edit the list of part count sticker parts"));
-    lpub->actions.insert(editStickerPartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Count Sticker Parts List"), editStickerPartsAct));
+    lpub->actions.insert(editStickerPartsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Part Count Sticker Parts List"), editStickerPartsAct));
     connect(editStickerPartsAct, SIGNAL(triggered()), this, SLOT(editStickerParts()));
 
     QAction *editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("LDraw INI Search Directories"), this);
     editLdrawIniFileAct->setObjectName("editLdrawIniFileAct.1");
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
-    lpub->actions.insert(editLdrawIniFileAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw INI Search Directories"), editLdrawIniFileAct));
+    lpub->actions.insert(editLdrawIniFileAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw INI Search Directories"), editLdrawIniFileAct));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
 
     QAction *editLdgliteIniAct = new QAction(QIcon(":/resources/editldgliteconf.png"),tr("LDGLite INI Configuration File"), this);
     editLdgliteIniAct->setObjectName("editLdgliteIniAct.1");
     editLdgliteIniAct->setStatusTip(tr("Edit LDGLite INI configuration file"));
-    lpub->actions.insert(editLdgliteIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDGLite INI Configuration File"), editLdgliteIniAct));
+    lpub->actions.insert(editLdgliteIniAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDGLite INI Configuration File"), editLdgliteIniAct));
     connect(editLdgliteIniAct, SIGNAL(triggered()), this, SLOT(editLdgliteIni()));
 
     QAction *editNativePOVIniAct = new QAction(QIcon(":/resources/LPub32.png"),tr("Native POV file Generation Configuration File"), this);
     editNativePOVIniAct->setObjectName("editNativePOVIniAct.1");
     editNativePOVIniAct->setStatusTip(tr("Edit Native POV file generation configuration file"));
-    lpub->actions.insert(editNativePOVIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Native POV File Generation Configuration File"), editNativePOVIniAct));
+    lpub->actions.insert(editNativePOVIniAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Native POV File Generation Configuration File"), editNativePOVIniAct));
     connect(editNativePOVIniAct, SIGNAL(triggered()), this, SLOT(editNativePovIni()));
 
     QAction *editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("LDView INI Configuration File"), this);
     editLdviewIniAct->setObjectName("editLdviewIniAct.1");
     editLdviewIniAct->setStatusTip(tr("Edit LDView INI configuration file"));
-    lpub->actions.insert(editLdviewIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDView INI Configuration File"), editLdviewIniAct));
+    lpub->actions.insert(editLdviewIniAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDView INI Configuration File"), editLdviewIniAct));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
     QAction *editLPub3DIniFileAct = new QAction(QIcon(":/resources/editsetting.png"),tr("%1 Configuration File").arg(VER_PRODUCTNAME_STR), this);
     editLPub3DIniFileAct->setObjectName("editLPub3DIniFileAct.1");
     editLPub3DIniFileAct->setStatusTip(tr("Edit %1 application configuration settings file").arg(VER_PRODUCTNAME_STR));
-    lpub->actions.insert(editLPub3DIniFileAct->objectName(), Action(tr("Configuration.Edit Parameter Files.%1 Configuration File").arg(VER_PRODUCTNAME_STR), editLPub3DIniFileAct));
+    lpub->actions.insert(editLPub3DIniFileAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.%1 Configuration File").arg(VER_PRODUCTNAME_STR), editLPub3DIniFileAct));
     connect(editLPub3DIniFileAct, SIGNAL(triggered()), this, SLOT(editLPub3DIniFile()));
 
     QAction *editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("LDView POV File Generation Configuration File"), this);
     editLdviewPovIniAct->setObjectName("editLdviewPovIniAct.1");
     editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV file generation configuration file"));
-    lpub->actions.insert(editLdviewPovIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDView POV File Generation Configuration File"), editLdviewPovIniAct));
+    lpub->actions.insert(editLdviewPovIniAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDView POV File Generation Configuration File"), editLdviewPovIniAct));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
     QAction *editBlenderParametersAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Blender LDraw Parameters"), this);
     editBlenderParametersAct->setObjectName("editBlenderParametersAct.1");
     editBlenderParametersAct->setStatusTip(tr("Add/Edit LDraw Blender LDraw LGEO colours, sloped bricks and lighted bricks, reference"));
-    lpub->actions.insert(editBlenderParametersAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Blender LDraw Parameters"), editBlenderParametersAct));
+    lpub->actions.insert(editBlenderParametersAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Blender LDraw Parameters"), editBlenderParametersAct));
     connect(editBlenderParametersAct, SIGNAL(triggered()), this, SLOT(editBlenderParameters()));
 
     QAction *editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("POV-Ray INI Configuration File"), this);
     editPovrayIniAct->setObjectName("editPovrayIniAct.1");
     editPovrayIniAct->setStatusTip(tr("Edit Raytracer (POV-Ray) INI configuration file"));
-    lpub->actions.insert(editPovrayIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.POV-Ray INI Configuration File"), editPovrayIniAct));
+    lpub->actions.insert(editPovrayIniAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.POV-Ray INI Configuration File"), editPovrayIniAct));
     connect(editPovrayIniAct, SIGNAL(triggered()), this, SLOT(editPovrayIni()));
 
     QAction *editPovrayConfAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("POV-Ray File Access Configuration File"), this);
     editPovrayConfAct->setObjectName("editPovrayConfAct.1");
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
-    lpub->actions.insert(editPovrayConfAct->objectName(), Action(tr("Configuration.Edit Parameter Files.POV-Ray File Access Configuration File"), editPovrayConfAct));
+    lpub->actions.insert(editPovrayConfAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.POV-Ray File Access Configuration File"), editPovrayConfAct));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
     QAction *editAnnotationStyleAct = new QAction(QIcon(":/resources/editstyleref.png"),tr("Part Annotation Style Reference"), this);
     editAnnotationStyleAct->setObjectName("editAnnotationStyleAct.1");
     editAnnotationStyleAct->setStatusTip(tr("Add/Edit LDraw Design ID, Part Annotation Style, Part Category reference"));
-    lpub->actions.insert(editAnnotationStyleAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Annotation Style Reference"), editAnnotationStyleAct));
+    lpub->actions.insert(editAnnotationStyleAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Part Annotation Style Reference"), editAnnotationStyleAct));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), this, SLOT(editAnnotationStyle()));
 
     QAction *editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LDraw to Bricklink Design ID Reference"), this);
     editLD2BLCodesXRefAct->setObjectName("editLD2BLCodesXRefAct.1");
     editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
-    lpub->actions.insert(editLD2BLCodesXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Bricklink Design ID Reference"), editLD2BLCodesXRefAct));
+    lpub->actions.insert(editLD2BLCodesXRefAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw To Bricklink Design ID Reference"), editLD2BLCodesXRefAct));
     connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
 
     QAction *editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LDraw to Bricklink Color Reference"), this);
     editLD2BLColorsXRefAct->setObjectName("editLD2BLColorsXRefAct.1");
     editLD2BLColorsXRefAct->setStatusTip(tr("Add/Edit LDraw LDConfig to Bricklink Color ID reference"));
-    lpub->actions.insert(editLD2BLColorsXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Bricklink Color Reference"), editLD2BLColorsXRefAct));
+    lpub->actions.insert(editLD2BLColorsXRefAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw To Bricklink Color Reference"), editLD2BLColorsXRefAct));
     connect(editLD2BLColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLColorsXRef()));
 
     QAction *editLD2RBCodesXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("LDraw to Rebrickable Design ID Reference"), this);
     editLD2RBCodesXRefAct->setObjectName("editLD2RBCodesXRefAct.1");
     editLD2RBCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Rebrickable Design ID reference"));
-    lpub->actions.insert(editLD2RBCodesXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Rebrickable Design ID Reference"), editLD2RBCodesXRefAct));
+    lpub->actions.insert(editLD2RBCodesXRefAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw To Rebrickable Design ID Reference"), editLD2RBCodesXRefAct));
     connect(editLD2RBCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBCodesXRef()));
 
     QAction *editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("LDraw to Rebrickable Color Reference"), this);
     editLD2RBColorsXRefAct->setObjectName("editLD2RBColorsXRefAct.1");
     editLD2RBColorsXRefAct->setStatusTip(tr("Add/Edit LDraw LDConfig to Rebrickable Color ID reference"));
-    lpub->actions.insert(editLD2RBColorsXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Rebrickable Color Reference"), editLD2RBColorsXRefAct));
+    lpub->actions.insert(editLD2RBColorsXRefAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw To Rebrickable Color Reference"), editLD2RBColorsXRefAct));
     connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBColorsXRef()));
 
     QAction *editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color Reference"), this);
     editBLColorsAct->setObjectName("editBLColorsAct.1");
     editBLColorsAct->setStatusTip(tr("Add/Edit Bricklink Color ID reference"));
-    lpub->actions.insert(editBLColorsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Edit Bricklink Color Reference"), editBLColorsAct));
+    lpub->actions.insert(editBLColorsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Edit Bricklink Color Reference"), editBLColorsAct));
     connect(editBLColorsAct, SIGNAL(triggered()), this, SLOT(editBLColors()));
 
     QAction *editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Codes Reference"), this);
     editBLCodesAct->setObjectName("editBLCodesAct.1");
     editBLCodesAct->setStatusTip(tr("Add/Edit Bricklink Item No, Color Name, LEGO Element reference"));
-    lpub->actions.insert(editBLCodesAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Bricklink Codes Reference"), editBLCodesAct));
+    lpub->actions.insert(editBLCodesAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Bricklink Codes Reference"), editBLCodesAct));
     connect(editBLCodesAct, SIGNAL(triggered()), this, SLOT(editBLCodes()));
 
     QAction *editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("PLI Parts Control File"), this);
     editPliControlFileAct->setObjectName("editPliControlFileAct.1");
     editPliControlFileAct->setStatusTip(tr("Edit PLI parts control file"));
-    lpub->actions.insert(editPliControlFileAct->objectName(), Action(tr("Configuration.Edit Parameter Files.PLI Parts Control File"), editPliControlFileAct));
+    lpub->actions.insert(editPliControlFileAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.PLI Parts Control File"), editPliControlFileAct));
     connect(editPliControlFileAct, SIGNAL(triggered()), this, SLOT(editPliControlFile()));
 
     QAction *editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Current Model File"), this);
@@ -5495,74 +5495,74 @@ void Gui::createActions()
                                    .arg(Preferences::useSystemEditor ?
                                             Preferences::systemEditor.isEmpty() ? "the system editor" :
                                                                                   Preferences::systemEditor : "detached LDraw Editor"));
-    lpub->actions.insert(editModelFileAct->objectName(), Action(tr("Configuration.Current Model File"), editModelFileAct));
+    lpub->actions.insert(editModelFileAct->objectName(), Action(QStringLiteral("Configuration.Current Model File"), editModelFileAct));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
 
     QAction *generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts List"), this);
     generateCustomColourPartsAct->setObjectName("generateCustomColourPartsAct.1");
     generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts for use with fade previous steps"));
-    lpub->actions.insert(generateCustomColourPartsAct->objectName(), Action(tr("Configuration.Generate Static Color Parts List"), generateCustomColourPartsAct));
+    lpub->actions.insert(generateCustomColourPartsAct->objectName(), Action(QStringLiteral("Configuration.Generate Static Color Parts List"), generateCustomColourPartsAct));
     connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
 
     QAction *openWithSetupAct = new QAction(QIcon(":/resources/openwithsetup.png"), tr("Open With S&etup..."), this);
     openWithSetupAct->setObjectName("openWithSetupAct.1");
     openWithSetupAct->setStatusTip(tr("Setup 'Open With' applications."));
-    lpub->actions.insert(openWithSetupAct->objectName(), Action(tr("Configuration.Open With Setup"), openWithSetupAct));
+    lpub->actions.insert(openWithSetupAct->objectName(), Action(QStringLiteral("Configuration.Open With Setup"), openWithSetupAct));
     connect(openWithSetupAct, SIGNAL(triggered()), this, SLOT(openWithSetup()));
 
     QAction *ldrawSearchDirectoriesAct = new QAction(QIcon(":/resources/searchdirectories.png"),tr("LDraw Search Directories..."), this);
     ldrawSearchDirectoriesAct->setObjectName("ldrawSearchDirectoriesAct.1");
     ldrawSearchDirectoriesAct->setStatusTip(tr("Manage LDraw search directories"));
-    lpub->actions.insert(ldrawSearchDirectoriesAct->objectName(), Action(tr("Configuration.LDraw Search Directories"), ldrawSearchDirectoriesAct));
+    lpub->actions.insert(ldrawSearchDirectoriesAct->objectName(), Action(QStringLiteral("Configuration.LDraw Search Directories"), ldrawSearchDirectoriesAct));
     connect(ldrawSearchDirectoriesAct, SIGNAL(triggered()), this, SLOT(ldrawSearchDirectories()));
 
     QAction *clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Parts Image Cache"), this);
     clearPLICacheAct->setObjectName("clearPLICacheAct.1");
     clearPLICacheAct->setShortcut(tr("Alt+R"));
     clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache"));
-    lpub->actions.insert(clearPLICacheAct->objectName(), Action(tr("Configuration.Reset Cache.Parts Image Cache"), clearPLICacheAct));
+    lpub->actions.insert(clearPLICacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Parts Image Cache"), clearPLICacheAct));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
     QAction *clearCSICacheAct = new QAction(QIcon(":/resources/clearcsicache.png"),tr("Assembly Image Cache"), this);
     clearCSICacheAct->setObjectName("clearCSICacheAct.1");
     clearCSICacheAct->setShortcut(tr("Alt+S"));
     clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
-    lpub->actions.insert(clearCSICacheAct->objectName(), Action(tr("Configuration.Reset Cache.Assembly Image Cache"), clearCSICacheAct));
+    lpub->actions.insert(clearCSICacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Assembly Image Cache"), clearCSICacheAct));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
     QAction *clearSubmodelCacheAct = new QAction(QIcon(":/resources/clearsubmodelcache.png"),tr("Submodel Image Cache"), this);
     clearSubmodelCacheAct->setObjectName("clearSubmodelCacheAct.1");
     clearSubmodelCacheAct->setShortcut(tr("Alt+E"));
     clearSubmodelCacheAct->setStatusTip(tr("Reset the submodel image cache"));
-    lpub->actions.insert(clearSubmodelCacheAct->objectName(), Action(tr("Configuration.Reset Cache.Submodel Image Cache"), clearSubmodelCacheAct));
+    lpub->actions.insert(clearSubmodelCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Submodel Image Cache"), clearSubmodelCacheAct));
     connect(clearSubmodelCacheAct, SIGNAL(triggered()), this, SLOT(clearSubmodelCache()));
 
     QAction *clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Temp File Cache"), this);
     clearTempCacheAct->setObjectName("clearTempCacheAct.1");
     clearTempCacheAct->setShortcut(tr("Alt+T"));
     clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
-    lpub->actions.insert(clearTempCacheAct->objectName(), Action(tr("Configuration.Reset Cache.Temp File Cache"), clearTempCacheAct));
+    lpub->actions.insert(clearTempCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Temp File Cache"), clearTempCacheAct));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
     QAction *clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Model Caches"), this);
     clearAllCachesAct->setObjectName("clearAllCachesAct.1");
     clearAllCachesAct->setShortcut(tr("Alt+M"));
     clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches"));
-    lpub->actions.insert(clearAllCachesAct->objectName(), Action(tr("Configuration.Reset Cache.Model Caches"), clearAllCachesAct));
+    lpub->actions.insert(clearAllCachesAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Model Caches"), clearAllCachesAct));
     connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
     QAction *clearCustomPartCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Custom Files Cache"), this);
     clearCustomPartCacheAct->setObjectName("clearCustomPartCacheAct.1");
     clearCustomPartCacheAct->setShortcut(tr("Alt+C"));
     clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache"));
-    lpub->actions.insert(clearCustomPartCacheAct->objectName(), Action(tr("Configuration.Reset Cache.Custom Files Cache"), clearCustomPartCacheAct));
+    lpub->actions.insert(clearCustomPartCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Custom Files Cache"), clearCustomPartCacheAct));
     connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
     QAction *archivePartsOnDemandAct = new QAction(QIcon(":/resources/archivefilesondemand.png"),tr("Archive Unofficial Parts"), this);
     archivePartsOnDemandAct->setObjectName("archivePartsOnDemandAct.1");
     archivePartsOnDemandAct->setStatusTip(tr("Archive unofficial parts from LDraw search directories"));
     archivePartsOnDemandAct->setShortcut(tr("Alt+Y"));
-    lpub->actions.insert(archivePartsOnDemandAct->objectName(), Action(tr("Configuration.Archive Unofficial Parts"), archivePartsOnDemandAct));
+    lpub->actions.insert(archivePartsOnDemandAct->objectName(), Action(QStringLiteral("Configuration.Archive Unofficial Parts"), archivePartsOnDemandAct));
     connect(archivePartsOnDemandAct, SIGNAL(triggered()), this, SLOT(archivePartsOnDemand()));
 
     QAction *archivePartsOnLaunchAct = new QAction(QIcon(":/resources/archivefilesonlaunch.png"),tr("Archive Unofficial Parts On Launch"), this);
@@ -5570,40 +5570,40 @@ void Gui::createActions()
     archivePartsOnLaunchAct->setStatusTip(tr("Automatically archive unofficial parts from LDraw search directories on next application launch"));
     archivePartsOnLaunchAct->setCheckable(true);
     archivePartsOnLaunchAct->setChecked(Preferences::archivePartsOnLaunch);
-    lpub->actions.insert(archivePartsOnLaunchAct->objectName(), Action(tr("Configuration.Archive Unofficial Parts On Launch"), archivePartsOnLaunchAct));
+    lpub->actions.insert(archivePartsOnLaunchAct->objectName(), Action(QStringLiteral("Configuration.Archive Unofficial Parts On Launch"), archivePartsOnLaunchAct));
     connect(archivePartsOnLaunchAct, SIGNAL(triggered()), this, SLOT(archivePartsOnLaunch()));
 
     QAction *refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
     refreshLDrawUnoffPartsAct->setObjectName("refreshLDrawUnoffPartsAct.1");
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data - restart required"));
     refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
-    lpub->actions.insert(refreshLDrawUnoffPartsAct->objectName(), Action(tr("Configuration.Refresh LDraw Unofficial Parts"), refreshLDrawUnoffPartsAct));
+    lpub->actions.insert(refreshLDrawUnoffPartsAct->objectName(), Action(QStringLiteral("Configuration.Refresh LDraw Unofficial Parts"), refreshLDrawUnoffPartsAct));
     connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 
     QAction *refreshLDrawOfficialPartsAct = new QAction(QIcon(":/resources/refreshoffarchive.png"),tr("Refresh LDraw Official Parts"), this);
     refreshLDrawOfficialPartsAct->setObjectName("refreshLDrawOfficialPartsAct.1");
     refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file in User data - restart required"));
     refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
-    lpub->actions.insert(refreshLDrawOfficialPartsAct->objectName(), Action(tr("Configuration.Refresh LDraw Official Parts"), refreshLDrawOfficialPartsAct));
+    lpub->actions.insert(refreshLDrawOfficialPartsAct->objectName(), Action(QStringLiteral("Configuration.Refresh LDraw Official Parts"), refreshLDrawOfficialPartsAct));
     connect(refreshLDrawOfficialPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawOfficialParts()));
 
     // Help
     QAction *aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
     aboutAct->setObjectName("aboutAct.1");
     aboutAct->setStatusTip(tr("Display version, system and build information"));
-    lpub->actions.insert(aboutAct->objectName(), Action(tr("Help.About"), aboutAct));
+    lpub->actions.insert(aboutAct->objectName(), Action(QStringLiteral("Help.About"), aboutAct));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
     QAction *visitHomepageAct = new QAction(QIcon(":/resources/homepage.png"),tr("Visit Homepage..."), this);
     visitHomepageAct->setObjectName("visitHomepageAct.1");
     visitHomepageAct->setStatusTip(tr("Visit the %1 home website.").arg(VER_PRODUCTNAME_STR));
-    lpub->actions.insert(visitHomepageAct->objectName(), Action(tr("Help.Visit Homepage"), visitHomepageAct));
+    lpub->actions.insert(visitHomepageAct->objectName(), Action(QStringLiteral("Help.Visit Homepage"), visitHomepageAct));
     connect(visitHomepageAct, SIGNAL(triggered()), this, SLOT(visitHomepage()));
 
     QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug or Issue..."), this);
     reportBugAct->setObjectName("reportBugAct.1");
     reportBugAct->setStatusTip(tr("Create an online ticket to report a bug or issue."));
-    lpub->actions.insert(reportBugAct->objectName(), Action(tr("Help.Report Bug"), reportBugAct));
+    lpub->actions.insert(reportBugAct->objectName(), Action(QStringLiteral("Help.Report Bug"), reportBugAct));
     connect(reportBugAct, SIGNAL(triggered()), this, SLOT(reportBug()));
 
     // Begin Jaco's code
@@ -5611,7 +5611,7 @@ void Gui::createActions()
     QAction *onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual..."), this);
     onlineManualAct->setObjectName("onlineManualAct.1");
     onlineManualAct->setStatusTip(tr("Visit the Online Manual Website."));
-    lpub->actions.insert(onlineManualAct->objectName(), Action(tr("Help.Online Manual"), onlineManualAct));
+    lpub->actions.insert(onlineManualAct->objectName(), Action(QStringLiteral("Help.Online Manual"), onlineManualAct));
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
     // End Jaco's code
@@ -5620,33 +5620,33 @@ void Gui::createActions()
     commandsDialogAct->setObjectName("commandsDialogAct.1");
     commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(tr("Ctrl+K"));
-    lpub->actions.insert(commandsDialogAct->objectName(), Action(tr("Help.Manage LPub Metacommands"), commandsDialogAct));
+    lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
     
     QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands..."), this);
     exportMetaCommandsAct->setObjectName("exportMetaCommandsAct.1");
     exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
-    lpub->actions.insert(exportMetaCommandsAct->objectName(), Action(tr("Help.Export LPub Metacommands"), exportMetaCommandsAct));
+    lpub->actions.insert(exportMetaCommandsAct->objectName(), Action(QStringLiteral("Help.Export LPub Metacommands"), exportMetaCommandsAct));
     connect(exportMetaCommandsAct, SIGNAL(triggered()), this, SLOT(exportMetaCommands()));
 
     QAction *updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check For &Updates..."), this);
     updateAppAct->setObjectName("updateAppAct.1");
     updateAppAct->setStatusTip(tr("Check if a newer version of  %1 is available for download").arg(VER_PRODUCTNAME_STR));
-    lpub->actions.insert(updateAppAct->objectName(), Action(tr("Help.Check For Updates"), updateAppAct));
+    lpub->actions.insert(updateAppAct->objectName(), Action(QStringLiteral("Help.Check For Updates"), updateAppAct));
     connect(updateAppAct, SIGNAL(triggered()), this, SLOT(updateCheck()));
 
     QAction *viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View Runtime Log..."), this);
     viewLogAct->setObjectName("viewLogAct.1");
     viewLogAct->setShortcut(tr("Alt+L"));
     viewLogAct->setStatusTip(tr("View %1 log").arg(VER_PRODUCTNAME_STR));
-    lpub->actions.insert(viewLogAct->objectName(), Action(tr("Help.View Runtime Log"), viewLogAct));
+    lpub->actions.insert(viewLogAct->objectName(), Action(QStringLiteral("Help.View Runtime Log"), viewLogAct));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
     QAction *openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder..."), this);
     openWorkingFolderAct->setObjectName("openWorkingFolderAct.1");
     openWorkingFolderAct->setShortcut(tr("Alt+Shift+1"));
     openWorkingFolderAct->setStatusTip(tr("Open current model file working folder"));
-    lpub->actions.insert(openWorkingFolderAct->objectName(), Action(tr("Help.Open Working Folder"), openWorkingFolderAct));
+    lpub->actions.insert(openWorkingFolderAct->objectName(), Action(QStringLiteral("Help.Open Working Folder"), openWorkingFolderAct));
     connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
 
     if (Preferences::modeGUI) {
@@ -5664,7 +5664,7 @@ void Gui::createActions()
         calloutAction->setWhatsThis(tr("Convert to Callout:\n"
                                        "  A callout shows how to build these steps in a picture next\n"
                                        "  to where it is added in the build instructions.\n"));
-        lpub->actions.insert(calloutAction->objectName(), Action(tr("PageContext.Convert To Callout"), calloutAction));
+        lpub->actions.insert(calloutAction->objectName(), Action(QStringLiteral("PageContext.Convert To Callout"), calloutAction));
 
         QAction *calloutNoPointAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/convertcalloutwithoutpointer.png"),tr("Convert To Pointerless Callout"));
         calloutNoPointAction->setObjectName("calloutNoPointAction.1");
@@ -5672,7 +5672,7 @@ void Gui::createActions()
         calloutNoPointAction->setWhatsThis(tr("Convert to Pointerless Callout:\n"
                                               "  A callout without pointer shows how to build these steps in a\n"
                                               "  picture next to where it is added in the build instructions.\n"));
-        lpub->actions.insert(calloutNoPointAction->objectName(), Action(tr("PageContext.Convert To Pointerless Callout"), calloutNoPointAction));
+        lpub->actions.insert(calloutNoPointAction->objectName(), Action(QStringLiteral("PageContext.Convert To Pointerless Callout"), calloutNoPointAction));
 
         QAction *assembledAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addassembledimage.png"),tr("Add Assembled Image To Parent Page"));
         assembledAction->setObjectName("assembledAction.1");
@@ -5680,14 +5680,14 @@ void Gui::createActions()
         assembledAction->setWhatsThis(tr("Add Assembled Image to Parent Page\n"
                                          "  A callout like image is added to the page where this submodel\n"
                                          "  is added in the build instructions.\n"));
-        lpub->actions.insert(assembledAction->objectName(), Action(tr("PageContext.Add Assembled Image To Parent Page"), assembledAction));
+        lpub->actions.insert(assembledAction->objectName(), Action(QStringLiteral("PageContext.Add Assembled Image To Parent Page"), assembledAction));
 
         QAction *ignoreAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/ignoresubmodel.png"),tr("Ignore This Submodel"));
         ignoreAction->setObjectName("ignoreAction.1");
         ignoreAction->setStatusTip(tr("The submodel steps are not displayed in the build instructions"));
         ignoreAction->setWhatsThis(tr("Ignore This Submodel:\n"
                                       "  Stops these steps from showing up in your build instructions.\n"));
-        lpub->actions.insert(ignoreAction->objectName(), Action(tr("PageContext.Ignore This Submodel"), ignoreAction));
+        lpub->actions.insert(ignoreAction->objectName(), Action(QStringLiteral("PageContext.Ignore This Submodel"), ignoreAction));
 
         QAction *partAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/treataspart.png"),tr("Treat As Part"));
         partAction->setObjectName("partAction.1");
@@ -5696,7 +5696,7 @@ void Gui::createActions()
                                     "  Treating this submodel as a part means these steps go away,\n"
                                     "  and the submodel is displayed as a part in the parent step's\n"
                                     "  part list image.\n"));
-        lpub->actions.insert(partAction->objectName(), Action(tr("PageContext.Treat As Part"), partAction));
+        lpub->actions.insert(partAction->objectName(), Action(QStringLiteral("PageContext.Treat As Part"), partAction));
 
         QAction *sizeAndOrientationAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/pagesizeandorientation.png"),tr("Change Page Size Or Orientation..."));
         sizeAndOrientationAction->setObjectName("sizeAndOrientationAction.1");
@@ -5706,7 +5706,7 @@ void Gui::createActions()
                                                   "  like A4, Legal etc...\n"
                                                   "  You can also change the page orientation from portrait to\n"
                                                   "  landscape.\n"));
-        lpub->actions.insert(sizeAndOrientationAction->objectName(), Action(tr("PageContext.Change Size Or Orientation"), sizeAndOrientationAction));
+        lpub->actions.insert(sizeAndOrientationAction->objectName(), Action(QStringLiteral("PageContext.Change Size Or Orientation"), sizeAndOrientationAction));
 
         // assembly context menu actions
 
@@ -5715,7 +5715,7 @@ void Gui::createActions()
         movePrevAction->setStatusTip(tr("Move this step to the previous row"));
         movePrevAction->setWhatsThis(tr("Add to Previous Row:\n"
                                         "  You can move this step to the previous row.\n"));
-        lpub->actions.insert(movePrevAction->objectName(), Action(tr("AssemblyContext.Add to Previous Row"), movePrevAction));
+        lpub->actions.insert(movePrevAction->objectName(), Action(QStringLiteral("AssemblyContext.Add to Previous Row"), movePrevAction));
 
         QAction *moveNextAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addnext.png"),tr("Add to Next Row"));
         moveNextAction->setObjectName("moveNextAction.1");
@@ -5723,7 +5723,7 @@ void Gui::createActions()
         moveNextAction->setWhatsThis(tr("Add to Next Row:\n"
                                         "  You can remove this step from its current column,\n"
                                         "  and put it in the row above.\n"));
-        lpub->actions.insert(moveNextAction->objectName(), Action(tr("AssemblyContext.Add to Next Row"), moveNextAction));
+        lpub->actions.insert(moveNextAction->objectName(), Action(QStringLiteral("AssemblyContext.Add to Next Row"), moveNextAction));
 
         QAction *addDividerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/divider.png"),tr("Add Divider"));
         addDividerAction->setObjectName("addDividerAction.1");
@@ -5731,42 +5731,42 @@ void Gui::createActions()
         addDividerAction->setWhatsThis(tr("Add Divider:\n"
                                           "  Before step - You can place a divider to the left of this step\n"
                                           "  After Step - You can put the step(s) after this into a new row.\n"));
-        lpub->actions.insert(addDividerAction->objectName(), Action(tr("AssemblyContext.Add Divider"), addDividerAction));
+        lpub->actions.insert(addDividerAction->objectName(), Action(QStringLiteral("AssemblyContext.Add Divider"), addDividerAction));
 
         QAction *addCsiAnnoAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpartannotation.png"),tr("Add Part Annotations"));
         addCsiAnnoAction->setObjectName("addCsiAnnoAction.1");
         addCsiAnnoAction->setStatusTip(tr("Add part annotations to the model assembly"));
         addCsiAnnoAction->setWhatsThis(tr("Add Part Annotations:\n"
                                           "  You can add part annotations to the model assembly.\n"));
-        lpub->actions.insert(addCsiAnnoAction->objectName(), Action(tr("AssemblyContext.Add Part Annotations"), addCsiAnnoAction));
+        lpub->actions.insert(addCsiAnnoAction->objectName(), Action(QStringLiteral("AssemblyContext.Add Part Annotations"), addCsiAnnoAction));
 
         QAction *refreshCsiAnnoAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/reloadpartannotation.png"),tr("Reload Part Annotations"));
         refreshCsiAnnoAction->setObjectName("refreshCsiAnnoAction.1");
         refreshCsiAnnoAction->setStatusTip(tr("Reload part annotations"));
         refreshCsiAnnoAction->setWhatsThis(tr("Reload Part Annotations:\n"
                                               "  You can reload part annotations.\n"));
-        lpub->actions.insert(refreshCsiAnnoAction->objectName(), Action(tr("AssemblyContext.Reload Part Annotations"), refreshCsiAnnoAction));
+        lpub->actions.insert(refreshCsiAnnoAction->objectName(), Action(QStringLiteral("AssemblyContext.Reload Part Annotations"), refreshCsiAnnoAction));
 
         QAction *showCsiAnnoAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/hidepartannotation.png"),tr("Show Hidden Part Annotations"));
         showCsiAnnoAction->setObjectName("showCsiAnnoAction.1");
         showCsiAnnoAction->setStatusTip(tr("Show hidden part annotations"));
         showCsiAnnoAction->setWhatsThis(tr("Show Hidden Part Annotations:\n"
                                            "  You can show hidden part annotations.\n"));
-        lpub->actions.insert(showCsiAnnoAction->objectName(), Action(tr("AssemblyContext.Show Hidden Part Annotations"), showCsiAnnoAction));
+        lpub->actions.insert(showCsiAnnoAction->objectName(), Action(QStringLiteral("AssemblyContext.Show Hidden Part Annotations"), showCsiAnnoAction));
 
         QAction *insertRotateIconAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotateicon.png"),tr("Insert Rotate Icon"));
         insertRotateIconAction->setObjectName("insertRotateIconAction.1");
         insertRotateIconAction->setStatusTip(tr("Insert a rotate image to the model assembly..."));
         insertRotateIconAction->setWhatsThis(tr("Insert Rotate Icon:\n"
                                                 "  You can insert a rotate image to the model assembly.\n"));
-        lpub->actions.insert(insertRotateIconAction->objectName(), Action(tr("AssemblyContext.Insert Rotate Icon"), insertRotateIconAction));
+        lpub->actions.insert(insertRotateIconAction->objectName(), Action(QStringLiteral("AssemblyContext.Insert Rotate Icon"), insertRotateIconAction));
 
         QAction *addPagePointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointer.png"),tr("Place Page Pointer"));
         addPagePointerAction->setObjectName("addPagePointerAction.1");
         addPagePointerAction->setStatusTip(tr("Add pointer from the page to this assembly image"));
         addPagePointerAction->setWhatsThis(tr("Place Page Pointer:\n"
                                               "  You can add pointer from the page to this assembly image.\n"));
-        lpub->actions.insert(addPagePointerAction->objectName(), Action(tr("AssemblyContext.Place Page Pointer"), addPagePointerAction));
+        lpub->actions.insert(addPagePointerAction->objectName(), Action(QStringLiteral("AssemblyContext.Place Page Pointer"), addPagePointerAction));
 
         QAction *addDividerPointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/adddividerpointer.png"),tr("Place Divider Pointer"));
         addDividerPointerAction->setObjectName("addDividerPointerAction.1");
@@ -5774,14 +5774,14 @@ void Gui::createActions()
         addDividerPointerAction->setWhatsThis(tr("Place Divider Pointer:\n"
                                                  "  You can add a pointer from the step divider to this\n"
                                                  "  assembly image.\n"));
-        lpub->actions.insert(addDividerPointerAction->objectName(), Action(tr("AssemblyContext.Place Divider Pointer"), addDividerPointerAction));
+        lpub->actions.insert(addDividerPointerAction->objectName(), Action(QStringLiteral("AssemblyContext.Place Divider Pointer"), addDividerPointerAction));
 
         QAction *noStepAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/display.png"),tr("Hide This Step"));
         noStepAction->setObjectName("noStepAction.1");
         noStepAction->setStatusTip(tr("Do not show this step"));
         noStepAction->setWhatsThis(tr("Do Not Show This Step:\n"
                                       "  You can choose to not display current step.\n"));
-        lpub->actions.insert(noStepAction->objectName(), Action(tr("AssemblyContext.Do Not Show This Step"), noStepAction));
+        lpub->actions.insert(noStepAction->objectName(), Action(QStringLiteral("AssemblyContext.Do Not Show This Step"), noStepAction));
 
         QAction *viewCSIFileAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/editldraw.png"),tr("View Step Assembly File"));
         viewCSIFileAction->setObjectName("viewCSIFileAction.1");
@@ -5789,7 +5789,7 @@ void Gui::createActions()
         viewCSIFileAction->setWhatsThis(tr("View Step Assembly File:\n"
                                            "  You can view the current model assembly file in\n"
                                            "  read-only mode.\n"));
-        lpub->actions.insert(viewCSIFileAction->objectName(), Action(tr("AssemblyContext.Add Part Annotations"), viewCSIFileAction));
+        lpub->actions.insert(viewCSIFileAction->objectName(), Action(QStringLiteral("AssemblyContext.Add Part Annotations"), viewCSIFileAction));
 
 #ifdef QT_DEBUG_MODE
         QAction *view3DViewerFileAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/editldraw.png"),tr("View Step Assembly Visual Editor File"));
@@ -5798,7 +5798,7 @@ void Gui::createActions()
         view3DViewerFileAction->setWhatsThis(tr("View Step Assembly Visual Editor File:\n"
                                                 "  You can view the current visual editor model assembly file\n"
                                                 "  in read-only mode.\n"));
-        lpub->actions.insert(view3DViewerFileAction->objectName(), Action(tr("AssemblyContext.View Step Assembly Visual Editor File"), view3DViewerFileAction));
+        lpub->actions.insert(view3DViewerFileAction->objectName(), Action(QStringLiteral("AssemblyContext.View Step Assembly Visual Editor File"), view3DViewerFileAction));
 #endif
 
         // bom context menu items
@@ -5809,7 +5809,7 @@ void Gui::createActions()
         splitBomAction->setWhatsThis(tr("Split Bill Of Materials:\n"
                                         "  You can split the bill of materials on this page across\n"
                                         "  this page and the next page.\n"));
-        lpub->actions.insert(splitBomAction->objectName(), Action(tr("BOMContext.Split Bill Of Materials"), splitBomAction));
+        lpub->actions.insert(splitBomAction->objectName(), Action(QStringLiteral("BOMContext.Split Bill Of Materials"), splitBomAction));
 
         //callout context menu items
 
@@ -5818,28 +5818,28 @@ void Gui::createActions()
         unpackCalloutAction->setStatusTip(tr("Unpack the unassembled callout into individual steps"));
         unpackCalloutAction->setWhatsThis(tr("Unpack Callout:\n"
                                              "  You can unpack the unassembled callout into individual steps\n"));
-        lpub->actions.insert(unpackCalloutAction->objectName(), Action(tr("CalloutContext.Unpack Callout"), unpackCalloutAction));
+        lpub->actions.insert(unpackCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Unpack Callout"), unpackCalloutAction));
 
         QAction *removeCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/remove.png"),tr("Remove Callout"));
         removeCalloutAction->setObjectName("removeCalloutAction.1");
         removeCalloutAction->setStatusTip(tr("Remove the assembled callout from the build instructions"));
         removeCalloutAction->setWhatsThis(tr("Remove Callout:\n"
                                              "  You can remove the assembled callout from the build instructions.\n"));
-        lpub->actions.insert(removeCalloutAction->objectName(), Action(tr("CalloutContext.Remove Callout"), removeCalloutAction));
+        lpub->actions.insert(removeCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Remove Callout"), removeCalloutAction));
 
         QAction *rotateCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotate.png"),tr("Rotate Callout"));
         rotateCalloutAction->setObjectName("rotateAction.1");
         rotateCalloutAction->setStatusTip(tr("Rotate the assembled callout"));
         rotateCalloutAction->setWhatsThis(tr("Rotate Callout:\n"
                                              "  You can rotate the assembled callout.\n"));
-        lpub->actions.insert(rotateCalloutAction->objectName(), Action(tr("CalloutContext.Rotate Callout"), rotateCalloutAction));
+        lpub->actions.insert(rotateCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Rotate Callout"), rotateCalloutAction));
 
         QAction *unrotateCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/unrotate.png"),tr("Unrotate Callout"));
         unrotateCalloutAction->setObjectName("rotateAction.1");
         unrotateCalloutAction->setStatusTip(tr("Unrotate the assembled callout"));
         unrotateCalloutAction->setWhatsThis(tr("Unrotate Callout:\n"
                                                "  You can unrotate the unassembled callout.\n"));
-        lpub->actions.insert(unrotateCalloutAction->objectName(), Action(tr("CalloutContext.Unrotate Callout"), unrotateCalloutAction));
+        lpub->actions.insert(unrotateCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Unrotate Callout"), unrotateCalloutAction));
 
         QAction *addPointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointer.png"),tr("Add Callout Pointer"));
         addPointerAction->setObjectName("rotateAction.1");
@@ -5847,7 +5847,7 @@ void Gui::createActions()
         addPointerAction->setWhatsThis(tr("Add Callout Pointer:\n"
                                           "  You can add a pointer from this callout to the step\n"
                                           "  model where it is used.\n"));
-        lpub->actions.insert(addPointerAction->objectName(), Action(tr("CalloutContext.Add Callout Pointer"), addPointerAction));
+        lpub->actions.insert(addPointerAction->objectName(), Action(QStringLiteral("CalloutContext.Add Callout Pointer"), addPointerAction));
 
         // divider context menu actions
 
@@ -5857,7 +5857,7 @@ void Gui::createActions()
         editDividerAction->setWhatsThis(tr("Edit Divider:\n"
                                            "  You can edit this divider margin, thickness,\n"
                                            "  length, and color.\n"));
-        lpub->actions.insert(editDividerAction->objectName(), Action(tr("DividerContext.Edit Divider"), editDividerAction));
+        lpub->actions.insert(editDividerAction->objectName(), Action(QStringLiteral("DividerContext.Edit Divider"), editDividerAction));
 
         //rotate icon context menu actions
 
@@ -5867,14 +5867,14 @@ void Gui::createActions()
         editRotateIconArrowAction->setWhatsThis(tr("Edit Rotate Icon Arrows:\n"
                                                    "  You can change the rotate icon arrow attributes such\n"
                                                    "  as color and line.\n"));
-        lpub->actions.insert(editRotateIconArrowAction->objectName(), Action(tr("RotateIconContext.Edit Rotate Icon Arrows"), editRotateIconArrowAction));
+        lpub->actions.insert(editRotateIconArrowAction->objectName(), Action(QStringLiteral("RotateIconContext.Edit Rotate Icon Arrows"), editRotateIconArrowAction));
 
         QAction *rotateIconSizeAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotateiconsize.png"),tr("Change Rotate Icon Size"));
         rotateIconSizeAction->setObjectName("rotateIconSizeAction.1");
         rotateIconSizeAction->setStatusTip(tr("Change the rotateIcon size"));
         rotateIconSizeAction->setWhatsThis(tr("Change Rotate Icon Size:\n"
                                               "  You can change the rotateIcon size.\n"));
-        lpub->actions.insert(rotateIconSizeAction->objectName(), Action(tr("RotateIconContext.Change Rotate Icon Size"), rotateIconSizeAction));
+        lpub->actions.insert(rotateIconSizeAction->objectName(), Action(QStringLiteral("RotateIconContext.Change Rotate Icon Size"), rotateIconSizeAction));
 
         // pointer context menu actions
 
@@ -5886,7 +5886,7 @@ void Gui::createActions()
         setLineAttributesAction->setWhatsThis(tr("Edit Line Attributes:\n"
                                                  "  You can edit the pointer line color, thickness,\n"
                                                  "  and type %1.\n").arg(units));
-        lpub->actions.insert(setLineAttributesAction->objectName(), Action(tr("PointerContext.Edit Line Attributes"), setLineAttributesAction));
+        lpub->actions.insert(setLineAttributesAction->objectName(), Action(QStringLiteral("PointerContext.Edit Line Attributes"), setLineAttributesAction));
 
         QAction *setBorderAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/borderattributes.png"),tr("Edit Border Attributes"));
         setBorderAttributesAction->setObjectName("setBorderAttributesAction.1");
@@ -5894,7 +5894,7 @@ void Gui::createActions()
         setBorderAttributesAction->setWhatsThis(tr("Edit Border Attributes:\n"
                                                    "  You can edit the pointer border color, thickness,\n"
                                                    "  and line type %1.\n").arg(units));
-        lpub->actions.insert(setBorderAttributesAction->objectName(), Action(tr("PointerContext.Edit Border Attributes"), setBorderAttributesAction));
+        lpub->actions.insert(setBorderAttributesAction->objectName(), Action(QStringLiteral("PointerContext.Edit Border Attributes"), setBorderAttributesAction));
 
         QAction *setTipAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/tipattributes.png"),tr("Edit Tip Attributes"));
         setTipAttributesAction->setObjectName("setTipAttributesAction.1");
@@ -5902,7 +5902,7 @@ void Gui::createActions()
         setTipAttributesAction->setWhatsThis(tr("Edit Tip Attributes:\n"
                                                 "  You can edit the pointer pointer tip width,\n"
                                                 "  and height %1.\n").arg(units));
-        lpub->actions.insert(setTipAttributesAction->objectName(), Action(tr("PointerContext.Edit Tip Attributes"), setTipAttributesAction));
+        lpub->actions.insert(setTipAttributesAction->objectName(), Action(QStringLiteral("PointerContext.Edit Tip Attributes"), setTipAttributesAction));
 
         QAction *resetLineAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/resetlineattributes.png"),tr("Reset Line Attributes"));
         resetLineAttributesAction->setObjectName("resetLineAttributesAction.1");
@@ -5910,7 +5910,7 @@ void Gui::createActions()
         resetLineAttributesAction->setWhatsThis(tr("Reset Line Attributes:\n"
                                                    "  You can reset the pointer border color, thickness,\n"
                                                    "  and line type %1.\n").arg(units));
-        lpub->actions.insert(resetLineAttributesAction->objectName(), Action(tr("PointerContext.Reset Line Attributes"), resetLineAttributesAction));
+        lpub->actions.insert(resetLineAttributesAction->objectName(), Action(QStringLiteral("PointerContext.Reset Line Attributes"), resetLineAttributesAction));
 
         QAction *resetBorderAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/resetborderattributes.png"),tr("Reset Border Attributes"));
         resetBorderAttributesAction->setObjectName("resetBorderAttributesAction.1");
@@ -5918,7 +5918,7 @@ void Gui::createActions()
         resetBorderAttributesAction->setWhatsThis(tr("Reset Border Attributes:\n"
                                                      "  You can reset the pointer border color, thickness, and\n"
                                                      "  line type %1.\n").arg(units));
-        lpub->actions.insert(resetBorderAttributesAction->objectName(), Action(tr("PointerContext.Edit Border Attributes"), resetBorderAttributesAction));
+        lpub->actions.insert(resetBorderAttributesAction->objectName(), Action(QStringLiteral("PointerContext.Edit Border Attributes"), resetBorderAttributesAction));
 
         QAction *resetTipAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/resettipattributes.png"),tr("Reset Tip Attributes"));
         resetTipAttributesAction->setObjectName("resetTipAttributesAction.1");
@@ -5926,7 +5926,7 @@ void Gui::createActions()
         resetTipAttributesAction->setWhatsThis(tr("Reset Tip Attributes:\n"
                                                   "  You can reset the pointer pointer tip width,\n"
                                                   "  and height %1.\n").arg(units));
-        lpub->actions.insert(resetTipAttributesAction->objectName(), Action(tr("PointerContext.Reset Tip Attributes"), resetTipAttributesAction));
+        lpub->actions.insert(resetTipAttributesAction->objectName(), Action(QStringLiteral("PointerContext.Reset Tip Attributes"), resetTipAttributesAction));
 
         QAction *addSegmentAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointersegment.png"),tr("Add Pointer Segment"));
         addSegmentAction->setObjectName("addSegmentAction.1");
@@ -5936,7 +5936,7 @@ void Gui::createActions()
                                           "  the build instruction.\n"
                                           "  A total of three shaft segments per pointer\n"
                                           "  are allowed.\n"));
-        lpub->actions.insert(addSegmentAction->objectName(), Action(tr("PointerContext.Add Pointer Segment"), addSegmentAction));
+        lpub->actions.insert(addSegmentAction->objectName(), Action(QStringLiteral("PointerContext.Add Pointer Segment"), addSegmentAction));
 
         QAction *removeSegmentAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/removepointersegment.png"),tr("Remove Pointer Segment"));
         removeSegmentAction->setObjectName("removeSegmentAction.1");
@@ -5944,7 +5944,7 @@ void Gui::createActions()
         removeSegmentAction->setWhatsThis(tr("Remove Pointer Segment:\n"
                                              "  You can remove a pointer shaft segments\n"
                                              "  from the pointer.\n"));
-        lpub->actions.insert(removeSegmentAction->objectName(), Action(tr("PointerContext.Remove Pointer Segment"), removeSegmentAction));
+        lpub->actions.insert(removeSegmentAction->objectName(), Action(QStringLiteral("PointerContext.Remove Pointer Segment"), removeSegmentAction));
 
         QAction *toggleCsiPartRectAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/togglepartoutline.png"),tr("Toggle CSI Part Outline"));
         toggleCsiPartRectAction->setObjectName("toggleCsiPartRectAction.1");
@@ -5953,189 +5953,189 @@ void Gui::createActions()
                                                  "  You turn on and off the outline of the\n"
                                                  "  annotated CSI part to aid in interactively\n"
                                                  "  moving and placing the annotation item.\n"));
-        lpub->actions.insert(toggleCsiPartRectAction->objectName(), Action(tr("AssemblyContext.Toggle Part Outline"), toggleCsiPartRectAction));
+        lpub->actions.insert(toggleCsiPartRectAction->objectName(), Action(QStringLiteral("AssemblyContext.Toggle Part Outline"), toggleCsiPartRectAction));
 
         // shared delete context menu items
 
         QAction *deleteImageAction = commonMenus.deleteMenu(*contextMenu,name,"deleteImageAction.1","deleteimage.png");
-        lpub->actions.insert(deleteImageAction->objectName(), Action(tr("PageContext.Delete Image"), deleteImageAction));
+        lpub->actions.insert(deleteImageAction->objectName(), Action(QStringLiteral("PageContext.Delete Image"), deleteImageAction));
 
         QAction *clearPageCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearPageCacheAction.1");
-        lpub->actions.insert(clearPageCacheAction->objectName(), Action(tr("PageContext.Reset Page Image Cache"), clearPageCacheAction));
+        lpub->actions.insert(clearPageCacheAction->objectName(), Action(QStringLiteral("PageContext.Reset Page Image Cache"), clearPageCacheAction));
 
         QAction *deletePointerAction = commonMenus.deleteMenu(*contextMenu,name,"deletePointerAction.1","deletepointer.png");
-        lpub->actions.insert(deletePointerAction->objectName(), Action(tr("PointerContext.Delete Pointer"), deletePointerAction));
+        lpub->actions.insert(deletePointerAction->objectName(), Action(QStringLiteral("PointerContext.Delete Pointer"), deletePointerAction));
 
         QAction *deleteTextAction = commonMenus.deleteMenu(*contextMenu,name,"deleteTextAction.1","deletetext.png");
-        lpub->actions.insert(deleteTextAction->objectName(), Action(tr("TextEdit.Context.Delete Text"), deleteTextAction));
+        lpub->actions.insert(deleteTextAction->objectName(), Action(QStringLiteral("TextEdit.Context.Delete Text"), deleteTextAction));
 
         QAction *deleteDividerAction = commonMenus.deleteMenu(*contextMenu,name,"deleteDividerAction.1","deletedivider.png",tr("step group"));
-        lpub->actions.insert(deleteDividerAction->objectName(), Action(tr("DividerContext.Delete Divider"), deleteDividerAction));
+        lpub->actions.insert(deleteDividerAction->objectName(), Action(QStringLiteral("DividerContext.Delete Divider"), deleteDividerAction));
 
         QAction *deleteRotateIconAction = commonMenus.deleteMenu(*contextMenu,name,"deleteRotateIconAction.1");
-        lpub->actions.insert(deleteRotateIconAction->objectName(), Action(tr("RotateIconContext.Delete Roate Icon"), deleteRotateIconAction));
+        lpub->actions.insert(deleteRotateIconAction->objectName(), Action(QStringLiteral("RotateIconContext.Delete Roate Icon"), deleteRotateIconAction));
 
         QAction *deleteBomAction = commonMenus.deleteMenu(*contextMenu,name,"deleteBomAction.1");
-        lpub->actions.insert(deleteBomAction->objectName(), Action(tr("BOMContext.Delete Bill Of Materials"), deleteBomAction));
+        lpub->actions.insert(deleteBomAction->objectName(), Action(QStringLiteral("BOMContext.Delete Bill Of Materials"), deleteBomAction));
 
         // shared step context menu items
 
         QAction *removeStepAction = commonMenus.removeStepMenu(*contextMenu,name);
-        lpub->actions.insert(removeStepAction->objectName(), Action(tr("StepContext.Remove This Step"), removeStepAction));
+        lpub->actions.insert(removeStepAction->objectName(), Action(QStringLiteral("StepContext.Remove This Step"), removeStepAction));
 
         QAction *addNextStepAction = commonMenus.addNextStepMenu(*contextMenu,name);
-        lpub->actions.insert(addNextStepAction->objectName(), Action(tr("StepContext.Add Next Step"), addNextStepAction));
+        lpub->actions.insert(addNextStepAction->objectName(), Action(QStringLiteral("StepContext.Add Next Step"), addNextStepAction));
 
         QAction *addNextStepsAction = commonMenus.addNextStepsMenu(*contextMenu,name);
-        lpub->actions.insert(addNextStepsAction->objectName(), Action(tr("StepContext.Add Next Steps"), addNextStepsAction));
+        lpub->actions.insert(addNextStepsAction->objectName(), Action(QStringLiteral("StepContext.Add Next Steps"), addNextStepsAction));
 
         QAction *addPrevStepAction = commonMenus.addPrevStepMenu(*contextMenu,name);
-        lpub->actions.insert(addPrevStepAction->objectName(), Action(tr("StepContext.Add Previous Step"), addPrevStepAction));
+        lpub->actions.insert(addPrevStepAction->objectName(), Action(QStringLiteral("StepContext.Add Previous Step"), addPrevStepAction));
 
         QAction *noPartsListAction = commonMenus.noPartsListMenu(*contextMenu,name);
-        lpub->actions.insert(noPartsListAction->objectName(), Action(tr("StepContext.No Parts List Per Step"), noPartsListAction));
+        lpub->actions.insert(noPartsListAction->objectName(), Action(QStringLiteral("StepContext.No Parts List Per Step"), noPartsListAction));
 
         QAction *partsListAction = commonMenus.partsListMenu(*contextMenu,name);
-        lpub->actions.insert(partsListAction->objectName(), Action(tr("StepContext.Parts List Per Step"), partsListAction));
+        lpub->actions.insert(partsListAction->objectName(), Action(QStringLiteral("StepContext.Parts List Per Step"), partsListAction));
 
         QAction *clearStepCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearStepCacheAction.1","clearcsicache.png", CsiType);
-        lpub->actions.insert(clearStepCacheAction->objectName(), Action(tr("StepContext.Reset Step Assembly Image Cache"), clearStepCacheAction));
+        lpub->actions.insert(clearStepCacheAction->objectName(), Action(QStringLiteral("StepContext.Reset Step Assembly Image Cache"), clearStepCacheAction));
 
         // shared context menu actions
 
         QAction *clearPartsCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearPartsCacheAction.1","clearplicache.png", PartsListType);
-        lpub->actions.insert(clearPartsCacheAction->objectName(), Action(tr("SharedContext.Reset Step Assembly Image Cache"), clearPartsCacheAction));
+        lpub->actions.insert(clearPartsCacheAction->objectName(), Action(QStringLiteral("SharedContext.Reset Step Assembly Image Cache"), clearPartsCacheAction));
 
         QAction *clearSubmodelCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearSubmodelCacheAction.1","clearsubmodelcache.png", SubModelType);
-        lpub->actions.insert(clearSubmodelCacheAction->objectName(), Action(tr("SharedContext.Reset Step Assembly Image Cache"), clearSubmodelCacheAction));
+        lpub->actions.insert(clearSubmodelCacheAction->objectName(), Action(QStringLiteral("SharedContext.Reset Step Assembly Image Cache"), clearSubmodelCacheAction));
 
         QAction *rendererArgumentsAction = commonMenus.rendererArgumentsMenu(*contextMenu,name);
-        lpub->actions.insert(rendererArgumentsAction->objectName(), Action(tr("SharedContext.Add Renderer Arguments"), rendererArgumentsAction));
+        lpub->actions.insert(rendererArgumentsAction->objectName(), Action(QStringLiteral("SharedContext.Add Renderer Arguments"), rendererArgumentsAction));
 
         QAction *povrayRendererArgumentsAction = commonMenus.rendererArgumentsMenu(*contextMenu,name,"povrayRendererArgumentsAction.1");
-        lpub->actions.insert(povrayRendererArgumentsAction->objectName(), Action(tr("SharedContext.Add Povray Renderer Arguments"), povrayRendererArgumentsAction));
+        lpub->actions.insert(povrayRendererArgumentsAction->objectName(), Action(QStringLiteral("SharedContext.Add Povray Renderer Arguments"), povrayRendererArgumentsAction));
 
         QAction *highlightStepAction = commonMenus.highlightStepMenu(*contextMenu,name);
-        lpub->actions.insert(highlightStepAction->objectName(), Action(tr("SharedContext.Highlight Current Step"), highlightStepAction));
+        lpub->actions.insert(highlightStepAction->objectName(), Action(QStringLiteral("SharedContext.Highlight Current Step"), highlightStepAction));
 
         QAction *fadeStepsAction = commonMenus.fadeStepsMenu(*contextMenu,name);
-        lpub->actions.insert(fadeStepsAction->objectName(), Action(tr("SharedContext.Fade Previous Steps"), fadeStepsAction));
+        lpub->actions.insert(fadeStepsAction->objectName(), Action(QStringLiteral("SharedContext.Fade Previous Steps"), fadeStepsAction));
 
         QAction *preferredRendererAction = commonMenus.preferredRendererMenu(*contextMenu,name);
-        lpub->actions.insert(preferredRendererAction->objectName(), Action(tr("SharedContext.Change Renderer"), preferredRendererAction));
+        lpub->actions.insert(preferredRendererAction->objectName(), Action(QStringLiteral("SharedContext.Change Renderer"), preferredRendererAction));
 
         QAction *previewPartAction = commonMenus.previewPartMenu(*contextMenu,name);
-        lpub->actions.insert(previewPartAction->objectName(), Action(tr("SharedContext.Preview Item"), previewPartAction));
+        lpub->actions.insert(previewPartAction->objectName(), Action(QStringLiteral("SharedContext.Preview Item"), previewPartAction));
 
         QAction *resetViewerImageAction = commonMenus.resetViewerImageMenu(*contextMenu,name);
-        lpub->actions.insert(resetViewerImageAction->objectName(), Action(tr("SharedContext.Reset Viewer Image"), resetViewerImageAction));
+        lpub->actions.insert(resetViewerImageAction->objectName(), Action(QStringLiteral("SharedContext.Reset Viewer Image"), resetViewerImageAction));
 
 #ifndef QT_NO_CLIPBOARD
         QAction *copyToClipboardAction = commonMenus.copyToClipboardMenu(*contextMenu,name);
-        lpub->actions.insert(copyToClipboardAction->objectName(), Action(tr("SharedContext.Copy Image Path To Clipboard"), copyToClipboardAction));
+        lpub->actions.insert(copyToClipboardAction->objectName(), Action(QStringLiteral("SharedContext.Copy Image Path To Clipboard"), copyToClipboardAction));
 #endif
 
         QAction *displayRowsAction = commonMenus.displayRowsMenu(*contextMenu,name);
-        lpub->actions.insert(displayRowsAction->objectName(), Action(tr("SharedContext.Display As Rows"), displayRowsAction));
+        lpub->actions.insert(displayRowsAction->objectName(), Action(QStringLiteral("SharedContext.Display As Rows"), displayRowsAction));
 
         QAction *displayColumnsAction = commonMenus.displayColumnsMenu(*contextMenu,name);
-        lpub->actions.insert(displayColumnsAction->objectName(), Action(tr("SharedContext.Display As Columns"), displayColumnsAction));
+        lpub->actions.insert(displayColumnsAction->objectName(), Action(QStringLiteral("SharedContext.Display As Columns"), displayColumnsAction));
 
         QAction *backgroundAction = commonMenus.backgroundMenu(*contextMenu,name);
-        lpub->actions.insert(backgroundAction->objectName(), Action(tr("SharedContext.Change Background"), backgroundAction));
+        lpub->actions.insert(backgroundAction->objectName(), Action(QStringLiteral("SharedContext.Change Background"), backgroundAction));
 
         QAction *subModelColorAction = commonMenus.subModelColorMenu(*contextMenu,name);
-        lpub->actions.insert(subModelColorAction->objectName(), Action(tr("SharedContext.Change Submodel Color"), subModelColorAction));
+        lpub->actions.insert(subModelColorAction->objectName(), Action(QStringLiteral("SharedContext.Change Submodel Color"), subModelColorAction));
 
         QAction *placementAction = commonMenus.placementMenu(*contextMenu,name);
-        lpub->actions.insert(placementAction->objectName(), Action(tr("SharedContext.Change Placement"), placementAction));
+        lpub->actions.insert(placementAction->objectName(), Action(QStringLiteral("SharedContext.Change Placement"), placementAction));
 
         QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(*contextMenu,name);
-        lpub->actions.insert(cameraAnglesAction->objectName(), Action(tr("SharedContext.Change Camera Angles"), cameraAnglesAction));
+        lpub->actions.insert(cameraAnglesAction->objectName(), Action(QStringLiteral("SharedContext.Change Camera Angles"), cameraAnglesAction));
 
         QAction *cameraFoVAction = commonMenus.cameraFoVMenu(*contextMenu,name);
-        lpub->actions.insert(cameraFoVAction->objectName(), Action(tr("SharedContext.Change Camera FOV Angle"), cameraFoVAction));
+        lpub->actions.insert(cameraFoVAction->objectName(), Action(QStringLiteral("SharedContext.Change Camera FOV Angle"), cameraFoVAction));
 
         QAction *scaleAction = commonMenus.scaleMenu(*contextMenu,name);
-        lpub->actions.insert(scaleAction->objectName(), Action(tr("SharedContext.Change Scale"), scaleAction));
+        lpub->actions.insert(scaleAction->objectName(), Action(QStringLiteral("SharedContext.Change Scale"), scaleAction));
 
         QAction *stretchImageAction = commonMenus.stretchImageMenu(*contextMenu,name);
-        lpub->actions.insert(stretchImageAction->objectName(), Action(tr("SharedContext.Stretch Image"), stretchImageAction));
+        lpub->actions.insert(stretchImageAction->objectName(), Action(QStringLiteral("SharedContext.Stretch Image"), stretchImageAction));
 
         QAction *tileImageAction = commonMenus.tileImageMenu(*contextMenu,name);
-        lpub->actions.insert(tileImageAction->objectName(), Action(tr("SharedContext.Tile Image"), tileImageAction));
+        lpub->actions.insert(tileImageAction->objectName(), Action(QStringLiteral("SharedContext.Tile Image"), tileImageAction));
 
         QAction *marginAction = commonMenus.marginMenu(*contextMenu,name);
-        lpub->actions.insert(marginAction->objectName(), Action(tr("SharedContext.Change Margins"), marginAction));
+        lpub->actions.insert(marginAction->objectName(), Action(QStringLiteral("SharedContext.Change Margins"), marginAction));
 
         QAction *borderAction = commonMenus.borderMenu(*contextMenu,name);
-        lpub->actions.insert(borderAction->objectName(), Action(tr("SharedContext.Change Border"), borderAction));
+        lpub->actions.insert(borderAction->objectName(), Action(QStringLiteral("SharedContext.Change Border"), borderAction));
 
         QAction *fontAction = commonMenus.fontMenu(*contextMenu,name);
-        lpub->actions.insert(fontAction->objectName(), Action(tr("SharedContext.Change Font"), fontAction));
+        lpub->actions.insert(fontAction->objectName(), Action(QStringLiteral("SharedContext.Change Font"), fontAction));
 
         QAction *colorAction = commonMenus.colorMenu(*contextMenu,name);
-        lpub->actions.insert(colorAction->objectName(), Action(tr("SharedContext.Change Color"), colorAction));
+        lpub->actions.insert(colorAction->objectName(), Action(QStringLiteral("SharedContext.Change Color"), colorAction));
 
         QAction *changeImageAction = commonMenus.changeImageMenu(*contextMenu,name);
-        lpub->actions.insert(changeImageAction->objectName(), Action(tr("SharedContext.Change Image"), changeImageAction));
+        lpub->actions.insert(changeImageAction->objectName(), Action(QStringLiteral("SharedContext.Change Image"), changeImageAction));
 
         QAction *displayTextAction = commonMenus.displayMenu(*contextMenu,name,"displayTextAction.1");
-        lpub->actions.insert(displayTextAction->objectName(), Action(tr("SharedContext.Toggle Text Display"), displayTextAction));
+        lpub->actions.insert(displayTextAction->objectName(), Action(QStringLiteral("SharedContext.Toggle Text Display"), displayTextAction));
 
         QAction *displayImageAction = commonMenus.displayMenu(*contextMenu,name,"displayImageAction.1");
-        lpub->actions.insert(displayImageAction->objectName(), Action(tr("SharedContext.Toggle Image Display"), displayImageAction));
+        lpub->actions.insert(displayImageAction->objectName(), Action(QStringLiteral("SharedContext.Toggle Image Display"), displayImageAction));
 
         QAction *displayRotateIconAction = commonMenus.displayMenu(*contextMenu,name,"displayRotateIconAction.1");
-        lpub->actions.insert(displayRotateIconAction->objectName(), Action(tr("SharedContext.Toggle RotateIcon Display"), displayRotateIconAction));
+        lpub->actions.insert(displayRotateIconAction->objectName(), Action(QStringLiteral("SharedContext.Toggle RotateIcon Display"), displayRotateIconAction));
 
         QAction *constrainAction = commonMenus.constrainMenu(*contextMenu,name);
-        lpub->actions.insert(constrainAction->objectName(), Action(tr("SharedContext.Change Shape"), constrainAction));
+        lpub->actions.insert(constrainAction->objectName(), Action(QStringLiteral("SharedContext.Change Shape"), constrainAction));
 
         QAction *partGroupsOffAction = commonMenus.partGroupsOffMenu(*contextMenu,name);
-        lpub->actions.insert(partGroupsOffAction->objectName(), Action(tr("SharedContext.Turn Off Movable Group"), partGroupsOffAction));
+        lpub->actions.insert(partGroupsOffAction->objectName(), Action(QStringLiteral("SharedContext.Turn Off Movable Group"), partGroupsOffAction));
 
         QAction *partGroupsOnAction = commonMenus.partGroupsOnMenu(*contextMenu,name);
-        lpub->actions.insert(partGroupsOnAction->objectName(), Action(tr("SharedContext.Turn On Movable Group"), partGroupsOnAction));
+        lpub->actions.insert(partGroupsOnAction->objectName(), Action(QStringLiteral("SharedContext.Turn On Movable Group"), partGroupsOnAction));
 
         QAction *sortAction = commonMenus.sortMenu(*contextMenu,name);
-        lpub->actions.insert(sortAction->objectName(), Action(tr("SharedContext.Sort Parts"), sortAction));
+        lpub->actions.insert(sortAction->objectName(), Action(QStringLiteral("SharedContext.Sort Parts"), sortAction));
 
         QAction *annotationAction = commonMenus.annotationMenu(*contextMenu,name);
-        lpub->actions.insert(annotationAction->objectName(), Action(tr("SharedContext.Annotation Options"), annotationAction));
+        lpub->actions.insert(annotationAction->objectName(), Action(QStringLiteral("SharedContext.Annotation Options"), annotationAction));
 
         QAction *sizeAction = commonMenus.sizeMenu(*contextMenu,name);
-        lpub->actions.insert(sizeAction->objectName(), Action(tr("SharedContext.Change Size"), sizeAction));
+        lpub->actions.insert(sizeAction->objectName(), Action(QStringLiteral("SharedContext.Change Size"), sizeAction));
 
         QAction *hideAction = commonMenus.hideMenu(*contextMenu,name);
-        lpub->actions.insert(hideAction->objectName(), Action(tr("SharedContext.Hide Item"), hideAction));
+        lpub->actions.insert(hideAction->objectName(), Action(QStringLiteral("SharedContext.Hide Item"), hideAction));
 
         QAction *hideCsiAnnotationAction = commonMenus.hideMenu(*contextMenu,name,"hideCsiAnnotationAction.1","hidepartannotation.png");
-        lpub->actions.insert(hideCsiAnnotationAction->objectName(), Action(tr("AssemblyContext.Hide Csi Annotation"), hideCsiAnnotationAction));
+        lpub->actions.insert(hideCsiAnnotationAction->objectName(), Action(QStringLiteral("AssemblyContext.Hide Csi Annotation"), hideCsiAnnotationAction));
 
         QAction *resetPartGroupAction = commonMenus.resetPartGroupMenu(*contextMenu,name);
-        lpub->actions.insert(resetPartGroupAction->objectName(), Action(tr("SharedContext.Reset Group"), resetPartGroupAction));
+        lpub->actions.insert(resetPartGroupAction->objectName(), Action(QStringLiteral("SharedContext.Reset Group"), resetPartGroupAction));
 
         QAction *substitutePartAction = commonMenus.substitutePartMenu(*contextMenu,name);
-        lpub->actions.insert(substitutePartAction->objectName(), Action(tr("SharedContext.Substitute Part"), substitutePartAction));
+        lpub->actions.insert(substitutePartAction->objectName(), Action(QStringLiteral("SharedContext.Substitute Part"), substitutePartAction));
 
         QAction *changeSubstitutePartAction = commonMenus.changeSubstitutePartMenu(*contextMenu,name);
-        lpub->actions.insert(changeSubstitutePartAction->objectName(), Action(tr("SharedContext.Change Substitute"), changeSubstitutePartAction));
+        lpub->actions.insert(changeSubstitutePartAction->objectName(), Action(QStringLiteral("SharedContext.Change Substitute"), changeSubstitutePartAction));
 
         QAction *removeSubstitutePartAction = commonMenus.removeSubstitutePartMenu(*contextMenu,name);
-        lpub->actions.insert(removeSubstitutePartAction->objectName(), Action(tr("SharedContext.Remove Substitute"), removeSubstitutePartAction));
+        lpub->actions.insert(removeSubstitutePartAction->objectName(), Action(QStringLiteral("SharedContext.Remove Substitute"), removeSubstitutePartAction));
 
         QAction *textAction = commonMenus.textMenu(*contextMenu,name);
-        lpub->actions.insert(textAction->objectName(), Action(tr("SharedContext.Edit Text"), textAction));
+        lpub->actions.insert(textAction->objectName(), Action(QStringLiteral("SharedContext.Edit Text"), textAction));
 
         QAction *rotStepAction = commonMenus.rotStepMenu(*contextMenu,name);
-        lpub->actions.insert(rotStepAction->objectName(), Action(tr("SharedContext.Change Rotation"), rotStepAction));
+        lpub->actions.insert(rotStepAction->objectName(), Action(QStringLiteral("SharedContext.Change Rotation"), rotStepAction));
 
         QAction *overrideCountAction = commonMenus.overrideCountMenu(*contextMenu,name);
-        lpub->actions.insert(overrideCountAction->objectName(), Action(tr("SharedContext.Override Count"), overrideCountAction));
+        lpub->actions.insert(overrideCountAction->objectName(), Action(QStringLiteral("SharedContext.Override Count"), overrideCountAction));
 
         QAction *restoreCountAction = commonMenus.restoreCountMenu(*contextMenu,name);
-        lpub->actions.insert(restoreCountAction->objectName(), Action(tr("SharedContext.Restore Count"), restoreCountAction));
+        lpub->actions.insert(restoreCountAction->objectName(), Action(QStringLiteral("SharedContext.Restore Count"), restoreCountAction));
 
         create3DActions();
 
