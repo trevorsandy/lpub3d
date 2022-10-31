@@ -161,6 +161,7 @@ enum BuildModRc {
     BM_NONE             = -1,
     BM_INVALID_INDEX    = BM_NONE,         //  -1
     BM_BEGIN,                              //   0 MOD LEVEL BEGIN
+    BM_NO_STEP          = BM_BEGIN,        //   0
     BM_BASE_LEVEL       = BM_BEGIN,        //   0
     BM_FIRST_INDEX      = BM_BEGIN,        //   0
     BM_MODEL_NAME       = BM_BEGIN,        //   0

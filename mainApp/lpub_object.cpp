@@ -525,6 +525,48 @@ int LPub::pageSize(PageMeta &meta, int which){
 
 /*********************************************
  *
+ * split viewer step keys
+ *
+ ********************************************/
+
+QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
+{
+    // viewerStepKey - 3 elements:
+    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
+    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
+    // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
+    QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
+    // confirm keys has at least 3 elements
+    if (keys.size() < 3) {
+#ifdef QT_DEBUG_MODE
+        emit lpub->messageSig(LOG_DEBUG, tr("Parse stepKey [%1] failed").arg(viewerStepKey));
+#endif
+        return QStringList();
+    } else if (keys.at(2).count("_")) {
+        QStringList displayStepKeys = keys.at(2).split("_");
+        keys.removeLast();
+        keys.append(displayStepKeys);
+    }
+
+    if (!pliPart) {
+        bool ok;
+        int modelNameIndex = keys[0].toInt(&ok);
+        if (!ok) {
+#ifdef QT_DEBUG_MODE
+            emit lpub->messageSig(LOG_DEBUG, tr("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
+#endif
+            return QStringList();
+        }
+
+        if (modelName)
+            keys.replace(0,lpub->ldrawFile.getSubmodelName(modelNameIndex));
+    }
+
+    return keys;
+}
+
+/*********************************************
+ *
  * extract stepKey - callled for CSI and SMP only
  *
  ********************************************/
@@ -582,20 +624,25 @@ int LPub::pageSize(PageMeta &meta, int which){
 
 void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
 {
-    bool stepMatch  = false;
-    auto calledOutStep = [this, &here, &stepNumber, &stepType] (Step* step, bool &stepMatch)
+    bool stepMatch = false;
+    auto checkMatchOrIsCalledOutStep = [&] (Step* step, int &stepType, bool &stepMatch)
     {
-        if (! (stepMatch = step->stepNumber.number == stepNumber || step->topOfStep() == here )) {
-            for (int k = 0; k < step->list.size(); k++) {
+        if (!(stepMatch = step->stepNumber.number == stepNumber || step->topOfStep() == here )) {
+            for (int k = 0; k < step->list.size() && !stepMatch; k++) {
                 if (step->list[k]->relativeType == CalloutType) {
                     Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                    for (int l = 0; l < callout->list.size(); l++){
-                        Range *range = dynamic_cast<Range *>(callout->list[l]);
-                        for (int m = 0; m < range->list.size(); m++){
-                            if (range->relativeType == RangeType) {
-                                Step *step = dynamic_cast<Step *>(range->list[m]);
-                                if (step && step->relativeType == StepType){
-                                    setCurrentStep(step, here, stepNumber, stepType);
+                    if (callout) {
+                        stepType = BM_CALLOUT_STEP;
+                        for (int l = 0; l < callout->list.size() && !stepMatch; l++) {
+                            Range *range = dynamic_cast<Range *>(callout->list[l]);
+                            if (range) {
+                                for (int m = 0; m < range->list.size() && !stepMatch; m++) {
+                                    if (range->relativeType == RangeType) {
+                                        Step *step = dynamic_cast<Step *>(range->list[m]);
+                                        if (step && step->relativeType == StepType) {
+                                            setCurrentStep(step, here, stepNumber, stepType);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -605,38 +652,36 @@ void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
         }
     };
 
-    if (stepType == BM_CALLOUT_STEP && step){
-        calledOutStep(step, stepMatch);
-    } else if (stepType == BM_MULTI_STEP) {
-        for (int i = 0; i < page.list.size() && !stepMatch; i++){
+    if (stepType == BM_MULTI_STEP) {
+        for (int i = 0; i < page.list.size() && !stepMatch; i++) {
             Range *range = dynamic_cast<Range *>(page.list[i]);
-            for (int j = 0; j < range->list.size(); j++){
-                if (range->relativeType == RangeType) {
-                    step = dynamic_cast<Step *>(range->list[j]);
-                    if (stepType == BM_CALLOUT_STEP)
-                        calledOutStep(step, stepMatch);
-                    else if (step && step->relativeType == StepType)
-                        stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here);
-                    if (stepMatch)
-                        break;
+            if (range) {
+                for (int j = 0; j < range->list.size() && !stepMatch; j++) {
+                    if (range->relativeType == RangeType) {
+                        if ((step = dynamic_cast<Step *>(range->list[j]))) {
+                            checkMatchOrIsCalledOutStep(step, stepType, stepMatch);
+                            if (stepMatch)
+                                break;
+                        }
+                    }
                 }
             }
         }
     } else if (stepType == BM_SINGLE_STEP) {
         Range *range = dynamic_cast<Range *>(page.list[0]);
-        if (range->relativeType == RangeType) {
-            step = dynamic_cast<Step *>(range->list[0]);
-            if (stepType == BM_CALLOUT_STEP)
-                calledOutStep(step, stepMatch);
-            else if (step && step->relativeType == StepType)
-                stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here);
+        if (range) {
+            if (range->relativeType == RangeType) {
+                if ((step = dynamic_cast<Step *>(range->list[0]))) {
+                    checkMatchOrIsCalledOutStep(step, stepType, stepMatch);
+                }
+            }
         }
-    } else if ((step = gStep)) {
-        if (stepType == BM_CALLOUT_STEP)
-            calledOutStep(step, stepMatch);
-        else if (!(stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here)))
-            step = nullptr;
+    } else if (step) {
+        checkMatchOrIsCalledOutStep(step, stepType, stepMatch);
     }
+
+    if (!stepMatch)
+        step = nullptr;
 
     currentStep = step;
 
@@ -652,11 +697,11 @@ void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
 
 bool LPub::setCurrentStep(const QString &key)
 {
-    Step *step     = nullptr;
-    currentStep    = step;
+    currentStep    = nullptr;
+    Step *step     = gStep;
     Where here     = Where();
+    int stepType   = BM_NO_STEP;
     int stepNumber = 0;
-    int stepType   = 0; /*None*/
 
     extractStepKey(here, stepNumber, key);
 
@@ -666,18 +711,14 @@ bool LPub::setCurrentStep(const QString &key)
     else
         stepNumberSpecified = QString::number(stepNumber);
 
-    const QString stepKey = key.isEmpty() ? viewerStepKey : !stepNumber ? ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber) : key;
-
-    if (ldrawFile.isViewerStepCalledOut(stepKey))
-        stepType = BM_CALLOUT_STEP;
-    else if (ldrawFile.isViewerStepMultiStep(stepKey))
+    if (page.relativeType == StepGroupType)
         stepType = BM_MULTI_STEP;
     else if (page.relativeType == SingleStepType && page.list.size())
         stepType = BM_SINGLE_STEP;
 
-    if (stepType || gStep)
+    if ((here != Where() || stepNumber) && stepType || step) {
         setCurrentStep(step, here, stepNumber, stepType);
-    else {
+    } else {
         emit lpub->messageSig(LOG_ERROR, tr("Could not determine step for '%1' at step number '%2'.")
                                            .arg(here.modelName).arg(stepNumberSpecified));
     }
@@ -704,48 +745,6 @@ void LPub::setCurrentStep(Step *step)
     emit lpub->messageSig(LOG_DEBUG,tr("Set current step %1, with key '%2'.")
                                       .arg(currentStep->stepNumber.number).arg(currentStep->viewerStepKey));
 #endif
-}
-
-/*********************************************
- *
- * split viewer step keys
- *
- ********************************************/
-
-QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
-{
-    // viewerStepKey - 3 elements:
-    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
-    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
-    // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
-    QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
-    // confirm keys has at least 3 elements
-    if (keys.size() < 3) {
-#ifdef QT_DEBUG_MODE
-        emit lpub->messageSig(LOG_DEBUG, tr("Parse stepKey [%1] failed").arg(viewerStepKey));
-#endif
-        return QStringList();
-    } else if (keys.at(2).count("_")) {
-        QStringList displayStepKeys = keys.at(2).split("_");
-        keys.removeLast();
-        keys.append(displayStepKeys);
-    }
-
-    if (!pliPart) {
-        bool ok;
-        int modelNameIndex = keys[0].toInt(&ok);
-        if (!ok) {
-#ifdef QT_DEBUG_MODE
-            emit lpub->messageSig(LOG_DEBUG, tr("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
-#endif
-            return QStringList();
-        }
-
-        if (modelName)
-            keys.replace(0,lpub->ldrawFile.getSubmodelName(modelNameIndex));
-    }
-
-    return keys;
 }
 
 /****************************************************************************
