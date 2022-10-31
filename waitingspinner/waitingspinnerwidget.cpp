@@ -264,7 +264,11 @@ void WaitingSpinnerWidget::updateSize() {
         setFixedSize(size, size);
     } else {
         QFontMetrics fm(font());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+        QSize textSize = QSize(fm.horizontalAdvance(_text), fm.height());
+#else
         QSize textSize = QSize(fm.width(_text), fm.height());
+#endif
         setFixedSize(std::max(size, textSize.width()), size + size / 4 + textSize.height());
     }
 }

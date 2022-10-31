@@ -796,7 +796,11 @@ int ParmEditor::lineNumberAreaWidth()
     QFont font = lineNumberArea->font();
     const QFontMetrics linefmt(font);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    int space = 10 + linefmt.horizontalAdvance(QLatin1Char('9')) * digits;
+#else
     int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
+#endif
     return space;
 }
 

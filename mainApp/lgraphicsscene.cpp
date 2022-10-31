@@ -190,7 +190,6 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
 
     QPen guidPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN])), 0, Qt::SolidLine));
     QPen rulerTrackingPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN])), 0, Qt::SolidLine));
-    QPen rulerCrosshairPen(QPen(QBrush(QColor(Qt::red)), 0, Qt::SolidLine));
 
     QPointF starPt;
     QPointF endPt;
@@ -220,9 +219,13 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
 
         if (mTrackingCoordinates) {
             QString t = QString("%1x%2 pixels")
-                    .arg(QString::number(mHorzCursorPos.x(),'f',0))
-                    .arg(QString::number(mVertCursorPos.y(),'f',0));
+                    .arg(QString::number(mHorzCursorPos.x(),'f',0),
+                         QString::number(mVertCursorPos.y(),'f',0));
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+            qreal w = fm.horizontalAdvance(t);
+#else
             qreal w = fm.width(t);
+#endif
             QPointF p;
             switch (mGuidesPlacement) {
             case GUIDES_CENTRE:
@@ -275,8 +278,8 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
 
     if (mGuidesCoordinates) {
         QString t = QString("%1x%2 pixels")
-                .arg(QString::number(mGuidePos.x(),'f',0))
-                .arg(QString::number(mGuidePos.y(),'f',0));
+                .arg(QString::number(mGuidePos.x(),'f',0),
+                     QString::number(mGuidePos.y(),'f',0));
         qreal w = fm.width(t);
         QPointF p;
         qreal ver = mBaseItem->boundingRect().height()/2;

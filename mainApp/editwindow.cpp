@@ -2967,8 +2967,14 @@ void TextEditor::drawLineEndMarker(QPaintEvent *e)
 {
     QPainter painter(viewport());
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     int leftMargin = qRound(fontMetrics().horizontalAdvance(" ") / 2.0);
     int lineEndCharWidth = fontMetrics().horizontalAdvance("\u00B6");
+#else
+    int leftMargin = qRound(fontMetrics().width(" ") / 2.0);
+    int lineEndCharWidth = fontMetrics().width("\u00B6");
+#endif
+
     int fontHeight = fontMetrics().height();
 
     QTextBlock block = firstVisibleBlock();
@@ -2980,12 +2986,22 @@ void TextEditor::drawLineEndMarker(QPaintEvent *e)
         if (block.isVisible() && blockGeometry.toRect().intersects(e->rect())) {
             QString text = block.text();
             if (text.endsWith("  ")) {
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
                 painter.drawText(blockGeometry.left() + fontMetrics().horizontalAdvance(text) + leftMargin,
                                  blockGeometry.top(),
                                  lineEndCharWidth,
                                  fontHeight,
                                  Qt::AlignLeft | Qt::AlignVCenter,
                                  "\u00B6");
+#else
+                painter.drawText(blockGeometry.left() + fontMetrics().width(text) + leftMargin,
+                                 blockGeometry.top(),
+                                 lineEndCharWidth,
+                                 fontHeight,
+                                 Qt::AlignLeft | Qt::AlignVCenter,
+                                 "\u00B6");
+#endif
             }
         }
 
@@ -3139,7 +3155,11 @@ int TextEditor::lineNumberAreaWidth()
     QFont font = lineNumberArea->font();
     const QFontMetrics linefmt(font);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     int space = 10 + linefmt.horizontalAdvance(QLatin1Char('9')) * digits;
+#else
+    int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
+#endif
     return space;
 }
 
