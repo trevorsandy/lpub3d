@@ -83,43 +83,43 @@ GlobalProjectDialog::GlobalProjectDialog(
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Renderer");
+  box = new QGroupBox(tr("Renderer"));
   vlayout->addWidget(box);
   PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
-  box->setToolTip("Select the default image renderer.");
+  box->setToolTip(tr("Select the default image renderer."));
   connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
   data->children.append(rendererChild);
 
-  box = new QGroupBox("Resolution");
+  box = new QGroupBox(tr("Resolution"));
   vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   MetaGui *child = new ResolutionGui(&lpubMeta->resolution);
-  box->setToolTip("Set the default resolution unit.");
+  box->setToolTip(tr("Set the default resolution unit."));
   boxGrid->addWidget(child,0,0);
   boxGrid->setColumnStretch(0,1);
   boxGrid->setColumnStretch(1,1);
   data->children.append(child);
 
-  box = new QGroupBox("Stud Style and Automate Edge Color");
+  box = new QGroupBox(tr("Stud Style and Automate Edge Color"));
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
-  box->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  box->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
-  box = new QGroupBox("Cover Page Viewer Display");
+  box = new QGroupBox(tr("Cover Page Viewer Display"));
   vlayout->addWidget(box);
-  CoverPageViewEnabledGui *childCoverPageViewEnabled = new CoverPageViewEnabledGui("Enable model view at cover page",&lpubMeta->coverPageViewEnabled,box);
-  box->setToolTip("Enable top model view (read only) in the Visual Editor when a cover page is loaded.");
+  CoverPageViewEnabledGui *childCoverPageViewEnabled = new CoverPageViewEnabledGui(tr("Enable model view at cover page"),&lpubMeta->coverPageViewEnabled,box);
+  box->setToolTip(tr("Enable top model view (read only) in the Visual Editor when a cover page is loaded."));
   data->children.append(childCoverPageViewEnabled);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Render Options");
+  tab->addTab(widget,tr("Render Options"));
 
   /*
    * Parse options tab
@@ -129,51 +129,52 @@ GlobalProjectDialog::GlobalProjectDialog(
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Build Modifications");
+  box = new QGroupBox(tr("Build Modifications"));
   vlayout->addWidget(box);
-  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable build modifications",&lpubMeta->buildModEnabled,box);
-  box->setToolTip("Enable Build Modification meta commands. This functionality replaces or accompanies MLCad BUFEXCHG framework.");
+  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui(tr("Enable build modifications"),&lpubMeta->buildModEnabled,box);
+  box->setToolTip(tr("Enable Build Modification meta commands. This functionality replaces or accompanies MLCad BUFEXCHG framework."));
   data->children.append(childBuildModEnabled);
   connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Buffer Exchange");
   vlayout->addWidget(box);
-  CheckBoxGui *childParseNoStep = new CheckBoxGui("Parse Single Step with NOSTEP and BUFEXCHG commands",&lpubMeta->parseNoStep,box);
-  box->setToolTip("Parse single steps containing NOSTEP and BUFEXCHG commands. Multi-step groups are automatically parsed.");
+  CheckBoxGui *childParseNoStep = new CheckBoxGui(tr("Parse Single Step with NOSTEP and BUFEXCHG commands"),&lpubMeta->parseNoStep,box);
+  box->setToolTip(("Parse single steps containing NOSTEP and BUFEXCHG commands. Multi-step groups are automatically parsed."));
   data->children.append(childParseNoStep);
   connect (childParseNoStep->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
-  box = new QGroupBox("Submodel Instances");
+  box = new QGroupBox(tr("Submodel Instances"));
   vlayout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
-  box->setToolTip("Consolidate submodel instances on first occurrence");
+  box->setToolTip(tr("Consolidate submodel instances on first occurrence"));
   data->children.append(childCountInstance);
   connect (childCountInstance, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
-  box = new QGroupBox("Continuous Step Numbers");
+  box = new QGroupBox(tr("Continuous Step Numbers"));
   vlayout->addWidget(box);
-  childContStepNumbers = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers,box);
-  box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
+  childContStepNumbers = new ContStepNumGui(tr("Enable continuous step numbers"),&lpubMeta->contStepNumbers,box);
+  box->setToolTip(tr("Enable continuous step numbers across submodels and unassembled callouts."));
   data->children.append(childContStepNumbers);
   connect (childContStepNumbers->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
-  box = new QGroupBox("Unofficial Parts In Editor");
+  box = new QGroupBox(tr("Unofficial Parts In Editor"));
   vlayout->addWidget(box);
-  LoadUnoffPartsEnabledGui *childLoadUnoffPartsEnabled = new LoadUnoffPartsEnabledGui("Enable unofficial parts load in command editor",&lpubMeta->loadUnoffPartsInEditor,box);
-  box->setToolTip("Enable loading unofficial parts in the command editor - setting enabled when unofficial parts are detected.");
+  LoadUnoffPartsEnabledGui *childLoadUnoffPartsEnabled = new LoadUnoffPartsEnabledGui(tr("Enable unofficial parts load in command editor"),&lpubMeta->loadUnoffPartsInEditor,box);
+  box->setToolTip(tr("Enable loading unofficial parts in the command editor - setting enabled when unofficial parts are detected."));
   data->children.append(childLoadUnoffPartsEnabled);
   connect (childLoadUnoffPartsEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
-  box = new QGroupBox("Start Numbers");
+  box = new QGroupBox(tr("Start Numbers"));
   vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
+  box->setToolTip(tr("Set start step and or page number used for multi-book instruction documents."));
 
-  childStartStepNumberSpin = new SpinGui("Step number", &lpubMeta->startStepNumber,0,10000,1);
+  childStartStepNumberSpin = new SpinGui(tr("Step number"), &lpubMeta->startStepNumber,0,10000,1);
   data->children.append(childStartStepNumberSpin);
   boxGrid->addWidget(childStartStepNumberSpin,0,0);
 
-  childStartPageNumberSpin = new SpinGui("Page number", &lpubMeta->startPageNumber,0,10000,1);
+  childStartPageNumberSpin = new SpinGui(tr("Page number"), &lpubMeta->startPageNumber,0,10000,1);
   data->children.append(childStartPageNumberSpin);
   boxGrid->addWidget(childStartPageNumberSpin,0,1);
 
@@ -181,7 +182,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Parse Options");
+  tab->addTab(widget,tr("Parse Options"));
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
   buttonBox->addButton(QDialogButtonBox::Ok);
@@ -224,10 +225,10 @@ void GlobalProjectDialog::checkConflict(bool b)
     box.setTextFormat (Qt::RichText);
     box.setIcon (QMessageBox::Critical);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    box.setWindowTitle(tr ("Continuous Step Numbers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+    box.setWindowTitle(tr ("Continuous Step Numbers"));
     box.setStandardButtons (QMessageBox::Ok);
-    QString text = "<b> Count group step numbers conflict </b>";
-    QString message = QString("Continuous step numbers cannot coexist with count group step numbers.");
+    QString text = tr("<b> Count group step numbers conflict </b>");
+    QString message = tr("Continuous step numbers cannot coexist with count group step numbers.");
     box.setText (text);
     box.setInformativeText (message);
     box.exec();
