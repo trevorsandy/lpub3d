@@ -5123,7 +5123,6 @@ int Gui::setBuildModForNextStep(
     int  buildModNextStepIndex = getBuildModNextStepIndex(); // set next/'display' step index
     int buildModStepIndex      = BM_FIRST_INDEX;
     int startLine              = BM_BEGIN;
-    int jumpDirection          = DIRECTION_NOT_SET;
     int partsAdded             = 0;
     bool bottomOfStep          = false;
     bool submodel              = topOfSubmodel.modelIndex > 0 && topOfSubmodel.modelIndex != topOfNextStep.modelIndex;
@@ -5203,7 +5202,7 @@ int Gui::setBuildModForNextStep(
     // we do this submodel->else block because this call only processes to the end of the specified next step
     if (submodel) {
         if (!topOfSubmodel.lineNumber)
-            skipHeader(topOfSubmodel);                       // advance past headers
+            skipHeader(topOfSubmodel);              // advance past headers
 
         startLine  = topOfSubmodel.lineNumber;
         startModel = topOfSubmodel.modelName;
@@ -5218,23 +5217,25 @@ int Gui::setBuildModForNextStep(
         emit gui->messageSig(LOG_INFO_STATUS, QString("Build Modification Next Step Check - Index: %1, Model: '%2', Line '%3'...")
                                                       .arg(buildModNextStepIndex).arg(topOfStep.modelName).arg(topOfStep.lineNumber));
 
-        startLine = topOfStep.lineNumber;                    // set starting line number
+        startLine = topOfStep.lineNumber;           // set starting line number
 
-        deleteBuildMods(buildModNextStepIndex);              // clear all build mods at and after next step index - used after jump ahead and to optimize jump back checks
+        int deleteIndex = buildModNextStepIndex;    // when navigating forward, set the delete index to the next step index
+        if (pageDirection < PAGE_BACKWARD)
+            deleteIndex += 1;                       // when navigating backward, set the delete index to the index after the next step index
+
+        deleteBuildMods(deleteIndex);               // clear all build mods at and after delete index - used after jump ahead and for backward navigation
 
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Next StartStep - Index: %1, ModelName: %2, LineNumber: %3")
                                                 .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
-        if (buildModJumpForward) {                         // jump forward by more than one step/page
-            jumpDirection = PAGE_JUMP_FORWARD;
-            countPages();
-        } else if (pageDirection != PAGE_FORWARD) {          // jump backward by one or more steps/pages
-            jumpDirection = PAGE_JUMP_BACKWARD;
-            setBuildModNavBackward();
-        }
 
-        if (jumpDirection) {
+        if (buildModJumpForward)                    // jump forward by more than one step/page
+            countPages();                           // set build mods in countPages call
+        else if (pageDirection != PAGE_FORWARD)     // jump backward by one or more steps/pages
+            setBuildModNavBackward();               // set build mod last action for mods up to next step index
+
+        if (pageDirection != PAGE_FORWARD) {
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_TRACE, QString("BuildMod Next Jump %1 - Amount: %2 (Steps), StartModel: %3, "
                                                     "StartLine: %4, ModelName: %5, LineNumber: %6")
