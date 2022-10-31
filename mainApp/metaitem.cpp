@@ -5308,6 +5308,21 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
     }
 }
 
+void MetaItem::loadTheme() const
+{
+    gui->loadTheme();
+}
+
+void MetaItem::setSceneTheme() const
+{
+    gui->setSceneTheme();
+}
+
+void MetaItem::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) const
+{
+    gui->loadLDSearchDirParts(Process, OnDemand, Update);
+}
+
 bool MetaItem::currentFile()
 {
     return !gui->getCurFile().isEmpty();
@@ -5353,9 +5368,9 @@ void MetaItem::clearTempCache() const
     emit gui->clearTempCacheSig();
 }
 
-void MetaItem::clearCustomPartCache() const
+void MetaItem::clearCustomPartCache(bool silent) const
 {
-    emit gui->clearCustomPartCacheSig(true/*silent*/);
+    emit gui->clearCustomPartCacheSig(silent);
 }
 
 void MetaItem::reloadCurrentPage(bool savePrompt) const
@@ -5363,7 +5378,7 @@ void MetaItem::reloadCurrentPage(bool savePrompt) const
     emit gui->reloadCurrentPageSig(savePrompt);
 }
 
-void MetaItem::restartApplication() const
+void MetaItem::restartApplication(bool changeLibrary, bool prompt) const
 {
-    emit gui->restartApplicationSig();
+    emit gui->restartApplicationSig(changeLibrary, prompt);
 }

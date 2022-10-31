@@ -1281,6 +1281,11 @@ void LPub::SetShadingMode(lcShadingMode ShadingMode)
         gMainWindow->SetShadingMode(ShadingMode);
 }
 
+PartWorker& LPub::partWorkerLDSearchDirs()
+{
+    return gui->partWorkerLDSearchDirs;
+}
+
 // the next four calls are used when setting Visual Editor preferences
 void LPub::clearAndReloadModelFile(bool fileReload, bool savePrompt)
 {
@@ -1292,9 +1297,9 @@ void LPub::reloadCurrentPage(bool savePrompt)
     emit gui->reloadCurrentPageSig(savePrompt);
 }
 
-void LPub::restartApplication()
+void LPub::restartApplication(bool changeLibrary, bool prompt)
 {
-    emit gui->restartApplicationSig();
+    emit gui->restartApplicationSig(changeLibrary, prompt);
 }
 
 void LPub::setShortcutKeywords()

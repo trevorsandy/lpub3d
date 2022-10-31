@@ -1825,12 +1825,14 @@ void lcApplication::ShowPreferencesDialog()
 	{
 		lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
 		lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true);
+		reloadFile = true;
 	}
 	else if (ColorsChanged || AutomateEdgeColorChanged)
 	{
 		if (ColorsChanged)
 			lcSetProfileString(LC_PROFILE_COLOR_CONFIG, Options.ColorConfigPath);
 		lcGetPiecesLibrary()->LoadColors();
+		reloadFile = true;
 	}
 
 	gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);

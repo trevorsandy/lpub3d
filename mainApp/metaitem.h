@@ -563,16 +563,21 @@ public:
 
   void setSuspendFileDisplayFlag(bool) const;
 
+  void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false) const;
+
+  void setSceneTheme() const;
+  void loadTheme() const;
+
   void clearAllCaches() const;
   void clearPageCache(PlacementType relativeType, Page *page, int option) const;
   void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false) const;
-  void clearCustomPartCache() const;
+  void clearCustomPartCache(bool silent = true) const;
   void clearCsiCache() const;
   void clearSubmodelCache() const;
   void clearPliCache() const;
   void clearTempCache() const;
   void reloadCurrentPage(bool savePrompt = false) const;
-  void restartApplication() const;
+  void restartApplication(bool changeLibrary = false, bool prompt = false) const;
 };
 
 #endif

@@ -2790,67 +2790,11 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    bool libraryChangeRestart              = false;
-    bool defaultUnitsCompare               = Preferences::preferCentimeters;
-    bool enableLDViewSCallCompare          = Preferences::enableLDViewSingleCall;
-    bool enableLDViewSListCompare          = Preferences::enableLDViewSnaphsotList;
-    bool displayAllAttributesCompare       = Preferences::displayAllAttributes;
-    bool generateCoverPagesCompare         = Preferences::generateCoverPages;
-    bool enableFadeStepsCompare            = Preferences::enableFadeSteps;
-    bool fadeStepsUseColourCompare         = Preferences::fadeStepsUseColour;
-    int fadeStepsOpacityCompare            = Preferences::fadeStepsOpacity;
-    bool enableHighlightStepCompare        = Preferences::enableHighlightStep;
-    bool enableImageMattingCompare         = Preferences::enableImageMatting;
-    bool applyCALocallyCompare             = Preferences::applyCALocally;
-    int  highlightStepLineWidthCompare     = Preferences::highlightStepLineWidth;
-    bool highlightFirstStepCompare         = Preferences::highlightFirstStep;
-    bool doNotShowPageProcessDlgCompare    = Preferences::doNotShowPageProcessDlg;
-    int  pageDisplayPauseCompare           = Preferences::pageDisplayPause;
-    bool addLSynthSearchDirCompare         = Preferences::addLSynthSearchDir;
-    bool archiveLSynthPartsCompare         = Preferences::archiveLSynthParts;
-    bool perspectiveProjectionCompare      = Preferences::perspectiveProjection;
-    bool inlineNativeContentCompare        = Preferences::inlineNativeContent;
-    bool saveOnUpdateCompare               = Preferences::saveOnUpdate;
-    bool saveOnRedrawCompare               = Preferences::saveOnRedraw;
-    bool loadLastOpenedFileCompare         = Preferences::loadLastOpenedFile;
-    bool extendedSubfileSearchCompare      = Preferences::extendedSubfileSearch;
-    bool povrayAutoCropCompare             = Preferences::povrayAutoCrop;
-    bool showDownloadRedirectsCompare      = Preferences::showDownloadRedirects;
-    bool povFileGeneratorCompare           = Preferences::useNativePovGenerator;
-    int preferredRendererCompare           = Preferences::preferredRenderer;
-    int povrayRenderQualityCompare         = Preferences::povrayRenderQuality;
-    int ldrawFilesLoadMsgsCompare          = Preferences::ldrawFilesLoadMsgs;
-    bool lineParseErrorsCompare            = Preferences::lineParseErrors;
-    bool showInsertErrorsCompare           = Preferences::showInsertErrors;
-    bool showAnnotationErrorsCompare       = Preferences::showAnnotationErrors;
-    QString altLDConfigPathCompare         = Preferences::altLDConfigPath;
-    QString fadeStepsColourCompare         = Preferences::validFadeStepsColour;
-    QString highlightStepColourCompare     = Preferences::highlightStepColour;
-    QString ldrawPathCompare               = Preferences::ldrawLibPath;
-    QString lgeoPathCompare                = Preferences::lgeoPath;
-    QString displayThemeCompare            = Preferences::displayTheme;
-    QString sceneBackgroundColorCompare    = Preferences::sceneBackgroundColor;
-    QString sceneGridColorCompare          = Preferences::sceneGridColor;
-    QString sceneRulerTickColorCompare     = Preferences::sceneRulerTickColor;
-    QString sceneRulerTrackingColorCompare = Preferences::sceneRulerTrackingColor;
-    QString sceneGuideColorCompare         = Preferences::sceneGuideColor;
-
-    // 'LDView INI settings
-    if (Preferences::preferredRenderer == RENDERER_POVRAY) {
-        if (Preferences::useNativePovGenerator)
-            TCUserDefaults::setIniFile(Preferences::nativeExportIni.toLatin1().constData());
-        else
-            TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
-    } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
-        TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
-    }
-
     if (Preferences::getPreferences()) {
 
         Meta meta;
         lpub->page.meta = meta;
 
-        lpub->setKeyboardShortcuts();
         foreach (QAction *action, editWindow->actions()) {
             lpub->setKeyboardShortcut(action);
         }
@@ -2861,367 +2805,29 @@ void Gui::preferences()
             lpub->setKeyboardShortcut(action);
         }
 
-        QMessageBox box;
-        box.setMinimumSize(40,20);
-        box.setIcon (QMessageBox::Information);
-        box.setDefaultButton   (QMessageBox::Ok);
-        box.setStandardButtons (QMessageBox::Ok);
+        if (Preferences::loadTheme)
+            loadTheme();
 
-        bool defaultUnitsChanged           = Preferences::preferCentimeters                      != defaultUnitsCompare;
-        bool rendererChanged               = Preferences::preferredRenderer                      != preferredRendererCompare;
-        bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
-        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
-        bool fadeStepsColourChanged        = QString(Preferences::validFadeStepsColour).toLower()!= fadeStepsColourCompare.toLower();
-        bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
-        bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
-        bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
-        bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
-        bool highlightFirstStepChanged     = Preferences::highlightFirstStep                     != highlightFirstStepCompare;
-        bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
-        bool perspectiveProjectionChanged  = Preferences::perspectiveProjection                  != perspectiveProjectionCompare;
-        bool inlineNativeContentChanged    = Preferences::inlineNativeContent                     != inlineNativeContentCompare;
-        bool saveOnRedrawChanged           = Preferences::saveOnRedraw                           != saveOnRedrawCompare;
-        bool saveOnUpdateChanged           = Preferences::saveOnUpdate                           != saveOnUpdateCompare;
-        bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
-        bool enableLDViewSCallChanged      = Preferences::enableLDViewSingleCall                 != enableLDViewSCallCompare;
-        bool enableLDViewSListChanged      = Preferences::enableLDViewSnaphsotList               != enableLDViewSListCompare;
-        bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
-        bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
-        bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
-        bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
-        bool povFileGeneratorChanged       = Preferences::useNativePovGenerator                  != povFileGeneratorCompare;
-        bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
-        bool addLSynthSearchDirChanged     = Preferences::addLSynthSearchDir                     != addLSynthSearchDirCompare;
-        bool archiveLSynthPartsChanged     = Preferences::archiveLSynthParts                     != archiveLSynthPartsCompare;
-        bool ldrawPathChanged              = QString(Preferences::ldrawLibPath).toLower()        != ldrawPathCompare.toLower();
-        bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
-        bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
-        bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
-        bool extendedSubfileSearchChanged  = Preferences::extendedSubfileSearch                  != extendedSubfileSearchCompare;
-        bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
-        bool povrayRenderQualityChanged    = Preferences::povrayRenderQuality                    != povrayRenderQualityCompare;
-        bool showDownloadRedirectsChanged  = Preferences::showDownloadRedirects                  != showDownloadRedirectsCompare;
+        if (Preferences::setSceneTheme)
+            setSceneTheme();
 
-        bool sceneBackgroundColorChanged   = Preferences::sceneBackgroundColor.toLower()         != sceneBackgroundColorCompare.toLower();
-        bool sceneGridColorChanged         = Preferences::sceneGridColor.toLower()               != sceneGridColorCompare.toLower();
-        bool sceneRulerTickColorChanged    = Preferences::sceneRulerTickColor.toLower()          != sceneRulerTickColorCompare.toLower();
-        bool sceneRulerTrackingColorChanged= Preferences::sceneRulerTrackingColor.toLower()      != sceneRulerTrackingColorCompare.toLower();
-        bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
-        bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
-
-        bool lineParseErrorsChanged        = Preferences::lineParseErrors                        != lineParseErrorsCompare;
-        bool showInsertErrorsChanged       = Preferences::showInsertErrors                       != showInsertErrorsCompare;
-        bool showAnnotationErrorsChanged   = Preferences::showAnnotationErrors                   != showAnnotationErrorsCompare;
-
-        bool displayThemeColorsChanged     = Preferences::displayThemeColorsChanged;
-        bool textDecorationColorChanged    = Preferences::textDecorationColorChanged;
-
-        if (displayThemeColorsChanged) {
-            Preferences::displayThemeColorsChanged = false;
-            emit messageSig(LOG_INFO,QString("Display theme colors have changed"));
+        if (Preferences::restartApplication) {
+            restartApplication(Preferences::libraryChangeRestart);
         }
-
-        if (textDecorationColorChanged) {
-            Preferences::textDecorationColorChanged = false;
-            emit messageSig(LOG_INFO,QString("Text Decoration color have changed"));
-        }
-
-        if (defaultUnitsChanged     )
-            emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
-
-        if (ldrawPathChanged) {
-            emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
-                            .arg(ldrawPathCompare)
-                            .arg(Preferences::ldrawLibPath));
-            if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
-                libraryChangeRestart = true;
-                emit messageSig(LOG_INFO,QString("LDraw parts library changed from %1 to %2")
-                                .arg(Preferences::validLDrawLibrary)
-                                .arg(Preferences::validLDrawLibraryChange));
-                box.setText (QString("%1 will restart to properly load the %2 parts library.")
-                                     .arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawLibraryChange));
-                box.exec();
-            }
-        }
-
-        if (ldrawFilesLoadMsgsChanged     )
-            emit messageSig(LOG_INFO,QString("LDraw file load status dialogue set to %1").arg(
-                Preferences::ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
-                Preferences::ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
-                Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
-                Preferences::ldrawFilesLoadMsgs == SHOW_MESSAGE ? "Show Message" :
-                "Always Show"));
-
-        if (lgeoPathChanged && !ldrawPathChanged)
-            emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
-                            .arg(lgeoPathCompare)
-                            .arg(Preferences::lgeoPath));
-
-        if (sceneBackgroundColorChanged)
-            emit messageSig(LOG_INFO,QString("Scene Background Color changed from %1 to %2")
-                            .arg(sceneBackgroundColorCompare)
-                            .arg(Preferences::sceneBackgroundColor));
-
-        if (sceneRulerTickColorChanged)
-            emit messageSig(LOG_INFO,QString("Scene Ruler Tick Color changed from %1 to %2")
-                            .arg(sceneRulerTickColorCompare)
-                            .arg(Preferences::sceneRulerTickColor));
-
-        if (sceneRulerTrackingColorChanged)
-            emit messageSig(LOG_INFO,QString("Scene Ruler Tracking Color changed from %1 to %2")
-                            .arg(sceneRulerTrackingColorCompare)
-                            .arg(Preferences::sceneRulerTrackingColor));
-
-        if (sceneGridColorChanged)
-            emit messageSig(LOG_INFO,QString("Scene Grid Color changed from %1 to %2")
-                            .arg(sceneGridColorCompare)
-                            .arg(Preferences::sceneGridColor));
-
-        if (showDownloadRedirectsChanged)
-            emit messageSig(LOG_INFO,QString("Show download redirects is %1").arg(Preferences::showDownloadRedirects? "ON" : "OFF"));
-
-        if (sceneGuideColorChanged && !ldrawPathChanged)
-            emit messageSig(LOG_INFO,QString("Scene Guide Color changed from %1 to %2")
-                            .arg(sceneGuideColorCompare)
-                            .arg(Preferences::sceneGuideColor));
-
-        if (enableFadeStepsChanged) {
-            emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
-            if (Preferences::enableFadeSteps && !LDrawColourParts::ldrawColorPartsIsLoaded()) {
-                QString result;
-                if (!LDrawColourParts::LDrawColorPartsLoad(result)){
-                    QString message = QString("Could not open %1 LDraw color parts file [%2], Error: %3")
-                                      .arg(Preferences::validLDrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
-                    emit messageSig(LOG_ERROR, message);
-                }
-            }
-        }
-
-        if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
-            emit messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
-
-        if (fadeStepsOpacityChanged && Preferences::enableFadeSteps)
-            emit messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
-                            .arg(fadeStepsOpacityCompare)
-                            .arg(Preferences::fadeStepsOpacity));
-
-        if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
-            emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
-                            .arg(fadeStepsColourCompare.replace("_"," "))
-                            .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
-
-        if (enableHighlightStepChanged) {
-            emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
-        }
-        if (highlightFirstStepChanged     )
-            emit messageSig(LOG_INFO,QString("Highlight First Step is %1").arg(Preferences::highlightFirstStep ? "ON" : "OFF"));
-
-        if (loadLastOpenedFileChanged)
-            emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
-
-        if (extendedSubfileSearchChanged     )
-            emit messageSig(LOG_INFO,QString("Extended Subfile Search is %1").arg(Preferences::extendedSubfileSearch ? "ON" : "OFF"));
-
-        if (povrayRenderQualityChanged)
-            emit messageSig(LOG_INFO,QString("Povray Render Quality changed from %1 to %2")
-                            .arg(povrayRenderQualityCompare == 0 ? "High" :
-                                 povrayRenderQualityCompare == 1 ? "Medium" : "Low")
-                            .arg(Preferences::povrayRenderQuality == 0 ? "High" :
-                                 Preferences::povrayRenderQuality == 1 ? "Medium" : "Low"));
-
-        povrayRenderQualityChanged = (povrayRenderQualityChanged && Preferences::preferredRenderer == RENDERER_POVRAY);
-
-        if (povrayAutoCropChanged)
-            emit messageSig(LOG_INFO,QString("Povray AutoCrop is %1").arg(Preferences::povrayAutoCrop ? "ON" : "OFF"));
-
-        if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
-            emit messageSig(LOG_INFO,QString("Highlight Step line width changed from %1 to %2")
-                            .arg(highlightStepLineWidthCompare)
-                            .arg(Preferences::highlightStepLineWidth));
-
-        if (highlightStepColorChanged && Preferences::enableHighlightStep)
-            emit messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
-                            .arg(highlightStepColourCompare)
-                            .arg(Preferences::highlightStepColour));
-
-        if (generateCoverPagesChanged)
-            emit messageSig(LOG_INFO,QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF"));
-
-        if (perspectiveProjectionChanged) {
-            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Preferences::perspectiveProjection ? 0 : 1);
-            LoadDefaults();
-            emit messageSig(LOG_INFO,QString("Projection set to %1").arg(Preferences::perspectiveProjection ? "Perspective" : "Orthographic"));
-        }
-
-        if (saveOnRedrawChanged     )
-            emit messageSig(LOG_INFO,QString("Save On Redraw is %1").arg(Preferences::saveOnRedraw? "ON" : "OFF"));
-
-        if (saveOnUpdateChanged     )
-            emit messageSig(LOG_INFO,QString("Save On Update is %1").arg(Preferences::saveOnUpdate? "ON" : "OFF"));
-
-        if (pageDisplayPauseChanged)
-            emit messageSig(LOG_INFO,QString("Continuous process page display pause changed from %1 to %2")
-                            .arg(highlightStepLineWidthCompare)
-                            .arg(Preferences::pageDisplayPause));
-
-        if (addLSynthSearchDirChanged)
-            emit messageSig(LOG_INFO,QString("Add LSynth Search Directory is %1").arg(Preferences::addLSynthSearchDir? "ON" : "OFF"));
-
-        if (archiveLSynthPartsChanged)
-            emit messageSig(LOG_INFO,QString("Archive LSynth Parts is %1").arg(Preferences::archiveLSynthParts? "ON" : "OFF"));
-
-        if ((addLSynthSearchDirChanged || archiveLSynthPartsChanged) && Preferences::archiveLSynthParts)
-            loadLDSearchDirParts();
-
-        if (doNotShowPageProcessDlgChanged)
-            emit messageSig(LOG_INFO,QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF"));
-
-        if ((((fadeStepsColourChanged && Preferences::fadeStepsUseColour) ||
-              fadeStepsUseColourChanged || fadeStepsOpacityChanged) &&
-             Preferences::enableFadeSteps && !enableFadeStepsChanged) ||
-                ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
-                 Preferences::enableHighlightStep && !enableHighlightStepChanged))
-            clearCustomPartCache(true);    // true = silent
-
-        if (enableImageMattingChanged && Preferences::enableImageMatting)
-            emit messageSig(LOG_INFO,QString("Enable image matting is %1").arg(Preferences::enableImageMatting ? "ON" : "OFF"));
-
-        if (applyCALocallyChanged)
-            emit messageSig(LOG_INFO,QString("Apply camera angles locally is %1").arg(Preferences::applyCALocally ? "ON" : "OFF"));
-
-        if (enableLDViewSCallChanged)
-            emit messageSig(LOG_INFO,QString("Enable LDView Single Call is %1").arg(Preferences::enableLDViewSingleCall ? "ON" : "OFF"));
-
-        if (enableLDViewSListChanged)
-            emit messageSig(LOG_INFO,QString("Enable LDView Snapshots List is %1").arg(Preferences::enableLDViewSnaphsotList ? "ON" : "OFF"));
-
-        if (rendererChanged) {
-            emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2%3")
-                            .arg(preferredRendererCompare)
-                            .arg(Preferences::preferredRenderer)
-                            .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
-                                                                                             .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
-                                 Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ?
-                                                                                     Preferences::enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
-                                                                                                                             QString(" (Single Call)") :
-                                                                                                                             QString() : QString()));
-            Render::setRenderer(Preferences::preferredRenderer);
-            if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-                partWorkerLDSearchDirs.populateLdgLiteSearchDirs();
-        }
-
-        if (povFileGeneratorChanged)
-            emit messageSig(LOG_INFO,QString("POV file generation renderer changed from %1 to %2")
-                                             .arg(povFileGeneratorCompare ? RENDERER_NATIVE : RENDERER_LDVIEW)
-                                             .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW));
-
-        if (altLDConfigPathChanged) {
-            emit messageSig(LOG_INFO,QString("Use Alternate LDConfig (Restart Required) %1.").arg(Preferences::altLDConfigPath));
-            box.setText (QString("%1 will restart to properly load the alternate LDConfig file.").arg(VER_PRODUCTNAME_STR));
-            box.exec();
-        }
-
-        if (lineParseErrorsChanged)
-            emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::lineParseErrors? "ON" : "OFF"));
-
-        if (showAnnotationErrorsChanged)
-            emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationErrors? "ON" : "OFF"));
-
-
-        if (showInsertErrorsChanged)
-            emit messageSig(LOG_INFO,QString("Show Insert Errors is %1").arg(Preferences::showInsertErrors    ? "ON" : "OFF"));
-
-        if (inlineNativeContentChanged)
-            emit messageSig(LOG_INFO,QString("Inline Native Render Content is %1").arg(Preferences::inlineNativeContent? "ON" : "OFF"));
-
-        bool sceneDisplayChanged =
-            displayThemeChanged         ||
-            sceneBackgroundColorChanged ||
-            sceneGridColorChanged       ||
-            sceneRulerTickColorChanged  ||
-            sceneGuideColorChanged;
-        if (displayThemeColorsChanged   ||
-            sceneDisplayChanged)
-        {
-            if (displayThemeChanged     ||
-                displayThemeColorsChanged)
-                loadTheme();
-            if (sceneDisplayChanged)
-                KpageView->setSceneTheme();
-            if (sceneGridColorChanged   ||
-                textDecorationColorChanged)
-                reloadCurrentPage();
-        }
-
+        else
         if (!getCurFile().isEmpty()) {
-            if (defaultUnitsChanged           ||
-                enableFadeStepsChanged        ||
-                altLDConfigPathChanged        ||
-                fadeStepsColourChanged        ||
-                fadeStepsUseColourChanged     ||
-                fadeStepsOpacityChanged       ||
-                enableHighlightStepChanged    ||
-                highlightStepColorChanged     ||
-                highlightStepLineWidthChanged ||
-                highlightFirstStepChanged     ||
-                rendererChanged               ||
-                enableLDViewSCallChanged      ||
-                enableLDViewSListChanged      ||
-                displayAttributesChanged      ||
-                povFileGeneratorChanged       ||
-                enableImageMattingChanged     ||
-                perspectiveProjectionChanged  ||
-                povrayRenderQualityChanged    ||
-                generateCoverPagesChanged){
-                clearAndReloadModelFile();
+            if (Preferences::reloadFile) {
+                if (Preferences::resetCustomCache)
+                    clearCustomPartCache(true);
+                clearAndReloadModelFile(false, true);
+            }
+            else
+            if (Preferences::reloadPage) {
+                reloadCurrentPage(true);
             }
         }
 
-        // set logging options
-        using namespace QsLogging;
-        Logger& logger = Logger::instance();
-        if (Preferences::logging) {
-            if (Preferences::logLevels){
-
-                logger.setLoggingLevels();
-                logger.setDebugLevel(Preferences::debugLevel);
-                logger.setTraceLevel(Preferences::traceLevel);
-                logger.setNoticeLevel(Preferences::noticeLevel);
-                logger.setInfoLevel(Preferences::infoLevel);
-                logger.setStatusLevel(Preferences::statusLevel);
-                logger.setErrorLevel(Preferences::errorLevel);
-                logger.setFatalLevel(Preferences::fatalLevel);
-
-            } else if (Preferences::logLevel){
-
-                bool ok;
-                Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
-                if (!ok)
-                {
-                    QString Message = QString("Failed to set log level %1.\n"
-                                                      "Logging is off - level set to OffLevel")
-                            .arg(Preferences::loggingLevel);
-                    if (Preferences::modeGUI)
-                        QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR), Message);
-                    else
-                        fprintf(stderr, "%s", Message.toLatin1().constData());
-                }
-                logger.setLoggingLevel(logLevel);
-            }
-
-            logger.setIncludeLogLevel(Preferences::includeLogLevel);
-            logger.setIncludeTimestamp(Preferences::includeTimestamp);
-            logger.setIncludeLineNumber(Preferences::includeLineNumber);
-            logger.setIncludeFileName(Preferences::includeFileName);
-            logger.setIncludeFunctionInfo(Preferences::includeFunction);
-
-        } else {
-            logger.setLoggingLevel(OffLevel);
-        }
-
-        if (altLDConfigPathChanged || libraryChangeRestart) {
-            restartApplication(libraryChangeRestart);
-        }
+        Preferences::resetPreferenceFlags();
     }
 }
 
@@ -3564,8 +3170,8 @@ Gui::Gui()
     connect(this,           SIGNAL(reloadCurrentPageSig(bool)),          // reloadDisplayPage
             this,           SLOT(  reloadCurrentPage(bool)));
 
-    connect(this,           SIGNAL(restartApplicationSig()),
-            this,           SLOT(  restartApplication()));
+    connect(this,           SIGNAL(restartApplicationSig(bool, bool)),
+            this,           SLOT(  restartApplication(bool, bool)));
 
     // Undo Stack
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
@@ -3896,10 +3502,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 clearTempCache();
 
                 //reload current model file
-                bool cycleEachPage = Preferences::cycleEachPage;
-                if (!cycleEachPage && displayPageNum > 1)
-                  cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
-                cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
+                cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
                 emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                 .arg(lpub->ldrawFile.getPartCount())
@@ -4430,7 +4033,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       clearTempCache();
 
       //reload current model file
-      cyclePageDisplay(displayPageNum, FILE_RELOAD);
+      cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
       emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                       .arg(lpub->ldrawFile.getPartCount())

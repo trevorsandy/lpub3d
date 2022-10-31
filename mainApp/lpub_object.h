@@ -23,6 +23,7 @@
 #include "meta.h"
 
 class Step;
+class PartWorker;
 class NativeOptions;
 class TextEditDialog;
 class lcHttpManager;
@@ -110,7 +111,7 @@ public:
   /// Visual Editor restart and reload calls
   void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
   void reloadCurrentPage(bool savePrompt = false);
-  void restartApplication();
+  void restartApplication(bool changeLibrary = false, bool prompt = false);
 
   /// LPub commands collection load
   void loadCommandCollection();
@@ -120,6 +121,9 @@ public:
 
   /// Export LPub meta commands to file
   bool exportMetaCommands(const QString &, QString &, bool = false);
+
+  /// Search directory thread worker
+  PartWorker& partWorkerLDSearchDirs();
 
   /// Download management calls
   void downloadFile(QString URL, QString, bool promptRedirect = false);

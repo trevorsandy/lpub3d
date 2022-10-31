@@ -1112,6 +1112,11 @@ public:
       return KpageScene;
   }
 
+  void setSceneTheme()
+  {
+      KpageView->setSceneTheme();
+  }
+
   void enableNavigationActions(bool enable);
 
   static Step *getCurrentStep()
@@ -1516,7 +1521,7 @@ signals:
 
   void reloadCurrentPageSig(bool);
 
-  void restartApplicationSig();
+  void restartApplicationSig(bool changeLibrary, bool prompt);
 
   // right side progress bar
   void progressBarInitSig();

@@ -73,8 +73,10 @@ void Gui::endMacro()
 {
   undoStack->endMacro();
   --macroNesting;
-  if (!suspendFileDisplay && macroNesting == 0)
-    cyclePageDisplay(displayPageNum);
+  if (macroNesting == 0) {
+    if (!suspendFileDisplay)
+      cyclePageDisplay(displayPageNum);
+  }
 }
 
 void Gui::contentsChange(

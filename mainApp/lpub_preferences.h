@@ -146,6 +146,7 @@ class Preferences
     static void resetFadeSteps();
     static void resetHighlightStep();
     static void resetPreferredRenderer();
+    static void resetPreferenceFlags();
 
     static void unsetBuildModifications();
 
@@ -380,8 +381,6 @@ class Preferences
     static bool    editorHighlightLines;
     static bool    editorLoadSelectionStep;
     static bool    editorPreviewOnDoubleClick;
-    static bool    displayThemeColorsChanged;
-    static bool    textDecorationColorChanged;
 
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
@@ -416,6 +415,14 @@ class Preferences
     static QString initHighlightStepColour;
 
     static int     initPreferredRenderer;
+
+    static bool    loadTheme;
+    static bool    setSceneTheme;
+    static bool    reloadPage;
+    static bool    reloadFile;
+    static bool    resetCustomCache;
+    static bool    restartApplication;
+    static bool    libraryChangeRestart;
 
     static QMap<QString, QKeySequence> keyboardShortcuts;
 
