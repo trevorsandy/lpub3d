@@ -134,7 +134,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDraw Custom COLOUR Description Format
     LDrawColourDescFormat.setForeground(br26);
     LDrawColourDescFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegularExpression(QStringLiteral("\\bLPub3D_[A-Za-z|_]+\\b"));
+    rule.pattern = QRegularExpression(QStringLiteral("\\bLPub3D_[A-Za-z|_]+\\b"), QRegularExpression::CaseInsensitiveOption);
     rule.format = LDrawColourDescFormat;
     highlightingRules.append(rule);
 
@@ -169,7 +169,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Page Size Format
     LPubPageSizeFormat.setForeground(br16);
     LPubPageSizeFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegularExpression(QStringLiteral("\\b[AB][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$")); // Qt::CaseInsensitive
+    rule.pattern = QRegularExpression(QStringLiteral("\\b[AB][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$"), QRegularExpression::CaseInsensitiveOption); // Qt::CaseInsensitive
     rule.format = LPubPageSizeFormat;
     highlightingRules.append(rule);
 
@@ -580,7 +580,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegularExpression(QStringLiteral("^(?!0 !LPUB |0 !LEOCAD |0 !LDCAD |0 MLCAD |0 SYNTH |0 !COLOUR |0 !FADE|0 !SILHOUETTE|0 ROTSTEP |0 BUFEXCHG |0 PLIST |1 )\\b(?:AUTHOR|)\\b.*$"));
+    rule.pattern = QRegularExpression(QStringLiteral("^(?!0 !LPUB|0 !LEOCAD|0 !LDCAD|0 MLCAD|0 GROUP|0 SYNTH|0 !COLOUR|0 !FADE|0 !SILHOUETTE|0 ROTSTEP|0 BUFEXCHG|0 PLIST|[1-5]).*$"));
     rule.format = LDrawHeaderValueFormat;
     highlightingRules.append(rule);
 
@@ -592,7 +592,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     {
         QStringLiteral("\\bAUTHOR\\b:"),
         QStringLiteral("\\bBFC\\b"),
-        QStringLiteral("!?\\bCATEGORY\\b(?!\")"),             // (?!\") match CATEGORY not followed by "
+        QStringLiteral("!?\\bCATEGORY\\b(?!\")"),  // (?!\") match CATEGORY not followed by "
         QStringLiteral("\\bCERTIFY\\b"),
         QStringLiteral("\\bCCW\\b"),
         QStringLiteral("\\bCLEAR\\b"),
@@ -636,7 +636,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     };
 
     for (const QString &pattern : LDrawHeaderPatterns) {
-        rule.pattern = QRegularExpression(pattern); // Qt::CaseInsensitive
+        rule.pattern = QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption);
         rule.format = LDrawHeaderFormat;
         highlightingRules.append(rule);
     }
@@ -661,20 +661,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    // LDraw Meta Line Format
-    LDrawLineType0Format.setForeground(br28);
-    LDrawLineType0Format.setFontWeight(QFont::Normal);
-    rule.pattern = QRegularExpression(QStringLiteral("^0"));
-    rule.format = LDrawLineType0Format;
-    highlightingRules.append(rule);
-
-    // LDraw Lines 2-5 Format
-    LDrawLineType2_5Format.setForeground(br13);
-    LDrawLineType2_5Format.setFontWeight(QFont::Bold);
-    rule.pattern = QRegularExpression(QStringLiteral("^[2-5][^\n]*"));
-    rule.format = LDrawLineType2_5Format;
-    highlightingRules.append(rule);
-
     // MLCad Body Meta Format
     MLCadBodyMetaFormat.setForeground(br17);
     MLCadBodyMetaFormat.setFontWeight(QFont::Bold);
@@ -684,12 +670,12 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bABS\\b"),
         QStringLiteral("\\bADD\\b"),
         QStringLiteral("\\bMLCAD ARROW\\b"),
-        QStringLiteral("\\bMLCAD BACKGROUND\\b"),
+        QStringLiteral("^(?!0 !LPUB|0 !LEOCAD).*\\bBACKGROUND\\b"),
         QStringLiteral("\\bBTG\\b"),
         QStringLiteral("\\bBUFEXCHG\\b"),
         QStringLiteral("\\bFLEXHOSE\\b"),
         QStringLiteral("\\bGHOST\\b"),
-        QStringLiteral("\\bMLCAD GROUP\\b"),
+        QStringLiteral("^(?!0 !LPUB|0 !LEOCAD).*\\bGROUP\\b"),
         QStringLiteral("\\bHIDE\\b"),
         QStringLiteral("\\bREL\\b"),
         QStringLiteral("\\bRETRIEVE\\b"),
@@ -761,7 +747,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDCad Meta Value Format
     LDCadMetaValueFormat.setForeground(br08);
     LDCadMetaValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegularExpression(QStringLiteral("[=]([a-zA-Z\\0-9%.\\s]+)"));
+    rule.pattern = QRegularExpression(QStringLiteral("[=]([a-zA-Z\\0-9%.\\s]+)"),QRegularExpression::CaseInsensitiveOption);
     rule.format = LDCadMetaValueFormat;
     highlightingRules.append(rule);
 
@@ -880,6 +866,20 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LeoCADMetaFormat;
     highlightingRules.append(rule);
 
+    // LDraw Meta Line Format
+    LDrawLineType0Format.setForeground(br28);
+    LDrawLineType0Format.setFontWeight(QFont::Normal);
+    rule.pattern = QRegularExpression(QStringLiteral("^0"));
+    rule.format = LDrawLineType0Format;
+    highlightingRules.append(rule);
+
+    // LDraw Lines 2-5 Format
+    LDrawLineType2_5Format.setForeground(br13);
+    LDrawLineType2_5Format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("^[2-5][^\n]*"));
+    rule.format = LDrawLineType2_5Format;
+    highlightingRules.append(rule);
+
     // LDraw Comment Format
     LDrawCommentFormat.setForeground(br01);
     LDrawCommentFormat.setFontWeight(QFont::Normal);
@@ -940,7 +940,7 @@ void Highlighter::highlightBlock(const QString &text)
         }
     }
 
-    // Multi-line comments 0 //*  0 *//
+    // Multi-line comments 0 /*  0 */
     setCurrentBlockState(0);
 
     int startIndex = 0;

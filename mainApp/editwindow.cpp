@@ -2639,7 +2639,17 @@ void EditWindow::preferences()
         }
         Preferences::editorDecoration     = editorDecorationCombo->currentIndex();
         if (editorDecoration != Preferences::editorDecoration) {
-            change += QString(change.isEmpty() ?  "%1" : ", %1").arg("text decoration");
+            if (Preferences::editorDecoration == SIMPLE_DECORATION) {
+                if (highlighterSimple)
+                    highlighterSimple = nullptr;
+                highlighterSimple = new HighlighterSimple(_textEdit->document());
+                highlighterSimple->rehighlight();
+            } else {
+                if (highlighter)
+                    highlighter = nullptr;
+                highlighter = new Highlighter(_textEdit->document());
+                highlighter->rehighlight();
+            }
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
             emit lpub->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE_DECORATION ? "Simple" : "Standard"));
         }

@@ -31,9 +31,9 @@
 #ifndef HIGHLIGHTERSIMPLE_H
 #define HIGHLIGHTERSIMPLE_H
 
-#include <QSyntaxHighlighter>
-#include <QHash>
 #include <QTextCharFormat>
+#include <QSyntaxHighlighter>
+#include <QRegularExpression>
 
 class QTextDocument;
 
@@ -51,14 +51,19 @@ protected:
 private:
     struct HighlightingRule
     {
-        QRegExp pattern;
+        QRegularExpression pattern;
         QTextCharFormat format;
     };
 
+    QRegularExpression LDrawMultiLineCommentStartExpression;
+    QRegularExpression LDrawMultiLineCommentEndExpression;
+
     QVector<HighlightingRule> highlightingRules;
 
+    QTextCharFormat LDrawMultiLineCommentFormat; // b01 - Comments
     QTextCharFormat LDrawCommentFormat; // b01  - Comments      Qt::darkGreen
     QTextCharFormat LDrawHeaderFormat;  // b02  - LDraw Header  Qt::blue
+    QTextCharFormat LDrawBodyFormat;    // b03  - LDraw Body
     QTextCharFormat ModuleMetaFormat;   // br17 - MLCad         Qt::darkBlue
     QTextCharFormat LPubMetaFormat;     // br25 - LPub Meta     Qt::darkRed
     QTextCharFormat LSynthMetaFormat;   // br22 - LSynth Meta   Qt::red

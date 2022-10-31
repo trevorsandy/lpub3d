@@ -54,44 +54,79 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     }
     
     // LDraw Header Format
-    LDrawHeaderFormat.setForeground(br03);  // Qt::blue
+    LDrawHeaderFormat.setForeground(br03);
     LDrawHeaderFormat.setFontWeight(QFont::Bold);
 
-    QStringList LDrawHeaderPatterns;
-    LDrawHeaderPatterns
-    << "\\bAUTHOR[^\n]*"
-    << "\\bBFC[^\n]*"
-    << "!?\\bCATEGORY[^\n]*"
-    << "\\bCERTIFY[^\n]*"
-    << "\\bCCW[^\n]*"
-    << "\\bCLEAR[^\n]*"
-    << "!?\\bCMDLINE[^\n]*"
-    << "!?\\bHELP[^\n]*"
-    << "!?\\bHISTORY[^\n]*"
-    << "!?\\bKEYWORDS[^\n]*"
-    << "!?\\bLDRAW_ORG[^\n]*"
-    << "!?\\bLICENSE[^\n]*"
-    << "\\bName[^\n]*"
-    << "\\bPAUSE[^\n]*"
-    << "\\bPRINT[^\n]*"
-    << "\\bSAVE[^\n]*"
-    << "\\bSTEP[^\n]*\\b"
-    << "\\bWRITE[^\n]*\\b"
-    << "\\bFILE[^\n]*"
-    << "\\bNOFILE[^\n]*"
-    << "!?\\bHELP[^\n]*"
-    << "\\bOFFICIAL[^\n]*"
-    << "\\bORIGINAL LDRAW[^\n]*"
-    << "!?\\bTHEME[^\n]*"
-    << "\\bUNOFFICIAL MODEL[^\n]*"
-    << "\\bUN-OFFICIAL[^\n]*"
-    << "\\bUNOFFICIAL[^\n]*"
-    << "\\b~MOVED TO[^\n]*"
-       ;
+    const QString LDrawHeaderPatterns[] =
+    {
+        QStringLiteral("\\bAUTHOR\\b"),
+        QStringLiteral("\\bBFC\\b"),
+        QStringLiteral("!?\\bCATEGORY\\b"),
+        QStringLiteral("\\bCERTIFY\\b"),
+        QStringLiteral("\\bCCW\\b"),
+        QStringLiteral("\\bCLEAR\\b"),
+        QStringLiteral("!?\\bCMDLINE\\b"),
+        QStringLiteral("!?\\bHELP\\b"),
+        QStringLiteral("!?\\bHISTORY\\b"),
+        QStringLiteral("!?\\bKEYWORDS\\b"),
+        QStringLiteral("!?\\bLDRAW_ORG\\b"),
+        QStringLiteral("!?\\bLICENSE\\b"),
+        QStringLiteral("\\bNAME\\b"),
+        QStringLiteral("^(?!0 !LPUB|1).*\\bFILE\\b"),
+        QStringLiteral("\\bNOFILE\\b"),
+        QStringLiteral("!?\\bHELP\\b"),
+        QStringLiteral("\\bOFFICIAL\\b"),
+        QStringLiteral("\\bORIGINAL LDRAW\\b"),
+        QStringLiteral("!?\\bTHEME\\b"),
+        QStringLiteral("\\bUNOFFICIAL MODEL\\b"),
+        QStringLiteral("\\bUN-OFFICIAL\\b"),
+        QStringLiteral("\\bUNOFFICIAL\\b"),
+        QStringLiteral("\\bUNOFFICIAL_PART\\b"),
+        QStringLiteral("\\bUNOFFICIAL_SUBPART\\b"),
+        QStringLiteral("\\bUNOFFICIAL_SHORTCUT\\b"),
+        QStringLiteral("\\bUNOFFICIAL_PRIMITIVE\\b"),
+        QStringLiteral("\\bUNOFFICIAL_8_PRIMITIVE\\b"),
+        QStringLiteral("\\bUNOFFICIAL_48_PRIMITIVE\\b"),
+        QStringLiteral("\\bUNOFFICIAL_PART ALIAS\\b"),
+        QStringLiteral("\\bUNOFFICIAL_SHORTCUT ALIAS\\b"),
+        QStringLiteral("\\bUNOFFICIAL_PART PHYSICAL_COLOUR\\b"),
+        QStringLiteral("\\bUNOFFICIAL_SHORTCUT PHYSICAL_COLOUR\\b"),
+        QStringLiteral("\\bUNOFFICIAL PART\\b"),
+        QStringLiteral("\\bUNOFFICIAL SUBPART\\b"),
+        QStringLiteral("\\bUNOFFICIAL SHORTCUT\\b"),
+        QStringLiteral("\\bUNOFFICIAL PRIMITIVE\\b"),
+        QStringLiteral("\\bUNOFFICIAL 8_PRIMITIVE\\b"),
+        QStringLiteral("\\bUNOFFICIAL 48_PRIMITIVE\\b"),
+        QStringLiteral("\\bUNOFFICIAL PART ALIAS\\b"),
+        QStringLiteral("\\bUNOFFICIAL SHORTCUT ALIAS\\b"),
+        QStringLiteral("\\bUNOFFICIAL PART PHYSICAL_COLOUR\\b"),
+        QStringLiteral("\\bUNOFFICIAL SHORTCUT PHYSICAL_COLOUR\\b"),
+        QStringLiteral("\\b~MOVED TO\\b")
+    };
 
-    Q_FOREACH (QString pattern, LDrawHeaderPatterns) {
-        rule.pattern = QRegExp(pattern,Qt::CaseInsensitive);
+    for (const QString &pattern : LDrawHeaderPatterns) {
+        rule.pattern = QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption);
         rule.format = LDrawHeaderFormat;
+        highlightingRules.append(rule);
+    }
+
+    // LDraw Body Format
+    LDrawBodyFormat.setForeground(br03);
+    LDrawBodyFormat.setFontWeight(QFont::Bold);
+
+    const QString LDrawBodyPatterns[] =
+    {
+        QStringLiteral("\\bPAUSE\\b[^\n]*"),
+        QStringLiteral("\\bPRINT\\b[^\n]*"),
+        QStringLiteral("\\bSAVE\\b[^\n]*"),
+        QStringLiteral("\\bNOSTEP\\b[^\n]*"),
+        QStringLiteral("\\bSTEP\\b[^\n]*"),
+        QStringLiteral("\\bWRITE\\b[^\n]*")
+    };
+
+    for (const QString &pattern : LDrawBodyPatterns) {
+        rule.pattern = QRegularExpression(pattern);
+        rule.format = LDrawBodyFormat;
         highlightingRules.append(rule);
     }
     
@@ -99,33 +134,37 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     ModuleMetaFormat.setForeground(br17);   // Qt::darkBlue
     ModuleMetaFormat.setFontWeight(QFont::Bold);
 
-    QStringList ModuleMetaPatterns;
-    ModuleMetaPatterns 
-    << "\\bARROW[^\n]*"
-    << "\\bBTG[^\n]*"
-    << "\\bBUFEXCHG[^\n]*"
-    << "\\bGHOST[^\n]*"
-    << "\\bGROUP[^\n]*"
-    << "\\bRETRIEVE[^\n]*"
-    << "\\bROTATION CENTER[^\n]*"
-    << "\\bROTATION CONFIG[^\n]*"
-    << "\\bROTATION[^\n]*"
-    << "\\bROTSTEP END[^\n]*"
-    << "\\bROTSTEP[^\n]*"
-    << "\\b(ABS|ADD|REL)$"
-    << "\\bSKIP_BEGIN[^\n]*"
-    << "\\bSKIP_END[^\n]*"
-    << "\\bSTORE[^\n]*"
-    
-    << "\\bLDCAD\\b[^\n]*"
-    << "\\b!LDCAD\\b[^\n]*"
-    
-    << "\\bLEOCAD\\b[^\n]*"
-    << "\\b!LEOCAD\\b[^\n]*"
-      ;
+    const QString ModuleMetaPatterns[] =
+    {
+        QStringLiteral("\\bABS\\b[^\n]*"),
+        QStringLiteral("\\bADD\\b[^\n]*"),
+        QStringLiteral("\\bMLCAD ARROW\\b[^\n]*"),
+        QStringLiteral("\\bBACKGROUND\\b[^\n]*"),
+        QStringLiteral("\\bBTG\\b[^\n]*"),
+        QStringLiteral("\\bBUFEXCHG\\b[^\n]*"),
+        QStringLiteral("\\bFLEXHOSE\\b[^\n]*"),
+        QStringLiteral("\\bGHOST\\b[^\n]*"),
+        QStringLiteral("\\bGROUP\\b[^\n]*"),
+        QStringLiteral("\\bHIDE\\b[^\n]*"),
+        QStringLiteral("\\bREL\\b[^\n]*"),
+        QStringLiteral("\\bRETRIEVE\\b[^\n]*"),
+        QStringLiteral("\\bROTATION AXLE\\b[^\n]*"),
+        QStringLiteral("\\bROTATION CENTER\\b[^\n]*"),
+        QStringLiteral("\\bROTATION CONFIG\\b[^\n]*"),
+        QStringLiteral("\\bROTATION\\b[^\n]*"),
+        QStringLiteral("\\bROTSTEP END\\b[^\n]*"),
+        QStringLiteral("\\bROTSTEP\\b[^\n]*"),
+        QStringLiteral("\\bSKIP_BEGIN\\b[^\n]*"),
+        QStringLiteral("\\bSKIP_END\\b[^\n]*"),
+        QStringLiteral("\\bSTORE\\b[^\n]*"),
 
-    Q_FOREACH (QString pattern, ModuleMetaPatterns) {
-        rule.pattern = QRegExp(pattern);
+        QStringLiteral("!?\\bMLCAD\\b[^\n]*"),
+        QStringLiteral("!?\\bLDCAD\\b[^\n]*"),
+        QStringLiteral("!?\\bLEOCAD\\b[^\n]*"),
+    };
+
+    for (const QString &pattern : ModuleMetaPatterns) {
+        rule.pattern = QRegularExpression(pattern);
         rule.format = ModuleMetaFormat;
 
         highlightingRules.append(rule);
@@ -135,15 +174,14 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     LPubMetaFormat.setForeground(br25);  // Qt::darkRed
     LPubMetaFormat.setFontWeight(QFont::Bold);
 
-    QStringList LPubMetaPatterns;
-    LPubMetaPatterns
-    << "\\bLPUB\\b[^\n]*"
-    << "\\b!LPUB\\b[^\n]*"
-    << "\\bPLIST\\b[^\n]*"
-       ;
+    const QString LPubMetaPatterns[] =
+    {
+        QStringLiteral("!?\\bLPUB\\b[^\n]*"),
+        QStringLiteral("\\bPLIST\\b[^\n]*")
+    };
 
-    Q_FOREACH (QString pattern, LPubMetaPatterns) {
-        rule.pattern = QRegExp(pattern);
+    for (const QString &pattern : LPubMetaPatterns) {
+        rule.pattern = QRegularExpression(pattern);
         rule.format = LPubMetaFormat;
 
         highlightingRules.append(rule);
@@ -153,38 +191,63 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     LSynthMetaFormat.setForeground(br22);     // Qt::red
     LSynthMetaFormat.setFontWeight(QFont::Bold);
 
-    QStringList LSynthMetaPatterns;
-    LSynthMetaPatterns
-    << "\\bSYNTH\\b[^\n]*"
-    << "\\b!SYNTH\\b[^\n]*"
-       ;
+    const QString LSynthMetaPatterns[] =
+    {
+        QStringLiteral("\\bSYNTH\\b[^\n]*"),
+        QStringLiteral("\\b!SYNTH\\b[^\n]*")
+    };
 
-    Q_FOREACH (QString pattern, LSynthMetaPatterns) {
-        rule.pattern = QRegExp(pattern);
+    for (const QString &pattern : LSynthMetaPatterns) {
+        rule.pattern = QRegularExpression(pattern);
         rule.format = LSynthMetaFormat;
 
         highlightingRules.append(rule);
     }
 
     // LDraw Comment Format
-    LDrawCommentFormat.setForeground(br01);           // Qt::darkGreen
+    LDrawCommentFormat.setForeground(br01);   // Qt::darkGreen
     LDrawCommentFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("0\\s+\\/\\/[^\n]*",Qt::CaseInsensitive);
-    rule.format  = LDrawCommentFormat;
+    rule.pattern = QRegularExpression(QStringLiteral("0\\s{1}//[^\n]*"));
+    rule.format = LDrawCommentFormat;
     highlightingRules.append(rule);
+
+    // LDrww Multi-line Command Format
+    LDrawMultiLineCommentFormat.setForeground(br01);
+
+    LDrawMultiLineCommentStartExpression = QRegularExpression(QStringLiteral("0\\s{1}\\/\\*[^\n]*"));
+    LDrawMultiLineCommentEndExpression = QRegularExpression(QStringLiteral("0\\s{1}\\*\\/[^\n]*"));
 }
 
 void HighlighterSimple::highlightBlock(const QString &text)
 {
-    Q_FOREACH (HighlightingRule rule, highlightingRules) {
-        QRegExp expression(rule.pattern);
-
-        int index = text.indexOf(expression);
-        while (index >= 0) {
-            int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
-            index = text.indexOf(expression, index + length);
+    // apply the predefined rules
+    for (const HighlightingRule &rule : qAsConst(highlightingRules)) {
+        QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+        while (matchIterator.hasNext()) {
+            QRegularExpressionMatch match = matchIterator.next();
+            setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
+    }
+
+    // Multi-line comments 0 /*  0 */
+    setCurrentBlockState(0);
+
+    int startIndex = 0;
+    if (previousBlockState() != 1)
+        startIndex = text.indexOf(LDrawMultiLineCommentStartExpression);
+
+    while (startIndex >= 0) {
+        QRegularExpressionMatch match = LDrawMultiLineCommentEndExpression.match(text, startIndex);
+        int endIndex = match.capturedStart();
+        int commentLength = 0;
+        if (endIndex == -1) {
+            setCurrentBlockState(1);
+            commentLength = text.length() - startIndex;
+        } else {
+            commentLength = endIndex - startIndex + match.capturedLength();
+        }
+        setFormat(startIndex, commentLength, LDrawMultiLineCommentFormat);
+        startIndex = text.indexOf(LDrawMultiLineCommentStartExpression, startIndex + commentLength);
     }
 }
 
