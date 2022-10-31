@@ -1177,6 +1177,7 @@ void Gui::sceneGuides()
   Preferences::setSceneGuidesPreference(sceneGuidesComboAct->isChecked());
   SceneGuidesLineGroup->setEnabled(Preferences::sceneGuides);
   SceneGuidesPosGroup->setEnabled(Preferences::sceneGuides);
+  showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
   KpageView->setSceneGuides();
 }
 
