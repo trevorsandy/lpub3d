@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2845 (31 10 2022 01:35:39)
+LPub3D 2.4.4.1.2846 (31 10 2022 01:37:18)
 
 Features, enhancements, fixes and changes
 ------------
@@ -32,6 +32,7 @@ Revisions:
 - Development - Convert command editor to QPlainTextEdit #601
 - Fix - Build mods don't work properly #520
 - Fix - BUILD_MOD in Multipart model not working as expected #591
+- Fix - Command Editor Issues - multiple issues #564, #565, #566
 - Fix - Error occurred while downloading archive library #568
 - Fix - Generating PDF crashes LPub on a certain page #557
 - Fix - Inconsistent page count on completion of export #596
