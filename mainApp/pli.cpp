@@ -53,14 +53,14 @@
 #include "range_element.h"
 #include "dependencies.h"
 
+#include "pieceinf.h"
 #include "lc_viewwidget.h"
 #include "lc_library.h"
-#include "pieceinf.h"
 #include "lc_previewwidget.h"
 
 QCache<QString,QString> Pli::orientation;
 
-QString PartTypeNames[NUM_PART_TYPES] = { "Fade Previous Steps", "Highlight Current Step", "Normal" };
+QString PartTypeNames[NUM_PART_TYPES] = { QObject::tr("Fade Previous Steps"), QObject::tr("Highlight Current Step"), QObject::tr("Normal") };
 
 const Where &Pli::topOfStep()
 {
@@ -796,7 +796,7 @@ QString Pli::orient(QString &color, QString type)
               }
               file.close();
           } else {
-              emit gui->messageSig(LOG_ERROR, QString("Failed to open PLI control file: %1:<br>%2")
+              emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to open PLI control file: %1:<br>%2")
                                    .arg(filePath)
                                    .arg(file.errorString()));
           }
@@ -911,11 +911,11 @@ int Pli::createSubModelIcons()
         for (int i = 0; i < iconCount; i++) {
 
             emit gui->progressPermSetValueSig(i + 1);
-            emit gui->progressPermMessageSig(QString("Rendering submodel icon %1 of %2...").arg(i + 1).arg(iconCount));
+            emit gui->progressPermMessageSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(i + 1).arg(iconCount));
 
             key = setSubmodel(i);
             if ((createPartImage(parts[key]->nameKey,type,color,nullptr) != 0)) {
-                emit gui->messageSig(LOG_ERROR, QString("Failed to create submodel icon for key %1").arg(parts[key]->nameKey));
+                emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to create submodel icon for key %1").arg(parts[key]->nameKey));
                 rc = -1;
                 continue;
             }
@@ -967,7 +967,7 @@ int Pli::createPartImage(
                           .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
                           .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
                           .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
-        emit gui->messageSig(LOG_DEBUG, QString("Substitute type ROTSTEP meta: %1").arg(rotStep));
+        emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
     }
 
     // populate targetPosition string from nameKeys - if exist
@@ -978,7 +978,7 @@ int Pli::createPartImage(
                         .arg(nameKeys.at(nTargetY))                       // targetY
                         .arg(nameKeys.at(nTargetZ));                      // targetZ
 
-        emit gui->messageSig(LOG_DEBUG, QString("Substitute type TARGET meta: %1").arg(targetPosition));
+        emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
     }
 
     PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
@@ -1018,7 +1018,7 @@ int Pli::createPartImage(
         if (!rotStep.isEmpty())
             keyPart2.append(QString("_%1").arg(rotStep));
 
-        emit gui->messageSig(LOG_INFO, QString("Generate PLI image for [%1] parts...").arg(PartTypeNames[pT]));
+        emit gui->messageSig(LOG_INFO, QObject::tr("Generate PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
@@ -1037,13 +1037,13 @@ int Pli::createPartImage(
         const QString stepType = step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM";
         const int stepTypeLineNum = step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0;
         emit gui->messageSig(LOG_DEBUG,
-                             QString("Create PLI ViewerStep "
-                                     "Key: '%1' ["
-                                     "PartName: %2, "
-                                     "PartColour: %3, "
-                                     "StepNumber: %4], "
-                                     "Type: [%5], "
-                                     "StepsLineNumber: [%6]")
+                             QObject::tr("Create PLI ViewerStep "
+                                         "Key: '%1' ["
+                                         "PartName: %2, "
+                                         "PartColour: %3, "
+                                         "StepNumber: %4], "
+                                         "Type: [%5], "
+                                         "StepsLineNumber: [%6]")
                              .arg(viewerPliPartKey)
                              .arg(ia.baseName[pT])
                              .arg(ia.partColor[pT])
@@ -1149,7 +1149,7 @@ int Pli::createPartImage(
                 part.setFileName(ldrNames.first());
 
                 if ( ! part.open(QIODevice::WriteOnly)) {
-                    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
+                    emit gui->messageSig(LOG_ERROR,QObject::tr("Cannot open file for writing %1:\n%2.")
                                          .arg(ldrNames.first())
                                          .arg(part.errorString()));
                     ptRc = -1;
@@ -1163,7 +1163,7 @@ int Pli::createPartImage(
 
                 // feed DAT to renderer
                 if ((renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub) != 0)) {
-                    emit gui->messageSig(LOG_ERROR,QString("%1 PLI [%2] render failed for<br>[%3]")
+                    emit gui->messageSig(LOG_ERROR,QObject::tr("%1 PLI [%2] render failed for<br>[%3]")
                                          .arg(rendererNames[Render::getRenderer()])
                                          .arg(PartTypeNames[pT])
                                          .arg(imageName));
@@ -1196,12 +1196,12 @@ int Pli::createPartImage(
 
         if (showElapsedTime) {
             if (!ptRc) {
-                emit gui->messageSig(LOG_INFO,QString("%1 PLI [%2] render took %3 milliseconds "
-                                                      "to render image [%4].")
-                                                      .arg(rendererNames[Render::getRenderer()])
-                                                      .arg(PartTypeNames[pT])
-                                                      .arg(timer.elapsed())
-                                                      .arg(imageName));
+                emit gui->messageSig(LOG_INFO,QObject::tr("%1 PLI [%2] render took %3 milliseconds "
+                                                          "to render image [%4].")
+                                                          .arg(rendererNames[Render::getRenderer()])
+                                                          .arg(PartTypeNames[pT])
+                                                          .arg(timer.elapsed())
+                                                          .arg(imageName));
             } else {
                rc = ptRc;
             }
@@ -1215,7 +1215,7 @@ int Pli::createPartImage(
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, int sub) {
     int rc = 0;
 
-    emit gui->messageSig(LOG_INFO, "Generate PLI images using LDView Single Call...");
+    emit gui->messageSig(LOG_INFO, QObject::tr("Generate PLI images using LDView Single Call..."));
 
     if (! ldrNames.isEmpty()) {
         // feed DAT to renderer
@@ -1243,7 +1243,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             }
 
             if (! pixmap->load(part->imageName)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load PLI pixmap image.<br>%1 was not found.")
+                emit gui->messageSig(LOG_ERROR,QObject::tr("Could not load PLI pixmap image.<br>%1 was not found.")
                                      .arg(part->imageName));
                 part->imageName = QString(":/resources/missingimage.png");
                 pixmap->load(part->imageName);
@@ -1464,7 +1464,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
             rotStepData.rots[2] = nameKeys.at(hr ? nRotZ : nRot_Z).toDouble(&ok);
             good &= ok;
             if (!good){
-                emit gui->messageSig(LOG_NOTICE,QString("Malformed ROTSTEP values from nameKey [%1], using '0 0 0'.")
+                emit gui->messageSig(LOG_NOTICE,QObject::tr("Malformed ROTSTEP values from nameKey [%1], using '0 0 0'.")
                                      .arg(QString("%1_%2_%3")
                                      .arg(nameKeys.at(hr ? nRotX : nRot_X))
                                      .arg(nameKeys.at(hr ? nRotY : nRot_Y))
@@ -1484,7 +1484,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         float longitude = nameKeys.at(nCameraAngleYY).toFloat(&ok);
         good &= ok;
         if (!good){
-            emit gui->messageSig(LOG_NOTICE,QString("Malformed Camera Angle values from nameKey [%1], using 'latitude 30', 'longitude -45'.")
+            emit gui->messageSig(LOG_NOTICE,QObject::tr("Malformed Camera Angle values from nameKey [%1], using 'latitude 30', 'longitude -45'.")
                                  .arg(QString("%1 %2").arg(nameKeys.at(nCameraAngleXX)).arg(nameKeys.at(nCameraAngleYY))));
             latitude = 30.0; longitude = -45.0;
         }
@@ -1494,7 +1494,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
         // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
         if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
-                emit gui->messageSig(LOG_ERROR,QString("Failed to rotate type: %1.").arg(typeName));
+                emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate type: %1.").arg(typeName));
 
         out << rotatedType;
     } else {
@@ -1965,7 +1965,7 @@ void Pli::getRightEdge(
 bool Pli::loadTheViewer(){
     if (! Gui::exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
-            emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with Pli part key: %1")
+            emit gui->messageSig(LOG_ERROR,QObject::tr("Could not load Visual Editor with Pli part key: %1")
                                  .arg(viewerPliPartKey));
             return false;
         }
@@ -2103,12 +2103,12 @@ int Pli::sortPli()
     //int rc = PartsFuture.result();
     int rc = partSize();
     if (rc)
-        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("There was a problem sizing parts for this PLI instance"));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("There was a problem sizing parts for this PLI instance"));
 
     rc = !parts.size();
 
     if (rc) {
-        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("No valid parts were found for this PLI instance"));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("No valid parts were found for this PLI instance"));
         return rc;
     }
 
@@ -2166,7 +2166,7 @@ int Pli::partSize()
               }
 
               if (createPartImage(nameKey,part->type,part->color,pixmap,part->subType) != 0) {
-                  emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part for key %1")
+                  emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to create PLI part for key %1")
                                        .arg(part->nameKey));
                   imageName = QString(":/resources/missingimage.png");
                   pixmap->load(imageName);
@@ -2347,7 +2347,7 @@ int Pli::partSize()
                   tallestPart = part->height;
                 }
             } else {
-              emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Part [%1] was not found - part removed from list").arg(parts[key]->type));
+              emit gui->messageSig(LOG_NOTICE, QObject::tr("Part [%1] was not found - part removed from list").arg(parts[key]->type));
               delete parts[key];
               parts.remove(key);
             }
@@ -2426,7 +2426,7 @@ int Pli::partSizeLDViewSCall() {
                                   .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
                                   .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
                                   .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
-                emit gui->messageSig(LOG_DEBUG, QString("Substitute type ROTSTEP meta: %1").arg(rotStep));
+                emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
             }
 
             // populate targetPosition string from nameKeys - if exist
@@ -2437,10 +2437,10 @@ int Pli::partSizeLDViewSCall() {
                                 .arg(nameKeys.at(nTargetY))                       // targetY
                                 .arg(nameKeys.at(nTargetZ));                      // targetZ
 
-                emit gui->messageSig(LOG_DEBUG, QString("Substitute type TARGET meta: %1").arg(targetPosition));
+                emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
             }
 
-            emit gui->messageSig(LOG_INFO, QString("Processing PLI part for nameKey [%1]").arg(nameKey));
+            emit gui->messageSig(LOG_INFO, QObject::tr("Processing PLI part for nameKey [%1]").arg(nameKey));
 
             for (int pT = 0; pT < ptn.size(); pT++ ) {
 
@@ -2513,16 +2513,16 @@ int Pli::partSizeLDViewSCall() {
                                            .arg(stepNumber);
 
 #ifdef QT_DEBUG_MODE
-                const QString stepType = step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM";
+                const QString stepType = step ? step->calledOut ? QObject::tr("called out") : step->multiStep ? QObject::tr("step group") : QObject::tr("single step") : QObject::tr("BOM");
                 const int stepTypeLineNum = step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0;
                 emit gui->messageSig(LOG_DEBUG,
-                                     QString("Create PLI ViewerStep "
-                                             "Key: '%1' ["
-                                             "PartName: %2, "
-                                             "PartColour: %3, "
-                                             "StepNumber: %4], "
-                                             "Type: [%5], "
-                                             "StepsLineNumber: [%6]")
+                                     QObject::tr("Create PLI ViewerStep "
+                                                 "Key: '%1' ["
+                                                 "PartName: %2, "
+                                                 "PartColour: %3, "
+                                                 "StepNumber: %4], "
+                                                 "Type: [%5], "
+                                                 "StepsLineNumber: [%6]")
                                      .arg(viewerPliPartKey)
                                      .arg(ia.baseName[pT])
                                      .arg(ia.partColor[pT])
@@ -2598,7 +2598,7 @@ int Pli::partSizeLDViewSCall() {
                             if (renderer->setLDrawHeaderAndFooterMeta(futureFile,pliPart->type,Options::PLI)) {
                                 // consolidate pli part and MPD subfile(s) into single file
                                 if (renderer->createNativeModelFile(futureFile,fadeSteps,highlightStep) != 0) {
-                                    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
+                                    emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to consolidate Native PLI part"));
                                     imageName = QString(":/resources/missingimage.png");
                                     futureFile.clear();
                                 }
@@ -2627,8 +2627,8 @@ int Pli::partSizeLDViewSCall() {
                         // create a DAT files to feed the renderer
                         part.setFileName(ldrName);
                         if ( ! part.open(QIODevice::WriteOnly)) {
-                            QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                  QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
+                            QMessageBox::critical(nullptr,QObject::tr(VER_PRODUCTNAME_STR),
+                                                  QObject::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
                                                   .arg(ldrName)
                                                   .arg(part.errorString()));
                             return -1;
@@ -2659,7 +2659,7 @@ int Pli::partSizeLDViewSCall() {
 
         int ptRc = 0;
         if (isSubModel) {
-            emit gui->progressPermMessageSig(QString("Rendering submodel icon %1 of %2...").arg(pT + 1).arg(ptn.size()));
+            emit gui->progressPermMessageSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(pT + 1).arg(ptn.size()));
             emit gui->progressPermSetValueSig(pT);
         }
 
@@ -2676,7 +2676,7 @@ int Pli::partSizeLDViewSCall() {
         if (ia.sub[pT])
             iaSub = ia.sub[pT]; // keySub
         if ((createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),iaSub) != 0)) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView Single Call PLI render failed."));
+            emit gui->messageSig(LOG_ERROR,QObject::tr("LDView Single Call PLI render failed."));
             ptRc = -1;
             continue;
         }
@@ -2687,14 +2687,14 @@ int Pli::partSizeLDViewSCall() {
 
         if (!ia.ldrNames[pT].isEmpty()) {
             if (!ptRc) {
-                emit gui->messageSig(LOG_INFO, QString("%1 PLI (Single Call) for [%2] render took "
-                                                       "%3 milliseconds to render %4.")
-                                                       .arg(rendererNames[Render::getRenderer()])
-                                                       .arg(PartTypeNames[pT])
-                                                       .arg(timer.elapsed())
-                                                       .arg(QString("%1 %2")
-                                                            .arg(ia.ldrNames[pT].size())
-                                                            .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
+                emit gui->messageSig(LOG_INFO, QObject::tr("%1 PLI (Single Call) for [%2] render took "
+                                                           "%3 milliseconds to render %4.")
+                                                           .arg(rendererNames[Render::getRenderer()])
+                                                           .arg(PartTypeNames[pT])
+                                                           .arg(timer.elapsed())
+                                                           .arg(QString("%1 %2")
+                                                                .arg(ia.ldrNames[pT].size())
+                                                                .arg(ia.ldrNames[pT].size() == 1 ? QObject::tr("image") : QObject::tr("images"))));
             } else {
                 rc = ptRc;
             }
@@ -3108,17 +3108,17 @@ QString PGraphicsPixmapItem::pliToolTip(
 {
   QString originalType =
           isSub && !part->subOriginalType.isEmpty() ?
-              QString(" (Substitute for %1)")
-                  .arg(QStringList(part->subOriginalType.split(":")).first()) : QString();
+              QObject::tr(" (Substitute for %1)")
+              .arg(QStringList(part->subOriginalType.split(":")).first()) : QString();
 
   QString toolTip =
-          QString("%1 (%2) %3 \"%4\" - right-click to modify")
-                  .arg(LDrawColor::name(color))
-                  .arg(LDrawColor::ldColorCode(LDrawColor::name(color)))
-                  .arg(type)
-                  .arg(QString("%1%2")
-                       .arg(part->description)
-                       .arg(originalType));
+          QObject::tr("%1 (%2) %3 \"%4\" - right-click to modify")
+                      .arg(LDrawColor::name(color))
+                      .arg(LDrawColor::ldColorCode(LDrawColor::name(color)))
+                      .arg(type)
+                      .arg(QString("%1%2")
+                      .arg(part->description)
+                      .arg(originalType));
   return toolTip;
 }
 
@@ -3157,13 +3157,13 @@ PliBackgroundItem::PliBackgroundItem(
   QString toolTip;
 
   if (_pli->bom) {
-      toolTip = "Bill Of Materials";
+      toolTip = QObject::tr("Bill Of Materials");
     } else {
-      toolTip = "Part List";
+      toolTip = QObject::tr("Part List");
     }
-  toolTip += QString(" [%1 x %2 px] - right-click to modify")
-                     .arg(width)
-                     .arg(height);
+  toolTip += QObject::tr(" [%1 x %2 px] - right-click to modify")
+                         .arg(width)
+                         .arg(height);
 
   if (parentRelativeType == StepGroupType /* && pli->perStep == false */) {
       if (pli->bom) {
@@ -3308,70 +3308,85 @@ void PliBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 void PliBackgroundItem::contextMenuEvent(
         QGraphicsSceneContextMenuEvent *event)
 {
-  if (pli) {
-      QMenu menu;
+    if (pli) {
+        QMenu menu;
+        QString name = pli->bom ? QObject::tr("Bill Of Materials") : QObject::tr("Parts List");
 
-        PlacementData placementData = pli->placement.value();
+        QAction *placementAction       = lpub->getAct("placementAction.1");
+        PlacementData placementData    = pli->placement.value();
+        placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,name));
+        commonMenus.addAction(placementAction,menu,name);
 
-      QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
-      QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                                                            commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
-      QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
-      QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
-      QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
-      QAction *borderAction        = commonMenus.borderMenu(menu,pl);
-      QAction *marginAction        = commonMenus.marginMenu(menu,pl);
-      QAction *pliPartGroupAction  = nullptr;
-      if (pli->pliMeta.enablePliPartGroup.value()) {
-          pliPartGroupAction = commonMenus.partGroupsOffMenu(menu,"Part");
-      } else {
-          pliPartGroupAction = commonMenus.partGroupsOnMenu(menu,"Part");
-      }
-      QAction *sortAction          = commonMenus.sortMenu(menu,pl);
-      QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
+        QAction *constrainAction       = lpub->getAct("constrainAction.1");
+        commonMenus.addAction(constrainAction,menu,name);
 
-      QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
-      QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
-      QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
-      QAction *rendererAction      = commonMenus.preferredRendererMenu(menu,pl);
+        QAction *backgroundAction      = lpub->getAct("backgroundAction.1");
+        commonMenus.addAction(backgroundAction,menu,name);
 
-        QAction *splitBomAction  = nullptr;
-        QAction *deleteBomAction = nullptr;
-        QAction *clearPageCacheAction = nullptr;
+        QAction *subModelColorAction   = lpub->getAct("subModelColorAction.1");
+        commonMenus.addAction(subModelColorAction,menu,name);
 
+        QAction *borderAction          = lpub->getAct("borderAction.1");
+        commonMenus.addAction(borderAction,menu,name);
+
+        QAction *marginAction          = lpub->getAct("marginAction.1");
+        commonMenus.addAction(marginAction,menu,name);
+
+        QAction *pliPartGroupAction    = nullptr;
+        if (pli->pliMeta.enablePliPartGroup.value()) {
+            pliPartGroupAction         = lpub->getAct("partGroupsOffAction.1");
+        } else {
+            pliPartGroupAction         = lpub->getAct("partGroupsOnAction.1");
+        }
+        commonMenus.addAction(pliPartGroupAction,menu,name);
+
+        QAction *sortAction            = lpub->getAct("sortAction.1");
+        commonMenus.addAction(sortAction,menu,name);
+
+        QAction *annotationAction      = lpub->getAct("annotationAction.1");
+        if (pli->bom)
+            annotationAction->setIcon(QIcon(":/resources/bomannotation.png"));
+        commonMenus.addAction(annotationAction,menu,name);
+
+        QAction *cameraAnglesAction    = lpub->getAct("cameraAnglesAction.1");
+        commonMenus.addAction(cameraAnglesAction,menu,name);
+
+        QAction *scaleAction           = lpub->getAct("scaleAction.1");
+        commonMenus.addAction(scaleAction,menu,name);
+
+        QAction *cameraFoVAction       = lpub->getAct("cameraFoVAction.1");
+        commonMenus.addAction(cameraFoVAction,menu,name);
+
+        QAction *rendererAction        = lpub->getAct("preferredRendererAction.1");
+        commonMenus.addAction(rendererAction,menu,name);
+
+        QAction *rendererArgumentsAction       = nullptr;
         QAction *povrayRendererArgumentsAction = nullptr;
-        QAction *rendererArgumentsAction = nullptr;
         bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
-        QString rendererLabel = QString("Add %1 Arguments")
-                .arg(usingPovray ? "POV Generation":
-                                   QString("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
         if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-            rendererArgumentsAction = menu.addAction(rendererLabel);
-            rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
-            rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+            rendererArgumentsAction    = lpub->getAct("rendererArgumentsAction.1");
+            commonMenus.addAction(rendererArgumentsAction,menu,name);
             if (usingPovray) {
-                povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
-                                                               .arg(rendererNames[Render::getRenderer()]));
-                povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
-                povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+                povrayRendererArgumentsAction = lpub->getAct("povrayRendererArgumentsAction.1");
+                commonMenus.addAction(povrayRendererArgumentsAction,menu,name);
             }
         }
 
+        QAction *splitBomAction        = nullptr;
+        QAction *deleteBomAction       = nullptr;
+        QAction *clearPartsCacheAction = nullptr;
         if (!pli->bom) {
-            clearPageCacheAction = menu.addAction("Reset Page Part List Image Cache");
-            clearPageCacheAction->setIcon(QIcon(":/resources/clearpagecache.png"));
-            clearPageCacheAction->setWhatsThis("Reset the PLI image and ldr cache files for this page.");
+            clearPartsCacheAction      = lpub->getAct("clearPartsCacheAction.1");
+            commonMenus.addAction(clearPartsCacheAction,menu,name);
         } else {
-            splitBomAction = menu.addAction("Split Bill of Materials");
-            splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
+            splitBomAction             = lpub->getAct("splitBomAction.1");
+            commonMenus.addAction(splitBomAction,menu);
 
-            deleteBomAction = menu.addAction("Delete Bill of Materials");
-            deleteBomAction->setIcon(QIcon(":/resources/delete.png"));
-
-            annotationAction->setIcon(QIcon(":/resources/bomannotation.png"));
+            deleteBomAction            = lpub->getAct("deleteBomAction.1");
+            commonMenus.addAction(deleteBomAction,menu,name);
         }
 
-        QAction *selectedAction   = menu.exec(event->screenPos());
+        QAction *selectedAction        = menu.exec(event->screenPos());
 
         if (selectedAction == nullptr) {
             return;
@@ -3380,19 +3395,20 @@ void PliBackgroundItem::contextMenuEvent(
         Where top = pli->top;
         Where bottom = pli->bottom;
 
-        QString me = pli->bom ? "BOM" : "PLI";
+        name = pli->bom ? QObject::tr("BOM") : QObject::tr("PLI");
+
         if (selectedAction == sortAction) {
-            changePliSort(me+" Sort Order and Direction",
+            changePliSort(QObject::tr("%1 Sort Order and Direction").arg(name),
                           top,
                           bottom,
                           &pli->pliMeta.sortOrder);
         } else if (selectedAction == annotationAction) {
-            changePliAnnotation(me+" Annotaton",
+            changePliAnnotation(QObject::tr("%1 Annotaton").arg(name),
                                 top,
                                 bottom,
                                 &pli->pliMeta.annotation);
         } else if (selectedAction == constrainAction) {
-            changeConstraint(me+" Constraint",
+            changeConstraint(QObject::tr("%1 Constraint").arg(name),
                              top,
                              bottom,
                              &pli->pliMeta.constrain);
@@ -3401,7 +3417,7 @@ void PliBackgroundItem::contextMenuEvent(
                 changePlacement(parentRelativeType,
                                 pli->perStep,
                                 PartsListType,
-                                me+" Placement",
+                                QObject::tr("%1 Placement").arg(name),
                                 top,
                                 bottom,
                                 &pli->pliMeta.placement,true,1,0,false);
@@ -3409,7 +3425,7 @@ void PliBackgroundItem::contextMenuEvent(
                 changePlacement(parentRelativeType,
                                 pli->perStep,
                                 PartsListType,
-                                me+" Placement",
+                                QObject::tr("%1 Placement").arg(name),
                                 top,
                                 bottom,
                                 &pli->placement);
@@ -3417,13 +3433,13 @@ void PliBackgroundItem::contextMenuEvent(
                 changePlacement(parentRelativeType,
                                 pli->perStep,
                                 PartsListType,
-                                me+" Placement",
+                                QObject::tr("%1 Placement").arg(name),
                                 top,
                                 bottom,
                                 &pli->placement,true,1,0,false);
             }
         } else if (selectedAction == marginAction) {
-            changeMargins(me+" Margins",
+            changeMargins(QObject::tr("%1 Margins").arg(name),
                           top,
                           bottom,
                           &pli->margin);
@@ -3434,46 +3450,45 @@ void PliBackgroundItem::contextMenuEvent(
                         pli->bom,
                         &pli->pliMeta.enablePliPartGroup);
         } else if (selectedAction == backgroundAction) {
-            changeBackground(me+" Background",
+            changeBackground(QObject::tr("%1 Background").arg(name),
                              top,
                              bottom,
                              &pli->pliMeta.background);
         } else if (selectedAction == subModelColorAction) {
-            changeSubModelColor(me+" Background Color",
+            changeSubModelColor(QObject::tr("%1 Background Color").arg(name),
                                 top,
                                 bottom,
                                 &pli->pliMeta.subModelColor);
-
         } else if (selectedAction == borderAction) {
-          changeBorder(me+" Border",
+          changeBorder(QObject::tr("%1 Border").arg(name),
                        top,
                        bottom,
                        &pli->pliMeta.border);
         } else if (selectedAction == scaleAction) {
-            changeFloatSpin(pl+" Scale",
-                            "Model Size",
+            changeFloatSpin(QObject::tr("%1 Scale").arg(name),
+                            QObject::tr("Model Size"),
                             top,
                             bottom,
                             &pli->pliMeta.modelScale);
         } else if (selectedAction == cameraFoVAction) {
-            changeFloatSpin(me+" Camera Angle",
-                            "Camera FOV",
+            changeFloatSpin(QObject::tr("%1 Camera Angle").arg(name),
+                            QObject::tr("Camera FOV"),
                             top,
                             bottom,
                             &pli->pliMeta.cameraFoV);
         } else if (selectedAction == cameraAnglesAction) {
-            changeCameraAngles(me+" Camera Angles",
+            changeCameraAngles(QObject::tr("%1 Camera Angles").arg(name),
                                top,
                                bottom,
                                &pli->pliMeta.cameraAngles);
         }  else if (selectedAction == rendererAction) {
             if (pli->bom) {
-                changePreferredRenderer(me+" Preferred Renderer",
+                changePreferredRenderer(QObject::tr("%1 Preferred Renderer").arg(name),
                                         top,
                                         bottom,
                                         &pli->meta->LPub.bom.preferredRenderer);
             } else {
-                changePreferredRenderer(me+" Preferred Renderer",
+                changePreferredRenderer(QObject::tr("%1 Preferred Renderer").arg(name),
                                         top,
                                         bottom,
                                         &pli->meta->LPub.pli.preferredRenderer);
@@ -3483,6 +3498,9 @@ void PliBackgroundItem::contextMenuEvent(
         } else if (selectedAction == splitBomAction){
             insertSplitBOM();
         }  else if (selectedAction == rendererArgumentsAction) {
+            const QString rendererLabel = QObject::tr("Add %1 Arguments")
+                                                     .arg(usingPovray ? QObject::tr("POV Generation"):
+                                                                        QObject::tr("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
             StringMeta rendererArguments =
                     Render::getRenderer() == RENDERER_LDVIEW ? pli->pliMeta.ldviewParms :
                     Render::getRenderer() == RENDERER_LDGLITE ? pli->pliMeta.ldgliteParms :
@@ -3496,7 +3514,7 @@ void PliBackgroundItem::contextMenuEvent(
                                  bottom,
                                  rendererNames[Render::getRenderer()],
                                  &pli->pliMeta.povrayParms);
-        } else if (selectedAction == clearPageCacheAction) {
+        } else if (selectedAction == clearPartsCacheAction) {
             Page *page = dynamic_cast<Page *>(pli->steps);
             clearPageCache(parentRelativeType,page,Options::PLI);
         }
@@ -3597,21 +3615,31 @@ void AnnotateTextItem::contextMenuEvent(
 {
   QMenu menu;
 
-  QString pl =  isElement ? "Part Element" : "Part Annotation";
+  QString name =  isElement ? QObject::tr("Part Element") : QObject::tr("Part Annotation");
 
-  QAction *fontAction       = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction      = commonMenus.colorMenu(menu,pl);
-  QAction *borderAction     = commonMenus.borderMenu(menu,pl);
-  QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
-  QAction *marginAction     = nullptr; //commonMenus.marginMenu(menu,pl);
-  QAction *sizeAction       = nullptr; // commonMenus.sizeMenu(menu,pl);
+  QAction *fontAction       = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
 
+  QAction *colorAction      = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *borderAction     = lpub->getAct("borderAction.1");
+  commonMenus.addAction(borderAction,menu,name);
+
+  QAction *backgroundAction = lpub->getAct("backgroundAction.1");
+  commonMenus.addAction(backgroundAction,menu,name);
+
+//  QAction *marginAction     = lpub->getAct("marginAction.1");
+//  commonMenus.addAction(marginAction,menu,name);
+
+//  QAction *sizeAction       = lpub->getAct("sizeAction.1");
+//  commonMenus.addAction(sizeAction,menu,name);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
 
   Where top = pli->top;
   Where bottom = pli->bottom;
@@ -3620,36 +3648,37 @@ void AnnotateTextItem::contextMenuEvent(
       changeFont(top,
                  bottom,
                  &font);
-    } else if (selectedAction == colorAction) {
+  } else if (selectedAction == colorAction) {
       changeColor(top,
                   bottom,
                   &color);
-    } else if (selectedAction == backgroundAction) {
-      changeBackground(pl+" Background",
+  } else if (selectedAction == backgroundAction) {
+      changeBackground(QObject::tr("%1 Background").arg(name),
                        top,
                        bottom,
                        &background,
                        true,1,true,false);  // no picture
-    } else if (selectedAction == borderAction) {
+  } else if (selectedAction == borderAction) {
       bool corners = style.value() == circle;
-      changeBorder(pl + " Border",
+      changeBorder(QObject::tr("%1 Border"),
                    top,
                    bottom,
                    &border,
                    true,1,true,false,corners);
-    } else if (selectedAction == marginAction) {
-//      changeMargins(pl + " Margins",
+  }
+//    else if (selectedAction == marginAction) {
+//      changeMargins(QObject::tr("%1 Margins")arg(name),
 //                    top,
 //                    bottom,
 //                    &margin);
-    } else if (selectedAction == sizeAction) {
-//      changeSize(pl + " Size",
+//  } else if (selectedAction == sizeAction) {
+//      changeSize(QObject::tr("%1 Size").arg(name),
 //                   "Width",
 //                   "Height",
 //                   top,
 //                   bottom,
 //                   &styleMeta->size);
-    }
+//  }
 }
 
 void InstanceTextItem::contextMenuEvent(
@@ -3657,28 +3686,33 @@ void InstanceTextItem::contextMenuEvent(
 {
   QMenu menu;
 
-  QString pl = "Parts Count ";
+  QString name = QObject::tr("Parts Count");
 
-  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *fontAction       = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
+
+  QAction *colorAction      = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *marginAction     = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
 
   Where top = pli->top;
   Where bottom = pli->bottom;
 
   if (selectedAction == fontAction) {
-      changeFont(top,bottom,&pli->pliMeta.instance.font,1,false);
-    } else if (selectedAction == colorAction) {
-      changeColor(top,bottom,&pli->pliMeta.instance.color,1,false);
-    } else if (selectedAction == marginAction) {
-      changeMargins(pl + " Margins",top,bottom,&pli->pliMeta.instance.margin,true,1,false);
-    }
+    changeFont(top,bottom,&pli->pliMeta.instance.font,1,false);
+  } else if (selectedAction == colorAction) {
+    changeColor(top,bottom,&pli->pliMeta.instance.color,1,false);
+  } else if (selectedAction == marginAction) {
+    changeMargins(QObject::tr("%1 Margins"),top,bottom,&pli->pliMeta.instance.margin,true,1,false);
+  }
 }
 
 PGraphicsPixmapItem::PGraphicsPixmapItem(
@@ -3818,78 +3852,96 @@ void PGraphicsPixmapItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QFontMetrics currentMetrics(gui->font());
+  QString elidedPartName = currentMetrics.elidedText(part->type, Qt::ElideRight, currentMetrics.averageCharWidth()*15);
+  QString name = QObject::tr("Part %1").arg(elidedPartName);
   // Text elided to 15 chars
-  QString pl = QString("Part %1")
-              .arg(this->part->type.size() > 15 ?
-                   this->part->type.left(12) + "..." +
-                   this->part->type.right(3) : this->part->type);
+  //QString name = QObject::tr("Part %1")
+  //                           .arg(this->part->type.size() > 15 ?
+  //                                    this->part->type.left(12) + "..." +
+  //                                    this->part->type.right(3) : this->part->type);
 
-  QAction *substitutePartAction = nullptr;
+  QAction *substitutePartAction       = nullptr;
   QAction *removeSubstitutePartAction = nullptr;
   if (this->part->subType) {
-      substitutePartAction = commonMenus.changeSubstitutePartMenu(menu,pl);
-      removeSubstitutePartAction = commonMenus.removeSubstitutePartMenu(menu,pl);
+      substitutePartAction            = lpub->getAct("changeSubstitutePartAction.1");
+      commonMenus.addAction(substitutePartAction,menu,name);
+
+      removeSubstitutePartAction      = lpub->getAct("removeSubstitutePartAction.1");
+      commonMenus.addAction(removeSubstitutePartAction,menu,name);
   } else {
-      substitutePartAction = commonMenus.substitutePartMenu(menu,pl);
+      substitutePartAction            = lpub->getAct("substitutePartAction.1");
+      commonMenus.addAction(substitutePartAction,menu,name);
   }
 
-  QAction *previewPartAction = commonMenus.previewPartMenu(menu,pl);
+  QAction *hideAction                 = lpub->getAct("hideAction.1");
+  commonMenus.addAction(hideAction,menu,name);
 
-  QAction *hideAction = commonMenus.hidePliPartMenu(menu,pl);
+  QAction *marginAction               = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
 
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *resetPartGroupAction       = nullptr;
+  if (pli->pliMeta.enablePliPartGroup.value()) {
+      resetPartGroupAction            = lpub->getAct("resetPartGroupAction.1");
+      commonMenus.addAction(resetPartGroupAction,menu,name);
+  }
 
-  QAction *resetPartGroupAction = nullptr;
-  if (pli->pliMeta.enablePliPartGroup.value())
-      resetPartGroupAction = commonMenus.resetPartGroupMenu(menu,pl);
-
-  QAction *resetViewerImageAction = nullptr;
+  QAction *resetViewerImageAction     = nullptr;
   if (canUpdatePreview) {
       menu.addSeparator();
-      resetViewerImageAction = commonMenus.resetViewerImageMenu(menu,pl);
+      resetViewerImageAction          = lpub->getAct("resetViewerImageAction.1");
+      commonMenus.addAction(resetViewerImageAction,menu,name);
   }
 
-  QAction *copyPliImagePathAction = nullptr;
+  QAction *copyPliImagePathAction     = nullptr;
 #ifndef QT_NO_CLIPBOARD
   menu.addSeparator();
-  copyPliImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
+  copyPliImagePathAction              = lpub->getAct("copyToClipboardAction.1");
+  commonMenus.addAction(copyPliImagePathAction,menu,name);
 #endif
 
+  QAction *previewPartAction          = lpub->getAct("previewPartAction.1");
   lcPreferences& Preferences = lcGetPreferences();
   previewPartAction->setEnabled(Preferences.mPreviewEnabled);
+  commonMenus.addAction(previewPartAction,menu,name);
 
 // Manipulate individual PLI images
-//  QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
-//  QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
-//  QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
+  //QAction *cameraAnglesAction  = lpub->getAct("cameraAnglesAction.1");
+  //commonMenus.addAction(cameraAnglesAction,menu,name);
 
-  QAction *selectedAction = menu.exec(event->screenPos());
+  //QAction *scaleAction  = lpub->getAct("scaleAction.1");
+  //commonMenus.addAction(scaleAction,menu,name);
+
+  //QAction *cameraFoVAction  = lpub->getAct("cameraFoVAction.1");
+  //commonMenus.addAction(cameraFoVAction,menu,name);
+
+  QAction *selectedAction             = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
 
   Where top = pli->top;
   Where bottom = pli->bottom;
 
   if (selectedAction == marginAction) {
 
-      changeMargins(pl+" Margins",
+      changeMargins(QObject::tr("%1 Margins").arg(name),
                     top,
                     bottom,
                     &pli->pliMeta.part.margin);
-    } else if (selectedAction == previewPartAction) {
+  } else if (selectedAction == previewPartAction) {
       previewPart(true /*previewPartAction*/);
-    } else if (selectedAction == hideAction) {
+  } else if (selectedAction == hideAction) {
       hidePLIParts(this->part->instances);
-    } else if (selectedAction == resetPartGroupAction) {
+  } else if (selectedAction == resetPartGroupAction) {
       resetPartGroup(part->groupMeta.here());
-    } else if (selectedAction == removeSubstitutePartAction) {
+  } else if (selectedAction == removeSubstitutePartAction) {
       QStringList attributes;
       attributes.append(this->part->type);
       attributes.append(this->part->color);
       substitutePLIPart(attributes,this->part->instances,sRemove);
-    } else if (selectedAction == substitutePartAction) {
+  } else if (selectedAction == substitutePartAction) {
       QStringList defaultList;
       if (this->part->subType/*sUpdate*/) {
           float modelScale = this->pli->pliMeta.modelScale.value();
@@ -3945,22 +3997,22 @@ void PGraphicsPixmapItem::contextMenuEvent(
       copyPliImagePathAction->setData(pli->imageName);
       emit copyPliImagePathAction->triggered();
   } /*else if (selectedAction == cameraAnglesAction) {
-      changeCameraAngles(pl+" Camera Angles",
+      changeCameraAngles(QObject::tr("%1 Camera Angles").arg(name),
                       top,
                       bottom,
                       &pli->pliMeta.cameraAngles);
   } else if (selectedAction == scaleAction) {
-     changeFloatSpin(pl,
-                     "Model Size",
-                     top,
-                     bottom,
-                     &pli->pliMeta.modelScale);
+      changeFloatSpin(name,
+                      "Model Size",
+                      top,
+                      bottom,
+                      &pli->pliMeta.modelScale);
   } else if (selectedAction == cameraFoVAction) {
-    changeFloatSpin(pl,
-                    "Camera FOV",
-                    top,
-                    bottom,
-                    &pli->pliMeta.cameraFoV);
+      changeFloatSpin(name,
+                      "Camera FOV",
+                      top,
+                      bottom,
+                      &pli->pliMeta.cameraFoV);
   } */
 }
 
@@ -3984,7 +4036,7 @@ InstanceTextItem::InstanceTextItem(
       mouseIsDown(false)
 {
   parentRelativeType = _parentRelativeType;
-  QString toolTip(tr("%1 times used - right-click to modify").arg(_part->type));
+  QString toolTip(tr("%1 Times Used - right-click to modify").arg(_part->type));
   setText(_pli,_part,text,fontString,toolTip);
   QColor color(colorString);
   setDefaultTextColor(color);
@@ -4079,8 +4131,12 @@ AnnotateTextItem::AnnotateTextItem(
       font       = _pli->pliMeta.elementStyle.font;
       color      = _pli->pliMeta.elementStyle.color;
       margin     = _pli->pliMeta.elementStyle.margin;
-      toolTip = QString("%1 Element Annotation - right-click to modify")
-                       .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
+      toolTip = tr("%1 Element Annotation %2 %3 (%4) \"%5\" - right-click to modify")
+                       .arg(_pli->pliMeta.partElements.legoElements.value() ? tr("LEGO") : tr("BrickLink"))
+                       .arg(_part->type)
+                       .arg(LDrawColor::name(_part->color))
+                       .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
+                       .arg(_part->description);
   } else {
       border     = _part->styleMeta.border;
       background = _part->styleMeta.background;
@@ -4089,7 +4145,12 @@ AnnotateTextItem::AnnotateTextItem(
       color      = _part->styleMeta.color;
       margin     = _part->styleMeta.margin;
       styleSize  = _part->styleMeta.size;
-      toolTip    = "Part Annotation - right-click to modify";
+      toolTip    = tr("%1 Part Annotation %2 %3 (%4) \"%5\" - right-click to modify")
+                      .arg(_pli->bom ? tr("BOM") : tr("PLI"))
+                      .arg(_part->type)
+                      .arg(LDrawColor::name(_part->color))
+                      .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
+                      .arg(_part->description);
   }
 
   setText(_pli,_part,_text,fontString,toolTip);
@@ -4328,6 +4389,3 @@ PartGroupItem::PartGroupItem(PliPartGroupMeta meta)
     setData(ObjectId, PartsListGroupObj);
     setZValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);
 }
-
-
-
