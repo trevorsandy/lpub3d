@@ -1631,9 +1631,9 @@ void CommonMenus::setWhatsThis()
 {
     WT_Text WTData[] =
     {
-        //************************************
-        //*  PREFERENCES ENTRIES
-        //************************************
+        /*************************************
+         *  PREFERENCES ENTRIES
+         *************************************/
         // WT_PREFERENCES
         {
             QObject::tr("  To be defined...\n")
@@ -1722,9 +1722,9 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr("  To be defined...\n")
         },
-        //*************************************
-        //*  GLOBAL SETUP ENTRIES
-        //*************************************
+        /*************************************
+         *  GLOBAL SETUP ENTRIES
+         *************************************/
         // WT_SETUP_ASSEM
         {
             QObject::tr(
@@ -2499,9 +2499,9 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr("  To be defined...\n")
         },
-        //*************************************
-        //*  DIALOG ENTRIES
-        //*************************************
+        /*************************************
+         *  DIALOG ENTRIES
+         *************************************/
         // WT_DIALOG_BACKGROUND
         {
            QObject::tr("  To be defined...\n")
@@ -2640,17 +2640,11 @@ void CommonMenus::setWhatsThis()
         },
         // WT_DIALOG_UNITS
         {
-           QObject::tr(
-           "  Configure the respective dot unit value using\n"
-           "  a decimal number in %1.\n\n"
-           "  Dot unit options are dots per inch (DPI) or\n"
-           "  dots per centimetre (DPC)\n\n"
-           "  Dot units are defined in Project Global Setup.\n")
-           .arg(MetaDefaults::getPreferredUnits()
+           QObject::tr("  To be defined...\n")
         },
-        //*************************************
-        //*  METAGUI ENTRIES
-        //*************************************
+        /*************************************
+        *  METAGUI ENTRIES
+        *************************************/
         // WT_GUI_SIZE_ORIENTATION
         {
             QObject::tr(
@@ -3121,28 +3115,12 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_PART_ANNOTATION_OPTIONS
         {
             QObject::tr(
-            "  Part annotation options.\n"
-            "  - Display PartList (PLI) Annotation: select\n"
-            "    annotation source from Title, Free Form or\n"
-            "    Fixed annotations.\n\n"
-            "  - Enable Annotation Style: enable or disable\n"
-            "    annotation for axles, beams, cables, connectors,\n"
-            "    hoses, panels or custom annotations.\n\n"
-            "  - Default Text Format: configure the default\n"
-            "    annotation text font color and margins.\n")
+            "  Part annotation options.\n")
         },
         // WT_GUI_PART_ANNOTATIONS_STYLES
         {
             QObject::tr(
-            "  Part annotation styles.\n"
-            "  - Select Style to Edit: display the corresponding\n"
-            "    background, border, text and size for editing.\n"
-            "    Choices include square, circle or rectangle.\n\n"
-            "  - Background: edit the annotation background\n\n"
-            "  - Border: edit the annotation border attributes\n\n"
-            "  - Annotation Text Format: edit the annotation text\n"
-            "    attributes\n\n"
-            "  - Size: edit the annotation size attributes\n")
+            "  Part annotation styles.\n")
         },
         // WT_GUI_PART_ANNOTATIONS_SOURCE
         {
@@ -3516,6 +3494,7 @@ void CommonMenus::setWhatsThis()
             "  - Submodel Placement: change the default submodel\n"
             "    placement using the placement dialog.\n")
         }
+
         // WT_NUM_ENTRIES
     };
 

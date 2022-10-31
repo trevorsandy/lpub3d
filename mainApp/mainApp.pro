@@ -740,20 +740,6 @@ FORMS += \
     substitutepartdialog.ui \
     texteditdialog.ui
 
-OTHER_FILES += \
-    $$lower($$MAN_PAGE) \
-    ../.gitignore \
-    ../.travis.yml \
-    ../appveyor.yml \
-    ../snapcraft.yaml \
-    ../README.md \
-    Info.plist \
-    lpub3d.1 \
-    lpub3d.sh \
-    lpub3d.xml \
-    lpub3d.desktop \
-    lpub3d.appdata.xml
-
 include(otherfiles.pri)
 
 RESOURCES += \
@@ -762,9 +748,6 @@ RESOURCES += \
     ../ldvlib/LDVQt/resources.qrc \
     resources/lsynth/lsynth.qrc \
     lpub3d.qrc
-
-DISTFILES += \
-    ldraw_document.icns
 
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
