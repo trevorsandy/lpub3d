@@ -291,6 +291,7 @@ void Updater::checkForUpdates()
         return;
     }
     // Mod end
+    setVersionsRequested(false);
     QNetworkRequest request (url());
     if (!userAgentString().isEmpty())
         request.setRawHeader ("User-Agent", userAgentString().toUtf8());
