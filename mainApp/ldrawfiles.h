@@ -356,10 +356,11 @@ class LDrawFile {
                              const int &mcStepNumber,
                              const int &prevStepPosition);
     int getPrevStepPosition(const QString &mcFileName,
+                            const int &mcLineNumber,
                             const int &mcStepNumber);
     void clearPrevStepPositions();
     void setModelStartPageNumber(const QString &mcFileName,
-                         const int     &startPageNumber);
+                                 const int &startPageNumber);
     int getModelStartPageNumber(const QString &mcFileName);
     void subFileLevels(QStringList &contents, int &level);
     int loadFile(const QString &fileName);

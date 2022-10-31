@@ -683,17 +683,62 @@ void LDrawFile::setModelStartPageNumber(
 
 int LDrawFile::getPrevStepPosition(
         const QString &mcFileName,
+        const int     &mcLineNumber,
         const int     &mcStepNumber)
 {
+  int position = 0;
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
       if (mcStepNumber == i.value()._prevStepPosition.at(PS_STEP_NUM))
-          return i.value()._prevStepPosition.at(PS_LAST_POS);
+          position = i.value()._prevStepPosition.at(PS_LAST_POS);
       else
-          return i.value()._prevStepPosition.at(PS_POS);
+          position = i.value()._prevStepPosition.at(PS_POS);
   }
-  return 0;
+
+  if (position && Preferences::buildModEnabled) {
+      QVector<int> indexKey = { getSubmodelIndex(mcFileName), mcLineNumber };
+      const int currentStepIndex = _buildModStepIndexes.indexOf(indexKey);
+
+#ifdef QT_DEBUG_MODE
+      if (currentStepIndex == BM_INVALID_INDEX) {
+          emit gui->messageSig(LOG_ERROR, QString("Could not find an index for TopOfStep fileName: %1 and lineNumber: %2")
+                               .arg(mcFileName).arg(mcLineNumber));
+          return position;
+      }
+#endif
+
+      Q_FOREACH (const QString &modKey, _buildMods.keys()) {
+          const QMap<int,int> &modActions = _buildMods[modKey]._modActions;
+          Q_FOREACH (int stepIndex, modActions.keys()) {
+              if (currentStepIndex == stepIndex) {
+                  const QVector<int> &modAttributes = _buildMods[modKey]._modAttributes;
+                  const int action = modActions.last();
+#ifdef QT_DEBUG_MODE
+                  const int oldPosition = position;
+                  emit gui->messageSig(LOG_TRACE, QString("%1 BuildMod Last Action: %2, ActionStepIndex: %3, ModKey: '%4'")
+                                                          .arg(action == BuildModApplyRc ? "Check" : "Adjust")
+                                                          .arg(action == BuildModApplyRc ? "Apply(64)" : "Remove(65)")
+                                                          .arg(modActions.lastKey()).arg(modKey));
+#endif
+                  if (action == BuildModRemoveRc && modAttributes.size() > BM_ACTION_LINE_NUM) {
+                      const int modBegin      = modAttributes.at(BM_BEGIN_LINE_NUM);
+                      const int modAction     = modAttributes.at(BM_ACTION_LINE_NUM);
+                      const int modEnd        = modAttributes.at(BM_END_LINE_NUM);
+                      const int modAdjustment = (modAction - modBegin) - (modEnd - modAction);
+                      position                -= modAdjustment;
+#ifdef QT_DEBUG_MODE
+                      emit gui->messageSig(LOG_TRACE, QString("Adjust BuildMod Step %1 Position, (Action [%3] - Begin [%2]) - (End [%4] - Action [%3]) = Adjustment: [%5], "
+                                                              "New Pos: [%6], Old Pos: [%7]")
+                                                              .arg(mcStepNumber).arg(modBegin).arg(modAction).arg(modEnd).arg(modAdjustment)
+                                                              .arg(position).arg(oldPosition));
+#endif
+                  }
+              }
+          }
+      }
+  }
+  return position;
 }
 
 void LDrawFile::setPrevStepPosition(

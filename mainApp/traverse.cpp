@@ -6033,7 +6033,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
  * The csiFile entries are only parts with not formatting or meta commands so it is
  * well suited to provide the delta between steps.
  */
-QStringList Gui::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current) {
+QStringList Gui::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current/*topOfStep*/) {
 
   QStringList configuredCsiParts, stepColourList;
   bool doFadeStep  = Preferences::enableFadeSteps;
@@ -6047,7 +6047,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
       QString fadeColour  = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeStep.color.value().color);
 
       // retrieve the previous step position
-      int prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,stepNum);
+      int prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber,stepNum);
       if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
           prevStepPosition = Gui::savePrevStepPosition;
 
