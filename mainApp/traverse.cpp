@@ -4982,6 +4982,8 @@ void Gui::pagesCounted()
             if (!ContinuousPage())
                 enableNavigationActions(true);
             enable3DActions(!lpub->page.coverPage || lpub->page.meta.LPub.coverPageViewEnabled.value());
+            if (waitingSpinner->isSpinning())
+                waitingSpinner->stop();
         } // modeGUI and not exporting
     } // drawPage
 

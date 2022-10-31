@@ -3461,7 +3461,8 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
 
         } else {
-            emit gui->messageSig(LOG_ERROR,QObject::tr("BeginRenderToImage for Native %1 image returned code %2").arg(ImageType).arg(rc));
+            emit gui->messageSig(LOG_ERROR,QObject::tr("Begin Native %1 image render returned code %2 - "
+                                                       "Unable to bind render framebuffer.").arg(ImageType).arg(rc));
         }
 
         if (O->ExportMode != EXPORT_NONE) {

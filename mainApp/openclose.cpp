@@ -872,6 +872,8 @@ bool Gui::openFile(QString &fileName)
   mpdCombo->addItem(tr("Loading..."));
   if (lpub->ldrawFile.loadFile(fileName) != 0) {
       closeModelFile();
+      if (waitingSpinner->isSpinning())
+          waitingSpinner->stop();
       return false;
   }
   displayPageNum = 1 + pa;
