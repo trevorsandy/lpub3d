@@ -3072,7 +3072,7 @@ void MetaItem::insertBOM()
   Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum]; //start at the bottom of the page's last step
 
   bool forModel;
-  int option = BomOptionDialog::getOption(forModel, bottomOfPage.modelIndex, gui);
+  int option = BomOptionDialog::getOption(forModel, bottomOfPage.modelIndex, nullptr);
 
   if (option == AppendNoOption)
     return;
@@ -5205,7 +5205,7 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
   else if (option == RLPF_BOM)
   {
       bool forModel;
-      int option = BomOptionDialog::getOption(forModel, bottom.modelIndex, gui, true);
+      int option = BomOptionDialog::getOption(forModel, bottom.modelIndex, nullptr, true);
       if (option == AppendNoOption)
         return;
 

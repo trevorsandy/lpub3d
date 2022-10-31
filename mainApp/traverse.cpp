@@ -3128,7 +3128,7 @@ int Gui::findPage(
                                   opts.pageDisplayed = modelOpts.pageDisplayed;
                                   partiallyRendered = modelOpts.current.lineNumber < modelOpts.flags.numLines;
                                   if (opts.pageDisplayed) {                 // capture where we stopped in the submodel
-                                      // when we stop before the end of a child submode,
+                                      // when we stop before the end of a child submodel,
                                       // we need to capture the child submodel flags for countPages
                                       if (partiallyRendered) {
                                           opts.pageNum           = modelOpts.pageNum;
@@ -3142,7 +3142,7 @@ int Gui::findPage(
                                           // lineNumber increment as we iterate to terminate the
                                           // line processing loop at 'pageDisplayed'
                                           opts.current--;
-                                          // if we are at the last step of the submodel, with not parts added, turn
+                                          // if we are at the last step of the submodel, with no parts added, turn
                                           // on parseBuildMods in countPage in case ther is a BUILD_MOD REMOVE command.
                                           bool partsAdded;
                                           Where walk = modelOpts.current;

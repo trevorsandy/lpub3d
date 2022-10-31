@@ -2315,8 +2315,8 @@ int CountPageWorker::countPage(
                       bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore ||
                                               ldrawFile->getBuildModRendered(buildMod.key, colorType, true/*countPage*/));
 
-                      // if not callout or assembled/rotated callout or count (actually parse) build mods
-                      // note that we accept callouts if opts.flags.parseBuildMods to parse any specified build mods
+                      // if not callout or assembled/rotated callout or parseBuildMods, process the submodel
+                      // note that we accept callouts if parseBuildMods is true to parse any specified build mods
                       if (!opts.flags.callout || opts.flags.parseBuildMods || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
 
                           // check if submodel was rendered
@@ -2334,15 +2334,21 @@ int CountPageWorker::countPage(
 
                                   opts.isMirrored = ldrawFile->mirrored(token);
 
-                                  // add submodel to the model modelStack - it can't be a callout
+                                  // add submodel to the model modelStack - it can also be a callout
                                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                                   meta->submodelStack << tos;
                                   Where current2(type,ldrawFile->getSubmodelIndex(type),0);
 
-                                  // Consider using clean flags only passing buildMod and countPageContains ?
-                                  FindPageFlags flags2; //     = opts.flags; //crashing on main model formatting remove
-                                  flags2.buildMod          = buildMod;
+                                  // pass contains to countPageContains, buildMod, parseBuildMods and callout - if parseBuildMods
+                                  FindPageFlags flags2;    //= opts.flags; //passing all flags crashes main model formatting remove
                                   flags2.countPageContains = contains;
+                                  flags2.buildMod          = buildMod;
+                                  if (opts.flags.parseBuildMods) {
+                                      // as we are processing callouts we must pass their flag
+                                      // so we do not set their step or end model as a new page
+                                      flags2.callout        = opts.flags.callout;
+                                      flags2.parseBuildMods = opts.flags.parseBuildMods;
+                                  }
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
