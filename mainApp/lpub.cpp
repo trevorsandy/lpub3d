@@ -3608,7 +3608,7 @@ void Gui::progressPermStatusRemove(){
     }
 }
 
-void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
+void Gui::updateGoToPage(bool frontCoverPageExist, bool backCoverPageExist){
   int pageNum = 0 + pa;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
@@ -5849,20 +5849,20 @@ void Gui::disableActions()
 void Gui::enableActions2()
 {
     bool frontCoverPageExist = lpub->mi.frontCoverPageExist();
-    getAct("insertCoverPageAct.1")->setEnabled(! frontCoverPageExist &&
-                                   lpub->mi.okToInsertCoverPage());
+    getAct("insertCoverPageAct.1")->setEnabled(!frontCoverPageExist &&
+                                               lpub->mi.okToInsertCoverPage());
     bool backCoverPageExist = lpub->mi.backCoverPageExist();
-    getAct("appendCoverPageAct.1")->setEnabled(! backCoverPageExist &&
-                                   lpub->mi.okToAppendCoverPage());
+    getAct("appendCoverPageAct.1")->setEnabled(!backCoverPageExist &&
+                                               lpub->mi.okToAppendCoverPage());
 
-    loadPages(frontCoverPageExist, backCoverPageExist);
+    updateGoToPage(frontCoverPageExist, backCoverPageExist);
 
-    bool frontCover = lpub->mi.okToInsertNumberedPage();
-    getAct("insertNumberedPageAct.1")->setEnabled(frontCover);
-    bool backCover = lpub->mi.okToAppendNumberedPage();
-    getAct("appendNumberedPageAct.1")->setEnabled(backCover);
+    bool insertNumberedPage = lpub->mi.okToInsertNumberedPage();
+    getAct("insertNumberedPageAct.1")->setEnabled(insertNumberedPage);
+    bool appendNumberedPage = lpub->mi.okToAppendNumberedPage();
+    getAct("appendNumberedPageAct.1")->setEnabled(appendNumberedPage);
     getAct("deletePageAct.1")->setEnabled(lpub->page.list.size() == 0);
-    getAct("addBomAct.1")->setEnabled(frontCover||backCover);
+    getAct("addBomAct.1")->setEnabled(insertNumberedPage||appendNumberedPage);
     getAct("addTextAct.1")->setEnabled(true);
 }
 

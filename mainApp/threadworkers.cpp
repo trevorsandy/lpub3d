@@ -2769,6 +2769,12 @@ int CountPageWorker::countPage(
             case InsertPageRc:
               opts.flags.stepPage   = true;
               opts.flags.partsAdded = true;
+              Gui::lastStepPageNum  = opts.pageNum;
+              break;
+
+            case InsertFinalModelRc:
+            case InsertDisplayModelRc:
+              Gui::lastStepPageNum = opts.pageNum;
               break;
 
             case PartBeginIgnRc:

@@ -435,7 +435,7 @@ int Gui::drawPage(
 
   QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
   QStringList configuredCsiParts; // fade and highlight configuration
-  QString  line, csiName;
+  QString  line;
   Callout *callout         = nullptr;
   Range   *range           = nullptr;
   Step    *step            = nullptr;
@@ -1443,8 +1443,6 @@ int Gui::drawPage(
                 bool proceed = true;
                 if (rc == InsertFinalModelRc) {
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
-
-                    // for final model, check from top of previous step
                     lpub->mi.scanBackwardNoParts(top, StepMask);
                     message = QString("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
                 } else { /*InsertDisplayModelRc*/
@@ -1481,24 +1479,22 @@ int Gui::drawPage(
                 coverPage = true;
                 partsAdded = true;
                 lpub->page.coverPage = true;
-                QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
-                if (line.contains(backCoverPage)){
-                    lpub->page.backCover  = true;
-                    lpub->page.frontCover = false;
+                QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT| BACK)?$");
+                if (line.contains(rx) && displayPageNum > lastStepPageNum) {
+                  lpub->page.backCover  = true;
+                  lpub->page.frontCover = false;
+                  lpub->mi.scanBackwardNoParts(top, StepMask);
+                  message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
+                } else if (line.contains(rx) && displayPageNum < firstStepPageNum) {
+                  lpub->page.frontCover = true;
+                  lpub->page.backCover  = false;
+                  lpub->mi.scanForwardNoParts(top, StepMask);
+                  message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
+                }
 
-                    // for back cover page, check from top of previous step
-                    lpub->mi.scanBackwardNoParts(top, StepMask);
-                    message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
-                  } else { /*frontCoverPage*/
-                    lpub->page.frontCover = true;
-                    lpub->page.backCover  = false;
-
-                    lpub->mi.scanForwardNoParts(top, StepMask);
-                    message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
-                  }
-                  if (stepContains(top,partTypeLineRx)) {
-                      parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
-                  }
+                if (stepContains(top,partTypeLineRx)) {
+                  parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
+                }
               }
               break;
 
@@ -3712,6 +3708,12 @@ int Gui::findPage(
             case InsertPageRc:
               opts.flags.stepPage   = true;
               opts.flags.partsAdded = true;
+              lastStepPageNum       = opts.pageNum;
+              break;
+
+            case InsertFinalModelRc:
+            case InsertDisplayModelRc:
+              lastStepPageNum = opts.pageNum;
               break;
 
             case PartBeginIgnRc:

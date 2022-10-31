@@ -1848,7 +1848,7 @@ private slots:
     void firstPage();
     void lastPage();
     void setGoToPage(int index);
-    void loadPages(bool, bool);
+    void updateGoToPage(bool, bool);
 
     void consoleCommand(int, int *);
     void consoleCommandCurrentThread(int option, int *value);

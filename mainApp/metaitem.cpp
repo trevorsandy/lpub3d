@@ -2566,17 +2566,14 @@ void MetaItem::changeAlloc(
 
 bool MetaItem::okToInsertCoverPage()
 {
-  const bool frontCover = Gui::displayPageNum <= Gui::firstStepPageNum;
-  const bool backCover  = Gui::displayPageNum >    Gui::lastStepPageNum;
-
-  return frontCover || backCover;
+  // before first step page
+  return Gui::displayPageNum <= Gui::firstStepPageNum;
 }
+
 bool MetaItem::okToAppendCoverPage()
 {
-  const bool frontCover = Gui::displayPageNum < Gui::firstStepPageNum;
-  const bool backCover  = Gui::displayPageNum >= Gui::lastStepPageNum;
-
-  return frontCover || backCover;
+  // after last step page
+  return Gui::displayPageNum >= Gui::lastStepPageNum;
 }
 
 void MetaItem::insertCoverPage()
@@ -2620,9 +2617,9 @@ void MetaItem::insertCoverPage()
 
 bool MetaItem::frontCoverPageExist()
 {
-  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
+  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
   Where here(lpub->ldrawFile.topLevelFile(),0);
-  return Gui::stepContains(here, rx);
+  return Gui::stepContains(here, rx);;
 }
 
 void MetaItem::appendCoverPage()
@@ -2653,7 +2650,7 @@ void MetaItem::appendCoverPage()
 
 bool MetaItem::backCoverPageExist()
 {
-  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
+  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
   Where here(lpub->ldrawFile.topLevelFile(), lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile())); //start at bottom of file
   if (here.lineNumber)
       scanBackward(here, StepMask | StepGroupMask);
@@ -2662,11 +2659,11 @@ bool MetaItem::backCoverPageExist()
 
 bool MetaItem::okToInsertNumberedPage()
 {
-  bool frontCover = Gui::displayPageNum >= Gui::firstStepPageNum;
-  bool backCover  = Gui::displayPageNum <=  Gui::lastStepPageNum;
-
-  return frontCover || backCover;
+  const bool afterOrAtFirstStepPage = Gui::displayPageNum >= Gui::firstStepPageNum;
+  const bool beforeOrAtLastStepPage = Gui::displayPageNum <= Gui::lastStepPageNum;
+  return afterOrAtFirstStepPage || beforeOrAtLastStepPage;
 }
+
 bool MetaItem::okToAppendNumberedPage()
 {
   return okToInsertNumberedPage();
