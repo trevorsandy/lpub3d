@@ -1832,6 +1832,8 @@ private slots:
     void addText();
     void addBom();
     void removeLPubFormatting();
+    void removeBuildModFormat();
+    void removeChildSubmodelFormat();
     void cycleEachPage();
 
     void nextPage();
@@ -1905,6 +1907,7 @@ private slots:
     void setupToolBarVisibilityChanged(bool);
     void editToolBarVisibilityChanged(bool);
     void editParamsToolBarVisibilityChanged(bool);
+    void removeLPubFormatToolBarVisibilityChanged(bool);
 
     void getSubFileList();
 
@@ -1964,6 +1967,7 @@ private:
   QMenu    *recentMenu;
   QMenu    *setupMenu;
 
+  QMenu    *removeLPubFormatMenu;
   QMenu    *nextPageContinuousMenu;
   QMenu    *previousPageContinuousMenu;
   QMenu    *snapToGridMenu;
@@ -1993,6 +1997,7 @@ private:
   QToolBar *editParamsToolBar;
   QToolBar *zoomToolBar;
   QToolBar *navigationToolBar;
+  QToolBar *removeLPubFormatToolBar;
 
   // file
   QAction  *openAct;
@@ -2040,9 +2045,15 @@ private:
   QAction  *addPictureAct;
   QAction  *addTextAct;
   QAction  *addBomAct;
-  QAction  *removeLPubFormattingAct;
-  QAction  *cycleEachPageAct;
 
+  QAction  *removeLPubFormatBomAct;
+  QAction  *removeLPubFormatDocumentAct;
+  QAction  *removeLPubFormatPageAct;
+  QAction  *removeLPubFormatStepAct;
+  QAction  *removeBuildModFormatAct;
+  QAction  *removeLPubFormatSubmodelAct;
+  QAction  *removeChildSubmodelFormatAct;
+  QAction  *cycleEachPageAct;
 
   // view
   // zoom toolbar

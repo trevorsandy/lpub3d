@@ -324,11 +324,36 @@ void Gui::addBom()
   lpub->mi.insertBOM();
 }
 
+void Gui::removeBuildModFormat()
+{
+    bool prompt = removeBuildModFormatAct->isChecked();
+    Preferences::removeBuildModFormatPreference(prompt);
+}
+
+void Gui::removeChildSubmodelFormat()
+{
+    bool prompt = removeChildSubmodelFormatAct->isChecked();
+    Preferences::removeChildSubmodelFormatPreference(prompt);
+}
+
 void Gui::removeLPubFormatting()
 {
-  lpub->mi.removeLPubFormatting();
-  displayPageNum = 1 + pa;
-  displayPage();
+    int option = RLPF_DOCUMENT;
+    int saveDisplayPageNum = displayPageNum;
+    displayPageNum = 1 + pa;
+    if (sender() == removeLPubFormatSubmodelAct) {
+        option = RLPF_SUBMODEL;
+    } else if (sender() == removeLPubFormatPageAct) {
+        option = RLPF_PAGE;
+        displayPageNum = saveDisplayPageNum;
+    } else if (sender() == removeLPubFormatStepAct) {
+        option = RLPF_STEP;
+        displayPageNum = saveDisplayPageNum;
+    } else if (sender() == removeLPubFormatBomAct) {
+        option = RLPF_BOM;
+    }
+
+    lpub->removeLPubFormatting(option);
 }
 
 #ifndef QT_NO_CLIPBOARD
@@ -3337,6 +3362,7 @@ Gui::Gui()
     qRegisterMetaType<ProcessType>("ProcessType");
     qRegisterMetaType<RectPlacement>("RectPlacement");
     qRegisterMetaType<RelativeTos>("RelativeTos");
+    qRegisterMetaType<RemoveLPubFormatType>("RemoveLPubFormatType");
     qRegisterMetaType<RemoveObjectsRC>("RemoveObjectsRC");
     qRegisterMetaType<RendererType>("RendererType");
     qRegisterMetaType<RulerTrackingType>("RulerTrackingType");
@@ -5106,11 +5132,48 @@ void Gui::createActions()
     addBomAct->setEnabled(false);
     connect(addBomAct, SIGNAL(triggered()), this, SLOT(addBom()));
 
-    removeLPubFormattingAct = new QAction(QIcon(":/resources/removelpubformat.png"),tr("Remove LPub Formatting"),this);
-    removeLPubFormattingAct->setShortcut(tr("Ctrl+Alt+R"));
-    removeLPubFormattingAct->setStatusTip(tr("Remove all LPub metacommands from all files - Ctrl+Alt+R"));
-    removeLPubFormattingAct->setEnabled(false);
-    connect(removeLPubFormattingAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
+    removeLPubFormatBomAct = new QAction(QIcon(":/resources/removelpubformatbom.png"),tr("Unformat Bill of Materials"),this);
+    removeLPubFormatBomAct->setShortcut(tr("Ctrl+Alt+J"));
+    removeLPubFormatBomAct->setStatusTip(tr("Remove all LPub Bill of Materials metacommands - Ctrl+Alt+J"));
+    removeLPubFormatBomAct->setEnabled(false);
+    connect(removeLPubFormatBomAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
+
+    removeLPubFormatDocumentAct = new QAction(QIcon(":/resources/removelpubformatdocument.png"),tr("Unformat Document"),this);
+    removeLPubFormatDocumentAct->setShortcut(tr("Ctrl+Alt+R"));
+    removeLPubFormatDocumentAct->setStatusTip(tr("Remove all LPub metacommands from entire document - Ctrl+Alt+R"));
+    removeLPubFormatDocumentAct->setEnabled(false);
+    connect(removeLPubFormatDocumentAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
+
+    removeLPubFormatPageAct = new QAction(QIcon(":/resources/removelpubformatpage.png"),tr("Unformat Current Page"),this);
+    removeLPubFormatPageAct->setShortcut(tr("Ctrl+Alt+E"));
+    removeLPubFormatPageAct->setStatusTip(tr("Remove all LPub metacommands from the current page - Ctrl+Alt+E"));
+    removeLPubFormatPageAct->setEnabled(false);
+    connect(removeLPubFormatPageAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
+
+    removeLPubFormatStepAct = new QAction(QIcon(":/resources/removelpubformatstep.png"),tr("Unformat Single Step"),this);
+    removeLPubFormatStepAct->setShortcut(tr("Ctrl+Alt+L"));
+    removeLPubFormatStepAct->setStatusTip(tr("Remove all LPub metacommands from the current step - Ctrl+Alt+L"));
+    removeLPubFormatStepAct->setEnabled(false);
+    connect(removeLPubFormatStepAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
+
+    removeLPubFormatSubmodelAct = new QAction(QIcon(":/resources/removelpubformatsubmodel.png"),tr("Unformat Current Submodel"),this);
+    removeLPubFormatSubmodelAct->setShortcut(tr("Ctrl+Alt+H"));
+    removeLPubFormatSubmodelAct->setStatusTip(tr("Remove all LPub metacommands from the current submodel - Ctrl+Alt+H"));
+    removeLPubFormatSubmodelAct->setEnabled(false);
+    connect(removeLPubFormatSubmodelAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
+
+    removeBuildModFormatAct = new QAction(tr("Remove Build Mod Format"),this);
+    removeBuildModFormatAct->setStatusTip(tr("Remove build modification formatting including modified part lines."));
+    removeBuildModFormatAct->setCheckable(true);
+    removeBuildModFormatAct->setEnabled(Preferences::buildModEnabled);
+    removeBuildModFormatAct->setChecked(Preferences::removeBuildModFormat);
+    connect(removeBuildModFormatAct, SIGNAL(triggered()), this, SLOT(removeBuildModFormat()));
+
+    removeChildSubmodelFormatAct = new QAction(tr("Remove Child Submodel Format"),this);
+    removeChildSubmodelFormatAct->setStatusTip(tr("Remove child submodel formatting for submodel, step, page or callout removals."));
+    removeChildSubmodelFormatAct->setCheckable(true);
+    removeChildSubmodelFormatAct->setChecked(Preferences::removeChildSubmodelFormat);
+    connect(removeChildSubmodelFormatAct, SIGNAL(triggered()), this, SLOT(removeChildSubmodelFormat()));
 
     // fitWidth,fitVisible,actualSize,fitScene
 
@@ -5724,15 +5787,21 @@ void Gui::enableActions()
   highlightStepSetupAct->setEnabled(true);
 
   addPictureAct->setEnabled(true);
-  removeLPubFormattingAct->setEnabled(true);
+
+  removeLPubFormatDocumentAct->setEnabled(true);
+  removeLPubFormatBomAct->setEnabled(true);
+  removeLPubFormatPageAct->setEnabled(true);
+  removeLPubFormatStepAct->setEnabled(true);
+  removeLPubFormatSubmodelAct->setEnabled(true);
+  removeChildSubmodelFormatAct->setEnabled(true);
+  removeBuildModFormatAct->setEnabled(Preferences::buildModEnabled);
 
   editTitleAnnotationsAct->setEnabled(true);
   editFreeFormAnnitationsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
   editStickerPartsAct->setEnabled(true);
-  if (!Preferences::ldrawColourPartsFile.isEmpty())
-      editLDrawColourPartsAct->setEnabled(true);
+  editLDrawColourPartsAct->setEnabled(!Preferences::ldrawColourPartsFile.isEmpty());
   editLdgliteIniAct->setEnabled(true);
   editNativePOVIniAct->setEnabled(true);
   editLdviewIniAct->setEnabled(true);
@@ -5748,8 +5817,7 @@ void Gui::enableActions()
   editBLColorsAct->setEnabled(true);
   editBLCodesAct->setEnabled(true);
   editModelFileAct->setEnabled(true);
-  if (!Preferences::pliControlFile.isEmpty())
-      editPliControlFileAct->setEnabled(true);
+  editPliControlFileAct->setEnabled(!Preferences::pliControlFile.isEmpty());
   openWorkingFolderAct->setEnabled(true);
 
 //  setPageLineEdit->setEnabled(true);
@@ -5827,7 +5895,14 @@ void Gui::disableActions()
   highlightStepSetupAct->setEnabled(false);
 
   addPictureAct->setEnabled(false);
-  removeLPubFormattingAct->setEnabled(false);
+
+  removeLPubFormatBomAct->setEnabled(false);
+  removeLPubFormatDocumentAct->setEnabled(false);
+  removeLPubFormatPageAct->setEnabled(false);
+  removeLPubFormatStepAct->setEnabled(false);
+  removeLPubFormatSubmodelAct->setEnabled(false);
+  removeChildSubmodelFormatAct->setEnabled(false);
+  removeBuildModFormatAct->setEnabled(false);
 
   editModelFileAct->setEnabled(false);
 
@@ -5983,6 +6058,20 @@ void Gui::createMenus()
     menuBar()->addSeparator();
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
+
+    removeLPubFormatMenu = new QMenu(tr("Remove LPub Format..."), editMenu);
+    removeLPubFormatMenu->setIcon(QIcon(":/resources/removelpubformat.png"));
+    removeLPubFormatMenu->setStatusTip(tr("Remove LPub format from document, page, step and submodel"));
+    removeLPubFormatMenu->addAction(removeLPubFormatDocumentAct);
+    removeLPubFormatMenu->addSeparator();
+    removeLPubFormatMenu->addAction(removeLPubFormatPageAct);
+    removeLPubFormatMenu->addAction(removeLPubFormatStepAct);
+    removeLPubFormatMenu->addAction(removeLPubFormatSubmodelAct);
+    removeLPubFormatMenu->addAction(removeLPubFormatBomAct);
+    removeLPubFormatMenu->addSeparator();
+    removeLPubFormatMenu->addAction(removeBuildModFormatAct);
+    removeLPubFormatMenu->addAction(removeChildSubmodelFormatAct);
+
     editMenu->addAction(undoAct);
     editMenu->addAction(redoAct);
 
@@ -5996,10 +6085,11 @@ void Gui::createMenus()
     editMenu->addAction(addPictureAct);
     editMenu->addAction(addTextAct);
     editMenu->addAction(addBomAct);
-    editMenu->addAction(removeLPubFormattingAct);
-    editMenu->addSeparator();
     editMenu->addAction(cycleEachPageAct);
     editMenu->addSeparator();
+
+    editMenu->insertMenu(cycleEachPageAct, removeLPubFormatMenu);
+    editMenu->insertSeparator(cycleEachPageAct);
 
     viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(fitWidthAct);
@@ -6277,7 +6367,23 @@ void Gui::createToolBars()
     editToolBar->addAction(addPictureAct);
     editToolBar->addAction(addTextAct);
     editToolBar->addAction(addBomAct);
-    editToolBar->addAction(removeLPubFormattingAct);
+
+    removeLPubFormatToolBar = addToolBar(tr("Remove LPub Format Toolbar"));
+    removeLPubFormatToolBar->setObjectName("RemoveLPubFormatToolBar");
+    removeLPubFormatToolBar->addAction(removeLPubFormatDocumentAct);
+    removeLPubFormatToolBar->addAction(removeLPubFormatPageAct);
+    removeLPubFormatToolBar->addAction(removeLPubFormatStepAct);
+    removeLPubFormatToolBar->addAction(removeLPubFormatSubmodelAct);
+    removeLPubFormatToolBar->addAction(removeLPubFormatBomAct);
+
+    visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY)).toBool();
+    editMenu->addAction(removeLPubFormatToolBar->toggleViewAction());
+    removeLPubFormatToolBar->setVisible(visible);
+    connect (removeLPubFormatToolBar, SIGNAL (visibilityChanged(bool)),
+                                this, SLOT (removeLPubFormatToolBarVisibilityChanged(bool)));
+
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)).toBool();
@@ -6286,7 +6392,7 @@ void Gui::createToolBars()
     editMenu->addAction(editWindow->toolsToolBar->toggleViewAction());
     editToolBar->setVisible(visible);
     connect (editToolBar, SIGNAL (visibilityChanged(bool)),
-                     this, SLOT (editToolBarVisibilityChanged(bool)));
+                    this, SLOT (editToolBarVisibilityChanged(bool)));
 
     editParamsToolBar = addToolBar(tr("Edit Parameters Toolbar"));
     editParamsToolBar->setObjectName("EditParamsToolbar");
@@ -6430,6 +6536,12 @@ void Gui::setupToolBarVisibilityChanged(bool visible)
 {
     QSettings Settings;
     Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY),visible);
+}
+
+void Gui::removeLPubFormatToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY),visible);
 }
 
 void Gui::editToolBarVisibilityChanged(bool visible)

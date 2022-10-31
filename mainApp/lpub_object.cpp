@@ -20,6 +20,7 @@
 #include "lpub_preferences.h"
 #include "step.h"
 #include "lpub.h"
+#include "messageboxresizable.h"
 
 #include "lc_application.h"
 #include "lc_mainwindow.h"
@@ -950,6 +951,138 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
                                                                    .arg(QDir::toNativeSeparators(fileName))));
 
     return true;
+}
+
+/****************************************************************************
+ *
+ * Remove LPub formatting from document, submodel, page, step, callout and BOM
+ *
+ ***************************************************************************/
+
+void LPub::removeLPubFormatting(int option)
+{
+  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+  QMessageBoxResizable box;
+  box.setWindowIcon(QIcon());
+  box.setIconPixmap (_icon);
+  box.setTextFormat (Qt::RichText);
+  box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
+  box.setDefaultButton   (QMessageBox::Yes);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  box.setWindowTitle(tr ("Remove LPub formatting"));
+
+#ifdef QT_DEBUG_MODE
+  Where _top;
+  Where _bottom;
+#endif
+
+  Where top;
+  Where bottom;
+  switch (option)
+  {
+  case RLPF_DOCUMENT:
+      top = Where(ldrawFile.topLevelFile(), 0, 1);
+      break;
+  case RLPF_SUBMODEL:
+      top.modelIndex = currentStep ? currentStep->top.modelIndex : page.top.modelIndex;
+      if (!top.modelIndex) {
+          bool preserveGlobalHeaders = false;
+          top = Where(ldrawFile.topLevelFile(), 0, 1);
+          box.setStandardButtons (QMessageBox::Yes| QMessageBox::No |QMessageBox::Cancel);
+          box.setDefaultButton(QMessageBox::No);
+          QCheckBox *cb1 = new QCheckBox(tr ("Preserve GLOBAL header lines ?"));
+          box.setCheckBox(cb1);
+          QObject::connect(cb1, &QCheckBox::stateChanged, [&](int state) {
+              if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                  preserveGlobalHeaders = true;
+          });
+
+          box.setText (tr("<b> Remove format from top level model. </b>"));
+          box.setInformativeText (tr ("This action will remove formatting for the top level model only.<br>"
+                                      "Did you want to remove formatting from the entire document ?"));
+          box.adjustSize();
+          int result = box.exec();
+          if (result == QMessageBox::Yes) {
+              option = RLPF_DOCUMENT;
+              Gui::displayPageNum = 1 + Gui::pa;
+          } else if (result == QMessageBox::No) {
+#ifdef QT_DEBUG_MODE
+              qDebug() << qPrintable(QString("COMPARE Preserve GLOBAL HEADERS: %1").arg(preserveGlobalHeaders ? "NO" : "YES"));
+#endif
+              if (preserveGlobalHeaders)
+                  mi.scanPastGlobal(top);
+          } else if (result == QMessageBox::Cancel) {
+              return;
+          }
+      }
+      break;
+  case RLPF_PAGE:
+      if (page.relativeType == StepGroupType) {
+#ifdef QT_DEBUG_MODE
+          qDebug() << qPrintable(QString("COMPARE Using PAGE STEPS"));
+#endif
+          /*
+          for Step Group we want page.top [Steps::top]
+          which is set at MULTI_STEP BEGIN/END.
+          Like this, we start the first step after the header.
+          */
+          top = page.top;
+          bottom = page.bottom;
+      } else {
+#ifdef QT_DEBUG_MODE
+          qDebug() << qPrintable(QString("COMPARE Using PAGE"));
+#endif
+          /*
+          for Single Step and No Step we wat topOf/bottomOf Steps
+          [Steps::list(ranges)::list(ranges_elements)::top or
+          Steps::top for non-step pages] which is set at the
+          first encounter of type 1-5 part - so we should start
+          the first step after the header.
+         */
+          top = page.topOfSteps();
+          bottom = page.bottomOfSteps();
+      }
+#ifdef QT_DEBUG_MODE
+      _top    = Gui::topOfPages[Gui::displayPageNum-1];
+      _bottom = Gui::topOfPages[Gui::displayPageNum];
+      qDebug() << qPrintable(QString("COMAPARE PAGE/TOPofPAGES top/_top: %1,%2, bottom/_bottom: %3,%4")
+                             .arg(top.lineNumber).arg(_top.lineNumber).arg(bottom.lineNumber).arg(_bottom.lineNumber));
+#endif
+      break;
+  case RLPF_STEP:
+      if (!currentStep) {
+          box.setText (tr("<b> The current step is null. </b>"));
+          box.setInformativeText (tr ("Do you want to remove formatting for the current page ?"));
+          if (box.exec() == QMessageBox::Yes) {
+              top = page.top;
+              bottom = page.bottom;
+              option = RLPF_PAGE;
+          } else
+              return;
+      } else {
+          top = currentStep->top;
+          bottom = currentStep->bottom;
+#ifdef QT_DEBUG_MODE
+          qDebug() << qPrintable(QString("COMAPARE CURRENT STEP top: %1, bottom: %2")
+                                 .arg(top.lineNumber, bottom.lineNumber));
+#endif
+      }
+      break;
+  case RLPF_BOM:
+         //start at the bottom of the page's last step
+         bottom = Gui::topOfPages[Gui::displayPageNum];
+         top = Where(bottom.modelName, bottom.modelIndex, 1);
+#ifdef QT_DEBUG_MODE
+         _bottom = currentStep ? currentStep->bottom : Gui::topOfPages[Gui::displayPageNum];
+         qDebug() << qPrintable(QString("COMPARE BOM %1").arg(currentStep ? "CURRENT STEP" : "TOPofPAGES"));
+         qDebug() << qPrintable(QString("COMAPARE COMAPARE BOM TOPofPAGES/CURRENT STEP bottom/_bottom: %1,%2")
+                                .arg(bottom.lineNumber, _bottom.lineNumber));
+#endif
+      break;
+  default:
+      break;
+  }
+  mi.removeLPubFormatting(option, top, bottom);
 }
 
 /****************************************************************************

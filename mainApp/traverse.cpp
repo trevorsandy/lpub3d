@@ -1759,8 +1759,8 @@ int Gui::drawPage(
                   parseError("Failed to process previous BUILD_MOD action for MULTI_STEP.",opts.current);
               } else {
                 steps->relativeType = StepGroupType;
+                steps->setTopOfSteps(opts.current);
               }
-
               break;
 
             case StepGroupDividerRc:
@@ -1784,6 +1784,7 @@ int Gui::drawPage(
                       parseError("Expected STEP before MULTI_STEP END", opts.current);
                     }
                   multiStep = false;
+                  steps->setBottomOfSteps(opts.current);
 
                  /*
                   * TODO
@@ -3172,7 +3173,7 @@ int Gui::findPage(
                                           opts.flags.buildModStack << buildMod;
                                       }
                                   } // opts.pageDisplayed
-                                  else
+                                  else if (meta.submodelStack.size())
                                       meta.submodelStack.pop_back();
 
                                   saveStepPageNum = stepPageNum;
@@ -4545,6 +4546,7 @@ void Gui::drawPage(
   saveMaxPages = maxPages;
   maxPages     = 1 + pa;
   stepPageNum  = maxPages;
+  lpub->page.relativeType = SingleStepType;
 
   // set submodels unrendered
   lpub->ldrawFile.unrendered();
@@ -4556,7 +4558,7 @@ void Gui::drawPage(
     bool firstPage       = true;
     bool adjustTopOfStep = false;
     Where topOfStep      = current;
-    meta                 = Meta();
+    lpub->meta           = Meta();
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
     emit messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(displayPageNum));
@@ -4567,10 +4569,11 @@ void Gui::drawPage(
       firstPage       = ! topOfPages.size() || topOfPages.size() < displayPageIndx;
 
       if (!firstPage) {
-        if (topOfPages.size() > displayPageIndx )
+        if (topOfPages.size() > displayPageIndx) {
             topOfStep     = topOfPages[displayPageIndx];
-        else
+        }else {
             topOfStep     = topOfPages.takeLast();
+        }
       }
 
       if (!topOfStep.lineNumber)
@@ -4616,7 +4619,8 @@ void Gui::drawPage(
     lpub->ldrawFile.countInstances();
 
     // set model start page - used to enable mpd combo to jump to start page
-    lpub->ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
+    if (firstPage)
+        lpub->ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
 
   } // not build mod action change
 
@@ -4666,10 +4670,10 @@ void Gui::drawPage(
 
   PgSizeData pageSize;
   if (exporting()) {
-    pageSize.sizeW      = meta.LPub.page.size.valueInches(0);
-    pageSize.sizeH      = meta.LPub.page.size.valueInches(1);
-    pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
-    pageSize.orientation= meta.LPub.page.orientation.value();
+    pageSize.sizeW      = lpub->meta.LPub.page.size.valueInches(0);
+    pageSize.sizeH      = lpub->meta.LPub.page.size.valueInches(1);
+    pageSize.sizeID     = lpub->meta.LPub.page.size.valueSizeID();
+    pageSize.orientation= lpub->meta.LPub.page.orientation.value();
     pageSizes.insert(     DEF_SIZE,pageSize);
 #ifdef PAGE_SIZE_DEBUG
     logTrace() << "0. Inserting INIT page size info at PageNumber:" << maxPages
@@ -4695,7 +4699,7 @@ void Gui::drawPage(
               0            /*groupStepNumber*/,
               empty        /*renderParentModel*/);
 
-  if (findPage(view,scene,meta,empty/*addLine*/,opts) == HitBuildModAction && Preferences::buildModEnabled) {
+  if (findPage(view,scene,lpub->meta,empty/*addLine*/,opts) == HitBuildModAction && Preferences::buildModEnabled) {
     pageProcessRunning = PROC_DISPLAY_PAGE;
     clearPage(KpageView,KpageScene);
     buildModActionChange = true;
@@ -4708,7 +4712,7 @@ void Gui::drawPage(
 
     auto countPage = [this, &opts](int modelStackCount)
     {
-      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &lpub->ldrawFile, opts);
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
       if (exporting() || ContinuousPage() || countWaitForFinished() || mloadingFile || modelStackCount) {
 #ifdef QT_DEBUG_MODE
         if (modelStackCount)
@@ -4736,7 +4740,7 @@ void Gui::drawPage(
 #endif
 
     // global meta settings from findPage that went out of scope
-    meta.LPub.countInstance.setValue(opts.flags.countInstances);
+    lpub->meta.LPub.countInstance.setValue(opts.flags.countInstances);
 
     // pass buildMod settings to parent model
     if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {

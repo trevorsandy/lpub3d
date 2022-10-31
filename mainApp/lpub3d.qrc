@@ -217,6 +217,12 @@
         <file alias="reloadpartannotation.png">resources/reloadpartannotation.png</file>
         <file alias="remove.png">resources/remove.png</file>
         <file alias="removelpubformat.png">resources/removelpubformat.png</file>
+        <file alias="removelpubformatbom.png">resources/removelpubformatbom.png</file>
+        <file alias="removelpubformatcallout.png">resources/removelpubformatcallout.png</file>
+        <file alias="removelpubformatdocument.png">resources/removelpubformatdocument.png</file>
+        <file alias="removelpubformatpage.png">resources/removelpubformatpage.png</file>
+        <file alias="removelpubformatstep.png">resources/removelpubformatstep.png</file>
+        <file alias="removelpubformatsubmodel.png">resources/removelpubformatsubmodel.png</file>
         <file alias="removepointersegment.png">resources/removepointersegment.png</file>
         <file alias="removesubstitutepart.png">resources/removesubstitutepart.png</file>
         <file alias="rendererarguments.png">resources/rendererarguments.png</file>

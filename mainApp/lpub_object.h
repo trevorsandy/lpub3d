@@ -66,6 +66,9 @@ public:
   void    SetAutomateEdgeColor(const NativeOptions*);
   void    SetShadingMode(lcShadingMode);
 
+  /// Remove LPub formatting from document, submodel, page, step, callout and BOM
+  void removeLPubFormatting(int option = 0/*Document*/);
+
   /// Run command line execution
   int processCommandLine();
 

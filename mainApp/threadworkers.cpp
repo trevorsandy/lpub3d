@@ -2340,7 +2340,7 @@ int CountPageWorker::countPage(
                                   Where current2(type,ldrawFile->getSubmodelIndex(type),0);
 
                                   // Consider using clean flags only passing buildMod and countPageContains ?
-                                  FindPageFlags flags2     = opts.flags;
+                                  FindPageFlags flags2; //     = opts.flags; //crashing on main model formatting remove
                                   flags2.buildMod          = buildMod;
                                   flags2.countPageContains = contains;
 
@@ -2383,7 +2383,8 @@ int CountPageWorker::countPage(
                                   countPage(meta, ldrawFile, modelOpts);
 
                                   meta->rotStep = saveRotStep2;             // restore old rotstep
-                                  meta->submodelStack.pop_back();           // remove where we stopped in the parent model
+                                  if (meta->submodelStack.size())
+                                      meta->submodelStack.pop_back();       // remove where we stopped in the parent model
 
                                   // terminate build modification countPage at end of submodel
                                   if (Gui::buildModJumpForward && modelOpts.pageNum == gui->saveDisplayPageNum) {
@@ -2718,7 +2719,7 @@ int CountPageWorker::countPage(
                   opts.flags.bfxStore2 = opts.flags.bfxStore1;
                   opts.flags.bfxStore1 = false;
                   if ( ! opts.flags.bfxStore2) {
-                      bfxParts.clear();
+                        bfxParts.clear();
                   } // ! BfxStore2
                   if ( ! buildMod.ignore) {
                       ldrawFile->clearBuildModRendered(true/*countPage*/);

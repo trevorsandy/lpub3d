@@ -3072,7 +3072,7 @@ void MetaItem::insertBOM()
   Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum]; //start at the bottom of the page's last step
 
   bool forModel;
-  int option = BomOptionDialog::getOption(forModel, bottomOfPage.modelIndex, nullptr);
+  int option = BomOptionDialog::getOption(forModel, bottomOfPage.modelIndex, gui);
 
   if (option == AppendNoOption)
     return;
@@ -5113,26 +5113,139 @@ void MetaItem::substitutePLIPart(
   }
 }
 
-void MetaItem::removeLPubFormatting()
+void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &_bottom)
 {
-  beginMacro("RemoveLPubFormatting");
-  QStringList fileList = lpub->ldrawFile.subFileOrder();
-
-  for (int i = 0; i < fileList.size(); ++i) {
-    Where walk(fileList[i],0);
-    int numLines = lpub->ldrawFile.size(fileList[i]);
-    for (; walk.lineNumber < numLines; ) {
-      QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+  std::function<void(int, Where &, Where &)> removeFormatting;
+  removeFormatting = [&] (int option, Where &top, Where &bottom)
+  {
+      //start at the bottom of the model's last step
       QStringList argv;
-      split(line,argv);
-      if (argv.size() > 2 && argv[0] == "0" && (argv[1] == "!LPUB" || argv[1] == "LPUB")) {
-        gui->deleteLine(walk);
-        --numLines;
-      } else {
-        ++walk;
+      bool bmMeta = false;
+      bool bmLine = false;
+      bool bomIns = false;
+
+      for (Where walk = bottom; walk >= top.lineNumber; walk--) {
+          QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+          if (!line.size())
+              continue;
+          switch (line.toLatin1()[0])
+          {
+              case '0':
+                  if ((bmMeta = Preferences::buildModEnabled && option != RLPF_BOM)) {
+                      QRegExp bmRx("(BUILD_MOD_ENABLED|BUILD_MOD BEGIN|BUILD_MOD END_MOD|BUILD_MOD END)");
+                      if (line.contains(bmRx)) {
+                          if (bmRx.cap(1).endsWith("END_MOD"))
+                              bmLine = true;
+                          else if (bmRx.cap(1).endsWith("BEGIN"))
+                              bmLine = false;
+                      }
+                      bmMeta = !Preferences::removeBuildModFormat;
+                  }
+                  split(line,argv);
+                  if (argv.size() > 2 && (argv[1] == "!LPUB" || argv[1] == "LPUB") && !bmMeta) {
+                      if (option == RLPF_BOM) {
+                          QRegExp bomRx("(INSERT BOM|INSERT PAGE|BOM PART_GROUP| BOM )");
+                          if (line.contains(bomRx)) {
+                              if (bomRx.cap(1) == "INSERT BOM")
+                                  bomIns = true;
+                              if (bomRx.cap(1) == "INSERT PAGE") {
+                                  if (!bomIns)
+                                      continue;
+                                  else
+                                      bomIns = false;
+                              }
+                              gui->deleteLine(walk);
+                          }
+                      } else {
+                          gui->deleteLine(walk);
+                      }
+                  }
+                  break;
+              default:
+                  if (option == RLPF_BOM)
+                      return;
+                  else if (Preferences::removeChildSubmodelFormat && option != RLPF_DOCUMENT) {
+                      if (argv.size() == 15 && argv[0] == "1" && lpub->ldrawFile.isSubmodel(argv[14])) {
+                          option = RLPF_SUBMODEL;
+                          top = Where(argv[14], 1);
+                          bottom = Where(argv[14], lpub->ldrawFile.size(argv[14]));
+                          removeFormatting(option, top, bottom);
+                      }
+                  }
+                  if (bmLine)
+                      gui->deleteLine(walk);
+                  break;
+          }
       }
-    }
+  };
+
+  Where top = _top;
+  Where bottom = _bottom;
+
+  if (option < RLPF_PAGE) { // RLPF_DOCUMENT, RLPF_SUBMODEL
+      QStringList fileList;
+      if (option == RLPF_DOCUMENT)
+          fileList = lpub->ldrawFile.subFileOrder();
+      else
+          fileList << top.modelName;
+      beginMacro("RemoveLPubFormatting");
+      for (int i = 0; i < fileList.size(); ++i) {
+          // skip the header if option is submodel and the submodel is the top-level model
+          if (option == RLPF_SUBMODEL && top.modelIndex) {
+            top.modelName = fileList[i];
+            top.lineNumber = 1;
+          }
+          bottom.modelName = top.modelName;
+          bottom.lineNumber = lpub->ldrawFile.size(top.modelName);
+          removeFormatting(option, top, bottom);
+      }
+      endMacro();
+      return;
   }
+  else if (option == RLPF_BOM)
+  {
+      bool forModel;
+      int option = BomOptionDialog::getOption(forModel, bottom.modelIndex, gui, true);
+      if (option == AppendNoOption)
+        return;
+
+      if (option == AppendAtPage) {
+          top = Gui::topOfPages[Gui::displayPageNum-1];
+      } else if (option && option != AppendAtPage) {
+          //start at the bottom of the model's last step
+          if (option == AppendAtSubmodel) {
+              bottom = Where(bottom.modelName, lpub->ldrawFile.size(bottom.modelName));
+          //start at the bottom of the main model's last step
+          } else if (option == AppendAtModel) {
+              bottom = Where(lpub->ldrawFile.topLevelFile(), lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()));
+          }
+          //walk backwards towards the start of the file until we hit a type 1 line;
+          Meta meta;
+          for (Where walk = bottom; walk >= _top.lineNumber; walk--) {
+              QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+              QStringList argv;
+              split(line,argv);
+              if (argv.size() == 15 && argv[0] == "1") {
+                  top = walk.lineNumber;
+                  break;
+              }
+              Rc rc = meta.parse(line,walk);
+              if (rc == InsertRc) {
+                  InsertData insertData = meta.LPub.insert.value();
+                  if (insertData.type == InsertData::InsertBom) {
+                      top = walk.lineNumber;
+                  }
+              }
+          }
+      }
+  }
+  else if (option == RLPF_CALLOUT)
+  {
+      ;
+  }
+  // RLPF_PAGE, RLPF_STEP
+  beginMacro("RemoveLPubFormatting");
+  removeFormatting(option, top, bottom);
   endMacro();
 }
 

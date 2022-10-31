@@ -1105,7 +1105,7 @@ int Gui::addGraphicsPageItems(
       setSceneItemZValue(page, scene);
   }
 
-  page->relativeType = SingleStepType;
+  //page->relativeType = SingleStepType;
 
   if (Preferences::modeGUI) {
       if (waitingSpinner->isSpinning())

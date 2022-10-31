@@ -98,6 +98,8 @@ class Preferences
     static void updatePOVRayConfigFiles();
     static bool isBlender28OrLater();
 
+    static void removeBuildModFormatPreference(bool);
+    static void removeChildSubmodelFormatPreference(bool);
     static void useSystemEditorPreference(bool);
     static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);
@@ -364,6 +366,8 @@ class Preferences
     static bool    customSceneGuideColor;
     static bool    debugLogging;
     static bool    useSystemEditor;
+    static bool    removeBuildModFormat;
+    static bool    removeChildSubmodelFormat;
     static bool    editorBufferedPaging;
     static bool    editorHighlightLines;
     static bool    editorLoadSelectionStep;

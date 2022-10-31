@@ -211,18 +211,17 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
   Where walk    = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber) == "0 STEP" ? topOfStep + 1 : topOfStep;
   Where lastPos = topOfStep;
   int  numLines = lpub->ldrawFile.size(walk.modelName);
-  QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 ROTATION");
+  QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 ROTATION|^1 ");
   if (walk < numLines) {
     QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-    if (line.contains(lineRx) || isHeader(line)) {
-      for ( ++walk; walk < numLines; ++walk) {
-        line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-        lastPos = line.contains(lineRx) ? walk : lastPos;
-        if ( ! line.contains(lineRx) && ! isHeader(line)) {
-          topOfStep = lastPos;
-          if (line.contains(endRx)){
-            break;
-          }
+    for ( ++walk; walk < numLines; ++walk) {
+      line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+      lastPos = line.contains(lineRx) ? walk : lastPos;
+      if ( ! line.contains(lineRx) && ! isHeader(line)) {
+        topOfStep = lastPos;
+        if (line.contains(endRx)) {
+          ++topOfStep;
+          break;
         }
       }
     }

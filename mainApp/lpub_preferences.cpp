@@ -500,6 +500,8 @@ bool    Preferences::debugLogging               = false;
 
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
+bool    Preferences::removeBuildModFormat       = false;
+bool    Preferences::removeChildSubmodelFormat  = false;
 bool    Preferences::editorBufferedPaging       = false;
 
 bool    Preferences::displayThemeColorsChanged  = false;
@@ -3775,10 +3777,26 @@ void Preferences::userInterfacePreferences()
 
   QString const useSystemEditorKey("UseSystemEditor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useSystemEditorKey))) {
-          useSystemEditor = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemEditorKey),useSystemEditor);
+      useSystemEditor = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemEditorKey),useSystemEditor);
   } else {
-          useSystemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,useSystemEditorKey)).toBool();
+      useSystemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,useSystemEditorKey)).toBool();
+  }
+
+  QString const removeBuildModFormatKey("RemoveBuildModFormat");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,removeBuildModFormatKey))) {
+      removeBuildModFormat = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,removeBuildModFormatKey),removeBuildModFormat);
+  } else {
+      removeBuildModFormat = Settings.value(QString("%1/%2").arg(SETTINGS,removeBuildModFormatKey)).toBool();
+  }
+
+  QString const removeChildSubmodelFormatKey("RemoveChildSubmodelFormat");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,removeChildSubmodelFormatKey))) {
+      removeChildSubmodelFormat = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,removeChildSubmodelFormatKey),removeChildSubmodelFormat);
+  } else {
+      removeChildSubmodelFormat = Settings.value(QString("%1/%2").arg(SETTINGS,removeChildSubmodelFormatKey)).toBool();
   }
 
   QString const systemEditorKey("SystemEditor");
@@ -4190,6 +4208,24 @@ void Preferences::setBlenderVersionPreference(QString s)
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderVersionKey));
     else
         Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),uValue);
+}
+
+void Preferences::removeBuildModFormatPreference(bool i)
+{
+  QSettings Settings;
+  removeBuildModFormat = i;
+  QVariant uValue(i);
+  QString const settingsKey("RemoveBuildModFormat");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,settingsKey),uValue);
+}
+
+void Preferences::removeChildSubmodelFormatPreference(bool i)
+{
+  QSettings Settings;
+  removeChildSubmodelFormat = i;
+  QVariant uValue(i);
+  QString const settingsKey("RemoveChildSubmodelFormat");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,settingsKey),uValue);
 }
 
 void Preferences::useSystemEditorPreference(bool i)

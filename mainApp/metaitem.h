@@ -460,7 +460,7 @@ public:
 
   void resetPartGroup(const Where &);
   
-  void removeLPubFormatting();
+  void removeLPubFormatting(int option, const Where &top, const Where &bottom);
 
   void setMetaAlt(const Where &, const QString metaString, bool = false, bool = false);
 

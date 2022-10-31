@@ -32,17 +32,17 @@
 #include "bomoptionsdialog.h"
 #include "version.h"
 
-BomOptionDialog::ButtonProps BomOptionDialog::buttonProperties[5] =
+const BomOptionDialog::ButtonProps BomOptionDialog::buttonProperties[BomOptionDialog::BomOptions] =
 {
   // Label                        ToolTip
-  { "At end of model"            ,"Append BOM in a new step at the end of the main model" },
-  { "At current page"            ,"Append BOM in the last step of the current page" },
-  { "At end of current submodel" ,"Append BOM in a new step at the end of the current submodel" },
-  { "For the complete model"     ,"Include BOM for the complete document model" },
-  { "For the current submodel"   ,"Include BOM parts for the current submodel" }
+  { "At end of model"            ,"Append BOM in a new step at the end of the main model"       , "Remove BOM formatting at at the end of the main model" },
+  { "At current page"            ,"Append BOM in the last step of the current page"             , "Remove BOM formatting at the last step of the current page" },
+  { "At end of current submodel" ,"Append BOM in a new step at the end of the current submodel" , "Remove BOM formatting at the end of the current submodel" },
+  { "For the complete model"     ,"Include BOM for the complete document model"                 , "Remove BOM formatting for the complete document model" },
+  { "For the current submodel"   ,"Include BOM parts for the current submodel"                  , "Remove BOM parts formatting for the current submodel" }
 };
 
-BomOptionDialog::BomOptionDialog(int modelIndex, QWidget *parent)
+BomOptionDialog::BomOptionDialog(int modelIndex, bool remove, QWidget *parent)
 {
   setParent(parent);
 
@@ -50,7 +50,7 @@ BomOptionDialog::BomOptionDialog(int modelIndex, QWidget *parent)
 
   QVBoxLayout *dialogLayout = new QVBoxLayout(this);
 
-  QString optionGroupTitle = QString("Add Bill Of Materials");
+  QString optionGroupTitle = QString(remove ? tr("Remove Bill Of Materials Format") : tr("Add Bill Of Materials"));
 
   QGroupBox *optionGroupBox = new QGroupBox(optionGroupTitle, this);
 
@@ -69,7 +69,7 @@ BomOptionDialog::BomOptionDialog(int modelIndex, QWidget *parent)
   for (int i = 0; i < BomOptions; ++i) {
     if (i < BomAtSubmodel) {
       optionsRadio = new QRadioButton(buttonProperties[i].label,optionGroupBox);
-      optionsRadio->setToolTip(buttonProperties[i].tooltip);
+      optionsRadio->setToolTip(remove ? buttonProperties[i].removeToolTip : buttonProperties[i].addToolTip);
       optionsRadio->setChecked(i == BomAtModel);
       QObject::connect(optionsRadio, SIGNAL(clicked(bool)),
                        this,         SLOT(buttonClicked(bool)));
@@ -79,7 +79,7 @@ BomOptionDialog::BomOptionDialog(int modelIndex, QWidget *parent)
       if (subModelOptions) {
         if (i < BomForModel) {
           optionsRadio = new QRadioButton(buttonProperties[i].label,optionGroupBox);
-          optionsRadio->setToolTip(buttonProperties[i].tooltip);
+          optionsRadio->setToolTip(remove ? buttonProperties[i].removeToolTip : buttonProperties[i].addToolTip);
           QObject::connect(optionsRadio, SIGNAL(clicked(bool)),
                            this,         SLOT(buttonClicked(bool)));
           boxLayout->addWidget(optionsRadio);
@@ -87,14 +87,14 @@ BomOptionDialog::BomOptionDialog(int modelIndex, QWidget *parent)
         } else {
           if (createContentBox) {
             createContentBox = false;
-            optionGroupTitle = QString("Include Bill Of Materials Parts");
+            optionGroupTitle = QString(remove ? tr("Remove Bill Of Materials Parts Format") : tr("Include Bill Of Materials Parts"));
             optionGroupBox = new QGroupBox(optionGroupTitle, this);
             dialogLayout->addWidget(optionGroupBox);
             boxLayout = new QVBoxLayout(optionGroupBox);
             optionGroupBox->setLayout(boxLayout);
           }
           optionsRadio = new QRadioButton(buttonProperties[i].label,optionGroupBox);
-          optionsRadio->setToolTip(buttonProperties[i].tooltip);
+          optionsRadio->setToolTip(remove ? buttonProperties[i].removeToolTip : buttonProperties[i].addToolTip);
           optionsRadio->setChecked(i == BomForModel);
           if (i == BomForSubmodel)
               optionsRadio->setEnabled(!buttonList[BomAtModel]->isChecked());
@@ -152,11 +152,11 @@ void BomOptionDialog::buttonClicked(bool enable)
   }
 }
 
-int BomOptionDialog::getOption(bool &fullBom, int modelIndex, QWidget *parent)
+int BomOptionDialog::getOption(bool &fullBom, int modelIndex, QWidget *parent, bool remove)
 {
   fullBom = true;
   int result = 0;
-  BomOptionDialog *dialog = new BomOptionDialog(modelIndex, parent);
+  BomOptionDialog *dialog = new BomOptionDialog(modelIndex, remove, parent);
   if (dialog->exec() == QDialog::Accepted) {
     for (int i = 0; i < dialog->buttonList.size(); i++) {
       if (i < BomAtSubmodel) {

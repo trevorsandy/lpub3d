@@ -491,9 +491,11 @@ class LDrawFile {
     void clearBuildModStep(const QString &buildModKey,const int stepIndex);
     void clearBuildModSteps(const QString &buildModKey);
     void clearBuildModSteps();
+    void clearBuildMods();
     void setBuildModNavBackward();
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     void deleteBuildMods(const int stepIndex);
+    void deleteBuildMods();
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModStepKeyModelName(const QString &buildModKey);
     QStringList getPathsFromBuildModKeys(const QStringList &buildModKeys);

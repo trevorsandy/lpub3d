@@ -37,9 +37,9 @@ class BomOptionDialog : public QDialog
   Q_OBJECT
 
 public:
-  BomOptionDialog(int modelIndex, QWidget *parent);
+  BomOptionDialog(int modelIndex, bool remove, QWidget *parent);
  ~BomOptionDialog();
-  static int getOption(bool &fullBom, int modelIndex, QWidget *parent = nullptr);
+  static int getOption(bool &fullBom, int modelIndex, QWidget *parent = nullptr, bool remove = false);
 private slots:
   void buttonClicked(bool enable);
 private:
@@ -52,9 +52,10 @@ private:
        };
   struct ButtonProps {
       QString label;
-      QString tooltip;
+      QString addToolTip;
+      QString removeToolTip;
   };
-  static ButtonProps buttonProperties[];
+  static const ButtonProps buttonProperties[];
   QList<QRadioButton*> buttonList;
   bool subModelOptions;
 };

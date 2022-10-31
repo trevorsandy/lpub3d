@@ -59,6 +59,7 @@ struct LineHighlight {
         line(_line), action(_action) {}
 };
 
+enum RemoveLPubFormatType { RLPF_NONE = -1, RLPF_DOCUMENT, RLPF_SUBMODEL, RLPF_PAGE, RLPF_STEP, RLPF_BOM, RLPF_CALLOUT };
 enum RendererType { RENDERER_INVALID = -1, RENDERER_NATIVE, RENDERER_LDVIEW, RENDERER_LDGLITE, RENDERER_POVRAY, NUM_RENDERERS };
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
@@ -660,6 +661,7 @@ enum ThemeColorType {
 #define VIEW_CACHE_TOOLBAR_KEY                  "ViewCacheToolbar"
 #define VIEW_SETUP_TOOLBAR_KEY                  "ViewSetupToolbar"
 #define VIEW_EDIT_TOOLBAR_KEY                   "ViewEditToolbar"
+#define VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY     "ViewRemoveLPubFormatToolBar"
 #define VIEW_EDITPARAMS_TOOLBAR_KEY             "ViewEditParamsToolbar"
 
 #define CASE_CHECK                              "CaseCheck"

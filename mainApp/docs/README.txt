@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2841 (31 10 2022 01:29:05)
+LPub3D 2.4.4.1.2842 (31 10 2022 01:30:42)
 
 Features, enhancements, fixes and changes
 ------------
@@ -20,6 +20,7 @@ Revisions:
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - LPub command editor snippet system #602
 - Enhancement - Refactor file loading parse and add inline file load #591
+- Enhancement - Remove LPub formatting at submodel, page, and step #604
 - Enhancement - Set default system text editor at start-up #599
 - Enhancement - Update substitute preview feature #441
 - Enhancement - View visual editor render preferences in main menu preferences #597

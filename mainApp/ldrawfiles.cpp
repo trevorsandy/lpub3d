@@ -239,8 +239,8 @@ void LDrawFile::empty()
   _buildModSteps.clear();
   _buildModStepIndexes.clear();
   _buildModRendered.clear();
-  _includeFileList.clear();
   _buildModList.clear();
+  _includeFileList.clear();
   _loadedParts.clear();
   _mpd                   = false;
   _loadAborted           = false;
@@ -3283,6 +3283,23 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
     return false;
 }
 
+void LDrawFile::deleteBuildMods(const int stepIndex)
+{
+    Q_FOREACH(const QString &key, getBuildModsList()) {
+        const int index = getBuildModStepIndex(key);
+        if (index >= stepIndex) {
+            deleteBuildMod(key);
+        }
+    }
+}
+
+void LDrawFile::deleteBuildMods()
+{
+    Q_FOREACH(const QString &key, getBuildModsList()) {
+        deleteBuildMod(key);
+    }
+}
+
 void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
 {
     QString  modKey = buildModKey.toLower();
@@ -3824,16 +3841,6 @@ int LDrawFile::getBuildModStepIndex(const QString &buildModKey)
     }
 
     return -1;
-}
-
-void LDrawFile::deleteBuildMods(const int stepIndex)
-{
-    Q_FOREACH(const QString &key, getBuildModsList()) {
-        const int index = getBuildModStepIndex(key);
-        if (index >= stepIndex) {
-            deleteBuildMod(key);
-        }
-    }
 }
 
 bool LDrawFile::getBuildModStepIndexWhere(const int stepIndex, QString &modelName,int &modelIndex, int &lineNumber)
