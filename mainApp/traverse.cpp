@@ -5636,8 +5636,10 @@ void Gui::writeToTmp()
       return externalFileContents;
   };
 
-  emit progressBarPermInitSig();
-  emit progressPermRangeSig(1, subFileCount);
+  if (!ContinuousPage()) {
+      emit progressBarPermInitSig();
+      emit progressPermRangeSig(1, subFileCount);
+  }
 
   for (int i = 0; i < subFileCount; i++) {
 
@@ -5671,9 +5673,10 @@ void Gui::writeToTmp()
               message = QString("Writing %1 %2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
           }
 
-          emit progressPermMessageSig(message);
-
-          emit progressPermSetValueSig(i + 1);
+          if (!ContinuousPage()) {
+              emit progressPermMessageSig(message);
+              emit progressPermSetValueSig(i + 1);
+          }
 
           if (externalFile) {
              QString destinationPath = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
@@ -5759,7 +5762,7 @@ void Gui::writeToTmp()
 
   writeToTmpFutures.clear();
 
-  if (Preferences::modeGUI && !exporting()) {
+  if (Preferences::modeGUI && !exporting() && !ContinuousPage()) {
       if (lcGetPreferences().mViewPieceIcons && !submodelIconsLoaded) {
           // complete previous progress
           emit progressPermSetValueSig(subFileCount);
