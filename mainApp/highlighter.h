@@ -33,7 +33,7 @@
 
 #include <QTextCharFormat>
 #include <QSyntaxHighlighter>
-#include <QHash>
+#include <QRegularExpression>
 
 class QTextDocument;
 
@@ -52,15 +52,20 @@ private:
 
     struct HighlightingRule
     {
-        QRegExp pattern;
+        QRegularExpression pattern;
         QTextCharFormat format;
     };
 
+    QRegularExpression LDrawMultiLineCommentStartExpression;
+    QRegularExpression LDrawMultiLineCommentEndExpression;
+
     QVector<HighlightingRule> highlightingRules;
-    QList<QTextCharFormat> lineType1Formats;
+    QVector<QTextCharFormat> lineType1Formats;
 
     QTextCharFormat LDrawCommentFormat;    // b01 - Comments
+    QTextCharFormat LDrawMultiLineCommentFormat; // b01 - Comments
 
+    QTextCharFormat LPubInvalidFormat;     // b22 - LPub3D False
     QTextCharFormat LPubLocalMetaFormat;   // b04 - LPub3D Local
     QTextCharFormat LPubGlobalMetaFormat;  // b05 - LPub3D Global
     QTextCharFormat LPubFalseMetaFormat;   // b22 - LPub3D False
@@ -114,7 +119,7 @@ private:
     QTextCharFormat LDCadMetaValueFormat;  // b18 - LDCad Value
     QTextCharFormat LDCadBodyMetaFormat;   // b19 - LDCad
     QTextCharFormat LDCadBracketFormat;    // b17 - LDCad Value Bracket
-    QTextCharFormat LDCadMetaGroupFormat; // b29 - LDCad Group Define
+    QTextCharFormat LDCadMetaGroupFormat;  // b29 - LDCad Group Define
 
     QTextCharFormat MLCadMetaFormat;       // b20 - MLCad
     QTextCharFormat MLCadBodyMetaFormat;   // b21 - MLCad Body
