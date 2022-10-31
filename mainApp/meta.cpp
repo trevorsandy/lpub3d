@@ -4305,7 +4305,7 @@ void HighlightStepMeta::setPreferences(bool reset)
      Preferences::highlightStepLineWidth = lineWidth.value();
      if (enable.global) {
        Preferences::highlightstepPreferences(enable.global);
-       if (Preferences::enableFadeSteps != enable.value())
+       if (Preferences::enableHighlightStep != enable.value())
          gui->clearCSICache();
      }
    }
