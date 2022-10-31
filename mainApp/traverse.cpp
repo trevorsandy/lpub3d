@@ -4851,6 +4851,13 @@ void Gui::drawPage(
       countPage(stackCount);
     } // iterate the model stack
 
+    // keep the Visual Editor model updated to avoid crashing at paint/draw event
+    if (exporting() || (ContinuousPage() && m_exportMode == GENERATE_BOM)) {
+        deployBanner(true);
+        if (m_exportMode == GENERATE_BOM)
+            m_exportMode = m_saveExportMode;
+    }
+
     QApplication::processEvents();
 
     QApplication::restoreOverrideCursor();

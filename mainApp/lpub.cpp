@@ -145,6 +145,7 @@ bool         Gui::m_countWaitForFinished; // indicate wait for countPage to fini
 bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage() 
 
 int          Gui::m_exportMode;           // export Mode
+int          Gui::m_saveExportMode;       // saved export mode used when exporting BOM
 QString      Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
 
 RendererData Gui::savedRendererData;      // store current renderer data when temporarily switching renderer;

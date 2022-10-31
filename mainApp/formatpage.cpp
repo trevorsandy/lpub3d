@@ -602,12 +602,16 @@ int Gui::addGraphicsPageItems(
               break;
             case InsertData::InsertBom:
               {
-                int saveExportMode = Gui::m_exportMode;
-                Gui::m_exportMode = GENERATE_BOM;
-
-                emit gui->setGeneratingBomSig(true);
-
                 Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : lpub->ldrawFile.topLevelFile(),0);
+
+                emit messageSig(LOG_INFO_STATUS, tr("Processing Bill Of Material for %1...").arg(current.modelName));
+                if (Preferences::modeGUI && !exporting()) {
+                    m_saveExportMode = m_exportMode;
+                    m_exportMode = GENERATE_BOM;
+                    emit setGeneratingBomSig(true);
+                    QApplication::processEvents();
+                }
+
                 QFuture<void> future = QtConcurrent::run([this, current]() {
                     bomParts.clear();
                     bomPartGroups.clear();
@@ -623,7 +627,6 @@ int Gui::addGraphicsPageItems(
                 page->pli.sizePli(&page->meta,page->relativeType,false);
                 page->pli.relativeToSize[0] = plPage.size[XX];
                 page->pli.relativeToSize[1] = plPage.size[YY];
-                Gui::m_exportMode = saveExportMode;
               }
               break;
             case InsertData::InsertRotateIcon:

@@ -500,7 +500,8 @@ public:
 
   static bool     buildModJumpForward; // parse build mods in countPage call - special case for jump forward
 
-  static int       m_exportMode;        // export Mode
+  static int       m_exportMode;        // export mode
+  static int       m_saveExportMode;    // saved export mode used when exporting BOM
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
 
   bool             m_previewDialog;
