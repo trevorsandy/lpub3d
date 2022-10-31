@@ -2291,15 +2291,14 @@ void Step::addGraphicsItems(
       if (calledOut) {
           sn = new StepNumberItem(this,
                                   parentRelativeType,
-                                  meta->LPub.callout.stepNum,
+                                  numberPlacemetMeta,
                                   "%d",
                                   stepNumber.number,
                                   parent);
       } else {
           sn = new StepNumberItem(this,
                                   parentRelativeType,
-                                  meta->LPub.multiStep.stepNum,
-                                  //numberPlacemetMeta,
+                                  numberPlacemetMeta,
                                   "%d",
                                   stepNumber.number,
                                   parent);
@@ -2314,15 +2313,15 @@ void Step::addGraphicsItems(
   if (placeRotateIcon){
       RotateIconItem *ri;
       if (calledOut) {
+
           ri = new RotateIconItem(this,
                                   parentRelativeType,
-                                  meta->LPub.callout.rotateIcon,
+                                  rotateIconMeta,
                                   parent);
       } else {
           ri = new RotateIconItem(this,
                                   parentRelativeType,
-                                  meta->LPub.multiStep.rotateIcon,
-                                  //rotateIconMeta,   // TODO remove this from Step if not needed
+                                  rotateIconMeta,
                                   parent);
       }
       // here we are using the placement values for this specific step in the step group
