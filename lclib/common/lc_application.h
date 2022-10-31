@@ -263,6 +263,9 @@ public:
 	void SetClipboard(const QByteArray& Clipboard);
 	void ExportClipboard(const QByteArray& Clipboard);
 
+/*** LPub3D Mod - load color entry ***/
+	bool LPubHighlightStep();
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
 	bool LPubFadeSteps();
 	bool UseLPubFadeColour();

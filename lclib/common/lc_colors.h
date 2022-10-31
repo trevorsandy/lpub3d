@@ -48,7 +48,7 @@ extern int gDefaultColor;
 
 void lcLoadDefaultColors(lcStudStyle StudStyle);
 /*** LPub3D Mod - load color entry ***/
-bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update = false);
+bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update = false, bool LPubColor = false);
 bool lcLoadColorEntry(const char* ColorEntry, lcStudStyle StudStyle);
 /*** LPub3D Mod end ***/
 int lcGetColorIndex(quint32 ColorCode);

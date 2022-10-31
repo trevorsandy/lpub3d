@@ -223,13 +223,30 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 }
 
 /*** LPub3D Mod - load color entry ***/
-bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update)
+bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPubColor)
 {
 	std::vector<lcColor> Colors = lcParseColorFile(File);
 	const bool Valid = !Colors.empty();
 
 	if (Valid)
-		lcAdjustStudStyleColors(Colors, StudStyle);
+	{
+		bool LPubHighlightColor = false;
+
+		if (LPubColor)
+		{
+			if ((LPubHighlightColor = gApplication->LPubHighlightStep()))
+			{
+				char Code[32];
+				lcColor& Color = Colors.front();
+				snprintf(Code, sizeof(Code), "%d", Color.Code);
+				LPubHighlightColor  = strncmp(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, Code, 3) == 0;
+				LPubHighlightColor &= strncmp(LPUB3D_COLOUR_TITLE_PREFIX, Color.SafeName, 7) == 0;
+			}
+		}
+
+		if (!LPubHighlightColor)
+			lcAdjustStudStyleColors(Colors, StudStyle);
+	}
 
 /*** LPub3D Mod - load color entry ***/
 	bool Found = Update ? true : false;
@@ -407,7 +424,7 @@ bool lcLoadColorEntry(const char* ColorEntry, lcStudStyle StudStyle)
 	ColorMemFile.WriteBuffer(ColorData.constData(), ColorData.size());
 	ColorMemFile.Seek(0, SEEK_SET);
 
-	return lcLoadColorFile(ColorMemFile, StudStyle, true/*Update*/);
+	return lcLoadColorFile(ColorMemFile, StudStyle, true/*Update*/, true/*LPubColor*/);
 }
 /*** LPub3D Mod end ***/
 

@@ -334,8 +334,15 @@ lcApplication::lcApplication(const lcCommandLineOptions *Options)
 /*** LPub3D Mod end ***/
 }
 
+/*** LPub3D Mod - load color entry ***/
+bool lcApplication::LPubHighlightStep()
+{
+	return Preferences::enableHighlightStep;
+}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
-bool lcApplication::LPubFadeSteps(){
+bool lcApplication::LPubFadeSteps()
+{
 	return Preferences::enableFadeSteps;
 }
 
