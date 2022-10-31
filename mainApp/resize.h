@@ -121,7 +121,7 @@ class Grabber : public QGraphicsRectItem
     }
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *  event ) override
     {
-        QApplication::setOverrideCursor(Qt::ArrowCursor);
+        QApplication::restoreOverrideCursor();
         if (event->button() == Qt::LeftButton){
             resized->change();
         }
@@ -134,7 +134,7 @@ class Grabber : public QGraphicsRectItem
     virtual void hoverLeaveEvent (QGraphicsSceneHoverEvent *event) override
     {
       QGraphicsItem::hoverLeaveEvent(event);
-      QApplication::setOverrideCursor(Qt::ArrowCursor);
+      QApplication::restoreOverrideCursor();
     }
 };
 
@@ -159,7 +159,6 @@ class ResizeRect : public AbstractResize, public Placement
     virtual QRectF currentRect() = 0;
     virtual QPointF currentPos() = 0;
     virtual void    setNewPos(qreal,qreal) = 0;
-
 };
 
 class ResizeConstAspectRect : public ResizeRect
