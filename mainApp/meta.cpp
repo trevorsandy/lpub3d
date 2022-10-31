@@ -3971,7 +3971,7 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   studStyle.init        (this,"STUD_STYLE");  
   highContrast.init     (this,"HIGH_CONTRAST");
   autoEdgeColor.init    (this,"AUTOMATE_EDGE_COLOR");
-  fadeStep.init         (this,"FADE_STEP");
+  fadeSteps.init        (this,"FADE_STEPS");
   highlightStep.init    (this,"HIGHLIGHT_STEP");
   preferredRenderer.init(this,"PREFERRED_RENDERER");
 
@@ -4290,25 +4290,25 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
-    if (argv[1] == "FADE_STEP") {
+    if (argv[1] == "FADE_STEPS") {
       rc = EnableFadeStepsRc;
     } else if (argv[1] == "HIGHLIGHT_STEP") {
       rc = EnableHighlightStepRc;
     } else if (argv[1] == "ASSEM") {
-      if (argv[2] == "FADE_STEP")
+      if (argv[2] == "FADE_STEPS")
         rc = EnableFadeStepsAssemRc;
       else if (argv[2] == "HIGHLIGHT_STEP")
         rc = EnableHighlightStepAssemRc;
     } else if (argv[1] == "MULTI_STEP") {
       if (argv[2] == "ASSEM") {
-        if (argv[3] == "FADE_STEP")
+        if (argv[3] == "FADE_STEPS")
           rc = EnableFadeStepsGroupAssemRc;
         else if (argv[3] == "HIGHLIGHT_STEP")
           rc = EnableHighlightStepGroupAssemRc;
       }
     } else if (argv[1] == "CALLOUT") {
       if (argv[2] == "ASSEM") {
-        if (argv[3] == "FADE_STEP")
+        if (argv[3] == "FADE_STEPS")
           rc = EnableFadeStepsCalloutAssemRc;
         else if (argv[3] == "HIGHLIGHT_STEP")
           rc = EnableHighlightStepCalloutAssemRc;
@@ -4396,7 +4396,7 @@ void FadeColorMeta::metaKeywords(QStringList &out, QString preamble)
 }
 /* ------------------ */
 
-FadeStepMeta::FadeStepMeta() : BranchMeta()
+FadeStepsMeta::FadeStepsMeta() : BranchMeta()
 {
   opacity.setRange(0,100);
   enable.setValue(Preferences::enableFadeSteps);
@@ -4408,7 +4408,7 @@ FadeStepMeta::FadeStepMeta() : BranchMeta()
   opacity.setValue(Preferences::fadeStepsOpacity);
 }
 
-void FadeStepMeta::setPreferences(bool reset)
+void FadeStepsMeta::setPreferences(bool reset)
 {
    FadeColorData fdata = color.value();
    bool displayPreference = false;
@@ -4445,7 +4445,7 @@ void FadeStepMeta::setPreferences(bool reset)
                                                    );
 }
 
-void FadeStepMeta::init(
+void FadeStepsMeta::init(
     BranchMeta *parent,
     QString name)
 {
@@ -5735,7 +5735,7 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   studStyle.init      (this,"STUD_STYLE");
   highContrast.init   (this,"HIGH_CONTRAST");
   autoEdgeColor.init  (this,"AUTOMATE_EDGE_COLOR");
-  fadeStep.init       (this,"FADE_STEP");
+  fadeSteps.init      (this,"FADE_STEPS");
   highlightStep.init  (this,"HIGHLIGHT_STEP");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");
@@ -6451,7 +6451,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   insert                   .init(this,"INSERT");
   include                  .init(this,"INCLUDE", IncludeRc);
   nostep                   .init(this,"NOSTEP", NoStepRc);
-  fadeStep                 .init(this,"FADE_STEP");
+  fadeSteps                .init(this,"FADE_STEPS");
   highlightStep            .init(this,"HIGHLIGHT_STEP");
   preferredRenderer        .init(this,"PREFERRED_RENDERER");
   subModel                 .init(this,"SUBMODEL_DISPLAY");

@@ -354,7 +354,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bEND\\b"),
         QStringLiteral("\\bEND_MOD\\b"),
         QStringLiteral("\\bEXTENDED\\b"),
-        QStringLiteral("\\bFADE_STEP\\b"),
+        QStringLiteral("\\bFADE_STEPS\\b"),
         QStringLiteral("\\bFILE\\b"),
         QStringLiteral("\\bFILL\\b"),
         QStringLiteral("\\bFINAL_MODEL_ENABLED\\b"),

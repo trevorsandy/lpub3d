@@ -518,7 +518,7 @@ public:
   void setFadeSteps(QString,
                     const Where &,
                     const Where &,
-                    FadeStepMeta *,
+                    FadeStepsMeta *,
                     int  append = 1,
                     bool local = true,
                     bool askLocal = true);

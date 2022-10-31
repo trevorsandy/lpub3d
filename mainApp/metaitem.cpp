@@ -3323,12 +3323,12 @@ void MetaItem::setFadeSteps(
 QString         title,
   const Where  &topOfStep,
   const Where  &bottomOfStep,
-  FadeStepMeta *meta,
+  FadeStepsMeta *meta,
   int           append,
   bool          local,
   bool          askLocal)
 {
-  FadeStepMeta _meta;
+  FadeStepsMeta _meta;
   _meta.enable   = meta->enable;
   _meta.color    = meta->color;
   _meta.opacity  = meta->opacity;

@@ -147,7 +147,7 @@ Step::Step(
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
 
-      csiStepMeta.fadeStep         = _meta.LPub.assem.fadeStep;
+      csiStepMeta.fadeSteps         = _meta.LPub.assem.fadeSteps;
       csiStepMeta.highlightStep    = _meta.LPub.assem.highlightStep;
       csiStepMeta.preferredRenderer= _meta.LPub.assem.preferredRenderer;
       csiStepMeta.studStyle        = _meta.LPub.assem.studStyle;
@@ -531,7 +531,7 @@ int Step::createCsi(
          if (nativeRenderer) {
             ldrName = csiLdrFile;
             // update fade and highlight Preferences for rotateParts routine.
-            meta.LPub.fadeStep.setPreferences();
+            meta.LPub.fadeSteps.setPreferences();
             meta.LPub.highlightStep.setPreferences();
          }
 

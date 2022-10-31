@@ -302,11 +302,11 @@ bool LPub::setFadeStepsFromCommand()
 {
   QString result;
   Where topLevelModel(ldrawFile.topLevelFile(),0);
-  QRegExp fadeRx = QRegExp("FADE_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
+  QRegExp fadeRx = QRegExp("FADE_STEPS ENABLED\\s*(GLOBAL)?\\s*TRUE");
   if (!Preferences::enableFadeSteps) {
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS ENABLED meta command must be GLOBAL"));
       Preferences::enableFadeSteps = false;
     }
   }
@@ -314,10 +314,10 @@ bool LPub::setFadeStepsFromCommand()
   bool setupFadeSteps = false;
   if (!Preferences::enableFadeSteps) {
     result.clear();
-    fadeRx.setPattern("FADE_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
+    fadeRx.setPattern("FADE_STEPS SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (setupFadeSteps && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEP SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS SETUP meta command must be GLOBAL"));
       setupFadeSteps = false;
     }
   }
@@ -332,7 +332,7 @@ bool LPub::setFadeStepsFromCommand()
     return false;
 
   result.clear();
-  fadeRx.setPattern("FADE_STEP OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
+  fadeRx.setPattern("FADE_STEPS OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
   Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (!result.isEmpty()) {
     bool ok = result.toInt(&ok);
@@ -340,13 +340,13 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
     bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
     if (fadeStepsOpacityChanged)
-      emit lpub->messageSig(LOG_INFO,tr("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,tr("Fade Steps Transparency changed from %1 to %2 percent - Set from meta command")
                                        .arg(fadeStepsOpacityCompare)
                                        .arg(Preferences::fadeStepsOpacity));
   }
 
   result.clear();
-  fadeRx.setPattern("FADE_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
+  fadeRx.setPattern("FADE_STEPS COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
   Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (!result.isEmpty()) {
     QColor ParsedColor = LDrawColor::color(result);
@@ -358,7 +358,7 @@ bool LPub::setFadeStepsFromCommand()
     QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
-      emit lpub->messageSig(LOG_INFO,tr("Fade Step Color preference changed from %1 to %2 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,tr("Fade Steps Color preference changed from %1 to %2 - Set from meta command")
                                        .arg(fadeStepsColourCompare.replace("_"," "))
                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
@@ -810,7 +810,7 @@ void LPub::loadCommandCollection()
         if (preamble.endsWith(" SUBMODEL_FONT"))
             command = preamble + " <\"font attributes\"> [<\"font attributes\"> <\"font attributes\"> <\"font attributes\">]";
         else
-        if (preamble.endsWith(" COLOR") && !preamble.contains(" FADE_STEP "))
+        if (preamble.endsWith(" COLOR") && !preamble.contains(" FADE_STEPS "))
             command = preamble + " <\"color name|#RRGGBB\">";
         else
         if (preamble.endsWith(" FILE"))

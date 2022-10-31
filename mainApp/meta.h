@@ -2998,9 +2998,9 @@ public:
 
 /*------------------------*/
 /*
- * Fade Step Meta
+ * Fade Steps Meta
  */
-class FadeStepMeta : public BranchMeta
+class FadeStepsMeta : public BranchMeta
 {
 public:
   EnableMeta    enable;
@@ -3008,12 +3008,12 @@ public:
   FadeColorMeta color;
   IntMeta       opacity;
   void setPreferences(bool = false);
-  FadeStepMeta();
-  FadeStepMeta(const FadeStepMeta &rhs) : BranchMeta(rhs)
+  FadeStepsMeta();
+  FadeStepsMeta(const FadeStepsMeta &rhs) : BranchMeta(rhs)
   {
   }
 
-//  virtual ~FadeStepMeta() {}
+//  virtual ~FadeStepsMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -3053,12 +3053,12 @@ public:
   MarginsMeta          margin;
 
   // stud style and automate edge colour
-  StudStyleMeta        studStyle;
-  AutoEdgeColorMeta    autoEdgeColor;
+  StudStyleMeta         studStyle;
+  AutoEdgeColorMeta     autoEdgeColor;
   HighContrastColorMeta highContrast;
 
   // fade, highlight and preferred renderer
-  FadeStepMeta          fadeStep;
+  FadeStepsMeta         fadeSteps;
   HighlightStepMeta     highlightStep;
   PreferredRendererMeta preferredRenderer;
 
@@ -3793,7 +3793,7 @@ public:
   StudStyleMeta         studStyle;
   AutoEdgeColorMeta     autoEdgeColor;
   HighContrastColorMeta highContrast;
-  FadeStepMeta          fadeStep;
+  FadeStepsMeta         fadeSteps;
   HighlightStepMeta     highlightStep;
   PreferredRendererMeta preferredRenderer;
 
@@ -4119,7 +4119,7 @@ public:
   InsertMeta           insert;
   StringMeta           include;
   NoStepMeta           nostep;
-  FadeStepMeta         fadeStep;
+  FadeStepsMeta        fadeSteps;
   HighlightStepMeta    highlightStep;
   PreferredRendererMeta preferredRenderer;
   RotateIconMeta       rotateIcon;

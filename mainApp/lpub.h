@@ -430,8 +430,8 @@ class lcPreview;
 
 class ColourPartListWorker;
 class DialogExportPages;
-class FadeStepMeta;
-class FadeStepMeta;
+class FadeStepsMeta;
+class FadeStepsMeta;
 class HighlightStepMeta;
 class LDrawColor;
 class LDrawColourParts;
@@ -511,7 +511,7 @@ public:
   static bool      suspendFileDisplay;  // when true, the endMacro() call will not call displayPage()
   void            *noData;
 
-  FadeStepMeta      *fadeStepMeta;      // propagate fade step settings
+  FadeStepsMeta      *fadeStepsMeta;      // propagate fade step settings
 
   HighlightStepMeta *highlightStepMeta; // propagate highlight step settings
 
@@ -1380,7 +1380,7 @@ public slots:
   void workerJobResult(int value);
 
   void preferences();
-  void fadeStepSetup();
+  void fadeStepsSetup();
   void highlightStepSetup();
   void generateCoverPages();
   void ldrawColorPartsLoad();

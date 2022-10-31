@@ -515,7 +515,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     commonMenus.addAction(setHighlightStepAction,menu,name);
 
     QAction *setFadeStepsAction        = lpub->getAct("fadeStepsAction.1");
-    setFadeStepsAction->setEnabled(meta->LPub.fadeStep.setup.value());
+    setFadeStepsAction->setEnabled(meta->LPub.fadeSteps.setup.value());
     commonMenus.addAction(setFadeStepsAction,menu,name);
 
     QAction *rendererAction            = lpub->getAct("preferredRendererAction.1");
@@ -697,7 +697,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         setFadeSteps(tr("Fade Previous Step %1s").arg(name),
                       topOfStep,
                       bottomOfStep,
-                      &step->csiStepMeta.fadeStep);
+                      &step->csiStepMeta.fadeSteps);
     } else if (selectedAction == setHighlightStepAction) {
         setHighlightStep(tr("Highlight Current Step %1").arg(name),
                          topOfStep,

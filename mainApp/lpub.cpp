@@ -2234,7 +2234,7 @@ void Gui::projectSetup()
   GlobalProjectDialog::getProjectGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
-void Gui::fadeStepSetup()
+void Gui::fadeStepsSetup()
 {
   GlobalFadeStepDialog::getFadeStepGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
@@ -5327,12 +5327,12 @@ void Gui::createActions()
     lpub->actions.insert(projectSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Project Setup"), projectSetupAct));
     connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
 
-    QAction *fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup..."), this);
-    fadeStepSetupAct->setObjectName("fadeStepSetupAct.1");
-    fadeStepSetupAct->setEnabled(false);
-    fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
-    lpub->actions.insert(fadeStepSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Fade Step Setup"), fadeStepSetupAct));
-    connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
+    QAction *fadeStepsSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Steps Setup..."), this);
+    fadeStepsSetupAct->setObjectName("fadeStepsSetupAct.1");
+    fadeStepsSetupAct->setEnabled(false);
+    fadeStepsSetupAct->setStatusTip(tr("Fade parts in previous steps"));
+    lpub->actions.insert(fadeStepsSetupAct->objectName(), Action(QStringLiteral("Configuration.Build Instructions Setup.Fade Steps Setup"), fadeStepsSetupAct));
+    connect(fadeStepsSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepsSetup()));
 
     QAction *highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup..."), this);
     highlightStepSetupAct->setObjectName("highlightStepSetupAct.1");
@@ -6181,7 +6181,7 @@ void Gui::enableActions()
   getAct("multiStepSetupAct.1")->setEnabled(true);
   getAct("subModelSetupAct.1")->setEnabled(true);
   getAct("projectSetupAct.1")->setEnabled(true);
-  getAct("fadeStepSetupAct.1")->setEnabled(true);
+  getAct("fadeStepsSetupAct.1")->setEnabled(true);
   getAct("highlightStepSetupAct.1")->setEnabled(true);
   getAct("addPictureAct.1")->setEnabled(true);
   getAct("removeLPubFormatDocumentAct.1")->setEnabled(true);
@@ -6281,7 +6281,7 @@ void Gui::disableActions()
   getAct("multiStepSetupAct.1")->setEnabled(false);
   getAct("subModelSetupAct.1")->setEnabled(false);
   getAct("projectSetupAct.1")->setEnabled(false);
-  getAct("fadeStepSetupAct.1")->setEnabled(false);
+  getAct("fadeStepsSetupAct.1")->setEnabled(false);
   getAct("highlightStepSetupAct.1")->setEnabled(false);
   getAct("addPictureAct.1")->setEnabled(false);
   getAct("removeLPubFormatBomAct.1")->setEnabled(false);
@@ -6545,7 +6545,7 @@ void Gui::createMenus()
     setupMenu->addAction(getAct("multiStepSetupAct.1"));
     setupMenu->addAction(getAct("subModelSetupAct.1"));
     setupMenu->addAction(getAct("projectSetupAct.1"));
-    setupMenu->addAction(getAct("fadeStepSetupAct.1"));
+    setupMenu->addAction(getAct("fadeStepsSetupAct.1"));
     setupMenu->addAction(getAct("highlightStepSetupAct.1"));
     setupMenu->addSeparator();
     setupMenu->setDisabled(true);
@@ -6794,7 +6794,7 @@ void Gui::createToolBars()
     setupToolBar->addAction(getAct("multiStepSetupAct.1"));
     setupToolBar->addAction(getAct("subModelSetupAct.1"));
     setupToolBar->addAction(getAct("projectSetupAct.1"));
-    setupToolBar->addAction(getAct("fadeStepSetupAct.1"));
+    setupToolBar->addAction(getAct("fadeStepsSetupAct.1"));
     setupToolBar->addAction(getAct("highlightStepSetupAct.1"));
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY)))

@@ -33,7 +33,7 @@
 #include "metagui.h"
 
 FadeHighlightDialog::FadeHighlightDialog(
-  FadeStepMeta      &_fadeGoods,
+  FadeStepsMeta     &_fadeGoods,
   HighlightStepMeta &_highlightGoods,
   UseMeta            _useMeta,
   QString            _name,
@@ -58,7 +58,7 @@ FadeHighlightDialog::FadeHighlightDialog(
   layout->addWidget(box);
 
   if (_useMeta == UseFadeMeta)
-    fadeSteps = new FadeStepGui(&fadeMeta,box);
+    fadeSteps = new FadeStepsGui(&fadeMeta,box);
   else
     highlightStep = new HighlightStepGui(&highlightMeta,box);
 
@@ -82,7 +82,7 @@ FadeHighlightDialog::~FadeHighlightDialog()
 }
 
 bool FadeHighlightDialog::getFadeHighlight(
-  FadeStepMeta      &fadeGoods,
+  FadeStepsMeta     &fadeGoods,
   HighlightStepMeta &highlightGoods,
   UseMeta            useMeta,
   QString            name,

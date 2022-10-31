@@ -320,8 +320,8 @@ class GlobalFadeStepDialog : public QDialog
   Q_OBJECT
 private:
   GlobalFadeStepPrivate *data;
-  FadeStepGui           *fadeStepChild;
-  CheckBoxGui           *fadeStepSetupChild;
+  FadeStepsGui          *fadeStepsChild;
+  CheckBoxGui           *fadeStepsSetupChild;
   FinalModelEnabledGui  *finalModelEnabledChild;
 
 public:

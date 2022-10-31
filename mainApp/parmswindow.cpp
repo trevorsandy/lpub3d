@@ -351,7 +351,7 @@ void ParmsWindow::displayParmsFile(
       title = "PLI/BOM Substitute Parts";
     else if (fileInfo.fileName() == Preferences::validLDrawColorParts)
       {
-        title = "Fade Step Color Parts";
+        title = "Fade Steps Color Parts";
         _fadeStepFile = true;
       }
     else if (fileInfo.fileName() == VER_TITLE_ANNOTATIONS_FILE)

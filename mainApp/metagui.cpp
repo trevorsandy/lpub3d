@@ -2119,12 +2119,12 @@ void HeaderFooterHeightGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * Fade Step
+ * Fade Steps
  *
  **********************************************************************/
 
-FadeStepGui::FadeStepGui(
-        FadeStepMeta *_meta,
+FadeStepsGui::FadeStepsGui(
+        FadeStepsMeta *_meta,
         QGroupBox  *parent)
 {
   meta = _meta;
@@ -2210,7 +2210,7 @@ FadeStepGui::FadeStepGui(
   opacityModified = false;
 }
 
-void FadeStepGui::colorChange(QString const &colorName)
+void FadeStepsGui::colorChange(QString const &colorName)
 {
   QColor oldFadeColour = colorExample->palette().background().color();
   QColor fadeColor = LDrawColor::color(colorName);
@@ -2228,7 +2228,7 @@ void FadeStepGui::colorChange(QString const &colorName)
   }
 }
 
-void FadeStepGui::valueChanged(int state)
+void FadeStepsGui::valueChanged(int state)
 {
   auto isChecked = [&state] ()
   {
@@ -2261,7 +2261,7 @@ void FadeStepGui::valueChanged(int state)
   }
 }
 
-void FadeStepGui::apply(
+void FadeStepsGui::apply(
   QString &topLevelFile)
 {
   if (modified) {

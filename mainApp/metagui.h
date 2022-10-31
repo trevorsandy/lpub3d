@@ -643,27 +643,27 @@ public slots:
 
 /***********************************************************************
  *
- * Fade Step
+ * Fade Steps
  *
  **********************************************************************/
 
-class FadeStepMeta;
-class FadeStepGui : public MetaGui
+class FadeStepsMeta;
+class FadeStepsGui : public MetaGui
 {
   Q_OBJECT
 public:
 
-  FadeStepGui(
-    FadeStepMeta *meta,
+  FadeStepsGui(
+    FadeStepsMeta *meta,
     QGroupBox  *parent = nullptr);
-  ~FadeStepGui() {}
+  ~FadeStepsGui() {}
 
   QCheckBox *getCheckBox() { return fadeCheck; }
 
   virtual void apply(QString &modelName);
 
 private:
-  FadeStepMeta  *meta;
+  FadeStepsMeta  *meta;
 
   QCheckBox   *fadeCheck;
   QCheckBox   *useColorCheck;

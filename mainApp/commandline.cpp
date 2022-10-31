@@ -477,7 +477,7 @@ int LPub::processCommandLine()
 
   if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) &&
       Preferences::enableFadeSteps) {
-          message = QString("Fade Step Transparency changed from %1 to %2 percent.")
+          message = QString("Fade Steps Transparency changed from %1 to %2 percent.")
               .arg(Preferences::fadeStepsOpacity)
               .arg(fadeStepsOpacity);
           emit messageSig(LOG_INFO,message);
@@ -491,7 +491,7 @@ int LPub::processCommandLine()
           emit messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
           if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
-              message = QString("Fade Step Transparency changed from %1 to %2 percent.")
+              message = QString("Fade Steps Transparency changed from %1 to %2 percent.")
                   .arg(Preferences::fadeStepsOpacity)
                   .arg(fadeStepsOpacity);
               emit messageSig(LOG_INFO,message);
@@ -501,7 +501,7 @@ int LPub::processCommandLine()
       QColor ParsedColor = LDrawColor::color(fadeStepsColour);
       if (ParsedColor.isValid() &&
           fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower()) {
-          message = QString("Fade Step Color preference changed from %1 to %2.")
+          message = QString("Fade Steps Color preference changed from %1 to %2.")
               .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
               .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
           emit messageSig(LOG_INFO,message);

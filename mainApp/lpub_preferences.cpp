@@ -5119,7 +5119,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"),fadeStepsOpacity);
 
             if (dialog->enableFadeSteps())
-                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Step Transparency changed from %1 to %2 percent")
+                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Steps Transparency changed from %1 to %2 percent")
                                 .arg(fadeStepsOpacityCompare)
                                 .arg(fadeStepsOpacity));
         }
@@ -5143,7 +5143,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),validFadeStepsColour);
 
             if (dialog->enableFadeSteps() && fadeStepsUseColour)
-                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Step Color preference changed from %1 to %2")
+                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Steps Color preference changed from %1 to %2")
                                       .arg(QString(fadeStepsColourCompare).replace("_"," "))
                                       .arg(QString(validFadeStepsColour).replace("_"," ")));
         }

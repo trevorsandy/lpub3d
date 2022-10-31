@@ -1156,29 +1156,29 @@ int Gui::drawPage(
             case EnableFadeStepsCalloutAssemRc:
             case EnableFadeStepsGroupAssemRc:
             case EnableFadeStepsAssemRc:
-              if ((rc == EnableFadeStepsCalloutAssemRc ? curMeta.LPub.callout.csi.fadeStep.enable.value() :
-                   rc == EnableFadeStepsGroupAssemRc ? curMeta.LPub.multiStep.csi.fadeStep.enable.value() :
-                   rc == EnableFadeStepsAssemRc ? curMeta.LPub.assem.fadeStep.enable.value() :
-                         curMeta.LPub.fadeStep.enable.value()) && !mSetupFadeSteps) {
+              if ((rc == EnableFadeStepsCalloutAssemRc ? curMeta.LPub.callout.csi.fadeSteps.enable.value() :
+                   rc == EnableFadeStepsGroupAssemRc ? curMeta.LPub.multiStep.csi.fadeSteps.enable.value() :
+                   rc == EnableFadeStepsAssemRc ? curMeta.LPub.assem.fadeSteps.enable.value() :
+                         curMeta.LPub.fadeSteps.enable.value()) && !mSetupFadeSteps) {
                       parseError(tr("Fade previous steps command ignored. %1 must be set to TRUE.")
-                                    .arg(curMeta.LPub.fadeStep.enable.value() ? "FADE_STEP ENABLED" :
-                                                                                "FADE_STEP SETUP (in the first step of the main model)"),opts.current);
+                                    .arg(curMeta.LPub.fadeSteps.enable.value() ? "FADE_STEPS ENABLED" :
+                                                                                "FADE_STEPS SETUP (in the first step of the main model)"),opts.current);
               } else if (rc == EnableFadeStepsCalloutAssemRc) {
-                  curMeta.LPub.callout.csi.fadeStep.setPreferences();
+                  curMeta.LPub.callout.csi.fadeSteps.setPreferences();
                   if (step)
-                      step->csiStepMeta.fadeStep = curMeta.LPub.callout.csi.fadeStep;
+                      step->csiStepMeta.fadeSteps = curMeta.LPub.callout.csi.fadeSteps;
               } else if (rc == EnableFadeStepsGroupAssemRc) {
-                  curMeta.LPub.multiStep.csi.fadeStep.setPreferences();
+                  curMeta.LPub.multiStep.csi.fadeSteps.setPreferences();
                   if (step)
-                      step->csiStepMeta.fadeStep = curMeta.LPub.multiStep.csi.fadeStep;
+                      step->csiStepMeta.fadeSteps = curMeta.LPub.multiStep.csi.fadeSteps;
               } else if (rc == EnableFadeStepsAssemRc) {
-                  curMeta.LPub.assem.fadeStep.setPreferences();
+                  curMeta.LPub.assem.fadeSteps.setPreferences();
                   if (step)
-                      step->csiStepMeta.fadeStep = curMeta.LPub.assem.fadeStep;
+                      step->csiStepMeta.fadeSteps = curMeta.LPub.assem.fadeSteps;
               }
               break;
             case EnableFadeStepsRc:
-                  curMeta.LPub.fadeStep.setPreferences();
+                  curMeta.LPub.fadeSteps.setPreferences();
                   Gui::suspendFileDisplay = true;
                   insertFinalModelStep();
                   Gui::suspendFileDisplay = false;
@@ -2683,17 +2683,17 @@ int Gui::drawPage(
 
                       // reset local fade previous steps
                       int local = 1; bool reset = true;
-                      if (curMeta.LPub.callout.csi.fadeStep.enable.pushed == local)
-                          curMeta.LPub.callout.csi.fadeStep.setPreferences(reset);
-                      else if (curMeta.LPub.multiStep.csi.fadeStep.enable.pushed == local)
-                          curMeta.LPub.multiStep.csi.fadeStep.setPreferences(reset);
-                      else if (curMeta.LPub.assem.fadeStep.enable.pushed == local)
-                          curMeta.LPub.assem.fadeStep.setPreferences(reset);
-                      else if (curMeta.LPub.fadeStep.enable.pushed == local) {
+                      if (curMeta.LPub.callout.csi.fadeSteps.enable.pushed == local)
+                          curMeta.LPub.callout.csi.fadeSteps.setPreferences(reset);
+                      else if (curMeta.LPub.multiStep.csi.fadeSteps.enable.pushed == local)
+                          curMeta.LPub.multiStep.csi.fadeSteps.setPreferences(reset);
+                      else if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
+                          curMeta.LPub.assem.fadeSteps.setPreferences(reset);
+                      else if (curMeta.LPub.fadeSteps.enable.pushed == local) {
                           Gui::suspendFileDisplay = true;
                           deleteFinalModelStep();
                           Gui::suspendFileDisplay = false;
-                          curMeta.LPub.fadeStep.setPreferences(reset);
+                          curMeta.LPub.fadeSteps.setPreferences(reset);
                       }
 
                       // reset local highlight current step
@@ -5646,10 +5646,10 @@ void Gui::writeToTmp()
 
   int writtenFiles = 0;
   int subFileCount = lpub->ldrawFile._subFileOrder.size();
-  bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeStep.setup.value());
+  bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
 
-  QString fadeColor = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeStep.color.value().color);
+  QString fadeColor = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeSteps.color.value().color);
 
   QString message;
   QString fileName;
@@ -5955,7 +5955,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
 
   QStringList configuredContents, subfileColourList;
-  bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeStep.setup.value());
+  bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
@@ -6076,7 +6076,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
   if (csiParts.size() > 0 && (doHighlightFirstStep ? true : stepNum > 1)) {
 
-      QString fadeColour  = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeStep.color.value().color);
+      QString fadeColour  = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeSteps.color.value().color);
 
       // retrieve the previous step position
       int prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber,stepNum);
@@ -6291,12 +6291,12 @@ bool Gui::colourEntryExist(const QStringList &colourEntries, const QString &code
 
 QString Gui::createColourEntry(const QString &colourCode, const PartType partType)
 {
-  // Fade Step Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
+  // Fade Steps Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
 
   bool fadePartType          = partType == FADE_PART;
 
   QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
-  QString _fadeColour        = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeStep.color.value().color);
+  QString _fadeColour        = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeSteps.color.value().color);
   QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString _mainColourValue   = LDrawColor::value(colourCode);
   QString _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : Preferences::highlightStepColour;

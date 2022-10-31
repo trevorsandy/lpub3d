@@ -30,7 +30,7 @@
 #include <QDialog>
 #include "meta.h"
 
-class FadeStepGui;
+class FadeStepsGui;
 class HighlightStepGui;
 class FadeHighlightDialog : public QDialog
 {
@@ -42,7 +42,7 @@ private:
 public:
 
   FadeHighlightDialog(
-    FadeStepMeta      &fadeGoods,
+    FadeStepsMeta     &fadeGoods,
     HighlightStepMeta &highlightGoods,
     UseMeta            useMeta,
     QString            name,
@@ -51,7 +51,7 @@ public:
   virtual ~FadeHighlightDialog();
 
   static bool getFadeSteps(
-    FadeStepMeta      &fadeGoods,
+    FadeStepsMeta     &fadeGoods,
     QString            name,
     QWidget           *parent)
   {
@@ -64,19 +64,19 @@ public:
     QString            name,
     QWidget           *parent)
   {
-    FadeStepMeta dummy;
+    FadeStepsMeta dummy;
     return getFadeHighlight(dummy,highlightGoods,UseHighlightMeta,name,parent);
   }
 
   static bool getFadeHighlight(
-    FadeStepMeta      &fadeGoods,
+    FadeStepsMeta     &fadeGoods,
     HighlightStepMeta &highlightGoods,
     UseMeta            useMeta,
     QString            name,
     QWidget           *parent);
 
   UseMeta useMeta;
-  FadeStepMeta fadeMeta;
+  FadeStepsMeta fadeMeta;
   HighlightStepMeta highlightMeta;
 
 public slots:
@@ -84,7 +84,7 @@ public slots:
   void cancel();
 
 private:
-  FadeStepGui      *fadeSteps;
+  FadeStepsGui     *fadeSteps;
   HighlightStepGui *highlightStep;
 };
 
