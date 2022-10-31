@@ -73,7 +73,7 @@ void Gui::endMacro()
 {
   undoStack->endMacro();
   --macroNesting;
-  if (!mloadingFile)
+  if (!suspendFileDisplay && macroNesting == 0)
     cyclePageDisplay(displayPageNum);
 }
 

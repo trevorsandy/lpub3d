@@ -2345,7 +2345,7 @@ void LDrawFile::countInstances(
       int stepIndexes = _buildModStepIndexes.size();
 
       bool result =
-              _loadBuildMods && (Gui::mloadingFile  ||
+              _loadBuildMods && (Gui::suspendFileDisplay  ||
               stepIndexes >= _buildModPrevStepIndex &&
               stepIndexes <= _buildModNextStepIndex);
 
@@ -2384,7 +2384,7 @@ void LDrawFile::countInstances(
       modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
 //*
 #ifdef QT_DEBUG_MODE
-      if (Gui::mloadingFile) {
+      if (Gui::suspendFileDisplay) {
           emit gui->messageSig(LOG_DEBUG, QString(
                                "Insert CountInst BuildMod StepIndex: %1, "
                                "Attributes: %2 %3 %4 %5 %6 %7 %8, "
@@ -2678,7 +2678,7 @@ void LDrawFile::countInstances()
 
 //*
 #ifdef QT_DEBUG_MODE
-  if (Gui::mloadingFile) {
+  if (Gui::suspendFileDisplay) {
     emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
     emit gui->messageSig(LOG_DEBUG, "----------------------------");
     for (int i = 0; i < _buildModStepIndexes.size(); i++)
@@ -2901,7 +2901,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                          .arg(_mpd ? "MPD" : "LDR")
                          .arg(writeFileName));
 
-    Gui::mloadingFile = true;
+    Gui::suspendFileDisplay = true;
     gui->deleteFinalModelStep();
 
     bool unofficialPart, addFILEMeta;
@@ -2931,7 +2931,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                                         .arg(writeFileName)
                                         .arg(file.errorString()));
                     gui->insertFinalModelStep();
-                    Gui::mloadingFile = false;
+                    Gui::suspendFileDisplay = false;
                     return false;
                 }
 
@@ -2975,7 +2975,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
     file.close();
 
     gui->insertFinalModelStep();
-    Gui::mloadingFile = false;
+    Gui::suspendFileDisplay = false;
 
     return true;
 }

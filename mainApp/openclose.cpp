@@ -850,7 +850,7 @@ bool Gui::openFile(QString &fileName)
   setCountWaitForFinished(false);
   buildModJumpForward = false;
   pageDirection = PAGE_NEXT;
-  mloadingFile = true;
+  suspendFileDisplay = true;
   parsedMessages.clear();
   Preferences::unsetBuildModifications();
   Preferences::setInitFadeSteps();

@@ -3342,7 +3342,7 @@ void MetaItem::changePreferredRenderer(
     meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
 //    reloadFile = true;
-//    setLoadingFileFlag(true);
+//    setSuspendFileDisplayFlag(true);
 //    endMacro();
 //    if (reloadFile) {
 //      reloadDisplayPage(true);
@@ -3376,7 +3376,7 @@ QString         title,
       meta->enable.setValue(_meta.enable.value());
       setMeta(topOfStep,bottomOfStep,&meta->enable,useTop,append,local,askLocal);
       reloadFile = meta->enable.value();
-      setLoadingFileFlag(reloadFile);
+      setSuspendFileDisplayFlag(reloadFile);
     }
     if(_meta.color.value().color != meta->color.value().color ||
        _meta.color.value().useColor != meta->color.value().useColor) {
@@ -3422,7 +3422,7 @@ void MetaItem::setHighlightStep(
       meta->enable.setValue(_meta.enable.value());
       setMeta(topOfStep,bottomOfStep,&meta->enable,useTop,append,local,askLocal);
       reloadFile = meta->enable.value();
-      setLoadingFileFlag(reloadFile);
+      setSuspendFileDisplayFlag(reloadFile);
     }
     if(_meta.color.value() != meta->color.value()) {
       meta->color.setValue(_meta.color.value());
@@ -5313,9 +5313,9 @@ bool MetaItem::currentFile()
     return !gui->getCurFile().isEmpty();
 }
 
-void MetaItem::setLoadingFileFlag(bool b) const
+void MetaItem::setSuspendFileDisplayFlag(bool b) const
 {
-    Gui::mloadingFile = b;
+    Gui::suspendFileDisplay = b;
 }
 
 void MetaItem::clearAllCaches() const

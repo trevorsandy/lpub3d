@@ -846,7 +846,7 @@ void GlobalPageDialog::accept()
 
   mi.beginMacro("GlobalPage");
 
-  bool noPageDisplay = false;
+  bool noFileDisplay = false;
   MetaGui *child;
   Q_FOREACH (child,data->children) {
       if ((child == authorChildFront && authorChildFront->modified) ||
@@ -873,10 +873,10 @@ void GlobalPageDialog::accept()
               mi.appendCoverPage();
       }
       child->apply(data->topLevelFile);
-      noPageDisplay |= child->modified;
+      noFileDisplay |= child->modified;
   }
 
-  mi.setLoadingFileFlag(!noPageDisplay);
+  mi.setSuspendFileDisplayFlag(!noFileDisplay);
 
   mi.endMacro();
 

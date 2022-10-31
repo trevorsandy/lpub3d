@@ -245,23 +245,23 @@ void GlobalProjectDialog::accept()
 
   mi.beginMacro("Global Project");
 
-  bool noPageDisplay = false;
+  bool noFileDisplay = false;
 
   MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
-    noPageDisplay |= child->modified;
+    noFileDisplay |= child->modified;
   }
 
   if (data->reloadFile)
-    mi.setLoadingFileFlag(true);           // when true, do not cyclePageDisplay at endMacro()
+    mi.setSuspendFileDisplayFlag(true);           // when true, do not cyclePageDisplay at endMacro()
   else
-    mi.setLoadingFileFlag(!noPageDisplay); // when false, cyclePageDisplay at endMacro()
+    mi.setSuspendFileDisplayFlag(!noFileDisplay); // when false, cyclePageDisplay at endMacro()
 
   mi.endMacro();
 
   if (data->reloadFile)
-    mi.clearAndReloadModelFile(false, true); // if true, close and reload file, if true, prompt to save - clear all caches
+    mi.clearAndReloadModelFile(false, true);      // if true, close and reload file, if true, prompt to save - clear all caches
 
   QDialog::accept();
 }

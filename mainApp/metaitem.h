@@ -561,7 +561,7 @@ public:
 
   int  numSteps(QString modelName);
 
-  void setLoadingFileFlag(bool) const;
+  void setSuspendFileDisplayFlag(bool) const;
 
   void clearAllCaches() const;
   void clearPageCache(PlacementType relativeType, Page *page, int option) const;

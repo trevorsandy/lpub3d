@@ -157,18 +157,18 @@ void GlobalFadeStepDialog::accept()
 
   mi.beginMacro("GlobalFadeStep");
 
-  bool noPageDisplay = false;
+  bool noFileDisplay = false;
 
   MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
-    noPageDisplay |= child->modified;
+    noFileDisplay |= child->modified;
   }
 
   if (data->reloadFile)
-    mi.setLoadingFileFlag(true);
+    mi.setSuspendFileDisplayFlag(true);
   else
-    mi.setLoadingFileFlag(!noPageDisplay);
+    mi.setSuspendFileDisplayFlag(!noFileDisplay);
 
   mi.endMacro();
 

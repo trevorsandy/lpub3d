@@ -509,7 +509,7 @@ public:
   QProgressBar    *m_progressDlgProgressBar;
 
   bool             m_partListCSIFile;   // processing part list CSI file
-  static bool      mloadingFile;        // when true, the endMacro() call will not call displayPage()
+  static bool      suspendFileDisplay;  // when true, the endMacro() call will not call displayPage()
   void            *noData;
 
   FadeStepMeta      *fadeStepMeta;      // propagate fade step settings

@@ -664,15 +664,15 @@ void GlobalPliDialog::accept()
 
   mi.beginMacro("Global Pli");
 
-  bool noPageDisplay = false;
+  bool noFileDisplay = false;
 
   MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
-    noPageDisplay |= child->modified;
+    noFileDisplay |= child->modified;
   }
 
-  mi.setLoadingFileFlag(!noPageDisplay);
+  mi.setSuspendFileDisplayFlag(!noFileDisplay);
 
   mi.endMacro();
 

@@ -142,7 +142,7 @@ bool         Gui::m_exportingContent;     // indicate export/printing underway
 bool         Gui::m_exportingObjects;     // indicate exporting non-image object file content
 bool         Gui::m_contPageProcessing;   // indicate continuous page processing underway
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
-bool         Gui::mloadingFile;           // when true, the endMacro() call will not call displayPage()
+bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage() 
 
 int          Gui::m_exportMode;           // export Mode
 QString      Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
@@ -3360,7 +3360,7 @@ Gui::Gui()
     m_exportMode                    = EXPORT_PDF;
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
-    mloadingFile                    = false;
+    suspendFileDisplay              = false;
     resetCache                      = false;
     m_previewDialog                 = false;
     m_partListCSIFile               = false;

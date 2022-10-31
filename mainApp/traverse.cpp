@@ -4728,14 +4728,14 @@ void Gui::drawPage(
     auto countPage = [this, &opts](int modelStackCount)
     {
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
-      if (exporting() || ContinuousPage() || countWaitForFinished() || mloadingFile || modelStackCount) {
+      if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
 #ifdef QT_DEBUG_MODE
         if (modelStackCount)
           emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished modelStack.size WAIT YES Stack [%1]").arg(modelStackCount));
         if (countWaitForFinished())
           emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished countWaitForFinished WAIT YES"));
-        if (mloadingFile)
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished mloadingFile WAIT YES"));
+        if (suspendFileDisplay)
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished suspendFileDisplay WAIT YES"));
 #endif
         future.waitForFinished();
         if (!modelStackCount)
@@ -4919,7 +4919,7 @@ void Gui::pagesCounted()
     // drawPage
     else
     {
-        if (mloadingFile) {
+        if (suspendFileDisplay) {
             if (Preferences::modeGUI && ! exporting()) {
                 emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                                     QString("LDraw model file %1 aborted.").arg(getCurFile()) :
@@ -4951,8 +4951,8 @@ void Gui::pagesCounted()
         } // modeGUI and not exporting
     } // drawPage
 
-    if (mloadingFile)
-        mloadingFile = false;
+    if (suspendFileDisplay)
+        suspendFileDisplay = false;
 
     // reset countPage future wait on last drawPage call from export 'printfile' where exporting() is reset to false
     if (!exporting() && countWaitForFinished())
@@ -5667,7 +5667,7 @@ void Gui::writeToTmp()
 
           emit messageSig(LOG_INFO_STATUS, message);
 
-          if (Gui::mloadingFile) {
+          if (Gui::suspendFileDisplay) {
               message = QString("Writing %1 %2 of %3 files (%4 lines)...")
                       .arg(fileType)
                       .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
