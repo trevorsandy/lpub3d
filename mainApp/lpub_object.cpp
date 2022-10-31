@@ -1509,8 +1509,8 @@ void LPub::updateChangelog (const QString &url)
                 m_setReleaseNotesAsText = m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION);
                 m_releaseNotesContent = m_updater->getChangelog(url);
             }
-            emit checkForUpdatesFinished();
         }
+        emit checkForUpdatesFinished();
     };
 
     if (url == DEFS_URL)

@@ -107,25 +107,36 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 {
   ui.setupUi(this);
 
-  resetSceneColorsFlag = false;
-
-  mLDrawLibPath = Preferences::ldrawLibPath;
-
-  if (mLDrawLibPath.isEmpty()) {
-    mLDrawLibPath = ".";
-  }
+  ui.tabGeneral->setWhatsThis(    lpubHelp[WT_PREFERENCES_GENERAL].text);
+  ui.tabRenderers->setWhatsThis(  lpubHelp[WT_PREFERENCES_RENDERERS].text);
+  ui.LDGLiteTab->setWhatsThis(    lpubHelp[WT_PREFERENCES_LDGLITE].text);
+  ui.LDViewTab->setWhatsThis(     lpubHelp[WT_PREFERENCES_LDVIEW].text);
+  ui.NativeTab->setWhatsThis(     lpubHelp[WT_PREFERENCES_NATIVE].text);
+  ui.POVRayTab->setWhatsThis(     lpubHelp[WT_PREFERENCES_POVRAY].text);
+  ui.tabPublishing->setWhatsThis( lpubHelp[WT_PREFERENCES_PUBLISHING].text);
+  ui.tabLogging->setWhatsThis(    lpubHelp[WT_PREFERENCES_LOGGING].text);
+  ui.tabShortcuts->setWhatsThis(  lpubHelp[WT_SHORTCUTS].text);
+  ui.tabOther->setWhatsThis(      lpubHelp[WT_PREFERENCES_OTHER].text);
+  ui.tabUpdates->setWhatsThis(    lpubHelp[WT_PREFERENCES_UPDATES].text);
+  ui.tabDirectories->setWhatsThis(lpubHelp[WT_PREFERENCES_DIRECTORIES].text);
 
   // hide 3rd party application browse buttons
   ui.browseLDGLite->hide();
   ui.browseLDView->hide();
   ui.browsePOVRAY->hide();
 
-  QPalette readOnlyPalette = QApplication::palette();
-  if (Preferences::displayTheme == THEME_DARK)
-      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
-  else
-      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
-  readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
+  /* Themes */
+  ui.themeCombo->addItem(THEME_DEFAULT);
+  ui.themeCombo->addItem(THEME_DARK);
+
+  resetSceneColorsFlag = false;
+
+  /* Logging */
+  QStringList logLevels = tr(VER_LOGGING_LEVELS_STR).split(",");
+  ui.logLevelCombo->addItems(logLevels);
+
+  /* Fade Steps Colors*/
+  ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
 
   // shortcuts
   QCompleter *completer = new QCompleter(ui.KeyboardFilterEdit);
@@ -154,11 +165,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   new CommandListColumnStretcher(ui.commandList, 0);
   commandChanged(nullptr);
   // end shortcuts
-
-  ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
-  QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
-  QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
-  bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   // populate model file defaults from settings (versus Preferences)
   QSettings Settings;
@@ -196,15 +202,109 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.logPathEdit->setReadOnly(true);
   ui.logPathEdit->setPalette(readOnlyPalette);
 
-  // [WIP]
+  // [WIP] - Experimental
   ui.imageMatteBox->setEnabled(false);
   ui.imageMattingChk->setEnabled(false);
 
-  showSaveOnRedrawFlag =                         Preferences::showSaveOnRedraw;
-  showSaveOnUpdateFlag =                         Preferences::showSaveOnUpdate;
+  //search directories
+  ui.lineEditIniFile->setReadOnly(true);
+  ui.textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
+  ui.textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
+  ui.textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
+  ui.textEditSearchDirs->setReadOnly(true);
+  ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
 
-  ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
-  ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
+  // change log
+  ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
+  ui.changeLog_txbr->setLineWrapMode(QTextEdit::FixedColumnWidth);
+  ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
+  ui.changeLog_txbr->setOpenExternalLinks(true);
+
+  if (ui.povGenNativeRadio->isChecked()) {
+      ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
+      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
+  } else {
+      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
+      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
+      ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+  }
+
+  ui.preferencesTabWidget->setCurrentIndex(0);
+
+  // lcLib
+  connect(ui.FadeStepsColor,                &QToolButton::clicked,
+          this,                             &PreferencesDialog::ColorButtonClicked);
+  connect(ui.HighlightNewPartsColor,        &QToolButton::clicked,
+          this,                             &PreferencesDialog::ColorButtonClicked);
+  connect(ui.HighContrastButton,            SIGNAL(clicked()),
+          this,                             SLOT(AutomateEdgeColor()));
+  connect(ui.AutomateEdgeColorButton,       SIGNAL(clicked()),
+          this,                             SLOT(AutomateEdgeColor()));
+  connect(ui.ResetFadeStepsButton,          SIGNAL(clicked()),
+          this,                             SLOT(ResetFadeHighlightColor()));
+  connect(ui.ResetHighlightNewPartsButton,  SIGNAL(clicked()),
+          this,                             SLOT(ResetFadeHighlightColor()));
+
+  connect(ui.resetDefaultDistanceFactor,    SIGNAL(clicked()),
+          this,                             SLOT(cameraPropertyReset()));
+  connect(ui.resetDefaultPosition,          SIGNAL(clicked()),
+          this,                             SLOT(cameraPropertyReset()));
+  connect(ui.resetFoV,                      SIGNAL(clicked()),
+          this,                             SLOT(cameraPropertyReset()));
+  connect(ui.resetNearPlane,                SIGNAL(clicked()),
+          this,                             SLOT(cameraPropertyReset()));
+  connect(ui.resetFarPlane,                 SIGNAL(clicked()),
+          this,                             SLOT(cameraPropertyReset()));
+  // lcLib
+
+  connect(ui.ldvPoVFileGenOptBtn,           SIGNAL(clicked()),
+          this,                             SLOT(ldvPoVFileGenOptBtn_clicked()));
+  connect(ui.ldvPoVFileGenPrefBtn,          SIGNAL(clicked()),
+          this,                             SLOT(ldvPoVFileGenPrefBtn_clicked()));
+  connect(ui.sceneBackgroundColorButton,    SIGNAL(clicked()),
+          this,                             SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneGridColorButton,          SIGNAL(clicked()),
+          this,                             SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneRulerTickColorButton,     SIGNAL(clicked()),
+          this,                             SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneRulerTrackingColorButton, SIGNAL(clicked()),
+          this,                             SLOT(sceneColorButtonClicked()));
+  connect(ui.sceneGuideColorButton,         SIGNAL(clicked()),
+          this,                             SLOT(sceneColorButtonClicked()));
+  connect(lpub,                             SIGNAL(checkForUpdatesFinished ()),
+          this,                             SLOT(updateChangelog ()));
+
+  setMinimumSize(500, 600);
+  setSizeGripEnabled(true);
+}
+
+PreferencesDialog::~PreferencesDialog()
+{}
+
+void PreferencesDialog::setPreferences()
+{
+
+  readOnlyPalette = QApplication::palette();
+
+  if (Preferences::displayTheme == THEME_DARK)
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
+  else
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
+  readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
+
+  mLDrawLibPath = Preferences::ldrawLibPath.isEmpty() ? "." : Preferences::ldrawLibPath;
+  ui.ldrawLibPathEdit->setText(mLDrawLibPath);
+
+  ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
+  ui.ldrawLibPathBox->setTitle(ldrawLibPathTitle);
+
+  QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
+  QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
+  bool useLDViewSCall          = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
+
+  showSaveOnRedrawFlag         = Preferences::showSaveOnRedraw;
+  showSaveOnUpdateFlag         = Preferences::showSaveOnUpdate;
 
   ui.autoUpdateChangeLogBox->setChecked(         Preferences::autoUpdateChangeLog);
   ui.updateChangeLogBtn->setEnabled(             !Preferences::autoUpdateChangeLog);
@@ -238,8 +338,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   setRenderers();
 
   // end preferred renderer
-
-  ui.preferencesTabWidget->setCurrentIndex(0);
 
   ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
   ui.pliControlEdit->setText(                    Preferences::pliControlFile);
@@ -291,7 +389,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
-  ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
   if(fadeColor.isValid() ) {
@@ -307,7 +404,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
   ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
-
   ui.highlightFirstStepBox->setChecked(          Preferences::highlightFirstStep);
 
   // Only enabled for LDGLite
@@ -328,8 +424,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
     ui.highlightStepColorLabel->setStyleSheet(styleSheet);
   }
 
-  QStringList logLevels = tr(VER_LOGGING_LEVELS_STR).split(",");
-  ui.logLevelCombo->addItems(logLevels);
   ui.logLevelCombo->setCurrentIndex(int(ui.logLevelCombo->findText(Preferences::loggingLevel)));
 
   ui.debugLevelBox->setChecked(                  Preferences::debugLevel);
@@ -342,16 +436,9 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 
   ui.includeAllLogAttribBox->setChecked(         Preferences::includeAllLogAttributes);
   ui.allLogLevelsBox->setChecked(                Preferences::allLogLevels);
-  ui.logValiationLbl->hide();
 
-  //search directories
+  // search directories
   ui.lineEditIniFile->setPalette(readOnlyPalette);
-  ui.lineEditIniFile->setReadOnly(true);
-  ui.textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
-  ui.textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
-  ui.textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
-  ui.textEditSearchDirs->setReadOnly(true);
-  ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.lineEditIniFile->setToolTip(tr("LDraw.ini file"));
@@ -366,15 +453,16 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   }
 
   ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
-  if (Preferences::ldSearchDirs.size() > 0){
+  if (Preferences::ldSearchDirs.size() > 0) {
+      ui.textEditSearchDirs->clear();
       Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);
   }
-  //end search Dirs
+  // end search directories
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
-  ui.Inches->setChecked(! centimeters);
+  ui.Inches->setChecked(!centimeters);
 
   bool applyCALocally = Preferences::applyCALocally;
   ui.applyCALocallyRadio->setChecked(applyCALocally);
@@ -387,51 +475,32 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
   ui.povGenNativeRadio->setChecked(Preferences::useNativePovGenerator);
   ui.povGenLDViewRadio->setChecked(!Preferences::useNativePovGenerator);
-  if (ui.povGenNativeRadio->isChecked()) {
-      ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
-      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
-      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
-  } else {
-      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
-      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
-      ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
-  }
-
-  connect(ui.ldvPoVFileGenOptBtn, SIGNAL(clicked()), this, SLOT(ldvPoVFileGenOptBtn_clicked()));
-  connect(ui.ldvPoVFileGenPrefBtn, SIGNAL(clicked()), this, SLOT(ldvPoVFileGenPrefBtn_clicked()));
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
-  /* Themes */
-  ui.themeCombo->addItem(THEME_DEFAULT);
-  ui.themeCombo->addItem(THEME_DARK);
   ui.themeCombo->setCurrentText(Preferences::displayTheme);
 
   QPixmap colorPix(12, 12);
+
   sceneBackgroundColorStr = Preferences::sceneBackgroundColor;
   colorPix.fill(QColor(sceneBackgroundColorStr));
   ui.sceneBackgroundColorButton->setIcon(colorPix);
-  connect(ui.sceneBackgroundColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
   sceneGridColorStr = Preferences::sceneGridColor;
   colorPix.fill(QColor(sceneGridColorStr));
   ui.sceneGridColorButton->setIcon(colorPix);
-  connect(ui.sceneGridColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
   sceneRulerTickColorStr = Preferences::sceneRulerTickColor;
   colorPix.fill(QColor(sceneRulerTickColorStr));
   ui.sceneRulerTickColorButton->setIcon(colorPix);
-  connect(ui.sceneRulerTickColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
   sceneRulerTrackingColorStr = Preferences::sceneRulerTrackingColor;
   colorPix.fill(QColor(sceneRulerTrackingColorStr));
   ui.sceneRulerTrackingColorButton->setIcon(colorPix);
-  connect(ui.sceneRulerTrackingColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
   sceneGuideColorStr = Preferences::sceneGuideColor;
   colorPix.fill(QColor(sceneGuideColorStr));
   ui.sceneGuideColorButton->setIcon(colorPix);
-  connect(ui.sceneGuideColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
   /* [Experimental] LDView Image Matting */
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
@@ -439,12 +508,15 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 
   QString version = qApp->applicationVersion();
   QString revision = QString::fromLatin1(VER_REVISION_STR);
-  QStringList updatableVersions = Preferences::availableVersions.split(",");
+  QStringList updatableVersions = Preferences::availableVersions.split(",",SkipEmptyParts);
 #ifdef QT_DEBUG_MODE
   updatableVersions.prepend(version);
 #endif
+  updatableVersions.removeDuplicates();
+  ui.moduleVersion_Combo->clear();
   ui.moduleVersion_Combo->addItems(updatableVersions);
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
+
   QString versionInfo;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
   versionInfo = tr("Change Log for version %1 revision %2 (%3)").arg(version, revision, QString::fromLatin1(VER_BUILD_TYPE_STR));
@@ -453,13 +525,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   versionInfo = tr("Change Log for version %1%2").arg(version, revisionNumber ? QString(" revision %1").arg(revision) : "");
 #endif
   ui.groupBoxChangeLog->setTitle(versionInfo);
-  ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
-  ui.changeLog_txbr->setLineWrapMode(QTextEdit::FixedColumnWidth);
-  ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
-  ui.changeLog_txbr->setOpenExternalLinks(true);
-
-  connect (lpub, SIGNAL(checkForUpdatesFinished ()),
-           this, SLOT(  updateChangelog ()));
 
   updateChangelog();
 
@@ -469,23 +534,15 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   mShowBuildModErrors     = Preferences::showBuildModErrors;
   mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
   mShowAnnotationErrors   = Preferences::showAnnotationErrors;
-
-//#ifdef Q_OS_MACOS
-//  resize(640, 835);
-//#else
-//  resize(510, 675);
-//#endif
-  setMinimumSize(500, 600);
-  setSizeGripEnabled(true);
 }
-
-PreferencesDialog::~PreferencesDialog()
-{}
 
 void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
 {
     mSetOptions = true;
     mOptions = Options;
+
+    // LPub3D Preferences
+    setPreferences();
 
     // LcLib Preferences
     lcQPreferencesInit();

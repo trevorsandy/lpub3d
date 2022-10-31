@@ -160,6 +160,7 @@ class PreferencesDialog : public QDialog
     int           highlightStepLineWidth();
     bool          highlightFirstStep();
 
+    void          setPreferences();
     void          setOptions(lcLibRenderOptions* Options);
 
     bool          eventFilter(QObject* Object, QEvent* Event) override;
@@ -285,6 +286,8 @@ private:
     QToolButton *clearDetailErrorsTBtn;
     QLabel      *clearDetailErrorsLbl;
     QDialogButtonBox *messageButtonBox;
+
+    QPalette readOnlyPalette;
 
     QMap<int, QString> editedThemeColors;
 

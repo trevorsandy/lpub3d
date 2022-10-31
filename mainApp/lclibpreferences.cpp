@@ -22,12 +22,12 @@
 
 void PreferencesDialog::lcQPreferencesInit()
 {
-    connect(ui.FadeStepsColor, &QToolButton::clicked, this, &PreferencesDialog::ColorButtonClicked);
-    connect(ui.HighlightNewPartsColor, &QToolButton::clicked, this, &PreferencesDialog::ColorButtonClicked);
-    connect(ui.HighContrastButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
-    connect(ui.AutomateEdgeColorButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
-    connect(ui.ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
-    connect(ui.ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
+//    connect(ui.FadeStepsColor, &QToolButton::clicked, this, &PreferencesDialog::ColorButtonClicked);
+//    connect(ui.HighlightNewPartsColor, &QToolButton::clicked, this, &PreferencesDialog::ColorButtonClicked);
+//    connect(ui.HighContrastButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
+//    connect(ui.AutomateEdgeColorButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
+//    connect(ui.ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
+//    connect(ui.ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 
     ui.antiAliasing->setChecked(mOptions->AASamples != 1);
     if (mOptions->AASamples == 8)
@@ -108,11 +108,11 @@ void PreferencesDialog::lcQPreferencesInit()
     ui.cameraDistanceFactor->setText(QString::number(qreal(mOptions->Preferences.mCDP) /
                                                      -qreal(mOptions->Preferences.mDDF)));
 
-    connect(ui.resetDefaultDistanceFactor, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
-    connect(ui.resetDefaultPosition, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
-    connect(ui.resetFoV, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
-    connect(ui.resetNearPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
-    connect(ui.resetFarPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+//    connect(ui.resetDefaultDistanceFactor, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+//    connect(ui.resetDefaultPosition, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+//    connect(ui.resetFoV, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+//    connect(ui.resetNearPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+//    connect(ui.resetFarPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
 
     ui.cameraDistanceFactor->setReadOnly(true);
     ui.cameraDistanceFactor->setPalette(readOnlyPalette);
