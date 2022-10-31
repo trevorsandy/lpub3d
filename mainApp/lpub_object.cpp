@@ -773,8 +773,8 @@ void LPub::loadCommandCollection()
     const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
     JsonFile<Command>::load(QDir::toNativeSeparators(userDataPath + "/user-command-descriptions.json"), commandCollection);
 
-    CommandCollection *builtinCommandCollection = new CommandCollection(this);
-    JsonFile<Command>::load(QDir::toNativeSeparators(":/builtincommanddescriptions.json"), builtinCommandCollection);
+    CommandCollection builtinCommandCollection; // = new CommandCollection(this);
+    JsonFile<Command>::load(QDir::toNativeSeparators(":/builtincommanddescriptions.json"), &builtinCommandCollection);
 
     QStringList commands;
     meta.doc(commands);
@@ -833,8 +833,8 @@ void LPub::loadCommandCollection()
             _command = commandCollection->command(preamble);
             _command.command         = command;
             _command.modified        = Command::True;
-        } else if (builtinCommandCollection->contains(preamble)) {
-            _command = builtinCommandCollection->command(preamble);
+        } else if (builtinCommandCollection.contains(preamble)/*->contains(preamble)*/) {
+            _command = builtinCommandCollection.command(preamble)/*->command(preamble)*/;
             _command.command         = command;
             if (_command.modified   == Command::False)
                 _command.description = command;

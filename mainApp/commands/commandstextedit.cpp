@@ -449,7 +449,7 @@ QStringList CommandsTextEdit::extractDistinctWordsFromDocument() const
 
 QStringList CommandsTextEdit::retrieveAllWordsFromDocument() const
 {
-    return toPlainText().split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    return toPlainText().split(QRegExp("\\W+"), SkipEmptyParts);
 }
 
 template <class UnaryPredicate>

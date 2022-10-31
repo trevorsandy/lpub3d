@@ -926,14 +926,14 @@ QString PlacementMeta::format(bool local, bool global)
 
 void PlacementMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " ((( TOP | BOTTOM )|( LEFT | RIGHT )) (( LEFT | CENTER | RIGHT )|( TOP | CENTER | BOTTOM )))|( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT )"
+  out << preamble + " (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT )"
                     " ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )";
 }
 
 void PlacementMeta::metaKeywords(QStringList &out, QString preamble)
 {
 
-  out << preamble + " TOP BOTTOM LEFT RIGHT LEFT CENTER RIGHT TOP CENTER BOTTOM TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT"
+  out << preamble + " TOP BOTTOM LEFT CENTER RIGHT TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT"
                     " PAGE ASSEM INSIDE OUTSIDE MULTI_STEP STEP_NUMBER PLI SUBMODEL_DISPLAY ROTATE_ICON CALLOUT";
 }
 /* ------------------ */ 
@@ -3556,12 +3556,14 @@ QString InsertMeta::format(bool local, bool global)
 void InsertMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " ( PICTURE <\"file path\"> ) | ( TEXT <\"text\"> <\"#RRGGBB\"> ) | ( RICH_TEXT <\"text\"> ) | ( HTML_TEXT <\"text\"> ) | "
-                    "( PAGE | BOM | MODEL | DISPLAY_MODEL | COVER_PAGE | ROTATE_ICON ) ( OFFSET <decimal X> <decimal Y> )";
+                    "( TEXT PLACEMENT ( TOP | BOTTOM | LEFT | CENTER | RIGHT | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) (PAGE | PAGE_HEADER | PAGE_FOOTER) ( INSIDE | OUTSIDE )) | "
+                    "( PAGE | BOM | MODEL | DISPLAY_MODEL | COVER_PAGE [ FRONT | BACK ] | ROTATE_ICON ) ( OFFSET <decimal X> <decimal Y> )";
 }
 
 void InsertMeta::metaKeywords(QStringList &out, QString preamble)
 {
-  out << preamble + " BEGIN BOM COVER_PAGE DISPLAY_MODEL FOR_SUBMODEL HTML_TEXT LOCAL MODEL OFFSET PAGE PICTURE PLACEMENT RICH_TEXT ROTATE_ICON SCALE SUB TEXT";
+  out << preamble + " BEGIN BOM COVER_PAGE FRONT BACK DISPLAY_MODEL FOR_SUBMODEL HTML_TEXT LOCAL MODEL OFFSET PAGE PICTURE RICH_TEXT ROTATE_ICON SCALE SUB TEXT "
+                    "PLACEMENT TOP BOTTOM LEFT CENTER RIGHT TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT PAGE PAGE_HEADER PAGE_FOOTER INSIDE OUTSIDE";
 }
 /* ------------------ */
 
