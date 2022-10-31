@@ -89,20 +89,10 @@ GlobalPageDialog::GlobalPageDialog(
 
 
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
-//  box = new QGroupBox(tr("Size"));
-//  grid->addWidget(box,0,0);
-//  child = new PageSizeGui("",&pageMeta->size,box);
-//  data->children.append(child);
-
-//  box = new QGroupBox(tr("Orientation"));
-//  grid->addWidget(box,1,0);
-//  child = new PageOrientationGui("",&pageMeta->orientation,box);
-//  data->children.append(child);
-
   bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
-  QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimetres)" );
+  QString header = (dpi ? tr("Size and Orientation (Inches)") : tr("Size and Orientation (Centimetres)"));
 
-  box = new QGroupBox(tr("%1").arg(header));
+  box = new QGroupBox(header);
   grid->addWidget(box,0,0);
   child = new SizeAndOrientationGui("",&pageMeta->size,&pageMeta->orientation,box);
   data->children.append(child);
@@ -111,17 +101,11 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box,2,0);
 
   //gradient settings
-//  logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
-//             << "\nbackground.value().gsize[1]: " << pageMeta->background.value().gsize[1]
-//                ;
   if (pageMeta->background.value().gsize[0] == 0 &&
       pageMeta->background.value().gsize[1] == 0) {
 
       pageMeta->background.value().gsize[0] = Preferences::pageHeight;
       pageMeta->background.value().gsize[1] = Preferences::pageWidth;
-//      logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
-//                 << "\nbackground.value().gsize[1]: " << pageMeta->background.value().gsize[1]
-//                    ;
       QSize gSize(pageMeta->background.value().gsize[0],
                   pageMeta->background.value().gsize[1]);
       int h_off = gSize.width() / 10;
@@ -154,14 +138,14 @@ GlobalPageDialog::GlobalPageDialog(
   child = new HeaderFooterHeightGui("",&pageFooterMeta->size,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Page");
+  tab->addTab(widget,tr("Page"));
 
   //~~~~~~~~~~~~pointer tab ~~~~~~~~~~~~~~~//
   widget = new QWidget(nullptr);
   childlayout = new QVBoxLayout(nullptr);
   widget->setLayout(childlayout);
 
-  box = new QGroupBox("Border");
+  box = new QGroupBox(tr("Border"));
   childlayout->addWidget(box);
   PointerAttribData pad = pageMeta->pointerAttrib.value();
   pad.attribType = PointerAttribData::Border;
@@ -169,14 +153,14 @@ GlobalPageDialog::GlobalPageDialog(
   child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
   data->children.append(child);
 
-  box = new QGroupBox("Line");
+  box = new QGroupBox(tr("Line"));
   childlayout->addWidget(box);
   pad.attribType = PointerAttribData::Line;
   pageMeta->pointerAttrib.setValue(pad);
   child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
   data->children.append(child);
 
-  box = new QGroupBox("Tip");
+  box = new QGroupBox(("Tip"));
   childlayout->addWidget(box);
   pad.attribType = PointerAttribData::Tip;
   pageMeta->pointerAttrib.setValue(pad);
@@ -187,7 +171,7 @@ GlobalPageDialog::GlobalPageDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   childlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Pointers");
+  tab->addTab(widget,tr("Pointers"));
 
   //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
   childwidget = new QWidget();                  //START DO THIS FOR MODEL, PUBLISHER AND DISCLAIMER
@@ -212,21 +196,19 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   titleBoxFront = new QGroupBox(tr("Display Title Front Cover"));
   childlayout->addWidget(titleBoxFront);
-  //grid->addWidget(titleBoxFront, 0, 0);
   titleChildFront = new PageAttributeTextGui(&pageMeta->titleFront,titleBoxFront);
   childTextGui = static_cast<PageAttributeTextGui*>(titleChildFront);
-  childTextGui->contentEdit->setToolTip("Enter model title");
+  childTextGui->contentEdit->setToolTip(tr("Enter model title"));
   data->children.append(titleChildFront);
   connect(titleChildFront, SIGNAL(indexChanged(int)),
           this,            SLOT(indexChanged(int)));
 
   titleBoxBack = new QGroupBox(tr("Display Title Back Cover"));
   childlayout->addWidget(titleBoxBack);
-  //grid->addWidget(titleBoxBack, 0, 0);
   titleBoxBack->hide();
   titleChildBack = new PageAttributeTextGui(&pageMeta->titleBack,titleBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(titleChildBack);
-  childTextGui->contentEdit->setToolTip("Enter model title");
+  childTextGui->contentEdit->setToolTip(tr("Enter model title"));
   data->children.append(titleChildBack);
   connect(titleChildBack, SIGNAL(indexChanged(int)),
           this,             SLOT(indexChanged(int)));
@@ -254,7 +236,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(coverPageBox);
   coverImageChildFront = new PageAttributeImageGui(&pageMeta->coverImage,coverPageBox);
   childImageGui = static_cast<PageAttributeImageGui*>(coverImageChildFront);
-  childImageGui->imageEdit->setToolTip("Enter image path");
+  childImageGui->imageEdit->setToolTip(tr("Enter image path"));
   data->children.append(coverImageChildFront);
   connect(coverPageBox, SIGNAL(toggled(bool)),
           this,         SLOT(  displayGroup(bool)));
@@ -272,7 +254,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addSpacerItem(vSpacer);
 
   // child footer (one) end
-  childtab->addTab(widget,"Cover Image");
+  childtab->addTab(widget,tr("Cover Image"));
   // child footer end
 
   // child header (one) start
@@ -289,7 +271,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box, 0, 0);
   modelDescChildFront = new PageAttributeTextGui(&pageMeta->modelDesc,box);
   childTextGui = static_cast<PageAttributeTextGui*>(modelDescChildFront);
-  childTextGui->contentEdit->setToolTip("Enter model description");
+  childTextGui->contentEdit->setToolTip(tr("Enter model description"));
   data->children.append(modelDescChildFront);
   // child body end
 
@@ -311,7 +293,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box, 0, 0);
   modelIdChildFront = new PageAttributeTextGui(&pageMeta->modelName,box);
   childTextGui = static_cast<PageAttributeTextGui*>(modelIdChildFront);
-  childTextGui->contentEdit->setToolTip("Enter model identification");
+  childTextGui->contentEdit->setToolTip(tr("Enter model identification"));
   data->children.append(modelIdChildFront);
   // child body end
 
@@ -320,7 +302,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box, 1, 0);
   partsChildFront = new PageAttributeTextGui(&pageMeta->parts,box);
   childTextGui = static_cast<PageAttributeTextGui*>(partsChildFront);
-  childTextGui->contentEdit->setToolTip(" Enter number of parts - e.g. 420 Parts");
+  childTextGui->contentEdit->setToolTip(tr("Enter number of parts - e.g. 420 Parts"));
   data->children.append(partsChildFront);
   // child body end
 
@@ -348,7 +330,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addSpacerItem(vSpacer);
 
   // child footer (one) end
-  childtab->addTab(widget,"Colors");
+  childtab->addTab(widget,tr("Colors"));
   // child footer end
 
   //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
@@ -371,7 +353,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(authorBoxFront, 0, 0);
   authorChildFront = new PageAttributeTextGui(&pageMeta->authorFront,authorBoxFront);
   childTextGui = static_cast<PageAttributeTextGui*>(authorChildFront);
-  childTextGui->contentEdit->setToolTip("Enter model author");
+  childTextGui->contentEdit->setToolTip(tr("Enter model author"));
   data->children.append(authorChildFront);
   connect(authorChildFront, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -381,7 +363,7 @@ GlobalPageDialog::GlobalPageDialog(
   authorBoxBack->hide();
   authorChildBack = new PageAttributeTextGui(&pageMeta->authorBack,authorBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(authorChildBack);
-  childTextGui->contentEdit->setToolTip("Enter model author");
+  childTextGui->contentEdit->setToolTip(tr("Enter model author"));
   data->children.append(authorChildBack);
   connect(authorChildBack, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -391,7 +373,7 @@ GlobalPageDialog::GlobalPageDialog(
   authorBox->hide();
   authorChild = new PageAttributeTextGui(&pageMeta->author,authorBox);
   childTextGui = static_cast<PageAttributeTextGui*>(authorChild);
-  childTextGui->contentEdit->setToolTip("Enter model author");
+  childTextGui->contentEdit->setToolTip(tr("Enter model author"));
   data->children.append(authorChild);
   connect(authorChild, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -400,7 +382,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(emailBoxBack, 1, 0);
   emailChildBack = new PageAttributeTextGui(&pageMeta->emailBack,emailBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(emailChildBack);
-  childTextGui->contentEdit->setToolTip("Enter email address");
+  childTextGui->contentEdit->setToolTip(tr("Enter email address"));
   data->children.append(emailChildBack);
   connect(emailChildBack, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -428,7 +410,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(urlBoxBack, 0, 0);
   urlChildBack = new PageAttributeTextGui(&pageMeta->urlBack,urlBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(urlChildBack);
-  childTextGui->contentEdit->setToolTip("Enter website URL");
+  childTextGui->contentEdit->setToolTip(tr("Enter website URL"));
   data->children.append(urlChildBack);
   connect(urlChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -438,7 +420,7 @@ GlobalPageDialog::GlobalPageDialog(
   urlBox->hide();
   urlChild = new PageAttributeTextGui(&pageMeta->url,urlBox);
   childTextGui = static_cast<PageAttributeTextGui*>(urlChild);
-  childTextGui->contentEdit->setToolTip("Enter website URL");
+  childTextGui->contentEdit->setToolTip(tr("Enter website URL"));
   data->children.append(urlChild);
   connect(urlChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -447,7 +429,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box, 1, 0);
   publishDescChildFront = new PageAttributeTextGui(&pageMeta->publishDesc,box);
   childTextGui = static_cast<PageAttributeTextGui*>(publishDescChildFront);
-  childTextGui->contentEdit->setToolTip("Enter model publisher");
+  childTextGui->contentEdit->setToolTip(tr("Enter model publisher"));
   data->children.append(publishDescChildFront);
 
   childtab->addTab(widget,tr("URL/Description"));
@@ -467,7 +449,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(copyrightBoxBack);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChildBack);
-  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2020");
+  childTextGui->contentEdit->setToolTip(tr("Enter copyright - Copyright © 2022"));
   data->children.append(copyrightChildBack);
   connect(copyrightChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -479,7 +461,7 @@ GlobalPageDialog::GlobalPageDialog(
   copyrightBox->hide();
   copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChild);
-  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2020");
+  childTextGui->contentEdit->setToolTip(tr("Enter copyright - Copyright © 2022"));
   data->children.append(copyrightChild);
   connect(copyrightChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -507,7 +489,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(documentLogoBoxFront);
   documentLogoChildFront = new PageAttributeImageGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
   childImageGui = static_cast<PageAttributeImageGui*>(documentLogoChildFront);
-  childImageGui->imageEdit->setToolTip("Enter logo image path");
+  childImageGui->imageEdit->setToolTip(tr("Enter logo image path"));
   data->children.append(documentLogoChildFront);
   connect(documentLogoChildFront, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -529,7 +511,7 @@ GlobalPageDialog::GlobalPageDialog(
   documentLogoBoxBack->hide();
   documentLogoChildBack = new PageAttributeImageGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
   childImageGui = static_cast<PageAttributeImageGui*>(documentLogoChildBack);
-  childImageGui->imageEdit->setToolTip("Enter logo image path");
+  childImageGui->imageEdit->setToolTip(tr("Enter logo image path"));
   data->children.append(documentLogoChildBack);
   connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -572,7 +554,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box, 0, 0);
   disclaimerChildBack = new PageAttributeTextGui(&pageMeta->disclaimer,box);
   childTextGui = static_cast<PageAttributeTextGui*>(disclaimerChildBack);
-  childTextGui->contentEdit->setToolTip("Enter disclaimer paragraph");
+  childTextGui->contentEdit->setToolTip(tr("Enter disclaimer paragraph"));
   data->children.append(disclaimerChildBack);
 
   childtab->addTab(widget,tr("Disclaimer"));
@@ -669,8 +651,8 @@ GlobalPageDialog::GlobalPageDialog(
   //grid->addWidget(box,2,0);
   vLayout->addWidget(box);
   child = new BoolRadioGui(
-    "Alternate Corners (like books)",
-    "Page Number Always in Same Place",
+    tr("Alternate Corners (like books)"),
+    tr("Page Number Always in Same Place"),
     &pageMeta->togglePnPlacement,box);
   data->children.append(child);
 
@@ -679,9 +661,10 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Text Placement"));
   vLayout->addWidget(box);
   box->setLayout(childHLayout);
-  CheckBoxGui *childTextPlacement = new CheckBoxGui("Enable Text Placement",&pageMeta->textPlacement);
+  CheckBoxGui *childTextPlacement = new CheckBoxGui(tr("Enable Text Placement"),&pageMeta->textPlacement);
+  childTextPlacement->setToolTip(tr("Launch the text placement dialog when inserting or updating text."));
   childHLayout->addWidget(childTextPlacement);
-  childTextPlacementMeta = new PlacementGui(&pageMeta->textPlacementMeta,"Default Placement");
+  childTextPlacementMeta = new PlacementGui(&pageMeta->textPlacementMeta,tr("Default Placement"));
   childTextPlacementMeta->setEnabled(pageMeta->textPlacement.value());
   childHLayout->addWidget(childTextPlacementMeta);
   // these are placed in reverse order so the meta commands are properly written
