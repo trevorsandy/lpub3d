@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Jul 29, 2022
+# Last Update: Oct 25, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -28,7 +28,7 @@ jobs:
         BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64 ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -37,7 +37,7 @@ jobs:
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
         id: cache-third-party
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-${{ matrix.BUILD }}-${{ secrets.THIRD_PARTY_CACHE }}
@@ -52,14 +52,14 @@ jobs:
         if: always()
         run: test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.BUILD }}-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
       - name: Diagnostics
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.BUILD }}-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
@@ -71,7 +71,7 @@ jobs:
     runs-on: macos-11
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -80,7 +80,7 @@ jobs:
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
         id: cache-third-party
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
@@ -92,14 +92,14 @@ jobs:
         if: always()
         run:  test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: macos-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
       - name: Diagnostics
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: macos-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
@@ -111,7 +111,7 @@ jobs:
     runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -121,13 +121,13 @@ jobs:
           Echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       - name: Cache Third-party # distribution folder
         id: cache-third-party
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-windows-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Cache QtMSVC 2019
         id: cache-qt
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.LP3D_BUILD_BASE }}\Qt
           key: qt-windows-${{ env.QT_CACHE }}
@@ -137,21 +137,23 @@ jobs:
           Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
         shell: powershell
       - name: Qt MSVC 2019 64bit # path: ..\Qt\5.15.2\msvc2019_64\bin
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: 5.15.2
           host: windows
           arch: win64_msvc2019_64
           dir: ${{ env.LP3D_BUILD_BASE }}
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          cache: true
+          cache-key-prefix: install-qt-action
       - name: Qt MSVC 2019 32bit # path: ..\Qt\5.15.2\msvc2019\bin
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: 5.15.2
           host: windows
           arch: win32_msvc2019
           dir: ${{ env.LP3D_BUILD_BASE }}
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          cache: true
+          cache-key-prefix: install-qt-action
       - name: Build Windows
         run: .\builds\utilities\ci\github\windows-build.bat
         env:
@@ -161,20 +163,20 @@ jobs:
         if: always()
         run: If (Test-Path -Path ${{ env.LP3D_BUILDPKG_PATH }}) { Get-ChildItem -Path ${{ env.LP3D_BUILDPKG_PATH }} –Recurse }
       - name: Upload Update Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: updates
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\
           if-no-files-found: ignore
       - name: Upload Download Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: windows-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
           if-no-files-found: ignore
       - name: Diagnostics
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: windows-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
@@ -194,13 +196,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Assets Path
         run: echo "LP3D_BUILD_ASSETS=$(cd ../ && echo "$PWD/assets")" >> ${GITHUB_ENV}
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with: # omit 'with: name:' to download all artifacts
           path: ${{ env.LP3D_BUILD_ASSETS }}
       - name: List Assets
@@ -218,7 +220,7 @@ jobs:
           SFDEPLOY_RSA_BASE64: ${{ secrets.SFDEPLOY_RSA_BASE64 }}
       - name: Diagnostics
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: publish-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
