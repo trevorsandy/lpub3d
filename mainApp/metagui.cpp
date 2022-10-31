@@ -2140,7 +2140,7 @@ RotStepGui::RotStepGui(
     }
 
   QLabel    *rotStepLabel;
-  rotStepLabel = new QLabel("Rotation", parent);
+  rotStepLabel = new QLabel(tr("Rotation"), parent);
   grid->addWidget(rotStepLabel,0,0);
 
   qreal val;
@@ -2312,31 +2312,31 @@ CountInstanceGui::CountInstanceGui(
 
   countCheck = new QCheckBox(tr("Consolidate Submodel Instances"), parent);
   countCheck->setChecked(meta->value());
-  countCheck->setToolTip("Consolidate submodel instances on first occurrence");
+  countCheck->setToolTip(tr("Consolidate submodel instances on first occurrence"));
   connect(countCheck,SIGNAL(clicked(bool)),
           this,        SLOT(valueChanged(bool)));
 
   grid->addWidget(countCheck,0,0,1,3);
 
-  topRadio    = new QRadioButton("At Top",parent);
+  topRadio    = new QRadioButton(tr("At Top"),parent);
   topRadio->setChecked(meta->value() == CountAtTop);
-  topRadio->setToolTip("Consolidate instances and display count at last step page of first occurrence in the entire model file.");
+  topRadio->setToolTip(tr("Consolidate instances and display count at last step page of first occurrence in the entire model file."));
   connect(topRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
   grid->addWidget(topRadio,1,0);
 
-  modelRadio = new QRadioButton("At Model (default)",parent);
+  modelRadio = new QRadioButton(tr("At Model (default)"),parent);
   modelRadio->setChecked(meta->value() > CountFalse && meta->value() < CountAtStep);
-  modelRadio->setToolTip("Enable consolidate instances and display count at last step page of first occurrence in the parent model.");
+  modelRadio->setToolTip(tr("Consolidate instances and display count at last step page of first occurrence in the parent model."));
   connect(modelRadio,SIGNAL(clicked(bool)),
           this,      SLOT(  radioChanged(bool)));
 
   grid->addWidget(modelRadio,1,1);
 
-  stepRadio    = new QRadioButton("At Step",parent);
+  stepRadio    = new QRadioButton(tr("At Step"),parent);
   stepRadio->setChecked(meta->value() == CountAtStep);
-  stepRadio->setToolTip("Consolidate instances and display count at step page of first occurrence in the current step.");
+  stepRadio->setToolTip(tr("Consolidate instances and display count at step page of first occurrence in the current step."));
   connect(stepRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
@@ -2427,8 +2427,9 @@ void BuildModEnabledGui::apply(QString &modelName)
     if (change) {
       Preferences::buildModEnabled = bool(meta->value());
       gui->enableBuildModMenuAndActions();
-      changeMessage = QString("Build Modifications are %1")
-                               .arg(meta->value() ? "Enabled" : "Disabled");
+      changeMessage = QString("%1").arg(meta->value() ?
+                                            tr("Build Modifications are Enabled") :
+                                            tr("Build Modifications are Disabled"));
       emit gui->messageSig(LOG_INFO, changeMessage);
     }
     MetaItem mi;
@@ -2484,8 +2485,9 @@ void FinalModelEnabledGui::apply(QString &modelName)
   if (modified) {
     if (change) {
       Preferences::finalModelEnabled = bool(meta->value());
-      changeMessage = QString("Fade/Highlight final model step is %1")
-                               .arg(meta->value() ? "Enabled" : "Disabled");
+      changeMessage = QString("%1").arg(meta->value() ?
+                                            tr("Fade/Highlight final model step is Enabled") :
+                                            tr("Fade/Highlight final model step is Disabled"));
       emit gui->messageSig(LOG_INFO, changeMessage);
     }
     MetaItem mi;
@@ -2540,8 +2542,9 @@ void CoverPageViewEnabledGui::apply(QString &modelName)
 {
   if (modified) {
     if (change) {
-      changeMessage = QString("Cover page model view is %1")
-                               .arg(meta->value() ? "Enabled" : "Disabled");
+      changeMessage = QString("%1").arg(meta->value() ?
+                                            tr("Cover page model view is Enabled") :
+                                            tr("Cover page model view is Disabled"));
       emit gui->messageSig(LOG_INFO, changeMessage);
     }
     MetaItem mi;
@@ -2597,8 +2600,9 @@ void LoadUnoffPartsEnabledGui::apply(QString &modelName)
 {
   if (modified) {
     if (change) {
-      changeMessage = QString("Load unofficial parts in command editor is %1")
-                               .arg(meta->enabled.value() ? "Enabled" : "Disabled");
+      changeMessage = QString("%1").arg(meta->enabled.value() ?
+                                            tr("Load unofficial parts in command editor is Enabled") :
+                                            tr("Load unofficial parts in command editor is Disabled"));
       emit gui->messageSig(LOG_INFO, changeMessage);
     }
     MetaItem mi;
