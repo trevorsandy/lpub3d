@@ -52,7 +52,7 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   csiRect     = _csiRect;
 
   QPixmap *pixmap = new QPixmap(_calloutRect.width(),_calloutRect.height());
-  QString toolTip = QString("Callout " + _path + " [%1 x %2 px] - right-click to modify")
+  QString toolTip = QObject::tr("Callout %1 [%1 x %2 px] - right-click to modify").arg(_path)
                             .arg(_calloutRect.width())
                             .arg(_calloutRect.height());;
 
@@ -98,58 +98,63 @@ void CalloutBackgroundItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString name = "Callout ";
+  QString name = QObject::tr("Callout");
 
-  PlacementData placementData = callout->meta.LPub.callout.placement.value();
-  QAction *placementAction  = commonMenus.placementMenu(menu,name,
-                              commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,name));
+  QAction *placementAction     = lpub->getAct("placementAction.1");
+  PlacementData placementData  = callout->meta.LPub.callout.placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QAction *allocAction = nullptr;
-  QAction *perStepAction = nullptr;
-
+  QAction *allocAction         = nullptr;
+  QAction *perStepAction       = nullptr;
   if (calloutMeta.begin.value() == CalloutBeginMeta::Unassembled) {
 
     if (callout->allocType() == Vertical) {
-      allocAction = commonMenus.displayRowsMenu(menu,name);
+      allocAction              = lpub->getAct("displayRowsAction.1");
     } else {
-      allocAction = commonMenus.displayColumnsMenu(menu, name);
+      allocAction              = lpub->getAct("displayColumnsAction.1");
     }
+    commonMenus.addAction(allocAction,menu,name);
 
     if (callout->meta.LPub.callout.pli.perStep.value()) {
-      perStepAction = commonMenus.noPartsList(menu,name);
+      perStepAction            = lpub->getAct("noPartsListAction.1");
     } else {
-      perStepAction = commonMenus.partsList(menu,name);
+      perStepAction            = lpub->getAct("partsListAction.1");
     }
+    commonMenus.addAction(perStepAction,menu,name);
   }
 
-  QAction *editBackgroundAction    = commonMenus.backgroundMenu(menu,name);
-  QAction *editBorderAction        = commonMenus.borderMenu(menu,name);
-  QAction *editSubModelColorAction = commonMenus.subModelColorMenu(menu,name);
-  QAction *marginAction            = commonMenus.marginMenu(menu,name);
-  QAction *rotateAction            = nullptr;
+  QAction *backgroundAction    = lpub->getAct("backgroundAction.1");
+  commonMenus.addAction(backgroundAction,menu,name);
 
-  QAction *unCalloutAction;
+  QAction *borderAction        = lpub->getAct("borderAction.1");
+  commonMenus.addAction(borderAction,menu,name);
 
+  QAction *subModelColorAction = lpub->getAct("subModelColorAction.1");
+  commonMenus.addAction(subModelColorAction,menu,name);
+
+  QAction *marginAction        = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *rotateAction        = nullptr;
+  QAction *unCalloutAction     = nullptr;
   if (calloutMeta.begin.value() == CalloutBeginMeta::Unassembled) {
-    unCalloutAction = menu.addAction("Unpack Callout");
-    unCalloutAction->setIcon(QIcon(":/resources/unpackcallout.png"));
+    unCalloutAction            = lpub->getAct("unpackCalloutAction.1");
   } else {
-    unCalloutAction = menu.addAction("Remove Callout");
-    unCalloutAction->setIcon(QIcon(":/resources/remove.png"));
+    unCalloutAction            = lpub->getAct("removeCalloutAction.1");
     if (calloutMeta.begin.value() == CalloutBeginMeta::Assembled) {
-      rotateAction = menu.addAction("Rotate");
-      rotateAction->setIcon(QIcon(":/resources/rotate.png"));
+      rotateAction             = lpub->getAct("rotateCalloutAction.1");
     } else {
-      rotateAction = menu.addAction("Unrotate");
-      rotateAction->setIcon(QIcon(":/resources/unrotate.png"));
+      rotateAction             = lpub->getAct("unrotateCalloutAction.1");
     }
+    commonMenus.addAction(rotateAction,menu);
   }
+  commonMenus.addAction(unCalloutAction,menu);
 
-  QAction *addPointerAction = menu.addAction("Add Pointer");
-  addPointerAction->setWhatsThis("Add pointer from this callout to the step where it is used");
-  addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
+  QAction *addPointerAction    = lpub->getAct("addPointerAction.1");
+  commonMenus.addAction(addPointerAction,menu);
 
-  QAction *selectedAction = menu.exec(event->screenPos());
+  QAction *selectedAction      = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
@@ -182,31 +187,31 @@ void CalloutBackgroundItem::contextMenuEvent(
   } else if (selectedAction == placementAction) {
     changePlacement(parentRelativeType, 
                     relativeType,
-                    "Placement",
+                    QObject::tr("%1 Placement").arg(name),
                     callout->topOfCallout(),
                     callout->bottomOfCallout(),
                     &placement,false,0,false,false);
 
-  } else if (selectedAction == editSubModelColorAction) {
-      changeSubModelColor("Submodel Color",
+  } else if (selectedAction == subModelColorAction) {
+      changeSubModelColor(QObject::tr("%1 Submodel Color").arg(name),
                        callout->topOfCallout(),
                        callout->bottomOfCallout(),
                        &subModelColor,0,false,false);
 
-  } else if (selectedAction == editBackgroundAction) {
-    changeBackground("Background",
+  } else if (selectedAction == backgroundAction) {
+    changeBackground(QObject::tr("%1 Background").arg(name),
                      callout->topOfCallout(), 
                      callout->bottomOfCallout(),
                      &background,false,0,false);
 
-  } else if (selectedAction == editBorderAction) {
-    changeBorder("Border",
+  } else if (selectedAction == borderAction) {
+    changeBorder(QObject::tr("%1 Border").arg(name),
                  callout->topOfCallout(), 
                  callout->bottomOfCallout(),
                  &border,false,0,false);
 
   } else if (selectedAction == marginAction) {
-    changeMargins("Callout Margins",
+    changeMargins(QObject::tr("%1 Margins").arg(name),
                   callout->topOfCallout(), 
                   callout->bottomOfCallout(), 
                   &margin,false,0,false);

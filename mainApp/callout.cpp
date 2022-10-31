@@ -40,6 +40,7 @@
 #include "step.h"
 #include "placementdialog.h"
 #include "commonmenus.h"
+#include "lpub_object.h"
 #include "paths.h"
 #include "render.h"
 
@@ -518,7 +519,7 @@ CalloutInstanceItem::CalloutInstanceItem(
   stepNumber = callout->parentStep->stepNumber.number;
   instanceTop = callout->topOfCallout();
   instanceBottom = callout->bottomOfCallout();
-  QString toolTip("Times used - right-click to modify");
+  QString toolTip(tr("Times used - right-click to modify"));
   setAttributes(PageNumberType,
                 CalloutType,
                 _meta->LPub.callout.instance,
@@ -561,12 +562,18 @@ void Callout::drawTips(QPoint &delta, int type)
 void CalloutInstanceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString ci = "Callout Instance Count";
-  QAction *fontAction   = commonMenus.fontMenu(menu,ci);
-  QAction *colorAction  = commonMenus.colorMenu(menu,ci);
-  QAction *marginAction = commonMenus.marginMenu(menu,ci);
+  QString name = tr("Callout Instance Count");
 
-  QAction *selectedAction   = menu.exec(event->screenPos());
+  QAction *fontAction     = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu, name);
+
+  QAction *colorAction    = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu, name);
+
+  QAction *marginAction   = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu, name);
+
+  QAction *selectedAction = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
@@ -582,7 +589,7 @@ void CalloutInstanceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
 
   } else if (selectedAction == marginAction) {
 
-    changeMargins("Times Used Margin",
+    changeMargins(tr("Times Used Margin"),
                   callout->topOfCallout(), callout->bottomOfCallout(),
                   &margin, false);
   }
