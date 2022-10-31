@@ -5607,6 +5607,10 @@ void Preferences::resetPreferredRenderer()
     preferredRendererPreferences(true/*persist*/);
 }
 
+void Preferences::unsetBuildModifications(){
+    buildModEnabled = false;
+}
+
 void Preferences::setLPub3DLoaded(){
     lpub3dLoaded = true;
 }

@@ -147,6 +147,8 @@ class Preferences
     static void resetHighlightStep();
     static void resetPreferredRenderer();
 
+    static void unsetBuildModifications();
+
     static void addKeyboardShortcut(const QString &objectName, const QKeySequence &keySequence);
     static bool hasKeyboardShortcut(const QString &objectName);
     static QKeySequence keyboardShortcut(const QString &objectName);

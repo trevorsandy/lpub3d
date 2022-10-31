@@ -772,6 +772,8 @@ void Gui::closeFile()
   Preferences::resetFadeSteps();
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
+  if (Preferences::modeGUI)
+      enableBuildModMenuAndActions();
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
   Preferences::preferredRendererPreferences();
@@ -795,6 +797,7 @@ void Gui::closeModelFile(){
     disableWatcher();
     QString topModel = lpub->ldrawFile.topLevelFile();
     curFile.clear();       // clear file from curFile here...
+    Preferences::unsetBuildModifications();
     //Visual Editor
     if (Preferences::modeGUI) {
         enableBuildModMenuAndActions();
@@ -839,8 +842,12 @@ void Gui::closeModelFile(){
 bool Gui::openFile(QString &fileName)
 {
 
-  if (Preferences::modeGUI)
-    waitingSpinner->start();
+  if (maybeSave() && saveBuildModification()) {
+    if (Preferences::modeGUI)
+      waitingSpinner->start();
+  } else {
+    return false;
+  }
 
   disableWatcher();
 
@@ -849,6 +856,7 @@ bool Gui::openFile(QString &fileName)
   pageDirection = PAGE_NEXT;
   mloadingFile = true;
   parsedMessages.clear();
+  Preferences::unsetBuildModifications();
   Preferences::setInitFadeSteps();
   Preferences::setInitHighlightStep();
   Preferences::setInitPreferredRenderer();
