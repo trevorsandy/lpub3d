@@ -89,7 +89,7 @@ public:
   FontMeta       font;
   StringMeta     color;
   int            value;
-  QString        pl;
+  QString        name;
 
   bool           positionChanged;
   QPointF        position;

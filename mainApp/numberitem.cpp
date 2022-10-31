@@ -152,7 +152,7 @@ void NumberPlacementItem::setAttributes(
   margin             = _number.margin;
   placement          = _number.placement;
   value              = _value;
-  pl                 = _name;
+  name               = _name;
 
   QFont qfont;
   qfont.fromString(_number.font.valueFoo());
@@ -217,18 +217,27 @@ GroupStepNumberItem::GroupStepNumberItem(
 void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = tr("Group Step Number");
+  QString name = tr("Group Step Number");
 
-  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
-  QAction *placementAction  = commonMenus.placementMenu(menu,pl,tr("You can move this Group Step Number item around."));
+  QAction *placementAction    = lpub->getAct("placementAction.1");
+  PlacementData placementData = placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QAction *selectedAction   = menu.exec(event->screenPos());
+  QAction *fontAction         = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
 
-  Where topOfSteps          = page->topOfSteps();
-  Where bottomOfSteps       = page->bottomOfSteps();
-  bool  useTop              = parentRelativeType != StepGroupType;
+  QAction *colorAction        = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *marginAction       = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *selectedAction     = menu.exec(event->screenPos());
+
+  Where topOfSteps            = page->topOfSteps();
+  Where bottomOfSteps         = page->bottomOfSteps();
+  bool  useTop                = parentRelativeType != StepGroupType;
 
   if (selectedAction == nullptr) {
     return;
@@ -237,7 +246,7 @@ void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
     changePlacement(parentRelativeType,
                     page->meta.LPub.multiStep.pli.perStep.value(),
                     StepNumberType,
-                    tr("Move %1").arg(pl),
+                    tr("Move %1").arg(name),
                     topOfSteps,
                     bottomOfSteps,
                    &placement,
@@ -259,7 +268,7 @@ void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
 
   } else if (selectedAction == marginAction) {
 
-    changeMargins(tr("%1 Margins").arg(pl),
+    changeMargins(tr("%1 Margins").arg(name),
                   topOfSteps,
                   bottomOfSteps,
                  &margin,
@@ -358,18 +367,27 @@ PageNumberItem::PageNumberItem(
 void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = tr("Page Number");
+  QString name = tr("Page Number");
 
-  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
-  QAction *placementAction  = commonMenus.placementMenu(menu,pl,"You can move this Page Number item around.");
+  QAction *placementAction    = lpub->getAct("placementAction.1");
+  PlacementData placementData = placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QAction *selectedAction   = menu.exec(event->screenPos());
+  QAction *fontAction         = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
 
-  Where topOfSteps          = page->topOfSteps();                   //Trevor@vers303 add
-  Where bottomOfSteps       = page->bottomOfSteps();                //Trevor@vers303 add
-  bool  useTop              = parentRelativeType != StepGroupType;  //Trevor@vers303 add
+  QAction *colorAction        = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *marginAction       = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *selectedAction     = menu.exec(event->screenPos());
+
+  Where topOfSteps            = page->topOfSteps();                   //Trevor@vers303 add
+  Where bottomOfSteps         = page->bottomOfSteps();                //Trevor@vers303 add
+  bool  useTop                = parentRelativeType != StepGroupType;  //Trevor@vers303 add
 
   if (selectedAction == nullptr) {
     return;
@@ -377,7 +395,7 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     changePlacement(parentRelativeType,                           //Trevor@vers303 change from static PageType
                     PageNumberType,
-                    tr("Move %1").arg(pl),
+                    tr("Move %1").arg(name),
                     topOfSteps,                                   //Trevor@vers303 change
                     bottomOfSteps,                                //Trevor@vers303 change
                    &placement,
@@ -399,7 +417,7 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   } else if (selectedAction == marginAction) {                    //Trevor@vers303 change
 
-    changeMargins(tr("%1 Margins").arg(pl),
+    changeMargins(tr("%1 Margins").arg(name),
                   topOfSteps,
                   bottomOfSteps,                                  //Trevor@vers303 change
                  &margin,
@@ -501,12 +519,21 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
 
-  QAction *placementAction = commonMenus.placementMenu(menu,pl);
-  QAction *fontAction      = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction     = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction    = commonMenus.marginMenu(menu,pl);
+  QAction *placementAction    = lpub->getAct("placementAction.1");
+  PlacementData placementData = placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QAction *selectedAction   = menu.exec(event->screenPos());
+  QAction *fontAction         = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu,name);
+
+  QAction *colorAction        = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu,name);
+
+  QAction *marginAction       = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *selectedAction     = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
@@ -529,7 +556,7 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == placementAction) {
       changePlacement(parentRelativeType,
                       StepNumberType,
-                      tr("Move %1").arg(pl),
+                      tr("Move %1").arg(name),
                       top,
                       bottom,
                       &placement);
@@ -542,7 +569,7 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                   bottom,
                   &color);
     } else if (selectedAction == marginAction) {
-      changeMargins(tr("%1 Margins").arg(pl),
+      changeMargins(tr("%1 Margins").arg(name),
                     top,
                     bottom,
                     &margin);
