@@ -790,17 +790,12 @@ void NumberGui::apply(
   QString &topLevelFile)
 {
   MetaItem mi;
-  mi.beginMacro("NumberSettings");
-  if (fontModified) {
+  if (fontModified)
     mi.setGlobalMeta(topLevelFile,&meta->font);
-  }
-  if (colorModified) {
+  if (colorModified)
     mi.setGlobalMeta(topLevelFile,&meta->color);
-  }
-  if (marginsModified) {
+  if (marginsModified)
     mi.setGlobalMeta(topLevelFile,&meta->margin);
-  }
-  mi.endMacro();
 }
 
 /***********************************************************************
@@ -976,7 +971,6 @@ void StudStyleGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;
-    mi.beginMacro("StudStyleSettings");
     if (studStyleModified)
         mi.setGlobalMeta(modelName,studStyleMeta);
     if (autoEdgeModified)
@@ -995,7 +989,6 @@ void StudStyleGui::apply(QString &modelName)
         mi.setGlobalMeta(modelName,&highContrastMeta->blackEdgeColor);
     if (darkEdgeColorModified)
         mi.setGlobalMeta(modelName,&highContrastMeta->darkEdgeColor);
-    mi.endMacro();
   }
 }
 
@@ -1375,8 +1368,6 @@ void PageAttributeTextGui::apply(
   QString &topLevelFile)
 {
   MetaItem mi;
-  mi.beginMacro("Settings");
-
   if (fontModified) {
     mi.setGlobalMeta(topLevelFile,&meta->textFont);
   }
@@ -1395,7 +1386,6 @@ void PageAttributeTextGui::apply(
   if (editModified){
       mi.setGlobalMeta(topLevelFile,&meta->content);
   }
-  mi.endMacro();
 }
 
 /***********************************************************************
@@ -1664,8 +1654,6 @@ void PageAttributeImageGui::toggled(bool toggled)
 void PageAttributeImageGui::apply(QString &topLevelFile)
 {
     MetaItem mi;
-    mi.beginMacro("Settings");
-
     if (imageModified) {
       mi.setGlobalMeta(topLevelFile,&meta->file);
     }
@@ -1684,7 +1672,6 @@ void PageAttributeImageGui::apply(QString &topLevelFile)
     if (fillModified){
         mi.setGlobalMeta(topLevelFile,&meta->fill);
     }
-    mi.endMacro();
 }
 
 /***********************************************************************
@@ -1908,14 +1895,12 @@ void FadeStepGui::apply(
 {
   if (modified) {
     MetaItem mi;
-    mi.beginMacro("FadeStep");
     if (fadeModified)
       mi.setGlobalMeta(topLevelFile,&meta->enable);
     if (colorModified || useColorModified)
       mi.setGlobalMeta(topLevelFile,&meta->color);
     if (opacityModified)
       mi.setGlobalMeta(topLevelFile,&meta->opacity);
-    mi.endMacro();
   }
 }
 
@@ -2041,14 +2026,12 @@ void HighlightStepGui::apply(
 {
   if (modified) {
     MetaItem mi;
-    mi.beginMacro("HighlightStep");
     if (highlightModified)
       mi.setGlobalMeta(topLevelFile,&meta->enable);
     if (colorModified)
       mi.setGlobalMeta(topLevelFile,&meta->color);
     if (lineWidthModified)
       mi.setGlobalMeta(topLevelFile,&meta->lineWidth);
-    mi.endMacro();
   }
 }
 
@@ -3350,7 +3333,7 @@ PlacementGui::PlacementGui(
     connect(placementButton,SIGNAL(clicked(   bool)),
             this,           SLOT(  placementChanged(bool)));
 
-    placementModified             = false;
+    modified = placementModified = false;
 }
 
 void PlacementGui::placementChanged(bool clicked)
@@ -3368,11 +3351,9 @@ void PlacementGui::placementChanged(bool clicked)
 
 void PlacementGui::apply(QString &topLevelFile)
 {
-    if (placementModified){
+    if (modified) {
         MetaItem mi;
-        mi.beginMacro("PlacementModified");
         mi.setGlobalMeta(topLevelFile,meta);
-        mi.endMacro();
     }
 }
 
@@ -4158,6 +4139,7 @@ ShowSubModelGui::ShowSubModelGui(
     showSubmodelInCalloutModified = false;
     showInstanceCountModified     = false;
     placementModified             = false;
+    modified                      = false;
 
     enableSubmodelControls(meta->show.value());
 }
@@ -4230,101 +4212,89 @@ void ShowSubModelGui::enableSubmodelControls(bool checked)
 
 void ShowSubModelGui::apply(QString &topLevelFile)
 {
-    QSettings Settings;
-    QString changeMessage;
-    if (showSubmodelsModified) {
-        changeMessage = QString("Show submodels is %1")
-                                .arg(meta->show.value() ? "ON" : "OFF");
-        emit gui->messageSig(LOG_INFO, changeMessage);
-        if (showSubmodelsDefaultBox->isChecked()){
-            changeMessage = QString("Show submodels added as application default.");
-            emit gui->messageSig(LOG_INFO, changeMessage);
-            Preferences::showSubmodels = meta->show.value();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"),meta->show.value());
-        }
-        else
-        if (showSubmodelsDefaultSettings) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
-        }
-
-        if (showSubmodelsMetaBox->isChecked()){
-            MetaItem mi;
-            mi.beginMacro("SubModelMeta");
-            mi.setGlobalMeta(topLevelFile,&meta->show);
-            mi.endMacro();
-        }
-    }
-    if (showTopModelModified) {
-        changeMessage = QString("Show top model is %1")
-                                .arg(meta->showTopModel.value() ? "ON" : "OFF");
-        emit gui->messageSig(LOG_INFO, changeMessage);
-        if (showTopModelDefaultBox->isChecked()){
-            changeMessage = QString("Show top model added as application default.");
-            emit gui->messageSig(LOG_INFO, changeMessage);
-            Preferences::showTopModel = meta->showTopModel.value();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowTopModel"),meta->showTopModel.value());
-        }
-        else
-        if (showTopModelDefaultSettings) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
-        }
-
-        if (showTopModelMetaBox->isChecked()){
-            MetaItem mi;
-            mi.beginMacro("TopModelMeta");
-            mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
-            mi.endMacro();
-        }
-    }
-    if (showSubmodelInCalloutModified) {
-        changeMessage = QString("Show submodel in callout is %1")
-                                .arg(meta->showSubmodelInCallout.value() ? "ON" : "OFF");
-        emit gui->messageSig(LOG_INFO, changeMessage);
-        if (showSubmodelInCalloutDefaultBox->isChecked()){
-            changeMessage = QString("Show submodel in callout added as application default.");
-            emit gui->messageSig(LOG_INFO, changeMessage);
-            Preferences::showSubmodelInCallout = meta->showSubmodelInCallout.value();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"),meta->showSubmodelInCallout.value());
-        }
-        else
-        if (showSubmodelInCalloutDefaultSettings) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
-        }
-
-        if (showSubmodelInCalloutMetaBox->isChecked()){
-            MetaItem mi;
-            mi.beginMacro("ShowSubmodelInCallout");
-            mi.setGlobalMeta(topLevelFile,&meta->showSubmodelInCallout);
-            mi.endMacro();
-        }
-    }
-    if (showInstanceCountModified) {
-        changeMessage = QString("Show submodel instance count is %1")
-                                .arg(meta->showInstanceCount.value() ? "ON" : "OFF");
-        emit gui->messageSig(LOG_INFO, changeMessage);
-        if (showInstanceCountDefaultBox->isChecked()){
-            changeMessage = QString("Show submodel instance count added as application default.");
-            emit gui->messageSig(LOG_INFO, changeMessage);
-            Preferences::showInstanceCount = meta->showInstanceCount.value();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"),meta->showInstanceCount.value());
-        }
-        else
-        if (showInstanceCountDefaultSettings) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
-        }
-
-        if (showInstanceCountMetaBox->isChecked()){
-            MetaItem mi;
-            mi.beginMacro("ShowInstanceCount");
-            mi.setGlobalMeta(topLevelFile,&meta->showInstanceCount);
-            mi.endMacro();
-        }
-    }
-    if (placementModified){
+    if (modified) {
+        QSettings Settings;
+        QString changeMessage;
         MetaItem mi;
-        mi.beginMacro("PlacementModified");
-        mi.setGlobalMeta(topLevelFile,&meta->placement);
-        mi.endMacro();
+        if (showSubmodelsModified) {
+            changeMessage = QString("Show submodels is %1")
+                    .arg(meta->show.value() ? "ON" : "OFF");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            if (showSubmodelsDefaultBox->isChecked()){
+                changeMessage = QString("Show submodels added as application default.");
+                emit gui->messageSig(LOG_INFO, changeMessage);
+                Preferences::showSubmodels = meta->show.value();
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"),meta->show.value());
+            }
+            else
+                if (showSubmodelsDefaultSettings) {
+                    Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
+                }
+
+            if (showSubmodelsMetaBox->isChecked()) {
+                mi.setGlobalMeta(topLevelFile,&meta->show);
+            }
+        }
+        if (showTopModelModified) {
+            changeMessage = QString("Show top model is %1")
+                    .arg(meta->showTopModel.value() ? "ON" : "OFF");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            if (showTopModelDefaultBox->isChecked()){
+                changeMessage = QString("Show top model added as application default.");
+                emit gui->messageSig(LOG_INFO, changeMessage);
+                Preferences::showTopModel = meta->showTopModel.value();
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowTopModel"),meta->showTopModel.value());
+            }
+            else
+            if (showTopModelDefaultSettings) {
+                Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
+            }
+
+            if (showTopModelMetaBox->isChecked()){
+                mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
+            }
+        }
+        if (showSubmodelInCalloutModified) {
+            changeMessage = QString("Show submodel in callout is %1")
+                    .arg(meta->showSubmodelInCallout.value() ? "ON" : "OFF");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            if (showSubmodelInCalloutDefaultBox->isChecked()){
+                changeMessage = QString("Show submodel in callout added as application default.");
+                emit gui->messageSig(LOG_INFO, changeMessage);
+                Preferences::showSubmodelInCallout = meta->showSubmodelInCallout.value();
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"),meta->showSubmodelInCallout.value());
+            }
+            else
+                if (showSubmodelInCalloutDefaultSettings) {
+                    Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
+                }
+
+            if (showSubmodelInCalloutMetaBox->isChecked()){
+                mi.setGlobalMeta(topLevelFile,&meta->showSubmodelInCallout);
+            }
+        }
+        if (showInstanceCountModified) {
+            changeMessage = QString("Show submodel instance count is %1")
+                                    .arg(meta->showInstanceCount.value() ? "ON" : "OFF");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            if (showInstanceCountDefaultBox->isChecked()){
+                changeMessage = QString("Show submodel instance count added as application default.");
+                emit gui->messageSig(LOG_INFO, changeMessage);
+                Preferences::showInstanceCount = meta->showInstanceCount.value();
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"),meta->showInstanceCount.value());
+            }
+            else
+            if (showInstanceCountDefaultSettings) {
+                Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
+            }
+
+            if (showInstanceCountMetaBox->isChecked()){
+                mi.setGlobalMeta(topLevelFile,&meta->showInstanceCount);
+            }
+        }
+        if (placementModified){
+            mi.setGlobalMeta(topLevelFile,&meta->placement);
+        }
     }
 }
 
@@ -4694,7 +4664,6 @@ void PliSortOrderGui::directionChange(bool clicked)
 void PliSortOrderGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  mi.beginMacro("PliSortOrderSettings");
   if (tertiaryDirectionModified) {
       mi.setGlobalMeta(topLevelFile,&meta->tertiaryDirection);
   }
@@ -4714,7 +4683,6 @@ void PliSortOrderGui::apply(QString &topLevelFile)
   if (primaryModified) {
       mi.setGlobalMeta(topLevelFile,&meta->primary);
   }
-  mi.endMacro();
 }
 
 /***********************************************************************
@@ -4829,7 +4797,6 @@ void PliPartElementGui::enablePliPartElementGroup(bool checked)
 void PliPartElementGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  mi.beginMacro("PliPartElementSettings");
   if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
   }
@@ -4842,7 +4809,6 @@ void PliPartElementGui::apply(QString &topLevelFile)
   if (localLegoElementsModified) {
       mi.setGlobalMeta(topLevelFile,&meta->localLegoElements);
   }
-  mi.endMacro();
 }
 
 /***********************************************************************
@@ -5203,11 +5169,8 @@ void PliAnnotationGui::apply(QString &topLevelFile)
 //  int commands = 0;
 
   MetaItem mi;
-  mi.beginMacro("PliAnnotationSettings");
   if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
-//      ProgressDialog->setValue(++commands);
-//      QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
   }
   if (enableStyleModified){
       mi.setGlobalMeta(topLevelFile, &meta->enableStyle);
@@ -5248,10 +5211,6 @@ void PliAnnotationGui::apply(QString &topLevelFile)
   if (panelStyleModified) {
       mi.setGlobalMeta(topLevelFile,&meta->panelStyle);
   }
-  mi.endMacro();
-//  ProgressDialog->setValue(commands);
-//  QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-//  ProgressDialog->deleteLater();
 }
 
 /***********************************************************************
@@ -5443,7 +5402,6 @@ void CsiAnnotationGui::gbToggled(bool checked)
 void CsiAnnotationGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  mi.beginMacro("CsiAnnotationSettings");
   if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
   }
@@ -5471,7 +5429,6 @@ void CsiAnnotationGui::apply(QString &topLevelFile)
   if (placementModified){
       mi.setGlobalMeta(topLevelFile,&meta->placement);
   }
-  mi.endMacro();
 }
 
 /***********************************************************************
