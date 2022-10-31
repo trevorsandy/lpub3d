@@ -29,11 +29,14 @@ class lcHttpManager;
 class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
+class QSimpleUpdater;
 
 class CommandsDialog;
 class CommandsTextEdit;
 class CommandCollection;
 class SnippetCollection;
+
+class PreferencesDialog;
 
 enum class lcShadingMode;
 
@@ -69,8 +72,9 @@ public:
   void    SetAutomateEdgeColor(const NativeOptions*);
   void    SetShadingMode(lcShadingMode);
 
-  /// Editors
-  void initDialogEditors();
+  /// Load text preferences and command management dialogs
+  void loadDialogs();
+  void loadPreferencesDialog();
 
   /// Shortcuts
   void setShortcutKeywords();
@@ -190,6 +194,10 @@ public:
   /// Snippet text editor
   CommandsTextEdit *snippetTextEdit = nullptr;
 
+  /// Preferences dialog
+  PreferencesDialog *preferencesDialog = nullptr;
+
+
 public slots:
   /// Download management calls
   void httpDownloadFinished();
@@ -200,11 +208,16 @@ public slots:
       mFileLoaded = true;
       mFileLoadFail = !b;
   }
+  /// Update change log call
+  void setupChangeLogUpdate();
+  void updaterCancelled();
+  void updateChangelog(const QString &);
 
 signals:
   void messageSig(LogType, QString);
   void loadFileSig(QString, bool);
   void consoleCommandSig(int, int*);
+  void checkForUpdatesFinished();
 
 protected:
     /// Download management members

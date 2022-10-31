@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
+    <width>613</width>
     <height>618</height>
    </rect>
   </property>
@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -3218,6 +3218,12 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                 <property name="columnCount">
                  <number>0</number>
                 </property>
+                <attribute name="headerDefaultSectionSize">
+                 <number>130</number>
+                </attribute>
+                <attribute name="headerStretchLastSection">
+                 <bool>false</bool>
+                </attribute>
                </widget>
               </item>
               <item>
@@ -3327,7 +3333,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -3539,8 +3545,18 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <property name="title">
               <string>Changelog</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_14">
-              <item>
+             <layout class="QGridLayout" name="gridLayout_22">
+              <item row="0" column="2">
+               <widget class="QPushButton" name="updateChangeLogBtn">
+                <property name="toolTip">
+                 <string>Interactively update change log</string>
+                </property>
+                <property name="text">
+                 <string>Update Change Log</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="3">
                <widget class="QTextBrowser" name="changeLog_txbr">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -3565,6 +3581,29 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="autoUpdateChangeLogBox">
+                <property name="toolTip">
+                 <string>Automatically download change log at application start-up</string>
+                </property>
+                <property name="text">
+                 <string>Download change log at start-up</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_27">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>
@@ -3813,6 +3852,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>showDownloadRedirects_Chk</tabstop>
   <tabstop>showUpdateNotifications_Chk</tabstop>
   <tabstop>checkForUpdates_btn</tabstop>
+  <tabstop>autoUpdateChangeLogBox</tabstop>
+  <tabstop>updateChangeLogBtn</tabstop>
   <tabstop>changeLog_txbr</tabstop>
  </tabstops>
  <resources/>

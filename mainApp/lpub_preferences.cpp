@@ -431,6 +431,7 @@ bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::generateCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
 bool    Preferences::doNotShowPageProcessDlg    = false;
+bool    Preferences::autoUpdateChangeLog        = false;
 
 bool    Preferences::includeLogLevel            = false;
 bool    Preferences::includeTimestamp           = false;
@@ -3864,6 +3865,11 @@ void Preferences::userInterfacePreferences()
   } else {
       fileLoadWaitTime = Settings.value(QString("%1/%2").arg(SETTINGS,fileLoadWaitTimeKey)).toInt();
   }
+
+  QString const autoUpdateChangeLogKey("AutoUpdateChangeLog");
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,autoUpdateChangeLogKey))) {
+      autoUpdateChangeLog = Settings.value(QString("%1/%2").arg(SETTINGS,autoUpdateChangeLogKey)).toBool();
+  }
 }
 
 void Preferences::updateViewerInterfaceColors()
@@ -4735,11 +4741,13 @@ bool Preferences::getPreferences()
 
     bool updateLDViewConfigFiles = false;
 
-    PreferencesDialog *dialog    = new PreferencesDialog(nullptr, &Options);
+    PreferencesDialog *dialog = lpub->preferencesDialog;
 
-    QSettings Settings;
+    dialog->setOptions(&Options);
 
     if (dialog->exec() == QDialog::Accepted) {
+
+         QSettings Settings;
 
         // library paths
         if (ldrawLibPath != dialog->ldrawLibPath()) {
@@ -4754,6 +4762,12 @@ bool Preferences::getPreferences()
             updateLDViewIniFile(UpdateExisting);       //ldraw path changed
             updateLDViewPOVIniFile(UpdateExisting);    //ldraw or lgeo paths changed
             updateLDViewConfigFiles = true;            //set flag to true
+        }
+
+        if (autoUpdateChangeLog != dialog->autoUpdateChangeLog())
+        {
+            autoUpdateChangeLog = dialog->autoUpdateChangeLog();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"AutoUpdateChangeLog"),autoUpdateChangeLog);
         }
 
         if (altLDConfigPath != dialog->altLDConfigPath())

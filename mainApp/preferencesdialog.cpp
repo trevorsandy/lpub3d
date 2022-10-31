@@ -28,6 +28,8 @@
 
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
+#include "qsimpleupdater.h"
+#include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "application.h"
 #include "updatecheck.h"
@@ -100,11 +102,8 @@ bool CommandListColumnStretcher::eventFilter(QObject* Object, QEvent* Event)
     return false;
 }
 
-//QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
-QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
-
-PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Options) :
-    QDialog(_parent), mOptions(Options)
+PreferencesDialog::PreferencesDialog(QWidget* _parent) :
+    QDialog(_parent)
 {
   ui.setupUi(this);
 
@@ -206,6 +205,9 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Optio
 
   ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
   ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
+
+  ui.autoUpdateChangeLogBox->setChecked(         Preferences::autoUpdateChangeLog);
+  ui.updateChangeLogBtn->setEnabled(             !Preferences::autoUpdateChangeLog);
 
   // preferred renderer
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
@@ -456,20 +458,10 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Optio
   ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   ui.changeLog_txbr->setOpenExternalLinks(true);
 
-  /* QSimpleUpdater start */
-  m_updaterCancelled = false;
-  m_updater = QSimpleUpdater::getInstance();
-  connect (m_updater, SIGNAL(checkingFinished (QString)),
-           this,        SLOT(updateChangelog  (QString)));
+  connect (lpub, SIGNAL(checkForUpdatesFinished ()),
+           this, SLOT(  updateChangelog ()));
 
-  connect (m_updater, SIGNAL(cancel()),
-           this,        SLOT(updaterCancelled()));
-
-#ifndef QT_DEBUG_MODE
-  //populate readme from the web
-  m_updater->setChangelogOnly(DEFS_URL, true);
-  m_updater->checkForUpdates (DEFS_URL);
-#endif
+  updateChangelog();
 
   // show message options
   mShowLineParseErrors    = Preferences::lineParseErrors;
@@ -477,9 +469,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Optio
   mShowBuildModErrors     = Preferences::showBuildModErrors;
   mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
   mShowAnnotationErrors   = Preferences::showAnnotationErrors;
-
-  // LcLib Preferences
-  lcQPreferencesInit();
 
 //#ifdef Q_OS_MACOS
 //  resize(640, 835);
@@ -492,6 +481,14 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Optio
 
 PreferencesDialog::~PreferencesDialog()
 {}
+
+void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
+{
+    mOptions = Options;
+
+    // LcLib Preferences
+    lcQPreferencesInit();
+}
 
 void PreferencesDialog::setRenderers()
 {
@@ -1124,6 +1121,18 @@ void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
     ldvWidget->showLDVPreferences();
 }
 
+void PreferencesDialog::on_autoUpdateChangeLogBox_clicked(bool checked)
+{
+   ui.updateChangeLogBtn->setEnabled(!checked);
+}
+
+void PreferencesDialog::on_updateChangeLogBtn_clicked()
+{
+    //populate readme from the web
+    lpub->m_updater->setChangelogOnly(LPub::DEFS_URL, true);
+    lpub->m_updater->checkForUpdates( LPub::DEFS_URL);
+}
+
 void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)
 {
       ui.logPathEdit->setEnabled(checked);
@@ -1409,6 +1418,11 @@ int PreferencesDialog::preferredRenderer()
 bool PreferencesDialog::useNativePovGenerator()
 {
     return ui.povGenNativeRadio->isChecked();
+}
+
+bool PreferencesDialog::autoUpdateChangeLog()
+{
+    return ui.autoUpdateChangeLogBox->isChecked();
 }
 
 bool PreferencesDialog::perspectiveProjection()
@@ -1777,43 +1791,23 @@ bool PreferencesDialog::allLogLevels()
   return ui.allLogLevelsBox->isChecked();
 }
 
-void PreferencesDialog::updateChangelog (QString url) {
-    bool processing = true;
-    auto processRequest = [this, &url, &processing] ()
-    {
-        if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
-            QString versionInfo = ui.groupBoxChangeLog->title();
-            if (!m_updaterCancelled) {
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-#ifdef QT_DEBUG_MODE
-                versionInfo = tr("Change Log for version %1 revision %2 (%3)")
-                                 .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
-#else
-                versionInfo = tr("Change Log for version %1 revision %2 (%3)")
-                                 .arg(m_updater->getLatestVersion(url), m_updater->getLatestRevision(DEFS_URL), QString::fromLatin1(VER_BUILD_TYPE_STR));
-#endif
-#else
-                int revisionNumber = m_updater->getLatestRevision(DEFS_URL).toInt();
-                versionInfo = tr("Change Log for version %1%2")
-                                 .arg(m_updater->getLatestVersion(url), revisionNumber ? QString(" revision %1").arg(m_updater->getLatestRevision(DEFS_URL)) : "");
-#endif
-                if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
-                    ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
-                else
-                    ui.changeLog_txbr->setText(m_updater->getChangelog (url));
-            } else {
-                ui.changeLog_txbr->setHtml("");
-            }
-            ui.groupBoxChangeLog->setTitle(versionInfo);
-        }
-        processing = false;
-    };
+void PreferencesDialog::updateChangelog()
+{
+    QElapsedTimer timer;
+    timer.start();
 
-    if (url == DEFS_URL) {
-        processRequest();
-        while (processing)
-            QApplication::processEvents();
-    }
+    ui.groupBoxChangeLog->setTitle(LPub::m_versionInfo);
+
+    if (LPub::m_setReleaseNotesAsText)
+        ui.changeLog_txbr->setPlainText(LPub::m_releaseNotesContent);
+    else
+        ui.changeLog_txbr->setHtml(LPub::m_releaseNotesContent);
+
+    if (ui.updateChangeLogBtn->isEnabled())
+        ui.updateChangeLogBtn->setEnabled(false);
+
+    emit gui->messageSig(LOG_NOTICE, tr("Loaded Release Notes. %1")
+                                     .arg(lpub->elapsedTime(timer.elapsed())));
 }
 
 QString const PreferencesDialog::moduleVersion()
@@ -1821,41 +1815,36 @@ QString const PreferencesDialog::moduleVersion()
    return ui.moduleVersion_Combo->currentText();
 }
 
-void PreferencesDialog::updaterCancelled()
-{
-  m_updaterCancelled = true;
-}
-
 void PreferencesDialog::checkForUpdates () {
     bool processing = true;
-    auto processRequest = [this, &processing] ()
+    auto processRequest = [&] ()
     {
         const QString htmlNotes = ui.changeLog_txbr->toHtml();
 
         ui.changeLog_txbr->setHtml("<p><span style=\"color: #0000ff;\">Updating change log, please wait...</span></p>");
 
         /* Get settings from the UI */
-        QString moduleVersion = ui.moduleVersion_Combo->currentText();
-        QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
-        bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
-        bool enableDownloader = ui.enableDownloader_Chk->isChecked();
-        bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
-        bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
+        const QString moduleVersion = ui.moduleVersion_Combo->currentText();
+        const QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
+        const bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
+        const bool enableDownloader = ui.enableDownloader_Chk->isChecked();
+        const bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
+        const bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
 
         /* Apply the settings */
-        if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
-            m_updater->setModuleVersion(DEFS_URL, moduleVersion);
-        if (m_updater->getModuleRevision(DEFS_URL) != moduleRevision)
-            m_updater->setModuleRevision(DEFS_URL, moduleRevision);
-        m_updater->setShowRedirects(DEFS_URL, showRedirects);
-        m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
-        m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
-        m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);
+        if (lpub->m_updater->getModuleVersion(LPub::DEFS_URL) != moduleVersion)
+            lpub->m_updater->setModuleVersion(LPub::DEFS_URL, moduleVersion);
+        if (lpub->m_updater->getModuleRevision(LPub::DEFS_URL) != moduleRevision)
+            lpub->m_updater->setModuleRevision(LPub::DEFS_URL, moduleRevision);
+        lpub->m_updater->setShowRedirects(LPub::DEFS_URL, showRedirects);
+        lpub->m_updater->setDownloaderEnabled(LPub::DEFS_URL, enableDownloader);
+        lpub->m_updater->setNotifyOnFinish(LPub::DEFS_URL, showAllNotifications);
+        lpub->m_updater->setNotifyOnUpdate (LPub::DEFS_URL, showUpdateNotifications);
 
         /* Check for updates */
-        m_updater->checkForUpdates (DEFS_URL);
+        lpub->m_updater->checkForUpdates (LPub::DEFS_URL);
 
-        if (!m_updaterCancelled) {
+        if (!LPub::m_updaterCancelled) {
             QSettings Settings;
             Settings.setValue(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime::currentDateTimeUtc());
         }
@@ -1863,12 +1852,16 @@ void PreferencesDialog::checkForUpdates () {
         if (ui.changeLog_txbr->document()->isEmpty())
                    ui.changeLog_txbr->setHtml(htmlNotes);
 
-        processing = false;
+        return processing = false;
     };
 
-    processRequest();
+    QElapsedTimer timer;
+    timer.start();
+    processing = processRequest();
     while (processing)
         QApplication::processEvents();
+    emit gui->messageSig(LOG_NOTICE, tr("Check for updates completed. %1")
+                                        .arg(lpub->elapsedTime(timer.elapsed())));
 }
 
 void PreferencesDialog::accept(){
@@ -2844,9 +2837,9 @@ void PreferencesDialog::updateCommandList(bool loadDefaultShortcuts)
         ++count;
     }
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_NOTICE, QString(tr("Loaded %1 %2. %3"))
-                         .arg(count).arg(loadDefaultShortcuts ? "default shortcuts" : "shortcuts")
-                         .arg(lpub->elapsedTime(timer.elapsed())));
+    emit gui->messageSig(LOG_NOTICE, tr("Loaded %1 %2. %3")
+                                        .arg(count).arg(loadDefaultShortcuts ? "default shortcuts" : "shortcuts")
+                                        .arg(lpub->elapsedTime(timer.elapsed())));
 #endif
 }
 

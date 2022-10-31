@@ -54,59 +54,55 @@ TextEditDialog::TextEditDialog(QWidget *parent) :
     setWindowTitle(tr("Edit Text"));
 
     ui->actionAccept->setObjectName("textEditAcceptAct.3");
-    ui->actionAccept->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
     lpub->actions.insert(ui->actionAccept->objectName(), Action(tr("File.Accept"), ui->actionAccept));
 
     ui->actionCancel->setObjectName("textEditCancelAct.3");
     lpub->actions.insert(ui->actionCancel->objectName(), Action(tr("File.Cancel"), ui->actionCancel));
 
     ui->actionNew->setObjectName("textEditNewAct.3");
-    ui->actionNew->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     lpub->actions.insert(ui->actionNew->objectName(), Action(tr("File.New"), ui->actionNew));
 
     ui->actionCopy->setObjectName("textEditCopyAct.3");
-    ui->actionCopy->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
     lpub->actions.insert(ui->actionCopy->objectName(), Action(tr("Edit.Copy"), ui->actionCopy));
 
     ui->actionCut->setObjectName("textEditCutAct.3");
-    ui->actionCut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
     lpub->actions.insert(ui->actionCut->objectName(), Action(tr("Edit.Cut"), ui->actionCut));
 
     ui->actionPaste->setObjectName("textEditPasteAct.3");
-    ui->actionPaste->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
     lpub->actions.insert(ui->actionPaste->objectName(), Action(tr("Edit.Paste"), ui->actionPaste));
 
     ui->actionUndo->setObjectName("textEditUndoAct.3");
-    ui->actionUndo->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z));
     lpub->actions.insert(ui->actionUndo->objectName(), Action(tr("Edit.Undo"), ui->actionUndo));
 
     ui->actionRedo->setObjectName("textEditRedoAct.3");
-    ui->actionRedo->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Y));
     lpub->actions.insert(ui->actionRedo->objectName(), Action(tr("Edit.Redo"), ui->actionRedo));
 
     ui->actionFont->setObjectName("textEditFontAct.3");
-    ui->actionFont->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
     lpub->actions.insert(ui->actionFont->objectName(), Action(tr("Edit.Font"), ui->actionFont));
 
     ui->actionFontColor->setObjectName("textEditFontColorAct.3");
-    ui->actionFontColor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
-    lpub->actions.insert(ui->actionFontColor->objectName(), Action(tr("Edit.FontColor"), ui->actionFontColor));
+    lpub->actions.insert(ui->actionFontColor->objectName(), Action(tr("Edit.Font Color"), ui->actionFontColor));
 
     ui->actionRichText->setObjectName("textEditRichTextAct.3");
-    ui->actionRichText->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z));
     lpub->actions.insert(ui->actionRichText->objectName(), Action(tr("Edit.Rich Text"), ui->actionRichText));
 
     ui->actionBold->setObjectName("textEditBoldAct.3");
-    ui->actionBold->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
     lpub->actions.insert(ui->actionBold->objectName(), Action(tr("Edit.Bold"), ui->actionBold));
 
     ui->actionItalic->setObjectName("textEditItalicAct.3");
-    ui->actionItalic->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
     lpub->actions.insert(ui->actionItalic->objectName(), Action(tr("Edit.Italic"), ui->actionItalic));
 
     ui->actionUnderline->setObjectName("textEditUnderlineAct.3");
-    ui->actionUnderline->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
     lpub->actions.insert(ui->actionUnderline->objectName(), Action(tr("Edit.Underline"), ui->actionUnderline));
+
+    ui->actionUndo->setEnabled(false);
+    ui->actionRedo->setEnabled(false);
+
+    connect(ui->textEdit,   SIGNAL(undoAvailable(bool)),
+            ui->actionUndo, SLOT(  setEnabled(bool)));
+
+    connect(ui->textEdit,   SIGNAL(redoAvailable(bool)),
+            ui->actionRedo, SLOT(  setEnabled(bool)));
 
     tedit = this;
 
@@ -122,7 +118,7 @@ void TextEditDialog::initialize(
         bool _richText,
         bool fontActions)
 {
-    setWindowTitle(tr("Edit %1 Text").arg(windowTitle));
+    setWindowTitle(windowTitle);
 
     rendererArgs = windowTitle.contains("Renderer Arguments");
 

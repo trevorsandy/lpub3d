@@ -363,6 +363,7 @@ class Preferences
     static bool    suppressStdOutToLog;
     static bool    archivePartsOnLaunch;
     static bool    inlineNativeContent;
+    static bool    autoUpdateChangeLog;
 
     static bool    customSceneBackgroundColor;
     static bool    customSceneGridColor;

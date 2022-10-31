@@ -21,7 +21,6 @@
 #include <QTreeWidgetItem>
 
 #include "ui_preferences.h"
-#include "qsimpleupdater.h"
 #include "threadworkers.h"
 #include "parmswindow.h"
 #include "meta.h"
@@ -67,7 +66,7 @@ class PreferencesDialog : public QDialog
   Q_OBJECT
   
   public:
-    explicit PreferencesDialog(QWidget *parent, lcLibRenderOptions* Options);
+    explicit PreferencesDialog(QWidget *parent);
     ~PreferencesDialog();
 
     QString const ldrawLibPath();
@@ -93,6 +92,7 @@ class PreferencesDialog : public QDialog
     QString const sceneGuideColor();
     QString const displayTheme();
     QMap<int, QString> const themeColours();
+    bool          autoUpdateChangeLog();
     bool          useNativePovGenerator();
     bool          displayAllAttributes();
     bool          generateCoverPages();
@@ -160,6 +160,8 @@ class PreferencesDialog : public QDialog
     int           highlightStepLineWidth();
     bool          highlightFirstStep();
 
+    void          setOptions(lcLibRenderOptions* Options);
+
     bool          eventFilter(QObject* Object, QEvent* Event) override;
 
   public slots:
@@ -221,9 +223,9 @@ class PreferencesDialog : public QDialog
     void setRenderers();
     void messageManagement();
     void sceneColorButtonClicked();
-    void updateChangelog (QString url);
+
+    void updateChangelog();
     void checkForUpdates();
-    void updaterCancelled();
 
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
@@ -268,8 +270,6 @@ private:
     bool isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut);
     bool isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut, QString &Result, bool Loading);
 
-    QWidget     *parent;
-
     QDialog     *messageDialog;
     QToolButton *parseErrorTBtn;
     QLabel      *parseErrorLbl;
@@ -293,9 +293,6 @@ private:
     bool mShowIncludeFileErrors;
     bool mShowAnnotationErrors;
 
-    QSimpleUpdater  *m_updater;
-    bool             m_updaterCancelled;
-    static QString   DEFS_URL;
     QString ldrawLibPathTitle;
     QString mLDrawLibPath;
     QString sceneBackgroundColorStr;

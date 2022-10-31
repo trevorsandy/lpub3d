@@ -61,6 +61,7 @@
 #include "numberitem.h"
 #include "progress_dialog.h"
 #include "waitingspinnerwidget.h"
+#include "qsimpleupdater.h"
 
 //Visual Editor
 #include "camera.h"
@@ -2845,8 +2846,6 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    lpub->setShortcutKeywords();
-
     bool libraryChangeRestart              = false;
     bool defaultUnitsCompare               = Preferences::preferCentimeters;
     bool enableLDViewSCallCompare          = Preferences::enableLDViewSingleCall;
@@ -3774,32 +3773,13 @@ void Gui::initialize()
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 
   if (Preferences::modeGUI) {
-      if (lpub) {
-          // QSimpleUpdater start
-          LPub::m_updaterCancelled = false;
-          lpub->m_updater = QSimpleUpdater::getInstance();
-          connect (lpub->m_updater, SIGNAL(checkingFinished (QString)),
-                   lpub,            SLOT(  updateChangelog (QString)));
+      lpub->setupChangeLogUpdate();
 
-          connect (lpub->m_updater, SIGNAL(cancel()),
-                   lpub,            SLOT(  updaterCancelled ()));
+      lpub->loadCommandCollection();
 
-          // set release notes
-          if (Preferences::autoUpdateChangeLog) {
-              //populate release notes object from the web
-              lpub->m_updater->setChangelogOnly(LPub::DEFS_URL, true);
-              lpub->m_updater->checkForUpdates (LPub::DEFS_URL);
-          } else {
-              // populate release notes object from local file
-              lpub->updateChangelog(QString());
-          }
+      lpub->loadSnippetCollection();
 
-          lpub->loadCommandCollection();
-
-          lpub->loadSnippetCollection();
-
-          lpub->initDialogEditors();
-      }
+      lpub->loadDialogs();
   }
 
   createActions();
@@ -3868,6 +3848,12 @@ void Gui::initialize()
       soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 37
       soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 38
       soMap[StepBackgroundObj]        = QString("STEP_RECTANGLE");       // 39 [StepType]
+  }
+
+  if (Preferences::modeGUI) {
+      lpub->setShortcutKeywords();
+
+      lpub->loadPreferencesDialog();
   }
 }
 
@@ -6163,6 +6149,7 @@ void Gui::createActions()
     }
 
     lpub->setKeyboardShortcuts();
+
     foreach (QAction *action, editWindow->actions()) {
         lpub->setKeyboardShortcut(action);
     }

@@ -23,6 +23,7 @@
 #include "messageboxresizable.h"
 #include "qsimpleupdater.h"
 #include "texteditdialog.h"
+#include "preferencesdialog.h"
 
 #include "lc_application.h"
 #include "lc_mainwindow.h"
@@ -42,20 +43,25 @@
 
 LPub *lpub;
 
-QString LPub::commandlineFile;
-QString LPub::viewerStepKey;
+QString    LPub::commandlineFile;
+QString    LPub::viewerStepKey;
+QString    LPub::m_versionInfo;
+QString    LPub::m_releaseNotesContent;
+QString    LPub::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
+bool       LPub::m_updaterCancelled;
+bool       LPub::m_setReleaseNotesAsText;
 
 const QString shortcutParentNames[] =
 {
-    "Root",                // 0
-    "MainWindow",          // 1
-    "CommandEditor",       // 2
-    "TextEditor",          // 3
-    "VisualEditor",        // 4
-    "ParameterEditor",     // 5
-    "CommandsDialog",      // 6
-    "CommandsTextEditor",  // 7
-    "Other"                // 8
+  "Root",                // 0 - NO_ACTION,
+  "MainWindow",          // 1 - MAIN_WINDOW_ACTION,
+  "CommandEditor",       // 2 - COMMAND_EDITOR_ACTION,
+  "TextEditor",          // 3 - TEXT_EDITOR_ACTION,
+  "VisualEditor",        // 4 - VISUAL_EDITOR_ACTION,
+  "ParameterEditor",     // 5 - PARAMS_EDITOR_ACTION,
+  "CommandsDialog",      // 6 - COMMANDS_DIALOG_ACTION,
+  "CommandsTextEditor",  // 7 - COMMANDS_TEXT_EDIT_ACTION,
+  "Other"                // 8 - OTHER_ACTION
 };
 
 LPub::LPub()
@@ -65,23 +71,20 @@ LPub::LPub()
 
 LPub::~LPub()
 {
-  if (textEdit)
-    delete textEdit;
-  if (commandTextEdit)
-    delete commandTextEdit;
-  if (snippetTextEdit)
-    delete snippetTextEdit;
-  if (commandsDialog)
-    delete commandsDialog;
   lpub = nullptr;
 }
 
-void LPub::initDialogEditors()
+void LPub::loadDialogs()
 {
-  textEdit = new TextEditDialog();
-  commandsDialog  = new CommandsDialog(nullptr);
-  commandTextEdit = new CommandsTextEdit(nullptr);
-  snippetTextEdit = new CommandsTextEdit(nullptr);
+  textEdit        = new TextEditDialog(gui);
+  commandsDialog  = new CommandsDialog(gui);
+  commandTextEdit = new CommandsTextEdit(commandsDialog);
+  snippetTextEdit = new CommandsTextEdit(commandsDialog);
+}
+
+void LPub::loadPreferencesDialog()
+{
+  preferencesDialog = new PreferencesDialog(gui);
 }
 
 /*********************************************
@@ -1296,6 +1299,9 @@ void LPub::restartApplication()
 
 void LPub::setShortcutKeywords()
 {
+    QElapsedTimer timer;
+    timer.start();
+
     // setup shortcut keywords for filter completer
     QStringList kwList = QStringList()
         << shortcutParentNames[NO_ACTION]
@@ -1325,6 +1331,12 @@ void LPub::setShortcutKeywords()
     std::sort(kwList.begin(), kwList.end(),lt);
 
     shortcutIdKeywords = kwList;
+
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_NOTICE, tr("Loaded %1 shortcut keywords.%2")
+                                        .arg(shortcutIdKeywords.size())
+                                        .arg(elapsedTime(timer.elapsed())));
+#endif
 }
 
 void LPub::setDefaultKeyboardShortcuts()
@@ -1342,8 +1354,9 @@ void LPub::setKeyboardShortcuts()
     QMap<QString, Action>::const_iterator it = actions.constBegin();
     while (it != actions.constEnd())
     {
-        if (it.value().action)
+        if (it.value().action) {
             setKeyboardShortcut(it.value().action);
+        }
         ++it;
     }
     foreach (QAction *action, textEdit->actions()) {
@@ -1362,8 +1375,17 @@ void LPub::setKeyboardShortcuts()
 
 void LPub::setKeyboardShortcut(QAction *action)
 {
-    if (Preferences::hasKeyboardShortcut(action->objectName())) {
+    bool idOk = true;
+    bool userDefined = false;
+    int parentID = action->objectName().split(".").last().toInt(&idOk);
+    if ((userDefined = Preferences::hasKeyboardShortcut(action->objectName()))) {
         action->setShortcut(Preferences::keyboardShortcut(action->objectName()));
+    }
+    if (idOk && (parentID == TEXT_EDITOR_ACTION || userDefined) && !action->shortcut().isEmpty()) {
+        const int position = action->toolTip().lastIndexOf("-");
+        const QString toolTip = action->toolTip().left(position).trimmed();
+        const QString shortcutText = action->shortcut().toString(QKeySequence::NativeText);
+        action->setToolTip(QString("%1 - %2").arg(toolTip).arg(shortcutText));
     }
 }
 
@@ -1387,4 +1409,84 @@ QAction *LPub::getAct(const QString &objectName)
         return actions.value(objectName).action;
     emit messageSig(LOG_TRACE, QString("Action was not found or is null [%1]").arg(objectName));
     return nullptr;
+}
+
+void LPub::setupChangeLogUpdate()
+{
+    // QSimpleUpdater start
+    m_updaterCancelled = false;
+    m_updater = QSimpleUpdater::getInstance();
+    connect (m_updater, SIGNAL(checkingFinished (QString)),
+             this,      SLOT(  updateChangelog (QString)));
+
+    connect (m_updater, SIGNAL(cancel()),
+             this,      SLOT(  updaterCancelled ()));
+
+    // set release notes
+    if (Preferences::autoUpdateChangeLog) {
+        //populate release notes object from the web
+        m_updater->setChangelogOnly(LPub::DEFS_URL, true);
+        m_updater->checkForUpdates (LPub::DEFS_URL);
+    } else {
+        // populate release notes object from local file
+        updateChangelog(QString());
+    }
+}
+
+void LPub::updaterCancelled()
+{
+  m_updaterCancelled = true;
+}
+
+void LPub::updateChangelog (const QString &url)
+{
+    auto processRequest = [&] ()
+    {
+        if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
+            if (!m_updaterCancelled) {
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+#ifdef QT_DEBUG_MODE
+                m_versionInfo = tr("Change Log for version %1 revision %2 (%3)")
+                                 .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
+#else
+                m_versionInfo = tr("Change Log for version %1 revision %2 (%3)")
+                                 .arg(m_updater->getLatestVersion(url), m_updater->getLatestRevision(DEFS_URL), QString::fromLatin1(VER_BUILD_TYPE_STR));
+#endif
+#else
+                int revisionNumber = m_updater->getLatestRevision(DEFS_URL).toInt();
+                m_versionInfo = tr("Change Log for version %1%2")
+                                 .arg(m_updater->getLatestVersion(url), revisionNumber ? QString(" revision %1").arg(m_updater->getLatestRevision(DEFS_URL)) : "");
+#endif
+                m_setReleaseNotesAsText = m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION);
+                m_releaseNotesContent = m_updater->getChangelog(url);
+            }
+            emit checkForUpdatesFinished();
+        }
+    };
+
+    m_versionInfo = tr("Undefined");
+
+    if (url == DEFS_URL)
+        processRequest();
+    else {
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+        m_versionInfo = tr("Change Log for version %1 revision %2 (%3)")
+                .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
+#else
+        m_versionInfo = tr("Change Log for version %1%2")
+                .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR));
+#endif
+        //populate releaseNotes
+        QString releaseNotesFile = QString("%1/%2/RELEASE_NOTES.html").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath);
+
+        QFile file(releaseNotesFile);
+        if (! file.open(QFile::ReadOnly | QFile::Text)) {
+            m_setReleaseNotesAsText = true;
+            m_releaseNotesContent = QString("Failed to open Release Notes file: \n%1:\n%2")
+                                             .arg(releaseNotesFile)
+                                             .arg(file.errorString());
+        } else {
+            m_releaseNotesContent = QString::fromStdString(file.readAll().toStdString());
+        }
+    }
 }
