@@ -4137,7 +4137,7 @@ int Render::mergeSubmodelContent(QStringList &submodelParts)
     while (!submodels.isEmpty()) {
         const QString submodel = submodels.takeFirst();
         if (! parsedModels.contains(submodel)) {
-            const QStringList &content = gui->getLDrawFile().smiContents(submodel);
+            const QStringList &content = lpub->ldrawFile.smiContents(submodel);
             if (content.size()) {
                 QString modelName = QFileInfo(submodel).completeBaseName();
                 modelName = modelName.replace(

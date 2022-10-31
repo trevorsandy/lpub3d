@@ -189,7 +189,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
 
    // Populate rotatedModel list
    if (Preferences::buildModEnabled)
-       rotatedModel = gui->getLDrawFile().smiContents(subModel);
+       rotatedModel = lpub->ldrawFile.smiContents(subModel);
    else
        rotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
 
@@ -370,7 +370,7 @@ int SubModel::createSubModelImage(
           QString modelName = type.toLower();
           QStringList unrotatedModel;
           if (Preferences::buildModEnabled)
-              unrotatedModel = gui->getLDrawFile().smiContents(modelName);
+              unrotatedModel = lpub->ldrawFile.smiContents(modelName);
           else
               unrotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(modelName);
 

@@ -639,7 +639,6 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
   _customParts = 0;
 
   QStringList customPartsDirs;
-  QStringList contents;
   QStringList colourPartList;
   int existingCustomParts = 0;
 
@@ -648,15 +647,16 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
   //emit progressMessageSig("Parse Model File");
   Paths::mkCustomDirs();
 
-  ldrawFile = gui->getLDrawFile();
+  int subfiles = lpub->ldrawFile._subFileOrder.size();
+
   // process top-level submodels
-  //emit progressRangeSig(1, ldrawFile._subFileOrder.size());
+  //emit progressRangeSig(1, subfiles);
 
   // in this block, we find colour parts and their children, append the nameMod
   // and confirm that the part exist if the part is not found, we submit it to be created
-  for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
-      QString subFileString = ldrawFile._subFileOrder[i].toLower();
-      contents = ldrawFile.contents(subFileString);
+  for (int i = 0; i < subfiles && endThreadNotRequested(); i++) {
+      const QString &subFileString = lpub->ldrawFile._subFileOrder[i].toLower();
+      const QStringList &contents = lpub->ldrawFile.contents(subFileString);
       //emit progressSetValueSig(i);
       emit gui->messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE CUSTOM COLOR PARTS FOR SUBMODEL: %1").arg(subFileString));
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {

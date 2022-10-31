@@ -667,11 +667,6 @@ public:
     lpub->ldrawFile.clearPrevStepPositions();
   }
 
-  LDrawFile getLDrawFile()
-  {
-      return lpub->ldrawFile;
-  }
-
   QString getSubmodelName(int index)
   {
       return lpub->ldrawFile.getSubmodelName(index);

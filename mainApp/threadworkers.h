@@ -244,7 +244,6 @@ private:
    int                       _customParts;
 
    LDPartsDirs                ldPartsDirs;     // automatically load LDraw.ini parameters
-   LDrawFile                  ldrawFile;       // contains MPD or all files used in model
    ArchiveParts               archiveParts;    // add contents to unofficial zip archive (for Visual Editor)
 };
 
