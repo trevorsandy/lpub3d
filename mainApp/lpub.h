@@ -1316,7 +1316,12 @@ public slots:
 
   /* The edit window sends us this */
 
-  void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
+  void contentsChange(const QString &fileName,
+                            bool isUndo,
+                            bool isRedo,
+                            int  position,
+                            int  charsRemoved,
+                      const QString &charsAdded);
 
   /* This must be called from the Gui thread */
   void parseError(const QString &errorMsg,

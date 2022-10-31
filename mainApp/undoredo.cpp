@@ -16,6 +16,7 @@
 
 #include "lpub.h"
 #include "commands.h"
+#include "editwindow.h"
 
 #include "lc_view.h"
 #include "lc_model.h"
@@ -77,10 +78,23 @@ void Gui::endMacro()
 
 void Gui::contentsChange(
   const QString &fileName,
-  int      position,
-  int      _charsRemoved,
+        bool     isUndo,
+        bool     isRedo,
+        int      position,
+        int      _charsRemoved,
   const QString &charsAdded)
 {
+  // Undo or redo the last 'userTyped' command and quit.
+  // Do not push undo or redo content to the stack (ldrawFile)
+  // as this content is already in the undo or redo command on the stack.
+  if (isUndo && undoStack->undoText() == "userTyped") {
+      undoStack->undo();
+      return;
+  } else if (isRedo && undoStack->redoText() == "userTyped") {
+      undoStack->redo();
+      return;
+  }
+
   QString  charsRemoved;
 
   /* Calculate the characters removed from the LDrawFile */
@@ -111,6 +125,10 @@ void Gui::setBuildModClearStepKey(const QString &text)
 
 void Gui::undo()
 {
+  if (undoStack->undoText() == "userTyped" && editWindow->updateEnabled()) {
+      emit editWindow->triggerUndoSig();
+      return;
+  }
   if (viewerUndo) {
     lcView* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
@@ -127,11 +145,15 @@ void Gui::undo()
 
 void Gui::redo()
 {
+  if (undoStack->redoText() == "userTyped" && !editWindow->updateEnabled()) {
+      emit editWindow->triggerRedoSig();
+      return;
+  }
   if (viewerRedo) {
       lcView* ActiveView = GetActiveView();
       lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
       if (ActiveModel)
-        ActiveModel->RedoAction();
+          ActiveModel->RedoAction();
   } else {
     setBuildModClearStepKey(undoStack->redoText());
     macroNesting++;

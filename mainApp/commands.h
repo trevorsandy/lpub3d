@@ -50,15 +50,15 @@
  *
  * The special case has to do with users manually editing the LDraw file
  * in the editWindow's textEdit.  Changes to the document can show up as
- * document->contentsChange(int position, int charsRemoved, int charsAdded);
+ * document->contentsChangeSig(int position, int charsRemoved, int charsAdded);
  *
  * By itself, this information is not enough to be able to undo and redo.
  * The contentsChange event is handled locally by the editWindow, and
  * converted to 
  *
- * signal void contentsChange(int position, 
- *                            int charsRemoved, 
- *                            QString charsAdded);
+ * signal void contentsChangeSig(int position,
+ *                               int charsRemoved,
+ *                               QString charsAdded);
  *
  * This contentsChange signal is connected to Gui.  To be able to undo/redo
  * gui needs to change int charsRemoved to QString charsRemoved, at which
@@ -193,10 +193,7 @@ private:
   int        position;
   QString    removedChars;
   QString    addedChars;
-  bool       isRedo;
 };
-
-
 
 #endif
 

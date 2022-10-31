@@ -3509,8 +3509,8 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(updateSig()),
             this,           SLOT(  reloadCurrentPage()));
 
-    connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
-            this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
+    connect(editWindow,     SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
+            this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
 
     connect(editWindow,     SIGNAL(setStepForLineSig()),
             this,           SLOT(  setStepForLine()));
@@ -3544,8 +3544,8 @@ Gui::Gui()
     connect(this,           SIGNAL(clearEditorWindowSig()),
             editModeWindow, SLOT(  clearEditorWindow()));
 
-    connect(editModeWindow, SIGNAL(contentsChange(const QString &,int,int,const QString &)),
-            this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
+    connect(editModeWindow, SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
+            this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
 
     // cache management
     connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
@@ -3581,12 +3581,16 @@ Gui::Gui()
     // Undo Stack
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
+
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             editWindow,     SLOT(  updateDisabled(bool)));
+
     connect(undoStack,      SIGNAL(canRedoChanged(bool)),
             this,           SLOT(  canRedoChanged(bool)));
+
     connect(undoStack,      SIGNAL(canUndoChanged(bool)),
             this,           SLOT(  canUndoChanged(bool)));
+
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 

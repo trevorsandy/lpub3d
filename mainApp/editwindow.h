@@ -80,12 +80,18 @@ public:
     {
         return _contentLoading;
     }
+    bool updateEnabled();
 
     QToolBar *editToolBar;
     QToolBar *toolsToolBar;
 
 signals:
-    void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
+    void contentsChangeSig(const QString &fileName,
+                                 bool isUndo,
+                                 bool isRedo,
+                                 int  position,
+                                 int  charsRemoved,
+                           const QString &charsAdded);
     void refreshModelFileSig();
     void getSubFileListSig();
     void redrawSig();
@@ -97,6 +103,8 @@ signals:
     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
     void setStepForLineSig();
     void waitingSpinnerStopSig();
+    void triggerUndoSig();
+    void triggerRedoSig();
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName, const StepLines& lineScope);
@@ -157,6 +165,11 @@ private slots:
     void contentLoaded();
     void loadFinished();
 
+    void undo();
+    void redo();
+    void undoKeySequence();
+    void redoKeySequence();
+
 protected:
     void createActions();
     void createMenus();
@@ -210,6 +223,8 @@ protected:
     bool               _subFileListPending;
     bool               _contentLoaded;
     bool               _contentLoading;
+    bool               _isUndo;
+    bool               _isRedo;
     QString            _curSubFile;         // currently displayed submodel
     QStringList        _subFileList;
     QStringList        _pageContent;
@@ -296,6 +311,8 @@ public:
 signals:
     void updateSelectedParts();
     void triggerPreviewLine();
+    void undoKeySequence();
+    void redoKeySequence();
 
 public slots:
     void setEditorFont();

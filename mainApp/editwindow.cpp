@@ -122,13 +122,13 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     JsonFile<Snippet>::load(QDir::toNativeSeparators(userDataPath + "/user-snippets.json"), lpub->snippetCollection);
 
     _textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
-    _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 
     showLineType    = LINE_HIGHLIGHT;
     isReadOnly      = false;
     visualEditorVisible = false;
     stepKeyType     = INVALID_CURRENT_STEP;
+    _isUndo = _isRedo = false;
 
     setTextEditHighlighter();
 
@@ -581,7 +581,7 @@ void EditWindow::createActions()
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
-    connect(undoAct, SIGNAL(triggered()), _textEdit, SLOT(undo()));
+    connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
@@ -590,7 +590,7 @@ void EditWindow::createActions()
     redoAct->setShortcut(tr("Ctrl+Y"));
     redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
 #endif
-    connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
+    connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
     preferencesAct->setStatusTip(tr("Set your preferences for the LDraw Command editor"));
@@ -637,12 +637,57 @@ void EditWindow::createActions()
 
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
+
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
              redoAct,  SLOT(setEnabled(bool)));
+
+    // This is only triggered when Undo/Redo buttons are visible
+    connect(_textEdit, SIGNAL(undoKeySequence()),
+             this,     SLOT(undoKeySequence()));
+
+    // This is only triggered when Undo/Redo buttons are visible
+    connect(_textEdit, SIGNAL(redoKeySequence()),
+             this,     SLOT(redoKeySequence()));
+
+    // This is triggerd by the mainwindow when Ctrl+Z key sequence is detected
+    connect(this,      SIGNAL(triggerUndoSig()),
+            this,      SLOT(undo()));
+
+    // This is triggerd by the mainwindow when Ctrl+Y key sequence is detected
+    connect(this,      SIGNAL(triggerRedoSig()),
+            this,      SLOT(redo()));
+
     connect(saveAct,   SIGNAL(triggered(bool)),
              this,     SLOT(  updateDisabled(bool)));
+
     connect(_textEdit, SIGNAL(textChanged()),
              this,     SLOT(enableSave()));
+}
+
+
+void EditWindow::undoKeySequence()
+{
+    _isUndo = true;
+}
+
+// These are only triggered when Undo/Redo buttons are visible
+void EditWindow::redoKeySequence()
+{
+    _isRedo = true;
+}
+
+void EditWindow::undo()
+{
+    _isUndo = true;
+    if (_textEdit->document()->isUndoAvailable())
+        _textEdit->undo();
+}
+
+void EditWindow::redo()
+{
+    _isRedo = true;
+    if (_textEdit->document()->isRedoAvailable())
+        _textEdit->redo();
 }
 
 void EditWindow::disableActions()
@@ -1376,22 +1421,32 @@ void EditWindow::contentsChange(
   int charsRemoved,
   int charsAdded)
 {
-  QString addedChars;
+  bool contentsChanged = false;
+  QString addedChars,removedChars;
 
-  if (charsAdded) {
+  if (charsAdded || charsRemoved) {
     addedChars = _textEdit->toPlainText();
-    if (addedChars.size() == 0) {
+
+    if (addedChars.size() == 0)
       return;
-    }
 
     addedChars = addedChars.mid(position,charsAdded);
+    removedChars = lpub->ldrawFile.contents(fileName).join("\n");
+    removedChars = removedChars.mid(position,charsRemoved);
+    contentsChanged = addedChars != removedChars;
+
+    if (!contentsChanged)
+        return;
   }
 
-  contentsChange(fileName, position, charsRemoved, addedChars);
+  bool isUndo = _isUndo;
+  bool isRedo = _isRedo;
+  _isUndo = _isRedo = false;
 
-  if (!Preferences::saveOnUpdate) {
+  if (!Preferences::saveOnUpdate)
      updateDisabled(false);
-  }
+
+  emit contentsChangeSig(fileName, isUndo, isRedo, position, charsRemoved, addedChars);
 }
 
 void EditWindow::openFolderSelect(const QString& absoluteFilePath)
@@ -1755,7 +1810,7 @@ void EditWindow::updateSelectedParts() {
                                   .arg(stepLines.top)
                                   .arg(stepLines.bottom)
                                   .arg(content.at(currentLine)));
-            break;
+            continue;
         }
 
         // display step in viewer enabled
@@ -2032,19 +2087,21 @@ void EditWindow::showLine(int lineNumber, int lineType)
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
 
-void EditWindow::updateDisabled(bool state){
-    if (sender() == saveAct)
-    {
+bool EditWindow::updateEnabled()
+{
+    return updateAct->isEnabled();
+}
+
+void EditWindow::updateDisabled(bool state)
+{
+    if (sender() == saveAct) {
         updateAct->setDisabled(true);
-    } else
-    if (sender() == updateAct &&
-       !Preferences::saveOnUpdate)
-    {
-        updateAct->setDisabled(state);
-        if (!modelFileEdit())
-            emit updateDisabledSig(state);
     } else {
         updateAct->setDisabled(state);
+        if (sender() == updateAct && !Preferences::saveOnUpdate) {
+            if (!modelFileEdit())
+                emit updateDisabledSig(state);
+        }
     }
 }
 
@@ -2903,6 +2960,13 @@ void TextEditor::setAutoCompleter(QCompleter *completer)
 
 void TextEditor::keyPressEvent(QKeyEvent *e)
 {
+    // these will only be triggered if the undo/redo buttons are visible
+    // otherwise, the MainWindow will trap the key sequence
+    if (e->modifiers().testFlag(Qt::ControlModifier) && e->key() == Qt::Key_Z)
+        emit undoKeySequence();
+    else if (e->modifiers().testFlag(Qt::ControlModifier) && e->key() == Qt::Key_Y)
+        emit redoKeySequence();
+
     if ((ac && ac->popup()->isVisible()) || (sc && sc->isPopupVisible())) {
         // The following keys are forwarded by the completer to the widget
        switch (e->key()) {
