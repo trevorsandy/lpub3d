@@ -37,14 +37,14 @@ class PreferredRendererDialog : public QDialog
 public:
 
   PreferredRendererDialog(
-    PreferredRendererMeta &goods,
-    QString                name,
-    QWidget               *parent);
+    RendererData &goods,
+    QString       name,
+    QWidget      *parent);
 
   virtual ~PreferredRendererDialog();
 
   static bool getPreferredRenderer(
-    PreferredRendererMeta &goods,
+    PreferredRendererMeta &meta,
     QString                name,
     QWidget               *parent);
 

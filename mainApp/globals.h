@@ -377,6 +377,7 @@ class GlobalProjectDialog : public QDialog
 private:
   GlobalProjectPrivate *data;
   PreferredRendererGui *childPreferredRenderer;
+  ResolutionGui        *childResolution;
   CameraDDFGui         *childCameraDDF;
   ContStepNumGui       *childContStepNumbers;
   SpinGui              *childStartStepNumberSpin;
@@ -392,6 +393,7 @@ public slots:
   void accept();
   void cancel();
   void clearCache(bool);
+  void reloadWhatsThis(int value);
   void reloadDisplayPage(bool);
   void checkConflict(bool);
   void enableCameraDDF(int);

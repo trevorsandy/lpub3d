@@ -572,6 +572,7 @@ public:
 
   void setSceneTheme() const;
   void loadTheme() const;
+  void reloadWhatsThis() const;
 
   void clearAllCaches() const;
   void clearPageCache(PlacementType relativeType, Page *page, int option) const;

@@ -34,13 +34,15 @@ public:
   QList<MetaGui *> children;
   bool     clearCache;
   bool     reloadFile;
+  bool     reloadWhatsThis;
 
   GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta)
   {
-    topLevelFile = _topLevelFile;
-    meta         = _meta;
-    clearCache   = false;
-    reloadFile   = false;
+    topLevelFile    = _topLevelFile;
+    meta            = _meta;
+    clearCache      = false;
+    reloadFile      = false;
+    reloadWhatsThis = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -94,21 +96,25 @@ GlobalProjectDialog::GlobalProjectDialog(
   childPreferredRenderer = new PreferredRendererGui(&lpubMeta->preferredRenderer);
   childPreferredRenderer->setToolTip(tr("Select the default image renderer"));
   connect (childPreferredRenderer, SIGNAL(rendererChanged(int)),  this, SLOT(enableCameraDDF(int)));
-  connect (childPreferredRenderer, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (childPreferredRenderer, SIGNAL(rendererChanged(int)),  this, SLOT(reloadWhatsThis(int)));
+  connect (childPreferredRenderer, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(childPreferredRenderer);
   childlayout->addWidget(childPreferredRenderer);
 
   childCameraDDF = new CameraDDFGui(tr("Native Camera Default Distance Factor"),&lpubMeta->cameraDDF);
   childCameraDDF->setToolTip(tr("Camera default distance factor"));
-  connect (childCameraDDF, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (childCameraDDF, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(childCameraDDF);
+  enableCameraDDF(Preferences::preferredRenderer);
   childlayout->addWidget(childCameraDDF);
 
   box = new QGroupBox(tr("Dot Resolution"));
   vlayout->addWidget(box);
-  MetaGui *child = new ResolutionGui(&lpubMeta->resolution,box);
+  childResolution = new ResolutionGui(&lpubMeta->resolution,box);
   box->setToolTip(tr("Set the default document resolution."));
-  data->children.append(child);
+  connect (childResolution, SIGNAL(unitsChanged(int)), this, SLOT(reloadWhatsThis(int)));
+  connect (childResolution, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(childResolution);
 
   box = new QGroupBox(tr("Stud Style And Automate Edge Color"));
   vlayout->addWidget(box);
@@ -219,14 +225,22 @@ void GlobalProjectDialog::reloadDisplayPage(bool b)
 {
   Q_UNUSED(b)
   if (!data->reloadFile)
-    data->reloadFile = true;
+    data->reloadFile = b;
 }
 
 void GlobalProjectDialog::clearCache(bool b)
 {
   Q_UNUSED(b)
   if (!data->clearCache)
-    data->clearCache = true;
+    data->clearCache = b;
+}
+
+void GlobalProjectDialog::reloadWhatsThis(int value)
+{
+  if (sender() == childPreferredRenderer)
+    data->reloadWhatsThis = Preferences::preferredRenderer != value;
+  else
+    data->reloadWhatsThis = Preferences::preferCentimeters != (bool)value;
 }
 
 void GlobalProjectDialog::enableCameraDDF(int renderer)
@@ -279,6 +293,9 @@ void GlobalProjectDialog::accept()
 
   if (data->reloadFile)
     mi.clearAndReloadModelFile(false, true);      // if true, close and reload file, if true, prompt to save - clear all caches
+
+  if (data->reloadWhatsThis)
+    mi.reloadWhatsThis();
 
   QDialog::accept();
 }

@@ -2806,8 +2806,14 @@ void Gui::preferences()
 {
     if (Preferences::getPreferences()) {
 
+        if (Preferences::restartApplication) {
+            return restartApplication(Preferences::libraryChangeRestart);
+        }
+
         Meta meta;
         lpub->page.meta = meta;
+
+        commonMenus.setWhatsThis();
 
         foreach (QAction *action, editWindow->actions()) {
             lpub->setKeyboardShortcut(action);
@@ -2825,21 +2831,17 @@ void Gui::preferences()
         if (Preferences::setSceneTheme)
             setSceneTheme();
 
-        if (Preferences::restartApplication) {
-            restartApplication(Preferences::libraryChangeRestart);
-        }
-        else
         if (!getCurFile().isEmpty()) {
+            if (Preferences::reloadPage) {
+                lpub->ldrawFile.clearViewerSteps();
+                reloadCurrentPage(true);
+            }
+            else
             if (Preferences::reloadFile) {
                 lpub->ldrawFile.clearViewerSteps();
                 if (Preferences::resetCustomCache)
                     clearCustomPartCache(true);
                 clearAndReloadModelFile(false, true);
-            }
-            else
-            if (Preferences::reloadPage) {
-                lpub->ldrawFile.clearViewerSteps();
-                reloadCurrentPage(true);
             }
         }
 

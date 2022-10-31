@@ -4656,7 +4656,7 @@ void ResolutionGui::lineEditReset()
 
 void ResolutionGui::unitsChange(QString const &units)
 {
-  ResolutionType type = meta->type();
+  ResolutionType type;
 
   if (units == "Dots Per Centimetre")
     type = DPCM;
@@ -4675,6 +4675,9 @@ void ResolutionGui::unitsChange(QString const &units)
   valueEdit->setText(QString::number((int)value));
 
   modified = type != dataT;
+
+  if (modified)
+    emit unitsChanged(type);
 }
 
 void ResolutionGui::valueChange(QString const &string)
@@ -4682,6 +4685,8 @@ void ResolutionGui::valueChange(QString const &string)
   float value = string.toFloat();
   meta->setValue(value);
   modified = notEqual(value, dataV);
+
+  emit settingsChanged(modified);
 }
 
 void ResolutionGui::apply(QString &modelName)

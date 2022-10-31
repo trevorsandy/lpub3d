@@ -1312,6 +1312,9 @@ private:
   QLineEdit      *valueEdit;
   QAction        *reset0Act;
 
+signals:
+  void unitsChanged(int);
+
 private slots:
   void enableReset(QString const &);
   void lineEditReset();

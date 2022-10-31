@@ -30,11 +30,12 @@
 
 #include "preferredrendererdialog.h"
 #include "metagui.h"
+#include "commonmenus.h"
 
 PreferredRendererDialog::PreferredRendererDialog(
-  PreferredRendererMeta &goods,
-  QString                _name,
-  QWidget                *parent)
+  RendererData &goods,
+  QString      _name,
+  QWidget      *parent)
   : QDialog(parent)
 {
   setWindowTitle(_name);
@@ -70,15 +71,18 @@ PreferredRendererDialog::~PreferredRendererDialog()
 }
 
 bool PreferredRendererDialog::getPreferredRenderer(
-  PreferredRendererMeta &goods,
+  PreferredRendererMeta &meta,
   QString                name,
   QWidget               *parent)
 {
+  RendererData goods = meta.value();
   PreferredRendererDialog *dialog = new PreferredRendererDialog(goods,name,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
-    goods.setValue(dialog->meta.value());
+    if (dialog->meta.value().renderer != goods.renderer)
+      commonMenus.setWhatsThis();
+    meta.setValue(dialog->meta.value());
   }
   return ok;
 }

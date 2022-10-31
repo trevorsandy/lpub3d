@@ -41,36 +41,38 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QInputDialog>
+
 #include "metaitem.h"
 #include "lpub.h"
 #include "range.h"
 #include "color.h"
-#include "placementdialog.h"
-#include "pointerplacementdialog.h"
-#include "pliconstraindialog.h"
-#include "pliannotationdialog.h"
-#include "plisortdialog.h"
-#include "pairdialog.h"
-#include "scaledialog.h"
-#include "borderdialog.h"
-#include "backgrounddialog.h"
-#include "dividerdialog.h"
-#include "sizeandorientationdialog.h"
-#include "rotateiconsizedialog.h"
-#include "submodelcolordialog.h"
-#include "pointerattribdialog.h"
-#include "fadehighlightdialog.h"
-#include "preferredrendererdialog.h"
-#include "texteditdialog.h"
-#include "rotstepdialog.h"
-#include "substitutepartdialog.h"
-#include "bomoptionsdialog.h"
 #include "paths.h"
 #include "render.h"
-#include "messageboxresizable.h"
 #include "step.h"
-
 #include "csiitem.h"
+#include "commonmenus.h"
+#include "messageboxresizable.h"
+
+#include "backgrounddialog.h"
+#include "bomoptionsdialog.h"
+#include "borderdialog.h"
+#include "dividerdialog.h"
+#include "fadehighlightdialog.h"
+#include "pairdialog.h"
+#include "placementdialog.h"
+#include "pliannotationdialog.h"
+#include "pliconstraindialog.h"
+#include "plisortdialog.h"
+#include "pointerattribdialog.h"
+#include "pointerplacementdialog.h"
+#include "preferredrendererdialog.h"
+#include "rotateiconsizedialog.h"
+#include "rotstepdialog.h"
+#include "scaledialog.h"
+#include "sizeandorientationdialog.h"
+#include "submodelcolordialog.h"
+#include "substitutepartdialog.h"
+#include "texteditdialog.h"
 
 enum AppendType { AppendNoOption, AppendAtModel, AppendAtPage, AppendAtSubmodel };
 enum MonoColors { Blue, TransWhite, NumColors };
@@ -5357,6 +5359,11 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
     } else {
         replaceMeta(itemTopOf, metaString);
     }
+}
+
+void MetaItem::reloadWhatsThis() const
+{
+    commonMenus.setWhatsThis();
 }
 
 void MetaItem::loadTheme() const
