@@ -381,9 +381,9 @@ public slots:
     void requestEndWorkNow();
 
 signals:
-    void finished();
-    void result(int);
-    void progressSetValue(
+    void finishedSig();
+    void resultSig(int);
+    void setValueSig(
             const int &value);
 
 protected:
@@ -397,17 +397,3 @@ protected:
 };
 
 #endif // THREADWORKERS_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-

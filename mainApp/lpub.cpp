@@ -834,8 +834,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       if (Preferences::modeGUI) {
           m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
-          m_progressDlgMessageLbl->setText(tr("%1").arg(message));
-          m_progressDlgProgressBar->setRange(0,_maxPages);
+          m_progressDialog->setLabelText(tr("%1").arg(message));
+          m_progressDialog->setRange(0,_maxPages);
           m_progressDialog->show();
 
           QApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -867,7 +867,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               if (Preferences::modeGUI) {
                 QApplication::restoreOverrideCursor();
                 m_progressDialog->setBtnToClose();
-                m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+                m_progressDialog->setLabelText(tr("%1").arg(message));
                 disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
                 connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
@@ -883,8 +883,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
-              m_progressDlgProgressBar->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
-              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+              m_progressDialog->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
+              m_progressDialog->setLabelText(tr("%1").arg(message));
               qApp->processEvents();
               secSleeper::secSleep(Preferences::pageDisplayPause);
           }
@@ -936,8 +936,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       if (Preferences::modeGUI) {
           m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
-          m_progressDlgMessageLbl->setText(tr("%1").arg(message));
-          m_progressDlgProgressBar->setRange(0,_maxPages);
+          m_progressDialog->setLabelText(tr("%1").arg(message));
+          m_progressDialog->setRange(0,_maxPages);
           m_progressDialog->show();
           QApplication::setOverrideCursor(Qt::BusyCursor);
       }
@@ -969,7 +969,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
                   m_progressDialog->setBtnToClose();
-                  m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+                  m_progressDialog->setLabelText(tr("%1").arg(message));
                   disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
                   connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
@@ -990,8 +990,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
-              m_progressDlgProgressBar->setValue(pageCount);
-              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+              m_progressDialog->setValue(pageCount);
+              m_progressDialog->setLabelText(tr("%1").arg(message));
               qApp->processEvents();
               secSleeper::secSleep(Preferences::pageDisplayPause);
           }
@@ -1013,8 +1013,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       if (Preferences::modeGUI) {
           m_progressDialog->setBtnToClose();
-          m_progressDlgProgressBar->setValue(_maxPages);
-          m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+          m_progressDialog->setValue(_maxPages);
+          m_progressDialog->setLabelText(tr("%1").arg(message));
           disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
           connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
       }
@@ -3204,8 +3204,6 @@ Gui::Gui()
     progressBarPerm->setMaximumWidth(300);
 
     m_progressDialog         = new ProgressDialog();
-    m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressDlgProgressBar");
-    m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("progressDlgMessageLbl");
 
     connect (m_progressDialog, SIGNAL (cancelClicked()),
              this,             SLOT (  cancelExporting()));
@@ -3869,10 +3867,10 @@ bool Gui::installRenderer(int which)
     m_progressDialog = new ProgressDialog(nullptr);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("Installing renderer %1").arg(renderer));
-    m_progressDialog->progressBarSetLabelText(QString("Extracting renderer %1 from %2...")
+    m_progressDialog->setLabelText(QString("Extracting renderer %1 from %2...")
                                               .arg(renderer)
                                               .arg(QFileInfo(rendererArchive).fileName()));
-    m_progressDialog->progressBarSetRange(0,items.count());
+    m_progressDialog->setRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
     m_progressDialog->show();
@@ -3888,26 +3886,26 @@ bool Gui::installRenderer(int which)
             job, SLOT(doWork()));
     connect(thread, SIGNAL(finished()),
             thread, SLOT(deleteLater()));
-    connect(job, SIGNAL(progressSetValue(int)),
-            m_progressDialog, SLOT(progressBarSetValue(int)));
+    connect(job, SIGNAL(setValueSig(int)),
+            m_progressDialog, SLOT(setValue(int)));
     connect(m_progressDialog, SIGNAL(cancelClicked()),
             job, SLOT(requestEndWorkNow()));
-    connect(job, SIGNAL(result(int)),
+    connect(job, SIGNAL(resultSig(int)),
             this, SLOT(workerJobResult(int)));
     connect(this, SIGNAL(requestEndThreadNowSig()),
             job, SLOT(requestEndWorkNow()));
-    connect(job, SIGNAL(finished()),
+    connect(job, SIGNAL(finishedSig()),
             thread, SLOT(quit()));
-    connect(job, SIGNAL(finished()),
+    connect(job, SIGNAL(finishedSig()),
             job, SLOT(deleteLater()));
-    wait->connect(job, SIGNAL(finished()),
+    wait->connect(job, SIGNAL(finishedSig()),
             wait, SLOT(quit()));
 
     workerJobResult(0);
     thread->start();
     wait->exec();
 
-    m_progressDialog->progressBarSetValue(items.count());
+    m_progressDialog->setValue(items.count());
 
     if (m_workerJobResult) {
         message = tr("%1 of %2 %3 renderer files installed to %4")
@@ -3959,8 +3957,8 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       emit messageSig(LOG_STATUS,message);
       m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
       m_progressDialog->setWindowTitle(QString("Archive Library Update"));
-      m_progressDialog->progressBarSetLabelText(QString("Archiving search directory parts..."));
-      m_progressDialog->progressBarSetRange(0,items.count());
+      m_progressDialog->setLabelText(QString("Archiving search directory parts..."));
+      m_progressDialog->setRange(0,items.count());
       m_progressDialog->setAutoHide(true);
       m_progressDialog->setModal(true);
       m_progressDialog->show();
@@ -3973,38 +3971,38 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       QEventLoop *wait = new QEventLoop();
 
       disconnect (m_progressDialog, SIGNAL (cancelClicked()),
-                  this,  SLOT (cancelExporting()));
+                  this,             SLOT (cancelExporting()));
       if (Update)
-          connect(thread, SIGNAL(started()),
-                  job, SLOT(updateLDSearchDirsParts()));
+          connect(thread,           SIGNAL(started()),
+                  job,              SLOT(updateLDSearchDirsParts()));
       else
-          connect(thread, SIGNAL(started()),
-                  job, SLOT(processLDSearchDirParts()));
-      connect(thread, SIGNAL(finished()),
-              thread, SLOT(deleteLater()));
-      connect(job, SIGNAL(progressSetValueSig(int)),
-              m_progressDialog, SLOT(progressBarSetValue(int)));
-      connect(m_progressDialog, SIGNAL(cancelClicked()),
-              job, SLOT(requestEndThreadNow()));
-      connect(job, SIGNAL(progressMessageSig (QString)),
-              m_progressDialog, SLOT(progressBarSetLabelText(QString)));
-      connect(job, SIGNAL(partsArchiveResultSig(int)),
-              this, SLOT(workerJobResult(int)));
-      connect(this, SIGNAL(requestEndThreadNowSig()),
-              job, SLOT(requestEndThreadNow()));
-      connect(job, SIGNAL(partsArchiveFinishedSig()),
-              thread, SLOT(quit()));
+          connect(thread,           SIGNAL(started()),
+                  job,              SLOT(processLDSearchDirParts()));
+      connect(thread,               SIGNAL(finished()),
+              thread,               SLOT(deleteLater()));
+      connect(job,                  SIGNAL(progressSetValueSig(int)),
+              m_progressDialog,     SLOT(setValue(int)));
+      connect(m_progressDialog,     SIGNAL(cancelClicked()),
+              job,                  SLOT(requestEndThreadNow()));
+      connect(job,                  SIGNAL(progressMessageSig (QString)),
+              m_progressDialog,     SLOT(setLabelText(QString)));
+      connect(job,                  SIGNAL(partsArchiveResultSig(int)),
+              this,                 SLOT(workerJobResult(int)));
+      connect(this,                 SIGNAL(requestEndThreadNowSig()),
+              job,                  SLOT(requestEndThreadNow()));
+      connect(job,                  SIGNAL(partsArchiveFinishedSig()),
+              thread,               SLOT(quit()));
       if (OnDemand)
-          connect(job, SIGNAL(partsArchiveFinishedSig()),
-                  job, SLOT(deleteLater()));
-      wait->connect(job, SIGNAL(partsArchiveFinishedSig()),
-              wait, SLOT(quit()));
+          connect(job,              SIGNAL(partsArchiveFinishedSig()),
+                  job,              SLOT(deleteLater()));
+      wait->connect(job,            SIGNAL(partsArchiveFinishedSig()),
+                    wait,           SLOT(quit()));
 
       workerJobResult(0);
       thread->start();
       wait->exec();
 
-      m_progressDialog->progressBarSetValue(items.count());
+      m_progressDialog->setValue(items.count());
 
       QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
       message = tr("Added %1 %2 into Unofficial library archive %3")
@@ -4076,9 +4074,9 @@ void Gui::refreshLDrawUnoffParts() {
     m_progressDialog = new ProgressDialog(nullptr);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
-    m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Unofficial parts from %1...")
+    m_progressDialog->setLabelText(QString("Extracting LDraw Unofficial parts from %1...")
                                               .arg(QFileInfo(newarchive).fileName()));
-    m_progressDialog->progressBarSetRange(0,items.count());
+    m_progressDialog->setRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
     m_progressDialog->show();
@@ -4089,31 +4087,31 @@ void Gui::refreshLDrawUnoffParts() {
     wait = new QEventLoop();
 
     disconnect(m_progressDialog, SIGNAL (cancelClicked()),
-            this, SLOT (cancelExporting()));
-    connect(thread, SIGNAL(started()),
-            job, SLOT(doWork()));
-    connect(thread, SIGNAL(finished()),
-            thread, SLOT(deleteLater()));
-    connect(job, SIGNAL(progressSetValue(int)),
-            m_progressDialog, SLOT(progressBarSetValue(int)));
-    connect(m_progressDialog, SIGNAL(cancelClicked()),
-            job, SLOT(requestEndWorkNow()));
-    connect(job, SIGNAL(result(int)),
-            this, SLOT(workerJobResult(int)));
-    connect(this, SIGNAL(requestEndThreadNowSig()),
-            job, SLOT(requestEndWorkNow()));
-    connect(job, SIGNAL(finished()),
-            thread, SLOT(quit()));
-    connect(job, SIGNAL(finished()),
-            job, SLOT(deleteLater()));
-    wait->connect(job, SIGNAL(finished()),
-            wait, SLOT(quit()));
+            this,                SLOT (cancelExporting()));
+    connect(thread,              SIGNAL(started()),
+            job,                 SLOT(doWork()));
+    connect(thread,              SIGNAL(finished()),
+            thread,              SLOT(deleteLater()));
+    connect(job,                 SIGNAL(setValueSig(int)),
+            m_progressDialog,    SLOT(setValue(int)));
+    connect(m_progressDialog,    SIGNAL(cancelClicked()),
+            job,                 SLOT(requestEndWorkNow()));
+    connect(job,                 SIGNAL(resultSig(int)),
+            this,                SLOT(workerJobResult(int)));
+    connect(this,                SIGNAL(requestEndThreadNowSig()),
+            job,                 SLOT(requestEndWorkNow()));
+    connect(job,                 SIGNAL(finishedSig()),
+            thread,              SLOT(quit()));
+    connect(job,                 SIGNAL(finishedSig()),
+            job,                 SLOT(deleteLater()));
+    wait->connect(job,           SIGNAL(finishedSig()),
+                  wait,          SLOT(quit()));
 
     workerJobResult(0);
     thread->start();
     wait->exec();
 
-    m_progressDialog->progressBarSetValue(items.count());
+    m_progressDialog->setValue(items.count());
 
     if (m_workerJobResult) {
         message = tr("%1 of %2 Unofficial library files extracted to %3")
@@ -4132,8 +4130,8 @@ void Gui::refreshLDrawUnoffParts() {
     if (items.count()) {
         QString message = tr("Archiving custom parts. Please wait...");
         emit messageSig(LOG_STATUS,message);
-        m_progressDialog->progressBarSetLabelText(QString("Archiving custom parts..."));
-        m_progressDialog->progressBarSetRange(0,items.count());
+        m_progressDialog->setLabelText(QString("Archiving custom parts..."));
+        m_progressDialog->setRange(0,items.count());
         m_progressDialog->show();
 
         QThread *thread = new QThread(this);
@@ -4146,11 +4144,11 @@ void Gui::refreshLDrawUnoffParts() {
         connect(thread, SIGNAL(finished()),
                 thread, SLOT(deleteLater()));
         connect(job, SIGNAL(progressSetValueSig(int)),
-                m_progressDialog, SLOT(progressBarSetValue(int)));
+                m_progressDialog, SLOT(setValue(int)));
         connect(m_progressDialog, SIGNAL(cancelClicked()),
                 job, SLOT(requestEndThreadNow()));
         connect(job, SIGNAL(progressMessageSig (QString)),
-                m_progressDialog, SLOT(progressBarSetLabelText(QString)));
+                m_progressDialog, SLOT(setLabelText(QString)));
         connect(job, SIGNAL(progressSetValueSig(int)),
                 this, SLOT(workerJobResult(int)));
         connect(this, SIGNAL(requestEndThreadNowSig()),
@@ -4166,7 +4164,7 @@ void Gui::refreshLDrawUnoffParts() {
         thread->start();
         wait->exec();
 
-        m_progressDialog->progressBarSetValue(items.count());
+        m_progressDialog->setValue(items.count());
 
         QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
         message = tr("Added %1 custom %2 into Unofficial library archive %3")
@@ -4243,9 +4241,9 @@ void Gui::refreshLDrawOfficialParts() {
     QStringList items = JlCompress::getFileList(newarchive);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
-    m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Official parts from %1...")
+    m_progressDialog->setLabelText(QString("Extracting LDraw Official parts from %1...")
                                               .arg(QFileInfo(newarchive).fileName()));
-    m_progressDialog->progressBarSetRange(0,items.count());
+    m_progressDialog->setRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
     m_progressDialog->show();
@@ -4256,31 +4254,31 @@ void Gui::refreshLDrawOfficialParts() {
     wait = new QEventLoop();
 
     disconnect(m_progressDialog, SIGNAL (cancelClicked()),
-            this, SLOT (cancelExporting()));
-    connect(thread, SIGNAL(started()),
-            job, SLOT(doWork()));
-    connect(thread, SIGNAL(finished()),
-            thread, SLOT(deleteLater()));
-    connect(job, SIGNAL(progressSetValue(int)),
-            m_progressDialog, SLOT(progressBarSetValue(int)));
-    connect(m_progressDialog, SIGNAL(cancelClicked()),
-            job, SLOT(requestEndWorkNow()));
-    connect(job, SIGNAL(result(int)),
-            this, SLOT(workerJobResult(int)));
-    connect(this, SIGNAL(requestEndThreadNowSig()),
-            job, SLOT(requestEndWorkNow()));
-    connect(job, SIGNAL(finished()),
-            thread, SLOT(quit()));
-    connect(job, SIGNAL(finished()),
-            job, SLOT(deleteLater()));
-    wait->connect(job, SIGNAL(finished()),
-            wait, SLOT(quit()));
+            this,                SLOT (cancelExporting()));
+    connect(thread,              SIGNAL(started()),
+            job,                 SLOT(doWork()));
+    connect(thread,              SIGNAL(finished()),
+            thread,              SLOT(deleteLater()));
+    connect(job,                 SIGNAL(setValueSig(int)),
+            m_progressDialog,    SLOT(setValue(int)));
+    connect(m_progressDialog,    SIGNAL(cancelClicked()),
+            job,                 SLOT(requestEndWorkNow()));
+    connect(job,                 SIGNAL(resultSig(int)),
+            this,                SLOT(workerJobResult(int)));
+    connect(this,                SIGNAL(requestEndThreadNowSig()),
+            job,                 SLOT(requestEndWorkNow()));
+    connect(job,                 SIGNAL(finishedSig()),
+            thread,              SLOT(quit()));
+    connect(job,                 SIGNAL(finishedSig()),
+            job,                 SLOT(deleteLater()));
+    wait->connect(job,           SIGNAL(finishedSig()),
+                  wait,          SLOT(quit()));
 
     workerJobResult(0);
     thread->start();
     wait->exec();
 
-    m_progressDialog->progressBarSetValue(items.count());
+    m_progressDialog->setValue(items.count());
 
     if (m_workerJobResult) {
         message = tr("%1 of %2 Library files extracted to %3")

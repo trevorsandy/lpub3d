@@ -322,9 +322,9 @@ void Downloader::openDownload()
             m_progressDialog  = new ProgressDialog(nullptr);
             m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
             m_progressDialog->setWindowTitle(QString("%1 Software Update").arg(m_moduleName));
-            m_progressDialog->progressBarSetLabelText(QString("Extracting %1...")
+            m_progressDialog->setLabelText(QString("Extracting %1...")
                                                       .arg(QFileInfo(newarchive).fileName()));
-            m_progressDialog->progressBarSetRange(0,items.count());
+            m_progressDialog->setRange(0,items.count());
             m_progressDialog->setAutoHide(false);
             m_progressDialog->setModal(true);
             m_progressDialog->show();
@@ -338,7 +338,7 @@ void Downloader::openDownload()
             connect(thread, SIGNAL(finished()),
                     thread, SLOT(deleteLater()));
             connect(job, SIGNAL(progressSetValue(int)),
-                    m_progressDialog, SLOT(progressBarSetValue(int)));
+                    m_progressDialog, SLOT(setValue(int)));
             disconnect(m_progressDialog, SIGNAL (cancelClicked()),
                     this, SLOT (cancelExporting()));
             connect(m_progressDialog, SIGNAL(cancelClicked()),
@@ -358,7 +358,7 @@ void Downloader::openDownload()
             thread->start();
             wait->exec();
 
-            m_progressDialog->progressBarSetValue(items.count());
+            m_progressDialog->setValue(items.count());
             connect (m_progressDialog, SIGNAL (cancelClicked()),
                      this, SLOT (cancelExporting()));
 
@@ -373,7 +373,7 @@ void Downloader::openDownload()
                              .arg(QFileInfo(newarchive).fileName());
                 emit lpub->messageSig(LOG_ERROR,message);
             }
-            m_progressDialog->progressBarSetLabelText(message);
+            m_progressDialog->setLabelText(message);
             m_progressDialog->setBtnToClose();
 
         } else {

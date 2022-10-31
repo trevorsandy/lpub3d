@@ -505,8 +505,6 @@ public:
 
   bool             m_previewDialog;
   ProgressDialog  *m_progressDialog; // general use progress dialogue
-  QLabel          *m_progressDlgMessageLbl;
-  QProgressBar    *m_progressDlgProgressBar;
 
   bool             m_partListCSIFile;   // processing part list CSI file
   static bool      suspendFileDisplay;  // when true, the endMacro() call will not call displayPage()

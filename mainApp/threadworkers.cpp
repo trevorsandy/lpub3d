@@ -2004,7 +2004,7 @@ void ExtractWorker::doWork() {
     if (!extractDir(zip, mDestination)) {
         emit gui->messageSig(LOG_ERROR,QString(", Failed to extract archive %1").arg(mArchive));
     }
-    emit finished();
+    emit finishedSig();
 }
 
 bool ExtractWorker::extractDir(QuaZip &zip, const QString &dir)
@@ -2031,7 +2031,7 @@ bool ExtractWorker::extractDir(QuaZip &zip, const QString &dir)
             return false;
         }
         extracted.append(absFilePath);
-        emit progressSetValue(++i);
+        emit setValueSig(++i);
     } while (zip.goToNextFile() && ! mEndWorkNow);
 
     // Chiudo il file zip
@@ -2042,7 +2042,7 @@ bool ExtractWorker::extractDir(QuaZip &zip, const QString &dir)
         return false;
     }
 
-    emit result(extracted.count());
+    emit resultSig(extracted.count());
 
     return true;
 }

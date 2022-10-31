@@ -39,9 +39,9 @@ signals:
     void cancelClicked();
 
 public slots:
-    void progressBarSetLabelText(QString text);
-    void progressBarSetRange(int min, int max);
-    void progressBarSetValue(int value);
+    void setLabelText(QString text);
+    void setRange(int min, int max);
+    void setValue(int value);
 
 private slots:
     void cancel (void);

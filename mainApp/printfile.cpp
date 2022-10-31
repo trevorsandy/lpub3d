@@ -916,7 +916,7 @@ void Gui::exportAsPdf()
   };
   QMap<int, PdfPage> pages;
 
-  m_progressDlgMessageLbl->setText("Exporting instructions to pdf...");
+  m_progressDialog->setLabelText("Exporting instructions to pdf...");
 
   if (processOption != EXPORT_PAGE_RANGE) {
 
@@ -930,7 +930,7 @@ void Gui::exportAsPdf()
           _maxPages       = displayPageNum;
         }
 
-      m_progressDlgProgressBar->setRange(_displayPageNum,_maxPages);
+      m_progressDialog->setRange(_displayPageNum,_maxPages);
 
       // set displayPageNum so we can send the correct index to retrieve page size data
       displayPageNum = _displayPageNum;
@@ -958,10 +958,10 @@ void Gui::exportAsPdf()
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString(messageIntro + "%1 of %2...")
+          m_progressDialog->setLabelText(QString(messageIntro + "%1 of %2...")
                                                    .arg(displayPageNum)
                                                    .arg(_maxPages));
-          m_progressDlgProgressBar->setValue(displayPageNum);
+          m_progressDialog->setValue(displayPageNum);
           QApplication::processEvents();
 
           // get size of output image, in pixels
@@ -1044,7 +1044,7 @@ void Gui::exportAsPdf()
           }
       }
 
-      m_progressDlgProgressBar->setValue(_maxPages);
+      m_progressDialog->setValue(_maxPages);
 
       if (exportPdfElements) {
           // wrap up paint to pdfWriter
@@ -1053,14 +1053,14 @@ void Gui::exportAsPdf()
           // step 2. paint generated page pixmaps to the pdfWriter
           painter.begin(&pdfWriter);
 
-          m_progressDlgProgressBar->setRange(1,pages.count());
+          m_progressDialog->setRange(1,pages.count());
 
           int page;
           Q_FOREACH (page, pages.keys()) {
-              m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
+              m_progressDialog->setLabelText(QString("Step 2. Exporting pdf document page %1 of %2")
                                                .arg(page)
                                                .arg(pages.count()));
-              m_progressDlgProgressBar->setValue(page);
+              m_progressDialog->setValue(page);
               QApplication::processEvents();
 
               if (! exporting()) {
@@ -1084,7 +1084,7 @@ void Gui::exportAsPdf()
               }
           }
 
-          m_progressDlgProgressBar->setValue(pages.count());
+          m_progressDialog->setValue(pages.count());
 
           // wrap up paint to pdfWriter
           pages.clear();
@@ -1110,7 +1110,7 @@ void Gui::exportAsPdf()
 
       std::sort(printPages.begin(),printPages.end(),lessThan);
 
-      m_progressDlgProgressBar->setRange(1,printPages.count());
+      m_progressDialog->setRange(1,printPages.count());
 
       int _pageCount = 0;
 
@@ -1144,12 +1144,12 @@ void Gui::exportAsPdf()
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString(messageIntro + "%1 (%2 of %3) from the range of %4...")
+          m_progressDialog->setLabelText(QString(messageIntro + "%1 (%2 of %3) from the range of %4...")
                                                    .arg(displayPageNum)
                                                    .arg(_pageCount)
                                                    .arg(printPages.count())
                                                    .arg(pageRanges.join(" ")));
-          m_progressDlgProgressBar->setValue(_pageCount);
+          m_progressDialog->setValue(_pageCount);
           QApplication::processEvents();
 
           // get size of output image, in pixels
@@ -1233,7 +1233,7 @@ void Gui::exportAsPdf()
           }
       }
 
-      m_progressDlgProgressBar->setValue(printPages.count());
+      m_progressDialog->setValue(printPages.count());
 
       if (exportPdfElements) {
           // wrap up paint to pdfWriter
@@ -1242,14 +1242,14 @@ void Gui::exportAsPdf()
           // step 2. paint generated page pixmaps to the pdfWriter
           painter.begin(&pdfWriter);
 
-          m_progressDlgProgressBar->setRange(1,pages.count());
+          m_progressDialog->setRange(1,pages.count());
 
           int page;
           Q_FOREACH (page, pages.keys()) {
-              m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
+              m_progressDialog->setLabelText(QString("Step 2. Exporting pdf document page %1 of %2")
                                                .arg(page)
                                                .arg(pages.count()));
-              m_progressDlgProgressBar->setValue(page);
+              m_progressDialog->setValue(page);
               QApplication::processEvents();
 
               if (! exporting()) {
@@ -1273,7 +1273,7 @@ void Gui::exportAsPdf()
               }
           }
 
-          m_progressDlgProgressBar->setValue(pages.count());
+          m_progressDialog->setValue(pages.count());
 
           // wrap up paint to pdfWriter
           pages.clear();
@@ -1431,7 +1431,7 @@ void Gui::exportAs(const QString &_suffix)
   m_progressDialog->setWindowTitle(QString("Export as %1 %2").arg(suffix).arg(type));
   if (Preferences::modeGUI)
       m_progressDialog->show();
-  m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 %2.").arg(suffix).arg(type));
+  m_progressDialog->setLabelText(QString("Exporting instructions to %1 %2.").arg(suffix).arg(type));
 
   if (processOption != EXPORT_PAGE_RANGE){
 
@@ -1445,7 +1445,7 @@ void Gui::exportAs(const QString &_suffix)
           _maxPages       = displayPageNum;
         }
 
-      m_progressDlgProgressBar->setRange(_displayPageNum,_maxPages);
+      m_progressDialog->setRange(_displayPageNum,_maxPages);
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
@@ -1458,10 +1458,10 @@ void Gui::exportAs(const QString &_suffix)
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2: %3 of %4...")
+          m_progressDialog->setLabelText(QString("Exporting %1 %2: %3 of %4...")
                                            .arg(suffix).arg(type)
                                            .arg(displayPageNum).arg(_maxPages));
-          m_progressDlgProgressBar->setValue(displayPageNum);
+          m_progressDialog->setValue(displayPageNum);
           QApplication::processEvents();
 
           if (exportingObjects()) {
@@ -1530,7 +1530,7 @@ void Gui::exportAs(const QString &_suffix)
               painter.end();
           }
       }
-      m_progressDlgProgressBar->setValue(_maxPages);
+      m_progressDialog->setValue(_maxPages);
 
     } else {
 
@@ -1551,7 +1551,7 @@ void Gui::exportAs(const QString &_suffix)
 
       std::sort(printPages.begin(),printPages.end(),lessThan);
 
-      m_progressDlgProgressBar->setRange(1,printPages.count());
+      m_progressDialog->setRange(1,printPages.count());
 
       int _pageCount = 0;
 
@@ -1568,11 +1568,11 @@ void Gui::exportAs(const QString &_suffix)
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2 %3 of range %4...")
+          m_progressDialog->setLabelText(QString("Exporting %1 %2 %3 of range %4...")
                                                    .arg(suffix).arg(type)
                                                    .arg(displayPageNum)
                                                    .arg(pageRanges.join(" ")));
-          m_progressDlgProgressBar->setValue(_pageCount++);
+          m_progressDialog->setValue(_pageCount++);
           QApplication::processEvents();
 
           if (exportingObjects()) {
@@ -1640,7 +1640,7 @@ void Gui::exportAs(const QString &_suffix)
               painter.end();
           }
       }
-      m_progressDlgProgressBar->setValue(printPages.count());
+      m_progressDialog->setValue(printPages.count());
     }
 
   // hide progress bar
@@ -1774,13 +1774,13 @@ void Gui::Print(QPrinter* Printer)
   m_progressDialog->setWindowTitle(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode);  //Hack
   if (Preferences::modeGUI)
       m_progressDialog->show();
-  m_progressDlgMessageLbl->setText(preview ? "Generating preview" + mode + "..." : exportPdf ? "Exporting" + mode + "..." : "Printing" + mode + "...");
+  m_progressDialog->setLabelText(preview ? "Generating preview" + mode + "..." : exportPdf ? "Exporting" + mode + "..." : "Printing" + mode + "...");
 
   for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
     {
       int Page = FromPage;
 
-      m_progressDlgProgressBar->setRange(Page,ToPage);
+      m_progressDialog->setRange(Page,ToPage);
 
       if (processOption != EXPORT_PAGE_RANGE){
 
@@ -1811,9 +1811,9 @@ void Gui::Print(QPrinter* Printer)
                   return;
                 }
 
-              m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2...").arg(Page).arg(ToPage)
+              m_progressDialog->setLabelText(QString("%3 page %1 of %2...").arg(Page).arg(ToPage)
                                                .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
-              m_progressDlgProgressBar->setValue(Page);
+              m_progressDialog->setValue(Page);
               QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
@@ -1908,7 +1908,7 @@ void Gui::Print(QPrinter* Printer)
 
           ToPage = printPages.last();
 
-          m_progressDlgProgressBar->setRange(1,printPages.count());
+          m_progressDialog->setRange(1,printPages.count());
 
           int _pageCount = 0;
 
@@ -1930,12 +1930,12 @@ void Gui::Print(QPrinter* Printer)
 
               displayPageNum = Page = printPage;
 
-              m_progressDlgMessageLbl->setText(QString("%1 page %2 of %3 for range %4 ")
+              m_progressDialog->setLabelText(QString("%1 page %2 of %3 for range %4 ")
                                                .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode)
                                                .arg(Page)
                                                .arg(printPages.count())
                                                .arg(pageRanges.join(" ")));
-              m_progressDlgProgressBar->setValue(_pageCount++);
+              m_progressDialog->setValue(_pageCount++);
               QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
@@ -2002,7 +2002,7 @@ void Gui::Print(QPrinter* Printer)
               Printer->newPage();
             }
         }
-      m_progressDlgProgressBar->setValue(ToPage);
+      m_progressDialog->setValue(ToPage);
 
       if (DocCopy < DocCopies - 1) {
           Printer->newPage();
