@@ -94,8 +94,6 @@ QString Gui::PositionNames[] =
  * ldraw file held in the the ldr string
  *
  ********************************************/
-bool Gui::enableLineTypeIndexes;
-
 void Gui::remove_group(
     QStringList  in,     // csiParts
     QVector<int> tin,    // typeIndexes
@@ -107,94 +105,81 @@ void Gui::remove_group(
   Q_UNUSED(meta)
 
   bool    grpMatch = false;
+  bool    exclude  = false;
+  bool    tinNull  = false;
   int     grpLevel = 0;
   Rc      grpType  = OkRc;
   QString line, grpData;
+  QStringList lids;
+
+  if ((tinNull = in.size() != tin.size())) {
+    QString message(tr("CSI part list size [%1] does not match line index size [%2].")
+                       .arg(in.size()).arg(tin.size()));
+    emit gui->messageSig(LOG_NOTICE, message);
+  }
 
   auto parseGroupMeta = [&line](Rc &grpType)
   {
-      QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
-      while (i != groupRegExMap.constEnd()) {
-          QRegExp rx(i.value());
-          if (line.contains(rx)) {
-              grpType = i.key();
-              return rx.cap(rx.captureCount());
-          }
-          ++i;
+    QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
+    while (i != groupRegExMap.constEnd()) {
+      QRegExp rx(i.value());
+      if (line.contains(rx)) {
+        grpType = i.key();
+        return rx.cap(rx.captureCount());
       }
-      return QString();
+      ++i;
+    }
+    return QString();
   };
-
-  if (in.size() != tin.size()) {
-      enableLineTypeIndexes = false;
-      QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
-                              .arg(in.size()).arg(tin.size()));
-      emit gui->messageSig(LOG_NOTICE, message);
-  }
 
   for (int i = 0; i < in.size(); i++) {
 
-      line = in.at(i);
+    line = in.at(i);
 
-      grpData = parseGroupMeta(grpType);
+    grpData = parseGroupMeta(grpType);
 
-      if (grpData.size() && grpType > OkRc) {
-          // MLCad Groups
-          if (grpType == MLCadGroupRc) {
-              if (grpData == group) {
-                  i++;
-              } else {
-                  out << line;
-                  tiout << tin.at(i);
-              }
+    switch (grpType)
+    {
+      case MLCadGroupRc:
+        if ((exclude = grpData == group))
+          i++;
+        break;
+      case LDCadGroupRc:
+        lids = grpData.split(" ");
+        if ((exclude = lids.size() && lpub->ldrawFile.ldcadGroupMatch(group, lids)))
+          i++;
+        break;
+      case LeoCadGroupBeginRc:
+        if ((exclude = grpData == group)) {
+          grpMatch = true;
+          i++;
+        }
+        else if ((exclude = grpMatch)) {
+          grpLevel++;
+          i++;
+        }
+        break;
+      case LeoCadGroupEndRc:
+        if ((exclude = grpMatch)) {
+          if (grpLevel == 0) {
+            grpMatch = false;
+          } else {
+            grpLevel--;
           }
-          // LDCad Groups
-          else if (grpType == LDCadGroupRc) {
-              QStringList lids = grpData.split(" ");
-              if (lids.size() && gui->ldcadGroupMatch(group, lids)) {
-                  i++;
-              } else {
-                  out << line;
-                  tiout << tin.at(i);
-              }
-          }
-          // LeoCAD	Group Begin
-          else if (grpType == LeoCadGroupBeginRc) {
-              if (grpData == group){
-                  grpMatch = true;
-                  i++;
-              }
-              else if (grpMatch) {
-                  grpLevel++;
-                  i++;
-              }
-              else {
-                  out << line;
-                  tiout << tin.at(i);
-              }
-          }
-          // LeoCAD	Group End
-          else if (grpType == LeoCadGroupEndRc) {
-              if (grpMatch) {
-                  if (grpLevel == 0) {
-                      grpMatch = false;
-                  } else {
-                      grpLevel--;
-                  }
-              }
-              else {
-                  out << line;
-                  tiout << tin.at(i);
-              }
-          }
-          else if (grpMatch) {
-              i++;
-          }
-          else {
-              out << line;
-              tiout << tin.at(i);
-          } // End groups
-      }
+        }
+        break;
+      case OkRc:
+        break;
+    }
+
+    if (grpMatch)
+      i++;
+    else
+    if (!exclude) {
+      out << line;
+      if (!tinNull)
+        tiout << tin.at(i);
+    }
   }
 
   return;
@@ -216,33 +201,30 @@ void Gui::remove_parttype(
     QStringList  &out,   // newCSIParts
     QVector<int> &tiout) // newTypeIndexes
 {
+  bool exclude  = false;
+  bool tinNull  = false;
 
-  model = model.toLower();
-
-  if (in.size() != tin.size()) {
-      enableLineTypeIndexes = false;
-      QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
-                              .arg(in.size()).arg(tin.size()));
-      emit gui->messageSig(LOG_NOTICE, message);
+  if ((tinNull = in.size() != tin.size())) {
+    QString message(tr("CSI part list size [%1] does not match line index size [%2].")
+                            .arg(in.size()).arg(tin.size()));
+    emit gui->messageSig(LOG_NOTICE, message);
   }
 
   for (int i = 0; i < in.size(); i++) {
-      QString line = in.at(i);
-      QStringList tokens;
+    QString line = in.at(i);
+    QStringList tokens;
+    split(line,tokens);
 
-      split(line,tokens);
-
-      if (tokens.size() == 15 && tokens[0] == "1") {
-          QString type = tokens[14].toLower();
-          if (type != model) {
-              out << line;
-              tiout << tin.at(i);
-            }
-        } else {
-          out << line;
-          tiout << tin.at(i);
-        }
+    if (tokens.size() == 15 && tokens[0] == "1") {
+      exclude = tokens[14].toLower() == model.toLower();
     }
+
+    if (!exclude) {
+      out << line;
+      if (!tinNull)
+        tiout << tin.at(i);
+    }
+  }
 
   return;
 }
@@ -260,45 +242,47 @@ void Gui::remove_partname(
     QStringList  &out,   // newCSIParts
     QVector<int> &tiout) // newCSIParts
 {
+  bool tinNull  = false;
   name = name.toLower();
 
-  if (in.size() != tin.size()) {
-      enableLineTypeIndexes = false;
-      QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
-                              .arg(in.size()).arg(tin.size()));
-      emit gui->messageSig(LOG_NOTICE, message);
+  if ((tinNull = in.size() != tin.size())) {
+    QString message(QString("CSI part list size [%1] does not match line index size [%2].")
+                            .arg(in.size()).arg(tin.size()));
+    emit gui->messageSig(LOG_NOTICE, message);
   }
 
   for (int i = 0; i < in.size(); i++) {
-      QString line = in.at(i);
-      QStringList tokens;
+    QString line = in.at(i);
+    QStringList tokens;
 
-      split(line,tokens);
+    split(line,tokens);
 
-      if (tokens.size() == 4 && tokens[0] == "0" &&
-          (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-          tokens[2] == "NAME") {
-          QString type = tokens[3].toLower();
-          if (type == name) {
-              for ( ; i < in.size(); i++) {
-                  line = in.at(i);
-                  split(line,tokens);
-                  if (tokens.size() == 15 && tokens[0] == "1") {
-                      break;
-                    } else {
-                      out << line;
-                      tiout << tin.at(i);
-                    }
-                }
-            } else {
-              out << line;
+    if (tokens.size() == 4 && tokens[0] == "0" &&
+      (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+      tokens[2] == "NAME") {
+      if (tokens[3].toLower() == name.toLower()) {
+        for ( ; i < in.size(); i++) {
+          line = in.at(i);
+          split(line,tokens);
+          if (tokens.size() == 15 && tokens[0] == "1") {
+            break;
+          } else {
+            out << line;
+            if (!tinNull)
               tiout << tin.at(i);
-            }
-        } else {
-          out << line;
-          tiout << tin.at(i);
+          }
         }
+      } else {
+        out << line;
+        if (!tinNull)
+          tiout << tin.at(i);
+      }
+    } else {
+      out << line;
+      if (!tinNull)
+        tiout << tin.at(i);
     }
+  }
 
   return;
 }
@@ -4666,8 +4650,6 @@ void Gui::drawPage(
   FindPageFlags flags;
   QList<SubmodelStack> modelStack;
 
-  enableLineTypeIndexes = true;
-
   PgSizeData pageSize;
   if (exporting()) {
     pageSize.sizeW      = lpub->meta.LPub.page.size.valueInches(0);
@@ -5842,6 +5824,13 @@ void Gui::writeSmiContent(QStringList *content, const QString &fileName)
                 case PartTypeRc:
                 case MLCadGroupRc:
                 case LDCadGroupRc:
+                case LeoCadModelRc:
+                case LeoCadPieceRc:
+                case LeoCadCameraRc:
+                case LeoCadLightRc:
+                case LeoCadLightWidthRc:
+                case LeoCadLightTypeRc:
+                case LeoCadSynthRc:
                 case LeoCadGroupBeginRc:
                 case LeoCadGroupEndRc:
                     smiContent << line;

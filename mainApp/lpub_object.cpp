@@ -77,9 +77,9 @@ LPub::~LPub()
 void LPub::loadDialogs()
 {
   textEdit        = new TextEditDialog(gui);
-  commandsDialog  = new CommandsDialog(gui);
-  commandTextEdit = new CommandsTextEdit(commandsDialog);
-  snippetTextEdit = new CommandsTextEdit(commandsDialog);
+  commandsDialog  = new CommandsDialog(nullptr);
+  commandTextEdit = new CommandsTextEdit(nullptr);
+  snippetTextEdit = new CommandsTextEdit(nullptr);
 }
 
 void LPub::loadPreferencesDialog()

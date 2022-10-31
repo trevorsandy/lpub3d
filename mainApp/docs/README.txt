@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2846 (31 10 2022 01:37:18)
+LPub3D 2.4.4.1.2847 (31 10 2022 01:38:58)
 
 Features, enhancements, fixes and changes
 ------------
@@ -41,6 +41,7 @@ Revisions:
 - Fix - Messed up and weird rendering #518
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
+- Fix - Remove Group meta doesn't work #569
 - Fix - Update build from source scripts #585
 
 --------------------------------------------------------------------------------------------------

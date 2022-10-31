@@ -518,7 +518,6 @@ public:
 
   FitMode          fitMode;             // how to fit the scene into the view
 
-  static bool     enableLineTypeIndexes; // flag for line indexes to translate lines between viewer and ldrawFiles
   static QString  AttributeNames[];      // Pointer arrow attribute names
   static QString  PositionNames[];       // Pointer arrow position names
   static void     set_divider_pointers(  // Process step_group or callout divider pointers and pointer attributes
