@@ -50,6 +50,15 @@ struct TypeLine {
       modelIndex(_modelIndex), lineIndex(_lineIndex) {}
 };
 
+enum LineHighlightType { HIGHLIGHT_NULL, HIGHLIGHT_CLEAR, HIGHLIGHT_SELECTION, HIGHLIGHT_CURRENT };
+struct LineHighlight {
+    int line;
+    LineHighlightType action;
+    LineHighlight() : line(0), action(HIGHLIGHT_NULL) {}
+    LineHighlight(int _line, LineHighlightType _action) :
+        line(_line), action(_action) {}
+};
+
 enum RendererType { RENDERER_INVALID = -1, RENDERER_NATIVE, RENDERER_LDVIEW, RENDERER_LDGLITE, RENDERER_POVRAY, NUM_RENDERERS };
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
@@ -110,6 +119,7 @@ enum ExportMode { PRINT_FILE   = -2,       //-2
                   GENERATE_BOM             // 18
 };
 enum PartSource {
+    EDITOR_CLR         = -2,               //  -2
     NOT_FOUND          = -1,               //  -1
     OUT_OF_BOUNDS      = NOT_FOUND,        //  -1
     NEW_PART           = NOT_FOUND,        //  -1

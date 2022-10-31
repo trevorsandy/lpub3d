@@ -3282,6 +3282,7 @@ Gui::Gui()
     // structs
     qRegisterMetaType<ActionAttributes>("ActionAttributes");
     qRegisterMetaType<lcLibRenderOptions>("lcLibRenderOptions");
+    qRegisterMetaType<LineHighlight>("LineHighlight");
     qRegisterMetaType<StepLines>("StepLines");
     qRegisterMetaType<TypeLine>("TypeLine");
 
@@ -3310,6 +3311,7 @@ Gui::Gui()
     qRegisterMetaType<LDrawUnofficialFileType>("LDrawUnofficialFileType");
     qRegisterMetaType<LibType>("LibType");
     qRegisterMetaType<LightType>("LightType");
+    qRegisterMetaType<LineHighlightType>("LineHighlightType");
     qRegisterMetaType<LoadMsgType>("LoadMsgType");
     qRegisterMetaType<LogType>("LogType");
     qRegisterMetaType<MissingHeader>("MissingHeader");

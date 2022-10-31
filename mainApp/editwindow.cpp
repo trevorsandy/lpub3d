@@ -127,7 +127,6 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     showLineType    = LINE_HIGHLIGHT;
     isReadOnly      = false;
     visualEditorVisible = false;
-    stepKeyType     = INVALID_CURRENT_STEP;
     _isUndo = _isRedo = false;
 
     setTextEditHighlighter();
@@ -144,7 +143,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &EditWindow::contentLoaded);
     connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
     connect(_textEdit, SIGNAL(cursorPositionChanged()),  this, SLOT(highlightCurrentLine()));
-    connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
+    connect(_textEdit, SIGNAL(highlightSelectedParts()),  this, SLOT(highlightSelectedParts()));
     connect(_textEdit, SIGNAL(triggerPreviewLine()),  this,  SLOT(triggerPreviewLine()));
 
     setCentralWidget(_textEdit);
@@ -232,8 +231,6 @@ void EditWindow::setTextEditHighlighter()
       highlighter = new Highlighter(_textEdit->document());
 
     setSelectionHighlighter();
-
-    highlightCurrentLine();
 }
 
 void EditWindow::previewLine()
@@ -862,44 +859,22 @@ void EditWindow::setReadOnly(bool enabled)
     setWindowTitle(title);
 }
 
-int EditWindow::getSelectedLineNumber(QTextCursor &cursor) const
-{
-
-    int lineNumber = 0;
-
-    cursor.movePosition(QTextCursor::StartOfLine);
-
-    while(cursor.positionInBlock()>0) {
-        cursor.movePosition(QTextCursor::Up);
-        lineNumber++;
-    }
-
-    QTextBlock block = cursor.block().previous();
-
-    while(block.isValid()) {
-        lineNumber += block.lineCount();
-        block = block.previous();
-    }
-
-    return lineNumber;
-}
-
 int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 {
     // limit the scope to the current page
     if (inScope) {
         if (!stepLines.isInScope(lineNumber))
-            return stepKeyType = INVALID_CURRENT_STEP;
+            return INVALID_CURRENT_STEP;
     }
 
     const Where &top = lpub->page.top;
     const Where &bottom = lpub->page.bottom;
-    const TypeLine here = { fileOrderIndex, lineNumber };
-    stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
+    const TypeLine here(fileOrderIndex, lineNumber);
+    const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
 
     if (!stepKey.isEmpty()) {
         if (lpub->currentStep && lpub->currentStep->viewerStepKey.startsWith(&stepKey))
-            return stepKeyType = EXISTING_CURRENT_STEP;
+            return EXISTING_CURRENT_STEP;
 
         // set current step
         lpub->setCurrentStep(stepKey);
@@ -914,7 +889,7 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
                                   .arg(top.lineNumber + 1/*adjust for 0-start index*/)
                                   .arg(bottom.lineNumber + 1 /*adjust for 0-index*/));
 #endif
-            return stepKeyType = NEW_CURRENT_STEP;
+            return NEW_CURRENT_STEP;
         }
 #ifdef QT_DEBUG_MODE
         else
@@ -927,7 +902,7 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
         emit lpub->messageSig(LOG_DEBUG,tr("Failed to get Viewer Step Key for line: %1, model: %2")
                               .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
 #endif
-    return stepKeyType = INVALID_CURRENT_STEP;
+    return INVALID_CURRENT_STEP;
 }
 
 bool EditWindow::setValidPartLine()
@@ -942,8 +917,6 @@ bool EditWindow::setValidPartLine()
     bool colorOk = false;
     bool isSubstitute = false;
     bool isSubstituteAlt = false;
-
-    clearEditorHighlightLines();
 
     toolsToolBar->setEnabled(false);
     if (isReadOnly) {
@@ -993,7 +966,7 @@ bool EditWindow::setValidPartLine()
     else
         return false;
 
-    const int lineNumber = getSelectedLineNumber(cursor);
+    const int lineNumber = cursor.blockNumber();
     const bool stepSet = setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
 
     // substitute partKey
@@ -1211,9 +1184,6 @@ void EditWindow::editLineItem()
         }
     }
 
-    // remove highlight formatting set when line selected
-    clearEditorHighlightLines();
-
     auto removeLine = [] (QTextCursor &cursor, int lineNumber)
     {
         cursor.movePosition(QTextCursor::Start);
@@ -1231,7 +1201,7 @@ void EditWindow::editLineItem()
     selectedLines = str.count("\n") + 1;
 
     if (action == sRemove)
-        lineNumber = getSelectedLineNumber(cursor);
+        lineNumber = cursor.blockNumber();
 
     QTextCursor::MoveOperation nextLine = cursor.anchor() < cursor.position() ? QTextCursor::Up : QTextCursor::Down;
 
@@ -1756,9 +1726,9 @@ bool EditWindow::saveFileCopy()
   return rc;
 }
 
-void EditWindow::updateSelectedParts() {
+void EditWindow::highlightSelectedParts() {
 
-    if (isIncludeFile)
+    if (isIncludeFile || isReadOnly)
         return;
 
     toolsToolBar->setEnabled(setValidPartLine());
@@ -1770,228 +1740,301 @@ void EditWindow::updateSelectedParts() {
     if (!visualEditorVisible)
         return;
 
-    int lineNumber = 0;
-    int currentLine = 0;
-    int selectedLines = 0;
-    bool lineInScope = false;
-    bool lastInScopeLine = false;
-    bool clearSelection = false;
-    bool selectionStep = Preferences::editorLoadSelectionStep;
-    bool highlightLines = Preferences::editorHighlightLines;
-    TypeLine typeLine = { -1/*fileOrderIndex*/, 0/*lineNumber*/ };
-
-    QVector<TypeLine> lineTypeIndexes;
-    QVector<int> toggleLines;
-
     QTextCursor cursor = _textEdit->textCursor();
 
-    if(!cursor.hasSelection())
+    bool setSelection = false;
+    if(!cursor.hasSelection()) {
+        setSelection = true;
         cursor.select(QTextCursor::LineUnderCursor);
+    }
 
     QStringList content = cursor.selection().toPlainText().split("\n");
 
-    selectedLines = content.size();
+    int selectedLines = content.size();
 
     if (!selectedLines)
         return;
 
     QTextCursor::MoveOperation nextLine = cursor.anchor() < cursor.position() ? QTextCursor::Up : QTextCursor::Down;
 
+    int currentLine = 0;
+
+    bool performHighlight = false;
+    int firstLine = cursor.blockNumber();
+    QVector<LineHighlight> highlightSelection;
+    QVector<TypeLine> lineTypeIndexes;
+
     while (currentLine < selectedLines)
     {
         // only process lines that are in the currently displayed page
-        lineNumber = getSelectedLineNumber(cursor);
-        lineInScope = stepLines.isInScope(lineNumber);
-        if (!lineInScope) {
-            clearEditorHighlightLines();
+        int lineNumber = cursor.blockNumber();
+
+        if (!stepLines.isInScope(lineNumber)) {
             emit lpub->messageSig(LOG_NOTICE,
                                   QString("Line index %1 is out of the current page line scope [%2-%3]: %4")
                                   .arg(lineNumber)
                                   .arg(stepLines.top)
                                   .arg(stepLines.bottom)
                                   .arg(content.at(currentLine)));
-            continue;
+            break;
         }
 
         // display step in viewer enabled
-        if (selectionStep)
-        {
+        if (Preferences::editorLoadSelectionStep) {
             // submit the last selected line to update the viewer
-            lastInScopeLine = currentLine == stepLines.bottom || currentLine + 1 == selectedLines;
-            if (lastInScopeLine) {
-                // clear highlight lines if display step in viewer
-                clearEditorHighlightLines();
-
+            if (currentLine == stepLines.bottom || currentLine + 1 == selectedLines) {
                 // display new step in the viewer i.e. not the initial display step, e.g. a step group step etc...
-                if (stepKeyType == NEW_CURRENT_STEP || (selectedLines > 1 && setCurrentStep(lineNumber) == NEW_CURRENT_STEP))
+                if (selectedLines > 1 && setCurrentStep(lineNumber) == NEW_CURRENT_STEP) {
+                    // for now, clear any saved selection highlighting when displaying a new step
+                    if (Preferences::editorHighlightLines)
+                        clearEditorHighlightLines();
                     emit setStepForLineSig();
+                }
             }
         }
 
-        if (content.at(currentLine).contains(QRegExp("^1|\\sBEGIN\\sSUB\\s")));
-        {
-            typeLine = { fileOrderIndex, lineNumber };
-
-            lineTypeIndexes.append(typeLine);
-
-            if (highlightLines) {
-                toggleLines.append(lineNumber);
-                clearSelection = savedSelection.contains(lineNumber);
-                highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
+        if (content.at(currentLine).startsWith("1 ") || content.at(currentLine).contains(" PLI BEGIN SUB ")) {
+            TypeLine tl(fileOrderIndex, lineNumber);
+            lineTypeIndexes.append(tl);
+            performHighlight = Preferences::editorHighlightLines;
+            if (performHighlight) {
+                bool clearSelection = savedSelection.contains(lineNumber);
+                LineHighlight lh(lineNumber, clearSelection ? HIGHLIGHT_CLEAR : HIGHLIGHT_SELECTION);
+                highlightSelection.append(lh);
                 if (clearSelection)
                     savedSelection.removeAll(lineNumber);
                 else
                     savedSelection.append(lineNumber);
-                toggleLines.clear();
             }
         }
-
         cursor.movePosition(nextLine);
+        cursor.select(QTextCursor::LineUnderCursor);
         currentLine++;
     }
 
-    if (!highlightLines)
-        clearEditorHighlightLines();
+    // triggered when type 0 line selected but items (from editor) are selected in the viewer
+    if (highlightSelection.isEmpty() && savedSelection.size())
+    {
+        performHighlight = true;
+        LineHighlight lh(firstLine,HIGHLIGHT_CURRENT);
+        highlightSelection.append(lh);
+
+        for (int line : savedSelection) {
+            LineHighlight lh(line,HIGHLIGHT_SELECTION);
+            highlightSelection.append(lh);
+        }
+
+        auto lt = [] (const LineHighlight &lh1, const LineHighlight &lh2) { return lh1.line < lh2.line; };
+        std::sort(highlightSelection.begin(), highlightSelection.end(),lt);
+    }
+
+    if (setSelection)
+        cursor.clearSelection();
+
+    if (performHighlight)
+        highlightSelectedLines(highlightSelection, true/*isEditor*/);
 
     if (lineTypeIndexes.size())
-       emit SelectedPartLinesSig(lineTypeIndexes);
+        emit SelectedPartLinesSig(lineTypeIndexes);
 }
 
-void EditWindow::clearEditorHighlightLines()
+void EditWindow::clearEditorHighlightLines(bool currentLine)
 {
-    if (savedSelection.size()) {
-        highlightSelectedLines(savedSelection, true/*clear*/, true/*editor*/);
+    QVector<LineHighlight> selection;
+    if (currentLine) {
+        QTextCursor cursor = _textEdit->textCursor();
+        if (!cursor.isNull()) {
+            LineHighlight hl(cursor.blockNumber(),HIGHLIGHT_CLEAR);
+            selection.append(hl);
+        }
+    } else if (savedSelection.size()) {
+        for (int line : savedSelection) {
+            LineHighlight lh(line,HIGHLIGHT_CLEAR);
+            selection.append(lh);
+        }
         savedSelection.clear();
     }
+
+    highlightSelectedLines(selection, true/*isEditor*/);
 }
 
 void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
 {
-    highlightSelectedLines(lines, clear, false/*editorSelection*/);
-}
-
-void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool editorSelection)
-{
-    auto highlightLines = [this, &editorSelection] (QVector<int> &linesToFormat, bool clear)
-    {
-        QTextCursor highlightCursor(_textEdit->document());
-
-        if (!_textEdit->isReadOnly()) {
-
-            QColor lineColor = QColor(Qt::transparent);
-
-            bool applyFormat = linesToFormat.size() || (editorSelection && savedSelection.size());
-            if (applyFormat) {
-                if (clear) {
-                    if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_BASE]);
-                    } else {
-                        lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
-                    }
-                } else {
-                    if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(editorSelection ?
-                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT] :
-                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT]);
-                        lineColor.setAlpha(100); // make 60% transparent
-                    } else {
-                        lineColor = QColor(editorSelection ?
-                                               Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT] :
-                                               Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT]);
-                    }
-                    lineColor = lineColor.lighter(180);
-                }
-            }
-
-            QTextCharFormat plainFormat(highlightCursor.charFormat());
-            QTextCharFormat colorFormat = plainFormat;
-            colorFormat.setBackground(lineColor);
-
-            if (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
-                if (applyFormat) {
-                    for (int i = 0; i < linesToFormat.size(); ++i) {
-                        QTextBlock block = _textEdit->document()->findBlockByLineNumber(linesToFormat.at(i));
-                        int blockPos     = block.position();
-                        highlightCursor.setPosition(blockPos);
-
-                        if (!highlightCursor.isNull()) {
-                            highlightCursor.select(QTextCursor::LineUnderCursor);
-                            highlightCursor.mergeCharFormat(colorFormat);
-                        }
-                    }
-                } else {
-                    highlightCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-                    highlightCursor.mergeCharFormat(colorFormat);
-                }
-            }
-        }
-    };
-
-    disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-               this,                  SLOT(  contentsChange(int,int,int)));
-
-    // apply or clear savedSelection lines if any
-    if (savedSelection.size()) {
-        QVector<int> validSelection;
-        bool clearSelection = !editorSelection;
-        if (clearSelection) {
-            validSelection = savedSelection;
-            savedSelection.clear();
-        } else {
-            for (int line : savedSelection)
-                if (!lines.contains(line))
-                    validSelection.append(line);
-            if (validSelection.size())
-                savedSelection = validSelection;
-        }
-        highlightLines(validSelection, clearSelection);
+    QVector<LineHighlight> selection;
+    for (int line : lines) {
+        LineHighlight lh(line, clear ? HIGHLIGHT_CLEAR : HIGHLIGHT_SELECTION);
+        selection.append(lh);
     }
 
-    // apply highlighting, toggle on from editor or selection from viewer
-    highlightLines(lines, clear);
+    highlightSelectedLines(selection, false/*isEditor*/);
+}
 
-    connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-            this,                  SLOT(  contentsChange(int,int,int)));
+void EditWindow::highlightSelectedLines(QVector<LineHighlight> &lines, bool isEditor)
+{
+    if (isReadOnly)
+        return;
+
+    auto formatSelection = [this, &isEditor] (QVector<LineHighlight> &lines)
+    {
+        QList<QTextEdit::ExtraSelection> extraSelections;
+
+        auto lineColor = [&isEditor] (LineHighlightType action)
+        {
+            QColor color = QColor(Qt::transparent);
+
+            switch(action)
+            {
+                case HIGHLIGHT_CLEAR:
+                    if (Preferences::displayTheme == THEME_DARK)
+                        color = QColor(Preferences::themeColors[THEME_DARK_PALETTE_BASE]);
+                    else
+                        color = QColor(Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
+                    break;
+                case HIGHLIGHT_SELECTION:
+                    if (Preferences::displayTheme == THEME_DARK) {
+                        color = QColor(isEditor ?
+                                           Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT] :
+                                           Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT]);
+                        color.setAlpha(100); // make 60% transparent
+                    } else {
+                        color = QColor(isEditor ?
+                                           Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT] :
+                                           Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT]);
+                    }
+                    color = color.lighter(180);
+                    break;
+                case HIGHLIGHT_CURRENT:
+                    if (Preferences::displayTheme == THEME_DARK)
+                        color = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
+                    else
+                        color = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
+                    break;
+                default:
+                    break;
+            }
+            return color;
+        };
+
+        if (lines.size()) {
+            for (int i = 0; i < lines.size(); ++i) {
+                QTextCursor cursor(_textEdit->document()->findBlockByNumber(lines.at(i).line));
+                if (!cursor.isNull()) {
+                    QTextEdit::ExtraSelection selection;
+                    selection.format.setBackground(lineColor(lines.at(i).action));
+                    if (lines.at(i).action == HIGHLIGHT_CURRENT) {
+                        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+                        cursor.clearSelection();
+                    } else {
+                        cursor.select(QTextCursor::LineUnderCursor);
+                    }
+                    selection.cursor = cursor;
+                    extraSelections.append(selection);
+                }
+            }
+        } else {
+            for (int i = stepLines.top; i <= stepLines.bottom; ++i) {
+                QTextCursor cursor(_textEdit->document()->findBlockByNumber(i));
+                if (!cursor.isNull()) {
+                    cursor.select(QTextCursor::LineUnderCursor);
+                    const QString selection = cursor.selection().toPlainText();
+                    if (selection.startsWith("1 ")) {
+                        QTextEdit::ExtraSelection selection;
+                        selection.format.setBackground(lineColor(HIGHLIGHT_CLEAR));
+                        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+                        selection.cursor = cursor;
+                        selection.cursor.clearSelection();
+                        extraSelections.append(selection);
+                    }
+                }
+            }
+        }
+        _textEdit->setExtraSelections(extraSelections);
+    };
+
+    // clear or highlight saved selection - if any
+    QVector<LineHighlight> selection;
+    QVector<int> savedLines;
+
+    if (savedSelection.size()) {
+        if (!isEditor) {
+            // copy saved selection lines and clear saved selection
+            savedLines = savedSelection;
+            savedSelection.clear();
+        } else {
+            auto foundInLines = [&lines] (int line) {
+                for (const LineHighlight &lh : lines)
+                    if (line == lh.line)
+                        return true;
+                return false;
+            };
+            // add saved selection lines to selected lines
+            for (int savedLine : savedSelection)
+                if (!foundInLines(savedLine))
+                   savedLines.append(savedLine);
+        }
+    }
+
+    // add selected lines to lines
+    if (savedLines.size()) {
+        for (int line : savedLines) {
+            LineHighlight lh(line, isEditor ? HIGHLIGHT_SELECTION : HIGHLIGHT_CLEAR);
+            selection.append(lh);
+        }
+
+        // merge lines into selection
+        for (LineHighlight lh : lines)
+            selection.append(lh);
+
+        // sort selection
+        auto lt = [] (const LineHighlight &lh1, const LineHighlight &lh2) { return lh1.line < lh2.line; };
+        std::sort(selection.begin(), selection.end(),lt);
+    }
+
+    // format selection
+    formatSelection(savedLines.size() ? selection : lines);
 }
 
 void EditWindow::highlightCurrentLine()
 {
-    QList<QTextEdit::ExtraSelection> extraSelections;
+    QTextCursor cursor = _textEdit->textCursor();
 
     if (isIncludeFile) {
-        QTextCursor cursor = _textEdit->textCursor();
         cursor.select(QTextCursor::LineUnderCursor);
-        QString selection = cursor.selection().toPlainText();
-        if (selection.startsWith("1"))
+        const QString selection = cursor.selection().toPlainText();
+        if (selection.startsWith("1 "))
             showLineType = LINE_ERROR;
         else
             showLineType = LINE_HIGHLIGHT;
+    } else if (Preferences::editorHighlightLines && !isReadOnly) {
+        const int line = cursor.blockNumber();
+        if (savedSelection.size() && line >= stepLines.top && line <= stepLines.bottom)
+            return;
     }
 
-    if (!_textEdit->isReadOnly()) {
-        QTextEdit::ExtraSelection selection;
+    QList<QTextEdit::ExtraSelection> extraSelections;
 
-        QColor lineColor;
-        if (Preferences::displayTheme == THEME_DARK) {
-            if (showLineType == LINE_ERROR)
-                lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_ERROR]).lighter(180);
-            else
-                lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
-        } else {
-            if (showLineType == LINE_ERROR)
-                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_ERROR]);
-            else
-                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
-        }
+    QTextEdit::ExtraSelection selection;
 
-        selection.format.setBackground(lineColor);
-        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        selection.cursor = _textEdit->textCursor();
-        selection.cursor.clearSelection();
-        extraSelections.append(selection);
+    QColor lineColor;
+    if (Preferences::displayTheme == THEME_DARK) {
+        if (showLineType == LINE_ERROR)
+            lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_ERROR]).lighter(180);
+        else
+            lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
+    } else {
+        if (showLineType == LINE_ERROR)
+            lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_ERROR]);
+        else
+            lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
     }
 
-     _textEdit->setExtraSelections(extraSelections);
+    selection.format.setBackground(lineColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selection.cursor = cursor;
+    selection.cursor.clearSelection();
+    extraSelections.append(selection);
+
+    _textEdit->setExtraSelections(extraSelections);
 }
 
 void EditWindow::topOfDocument(){
@@ -2105,7 +2148,7 @@ void EditWindow::updateDisabled(bool state)
     }
 }
 
-void EditWindow::setSubFiles(const QStringList& subFiles){
+void EditWindow::setSubFiles(const QStringList& subFiles) {
     _subFileList = subFiles;
     _subFileListPending = false;
 }
@@ -2217,7 +2260,6 @@ void EditWindow::displayFile(
   } // Detached Editor
   else
   {
-
     if (!ldrawFile)
         return;
 
@@ -2725,16 +2767,7 @@ void EditWindow::loadPagedContent()
                               .arg(lpub->elapsedTime(t.elapsed())));
 #endif
 
-   disconnect(_textEdit->document(),SIGNAL(contentsChange(int,int,int)),
-              this,                 SLOT(  contentsChange(int,int,int)));
-   disconnect(_textEdit,            SIGNAL(cursorPositionChanged()),
-              this,                 SLOT(  highlightCurrentLine()));
-   disconnect(_textEdit,            SIGNAL(textChanged()),
-              this,                 SLOT(  enableSave()));
-   disconnect(_textEdit,            SIGNAL(textChanged()),
-              _textEdit,            SLOT(  updateLineNumberArea()));
-   disconnect(_textEdit,            SIGNAL(cursorPositionChanged()),
-              _textEdit,            SLOT(  updateLineNumberArea()));
+   const bool wasBlocked = _textEdit->blockSignals(true);
 
    verticalScrollBar->setMaximum(verticalScrollBar->maximum() + nextIndx);
 
@@ -2769,16 +2802,7 @@ void EditWindow::loadPagedContent()
 
    _pageIndx = maxPageIndx;
 
-   connect(_textEdit->document(),   SIGNAL(contentsChange(int,int,int)),
-           this,                    SLOT(  contentsChange(int,int,int)));
-   connect(_textEdit,               SIGNAL(cursorPositionChanged()),
-           this,                    SLOT(  highlightCurrentLine()));
-   connect(_textEdit,               SIGNAL(textChanged()),
-           this,                    SLOT(  enableSave()));
-   connect(_textEdit,               SIGNAL(textChanged()),
-           _textEdit,               SLOT(  updateLineNumberArea()));
-   connect(_textEdit,               SIGNAL(cursorPositionChanged()),
-           _textEdit,               SLOT(  updateLineNumberArea()));
+   _textEdit->blockSignals(wasBlocked);
 
    _contentLoading = false;
 }
@@ -2822,9 +2846,6 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     connect(this, SIGNAL(updateRequest(QRect, int)),
             this, SLOT(  updateLineNumberArea(QRect, int)));
 
-    //connect(this, SIGNAL(selectionChanged()),
-    //        this, SLOT(highlightCurrentLine()));
-
     updateLineNumberAreaWidth(0);
 
     QAction * actionComplete = new QAction(tr("Snippet Complete"), this);
@@ -2834,8 +2855,6 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     connect(actionComplete, SIGNAL(triggered()),
             this,           SLOT(  performCompletion()));
     this->addAction(actionComplete);
-
-    //highlightCurrentLine();
 }
 
 // Snippet commands
@@ -3129,7 +3148,7 @@ void TextEditor::mouseReleaseEvent(QMouseEvent *event)
 {
   QWidget::mouseReleaseEvent(event);
   if (event->button() == Qt::LeftButton) {
-     emit updateSelectedParts();
+     emit highlightSelectedParts();
   }
 }
 

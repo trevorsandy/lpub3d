@@ -3523,7 +3523,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
  *
  ********************************************/
 
-void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
+void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source) {
     if (! exporting()) {
         if (!lpub->currentStep || (source == EDITOR_LINE && !indexes.size()))
             return;
@@ -3538,25 +3538,30 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         QString modelName = "undefined";
 
 #ifdef QT_DEBUG_MODE
-        if (source > VIEWER_NONE) {
-            const QString SourceNames[] =
-            {
-                "VIEWER_NONE", // 0
-                "VIEWER_LINE", // 1
-                "VIEWER_MOD",  // 2
-                "VIEWER_DEL",  // 3
-                "VIEWER_SEL",  // 4
-                "VIEWER_CLR"   // 5
-            };
-            QString _Message = tr("Selection Source: %1 (%2)").arg(SourceNames[source], QString::number(source));
-            emit gui->messageSig(LOG_DEBUG, _Message);
-        }
+        const QString SourceNames[] =
+        {
+            "EDITOR_CLR",  // -2
+            "NOT_FOUND",   // -1 OUT_OF_BOUNDS, NEW_PART, NEW_MODEL
+            "VIEWER_NONE", //  0 EDITOR_LINE
+            "VIEWER_LINE", //  1
+            "VIEWER_MOD",  //  2
+            "VIEWER_DEL",  //  3
+            "VIEWER_SEL",  //  4
+            "VIEWER_CLR"   //  5
+        };
+        QString fromSource;
+        if (!fromViewer && source == EDITOR_LINE)
+            fromSource = "EDITOR_LINE";
+        else
+            fromSource = SourceNames[source+2];
+        emit gui->messageSig(LOG_DEBUG, QString("Selection Source: %1 (%2)")
+                                                .arg(fromSource, QString::number(source)));
 #endif
         if (indexes.size()) {
             modelName  = getSubmodelName(indexes.at(0).modelIndex);
             modelIndex = indexes.at(0).modelIndex;
         } else if (!lpub->viewerStepKey.isEmpty()) {
-            modelName  = lpub->currentStep->topOfStep().modelName;//getSubmodelName(QString(lpub->viewerStepKey[0]).toInt());
+            modelName  = lpub->currentStep->topOfStep().modelName;
             modelIndex = getSubmodelIndex(modelName);
         }
 
@@ -3566,7 +3571,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                             .arg(lpub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
 #endif
 
-        for (int i = 0; i < indexes.size() && source < VIEWER_CLR; ++i) {
+        for (int i = 0; i < indexes.size() && source < VIEWER_CLR && source > EDITOR_CLR; ++i) {
             lineIndex = indexes.at(i).lineIndex;
             // New part lines are added in createBuildModification() routine
             if (lineIndex != NEW_PART) {

@@ -152,7 +152,7 @@ private slots:
     void showAllCharacters();
     void mpdComboChanged(int index);
     void showContextMenu(const QPoint &pt);
-    void updateSelectedParts();
+    void highlightSelectedParts();
     void preferences();
     void verticalScrollValueChanged(int action);
     void setVisualEditorVisible(bool);
@@ -177,15 +177,14 @@ protected:
     void createOpenWithActions();
     void readSettings();
     void writeSettings();
-    void clearEditorHighlightLines();
+    void clearEditorHighlightLines(bool = false);
     void openFolderSelect(const QString &absoluteFilePath);
-    void highlightSelectedLines(QVector<int> &lines, bool clear, bool editor);
+    void highlightSelectedLines(QVector<LineHighlight> &lines, bool isEditor);
     void openWithProgramAndArgs(QString &program, QStringList &arguments);
     void updateOpenWithActions();
     void disableActions();
     void enableActions();
 
-    int getSelectedLineNumber(QTextCursor &cursor) const;
     int setCurrentStep(const int lineNumber, bool inScope = true);
 
     bool setValidPartLine();
@@ -207,11 +206,9 @@ protected:
     StepLines          stepLines;
     QVector<int>       savedSelection;
     QStringList        programEntries;
-    QString            stepKey;
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;
     int                showLineType;
-    int                stepKeyType;
     int                showLineNumber;
     int                fileOrderIndex;
     QAtomicInt         lineCount;
@@ -309,7 +306,7 @@ public:
     FindReplace *popUp;
 
 signals:
-    void updateSelectedParts();
+    void highlightSelectedParts();
     void triggerPreviewLine();
     void undoKeySequence();
     void redoKeySequence();
