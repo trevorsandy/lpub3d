@@ -1392,9 +1392,9 @@ public slots:
   void fadeStepSetup();
   void highlightStepSetup();
   void generateCoverPages();
+  void ldrawColorPartsLoad();
   void insertFinalModelStep();
   void deleteFinalModelStep();
-  void ldrawColorPartsLoad();
 
   void pageSetup();
   void assemSetup();

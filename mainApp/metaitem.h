@@ -477,6 +477,7 @@ public:
     *
     *-----------------------------------------------------------------------------*/
 
+  bool currentFile();
   bool okToInsertCoverPage();
   bool okToAppendCoverPage();
   int  displayModelStepExists();
@@ -495,7 +496,8 @@ public:
   bool appendPage(QString &meta, Where &where, int = 0/*option*/);
   void insertFinalModelStep(int atLine);
   void insertDisplayModelStep(Where &here, bool = false);
-  bool deleteFinalModelStep();
+  bool deleteFinalModelStep(bool = false);
+  void insertFinalModelStep();
 
   void insertPicture();
   void insertText();

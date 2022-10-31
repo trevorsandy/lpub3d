@@ -3114,17 +3114,14 @@ void MetaItem::insertBOM()
 
 int MetaItem::displayModelStepExists()
 {
-  Rc rc;
-  QString line;
-  Meta meta;
+  int lastLine = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
   Where saveHere;                                            //initialize saveHere
-  Where here(lpub->ldrawFile.topLevelFile(),0);
-  here.lineNumber = lpub->ldrawFile.size(here.modelName);        //start at bottom of file
+  Where here(lpub->ldrawFile.topLevelFile(), lastLine);      //start at bottom of file
   here--;                                                    //adjust lineNumber for zero-start index
 
   for ( ; here >= 0; here--) {                               //scan from bottom to top of file
-    line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-    rc = meta.parse(line,here);
+    QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
+    Rc rc = lpub->meta.parse(line,here);
     if (rc == StepRc || rc == RotStepRc) {                   //if Step, save the line number to perform insert (place before) later
         saveHere = here.lineNumber;
     } else if (
@@ -3135,10 +3132,10 @@ int MetaItem::displayModelStepExists()
       return here.lineNumber;                                //reached a valid boundary so so return line number
     } else if (rc == InsertFinalModelRc ) {                  //check for inserted final model
       emit gui->messageSig(LOG_INFO,QString("Final model detected at line: %1").arg(here.lineNumber));
-      return DM_FINAL_MODEL;
+      return here.lineNumber/*DM_FINAL_MODEL*/;
     } else if (rc == InsertDisplayModelRc ) {                //check for inserted display model
       emit gui->messageSig(LOG_INFO,QString("Display model detected at line: %1").arg(here.lineNumber));
-      return DM_DISPLAY_MODEL;
+      return here.lineNumber/*DM_DISPLAY_MODEL*/;
     } else {                                                 //else keep walking back until 1_5 line
       QStringList args;
       split(line,args);
@@ -3149,7 +3146,7 @@ int MetaItem::displayModelStepExists()
 #endif
           return saveHere.lineNumber;
         } else {
-          int lastLine = lpub->ldrawFile.size(here.modelName);
+          lastLine = lpub->ldrawFile.size(here.modelName);
           if (here.lineNumber >= lastLine - 1)               //check if 'here' is at the end of the file
             lastLine = here.lineNumber;                      //at last line so return line number
 #ifdef QT_DEBUG_MODE
@@ -3160,7 +3157,7 @@ int MetaItem::displayModelStepExists()
       }
     }
   }
-  return DM_FINAL_MODEL;
+  return lastLine;
 }
 
 void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
@@ -3202,6 +3199,29 @@ void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
     endMacro();
 }
 
+void MetaItem::insertFinalModelStep()
+{
+  if (currentFile() && Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
+
+    const int lineNumber = displayModelStepExists();
+
+    if (lineNumber) {
+
+      Where here(lpub->ldrawFile.topLevelFile(),lineNumber);
+      QString line = lpub->ldrawFile.readLine(here.modelName, here.lineNumber);
+
+      Rc rc = lpub->meta.parse(line,here);
+
+      if (rc != InsertFinalModelRc && rc != InsertDisplayModelRc) {
+
+        emit lpub->messageSig(LOG_INFO, QString("Inserting fade/highlight final model step at line %1...").arg(lineNumber));
+
+        insertFinalModelStep(lineNumber);
+      }
+    }
+  }
+}
+
 void MetaItem::insertFinalModelStep(int atLine)
 {
   // final model already installed so exit.
@@ -3215,36 +3235,46 @@ void MetaItem::insertFinalModelStep(int atLine)
   // insert final model
   insertDisplayModelStep(here, true /*Final Model*/);
 
-  emit gui->messageSig(LOG_INFO, QString("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
+  emit gui->messageSig(LOG_INFO, QMessageBox::tr("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
 }
 
-bool MetaItem::deleteFinalModelStep(){
+bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
 
-  int maxLines;
+  int lineNumber = 0;
+  int maxLines = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
+
+  if (currentFile() && (fromPreferences || Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep))) {
+
+    lineNumber = displayModelStepExists();
+
+    if (lineNumber && lineNumber != maxLines) {
+
+      emit lpub->messageSig(LOG_INFO, QString("Removing fade/highlight final model step at line %1...").arg(lineNumber));
+
+    } else return false;
+
+  } else return false;
+
   QStringList tokens;
-  Where here(lpub->ldrawFile.topLevelFile(),0);                             //start at bottom of file
-  here.lineNumber = maxLines = lpub->ldrawFile.size(here.modelName);
-  here--;
+  Where here(lpub->ldrawFile.topLevelFile(),lineNumber);         // start at final model line //start at bottom of file
 
   Where finalModelLine;
   Where stopAtThisLine;
   Where walk;
 
-  Rc rc;
-  Meta meta;
   bool foundFinalModel = false;
 
   for (; here >=0; here--) {                                    //scan backwards until Model
     QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-    rc = meta.parse(line,here);
+    Rc rc = lpub->meta.parse(line,here);
     if (rc == InsertFinalModelRc) {                             //model found so locate position of page insert line
       foundFinalModel  = true;
       finalModelLine   = here;                                  //mark line as starting point for deletion
       if ((here + 1) < maxLines) {                              //check if line before is page insert and adjust starting point for deletion
         walk = here + 1;
         QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-        Rc rc = meta.parse(line,walk);
-        if (rc == InsertPageRc) {
+        Rc rc1 = lpub->meta.parse(line,walk);
+        if (rc1 == InsertPageRc) {
           finalModelLine = walk;                                //adjust starting point for deletion
         }
       }
@@ -3261,11 +3291,11 @@ bool MetaItem::deleteFinalModelStep(){
           else
               break;
       }
+
       stopAtThisLine = here;
       walk = finalModelLine;
 
       beginMacro("deleteFinalModelStep");
-
       for (; walk >= stopAtThisLine.lineNumber ; walk-- ){       //remove lines between model insert and model insert step
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Deleting inserted final model line %1 in '%2' [%3]")
@@ -3273,8 +3303,8 @@ bool MetaItem::deleteFinalModelStep(){
 #endif
         deleteMeta(walk);
       }
-
       endMacro();
+      return foundFinalModel;
 
     } else {
       split(line,tokens);
@@ -5276,6 +5306,11 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
     } else {
         replaceMeta(itemTopOf, metaString);
     }
+}
+
+bool MetaItem::currentFile()
+{
+    return !gui->getCurFile().isEmpty();
 }
 
 void MetaItem::setLoadingFileFlag(bool b) const

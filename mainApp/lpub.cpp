@@ -262,22 +262,11 @@ void Gui::generateCoverPages()
 }
 
 void Gui::insertFinalModelStep() {
-  if (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
-    int modelStatus = lpub->mi.displayModelStepExists();
-    if (modelStatus != DM_FINAL_MODEL && modelStatus != DM_DISPLAY_MODEL) {
-      emit messageSig(LOG_INFO, QString("Inserting fade/highlight final model step..."));
-      lpub->mi.insertFinalModelStep(modelStatus);
-    }
-  }
+  lpub->mi.insertFinalModelStep();
 }
 
 void Gui::deleteFinalModelStep() {
-  if (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
-    if (lpub->mi.displayModelStepExists() == DM_FINAL_MODEL) {
-      emit messageSig(LOG_INFO, QString("Removing fade/highlight final model step..."));
-      lpub->mi.deleteFinalModelStep();
-    }
-  }
+  lpub->mi.deleteFinalModelStep();
 }
 
 //void Gui::insertCoverPage()
