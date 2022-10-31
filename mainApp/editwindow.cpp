@@ -2446,23 +2446,23 @@ void EditWindow::waitingSpinnerStart()
     if (_waitingSpinner) {
         if (_waitingSpinner->isSpinning())
             _waitingSpinner->stop();
-    } else {
-        QColor spinnerColor(
-               Preferences::displayTheme == THEME_DARK ?
-               Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
-        _waitingSpinner = new WaitingSpinnerWidget(this);
-        _waitingSpinner->setColor(QColor(spinnerColor));
-        _waitingSpinner->setRoundness(70.0);
-        _waitingSpinner->setMinimumTrailOpacity(15.0);
-        _waitingSpinner->setTrailFadePercentage(70.0);
-        _waitingSpinner->setNumberOfLines(12);
-        _waitingSpinner->setLineLength(10);
-        _waitingSpinner->setLineWidth(5);
-        _waitingSpinner->setInnerRadius(10);
-        _waitingSpinner->setRevolutionsPerSecond(1);
-        _waitingSpinner->setTextColor(_waitingSpinner->color());
-        _waitingSpinner->setText(tr("Loading..."));
     }
+
+    QColor spinnerColor(
+           Preferences::displayTheme == THEME_DARK ?
+           Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
+    _waitingSpinner = new WaitingSpinnerWidget(this);
+    _waitingSpinner->setColor(QColor(spinnerColor));
+    _waitingSpinner->setRoundness(70.0);
+    _waitingSpinner->setMinimumTrailOpacity(15.0);
+    _waitingSpinner->setTrailFadePercentage(70.0);
+    _waitingSpinner->setNumberOfLines(12);
+    _waitingSpinner->setLineLength(10);
+    _waitingSpinner->setLineWidth(5);
+    _waitingSpinner->setInnerRadius(10);
+    _waitingSpinner->setRevolutionsPerSecond(1);
+    _waitingSpinner->setTextColor(_waitingSpinner->color());
+    _waitingSpinner->setText(tr("Loading..."));
     _waitingSpinner->start();
 
 #ifdef QT_DEBUG_MODE
