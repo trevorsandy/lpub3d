@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2917 (31 10 2022 03:34:48)
+LPub3D 2.4.4.1.2918 (31 10 2022 03:36:28)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,8 +34,8 @@ Revisions:
 - Fix - Build mods don't work properly #520
 - Fix - BUILD_MOD in Multipart model not working as expected #591
 - Fix - Command Editor Issues - multiple issues #564, #565, #566
-- Fix - ROTATE_ICON SIZE does not change size in step group or callout #560
 - Fix - Error occurred while downloading archive library #568
+- Fix - Fixed-size circle and square annotation value not centered #579
 - Fix - Generating PDF crashes LPub on a certain page #557
 - Fix - Inconsistent page count on completion of export #596
 - Fix - Incorrect insert text on step group page #605
@@ -45,6 +45,7 @@ Revisions:
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
 - Fix - Remove Group meta doesn't work #569
+- Fix - ROTATE_ICON SIZE does not change size in step group or callout #560
 - Fix - Update build from source scripts #585
 - Issue - Submodel preview image is empty for some submodels #558
 

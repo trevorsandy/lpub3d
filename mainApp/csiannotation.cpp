@@ -294,7 +294,9 @@ void CsiAnnotationItem::addGraphicsItems(
         setTextCursor(cursor);
 
         // adjust text horizontal alignment
-        textOffset.setX(double(border.valuePixels().thickness)/2);
+        textOffset.setX(border.valueInches().thickness/2);
+        // adjust text vertical alignment
+        textOffset.setY((styleRect.height()-textRect.height())/2);
     }
     size[XX] = int(styleRect.size().width());
     size[YY] = int(styleRect.size().height());
@@ -339,23 +341,17 @@ void CsiAnnotationItem::addGraphicsItems(
 void CsiAnnotationItem::scaleDownFont() {
   qreal widthRatio  = styleRect.width()  / textRect.width();
   qreal heightRatio = styleRect.height() / textRect.height();
-  if (widthRatio < 1 || heightRatio < 1)
-  {
+  if (widthRatio < 1 || heightRatio < 1) {
     QFont font = this->QGraphicsTextItem::font();
     qreal saveFontSizeF = font.pointSizeF();
     font.setPointSizeF(font.pointSizeF()*qMin(widthRatio,heightRatio));
     setFont(font);
     textRect = QRectF(0,0,document()->size().width(),document()->size().height());
-    if (textRect.width()  > styleRect.width()  ||
-        textRect.height() > styleRect.height())
-    {
+
+    if (textRect.width() > styleRect.width() || textRect.height() > styleRect.height()) {
       scaleDownFont();
     }
-    else
-    {
-      // adjust text vertical alignment
-      textOffset.setY((styleRect.height()-textRect.height())/2);
-    }
+
     emit gui->messageSig(LOG_INFO,QMessageBox::tr("CSI annotation font size was adjusted from %1 to %2.")
                                                   .arg(saveFontSizeF).arg(font.pointSizeF()));
   }
@@ -427,27 +423,25 @@ void CsiAnnotationItem::setAnnotationStyle(QPainter *painter)
 
     painter->setPen(borderPen);
 
-    // set icon border dimensions
-    qreal rx = double(borderData.radius);
-    qreal ry = double(borderData.radius);
-    qreal dx = size[XX];
-    qreal dy = size[YY];
-
-    if (int(dx) && int(dy)) {
-        if (dx > dy) {
-            rx *= dy;
-            rx /= dx;
-        } else {
-            ry *= dx;
-            ry /= dy;
-        }
-    }
-
     // draw icon shape - background and border
     int bt = int(borderData.thickness);
     QRectF bgRect(bt/2,bt/2,size[XX]-bt,size[YY]-bt);
     if (style.value() != AnnotationStyle::circle) {
         if (borderData.type == BorderData::BdrRound) {
+            // set icon border dimensions
+            qreal rx = double(borderData.radius);
+            qreal ry = double(borderData.radius);
+            qreal dx = size[XX];
+            qreal dy = size[YY];
+            if (int(dx) && int(dy)) {
+                if (dx > dy) {
+                    rx *= dy;
+                    rx /= dx;
+                } else {
+                    ry *= dx;
+                    ry /= dy;
+                }
+            }
             painter->drawRoundRect(bgRect,int(rx),int(ry));
         } else {
             painter->drawRect(bgRect);
