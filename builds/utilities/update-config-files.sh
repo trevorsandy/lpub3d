@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Oct 12, 2022
+# Last Update October 31, 2022
 # Copyright (C) 2016 - 2022 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -27,6 +27,7 @@ LP3D_BUILD_DATE=`date "+%Y%m%d"`
 LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
 LP3D_GIT_DEPTH=150000
+LP3D_CMD_COUNT=0
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
@@ -96,7 +97,7 @@ then
     if [ "${CI}" = "true" ];
     then
         # Update refs and tags and populate committer email, name
-        Info "1. update git tags and capture version info using git queries"
+        Info "$((LP3D_CMD_COUNT += 1)). update git tags and capture version info using git queries"
         if [ ! -d ".git" ]; then
             Info "ERROR - No .git folder in $PWD"
         fi
@@ -112,7 +113,7 @@ then
         lp3d_git_ver_author="$(git log -1 ${LP3D_COMMIT} --pretty="%aN")" >/dev/null 2>&1
         lp3d_git_ver_committer_email="$(git log -1 ${LP3D_COMMIT} --pretty="%cE")" >/dev/null 2>&1
     else
-        Info "1. capture version info using git queries"
+        Info "$((LP3D_CMD_COUNT += 1)). capture version info using git queries"
     fi
     lp3d_git_build_type=`git tag --points-at HEAD` >/dev/null 2>&1                     # continuous build check
     lp3d_git_ver_tag_long=`git describe --tags --match v* --long` >/dev/null 2>&1
@@ -132,7 +133,8 @@ then
     if test -n "$lp3d_git_ver_committer_email"; then LP3D_COMMITTER_EMAIL=${lp3d_git_ver_committer_email}; else LP3D_COMMITTER_EMAIL=undefined; fi
     LP3D_VERSION_INFO=${lp3d_version_}" "${lp3d_revision_}" "${lp3d_git_ver_commit_count}" "${lp3d_git_ver_sha_hash_short}
 else
-    Info "1. capture version info using input arguments"
+    Info "$((LP3D_CMD_COUNT += 1)). capture version info using input arguments"
+    LP3D_BUILD_TYPE="Default"
     if test -n "$8"; then lp3d_suffix=$8; fi
     LP3D_VERSION_INFO=$2" "$3" "$4" "$5" "$6" "$7
 fi
@@ -222,7 +224,7 @@ EOF
 
 if [ -f "${FILE}" ];
 then
-    Info "1. create version.info    - insert version info   [$FILE]";
+    Info "$((LP3D_CMD_COUNT += 1)). create version.info    - insert version info   [$FILE]";
 else
     Info "   ERROR - version info   - file not found";
 fi
@@ -234,7 +236,7 @@ if [ -z "${_EXPORT_CONFIG_ONLY_}" ]; then # _EXPORT_CONFIG_ONLY_ not set, Update
 if [ "$LP3D_OS" = Darwin ]
 then
     [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-    Info "2. update the Info.plist with version major, version minor, build and git sha hash" || :
+    Info "$((LP3D_CMD_COUNT += 1)). update the Info.plist with version major, version minor, build and git sha hash" || :
     if test -n "$LP3D_VER_SUFFIX"; then
         LP3D_BUNDLE_VERSION=${LP3D_VER_BUILD}-${LP3D_VER_SUFFIX}
     fi
@@ -252,7 +254,7 @@ fi
 
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "3. update RELEASE_NOTES   - build version         [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). update RELEASE_NOTES   - build version         [$FILE]" || :
 LineToReplace=19
 StringToReplace="      <h4><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h4>"
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -269,7 +271,7 @@ fi
 
 FILE="$LP3D_PWD/docs/README.txt"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "4. update README.txt      - build version         [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). update README.txt      - build version         [$FILE]" || :
 LineToReplace=1                  # LPub3D 2.0.21.59.126...
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -285,7 +287,7 @@ fi
 
 FILE="$(realpath $LP3D_PWD/../README.md)"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "5. update README.md       - update last edit date [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). update README.md       - update last edit date [$FILE]" || :
 LastEdit="\[gh-maintained-url\]: https:\/\/github.com\/trevorsandy\/lpub3d\/projects\/1 \"Last edited ${LP3D_LAST_EDIT}\""
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -301,7 +303,7 @@ fi
 
 FILE="$LP3D_PWD/lpub3d.desktop"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "6. update desktop config  - add version suffix    [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). update desktop config  - add version suffix    [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -316,7 +318,7 @@ fi
 
 FILE="$LP3D_PWD/lpub3d.appdata.xml"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "7. update appdata info    - add version and date  [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). update appdata info    - update binary version [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -332,6 +334,7 @@ then
         cd "${LP3D_CALL_DIR}"
         if [ "${last_commit_sha}" = "${last_annotated_tag_sha}" ]
         then
+            Info "$((LP3D_CMD_COUNT += 1)). update appdata info    - add version and date  [$FILE]" || :
             sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" \
                    -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes<\/p>/}" "${FILE}"
         fi
@@ -342,7 +345,7 @@ fi
 
 FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "8. update man page        - add version suffix    [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). update man page        - add version suffix    [$FILE]" || :
 FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*` >/dev/null 2>&1
 if [ -f ${FILE_TEMPLATE} ];
 then
@@ -366,7 +369,7 @@ fi
 
 FILE="$LP3D_CONFIG_DIR/debian/changelog"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "9. create changelog       - add version and date  [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)). create changelog       - add version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     rm ${FILE}
@@ -381,7 +384,7 @@ EOF
 
 FILE="$LP3D_CONFIG_DIR/PKGBUILD"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "10.update PKGBUILD        - add version           [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update PKGBUILD        - add version           [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -398,7 +401,7 @@ fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "11.update ${LPUB3D}.spec  - add version and date  [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update ${LPUB3D}.spec  - add version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -418,7 +421,7 @@ fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "12.update ${LPUB3D}.dsc   - add version           [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update ${LPUB3D}.dsc   - add version           [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -433,7 +436,7 @@ fi
 
 FILE="$(realpath $LP3D_PWD/../builds/linux/obs/debian/rules)"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "13.update debian rules    - add version suffix    [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update debian rules    - add version suffix    [$FILE]" || :
 LP3D_OS_ARCH=32 && \
 [[ "$(uname -m)" = "x86_64" || "$(uname -m)" = "aarch64" ]] && \
 LP3D_OS_ARCH=64
@@ -453,7 +456,7 @@ fi
 
 FILE="$(realpath $LP3D_PWD/../gitversion.pri)"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "14.update gitversion pri  - add version and revision [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update gitversion pri  - add version and revision [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if test -n "$LP3D_VER_SUFFIX"; then
@@ -477,16 +480,17 @@ fi
 
 FILE="$(realpath $LP3D_PWD/../mainApp/extras/LPub3D_Npp_UDL.xml)"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "15.update Notepad-pp UDL  - update version and date  [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update Notepad-pp UDL  - update version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
+    LP3D_UDL_APP_VERSION="${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}"
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
-                  -e "s/^;; Last Update.:.*/;; Last Update.: $(date "+%B %d, %Y")/g" "${FILE}"
+        sed -i "" -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_UDL_APP_VERSION}/" \
+                  -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_CHANGE_DATE_LONG}/g" "${FILE}"
     else
-        sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
-               -e "s/^;; Last Update.:.*/;; Last Update.: $(date "+%B %d, %Y")/g" "${FILE}"
+        sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_UDL_APP_VERSION}/" \
+               -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_CHANGE_DATE_LONG}/g" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: Jun 03, 2022
+# Last Update: October 31, 2022
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -62,6 +62,8 @@
 #   - REL: Release build, do not delete build tag [Default=no]
 #   - AUTO: Do not prompt to continue after pausing at options status [Default=null]
 #   - NOSTAT: Do not show the options_status [Default=null]
+#   - MIN_RN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES [Default=null]
+#   - MAX_RN_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES [Default=null]
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
@@ -74,16 +76,20 @@
 # Move from lpub3d-ci to lpub3d-obs repository
 # $ env TO_REPO=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.4.5 ./ci_cutover.sh
 #
-# Move from lpub3d-ci to lpub3dnext repository
-# Step 1 of 2 Change lpub3dnext branch to CUTOVER_CI
-# Step 2 of 2 Final commit version change [execute once]
-# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.4.5 REL=1 CFG=yes ./ci_cutover.sh
-# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.4.5 ./ci_cutover.sh
+# Move from lpub3d-ci to lpub3d repository
+# Step 1 of 2 Production commits [execute for each commit except the final one for version change]
+# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 ./ci_cutover.sh
+# Step 2 of 2 Final production commit version change [execute once]
+# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 REL=1 MAX_RN_LINE_DEL=<number> MIN_RN_LINE_DEL=<number>  CFG=yes ./ci_cutover.sh
+#
+# Step 1 of 2 Maintenance commits [Change lpub3dnext branch to CUTOVER_CI and execute for each commit except the final one for version change]
+# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 ./ci_cutover.sh
+# Step 2 of 2 Final maintenance commit version change [execute once]
+# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 REL=1 CFG=yes ./ci_cutover.sh
 #
 # Move from lpub3dnext to lpub3d-ci repository
-# Step 1 of 2 Change lpub3d-ci branch to NEXT_IN
-# Step 2 of 2 Maintenance commits [execute for each commit except the final one for version change]
-# $ env TO_REPO=lpub3d-ci FROM_REPO=lpub3dnext MSG="64d28eb6-301019 Add PLI parts..." TAG=v2.4.5 CFG=yes ./ci_cutover.sh
+# Step 1 of 1 Maintenance commits [Change lpub3d-ci branch to NEXT_IN and execute for each commit except the final one for version change]
+# $ env TO_REPO=lpub3d-ci FROM_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
@@ -100,7 +106,11 @@ TO_REPO_NAME=${TO_REPO:-lpub3d}
 FROM_REPO_NAME=${FROM_REPO:-lpub3d-ci}
 REPO_BASE_URL=${REPO_BASE:-https://github.com/trevorsandy}
 RELEASE_COMMIT=${REL:-}
+MIN_RN_LN_DEL=${MIN_RN_LINE_DEL:-}
+MAX_RN_LN_DEL=${MAX_RN_LINE_DEL:-}
 COMMIT_MSG=${MSG:-"LPub3D ${TAG}"}
+
+COMMAND_COUNT=0
 
 # Set increment revision except for final release commit
 [ -n "$RELEASE_COMMIT" ] && INC_REVISION=no || :
@@ -201,10 +211,10 @@ fi
 
 # Clone new instance of lpub3d if old instance does not exist or was removed
 if [ ! -d "$TO_REPO_NAME" ]; then
-    echo "01-Creating new $TO_REPO_NAME instance..."
+    echo "$((COMMAND_COUNT += 1))-Creating new $TO_REPO_NAME instance..."
     git clone ${REPO_BASE_URL}/${TO_REPO_NAME}.git
 else
-    echo "01-Updating existing $TO_REPO_NAME instance..."
+    echo "$((COMMAND_COUNT += 1))-Updating existing $TO_REPO_NAME instance..."
 fi
 
 # Verify we are in the right source repository branch
@@ -237,14 +247,7 @@ fi
 
 # Prepare destination repository branch
 cd $HOME_DIR/$TO_REPO_NAME
-LP3D_GIT_VER_TAG_LONG=`git describe --tags --match v* --long`
-LP3D_GIT_VER_COMMIT_COUNT=`git rev-list --count HEAD`
-LP3D_GIT_VER_TAG_SHORT=`git describe --tags --match v* --abbrev=0`
-LP3D_VER_TMP=${LP3D_GIT_VER_TAG_LONG#*-}      # remove everything before and including "-"
-LP3D_REVISION_=${LP3D_VER_TMP%-*}             # remove everything after and including "-"
-LP3D_VERSION_=${LP3D_GIT_VER_TAG_SHORT/v/}    # replace v with ""
-LP3D_APP_VERSION="${LP3D_VERSION_}.${LP3D_REVISION_}.${LP3D_GIT_VER_COMMIT_COUNT}"
-LP3D_LAST_UPDATE=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
+
 if [ -n "$(git status -s)" ]; then
     echo "--INFO - Stashing uncommitted $TO_REPO_NAME changes..."
     git stash
@@ -277,10 +280,10 @@ else
     exit 1
 fi
 
-echo "02-Remove current $TO_REPO_NAME content except .git folder and .user file..."
+echo "$((COMMAND_COUNT += 1))-Remove current $TO_REPO_NAME content except .git folder and .user file..."
 find . -not -name '*.user' -not -path "./.git/*" -type f -exec rm -rf {} +
 
-echo "03-Copy $FROM_REPO_NAME content to $TO_REPO_NAME except .git folder and .user file..." && cd ../$FROM_REPO_NAME
+echo "$((COMMAND_COUNT += 1))-Copy $FROM_REPO_NAME content to $TO_REPO_NAME except .git folder and .user file..." && cd ../$FROM_REPO_NAME
 find . -not -name '*.log*' \
        -not -name '*.user' \
        -not -name '*Makefile*' \
@@ -302,7 +305,7 @@ find . -not -name '*.log*' \
        -type f -exec cp -f --parents -t ../$TO_REPO_NAME {} +
 cp -f ./.gitignore ../$TO_REPO_NAME
 
-echo "04-Rename all files with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..." && cd ../$TO_REPO_NAME
+echo "$((COMMAND_COUNT += 1))-Rename all files with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..." && cd ../$TO_REPO_NAME
 for file in $(find . -type f -name "*${FROM_REPO_NAME}*" \
               -not -path "./.git*" \
               -not -path "./lclib*" \
@@ -342,7 +345,7 @@ if [[ -f $projFileName && -n $newProjFileName && ($projFileName != $newProjFileN
     [ -f "$newProjFileName" ] && echo "  -file changed: $newProjFileName." || echo "  -ERROR - $newProjFileName was not renamed."
 fi
 
-echo "05-Change occurrences of '$FROM_REPO_NAME' to '$TO_REPO_NAME' in files..."
+echo "$((COMMAND_COUNT += 1))-Change occurrences of '$FROM_REPO_NAME' to '$TO_REPO_NAME' in files..."
 for file in $(find . -type f \
               -not -path "./.git/*" \
               -not -path "./mainApp/images*" \
@@ -382,13 +385,13 @@ sed -e "s,clone_folder: c:${backslash}projects${backslash}$FROM_REPO_NAME,clone_
     -e "s,^   prerelease: true,   prerelease: ${prerelease}," -i $file \
 && echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
 
-echo "06-Update 'dry-run' flag in sfdeploy.sh"
+echo "$((COMMAND_COUNT += 1))-Update 'dry-run' flag in sfdeploy.sh"
 file=builds/utilities/ci/sfdeploy.sh
 if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/'--dry-run '//g -i $file; echo "  -file $file updated.";
 else sed s/'rsync --recursive'/'rsync --dry-run --recursive'/g -i $file; echo "  -NOTICE - $TO_REPO_NAME not production, 'dry-run' preserved in $file.";
 fi
 
-echo "07-Update README.md Title"
+echo "$((COMMAND_COUNT += 1))-Update README.md Title"
 file=README.md
 if   [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Dev, CI, and Test'//g -i $file; echo "  -file $file updated.";
 elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo "  -file $file updated.";
@@ -399,13 +402,22 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s
 else echo "  -ERROR - file $file NOT updated.";
 fi
 
-echo "08-Create pre-commit githook..."
+if [[ -n "$RELEASE_COMMIT" && -n "$MAX_RN_LN_DEL" && -n "$MIN_RN_LN_DEL" ]]; then
+  echo "$((COMMAND_COUNT += 1))-Truncate RELEASE_NOTES.html, remove lines ${MIN_RN_LN_DEL} to ${MAX_RN_LN_DEL}."
+  file=mainApp/docs/RELEASE_NOTES.html
+  sed "${MIN_RN_LN_DEL},${MAX_RN_LN_DEL}d" -i $file \
+  && echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
+  unset MIN_RN_LN_DEL
+  unset MAX_RN_LN_DEL
+fi
+
+echo "$((COMMAND_COUNT += 1))-Create pre-commit githook..."
 cat << pbEOF >.git/hooks/pre-commit
 #!/bin/sh
 ./builds/utilities/hooks/pre-commit   # location of pre-commit script in source repository
 pbEOF
 
-echo "09-Replace leading spaces with tabs for LCLib files"
+echo "$((COMMAND_COUNT += 1))-Replace leading spaces with tabs for LCLib files"
 counter=0
 for file in $(find ./lclib -type f -name '*.h' -o -name '*.cpp')
 do
@@ -417,7 +429,7 @@ do
 done
 echo "  -lclib files updated: $counter"
 
-echo "10-Replace leading spaces with tabs for LDVQt files"
+echo "$((COMMAND_COUNT += 1))-Replace leading spaces with tabs for LDVQt files"
 counter=0
 for file in $(find ./ldvlib/LDVQt -type f -name '*.h' -o -name '*.cpp' \
               -not -path "./ldvlib/LDVQt/include*" \
@@ -432,13 +444,13 @@ do
 done
 echo "  -ldvlib files updated: $counter"
 
-echo "11-Change *.sh line endings from CRLF to LF"
+echo "$((COMMAND_COUNT += 1))-Change *.sh line endings from CRLF to LF"
 for file in $(find . -type f -name *.sh)
 do
     dos2unix -k $file &>> $LOG
 done
 
-echo "12-Change other line endings from CRLF to LF"
+echo "$((COMMAND_COUNT += 1))-Change other line endings from CRLF to LF"
 dos2unix -k builds/utilities/hooks/* &>> $LOG
 dos2unix -k builds/utilities/create-dmg &>> $LOG
 dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
@@ -454,35 +466,26 @@ dos2unix -k builds/linux/obs/debian/* &>> $LOG
 dos2unix -k builds/linux/obs/debian/source/* &>> $LOG
 dos2unix -k builds/macx/* &>> $LOG
 
-echo "13-Change Windows script line endings from LF to CRLF"
+echo "$((COMMAND_COUNT += 1))-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/* &>> $LOG
 unix2dos -k builds/utilities/CreateRenderers.bat &>> $LOG
 unix2dos -k builds/utilities/update-config-files.bat &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/* &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/Include/* &>> $LOG
 
-lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
-
-echo "14-update LPub3D_Npp_UDL.xml"
-file=mainApp/extras/LPub3D_Npp_UDL.xml
-sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
-       -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_LAST_UPDATE}/" "${file}" \
-&& echo "  -file $file updated." \
-|| echo "  -ERROR - file $file NOT updated."
-
-echo "15-Add new files..."
+echo "$((COMMAND_COUNT += 1))-Add new files..."
 rm -f *.log
 git add . &>> $LOG
 git reset HEAD 'mainApp/docs/README.txt'
 
 # Create tag here to enable commit files configuration
-echo "16-Create local tag in $TO_REPO_NAME repository"
+echo "$((COMMAND_COUNT += 1))-Create local tag in $TO_REPO_NAME repository"
 if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
 git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
 git_tag="$(git tag -l -n $LOCAL_TAG)" && \
 [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
 
-echo "17-Stage and commit changed files..."
+echo "$((COMMAND_COUNT += 1))-Stage and commit changed files..."
 cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
@@ -492,18 +495,18 @@ env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "
 
 if [ -n "$RELEASE_COMMIT" ]; then
    # Delete and recreate new version tag to place tag on last commit
-   echo "18-Recreate local tag $LOCAL_TAG in $TO_REPO_NAME repository"
+   echo "$((COMMAND_COUNT += 1))-Recreate local tag $LOCAL_TAG in $TO_REPO_NAME repository"
    if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
    git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
    git_tag="$(git tag -l -n $LOCAL_TAG)" && \
    [ -n "$git_tag" ] && echo "  -git tag $git_tag recreated."
 else
    # Delete version tag after commit as we are not releasing at this commit
-   echo "18-Delete local tag $LOCAL_TAG in $TO_REPO_NAME repository"
+   echo "$((COMMAND_COUNT += 1))-Delete local tag $LOCAL_TAG in $TO_REPO_NAME repository"
    git tag --delete $LOCAL_TAG
 fi
 
-echo "19-Restore repository checked out state..."
+echo "$((COMMAND_COUNT += 1))-Restore repository checked out state..."
 # Checkout master in source [in TO_REPO_NAME]
 if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     CHECKOUT_MASTER=1
@@ -523,7 +526,7 @@ fi
 if [ -z "$NEXT_CUT" ]
 then
     if [ -n "$RELEASE_COMMIT" ]; then
-        echo "20-Create new version tag in $FROM_REPO_NAME repository"
+        echo "$((COMMAND_COUNT += 1))-Create new version tag in $FROM_REPO_NAME repository"
         cd $HOME_DIR/$FROM_REPO_NAME
         rm -f *.log
         if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi

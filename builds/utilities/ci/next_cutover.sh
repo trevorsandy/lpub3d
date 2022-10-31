@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: Jun 06, 2022
+# Last Update: October 30, 2022
 #
 # Purpose:
 # This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -25,6 +25,9 @@
 #   - RELEASE: Create a release commit, preserve build tag, on the last commit [Default=null]
 #   - CLONE: Clone a new repository of TO_REPO at the first commit [Default=null]
 #   - CHERRYPICK: Cherry-pick commits as we process the range, otherwise use reset [Default=null]
+#   - RN_MIN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES on release commit [Default=null]
+#   - RN_MAX_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES on release commit [Default=null]
+#   - STOP_AT_COMMIT: Stop at this number of commits instead of at the end of the generated list [Default=0]
 #
 # Execution Steps:
 #
@@ -33,16 +36,17 @@
 # Identify starting commit
 # Execute:
 #   $ chmod +x next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=f61eb11778e1fb206f ./next_cutover.sh
+#   $ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.5 BRANCH=CUTOVER_CI RELEASE=1 RN_MAX_LINE_DEL=<number> RN_MIN_LINE_DEL=<number> COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
 #
 # NOTE: Set RELEASE=1 and TAG=<new tag> if this cutover will end with a new version tag
 #       You can set TAG=<current tag> (or no tag at all) if this cutover will not end in a new tagged version
 #
 # Command Examples:
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 STOP_AT_COMMIT=3 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
 #
 # Useful DEBUG Commands:
 # $ COMMIT_LIST_FILE="../cutover_commits.lst"
@@ -81,6 +85,9 @@ START_BRANCH=${BRANCH:-CUTOVER_CI}
 RELEASE_BUILD=${RELEASE:-}
 FRESH_BUILD=${CLONE:-}
 USE_CHERRY_PICK=${CHERRYPICK:-}
+MIN_RN_LINE_DEL=${RN_MIN_LINE_DEL:-}
+MAX_RN_LINE_DEL=${RN_MAX_LINE_DEL:-}
+STOP_AT_COMMIT_COUNT=${STOP_AT_COMMIT:0}
 COMMIT_COUNT=0
 INC_REV=0
 COUNTER=0
@@ -91,12 +98,22 @@ HOLD_VER_TAG=${VER_TAG}
 # Set VER_TAG to current tag, VER_TAG will revert to HOLD_VER_TAG on last commit
 VER_TAG="$(cd $HOME_DIR/$FROM_REPO_NAME ; git describe --abbrev=0)"
 
-FinishElapsedTime() {
+ElapsedTime()
+{
+  # Elapsed execution time
+  local ELAPSED="Elapsed cutover time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  echo "$ELAPSED"
+}
+
+FinishElapsedTime()
+{
   [ -z "$1" ] && ACTION=Finished || ACTION=$1
+
   ACTION="$ACTION - $COUNTER of $COMMIT_COUNT commits processed"
 
   # Elapsed execution time
-  ELAPSED="Elapsed cutover time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  local ELAPSED=$(ElapsedTime)
+
   echo
   echo "------------------------------------------------------------------------------"
   echo "-4 Cutover $ACTION - see $LOG for details."
@@ -131,10 +148,14 @@ function options_status
     echo "--CURRENT_TAG.....$VER_TAG"
     echo "--FROM_REPO_NAME..$FROM_REPO_NAME"
     echo "--TO_REPO_NAME....$TO_REPO_NAME"
-    echo "--START_BRANCH....$START_BRANCH"    
+    echo "--START_BRANCH....$START_BRANCH"
     [ -n "$START_COMMIT" ] && \
     echo "--START_COMMIT....$START_COMMIT $(cd $FROM_REPO_NAME; get_elided_string "$(git show -s --format=%s $START_COMMIT)")" || \
     echo "--START_COMMIT....Not Specified!"
+    [[ $STOP_AT_COMMIT_COUNT > 0 ]] && \
+    echo "--STOP_AT_COMMIT..$STOP_AT_COMMIT_COUNT" || true
+    [[ -n "$MAX_RN_LINE_DEL" && -n "$MIN_RN_LINE_DEL" ]] && \
+    echo "--RELEASE_NOTES...TRUNCATE FROM LINE $MIN_RN_LINE_DEL TO $MAX_RN_LINE_DEL" || true
     [ -n "$FRESH_BUILD" ] && echo "--FRESH_BUILD.....YES" || true
     [ -n "$USE_CHERRY_PICK" ] && echo "--USE_CHERRY_PICK.YES" || true
     [ -n "$DO_DRY_RUN" ] && echo "--DO_DRY_RUN......YES" || true
@@ -207,6 +228,10 @@ COUNTER=0
 COMMIT_LIST=$(git log master --reverse --pretty=%H $START_COMMIT..HEAD)
 COMMIT_COUNT=$(get_commit_count $COMMIT_LIST)
 echo && echo "-3 $COMMIT_COUNT cutover commits to be processed..."
+if [[ $STOP_AT_COMMIT_COUNT > 0 && $STOP_AT_COMMIT_COUNT < $COMMIT_COUNT ]]
+then
+  COMMIT_COUNT=$STOP_AT_COMMIT_COUNT
+fi
 
 # Confirmation
 echo
@@ -257,11 +282,12 @@ do
         fi
         echo "-- Return code was $RETURN_CODE - exiting!"
         FinishElapsedTime "Terminated"
+        cd $HOME_DIR
         exit 1
     fi
 
     cd $HOME_DIR
-    
+
     if [[ $COUNT > 1 ]]
     then
         INC_REV=yes
@@ -280,11 +306,19 @@ do
             VER_TAG=$HOLD_VER_TAG
             CREATE_LOCAL_TAG=1
         fi
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD ./ci_cutover.sh /dev/null 2>&1
-            if [ -n "${CREATE_LOCAL_TAG}" ]; then
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL ./ci_cutover.sh /dev/null 2>&1
+            if [[ $STOP_AT_COMMIT_COUNT > 0 ]]
+            then
+                echo && echo "   -Stop at commit count $STOP_AT_COMMIT_COUNT: $commit"
+                FinishElapsedTime
+                cd $HOME_DIR
+                exit 1
+            fi
+            if [ -n "${CREATE_LOCAL_TAG}" ]
+            then
                 echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
                 cd $HOME_DIR/$FROM_REPO_NAME
                 rm -f *.log
@@ -310,7 +344,11 @@ do
         echo "-- Return code was $RETURN_CODE - exiting!"
         echo "-- Last successful commit was $LAST_COMMIT"
         FinishElapsedTime "Terminated"
+        cd $HOME_DIR
         exit 1
+    elif [[ "${FINAL_COMMIT}" != "true" ]]
+    then
+        echo "   -$(ElapsedTime)"
     fi
 
     # Increment counter
@@ -320,7 +358,7 @@ do
     LAST_COMMIT=$commit
 done
 
-cd $HOME_DIR;
+cd $HOME_DIR
 
 # Elapsed execution time
 FinishElapsedTime
