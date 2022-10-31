@@ -167,7 +167,7 @@ contains(USE_CPP11,NO) {
 message("~~~ Building with Qt Version: $$QT_VERSION ~~~")
 
 contains(QT_VERSION, ^5\\..*) {
-  unix:!macx {  
+  unix:!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.8) {
       QMAKE_CXXFLAGS += -std=c++11
@@ -475,7 +475,7 @@ update_check: DEFINES += DISABLE_UPDATE_CHECK
 
 #~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HEADERS += \    
+HEADERS += \
     aboutdialog.h \
     annotations.h \
     application.h \
@@ -490,6 +490,16 @@ HEADERS += \
     calloutpointeritem.h \
     color.h \
     commands.h \
+    commands/command.h \
+    commands/commandcollection.h \
+    commands/commandcompleter.h \
+    commands/commandlistmodel.h \
+    commands/commandsdialog.h \
+    commands/commandstablemodel.h \
+    commands/commandstextedit.h \
+    commands/filterlineedit.h \
+    commands/jsoncommandtranslator.h \
+    commands/jsoncommandtranslatorfactory.h \
     commands/snippets/jsonsnippettranslator.h \
     commands/snippets/jsonsnippettranslatorfactory.h \
     commands/snippets/snippet.h \
@@ -605,6 +615,14 @@ SOURCES += \
     calloutglobals.cpp \
     calloutpointeritem.cpp \
     color.cpp \
+    commands/commandcollection.cpp \
+    commands/commandcompleter.cpp \
+    commands/commandlistmodel.cpp \
+    commands/commandsdialog.cpp \
+    commands/commandstablemodel.cpp \
+    commands/commandstextedit.cpp \
+    commands/filterlineedit.cpp \
+    commands/jsoncommandtranslator.cpp \
     commands/snippets/jsonsnippettranslator.cpp \
     commands/snippets/snippetcollection.cpp \
     commands/snippets/snippetcompleter.cpp \

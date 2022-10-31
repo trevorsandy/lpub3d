@@ -1,7 +1,7 @@
 #ifndef LPUB_QTCOMPAT_H
 #define LPUB_QTCOMPAT_H
 
-// These overrides are taken from lpub_qt_compat.h
+// These overrides are taken from quazip_qt_compat.h
 // Credit: Sergey A. Tachenov, https://github.com/stachenov/quazip
 
 #include <QtCore/Qt>

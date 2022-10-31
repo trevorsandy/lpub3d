@@ -36,6 +36,7 @@
 #include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QFileSystemWatcher>
+#include <atomic>
 
 #include "name.h"
 
@@ -138,6 +139,7 @@ private slots:
 #ifdef QT_DEBUG_MODE
     void previewViewerFile();
 #endif
+    void commandsDialog();
     void bottomOfDocument();
     void showAllCharacters();
     void mpdComboChanged(int index);
@@ -217,6 +219,7 @@ protected:
     QScrollBar *verticalScrollBar;
     QList<QAction *> openWithActList;
 
+    QAction  *commandsDialogAct;
     QAction  *openWithToolbarAct;
     QAction  *editModelFileAct;   
     QAction  *previewLineAct;

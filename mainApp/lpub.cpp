@@ -50,6 +50,9 @@
 #include "step.h"
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
+#include <commands/command.h>
+#include <commands/commandcollection.h>
+#include <commands/commandsdialog.h>
 
 #include "pairdialog.h"
 #include "aboutdialog.h"
@@ -348,7 +351,15 @@ void Gui::updateClipboard()
             return;
         }
 
-        QGuiApplication::clipboard()->setText(data, QClipboard::Clipboard);
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(data, QClipboard::Clipboard);
+
+        if (clipboard->supportsSelection())
+            clipboard->setText(data, QClipboard::Selection);
+
+#if defined(Q_OS_LINUX)
+        QThread::msleep(1); //workaround for copied text not being available...
+#endif
 
         QString efn =QFileInfo(data).fileName();
         // Text elided to 20 chars
@@ -3717,7 +3728,10 @@ void Gui::initialize()
   createToolBars();
   createStatusBar();
   createDockWindows();
+
   if (Preferences::modeGUI) {
+      if (lpub)
+          lpub->loadCommandCollection();
       initiaizeVisualEditor();
       toggleLCStatusBar(true);
   }
@@ -4678,51 +4692,138 @@ void Gui::onlineManual()
     QDesktopServices::openUrl(QUrl(VER_LPUB3D_ONLINE_MANUAL_URL));
 }
 
+void Gui::commandsDialog()
+{
+    CommandsDialog::showCommandsDialog();
+}
+
+QString MetaCommandsFileDialog::getCommandsSaveFileName(
+        bool &exportDirections,
+        QWidget *parent,
+        const QString &caption,
+        const QString &dir,
+        const QString &filter,
+        QString *selectedFilter,
+        Options options)
+{
+    QSettings Settings;
+    QString const settingsKey("ExportCommandDescriptions");
+
+    bool exportDirectionsChecked = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,settingsKey)))
+       exportDirectionsChecked =  Settings.value(QString("%1/%2").arg(SETTINGS,settingsKey)).toBool();
+
+    QEventLoop loop;
+    QUrl selectedUrl;
+    const QUrl dirUrl = QUrl::fromLocalFile(dir);
+    const QStringList supportedSchemes;
+
+    QSharedPointer<MetaCommandsFileDialog> fileDialog(new MetaCommandsFileDialog(parent, caption, dirUrl.toLocalFile(), filter));
+    fileDialog->setFileMode(AnyFile);
+    fileDialog->setOptions(options);
+    fileDialog->setSupportedSchemes(supportedSchemes);
+    fileDialog->setAcceptMode(AcceptSave);
+    fileDialog->setOption(DontUseNativeDialog, true);
+    if (selectedFilter && !selectedFilter->isEmpty()) {
+        fileDialog->selectNameFilter(*selectedFilter);
+    }
+
+    QSharedPointer<QCheckBox> exportDescriptionsBox(new QCheckBox(fileDialog.data()));
+    exportDescriptionsBox->setChecked(exportDirectionsChecked);
+    exportDescriptionsBox->setText(tr("Export user-defined command descriptions"));
+
+    QSharedPointer<QGridLayout> layout(qobject_cast<QGridLayout *>(fileDialog->layout()));
+    layout->addWidget(exportDescriptionsBox.data(), 4, 1);
+
+    fileDialog->connect(fileDialog.data(), &QFileDialog::accepted, [&] {
+        if (selectedFilter) {
+            *selectedFilter = fileDialog->selectedNameFilter();
+        }
+
+        exportDirectionsChecked = exportDescriptionsBox->isChecked();
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,settingsKey), exportDirectionsChecked);
+
+        exportDirections = exportDirectionsChecked;
+        selectedUrl = fileDialog->selectedUrls().value(0);
+    });
+
+    fileDialog->connect(fileDialog.data(), &QFileDialog::finished,
+                  [&](int) { loop.exit(); });
+
+    fileDialog->open();
+
+    // Non blocking wait
+    loop.exec(QEventLoop::DialogExec);
+
+    return selectedUrl.toLocalFile();
+}
+
 void Gui::exportMetaCommands()
 {
-  Meta meta;
-  QStringList doc;
-  static const QString fmtDateTime("MM-dd-yyyy hh:mm:ss");
+  static const QString defaultFileName(QDir::currentPath() + QDir::separator() + VER_PRODUCTNAME_STR + "_Metacommands.txt");
 
-  QString fileName = QFileDialog::getSaveFileName(
-    this,
-    tr("Metacommands Save File Name"),
-    QDir::currentPath() + "/metacommands.txt",
-    tr("txt (*.txt)"));
+  bool withDescriptions = false;
+  QString fileName = MetaCommandsFileDialog::getCommandsSaveFileName(
+              withDescriptions,
+              this,
+              tr("Meta Commands Save File Name (*.txt):"),
+              defaultFileName,
+              tr("txt (*.txt);; all(*.*)"));
 
-  if (fileName == "") {
+  if (fileName.isEmpty())
     return;
+
+  QString result;
+  if (!lpub->exportMetaCommands(fileName, result, withDescriptions))
+      return;
+
+  if (!Preferences::modeGUI)
+      return;
+
+  //display completion message
+  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+  QMessageBoxResizable box;
+  box.setWindowIcon(QIcon());
+  box.setIconPixmap (_icon);
+  box.setTextFormat (Qt::RichText);
+  box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
+  box.setDefaultButton   (QMessageBox::Yes);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  box.setWindowTitle(tr ("Export Meta Commands"));
+
+  QString text = QString("<b> " + result + " </b>");
+  QString info = tr ("Do you want to open this document ?\n\n%1")
+                     .arg(QDir::toNativeSeparators(fileName));
+
+  box.setText (text);
+  box.setInformativeText (info);
+
+  if (box.exec() == QMessageBox::Yes) {
+    QString CommandPath = fileName;
+    QProcess *Process = new QProcess(this);
+    Process->setWorkingDirectory(QFileInfo(fileName).absolutePath() + QDir::separator());
+
+#ifdef Q_OS_WIN
+    Process->setNativeArguments(CommandPath);
+    if (Preferences::usingNPP) {
+        const QStringList arguments = QStringList() << CommandPath << QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
+        Process->startDetached(Preferences::systemEditor, arguments);
+    } else
+        QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+    Process->execute(CommandPath);
+    Process->waitForFinished();
+
+    QProcess::ExitStatus Status = Process->exitStatus();
+
+    if (Status != 0) {  // look for error
+      QErrorMessage *m = new QErrorMessage(this);
+      m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
+    }
+#endif
+  } else {
+      emit messageSig(LOG_INFO_STATUS, result);
   }
-  meta.doc(doc);
-
-  QFile file(fileName);
-  if (!file.open(QFile::WriteOnly | QFile::Text)) {
-    emit messageSig(LOG_ERROR, QString("Cannot write file %1:\n%2.")
-                    .arg(fileName)
-                    .arg(file.errorString()));
-    return;
-  }
-
-  QTextStream out(&file);
-
-  doc.prepend(QString());
-  doc.prepend(QString("%1 %2 - Generated on %3")
-                       .arg(VER_PRODUCTNAME_STR)
-                       .arg(QFileInfo(fileName).completeBaseName())
-                       .arg(QDateTime::currentDateTime().toString(fmtDateTime)));
-  doc.append(QString());
-  doc.append(QString("End of file."));
-  int n = 0;
-  for (int i = 0; i < doc.size(); i++) {
-    QString number;
-    if (QString(doc[i]).startsWith('0'))
-        number = QString("%1. ").arg(++n,3,10,QChar('0'));
-    else
-        number = QString();
-    out << number << doc[i] << lpub_endl;
-  }
-
-  file.close();
 }
 
 void Gui::createOpenWithActions(int maxPrograms)
@@ -5531,7 +5632,12 @@ void Gui::createActions()
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
     // End Jaco's code
-
+    
+    commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
+    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions - Ctrl+K"));
+    commandsDialogAct->setShortcut(tr("Ctrl+K"));
+    connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
+    
     exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands to File"), this);
     exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
     connect(exportMetaCommandsAct, SIGNAL(triggered()), this, SLOT(exportMetaCommands()));
@@ -6016,6 +6122,7 @@ void Gui::createMenus()
     // Begin Jaco's code
     helpMenu->addAction(onlineManualAct);
     // End Jaco's code
+    helpMenu->addAction(commandsDialogAct);
     helpMenu->addAction(exportMetaCommandsAct);
     helpMenu->addSeparator();
     // About Editor

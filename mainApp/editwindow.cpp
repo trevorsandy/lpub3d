@@ -73,6 +73,7 @@
 #include "pieceinf.h"
 
 #include <jsonfile.h>
+#include <commands/commandsdialog.h>
 #include <commands/snippets/jsonsnippettranslatorfactory.h>
 #include <commands/snippets/snippetcollection.h>
 #include <commands/snippets/snippetcompleter.h>
@@ -165,6 +166,11 @@ EditWindow::~EditWindow()
         cmdModEditor = nullptr;
     else
         cmdEditor = nullptr;
+}
+
+void EditWindow::commandsDialog()
+{
+    CommandsDialog::showCommandsDialog();
 }
 
 void EditWindow::gotoLine()
@@ -604,6 +610,11 @@ void EditWindow::createActions()
     copyFileNameToClipboardAct->setShortcut(tr("Alt+Shift+0"));
     copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard - Alt+Shift+0"));
     connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
+
+    commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
+    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions - Ctrl+K"));
+    commandsDialogAct->setShortcut(tr("Ctrl+K"));
+    connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
 
     openWithToolbarAct = new QAction(QIcon(":/resources/openwith.png"), tr("Open With..."), this);
     openWithToolbarAct->setStatusTip(tr("Open model file with selected application"));
@@ -1062,11 +1073,13 @@ void EditWindow::showContextMenu(const QPoint &pt)
             }
         }
 
+        menu->addSeparator();
+        QMenu *toolsMenu = new QMenu(tr("Tools..."), this);
+        toolsMenu->setIcon(QIcon(":/resources/tools.png"));
+        menu->addMenu(toolsMenu);
+        toolsMenu->addAction(commandsDialogAct);
+
         if (setValidPartLine()) {
-            menu->addSeparator();
-            QMenu *toolsMenu = new QMenu(tr("Tools..."), this);
-            toolsMenu->setIcon(QIcon(":/resources/tools.png"));
-            menu->addMenu(toolsMenu);
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
             toolsMenu->addAction(substitutePartAct);

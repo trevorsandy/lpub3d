@@ -454,7 +454,7 @@ enum ThemeColorType {
     THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_CONTROL,      // "#9421A6"
     THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_DESCRIPTION,  // "#AA0000"
 
-    THEME_DEFAULT_LINE_SELECT,                               // "AA0000"
+    THEME_DEFAULT_LINE_SELECT,                               // "#AA0000"
     THEME_DEFAULT_LINE_HIGHLIGHT,                            // "#CCCCFF"
     THEME_DEFAULT_LINE_ERROR,                                // "#FFCCCC"
     THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT,              // "#00FFFF"
@@ -633,6 +633,7 @@ enum ThemeColorType {
 #define MAINWINDOW                             "MainWindow"
 #define PARMSWINDOW                            "ParmsWindow"
 #define EDITWINDOW                             "EditWindow"
+#define COMMANDSWINDOW                         "CommandsWindow"
 #define FINDREPLACEWINDOW                      "FindReplaceWindow"
 #define UPDATES                                "Updates"
 #define LOGGING                                "Logging"

@@ -1811,6 +1811,7 @@ private slots:
 
     // End Jaco's code
 
+    void commandsDialog();
     void exportMetaCommands();
 
     void redo();
@@ -2199,6 +2200,7 @@ private:
 
   // End Jaco's code
 
+  QAction  *commandsDialogAct;
   QAction  *exportMetaCommandsAct;
   QAction  *separatorAct;
 
@@ -2238,6 +2240,24 @@ private:
     QPushButton *pushButtonMoveDown;
     QPushButton *pushButtonAddDirectory;
     QStringList excludedSearchDirs;
+};
+
+class MetaCommandsFileDialog : public QFileDialog
+{
+    Q_OBJECT
+public:
+    explicit MetaCommandsFileDialog(QWidget *parent = nullptr,
+                                    const QString &caption = QString(),
+                                    const QString &dir = QString(),
+                                    const QString &filter = QString())
+        : QFileDialog(parent, caption, dir, filter) {}
+    static QString getCommandsSaveFileName(bool &exportDirections,
+                                           QWidget *parent,
+                                           const QString &caption,
+                                           const QString &dir,
+                                           const QString &filter,
+                                           QString *selectedFilter = nullptr,
+                                           Options options = Options());
 };
 
 extern QHash<SceneObject, QString> soMap;

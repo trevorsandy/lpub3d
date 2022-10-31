@@ -30,6 +30,10 @@
 #include "lc_http.h"
 #include "project.h"
 
+#include <jsonfile.h>
+#include <commands/jsoncommandtranslatorfactory.h>
+#include <commands/commandcollection.h>
+
 LPub *lpub;
 
 QString LPub::commandlineFile;
@@ -701,6 +705,251 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
     }
 
     return keys;
+}
+
+/****************************************************************************
+ *
+ * LPub command collection load
+ *
+ ***************************************************************************/
+
+void LPub::loadCommandCollection()
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    commandCollection = new CommandCollection(this);
+    const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
+    JsonFile<Command>::load(QDir::toNativeSeparators(userDataPath + "/user-command-descriptions.json"), commandCollection);
+
+    CommandCollection *builtinCommandCollection = new CommandCollection(this);
+    JsonFile<Command>::load(QDir::toNativeSeparators(":/builtincommanddescriptions.json"), builtinCommandCollection);
+
+    QStringList commands;
+    meta.doc(commands);
+
+    QRegExp rx("^([^\\[\\(<\\\n]*)");
+    Q_FOREACH(QString command, commands) {
+        QString preamble;
+        if (command.contains(rx))
+            preamble = rx.cap(1).trimmed();
+        else {
+            logTrace() << QString("Preamble mis-match for command [%1]").arg(command);
+            continue;
+        }
+
+        if (preamble.endsWith(" FONT"))
+            command = preamble + " <\"font attributes\">";
+        else
+        if (preamble.endsWith(" FONT_COLOR"))
+            command = preamble + " <\"color name|#RRGGBB\">";
+        else
+        if (preamble.endsWith(" PRIMARY") || preamble.endsWith(" SECONDARY") || preamble.endsWith(" TERTIARY"))
+            command = preamble + " <\"Part Color\"|\"Part Category\"|\"Part Size\"|\"Part Element\"|\"No Sort\">";
+        else
+        if (preamble.endsWith(" PRIMARY_DIRECTION") || preamble.endsWith(" SECONDARY_DIRECTION") || preamble.endsWith(" TERTIARY_DIRECTION"))
+            command = preamble + " <\"Ascending\"|\"Descending\">";
+        else
+        if (preamble.endsWith(" SUBMODEL_BACKGROUND_COLOR") || preamble.endsWith(" SUBMODEL_FONT_COLOR"))
+            command = preamble + " <\"color name|#RRGGBB\"> [<\"color name|#RRGGBB\"> <\"color name|#RRGGBB\"> <\"color name|#RRGGBB\">]";
+        else
+        if (preamble.endsWith(" SUBMODEL_FONT"))
+            command = preamble + " <\"font attributes\"> [<\"font attributes\"> <\"font attributes\"> <\"font attributes\">]";
+        else
+        if (preamble.endsWith(" COLOR") && !preamble.contains(" FADE_STEP "))
+            command = preamble + " <\"color name|#RRGGBB\">";
+        else
+        if (preamble.endsWith(" FILE"))
+            command = preamble + " <\"file path\">";
+        else
+        if (preamble.endsWith(" LIGHT SHAPE"))
+            command = preamble + " <\"Undefined\"|\"Square\"|\"Disk\"|\"Rectangle\"|\"Ellipse\">";
+        else
+        if (preamble.endsWith(" LIGHT TYPE"))
+            command = preamble + " <\"Point\"|\"Sun\"|\"Spot\"|\"Area\">";
+        else
+        if (preamble.endsWith(" REMOVE NAME"))
+            command = preamble + " <LDraw part name>";
+        else
+        if (preamble.endsWith(" REMOVE PART"))
+            command = preamble + " <LDraw part name>";
+        else
+        if (preamble.endsWith(" STYLE"))
+            command = preamble + " <annotation style integer 0-4>";
+
+        Command _command;
+        if (commandCollection->contains(preamble)) {
+            _command = commandCollection->command(preamble);
+            _command.command         = command;
+            _command.modified        = Command::True;
+        } else if (builtinCommandCollection->contains(preamble)) {
+            _command = builtinCommandCollection->command(preamble);
+            _command.command         = command;
+            if (_command.modified   == Command::False)
+                _command.description = command;
+        } else {
+            _command.preamble        = preamble;
+            _command.command         = command;
+            _command.description     = command;
+        }
+        commandCollection->insert(_command);
+    }
+
+    emit messageSig(LOG_INFO, QString("Meta command collection loaded %1 of %2 commands. %3")
+                    .arg(commandCollection->count())
+                    .arg(commands.count())
+                    .arg(elapsedTime(timer.elapsed())));
+}
+
+/****************************************************************************
+ *
+ * Export LPub commands
+ *
+ ***************************************************************************/
+
+bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool descriptons)
+{
+    if (!commandCollection) {
+        result = QString("The command collection is null.");
+        emit messageSig(LOG_ERROR, result);
+        return false;
+    }
+
+    static const QLatin1String fmtDateTime("yyyy-MM-dd hh:mm:ss");
+
+    static const QLatin1String documentTitle("LPub Meta Commands");
+
+    int n = 0;
+    enum { FirstRec };
+    QStringList doc, rec;
+    for (int i = 0; i < commandCollection->count(); ++i) {
+        Command command = commandCollection->at(i);
+        rec = command.command.split("\n");
+        for (int g = 0; g < rec.size(); g++) {
+            if (g == FirstRec)
+                doc.append(QString("%1. %2").arg(++n,3,10,QChar('0')).arg(rec[g]));
+            else
+                doc.append(QString("     %1").arg(rec[g]));
+        }
+        if (descriptons && command.modified == Command::True) {
+            rec = command.description.split("\n");
+            doc.append(QString("     0 // DESCRIPTION:"));
+            for (int h = 0; h < rec.size(); h++)
+                doc.append(QString("     %1").arg(rec[h]));
+        }
+    }
+
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        emit messageSig(LOG_ERROR, QString("Cannot write file %1:\n%2.")
+                        .arg(fileName)
+                        .arg(file.errorString()));
+        return false;
+    }
+
+    QTextStream out(&file);
+
+    const QString generated = QString("%1 %2 - Generated on %3")
+            .arg(VER_PRODUCTNAME_STR)
+            .arg(documentTitle)
+            .arg(QDateTime::currentDateTime().toString(fmtDateTime));
+
+    const QString exported = QString("%1 of %2")
+            .arg(n)
+            .arg(commandCollection->count());
+
+    // header
+    doc.prepend(QString("Meta Commands:"));
+    doc.prepend(QString());
+    doc.prepend(QString());
+    doc.prepend(QString("   |  Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified."));
+    doc.prepend(QString("  \" \" Items within double quotes are \"string\" values. Strings containing space require quotes. Numeric values are not quoted."));
+    doc.prepend(QString("  [ ] Items within square brackets indicate optional meta command(s) and or value(s)."));
+    doc.prepend(QString("  < > Items within chevron (greater,less than) indicate meta command value options required to complete the command."));
+    doc.prepend(QString("  ( ) Items within curly brackets (parentheses) are built-in meta command options."));
+    doc.prepend(QString("Meta Command Symbols:"));
+    doc.prepend(QString());
+    doc.prepend(QString("---------------------------------------------------------------------------------"));
+    doc.prepend(QString());
+    doc.prepend(QString("  LPub UDL: %1assets/resources/LPub3D_Npp_UDL.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR));
+    doc.prepend(QString("  selected to enable LPub syntax highlighting."));
+    doc.prepend(QString("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
+    doc.prepend(QString("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
+    doc.prepend(QString("  LPub3D has an LPub User Defined Language (UDL) configuration file for Notepad++"));
+    doc.prepend(QString("  Best viewed with Notepad++ <https://notepad-plus-plus.org>."));
+    doc.prepend(QString());
+    doc.prepend(QString("---------------------------------------------------------------------------------"));
+    doc.prepend(QString());
+    doc.prepend(QString("  Copyright © 2022 by %1").arg(VER_PUBLISHER_STR));
+    doc.prepend(QString("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
+    doc.prepend(QString("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
+    doc.prepend(QString("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
+    doc.prepend(QString("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
+    doc.prepend(QString("  Author......: %1").arg(VER_PUBLISHER_STR));
+    doc.prepend(QString("  Name........: %1, LPub Meta Commands").arg(VER_FILEDESCRIPTION_STR));
+    doc.prepend(QString());
+    doc.prepend(generated);
+
+    // footer
+    doc.append(QString());
+    doc.append(QString("Meta Command Notes:"));
+    doc.append(QString("-    The <\"page size id\"> meta value captures paper size, e.g. A4, B4, Letter, Custom, etc..."));
+    doc.append(QString("     For custom page size use  <decimal width> <decimal height> \"Custom\""));
+    doc.append(QString("-    The SUBMODEL metas below enable font and background settings for nested submodels and callouts."));
+    doc.append(QString("-    The SUBMODEL_FONT meta is supported for up to four levels."));
+    doc.append(QString("-    The SUBMODEL_FONT_COLOR meta is supported for up to four levels."));
+    doc.append(QString("-    The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels."));
+    doc.append(QString("     Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined."));
+    doc.append(QString("-    The <stud style integer 0-7> meta value captures the 7 stud style types."));
+    doc.append(QString("     0 None"));
+    doc.append(QString("     1 Thin line logo"));
+    doc.append(QString("     2 Outline logo"));
+    doc.append(QString("     3 Sharp top logo"));
+    doc.append(QString("     4 Rounded top logo"));
+    doc.append(QString("     5 Flattened logo"));
+    doc.append(QString("     6 High contrast without logo"));
+    doc.append(QString("     7 High contrast with logo"));
+    doc.append(QString("-    The <annotation style integer 0-4> meta value captures the 4 annotation icon style types."));
+    doc.append(QString("     0 None"));
+    doc.append(QString("     1 Circle"));
+    doc.append(QString("     2 Square"));
+    doc.append(QString("     3 Rectangle"));
+    doc.append(QString("     4 LEGO element"));
+    doc.append(QString("-    The <line integer 0-5> meta value captures the 5 border line types."));
+    doc.append(QString("     0 None"));
+    doc.append(QString("     1 Solid        ----"));
+    doc.append(QString("     2 Dash         - - "));
+    doc.append(QString("     3 Dot          ...."));
+    doc.append(QString("     4 Dash dot     -.-."));
+    doc.append(QString("     5 Dash dot dot -..-"));
+    doc.append(QString("-    The <\"font attributes\"> meta value is a comma-delimited <\"string\"> of 10 attributes."));
+    doc.append(QString("     Example font attributes <\" Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 \">"));
+    doc.append(QString("     1  FamilyName - \"Arial\""));
+    doc.append(QString("     2  PointSizeF - 64 size of font, -1 if using PixelSize"));
+    doc.append(QString("     3  PixelSize  - -1 size of font, -1 if using PointSizeF"));
+    doc.append(QString("     4  StyleHint  - 255 = no style hint set, 5 = any style, 4 = system font, 0 = Helvetica, etc..."));
+    doc.append(QString("     5  Weight     - 75 = bold, 50 = normal, etc..."));
+    doc.append(QString("     6  Underline  - 0 = disabled, 1 = enabled"));
+    doc.append(QString("     7  Strikeout  - 0 = disabled, 1 = enabled"));
+    doc.append(QString("     8  StrikeOut  - 0 = disabled, 1 = enabled"));
+    doc.append(QString("     9  FixedPitch - 0 = disabled, 1 = enabled"));
+    doc.append(QString("     10 RawMode    - 0 obsolete, use default value"));
+    doc.append(QString());
+    doc.append(QString("End of file."));
+
+    // export content list
+    for (int i = 0; i < doc.size(); i++) {
+        out << doc[i] << lpub_endl;
+    }
+
+    file.close();
+
+    result = QString("Export %1 processed %2 commands.").arg(documentTitle).arg(exported);
+
+    emit messageSig(LOG_INFO, QString(result).replace(".", QString(" to %1.")
+                                                                   .arg(QDir::toNativeSeparators(fileName))));
+
+    return true;
 }
 
 /****************************************************************************

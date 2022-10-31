@@ -29,6 +29,7 @@ class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
 
+class CommandCollection;
 class SnippetCollection;
 
 enum class lcShadingMode;
@@ -88,6 +89,12 @@ public:
   void reloadCurrentPage();
   void restartApplication();
 
+  /// LPub commands collection load call
+  void loadCommandCollection();
+
+  /// Export LPub meta commands to file
+  bool exportMetaCommands(const QString &, QString &, bool = false);
+
   /// Download management calls
   void downloadFile(QString URL, QString, bool promptRedirect = false);
   void startRequest(QUrl url);
@@ -119,6 +126,9 @@ public:
 
   /// Contains MPD or all files used in model
   LDrawFile ldrawFile;
+
+  /// User-modified command description collection
+  CommandCollection *commandCollection = nullptr;
 
   /// Command snippets collection
   SnippetCollection *snippetCollection = nullptr;

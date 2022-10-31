@@ -105,7 +105,8 @@ int LPub::processCommandLine()
   bool autoEdgeColorChanged  = false;
   QString pageRange, exportOption, colourConfigFile,
           preferredRenderer, projection, message,
-          fadeStepsColour, highlightStepColour;
+          fadeStepsColour, highlightStepColour,
+          metaCommandsFile;
 
   // Parse parameters
   QStringList Arguments = Application::instance()->arguments();
@@ -259,6 +260,9 @@ int LPub::processCommandLine()
         if (ParseString(highlightStepColour, true))
             highlightStep = true;
       }
+      else
+      if (Param == QLatin1String("-emc") || Param == QLatin1String("--export-meta-commands"))
+        ParseString(metaCommandsFile, true);
       else
       if (Param == QLatin1String("-ss") || Param == QLatin1String("--stud-style"))
       {
@@ -415,6 +419,15 @@ int LPub::processCommandLine()
         Preferences::lpubPreferences();
     }
   };
+
+  int result = 0;
+
+  if (!metaCommandsFile.isEmpty()) {
+      QString ignored;
+      loadCommandCollection();
+      if (!exportMetaCommands(metaCommandsFile, ignored))
+          result = 1;
+  }
 
   if (! preferredRenderer.isEmpty()) {
      Gui::savedRendererData.renderer           = Preferences::preferredRenderer;
