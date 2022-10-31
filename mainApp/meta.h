@@ -214,6 +214,41 @@ enum Positions {
   PP_POSITIONS
 };
 
+class SubmodelStack
+{
+public:
+  QString modelName;
+  int     lineNumber;
+  int     stepNumber;
+  SubmodelStack(QString _modelName, int _lineNumber, int _stepNumber)
+  {
+    modelName = _modelName;
+    lineNumber = _lineNumber;
+    stepNumber = _stepNumber;
+  }
+  SubmodelStack()
+  {
+    modelName = "undefined";
+    lineNumber = 0;
+    stepNumber = 0;
+  }
+  SubmodelStack operator=(const SubmodelStack &rhs)
+  {
+    if (this != &rhs) {
+      modelName = rhs.modelName;
+      lineNumber = rhs.lineNumber;
+      stepNumber = rhs.stepNumber;
+    }
+    return *this;
+  }
+  SubmodelStack(const SubmodelStack &rhs)
+  {
+    modelName = rhs.modelName;
+    lineNumber = rhs.lineNumber;
+    stepNumber = rhs.stepNumber;
+  }
+};
+
 /*
  * This abstract class is the root of all meta-command parsing
  * objects.  Each parsing object knows how to initialize itself,
@@ -263,6 +298,9 @@ public:
 
   /* Document thyself */
   virtual void doc(QStringList &out, QString preamble);
+
+  /* Meta command*/
+  virtual void metaKeywords(QStringList &out, QString preamble) { out << preamble; }
 
   /* Undo a push */
 
@@ -317,6 +355,8 @@ public:
   virtual QString format(bool local, bool global, QString);
 
   virtual void doc(QStringList &out, QString preamble)  { out << preamble; }
+
+  virtual void metaKeywords(QStringList &out, QString preamble)  { out << preamble; }
 };
 
 /*
@@ -337,6 +377,7 @@ public:
   virtual Rc parse(QStringList &argv, int index, Where &here);
   virtual bool    preambleMatch(QStringList &argv, int index, QString &_preamble);
   virtual void    doc(QStringList &out, QString preamble);
+  virtual void    metaKeywords(QStringList &out, QString preamble);
   virtual void    pop();
   BranchMeta &operator= (const BranchMeta &rhs)
   {
@@ -375,6 +416,7 @@ public:
   virtual Rc parse(QStringList &argv, int index, Where &here);
   virtual QString format(bool,bool) { QString foo; return foo; }
   virtual void    doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1194,6 +1236,7 @@ public:
   QString format(bool,bool);
   QString formatOffset(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /* This class is used to parse background data */
@@ -1242,6 +1285,7 @@ public:
     }
   }
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
   virtual QString text();
 };
 
@@ -1341,6 +1385,7 @@ public:
     }
   }
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
   virtual QString text();
 };
 
@@ -1468,6 +1513,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1585,6 +1631,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1614,6 +1661,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1638,6 +1686,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1667,6 +1716,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1696,6 +1746,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1726,6 +1777,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1781,6 +1833,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1824,6 +1877,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 
@@ -1855,6 +1909,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1884,6 +1939,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1913,6 +1969,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -1942,6 +1999,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 
@@ -1962,28 +2020,10 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
-class TextMeta : public BranchMeta
-{
-public:
-  FontMeta       font;
-  StringMeta     color;
-  AlignmentMeta  alignment;
-
-  TextMeta() : BranchMeta() {}
-  TextMeta(const TextMeta &rhs) : BranchMeta(rhs)
-  {
-    font = rhs.font;
-    color = rhs.color;
-    alignment = rhs.alignment;
-    preamble = rhs.preamble;
-  }
-  virtual ~TextMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-class ArrowHeadMeta : LeafMeta
+class ArrowHeadMeta : public LeafMeta
 {
 private:
   qreal _value[2][4];
@@ -2006,6 +2046,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 class ArrowEndMeta : public LeafMeta
@@ -2025,6 +2066,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -2148,6 +2190,7 @@ public:
     }
   }
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -2192,6 +2235,7 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*
@@ -2221,9 +2265,559 @@ public:
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/* ------------------ */
+/*
+ * Scene Depth Meta
+ */
+
+class SceneObjectMeta : public LeafMeta
+{
+private:
+  SceneObjectData _value[2];
+public:
+  SceneObjectData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(SceneObjectData &value)
+  {
+    _value[pushed] = value;
+  }
+  void setItemObj(int value)
+  {
+    _value[0].itemObj = value;
+    _value[1].itemObj = value;
+  }
+  int itemObj()
+  {
+    return _value[pushed].itemObj;
+  }
+  bool isArmed()
+  {
+    return _value[pushed].armed;
+  }
+  float posX()
+  {
+    return _value[pushed].scenePos[0];
+  }
+  float posY()
+  {
+    return _value[pushed].scenePos[1];
+  }
+  SceneObjectDirection direction()
+  {
+    return _value[pushed].direction;
+  }
+  SceneObjectMeta() : LeafMeta() {}
+  SceneObjectMeta(const SceneObjectMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~SceneObjectMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop() { pushed = 0; }
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/*
+ * This class is used to parse PLI substitute
+ * commands
+ */
+
+class SubMeta : public LeafMeta
+{
+private:
+  SubData _value;
+public:
+  SubData value()
+  {
+    return _value;
+  }
+  SubMeta() : LeafMeta()
+  {
+  }
+  SubMeta(const SubMeta &rhs) : LeafMeta(rhs)
+  {
+    _value = rhs._value;
+  }
+  void clearAttributes()
+  {
+    _value.attrs.clear();
+    _value.type = 0;
+  }
+
+//  virtual ~SubMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/* This class parses PLI constraints */
+
+class ConstrainMeta : public LeafMeta
+{
+private:
+  ConstrainData _value[2];
+  ConstrainData _result;
+  bool _default;
+
+public:
+  bool isDefault()
+  {
+    return _default;
+  }
+  void resetToDefault()
+  {
+    _default = true;
+  }
+  void pop()
+  {
+    pushed = 0;
+    _default = true;
+  }
+  ConstrainData valueUnit()
+  {
+    return _value[pushed];
+  }
+  ConstrainData &value()
+  {
+    _result = _value[pushed];
+    if (_result.type == ConstrainData::PliConstrainWidth ||
+        _result.type == ConstrainData::PliConstrainHeight) {
+      _result.constraint *= resolution();
+    }
+    return _result;
+  }
+  void setValue(ConstrainData &value)
+  {
+    value.constraint /= resolution();
+    _default = false;
+    _value[pushed] = value;
+  }
+  void setValueUnit(ConstrainData &value)
+  {
+    _default = false;
+    _value[pushed] = value;
+  }
+  ConstrainMeta();
+  ConstrainMeta(const ConstrainMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+    _result   = rhs._result;
+    _default  = rhs._default;
+  }
+
+//  virtual ~ConstrainMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
 };
 
 /*------------------------*/
+
+/* This class is to parse MLCad's rotation step */
+
+class RotStepMeta : public LeafMeta
+{
+private:
+  RotStepData _value;
+public:
+  RotStepData value() const
+  {
+    return _value;
+  }
+  bool isPopulated()
+  {
+    return _value.populated;
+  }
+  void clear()
+  {
+    _value.populated = false;
+    _value.type.clear();
+    _value.rots[0] = 0;
+    _value.rots[1] = 0;
+    _value.rots[2] = 0;
+  }
+  RotStepMeta()
+  {
+    _value.type.clear();
+    _value.populated = false;
+  }
+  RotStepMeta(const RotStepMeta &rhs) : LeafMeta(rhs)
+  {
+    _value      = rhs.value();
+  }
+  void setValue(RotStepData &rhs)
+  {
+    _value.populated = rhs.rots[0] != 0.0 ||
+                       rhs.rots[1] != 0.0 ||
+                       rhs.rots[2] != 0.0 ||
+                       rhs.type    != _value.type;
+    _value.type      = rhs.type;
+    _value.rots[0]   = rhs.rots[0];
+    _value.rots[1]   = rhs.rots[1];
+    _value.rots[2]   = rhs.rots[2];
+  }
+  RotStepMeta& operator=(const RotStepMeta &rhs)
+  {
+    LeafMeta::operator=(rhs);
+    _value      = rhs.value();
+    return *this;
+  }
+
+  virtual ~RotStepMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/* This class is to parse MLCad's buffer exchange */
+
+class BuffExchgMeta : public LeafMeta
+{
+private:
+  BuffExchgData _value;
+public:
+  QString value()
+  {
+    return _value.buffer;
+  }
+  BuffExchgMeta()
+  {
+  }
+  BuffExchgMeta(const BuffExchgMeta &rhs) : LeafMeta(rhs)
+  {
+  }
+
+  virtual ~BuffExchgMeta() { }
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop() { pushed = 0; }
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/* This class is parses the buildMod action */
+
+class BuildModMeta : public LeafMeta
+{
+private:
+  BuildModData _value;
+public:
+  QString key()
+  {
+    return _value.buildModKey;
+  }
+  BuildModData value()
+  {
+    return _value;
+  }
+  void setValue(BuildModData &value)
+  {
+    _value = value;
+  }
+  BuildModMeta()
+  {
+  }
+  BuildModMeta(const BuildModMeta &rhs) : LeafMeta(rhs)
+  {
+  }
+
+//  virtual ~BuildModMeta() { }
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop() { pushed = 0; }
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/*------------------------*/
+
+class PliPartGroupMeta : public LeafMeta
+{
+private:
+  PliPartGroupData _value;
+public:
+  PliPartGroupMeta() : LeafMeta()
+  {
+  }
+  PliPartGroupMeta(const PliPartGroupMeta &rhs) : LeafMeta(rhs)
+  {
+    _value = rhs._value;
+  }
+  PliPartGroupData value()
+  {
+    return _value;
+  }
+  bool bom()
+  {
+    return _value.bom;
+  }
+  bool bomPart()
+  {
+    return _value.bPart;
+  }
+  QString key()
+  {
+    return _value.type + "_" + _value.color;
+  }
+  QPointF offset()
+  {
+    return QPointF(double(_value.offset[0]),
+                   double(_value.offset[1]));
+  }
+  void setValue(PliPartGroupData &value)
+  {
+    _value = value;
+  }
+  void setBom (bool b)
+  {
+    _value.bom = b;
+  }
+  void setBomPart(bool b)
+  {
+    _value.bPart = b;
+  }
+  void setKey(QString &_type, QString &_color){
+    _value.type  = _type;
+    _value.color = _color;
+  }
+  void setWhere(Where &here)
+  {
+    _here[0] = here;
+  }
+  void setOffset(QPointF offset)
+  {
+    _value.offset[0] += offset.x();
+    _value.offset[1] += offset.y();
+  }
+//  virtual ~PliPartGroupMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/*
+ * This class parses the CSI annotation
+ */
+ class CsiAnnotationIconMeta : public LeafMeta
+{
+private:
+  CsiAnnotationIconData _value[2];
+public:
+  CsiAnnotationIconData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(CsiAnnotationIconData &rhs)
+  {
+    _value[pushed] = rhs;
+  }
+  CsiAnnotationIconMeta();
+  CsiAnnotationIconMeta(const CsiAnnotationIconMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~CsiAnnotationIconMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+ /*------------------------*/
+
+ /*
+  * Resolution meta
+  */
+
+ class ResolutionMeta : public LeafMeta {
+ private:
+ public:
+   bool isDefault()
+   {
+     return getIsDefaultResolution();
+   }
+   ResolutionType type()
+   {
+     return resolutionType();
+   }
+   float value()
+   {
+     return resolution();
+   }
+   void setValue(float _resolution)
+   {
+     setResolution(_resolution);
+     setIsDefaultResolution(false);
+   }
+   void setValue(ResolutionType _type, float _resolution)
+   {
+     setResolutionType(_type);
+     setResolution(_resolution);
+     setIsDefaultResolution(false);
+   }
+   float ldu()
+   {
+     return 1.0/64;
+   }
+   ResolutionMeta()
+   {
+     setIsDefaultResolution(true);
+   }
+   ResolutionMeta(const ResolutionMeta &rhs) : LeafMeta(rhs)
+   {
+   }
+ //  virtual ~ResolutionMeta() {}
+   void pop() { pushed = 0; setIsDefaultResolution(true); }
+   virtual void init(BranchMeta *parent,
+                     QString name);
+   virtual Rc parse(QStringList &argv, int index, Where &here);
+           QString format(bool,bool);
+   virtual void    doc(QStringList &out, QString preamble);
+   virtual void metaKeywords(QStringList &out, QString preamble);
+ };
+
+/*
+ *
+ * This leaf is to catch fade and highlight steps booleans (TRUE or FALSE) and optional RESET flag
+ *
+ */
+
+class EnableMeta : public RcMeta {
+private:
+  bool _value[2];
+public:
+  bool value()
+  {
+    return _value[pushed];
+  }
+  void setValue(bool value)
+  {
+    _value[pushed] = value;
+  }
+  EnableMeta ()
+  {
+    _value[0] = false;
+    _value[1] = false;
+  }
+  EnableMeta(const EnableMeta &rhs) : RcMeta(rhs)
+  {
+  }
+//  virtual ~EnableMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/*------------------------*/
+
+// 0 LPUB CALLOUT BEGIN
+
+class CalloutBeginMeta : public RcMeta
+{
+
+private:
+public:
+  enum CalloutMode { Unassembled, Assembled, Rotated } mode;
+
+  CalloutMode value()
+  {
+    return mode;
+  }
+  CalloutBeginMeta() : RcMeta()
+  {
+    mode = Unassembled;
+  }
+  CalloutBeginMeta(const CalloutBeginMeta &rhs) : RcMeta(rhs)
+  {
+    mode = rhs.mode;
+  }
+
+//  virtual ~CalloutBeginMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+class FadeColorMeta : public RcMeta {
+private:
+  FadeColorData _value[2];
+public:
+  FadeColorData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(FadeColorData &value)
+  {
+    _value[pushed] = value;
+  }
+  FadeColorMeta ()
+  {
+  }
+  FadeColorMeta(const FadeColorMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~FadeColorMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+class NoStepMeta : public RcMeta
+{
+public:
+  NoStepMeta()
+  {
+  }
+//  virtual ~NoStepMeta() {}
+  virtual void init(BranchMeta *parent,
+                    const QString name,
+                    Rc _rc=OkRc);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+          QString format(bool,bool);
+  virtual void    doc(QStringList &out, QString preamble);
+};
+
+/*
+ * non-terminal meta command keywords classes
+ */
+
+class TextMeta : public BranchMeta
+{
+public:
+  FontMeta       font;
+  StringMeta     color;
+  AlignmentMeta  alignment;
+
+  TextMeta() : BranchMeta() {}
+  TextMeta(const TextMeta &rhs) : BranchMeta(rhs)
+  {
+    font = rhs.font;
+    color = rhs.color;
+    alignment = rhs.alignment;
+    preamble = rhs.preamble;
+  }
+  virtual ~TextMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
 
 class AutoEdgeColorMeta : public BranchMeta
 {
@@ -2259,60 +2853,6 @@ public:
 
   virtual ~HighContrastColorMeta() {}
   virtual void init(BranchMeta *parent, QString name);
-};
-
-/* This leaf is to catch fade and highlight steps booleans (TRUE or FALSE) and optional RESET flag*/
-
-class EnableMeta : public RcMeta {
-private:
-  bool _value[2];
-public:
-  bool value()
-  {
-    return _value[pushed];
-  }
-  void setValue(bool value)
-  {
-    _value[pushed] = value;
-  }
-  EnableMeta ()
-  {
-    _value[0] = false;
-    _value[1] = false;
-  }
-  EnableMeta(const EnableMeta &rhs) : RcMeta(rhs)
-  {
-  }
-//  virtual ~EnableMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-class FadeColorMeta : public RcMeta {
-private:
-  FadeColorData _value[2];
-public:
-  FadeColorData &value()
-  {
-    return _value[pushed];
-  }
-  void setValue(FadeColorData &value)
-  {
-    _value[pushed] = value;
-  }
-  FadeColorMeta ()
-  {
-  }
-  FadeColorMeta(const FadeColorMeta &rhs) : RcMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-  }
-//  virtual ~FadeColorMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
 };
 
 /*------------------------*/
@@ -2574,62 +3114,6 @@ class PageFooterMeta : public BranchMeta
     virtual void init(BranchMeta *parent, QString name);
 };
 
-/* ------------------ */
-/*
- * Scene Depth Meta
- */
-
-class SceneObjectMeta : public LeafMeta
-{
-private:
-  SceneObjectData _value[2];
-public:
-  SceneObjectData &value()
-  {
-    return _value[pushed];
-  }
-  void setValue(SceneObjectData &value)
-  {
-    _value[pushed] = value;
-  }
-  void setItemObj(int value)
-  {
-    _value[0].itemObj = value;
-    _value[1].itemObj = value;
-  }
-  int itemObj()
-  {
-    return _value[pushed].itemObj;
-  }
-  bool isArmed()
-  {
-    return _value[pushed].armed;
-  }
-  float posX()
-  {
-    return _value[pushed].scenePos[0];
-  }
-  float posY()
-  {
-    return _value[pushed].scenePos[1];
-  }
-  SceneObjectDirection direction()
-  {
-    return _value[pushed].direction;
-  }
-  SceneObjectMeta() : LeafMeta() {}
-  SceneObjectMeta(const SceneObjectMeta &rhs) : LeafMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-  }
-//  virtual ~SceneObjectMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  void    pop() { pushed = 0; }
-  virtual void doc(QStringList &out, QString preamble);
-};
-
 /*------------------------*/
 /*
 * Scene Object Meta
@@ -2724,102 +3208,6 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
-/*
- * This class is used to parse PLI substitute
- * commands
- */
-
-class SubMeta : public LeafMeta
-{
-private:
-  SubData _value;
-public:
-  SubData value()
-  {
-    return _value;
-  }
-  SubMeta() : LeafMeta()
-  {
-  }
-  SubMeta(const SubMeta &rhs) : LeafMeta(rhs)
-  {
-    _value = rhs._value;
-  }
-  void clearAttributes()
-  {
-    _value.attrs.clear();
-    _value.type = 0;
-  }
-
-//  virtual ~SubMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-/* This class parses PLI constraints */
-
-class ConstrainMeta : public LeafMeta
-{
-private:
-  ConstrainData _value[2];
-  ConstrainData _result;
-  bool _default;
-
-public:
-  bool isDefault()
-  {
-    return _default;
-  }
-  void resetToDefault()
-  {
-    _default = true;
-  }
-  void pop()
-  {
-    pushed = 0;
-    _default = true;
-  }
-  ConstrainData valueUnit()
-  {
-    return _value[pushed];
-  }
-  ConstrainData &value()
-  {
-    _result = _value[pushed];
-    if (_result.type == ConstrainData::PliConstrainWidth ||
-        _result.type == ConstrainData::PliConstrainHeight) {
-      _result.constraint *= resolution();
-    }
-    return _result;
-  }
-  void setValue(ConstrainData &value)
-  {
-    value.constraint /= resolution();
-    _default = false;
-    _value[pushed] = value;
-  }
-  void setValueUnit(ConstrainData &value)
-  {
-    _default = false;
-    _value[pushed] = value;
-  }
-  ConstrainMeta();
-  ConstrainMeta(const ConstrainMeta &rhs) : LeafMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-    _result   = rhs._result;
-    _default  = rhs._default;
-  }
-
-//  virtual ~ConstrainMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-
-};
-
 /*------------------------*/
 
 class PliBeginMeta : public BranchMeta
@@ -2879,152 +3267,6 @@ public:
 
 /*------------------------*/
 
-// 0 LPUB CALLOUT BEGIN
-
-class CalloutBeginMeta : public RcMeta
-{
-
-private:
-public:
-  enum CalloutMode { Unassembled, Assembled, Rotated } mode;
-
-  CalloutMode value()
-  {
-    return mode;
-  }
-  CalloutBeginMeta() : RcMeta()
-  {
-    mode = Unassembled;
-  }
-  CalloutBeginMeta(const CalloutBeginMeta &rhs) : RcMeta(rhs)
-  {
-    mode = rhs.mode;
-  }
-
-//  virtual ~CalloutBeginMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-/*------------------------*/
-
-/* This class is to parse MLCad's rotation step */
-
-class RotStepMeta : public LeafMeta
-{
-private:
-  RotStepData _value;
-public:
-  RotStepData value() const
-  {
-    return _value;
-  }
-  bool isPopulated()
-  {
-    return _value.populated;
-  }
-  void clear()
-  {
-    _value.populated = false;
-    _value.type.clear();
-    _value.rots[0] = 0;
-    _value.rots[1] = 0;
-    _value.rots[2] = 0;
-  }
-  RotStepMeta()
-  {
-    _value.type.clear();
-    _value.populated = false;
-  }
-  RotStepMeta(const RotStepMeta &rhs) : LeafMeta(rhs)
-  {
-    _value      = rhs.value();
-  }
-  void setValue(RotStepData &rhs)
-  {
-    _value.populated = rhs.rots[0] != 0.0 ||
-                       rhs.rots[1] != 0.0 ||
-                       rhs.rots[2] != 0.0 ||
-                       rhs.type    != _value.type;
-    _value.type      = rhs.type;
-    _value.rots[0]   = rhs.rots[0];
-    _value.rots[1]   = rhs.rots[1];
-    _value.rots[2]   = rhs.rots[2];
-  }
-  RotStepMeta& operator=(const RotStepMeta &rhs)
-  {
-    LeafMeta::operator=(rhs);
-    _value      = rhs.value();
-    return *this;
-  }
-
-  virtual ~RotStepMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-/* This class is to parse MLCad's buffer exchange */
-
-class BuffExchgMeta : public LeafMeta
-{
-private:
-  BuffExchgData _value;
-public:
-  QString value()
-  {
-    return _value.buffer;
-  }
-  BuffExchgMeta()
-  {
-  }
-  BuffExchgMeta(const BuffExchgMeta &rhs) : LeafMeta(rhs)
-  {
-  }
-
-  virtual ~BuffExchgMeta() { }
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  void    pop() { pushed = 0; }
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-/* This class is parses the buildMod action */
-
-class BuildModMeta : public LeafMeta
-{
-private:
-  BuildModData _value;
-public:
-  QString key()
-  {
-    return _value.buildModKey;
-  }
-  BuildModData value()
-  {
-    return _value;
-  }
-  void setValue(BuildModData &value)
-  {
-    _value = value;
-  }
-  BuildModMeta()
-  {
-  }
-  BuildModMeta(const BuildModMeta &rhs) : LeafMeta(rhs)
-  {
-  }
-
-//  virtual ~BuildModMeta() { }
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  void    pop() { pushed = 0; }
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-/*------------------------*/
-
 class AnnotationStyleMeta : public BranchMeta
 {
 public:
@@ -3043,72 +3285,6 @@ public:
 
 //  virtual ~AnnotationStyleMeta() {}
   virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
-class PliPartGroupMeta : public LeafMeta
-{
-private:
-  PliPartGroupData _value;
-public:
-  PliPartGroupMeta() : LeafMeta()
-  {
-  }
-  PliPartGroupMeta(const PliPartGroupMeta &rhs) : LeafMeta(rhs)
-  {
-    _value = rhs._value;
-  }
-  PliPartGroupData value()
-  {
-    return _value;
-  }
-  bool bom()
-  {
-    return _value.bom;
-  }
-  bool bomPart()
-  {
-    return _value.bPart;
-  }
-  QString key()
-  {
-    return _value.type + "_" + _value.color;
-  }
-  QPointF offset()
-  {
-    return QPointF(double(_value.offset[0]),
-                   double(_value.offset[1]));
-  }
-  void setValue(PliPartGroupData &value)
-  {
-    _value = value;
-  }
-  void setBom (bool b)
-  {
-    _value.bom = b;
-  }
-  void setBomPart(bool b)
-  {
-    _value.bPart = b;
-  }
-  void setKey(QString &_type, QString &_color){
-    _value.type  = _type;
-    _value.color = _color;
-  }
-  void setWhere(Where &here)
-  {
-    _here[0] = here;
-  }
-  void setOffset(QPointF offset)
-  {
-    _value.offset[0] += offset.x();
-    _value.offset[1] += offset.y();
-  }
-//  virtual ~PliPartGroupMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
 };
 
 /*------------------------*/
@@ -3200,34 +3376,6 @@ public:
 
 //  virtual ~PliAnnotationMeta() {}
   virtual void init(BranchMeta *parent, QString name);
-};
-
-/*
- * This class parses the CSI annotation
- */
- class CsiAnnotationIconMeta : public LeafMeta
-{
-private:
-  CsiAnnotationIconData _value[2];
-public:
-  CsiAnnotationIconData &value()
-  {
-    return _value[pushed];
-  }
-  void setValue(CsiAnnotationIconData &rhs)
-  {
-    _value[pushed] = rhs;
-  }
-  CsiAnnotationIconMeta();
-  CsiAnnotationIconMeta(const CsiAnnotationIconMeta &rhs) : LeafMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-  }
-//  virtual ~CsiAnnotationIconMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
 };
 
 /*------------------------*/
@@ -3479,43 +3627,6 @@ public:
 
 /*------------------------*/
 
-class BomMeta  : public PliMeta
-{
-public:
-  BomMeta();
-  BomMeta(const BomMeta &rhs) : PliMeta(rhs)
-  {
-  }
-
-//  virtual ~BomMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
-class SubModelMeta  : public PliMeta
-{
-public:
-  IntMeta    showStepNum; // Used to indicate the 'first' step number of a step group when continuous step numbers flag is On
-  BoolMeta   showInstanceCount;
-  BoolMeta   showTopModel;
-  void setPreferences()
-  {
-      Preferences::showSubmodels         = show.value();
-      Preferences::showTopModel          = showTopModel.value();
-      Preferences::showInstanceCount     = showInstanceCount.value();
-  }
-  SubModelMeta();
-  SubModelMeta(const SubModelMeta &rhs) : PliMeta(rhs)
-  {
-  }
-
-//  virtual ~SubModelMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
 class AssemMeta : public BranchMeta
 {
 public:
@@ -3638,73 +3749,6 @@ public:
 
 //  virtual ~MultiStepMeta() {}
   virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
-/*
- * Resolution meta
- */
-
-class ResolutionMeta : public LeafMeta {
-private:
-public:
-  bool isDefault()
-  {
-    return getIsDefaultResolution();
-  }
-  ResolutionType type()
-  {
-    return resolutionType();
-  }
-  float value()
-  {
-    return resolution();
-  }
-  void setValue(float _resolution)
-  {
-    setResolution(_resolution);
-    setIsDefaultResolution(false);
-  }
-  void setValue(ResolutionType _type, float _resolution)
-  {
-    setResolutionType(_type);
-    setResolution(_resolution);
-    setIsDefaultResolution(false);
-  }
-  float ldu()
-  {
-    return 1.0/64;
-  }
-  ResolutionMeta()
-  {
-    setIsDefaultResolution(true);
-  }
-  ResolutionMeta(const ResolutionMeta &rhs) : LeafMeta(rhs)
-  {
-  }
-//  virtual ~ResolutionMeta() {}
-  void pop() { pushed = 0; setIsDefaultResolution(true); }
-  virtual void init(BranchMeta *parent,
-                    QString name);
-  virtual Rc parse(QStringList &argv, int index, Where &here);
-          QString format(bool,bool);
-  virtual void    doc(QStringList &out, QString preamble);
-};
-
-class NoStepMeta : RcMeta {
-private:
-public:
-  NoStepMeta()
-  {
-  }
-//  virtual ~NoStepMeta() {}
-  virtual void init(BranchMeta *parent,
-                    const QString name,
-                    Rc _rc=OkRc);
-  virtual Rc parse(QStringList &argv, int index, Where &here);
-          QString format(bool,bool);
-  virtual void    doc(QStringList &out, QString preamble);
 };
 
 /*------------------------*/
@@ -3840,6 +3884,43 @@ public:
   }
 
 //  virtual ~LightMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class BomMeta  : public PliMeta
+{
+public:
+  BomMeta();
+  BomMeta(const BomMeta &rhs) : PliMeta(rhs)
+  {
+  }
+
+//  virtual ~BomMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class SubModelMeta  : public PliMeta
+{
+public:
+  IntMeta    showStepNum; // Used to indicate the 'first' step number of a step group when continuous step numbers flag is On
+  BoolMeta   showInstanceCount;
+  BoolMeta   showTopModel;
+  void setPreferences()
+  {
+      Preferences::showSubmodels         = show.value();
+      Preferences::showTopModel          = showTopModel.value();
+      Preferences::showInstanceCount     = showInstanceCount.value();
+  }
+  SubModelMeta();
+  SubModelMeta(const SubModelMeta &rhs) : PliMeta(rhs)
+  {
+  }
+
+//  virtual ~SubModelMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -4019,43 +4100,6 @@ public:
   }
 };
 
-/*------------------------*/
-
-class SubmodelStack
-{
-public:
-  QString modelName;
-  int     lineNumber;
-  int     stepNumber;
-  SubmodelStack(QString _modelName, int _lineNumber, int _stepNumber)
-  {
-    modelName = _modelName;
-    lineNumber = _lineNumber;
-    stepNumber = _stepNumber;
-  }
-  SubmodelStack()
-  {
-    modelName = "undefined";
-    lineNumber = 0;
-    stepNumber = 0;
-  }
-  SubmodelStack operator=(const SubmodelStack &rhs)
-  {
-    if (this != &rhs) {
-      modelName = rhs.modelName;
-      lineNumber = rhs.lineNumber;
-      stepNumber = rhs.stepNumber;
-    }
-    return *this;
-  }
-  SubmodelStack(const SubmodelStack &rhs)
-  {
-    modelName = rhs.modelName;
-    lineNumber = rhs.lineNumber;
-    stepNumber = rhs.stepNumber;
-  }
-};
-
 class Meta : public BranchMeta
 {
 public:
@@ -4081,6 +4125,7 @@ public:
   virtual void  init(BranchMeta *parent, QString name);
   virtual void  pop();
   void  doc(QStringList &out);
+  void  metaKeywords(QStringList &out, bool = false);
   void  processSpecialCases(QString &, Where &);
 
   Meta (const Meta &rhs) : BranchMeta(rhs)

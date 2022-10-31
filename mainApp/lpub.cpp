@@ -3381,6 +3381,9 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
+    if (lpub && Preferences::modeGUI)
+        lpub->meta.metaKeywords(lpub->metaKeywords);
+
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
     parmsWindow   = new ParmsWindow();

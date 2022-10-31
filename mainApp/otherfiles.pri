@@ -1,5 +1,4 @@
 OTHER_FILES += \
-resources/autocomplete.lst \
 extras/excludedParts.lst \
 extras/fadeStepColorParts.lst \
 extras/freeformAnnotations.lst \

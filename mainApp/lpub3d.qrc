@@ -27,7 +27,6 @@
         <file alias="archivefilesondemand.png">resources/archivefilesondemand.png</file>
         <file alias="archivefilesonlaunch.png">resources/archivefilesonlaunch.png</file>
         <file alias="assemblysetup.png">resources/assemblysetup.png</file>
-        <file alias="autocomplete.lst">resources/autocomplete.lst</file>
         <file alias="back.png">resources/back.png</file>
         <file alias="background.png">resources/background.png</file>
         <file alias="blendericon.png">resources/blendericon.png</file>

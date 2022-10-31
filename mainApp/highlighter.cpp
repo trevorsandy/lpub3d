@@ -103,25 +103,18 @@ Highlighter::Highlighter(QTextDocument *parent)
         br29 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDCAD_GROUP_DEFINE]));
       }
 
+    // LPub3D Quoted Text Format
+    LPubQuotedTextFormat.setForeground(br27);
+    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("[<\"].*[>\"]");
+    rule.format = LPubQuotedTextFormat;
+    highlightingRules.append(rule);
+
     // LPub3D Number Format
     LPubNumberFormat.setForeground(br14);
     LPubNumberFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegExp("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?");
     rule.format = LPubNumberFormat;
-    highlightingRules.append(rule);
-
-    // LDraw Custom COLOUR Description Format
-    LDrawColourDescFormat.setForeground(br26);
-    LDrawColourDescFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\bLPub3D_[A-Z|a-z|_]+\\b");
-    rule.format = LDrawColourDescFormat;
-    highlightingRules.append(rule);
-
-    // LPub3D Quoted Text Format
-    LPubQuotedTextFormat.setForeground(br27);
-    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("\".*\"");
-    rule.format = LPubQuotedTextFormat;
     highlightingRules.append(rule);
 
     // LPub3D Hex Number Format
@@ -134,8 +127,15 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Font Number Format
     LPubFontNumberFormat.setForeground(br14);
     LPubFontNumberFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("[,|-](\\d+)"); // match digit if preceded by single character , or -
+    rule.pattern = QRegExp("[,-](\\d+)"); // match digit if preceded by single character , or -
     rule.format = LPubFontNumberFormat;
+    highlightingRules.append(rule);
+
+    // LDraw Custom COLOUR Description Format
+    LDrawColourDescFormat.setForeground(br26);
+    LDrawColourDescFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("\\bLPub3D_[A-Za-z|_]+\\b");
+    rule.format = LDrawColourDescFormat;
     highlightingRules.append(rule);
 
     // LPub3D Substitute Color Format
@@ -159,7 +159,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubSubPartFormat;
     highlightingRules.append(rule);
 
-    // LPub3D Font Number Comma Format
+    // LPub3D Font Number Comma and dash Format
     LPubFontCommaFormat.setForeground(br27);
     LPubFontCommaFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegExp("[,]");
@@ -169,7 +169,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Page Size Format
     LPubPageSizeFormat.setForeground(br16);
     LPubPageSizeFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\b[A|B][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$",Qt::CaseInsensitive);
+    rule.pattern = QRegExp("\\b[AB][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$",Qt::CaseInsensitive);
     rule.format = LPubPageSizeFormat;
     highlightingRules.append(rule);
 
@@ -179,7 +179,6 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LDrawColourPatterns;
     LDrawColourPatterns
-    << "\\bCOLOUR\\b"
     << "\\bCODE\\b"
     << "\\bVALUE\\b"
     << "\\bEDGE\\b"
@@ -192,32 +191,22 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    // LDraw Body Format
-    LDrawBodyFormat.setForeground(br03);
-    LDrawBodyFormat.setFontWeight(QFont::Bold);
+    // LPub3D Custom COLOUR, FADE, SILHOUETTE Meta Format
+    LPubCustomColorFormat.setForeground(br20);
+    LPubCustomColorFormat.setFontWeight(QFont::Bold);
 
-    QStringList LDrawBodyPatterns;
-    LDrawBodyPatterns
-    << "\\bPAUSE\\b"
-    << "\\bPRINT\\b"
-    << "\\bSAVE\\b"
-    << "\\bNOSTEP\\b"
-    << "\\bSTEP\\b"
-    << "\\bWRITE\\b"
-       ;
+    QStringList LPubCustomColorPatterns;
+    LPubCustomColorPatterns
+            << "!?\\bCOLOUR\\b"
+            << "!?\\bFADE\\b"
+            << "!?\\bSILHOUETTE\\b"
+            ;
 
-    Q_FOREACH (QString pattern, LDrawBodyPatterns) {
+    Q_FOREACH (QString pattern, LPubCustomColorPatterns) {
         rule.pattern = QRegExp(pattern);
-        rule.format = LDrawBodyFormat;
+        rule.format = LPubCustomColorFormat;
         highlightingRules.append(rule);
     }
-
-    // LPub3D Meta Format
-    LPubMetaFormat.setForeground(br24);
-    LPubMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("!?\\bLPUB\\b");
-    rule.format = LPubMetaFormat;
-    highlightingRules.append(rule);
 
     // LPub3D Local Context Format
     LPubLocalMetaFormat.setForeground(br04);
@@ -253,47 +242,34 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LPubBodyMetaPatterns;
     LPubBodyMetaPatterns
-    << "\\bACTION\\b"
     << "\\bADJUST_ON_ITEM_OFFSET\\b"
-    << "\\bAFTER\\b"
     << "\\bALLOC\\b"
     << "\\bANGLE\\b"
-    << "\\bANGLE_KEY\\b"
     << "\\bANNOTATE\\b"
     << "\\bANNOTATION\\b"
-    << "\\bANNOTATION_SHOW\\b"
+    << "\\bAPPLY\\b"
     << "\\bAPP_PLUG\\b"
     << "\\bAPP_PLUG_IMAGE\\b"
-    << "\\bAPPLY\\b"
     << "\\bAREA\\b"
+    << "\\bARROW\\b"
     << "\\bASPECT\\b"
     << "\\bASSEM\\b"
-    << "\\bASSEM_PART\\b"
-    << "\\bAUTOMATE_EDGE_COLOR\\b"
+    << "\\bASSEMBLED\\b"
+    << "\\bATTRIBUTE_PIXMAP\\b"
+    << "\\bATTRIBUTE_TEXT\\b"
     << "\\bAT_MODEL\\b"
     << "\\bAT_STEP\\b"
     << "\\bAT_TOP\\b"
-    << "\\bATTRIBUTE_PIXMAP\\b"
-    << "\\bATTRIBUTE_TEXT\\b"
-    << "\\bAUTHOR\\b"
+    << "\\bAUTOMATE_EDGE_COLOR\\b"
     << "\\bAXLE\\b"
-    << "\\bBACK\\b"
-    << "\\bBACKGROUND COLOR\\b"
-    << "\\bBACKGROUND GRADIENT\\b"
-    << "\\bBACKGROUND IMAGE\\b"
     << "\\bBACKGROUND\\b"
     << "\\bBASE_BOTTOM\\b"
-    << "\\bBASE_BOTTOM_LEFT\\b"
-    << "\\bBASE_BOTTOM_RIGHT\\b"
-    << "\\bBASE_CENTER\\b"
     << "\\bBASE_LEFT\\b"
     << "\\bBASE_RIGHT\\b"
     << "\\bBASE_TOP\\b"
-    << "\\bBASE_TOP_LEFT\\b"
-    << "\\bBASE_TOP_RIGHT\\b"
     << "\\bBEAM\\b"
-    << "\\bBEFORE\\b"
     << "\\bBEGIN\\b"
+    << "\\bBLACK_EDGE_COLOR\\b"
     << "\\bBOM\\b"
     << "\\bBORDER\\b"
     << "\\bBOTTOM\\b"
@@ -308,18 +284,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCALLOUT_INSTANCE\\b"
     << "\\bCALLOUT_POINTER\\b"
     << "\\bCALLOUT_UNDERPINNING\\b"
-    << "\\bCAMERA FOV\\b"
-    << "\\bCAMERA HIDDEN\\b"
-    << "\\bCAMERA NAME\\b"
-    << "\\bCAMERA ORTHOGRAPHIC\\b"
-    << "\\bCAMERA POSITION\\b"
-    << "\\bCAMERA POSITION_KEY\\b"
-    << "\\bCAMERA TARGET_POSITION\\b"
-    << "\\bCAMERA TARGET_POSITION_KEY\\b"
-    << "\\bCAMERA UP_VECTOR\\b"
-    << "\\bCAMERA UP_VECTOR_KEY\\b"
-    << "\\bCAMERA ZFAR\\b"
-    << "\\bCAMERA ZNEAR\\b"
     << "\\bCAMERA\\b"
     << "\\bCAMERA_ANGLES\\b"
     << "\\bCAMERA_DISTANCE\\b"
@@ -336,35 +300,30 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCIRCLE_STYLE\\b"
     << "\\bCLEAR\\b"
     << "\\bCOLOR\\b"
+    << "\\bCOLOR_LIGHT_DARK_INDEX\\b"
     << "\\bCOLOR_RGB\\b"
-    << "\\bCOLOR_RGB_KEY\\b"
-    << "\\bCOLOUR\\b"
     << "\\bCOLS\\b"
-    << "\\bCOMMENT\\b"
     << "\\bCONNECTOR\\b"
     << "\\bCONSOLIDATE_INSTANCE_COUNT\\b"
     << "\\bCONSTRAIN\\b"
     << "\\bCONTENT\\b"
     << "\\bCONTINUOUS_STEP_NUMBERS\\b"
     << "\\bCONTRAST\\b"
-    << "\\bCONTROL_POINT\\b"
+    << "\\bCOUNT_GROUP_STEPS\\b"
     << "\\bCOVER_PAGE\\b"
     << "\\bCOVER_PAGE_MODEL_VIEW_ENABLED\\b"
     << "\\bCROSS\\b"
-    << "\\bCOUNT_GROUP_STEPS\\b"
     << "\\bCSI_ANNOTATION\\b"
     << "\\bCSI_ANNOTATION_PART\\b"
     << "\\bCUSTOM_LENGTH\\b"
     << "\\bCUTOFF_DISTANCE\\b"
-    << "\\bCUTOFF_DISTANCE_KEY\\b"
+    << "\\bDARK_EDGE_COLOR\\b"
     << "\\bDASH\\b"
     << "\\bDASH_DOT\\b"
     << "\\bDASH_DOT_DOT\\b"
-    << "\\bDESCRIPTION\\b"
     << "\\bDISPLAY\\b"
     << "\\bDISPLAY_MODEL\\b"
     << "\\bDISPLAY_PAGE_NUMBER\\b"
-    << "\\bDISTANCE\\b"
     << "\\bDIVIDER\\b"
     << "\\bDIVIDER_ITEM\\b"
     << "\\bDIVIDER_LINE\\b"
@@ -374,69 +333,63 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bDOCUMENT_AUTHOR_BACK\\b"
     << "\\bDOCUMENT_AUTHOR_FRONT\\b"
     << "\\bDOCUMENT_COVER_IMAGE\\b"
+    << "\\bDOCUMENT_LOGO\\b"
     << "\\bDOCUMENT_LOGO_BACK\\b"
     << "\\bDOCUMENT_LOGO_FRONT\\b"
+    << "\\bDOCUMENT_TITLE\\b"
     << "\\bDOCUMENT_TITLE_BACK\\b"
     << "\\bDOCUMENT_TITLE_FRONT\\b"
     << "\\bDOT\\b"
     << "\\bDPCM\\b"
     << "\\bDPI\\b"
+    << "\\bEDGE_COLOR\\b"
     << "\\bELEMENT\\b"
     << "\\bELEMENT_STYLE\\b"
+    << "\\bENABLE\\b"
     << "\\bENABLED\\b"
-    << "\\bENABLE_STYLE\\b"
     << "\\bENABLE_SETTING\\b"
+    << "\\bENABLE_STYLE\\b"
     << "\\bENABLE_TEXT_PLACEMENT\\b"
     << "\\bEND\\b"
     << "\\bEND_MOD\\b"
-    << "\\bEND_SUB\\b"
     << "\\bEXTENDED\\b"
-    << "\\bFACTOR\\b"
     << "\\bFADE_STEP\\b"
     << "\\bFILE\\b"
     << "\\bFILL\\b"
     << "\\bFINAL_MODEL_ENABLED\\b"
     << "\\bFIXED_ANNOTATIONS\\b"
+    << "\\bFLATTENED_LOGO\\b"
     << "\\bFONT\\b"
     << "\\bFONT_COLOR\\b"
     << "\\bFOR_SUBMODEL\\b"
-    << "\\bFOV\\b"
     << "\\bFREEFORM\\b"
-    << "\\bFRONT\\b"
-    << "\\bGRABBER\\b"
     << "\\bGRADIENT\\b"
-    << "\\bGROUP BEGIN\\b"
-    << "\\bGROUP END\\b"
     << "\\bGROUP\\b"
     << "\\bHEIGHT\\b"
     << "\\bHIDDEN\\b"
-    << "\\bHIDE\\b"
+    << "\\bHIDE_TIP\\b"
+    << "\\bHIGHLIGHT_STEP\\b"
     << "\\bHIGH_CONTRAST\\b"
     << "\\bHIGH_CONTRAST_WITH_LOGO\\b"
-    << "\\bHIGHLIGHT_STEP\\b"
     << "\\bHORIZONTAL\\b"
     << "\\bHOSE\\b"
+    << "\\bHTML_TEXT\\b"
     << "\\bICON\\b"
     << "\\bID\\b"
     << "\\bIGN\\b"
-    << "\\bIMAGE\\b"
     << "\\bIMAGE_SIZE\\b"
     << "\\bINCLUDE\\b"
     << "\\bINCLUDE_SUBMODELS\\b"
-    << "\\bINSERT MODEL\\b"
     << "\\bINSERT\\b"
     << "\\bINSIDE\\b"
     << "\\bINSTANCE_COUNT\\b"
-    << "\\bITEM\\b"
     << "\\bJUSTIFY_CENTER\\b"
     << "\\bJUSTIFY_CENTER_HORIZONTAL\\b"
     << "\\bJUSTIFY_CENTER_VERTICAL\\b"
     << "\\bJUSTIFY_LEFT\\b"
     << "\\bLANDSCAPE\\b"
-    << "\\bLATITUDE\\b"
     << "\\bLDGLITE\\b"
     << "\\bLDGLITE_PARMS\\b"
-    << "\\bLDRAW_TYPE\\b"
     << "\\bLDVIEW\\b"
     << "\\bLDVIEW_PARMS\\b"
     << "\\bLDVIEW_POV_GENERATOR\\b"
@@ -446,63 +399,45 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bLIGHT\\b"
     << "\\bLINE\\b"
     << "\\bLINE_WIDTH\\b"
-    << "\\LOAD_UNOFFICIAL_PARTS_IN_EDITOR\\b"
+    << "\\bLOAD_UNOFFICIAL_PARTS_IN_EDITOR\\b"
     << "\\bLOCAL_LEGO_ELEMENTS_FILE\\b"
-    << "\\bLONGITUDE\\b"
     << "\\bMARGINS\\b"
-    << "\\bMODEL AUTHOR\\b"
-    << "\\bMODEL BACKGROUND COLOR\\b"
-    << "\\bMODEL BACKGROUND GRADIENT\\b"
-    << "\\bMODEL BACKGROUND IMAGE\\b"
-    << "\\bMODEL COMMENT\\b"
-    << "\\bMODEL DESCRIPTION\\b"
-    << "\\bMODEL NAME\\b"
     << "\\bMODEL\\b"
     << "\\bMODEL_CATEGORY\\b"
     << "\\bMODEL_DESCRIPTION\\b"
     << "\\bMODEL_ID\\b"
     << "\\bMODEL_PARTS\\b"
     << "\\bMODEL_SCALE\\b"
+    << "\\bMODEL_STEP_NUMBER\\b"
     << "\\bMULTI_STEP\\b"
-    << "\\bNATIVE\\b"
-    << "\\bNATIVE_POV_GENERATOR\\b"
+    << "\\bMULTI_STEPS\\b"
     << "\\bNAME\\b"
+    << "\\bNATIVE\\b"
     << "\\bNONE\\b"
     << "\\bNOSTEP\\b"
     << "\\bNUMBER\\b"
     << "\\bOFFSET\\b"
     << "\\bOPACITY\\b"
     << "\\bORIENTATION\\b"
-    << "\\bORTHOGRAPHIC\\b"
     << "\\bOUTLINE_LOGO\\b"
     << "\\bOUTSIDE\\b"
     << "\\bPAGE\\b"
     << "\\bPAGE_FOOTER\\b"
     << "\\bPAGE_HEADER\\b"
     << "\\bPAGE_LENGTH\\b"
+    << "\\bPAGE_NUMBER\\b"
     << "\\bPAGE_POINTER\\b"
     << "\\bPANEL\\b"
     << "\\bPARSE_NOSTEP\\b"
     << "\\bPART\\b"
-    << "\\bPART_CATEGORY\\b"
-    << "\\bPART_COLOR\\b"
-    << "\\bPART_ELEMENT\\b"
     << "\\bPART_ELEMENTS\\b"
     << "\\bPART_GROUP\\b"
     << "\\bPART_GROUP_ENABLE\\b"
     << "\\bPART_ROTATION\\b"
-    << "\\bPART_SIZE\\b"
     << "\\bPER_STEP\\b"
     << "\\bPICTURE\\b"
-    << "\\bPIECE HIDDEN\\b"
-    << "\\bPIECE PIVOT\\b"
-    << "\\bPIECE POSITION_KEY\\b"
-    << "\\bPIECE ROTATION_KEY\\b"
-    << "\\bPIECE STEP_HIDE\\b"
     << "\\bPIECE\\b"
-    << "\\bPIVOT\\b"
     << "\\bPLACEMENT\\b"
-    << "\\bPLAIN\\b"
     << "\\bPLI\\b"
     << "\\bPLI_ANNOTATION\\b"
     << "\\bPLI_GRABBER\\b"
@@ -511,6 +446,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bPLI_PART_GROUP\\b"
     << "\\bPOINTER\\b"
     << "\\bPOINTER_ATTRIBUTE\\b"
+    << "\\bPOINTER_BASE\\b"
     << "\\bPOINTER_GRABBER\\b"
     << "\\bPOINTER_HEAD\\b"
     << "\\bPOINTER_SEG_FIRST\\b"
@@ -518,11 +454,9 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bPOINTER_SEG_THIRD\\b"
     << "\\bPORTRAIT\\b"
     << "\\bPOSITION\\b"
-    << "\\bPOSITION_KEY\\b"
-    << "\\bPOSITION_KEY\\b"
+    << "\\bPOVRAY\\b"
     << "\\bPOVRAY_PARMS\\b"
     << "\\bPOWER\\b"
-    << "\\bPOWER_KEY\\b"
     << "\\bPREFERRED_RENDERER\\b"
     << "\\bPRIMARY\\b"
     << "\\bPRIMARY_DIRECTION\\b"
@@ -534,10 +468,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bPUBLISH_URL\\b"
     << "\\bPUBLISH_URL_BACK\\b"
     << "\\bRADIUS\\b"
-    << "\\bRADIUS_AND_SPOT_BLEND_KEY\\b"
-    << "\\bRADIUS_KEY\\b"
-    << "\\bSHARP_TOP_LOGO\\b"
-    << "\\bROUNDED_TOP_LOGO\\b"
     << "\\bRANGE\\b"
     << "\\bRECTANGLE_STYLE\\b"
     << "\\bREMOVE\\b"
@@ -545,63 +475,59 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bRESOLUTION\\b"
     << "\\bRICH_TEXT\\b"
     << "\\bRIGHT\\b"
-    << "\\bROTATE_ICON\\b"
     << "\\bROTATED\\b"
-    << "\\bROTATION_KEY\\b"
+    << "\\bROTATE_ICON\\b"
     << "\\bROUND\\b"
+    << "\\bROUNDED_TOP_LOGO\\b"
     << "\\bSATURATION\\b"
     << "\\bSCALE\\b"
     << "\\bSCENE\\b"
-    << "\\bSCENE_OBJECT\\b"
     << "\\bSECONDARY\\b"
     << "\\bSECONDARY_DIRECTION\\b"
     << "\\bSEND_TO_BACK\\b"
     << "\\bSEPARATOR\\b"
     << "\\bSETUP\\b"
     << "\\bSHAPE\\b"
-    << "\\bSHAPE_KEY\\b"
+    << "\\bSHARP_TOP_LOGO\\b"
     << "\\bSHOW\\b"
     << "\\bSHOW_GROUP_STEP_NUMBER\\b"
     << "\\bSHOW_INSTANCE_COUNT\\b"
+    << "\\bSHOW_STEP_NUM\\b"
     << "\\bSHOW_STEP_NUMBER\\b"
-    << "\\bHIDE_TIP\\b"
     << "\\bSHOW_TOP_MODEL\\b"
-    << "\\bSILHOUETTE\\b"
-    << "\\bSOLID\\b"
-    << "\\bTHIN_LINE_LOGO\\b"
-    << "\\bFLATTENED_LOGO\\b"
     << "\\bSINGLE_CALL\\b"
     << "\\bSINGLE_CALL_EXPORT_LIST\\b"
+    << "\\bSINGLE_STEP\\b"
     << "\\bSIZE\\b"
-    << "\\bSIZE_KEY\\b"
-    << "\\bSPACING\\b"
+    << "\\bSKIP_BEGIN\\b"
+    << "\\bSKIP_END\\b"
+    << "\\bSOLID\\b"
     << "\\bSORT\\b"
     << "\\bSORT_BY\\b"
     << "\\bSORT_OPTION\\b"
     << "\\bSORT_ORDER\\b"
     << "\\bSPECULAR\\b"
-    << "\\bSPECULAR_KEY\\b"
     << "\\bSPOT_BLEND\\b"
     << "\\bSPOT_SIZE\\b"
-    << "\\bSPOT_SIZE_KEY\\b"
     << "\\bSQUARE\\b"
     << "\\bSQUARE_STYLE\\b"
     << "\\bSTART_PAGE_NUMBER\\b"
     << "\\bSTART_STEP_NUMBER\\b"
-    << "\\bSTEP_HIDE\\b"
+    << "\\bSTEP\\b"
+    << "\\bSTEPS\\b"
+    << "\\bSTEP_GROUP\\b"
     << "\\bSTEP_NUMBER\\b"
     << "\\bSTEP_PLI\\b"
     << "\\bSTEP_RECTANGLE\\b"
     << "\\bSTEP_SIZE\\b"
-    << "\\bSTEPS\\b"
     << "\\bSTRENGTH\\b"
-    << "\\bSTRENGTH_KEY\\b"
     << "\\bSTRETCH\\b"
+    << "\\bSTUD_CYLINDER_COLOR\\b"
     << "\\bSTUD_STYLE\\b"
     << "\\bSTYLE\\b"
     << "\\bSUB\\b"
+    << "\\bLDRAW_TYPE\\b"
     << "\\bSUBMODEL_BACKGROUND_COLOR\\b"
-    << "\\bSUBMODEL_COLOR\\b"
     << "\\bSUBMODEL_DISPLAY\\b"
     << "\\bSUBMODEL_FONT\\b"
     << "\\bSUBMODEL_FONT_COLOR\\b"
@@ -609,19 +535,16 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSUBMODEL_INSTANCE\\b"
     << "\\bSUBMODEL_INSTANCE_COUNT\\b"
     << "\\bSUBMODEL_INSTANCE_COUNT_OVERRIDE\\b"
+    << "\\bSUBMODEL_INST_COUNT\\b"
     << "\\bSUBMODEL_ROTATION\\b"
-    << "\\bSYNTH BEGIN\\b"
-    << "\\bSYNTH CONTROL_POINT\\b"
-    << "\\bSYNTH END\\b"
-    << "\\bSYNTH\\b"
     << "\\bSYNTHESIZED\\b"
     << "\\bTARGET_POSITION\\b"
-    << "\\bTARGET_POSITION_KEY\\b"
     << "\\bTERTIARY\\b"
     << "\\bTERTIARY_DIRECTION\\b"
     << "\\bTEXT\\b"
     << "\\bTEXT_PLACEMENT\\b"
     << "\\bTHICKNESS\\b"
+    << "\\bTHIN_LINE_LOGO\\b"
     << "\\bTILE\\b"
     << "\\bTIP\\b"
     << "\\bTOGGLE_PAGE_NUMBER_PLACEMENT\\b"
@@ -630,9 +553,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bTOP_RIGHT\\b"
     << "\\bTRANSPARENT\\b"
     << "\\bTYPE\\b"
-    << "\\bTYPE_KEY\\b"
-    << "\\bUP_VECTOR\\b"
-    << "\\bUP_VECTOR_KEY\\b"
+    << "\\bUSE\\b"
     << "\\bUSE_FREE_FORM\\b"
     << "\\bUSE_TITLE\\b"
     << "\\bUSE_TITLE_AND_FREE_FORM\\b"
@@ -640,10 +561,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bVIEW_ANGLE\\b"
     << "\\bWHOLE\\b"
     << "\\bWIDTH\\b"
-    << "\\bZ_VALUE\\b"
-    << "\\bZFAR\\b"
-    << "\\bZNEAR\\b"
-       ;
+    ;
 
     Q_FOREACH (QString pattern, LPubBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
@@ -651,10 +569,17 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
+    // LPub3D Meta Format
+    LPubMetaFormat.setForeground(br24);
+    LPubMetaFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("!?\\bLPUB\\b");
+    rule.format = LPubMetaFormat;
+    highlightingRules.append(rule);
+
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^(?!0 !LPUB|1).*\\b(?:AUTHOR|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
+    rule.pattern = QRegExp("^(?!0 !LPUB |0 !LEOCAD |0 !LDCAD |0 MLCAD |0 SYNTH |0 !COLOUR |0 !FADE|0 !SILHOUETTE|0 ROTSTEP |0 BUFEXCHG |0 PLIST |1 )\\b(?:AUTHOR|)\\b.*$");
     rule.format = LDrawHeaderValueFormat;
     highlightingRules.append(rule);
 
@@ -664,9 +589,9 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LDrawHeaderPatterns;
     LDrawHeaderPatterns
-    << "\\bAUTHOR\\b:?"
+    << "\\bAUTHOR\\b:"
     << "\\bBFC\\b"
-    << "!?\\bCATEGORY\\b(?!\")"             // (?!\") match Category not followed by "
+    << "!?\\bCATEGORY\\b(?!\")"             // (?!\") match CATEGORY not followed by "
     << "\\bCERTIFY\\b"
     << "\\bCCW\\b"
     << "\\bCLEAR\\b"
@@ -676,7 +601,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "!?\\bKEYWORDS\\b"
     << "!?\\bLDRAW_ORG\\b"
     << "!?\\bLICENSE\\b"
-    << "\\bNAME\\b:?"
+    << "\\bNAME\\b:"
     << "^(?!0 !LPUB|1).*\\bFILE\\b"
     << "\\bNOFILE\\b"
     << "!?\\bHELP\\b"
@@ -686,7 +611,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bUNOFFICIAL MODEL\\b"
     << "\\bUN-OFFICIAL\\b"
     << "\\bUNOFFICIAL\\b"
-    << "\\bUNOFFICIAL PART\\b"
     << "\\bUNOFFICIAL_PART\\b"
     << "\\bUNOFFICIAL_SUBPART\\b"
     << "\\bUNOFFICIAL_SHORTCUT\\b"
@@ -716,6 +640,26 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
+    // LDraw Body Format
+    LDrawBodyFormat.setForeground(br03);
+    LDrawBodyFormat.setFontWeight(QFont::Bold);
+
+    QStringList LDrawBodyPatterns;
+    LDrawBodyPatterns
+    << "\\bPAUSE\\b"
+    << "\\bPRINT\\b"
+    << "\\bSAVE\\b"
+    << "\\bNOSTEP\\b"
+    << "\\bSTEP\\b"
+    << "\\bWRITE\\b"
+       ;
+
+    Q_FOREACH (QString pattern, LDrawBodyPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = LDrawBodyFormat;
+        highlightingRules.append(rule);
+    }
+
     // LDraw Meta Line Format
     LDrawLineType0Format.setForeground(br28);
     LDrawLineType0Format.setFontWeight(QFont::Normal);
@@ -730,31 +674,30 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LDrawLineType2_5Format;
     highlightingRules.append(rule);
 
-    // MLCad Meta Format
-    MLCadMetaFormat.setForeground(br21);
-    MLCadMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("!?\\bMLCAD\\b");
-    rule.format = MLCadMetaFormat;
-    highlightingRules.append(rule);
-
     // MLCad Body Meta Format
     MLCadBodyMetaFormat.setForeground(br17);
     MLCadBodyMetaFormat.setFontWeight(QFont::Bold);
 
     QStringList MLCadBodyMetaPatterns;
     MLCadBodyMetaPatterns
-    << "\\bARROW\\b"
+    << "\\bABS\\b"
+    << "\\bADD\\b"
+    << "\\bMLCAD ARROW\\b"
+    << "\\bMLCAD BACKGROUND\\b"
     << "\\bBTG\\b"
     << "\\bBUFEXCHG\\b"
+    << "\\bFLEXHOSE\\b"
     << "\\bGHOST\\b"
-    << "\\bGROUP\\b"
+    << "\\bMLCAD GROUP\\b"
+    << "\\bHIDE\\b"
+    << "\\bREL\\b"
     << "\\bRETRIEVE\\b"
+    << "\\bROTATION AXLE\\b"
     << "\\bROTATION CENTER\\b"
     << "\\bROTATION CONFIG\\b"
     << "\\bROTATION\\b"
     << "\\bROTSTEP END\\b"
     << "\\bROTSTEP\\b"
-    << "\\b(ABS|ADD|REL)$"
     << "\\bSKIP_BEGIN\\b"
     << "\\bSKIP_END\\b"
     << "\\bSTORE\\b"
@@ -766,18 +709,18 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
+    // MLCad Meta Format
+    MLCadMetaFormat.setForeground(br21);
+    MLCadMetaFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("!?\\bMLCAD\\b");
+    rule.format = MLCadMetaFormat;
+    highlightingRules.append(rule);
+
     // LSynth Format
     LSynthMetaFormat.setForeground(br18);
     LSynthMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("!?\\bSYNTH\\b[^\n]*");
     rule.format = LSynthMetaFormat;
-    highlightingRules.append(rule);
-
-    // LDCad Meta Key Format
-    LDCadMetaKeyFormat.setForeground(br11);
-    LDCadMetaKeyFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("!?\\bLDCAD\\b[^\n]*");
-    rule.format = LDCadMetaKeyFormat;
     highlightingRules.append(rule);
 
     // LDCad Body Meta Format
@@ -786,11 +729,26 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LDCadBodyMetaPatterns;
     LDCadBodyMetaPatterns
-    << "\\bCONTENT\\b"
-    << "\\bPATH_CAP\\b"
+    << "\\bLDCAD CONTENT\\b"
+    << "\\bGENERATED\\b"
+    << "\\bMARKER\\b"
     << "\\bPATH_POINT\\b"
+    << "\\bPATH_CAP\\b"
+    << "\\bPATH_ANCHOR\\b"
     << "\\bPATH_SKIN\\b"
+    << "\\bPATH_LENGTH\\b"
     << "\\bSCRIPT\\b"
+    << "\\bSNAP_CLEAR\\b"
+    << "\\bSNAP_INCL\\b"
+    << "\\bSNAP_CYL\\b"
+    << "\\bSNAP_CLP\\b"
+    << "\\bSNAP_FGR\\b"
+    << "\\bSNAP_GEN\\b"
+    << "\\bSNAP_SPH\\b"
+    << "\\bSPRING_POINT\\b"
+    << "\\bSPRING_CAP\\b"
+    << "\\bSPRING_ANCHOR\\b"
+    << "\\bSPRING_SECTION\\b"
     ;
 
     Q_FOREACH (QString pattern, LDCadBodyMetaPatterns) {
@@ -814,6 +772,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     LDCadMetaGroupPatterns
             << "\\bGROUP_DEF\\b"
             << "\\bGROUP_NXT\\b"
+            << "\\bGROUP_OBJ\\b"
                ;
 
     Q_FOREACH (QString pattern, LDCadMetaGroupPatterns) {
@@ -829,32 +788,34 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LDCadBracketFormat;
     highlightingRules.append(rule);
 
-    // LeoCAD Format
-    LeoCADMetaFormat.setForeground(br20);
-    LeoCADMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("!?\\bLEOCAD\\b[^\n]*");
-    rule.format = LeoCADMetaFormat;
+    // LDCad Meta Key Format
+    LDCadMetaKeyFormat.setForeground(br11);
+    LDCadMetaKeyFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("!?\\bLDCAD\\b");
+    rule.format = LDCadMetaKeyFormat;
     highlightingRules.append(rule);
 
     // LeoCAD Body Meta Format
     LeoCADBodyMetaFormat.setForeground(br17);
     LeoCADBodyMetaFormat.setFontWeight(QFont::Bold);
 
-    QStringList LeoCADBodyMetaPatterns;
+    QStringList LeoCADBodyMetaPatterns;    // (?<=LEOCAD\\s) match KEYWORD preceded by 'LEOCAD '
     LeoCADBodyMetaPatterns
-    << "\\bMODEL NAME\\b"
+    << "\\bLEOCAD MODEL\\b"
+    << "\\bLEOCAD MODEL NAME\\b"
     << "\\bMODEL AUTHOR\\b"
     << "\\bMODEL DESCRIPTION\\b"
     << "\\bMODEL COMMENT\\b"
     << "\\bMODEL BACKGROUND COLOR\\b"
     << "\\bMODEL BACKGROUND GRADIENT\\b"
     << "\\bMODEL BACKGROUND IMAGE\\b"
-    << "\\bNAME\\b"
+    << "\\bPIECE\\b"
     << "\\bPIECE STEP_HIDE\\b"
     << "\\bPIECE HIDDEN\\b"
     << "\\bPIECE POSITION_KEY\\b"
     << "\\bPIECE ROTATION_KEY\\b"
     << "\\bPIECE PIVOT\\b"
+    << "\\bCAMERA\\b"
     << "\\bCAMERA HIDDEN\\b"
     << "\\bCAMERA ORTHOGRAPHIC\\b"
     << "\\bCAMERA FOV\\b"
@@ -867,8 +828,41 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCAMERA TARGET_POSITION_KEY\\b"
     << "\\bCAMERA UP_VECTOR_KEY\\b"
     << "\\bCAMERA NAME\\b"
-    << "\\bGROUP BEGIN\\b"
-    << "\\bGROUP END\\b"
+    << "\\bLIGHT\\b"
+    << "\\bLIGHT ANGLE\\b"
+    << "\\bLIGHT ANGLE_KEY\\b"
+    << "\\bLIGHT COLOR_RGB\\b"
+    << "\\bLIGHT COLOR_RGB_KEY\\b"
+    << "\\bLIGHT CUTOFF_DISTANCE\\b"
+    << "\\bLIGHT CUTOFF_DISTANCE_KEY\\b"
+    << "\\bLIGHT HEIGHT\\b"
+    << "\\bLIGHT NAME\\b"
+    << "\\bLIGHT POSITION\\b"
+    << "\\bLIGHT POSITION_KEY\\b"
+    << "\\bLIGHT POWER\\b"
+    << "\\bLIGHT POWER_KEY\\b"
+    << "\\bLIGHT RADIUS\\b"
+    << "\\bLIGHT RADIUS_AND_SPOT_BLEND_KEY\\b"
+    << "\\bLIGHT RADIUS_KEY\\b"
+    << "\\bLIGHT SHAPE\\b"
+    << "\\bLIGHT SHAPE_KEY\\b"
+    << "\\bLIGHT SIZE\\b"
+    << "\\bLIGHT SIZE_KEY\\b"
+    << "\\bLIGHT SPECULAR\\b"
+    << "\\bLIGHT SPECULAR_KEY\\b"
+    << "\\bLIGHT SPOT_BLEND\\b"
+    << "\\bLIGHT SPOT_SIZE\\b"
+    << "\\bLIGHT SPOT_SIZE_KEY\\b"
+    << "\\bLIGHT STRENGTH\\b"
+    << "\\bLIGHT STRENGTH_KEY\\b"
+    << "\\bLIGHT TARGET_POSITION\\b"
+    << "\\bLIGHT TARGET_POSITION_KEY\\b"
+    << "\\bLIGHT TYPE\\b"
+    << "\\bLIGHT TYPE_KEY\\b"
+    << "\\bLIGHT WIDTH\\b"
+    << "\\bLEOCAD GROUP BEGIN\\b"
+    << "\\bLEOCAD GROUP END\\b"
+    << "\\bLEOCAD SYNTH\\b"              // match SYNTH preceded by 'LEOCAD '
     ;
 
     Q_FOREACH (QString pattern, LeoCADBodyMetaPatterns) {
@@ -876,6 +870,13 @@ Highlighter::Highlighter(QTextDocument *parent)
         rule.format = LeoCADBodyMetaFormat;
         highlightingRules.append(rule);
     }
+
+    // LeoCAD Format
+    LeoCADMetaFormat.setForeground(br20);
+    LeoCADMetaFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("!?\\bLEOCAD\\b");
+    rule.format = LeoCADMetaFormat;
+    highlightingRules.append(rule);
 
     // LDraw Comment Format
     LDrawCommentFormat.setForeground(br01);

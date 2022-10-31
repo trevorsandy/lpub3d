@@ -79,7 +79,7 @@ QString LeafMeta::format(
     }
   
   return preamble + result + suffix;
-}  
+}
 
 BranchMeta::~BranchMeta()
 {
@@ -210,6 +210,21 @@ void BranchMeta::doc(QStringList &out, QString preamble)
     }
 }
 
+/*
+ * Output command information for this node in the syntax
+ * graph
+ */
+void BranchMeta::metaKeywords(QStringList &out, QString preamble)
+{
+
+  QString key;
+  QStringList keys = list.keys();
+  keys.sort();
+  Q_FOREACH (key, keys) {
+      list[key]->metaKeywords(out, preamble + " " + key);
+    }
+}
+
 void BranchMeta::pop()
 {
   QString key;
@@ -233,6 +248,11 @@ Rc RcMeta::parse(QStringList &argv, int index, Where &here)
 }
 
 void RcMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble;
+}
+
+void RcMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble;
 }
@@ -321,7 +341,7 @@ QString FloatMeta::format(bool local, bool global)
 }
 void FloatMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <float>";
+  out << preamble + " <decimal>";
 }
 
 /* ------------------ */
@@ -409,7 +429,7 @@ QString FloatPairMeta::format(bool local, bool global)
 }
 void FloatPairMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <float> <float>";
+  out << preamble + " <decimal> <decimal>";
 }
 
 /* ------------------ */
@@ -460,7 +480,7 @@ QString Vector3Meta::format(bool local, bool global)
 }
 void Vector3Meta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <float x> <float y> <float z>";
+  out << preamble + " <decimal X> <decimal Y> <decimal Z>";
 }
 
 /* ------------------ */
@@ -534,7 +554,7 @@ QString StringListMeta::format(bool local, bool global)
 
 void StringListMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <\"string\"> <\"string\"> .....";
+  out << preamble + " <\"string\"> <\"string\"> ...";
 }
 
 /* ------------------ */
@@ -562,7 +582,7 @@ QString BoolMeta::format(bool local, bool global)
 
 void BoolMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <TRUE|FALSE>";
+  out << preamble + " ( TRUE | FALSE )";
 }
 
 /* ------------------ */ 
@@ -905,10 +925,15 @@ QString PlacementMeta::format(bool local, bool global)
 
 void PlacementMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TOP|BOTTOM) (LEFT|CENTER|RIGHT) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
-  out << preamble + " (LEFT|RIGHT) (TOP|CENTER|BOTTOM) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
-  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|"
-                    "SUBMODEL_DISPLAY|ROTATE_ICON|CALLOUT)";
+  out << preamble + " ((( TOP | BOTTOM )|( LEFT | RIGHT )) (( LEFT | CENTER | RIGHT )|( TOP | CENTER | BOTTOM )))|( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT )"
+                    " ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )";
+}
+
+void PlacementMeta::metaKeywords(QStringList &out, QString preamble)
+{
+
+  out << preamble + " TOP BOTTOM LEFT RIGHT LEFT CENTER RIGHT TOP CENTER BOTTOM TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT"
+                    " PAGE ASSEM INSIDE OUTSIDE MULTI_STEP STEP_NUMBER PLI SUBMODEL_DISPLAY ROTATE_ICON CALLOUT";
 }
 /* ------------------ */ 
 
@@ -1108,9 +1133,14 @@ QString BackgroundMeta::format(bool local, bool global)
 
 void BackgroundMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TRANSPARENT|SUBMODEL_BACKGROUND_COLOR|COLOR <\"color\">|"
-                    "GRADIENT <mode spread type size[0] size[1] angle \"points\" \"stops\">|"
-                    "PICTURE <\"file\">|STRETCH)";
+  out << preamble + " ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <\"color name\"|\"#RRGGBB\"> | "
+                    "GRADIENT <mode spread type sizeX sizeY angle \"points\" \"stops\"> | "
+                    "PICTURE <\"file path\"> [ STRETCH ])";
+}
+
+void BackgroundMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " TRANSPARENT SUBMODEL_BACKGROUND_COLOR COLOR GRADIENT PICTURE STRETCH";
 }
 
 QString BackgroundMeta::text()
@@ -1284,7 +1314,14 @@ QString BorderMeta::format(bool local, bool global)
 
 void BorderMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (NONE <line>|HIDDEN <line> <color> <thickness>|SQUARE <line> <color> <thickness>|ROUND <line> <color> <thickness> <radius>) MARGINS <x> <y>";
+  out << preamble + " ( NONE <line integer 0> | HIDDEN <line integer 0> <\"color name|#RRGGBB\"> <thickness decimal> | "
+                    "SQUARE <line integer 0-5> <\"color name|#RRGGBB\"> <thickness decimal> | "
+                    "ROUND <line integer 0-5> <\"color name|#RRGGBB\"> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y>";
+}
+
+void BorderMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " NONE HIDDEN SQUARE ROUND MARGINS";
 }
 
 QString BorderMeta::text()
@@ -1687,8 +1724,14 @@ QString PointerAttribMeta::format(bool local, bool global)
 
 void PointerAttribMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (LINE|BORDER <NONE|SOLID|DASH|DOT|DASH_DOT|DASH_DOT_DOT> COLOR <#RRGGBB> WIDTH <float> [HIDE_TIP <TRUE|FALSE>] [ID <pointer number>] [<BASE_TOP|BASE_BOTTOM|BASE_LEFT|BASE_RIGHT>])";
-  out << preamble + " (TIP WIDTH <float> HEIGHT <float> [ID <pointer number>])";
+  out << preamble + " ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR <\"#RRGGBB\"> WIDTH <decimal> "
+                    "[ HIDE_TIP ( TRUE | FALSE )] [ ID <pointer number integer>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) "
+                    "( TIP WIDTH <decimal> HEIGHT <decimal> [ ID <pointer number integer>])";
+}
+
+void PointerAttribMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " LINE BORDER NONE SOLID DASH DOT DASH_DOT DASH_DOT_DOT COLOR WIDTH HIDE_TIP TRUE FALSE ID BASE_TOP BASE_BOTTOM BASE_LEFT BASE_RIGHT TIP HEIGHT";
 }
 
 /* ------------------ */ 
@@ -2014,11 +2057,15 @@ QString PointerMeta::format(bool local, bool global)
 
 void PointerMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TOP|BOTTOM|LEFT|RIGHT|CENTER|TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) <floatLoc> <floatX1> <floatY1>"
-                    " [<floatX2> <floatY2> <floatX3> <floatY3> <floatX4> <floatY4>] <floatBase> [intSegments]"
-                    " [(BASE_TOP|BASE_BOTTOM|BASE_LEFT|BASE_RIGHT)]";
+  out << preamble + " ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) <decimal Location> <decimal X1> <decimal Y1>"
+                    " [ <decimal X2> <decimal Y2> <decimal X3> <decimal Y3> <decimal X4> <decimal  Y4>] <decimal Base> [<integer Segments>]"
+                    " [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]";
 }
 
+void PointerMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " TOP BOTTOM LEFT RIGHT CENTER TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT BASE_TOP BASE_BOTTOM BASE_LEFT BASE_RIGHT";
+}
 //--------------
 
 CsiAnnotationIconMeta::CsiAnnotationIconMeta() : LeafMeta()
@@ -2162,11 +2209,15 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
 
 void CsiAnnotationIconMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TOP_LEFT|TOP|TOP_RIGHT|LEFT|CENTER|RIGHT|BOTTOM_LEFT|BOTTOM|BOTTOM_RIGHT)"
-                    " <iconOffsetX(px)> <iconOffsetY(px)> <partOffsetX(px)> <partOffsetY(px)>"
-                    " <partSizeX(px)> <partSizeY(px)> <part color> <part baseName>";
+  out << preamble + " ( TOP_LEFT | TOP | TOP_RIGHT | LEFT | CENTER | RIGHT | BOTTOM_LEFT | BOTTOM | BOTTOM_RIGHT )"
+                    " <icon offset X px> <icon offset Y px> <part offset X px> <part offset Y px>"
+                    " <part size X px> <part size Y px> <LDraw color code for part> <LDraw part name without extension>";
 }
 
+void CsiAnnotationIconMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " TOP_LEFT TOP TOP_RIGHT LEFT CENTER RIGHT BOTTOM_LEFT BOTTOM BOTTOM_RIGHT";
+}
 /* ------------------ */
 
 PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
@@ -2288,9 +2339,13 @@ QString PreferredRendererMeta::format(bool local, bool global)
 
 void PreferredRendererMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]";
+  out << preamble + " ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])";
 }
 
+void PreferredRendererMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " NATIVE LDGLITE LDVIEW SINGLE_CALL SINGLE_CALL_EXPORT_LIST POVRAY LDVIEW_POV_GENERATOR";
+}
 /* ------------------ */ 
 
 FreeFormMeta::FreeFormMeta() : LeafMeta()
@@ -2331,11 +2386,16 @@ QString FreeFormMeta::format(bool local, bool global)
     }
   return LeafMeta::format(local,global,foo);
 }
+
 void FreeFormMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (FALSE|(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON) (LEFT|RIGHT|TOP|BOTTOM|CENTER))";
+  out << preamble + " ( FALSE | ( STEP_NUMBER | ASSEM | PLI | ROTATE_ICON ) ( LEFT | RIGHT | TOP | BOTTOM | CENTER ))";
 }
 
+void FreeFormMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " FALSE STEP_NUMBER ASSEM PLI ROTATE_ICON LEFT RIGHT TOP BOTTOM CENTER";
+}
 /* ------------------ */ 
 
 ConstrainMeta::ConstrainMeta()
@@ -2398,7 +2458,11 @@ QString ConstrainMeta::format(bool local, bool global)
 }
 void ConstrainMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (AREA|SQUARE|(WIDTH|HEIGHT|COLS) <integer>)";
+  out << preamble + " ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) <integer> )";
+}
+void ConstrainMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " AREA SQUARE WIDTH HEIGHT COLS";
 }
 
 /* ------------------ */ 
@@ -2433,9 +2497,12 @@ QString AllocMeta::format(bool local, bool global)
 }
 void AllocMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (HORIZONTAL|VERTICAL)";
+  out << preamble + " ( HORIZONTAL | VERTICAL )";
 }
-
+void AllocMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " HORIZONTAL VERTICAL";
+}
 /* ------------------ */
 
 FillMeta::FillMeta() : LeafMeta()
@@ -2471,7 +2538,11 @@ QString FillMeta::format(bool local, bool global)
 }
 void FillMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (ASPECT|STRETCH|TILE)";
+  out << preamble + " ( ASPECT | STRETCH | TILE )";
+}
+void FillMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " ASPECT STRETCH TILE";
 }
 
 /* ------------------ */
@@ -2523,9 +2594,12 @@ QString JustifyStepMeta::format(bool local, bool global)
 }
 void JustifyStepMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)";
+  out << preamble + " ( JUSTIFY_LEFT | JUSTIFY_CENTER | JUSTIFY_CENTER_HORIZONTAL | JUSTIFY_CENTER_VERTICAL )";
 }
-
+void JustifyStepMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " JUSTIFY_LEFT JUSTIFY_CENTER JUSTIFY_CENTER_HORIZONTAL JUSTIFY_CENTER_VERTICAL";
+}
 /* ------------------ */
 
 PageOrientationMeta::PageOrientationMeta() : LeafMeta()
@@ -2558,7 +2632,11 @@ QString PageOrientationMeta::format(bool local, bool global)
 }
 void PageOrientationMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (PORTRAIT|LANDSCAPE)";
+  out << preamble + " ( PORTRAIT | LANDSCAPE )";
+}
+void PageOrientationMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " PORTRAIT LANDSCAPE";
 }
 
 /* ------------------ */
@@ -2612,7 +2690,11 @@ QString CountInstanceMeta::format(bool local, bool global)
 }
 void CountInstanceMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)";
+  out << preamble + " ( AT_TOP | AT_MODEL | AT_STEP | TRUE | FALSE )";
+}
+void CountInstanceMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " AT_TOP AT_MODEL AT_STEP";
 }
 
 /* ------------------ */
@@ -2654,7 +2736,12 @@ QString ContStepNumMeta::format(bool local, bool global)
 }
 void ContStepNumMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TRUE|FALSE)";
+  out << preamble + " ( TRUE | FALSE )";
+}
+
+void ContStepNumMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " TRUE FALSE";
 }
 
 /* ------------------ */
@@ -2697,8 +2784,14 @@ QString BuildModEnabledMeta::format(bool local, bool global)
 
 void BuildModEnabledMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TRUE|FALSE)";
+  out << preamble + " ( TRUE | FALSE )";
 }
+
+void BuildModEnabledMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble;
+}
+
 
 /* ------------------ */
 
@@ -2740,7 +2833,12 @@ QString FinalModelEnabledMeta::format(bool local, bool global)
 
 void FinalModelEnabledMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TRUE|FALSE)";
+  out << preamble + " ( TRUE | FALSE )";
+}
+
+void FinalModelEnabledMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble;
 }
 
 /* ------------------ */
@@ -2806,7 +2904,7 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two floating point numbers and/or page size string but got \"%1\"") .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) but got \"%1\"") .arg(argv.join(" ")));
     }
 
   return FailureRc;
@@ -2821,7 +2919,7 @@ QString PageSizeMeta::format(bool local, bool global)
 }
 void PageSizeMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <float> <float> <page size id>";
+  out << preamble + " <decimal width> <decimal height> [<\"page size id\">] | <\"page size id\">";
 }
 
 /* ------------------ */
@@ -2995,9 +3093,13 @@ QString SepMeta::format(bool local, bool global)
 }
 void SepMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "[<PAGE_LENGTH|CUSTOM_LENGTH <length>] THICKNESS <integer> <color> MARGINS <float> <float>";
+  out << preamble + " [( PAGE_LENGTH | CUSTOM_LENGTH ) <decimal> ] THICKNESS <integer> <\"color name\"|\"#RRGGBB\"> MARGINS <decimal X> <decimal Y>";
 }
 
+void SepMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " PAGE_LENGTH CUSTOM_LENGTH THICKNESS MARGINS";
+}
 /* ------------------ */
 /*
  * Scene Depth Meta
@@ -3021,7 +3123,7 @@ Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
     }
   }
   if (reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <float XPos> <float YPos> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <decimal X pos> <decimal Y pos> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return FailureRc;
 }
@@ -3042,9 +3144,13 @@ QString SceneObjectMeta::format(bool local, bool global)
 
 void SceneObjectMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " BRING_TO_FRONT|SEND_TO_BACK <float XPos> <float YPos>";
+  out << preamble + " ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos>";
 }
 
+void SceneObjectMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " BRING_TO_FRONT SEND_TO_BACK";
+}
 /* ------------------ */
 
 StudStyleMeta::StudStyleMeta() : LeafMeta()
@@ -3123,7 +3229,12 @@ QString StudStyleMeta::format(bool local, bool global)
 
 void StudStyleMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (NONE|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO|1-7)";
+  out << preamble + " ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )";
+}
+
+void StudStyleMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " NONE THIN_LINE_LOGO OUTLINE_LOGO SHARP_TOP_LOGO ROUNDED_TOP_LOGO FLATTENED_LOGO HIGH_CONTRAST HIGH_CONTRAST_WITH_LOGO";
 }
 
 /* ------------------ */
@@ -3158,7 +3269,7 @@ Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
   }
   if (rc == FailureRc && reportErrors) {
     emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Invalid color meta command, expected "
-                                                    "\"#RRGGBB\", \"#AARRGGBB\", or \"0-255,0-255,0-255,0-255\", "
+                                                    "<\"0x|#><[AA]RRGGBB\">, or 0-255,0-255,0-255,0-255, "
                                                     "got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return rc;
@@ -3208,7 +3319,12 @@ QString ColorMeta::getRGBAString(const quint32 rgba)
 
 void ColorMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " \"#RRGGBB\", \"#AARRGGBB\", or \"0-255,0-255,0-255,0-255\"";
+  out << preamble + " <\"#[AA]RRGGBB\"> | <0-255, 0-255, 0-255, 0-255>";
+}
+
+void ColorMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble;
 }
 
 /* ------------------ */ 
@@ -3241,7 +3357,6 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   InsertData insertData;
   Rc rc = OkRc;
 
-  QString insert;
   if (argv.size() - index == 1) {
       if (argv[index] == "PAGE") {
           rc = InsertPageRc;
@@ -3439,9 +3554,14 @@ QString InsertMeta::format(bool local, bool global)
 
 void InsertMeta::doc(QStringList &out, QString preamble)
 {
-   out << preamble + " <placement> PICTURE \"<file>\"|ARROW x y x y|TEXT \"text\" \"<text>\" <color> |RICH_TEXT \"<text>\"|HTML_TEXT \"<text>\"|PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE|ROTATE_ICON OFFSET \"<floatX>\" \"<floatY>\"";
+  out << preamble + " ( PICTURE <\"file path\"> ) | ( TEXT <\"text\"> <\"#RRGGBB\"> ) | ( RICH_TEXT <\"text\"> ) | ( HTML_TEXT <\"text\"> ) | "
+                    "( PAGE | BOM | MODEL | DISPLAY_MODEL | COVER_PAGE | ROTATE_ICON ) ( OFFSET <decimal X> <decimal Y> )";
 }
 
+void InsertMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " BEGIN BOM COVER_PAGE DISPLAY_MODEL FOR_SUBMODEL HTML_TEXT LOCAL MODEL OFFSET PAGE PICTURE PLACEMENT RICH_TEXT ROTATE_ICON SCALE SUB TEXT";
+}
 /* ------------------ */
 
 Rc AlignmentMeta::parse(QStringList &argv, int index, Where &here)
@@ -3481,9 +3601,13 @@ QString AlignmentMeta::format(bool local, bool global)
 
 void AlignmentMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "(LEFT|CENTER|RIGHT)";
+  out << preamble + " ( LEFT | CENTER | RIGHT )";
 }
 
+void AlignmentMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " LEFT CENTER RIGHT";
+}
 /* ------------------ */ 
 
 void TextMeta::init(BranchMeta *parent, QString name)
@@ -3537,7 +3661,12 @@ QString ArrowHeadMeta::format(bool local, bool global)
 
 void ArrowHeadMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "TipX HaftingInsideX HaftingOutsideX HaftingOutsideY";
+  out << preamble + " <TipX> <HaftingInsideX> <HaftingOutsideX> <HaftingOutsideY>";
+}
+
+void ArrowHeadMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble;
 }
 
 /* ------------------ */ 
@@ -3572,9 +3701,13 @@ QString ArrowEndMeta::format(bool local, bool global)
 
 void ArrowEndMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "(SQUARE|ROUND)";
+  out << preamble + " ( SQUARE | ROUND )";
 }
 
+void ArrowEndMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " SQUARE ROUND";
+}
 /* ------------------ */
 
 AutoEdgeColorMeta::AutoEdgeColorMeta() : BranchMeta()
@@ -4010,9 +4143,13 @@ QString EnableMeta::format(bool local, bool global)
 
 void EnableMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <TRUE|FALSE>";
+  out << preamble + " ( TRUE | FALSE )";
 }
 
+void EnableMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " TRUE FALSE";
+}
 /* ------------------ */
 
 Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
@@ -4020,15 +4157,22 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
   Rc rc = FailureRc;
   QRegExp rx("^(0x|#)([\\da-fA-F]+)$");
   _value[pushed].useColor = false;
-  if (argv.size() - index >= 1 && argv[index].contains(rx)) {
-    QColor parsedColor = QColor(argv[index]);
+  if (argv.size() - index >= 1) {
+    QColor parsedColor = QColor();
+    if (argv[index].contains(rx))
+        parsedColor = QColor(argv[index]);
     if (parsedColor.isValid()) {
       _value[pushed].color = argv[index];
       rc = OkRc;
+    } else {
+        parsedColor = LDrawColor::color(argv[index]);
+        if (parsedColor.isValid()) {
+          _value[pushed].color = argv[index];
+          rc = OkRc;
+        }
     }
     if (argv.size() - index == 3 && argv[index + 1] == "USE") {
       _value[pushed].useColor = argv[index + 2] == "TRUE";
-      rc = OkRc;
     }
     if (rc == OkRc)
       _here[pushed] = here;
@@ -4045,17 +4189,21 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 
 QString FadeColorMeta::format(bool local, bool global)
 {
-  QString foo (_value[pushed].color);
+  QString foo ("\"" + _value[pushed].color + "\"");
   if (!_value[pushed].useColor)
-    foo += " USE FASLE";
+    foo += " USE FALSE";
   return LeafMeta::format(local,global,foo);
 }
 
 void FadeColorMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (0x|#)([AA]RRGGBB)";
+  out << preamble + " <\"LDraw_colour_name\"> | <\"0x|#><[AA]RRGGBB\"> [ USE ( TRUE | FALSE ) ]";
 }
 
+void FadeColorMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " USE TRUE FALSE";
+}
 /* ------------------ */
 
 FadeStepMeta::FadeStepMeta() : BranchMeta()
@@ -4417,16 +4565,14 @@ QString SubMeta::format(bool local, bool global)
 
 void SubMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <targetX> <targetY> <targetZ> <rotX> <rotY> <rotZ> <ABS|REL|ADD> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <rotX> <rotY> <rotZ> <ABS|REL|ADD> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <targetX> <targetY> <targetZ> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> <color> <scale> <fov> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> <color> <scale> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> <color> [LDRAW_TYPE <part>]";
-  out << preamble + " <part> [LDRAW_TYPE <part>]";
+  out << preamble + " <LDraw part name> [ <LDraw colour code> <scale decimal> <fov decimal> <camera angle latitude decimal> <camera angle longitude decimal> "
+                    "<target X> <target Y> <target Z> <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD ) [ LDRAW_TYPE <LDraw part name> ]]";
 }
 
+void SubMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " ABS REL ADD LDRAW_TYPE";
+}
 /* ------------------ */ 
 
 void PartBeginMeta::init(BranchMeta *parent, QString name)
@@ -4490,7 +4636,12 @@ QString RotStepMeta::format(bool local, bool global)
 
 void RotStepMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <rotX> <rotY> <rotZ> <ABS|REL|ADD>";
+  out << preamble + " <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD )";
+}
+
+void RotStepMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " ABS REL ADD";
 }
 
 /* ------------------ */ 
@@ -4523,7 +4674,12 @@ QString BuffExchgMeta::format(bool local, bool global)
 
 void BuffExchgMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <bufferName> <STORE|RETRIEVE>";
+  out << preamble + " <bufferName> ( STORE | RETRIEVE )";
+}
+
+void BuffExchgMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " STORE RETRIEVE";
 }
 
 /* ------------------ */
@@ -4591,10 +4747,13 @@ QString BuildModMeta::format(bool local, bool global)
 
 void BuildModMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <BEGIN|APPLY|REMOVE[|END_MOD|END]> <buildModKey>";
-  out << preamble + " <END_MOD|END|APPLY|REMOVE>";
+  out << preamble + " (( BEGIN | APPLY | REMOVE ) <buildModKey> ) | ( END_MOD | END )";
 }
 
+void BuildModMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " BEGIN APPLY REMOVE END_MOD END";
+}
 /* ------------------ */
 
 AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
@@ -4712,9 +4871,13 @@ QString PliPartGroupMeta::format(bool local, bool global)
 
 void PliPartGroupMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " \"<part type>\" \"<part color>\" OFFSET <floatX> <floatY>";
+  out << preamble + " <LDraw part name> <LDraw colour code> OFFSET <decimal X> <decimal Y>";
 }
 
+void PliPartGroupMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " OFFSET";
+}
 /* ------------------ */
 
 PliSortOrderMeta::PliSortOrderMeta() : BranchMeta()
@@ -5701,8 +5864,12 @@ QString CalloutBeginMeta::format(bool local, bool global)
 
 void CalloutBeginMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble;
-  out << preamble + " WHOLE";
+  out << preamble + " [( ASSEMBLED | ROTATED | WHOLE )]";
+}
+
+void CalloutBeginMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " ASSEMBLED ROTATED WHOLE";
 }
 
 CalloutMeta::CalloutMeta() : BranchMeta()
@@ -5899,9 +6066,13 @@ QString ResolutionMeta::format(bool local, bool global)
 
 void ResolutionMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "<integer> (DPI|DPCM)";
+  out << preamble + " <integer> ( DPI | DPCM )";
 }
 
+void ResolutionMeta::metaKeywords(QStringList &out, QString preamble)
+{
+    out << preamble + " DPI DPCM";
+}
 /* ------------------ */
 
 LightMeta::LightMeta() : BranchMeta()
@@ -6269,7 +6440,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   rotStep    .init(this,"ROTSTEP");
   bfx        .init(this,"BUFEXCHG");
   MLCad      .init(this,"MLCAD");
-  LDCad      .init(this,"LDCAD");
+  LDCad      .init(this,"!LDCAD");
   LeoCad     .init(this,"!LEOCAD");
   LSynth     .init(this,"SYNTH");
 
@@ -6514,8 +6685,87 @@ void Meta::doc(QStringList &out)
   QStringList keys = list.keys();
   keys.sort();
   Q_FOREACH (key, keys) {
-      list[key]->doc(out, "0 " + key);
+    if (key == "!COLOUR") {
+        out << "0 !COLOUR \n0 // Fade previous steps custom colour command\n0 !COLOUR \"LPub3D_Fade_<LDraw_colour_name>\" CODE <100 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 0-255>\n"
+               "0 // Highlight current step custom colour command\n0 !COLOUR \"LPub3D_Highlight_<LDraw_colour_name>\" CODE <110 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 255>";
+        continue;
+    } else if (key == "!FADE") {
+        out << "0 !FADE \n0 // Fade previous steps block opening command\n0 !FADE <fade percent integer> <LDraw colour code>\n0 // Block closing command\n0 !FADE";
+        continue;
+    } else if (key == "!SILHOUETTE") {
+        out << "0 !SILHOUETTE \n0 // Highlight current step block opening command\n0 !SILHOUETTE <edge line width decimal> <LDraw colour code>\n0 // Block closing command\n0 !SILHOUETTE";
+        continue;
     }
+    list[key]->doc(out, "0 " + key);
+  }
+}
+
+void Meta::metaKeywords(QStringList &out, bool highlighter)
+{
+  QElapsedTimer timer;
+  timer.start();
+  const QString miscellaneousKeyWords =
+          "Ascending Category Color Descending Element No Part Size Sort "
+          "CAMERA_DISTANCE_NATIVE DOCUMENT_LOGO DOCUMENT_TITLE "
+          "RANGE SINGLE_STEP STEP_GROUP VIEW_ANGLE";
+  const QString ldrawKeywords =
+          "Author: Name: !CATEGORY !CMDLINE !HELP !HELP !HISTORY !KEYWORDS !LDRAW_ORG "
+          "!LICENSE !THEME ~MOVED 48_PRIMITIVE 8_PRIMITIVE ALPHA AUTHOR BFC CCW CERTIFY "
+          "CLEAR CODE COLOUR EDGE FILE LDRAW LDRAW_ORG MODEL NAME NOFILE NOSTEP OFFICIAL "
+          "ORIGINAL PART PART ALIAS PART PHYSICAL_COLOUR PAUSE PRIMITIVE PRINT SAVE SHORTCUT "
+          "SHORTCUT ALIAS SHORTCUT PHYSICAL_COLOUR STEP SUBPART TO UNOFFICIAL UN-OFFICIAL "
+          "UNOFFICIAL_48_PRIMITIVE UNOFFICIAL_8_PRIMITIVE UNOFFICIAL_PART UNOFFICIAL_PART "
+          "ALIAS UNOFFICIAL_PART PHYSICAL_COLOUR UNOFFICIAL_PRIMITIVE UNOFFICIAL_SHORTCUT "
+          "UNOFFICIAL_SHORTCUT ALIAS UNOFFICIAL_SHORTCUT PHYSICAL_COLOUR UNOFFICIAL_SUBPART "
+          "VALUE WRITE";
+  const QString mlcadKeyWords =
+          "ABS ADD AXLE BACKGROUND BGT BUFEXCHG CENTER CONFIG END FLEXHOSE GHOST GROUP "
+          "HIDE MLCAD REL RETRIEVE ROTATION ROTSTEP RUBBER_BELT SKIP_BEGIN SKIP_END "
+          "SPRING STORE";
+  const QString ldcadKeyWords =
+          "!LDCAD CONTENT GENERATED GROUP_DEF GROUP_NXT GROUP_OBJ MARKER PATH_ANCHOR PATH_CAP "
+          "PATH_LENGTH PATH_POINT PATH_SKIN SCRIPT SNAP_CLEAR SNAP_CLP SNAP_CYL SNAP_FGR SNAP_GEN "
+          "SNAP_INCL SNAP_SPH SPRING_ANCHOR SPRING_CAP SPRING_POINT SPRING_SECTION";
+  const QString leocadKeyWords =
+          "!LEOCAD ANGLE ANGLE_KEY AUTHOR BACKGROUND BEGIN CAMERA COLOR COLOR_RGB "
+          "COLOR_RGB_KEY COMMENT CUTOFF_DISTANCE CUTOFF_DISTANCE_KEY DESCRIPTION "
+          "END FOV GRADIENT GROUP HIDDEN IMAGE MODEL NAME ORTHOGRAPHIC PIECE "
+          "PIVOT POSITION POSITION_KEY POWER POWER_KEY RADIUS RADIUS_AND_SPOT_BLEND_KEY "
+          "RADIUS_KEY SHAPE SHAPE_KEY SIZE SIZE_KEY SPECULAR SPECULAR_KEY SPOT_BLEND "
+          "SPOT_SIZE SPOT_SIZE_KEY STEP_HIDE STRENGTH STRENGTH_KEY TARGET_POSITION "
+          "TARGET_POSITION_KEY TYPE TYPE_KEY UP_VECTOR UP_VECTOR_KEY WIDTH ZFAR ZNEAR";
+  const QString lsynthKeyWords =
+          "BEGIN CHAIN CROSS ELECTRIC_CABLE END FIBER_OPTIC_CABLE FLEX_CABLE "
+          "FLEXIBLE_AXLE FLEXIBLE_TUBE HIDE INSIDE OUTSIDE PLASTIC_TREAD PNEUMATIC_TUBE "
+          "RIBBED_TUBE RIGID_TUBE RUBBER_BAND RUBBER_TREAD SHOW SYNTH SYNTHESIZED";
+  const QString highlighterKeyWords =
+          "CAMERA_DISTANCE_NATIVE DOCUMENT_LOGO DOCUMENT_TITLE RANGE SINGLE_STEP VIEW_ANGLE";
+  QStringList keys = list.keys();
+  keys.sort();
+  QStringList metaKeywords, cleanedKeywords;
+  Q_FOREACH (const QString &key, keys) {
+      list[key]->metaKeywords(metaKeywords, key);
+  }
+  if (highlighter)
+      metaKeywords << highlighterKeyWords;
+  else
+      metaKeywords
+      << ldrawKeywords
+      << leocadKeyWords
+      << ldcadKeyWords
+      << mlcadKeyWords
+      << lsynthKeyWords
+      << miscellaneousKeyWords
+      ;
+  Q_FOREACH (const QString &keywordString, metaKeywords) {
+      cleanedKeywords << keywordString.split(" ");
+  }
+  cleanedKeywords.removeDuplicates();
+  cleanedKeywords.sort();
+  out << cleanedKeywords;
+
+  logInfo() << QString("Meta command keywords generated. %1")
+                  .arg(LPub::elapsedTime(timer.elapsed()));
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {

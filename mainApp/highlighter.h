@@ -75,7 +75,8 @@ private:
     QTextCharFormat LPubPageSizeFormat;    // b16 - LPub3D Page Size
     QTextCharFormat LPubSubPartFormat;     // b12 - LPub3D Part File
     QTextCharFormat LPubSubColorFormat;    // b07 - LDraw Part Colour Code
-    QTextCharFormat LPubCustomColorFormat; // b07 - LDraw Part Colour Code
+    QTextCharFormat LPubCustomColorFormat; // b24 - LeoCAD
+    QTextCharFormat LPubCustomColorCodeFormat; // b07 - LDraw Part Colour Code
 
     QTextCharFormat LDrawHeaderValueFormat;// b26 - LDraw Header Value
     QTextCharFormat LDrawHeaderFormat;     // b02 - LDraw Header

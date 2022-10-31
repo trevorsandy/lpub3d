@@ -122,7 +122,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     lpub->snippetCollection = new SnippetCollection(this);
 
-    _textEdit->setAutoCompleter(new QCompleter(modelFromFile(":/resources/autocomplete.lst", this), this));
+    _textEdit->setAutoCompleter(new QCompleter(metaCommandModel(this), this));
     _textEdit->setSnippetCompleter(new SnippetCompleter(lpub->snippetCollection, _textEdit));
 
     JsonFile<Snippet>::load(":/resources/builtinsnippets.json", lpub->snippetCollection);
@@ -193,27 +193,21 @@ void EditWindow::gotoLine()
     _textEdit->gotoLine(line);
 }
 
-QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName, QObject *parent)
+QAbstractItemModel *EditWindow::metaCommandModel(QObject *parent)
 {
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly))
-        return new QStringListModel(parent);
-
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 #endif
-    QStringList words;
 
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-        if (!line.isEmpty())
-            words << QString::fromUtf8(line.trimmed());
-    }
+    QStandardItemModel *model = new QStandardItemModel(parent);
+
+    foreach (const QString &keyword, lpub->metaKeywords)
+        model->appendRow(new QStandardItem(QIcon(":/resources/command16.png"), keyword));
 
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-    return new QStringListModel(words, parent);
+    return model;
 }
 
 void EditWindow::setSelectionHighlighter()
@@ -3239,28 +3233,22 @@ FindReplace::FindReplace(
     setWindowIcon(QIcon(":/resources/LPub32.png"));
     setWindowTitle("LDraw File Editor Find");
 
-    find = new FindReplaceCtrls(textEdit,this);
-    find->textFind->setText(selectedText);
-
     completer = new QCompleter(this);
-    completer->setModel(modelFromFile(":/resources/autocomplete.lst"));
+    completer->setModel(metaCommandModel(this));
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setWrapAround(false);
+
+    find = new FindReplaceCtrls(textEdit,this);
+    find->textFind->setText(selectedText);
     find->textFind->setWordCompleter(completer);
+    connect(find, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
 
     findReplace = new FindReplaceCtrls(textEdit,this);
     findReplace->textFind->setText(selectedText);
-
-    completer = new QCompleter(this);
-    completer->setModel(modelFromFile(":/resources/autocomplete.lst"));
-    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setWrapAround(false);
     findReplace->textFind->setWordCompleter(completer);
-
-    connect(find, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
     connect(findReplace, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
+
     connect(this, SIGNAL(accepted()), this, SLOT(popUpClose()));
     connect(this, SIGNAL(rejected()), this, SLOT(popUpClose()));
 
@@ -3358,27 +3346,23 @@ FindReplace::FindReplace(
     setMinimumSize(100,80);
 }
 
-QAbstractItemModel *FindReplace::modelFromFile(const QString& fileName)
+QAbstractItemModel *FindReplace::metaCommandModel(QObject *parent)
 {
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly))
-        return new QStringListModel(completer);
-
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 #endif
-    QStringList words;
 
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-        if (!line.isEmpty())
-            words << line.trimmed();
-    }
+    QStandardItemModel *model = new QStandardItemModel(parent);
+
+    QStringList keywords;
+    lpub->meta.commandKeywords(keywords);
+    foreach (const QString &keyword, keywords)
+        model->appendRow(new QStandardItem(QIcon(":/resources/command16.png"), keyword));
 
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-    return new QStringListModel(words, completer);
+    return model;
 }
 
 void  FindReplace::popUpClose()

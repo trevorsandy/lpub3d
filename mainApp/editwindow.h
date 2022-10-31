@@ -198,7 +198,7 @@ protected:
     bool setValidPartLine();
     bool substitutePLIPart(QString &replaceText, const int action, const QStringList &elements);
 
-    QAbstractItemModel *modelFromFile(const QString& fileName, QObject *parent = nullptr);
+    QAbstractItemModel *metaCommandModel(QObject *parent = nullptr);
 
     void closeEvent(QCloseEvent*_event);
 
@@ -400,7 +400,7 @@ protected:
     void readFindReplaceSettings(FindReplaceCtrls *fr);
     void writeFindReplaceSettings(FindReplaceCtrls *fr);
 private:
-    QAbstractItemModel *modelFromFile(const QString& fileName);
+    QAbstractItemModel *metaCommandModel(QObject *parent);
     QCompleter *completer;
 };
 

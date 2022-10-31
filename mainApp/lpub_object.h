@@ -105,6 +105,9 @@ public:
   /// meta command container
   Meta meta;
 
+  /// meta command keywords;
+  QStringList metaKeywords;
+
   /// Abstract version of page contents
   Page page;
 
