@@ -118,7 +118,8 @@ enum PageDirection { DIRECTION_NOT_SET,
                      PAGE_PREVIOUS = PAGE_BACKWARD,
                      PAGE_JUMP_BACKWARD
 };
-enum ExportMode { PRINT_FILE   = -2,       //-2
+enum ExportMode { ERROR_ENCOUNTERED = -3,  //-3 to pass error encountered to visual editor banner
+                  PRINT_FILE   = -2,       //-2
                   EXPORT_NONE  = -1,       //-1
                   PAGE_PROCESS =  0,       // 0
                   EXPORT_PDF,              // 1

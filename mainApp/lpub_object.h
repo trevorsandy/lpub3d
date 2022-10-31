@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 - 2022 Trevor SANDY. All rights reserved.
+** Copyright (C) 2022 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -125,6 +125,9 @@ public:
 
   /// Search directory thread worker
   PartWorker& partWorkerLDSearchDirs();
+
+  /// Load banner
+  static void loadBanner(const int &type);
 
   /// Download management calls
   void downloadFile(QString URL, QString, bool promptRedirect = false);

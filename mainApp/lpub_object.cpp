@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 - 2022 Trevor SANDY. All rights reserved.
+** Copyright (C) 2022 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -1449,6 +1449,16 @@ QAction *LPub::getAct(const QString &objectName)
         return actions.value(objectName).action;
     emit messageSig(LOG_TRACE, tr("Action was not found or is null [%1]").arg(objectName));
     return nullptr;
+}
+
+void LPub::loadBanner(const int &type)
+{
+    if (!Preferences::modeGUI)
+        return;
+
+    QTemporaryDir tempDir;
+    if (tempDir.isValid())
+        Gui::loadBanner(type, QDir::toNativeSeparators(QString("%1/banner.ldr").arg(tempDir.path())));
 }
 
 void LPub::setupChangeLogUpdate()

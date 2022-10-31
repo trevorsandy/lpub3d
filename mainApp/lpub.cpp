@@ -1508,11 +1508,8 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
 
 void Gui::deployBanner(bool b)
 {
-    if (b && Preferences::modeGUI) {
-        QTemporaryDir tempDir;
-        if (tempDir.isValid())
-            loadBanner(Gui::m_exportMode, QDir::toNativeSeparators(QString("%1/banner.ldr").arg(tempDir.path())));
-    }
+    if (b)
+        lpub->loadBanner(Gui::m_exportMode);
 }
 
 /*-----------------------------------------------------------------------------*/

@@ -1347,6 +1347,7 @@ public slots:
   }
 
   static void deployBanner(bool b);
+  static bool loadBanner(const int &type,const QString &banner);
   static void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
   static void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
   static void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }
@@ -1731,8 +1732,6 @@ private:
     const QStringList &csiParts,
     const int         &stepNum,
     Where             &current);      // fade and or highlight parts in a step that are not current
-
-  static bool loadBanner(const int &type,const QString &banner);
 
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);

@@ -3998,13 +3998,13 @@ int  Preferences::showMessage(
     QString msgType  = type.isEmpty()  ? msgKeyTypes[msgID.msgKey][1] : type;
 
     QMessageBoxResizable box;
-    box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+    box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(msgTitle));
     box.setText(message);
     box.setIcon(QMessageBox::Icon::Warning);
     box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : QMessageBox::Ok);
     box.setDefaultButton   (option ? QMessageBox::Cancel : QMessageBox::Ok);
     if (!override) {
-        QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(type));
+        QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(msgType));
         box.setCheckBox(cb);
         QObject::connect(cb, &QCheckBox::stateChanged, [&message, &msgID](int state) {
             if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
@@ -4012,6 +4012,10 @@ int  Preferences::showMessage(
         });
     }
     box.adjustSize();
+
+    // keep the Visual Editor model updated to avoid crashing at paint/draw event
+    LPub::loadBanner(ERROR_ENCOUNTERED);
+
     return box.exec();
 }
 
