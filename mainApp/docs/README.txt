@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2908 (31 10 2022 03:19:47)
+LPub3D 2.4.4.1.2909 (31 10 2022 03:21:27)
 
 Features, enhancements, fixes and changes
 ------------
@@ -45,6 +45,7 @@ Revisions:
 - Fix - Preferences default url not being saved #587
 - Fix - Remove Group meta doesn't work #569
 - Fix - Update build from source scripts #585
+- Issue - Submodel preview image is empty for some submodels #558
 
 --------------------------------------------------------------------------------------------------
 

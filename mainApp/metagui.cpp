@@ -4048,7 +4048,7 @@ ShowSubModelGui::ShowSubModelGui(
 
     QSettings Settings;
     showSubmodelsDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
-    showSubmodelsDefaultBox = new QCheckBox("Set as default",parent);
+    showSubmodelsDefaultBox = new QCheckBox("Set as preferences default",parent);
     showSubmodelsDefaultBox->setToolTip("Save show submodel to application settings.");
     showSubmodelsDefaultBox->setChecked(showSubmodelsDefaultSettings);
     grid->addWidget(showSubmodelsDefaultBox,1,0);
@@ -4070,7 +4070,7 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showTopModelBox,3,0,1,2);
 
     showTopModelDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
-    showTopModelDefaultBox = new QCheckBox("Set as default",parent);
+    showTopModelDefaultBox = new QCheckBox("Set as preferences default",parent);
     showTopModelDefaultBox->setToolTip("Save show top model to application settings.");
     showTopModelDefaultBox->setChecked(showTopModelDefaultSettings);
     grid->addWidget(showTopModelDefaultBox,4,0);
@@ -4092,7 +4092,7 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showSubmodelInCalloutBox,6,0,1,2);
 
     showSubmodelInCalloutDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
-    showSubmodelInCalloutDefaultBox = new QCheckBox("Set as default",parent);
+    showSubmodelInCalloutDefaultBox = new QCheckBox("Set as preferences default",parent);
     showSubmodelInCalloutDefaultBox->setToolTip("Save show submodel in callout to application settings.");
     showSubmodelInCalloutDefaultBox->setChecked(showSubmodelInCalloutDefaultSettings);
     grid->addWidget(showSubmodelInCalloutDefaultBox,7,0);
@@ -4116,7 +4116,7 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showInstanceCountBox,9,0,1,2);
 
     showInstanceCountDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
-    showInstanceCountDefaultBox = new QCheckBox("Set as default",parent);
+    showInstanceCountDefaultBox = new QCheckBox("Set as preferences default",parent);
     showInstanceCountDefaultBox->setToolTip("Save show submodel instance count to application settings.");
     showInstanceCountDefaultBox->setChecked(showInstanceCountDefaultSettings);
     grid->addWidget(showInstanceCountDefaultBox,10,0);
