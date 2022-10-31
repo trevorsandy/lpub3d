@@ -3984,6 +3984,7 @@ void PreferredRendererGui::valueChanged(int state)
     povFileGeneratorGrpBox->setEnabled(pick == rendererNames[RENDERER_POVRAY]);
     if (!modified)
       modified = data.renderer != rendererMap[pick];
+    data.renderer = rendererMap[pick];
   } else if (sender() == ldvSnapshotListBox) {
     checked = isChecked();
     if (!modified)
