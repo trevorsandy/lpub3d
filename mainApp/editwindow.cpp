@@ -774,9 +774,11 @@ void EditWindow::createToolBars()
     toolsToolBar->setObjectName("EditorToolsToolbar");
     toolsToolBar->setEnabled(false);
 
-    toolsToolBar->addAction(editColorAct);
-    toolsToolBar->addAction(editPartAct);
-    toolsToolBar->addAction(substitutePartAct);
+    if (!isReadOnly) {
+        toolsToolBar->addAction(editColorAct);
+        toolsToolBar->addAction(editPartAct);
+        toolsToolBar->addAction(substitutePartAct);
+    }
 
     if (modelFileEdit())
         toolsToolBar->addAction(previewLineAct);
@@ -899,9 +901,15 @@ bool EditWindow::setValidPartLine()
     clearEditorHighlightLines();
 
     toolsToolBar->setEnabled(false);
-    editColorAct->setText(tr("Edit color"));
-    editPartAct->setText(tr("Edit part"));
-    substitutePartAct->setText(tr("Substitute part"));
+    if (isReadOnly) {
+        editColorAct->setVisible(false);
+        editPartAct->setVisible(false);
+        substitutePartAct->setVisible(false);
+    } else {
+        editColorAct->setText(tr("Edit color"));
+        editPartAct->setText(tr("Edit part"));
+        substitutePartAct->setText(tr("Substitute part"));
+    }
 
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
@@ -996,42 +1004,45 @@ bool EditWindow::setValidPartLine()
     copyFileNameToClipboardAct->setEnabled(true);
     copyFileNameToClipboardAct->setData(partType);
 
-    if (colorCode != LDRAW_MATERIAL_COLOUR) {
-        editColorAct->setText(tr("Edit line color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
-        editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
-        editColorAct->setEnabled(true);
-    }
+    if (!isReadOnly) {
 
-    editPartAct->setText(tr("Edit line  %1 %2...").arg(titleType).arg(elidedPartType));
-    editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
-    editPartAct->setEnabled(true);
-
-    const QString actionText = tr("Substitute  %1...").arg(elidedPartType);
-    if (isSubstitute || isSubstituteAlt) {
-        removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
-        removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
-        removeSubstitutePartAct->setEnabled(stepSet);
-
-        removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
-        removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
-        removeMenu->addAction(removeSubstitutePartAct);
-
-        substitutePartAct->setText(tr("Change %1").arg(actionText));
-        substitutePartAct->setMenu(removeMenu);
-        subPartKey.append(QString("|%1").arg(sUpdate));
-    } else {
-        if (removeMenu) {
-            delete removeMenu;
-            removeMenu = nullptr;
+        if (colorCode != LDRAW_MATERIAL_COLOUR) {
+            editColorAct->setText(tr("Edit line color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
+            editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
         }
-        substitutePartAct->setText(actionText);
-        subPartKey.append(QString("|%1").arg(sSubstitute));
-    }
-    substitutePartAct->setData(subPartKey);
-    substitutePartAct->setEnabled(stepSet);
+        editColorAct->setEnabled(colorCode != LDRAW_MATERIAL_COLOUR);
 
-    if (numOpenWithPrograms)
-        openWithToolbarAct->setEnabled(true);
+        editPartAct->setText(tr("Edit line  %1 %2...").arg(titleType).arg(elidedPartType));
+        editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
+        editPartAct->setEnabled(true);
+
+        const QString actionText = tr("Substitute  %1...").arg(elidedPartType);
+        if (isSubstitute || isSubstituteAlt) {
+            removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
+            removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
+            removeSubstitutePartAct->setEnabled(stepSet);
+
+            removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
+            removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
+            removeMenu->addAction(removeSubstitutePartAct);
+
+            substitutePartAct->setText(tr("Change %1").arg(actionText));
+            substitutePartAct->setMenu(removeMenu);
+            subPartKey.append(QString("|%1").arg(sUpdate));
+        } else {
+            if (removeMenu) {
+                delete removeMenu;
+                removeMenu = nullptr;
+            }
+            substitutePartAct->setText(actionText);
+            subPartKey.append(QString("|%1").arg(sSubstitute));
+        }
+        substitutePartAct->setData(subPartKey);
+        substitutePartAct->setEnabled(stepSet);
+
+        if (numOpenWithPrograms)
+            openWithToolbarAct->setEnabled(true);
+    }
 
     return true;
 }
@@ -1057,7 +1068,6 @@ void EditWindow::showContextMenu(const QPoint &pt)
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
             editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));
             menu->addAction(editModelFileAct);
-
             menu->addSeparator();
             QMenu *openWithMenu = new QMenu(tr("Open With..."), this);
             openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
@@ -1083,7 +1093,6 @@ void EditWindow::showContextMenu(const QPoint &pt)
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
             toolsMenu->addAction(substitutePartAct);
-
             if (modelFileEdit())
                 toolsMenu->addAction(previewLineAct);
         }
@@ -2735,13 +2744,14 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
 {
     QPalette lineNumberPalette = lineNumberArea->palette();
     lineNumberPalette.setCurrentColorGroup(QPalette::Active);
-    lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
     lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
     if (Preferences::displayTheme == THEME_DARK) {
         lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
         lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
-    } else
+    } else {
+        lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
         lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
+    }
 
     lineNumberArea->setPalette(lineNumberPalette);
 
@@ -2977,6 +2987,12 @@ void TextEditor::drawLineEndMarker(QPaintEvent *e)
 
     int fontHeight = fontMetrics().height();
 
+    QColor markerColor;
+    if (Preferences::displayTheme == THEME_DARK)
+        markerColor = QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_HEADER_VALUE]);
+    else
+        markerColor = QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_HEADER_VALUE]);
+
     QTextBlock block = firstVisibleBlock();
     while (block.isValid()) {
         QRectF blockGeometry = blockBoundingGeometry(block).translated(contentOffset());
@@ -2986,7 +3002,7 @@ void TextEditor::drawLineEndMarker(QPaintEvent *e)
         if (block.isVisible() && blockGeometry.toRect().intersects(e->rect())) {
             QString text = block.text();
             if (text.endsWith("  ")) {
-
+                painter.setPen(markerColor);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
                 painter.drawText(blockGeometry.left() + fontMetrics().horizontalAdvance(text) + leftMargin,
                                  blockGeometry.top(),
