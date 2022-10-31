@@ -52,6 +52,7 @@ enum ScanMask {
   InsertMask = (1 << InsertRc)
 };
 
+class Steps;
 class StepGroup;
 class Page;
 
@@ -66,8 +67,9 @@ public:
   void addPointerTip(      Meta *, const Where &, const Where &, PlacementEnc, Rc);
   void addPointerTipMetas( Meta *, const Where &, const Where &, PlacementEnc, Rc);
   void writeCsiAnnotationMeta(QStringList &list, const Where &, const Where &, Meta *,bool = false);
-  bool offsetPoint(        Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int (&)[2], int = -1);
   void updateCsiAnnotationIconMeta(const Where &here, CsiAnnotationIconMeta *caim);
+   int setCsiAnnotationMetas(Steps *steps);
+  bool offsetPoint(        Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int (&)[2], int = -1);
 
   int  nestCallouts(Meta *, const QString &, bool isMirrored, bool pointerless = false);
   QString makeMonoName(const QString &fileName, const QString &color);

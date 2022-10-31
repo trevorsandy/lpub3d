@@ -4237,6 +4237,43 @@ void MetaItem::addPointerTipMetas(
   insertMeta(walk,line);
 }
 
+/*
+ *
+ * CSI step annotations
+ *
+ */
+
+int MetaItem::setCsiAnnotationMetas(Steps *steps)
+{
+    TraverseRc trc = HitNothing;
+
+    if (!steps->groupStepMeta.LPub.assem.annotation.display.value())
+        return static_cast<int>(trc);
+
+    for (int i = 0; i < steps->list.size(); i++) {
+        Range *range = dynamic_cast<Range *>(steps->list[i]);
+        if (range) {
+            for (int j = 0; j < range->list.size(); j++) {
+                if (range->relativeType == RangeType) {
+                    Step *step = dynamic_cast<Step *>(range->list[j]);
+                    if (step && step->relativeType == StepType) {
+                        int adjust = 0;
+                        if(step->setCsiAnnotationMetas(steps->groupStepMeta, adjust, false/*force*/)) {
+                            trc = HitCsiAnnotation;
+                        }
+#ifdef QT_DEBUG_MODE
+                        emit gui->messageSig(LOG_DEBUG, QObject::tr("Step %1 Line Adjustment %2")
+                                                                    .arg(step->stepNumber.number).arg(adjust));
+#endif
+                    }
+                }
+            }
+        }
+    }
+
+    return static_cast<int>(trc);
+}
+
 void MetaItem::updateCsiAnnotationIconMeta(
   const Where &here, CsiAnnotationIconMeta *caim)
 {
@@ -4253,8 +4290,6 @@ void MetaItem::writeCsiAnnotationMeta(
   Meta         *meta,
   bool          update)
 {
-  QHash<QString,QString> hash;
-
   beginMacro("annotationIconMetas");
 
   Where start = fromHere;
@@ -4297,6 +4332,7 @@ void MetaItem::writeCsiAnnotationMeta(
     // process from last to first so as to not disturb line numbers
 
     int lastLineNumber = -1;
+
     for (int j = lineNumbers.size() - 1; j >= 0; --j) {
 
       int lineNumber = lineNumbers[j];

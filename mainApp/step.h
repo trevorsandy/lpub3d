@@ -150,7 +150,8 @@ class Step : public AbstractRangeElement
 
     void getStepLocation(Where &top, Where &bottom);
 
-    void setCsiAnnotationMetas(Meta &_meta,bool = false);
+    int setCsiAnnotationMetas(Meta &, bool = false);
+    int setCsiAnnotationMetas(Meta &, int &, bool);
 
     void appendCsiAnnotation(
             const Where       &here,

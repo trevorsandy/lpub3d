@@ -549,9 +549,7 @@ public:
   void drawPage(                   // this is the workhorse for preparing a
     LGraphicsView *view,           // page for viewing.  It depends heavily
     LGraphicsScene *scene,         // on the next two functions
-    bool            printing,
-    bool            updateViewer = true,
-    bool            buildModActionChange = false);
+    DrawPageFlags  &dpFlags);
 
   /*--------------------------------------------------------------------*
    * These are the work horses for back annotating user changes into    *

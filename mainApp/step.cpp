@@ -681,46 +681,78 @@ void Step::getStepLocation(Where &top, Where &bottom) {
  * Place the CSI step annotation metas
  *
  */
-void Step::setCsiAnnotationMetas(Meta &_meta, bool force)
+int Step::setCsiAnnotationMetas(Meta &_meta, bool force)
 {
+    int adjust = 0;
+
+    return setCsiAnnotationMetas(_meta, adjust, force);
+}
+
+int Step::setCsiAnnotationMetas(Meta &_meta, int &_adjust, bool force)
+{
+    TraverseRc trc = HitNothing;
+
     // sometime we may already have annotations for the
     // step defined - such as after printing or exporting
     if (csiAnnotations.size() && ! force) {
-       return;
+       return static_cast<int>(trc);
     }
 
     Meta *meta = &_meta;
 
     if (!meta->LPub.assem.annotation.display.value())
-        return;
+        return static_cast<int>(trc);
+
+    // process callouts if any;
+    for (int i = 0; i < list.size(); i++) {
+        if (list[i]->relativeType == CalloutType) {
+            Callout *callout = dynamic_cast<Callout *>(list[i]);
+            if (callout) {
+                for (int j = 0; j < callout->list.size(); j++) {
+                    Range *range = dynamic_cast<Range *>(callout->list[j]);
+                    if (range) {
+                        for (int k = 0; k < range->list.size(); k++) {
+                            if (range->relativeType == RangeType) {
+                                Step *step = dynamic_cast<Step *>(range->list[k]);
+                                if (step && step->relativeType == StepType) {
+                                    if (step->setCsiAnnotationMetas(callout->meta, _adjust, force))
+                                        trc = HitCsiAnnotation;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     QHash<QString, PliPart*> pliParts;
 
     pli.getParts(pliParts);
 
     if (!pliParts.size())
-        return;
+        return static_cast<int>(trc);
 
-    MetaItem mi;
     QStringList parts;
     Where start,undefined,fromHere,toHere;
     QString savePartIds,partIds,lineNumbers;
 
-    fromHere = topOfStep();
-    toHere   = bottomOfStep();
+    fromHere = topOfStep() + _adjust;
+    toHere   = bottomOfStep() + _adjust;
     if (toHere == undefined)
         toHere = fromHere;
     if (toHere == fromHere) {
-        mi.scanForward(toHere,StepMask);
+        lpub->mi.scanForward(toHere,StepMask);
     }
 
     if (fromHere == undefined) {
-        emit gui->messageSig(LOG_ERROR, QString("CSI annotations cound not retrieve topOfStep settings"));
-        return;
+        emit gui->messageSig(LOG_ERROR, QObject::tr("CSI annotations cound not retrieve topOfStep settings"));
+        return static_cast<int>(trc);
     }
 
     start = fromHere;
 
+    // process step lines;
     for (; start.lineNumber < toHere.lineNumber; ++start) {
 
         QString line = gui->readLine(start);
@@ -739,8 +771,7 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool force)
 
             if (part->annotateText) {
                 QString typeName = QFileInfo(part->type).completeBaseName();
-                QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
-                QRegExp rx(pattern);
+                QRegExp rx(QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$"));
                 Where walk = start;
                 line = gui->readLine(++walk); // check next line - skip if meta exist
                 if (((line.contains(rx) && typeName == rx.cap(2)) ||
@@ -789,9 +820,15 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool force)
             }
         }
     }
-    if (parts.size()){
-        mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,force);
+
+    // process parts
+    if (parts.size()) {
+        _adjust += parts.size();
+        lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,force);
+        trc = HitCsiAnnotation;
     }
+
+    return static_cast<int>(trc);
 }
 
 /*

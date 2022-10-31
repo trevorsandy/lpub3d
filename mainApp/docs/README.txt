@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2919 (31 10 2022 03:38:08)
+LPub3D 2.4.4.1.2920 (31 10 2022 03:39:48)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,6 +34,7 @@ Revisions:
 - Fix - Build mods don't work properly #520
 - Fix - BUILD_MOD in Multipart model not working as expected #591
 - Fix - Command Editor Issues - multiple issues #564, #565, #566
+- Fix - CSI part annotations impossible to enter #580
 - Fix - Error occurred while downloading archive library #568
 - Fix - Fixed-size circle and square annotation value not centered #579
 - Fix - Generating PDF crashes LPub on a certain page #557

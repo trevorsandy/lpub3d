@@ -739,27 +739,26 @@ Boundary Steps::boundary(AbstractStepsElement *me)
  *Place the multistep and callout CSI annotation metas - Not Used
  *****************************************************************************/
 
-void Steps::setCsiAnnotationMetas(bool force)
+int Steps::setCsiAnnotationMetas(bool force)
 {
+  int rc = 0;
   if (! meta.LPub.assem.annotation.display.value() ||
       Gui::exportingObjects())
-      return;
+      return rc;
 
-  MetaItem mi;
   QStringList parts;
   Where undefined,rangeStart,rangeEnd;
   Where walk,fromHere,toHere;
-
-  bool calledout = relativeType == CalloutType;
 
   // get the model file lines to process
   rangeStart = topOfSteps();
   rangeEnd   = bottomOfSteps();
 
   if (rangeStart == undefined) {
+    bool calledout = relativeType == CalloutType;
     QString topOf = calledout ? "topOfCallout" : "topOfSteps";
     emit gui->messageSig(LOG_ERROR, QString("CSI annotations could not retrieve %1 location").arg(topOf));
-    return;
+    return rc;
   }
 
   for (int i = 0; i < list.size(); i++) {
@@ -793,7 +792,7 @@ void Steps::setCsiAnnotationMetas(bool force)
               if (toHere == undefined)
                   toHere = fromHere;
               if (toHere == fromHere) {
-                  mi.scanForward(toHere,StepMask);
+                  lpub->mi.scanForward(toHere,StepMask);
               }
 
               if (fromHere == undefined) {
@@ -820,8 +819,7 @@ void Steps::setCsiAnnotationMetas(bool force)
 
                   if (part->annotateText) {
                     QString typeName = QFileInfo(part->type).completeBaseName();
-                    QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
-                    QRegExp rx(pattern);
+                    QRegExp rx(QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$"));
                     Where nextLine = walk;
                     line = gui->readLine(++nextLine); // check next line - skip if meta exist [we may have to extend this check to the end of the Step]
                     if ((line.contains(rx) && typeName == rx.cap(2)) ||
@@ -876,8 +874,12 @@ void Steps::setCsiAnnotationMetas(bool force)
       }
     }
   }
+
   // add annotation metas for the process list of parts
-  if (parts.size()){
-      mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
+  if (parts.size()) {
+      lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
+      rc = HitCsiAnnotation;
   }
+
+  return rc;
 }

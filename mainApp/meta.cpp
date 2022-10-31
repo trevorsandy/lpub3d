@@ -3377,12 +3377,12 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   if (rc != OkRc) {
       if (Gui::pageProcessRunning != PROC_NONE) {
           QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
-          Where topOfStep = here;
-          lpub->ldrawFile.getTopOfStepWhere(topOfStep.modelName,topOfStep.modelIndex,topOfStep.lineNumber);
-          if (Gui::stepContains(topOfStep, partTypeLineRx)) {
+          Where top = here;
+          lpub->ldrawFile.getTopOfStepWhere(top.modelName,top.modelIndex,top.lineNumber);
+          if (Gui::stepContains(top, partTypeLineRx)) {
               here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-              emit gui->parseErrorSig(QString("INSERT %1 meta must be followed by 0 [ROT]STEP before part (type 1) at line %2.")
-                                              .arg(argv[index]).arg(topOfStep.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
+              emit gui->parseErrorSig(QString("INSERT %1 meta command STEP cannot contain type 1 to 5 line. Invalid type at line %2.")
+                                              .arg(argv[index]).arg(top.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
           }
       }
       return rc;

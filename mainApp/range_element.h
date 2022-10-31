@@ -52,7 +52,7 @@ class AbstractRangeElement : public Placement {
     {
     }
 
-    virtual ~AbstractRangeElement() {};
+    virtual ~AbstractRangeElement() {}
 
     void         setTopOfStep(const Where &);
     void         setBottomOfStep(const Where &);

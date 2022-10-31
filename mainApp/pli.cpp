@@ -318,7 +318,7 @@ void Pli::setParts(
       QString part = segments.at(0);
       QStringList sections = part.split(";");
       QString line = sections[0];
-      Where here(sections[1],sections[2].toInt());
+      Where here(sections[1],lpub->ldrawFile.getSubmodelIndex(sections[1]),sections[2].toInt());
 
       QStringList tokens;
 

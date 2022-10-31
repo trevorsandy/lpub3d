@@ -398,9 +398,10 @@ void Gui::displayPage()
     pageProcessRunning = PROC_DISPLAY_PAGE;
     emit messageSig(LOG_STATUS, "Display page...");
     timer.start();
-    bool updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
+    DrawPageFlags dpFlags;
+    dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
-    drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
+    drawPage(KpageView,KpageScene,dpFlags);
     pageProcessRunning = PROC_NONE;
   }
 }
@@ -880,7 +881,7 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           displayPage();
 
-          message = QString("%1 Page Processing - Processed page %2 of %3.").arg(direction).arg(displayPageNum).arg(maxPages);
+          message = QString("%1 Page Processing - Processed page %2 of %3.").arg(direction).arg(pageCount).arg(maxPages);
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
@@ -1030,7 +1031,7 @@ bool Gui::continuousPageDialog(PageDirection d)
 bool Gui::processPageRange(const QString &range)
 {
   if (!range.isEmpty()) {
-      int rangeMin, rangeMax;
+      int rangeMin = 0, rangeMax = 0;
       bool ok[2] = {false, false};
       QRegExp rx("^(\\d+)(?:[^0-9]*|[a-zA-Z\\s]*)(\\d+)?$", Qt::CaseInsensitive);
       if (range.trimmed().contains(rx)) {
@@ -7074,7 +7075,7 @@ void Gui::showLine(const Where &here, int type)
   if (Preferences::modeGUI && ! exporting()) {
     if (macroNesting == 0) {
       displayFile(&lpub->ldrawFile, here);
-      showLineSig(here.lineNumber, type);
+      emit showLineSig(here.lineNumber, type);
     }
   }
 }

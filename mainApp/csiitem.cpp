@@ -182,7 +182,7 @@ void CsiItem::partLine(
 
 void CsiItem::placeCsiPartAnnotations()
 {
-    if (!assem->annotation.display.value())
+    if (!assem->annotation.display.value() || !step->csiAnnotations.size())
         return;
 
     QHash<QString, PliPart*> pliParts;

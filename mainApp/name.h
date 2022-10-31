@@ -92,7 +92,7 @@ enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum DisplayModelType { DM_FINAL_MODEL = -1, DM_DISPLAY_MODEL = - 2 };
 enum ShowLineType { PS_POS, LINE_HIGHLIGHT = PS_POS, PS_LAST_POS, LINE_ERROR = PS_LAST_POS, PS_STEP_NUM };
 enum ProcessType { PROC_NONE, PROC_WRITE_TO_TMP, PROC_FIND_PAGE, PROC_DRAW_PAGE, PROC_DISPLAY_PAGE, PROC_COUNT_PAGE };
-enum TraverseRc { HitEndOfFile, HitEndOfPage = 1, HitBuildModAction, HitBottomOfStep, HitEndOfSubmodel };
+enum TraverseRc { HitNothing, HitEndOfFile = HitNothing, HitEndOfPage, HitBuildModAction, HitBottomOfStep, HitEndOfSubmodel, HitCsiAnnotation };
 enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };

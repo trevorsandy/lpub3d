@@ -614,6 +614,7 @@ void Gui::exportAsHtml()
     // start at the last page moving backward until we find a valid CSI
     Meta meta;
     MetaItem mi;
+    DrawPageFlags dpFlags;
     m_partListCSIFile  = true;
     bool modelFound    = false;
     int pageNum        = maxPages;
@@ -665,7 +666,7 @@ void Gui::exportAsHtml()
     LGraphicsScene scene;
     LGraphicsView view(&scene);
 
-    drawPage(&view,&scene,false);
+    drawPage(&view,&scene,dpFlags);
     clearPage(&view,&scene);
 
     restorePreferredRenderer();
@@ -792,6 +793,8 @@ void Gui::exportAsBricklinkXML()
 
 void Gui::exportAsPdf()
 {
+  DrawPageFlags dpFlags;
+
   // store current display page number
   int savePageNumber = displayPageNum;
 
@@ -891,7 +894,8 @@ void Gui::exportAsPdf()
 
   // initialize page sizes
   displayPageNum = 0;
-  drawPage(&view,&scene,true);
+  dpFlags.printing = true;
+  drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
   displayPageNum = savePageNumber;
 
@@ -953,7 +957,8 @@ void Gui::exportAsPdf()
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
-              drawPage(KpageView,KpageScene,false);
+              dpFlags.printing = false;
+              drawPage(KpageView,KpageScene,dpFlags);
               emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
               return;
             }
@@ -1007,7 +1012,8 @@ void Gui::exportAsPdf()
           }
 
           // render this page
-          drawPage(&view,&scene,true);
+          dpFlags.printing = false;
+          drawPage(&view,&scene,dpFlags);
           scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           scene.render(&painter);
           clearPage(&view,&scene);
@@ -1137,7 +1143,8 @@ void Gui::exportAsPdf()
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
-              drawPage(KpageView,KpageScene,false);
+              dpFlags.printing = false;
+              drawPage(KpageView,KpageScene,dpFlags);
               emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
               return;
             }
@@ -1196,7 +1203,8 @@ void Gui::exportAsPdf()
           }
 
           // render this page
-          drawPage(&view,&scene,true);
+          dpFlags.printing = true;
+          drawPage(&view,&scene,dpFlags);
           scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           scene.render(&painter);
           clearPage(&view,&scene);
@@ -1290,7 +1298,8 @@ void Gui::exportAsPdf()
 
   // return to whatever page we were viewing before printing
   displayPageNum = savePageNumber;
-  drawPage(KpageView,KpageScene,false);
+  dpFlags.printing = false;
+  drawPage(KpageView,KpageScene,dpFlags);
 
   //display completion message
   QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1407,6 +1416,7 @@ void Gui::exportAs(const QString &_suffix)
 
   LGraphicsScene scene;
   LGraphicsView view(&scene);
+  DrawPageFlags dpFlags;
 
   float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
   int adjPageWidthPx = 0, adjPageHeightPx = 0;
@@ -1416,7 +1426,8 @@ void Gui::exportAs(const QString &_suffix)
 
   // initialize page sizes
   displayPageNum = 0;
-  drawPage(&view,&scene,true);
+  dpFlags.printing = true;
+  drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
   displayPageNum = savePageNumber;
 
@@ -1453,7 +1464,8 @@ void Gui::exportAs(const QString &_suffix)
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
-              drawPage(KpageView,KpageScene,false);
+              dpFlags.printing = false;
+              drawPage(KpageView,KpageScene,dpFlags);
               emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
               return;
             }
@@ -1467,7 +1479,8 @@ void Gui::exportAs(const QString &_suffix)
           if (exportingObjects()) {
 
               // execute drawPage to prperly process csiParts for content generation
-              drawPage(&view,&scene,false);
+              dpFlags.printing = false;
+              drawPage(&view,&scene,dpFlags);
               clearPage(&view,&scene);
 
           } else {
@@ -1518,7 +1531,8 @@ void Gui::exportAs(const QString &_suffix)
 
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
-              drawPage(&view,&scene,true);
+              dpFlags.printing = true;
+              drawPage(&view,&scene,dpFlags);
               scene.setSceneRect(0.0,0.0,image.width(),image.height());
               scene.render(&painter);
               clearPage(&view,&scene);
@@ -1561,7 +1575,8 @@ void Gui::exportAs(const QString &_suffix)
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
-              drawPage(KpageView,KpageScene,false);
+              dpFlags.printing = false;
+              drawPage(KpageView,KpageScene,dpFlags);
               emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
               return;
           }
@@ -1578,7 +1593,8 @@ void Gui::exportAs(const QString &_suffix)
           if (exportingObjects()) {
 
               // execute drawPage to prperly process csiParts for content generation
-              drawPage(&view,&scene,false);
+              dpFlags.printing = false;
+              drawPage(&view,&scene,dpFlags);
               clearPage(&view,&scene);
 
           } else {
@@ -1628,7 +1644,8 @@ void Gui::exportAs(const QString &_suffix)
 
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
-              drawPage(&view,&scene,true);
+              dpFlags.printing = true;
+              drawPage(&view,&scene,dpFlags);
               scene.setSceneRect(0.0,0.0,image.width(),image.height());
               scene.render(&painter);
               clearPage(&view,&scene);
@@ -1657,7 +1674,8 @@ void Gui::exportAs(const QString &_suffix)
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
-  drawPage(KpageView,KpageScene,false);
+  dpFlags.printing = false;
+  drawPage(KpageView,KpageScene,dpFlags);
 
   //display completion message
   QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1749,10 +1767,12 @@ void Gui::Print(QPrinter* Printer)
 
   LGraphicsScene scene;
   LGraphicsView view(&scene);
+  DrawPageFlags dpFlags;
 
   // initialize page sizes
   displayPageNum = 0;
-  drawPage(&view,&scene,true);
+  dpFlags.printing = true;
+  drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
 
   // check if mixed page size and orientation
@@ -1801,7 +1821,8 @@ void Gui::Print(QPrinter* Printer)
                   if (Preferences::modeGUI)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
-                  drawPage(KpageView,KpageScene,false);
+                  dpFlags.printing = false;
+                  drawPage(KpageView,KpageScene,dpFlags);
                   emit messageSig(LOG_STATUS,QString("Export %1 terminated before completion.")
                                                      .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
                   if (preview){
@@ -1851,7 +1872,8 @@ void Gui::Print(QPrinter* Printer)
                       if (Preferences::modeGUI)
                           m_progressDialog->hide();
                       displayPageNum = savePageNumber;
-                      drawPage(KpageView,KpageScene,false);
+                      dpFlags.printing = false;
+                      drawPage(KpageView,KpageScene,dpFlags);
                       emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
                       if (preview){
@@ -1862,7 +1884,8 @@ void Gui::Print(QPrinter* Printer)
                     }
 
                   // render this page
-                  drawPage(&view,&scene,true);
+                  dpFlags.printing = true;
+                  drawPage(&view,&scene,dpFlags);
                   scene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
                   scene.render(&Painter);
                   clearPage(&view,&scene);
@@ -1919,7 +1942,8 @@ void Gui::Print(QPrinter* Printer)
                   if (Preferences::modeGUI)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
-                  drawPage(KpageView,KpageScene,false);
+                  dpFlags.printing = false;
+                  drawPage(KpageView,KpageScene,dpFlags);
                   emit messageSig(LOG_STATUS,QString("%1 terminated before completion.").arg(exportPdf ? "Export" + mode : "Print" + mode));
                   if (preview){
                       m_previewDialog = false;
@@ -1974,7 +1998,8 @@ void Gui::Print(QPrinter* Printer)
                       if (Preferences::modeGUI)
                           m_progressDialog->hide();
                       displayPageNum = savePageNumber;
-                      drawPage(KpageView,KpageScene,false);
+                      dpFlags.printing = false;
+                      drawPage(KpageView,KpageScene,dpFlags);
                       emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
                       if (preview){
@@ -1985,7 +2010,8 @@ void Gui::Print(QPrinter* Printer)
                     }
 
                   // render this page
-                  drawPage(&view,&scene,true);
+                  dpFlags.printing = true;
+                  drawPage(&view,&scene,dpFlags);
                   scene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
                   scene.render(&Painter);
                   clearPage(&view,&scene);
@@ -2014,7 +2040,8 @@ void Gui::Print(QPrinter* Printer)
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
-  drawPage(KpageView,KpageScene,false);
+  dpFlags.printing = false;
+  drawPage(KpageView,KpageScene,dpFlags);
 
   // hide progress bar
   if (Preferences::modeGUI)

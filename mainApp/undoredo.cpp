@@ -255,16 +255,17 @@ bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
 {
   bool found = false;
   Where walk    = topOfStep;
-  int  numLines = lpub->ldrawFile.size(walk.modelName);
+  LDrawFile &ldrawFile = lpub->ldrawFile;
+  int  numLines = ldrawFile.size(walk.modelName);
   QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 NOFILE$|^0 FILE");
   for (; walk < numLines; ++walk) {
-    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+    QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if ((found = line.contains(lineRx)))
       topOfStep = walk;
     if (found || line.contains(endRx))
       break;
   }
-  topOfStep.setModelIndex(lpub->ldrawFile.getSubmodelIndex(topOfStep.modelName));
+  topOfStep.setModelIndex(ldrawFile.getSubmodelIndex(topOfStep.modelName));
   return found;
 }
 
