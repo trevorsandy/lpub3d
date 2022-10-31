@@ -25,6 +25,7 @@
 #include "ranges.h"
 #include "color.h"
 #include "commonmenus.h"
+#include "lpub_object.h"
 #include "pagebackgrounditem.h"
 #include "lpub.h"
 
@@ -361,18 +362,16 @@ void InsertPixmapItem::change()
 void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = "Picture";
+  const QString name      = QObject::tr("Picture");
 
-  QAction *deleteAction = menu.addAction("Delete this " + pl);
-  deleteAction->setWhatsThis("Delete this " + pl.toLower());
+  QAction *deleteAction   = lpub->getAct("deleteImageAction.1");
+  commonMenus.addAction(deleteAction,menu,name);
 
-  QAction *selectedAction   = menu.exec(event->screenPos());
+  QAction *selectedAction = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
   }
-
-  Where here  = meta.here();
 
   if (selectedAction == deleteAction) {
       deleteMeta(meta.here());
