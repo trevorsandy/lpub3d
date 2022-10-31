@@ -563,15 +563,15 @@ public:
 
   void setLoadingFileFlag(bool) const;
 
-  void clearAllCaches(bool = false) const;
+  void clearAllCaches() const;
   void clearPageCache(PlacementType relativeType, Page *page, int option) const;
-  void clearAndReloadModelFile(bool = false) const;
+  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false) const;
   void clearCustomPartCache() const;
   void clearCsiCache() const;
   void clearSubmodelCache() const;
   void clearPliCache() const;
   void clearTempCache() const;
-  void reloadCurrentPage() const;
+  void reloadCurrentPage(bool savePrompt = false) const;
   void restartApplication() const;
 };
 

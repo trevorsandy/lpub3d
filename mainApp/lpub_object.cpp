@@ -1282,14 +1282,14 @@ void LPub::SetShadingMode(lcShadingMode ShadingMode)
 }
 
 // the next four calls are used when setting Visual Editor preferences
-void LPub::clearAndReloadModelFile(bool global)
+void LPub::clearAndReloadModelFile(bool fileReload, bool savePrompt)
 {
-    emit gui->clearAndReloadModelFileSig(global);
+    emit gui->clearAndReloadModelFileSig(fileReload, savePrompt);
 }
 
-void LPub::reloadCurrentPage()
+void LPub::reloadCurrentPage(bool savePrompt)
 {
-    emit gui->reloadCurrentPageSig();
+    emit gui->reloadCurrentPageSig(savePrompt);
 }
 
 void LPub::restartApplication()

@@ -846,6 +846,7 @@ void GlobalPageDialog::accept()
 
   mi.beginMacro("GlobalPage");
 
+  bool noPageDisplay = false;
   MetaGui *child;
   Q_FOREACH (child,data->children) {
       if ((child == authorChildFront && authorChildFront->modified) ||
@@ -872,7 +873,11 @@ void GlobalPageDialog::accept()
               mi.appendCoverPage();
       }
       child->apply(data->topLevelFile);
+      noPageDisplay |= child->modified;
   }
+
+  mi.setLoadingFileFlag(!noPageDisplay);
+
   mi.endMacro();
 
   QDialog::accept();

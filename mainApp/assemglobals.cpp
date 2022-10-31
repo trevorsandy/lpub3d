@@ -172,7 +172,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   StudStyleGui *childStudStyle = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
   childStudStyle->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
-  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  connect(childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   //spacer
 
@@ -212,18 +212,20 @@ void GlobalAssemDialog::accept()
 {
   MetaItem mi;
 
+  if (data->clearCache)
+    mi.clearCsiCache();
+
   mi.beginMacro("Global Assem");
 
-  MetaGui *child;
+  bool noPageDisplay = false;
 
+  MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
+    noPageDisplay |= child->modified;
   }
 
-  if (data->clearCache) {
-    mi.setLoadingFileFlag(false);
-    mi.clearCsiCache();
-  }
+  mi.setLoadingFileFlag(!noPageDisplay);
 
   mi.endMacro();
 

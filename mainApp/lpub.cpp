@@ -1593,13 +1593,13 @@ void Gui::insertConfiguredSubFile(const QString &name,
     lpub->ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
 }
 
-void Gui::reloadCurrentPage(){
+void Gui::reloadCurrentPage(bool prompt) {
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"No model file page to redisplay.");
         return;
     }
 
-    if (sender() == editWindow) {
+    if (sender() == editWindow || prompt) {
         bool _continue;
         if (Preferences::saveOnUpdate) {
             _continue = maybeSave(false); // No prompt
@@ -1689,15 +1689,9 @@ void Gui::resetModelCache(QString file, bool commandLine)
         if (! QDir::setCurrent(fileDir))
             emit messageSig(LOG_ERROR, QString("Reset cache failed to set current directory %1").arg(fileDir));
 
-        clearCustomPartCache(true);
-        if (commandLine) {
-            clearPLICache();
-            clearCSICache();
-            clearSubmodelCache();
-            clearTempCache();
-        } else {
-            clearAllCaches();
-        }
+        if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
+            clearCustomPartCache(true);
+        clearAllCaches();
 
         if (! QDir::setCurrent(saveCurrentDir))
             emit messageSig(LOG_ERROR, QString("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
@@ -1736,10 +1730,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
         lpub->ldrawFile.clearPrevStepPositions();
     }
 
-    clearPLICache();
-    clearCSICache();
-    clearSubmodelCache();
-    clearTempCache();
+    clearAllCaches();
 
     //reload current model
     cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
@@ -1751,8 +1742,8 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndReloadModelFile(bool global) { // EditWindow Redraw
-    if (sender() == editWindow || global) {
+void Gui::clearAndReloadModelFile(bool fileReload, bool savePrompt) { // EditWindow Redraw
+    if (sender() == editWindow || savePrompt) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1763,41 +1754,16 @@ void Gui::clearAndReloadModelFile(bool global) { // EditWindow Redraw
             return;
     }
 
-    if (global) {
-        timer.start();
-        clearPLICache();
-        clearCSICache();
-        clearSubmodelCache();
-        clearTempCache();
-        emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                        .arg(lpub->ldrawFile.getPartCount())
-                        .arg(elapsedTime(timer.elapsed())));
-    } else
-        clearAllCaches();
+    clearAllCaches();
+
+    cyclePageDisplay(displayPageNum, !savePrompt/*silent*/, fileReload);
 }
 
-void Gui::clearAllCaches(bool global)
+void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
         return;
-    }
-
-    bool disableSaveOnRedraw = false;
-    if (sender() == getAct("clearAllCachesAct.1") || global) {
-        bool _continue;
-        if (Preferences::saveOnRedraw) {
-            _continue = maybeSave(false); // No prompt
-        } else {
-            _continue = maybeSave(true);
-            if (_continue) {
-                // Suppress prompt in the following call
-                disableSaveOnRedraw = true;
-                Preferences::saveOnRedraw = true;
-            }
-        }
-        if (!_continue)
-            return;
     }
 
     timer.start();
@@ -1806,29 +1772,14 @@ void Gui::clearAllCaches(bool global)
         lpub->ldrawFile.clearPrevStepPositions();
     }
 
-    // if global, skip clearCache here and run in cycleDisPlayPage
-    if (!global) {
-        timer.start();
-        clearPLICache();
-        clearCSICache();
-        clearSubmodelCache();
-        clearTempCache();
-        emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                        .arg(lpub->ldrawFile.getPartCount())
-                        .arg(elapsedTime(timer.elapsed())));
-    }
+    clearPLICache();
+    clearCSICache();
+    clearSubmodelCache();
+    clearTempCache();
 
-    if (disableSaveOnRedraw) {
-        Preferences::saveOnRedraw = false;
-    }
-
-    //reload current model
-    cyclePageDisplay(displayPageNum, false/*silent*/, global);
-
-    emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                        .arg(lpub->ldrawFile.getPartCount())
-                                        .arg(elapsedTime(timer.elapsed())));
-
+    emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
+                    .arg(lpub->ldrawFile.getPartCount())
+                    .arg(elapsedTime(timer.elapsed())));
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -3589,14 +3540,14 @@ Gui::Gui()
     connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
             this,           SLOT(  clearPageCache(PlacementType, Page*, int)));
 
-    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool)),
-            this,           SLOT(  clearAndReloadModelFile(bool)));
+    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool, bool)),   // reloadModelFile
+            this,           SLOT(  clearAndReloadModelFile(bool, bool)));
 
     connect(this,           SIGNAL(clearCustomPartCacheSig(bool)),
             this,           SLOT(  clearCustomPartCache(bool)));
 
-    connect(this,           SIGNAL(clearAllCachesSig(bool)),          // reloadDisplayPage
-            this,           SLOT(  clearAllCaches(bool)));
+    connect(this,           SIGNAL(clearAllCachesSig()),
+            this,           SLOT(  clearAllCaches()));
 
     connect(this,           SIGNAL(clearSubmodelCacheSig()),
             this,           SLOT(  clearSubmodelCache()));
@@ -3610,8 +3561,8 @@ Gui::Gui()
     connect(this,           SIGNAL(clearTempCacheSig()),
             this,           SLOT(  clearTempCache()));
 
-    connect(this,           SIGNAL(reloadCurrentPageSig()),
-            this,           SLOT(  reloadCurrentPage()));
+    connect(this,           SIGNAL(reloadCurrentPageSig(bool)),          // reloadDisplayPage
+            this,           SLOT(  reloadCurrentPage(bool)));
 
     connect(this,           SIGNAL(restartApplicationSig()),
             this,           SLOT(  restartApplication()));

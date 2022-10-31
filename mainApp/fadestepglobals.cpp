@@ -157,19 +157,23 @@ void GlobalFadeStepDialog::accept()
 
   mi.beginMacro("GlobalFadeStep");
 
-  MetaGui *child;
+  bool noPageDisplay = false;
 
+  MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
+    noPageDisplay |= child->modified;
   }
 
-  mi.setLoadingFileFlag(data->reloadFile);
+  if (data->reloadFile)
+    mi.setLoadingFileFlag(true);
+  else
+    mi.setLoadingFileFlag(!noPageDisplay);
 
   mi.endMacro();
 
-  if (data->reloadFile) {
-    mi.clearAllCaches(true);
-  }
+  if (data->reloadFile)
+    mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/);
 
   QDialog::accept();
 }

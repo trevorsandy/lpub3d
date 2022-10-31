@@ -108,8 +108,8 @@ public:
   void setCurrentStep(Step *);
 
   /// Visual Editor restart and reload calls
-  void clearAndReloadModelFile(bool);
-  void reloadCurrentPage();
+  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
+  void reloadCurrentPage(bool savePrompt = false);
   void restartApplication();
 
   /// LPub commands collection load

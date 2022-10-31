@@ -3389,7 +3389,7 @@ QString         title,
     }
     endMacro();
     if (reloadFile) {
-      clearAllCaches(true);
+      clearAndReloadModelFile();
     } else {
       clearCsiCache();
     }
@@ -3434,7 +3434,7 @@ void MetaItem::setHighlightStep(
     }
     endMacro();
     if (reloadFile) {
-      clearAllCaches(true);
+      clearAndReloadModelFile();
     } else {
       clearCsiCache();
     }
@@ -5318,10 +5318,9 @@ void MetaItem::setLoadingFileFlag(bool b) const
     Gui::mloadingFile = b;
 }
 
-void MetaItem::clearAllCaches(bool global) const
+void MetaItem::clearAllCaches() const
 {
-    // if true, cyclePageDisplay (Reload File) but do not clear cache
-    emit gui->clearAllCachesSig(global);
+    emit gui->clearAllCachesSig();
 }
 
 void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option) const
@@ -5329,10 +5328,9 @@ void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option
     emit gui->clearPageCacheSig(relativeType, page, option);
 }
 
-void MetaItem::clearAndReloadModelFile(bool global) const
+void MetaItem::clearAndReloadModelFile(bool fileReload, bool savePrompt) const
 {
-    // if global, clear cache only
-    emit gui->clearAndReloadModelFileSig(global);
+    emit gui->clearAndReloadModelFileSig(fileReload, savePrompt);
 }
 
 void MetaItem::clearPliCache() const
@@ -5360,9 +5358,9 @@ void MetaItem::clearCustomPartCache() const
     emit gui->clearCustomPartCacheSig(true/*silent*/);
 }
 
-void MetaItem::reloadCurrentPage() const
+void MetaItem::reloadCurrentPage(bool savePrompt) const
 {
-    emit gui->reloadCurrentPageSig();
+    emit gui->reloadCurrentPageSig(savePrompt);
 }
 
 void MetaItem::restartApplication() const

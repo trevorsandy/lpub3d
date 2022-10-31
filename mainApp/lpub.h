@@ -1448,16 +1448,16 @@ public slots:
   void clearCSICache();
   void clearTempCache();
   void clearSubmodelCache(const QString &key = QString());
-  void clearAllCaches(bool global = false);
+  void clearAllCaches();
   void clearCustomPartCache(bool silent = false);
   void clearStepCSICache(QString &pngName);
   void clearPageCache(PlacementType relativeType, Page *page, int option);
   void clearPageGraphicsItems(Step *step, int option);
-  void clearAndReloadModelFile(bool global = false);
+  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
   void clearAndRedrawModelFile();
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
-  void reloadCurrentPage();
+  void reloadCurrentPage(bool prompt = false);
   void reloadViewer();
   void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false);
   void loadTheme();
@@ -1506,15 +1506,15 @@ signals:
 
   // cache management
   void clearPageCacheSig(PlacementType, Page*, int);
-  void clearAndReloadModelFileSig(bool);
+  void clearAndReloadModelFileSig(bool, bool);
   void clearCustomPartCacheSig(bool);
-  void clearAllCachesSig(bool);
+  void clearAllCachesSig();
   void clearSubmodelCacheSig();
   void clearPLICacheSig();
   void clearCSICacheSig();
   void clearTempCacheSig();
 
-  void reloadCurrentPageSig();
+  void reloadCurrentPageSig(bool);
 
   void restartApplicationSig();
 

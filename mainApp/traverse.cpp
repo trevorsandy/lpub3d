@@ -1185,6 +1185,9 @@ int Gui::drawPage(
               break;
             case EnableFadeStepsRc:
                   curMeta.LPub.fadeStep.setPreferences();
+                  Gui::suspendFileDisplay = true;
+                  insertFinalModelStep();
+                  Gui::suspendFileDisplay = false;
               break;
 
             case EnableHighlightStepCalloutAssemRc:
@@ -1212,8 +1215,10 @@ int Gui::drawPage(
               }
               break;
            case EnableHighlightStepRc:
-
                   curMeta.LPub.highlightStep.setPreferences();
+                  Gui::suspendFileDisplay = true;
+                  insertFinalModelStep();
+                  Gui::suspendFileDisplay = false;
               break;
 
               /* Buffer exchange */
@@ -2678,13 +2683,27 @@ int Gui::drawPage(
                           curMeta.LPub.multiStep.csi.fadeStep.setPreferences(reset);
                       else if (curMeta.LPub.assem.fadeStep.enable.pushed == local)
                           curMeta.LPub.assem.fadeStep.setPreferences(reset);
+                      else if (curMeta.LPub.fadeStep.enable.pushed == local) {
+                          Gui::suspendFileDisplay = true;
+                          deleteFinalModelStep();
+                          Gui::suspendFileDisplay = false;
+                          curMeta.LPub.fadeStep.setPreferences(reset);
+                      }
+
                       // reset local highlight current step
-                      if (curMeta.LPub.callout.csi.highlightStep.enable.pushed)
+                      if (curMeta.LPub.callout.csi.highlightStep.enable.pushed == local)
                           curMeta.LPub.callout.csi.highlightStep.setPreferences(reset);
-                      else if (curMeta.LPub.multiStep.csi.highlightStep.enable.pushed)
+                      else if (curMeta.LPub.multiStep.csi.highlightStep.enable.pushed == local)
                           curMeta.LPub.multiStep.csi.highlightStep.setPreferences(reset);
-                      else if (curMeta.LPub.assem.highlightStep.enable.pushed)
+                      else if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
+                      else if (curMeta.LPub.highlightStep.enable.pushed == local) {
+                          Gui::suspendFileDisplay = true;
+                          deleteFinalModelStep();
+                          Gui::suspendFileDisplay = false;
+                          curMeta.LPub.highlightStep.setPreferences(reset);
+                      }
+
                       // reset local preferred renderer
                       if (curMeta.LPub.callout.csi.preferredRenderer.pushed == local) {
                           curMeta.LPub.callout.csi.preferredRenderer.setPreferences(reset);

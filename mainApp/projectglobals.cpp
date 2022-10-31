@@ -240,27 +240,28 @@ void GlobalProjectDialog::accept()
 
   MetaItem mi;
 
+  if (data->clearCache && !data->reloadFile)
+    mi.clearAllCaches();
+
   mi.beginMacro("Global Project");
 
-  MetaGui *child;
+  bool noPageDisplay = false;
 
+  MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
+    noPageDisplay |= child->modified;
   }
 
-  if (data->clearCache) {
-    mi.setLoadingFileFlag(false);
-    mi.clearAndReloadModelFile(true); // if true, clear all the caches
-  }
-  if (data->reloadFile) {
-    mi.setLoadingFileFlag(true); // set the
-  }
+  if (data->reloadFile)
+    mi.setLoadingFileFlag(true);           // when true, do not cyclePageDisplay at endMacro()
+  else
+    mi.setLoadingFileFlag(!noPageDisplay); // when false, cyclePageDisplay at endMacro()
 
-  mi.endMacro();              // display Page if setLoadingFileFlag = true
+  mi.endMacro();
 
-  if (data->reloadFile) {
-    mi.clearAllCaches(true);  // if true, cyclePageDisplay (Reload File) but do not clear cache
-  }
+  if (data->reloadFile)
+    mi.clearAndReloadModelFile(false, true); // if true, close and reload file, if true, prompt to save - clear all caches
 
   QDialog::accept();
 }

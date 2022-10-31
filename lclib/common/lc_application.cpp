@@ -1843,11 +1843,11 @@ void lcApplication::ShowPreferencesDialog()
 	}
 	else
 	if (reloadFile) {
-		lpub->clearAndReloadModelFile(false);
+		lpub->clearAndReloadModelFile(false, true);
 	}
 	else
 	if (reloadPage) {
-		lpub->reloadCurrentPage();
+		lpub->reloadCurrentPage(true);
 	}
 /*** LPub3D Mod end ***/
 }

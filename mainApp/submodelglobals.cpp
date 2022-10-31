@@ -297,18 +297,20 @@ void GlobalSubModelDialog::accept()
 {
   MetaItem mi;
 
+  if (data->clearCache)
+    mi.clearSubmodelCache();
+
   mi.beginMacro("GlobalSubmodel");
 
-  MetaGui *child;
+  bool noPageDisplay = false;
 
+  MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
+    noPageDisplay |= child->modified;
   }
 
-  if (data->clearCache) {
-    mi.setLoadingFileFlag(false);
-    mi.clearSubmodelCache();
-  }
+  mi.setLoadingFileFlag(!noPageDisplay);
 
   mi.endMacro();
 

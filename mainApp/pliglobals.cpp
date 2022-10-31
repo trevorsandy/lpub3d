@@ -659,18 +659,20 @@ void GlobalPliDialog::accept()
 {
   MetaItem mi;
 
+  if (data->clearCache)
+    mi.clearPliCache();
+
   mi.beginMacro("Global Pli");
 
-  MetaGui *child;
+  bool noPageDisplay = false;
 
+  MetaGui *child;
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
+    noPageDisplay |= child->modified;
   }
 
-  if (data->clearCache) {
-    mi.setLoadingFileFlag(false);
-    mi.clearPliCache();
-  }
+  mi.setLoadingFileFlag(!noPageDisplay);
 
   mi.endMacro();
 
