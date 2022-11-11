@@ -1816,12 +1816,12 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                             zValue = item->zValue() + 1.0;
                     }
                     if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("03 Overlap scene item %1 (%2) ZValue %3")
+                        emit messageSig(LOG_DEBUG, tr("03 Overlap scene item %1 (%2) ZValue %3")
                                         .arg(soMap[itemObjO]).arg(itemObjO)
                                         .arg(item->zValue()));
                 } else {
-                    emit messageSig(LOG_TRACE, QString("Overlap scene item %1 (%2) ZValue %3 is not in the "
-                                                       "LPub3D User Scene Object list")
+                    emit messageSig(LOG_TRACE, tr("Overlap scene item %1 (%2) ZValue %3 is not in the "
+                                                  "%1 User Scene Object list").arg(VER_PRODUCTNAME_STR)
                                     .arg(soMap[itemObjO]).arg(itemObjO)
                                     .arg(item->zValue()));
                 }
@@ -2378,6 +2378,7 @@ int Gui::addCoverPageAttributes(
           delete modelNameFront;
           modelNameFront                 = nullptr;
       }
+      Q_UNUSED(breakModelNameFrontRelativeTo)
 
        // Author (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayAuthorFront         = page->meta.LPub.page.authorFront.display.value();
@@ -2434,6 +2435,7 @@ int Gui::addCoverPageAttributes(
           delete publishDescFront;
           publishDescFront                = nullptr;
       }
+      Q_UNUSED(breakPublishDescFrontRelativeTo)
 
       // Category (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       /* bool displayCategoryFront      = page->meta.LPub.page.category.display.value();
@@ -2750,6 +2752,7 @@ int Gui::addCoverPageAttributes(
           delete plugBack;
           plugBack                = nullptr;
       }
+      Q_UNUSED(breakPlugBackRelativeTo)
 
       // Nothing is placed relative to the document logo or plug image so no break statement is defined.
       // Back Cover DocumentLogo

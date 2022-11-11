@@ -1388,7 +1388,8 @@ bool Project::ExportBrickLink()
 	QString SaveFileName;
 	if (Preferences::modeGUI)
 	{
-		SaveFileName = GetExportFileName(QString(), "xml", tr("Export BrickLink"), tr("XML Files (*.xml);;All Files (*.*)"));
+		const QString FileName = lpub->Options ? lpub->Options->OutputFileName : QString();
+		SaveFileName = GetExportFileName(FileName, "xml", tr("Export BrickLink"), tr("XML Files (*.xml);;All Files (*.*)"));
 	}
 	else
 	{
@@ -1716,7 +1717,8 @@ bool Project::ExportCSV()
 	QString SaveFileName;
 	if (Preferences::modeGUI)
 	{
-		SaveFileName = GetExportFileName(QString(), "csv", tr("Export CSV"), tr("CSV Files (*.csv);;All Files (*.*)"));
+		const QString FileName = lpub->Options ? lpub->Options->OutputFileName : QString();
+		SaveFileName = GetExportFileName(FileName, "csv", tr("Export CSV"), tr("CSV File (*.csv);;All Files (*.*)"));
 	}
 	else
 	{
@@ -2494,7 +2496,7 @@ void Project::SaveImage()
 
 /*** LPub3D Mod - Save FadeStep Setting ***/
 	bool saveFadeStep = false;
-	if (Dialog.mStart == Dialog.mEnd == 1)
+	if (Dialog.mStart == 1 && Dialog.mEnd == 1)
 		saveFadeStep = gApplication->mPreferences.mFadeSteps;
 
 	if (saveFadeStep)

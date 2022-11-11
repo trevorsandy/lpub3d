@@ -2044,8 +2044,8 @@ void Gui::ShowStepRotationStatus()
                                .arg(QString::number(double(mRotStepAngleX), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleY), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
-                               .arg(mRotStepTransform == "REL" ? "RELATIVE" :
-                                    mRotStepTransform == "ABS" ? "ABSOLUTE" : "ADD");
+                               .arg(mRotStepTransform.toUpper() == "REL" ? "RELATIVE" :
+                                    mRotStepTransform.toUpper() == "ABS" ? "ABSOLUTE" : "ADD");
     statusBarMsg(rotLabel);
 }
 

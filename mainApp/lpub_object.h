@@ -182,6 +182,9 @@ public:
   /// Currently loaded CSI in Visual Editor
   static QString viewerStepKey;
 
+  /// Native export options
+  NativeOptions *Options = nullptr;
+
   /// Download management calls
   QProgressDialog *mProgressDialog = nullptr;
   bool mPromptRedirect;

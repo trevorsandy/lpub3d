@@ -255,7 +255,7 @@ int Step::createCsi(
   QString nameExtension = modelDisplayOnlyStep ? "_dm" : bfxLoad ? "_bfx" : buildModAction ? "_bm" : QString();
   QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameExtension, QString::number(Preferences::preferredRenderer));
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
-  bool    absRotstep    = meta.rotStep.value().type == "ABS";
+  bool    absRotstep    = meta.rotStep.value().type.toUpper() == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
   FloatPairMeta noCA;
   lineTypeIndexes       =_lineTypeIndexes;
@@ -516,7 +516,7 @@ int Step::createCsi(
 
   // Generate  the renderer CSI file
 
-  if (!rc && ! csiExist || csiOutOfDate) {
+  if (!rc && (!csiExist || csiOutOfDate)) {
 
      timer.start();
 
@@ -1879,6 +1879,10 @@ bool Step::adjustSize(
     default:
     break;
     }
+
+    Q_UNUSED(rtX)
+    Q_UNUSED(rtY)
+
     pl_1.placeRelative(&pl1);
     pl_2.placeRelative(&pl2);
 

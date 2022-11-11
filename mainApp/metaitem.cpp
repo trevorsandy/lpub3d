@@ -3265,7 +3265,7 @@ bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
   Where walk,here;
   Rc rc = OkRc;
 
-  if (currentFile() && (fromPreferences || Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep))) {
+  if (currentFile() && (fromPreferences || (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)))) {
     int finalModelLine = displayModelStepExists(rc, true/*deleteStep*/);
     if ((foundFinalModel = finalModelLine && rc == InsertFinalModelRc)) {
       emit lpub->messageSig(LOG_INFO, QObject::tr("Removing fade/highlight final model step at line %1...").arg(finalModelLine));
@@ -4797,8 +4797,8 @@ int MetaItem::monoColorSubmodel(
 
   for ( ; walk < numLines; walk++) {
     if (whiteModel && !monoColorAdded && walk.lineNumber == here.lineNumber) {
-      out << "0 // LPub3D part custom color" << lpub_endl;
-      out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << lpub_endl;
+      out << QString("0 // %1 part custom color").arg(VER_PRODUCTNAME_STR) << lpub_endl;
+      out << QString("0 !COLOUR %1_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32").arg(VER_PRODUCTNAME_STR) << lpub_endl;
       out << "0" << lpub_endl;
       monoColorAdded = true;
     }

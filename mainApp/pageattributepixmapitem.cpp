@@ -326,7 +326,6 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
 
   Where topOfSteps    = page->topOfSteps();
   Where bottomOfSteps = page->bottomOfSteps();
-  bool multiStep      = parentRelativeType == StepGroupType;
 
   int  onPageType = ContentPage;
   if (page->coverPage) {
@@ -342,6 +341,7 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
     return;
   } else if (selectedAction == placementAction) {
 #ifdef QT_DEBUG_MODE
+      bool multiStep = parentRelativeType == StepGroupType;
       logInfo() << "\nMOVE IMAGE - "
                 << "\nPAGE- "
                 << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")

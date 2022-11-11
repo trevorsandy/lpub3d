@@ -251,7 +251,7 @@ int SubModel::createSubModelImage(
   float modelScale   = subModelMeta.modelScale.value();
   int stepNumber     = subModelMeta.showStepNum.value() ?
                        subModelMeta.showStepNum.value() : 1;
-  bool noCA          = subModelMeta.rotStep.value().type == "ABS" &&
+  bool noCA          = subModelMeta.rotStep.value().type.toUpper() == "ABS" &&
                       !subModelMeta.cameraAngles.homeViewpointModified();
   float camDistance  = subModelMeta.cameraDistance.value();
   bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
@@ -411,7 +411,7 @@ int SubModel::createSubModelImage(
                   else
                       rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/);
                   if (rcf) {
-                      emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged SMI file"));
+                      emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged Submodel Preview (SMP) file"));
                       imageName = QString(":/resources/missingimage.png");
                   }
                   return futureModel;
@@ -1051,7 +1051,7 @@ int SubModel::placeSubModel(
     for (i = 0; i < keys.size(); i++) {
       QString key = keys[i];
       part = parts[key];
-      if ( ! part->placed && left + part->width < xConstraint) {
+      if (part && !part->placed && left + part->width < xConstraint) {
         break;
       }
     }
@@ -1083,11 +1083,13 @@ int SubModel::placeSubModel(
     tallest = qMax(tallest,prevPart->height);
 
     int right = left + prevPart->width;
-    int bot = prevPart->height;
+    int bottom = prevPart->height;
+    Q_UNUSED(right)
+    Q_UNUSED(bottom)
 
     botMargin = qMax(botMargin,prevPart->csiMargin.valuePixels(YY));
 
-    topMargin = qMax(topMargin,part->topMargin);
+    topMargin = qMax(topMargin,part ? part->topMargin : 0);
 
     left += width;
 

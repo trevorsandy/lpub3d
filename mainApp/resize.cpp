@@ -44,7 +44,6 @@ void ResizeRect::placeGrabbers()
   int    top  = rect.top();
   int    width = rect.width();
   int    height = rect.height();
-  int    bottom = rect.bottom();
   
   points[0] = QPointF(left,top);
   points[1] = QPointF(left + width, top);

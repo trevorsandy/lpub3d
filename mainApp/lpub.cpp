@@ -5275,7 +5275,7 @@ void Gui::createActions()
     // Configuration
     QAction *preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("&Preferences"), this);
     preferencesAct->setObjectName("preferencesAct.1");
-    preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
+    preferencesAct->setStatusTip(tr("Set your preferences for %1").arg(VER_PRODUCTNAME_STR));
     lpub->actions.insert(preferencesAct->objectName(), Action(QStringLiteral("Configuration.Preferences"), preferencesAct));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
@@ -7335,7 +7335,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   actionsLayout->addWidget(pushButtonMoveDown);
 
   pushButtonReset = new QPushButton(dialog);
-  pushButtonReset->setToolTip(tr("Reset LPub3D LDraw search directories to default"));
+  pushButtonReset->setToolTip(tr("Reset %1 LDraw search directories to default").arg(VER_PRODUCTNAME_STR));
   pushButtonReset->setIcon(QIcon(QIcon(":/resources/resetsetting.png")));
   actionsLayout->addWidget(pushButtonReset);
 
@@ -7470,8 +7470,8 @@ void LDrawSearchDirDialog::buttonClicked()
     box.setWindowTitle(tr ("Reset Search Directories?"));
     box.setDefaultButton   (QMessageBox::Yes);
     box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-    box.setText (tr("This action will reset your search directory settings to the LPub3D default.\n"
-                    "Are you sure you want to continue? "));
+    box.setText (tr("This action will reset your search directory settings to the %1 default.\n"
+                    "Are you sure you want to continue? ").arg(VER_PRODUCTNAME_STR));
     if (box.exec() == QMessageBox::Yes) {
       gui->partWorkerLDSearchDirs.resetSearchDirSettings();
       textEditSearchDirs->clear();

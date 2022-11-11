@@ -168,7 +168,7 @@ void Gui::remove_group(
           }
         }
         break;
-      case OkRc:
+      default:
         break;
     }
 
@@ -1565,11 +1565,8 @@ int Gui::drawPage(
                       if (currRp == RightInside)
                           position = PP_RIGHT;
 
-                      // DEBUG
-                      bool newPP = true;
                       pagePointer = pagePointers.value(position);
                       if (pagePointer) {
-                          newPP = false;
                           pad.id     = pagePointer->pointerList.size() + 1;
                           pad.parent = PositionNames[position];
                           pam.setValueInches(pad);
@@ -2618,11 +2615,14 @@ int Gui::drawPage(
                           // Load the Visual Editor on Step - callouts and multistep Steps are not loaded
                           if (step) {
                               step->setBottomOfStep(opts.current);
-                              if (Preferences::modeGUI && !exportingObjects()) {
-                                  if (partsAdded && ! coverPage)
+                              if (Preferences::modeGUI) {
+                                  if (partsAdded && !coverPage) {
                                       lpub->setCurrentStep(step);
-                                      step->loadTheViewer();
-                                  showLine(topOfStep);
+                                      if (!exportingObjects()) {
+                                          showLine(topOfStep);
+                                          step->loadTheViewer();
+                                      }
+                                  }
                               }
                           } // Load the Visual Editor on Step
 
@@ -4738,7 +4738,7 @@ void Gui::drawPage(
 
   const TraverseRc trc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
 
-  if (Preferences::buildModEnabled && trc == HitBuildModAction || trc == HitCsiAnnotation) {
+  if (Preferences::buildModEnabled && (trc == HitBuildModAction || trc == HitCsiAnnotation)) {
 
     dpFlags.buildModActionChange = trc == HitBuildModAction;
     dpFlags.csiAnnotation = trc == HitCsiAnnotation;
@@ -6052,7 +6052,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
       configuredContents.prepend("0");
       for (int i = 0; i < subfileColourList.size(); ++i)
           configuredContents.prepend(subfileColourList.at(i));
-      configuredContents.prepend("0 // LPub3D step custom colours");
+      configuredContents.prepend(QString("0 // %1 step custom colours").arg(VER_PRODUCTNAME_STR));
       configuredContents.prepend("0");
 
       WriteToTmpMutex.unlock();
@@ -6264,7 +6264,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
       for (int i = 0; i < stepColourList.size(); ++i)
           configuredCsiParts.prepend(stepColourList.at(i));
 
-      configuredCsiParts.prepend("0 // LPub3D step custom colours");
+      configuredCsiParts.prepend(QString("0 // %1 step custom colours").arg(VER_PRODUCTNAME_STR));
       configuredCsiParts.prepend("0");
   }
 

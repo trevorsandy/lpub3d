@@ -486,7 +486,7 @@ void Pli::setParts(
           bool  useImageSize  = pliMeta.imageSize.value(0) > 0;
           float modelScale    = pliMeta.modelScale.value();
           qreal cameraFoV     = double(pliMeta.cameraFoV.value());
-          bool noCA           = pliMeta.rotStep.value().type == "ABS";
+          bool noCA           = pliMeta.rotStep.value().type.toUpper() == "ABS";
           qreal cameraAngleXX = noCA ? 0.0 : double(pliMeta.cameraAngles.value(0));
           qreal cameraAngleYY = noCA ? 0.0 : double(pliMeta.cameraAngles.value(1));
 
@@ -866,7 +866,7 @@ int Pli::createSubModelIcons()
 
         float modelScale  = pliMeta.modelScale.value();
 
-        bool noCA = pliMeta.rotStep.value().type == "ABS";
+        bool noCA = pliMeta.rotStep.value().type.toUpper() == "ABS";
 
         // assemble icon name key
         QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
@@ -1449,13 +1449,13 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
 
     if (fadeSteps && (pT == FADE_PART)) {
         updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ia.partColor[pT]);
-        out << QString("0 // LPub3D custom colours");
+        out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
         out << gui->createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
     }
     if (highlightStep && (pT == HIGHLIGHT_PART)) {
         updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(ia.partColor[pT]);
-        out << QString("0 // LPub3D custom colours");
+        out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
         out << gui->createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !SILHOUETTE %1 %2")
                        .arg(Preferences::highlightStepLineWidth)
@@ -3964,7 +3964,7 @@ void PGraphicsPixmapItem::contextMenuEvent(
       QStringList defaultList;
       if (this->part->subType/*sUpdate*/) {
           float modelScale = this->pli->pliMeta.modelScale.value();
-          bool noCA = this->pli->pliMeta.rotStep.value().type == "ABS";
+          bool noCA = this->pli->pliMeta.rotStep.value().type.toUpper() == "ABS";
           defaultList.append(QString::number(double(modelScale)));
           defaultList.append(QString::number(double(this->pli->pliMeta.cameraFoV.value())));
           defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(0))));

@@ -717,7 +717,7 @@ bool LPub::setCurrentStep(const QString &key)
     else if (page.relativeType == SingleStepType && page.list.size())
         stepType = BM_SINGLE_STEP;
 
-    if ((here != Where() || stepNumber) && stepType || step) {
+    if ((here != Where() || stepNumber) && (stepType || step)) {
         setCurrentStep(step, here, stepNumber, stepType);
     } else {
         emit lpub->messageSig(LOG_ERROR, tr("Could not determine step for '%1' at step number '%2'.")
@@ -929,7 +929,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
     doc.prepend(tr("  selected to enable LPub syntax highlighting."));
     doc.prepend(tr("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
     doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
-    doc.prepend(tr("  LPub3D has an LPub User Defined Language (UDL) configuration file for Notepad++"));
+    doc.prepend(tr("  %1 has an LPub User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
     doc.prepend(tr("  Best viewed with Notepad++ <https://notepad-plus-plus.org>."));
     doc.prepend(QString());
     doc.prepend(tr("---------------------------------------------------------------------------------"));
@@ -1225,7 +1225,7 @@ void LPub::httpDownloadFinished()
         message = tr("%1 Download failed: %2.")
                           .arg(mTitle).arg(mHttpReply->errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,tr("LPub3D"),  message);
+            QMessageBox::warning(nullptr,QLatin1String(VER_PRODUCTNAME_STR),message);
         } else {
             logError() << message;
         }

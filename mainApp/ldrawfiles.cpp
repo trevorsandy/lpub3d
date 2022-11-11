@@ -2421,9 +2421,9 @@ void LDrawFile::countInstances(
       int stepIndexes = _buildModStepIndexes.size();
 
       bool result =
-              _loadBuildMods && (Gui::suspendFileDisplay  ||
-              stepIndexes >= _buildModPrevStepIndex &&
-              stepIndexes <= _buildModNextStepIndex);
+              _loadBuildMods && (Gui::suspendFileDisplay ||
+              (stepIndexes >= _buildModPrevStepIndex &&
+               stepIndexes <= _buildModNextStepIndex));
 
       return result;
   };
@@ -3277,12 +3277,16 @@ int LDrawFile::getBuildModStep(const QString &modelName,
 void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex)
 {
     QString modKey = buildModKey.toLower();
+#ifdef QT_DEBUG_MODE
     int action = BuildModNoActionRc;
+#endif
     QMap<int, BuildModStep>::iterator i = _buildModSteps.find(stepIndex);
     while (i != _buildModSteps.end() && i.key() == stepIndex) {
         if (i.value()._buildModStepIndex == stepIndex &&
             i.value()._buildModKey == modKey) {
+#ifdef QT_DEBUG_MODE
             action = i.value()._buildModAction;
+#endif
             _buildModSteps.erase(i);
             break;
         }
@@ -3545,6 +3549,8 @@ void LDrawFile::clearBuildModRendered(const QString &buildModKey, const QString 
         if (cleared)
             emit gui->messageSig(LOG_DEBUG, QString("Clear BuildMod RenderedModel: %1, Count: %2, ModKey: '%3'")
                                  .arg(renderedModel).arg(cleared).arg(buildModKey));
+#else
+        Q_UNUSED(cleared)
 #endif
     }
 }
@@ -3749,22 +3755,27 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
     QString  modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
+#ifdef QT_DEBUG_MODE
         bool change = false;
         int action = BuildModNoActionRc;
-
+#endif
         QString modFileName = getBuildModStepKeyModelName(modKey);
         QMap<int, int>::iterator a = i.value()._modActions.find(stepIndex);
         if (a != i.value()._modActions.end()) {
+#ifdef QT_DEBUG_MODE
             action = i.value()._modActions.value(stepIndex);
+#endif
             i.value()._modActions.remove(stepIndex);
 
             clearBuildModStep(modKey, stepIndex);
 
             QMap<QString, LDrawSubFile>::iterator s = _subFiles.find(modFileName);
-            if (s != _subFiles.end()) {
-              change = true;
+            if (s != _subFiles.end()) {              
               s.value()._modified = true;
               s.value()._changedSinceLastWrite = true;
+#ifdef QT_DEBUG_MODE
+              change = true;
+#endif
             }
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("Remove BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")

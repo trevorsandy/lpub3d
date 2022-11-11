@@ -244,7 +244,9 @@ int Render::rotateParts(
           rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
       if (rc)
           emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
-                               .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
+                               .arg(imageType == static_cast<int>(Options::CSI) ?
+                                        "Current Step Instance (CSI)" : static_cast<int>(Options::MON) ?
+                                        "Mono Color Submodel (MON)" :  "Submodel Preview (SMP)"));
   }
 
   // Write parts to file
@@ -315,7 +317,7 @@ int Render::rotateParts(
   } else {
     double rotStepMatrix[3][3];
     matrixMakeRot(rotStepMatrix,rotStepData.rots);
-    if (rotStepData.type == "ABS") {
+    if (rotStepData.type.toUpper() == "ABS") {
       matrixCp(rm,rotStepMatrix);
     } else {
       matrixMult3(rm,defaultViewMatrix,rotStepMatrix);
@@ -611,9 +613,8 @@ int Render::splitIMParts(const QStringList &rotatedParts,
       isFadeMeta = false,
       isHeaderMeta = false,
       isColComment = false;
-
-  QRegExp reColComment("^0\\s+\\/\\/\\s+LPub3D\\s+step\\s+custom\\s+colours\\s*$",Qt::CaseInsensitive);
-  QRegExp reCustColour("^0\\s+!COLOUR\\s+LPub3D_.*$",Qt::CaseInsensitive);
+  QRegExp reColComment(QString("^0\\s+\\/\\/\\s+%1\\s+(?:step\\s+|part\\s+|)custom\\s+colours\\s*$").arg(VER_PRODUCTNAME_STR),Qt::CaseInsensitive);
+  QRegExp reCustColour(QString("^0\\s+!COLOUR\\s+%1_.*$").arg(VER_PRODUCTNAME_STR),Qt::CaseInsensitive);
   QRegExp rePartMeta("^[1|2|3|4|5]\\s+.*$",Qt::CaseInsensitive);
   QRegExp reFadeMeta("^0\\s+!FADE\\s*.*$",Qt::CaseInsensitive);
 
@@ -711,12 +712,12 @@ int Render::splitIMParts(const QStringList &rotatedParts,
        colourList.removeDuplicates(); // remove dupes
 
        imPrevious.prepend("0");
-       for (int i = 0; i < colourList.size(); ++i)
-         imPrevious.prepend(colourList.at(i));
-         imPrevious.prepend("0 // LPub3D step custom colours");  // color comment
+       for (int i = 0; i < colourList.size(); ++i) {
+          imPrevious.prepend(colourList.at(i));
+          imPrevious.prepend(QString("0 // %1 step custom colours").arg(VER_PRODUCTNAME_STR));  // color comment
+       }
        imPrevious.prepend("0");
-     }
-
+   }
 
    // add rotstep
    imCurrent.prepend(rotsComment);

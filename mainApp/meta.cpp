@@ -3043,7 +3043,7 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
     _here[pushed] = here;
     return PageSizeRc;
 
-  } else if (sizeIDFound || (argv.size() - index == 1) && !(argv[index].toLower() == "custom")) {
+  } else if (sizeIDFound || ((argv.size() - index == 1) && (argv[index].toLower() != "custom"))) {
     QString sizeID = argv[sizeIDFound ? sizeIdIndex : index];
     bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
     int  numPageTypes = PageSizes::numPageTypes();

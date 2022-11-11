@@ -34,20 +34,21 @@
 #include <QDir>
 #include "paths.h"
 #include "lpub_preferences.h"
+#include "version.h"
 
 Paths paths;
 
-QString Paths::lpubDir          = "LPub3D";
-QString Paths::tmpDir           = "LPub3D/tmp";
-QString Paths::assemDir         = "LPub3D/assem";
-QString Paths::partsDir         = "LPub3D/parts";
-QString Paths::submodelDir      = "LPub3D/submodels";
-QString Paths::povrayRenderDir  = "LPub3D/povray";
-QString Paths::blenderRenderDir = "LPub3D/blender";
-QString Paths::htmlStepsDir     = "LPub3D/htmlsteps";
-QString Paths::logsDir          = "logs";
-QString Paths::extrasDir        = "extras";
-QString Paths::libraryDir       = "libraries";
+QString Paths::lpubDir          = QLatin1String(VER_PRODUCTNAME_STR);
+QString Paths::tmpDir           = QString("%1/tmp").arg(VER_PRODUCTNAME_STR);
+QString Paths::assemDir         = QString("%1/assem").arg(VER_PRODUCTNAME_STR);
+QString Paths::partsDir         = QString("%1/parts").arg(VER_PRODUCTNAME_STR);
+QString Paths::submodelDir      = QString("%1/submodels").arg(VER_PRODUCTNAME_STR);
+QString Paths::povrayRenderDir  = QString("%1/povray").arg(VER_PRODUCTNAME_STR);
+QString Paths::blenderRenderDir = QString("%1/blender").arg(VER_PRODUCTNAME_STR);
+QString Paths::htmlStepsDir     = QString("%1/htmlsteps").arg(VER_PRODUCTNAME_STR);
+QString Paths::logsDir          = QLatin1String("logs");
+QString Paths::extrasDir        = QLatin1String("extras");
+QString Paths::libraryDir       = QLatin1String("libraries");
 
 QString Paths::customDir       = QString();
 QString Paths::customPartDir   = QString();

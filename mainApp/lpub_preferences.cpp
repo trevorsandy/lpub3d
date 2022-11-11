@@ -3870,7 +3870,6 @@ void Preferences::userInterfacePreferences()
   usingNPP = systemEditorInfo.fileName() == QFileInfo(WINDOWS_NPP).fileName();
   if (!systemEditorInfo.exists() || !systemEditorInfo.isFile()) {
       bool found = false;
-      bool windows = false;
       QString command = "which";
       QStringList arguments;
 #ifdef Q_OS_MAC
@@ -3878,7 +3877,6 @@ void Preferences::userInterfacePreferences()
 #elif defined Q_OS_LINUX
       arguments << LINUX_SYS_EDITOR;
 #elif defined Q_OS_WIN
-      windows = true;
       const QString systemDrive = QProcessEnvironment::systemEnvironment().value("SYSTEMDRIVE", "C:");
       if((found = QFileInfo(systemDrive + "\\" + WINDOWS_NPP_X64).exists())) {
         systemEditor = systemDrive + "\\" + WINDOWS_NPP_X64;
@@ -3898,7 +3896,7 @@ void Preferences::userInterfacePreferences()
         findProcess.start(command, arguments);
         findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
         if(findProcess.waitForFinished()) {
-          systemEditor = findProcess.readAll().split(windows ? '\r\n' : '\n').first().trimmed();
+          systemEditor = QString(findProcess.readAll()).split(QRegExp("\n|\r\n|\r")).first().trimmed();
           systemEditorInfo.setFile(systemEditor);
         }
       }

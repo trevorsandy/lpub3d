@@ -1352,7 +1352,7 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
             QStringList defaultList;
             if (action == sUpdate) {
                 const float modelScale = step->pli.pliMeta.modelScale.value();
-                const bool noCA = step->pli.pliMeta.rotStep.value().type == "ABS";
+                const bool noCA = step->pli.pliMeta.rotStep.value().type.toUpper() == "ABS";
                 defaultList.append(QString::number(double(modelScale)));
                 defaultList.append(QString::number(double(step->pli.pliMeta.cameraFoV.value())));
                 defaultList.append(QString::number(noCA ? 0.0 : double(step->pli.pliMeta.cameraAngles.value(0))));
@@ -2789,11 +2789,13 @@ void  EditWindow::verticalScrollValueChanged(int value)
 void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) {
     QElapsedTimer t; t.start();
     int lineCount     = content.size();
-    int blockLineCount= 0;
     int blockIndx     = 0;
     int linesPerBlock = 100;
     int blocks        = lineCount / linesPerBlock;
     int remain        = lineCount % linesPerBlock;
+#ifdef QT_DEBUG_MODE
+    int blockLineCount= 0;
+#endif
     if (remain) {
         if (blocks)
             blocks++;
@@ -2805,7 +2807,9 @@ void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) 
             int nextBlockIndx = qMin((linesPerBlock - (firstBlock ? 1 : 0)), (lineCount - blockIndx) - 1);
             int maxBlockIndx  = blockIndx + nextBlockIndx;
             const QString block = content.mid(blockIndx, nextBlockIndx).join('\n');
+#ifdef QT_DEBUG_MODE
             blockLineCount  = block.count("\n") + (firstBlock ? 2 : 1);
+#endif
             if (firstBlock) {
                 firstBlock = false;
                 _textEdit->setPlainText(block);

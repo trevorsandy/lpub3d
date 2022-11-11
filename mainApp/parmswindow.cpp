@@ -717,7 +717,8 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
                 }
               args.removeFirst();
               QProcess::startDetached(QApplication::applicationFilePath(), args);
-              logDebug() << "Restarted LPub3D using:" << QApplication::applicationFilePath() << ", args:" << args;
+
+              logDebug() << tr("Restarted %1 using:").arg(VER_PRODUCTNAME_STR) << QApplication::applicationFilePath() << ", args:" << args;
 
               event->accept();
               QCoreApplication::quit();

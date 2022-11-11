@@ -109,7 +109,6 @@ contains(QT_VERSION, ^6\\..*) {
 
 CONFIG += precompile_header
 CONFIG += incremental force_debug_info
-PRECOMPILED_HEADER = common/lc_global.h
 
 win32 {
 
@@ -121,6 +120,10 @@ win32 {
         QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
+
+        PRECOMPILED_HEADER = common/lc_global.h
+        PRECOMPILED_SOURCE = common/lc_global.cpp
+
         CONFIG(debug, debug|release) {
             DEFINES += QT_DEBUG_MODE
             QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 $$QMAKE_ADDL_MSVC_FLAGS
@@ -138,7 +141,6 @@ win32 {
         QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
     }
 
-    PRECOMPILED_SOURCE = common/lc_global.cpp
     QMAKE_EXT_OBJ = .obj
 
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lwininet -luser32
@@ -149,6 +151,7 @@ win32 {
 
 } else {
 
+    PRECOMPILED_HEADER = common/lc_global.h
     LIBS += -lz
 
 }

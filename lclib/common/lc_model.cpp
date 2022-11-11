@@ -2820,7 +2820,7 @@ quint32 lcModel::RemoveSelectedObjects()
 		{
 /*** LPub3D Mod - Build Modification ***/
 			if(! RemovedPiece)
-			   RemovedPiece = RemoveMask = (1 << RemovedPieceRC) ;
+				RemovedPiece = (RemoveMask = (1 << RemovedPieceRC));
 /*** LPub3D Mod end ***/
 			mPieces.Remove(Piece);
 			delete Piece;
