@@ -221,7 +221,6 @@ void LDViewExportOption::populateExportSettings(void)
 				}
 				QString qstmp;
 				ucstringtoqstring(qstmp,it->getName());
-				qDebug() << qPrintable(QString("DEBUG GroupBox Name %1").arg(qstmp));
 				QGroupBox *gb;
 				gb = new QGroupBox (qstmp, m_box);
 				gb->setObjectName(qstmp);
@@ -702,36 +701,46 @@ void LDViewExportOption::captureExtraSearchDirs(void)
 
 void LDViewExportOption::setLights(void)
 {
-	QStringList tempList;
+	QStringList lightList;
 	QStringList lights;
 	int number = 0;
 	m_liCombo->clear();
 	Q_FOREACH (QString light, m_pov_lightList){
 		number++;
-		tempList = light.split(" ");
-		lights << QString("%1. Latitude %2 Longitude %3")
+		lightList = light.split(" ");
+		if (lightList.size() == 1 || lightList.first() == "")
+			break;
+		lights << tr("%1. Latitude %2 Longitude %3")
 						  .arg(number)
-						  .arg(tempList.at(1))
-						  .arg(tempList.at(2))
-						  /*.arg(bool(tempList.at(0).toInt()) ? "Shadowless" : "Shadows")*/;
+						  .arg(lightList.at(1))
+						  .arg(lightList.at(2))
+						  /*.arg(bool(lightList.at(0).toInt()) ? "Shadowless" : "Shadows")*/;
 	}
+
+	bool noLights = lights.isEmpty();
+	if (noLights)
+		lights << tr("No valid light entry found.");
+
 	m_liCombo->addItems(       lights);
 	m_liCombo->setCurrentIndex(m_liCombo->count() - 1);
 
 	int lightIndex = m_liCombo->currentIndex();
 
-	tempList = m_pov_lightList.at(lightIndex).split(" ");
+	if (noLights)
+		lightList << "0" << "0.0" << "0.0" << "0.0" << "0" << "0";
+	else
+		lightList = m_pov_lightList.at(lightIndex).split(" ");
 
 	m_number = lightIndex + 1;
 
 	m_liNumEdit->setText(     QString::number(m_number));
-	m_liLatSpin->setValue(    tempList.at(1).toDouble());
-	m_liLonSpin->setValue(    tempList.at(2).toDouble());
+	m_liLatSpin->setValue(    lightList.at(1).toDouble());
+	m_liLonSpin->setValue(    lightList.at(2).toDouble());
 
-	m_liIntSpin->setValue(    tempList.at(3).toDouble());
-	m_liASizeSpin->setValue(  tempList.at(4).toInt());
-	m_liALightsSpin->setValue(tempList.at(5).toInt());
-	m_liShadowsChk->setChecked(bool(tempList.at(0).toInt()) ? true : false);
+	m_liIntSpin->setValue(    lightList.at(3).toDouble());
+	m_liASizeSpin->setValue(  lightList.at(4).toInt());
+	m_liALightsSpin->setValue(lightList.at(5).toInt());
+	m_liShadowsChk->setChecked(bool(lightList.at(0).toInt()) ? true : false);
 
 }
 
@@ -742,42 +751,38 @@ void LDViewExportOption::selectLight(int lightIndex)
 		return;
 
 	// populate LineEdit and Spin controls
-	QStringList tempList = m_pov_lightList.at(lightIndex).split(" ");
+	QStringList lightList = m_pov_lightList.at(lightIndex).split(" ");
 
 	m_number = lightIndex + 1;
 
 	m_liNumEdit->setText(     QString::number(m_number));
-	m_liLatSpin->setValue(    tempList.at(1).toDouble());
-	m_liLonSpin->setValue(    tempList.at(2).toDouble());
-	m_liIntSpin->setValue(    tempList.at(3).toDouble());
-	m_liASizeSpin->setValue(  tempList.at(4).toInt());
-	m_liALightsSpin->setValue(tempList.at(5).toInt());
-	m_liShadowsChk->setChecked(bool(tempList.at(0).toInt()) ? true : false);
+	m_liLatSpin->setValue(    lightList.at(1).toDouble());
+	m_liLonSpin->setValue(    lightList.at(2).toDouble());
+	m_liIntSpin->setValue(    lightList.at(3).toDouble());
+	m_liASizeSpin->setValue(  lightList.at(4).toInt());
+	m_liALightsSpin->setValue(lightList.at(5).toInt());
+	m_liShadowsChk->setChecked(bool(lightList.at(0).toInt()) ? true : false);
 
 }
 
 void LDViewExportOption::addLight()
 {
-//    if (m_liLatSpin->value() || m_liLonSpin->value())
-//        return;
-
 	QString num = QString("%1").arg(m_liNumEdit->displayText());
 	QString pos = QString("Latitude %1 Longitude %2")
 						  .arg(m_liLatSpin->value())
 						  .arg(m_liLonSpin->value());
-	QString comboItem = QString("%1. %2").arg(num).arg(pos);
 
-	int lightIndex = m_liCombo->findText(comboItem);
+	int lightIndex = m_liCombo->findText(QString("%1. %2").arg(num).arg(pos));
 
 	if (lightIndex != -1) {
-		m_messageLabel->setText(QString("You must enter unique longitude or latitude values before clicking 'Add'."));
+		m_messageLabel->setText(QString("You must enter unique latitude and longitude values before clicking 'Add'."));
 		m_messageLabel->setStyleSheet("QLabel { color : red; }");
 		return;
 	}
 
-//    num = QString("%1").arg(m_liCombo->count() + 1);
+	num = QString("%1").arg(m_liCombo->count() + 1);
 
-	comboItem = QString("%1. %2").arg(num).arg(pos);
+	QString comboItem = QString("%1. %2").arg(num).arg(pos);
 
 	pos = QString("%1 %2")
 				  .arg(m_liLatSpin->value())
@@ -785,15 +790,15 @@ void LDViewExportOption::addLight()
 	QString intensity  = QString::number(m_liIntSpin->value());
 	QString aSize      = QString::number(m_liASizeSpin->value());
 	QString aLights    = QString::number(m_liALightsSpin->value());
-	QString shadowless = QString("%1").arg(m_liShadowsChk->isChecked() ? "1" : "0");
+	QString shadowless = m_liShadowsChk->isChecked() ? "1" : "0";
 
 	QString lightEntry = QString("%1 %2 %3 %4 %5").arg(shadowless).arg(pos)
 						 .arg(intensity).arg(aSize).arg(aLights);
 
 	m_pov_lightList.append(lightEntry);
 
-	m_liNumEdit->setText(     QString("%1").arg(m_liCombo->count()));
-	m_liCombo->addItem(        comboItem);
+	m_liNumEdit->setText(QString::number(m_liCombo->count()));
+	m_liCombo->addItem(comboItem);
 	m_liCombo->setCurrentIndex(m_liCombo->count() - 1);
 
 	enableApply();
