@@ -936,7 +936,8 @@ Highlighter::Highlighter(QTextDocument *parent)
 void Highlighter::highlightBlock(const QString &text)
 {
     // apply the predefined rules
-    for (const HighlightingRule &rule : qAsConst(highlightingRules)) {
+    const QVector<HighlightingRule> rules = highlightingRules;
+    for (const HighlightingRule &rule : rules) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
             QRegularExpressionMatch match = matchIterator.next();
