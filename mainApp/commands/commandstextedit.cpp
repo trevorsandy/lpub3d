@@ -503,8 +503,8 @@ void CommandsTextEdit::setAutoCompleter(QCompleter *completer)
     ac->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     ac->setCaseSensitivity(Qt::CaseInsensitive);
     ac->setWrapAround(false);
-    QObject::connect(ac,   QOverload<const QString &>::of(&QCompleter::activated),
-                     this, &CommandsTextEdit::insertCompletion);
+    QObject::connect(ac,   SIGNAL(activated(const QString&)),
+                     this, SLOT(  insertCompletion(const QString&)));
 }
 
 void CommandsTextEdit::keyPressEvent(QKeyEvent *e)
