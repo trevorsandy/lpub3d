@@ -1339,7 +1339,7 @@
           </widget>
          </item>
          <item row="4" column="2" colspan="2">
-          <widget class="QGroupBox" name="groupBox_12">
+          <widget class="QGroupBox" name="ViewSphereGroup">
            <property name="title">
             <string>View Sphere</string>
            </property>

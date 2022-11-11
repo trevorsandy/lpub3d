@@ -350,7 +350,7 @@
           <string>Check to use an alternative LDConfig LDraw configuration file.</string>
          </property>
          <property name="title">
-          <string>Use alternative LDraw LDConfig</string>
+          <string>Use Alternative LDraw LDConfig</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -411,7 +411,7 @@
           <string>This file controls Part List parts orientation and size</string>
          </property>
          <property name="title">
-          <string>Use PLI orientation/size control file</string>
+          <string>Use PLI Orientation/Size Control File</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -1637,7 +1637,7 @@
               </size>
              </property>
              <property name="title">
-              <string>LDView is installed</string>
+              <string>LDView Is Installed</string>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -1739,7 +1739,7 @@
               <item row="1" column="2" rowspan="2" colspan="2">
                <widget class="QGroupBox" name="ldvSettingsGrpBox">
                 <property name="title">
-                 <string>LDView Renderer settings</string>
+                 <string>LDView Renderer Settings</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_16">
                  <item>
@@ -1793,7 +1793,7 @@
            <item row="1" column="0">
             <widget class="QGroupBox" name="ldviewInstallGrpBox">
              <property name="title">
-              <string>Download and install LDView</string>
+              <string>Download And Install LDView</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_23">
               <item>
@@ -1854,7 +1854,7 @@
               </size>
              </property>
              <property name="title">
-              <string>POV-Ray is installed</string>
+              <string>POV-Ray Is Installed</string>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -1916,7 +1916,7 @@
                  <string>Select the renderer to generate pov files</string>
                 </property>
                 <property name="title">
-                 <string>POV file generation renderer</string>
+                 <string>POV File Generation Renderer</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_19">
                  <item>
@@ -2006,7 +2006,7 @@
                  <string>This library provides higher quality rendering models for POV RAY</string>
                 </property>
                 <property name="title">
-                 <string>LGEO is available</string>
+                 <string>LGEO Is Available</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -2111,7 +2111,7 @@
                  </size>
                 </property>
                 <property name="title">
-                 <string>POV file generation settings</string>
+                 <string>POV File Generation Settings</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
@@ -2155,7 +2155,7 @@
            <item>
             <widget class="QGroupBox" name="povrayInstallGrpBox">
              <property name="title">
-              <string>Download and install POV-Ray</string>
+              <string>Download And Install POV-Ray</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_21">
               <item>
@@ -2210,7 +2210,7 @@
               </sizepolicy>
              </property>
              <property name="title">
-              <string>LDGLite is installed</string>
+              <string>LDGLite Is Installed</string>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -2300,7 +2300,7 @@
            <item row="1" column="0">
             <widget class="QGroupBox" name="ldgliteInstallGrpBox">
              <property name="title">
-              <string>Download and install LDGLite</string>
+              <string>Download And Install LDGLite</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_24">
               <item>
@@ -3356,7 +3356,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
               <string>Check for newer version online.</string>
              </property>
              <property name="title">
-              <string>Check for updates</string>
+              <string>Check For Updates</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_19">
               <item>
@@ -3628,7 +3628,7 @@ p, li { white-space: pre-wrap; }
               </size>
              </property>
              <property name="title">
-              <string>LDraw content search directories</string>
+              <string>LDraw Content Search Directories</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_9">
               <item row="0" column="0">

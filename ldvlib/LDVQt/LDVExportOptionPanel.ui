@@ -18,7 +18,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Export Options</string>
+   <string>LDView Export Options</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../mainApp/lpub3d.qrc">

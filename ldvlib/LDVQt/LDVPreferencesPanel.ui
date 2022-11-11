@@ -24,7 +24,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Preferences</string>
+   <string>LDView LDraw Preferences</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../mainApp/lpub3d.qrc">
@@ -3428,7 +3428,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="updateTab">
+     <widget class="QWidget" name="updatesTab">
       <attribute name="title">
        <string>Updates</string>
       </attribute>
@@ -3747,9 +3747,9 @@ into effect until the next time a model is loaded.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="preferencSetTab">
+     <widget class="QWidget" name="preferencsSetTab">
       <attribute name="title">
-       <string>Preference set</string>
+       <string>Preference Set</string>
       </attribute>
       <layout class="QVBoxLayout">
        <property name="spacing">

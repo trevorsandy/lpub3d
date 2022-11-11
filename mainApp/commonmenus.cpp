@@ -1631,100 +1631,144 @@ void CommonMenus::setWhatsThis()
 {
     WT_Text WTData[] =
     {
-        /*************************************
-         *  PREFERENCES ENTRIES
-         *************************************/
-        // WT_PREFERENCES
+        //************************************
+        //*  PREFERENCES ENTRIES
+        //************************************
+        // WT_LPUB3D_PREFERENCES
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_DIRECTORIES
+        // WT_LPUB3D_PREFERENCES_DARK_THEME_COLORS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_GENERAL
+        // WT_LPUB3D_PREFERENCES_DEFAULT_THEME_COLORS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_LDGLITE
+        // WT_LPUB3D_PREFERENCES_GENERAL
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_LDVIEW
+        // WT_LPUB3D_PREFERENCES_LDGLITE
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_LOGGING
+        // WT_LPUB3D_PREFERENCES_LDVIEW
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_NATIVE
+        // WT_LPUB3D_PREFERENCES_LOGGING
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_OTHER
+        // WT_LPUB3D_PREFERENCES_MESSAGES
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_POVRAY
+        // WT_LPUB3D_PREFERENCES_NATIVE
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_PUBLISHING
+        // WT_LPUB3D_PREFERENCES_OTHER
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_RENDERERS
+        // WT_LPUB3D_PREFERENCES_POVRAY
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_SHORTCUTS
+        // WT_LPUB3D_PREFERENCES_PUBLISHING
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_PREFERENCES_UPDATES
+        // WT_LPUB3D_PREFERENCES_RENDERERS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS
+        // WT_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_CATEGORIES
+        // WT_LPUB3D_PREFERENCES_SHORTCUTS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_COLORS
+        // WT_LPUB3D_PREFERENCES_THEME_COLORS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_GENERAL
+        // WT_LPUB3D_PREFERENCES_UPDATES
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_KEYBOARD
+        // WT_VISUAL_PREFERENCES
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_MOUSE
+        // WT_VISUAL_PREFERENCES_CATEGORIES
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_RENDERING
+        // WT_VISUAL_PREFERENCES_COLORS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_USER_INTERFACE
+        // WT_VISUAL_PREFERENCES_GENERAL
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_VISUAL_PREFS_VIEWS
+        // WT_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        /*************************************
-         *  GLOBAL SETUP ENTRIES
-         *************************************/
+        // WT_VISUAL_PREFERENCES_MOUSE
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_VISUAL_PREFERENCES_RENDERING
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_VISUAL_PREFERENCES_USER_INTERFACE
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_VISUAL_PREFERENCES_VIEWS
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES_GENERAL
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES_GEOMETRY
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES_EFFECTS
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES_PRIMITIVES
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES_UPDATES
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        // WT_LDVIEW_PREFERENCES_PREFERENCES_SET
+        {
+             QObject::tr("  To be defined...\n")
+        },
+        //*************************************
+        //*  GLOBAL SETUP ENTRIES
+        //*************************************
         // WT_SETUP_ASSEM
         {
             QObject::tr(
@@ -2461,198 +2505,734 @@ void CommonMenus::setWhatsThis()
         },
         // WT_COMMAND_PREFS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_COMMANDS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_COMMANDS_EDIT
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_COMMANDS_VIEW
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_PARAMS_EDIT
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        // WT_SHORTCUTS
+        // WT_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUTS
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_SNIPPETS_EDIT
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_SNIPPETS_VIEW
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_TEXT_EDIT
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
         // WT_VISUAL_EDIT
         {
-            QObject::tr("  To be defined...\n")
+             QObject::tr("  To be defined...\n")
         },
-        /*************************************
-         *  DIALOG ENTRIES
-         *************************************/
+        //*************************************
+        //*  DIALOG ENTRIES
+        //*************************************
         // WT_DIALOG_BACKGROUND
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_BOM_OPTION
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_BORDER
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_DIALOG_BUILD_MODIFICATIONS
+        {
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_CAMERA_ANGLES **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_CAMERA_FOV **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_CONSTRAIN
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_EXPORT_PAGES
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_DIVIDER
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_DOUBLE_SPIN **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_FADE_HIGHLIGHT
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_FIND_REPLACE
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_FLOAT **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_FLOAT_PAIR **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_GLOBAL_HIGHLIGHT_STEP
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_GRADIENT
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_LDRAW_COLOR
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_LDRAW_FILES_LOAD
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_LDRAW_SEARCH_DIR
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_DIALOG_LDVIEW_EXPORT_OPTIONS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_DIALOG_LDVIEW_HTML_PART_LIST_EXPORT
+        {
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_LOCAL **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_OPTION **
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_PAGE_ORIENTATION
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_PAGE_SIZE
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_PLACEMENT
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
         // WT_DIALOG_PLI_ANNOTATION
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr("  To be defined...\n")
         },
-        // WT_DIALOG_PLI_SORT
+        // WT_DIALOG_PART_SORT_ORDER
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the part sort order and direction\n"
+            "  settings.\n")
         },
         // WT_DIALOG_POINTER_ATTRIB
         {
-           QObject::tr("  To be defined...\n")
-        },
-        // WT_DIALOG_POINTER_PLACEMENT
-        {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the pointer border, line and\n"
+            "  optionally pointer tip if available.\n")
         },
         // WT_DIALOG_PREFERRED_RENDERER
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the default preferred step image\n"
+            "  renderer.\n"
+            "  %1 has 4 built-in step image renderers. They\n"
+            "  are Native, LDGLite, LDView and POV-Ray.\n")
+            .arg(VER_PRODUCTNAME_STR)
         },
-        // WT_DIALOG_RENDER
+        // WT_DIALOG_BLENDER_RENDER
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Render the current step image usng Blender.\n\n"
+            "  Configure the Blender single image render\n"
+            "  settings and output.\n"
+            "  - Browse: Change the name and or location of\n"
+            "    the rendered image.\n"
+            "  - Render: Render the image.\n"
+            "  - Settings: launch the Blender settings dialog.\n"
+            "  - Output: process output is not available for\n"
+            "    the Blender render process.\n\n"
+            "  If you reset the rendered image, the default settings\n"
+            "  (except image width and height), will also be reset.\n")
+        },
+        // WT_DIALOG_BLENDER_RENDER_SETTINGS
+        {
+            QObject::tr(
+            "  Configure the Blender single image render\n"
+            "  settings.\n"
+            "  Use the individual setting's tooltip to see\n"
+            "  setting description.\n")
+        },
+        // WT_DIALOG_POVRAY_RENDER
+        {
+            QObject::tr(
+            "  Render the current step image using POV-Ray.\n\n"
+            "  Configure the POV-Ray single image render\n"
+            "  settings and output.\n"
+            "  - Browse: Change the name and or location of\n"
+            "    the rendered image.\n"
+            "  - Render: Render the image.\n"
+            "  - Settings: launch the POV-Ray settings dialog.\n"
+            "  - Output: view the render process standard output log.\n\n"
+            "  If you reset the rendered image, the default settings\n"
+            "  (except image width and height), will also be reset.\n")
+        },
+        // WT_DIALOG_POVRAY_RENDER_SETTINGS
+        {
+            QObject::tr(
+            "  Configure the POV-Ray single image render\n"
+            "  settings.\n\n"
+            "  Use the individual setting's tooltip to see\n"
+            "  setting description.\n")
         },
         // WT_DIALOG_ROTATE_ICON_SIZE
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the rotate icon width and height\n"
+            "  in %1.\n")
+            .arg(MetaDefaults::getPreferredUnits())
         },
-        // WT_DIALOG_ROT_STEP
+        // WT_DIALOG_STEP_ROTATION
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the default step rotation.\n"
+            "  Set the x-angle, y-angle and z-angle, which are \n"
+            "  the individual rotation angles for the different\n"
+            "  axes in degree (-360 to 360).\n\n"
+            "  Set the step transformation using one of the three\n"
+            "  options - relative, absolute or additive.\n")
         },
-        // WT_DIALOG_SIZE_ANDORIENTATION
+        // WT_DIALOG_SIZE_AND_ORIENTATION
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the page size and orientation settings.\n\n"
+            "  Page size settings use standard page sizes or\n"
+            "  page height and width values.\n\n")
         },
-        // WT_DIALOG_SUBMODEL_COLOR
+        // WT_DIALOG_SUBMODEL_LEVEL_COLORS
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the submodel level page background color.\n\n"
+            "  These colors help differentiate the current submode\n"
+            "  level being edited.\n")
         },
         // WT_DIALOG_SUBSTITUTE_PART
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure substitute part attributes\n"
+            "  current part, primary part substitution\n"
+            "  arguments, and extended part substitution\n"
+            "  arguments.\n")
+        },
+        // WT_DIALOG_LOOK_AT_TARGET_AND_STEP_ROTATION
+        {
+            QObject::tr(
+            "  Configure the default 'look at' target\n"
+            "  position and step rotation angles.\n")
         },
         // WT_DIALOG_UNITS
         {
-           QObject::tr("  To be defined...\n")
+            QObject::tr(
+            "  Configure the dot unit values using a decimal\n"
+            "  number in %1.\n\n"
+            "  Dot unit options are dots per inch (DPI) or\n"
+            "  dots per centimetre (DPC)\n\n"
+            "  Dot units are defined in Project Global Setup.\n")
+            .arg(MetaDefaults::getPreferredUnits())
         },
-        /*************************************
-        *  METAGUI ENTRIES
-        *************************************/
-        // WT_GUI_SIZE_ORIENTATION
+        //*************************************
+        //*  CONTROL ENTRIES
+        //*************************************
+        // WT_CONTROL_LPUB3D_PREFERENCES_ALTERNATE_LDCONFIG
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_APPLY_CAMERA_ANGLES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_ATTRIBUTES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_CAMERA_DEFAULTS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_CHANGE_LOG
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_DEFAULTS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_EDITOR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEP
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_INCLUDES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT_TABLE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE_INSTALL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDRAW_LIB_PATH
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_INSTALL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_POV_SETTINGS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_SETTINGS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LGEO
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVELS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LOGGING
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_LSYNTH_PARTS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_NATIVE_POV_GENERATION
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PAGE_PROCESSING_CONTINUOUS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PARSE_ERROR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PLI_CONTROL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_INSTALL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PREFERRED_RENDERER
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_DESCRIPTION
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_LOGO
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_RENDERING
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_THEME_SCENE_COLORS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_THEME_SELECT_ANDCOLORS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_UNITS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_UPDATES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LPUB3D_PREFERENCES_VIEWPOINT_AND_PROJECTION
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_APPLICATION
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_AUTHOR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_BACKGROUND_COLOR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID_COLOR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_CATEGORY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_CATEGORY_EDIT
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_CUSTOM_PATHS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_INTERFACE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_INTERFACE_COLOR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS_TABLE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_MODEL_VIEW
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_MOUSE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUT
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_MOUSESHORTCUTS_TABLE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_OBJECTS_COLOR
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_PART_PREVIEW
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_SETTINGS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_SHORTCUT
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_TIMELINE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_FSAA
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_MISC
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SNAPSHOT
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_INI
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_MODEL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_WIREFRAME
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_BFC
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_EDGE_LINES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_LIGHTING
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_STEREO
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_WIREFRAME_CUTAWAY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_TRANSPARENCY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_MISC
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_SUBSTITUTION
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_TEXTURES
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_MISC
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_PROXY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_SETTINGS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_PART_REFERENCE
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_COLUMN_ORDER
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_GENERAL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_GEOMETRY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_POV_GEOMETRY
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_LIGHTING
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_POVRAY_LIGHTS
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_MATERIAL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_TRANSPARENT_MATERIAL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_RUBBER_MATERIAL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_LDVIEW_EXPORT_OPTIONS_CHROME_MATERIAL
+        {
+            QObject::tr("  To be defined...\n")
+        },
+        // WT_CONTROL_SUBSTITUTE_CURRENT_PART
+        {
+            QObject::tr(
+            "  This dialogue displays the current part\n"
+            "  and its title description. These dialogues\n"
+            "  are read-only.\n")
+        },
+        // WT_CONTROL_SUBSTITUTE_PRIMARY_ARGUMENTS
+        {
+            QObject::tr(
+            "  This dialogue presents the main editable\n"
+            "  substitute part attributes.\n"
+            "  - Substitute: enter your desired substitute\n"
+            "    part or use the Lookup button to select a\n"
+            "    part from the part lookup dialogue.\n"
+            "    The substitute part title will display in\n"
+            "    Substitute Title.\n\n"
+            "  - Color: select your desired part color or\n"
+            "    use the Change button to select the part\n"
+            "    color using the color picker.\n\n"
+            "  - LDraw Part: if the substitute part is a\n"
+            "    generated part, you can optionally use this\n"
+            "    dialogue to display the appropriate LDraw part\n"
+            "    name and part title description.\n\n"
+            "    This option is useful when you wish to show\n"
+            "    a custom representation of the part in the\n"
+            "    part list.\n")
+        },
+        // WT_CONTROL_SUBSTITUTE_EXTENDED_ARGUMENTS
+        {
+            QObject::tr(
+            "  This dialogue presents additional editable\n"
+            "  substitute part attributes.\n"
+            "  - Scale: resize the displayed substitute part.\n\n"
+            "  - Field of View: edit the camera FOV for the\n"
+            "    substitute part.\n\n"
+            "  - Camera Latitude: set the camera angle x-axis\n"
+            "    in degrees.\n\n"
+            "  - Camera Longitude: set the camera angle y-axis\n"
+            "    in degrees.\n\n"
+            "  - Target: using integers set the the 'Look At'\n"
+            "    position using the x-axes, y-axes and z-axes.\n\n"
+            "  - Rotation: rotate the substitute part using\n"
+            "    x-angle, y-angle and z-angle.\n"
+            "    These are the individual rotation angles for\n"
+            "    the different axes in degrees (-360 to 360).\n"
+            "  - Transform: set the step transformation using\n"
+            "    options - relative, absolute or additive.\n")
+        },
+        // WT_CONTROL_LOOK_AT_TARGET
+        {
+            QObject::tr(
+            "  Configure the default target position.\n"
+            "  - Target: using integers set the the 'Look At'\n"
+            "    position using the x-axes, y-axes and z-axes.\n")
+        },
+        //*************************************
+        //*  METAGUI ENTRIES
+        //*************************************
+        // WT_GUI_SIZE_AND_ORIENTATION
         {
             QObject::tr(
             "  Configure the page size and orientation settings.\n"
             "  - Size: set the page size using standard sizes like\n"
             "    A4, Letter etc... You can also specify the 'Custom'\n"
             "    size options along with its corresponding height and\n"
-            "    width values.\n\n"
+            "    width values in %1.\n\n"
             "    The page size custom height and width unit values\n"
             "    are determined by the resolution units specified\n"
             "    in Project Global Setup.\n"
@@ -2660,6 +3240,7 @@ void CommonMenus::setWhatsThis()
             "    dots per centimetre (DPC)\n"
             "  - Orientation: set the page orientation to\n"
             "    portrait or landscape.\n")
+            .arg(MetaDefaults::getPreferredUnits())
         },
         // WT_GUI_BACKGROUND
         {
@@ -2729,14 +3310,14 @@ void CommonMenus::setWhatsThis()
             "      for Home camera view.\n"
             "    - Default: do not use Camera Viewpoint.\n\n"
             "  - Use Latitude And Longitude Angles: enable the\n"
-            "    Latitude and Longitude dialogs to allow Home\n"
+            "    Latitude and Longitude dialogues to allow Home\n"
             "    camera viewpoint angle changes. This dialog is only\n"
             "    enabled when camera viewpoint Home is selected.\n\n"
             "    Camera angle value range is -360.0 to 360.0\n\n"
             "    Precision is one decimal place.\n\n"
             "    Selecting a Camera Viewpoint other that Default\n"
             "    will disable the individual Latitude and Longitude\n"
-            "    camera angle dialogs.\n")
+            "    camera angle dialogues.\n")
         },
         // WT_GUI_CAMERA_DEFAULT_DISTANCE_FACTOR
         {
@@ -2919,6 +3500,8 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Configure the submodel level page background color.\n\n"
+            "  These colors help differentiate the current submode\n"
+            "  level being edited.\n\n"
             "  There are four default submodel levels, each with\n"
             "  its own default colour.\n"
             "  - Change: select the desired color using the\n"
@@ -3115,12 +3698,28 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_PART_ANNOTATION_OPTIONS
         {
             QObject::tr(
-            "  Part annotation options.\n")
+            "  Part annotation options.\n"
+            "  - Display PartList (PLI) Annotation: select\n"
+            "    annotation source from Title, Free Form or\n"
+            "    Fixed annotations.\n\n"
+            "  - Enable Annotation Style: enable or disable\n"
+            "    annotation for axles, beams, cables, connectors,\n"
+            "    hoses, panels or custom annotations.\n\n"
+            "  - Default Text Format: configure the default\n"
+            "    annotation text font color and margins.\n")
         },
         // WT_GUI_PART_ANNOTATIONS_STYLES
         {
             QObject::tr(
-            "  Part annotation styles.\n")
+            "  Part annotation styles.\n"
+            "  - Select Style to Edit: display the corresponding\n"
+            "    background, border, text and size for editing.\n"
+            "    Choices include square, circle or rectangle.\n\n"
+            "  - Background: edit the annotation background\n\n"
+            "  - Border: edit the annotation border attributes\n\n"
+            "  - Annotation Text Format: edit the annotation text\n"
+            "    attributes\n\n"
+            "  - Size: edit the annotation size attributes\n")
         },
         // WT_GUI_PART_ANNOTATIONS_SOURCE
         {
@@ -3278,7 +3877,7 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_PREFERRED_RENDERER
         {
             QObject::tr(
-            "  Select the default preferred image renderer.\n"
+            "  Select the default preferred step image renderer.\n"
             "  You can use the drop-down control to select from\n"
             "  the following %1 packaged renderer options:\n"
             "  - Native: %1 'native' renderer and 3D Viewer,\n"
@@ -3449,19 +4048,30 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Configure the default step rotation.\n"
-            "  - Rotation: set the X, Y, and Z spin box values using\n"
-            "    a floating point number (decimal)\n"
-            "    The mininimum allowed spin box value is 0 and\n"
-            "    the maximum is 360.0.\n"
+            "  - Rotation: set the x-angle, y-angle and z-angle,\n"
+            "    which are the individual rotation angles for the\n"
+            "    different axes in degree (-360 to 360), using\n"
+            "    decimals.\n"
             "    Spin box values are incremented by 1 step unit.\n"
             "    Precision is automatically calculated based on the.\n"
             "    input values.\n\n"
             "  - Transform: there are three transform options.\n"
-            "    - ABS: set the input transform as absolute\n"
-            "      positioning.\n"
-            "    - REL: set the input transform relative to the\n"
-            "      existing positioning.\n"
-            "    - ADD: add input values to the existing positioning.\n")
+            "    - REL: relative rotation steps are based on the\n"
+            "      actual angles of the individual viewing areas.\n"
+            "      The model will rotated by the specified rotation\n"
+            "      angles relative to the current view angle.\n\n"
+            "    - ABS: absolute rotation steps is similar to relative\n"
+            "      rotation steps, but it ignores the current view\n"
+            "      angles so that after executing this command the\n"
+            "      model will be rotated from a starting angle of 0.\n\n"
+            "    - ADD: additive rotation step turns the model by\n"
+            "      the specified angles, taking the current view\n"
+            "      angle into account.\nThe command can be used to\n"
+            "      continuously rotate the model by a specific angle.\n"
+            "      For example if this command is executed four times\n"
+            "      on a front view, and the model is rotated\n"
+            "      90° clockwise on the y-axle then you will see the\n"
+            "      model from each of the four sides.\n")
         },
         // WT_GUI_SUBMODEL_PREVIEW_DISPLAY
         {
@@ -3493,8 +4103,16 @@ void CommonMenus::setWhatsThis()
             "  using the following setting:\n"
             "  - Submodel Placement: change the default submodel\n"
             "    placement using the placement dialog.\n")
+        },
+        // WT_GUI_ROTATE_ICON_SIZE
+        {
+            QObject::tr(
+            "  Configure rotate icon size.\n"
+            "  - Width: set the rotate icon  width in %1.\n\n"
+            "  - Height: set the rotate icon hieght in %1.\n\n"
+            "    Dot units are defined in Project Global Setup.\n")
+            .arg(MetaDefaults::getPreferredUnits())
         }
-
         // WT_NUM_ENTRIES
     };
 

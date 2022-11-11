@@ -7,12 +7,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>352</width>
+    <width>360</width>
     <height>537</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>LPub3D Part List</string>
+   <string>LPub3D HTML Part List Export</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../mainApp/lpub3d.qrc">

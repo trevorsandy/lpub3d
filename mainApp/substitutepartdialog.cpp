@@ -58,6 +58,12 @@ SubstitutePartDialog::SubstitutePartDialog(
 
      setWhatsThis(lpubWT(WT_DIALOG_SUBSTITUTE_PART,windowTitle()));
 
+     ui->currentPartBox->setWhatsThis(lpubWT(WT_CONTROL_SUBSTITUTE_CURRENT_PART,ui->currentPartBox->title()));
+
+     ui->primarySettingsBox->setWhatsThis(lpubWT(WT_CONTROL_SUBSTITUTE_PRIMARY_ARGUMENTS,ui->primarySettingsBox->title()));
+
+     ui->extendedSettingsBox->setWhatsThis(lpubWT(WT_CONTROL_SUBSTITUTE_EXTENDED_ARGUMENTS,ui->extendedSettingsBox->title()));
+
      QString title = QString("%1 Part")
              .arg(mAction == sSubstitute ?
                    "Substitute" : mAction == sUpdate ?
@@ -326,21 +332,21 @@ void SubstitutePartDialog::initialize()
 
     if (show)
         val = mAttributes.at(sRotX).toDouble();
-    ui->rotateSpinX->setRange(0.0,360.0);
+    ui->rotateSpinX->setRange(min,max);
     ui->rotateSpinX->setSingleStep(1.0);
     ui->rotateSpinX->setDecimals(dec(val));
     ui->rotateSpinX->setValue(val);
 
     if (show)
         val = mAttributes.at(sRotY).toDouble();
-    ui->rotateSpinY->setRange(0.0,360.0);
+    ui->rotateSpinY->setRange(min,max);
     ui->rotateSpinY->setSingleStep(1.0);
     ui->rotateSpinY->setDecimals(dec(val));
     ui->rotateSpinY->setValue(val);
 
     if (show)
         val = mAttributes.at(sRotZ).toDouble();
-    ui->rotateSpinZ->setRange(0.0,360.0);
+    ui->rotateSpinZ->setRange(min,max);
     ui->rotateSpinZ->setSingleStep(1.0);
     ui->rotateSpinZ->setDecimals(dec(val));
     ui->rotateSpinZ->setValue(val);

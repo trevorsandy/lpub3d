@@ -30,16 +30,41 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 	ui->setupUi(this);
 
 /*** LPub3D Mod - Common menus help ***/
-	setWhatsThis(lpubWT(WT_PREFERENCES, tr("Visual Editor Preferences")));
+	setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES, tr("Visual Editor Preferences")));
 
-	ui->tabCategories->setWhatsThis(lpubWT(WT_VISUAL_PREFS_CATEGORIES, tr("Categories")));
-	ui->tabColors->setWhatsThis(lpubWT(WT_VISUAL_PREFS_COLORS, tr("Colors")));
-	ui->tabGeneral->setWhatsThis(lpubWT(WT_VISUAL_PREFS_GENERAL, tr("General")));
-	ui->tabKeyboard->setWhatsThis(lpubWT(WT_VISUAL_PREFS_KEYBOARD, tr("Keyboard Shortcuts")));
-	ui->tabMouse->setWhatsThis(lpubWT(WT_VISUAL_PREFS_MOUSE, tr("Mouse Shortcuts")));
-	ui->tabRendering->setWhatsThis(lpubWT(WT_VISUAL_PREFS_RENDERING, tr("Rendering")));
-	ui->tabUserInterface->setWhatsThis(lpubWT(WT_VISUAL_PREFS_USER_INTERFACE, tr("Interface, Base Grid, View Sphere, Preview")));
-	ui->tabViews->setWhatsThis(lpubWT(WT_VISUAL_PREFS_VIEWS, tr("Views")));
+	ui->tabCategories->setWhatsThis(lpubWT(              WT_VISUAL_PREFERENCES_CATEGORIES, tr("Categories")));
+	ui->tabColors->setWhatsThis(lpubWT(                  WT_VISUAL_PREFERENCES_COLORS, tr("Colors")));
+	ui->tabGeneral->setWhatsThis(lpubWT(                 WT_VISUAL_PREFERENCES_GENERAL, tr("General")));
+	ui->tabKeyboard->setWhatsThis(lpubWT(                WT_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS, tr("Keyboard Shortcuts")));
+	ui->tabMouse->setWhatsThis(lpubWT(                   WT_VISUAL_PREFERENCES_MOUSE, tr("Mouse Shortcuts")));
+	ui->tabRendering->setWhatsThis(lpubWT(               WT_VISUAL_PREFERENCES_RENDERING, tr("Rendering")));
+	ui->tabUserInterface->setWhatsThis(lpubWT(           WT_VISUAL_PREFERENCES_USER_INTERFACE, tr("Interface, Base Grid, View Sphere, Preview")));
+	ui->tabViews->setWhatsThis(lpubWT(                   WT_VISUAL_PREFERENCES_VIEWS, tr("Views")));
+
+	ui->ApplicationGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_APPLICATION,ui->ApplicationGroup->title()));
+	ui->AuthorWidget->setWhatsThis(lpubWT(               WT_CONTROL_VISUAL_PREFERENCES_AUTHOR,tr("Default Author")));
+	ui->BackgroundColorGroup->setWhatsThis(lpubWT(       WT_CONTROL_VISUAL_PREFERENCES_BACKGROUND_COLOR,ui->BackgroundColorGroup->title()));
+	ui->BaseGridColorGroup->setWhatsThis(lpubWT(         WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID,ui->BaseGridColorGroup->title()));
+	ui->BaseGridGroup->setWhatsThis(lpubWT(              WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID_COLOR,ui->BaseGridGroup->title()));
+	ui->CameraGroup->setWhatsThis(lpubWT(                WT_CONTROL_LPUB3D_PREFERENCES_CAMERA_DEFAULTS,ui->CameraGroup->title()));
+	ui->CategoryEditGroup->setWhatsThis(lpubWT(          WT_CONTROL_VISUAL_PREFERENCES_CATEGORY,ui->CategoryEditGroup->title()));
+	ui->CategoryGroup->setWhatsThis(lpubWT(              WT_CONTROL_VISUAL_PREFERENCES_CATEGORY_EDIT,ui->CategoryGroup->title()));
+	ui->CustomPathsGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_CUSTOM_PATHS,ui->CustomPathsGroup->title()));
+	ui->InterfaceColorGroup->setWhatsThis(lpubWT(        WT_CONTROL_VISUAL_PREFERENCES_INTERFACE,ui->InterfaceColorGroup->title()));
+	ui->InterfaceGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_INTERFACE_COLOR,ui->InterfaceGroup->title()));
+	ui->KeyboardShortcutsTableGroup->setWhatsThis(lpubWT(WT_CONTROL_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS_TABLE,ui->KeyboardShortcutsTableGroup->title()));
+	ui->ModelViewGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_MODEL_VIEW,ui->ModelViewGroup->title()));
+	ui->MouseShortcutGroup->setWhatsThis(lpubWT(         WT_CONTROL_VISUAL_PREFERENCES_MOUSE,ui->MouseShortcutGroup->title()));
+	ui->MouseShortcutsTableGroup->setWhatsThis(lpubWT(   WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUT,ui->MouseShortcutsTableGroup->title()));
+	ui->MouseWidget->setWhatsThis(lpubWT(                WT_CONTROL_VISUAL_PREFERENCES_MOUSESHORTCUTS_TABLE,tr("Mouse Sensitivity")));
+	ui->ObjectsColorGroup->setWhatsThis(lpubWT(          WT_CONTROL_VISUAL_PREFERENCES_OBJECTS_COLOR,ui->ObjectsColorGroup->title()));
+	ui->PartPreviewGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_PART_PREVIEW,ui->PartPreviewGroup->title()));
+	ui->RenderingWidget->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_RENDERING,tr("Rendering")));
+	ui->SettingsWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_SETTINGS,tr("Settings")));
+	ui->shortcutGroup->setWhatsThis(lpubWT(              WT_CONTROL_VISUAL_PREFERENCES_SHORTCUT,ui->shortcutGroup->title()));
+	ui->TimelineWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_TIMELINE,tr("Timeline")));
+	ui->ViewSphereGroup->setWhatsThis(lpubWT(            WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE,ui->ViewSphereGroup->title()));
+	ui->ViewPointAndProjectionGroup->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_VIEWPOINT_AND_PROJECTION, ui->ViewPointAndProjectionGroup->title()));
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/

@@ -97,7 +97,7 @@ PointerPlacementDialog::PointerPlacementDialog(
 {
   setWindowTitle(tr("%1 %2 Dialog").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
 
-  setWhatsThis(lpubWT(WT_DIALOG_POINTER_PLACEMENT,windowTitle()));
+  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(placedType,_goods,windowTitle()));
 
   goods      = &_goods;
   _parentType =  parentType;
@@ -106,7 +106,7 @@ PointerPlacementDialog::PointerPlacementDialog(
   horizontalLine = new QFrame;
 
   lblRelativeTo = new QLabel("Relative To",parent);
-  lblRelativeTo->setToolTip(tr("Select item that %1 will be moved relative to.").arg(title));
+  lblRelativeTo->setToolTip(tr("Select the item that %1 will be moved relative to.").arg(title));
   outsideGrid->addWidget(lblRelativeTo,0,0);
 
   combo = new QComboBox;

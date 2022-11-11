@@ -40,8 +40,6 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 {
     ui->setupUi(this);
 
-    setWhatsThis(lpubWT(WT_DIALOG_RENDER,windowTitle()));
-
 #ifndef QT_NO_PROCESS
     mProcess = nullptr;
 #endif
@@ -49,25 +47,33 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     mWidth      = RENDER_DEFAULT_WIDTH;
     mHeight     = RENDER_DEFAULT_HEIGHT;
 
-    mViewerStepKey = gui->getViewerStepKey();
+    mViewerStepKey = lpub->viewerStepKey;
 
     ui->OutputEdit->setText(Render::getRenderImageFile(renderType));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
     ui->StandardOutButton->setEnabled(false);
 
-    mCsiKeyList = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
+    mCsiKeyList = QString(lpub->ldrawFile.getViewerConfigKey(mViewerStepKey).split(";").last()).split("_");
 
-    QAction *OutputEditAction = ui->OutputEdit->addAction(QIcon(":/resources/resetlineedit.png"), QLineEdit::TrailingPosition);
-    OutputEditAction->setToolTip("Reset");
-    connect(OutputEditAction, SIGNAL(triggered(bool)), this, SLOT(resetOutputEdit(bool)));
+    resetOutputAct = ui->OutputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    resetOutputAct->setText(tr("Reset"));
+    resetOutputAct->setEnabled(false);
+    connect(ui->OutputEdit, SIGNAL(textEdited(  QString const &)),
+            this,           SLOT(  enableReset( QString const &)));
+    connect(resetOutputAct, SIGNAL(triggered()),
+            this,           SLOT(  resetOutputEdit()));
 
     if (mRenderType == POVRAY_RENDER) {
+
+        setWhatsThis(lpubWT(WT_DIALOG_POVRAY_RENDER,windowTitle()));
 
         setWindowTitle(tr ("POV-Ray Render"));
 
         ui->TimeLabel->setText("Preparing POV file...");
 
         ui->RenderSettingsButton->setToolTip("POV-Ray render settings");
+
+        ui->RenderButton->setToolTip(tr("Render LDraw model"));
 
         mOutputBuffer    = nullptr;
 
@@ -80,9 +86,11 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     } else if (mRenderType == BLENDER_RENDER) {
 
         QString title = mImportOnly ? "Import" : "Render";
+        ui->RenderButton->setToolTip(tr("Render LDraw model"));
+
         if (mImportOnly) {
-            title = "Import";
             ui->RenderButton->setText(tr("Import"));
+            ui->RenderButton->setToolTip(tr("Import LDraw model"));
 
             ui->outputLabel->hide();
             ui->OutputEdit->hide();
@@ -91,7 +99,10 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
             ui->OutputLine->hide();
             ui->ProgressLine->hide();
         }
+
         setWindowTitle(tr ("Blender %1").arg(title));
+
+        setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
 
         if (mImportOnly)
             ui->TimeLabel->setText("Open model in Blender");
@@ -163,9 +174,6 @@ void RenderDialog::on_RenderSettingsButton_clicked()
         ui->RenderButton->setEnabled(blenderInstalled);
         if (!blenderInstalled)
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
-        else
-            ui->RenderButton->setToolTip(QString());
-
     }
 }
 
@@ -930,17 +938,27 @@ void RenderDialog::on_OutputBrowseButton_clicked()
         ui->OutputEdit->setText(QDir::toNativeSeparators(Result));
 }
 
-void RenderDialog::resetOutputEdit(bool)
+void RenderDialog::enableReset(const QString &displayText)
 {
-    ui->OutputEdit->setText(Render::getRenderImageFile(mRenderType));
-    ui->RenderProgress->setRange(0,1);
-    ui->RenderProgress->setValue(0);
-    ui->TimeLabel->setText(QString());
-    ui->StandardOutButton->setEnabled(false);
-    if (mRenderType == BLENDER_RENDER ) {
-        ui->preview->hide();
-        adjustSize();
-        setMinimumWidth(int(ui->preview->geometry().width()/*mWidth*/));
+  if (sender() == ui->OutputEdit)
+    resetOutputAct->setEnabled(displayText != Render::getRenderImageFile(mRenderType));
+}
+
+void RenderDialog::resetOutputEdit()
+{
+    if (sender() == resetOutputAct) {
+        resetOutputAct->setEnabled(false);
+        mCsiKeyList = QString(lpub->ldrawFile.getViewerConfigKey(mViewerStepKey).split(";").last()).split("_");
+        ui->OutputEdit->setText(Render::getRenderImageFile(mRenderType));
+        ui->RenderProgress->setRange(0,1);
+        ui->RenderProgress->setValue(0);
+        ui->TimeLabel->setText(QString());
+        ui->StandardOutButton->setEnabled(false);
+        if (mRenderType == BLENDER_RENDER ) {
+            ui->preview->hide();
+            adjustSize();
+            setMinimumWidth(int(ui->preview->geometry().width()/*mWidth*/));
+        }
     }
 }
 

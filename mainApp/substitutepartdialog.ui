@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QGroupBox" name="currrentPartBox">
+    <widget class="QGroupBox" name="currentPartBox">
      <property name="title">
       <string>Current Part</string>
      </property>

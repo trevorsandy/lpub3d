@@ -39,7 +39,7 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
 {
   setWindowTitle(_name);
 
-  setWhatsThis(lpubWT(WT_DIALOG_SIZE_ANDORIENTATION,windowTitle()));
+  setWhatsThis(lpubWT(WT_DIALOG_SIZE_AND_ORIENTATION,windowTitle()));
 
   metaS.setValue(goodsS);
   metaO.setValue(goodsO);

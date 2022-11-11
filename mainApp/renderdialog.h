@@ -55,7 +55,8 @@ private slots:
     void on_RenderButton_clicked();
     void on_OutputBrowseButton_clicked();
     void on_StandardOutButton_clicked();
-    void resetOutputEdit(bool);
+    void resetOutputEdit();
+    void enableReset(QString const &);
     void Update();
 
 protected slots:
@@ -80,6 +81,8 @@ protected:
 //    QProcess* mProcess;
     RenderProcess* mProcess;
 #endif
+    QAction   *resetOutputAct;
+
     void* mOutputBuffer;
     QTimer mUpdateTimer;
     QElapsedTimer mRenderTime;
@@ -89,6 +92,7 @@ protected:
     QString mModelFile;
 
     QStringList mCsiKeyList;
+    QStringList mCsiKeyListData;
     QStringList mStdOutList;
 
     bool mTransBackground;

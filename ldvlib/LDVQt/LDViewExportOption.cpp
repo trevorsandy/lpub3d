@@ -30,6 +30,7 @@
 
 #include "lpub_preferences.h"
 #include "declarations.h"
+#include "commonmenus.h"
 
 TCStringArray* LDViewExportOption::extraSearchDirs = nullptr;
 
@@ -46,6 +47,8 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 	m_number(0)
 {
 	setupUi(this);
+
+	setWhatsThis(lpubWT(WT_DIALOG_LDVIEW_EXPORT_OPTIONS,windowTitle()));
 
 	IniFlag iniFlag = modelWidget->getIniFlag();
 
@@ -127,6 +130,17 @@ void LDViewExportOption::populateExportSettings(void)
 	if (!m_exporter)
 		return;
 
+	QHash<QString, WT_Type> whatsThisMap;
+	whatsThisMap["General"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_GENERAL;
+	whatsThisMap["Geometry"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_GEOMETRY;
+	whatsThisMap["Native POV Geometry"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_POV_GEOMETRY;
+	whatsThisMap["Lighting"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_LIGHTING;
+	whatsThisMap["POV-Ray Lights"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_POVRAY_LIGHTS;
+	whatsThisMap["Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_MATERIAL;
+	whatsThisMap["Transparent Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_TRANSPARENT_MATERIAL;
+	whatsThisMap["Rubber Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_RUBBER_MATERIAL;
+	whatsThisMap["Chrome Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_CHROME_MATERIAL;
+
 	QWidget *parent;
 	parent = m_box;
 	LDExporterSettingList &settings = m_exporter->getSettings();
@@ -207,9 +221,11 @@ void LDViewExportOption::populateExportSettings(void)
 				}
 				QString qstmp;
 				ucstringtoqstring(qstmp,it->getName());
+				qDebug() << qPrintable(QString("DEBUG GroupBox Name %1").arg(qstmp));
 				QGroupBox *gb;
 				gb = new QGroupBox (qstmp, m_box);
 				gb->setObjectName(qstmp);
+				gb->setWhatsThis(lpubWT(whatsThisMap[qstmp],gb->title()));
 				m_lay->addWidget(gb);
 				vbl = new QVBoxLayout(gb);
 				gb->setLayout(vbl);
@@ -310,118 +326,118 @@ void LDViewExportOption::populateExportSettings(void)
 				if (label->text() != TCObject::ls("PovLights")){
 					connect( li, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
 				} else {
-				   label->hide();
-				   li->hide();
-				   li->setObjectName(label->text());
+					label->hide();
+					li->hide();
+					li->setObjectName(label->text());
 
-				   m_pov_lightList = qstmp.split(";");
+					m_pov_lightList = qstmp.split(";");
 
-				   QGridLayout *grid = new QGridLayout();
-				   grid->setSpacing(4);
-				   vbox->addLayout(grid);
-				   QLabel *label;
-				   QValidator *validator;
-				   QPalette palette;
+					QGridLayout *grid = new QGridLayout();
+					grid->setSpacing(4);
+					vbox->addLayout(grid);
+					QLabel *label;
+					QValidator *validator;
+					QPalette palette;
 
-				   label = new QLabel(TCObject::ls("PovLightNum"),this);
-				   grid->addWidget(label,0,0,1,1);
-				   label = new QLabel(TCObject::ls("PovLightShads"),this);
-				   grid->addWidget(label,0,1,1,1);
-				   label = new QLabel(TCObject::ls("PovLatitude"),this);
-				   grid->addWidget(label,0,2,1,1);
-				   label = new QLabel(TCObject::ls("PovLongitude"),this);
-				   grid->addWidget(label,0,3,1,1);
+					label = new QLabel(TCObject::ls("PovLightNum"),this);
+					grid->addWidget(label,0,0,1,1);
+					label = new QLabel(TCObject::ls("PovLightShads"),this);
+					grid->addWidget(label,0,1,1,1);
+					label = new QLabel(TCObject::ls("PovLatitude"),this);
+					grid->addWidget(label,0,2,1,1);
+					label = new QLabel(TCObject::ls("PovLongitude"),this);
+					grid->addWidget(label,0,3,1,1);
 
-				   vbox = new QVBoxLayout();
-				   grid->addItem(vbox,1,4,5,1);
+					vbox = new QVBoxLayout();
+					grid->addItem(vbox,1,4,5,1);
 
-				   QPushButton *abut = new QPushButton(this);
-				   abut->setText(TCObject::ls("PovAddLight"));
-				   vbox->addWidget(abut);
-				   connect( abut, SIGNAL( clicked() ), this, SLOT( addLight()));
+					QPushButton *abut = new QPushButton(this);
+					abut->setText(TCObject::ls("PovAddLight"));
+					vbox->addWidget(abut);
+					connect( abut, SIGNAL( clicked() ), this, SLOT( addLight()));
 
-				   m_liNumEdit =  new QLineEdit(this);
-				   palette.setColor(QPalette::Base,Qt::lightGray);
-				   m_liNumEdit->setPalette(palette);
-				   m_liNumEdit->setReadOnly(true);
-				   validator = new QIntValidator(0, 127, this);
-				   m_liNumEdit->setValidator(validator);
-				   grid->addWidget(m_liNumEdit,2,0,1,1);
-				   connect( m_liNumEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+					m_liNumEdit =  new QLineEdit(this);
+					palette.setColor(QPalette::Base,Qt::lightGray);
+					m_liNumEdit->setPalette(palette);
+					m_liNumEdit->setReadOnly(true);
+					validator = new QIntValidator(0, 127, this);
+					m_liNumEdit->setValidator(validator);
+					grid->addWidget(m_liNumEdit,2,0,1,1);
+					connect( m_liNumEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
 
-				   // insert QCheckBox here...
-				   m_liShadowsChk =  new QCheckBox(QString("Shadowless"),this);
-				   m_liShadowsChk->setToolTip(QString("Specify if light will cast shadow."));
-				   grid->addWidget(m_liShadowsChk,2,1,1,1);
-				   connect( m_liShadowsChk, SIGNAL( clicked(bool) ), this, SLOT( applyLights() ) );
+					// insert QCheckBox here...
+					m_liShadowsChk =  new QCheckBox(QString("Shadowless"),this);
+					m_liShadowsChk->setToolTip(QString("Specify if light will cast shadow."));
+					grid->addWidget(m_liShadowsChk,2,1,1,1);
+					connect( m_liShadowsChk, SIGNAL( clicked(bool) ), this, SLOT( applyLights() ) );
 
-				   m_liLatSpin =  new QDoubleSpinBox(this);
-				   m_liLatSpin->setRange(-360.0, 360.0);
-				   m_liLatSpin->setDecimals(1);
-				   m_liLatSpin->setSingleStep(1);
-				   m_liLatSpin->setToolTip(QString("Specify light latitude position in degrees"));
-				   grid->addWidget(m_liLatSpin,2,2,1,1);
-				   connect( m_liLatSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
+					m_liLatSpin =  new QDoubleSpinBox(this);
+					m_liLatSpin->setRange(-360.0, 360.0);
+					m_liLatSpin->setDecimals(1);
+					m_liLatSpin->setSingleStep(1);
+					m_liLatSpin->setToolTip(QString("Specify light latitude position in degrees"));
+					grid->addWidget(m_liLatSpin,2,2,1,1);
+					connect( m_liLatSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
-				   m_liLonSpin =  new QDoubleSpinBox(this);
-				   m_liLonSpin->setRange(-360.0, 360.0);
-				   m_liLonSpin->setDecimals(1);
-				   m_liLonSpin->setSingleStep(1);
-				   m_liLonSpin->setToolTip(QString("Specify light longitude position in degrees"));
-				   grid->addWidget(m_liLonSpin,2,3,1,1);
-				   connect( m_liLonSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
+					m_liLonSpin =  new QDoubleSpinBox(this);
+					m_liLonSpin->setRange(-360.0, 360.0);
+					m_liLonSpin->setDecimals(1);
+					m_liLonSpin->setSingleStep(1);
+					m_liLonSpin->setToolTip(QString("Specify light longitude position in degrees"));
+					grid->addWidget(m_liLonSpin,2,3,1,1);
+					connect( m_liLonSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
-				   QPushButton *rbut = new QPushButton(this);
-				   rbut->setText(TCObject::ls("PovRemoveLight"));
-				   vbox->addWidget(rbut);
-				   connect( rbut, SIGNAL( clicked() ), this, SLOT( removeLight()));
+					QPushButton *rbut = new QPushButton(this);
+					rbut->setText(TCObject::ls("PovRemoveLight"));
+					vbox->addWidget(rbut);
+					connect( rbut, SIGNAL( clicked() ), this, SLOT( removeLight()));
 
-				   sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
-				   grid->addItem(sp,3,0,1,1);
-				   label = new QLabel(TCObject::ls("PovLightIntensity"),this);
-				   grid->addWidget(label,3,1,1,1);
-				   label = new QLabel(TCObject::ls("PovLightAreaSize"),this);
-				   grid->addWidget(label,3,2,1,1);
-				   label = new QLabel(TCObject::ls("PovAreaLightsNum"),this);
-				   grid->addWidget(label,3,3,1,1);
+					sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+					grid->addItem(sp,3,0,1,1);
+					label = new QLabel(TCObject::ls("PovLightIntensity"),this);
+					grid->addWidget(label,3,1,1,1);
+					label = new QLabel(TCObject::ls("PovLightAreaSize"),this);
+					grid->addWidget(label,3,2,1,1);
+					label = new QLabel(TCObject::ls("PovAreaLightsNum"),this);
+					grid->addWidget(label,3,3,1,1);
 
-				   sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-				   vbox->addSpacerItem(sp);
+					sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+					vbox->addSpacerItem(sp);
 
-				   sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
-				   grid->addItem(sp,4,0,1,1);
-				   m_liIntSpin =  new QDoubleSpinBox(this);
-				   m_liIntSpin->setRange(0.0,100);
-				   m_liIntSpin->setDecimals(2);
-				   m_liIntSpin->setSingleStep(0.1);
-				   m_liIntSpin->setToolTip(QString("Specify light intensity where 0 is none and 1 is 100 percent."));
-				   grid->addWidget(m_liIntSpin,4,1,1,1);
-				   connect( m_liIntSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
+					sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+					grid->addItem(sp,4,0,1,1);
+					m_liIntSpin =  new QDoubleSpinBox(this);
+					m_liIntSpin->setRange(0.0,100);
+					m_liIntSpin->setDecimals(2);
+					m_liIntSpin->setSingleStep(0.1);
+					m_liIntSpin->setToolTip(QString("Specify light intensity where 0 is none and 1 is 100 percent."));
+					grid->addWidget(m_liIntSpin,4,1,1,1);
+					connect( m_liIntSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
-				   m_liASizeSpin =  new QSpinBox(this);
-				   m_liASizeSpin->setRange(0,10000);
-				   m_liASizeSpin->setSingleStep(1);
-				   m_liASizeSpin->setToolTip(QString("Specify the side length of the area light square, use 0 for point light."));
-				   grid->addWidget(m_liASizeSpin,4,2,1,1);
-				   connect( m_liASizeSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int) ) );
+					m_liASizeSpin =  new QSpinBox(this);
+					m_liASizeSpin->setRange(0,10000);
+					m_liASizeSpin->setSingleStep(1);
+					m_liASizeSpin->setToolTip(QString("Specify the side length of the area light square, use 0 for point light."));
+					grid->addWidget(m_liASizeSpin,4,2,1,1);
+					connect( m_liASizeSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int) ) );
 
-				   m_liALightsSpin =  new QSpinBox(this);
-				   m_liALightsSpin->setRange(0,100);
-				   m_liALightsSpin->setSingleStep(1);
-				   m_liIntSpin->setToolTip(QString("Specify the number of light rows/columns - area light only"));
-				   grid->addWidget(m_liALightsSpin,4,3,1,1);
-				   connect( m_liALightsSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int)));
+					m_liALightsSpin =  new QSpinBox(this);
+					m_liALightsSpin->setRange(0,100);
+					m_liALightsSpin->setSingleStep(1);
+					m_liIntSpin->setToolTip(QString("Specify the number of light rows/columns - area light only"));
+					grid->addWidget(m_liALightsSpin,4,3,1,1);
+					connect( m_liALightsSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int)));
 
-				   m_liCombo = new QComboBox(this);
-				   grid->addWidget(m_liCombo,5,0,1,4);
-				   connect( m_liCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( selectLight(int)));
+					m_liCombo = new QComboBox(this);
+					grid->addWidget(m_liCombo,5,0,1,4);
+					connect( m_liCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( selectLight(int)));
 
-				   m_messageLabel = new QLabel(this);
-				   grid->addWidget(m_messageLabel,6,0,1,5);
+					m_messageLabel = new QLabel(this);
+					grid->addWidget(m_messageLabel,6,0,1,5);
 
-				   setLights();
+					setLights();
 
-				   m_POVLightsLoaded = true;
+					m_POVLightsLoaded = true;
 				}
 				break;
 			case LDExporterSetting::TEnum:

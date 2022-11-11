@@ -2589,7 +2589,7 @@ RotStepGui::RotStepGui(
 
   qreal value = data.rots[0];
   rotStepSpinX = new QDoubleSpinBox(parent);
-  rotStepSpinX->setRange(0.0,360.0);
+  rotStepSpinX->setRange(-360.0,360.0);
   rotStepSpinX->setSingleStep(1.0);
   rotStepSpinX->setDecimals(decimalPlaces(value));
   rotStepSpinX->setValue(value);
@@ -2611,7 +2611,7 @@ RotStepGui::RotStepGui(
 
   value = data.rots[1];
   rotStepSpinY = new QDoubleSpinBox(parent);
-  rotStepSpinY->setRange(0.0,360.0);
+  rotStepSpinY->setRange(-360.0,360.0);
   rotStepSpinY->setSingleStep(1.0);
   rotStepSpinY->setDecimals(decimalPlaces(value));
   rotStepSpinY->setValue(value);
@@ -2633,7 +2633,7 @@ RotStepGui::RotStepGui(
 
   value = data.rots[2];
   rotStepSpinZ = new QDoubleSpinBox(parent);
-  rotStepSpinZ->setRange(0.0,360.0);
+  rotStepSpinZ->setRange(-360.0,360.0);
   rotStepSpinZ->setSingleStep(1.0);
   rotStepSpinZ->setDecimals(decimalPlaces(value));
   rotStepSpinZ->setValue(value);
@@ -2682,17 +2682,17 @@ void RotStepGui::enableReset(double value)
 
 void RotStepGui::spinReset(bool)
 {
-  if (sender() == rotStepSpinX) {
+  if (sender() == button0) {
     button0->setEnabled(false);
     rotStepSpinX->setValue(data.rots[0]);
     rotStepSpinX->setFocus();
   } else
-  if (sender() == rotStepSpinY) {
+  if (sender() == button1) {
     button1->setEnabled(false);
     rotStepSpinY->setValue(data.rots[1]);
     rotStepSpinY->setFocus();
   } else
-  if (sender() == rotStepSpinZ) {
+  if (sender() == button2) {
     button2->setEnabled(false);
     rotStepSpinZ->setValue(data.rots[2]);
     rotStepSpinZ->setFocus();
@@ -6971,8 +6971,10 @@ RotateIconSizeGui::RotateIconSizeGui(
 
   if (parent) {
     parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(WT_GUI_ROTATE_ICON_SIZE, parent->title()));
   } else {
     setLayout(grid);
+    setWhatsThis(lpubWT(WT_GUI_ROTATE_ICON_SIZE, heading.isEmpty() ? tr("Rotate Icon Size") : heading));
   }
 
   if (heading != "") {
@@ -7362,10 +7364,10 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
   if (parent) {
     parent->setLayout(grid);
-    parent->setWhatsThis(lpubWT(WT_GUI_SIZE_ORIENTATION, parent->title()));
+    parent->setWhatsThis(lpubWT(WT_GUI_SIZE_AND_ORIENTATION, parent->title()));
   } else {
     setLayout(grid);
-    setWhatsThis(lpubWT(WT_GUI_SIZE_ORIENTATION, heading.isEmpty() ? tr("Page Size And Orientation") : heading));
+    setWhatsThis(lpubWT(WT_GUI_SIZE_AND_ORIENTATION, heading.isEmpty() ? tr("Page Size And Orientation") : heading));
   }
 
   if (heading != "") {
@@ -7832,99 +7834,114 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
 
     QDialog *dialog = new QDialog();
 
+    dialog->setWindowTitle(tr("Target And Rotation"));
+
+    dialog->setWhatsThis(lpubWT(WT_DIALOG_LOOK_AT_TARGET_AND_STEP_ROTATION,dialog->windowTitle()));
+
     QFormLayout *form = new QFormLayout(dialog);
-    form->addRow(new QLabel("LookAt Target"));
-    QGroupBox *targetBbox = new QGroupBox("Enter axis distance");
-    form->addWidget(targetBbox);
-    QFormLayout *targetSubform = new QFormLayout(targetBbox);
+    form->addRow(new QLabel(tr("LookAt Target Position")));
+    QGroupBox *targetBox = new QGroupBox(tr("Target"));
+    targetBox->setWhatsThis(lpubWT(WT_CONTROL_LOOK_AT_TARGET,targetBox->title()));
+    form->addWidget(targetBox);
+    QGridLayout *subGridLayout = new QGridLayout(targetBox);
 
     // Target
-    int targetValues[3] = {keyList.at(K_TARGETX).toInt(),
-                           keyList.at(K_TARGETY).toInt(),
-                           keyList.at(K_TARGETZ).toInt()};
+    targetValues[TR_AXIS_X] = keyList.at(K_TARGETX).toInt();
+    targetValues[TR_AXIS_Y] = keyList.at(K_TARGETY).toInt();
+    targetValues[TR_AXIS_Z] = keyList.at(K_TARGETZ).toInt();
 
     QList<QLabel *> targetLabelList;
-    QList<QSpinBox *> targetSpinBoxList;
     QStringList targetLabels = QStringList()
-            << QString("X Distance:")
-            << QString("Y Distance:")
-            << QString("Z Distance:");
+            << QString("X Position:")
+            << QString("Y Position:")
+            << QString("Z Position:");
 
-    for(int i = 0; i < targetLabels.size(); ++i) {
+    for(int i = 0; i < static_cast<int>(TR_NUM_AXIS); ++i) {
         QLabel *label = new QLabel(targetLabels[i], dialog);
         targetLabelList << label;
-        QSpinBox * spinBox = new QSpinBox(dialog);
-        spinBox->setRange(0,10000);
+        subGridLayout->addWidget(label,i,0);
+        QSpinBox *spinBox = new QSpinBox(dialog);
+        spinBox->setRange(-10000,10000);
         spinBox->setSingleStep(1);
-        const int index = i < 3 ? i : 0;
-        spinBox->setValue(targetValues[index]);
+        spinBox->setValue(targetValues[i]);
         targetSpinBoxList << spinBox;
-        targetSubform->addRow(label,spinBox);
+        connect(spinBox,SIGNAL(valueChanged(     int)),
+                this,   SLOT(  enableTargetReset(int)));
+        subGridLayout->addWidget(spinBox,i,1);
+        subGridLayout->setColumnStretch(1,1);
+
+        QPushButton *button = new QPushButton(dialog);
+        button->setIcon(QIcon(":/resources/resetaction.png"));
+        button->setIconSize(QSize(16,16));
+        button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+        button->setToolTip(tr("Reset"));
+        button->setEnabled(false);
+        targetButtonList << button;
+        connect(button, SIGNAL(clicked(          bool)),
+                this,   SLOT(  spinReset(        bool)));
+        subGridLayout->addWidget(button,i,2);
     }
 
-    if (!targetSubform->rowCount())
-        targetSubform = nullptr;
-
-    form->addRow(new QLabel("Rotate"));
-    QGroupBox *rotateBox = new QGroupBox("Enter axis rotation");
+    form->addRow(new QLabel("Step Rotation"));
+    QGroupBox *rotateBox = new QGroupBox(tr("Rotation"));
+    rotateBox->setWhatsThis(lpubWT(WT_GUI_STEP_ROTATION,rotateBox->title()));
     form->addWidget(rotateBox);
-    QFormLayout *rotateSubform = new QFormLayout(rotateBox);
+    subGridLayout = new QGridLayout(rotateBox);
 
     // Rotstep
-    auto dec = [] (const qreal v)
+    auto decimalPlaces = [] (double value)
     {
-        auto places = [&v] () {
-            if (v == 0.0)
-                return 2;
-
-            int count = 0;
-            qreal num = v;
-            num = abs(num);
-            num = num - int(num);
-            while (abs(num) >= 0.00001) {
-                num = num * 10;
-                count = count + 1;
-                num = num - int(num);
-            }
-            return count;
-        };
-
-        int a = v - int(v);
-        return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+        const int residual = value - (int)value;
+        const int decimalSize = QString::number(residual).size();
+        return decimalSize < 3 ? 2 : decimalSize;
     };
 
-    double rotateValues[3] = {keyList.at(K_ROTSX).toDouble(),
-                              keyList.at(K_ROTSY).toDouble(),
-                              keyList.at(K_ROTSZ).toDouble()};
+    rotateValues[TR_AXIS_X] = keyList.at(K_ROTSX).toDouble();
+    rotateValues[TR_AXIS_Y] = keyList.at(K_ROTSY).toDouble();
+    rotateValues[TR_AXIS_Z] = keyList.at(K_ROTSZ).toDouble();
 
     QList<QLabel *> rotateLabelList;
-    QList<QDoubleSpinBox *> rotateDoubleSpinBoxList;
     QStringList rotateLabels = QStringList()
-            << QString("X Rotation:")
-            << QString("Y Rotation:")
-            << QString("Z Rotation:");
+            << QString("X Angle:   ")
+            << QString("Y Angle:   ")
+            << QString("Z Angle:   ");
 
-    for(int i = 0; i < rotateLabels.size(); ++i) {
+    for(int i = 0; i < static_cast<int>(TR_NUM_AXIS); ++i) {
         QLabel *label = new QLabel(rotateLabels[i], dialog);
         rotateLabelList << label;
+        subGridLayout->addWidget(label,i,0);
         QDoubleSpinBox * doubleSpinBox = new QDoubleSpinBox(dialog);
-        doubleSpinBox->setRange(0.0,360.0);
+        doubleSpinBox->setRange(-360.0,360.0);
         doubleSpinBox->setSingleStep(1.0);
-        const int index = i < 3 ? i : 0;
-        doubleSpinBox->setDecimals(dec(rotateValues[index]));
-        doubleSpinBox->setValue(rotateValues[index]);
+        doubleSpinBox->setDecimals(decimalPlaces(rotateValues[i]));
+        doubleSpinBox->setValue(rotateValues[i]);
         rotateDoubleSpinBoxList << doubleSpinBox;
-        rotateSubform->addRow(label,doubleSpinBox);
+        connect(doubleSpinBox,SIGNAL(valueChanged(     double)),
+                this,         SLOT(  enableRotateReset(double)));
+        subGridLayout->addWidget(doubleSpinBox,i,1);
+        subGridLayout->setColumnStretch(1,1);
+
+        QPushButton *button = new QPushButton(dialog);
+        button->setIcon(QIcon(":/resources/resetaction.png"));
+        button->setIconSize(QSize(16,16));
+        button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+        button->setToolTip(tr("Reset"));
+        button->setEnabled(false);
+        rotateButtonList << button;
+        connect(button,       SIGNAL(clicked(          bool)),
+                this,         SLOT(  spinReset(        bool)));
+        subGridLayout->addWidget(button,i,2);
     }
 
-    QComboBox *typeCombo;
-    QLabel *label = new QLabel("Transform:", dialog);
+    transformValue = keyList.at(K_ROTSTYPE);
+    QLabel *label = new QLabel(tr("Transform:"), dialog);
+    subGridLayout->addWidget(label,TR_NUM_AXIS,0);
     typeCombo = new QComboBox(dialog);
     typeCombo->addItem("ABS");
     typeCombo->addItem("REL");
     typeCombo->addItem("ADD");
-    typeCombo->setCurrentIndex(typeCombo->findText(keyList.at(K_ROTSTYPE)));
-    rotateSubform->addRow(label,typeCombo);
+    typeCombo->setCurrentIndex(typeCombo->findText(transformValue));
+    subGridLayout->addWidget(typeCombo,TR_NUM_AXIS,1,1,1);
 
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                Qt::Horizontal, dialog);
@@ -7934,17 +7951,87 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
     dialog->setMinimumWidth(250);
 
     if (dialog->exec() == QDialog::Accepted) {
-        keyList.replace(K_TARGETX,QString::number(targetSpinBoxList[0]->value()));
-        keyList.replace(K_TARGETY,QString::number(targetSpinBoxList[1]->value()));
-        keyList.replace(K_TARGETZ,QString::number(targetSpinBoxList[2]->value()));
+        keyList.replace(K_TARGETX,QString::number(targetSpinBoxList[TR_AXIS_X]->value()));
+        keyList.replace(K_TARGETY,QString::number(targetSpinBoxList[TR_AXIS_Y]->value()));
+        keyList.replace(K_TARGETZ,QString::number(targetSpinBoxList[TR_AXIS_Z]->value()));
 
-        keyList.replace(K_ROTSX,QString::number(rotateDoubleSpinBoxList[0]->value()));
-        keyList.replace(K_ROTSY,QString::number(rotateDoubleSpinBoxList[1]->value()));
-        keyList.replace(K_ROTSZ,QString::number(rotateDoubleSpinBoxList[2]->value()));
+        keyList.replace(K_ROTSX,QString::number(rotateDoubleSpinBoxList[TR_AXIS_X]->value()));
+        keyList.replace(K_ROTSY,QString::number(rotateDoubleSpinBoxList[TR_AXIS_Y]->value()));
+        keyList.replace(K_ROTSZ,QString::number(rotateDoubleSpinBoxList[TR_AXIS_Z]->value()));
         keyList.replace(K_ROTSTYPE,typeCombo->currentText());
     } else {
         return;
     }
+}
+
+void TargetRotateDialogGui::enableTargetReset(int value)
+{
+  if (sender() == targetSpinBoxList[TR_AXIS_X])
+      targetButtonList[TR_AXIS_X]->setEnabled(value != targetValues[TR_AXIS_X]);
+  else
+  if (sender() == targetSpinBoxList[TR_AXIS_Y])
+    targetButtonList[TR_AXIS_Y]->setEnabled(value != targetValues[TR_AXIS_Y]);
+  else
+  if (sender() == targetSpinBoxList[TR_AXIS_Z])
+    targetButtonList[TR_AXIS_Z]->setEnabled(value != targetValues[TR_AXIS_Z]);
+}
+
+void TargetRotateDialogGui::enableRotateReset(double value)
+{
+  if (sender() == rotateDoubleSpinBoxList[TR_AXIS_X])
+    rotateButtonList[TR_AXIS_X]->setEnabled(MetaGui::notEqual(value, rotateValues[TR_AXIS_X]));
+  else
+  if (sender() == rotateDoubleSpinBoxList[TR_AXIS_Y])
+    rotateButtonList[TR_AXIS_Y]->setEnabled(MetaGui::notEqual(value, rotateValues[TR_AXIS_Y]));
+  else
+  if (sender() == rotateDoubleSpinBoxList[TR_AXIS_Z])
+    rotateButtonList[TR_AXIS_Z]->setEnabled(MetaGui::notEqual(value, rotateValues[TR_AXIS_Z]));
+}
+
+void TargetRotateDialogGui::spinReset(bool)
+{
+  if (sender() == targetButtonList[TR_AXIS_X]) {
+    targetButtonList[TR_AXIS_X]->setEnabled(false);
+    if (targetSpinBoxList[TR_AXIS_X]) {
+      targetSpinBoxList[TR_AXIS_X]->setValue(targetValues[TR_AXIS_X]);
+      targetSpinBoxList[TR_AXIS_X]->setFocus();
+    }
+  } else
+  if (sender() == targetButtonList[TR_AXIS_Y]) {
+    targetButtonList[TR_AXIS_Y]->setEnabled(false);
+    if (targetSpinBoxList[TR_AXIS_Y]) {
+      targetSpinBoxList[TR_AXIS_Y]->setValue(targetValues[TR_AXIS_Y]);
+      targetSpinBoxList[TR_AXIS_Y]->setFocus();
+    }
+  } else
+  if (sender() == targetButtonList[TR_AXIS_Z]) {
+    targetButtonList[TR_AXIS_Z]->setEnabled(false);
+    if (targetSpinBoxList[TR_AXIS_Z]) {
+      targetSpinBoxList[TR_AXIS_Z]->setValue(targetValues[TR_AXIS_Z]);
+      targetSpinBoxList[TR_AXIS_Z]->setFocus();
+    }
+  } else
+  if (sender() == rotateButtonList[TR_AXIS_X]) {
+    rotateButtonList[TR_AXIS_X]->setEnabled(false);
+    if (rotateDoubleSpinBoxList[TR_AXIS_X]) {
+      rotateDoubleSpinBoxList[TR_AXIS_X]->setValue(targetValues[TR_AXIS_X]);
+      rotateDoubleSpinBoxList[TR_AXIS_X]->setFocus();
+    }
+  } else
+  if (sender() == rotateButtonList[TR_AXIS_Y]) {
+    rotateButtonList[TR_AXIS_Y]->setEnabled(false);
+    if (rotateDoubleSpinBoxList[TR_AXIS_Y]) {
+      rotateDoubleSpinBoxList[TR_AXIS_Y]->setValue(targetValues[TR_AXIS_Y]);
+      rotateDoubleSpinBoxList[TR_AXIS_Y]->setFocus();
+    }
+  } else
+  if (sender() == rotateButtonList[TR_AXIS_Z]) {
+    rotateButtonList[TR_AXIS_Z]->setEnabled(false);
+    if (rotateDoubleSpinBoxList[TR_AXIS_Z]) {
+      rotateDoubleSpinBoxList[TR_AXIS_Z]->setValue(targetValues[TR_AXIS_Z]);
+      rotateDoubleSpinBoxList[TR_AXIS_Z]->setFocus();
+    }
+  }
 }
 
 /***********************************************************************
@@ -8268,7 +8355,6 @@ void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
     }
 }
 
-
 /***********************************************************************
  *
  * Build Modifications
@@ -8284,16 +8370,16 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
     QString actionLabel;
     switch(action) {
     case BuildModApplyRc:
-        actionLabel = "Apply";
+        actionLabel = tr("Apply");
         break;
     case BuildModRemoveRc:
-        actionLabel = "Remove";
+        actionLabel = tr("Remove");
         break;
     case BM_CHANGE:
-        actionLabel = "Change";
+        actionLabel = tr("Change");
         break;
     case BM_DELETE:
-        actionLabel = "Delete";
+        actionLabel = tr("Delete");
         break;
     default:
         return;
@@ -8301,9 +8387,13 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
 
     QDialog *dialog = new QDialog();
 
+    dialog->setWindowTitle(tr("Build Modifications"));
+
+    dialog->setWhatsThis(lpubWT(WT_DIALOG_BUILD_MODIFICATIONS,dialog->windowTitle()));
+
     QFormLayout *form = new QFormLayout(dialog);
-    form->addRow(new QLabel(QString("%1 Build Modifications").arg(actionLabel)));
-    QGroupBox *buildModBox = new QGroupBox(QString("Select build modification to %1").arg(actionLabel.toLower()));
+    form->addRow(new QLabel(tr("%1 Build Modifications").arg(actionLabel)));
+    QGroupBox *buildModBox = new QGroupBox(tr("Select Build Modification To %1").arg(actionLabel.toLower()));
     form->addWidget(buildModBox);
 
     QHBoxLayout *hLayout = new QHBoxLayout(buildModBox);
@@ -8328,9 +8418,9 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
         hLayout->addWidget(buildModList);
 
         QObject::connect(buildModList, SIGNAL(itemClicked(QListWidgetItem *)),
-                         this,         SLOT(setBuildModActive(QListWidgetItem *)));
+                         this,         SLOT(  setBuildModActive(QListWidgetItem *)));
         QObject::connect(buildModList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
-                         this,         SLOT(setBuildModActive(QListWidgetItem *)));
+                         this,         SLOT(  setBuildModActive(QListWidgetItem *)));
     } else {
         QString message = tr("No build modifications were detected!");
         QLabel *label = new QLabel(message, dialog);
@@ -8375,20 +8465,20 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
 */
 
 POVRayRenderDialogGui::PovraySettings POVRayRenderDialogGui::povraySettings[] = {
-/* 0  LBL_ALPHA                0   QCheckBox   */ {"Transparent Background   ", "Specify whether to render a background"},
-/* 1  LBL_ASPECT               1   QCheckBox   */ {"Maintain Aspect Ratio    ", "Specify whether maintain a one to one image aspect ratio"},
-/* 2  LBL_WIDTH                2/0 QLineEdit   */ {"Width                    ", "Specify the image width in pixels"},
-/* 3  LBL_HEIGHT               3/1 QLineEdit   */ {"Height                   ", "Specify the image height in pixels"},
-/* 4  LBL_LATITUDE             4/2 QLineEdit   */ {"Camera Anlge - Latitude  ", "Set the longitudinal camera angle for the rendered image"},
-/* 5  LBL_LONGITUDE            5/3 QLineEdit   */ {"Camera Anlge - Longitude ", "Set the latitudinal camera angle for the rendered image"},
-/* 6  LBL_RESOLUTION           6/4 QLineEdit   */ {"Resolution               ", "Specify the resolution in pixels per inch"},
-/* 7  LBL_SCALE                7/5 QLineEdit   */ {"Scale                    ", "Specify the output image scale"},
+/* 0  LBL_ALPHA                0   QCheckBox   */ {QObject::tr("Transparent Background   "), QObject::tr("Specify whether to render a background")},
+/* 1  LBL_ASPECT               1   QCheckBox   */ {QObject::tr("Maintain Aspect Ratio    "), QObject::tr("Specify whether maintain a one to one image aspect ratio")},
+/* 2  LBL_WIDTH                2/0 QLineEdit   */ {QObject::tr("Width                    "), QObject::tr("Specify the image width in pixels")},
+/* 3  LBL_HEIGHT               3/1 QLineEdit   */ {QObject::tr("Height                   "), QObject::tr("Specify the image height in pixels")},
+/* 4  LBL_LATITUDE             4/2 QLineEdit   */ {QObject::tr("Camera Anlge - Latitude  "), QObject::tr("Set the longitudinal camera angle for the rendered image")},
+/* 5  LBL_LONGITUDE            5/3 QLineEdit   */ {QObject::tr("Camera Anlge - Longitude "), QObject::tr("Set the latitudinal camera angle for the rendered image")},
+/* 6  LBL_RESOLUTION           6/4 QLineEdit   */ {QObject::tr("Resolution               "), QObject::tr("Specify the resolution in pixels per inch")},
+/* 7  LBL_SCALE                7/5 QLineEdit   */ {QObject::tr("Scale                    "), QObject::tr("Specify the output image scale")},
 
-/* 8  LBL_QUALITY              8   QComboBox   */ {"Quality                  ", "Select the POV-Ray render level of quality"},
+/* 8  LBL_QUALITY              8   QComboBox   */ {QObject::tr("Quality                  "), QObject::tr("Select the POV-Ray render level of quality")},
 
-/* 9  LBL_TARGET_AND_ROTATE    9/0 QToolButton */ {"LookAt Target and Rotstep", "Specify the target 'Look At' position and/or apply ROTSTEP coordinates"},
-/* 10 LBL_LDV_EXPORT_SETTINGS 10/1 QToolButton */ {"LDV Export Settings      ", "Specify LDView POV-Ray export settings"},
-/* 11 LBL_LDV_LDRAW_SETTINGS  11/2 QToolButton */ {"LDV LDraw Settings       ", "Specify LDView LDraw settings"}
+/* 9  LBL_TARGET_AND_ROTATE    9/0 QToolButton */ {QObject::tr("LookAt Target and Rotstep"), QObject::tr("Specify the target 'Look At' position and/or apply ROTSTEP angles")},
+/* 10 LBL_LDV_EXPORT_SETTINGS 10/1 QToolButton */ {QObject::tr("Export Settings          "), QObject::tr("Specify LDView POV-Ray export settings")},
+/* 11 LBL_LDV_LDRAW_SETTINGS  11/2 QToolButton */ {QObject::tr("LDraw Preferences        "), QObject::tr("Specify LDView LDraw preferences")}
 };
 
 void POVRayRenderDialogGui::getRenderSettings(
@@ -8399,10 +8489,13 @@ void POVRayRenderDialogGui::getRenderSettings(
         bool        &alpha)
 {
     QDialog *dialog = new QDialog(nullptr);
+
     dialog->setWindowTitle(tr("POV-Ray Render Settings"));
 
+    dialog->setWhatsThis(lpubWT(WT_DIALOG_POVRAY_RENDER_SETTINGS,dialog->windowTitle()));
+
     QFormLayout *form = new QFormLayout(dialog);
-    QGroupBox *settingsBox = new QGroupBox("Select rendered image settings",dialog);
+    QGroupBox *settingsBox = new QGroupBox("Select Rendered Image Settings",dialog);
     form->addWidget(settingsBox);
     QFormLayout *settingsSubform = new QFormLayout(settingsBox);
 
@@ -8447,6 +8540,14 @@ void POVRayRenderDialogGui::getRenderSettings(
                 lineEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
             lineEdit->setToolTip(povraySettings[i].tooltip);
             lineEditList << lineEdit;
+            connect(lineEdit, SIGNAL(textEdited(  QString const &)),
+                    this,     SLOT(  enableReset( QString const &)));
+            QAction *resetEditAct = lineEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+            resetEditAct->setText(tr("Reset"));
+            resetEditAct->setEnabled(false);
+            resetEditActList << resetEditAct;
+            connect(resetEditAct, SIGNAL(triggered()),
+                    this,         SLOT(  editReset()));
             settingsSubform->addRow(label,lineEdit);
         } else if (i < LBL_TARGET_AND_ROTATE) {
             QString items = QString("High|Medium|Low");
@@ -8496,6 +8597,66 @@ void POVRayRenderDialogGui::getRenderSettings(
         editedCsiKeyList[K_RESOLUTION] = lineEditList.at(RESOLUTION_EDIT)->text();
         editedCsiKeyList[K_MODELSCALE] = lineEditList.at(SCALE_EDIT)->text();
         csiKeyList = editedCsiKeyList;
+    }
+}
+
+void POVRayRenderDialogGui::enableReset(const QString &displayText)
+{
+    if (sender() == lineEditList[WIDTH_EDIT])
+        resetEditActList[WIDTH_EDIT]->setEnabled(displayText != QString::number(mWidth));
+    else
+    if (sender() == lineEditList[HEIGHT_EDIT])
+        resetEditActList[HEIGHT_EDIT]->setEnabled(displayText != QString::number(mHeight));
+    else
+    if (sender() == lineEditList[LATITUDE_EDIT])
+        resetEditActList[LATITUDE_EDIT]->setEnabled(displayText != mCsiKeyList.at(K_LATITUDE));
+    else
+    if (sender() == lineEditList[LONGITUDE_EDIT])
+        resetEditActList[LONGITUDE_EDIT]->setEnabled(displayText != mCsiKeyList.at(K_LONGITUDE));
+    else
+    if (sender() == lineEditList[RESOLUTION_EDIT])
+        resetEditActList[RESOLUTION_EDIT]->setEnabled(displayText !=mCsiKeyList.at(K_RESOLUTION));
+    else
+    if (sender() == lineEditList[SCALE_EDIT])
+        resetEditActList[SCALE_EDIT]->setEnabled(displayText != mCsiKeyList.at(K_MODELSCALE));
+}
+
+void POVRayRenderDialogGui::editReset()
+{
+    if (sender() == resetEditActList[WIDTH_EDIT]) {
+        resetEditActList[WIDTH_EDIT]->setEnabled(false);
+        if (lineEditList[WIDTH_EDIT])
+            lineEditList[WIDTH_EDIT]->setText(QString::number(mWidth));
+    }
+    else
+    if (sender() == resetEditActList[HEIGHT_EDIT]) {
+        resetEditActList[HEIGHT_EDIT]->setEnabled(false);
+        if (lineEditList[HEIGHT_EDIT])
+            lineEditList[HEIGHT_EDIT]->setText(QString::number(mHeight));
+    }
+    else
+    if (sender() == resetEditActList[LATITUDE_EDIT]) {
+        resetEditActList[LATITUDE_EDIT]->setEnabled(false);
+        if (lineEditList[LATITUDE_EDIT])
+            lineEditList[LATITUDE_EDIT]->setText(mCsiKeyList.at(K_LATITUDE));
+    }
+    else
+    if (sender() == resetEditActList[LONGITUDE_EDIT]) {
+        resetEditActList[LONGITUDE_EDIT]->setEnabled(false);
+        if (lineEditList[LONGITUDE_EDIT])
+            lineEditList[LONGITUDE_EDIT]->setText(mCsiKeyList.at(K_LONGITUDE));
+    }
+    else
+    if (sender() == resetEditActList[RESOLUTION_EDIT]) {
+        resetEditActList[RESOLUTION_EDIT]->setEnabled(false);
+        if (lineEditList[RESOLUTION_EDIT])
+            lineEditList[RESOLUTION_EDIT]->setText(mCsiKeyList.at(K_RESOLUTION));
+    }
+    else
+    if (sender() == resetEditActList[SCALE_EDIT]) {
+        resetEditActList[SCALE_EDIT]->setEnabled(false);
+        if (lineEditList[SCALE_EDIT])
+            lineEditList[SCALE_EDIT]->setText(mCsiKeyList.at(K_MODELSCALE));
     }
 }
 
@@ -8551,21 +8712,21 @@ void POVRayRenderDialogGui::textChanged(const QString &value)
 {
     /* original height x new width / original width = new height */
     int mNewValue = value.toInt();
-    if (checkBoxList.at(ASPECT_BOX)->isChecked()){
-       if (sender() == lineEditList.at(WIDTH_EDIT)) {
-         disconnect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
-                          this,SLOT  (textChanged(const QString &)));
-         lineEditList.at(HEIGHT_EDIT)->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
-         connect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
-                             this,SLOT  (textChanged(const QString &)));
-       } else
-       if (sender() == lineEditList.at(HEIGHT_EDIT)){
-         disconnect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
-                        this, SLOT  (textChanged(const QString &)));
-         lineEditList.at(WIDTH_EDIT)->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
-         connect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
-                            this,SLOT (textChanged(const QString &)));
-       }
+    if (checkBoxList.at(ASPECT_BOX)->isChecked()) {
+        if (sender() == lineEditList.at(WIDTH_EDIT)) {
+            disconnect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
+                       this,                        SLOT  (textChanged(const QString &)));
+            lineEditList.at(HEIGHT_EDIT)->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
+            connect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
+                  this,                          SLOT  (textChanged(const QString &)));
+        } else
+        if (sender() == lineEditList.at(HEIGHT_EDIT)) {
+            disconnect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
+                       this,                       SLOT  (textChanged(const QString &)));
+            lineEditList.at(WIDTH_EDIT)->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
+            connect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
+                    this,                       SLOT  (textChanged(const QString &)));
+        }
     }
 }
 
@@ -8574,7 +8735,6 @@ void POVRayRenderDialogGui::textChanged(const QString &value)
  * Blender renderer
  *
  **********************************************************************/
-
 bool    BlenderRenderDialogGui::documentRender       = false;
 QString BlenderRenderDialogGui::blenderVersion;
 QString BlenderRenderDialogGui::searchDirectoriesKey = QString("additionalSearchDirectories");
@@ -8582,59 +8742,59 @@ QString BlenderRenderDialogGui::parameterFileKey     = QString("parameterFile");
 
 BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::blenderPaths [NUM_BLENDER_PATHS];
 BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::defaultPaths [] = {
-/*                                   Key:                 Value:                   Label                         Tooltip (Description)*/
-/* 0   LBL_BLENDER_PATH          */ {"blenderPath",       "",                      "Blender Path",               "Full file path to Blender application executable"},
-/* 1   LBL_BLENDFILE_PATH        */ {"blendFile",         "",                      "Blendfile Path",             "Full file path to a supplement .blend file - specify to append additional settings"},
-/* 2.  LBL_ENVIRONMENT_PATH      */ {"environmentFile",   "",                      "Environment Texture Path",   "Full file path to .exr environment texture file - specify if not using default bundled in addon"},
-/* 3   LBL_LDCONFIG_PATH         */ {"customLDConfigFile","",                      "Custom LDConfig Path",       "Full file path to custom LDConfig file - specify if not LPub3D alternate LDConfig file"},
-/* 4   LBL_LDRAW_DIRECTORY       */ {"ldrawDirectory",    "",                      "LDraw Directory",            "Full directory path to the LDraw parts library (download from http://www.ldraw.org)"},
-/* 5   LBL_LSYNTH_DIRECTORY      */ {"lsynthDirectory",   "",                      "LSynth Directory",           "Full directory path to LSynth primitives - specify if not using default bundled in addon"},
-/* 6   LBL_STUDLOGO_DIRECTORY    */ {"studLogoDirectory", "",                      "Stud Logo Directory",        "Full directory path to stud logo primitives - if stud logo enabled, specify if unofficial parts not used or not using default bundled in addon"}
+/*                                   Key:                 Value:                   Label                             Tooltip (Description)*/
+/* 0   LBL_BLENDER_PATH          */ {"blenderPath",       "",                      QObject::tr("Blender Path"),               QObject::tr("Full file path to Blender application executable")},
+/* 1   LBL_BLENDFILE_PATH        */ {"blendFile",         "",                      QObject::tr("Blendfile Path"),             QObject::tr("Full file path to a supplement .blend file - specify to append additional settings")},
+/* 2.  LBL_ENVIRONMENT_PATH      */ {"environmentFile",   "",                      QObject::tr("Environment Texture Path"),   QObject::tr("Full file path to .exr environment texture file - specify if not using default bundled in addon")},
+/* 3   LBL_LDCONFIG_PATH         */ {"customLDConfigFile","",                      QObject::tr("Custom LDConfig Path"),       QObject::tr("Full file path to custom LDConfig file - specify if not LPub3D alternate LDConfig file")},
+/* 4   LBL_LDRAW_DIRECTORY       */ {"ldrawDirectory",    "",                      QObject::tr("LDraw Directory"),            QObject::tr("Full directory path to the LDraw parts library (download from http://www.ldraw.org)")},
+/* 5   LBL_LSYNTH_DIRECTORY      */ {"lsynthDirectory",   "",                      QObject::tr("LSynth Directory"),           QObject::tr("Full directory path to LSynth primitives - specify if not using default bundled in addon")},
+/* 6   LBL_STUDLOGO_DIRECTORY    */ {"studLogoDirectory", "",                      QObject::tr("Stud Logo Directory"),        QObject::tr("Full directory path to stud logo primitives - if stud logo enabled, specify if unofficial parts not used or not using default bundled in addon")}
 };
 BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::blenderSettings [NUM_SETTINGS];
 BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::defaultSettings [] = {
-/*                                   Key:                              Value:      Label                     Tooltip (Description)*/
-/* 0   LBL_ADD_ENVIRONMENT       */ {"addEnvironment",                 "1",        "Add Environment",        "Adds a ground plane and environment texture (affects 'Photo-realistic' look only)"},
-/* 1   LBL_ADD_GAPS              */ {"gaps",                           "0",        "Add Part Gap",           "Add a small space between each part"},
-/* 2   LBL_BEVEL_EDGES           */ {"bevelEdges",                     "1",        "Bevel Edges",            "Adds a Bevel modifier for rounding off sharp edges"},
-/* 3   LBL_BLENDFILE_TRUSTED     */ {"blendfileTrusted",               "0",        "Trusted Blend File",     "Specify whether to treat the .blend file as being loaded from a trusted source"},
-/* 4   LBL_CROP_IMAGE            */ {"cropImage",                      "0",        "Crop Image",             "Crop the image border at opaque content. Requires transparent background set to True"},
-/* 5   LBL_CURVED_WALLS          */ {"curvedWalls",                    "1",        "Curved Walls",           "Makes surfaces look slightly concave"},
-/* 6   LBL_FLATTEN_HIERARCHY     */ {"flattenHierarchy",               "0",        "Flatten Hierarchy",      "In Scene Outline, all parts are placed directly below the root - there's no tree of submodels"},
-/* 7   LBL_IMPORT_CAMERAS        */ {"importCameras",                  "1",        "Import Cameras",         "LPub3D can specify camera definitions within the ldraw data. Choose to load them or ignore them."},
-/* 8   LBL_IMPORT_LIGHTS         */ {"importLights",                   "1",        "Import Lights",          "LPub3D can specify point and sunlight definitions within the ldraw data. Choose to load them or ignore them."},
-/* 9   LBL_INSTANCE_STUDS        */ {"instanceStuds",                  "0",        "Instance Studs",         "Creates a Blender Object for each and every stud (WARNING: can be slow to import and edit in Blender if there are lots of studs)"},
-/*10   LBL_KEEP_ASPECT_RATIO     */ {"keepAspectRatio",                "1",        "Keep Aspect Ratio",      "Maintain the aspect ratio when resizing the output image - this attribute is not passed to Blender"},
-/*11   LBL_LINK_PARTS            */ {"linkParts",                      "1",        "Link Like Parts",        "Identical parts (of the same type and colour) share the same mesh"},
-/*12   LBL_NUMBER_NODES          */ {"numberNodes",                    "1",        "Number Objects",         "Each object has a five digit prefix eg. 00001_car. This keeps the list in it's proper order"},
-/*13   LBL_OVERWRITE_IMAGE       */ {"overwriteImage",                 "1",        "Overwrite Image",        "Specify whether to overwrite an existing rendered image file"},
-/*14   LBL_OVERWRITE_MATERIALS   */ {"overwriteExistingMaterials",     "0",        "Use Existing Material",  "Overwrite existing material with the same name"},
-/*15   LBL_OVERWRITE_MESHES      */ {"overwriteExistingMeshes",        "0",        "Use Existing Mesh",      "Overwrite existing mesh with the same name"},
-/*16   LBL_POSITION_CAMERA       */ {"positionCamera",                 "1",        "Position Camera",        "Position the camera to show the whole model"},
-/*17   LBL_REMOVE_DOUBLES        */ {"removeDoubles",                  "1",        "No Duplicate Vertices",  "Remove duplicate vertices (recommended)"},
-/*18   LBL_RENDER_WINDOW         */ {"renderWindow",                   "1",        "Display Render Window",  "Specify whether to display the render window during Blender user interface image file render"},
-/*19   LBL_SEARCH_ADDL_PATHS     */ {"searchAdditionalPaths",          "0",        "Search Additional Paths","Specify whether to search additional LDraw paths"},
-/*20   LBL_SMOOTH_SHADING        */ {"smoothShading",                  "1",        "Smooth Shading",         "Smooth faces and add an edge-split modifier (recommended)"},
-/*21   LBL_TRANSPARENT_BACKGROUND*/ {"transparentBackground",          "0",        "Transparent Background", "Specify whether to render a background (affects 'Photo-realistic look only)"},
-/*22   LBL_UNOFFICIAL_PARTS      */ {"useUnofficialParts",             "1",        "Use Unofficial Parts",   "Specify whether to use parts from the LDraw unofficial parts library path"},
-/*23   LBL_USE_LOGO_STUDS        */ {"useLogoStuds",                   "0",        "Use Logo Studs",         "Shows the LEGO logo on each stud (at the expense of some extra geometry and import time)"},
-/*24   LBL_VERBOSE               */ {"verbose",                        "1",        "Verbose output",         "Output all messages while working, else only show warnings and errors"},
+/*                                   Key:                              Value:      Label                         Tooltip (Description)*/
+/* 0   LBL_ADD_ENVIRONMENT       */ {"addEnvironment",                 "1",        QObject::tr("Add Environment"),        QObject::tr("Adds a ground plane and environment texture (affects 'Photo-realistic' look only)")},
+/* 1   LBL_ADD_GAPS              */ {"gaps",                           "0",        QObject::tr("Add Part Gap"),           QObject::tr("Add a small space between each part")},
+/* 2   LBL_BEVEL_EDGES           */ {"bevelEdges",                     "1",        QObject::tr("Bevel Edges"),            QObject::tr("Adds a Bevel modifier for rounding off sharp edges")},
+/* 3   LBL_BLENDFILE_TRUSTED     */ {"blendfileTrusted",               "0",        QObject::tr("Trusted Blend File"),     QObject::tr("Specify whether to treat the .blend file as being loaded from a trusted source")},
+/* 4   LBL_CROP_IMAGE            */ {"cropImage",                      "0",        QObject::tr("Crop Image"),             QObject::tr("Crop the image border at opaque content. Requires transparent background set to True")},
+/* 5   LBL_CURVED_WALLS          */ {"curvedWalls",                    "1",        QObject::tr("Curved Walls"),           QObject::tr("Makes surfaces look slightly concave")},
+/* 6   LBL_FLATTEN_HIERARCHY     */ {"flattenHierarchy",               "0",        QObject::tr("Flatten Hierarchy"),      QObject::tr("In Scene Outline, all parts are placed directly below the root - there's no tree of submodels")},
+/* 7   LBL_IMPORT_CAMERAS        */ {"importCameras",                  "1",        QObject::tr("Import Cameras"),         QObject::tr("LPub3D can specify camera definitions within the ldraw data. Choose to load them or ignore them.")},
+/* 8   LBL_IMPORT_LIGHTS         */ {"importLights",                   "1",        QObject::tr("Import Lights"),          QObject::tr("LPub3D can specify point and sunlight definitions within the ldraw data. Choose to load them or ignore them.")},
+/* 9   LBL_INSTANCE_STUDS        */ {"instanceStuds",                  "0",        QObject::tr("Instance Studs"),         QObject::tr("Creates a Blender Object for each and every stud (WARNING: can be slow to import and edit in Blender if there are lots of studs)")},
+/*10   LBL_KEEP_ASPECT_RATIO     */ {"keepAspectRatio",                "1",        QObject::tr("Keep Aspect Ratio"),      QObject::tr("Maintain the aspect ratio when resizing the output image - this attribute is not passed to Blender")},
+/*11   LBL_LINK_PARTS            */ {"linkParts",                      "1",        QObject::tr("Link Like Parts"),        QObject::tr("Identical parts (of the same type and colour) share the same mesh")},
+/*12   LBL_NUMBER_NODES          */ {"numberNodes",                    "1",        QObject::tr("Number Objects"),         QObject::tr("Each object has a five digit prefix eg. 00001_car. This keeps the list in it's proper order")},
+/*13   LBL_OVERWRITE_IMAGE       */ {"overwriteImage",                 "1",        QObject::tr("Overwrite Image"),        QObject::tr("Specify whether to overwrite an existing rendered image file")},
+/*14   LBL_OVERWRITE_MATERIALS   */ {"overwriteExistingMaterials",     "0",        QObject::tr("Use Existing Material"),  QObject::tr("Overwrite existing material with the same name")},
+/*15   LBL_OVERWRITE_MESHES      */ {"overwriteExistingMeshes",        "0",        QObject::tr("Use Existing Mesh"),      QObject::tr("Overwrite existing mesh with the same name")},
+/*16   LBL_POSITION_CAMERA       */ {"positionCamera",                 "1",        QObject::tr("Position Camera"),        QObject::tr("Position the camera to show the whole model")},
+/*17   LBL_REMOVE_DOUBLES        */ {"removeDoubles",                  "1",        QObject::tr("No Duplicate Vertices"),  QObject::tr("Remove duplicate vertices (recommended)")},
+/*18   LBL_RENDER_WINDOW         */ {"renderWindow",                   "1",        QObject::tr("Display Render Window"),  QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
+/*19   LBL_SEARCH_ADDL_PATHS     */ {"searchAdditionalPaths",          "0",        QObject::tr("Search Additional Paths"),QObject::tr("Specify whether to search additional LDraw paths")},
+/*20   LBL_SMOOTH_SHADING        */ {"smoothShading",                  "1",        QObject::tr("Smooth Shading"),         QObject::tr("Smooth faces and add an edge-split modifier (recommended)")},
+/*21   LBL_TRANSPARENT_BACKGROUND*/ {"transparentBackground",          "0",        QObject::tr("Transparent Background"), QObject::tr("Specify whether to render a background (affects 'Photo-realistic look only)")},
+/*22   LBL_UNOFFICIAL_PARTS      */ {"useUnofficialParts",             "1",        QObject::tr("Use Unofficial Parts"),   QObject::tr("Specify whether to use parts from the LDraw unofficial parts library path")},
+/*23   LBL_USE_LOGO_STUDS        */ {"useLogoStuds",                   "0",        QObject::tr("Use Logo Studs"),         QObject::tr("Shows the LEGO logo on each stud (at the expense of some extra geometry and import time)")},
+/*24   LBL_VERBOSE               */ {"verbose",                        "1",        QObject::tr("Verbose output"),         QObject::tr("Output all messages while working, else only show warnings and errors")},
 
-/*25/0 LBL_BEVEL_WIDTH           */ {"bevelWidth",                     "0.5",      "Bevel Width",            "Width of the bevelled edges"},
-/*26/1 LBL_CAMERA_BORDER_PERCENT */ {"cameraBorderPercentage",         "5.0",      "Camera Border Percent",  "When positioning the camera, include a (percentage) border around the model in the render"},
-/*27/2 LBL_DEFAULT_COLOUR        */ {"defaultColour",                  "4",        "Default Colour",         "Sets the default part colour"},
-/*28/3 LBL_GAPS_SIZE             */ {"gapWidth",                       "0.01",     "Gap Width",              "Amount of gap space between each part"},
-/*29/4 LBL_IMAGE_WIDTH           */ {"-",                              "1",        "Image Width",            "Sets the rendered image width in pixels."},
-/*30/5 LBL_IMAGE_HEIGHT          */ {"-",                              "1",        "Image Height",           "Sets the rendered image height in pixels."},
-/*31/6 LBL_IMAGE_SCALE           */ {"scale",                          "1.0",      "Image Scale",            "Sets the rendered image percentage scale for its pixel resolution (enter between .01 and 1)"},
+/*25/0 LBL_BEVEL_WIDTH           */ {"bevelWidth",                     "0.5",      QObject::tr("Bevel Width"),            QObject::tr("Width of the bevelled edges")},
+/*26/1 LBL_CAMERA_BORDER_PERCENT */ {"cameraBorderPercentage",         "5.0",      QObject::tr("Camera Border Percent"),  QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
+/*27/2 LBL_DEFAULT_COLOUR        */ {"defaultColour",                  "4",        QObject::tr("Default Colour"),         QObject::tr("Sets the default part colour")},
+/*28/3 LBL_GAPS_SIZE             */ {"gapWidth",                       "0.01",     QObject::tr("Gap Width"),              QObject::tr("Amount of gap space between each part")},
+/*29/4 LBL_IMAGE_WIDTH           */ {"-",                              "1",        QObject::tr("Image Width"),            QObject::tr("Sets the rendered image width in pixels.")},
+/*30/5 LBL_IMAGE_HEIGHT          */ {"-",                              "1",        QObject::tr("Image Height"),           QObject::tr("Sets the rendered image height in pixels.")},
+/*31/6 LBL_IMAGE_SCALE           */ {"scale",                          "1.0",      QObject::tr("Image Scale"),            QObject::tr("Sets the rendered image percentage scale for its pixel resolution (enter between .01 and 1)")},
 
-/*32/0 LBL_COLOUR_SCHEME         */ {"useColourScheme",                "lgeo",     "Colour Scheme",          "Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)"},
-/*33/1 LBL_FLEX_PARTS_SOURCE     */ {"useLSynthParts",                 "1",        "Flex Parts Source",      "Source used to create flexible parts - string, hoses etc. (LDCad, LSynth or both"},
-/*34/2 LBL_LOGO_STUD_VERSION     */ {"logoStudVersion",                "4",        "Logo Version",           "Which version of the logo to use ('3' (flat), '4' (rounded) or '5' (subtle rounded))"},
-/*25/3 LBL_LOOK                  */ {"useLook",                        "normal",   "Look",                   "Photo-realistic or Schematic 'Instruction' look"},
-/*36/4 LBL_POSITION_OBJECT       */ {"positionObjectOnGroundAtOrigin", "1",        "Position Object",        "The object is centred at the origin, and on the ground plane"},
-/*37/5 LBL_RESOLUTION            */ {"resolution",                     "Standard", "Resolution",             "Resolution of part primitives, ie. how much geometry they have"},
-/*38/6 LBL_RESOLVE_NORMALS       */ {"resolveNormals",                 "guess",    "Resolve Normals",        "Some older LDraw parts have faces with ambiguous normals, this specifies what do do with them"}
+/*32/0 LBL_COLOUR_SCHEME         */ {"useColourScheme",                "lgeo",     QObject::tr("Colour Scheme"),          QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
+/*33/1 LBL_FLEX_PARTS_SOURCE     */ {"useLSynthParts",                 "1",        QObject::tr("Flex Parts Source"),      QObject::tr("Source used to create flexible parts - string, hoses etc. (LDCad, LSynth or both")},
+/*34/2 LBL_LOGO_STUD_VERSION     */ {"logoStudVersion",                "4",        QObject::tr("Logo Version"),           QObject::tr("Which version of the logo to use ('3' (flat), '4' (rounded) or '5' (subtle rounded))")},
+/*25/3 LBL_LOOK                  */ {"useLook",                        "normal",   QObject::tr("Look"),                   QObject::tr("Photo-realistic or Schematic 'Instruction' look")},
+/*36/4 LBL_POSITION_OBJECT       */ {"positionObjectOnGroundAtOrigin", "1",        QObject::tr("Position Object"),        QObject::tr("The object is centred at the origin, and on the ground plane")},
+/*37/5 LBL_RESOLUTION            */ {"resolution",                     "Standard", QObject::tr("Resolution"),             QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
+/*38/6 LBL_RESOLVE_NORMALS       */ {"resolveNormals",                 "guess",    QObject::tr("Resolve Normals"),        QObject::tr("Some older LDraw parts have faces with ambiguous normals, this specifies what do do with them")}
 } ;
 BlenderRenderDialogGui::ComboOptItems  BlenderRenderDialogGui::comboOptItems [] = {
 /*  FIRST item set as default         Data                     Item:   */
@@ -8664,7 +8824,10 @@ void BlenderRenderDialogGui::getRenderSettings(
     documentRender = docRender;
 
     dialog = new QDialog(this);
+
     dialog->setWindowTitle(tr("Blender Render Settings"));
+
+    dialog->setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS,dialog->windowTitle()));
 
     mBlenderConfigured = !Preferences::blenderExe.isEmpty();
 
@@ -8689,7 +8852,7 @@ void BlenderRenderDialogGui::getRenderSettings(
     blenderVersionHLayout->addWidget(blenderVersionEdit);
 
     if (mBlenderConfigured){
-        blenderLabel->setText("Blender Version");
+        blenderLabel->setText(tr("Blender Version"));
         blenderVersionEdit->setText(Preferences::blenderVersion);
     } else {
         if (Preferences::displayTheme == THEME_DARK) {
@@ -8698,18 +8861,18 @@ void BlenderRenderDialogGui::getRenderSettings(
         } else {
             blenderLabel->setStyleSheet("QLabel { color : blue; }");
         }
-        blenderLabel->setText("Blender not configured");
+        blenderLabel->setText(tr("Blender not configured"));
         blenderVersionEdit->setVisible(mBlenderConfigured);
     }
 
     // Executable
-    QGroupBox *blenderExeBox = new QGroupBox(QString("Select Blender executable"),blenderContent);
+    QGroupBox *blenderExeBox = new QGroupBox(tr("Select Blender Executable"),blenderContent);
     blenderForm->addRow(blenderExeBox);
     QHBoxLayout *hLayout = new QHBoxLayout(blenderExeBox);
     blenderExeBox->setLayout(hLayout);
 
     // Paths
-    blenderPathsBox = new QGroupBox(QString("Select Blender paths"),blenderContent);
+    blenderPathsBox = new QGroupBox(tr("Select Blender Paths"),blenderContent);
     blenderForm->addRow(blenderPathsBox);
     QGridLayout *gridLayout = new QGridLayout(blenderPathsBox);
     blenderPathsBox->setLayout(gridLayout);
@@ -8733,26 +8896,28 @@ void BlenderRenderDialogGui::getRenderSettings(
         else
             hLayout->addWidget(pathLineEdit);
 
-        QPushButton *pathBrowseButton = new QPushButton(QString("Browse..."), blenderContent);
+        QPushButton *pathBrowseButton = new QPushButton(tr("Browse..."), blenderContent);
         pathBrowseButtonList << pathBrowseButton;
         if (i)
             gridLayout->addWidget(pathBrowseButton,j,2);
         else
             hLayout->addWidget(pathBrowseButton);
 
-        QObject::connect(pathBrowseButtonList[i], SIGNAL(clicked(bool)), this, SLOT(browseBlender(bool)));
+        QObject::connect(pathBrowseButtonList[i], SIGNAL(clicked(bool)),
+                         this,                    SLOT(browseBlender(bool)));
     }
-    QObject::connect(pathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()), this,
-                                                         SLOT(configureBlender()));
+    QObject::connect(pathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()),
+                     this,                               SLOT(configureBlender()));
     blenderPathEditAction = pathLineEditList[LBL_BLENDER_PATH]->addAction(QIcon(":/resources/resetlineedit.png"), QLineEdit::TrailingPosition);
-    blenderPathEditAction->setToolTip("Update LDraw render addon");
-    QObject::connect(blenderPathEditAction, SIGNAL(triggered(bool)), this, SLOT(updateLDrawAddon()));
+    blenderPathEditAction->setToolTip(tr("Update LDraw render addon"));
+    QObject::connect(blenderPathEditAction, SIGNAL(triggered(bool)),
+                     this,                  SLOT(updateLDrawAddon()));
     blenderPathEditAction->setEnabled(mBlenderConfigured);
     blenderPathsBox->hide();
     mBlenderAddonUpdate = false;
 
     // Settings
-    blenderSettingsBox = new QGroupBox(QString("Select rendered image settings"),blenderContent);
+    blenderSettingsBox = new QGroupBox(tr("Select Rendered Image Settings"),blenderContent);
     blenderForm->addRow(blenderSettingsBox);
     QFormLayout *settingsSubform = new QFormLayout(blenderSettingsBox);
 
@@ -8789,7 +8954,7 @@ void BlenderRenderDialogGui::getRenderSettings(
             QLineEdit *lineEdit = new QLineEdit(blenderContent);
             if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT){
                 connect(lineEdit,SIGNAL(textChanged(const QString &)),
-                            this,SLOT  (sizeChanged(const QString &)));
+                        this,    SLOT  (sizeChanged(const QString &)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             } else if(i == LBL_DEFAULT_COLOUR) {
                 lineEdit->setReadOnly(true);
@@ -8798,7 +8963,7 @@ void BlenderRenderDialogGui::getRenderSettings(
                 img.fill(0);
                 defaultColourEditAction = lineEdit->addAction(QIcon(QPixmap::fromImage(img)), QLineEdit::TrailingPosition);
                 QObject::connect(defaultColourEditAction, SIGNAL(triggered(bool)),
-                                                    this, SLOT  (colorButtonClicked(bool)));
+                                 this,                    SLOT  (colorButtonClicked(bool)));
             } else {
                 if (i == LBL_IMAGE_SCALE)
                     lineEdit->setText(QString::number(mScale, 'g', 1));
@@ -8970,9 +9135,9 @@ void BlenderRenderDialogGui::resetSettings()
     mBlenderConfigured = !Preferences::blenderExe.isEmpty();
 
     disconnect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                                          this,SLOT  (sizeChanged(const QString &)));
+               this,                           SLOT  (sizeChanged(const QString &)));
     disconnect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
-                                        this, SLOT  (sizeChanged(const QString &)));
+               this,                          SLOT  (sizeChanged(const QString &)));
 
     for(int i = 0; i < numSettings(); i++) {
         if (i < LBL_BEVEL_WIDTH) {
@@ -9148,12 +9313,12 @@ void BlenderRenderDialogGui::showPathsGroup()
 {
     if (blenderPathsBox->isHidden()){
         blenderPathsBox->show();
-        pathsGroupButton->setText("Hide Paths");
+        pathsGroupButton->setText(tr("Hide Paths"));
         blenderContent->adjustSize();
     }
     else{
         blenderPathsBox->hide();
-        pathsGroupButton->setText("Show Paths");
+        pathsGroupButton->setText(tr("Show Paths"));
         blenderContent->adjustSize();
     }
 }

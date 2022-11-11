@@ -4,6 +4,8 @@
 #include <LDVPreferences.h>
 #include <LDVWidgetDefaultKeys.h>
 
+#include "commonmenus.h"
+
 LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory)
 		: QDialog(qobject_cast<QWidget*>(modelWidget)),
 		 LDVPartListPanel(),
@@ -12,6 +14,13 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
 		 m_htmlInventory(htmlInventory)
 {
 	setupUi(this);
+
+	setWhatsThis(lpubWT(WT_DIALOG_LDVIEW_HTML_PART_LIST_EXPORT,windowTitle()));
+
+	settingsBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_SETTINGS,settingsBox->title()));
+	partReferenceBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_PART_REFERENCE,partReferenceBox->title()));
+	columnOrderBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_COLUMN_ORDER,columnOrderBox->title()));
+
 	connect( upButton, SIGNAL( clicked() ), this, SLOT( doUp() ) );
 	connect( downButton, SIGNAL( clicked() ), this, SLOT( doDown() ) );
 	connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );

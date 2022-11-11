@@ -40,7 +40,7 @@ SubModelColorDialog::SubModelColorDialog(
 {
   setWindowTitle(_name);
 
-  setWhatsThis(lpubWT(WT_DIALOG_SUBMODEL_COLOR,windowTitle()));
+  setWhatsThis(lpubWT(WT_DIALOG_SUBMODEL_LEVEL_COLORS,windowTitle()));
 
   meta.setValue(goods.value());
 

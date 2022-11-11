@@ -40,7 +40,7 @@ RotStepDialog::RotStepDialog(
 {
   setWindowTitle(_name);
 
-  setWhatsThis(lpubWT(WT_DIALOG_ROT_STEP,windowTitle()));
+  setWhatsThis(lpubWT(WT_DIALOG_STEP_ROTATION,windowTitle()));
 
   meta.setValue(goods);
   QVBoxLayout *layout = new QVBoxLayout(this);

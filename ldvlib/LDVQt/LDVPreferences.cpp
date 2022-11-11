@@ -44,6 +44,7 @@
 #include "LDVWidget.h"
 
 #include "lc_edgecolordialog.h"
+#include "commonmenus.h"
 
 #define DEFAULT_PREF_SET TCLocalStrings::get("DefaultPrefSet")
 
@@ -55,6 +56,37 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	  checkAbandon(true)
 {
 	setupUi(this);
+
+	setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES,windowTitle()));
+
+	generalTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GENERAL, tr("General")));
+	geometryTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GEOMETRY, tr("Geometry")));
+	effectsTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_EFFECTS, tr("Effects")));
+	primitivesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PRIMITIVES, tr("Primitives")));
+	updatesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_UPDATES, tr("Updates")));
+	preferencsSetTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PREFERENCES_SET, tr("Preferences Set")));
+
+	fsaaBox->setWhatsThis(lpubWT(                    WT_CONTROL_LDVIEW_PREFERENCES_FSAA,fsaaBox->title().replace("&","")));
+	generalColorBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GENERAL,generalColorBox->title().replace("&","")));
+	generalMiscBox->setWhatsThis(lpubWT(             WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_MISC,generalMiscBox->title().replace("&","")));
+	generalSnapshotSaveBox->setWhatsThis(lpubWT(     WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SNAPSHOT,generalSnapshotSaveBox->title().replace("&","")));
+	iniBox->setWhatsThis(lpubWT(                     WT_CONTROL_LDVIEW_PREFERENCES_INI,iniBox->title().replace("&","")));
+	geometryModelBox->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_MODEL,geometryModelBox->title().replace("&","")));
+	wireframeButton->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_WIREFRAME,wireframeButton->title().replace("&","")));
+	enableBFCButton->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_BFC,enableBFCButton->title().replace("&","")));
+	edgeLinesButton->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_EDGE_LINES,edgeLinesButton->title().replace("&","")));
+	lightingButton->setWhatsThis(lpubWT(             WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_LIGHTING,lightingButton->title().replace("&","")));
+	stereoButton->setWhatsThis(lpubWT(               WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_STEREO,stereoButton->title().replace("&","")));
+	wireframeCutawayButton->setWhatsThis(lpubWT(     WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_WIREFRAME_CUTAWAY,wireframeCutawayButton->title().replace("&","")));
+	effectsTransparencyBox->setWhatsThis(lpubWT(     WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_TRANSPARENCY,effectsTransparencyBox->title().replace("&","")));
+	effectsMiscBox->setWhatsThis(lpubWT(             WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_MISC,effectsMiscBox->title().replace("&","")));
+	primitiveSubstitutionButton->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_SUBSTITUTION,primitiveSubstitutionButton->title().replace("&","")));
+	TexturesGroupBox->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_TEXTURES,TexturesGroupBox->title().replace("&","")));
+	primitivesMiscBox->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_MISC,primitivesMiscBox->title().replace("&","")));
+	updatesProxyBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_PROXY,updatesProxyBox->title().replace("&","")));
+	updatesMissingpartBox->setWhatsThis(lpubWT(      WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART,updatesMissingpartBox->title().replace("&","")));
+	preferenceSetList->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET,tr("Preferences Set List")));
+
 	connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
 	connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
@@ -276,7 +308,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 
 		// Remove Updates Tab if not using LDView renderder
 		if (!usingLDView)
-			tabs->removeTab(tabs->indexOf(updateTab));
+			tabs->removeTab(tabs->indexOf(updatesTab));
 	}
 
 	applyButton->setEnabled(false);

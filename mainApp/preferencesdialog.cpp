@@ -108,20 +108,64 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 {
   ui.setupUi(this);
 
-  setWhatsThis(lpubWT(WT_PREFERENCES, tr("Preferences")));
+  setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES, tr("Preferences")));
 
-  ui.tabGeneral->setWhatsThis(lpubWT(    WT_PREFERENCES_GENERAL, tr("General")));
-  ui.tabRenderers->setWhatsThis(lpubWT(  WT_PREFERENCES_RENDERERS, tr("Renderers")));
-  ui.LDGLiteTab->setWhatsThis(lpubWT(    WT_PREFERENCES_LDGLITE, tr("LDGLite")));
-  ui.LDViewTab->setWhatsThis(lpubWT(     WT_PREFERENCES_LDVIEW, tr("LDView")));
-  ui.NativeTab->setWhatsThis(lpubWT(     WT_PREFERENCES_NATIVE, tr("Native")));
-  ui.POVRayTab->setWhatsThis(lpubWT(     WT_PREFERENCES_POVRAY, tr("POV-Ray")));
-  ui.tabPublishing->setWhatsThis(lpubWT( WT_PREFERENCES_PUBLISHING, tr("Publishing")));
-  ui.tabLogging->setWhatsThis(lpubWT(    WT_PREFERENCES_LOGGING, tr("Theme / Logging")));
-  ui.tabShortcuts->setWhatsThis(lpubWT(  WT_SHORTCUTS, tr("Keyboard Shortcuts")));
-  ui.tabOther->setWhatsThis(lpubWT(      WT_PREFERENCES_OTHER, tr("Other")));
-  ui.tabUpdates->setWhatsThis(lpubWT(    WT_PREFERENCES_UPDATES, tr("Software Updates")));
-  ui.tabDirectories->setWhatsThis(lpubWT(WT_PREFERENCES_DIRECTORIES, tr("Search Directories")));
+  ui.tabGeneral->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_GENERAL, tr("General")));
+  ui.tabRenderers->setWhatsThis(lpubWT(              WT_LPUB3D_PREFERENCES_RENDERERS, tr("Renderers")));
+  ui.LDGLiteTab->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_LDGLITE, tr("LDGLite")));
+  ui.LDViewTab->setWhatsThis(lpubWT(                 WT_LPUB3D_PREFERENCES_LDVIEW, tr("LDView")));
+  ui.NativeTab->setWhatsThis(lpubWT(                 WT_LPUB3D_PREFERENCES_NATIVE, tr("Native")));
+  ui.POVRayTab->setWhatsThis(lpubWT(                 WT_LPUB3D_PREFERENCES_POVRAY, tr("POV-Ray")));
+  ui.tabPublishing->setWhatsThis(lpubWT(             WT_LPUB3D_PREFERENCES_PUBLISHING, tr("Publishing")));
+  ui.tabLogging->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_LOGGING, tr("Theme / Logging")));
+  ui.tabShortcuts->setWhatsThis(lpubWT(              WT_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUTS, tr("Keyboard Shortcuts")));
+  ui.tabOther->setWhatsThis(lpubWT(                  WT_LPUB3D_PREFERENCES_OTHER, tr("Other")));
+  ui.tabUpdates->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_UPDATES, tr("Software Updates")));
+  ui.tabDirectories->setWhatsThis(lpubWT(            WT_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES, tr("Search Directories")));
+
+  ui.altLDConfigGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_ALTERNATE_LDCONFIG, ui.altLDConfigGrpBox->title()));
+  ui.applyCameraAnglesGrpBox->setWhatsThis(lpubWT(   WT_CONTROL_LPUB3D_PREFERENCES_APPLY_CAMERA_ANGLES, ui.applyCameraAnglesGrpBox->title()));
+  ui.attributesGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_ATTRIBUTES, tr("Document Attributes")));
+  ui.cameraGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_CAMERA_DEFAULTS, ui.cameraGrpBox->title())); //LcLib
+  ui.changeLogGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_CHANGE_LOG, ui.changeLogGrpBox->title()));
+  ui.defaultsGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_DEFAULTS, ui.defaultsGrpBox->title()));
+  ui.editorGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_EDITOR, tr("Editor")));
+  ui.fadeStepGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEP, ui.fadeStepGrpBox->title()));
+  ui.generalSettingsGrpBox->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS, tr("General Settings")));
+  ui.highlightStepGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP, ui.highlightStepGrpBox->title()));
+  ui.imageMatteGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE, ui.imageMatteGrpBox->title()));
+  ui.includesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_INCLUDES, ui.includesGrpBox->title()));
+  ui.KeyboardShortcutGroup->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT, ui.KeyboardShortcutGroup->title()));
+  ui.KeyboardShortcutTableGroup->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT_TABLE, ui.KeyboardShortcutTableGroup->title()));
+  ui.ldgliteGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE, ui.ldgliteGrpBox->title()));
+  ui.ldgliteInstallGrpBox->setWhatsThis(lpubWT(      WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE_INSTALL, ui.ldgliteInstallGrpBox->title()));
+  ui.ldrawLibPathGrpBox->setWhatsThis(lpubWT(        WT_CONTROL_LPUB3D_PREFERENCES_LDRAW_LIB_PATH, ui.ldrawLibPathGrpBox->title()));
+  ui.ldviewGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW, ui.ldviewGrpBox->title()));
+  ui.ldviewInstallGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_INSTALL, ui.ldviewInstallGrpBox->title()));
+  ui.ldvPOVSettingsGrpBox->setWhatsThis(lpubWT(      WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_POV_SETTINGS, ui.ldvPOVSettingsGrpBox->title()));
+  ui.ldvSettingsGrpBox->setWhatsThis(lpubWT(         WT_NUM_ENTRIES, ui.ldvSettingsGrpBox->title()));
+  ui.lgeoGrpBox->setWhatsThis(lpubWT(                WT_CONTROL_LPUB3D_PREFERENCES_LGEO, ui.lgeoGrpBox->title()));
+  ui.loggingGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LOGGING, ui.loggingGrpBox->title()));
+  ui.logLevelGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL, ui.logLevelGrpBox->title()));
+  ui.logLevelsGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVELS, ui.logLevelsGrpBox->title()));
+  ui.logPathGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH, tr("Log Path")));
+  ui.lsynthPartsGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_LSYNTH_PARTS, ui.lsynthPartsGrpBox->title()));
+  ui.messagesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES, ui.messagesGrpBox->title()));
+  ui.pageProcessingContinuousGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_PAGE_PROCESSING_CONTINUOUS, ui.pageProcessingContinuousGrpBox->title()));
+  ui.pliControlGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_PLI_CONTROL, ui.pliControlGrpBox->title()));
+  ui.povNativeGenGrpBox->setWhatsThis(lpubWT(        WT_CONTROL_LPUB3D_PREFERENCES_NATIVE_POV_GENERATION, ui.povNativeGenGrpBox->title()));
+  ui.povrayGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_POVRAY, ui.povrayGrpBox->title()));
+  ui.povrayInstallGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_INSTALL, ui.povrayInstallGrpBox->title()));
+  ui.preferredRendererGrpBox->setWhatsThis(lpubWT(   WT_CONTROL_LPUB3D_PREFERENCES_PREFERRED_RENDERER, tr("Preferred Renderer")));
+  ui.publishDescriptionGrpBox->setWhatsThis(lpubWT(  WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_DESCRIPTION, ui.publishDescriptionGrpBox->title()));
+  ui.publishLogoGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_LOGO, ui.publishLogoGrpBox->title()));
+  ui.renderingWidget->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_RENDERING,tr("Rendering"))); //LcLib
+  ui.searchDirsGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES, ui.searchDirsGrpBox->title()));
+  ui.themeSceneColorsGrpBox->setWhatsThis(lpubWT(    WT_CONTROL_LPUB3D_PREFERENCES_THEME_SCENE_COLORS, ui.themeSceneColorsGrpBox->title()));
+  ui.themeSelectAndColorsGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_THEME_SELECT_ANDCOLORS, tr("Theme And Colors")));
+  ui.unitsGrpBox->setWhatsThis(lpubWT(               WT_CONTROL_LPUB3D_PREFERENCES_UNITS, ui.unitsGrpBox->title()));
+  ui.updatesGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_UPDATES, ui.updatesGrpBox->title()));
+  ui.viewpointAndProjectionGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_VIEWPOINT_AND_PROJECTION, ui.viewpointAndProjectionGrpBox->title())); //LcLib
 
   // hide 3rd party application browse buttons
   ui.browseLDGLite->hide();
@@ -215,7 +259,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
   ui.textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   ui.textEditSearchDirs->setReadOnly(true);
-  ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
+  ui.textEditSearchDirs->setToolTip(tr("Read only list of LDraw.ini search directories."));
 
   // change log
   ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
@@ -224,13 +268,13 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.changeLog_txbr->setOpenExternalLinks(true);
 
   if (ui.povGenNativeRadio->isChecked()) {
-      ui.ldvPOVSettingsGrpBox->setTitle("Native POV file generation settings");
-      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
-      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
+      ui.ldvPOVSettingsGrpBox->setTitle(tr("Native POV File Generation Settings"));
+      ui.ldvPoVFileGenOptBtn->setToolTip(tr("Open LDView POV generation dialogue"));
+      ui.ldvPoVFileGenPrefBtn->setToolTip(tr("Open LDView preferences dialogue"));
   } else {
-      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
-      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
-      ui.ldvPOVSettingsGrpBox->setTitle("LDView POV file generation settings");
+      ui.ldvPoVFileGenOptBtn->setToolTip(tr("Open LDView POV generation dialogue"));
+      ui.ldvPoVFileGenPrefBtn->setToolTip(tr("Open LDView preferences dialogue"));
+      ui.ldvPOVSettingsGrpBox->setTitle(tr("LDView POV File Generation Settings"));
   }
 
   ui.preferencesTabWidget->setCurrentIndex(0);
@@ -299,11 +343,11 @@ void PreferencesDialog::setPreferences()
   mLDrawLibPath = Preferences::ldrawLibPath.isEmpty() ? "." : Preferences::ldrawLibPath;
   ui.ldrawLibPathEdit->setText(mLDrawLibPath);
 
-  ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
+  ldrawLibPathTitle            = tr("LDraw Library Path For %1").arg(Preferences::validLDrawPartsLibrary);
   ui.ldrawLibPathGrpBox->setTitle(ldrawLibPathTitle);
 
-  QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
-  QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
+  QString fadeStepsColorTitle  = tr("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
+  QString ldrawSearchDirsTitle = tr("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall          = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   showSaveOnRedrawFlag         = Preferences::showSaveOnRedraw;
@@ -443,15 +487,14 @@ void PreferencesDialog::setPreferences()
   // search directories
   ui.lineEditIniFile->setPalette(readOnlyPalette);
   if (Preferences::ldrawiniFound) {
-      ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
+      ui.lineEditIniFile->setText(tr("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.lineEditIniFile->setToolTip(tr("LDraw.ini file"));
       ui.textEditSearchDirs->setPalette(readOnlyPalette);
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
   } else {
-      ui.lineEditIniFile->setText(tr("%1")
-                                  .arg(Preferences::ldSearchDirs.size() == 0 ?
-                                         tr("Using default search. No search directories detected.") :
-                                         tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR)));
+      ui.lineEditIniFile->setText(Preferences::ldSearchDirs.size() == 0 ?
+                                  tr("Using default search. No search directories detected.") :
+                                  tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR));
       ui.lineEditIniFile->setToolTip(tr("Default search"));
   }
 
@@ -756,8 +799,8 @@ void PreferencesDialog::on_ldrawLibPathEdit_editingFinished()
         } else {
             if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
                 ui.lgeoGrpBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
-                QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
-                                             .arg(Preferences::validLDrawLibraryChange);
+                QString ldrawTitle = tr("LDraw Library Path For %1® Parts")
+                                        .arg(Preferences::validLDrawLibraryChange);
                 ui.ldrawLibPathGrpBox->setTitle(ldrawTitle);
                 ui.ldrawLibPathGrpBox->setStyleSheet("QGroupBox::title { color : red; }");
             }
@@ -774,8 +817,8 @@ void PreferencesDialog::on_browseLDraw_clicked()
     ui.ldrawLibPathEdit->setText(Preferences::ldrawLibPath);
     if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
         ui.lgeoGrpBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
-        QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
-                                     .arg(Preferences::validLDrawLibraryChange);
+        QString ldrawTitle = tr("LDraw Library Path For %1® Parts")
+                                .arg(Preferences::validLDrawLibraryChange);
         ui.ldrawLibPathGrpBox->setTitle(ldrawTitle);
         ui.ldrawLibPathGrpBox->setStyleSheet("QGroupBox::title { color : red; }");
     } else {
@@ -792,7 +835,7 @@ void PreferencesDialog::on_browseAltLDConfig_clicked()
     QString filter(tr("All Files (*.*)"));
 #endif
 
-    QString result = QFileDialog::getOpenFileName(this, tr("Select LDraw LDConfig file"),
+    QString result = QFileDialog::getOpenFileName(this, tr("Select LDraw LDConfig File"),
                                                   ui.altLDConfigPath->text().isEmpty() ? Preferences::ldrawLibPath : ui.altLDConfigPath->text(),
                                                   filter);
 
@@ -902,8 +945,8 @@ void PreferencesDialog::on_ldviewGrpBox_clicked(bool checked)
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
       box.setWindowTitle(tr ("LDView Settings?"));
-      box.setText (tr("The 'is installed' LDView setting is automatically set at application startup.\n"
-                      "Changes will be reset at next application start? "));
+      box.setText (tr ("The 'is installed' LDView setting is automatically set at application startup.\n"
+                       "Changes will be reset at next application start? "));
       emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
     }
@@ -916,8 +959,8 @@ void PreferencesDialog::on_ldgliteGrpBox_clicked(bool checked)
         box.setIcon (QMessageBox::Information);
         box.setStandardButtons (QMessageBox::Ok);
         box.setWindowTitle(tr ("LDGLite Settings?"));
-        box.setText (tr("The 'is installed' LDGLite setting is automatically set at application startup.\n"
-                        "Changes will be reset at next application start? "));
+        box.setText (tr ("The 'is installed' LDGLite setting is automatically set at application startup.\n"
+                         "Changes will be reset at next application start? "));
         emit gui->messageSig(LOG_STATUS,box.text());
         box.exec();
     }
@@ -930,8 +973,8 @@ void PreferencesDialog::on_povrayGrpBox_clicked(bool checked)
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
       box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
-      box.setText (tr("The 'is installed' Raytracer (POV-Ray) setting is automatically set at application startup.\n"
-                      "Changes will be reset at next application start? "));
+      box.setText (tr ("The 'is installed' Raytracer (POV-Ray) setting is automatically set at application startup.\n"
+                       "Changes will be reset at next application start? "));
       emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
   }
@@ -944,9 +987,9 @@ void PreferencesDialog::on_altLDConfigGrpBox_clicked(bool checked)
     box.setIcon (QMessageBox::Warning);
     box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
     box.setWindowTitle(tr ("Alternate LDConfig File"));
-    box.setText (tr("This action will remove %1 from your settings.\n"
-                    "Are you sure you want to continue? ")
-                    .arg(ui.altLDConfigPath->text()));
+    box.setText (tr ("This action will remove %1 from your settings.\n"
+                     "Are you sure you want to continue? ")
+                     .arg(ui.altLDConfigPath->text()));
     emit gui->messageSig(LOG_STATUS,box.text());
     if (box.exec() == QMessageBox::Yes) {
       ui.altLDConfigPath->clear();
@@ -1027,10 +1070,10 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
       ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
       if (ui.povGenNativeRadio->isChecked())
-          ui.ldvPOVSettingsGrpBox->setTitle("Native POV file generation settings");
+          ui.ldvPOVSettingsGrpBox->setTitle(tr("Native POV File Generation Settings"));
       else
       if (ui.povGenLDViewRadio->isChecked())
-          ui.ldvPOVSettingsGrpBox->setTitle("LDView POV file generation settings");
+          ui.ldvPOVSettingsGrpBox->setTitle(tr("LDView POV File Generation Settings"));
 
       if (ldviewEnabled)
           ui.renderersTabWidget->setCurrentWidget(ui.LDViewTab);
@@ -1041,7 +1084,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       else if (nativeEnabled)
           ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
 
-      bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
+      bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == QLatin1String("Perspective");
       ui.applyCALocallyRadio->setChecked(! applyCARenderer);
       ui.applyCARendererRadio->setChecked(applyCARenderer);
 
@@ -1055,7 +1098,7 @@ void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &cu
         return;
 
     bool applyCARenderer = ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDVIEW] &&
-                           currentText == "Perspective";
+                           currentText == QLatin1String("Perspective");
     ui.applyCALocallyRadio->setChecked(! applyCARenderer);
     ui.applyCARendererRadio->setChecked(applyCARenderer);
 
@@ -1065,16 +1108,16 @@ void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &cu
 void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)
 {
     bool applyCARenderer = ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDVIEW] &&
-                           ui.projectionCombo->currentText() == "Perspective";
+                           ui.projectionCombo->currentText() == QLatin1String("Perspective");
     if (checked && applyCARenderer) {
       QMessageBox box;
       box.setIcon (QMessageBox::Warning);
       box.setStandardButtons (QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
       box.setWindowTitle(tr ("Perspective Projection"));
-      box.setText (tr("The preferred renderer is set to %1 and projection is Perspective.<br>"
-                      "This configureaiton requires camera angles to be set by %1.<br>"
-                      "Are you sure you want to change the camera angles settings ?")
-                      .arg(rendererNames[RENDERER_LDVIEW]));
+      box.setText (tr ("The preferred renderer is set to %1 and projection is Perspective.<br>"
+                       "This configureaiton requires camera angles to be set by %1.<br>"
+                       "Are you sure you want to change the camera angles settings ?")
+                       .arg(rendererNames[RENDERER_LDVIEW]));
       box.setDefaultButton(QMessageBox::No);
       if (box.exec() == QMessageBox::No) {
           ui.applyCALocallyRadio->setChecked(!checked);
@@ -1095,18 +1138,18 @@ void PreferencesDialog::on_ldvPreferencesBtn_clicked()
 void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
 {
     if (checked) {
-        ui.ldvPOVSettingsGrpBox->setTitle("Native POV file generation settings");
-        ui.ldvPoVFileGenOptBtn->setToolTip("Open Native POV generation dialogue");
-        ui.ldvPoVFileGenPrefBtn->setToolTip("Open Native preferences dialogue");
+        ui.ldvPOVSettingsGrpBox->setTitle(tr("Native POV File generation Settings"));
+        ui.ldvPoVFileGenOptBtn->setToolTip(tr("Open Native POV generation dialogue"));
+        ui.ldvPoVFileGenPrefBtn->setToolTip(tr("Open Native preferences dialogue"));
     }
 }
 
 void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 {
     if (checked) {
-        ui.ldvPOVSettingsGrpBox->setTitle("LDView POV file generation settings");
-        ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
-        ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
+        ui.ldvPOVSettingsGrpBox->setTitle(tr("LDView POV File Generation Settings"));
+        ui.ldvPoVFileGenOptBtn->setToolTip(tr("Open LDView POV generation dialogue"));
+        ui.ldvPoVFileGenPrefBtn->setToolTip(tr("Open LDView preferences dialogue"));
     }
 }
 
@@ -1195,15 +1238,20 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
 
     // options dialogue
     messageDialog = new QDialog();
-    messageDialog->setWindowTitle("Messages");
+
+    messageDialog->setWindowTitle(tr("Messages"));
+
+    messageDialog->setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES_MESSAGES,messageDialog->windowTitle()));
+
     QFormLayout *form = new QFormLayout(messageDialog);
 
     // options - parse errors
-    QGroupBox *parseErrorGrpBox = new QGroupBox("Message Categories");
+    QGroupBox *parseErrorGrpBox = new QGroupBox(tr("Message Categories"));
+    parseErrorGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_PARSE_ERROR,parseErrorGrpBox->title()));
     form->addWidget(parseErrorGrpBox);
     QGridLayout *parseErrorLayout = new QGridLayout(parseErrorGrpBox);
 
-    QCheckBox* parseErrorChkBox = new QCheckBox("Show model line parse errors", messageDialog);
+    QCheckBox* parseErrorChkBox = new QCheckBox(tr("Show model line parse errors"), messageDialog);
     parseErrorChkBox->setChecked(Preferences::lineParseErrors);
     parseErrorLayout->addWidget(parseErrorChkBox,0,0,1,2);
     parseErrorTBtn = new QToolButton(messageDialog);
@@ -1216,7 +1264,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     QObject::connect(parseErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - insert errors
-    QCheckBox * insertErrorChkBox = new QCheckBox("Show model insert errors", messageDialog);
+    QCheckBox * insertErrorChkBox = new QCheckBox(tr("Show model insert errors"), messageDialog);
     insertErrorChkBox ->setChecked(Preferences::showInsertErrors);
     parseErrorLayout->addWidget(insertErrorChkBox,3,0,1,2);
     insertErrorTBtn = new QToolButton(messageDialog);
@@ -1229,7 +1277,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     QObject::connect(insertErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - build modification errors
-    QCheckBox * buildModErrorChkBox = new QCheckBox("Show build modification errors", messageDialog);
+    QCheckBox * buildModErrorChkBox = new QCheckBox(tr("Show build modification errors"), messageDialog);
     buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
     parseErrorLayout->addWidget(buildModErrorChkBox,6,0,1,2);
     buildModErrorTBtn = new QToolButton(messageDialog);
@@ -1242,7 +1290,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     QObject::connect(buildModErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - include file errors
-    QCheckBox * includeFileErrorChkBox = new QCheckBox("Show include file errors", messageDialog);
+    QCheckBox * includeFileErrorChkBox = new QCheckBox(tr("Show include file errors"), messageDialog);
     includeFileErrorChkBox->setChecked(Preferences::showIncludeFileErrors);
     parseErrorLayout->addWidget(includeFileErrorChkBox,9,0,1,2);
     includeErrorTBtn = new QToolButton(messageDialog);
@@ -1255,7 +1303,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     QObject::connect(includeErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - annotation errors
-    QCheckBox * annotationErrorChkBox = new QCheckBox("Show annotation errors", messageDialog);
+    QCheckBox * annotationErrorChkBox = new QCheckBox(tr("Show annotation errors"), messageDialog);
     annotationErrorChkBox->setChecked(Preferences::showAnnotationErrors);
     parseErrorLayout->addWidget(annotationErrorChkBox,12,0,1,2);
     annotationErrorTBtn = new QToolButton(messageDialog);
@@ -1323,7 +1371,7 @@ void PreferencesDialog::checkForUpdates ()
     {
         const QString htmlNotes = ui.changeLog_txbr->toHtml();
 
-        ui.changeLog_txbr->setHtml("<p><span style=\"color: #0000ff;\">Updating change log, please wait...</span></p>");
+        ui.changeLog_txbr->setHtml(tr("<p><span style=\"color: #0000ff;\">Updating change log, please wait...</span></p>"));
 
         /* Get settings from the UI */
         const QString moduleVersion = ui.moduleVersion_Combo->currentText();
@@ -1400,15 +1448,15 @@ void PreferencesDialog::messageManagement()
             }
         }
 
-        parseErrorLbl->setText(QString("Clear %1 model line parse errors").arg(lineParseErrorCount));
+        parseErrorLbl->setText(tr("Clear %1 model line parse errors").arg(lineParseErrorCount));
         parseErrorTBtn->setEnabled(lineParseErrorCount);
-        buildModErrorLbl->setText(QString("Clear %1 build modification errors").arg(buildModErrorCount));
+        buildModErrorLbl->setText(tr("Clear %1 build modification errors").arg(buildModErrorCount));
         buildModErrorTBtn->setEnabled(buildModErrorCount);
-        insertErrorLbl->setText(QString("Clear %1 model insert errors").arg(insertErrorCount));
+        insertErrorLbl->setText(tr("Clear %1 model insert errors").arg(insertErrorCount));
         insertErrorTBtn->setEnabled(insertErrorCount);
-        includeErrorLbl->setText(QString("Clear %1 include file errors") .arg(includeFileErrorCount));
+        includeErrorLbl->setText(tr("Clear %1 include file errors") .arg(includeFileErrorCount));
         includeErrorTBtn->setEnabled(includeFileErrorCount);
-        annotationErrorLbl->setText(QString("Clear %1 annotation errors").arg(annotationErrorCount));
+        annotationErrorLbl->setText(tr("Clear %1 annotation errors").arg(annotationErrorCount));
         annotationErrorTBtn->setEnabled(annotationErrorCount);
     };
 
@@ -1445,29 +1493,29 @@ void PreferencesDialog::messageManagement()
     } else if (sender() == insertErrorTBtn) {
         cleared = clearErrors(Preferences::InsertErrors);
         insertErrorLbl->setStyleSheet(style);
-        insertErrorLbl->setText(QString("Cleared %1 model insert errors").arg(cleared));
+        insertErrorLbl->setText(tr("Cleared %1 model insert errors").arg(cleared));
     } else if (sender() == buildModErrorTBtn) {
         cleared = clearErrors(Preferences::BuildModErrors);
         buildModErrorLbl->setStyleSheet(style);
-        buildModErrorLbl->setText(QString("Cleared %1 build modification errorss").arg(cleared));
+        buildModErrorLbl->setText(tr("Cleared %1 build modification errorss").arg(cleared));
     } else if (sender() == includeErrorTBtn) {
         cleared = clearErrors(Preferences::IncludeFileErrors);
         includeErrorLbl->setStyleSheet(style);
-        includeErrorLbl->setText(QString("Cleared %1 include file error").arg(cleared));
+        includeErrorLbl->setText(tr("Cleared %1 include file error").arg(cleared));
     } else if (sender() == annotationErrorTBtn) {
         cleared = clearErrors(Preferences::AnnotationErrors);
         annotationErrorLbl->setStyleSheet(style);
-        annotationErrorLbl->setText(QString("Cleared %1 annotation errors").arg(cleared));
+        annotationErrorLbl->setText(tr("Cleared %1 annotation errors").arg(cleared));
     } else if (sender() == clearDetailErrorsTBtn) {
         cleared = clearErrors(Preferences::NumKeys);
         clearDetailErrorsLbl->setStyleSheet(style);
-        clearDetailText = QString("Cleared");
+        clearDetailText = tr("Cleared");
         countErrors();
     } else {
         countErrors();
         clearDetailText = QString("Clear");
     }
-    clearDetailErrorsLbl->setText(QString("%1 all %2 errors")
+    clearDetailErrorsLbl->setText(tr("%1 all %2 errors")
                                   .arg(clearDetailText)
                                   .arg(sender() == clearDetailErrorsTBtn ? cleared :
                                                                            Preferences::messagesNotShown.size()));
@@ -1938,7 +1986,7 @@ void PreferencesDialog::accept()
     QFileInfo fileInfo;
 
     if (resetSceneColorsFlag)
-        emit gui->messageSig(LOG_INFO,QString("Scene Colors have been reset."));
+        emit gui->messageSig(LOG_INFO,tr("Scene Colors have been reset."));
 
     if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
         fileInfo.setFile(ui.povrayPath->text());
@@ -1948,7 +1996,7 @@ void PreferencesDialog::accept()
             Preferences::povrayExe = ui.povrayPath->text();
             ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
         } else {
-            emit gui->messageSig(LOG_ERROR,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
+            emit gui->messageSig(LOG_ERROR,tr("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
     }
     if (!ui.ldglitePath->text().isEmpty() && (ui.ldglitePath->text() != Preferences::ldgliteExe)) {
@@ -1959,7 +2007,7 @@ void PreferencesDialog::accept()
             Preferences::ldgliteExe = ui.ldglitePath->text();
             ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
         } else {
-            emit gui->messageSig(LOG_ERROR,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
+            emit gui->messageSig(LOG_ERROR,tr("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
     }
     if (!ui.ldviewPath->text().isEmpty() && (ui.ldviewPath->text() != Preferences::ldviewExe)) {
@@ -1977,7 +2025,7 @@ void PreferencesDialog::accept()
             Preferences::ldviewExe = ldviewPath;
             ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
         } else {
-            emit gui->messageSig(LOG_ERROR,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
+            emit gui->messageSig(LOG_ERROR,tr("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
     }
 
@@ -1988,10 +2036,10 @@ void PreferencesDialog::accept()
     {
         missingParms = true;
         if (ui.preferredRenderer->count() == 0){
-            ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
-            ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
-            ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
-            ui.ldrawLibPathEdit->setPlaceholderText("LDraw path must be defined");
+            ui.ldglitePath->setPlaceholderText(tr("At lease one renderer must be defined"));
+            ui.ldviewPath->setPlaceholderText(tr("At lease one renderer must be defined"));
+            ui.povrayPath->setPlaceholderText(tr("At lease one renderer must be defined"));
+            ui.ldrawLibPathEdit->setPlaceholderText(tr("LDraw path must be defined"));
         }
     }
 
@@ -2004,7 +2052,7 @@ void PreferencesDialog::accept()
     {
         missingParms = true;
         ui.logValiationLbl->show();
-        ui.logValiationLbl->setText("At lease one attribute must be included.");
+        ui.logValiationLbl->setText(tr("At lease one attribute must be included."));
         ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
     }
 
@@ -2019,15 +2067,15 @@ void PreferencesDialog::accept()
     {
         missingParms = true;
         ui.logValiationLbl->show();
-        ui.logValiationLbl->setText("At lease one logging level must be selected.");
+        ui.logValiationLbl->setText(tr("At lease one logging level must be selected."));
         ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
     }
 
     if (missingParms)
     {
-        if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialogue?",
-                              "Required settings are missing.\n Are you sure you want to exit?",
-                              QMessageBox::Yes|QMessageBox::No)){
+        if (QMessageBox::Yes == QMessageBox::question(this, tr("Close Dialogue?"),
+                                 tr("Required settings are missing.\n Are you sure you want to exit?"),
+                                 QMessageBox::Yes|QMessageBox::No)){
             QDialog::reject(); //keep open
         }
     } else {
@@ -2094,6 +2142,8 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
     dialog = new QDialog(nullptr);
     dialog->setWindowTitle(tr("Edit Theme Colors"));
 
+    dialog->setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES_THEME_COLORS,dialog->windowTitle()));
+
     // Default Theme Tab
     tabs = new QTabWidget(dialog);
     tabs->setMovable(false);
@@ -2103,6 +2153,8 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
     layout->addWidget(tabs);
 
     QWidget *container = new QWidget(tabs);
+    container->setObjectName(tr("Default Theme"));
+    container->setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES_DEFAULT_THEME_COLORS,container->objectName()));
     QGridLayout *gridLayout = new QGridLayout(container);
     gridLayout->setSizeConstraint(QLayout::SetFixedSize);
     container->setLayout(gridLayout);
@@ -2125,7 +2177,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             colorButton->setIcon(pix);
             colorButton->setProperty("index", i);
             colorButton->setProperty("color", mThemeColors[i]);
-            colorButton->setToolTip("Edit Color");
+            colorButton->setToolTip(tr("Edit Color"));
             gridLayout->addWidget(colorButton,i,1);
             connect(colorButton, SIGNAL(clicked()), this, SLOT(setThemeColor()));
             colorButtonList << colorButton;
@@ -2134,7 +2186,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             QToolButton *resetButton = new QToolButton(container);
             resetButton->setText(tr("..."));
             resetButton->setProperty("index", i);
-            QString toolTipText = QString("Reset");
+            QString toolTipText = QString(tr("Reset"));
             if (mThemeColors[i] == Preferences::defaultThemeColors[i].color) {
                 resetButton->setEnabled(false);
             } else {
@@ -2167,10 +2219,12 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                 2 * scrollArea->frameWidth() +
                 scrollArea->verticalScrollBar()->sizeHint().width());
 
-    tabs->addTab(scrollArea,"Default Theme");
+    tabs->addTab(scrollArea,container->objectName());
 
     // Dark Theme Tab
     container = new QWidget(tabs);
+    container->setObjectName(tr("Dark Theme"));
+    container->setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES_DARK_THEME_COLORS,container->objectName()));
     gridLayout = new QGridLayout(container);
     gridLayout->setSizeConstraint(QLayout::SetFixedSize);
     container->setLayout(gridLayout);
@@ -2185,7 +2239,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                 2 * scrollArea->frameWidth() +
                 scrollArea->verticalScrollBar()->sizeHint().width());
 
-    tabs->addTab(scrollArea,"Dark Theme");
+    tabs->addTab(scrollArea,container->objectName());
 
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                Qt::Horizontal, dialog);
@@ -2358,7 +2412,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
 void ThemeColorsDialog::resetThemeColors()
 {
     if (QMessageBox::Yes == QMessageBox::question(dialog, tr("Reset Theme Colors ?"),
-                          "Reset all Theme colors to defaults.<br>Are you sure ?",
+                          tr("Reset all Theme colors to defaults.<br>Are you sure ?"),
                           QMessageBox::Yes|QMessageBox::No)) {
         for (int i = 0; i < THEME_NUM_COLORS; i++) {
             if (mThemeColors[i] == Preferences::defaultThemeColors[i].color)
@@ -2917,9 +2971,9 @@ void PreferencesDialog::updateCommandList(bool loadDefaultShortcuts)
         ++count;
     }
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_NOTICE, tr("Loaded %1 %2. %3")
-                                        .arg(count).arg(loadDefaultShortcuts ? "default shortcuts" : "shortcuts")
-                                        .arg(lpub->elapsedTime(timer.elapsed())));
+    emit gui->messageSig(LOG_NOTICE, QString("Loaded %1 %2. %3")
+                                             .arg(count).arg(loadDefaultShortcuts ? tr("default shortcuts") : tr("shortcuts"))
+                                             .arg(lpub->elapsedTime(timer.elapsed())));
 #endif
 }
 
@@ -3062,7 +3116,7 @@ bool PreferencesDialog::SaveKeyboardShortcuts(const QString& FileName, int &Coun
 
     static const QLatin1String DocumentTitle("Keyboard Shortcuts");
 
-    const QString GeneratedOn = QString("%1 %2 - Generated on %3")
+    const QString GeneratedOn = tr("%1 %2 - Generated on %3")
             .arg(VER_PRODUCTNAME_STR)
             .arg(DocumentTitle)
             .arg(QDateTime::currentDateTime().toString(FmtDateTime));

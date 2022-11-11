@@ -38,7 +38,7 @@ PliSortDialog::PliSortDialog(
 {
   setWindowTitle(_name);
 
-  setWhatsThis(lpubWT(WT_DIALOG_PLI_SORT,windowTitle()));
+  setWhatsThis(lpubWT(WT_DIALOG_PART_SORT_ORDER,windowTitle()));
 
   meta.primary.setValue(goods.primary.value());
   meta.secondary.setValue(goods.secondary.value());

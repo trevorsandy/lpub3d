@@ -55,6 +55,13 @@ public:
 
   virtual void apply(QString &topLevelFile) = 0;
 
+  static bool notEqual(const double v1, const double v2, int p = 4);
+  static QString formatMask(
+    const float value,
+    const int   width = 4,
+    const int   precision = 4,
+    const int   defaultDecimalPlaces = 1);
+
   bool      modified;
   QString   changeMessage;
 
@@ -63,12 +70,6 @@ signals:
   void rendererChanged(int);
 
 protected:
-  static bool notEqual(const double v1, const double v2, int p = 4);
-  static QString formatMask(
-    const float value,
-    const int   width = 4,
-    const int   precision = 4,
-    const int   defaultDecimalPlaces = 1);
   LeafMeta *_meta;
 };
 
@@ -2126,6 +2127,27 @@ class TargetRotateDialogGui : public QObject
 public:
   TargetRotateDialogGui(){}
   void getTargetAndRotateValues(QStringList & keyList);
+
+private slots:
+  void enableTargetReset(int);
+  void enableRotateReset(double);
+  void spinReset(bool);
+
+private:
+  enum ListRc {
+    TR_AXIS_X,
+    TR_AXIS_Y,
+    TR_AXIS_Z,
+    TR_NUM_AXIS
+  };
+  int targetValues[TR_NUM_AXIS];
+  double rotateValues[TR_NUM_AXIS];
+  QString transformValue;
+  QComboBox *typeCombo;
+  QList<QSpinBox *> targetSpinBoxList;
+  QList<QPushButton *> targetButtonList;
+  QList<QDoubleSpinBox *> rotateDoubleSpinBoxList;
+  QList<QPushButton *> rotateButtonList;
 };
 
 /***********************************************************************
@@ -2214,6 +2236,10 @@ public slots:
   void resetSettings();
   void textChanged(const QString &value);
 
+private slots:
+  void enableReset(QString const &);
+  void editReset();
+
 private:
   struct PovraySettings {
       QString label;
@@ -2259,6 +2285,7 @@ private:
   QList<QLabel *> settingLabelList;
   QList<QCheckBox *> checkBoxList;
   QList<QLineEdit *> lineEditList;
+  QList<QAction *> resetEditActList;
   QList<QToolButton *> toolButtonList;
 
   QStringList mCsiKeyList, editedCsiKeyList;
