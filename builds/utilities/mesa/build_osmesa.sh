@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Build all libOSMesa and libGLU libraries - short
+# Build all libOSMesa and libGLU libraries
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 06, 2019
+#  Last Update November 06, 2022
 #  Copyright (C) 2018 - 2022 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -59,7 +59,7 @@ else
   PLATFORM=$(. /etc/os-release && if test "${NAME}" != "" && test "${VERSION_ID}" != ""; then echo "${NAME}_${VERSION_ID}"; else echo `uname`; fi)
 fi
 
-if [ ! "$OBS" = "true" ]; then
+if [ "$OBS" != "true" ]; then
   # logging stuff
   # increment log file name
   f="$PWD/${ME}_${PLATFORM}"
@@ -87,57 +87,65 @@ Info () {
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
-    WD="$(cd ../ && pwd)"
-  Info "WARNING - 'WD' environment varialbe not specified. Using $WD"
+  WD="$(cd ../ && pwd)"
+  Info "WARNING - 'WD' environment variable not specified. Using $WD"
 fi
 
 Info
 Info "Working Directory........[${WD}]"
 Info "Script Directory.........[${ScriptDir}]"
 Info "OSMesa-config Directory..[$osmesaConfDir]"
-if [ " $nogallium" = 1 ]; then
-  Info "LLVM not needed..........[Gallium driver not available]"
-else
-  Info "LLVM-Config Path.........[${llvm_config}]"
-fi
 Info "Install Prefix...........[${osmesaprefix}]"
 Info "OSMesa Version...........[${mesaversion}]"
 Info "GLU Version..............[${gluversion}]"
 
-Info && Info "----------------------------------------------------"
-Info "Building OSMesa..."
-
 cd $WD
 if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
-    Info "cleanup old mesa-$mesaversion..."
-    rm -rf "mesa-$mesaversion"
-    if [ -d "${osmesaprefix}" ]; then
-        rm -rf "${osmesaprefix}"
-    fi
+  Info "cleanup old mesa-$mesaversion..."
+  rm -rf "mesa-$mesaversion"
+  if [ -d "${osmesaprefix}" ]; then
+    rm -rf "${osmesaprefix}"
+  fi
 fi
 
 #check for llvm-config - and process OBS alternative config (e.g. no gallium)
 if [ ! -f "${llvm_config}" ]; then
-  if [[ "$OBS" = "true" && !"${PLATFORM}" = "arch" ]]; then
-    if [ ! "$nogallium" = 1 ]; then
-        Info "ERROR - llmv-config not found at ${llvm_config}. $ME will terminate"
+  if [ "$OBS" = "true" ]; then
+    if [ "${PLATFORM}" != "arch" ]; then
+      if [ "$nogallium" != 1 ]; then
+        Info && Info "ERROR - llmv-config not found at ${llvm_config}. $ME will terminate"
         exit 1
+      fi
     fi
   else
-    if [ !"${PLATFORM}" = "arch" ]; then
-        Info "llmv-config not found at ${llvm_config}, (re)installing Mesa build dependencies..."
-        sudo dnf builddep -y mesa
+    if [ "$RPM_BUILD" = "true" ]; then
+      Info "LLVM-Config..............[Not found at ${llvm_config}, (re)installing build dependencies]"
+      sudo dnf builddep -y mesa
     else
-        Info "ERROR - llmv-config not found at ${llvm_config}. $ME will terminate"
+      Info && Info "ERROR - llmv-config not found at ${llvm_config}. $ME will terminate"
+      exit 1
     fi
   fi
 else
-  Info "Found llvm_config at $llvm_config"
+  if [ " $nogallium" = 1 ]; then
+    Info "LLVM not needed..........[Gallium driver not available]"
+  else
+    Info "LLVM-Config..............[${llvm_config}]"
+    Info "LLVM Version.............[$($llvm_config --version | egrep -o '^[0-9.]+')]"
+  fi
 fi
+
+[ "${OBS}" = "true" ] && \
+Info "Using OBS................[Yes]" || :
+[[ "${OBS}" = "true" && "$RPM_BUILD" = "true" ]] && \
+Info "OBS Build Family.........[RPM_BUILD]"
+
+Info && Info "----------------------------------------------------"
+Info "Building OSMesa..."
 
 # sourcepath="${SOURCE_PATH:-projects/Working/Docker-output}"
 if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
-  if [ ! "$OBS" = "true" ]; then
+  if [ "$OBS" != "true" ]; then
     Info "downloading Mesa ${mesaversion}..."
     curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-${mesaversion}.tar.gz"
   else
@@ -146,14 +154,16 @@ if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
   fi
 fi
 
+# OSMesa source directory
 if [ ! -d "mesa-${mesaversion}" ]; then
-    Info "extracting Mesa..."
-    tar zxf mesa-${mesaversion}.tar.gz
+  Info "extracting Mesa..."
+  tar zxf mesa-${mesaversion}.tar.gz
 fi
 
+# OSMesa build directory
 if [ ! -d "${osmesaprefix}" ]; then
-    Info "create install prefix..."
-    mkdir -p "${osmesaprefix}"
+  Info "create install prefix..."
+  mkdir -p "${osmesaprefix}"
 fi
 
 cd mesa-${mesaversion}
@@ -163,7 +173,6 @@ confopts="\
 --disable-dependency-tracking \
 --enable-static \
 --disable-shared \
---enable-texture-float \
 --disable-gles1 \
 --disable-gles2 \
 --disable-dri \
@@ -190,6 +199,7 @@ if [ "${mesaversion}" = "18.3.5" ]; then
 else
   confopts="\
   $confopts \
+  --enable-texture-float \
   --disable-omx \
   "
 fi
@@ -214,43 +224,44 @@ confopts="\
 $confopts \
 --prefix=${osmesaprefix} \
 "
-Info "Using confops: $confopts"
+Info "Using confops: $confopts" && Info
 if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
-    # configure command
-    env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
-    ./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
+  # configure command
+  env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
+  ./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
-    # build command
-    Info && make -j${mkjobs}
+  # build command
+  Info && make -j${mkjobs}
 
-    # install command [sudo is not needed with user install prefix]
-    Info "installing OSMesa..."
-    make install
+  # install command [sudo is not needed with user install prefix]
+  Info "installing OSMesa..."
+  make install
 else
-    Info "library OSMesa32 exist - build skipped."
+  Info "library OSMesa32 exist - build skipped."
 fi
 
 # copy config file
 if [[ $config_copy -eq 1 || ! -f "${osmesaprefix}/osmesa-config" ]]; then
-    cp -f "${ScriptDir}/osmesa-config" "${osmesaprefix}"
-    if [ -f "${osmesaprefix}/osmesa-config" ]; then
-        Info "osmesa-config copied to ${osmesaprefix}"
-        Info "setting permissions..."
-        chmod +x "${osmesaprefix}/osmesa-config"
-    else
-        Info "ERROR - osmesa-config was not copied to ${osmesaprefix}"
-    fi
+  cp -f "${ScriptDir}/osmesa-config" "${osmesaprefix}"
+  if [ -f "${osmesaprefix}/osmesa-config" ]; then
+    Info "osmesa-config copied to ${osmesaprefix}"
+    Info "setting permissions..."
+    chmod +x "${osmesaprefix}/osmesa-config"
+  else
+    Info "ERROR - osmesa-config was not copied to ${osmesaprefix}"
+  fi
 elif  [ -f "${osmesaprefix}/osmesa-config" ]; then
-    Info "osmesa-config exist - copy skipped."
+  Info "osmesa-config exist - copy skipped."
 fi
 
 # update version in config file
 if  [ -f "${osmesaprefix}/osmesa-config" ]; then
-    sed '/    --version)/{n;s/.*/      echo '"${mesaversion}"'/}' -i ${osmesaprefix}/osmesa-config
-    Info "osmesa-config version updated"
-    sed -n '42,43p;44q' ${osmesaprefix}/osmesa-config
+  sed '/    --version)/{n;s/.*/      echo '"${mesaversion}"'/}' -i ${osmesaprefix}/osmesa-config
+  Info "osmesa-config version updated"
+  sed -n '42,43p;44q' ${osmesaprefix}/osmesa-config
 else
-    Info "osmesa-config was not found - version update failed."
+  Info "osmesa-config was not found - version update failed."
+  exit 1
 fi
 
 Info && Info "----------------------------------------------------"
@@ -258,15 +269,15 @@ Info "Building GLU..."
 
 cd $WD
 if [[ -d "glu-$gluversion" && ${cleanbuild} = 1 ]]; then
-    Info "cleanup old glu-$gluversion..."
-    rm -rf "glu-$gluversion"
-    if [ -d "${osmesaprefix}" ]; then
-        rm -rf "${osmesaprefix}"
-    fi
+  Info "cleanup old glu-$gluversion..."
+  rm -rf "glu-$gluversion"
+  if [ -d "${osmesaprefix}" ]; then
+    rm -rf "${osmesaprefix}"
+  fi
 fi
 
 if [ ! -f "glu-${gluversion}.tar.bz2" ]; then
-  if [ ! "$OBS" = "true" ]; then
+  if [ "$OBS" != "true" ]; then
     Info "* downloading GLU ${gluversion}..."
     curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-${gluversion}.tar.bz2"
   else
@@ -274,14 +285,16 @@ if [ ! -f "glu-${gluversion}.tar.bz2" ]; then
   fi
 fi
 
+# GLU source directory
 if [ ! -d "glu-${gluversion}" ]; then
-    Info "extracting GLU..."
-    tar jxf glu-${gluversion}.tar.bz2
+  Info "extracting GLU..."
+  tar jxf glu-${gluversion}.tar.bz2
 fi
 
+# GLU build directory
 if [ ! -d "${osmesaprefix}" ]; then
-    Info "create install prefix..."
-    mkdir -p "${osmesaprefix}"
+  Info "create install prefix..."
+  mkdir -p "${osmesaprefix}"
 fi
 
 cd glu-${gluversion}
@@ -295,18 +308,18 @@ confopts="\
 --prefix=$osmesaprefix \
 "
 if [ ! -f "$osmesaprefix/lib/libGLU.a" ]; then
-    # configure command
-    env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
-    ./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
+  # configure command
+  env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
+  ./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
-    # build command
-    Info && make -j${mkjobs}
+  # build command
+  Info && make -j${mkjobs}
 
-    # install command [sudo is not needed with user install prefix]
-    Info "installing GLU..."
-    make install
+  # install command [sudo is not needed with user install prefix]
+  Info "installing GLU..."
+  make install
 else
-    Info "library GLU exist - build skipped."
+  Info "library GLU exist - build skipped."
 fi
 cd $WD
 

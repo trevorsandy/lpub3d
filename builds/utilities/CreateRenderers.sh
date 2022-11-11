@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 23, 2022
+# Last Update November 06, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 
@@ -60,7 +60,7 @@ ExtractArchive() {
 
 BuildMesaLibs() {
   mesaUtilsDir="$CallDir/builds/utilities/mesa"
-  if [ ! "${OBS}" = "true" ]; then
+  if [ "${OBS}" != "true" ]; then
     mesaDepsLog=${LP3D_LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
     mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
   fi
@@ -71,7 +71,7 @@ BuildMesaLibs() {
   fi
 
   Info "Update OSMesa.......[Yes]"
-  if [ ! "${OBS}" = "true" ]; then
+  if [ "${OBS}" != "true" ]; then
     case ${platform_id} in
     fedora)
       mesaBuildDeps="See ${mesaDepsLog}..."
@@ -99,17 +99,23 @@ BuildMesaLibs() {
   chmod a+x "${mesaUtilsDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
-    if [[ ("${platform_id}" = "redhat" && ${platform_ver} = 28) || ("${platform_id}" = "arch") ]]; then
+    if [[ ("${platform_id}" = "redhat" && ${platform_ver} = 28) || \
+          ("${platform_id}" = "debian" && ${platform_ver} = 10) || \
+           "${platform_id}" = "arch" || -n "${LP3D_UCS_VER}" ]]; then
       osmesa_version=18.3.5
     else
       osmesa_version=17.2.6
     fi
     Info "Building OSMesa.....[${osmesa_version}]"
     env \
+    OBS=${OBS} \
+    RPM_BUILD=${RPM_BUILD} \
+    LLVM_CONFIG=$(which llvm-config) \
     NO_GALLIUM=${no_gallium} \
     OSMESA_VERSION=${osmesa_version} \
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
     ${mesaUtilsDir}/build_osmesa.sh &
+    PID=$!
   else
     osmesa_version=17.2.6
     Info "Building OSMesa.....[${osmesa_version}]"
@@ -119,18 +125,26 @@ BuildMesaLibs() {
     OSMESA_VERSION=${osmesa_version} \
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
     ${mesaUtilsDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
+    PID=$!
   fi
 
-  TreatLongProcess $! 60 "OSMesa and GLU build"
+  TreatLongProcess $PID 60 "OSMesa and GLU build"
+
+  local return_code=$?
+  if [[ $return_code != 0 ]]; then
+    OSMesaBuildAttempt=1
+    return $return_code
+  fi
 
   if [[ -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libOSMesa32.a" && \
         -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libGLU.a" ]]; then
-    if [ ! "${OBS}" = "true" ]; then
-      Info &&  Info "OSMesa and GLU build check..."
+    if [ "${OBS}" != "true" ]; then
+      Info && Info "OSMesa and GLU build check..."
       DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
       DisplayLogTail $mesaBuildLog 20
     fi
-    OSMesaBuilt=1
+    return_code=0
+    OSMesaBuildAttempt=1
   else
     if [ ! -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libOSMesa32.a" ]; then
       Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built."
@@ -138,12 +152,14 @@ BuildMesaLibs() {
     if [ ! -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libGLU.a" ]; then
       Info && Info "ERROR - libGLU not found. Binary was not successfully built."
     fi
-    if [ ! "${OBS}" = "true" ]; then
+    if [ "${OBS}" != "true" ]; then
       Info "------------------Build Log-------------------------"
       cat $mesaBuildLog
     fi
+    return_code=1
   fi
   Info && Info "${1} library OSMesa build finished."
+  return $return_code
 }
 
 # args: $1 = <log file>, $2 = <position>
@@ -228,11 +244,15 @@ TreatLongProcess() {
   trap 'kill $s_nark 2>/dev/null && wait $s_nark 2>/dev/null' RETURN
 
   # Wait for the process to finish and display exit code
+  local s_return_code=0
   if wait $s_pid; then
-    Info "$(date): $s_plabel process finished (returned $?)"
+    s_return_code=$?
+    Info "$(date): $s_plabel process finished (returned ${s_return_code})"
   else
-    Info "$(date): $s_plabel process terminated (returned $?)"
+    s_return_code=$?
+    Info "$(date): $s_plabel process terminated (returned ${s_return_code})"
   fi
+  return $s_return_code
 }
 
 # args: 1 = <build folder>
@@ -274,7 +294,7 @@ InstallDependencies() {
       rpmbuildDeps=$(rpmbuild --nobuild ${specFile} 2>&1 | grep 'needed by'| awk ' {print $1}')
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
-      if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 ]]; then
+      if [[ -n "$build_osmesa" && "$OSMesaBuildAttempt" != 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info
@@ -311,7 +331,7 @@ InstallDependencies() {
       $useSudo pacman -Syy --noconfirm --needed > $depsLog 2>&1
       $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
-      if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 ]]; then
+      if [[ -n "$build_osmesa" && "$OSMesaBuildAttempt" != 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
@@ -371,7 +391,7 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [[ -n "$build_osmesa" && ! "$get_local_libs" = 1 ]]; then
+  if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "$no_gallium" = 1 ]; then
@@ -414,17 +434,17 @@ BuildLDView() {
     esac
     ;;
   esac
-  BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK"
-  if [ "$prebuilt_3ds" = 1 ]; then
-    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_3RD_PARTY_PREBUILT_3DS"
-  fi
-  BUILD_CONFIG="$BUILD_CONFIG CONFIG-=debug_and_release"
+  BUILD_CONFIG="CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [[ -n "$build_osmesa" && ! "$get_local_libs" = 1 ]]; then
+  BUILD_CONFIG="$BUILD_CONFIG CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS"
+  if [ "$prebuilt_3ds" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_3RD_PARTY_PREBUILT_3DS"
+  fi
+  if [[ -n "$build_osmesa" && "$get_local_libs" != 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "$no_gallium" = 1 ]; then
@@ -454,13 +474,13 @@ BuildLDView() {
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildPOVRay() {
   BUILD_CONFIG="--prefix=${DIST_PKG_DIR} LPUB3D_3RD_PARTY=yes --enable-watch-cursor"
+  if [ "$1" = "debug" ]; then
+    BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
+  fi
   if [ "$build_sdl2" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2=from-src"
   else
     BUILD_CONFIG="$BUILD_CONFIG --with-libsdl2"
-  fi
-  if [ "$1" = "debug" ]; then
-    BUILD_CONFIG="$BUILD_CONFIG --enable-debug"
   fi
   if [ "$OBS_RPM1315_BUILD_OPTS" = 1 ]; then
     BUILD_CONFIG="$OBS_RPM_BUILD_CONFIG $BUILD_CONFIG"
@@ -587,6 +607,9 @@ else
         Info "WARNING - Open Build Service did not provide a platform version."
         platform_ver=undefined
       fi
+    elif [ -n "${LP3D_UCS_VER}" ]; then
+      platform_pretty="Univention Corporate Server"
+      platform_ver="${LP3D_UCS_VER}"
     fi
   fi
   # change Arch Pretty Name export Arch Extra codes
@@ -607,6 +630,8 @@ fi
 
 # Display platform settings
 Info "Build Working Directory..[${CallDir}]"
+[ -n "${LP3D_UCS_VER}" ] && \
+Info "Platform ID..............[ucs]" || \
 Info "Platform ID..............[${platform_id}]"
 if [ "$LP3D_BUILD_OS" = "snap" ]; then
   platform_pretty="Snap (using $platform_pretty)"
@@ -624,7 +649,6 @@ elif [ "${OBS}" = "true" ]; then
   if [[ "${TARGET_CPU}" = "aarch64" || "${TARGET_CPU}" = "arm7l" ]]; then
     platform_pretty="$platform_pretty (ARM-${TARGET_CPU})"
   fi
-  Info "Target CPU...............[${TARGET_CPU}]"
   Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
@@ -729,7 +753,7 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
   if [ -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined."
   fi
-elif [ ! "$OS_NAME" = "Darwin" ]; then
+elif [ "$OS_NAME" != "Darwin" ]; then
   Info "LDraw Library............[${LDRAWDIR}]"
 fi
 # Additional LDraw configuration for MacOS
@@ -771,7 +795,7 @@ QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
 
 # initialize mesa build flag
-OSMesaBuilt=0
+OSMesaBuildAttempt=0
 
 # processor and linkier flags for building local libs
 if [ "$get_local_libs" = 1 ]; then
@@ -924,9 +948,17 @@ for buildDir in ldglite ldview povray; do
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-    if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 && ! "$get_local_libs" = 1 ]]; then
+    if [[ -n "$build_osmesa" && -z "$get_local_libs" && "$OSMesaBuildAttempt" != 1 ]]; then
+
       BuildMesaLibs
+
+      if [[ $? != 0 ]]; then
+        OSMesaBuildAttempt=1
+        Info && Info "Build OSMesa failed with return code $?. $ME will terminate."
+        exit 1
+      fi
     fi
+    # Building POVRay on openSUSE Lead 42.1-3 or SLE-12 (old builds that may not longer be being built)
     if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" && $(echo "$platform_ver" | grep -E '1315') ]]; then
       OBS_RPM_BUILD_CFLAGS="$RPM_OPTFLAGS -fno-strict-aliasing -Wno-multichar"
       OBS_RPM_BUILD_CXXFLAGS="$OBS_RPM_BUILD_CFLAGS -std=c++11 -Wno-reorder -Wno-sign-compare -Wno-unused-variable \
@@ -970,7 +1002,7 @@ for buildDir in ldglite ldview povray; do
     ${buildCommand} ${buildType} ${buildLog}
     [ -f "${validExe}" ] && Info && Info "$LDD_EXEC check ${buildDir}..." && \
     $LDD_EXEC ${validExe} 2>/dev/null || Info "ERROR - $LDD_EXEC ${validExe} failed."
-    if [ ! "${OBS}" = "true" ]; then
+    if [ "${OBS}" != "true" ]; then
       if [ -f "${validExe}" ]; then
         Info && Info "Build check - ${buildDir}..."
         DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
