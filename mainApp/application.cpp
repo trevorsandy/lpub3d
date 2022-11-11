@@ -1001,11 +1001,15 @@ int Application::initialize()
     logInfo() << tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
                          .arg(QString::number(logLevelIndex)).arg(QString(VER_LOGGING_LEVELS_STR).toLower());
     logInfo() << tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled"));
+#ifndef QT_NO_SSL
     logInfo() << tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
                                                         .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
                                                         .arg(QSslSocket::sslLibraryBuildVersionString(),
                                                              QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
                                                         .arg(QSslSocket::sslLibraryVersionString()))));
+#else
+    logInfo() << tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)");
+#endif // QT_NO_SSL
     logInfo() << "-----------------------------";
 
     // splash

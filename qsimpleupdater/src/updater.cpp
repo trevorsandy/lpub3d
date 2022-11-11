@@ -34,6 +34,9 @@
 #include <QApplication>
 #include <QJsonDocument>
 #include <QDesktopServices>
+// LPub3D Mod
+#include <QSslSocket>
+// End Mod
 
 #include "updater.h"
 #include "downloader.h"
@@ -784,6 +787,7 @@ bool Updater::compare (const QString& x, const QString& y)
  */
 bool Updater::sslIsSupported()
 {
+#ifndef QT_NO_SSL
     if (!QSslSocket::supportsSsl()) {
         showErrorMessage(tr("SSL not supported, %1.")
                             .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
@@ -794,6 +798,10 @@ bool Updater::sslIsSupported()
     }
 
     return true;
+#else
+    showErrorMessage(tr("QT_NO_SSL Declaration Detected."));
+    return false;
+#endif
 }
 
 /**
