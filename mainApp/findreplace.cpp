@@ -39,7 +39,7 @@
 {
     setWindowIcon(QIcon(":/resources/LPub32.png"));
 
-    setWindowTitle("LDraw File Editor Find");
+    setWindowTitle(tr("Command Editor Find"));
 
     setWhatsThis(lpubWT(WT_DIALOG_FIND_REPLACE,windowTitle()));
 

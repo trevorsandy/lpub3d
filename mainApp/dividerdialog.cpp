@@ -39,7 +39,7 @@ DividerDialog::DividerDialog(
   QWidget *parent)
   : QDialog(parent)
 {
-  setWindowTitle(_name);
+  setWindowTitle(tr("Edit %1").arg(_name));
 
   setWhatsThis(lpubWT(WT_DIALOG_DIVIDER,windowTitle()));
 

@@ -45,7 +45,7 @@
         <item>
          <widget class="QCheckBox" name="showModelButton">
           <property name="text">
-           <string>Show model snapshot</string>
+           <string>Show model image</string>
           </property>
          </widget>
         </item>
@@ -76,7 +76,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Overwrite existing snapshot</string>
+             <string>Overwrite existing model image</string>
             </property>
            </widget>
           </item>
@@ -129,7 +129,7 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Image width in pixels</string>
+             <string>Model image width in pixels</string>
             </property>
            </widget>
           </item>
@@ -149,7 +149,7 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>image height in pixels</string>
+             <string>Model image height in pixels</string>
             </property>
            </widget>
           </item>
@@ -176,7 +176,7 @@
           <item>
            <widget class="QLineEdit" name="snapshotEdit">
             <property name="toolTip">
-             <string>Enter existing snapshot image</string>
+             <string>Enter existing model image</string>
             </property>
            </widget>
           </item>
@@ -202,7 +202,7 @@
         <item>
          <widget class="QCheckBox" name="showPartImageButton">
           <property name="text">
-           <string>Show part images</string>
+           <string>Show parts image</string>
           </property>
          </widget>
         </item>
@@ -228,7 +228,7 @@
              <string>Modify generated snapshot preferences</string>
             </property>
             <property name="text">
-             <string>Snapshot Preferences...</string>
+             <string>LDView Preferences...</string>
             </property>
            </widget>
           </item>
@@ -339,7 +339,7 @@
           <item>
            <widget class="QLineEdit" name="rebrickableKeyEdit">
             <property name="toolTip">
-             <string>Enter your Rebrickable API Key or leave blank to use the LPub3D default key</string>
+             <string>Enter your Rebrickable API Key or leave blank to use the LPub3D default API key</string>
             </property>
            </widget>
           </item>
@@ -361,6 +361,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Arrange the displayed column order</string>
           </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>

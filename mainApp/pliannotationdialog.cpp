@@ -36,7 +36,7 @@ PliAnnotationDialog::PliAnnotationDialog(
   QWidget           *parent)
   : QDialog(parent)
 {
-  setWindowTitle(_name);
+  setWindowTitle(tr("Edit %1").arg(_name));
 
   setWhatsThis(lpubWT(WT_DIALOG_PLI_ANNOTATION,windowTitle()));
 

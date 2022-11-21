@@ -15,9 +15,11 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
 {
 	setupUi(this);
 
+	setWindowTitle(tr("LDView HTML Part List Export"));
+
 	setWhatsThis(lpubWT(WT_DIALOG_LDVIEW_HTML_PART_LIST_EXPORT,windowTitle()));
 
-	settingsBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_SETTINGS,settingsBox->title()));
+	settingsBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_DISPLAY_OPTIONS,settingsBox->title()));
 	partReferenceBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_PART_REFERENCE,partReferenceBox->title()));
 	columnOrderBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_COLUMN_ORDER,columnOrderBox->title()));
 

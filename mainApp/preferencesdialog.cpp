@@ -117,7 +117,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.NativeTab->setWhatsThis(lpubWT(                 WT_LPUB3D_PREFERENCES_NATIVE, tr("Native")));
   ui.POVRayTab->setWhatsThis(lpubWT(                 WT_LPUB3D_PREFERENCES_POVRAY, tr("POV-Ray")));
   ui.tabPublishing->setWhatsThis(lpubWT(             WT_LPUB3D_PREFERENCES_PUBLISHING, tr("Publishing")));
-  ui.tabLogging->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_LOGGING, tr("Theme / Logging")));
+  ui.tabLogging->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_THEME_AND_LOGGING, tr("Theme / Logging")));
   ui.tabShortcuts->setWhatsThis(lpubWT(              WT_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUTS, tr("Keyboard Shortcuts")));
   ui.tabOther->setWhatsThis(lpubWT(                  WT_LPUB3D_PREFERENCES_OTHER, tr("Other")));
   ui.tabUpdates->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_UPDATES, tr("Software Updates")));
@@ -134,7 +134,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.generalSettingsGrpBox->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS, tr("General Settings")));
   ui.highlightStepGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP, ui.highlightStepGrpBox->title()));
   ui.imageMatteGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE, ui.imageMatteGrpBox->title()));
-  ui.includesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_INCLUDES, ui.includesGrpBox->title()));
   ui.KeyboardShortcutGroup->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT, ui.KeyboardShortcutGroup->title()));
   ui.KeyboardShortcutTableGroup->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT_TABLE, ui.KeyboardShortcutTableGroup->title()));
   ui.ldgliteGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE, ui.ldgliteGrpBox->title()));
@@ -142,27 +141,29 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.ldrawLibPathGrpBox->setWhatsThis(lpubWT(        WT_CONTROL_LPUB3D_PREFERENCES_LDRAW_LIB_PATH, ui.ldrawLibPathGrpBox->title()));
   ui.ldviewGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW, ui.ldviewGrpBox->title()));
   ui.ldviewInstallGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_INSTALL, ui.ldviewInstallGrpBox->title()));
-  ui.ldvPOVSettingsGrpBox->setWhatsThis(lpubWT(      WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_POV_SETTINGS, ui.ldvPOVSettingsGrpBox->title()));
-  ui.ldvSettingsGrpBox->setWhatsThis(lpubWT(         WT_NUM_ENTRIES, ui.ldvSettingsGrpBox->title()));
-  ui.lgeoGrpBox->setWhatsThis(lpubWT(                WT_CONTROL_LPUB3D_PREFERENCES_LGEO, ui.lgeoGrpBox->title()));
+  ui.ldvPOVSettingsGrpBox->setWhatsThis(lpubWT(      WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LDVIEW_POV_GENERATION, ui.ldvPOVSettingsGrpBox->title()));
+  ui.ldvSettingsGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_SETTINGS, ui.ldvSettingsGrpBox->title()));
+  ui.lgeoGrpBox->setWhatsThis(lpubWT(                WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LGEO, ui.lgeoGrpBox->title()));
   ui.loggingGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LOGGING, ui.loggingGrpBox->title()));
+  ui.includesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_LOG_LINE_ATTRIBUTES, ui.includesGrpBox->title()));
   ui.logLevelGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL, ui.logLevelGrpBox->title()));
-  ui.logLevelsGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVELS, ui.logLevelsGrpBox->title()));
+  ui.logLevelsGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL_MESSAGES, ui.logLevelsGrpBox->title()));
   ui.logPathGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH, tr("Log Path")));
-  ui.lsynthPartsGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_LSYNTH_PARTS, ui.lsynthPartsGrpBox->title()));
+  ui.lsynthPartsGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS, ui.lsynthPartsGrpBox->title()));
+  ui.renderMessageLbl->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_MESSAGE, tr("Renderer Message")));
   ui.messagesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES, ui.messagesGrpBox->title()));
   ui.pageProcessingContinuousGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_PAGE_PROCESSING_CONTINUOUS, ui.pageProcessingContinuousGrpBox->title()));
   ui.pliControlGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_PLI_CONTROL, ui.pliControlGrpBox->title()));
-  ui.povNativeGenGrpBox->setWhatsThis(lpubWT(        WT_CONTROL_LPUB3D_PREFERENCES_NATIVE_POV_GENERATION, ui.povNativeGenGrpBox->title()));
+  ui.povNativeGenGrpBox->setWhatsThis(lpubWT(        WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_NATIVE_POV_GENERATION, ui.povNativeGenGrpBox->title()));
   ui.povrayGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_POVRAY, ui.povrayGrpBox->title()));
   ui.povrayInstallGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_INSTALL, ui.povrayInstallGrpBox->title()));
-  ui.preferredRendererGrpBox->setWhatsThis(lpubWT(   WT_CONTROL_LPUB3D_PREFERENCES_PREFERRED_RENDERER, tr("Preferred Renderer")));
+  ui.preferredRendererGrpBox->setWhatsThis(lpubWT(   WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_AND_PROJECTION, tr("Preferred Renderer")));
   ui.publishDescriptionGrpBox->setWhatsThis(lpubWT(  WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_DESCRIPTION, ui.publishDescriptionGrpBox->title()));
   ui.publishLogoGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_LOGO, ui.publishLogoGrpBox->title()));
-  ui.renderingWidget->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_RENDERING,tr("Rendering"))); //LcLib
+  ui.renderingWidget->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_RENDERING,tr("Native Rendering"))); //LcLib
   ui.searchDirsGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES, ui.searchDirsGrpBox->title()));
   ui.themeSceneColorsGrpBox->setWhatsThis(lpubWT(    WT_CONTROL_LPUB3D_PREFERENCES_THEME_SCENE_COLORS, ui.themeSceneColorsGrpBox->title()));
-  ui.themeSelectAndColorsGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_THEME_SELECT_ANDCOLORS, tr("Theme And Colors")));
+  ui.themeSelectAndColorsGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_THEME_SELECT_AND_COLORS, tr("Theme And Colors")));
   ui.unitsGrpBox->setWhatsThis(lpubWT(               WT_CONTROL_LPUB3D_PREFERENCES_UNITS, ui.unitsGrpBox->title()));
   ui.updatesGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_UPDATES, ui.updatesGrpBox->title()));
   ui.viewpointAndProjectionGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_VIEWPOINT_AND_PROJECTION, ui.viewpointAndProjectionGrpBox->title())); //LcLib
@@ -354,32 +355,32 @@ void PreferencesDialog::setPreferences()
   showSaveOnUpdateFlag         = Preferences::showSaveOnUpdate;
 
   ui.autoUpdateChangeLogBox->setChecked(         Preferences::autoUpdateChangeLog);
-  ui.updateChangeLogBtn->setEnabled(             !Preferences::autoUpdateChangeLog);
+  ui.updateChangeLogBtn->setEnabled(            !Preferences::autoUpdateChangeLog);
 
   // preferred renderer
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
-  ui.ldviewGrpBox->setVisible(                      Preferences::ldviewInstalled);
-  ui.ldviewInstallGrpBox->setVisible(              !Preferences::ldviewInstalled);
+  ui.ldviewGrpBox->setVisible(                   Preferences::ldviewInstalled);
+  ui.ldviewInstallGrpBox->setVisible(           !Preferences::ldviewInstalled);
 
   ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
   ui.ldviewSnaphsotsList_Chk->setChecked(        Preferences::enableLDViewSnaphsotList && useLDViewSCall);
   ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
 
   ui.ldglitePath->setText(                       Preferences::ldgliteExe);
-  ui.ldgliteGrpBox->setVisible(                     Preferences::ldgliteInstalled);
-  ui.ldgliteInstallGrpBox->setVisible(             !Preferences::ldgliteInstalled);
+  ui.ldgliteGrpBox->setVisible(                  Preferences::ldgliteInstalled);
+  ui.ldgliteInstallGrpBox->setVisible(          !Preferences::ldgliteInstalled);
 
   ui.povrayPath->setText(                        Preferences::povrayExe);
-  ui.povrayGrpBox->setVisible(                      Preferences::povRayInstalled);
-  ui.povrayInstallGrpBox->setVisible(              !Preferences::povRayInstalled);
+  ui.povrayGrpBox->setVisible(                   Preferences::povRayInstalled);
+  ui.povrayInstallGrpBox->setVisible(           !Preferences::povRayInstalled);
 
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
   ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
   ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
 
-  ui.lgeoGrpBox->setEnabled(                        Preferences::usingDefaultLibrary);
+  ui.lgeoGrpBox->setEnabled(                     Preferences::usingDefaultLibrary);
   ui.lgeoPath->setText(                          Preferences::lgeoPath);
-  ui.lgeoGrpBox->setChecked(                        Preferences::lgeoPath != "");
+  ui.lgeoGrpBox->setChecked(                     Preferences::lgeoPath != "");
   ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
 
   setRenderers();
@@ -389,8 +390,8 @@ void PreferencesDialog::setPreferences()
   ui.fadeStepsUseColourGrpBox->setTitle(            fadeStepsColorTitle);
   ui.pliControlEdit->setText(                    Preferences::pliControlFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
-  ui.altLDConfigGrpBox->setChecked(                 Preferences::altLDConfigPath != "");
-  ui.pliControlGrpBox->setChecked(                  Preferences::pliControlFile != "");
+  ui.altLDConfigGrpBox->setChecked(              Preferences::altLDConfigPath != "");
+  ui.pliControlGrpBox->setChecked(               Preferences::pliControlFile != "");
 
   ui.displayAllAttributes_Chk->setChecked(       Preferences::displayAllAttributes);
   ui.generateCoverPages_Chk->setChecked(         Preferences::generateCoverPages);
@@ -428,11 +429,11 @@ void PreferencesDialog::setPreferences()
   ui.logLevelGrpBox->setChecked(                 Preferences::logLevel);
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
-  ui.fadeStepGrpBox->setChecked(                    Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourGrpBox->setEnabled(          Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourGrpBox->setChecked(          Preferences::fadeStepsUseColour);
+  ui.fadeStepGrpBox->setChecked(                 Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourGrpBox->setEnabled(       Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourGrpBox->setChecked(       Preferences::fadeStepsUseColour);
   ui.fadeStepsColoursCombo->setEnabled(          Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
-  ui.fadeStepsOpacityGrpBox->setEnabled(            Preferences::enableFadeSteps);
+  ui.fadeStepsOpacityGrpBox->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
@@ -448,17 +449,10 @@ void PreferencesDialog::setPreferences()
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
   }
 
-  ui.highlightStepGrpBox->setChecked(               Preferences::enableHighlightStep);
+  ui.highlightStepGrpBox->setChecked(            Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
   ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
   ui.highlightFirstStepBox->setChecked(          Preferences::highlightFirstStep);
-
-  // Only enabled for LDGLite
-  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-    ui.highlightStepLineWidthSpin->setEnabled(   Preferences::enableHighlightStep);
-  else
-    ui.highlightStepLineWidthSpin->setEnabled(false);
-  ui.highlightStepLineWidthSpin->setValue(       Preferences::highlightStepLineWidth);
 
   QColor highlightColour = QColor(               Preferences::highlightStepColour);
   if(highlightColour.isValid() ) {
@@ -656,6 +650,11 @@ void PreferencesDialog::setRenderers()
       ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
       ui.preferredRenderer->setEnabled(true);
       ui.renderersTabWidget->setCurrentWidget(ui.LDGLiteTab);
+      ui.highlightStepLineWidthSpin->setVisible(true);
+      ui.highlightStepLabel->setVisible(true);
+      //ui.highlightStepSpacer->setVisible(true);
+      ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
+      ui.highlightStepLineWidthSpin->setValue(Preferences::highlightStepLineWidth);
     }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
@@ -669,11 +668,17 @@ void PreferencesDialog::setRenderers()
           ui.preferredRenderer->setEnabled(false);
         }
     }
+
+    if (Preferences::preferredRenderer != RENDERER_LDGLITE) {
+        ui.highlightStepLineWidthSpin->setVisible(false);
+        ui.highlightStepLabel->setVisible(false);
+        //ui.highlightStepSpacer->setVisible(false);
+    }
 }
 
 void PreferencesDialog::installRenderer()
 {
-    ui.RenderMessage->setText("");
+    ui.renderMessageLbl->setText("");
 
     int which = -1;
     if (sender() == ui.ldgliteInstall)
@@ -688,24 +693,24 @@ void PreferencesDialog::installRenderer()
         switch (which)
         {
         case RENDERER_LDVIEW:
-            ui.ldviewPath->setText(           Preferences::ldviewExe);
+            ui.ldviewPath->setText(              Preferences::ldviewExe);
             ui.ldviewGrpBox->setVisible(         Preferences::ldviewInstalled);
             ui.ldviewInstallGrpBox->setVisible( !Preferences::ldviewInstalled);
             break;
         case RENDERER_LDGLITE:
-            ui.ldglitePath->setText(          Preferences::ldgliteExe);
+            ui.ldglitePath->setText(             Preferences::ldgliteExe);
             ui.ldgliteGrpBox->setVisible(        Preferences::ldgliteInstalled);
             ui.ldgliteInstallGrpBox->setVisible(!Preferences::ldgliteInstalled);
             break;
         case RENDERER_POVRAY:
-            ui.povrayPath->setText(           Preferences::povrayExe);
+            ui.povrayPath->setText(              Preferences::povrayExe);
             ui.povrayGrpBox->setVisible(         Preferences::povRayInstalled);
             ui.povrayInstallGrpBox->setVisible( !Preferences::povRayInstalled);
             break;
         default:
             break;
         }
-        ui.RenderMessage->setText(tr("%1 renderer installed successfully.").arg(rendererNames[which]));
+        ui.renderMessageLbl->setText(tr("%1 renderer installed successfully.").arg(rendererNames[which]));
     }
 }
 
@@ -927,14 +932,14 @@ void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
 
 void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
 {
-  ui.logValiationLbl->hide();
+  ui.loggingMessageLbl->hide();
   ui.statusLevelBox->setChecked(checked);
   ui.logLevelGrpBox->setChecked(!checked);
 }
 
 void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
 {
-  ui.logValiationLbl->hide();
+  ui.loggingMessageLbl->hide();
   ui.logLevelsGrpBox->setChecked(!checked);
 }
 
@@ -1060,36 +1065,47 @@ void PreferencesDialog::on_highlightStepGrpBox_clicked(bool checked)
 
 void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
 {
-      bool ldviewEnabled  = (currentText == rendererNames[RENDERER_LDVIEW]);
-      bool povrayEnabled  = (currentText == rendererNames[RENDERER_POVRAY]);
-      bool ldgliteEnabled = (currentText == rendererNames[RENDERER_LDGLITE]);
-      bool nativeEnabled  = (currentText == rendererNames[RENDERER_NATIVE]);
-      ui.povNativeGenGrpBox->setEnabled(povrayEnabled);
-      ui.ldvPOVSettingsGrpBox->setEnabled(povrayEnabled);
-      ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
-      ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
-      ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
-      if (ui.povGenNativeRadio->isChecked())
-          ui.ldvPOVSettingsGrpBox->setTitle(tr("Native POV File Generation Settings"));
-      else
-      if (ui.povGenLDViewRadio->isChecked())
-          ui.ldvPOVSettingsGrpBox->setTitle(tr("LDView POV File Generation Settings"));
+  bool ldviewEnabled  = (currentText == rendererNames[RENDERER_LDVIEW]);
+  bool povrayEnabled  = (currentText == rendererNames[RENDERER_POVRAY]);
+  bool ldgliteEnabled = (currentText == rendererNames[RENDERER_LDGLITE]);
+  bool nativeEnabled  = (currentText == rendererNames[RENDERER_NATIVE]);
+  ui.povNativeGenGrpBox->setEnabled(povrayEnabled);
+  ui.ldvPOVSettingsGrpBox->setEnabled(povrayEnabled);
+  ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
+  ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
+  ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
+  if (ui.povGenNativeRadio->isChecked())
+    ui.ldvPOVSettingsGrpBox->setTitle(tr("Native POV File Generation Settings"));
+  else
+  if (ui.povGenLDViewRadio->isChecked())
+    ui.ldvPOVSettingsGrpBox->setTitle(tr("LDView POV File Generation Settings"));
 
-      if (ldviewEnabled)
-          ui.renderersTabWidget->setCurrentWidget(ui.LDViewTab);
-      else if (povrayEnabled)
-          ui.renderersTabWidget->setCurrentWidget(ui.POVRayTab);
-      else if (ldgliteEnabled)
-          ui.renderersTabWidget->setCurrentWidget(ui.LDGLiteTab);
-      else if (nativeEnabled)
-          ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
+  if (ldviewEnabled)
+    ui.renderersTabWidget->setCurrentWidget(ui.LDViewTab);
+  else if (povrayEnabled)
+    ui.renderersTabWidget->setCurrentWidget(ui.POVRayTab);
+  else if (ldgliteEnabled)
+    ui.renderersTabWidget->setCurrentWidget(ui.LDGLiteTab);
+  else if (nativeEnabled)
+    ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
 
-      bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == QLatin1String("Perspective");
-      ui.applyCALocallyRadio->setChecked(! applyCARenderer);
-      ui.applyCARendererRadio->setChecked(applyCARenderer);
+  if (ldgliteEnabled) {
+    ui.highlightStepLineWidthSpin->setVisible(true);
+    ui.highlightStepLabel->setVisible(true);
+    //ui.highlightStepSpacer->setVisible(true);
+    ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
+  } else {
+    ui.highlightStepLineWidthSpin->setVisible(false);
+    ui.highlightStepLabel->setVisible(false);
+    //ui.highlightStepSpacer->setVisible(false);
+  }
 
-      /* [Experimental] LDView Image Matting */
-      ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
+  bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == QLatin1String("Perspective");
+  ui.applyCALocallyRadio->setChecked(! applyCARenderer);
+  ui.applyCARendererRadio->setChecked(applyCARenderer);
+
+  /* [Experimental] LDView Image Matting */
+  ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
 }
 
 void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
@@ -1239,7 +1255,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     // options dialogue
     messageDialog = new QDialog();
 
-    messageDialog->setWindowTitle(tr("Messages"));
+    messageDialog->setWindowTitle(tr("File Parse Messages"));
 
     messageDialog->setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES_MESSAGES,messageDialog->windowTitle()));
 
@@ -2051,9 +2067,9 @@ void PreferencesDialog::accept()
         ! ui.includeFunctionBox->isChecked())
     {
         missingParms = true;
-        ui.logValiationLbl->show();
-        ui.logValiationLbl->setText(tr("At lease one attribute must be included."));
-        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
+        ui.loggingMessageLbl->show();
+        ui.loggingMessageLbl->setText(tr("At lease one attribute must be included."));
+        ui.loggingMessageLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
     }
 
     if (ui.logLevelsGrpBox->isChecked() &&
@@ -2066,9 +2082,9 @@ void PreferencesDialog::accept()
         ! ui.debugLevelBox->isChecked())
     {
         missingParms = true;
-        ui.logValiationLbl->show();
-        ui.logValiationLbl->setText(tr("At lease one logging level must be selected."));
-        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
+        ui.loggingMessageLbl->show();
+        ui.loggingMessageLbl->setText(tr("At lease one logging level must be selected."));
+        ui.loggingMessageLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
     }
 
     if (missingParms)

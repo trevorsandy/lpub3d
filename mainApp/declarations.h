@@ -796,7 +796,7 @@ enum ThemeColorType {
 
 #define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"   // last version of LPub3D to use html change notes
 
-#define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
+#define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stereolithography (STL) library is available"
 
 #define SUBMODEL_IMAGE_BASENAME                 "smi"
 #define PREVIEW_MODEL_DEFAULT                   "Preview.ldr"

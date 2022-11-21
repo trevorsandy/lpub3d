@@ -47,7 +47,7 @@ BomOptionDialog::BomOptionDialog(int modelIndex, bool remove, QWidget *parent)
 {
   setParent(parent);
 
-  setWindowTitle(QString(VER_PRODUCTNAME_STR));
+  setWindowTitle(tr("BOM Option"));
 
   setWhatsThis(lpubWT(WT_DIALOG_BOM_OPTION,windowTitle()));
 

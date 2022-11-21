@@ -66,11 +66,11 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	updatesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_UPDATES, tr("Updates")));
 	preferencsSetTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PREFERENCES_SET, tr("Preferences Set")));
 
-	fsaaBox->setWhatsThis(lpubWT(                    WT_CONTROL_LDVIEW_PREFERENCES_FSAA,fsaaBox->title().replace("&","")));
-	generalColorBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GENERAL,generalColorBox->title().replace("&","")));
+	fsaaBox->setWhatsThis(lpubWT(                    WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_ANTIALIASING,fsaaBox->title().replace("&","")));
+	generalColorBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_COLORS,generalColorBox->title().replace("&","")));
 	generalMiscBox->setWhatsThis(lpubWT(             WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_MISC,generalMiscBox->title().replace("&","")));
-	generalSnapshotSaveBox->setWhatsThis(lpubWT(     WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SNAPSHOT,generalSnapshotSaveBox->title().replace("&","")));
-	iniBox->setWhatsThis(lpubWT(                     WT_CONTROL_LDVIEW_PREFERENCES_INI,iniBox->title().replace("&","")));
+	generalSnapshotSaveBox->setWhatsThis(lpubWT(     WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SAVE_DIRECTORIES,generalSnapshotSaveBox->title().replace("&","")));
+	iniBox->setWhatsThis(lpubWT(                     WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_INI_FILE,iniBox->title().replace("&","")));
 	geometryModelBox->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_MODEL,geometryModelBox->title().replace("&","")));
 	wireframeButton->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_WIREFRAME,wireframeButton->title().replace("&","")));
 	enableBFCButton->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_BFC,enableBFCButton->title().replace("&","")));
@@ -251,7 +251,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	{
 		QString prefSet = TCUserDefaults::getSessionName();
 		iniFileMessage = QString("%1").arg(modelWidget->getIniFile());
-		iniBox->setTitle(QString("INI using '%1' preference set")
+		iniBox->setTitle(QString("INI file using '%1' preference set")
 						 .arg(prefSet.isEmpty() ? "Default" : prefSet));
 	} else {
 		iniFileMessage = QString("INI file not specified. Using built-in default settings.");

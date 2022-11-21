@@ -55,6 +55,18 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     mCsiKeyList = QString(lpub->ldrawFile.getViewerConfigKey(mViewerStepKey).split(";").last()).split("_");
 
+    // If the render dialog is launched from a blank/cover/bom page, disable the controls
+    bool haveKeys = true;
+    if (mCsiKeyList.isEmpty() || (mCsiKeyList.size() == 1 && mCsiKeyList.at(0) == "")) {
+        haveKeys = false;
+        mCsiKeyList.clear();
+        ui->OutputEdit->clear();
+        ui->OutputEdit->setEnabled(false);
+        ui->RenderSettingsButton->setEnabled(false);
+        ui->RenderButton->setEnabled(false);
+        ui->OutputBrowseButton->setEnabled(false);
+    }
+
     resetOutputAct = ui->OutputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     resetOutputAct->setText(tr("Reset"));
     resetOutputAct->setEnabled(false);
@@ -67,11 +79,11 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         setWhatsThis(lpubWT(WT_DIALOG_POVRAY_RENDER,windowTitle()));
 
-        setWindowTitle(tr ("POV-Ray Render"));
+        setWindowTitle(tr("POV-Ray Render"));
 
-        ui->TimeLabel->setText("Preparing POV file...");
+        ui->TimeLabel->setText(haveKeys ? tr("Preparing POV file...") : tr("Nothing to Render"));
 
-        ui->RenderSettingsButton->setToolTip("POV-Ray render settings");
+        ui->RenderSettingsButton->setToolTip(tr("POV-Ray render settings"));
 
         ui->RenderButton->setToolTip(tr("Render LDraw model"));
 
@@ -85,7 +97,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        QString title = mImportOnly ? "Import" : "Render";
+        QString title = mImportOnly ? tr("Import") : tr("Render");
         ui->RenderButton->setToolTip(tr("Render LDraw model"));
 
         if (mImportOnly) {
@@ -100,16 +112,16 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
             ui->ProgressLine->hide();
         }
 
-        setWindowTitle(tr ("Blender %1").arg(title));
+        setWindowTitle(tr("Blender %1").arg(title));
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
 
         if (mImportOnly)
-            ui->TimeLabel->setText("Open model in Blender");
+            ui->TimeLabel->setText(haveKeys ? tr("Open model in Blender") : tr("Nothing to Render"));
 
         bool blenderInstalled = ! Preferences::blenderVersion.isEmpty();
 
-        ui->RenderSettingsButton->setToolTip("Blender render settings");
+        ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
         ui->RenderButton->setEnabled(blenderInstalled);
         if (!blenderInstalled)
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
@@ -205,13 +217,13 @@ void RenderDialog::on_RenderButton_clicked()
 
     if (mRenderType == POVRAY_RENDER) {
 
-        ui->TimeLabel->setText("Generating POV-Ray scene file...");
+        ui->TimeLabel->setText(tr("Generating POV-Ray scene file..."));
         QApplication::processEvents();
 
         QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerStepKey);
         if (csiParts.isEmpty())
         {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI parts for %1.").arg(mViewerStepKey));
+            emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI parts for %1.").arg(mViewerStepKey));
             return;
         }
 
@@ -315,7 +327,7 @@ void RenderDialog::on_RenderButton_clicked()
 
         Arguments << QDir::toNativeSeparators(mModelFile);
 
-        message = QString("LDV CSI POV File Generation Arguments: %1 %2")
+        message = tr("LDV CSI POV File Generation Arguments: %1 %2")
                 .arg(Preferences::ldviewExe)
                 .arg(Arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
@@ -324,7 +336,7 @@ void RenderDialog::on_RenderButton_clicked()
         if (!Render::doLDVCommand(Arguments,POVRAY_RENDER))
             return ;
 
-        message = QString("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));
+        message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));
         emit gui->messageSig(LOG_INFO, message);
 
         /* set POV-Ray arguments */
@@ -366,7 +378,7 @@ void RenderDialog::on_RenderButton_clicked()
             }
         }
 
-        message = QString("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe).arg(Arguments.join(" "));
+        message = tr("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe).arg(Arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
 
         QStringList povenv = QProcess::systemEnvironment();
@@ -384,14 +396,14 @@ void RenderDialog::on_RenderButton_clicked()
         }
         else
         {
-            message = QString("Error starting POV-Ray.");
+            message = tr("Error starting POV-Ray.");
             emit gui->messageSig(LOG_ERROR, message);
             CloseProcess();
         }
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        ui->TimeLabel->setText("Saving model...");
+        ui->TimeLabel->setText(tr("Saving model..."));
         QApplication::processEvents();
 
         mBlendProgValue = 0;
@@ -452,7 +464,7 @@ void RenderDialog::on_RenderButton_clicked()
 #endif
             scriptCommand =QString("%1 %2").arg(Preferences::blenderExe).arg(Arguments.join(" "));
 
-            QString message = QString("Blender image render command: %1").arg(scriptCommand);
+            QString message = tr("Blender image render command: %1").arg(scriptCommand);
             emit gui->messageSig(LOG_DEBUG, message);
 
             script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
@@ -465,15 +477,15 @@ void RenderDialog::on_RenderButton_clicked()
 #endif
                 stream << scriptCommand << lpub_endl;
                 script.close();
-                emit gui->messageSig(LOG_DEBUG, QString("Script: %1").arg(script.fileName()));
+                emit gui->messageSig(LOG_DEBUG, tr("Script: %1").arg(script.fileName()));
             } else {
-                emit gui->messageSig(LOG_ERROR, QString("Cannot write Blender render script file [%1] %2.")
+                emit gui->messageSig(LOG_ERROR, tr("Cannot write Blender render script file [%1] %2.")
                                      .arg(script.fileName())
                                      .arg(script.errorString()));
                 return;
             }
         } else {
-            emit gui->messageSig(LOG_ERROR, "Cannot create Blender render script temp path.");
+            emit gui->messageSig(LOG_ERROR, tr("Cannot create Blender render script temp path."));
             return;
         }
 
@@ -525,14 +537,14 @@ void RenderDialog::on_RenderButton_clicked()
         {
             ui->RenderButton->setText(tr("Cancel"));
             ui->RenderProgress->setValue(ui->RenderProgress->minimum());
-            ui->TimeLabel->setText(QString("Loading LDraw model... %1")
-                                   .arg(gui->elapsedTime(mRenderTime.elapsed())));
+            ui->TimeLabel->setText(tr("Loading LDraw model... %1")
+                                      .arg(gui->elapsedTime(mRenderTime.elapsed())));
             QApplication::processEvents();
-            emit gui->messageSig(LOG_INFO, QString("Blender render process [%1] running...").arg(mProcess->processId()));
+            emit gui->messageSig(LOG_INFO, tr("Blender render process [%1] running...").arg(mProcess->processId()));
         }
         else
         {
-            message = QString("Error starting Blender render process");
+            message = tr("Error starting Blender render process");
             emit gui->messageSig(LOG_ERROR, message);
             CloseProcess();
         }
@@ -552,12 +564,12 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
     PROCESSENTRY32 pe32;
 
     if ((hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, ppID)) == INVALID_HANDLE_VALUE) {
-        emit gui->messageSig(LOG_ERROR, QString("CreateToolhelp32Snapshot failed: %1").arg(GetLastError()));
+        emit gui->messageSig(LOG_ERROR, QString("%1 failed: %1").arg("CreateToolhelp32Snapshot").arg(GetLastError()));
         return -1;
     }
     pe32.dwSize = sizeof(PROCESSENTRY32);
     if ((bResult = Process32First(hSnapshot, &pe32)) == FALSE) {
-        emit gui->messageSig(LOG_ERROR, QString("Process32First failed: %1").arg(GetLastError()));
+        emit gui->messageSig(LOG_ERROR, QString("%1 failed: %2").arg("Process32First").arg(GetLastError()));
         CloseHandle(hSnapshot);
         return -2;
     }
@@ -566,13 +578,13 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
             if ((pe32.th32ProcessID == pID && pe32.th32ParentProcessID == ppID) || // parent:   cmd.exe
                 (bChild = pe32.th32ParentProcessID == pID)) {                      // children: conhost.exe, blender.exe
                 if ((hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe32.th32ProcessID)) == INVALID_HANDLE_VALUE) {
-                    emit gui->messageSig(LOG_ERROR, QString("OpenProcess failed: %1").arg(GetLastError()));
+                    emit gui->messageSig(LOG_ERROR, tr("%1 failed: %2").arg("OpenProcess").arg(GetLastError()));
                     return -3;
                 } else {
                     TerminateProcess(hProcess, 9);
                     CloseHandle(hProcess);
-                    emit gui->messageSig(LOG_INFO, QString("%1 Process Terminated: PID: %2  Parent PID: %3  Name: %4")
-                                         .arg(bChild ? "Child" : "Parent")
+                    emit gui->messageSig(LOG_INFO, tr("%1 Process Terminated: PID: %2  Parent PID: %3  Name: %4")
+                                         .arg(bChild ? tr("Child") : tr("Parent"))
                                          .arg(pe32.th32ProcessID)
                                          .arg(pe32.th32ParentProcessID)
                                          .arg(QString::fromWCharArray(pe32.szExeFile)));
@@ -597,9 +609,9 @@ void RenderDialog::ReadStdOut()
         mBlendProgMax   = rxRenderProgress.cap(1).toInt();
         ui->RenderProgress->setMaximum(mBlendProgMax);
         ui->RenderProgress->setValue(mBlendProgValue);
-        emit gui->messageSig(LOG_INFO, QString("Rendered Tile %1/%2")
-                                               .arg(mBlendProgValue)
-                                               .arg(mBlendProgMax));
+        emit gui->messageSig(LOG_INFO, tr("Rendered Tile %1/%2")
+                                          .arg(mBlendProgValue)
+                                          .arg(mBlendProgMax));
     }
 }
 
@@ -613,9 +625,9 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
 
     if ( ! file.open(QFile::ReadOnly | QFile::Text))
     {
-        QString message = QString("Failed to open log file: %1:\n%2")
-                .arg(file.fileName())
-                .arg(file.errorString());
+        QString message = tr("Failed to open log file: %1:\n%2")
+                             .arg(file.fileName())
+                             .arg(file.errorString());
         return message;
     }
 
@@ -653,8 +665,8 @@ void RenderDialog::WriteStdOut()
     }
     else
     {
-       emit gui->messageSig(LOG_INFO, QString("Error writing to %1 file '%2':\n%3")
-                                     .arg("stdout").arg(file.fileName(), file.errorString()));
+       emit gui->messageSig(LOG_INFO, tr("Error writing to %1 file '%2':\n%3")
+                                         .arg("stdout").arg(file.fileName(), file.errorString()));
     }
 }
 
@@ -667,7 +679,7 @@ void RenderDialog::Update()
     if (mProcess->state() == QProcess::NotRunning)
     {
         if (mRenderType == BLENDER_RENDER)
-            emit gui->messageSig(LOG_INFO, QString("Blender process finished"));
+            emit gui->messageSig(LOG_INFO, tr("Blender process finished."));
         ShowResult();
         CloseProcess();
     }
@@ -744,9 +756,9 @@ void RenderDialog::ShowResult()
 
     if (mProcess->exitStatus() != QProcess::NormalExit || mProcess->exitCode() != 0 || hasError)
     {
-        emit gui->messageSig(LOG_NOTICE, QString("Render failed. See %2 for details.")
-                             .arg(GetLogFileName(false/*stdOut*/)));
-        ui->TimeLabel->setText(QString("Image generation failed."));
+        emit gui->messageSig(LOG_NOTICE, tr("Render failed. See %1 for details.")
+                                            .arg(GetLogFileName(false/*stdOut*/)));
+        ui->TimeLabel->setText(tr("Image generation failed."));
         ui->RenderProgress->setRange(0,1);
         ui->RenderProgress->setValue(0);
         QMessageBoxResizable box;
@@ -755,7 +767,7 @@ void RenderDialog::ShowResult()
         box.setStandardButtons (QMessageBox::Ok);
         box.setDefaultButton   (QMessageBox::Ok);
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setWindowTitle(QString(mRenderType == BLENDER_RENDER ? QString("Blender Render") : "POV-Ray Render"));
+        box.setWindowTitle(mRenderType == BLENDER_RENDER ? tr("Blender Render") : tr("POV-Ray Render"));
 
         QString header = "<b>" + tr ("Render Error.") +
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
@@ -789,7 +801,7 @@ void RenderDialog::ShowResult()
 
         ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
 
-        emit gui->messageSig(LOG_INFO,QString("Writing POV-Ray rendered image '%1'...").arg(ui->OutputEdit->text()));
+        emit gui->messageSig(LOG_INFO,tr("Writing POV-Ray rendered image '%1'...").arg(ui->OutputEdit->text()));
 
         if (!FileName.isEmpty())
         {
@@ -798,7 +810,7 @@ void RenderDialog::ShowResult()
             Success = Writer.write(mImage);
 
             if (!Success)
-                emit gui->messageSig(LOG_ERROR,QString("Error writing to image file '%1':\n%2").arg(FileName, Writer.errorString()));
+                emit gui->messageSig(LOG_ERROR,tr("Error writing to image file '%1':\n%2").arg(FileName, Writer.errorString()));
             else if (Preferences::povrayAutoCrop)
                 Render::clipImage(FileName);
         }
@@ -822,20 +834,20 @@ void RenderDialog::ShowResult()
         }
     }
 
-    QString imageType = mRenderType == BLENDER_RENDER ? "Blender" : "POV-Ray";
+    QString imageType = mRenderType == BLENDER_RENDER ? QLatin1String("Blender") : QLatin1String("POV-Ray");
 
     if (!Success) {
         ui->TimeLabel->setStyleSheet("QLabel { color : red; }");
-        ui->TimeLabel->setText(QString("Image render failed."));
+        ui->TimeLabel->setText(tr("Image render failed."));
     }
 
     WriteStdOut();
 
     message = QString("%1 CSI %2. %3")
                       .arg(imageType)
-                      .arg(Success ? mImportOnly ? "completed" :
-                                                   QString("generated %1").arg(FileName) :
-                                                   "failed (unknown reason)")
+                      .arg(Success ? mImportOnly ? tr("completed") :
+                                                   tr("generated %1").arg(FileName) :
+                                                   tr("failed (unknown reason)"))
                       .arg(gui->elapsedTime(mRenderTime.elapsed()));
     emit gui->messageSig(Success ? LOG_INFO : LOG_ERROR, message);
 }
@@ -861,10 +873,10 @@ void RenderDialog::UpdateElapsedTime()
 {
     if (mProcess && !mImportOnly)
     {
-        ui->TimeLabel->setText(QString("Tiles: %1/%2, %3")
-                               .arg(mBlendProgValue)
-                               .arg(mBlendProgMax)
-                               .arg(gui->elapsedTime(mRenderTime.elapsed())));
+        ui->TimeLabel->setText(tr("Tiles: %1/%2, %3")
+                                  .arg(mBlendProgValue)
+                                  .arg(mBlendProgMax)
+                                  .arg(gui->elapsedTime(mRenderTime.elapsed())));
     }
 }
 
@@ -886,10 +898,10 @@ void RenderDialog::CloseProcess()
         QFile::remove(GetPOVFileName());
 
     } else if (mRenderType == BLENDER_RENDER) {
-        emit gui->messageSig(LOG_INFO, QString("Blender process closed"));
+        emit gui->messageSig(LOG_INFO, tr("Blender process closed"));
     }
 
-    ui->RenderButton->setText(tr(mImportOnly ? "Import" : "Render"));
+    ui->RenderButton->setText(mImportOnly ? tr("Import") : tr("Render"));
 }
 
 bool RenderDialog::PromptCancel()
@@ -898,8 +910,8 @@ bool RenderDialog::PromptCancel()
     if (mProcess)
     {
         if (QMessageBox::question(this,
-                                  QString("Cancel Render"),
-                                  QString("Are you sure you want to cancel the current Render?"),
+                                  tr("Cancel Render"),
+                                  tr("Are you sure you want to cancel the current Render?"),
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
 #ifdef Q_OS_WIN
@@ -912,9 +924,9 @@ bool RenderDialog::PromptCancel()
                 WriteStdOut();
                 ui->StandardOutButton->setEnabled(true);
             }
-            ui->TimeLabel->setText(QString("Tiles: %1/%2, Render Cancelled.")
-                                           .arg(mBlendProgValue)
-                                           .arg(mBlendProgMax));
+            ui->TimeLabel->setText(tr("Tiles: %1/%2, Render Cancelled.")
+                                      .arg(mBlendProgValue)
+                                      .arg(mBlendProgMax));
         }
         else
             return false;
@@ -980,15 +992,15 @@ RenderProcess::~RenderProcess(){
 
 void RenderDialog::on_StandardOutButton_clicked()
 {
-    QString renderType = mRenderType == POVRAY_RENDER ? "POVRay" : "Blender";
+    QString renderType = mRenderType == POVRAY_RENDER ? QLatin1String("POV-Ray") : QLatin1String("Blender");
     QFileInfo fileInfo(GetLogFileName(true/*stdOut*/));
     if (!fileInfo.exists()) {
-        emit gui->messageSig(LOG_ERROR, QString("%1 Standard output file not found: %2.")
+        emit gui->messageSig(LOG_ERROR, tr("%1 Standard output file not found: %2.")
                              .arg(renderType).arg(fileInfo.absoluteFilePath()));
         return;
     }
-    QString title = QString("%1 Render Standard Output").arg(renderType);
-    QString status = QString("View %1 render process standard output").arg(renderType);
+    QString title = tr("%1 Render Standard Output").arg(renderType);
+    QString status = tr("View %1 render process standard output").arg(renderType);
     gui->displayParmsFile(fileInfo.absoluteFilePath());
     gui->parmsWindow->setWindowTitle(tr(title.toLatin1(),status.toLatin1()));
     gui->parmsWindow->show();

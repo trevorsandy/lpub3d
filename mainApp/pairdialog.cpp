@@ -474,7 +474,7 @@ OptionDialog::OptionDialog(
 
   setWindowTitle(titleList.first());
 
-  setWhatsThis(lpubWT(WT_DIALOG_OPTION,windowTitle()));
+  setWhatsThis(lpubWT(WT_DIALOG_APPEND_PAGE_OPTION,windowTitle()));
 
   int numOptions = optionsList.size();
   bool multiChoice = numOptions > 1;

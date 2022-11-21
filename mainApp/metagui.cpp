@@ -3661,6 +3661,7 @@ BorderGui::BorderGui(
       typeCombo->hide();
       spinLabel->hide();
       spin->hide();
+      resetButton->hide();
       if (!corners)
           hideArrowsChk->hide();
   } else {
@@ -8529,7 +8530,7 @@ void POVRayRenderDialogGui::getRenderSettings(
                                               csiKeyList.at(K_MODELSCALE));
             if (i < LBL_LATITUDE) {      // width, height
                 connect(lineEdit,SIGNAL(textChanged(const QString &)),
-                            this,SLOT  (textChanged(const QString &)));
+                        this,    SLOT  (textChanged(const QString &)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             }
             else if (i < LBL_RESOLUTION) // latitued, longitude

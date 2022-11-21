@@ -7280,7 +7280,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   dialog->setWindowTitle(tr("Search Directories"));
 
-  dialog->setWhatsThis(lpubWT(WT_DIALOG_LDRAW_SEARCH_DIR,dialog->windowTitle()));
+  dialog->setWhatsThis(lpubWT(WT_DIALOG_LDRAW_SEARCH_DIRECTORIES,dialog->windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout();
 

@@ -151,10 +151,8 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
         this->statusBar()->show();
         readSettings();
         cmdModEditor = this;
-        setWhatsThis(lpubWT(WT_COMMAND_EDIT_DET, tr("LDraw File Editor Detached")));
     } else {
         cmdEditor = this;
-        setWhatsThis(lpubWT(WT_COMMAND_EDIT, tr("LDraw File Editor")));
     }
 }
 
@@ -2609,7 +2607,7 @@ void EditWindow::preferences()
     // options dialogue
     QDialog *dialog = new QDialog();
     dialog->setWindowTitle(windowTitle);
-    dialog->setWhatsThis(lpubWT(WT_COMMAND_PREFS, windowTitle));
+    dialog->setWhatsThis(lpubWT(WT_DIALOG_EDITOR_PREFERENCES, windowTitle));
     QFormLayout *form = new QFormLayout(dialog);
 
     // options - editor font

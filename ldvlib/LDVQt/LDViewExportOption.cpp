@@ -48,8 +48,6 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 {
 	setupUi(this);
 
-	setWhatsThis(lpubWT(WT_DIALOG_LDVIEW_EXPORT_OPTIONS,windowTitle()));
-
 	IniFlag iniFlag = modelWidget->getIniFlag();
 
 	if (m_modelViewer) {
@@ -85,6 +83,8 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 
 	this->setWindowTitle(modelWidget->getIniTitle().append(" Export Options"));
 
+	this->setWhatsThis(lpubWT(WT_DIALOG_LDVIEW_POV_EXPORT_OPTIONS,windowTitle()));
+
 	QPalette readOnlyPalette = QApplication::palette();
 	if (modelWidget->getDarkTheme())
 		readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
@@ -92,12 +92,15 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 		readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
 	readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
 
+	scrollArea->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_SCROLL_AREA,tr("Export Options")));
+	iniBox->setWhatsThis(lpubWT(WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_INI_FILE,tr("Export INI File")));
+
 	QString iniFileMessage;
 	if (TCUserDefaults::isIniFileSet())
 	{
 		QString prefSet = TCUserDefaults::getSessionName();
 		iniFileMessage = QString("%1").arg(modelWidget->getIniFile());
-		iniBox->setTitle(QString("INI using '%1' preference set")
+		iniBox->setTitle(QString("INI file using '%1' preference set")
 						 .arg(prefSet.isEmpty() ? "Default" : prefSet));
 	} else {
 		iniFileMessage = QString("INI file not specified. Using built-in default settings.");
@@ -131,15 +134,15 @@ void LDViewExportOption::populateExportSettings(void)
 		return;
 
 	QHash<QString, WT_Type> whatsThisMap;
-	whatsThisMap["General"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_GENERAL;
-	whatsThisMap["Geometry"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_GEOMETRY;
-	whatsThisMap["Native POV Geometry"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_POV_GEOMETRY;
-	whatsThisMap["Lighting"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_LIGHTING;
-	whatsThisMap["POV-Ray Lights"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_POVRAY_LIGHTS;
-	whatsThisMap["Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_MATERIAL;
-	whatsThisMap["Transparent Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_TRANSPARENT_MATERIAL;
-	whatsThisMap["Rubber Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_RUBBER_MATERIAL;
-	whatsThisMap["Chrome Material Properties"] = WT_CONTROL_LDVIEW_EXPORT_OPTIONS_CHROME_MATERIAL;
+	whatsThisMap["General"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_GENERAL;
+	whatsThisMap["Geometry"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_GEOMETRY;
+	whatsThisMap["Native POV Geometry"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POV_GEOMETRY;
+	whatsThisMap["Lighting"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_LIGHTING;
+	whatsThisMap["POV-Ray Lights"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POVRAY_LIGHTS;
+	whatsThisMap["Material Properties"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_MATERIAL;
+	whatsThisMap["Transparent Material Properties"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_TRANSPARENT_MATERIAL;
+	whatsThisMap["Rubber Material Properties"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_RUBBER_MATERIAL;
+	whatsThisMap["Chrome Material Properties"] = WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_CHROME_MATERIAL;
 
 	QWidget *parent;
 	parent = m_box;

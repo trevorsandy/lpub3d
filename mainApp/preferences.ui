@@ -221,6 +221,9 @@
        </item>
        <item row="2" column="0">
         <widget class="QGroupBox" name="generalSettingsGrpBox">
+         <property name="toolTip">
+          <string>Save file when Redraw or Reset Cache menu action is triggered.</string>
+         </property>
          <property name="title">
           <string/>
          </property>
@@ -230,7 +233,7 @@
             <item>
              <widget class="QCheckBox" name="loadLastOpenedFileCheck">
               <property name="text">
-               <string>Load the last opened file on startup</string>
+               <string>Load Last Opened File On Startup</string>
               </property>
              </widget>
             </item>
@@ -250,7 +253,7 @@
             <item>
              <widget class="QLabel" name="label_20">
               <property name="text">
-               <string>Show load messages</string>
+               <string>Show Load Messages</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -296,7 +299,7 @@
                <string>Search current folder, content search directories and LDraw subfolders for subfile references.</string>
               </property>
               <property name="text">
-               <string>Extended subfile reference search</string>
+               <string>Extended Subfile Reference Search</string>
               </property>
              </widget>
             </item>
@@ -316,20 +319,20 @@
             <item>
              <widget class="QCheckBox" name="saveOnUpdateChkBox">
               <property name="toolTip">
-               <string>Save file when Update button is pressed.</string>
+               <string>Save file when Update menu action is triggered.</string>
               </property>
               <property name="text">
-               <string>Save on Update</string>
+               <string>Save On Update</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QCheckBox" name="saveOnRedrawChkBox">
               <property name="toolTip">
-               <string>Save file when Redraw or Clear Cache tool button is pressed</string>
+               <string>Save file when Redraw or Reset Cache menu action is triggered.</string>
               </property>
               <property name="text">
-               <string>Save on Redraw</string>
+               <string>Save On Redraw</string>
               </property>
              </widget>
             </item>
@@ -498,7 +501,7 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="2" column="3">
-             <spacer name="horizontalSpacer_13">
+             <spacer name="highlightStepSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -557,7 +560,7 @@
             <item row="0" column="0" colspan="4">
              <widget class="QCheckBox" name="highlightFirstStepBox">
               <property name="text">
-               <string>Highlight first step</string>
+               <string>Highlight First Step</string>
               </property>
              </widget>
             </item>
@@ -567,7 +570,7 @@
                <string>Set the highlight line width [LDGLite only]</string>
               </property>
               <property name="text">
-               <string>Highlight line width</string>
+               <string>Highlight Line Width</string>
               </property>
              </widget>
             </item>
@@ -623,7 +626,7 @@
                <string/>
               </property>
               <property name="text">
-               <string>True fade image matting</string>
+               <string>True Fade Image Matting</string>
               </property>
              </widget>
             </item>
@@ -965,7 +968,7 @@
               <item row="0" column="1">
                <widget class="QComboBox" name="antiAliasingSamples">
                 <property name="toolTip">
-                 <string>Set LEGO stud logo exponent</string>
+                 <string/>
                 </property>
                 <item>
                  <property name="text">
@@ -1674,7 +1677,7 @@
                  <string>Render a page's image files using a single call to LDView</string>
                 </property>
                 <property name="text">
-                 <string>Use multiple file single call</string>
+                 <string>Use Multiple File Single Call</string>
                 </property>
                </widget>
               </item>
@@ -1732,14 +1735,14 @@
                  <string>Consolidate render files as a single list appended to the LDView command.</string>
                 </property>
                 <property name="text">
-                 <string>Use Snapshots List file</string>
+                 <string>Use Snapshots List File</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="2" rowspan="2" colspan="2">
                <widget class="QGroupBox" name="ldvSettingsGrpBox">
                 <property name="title">
-                 <string>LDView Renderer Settings</string>
+                 <string>Renderer Settings</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_16">
                  <item>
@@ -1767,7 +1770,7 @@
                     <string>Open LDView options dialogue</string>
                    </property>
                    <property name="text">
-                    <string>Preferences...</string>
+                    <string>LDView Preferences...</string>
                    </property>
                   </widget>
                  </item>
@@ -2079,7 +2082,7 @@
                  <string>Automatically crop rendered images</string>
                 </property>
                 <property name="text">
-                 <string>Auto-Crop image</string>
+                 <string>Auto-crop Image</string>
                 </property>
                </widget>
               </item>
@@ -2092,7 +2095,7 @@
                  <string>Check to enable display window during image Raytracer rendering</string>
                 </property>
                 <property name="text">
-                 <string>Display image progress</string>
+                 <string>Display Image Progress</string>
                 </property>
                </widget>
               </item>
@@ -2126,7 +2129,7 @@
                     <string>Open Native POV options dialogue</string>
                    </property>
                    <property name="text">
-                    <string>Gen Options...</string>
+                    <string>POV Generation Options...</string>
                    </property>
                   </widget>
                  </item>
@@ -2142,7 +2145,7 @@
                     <string>Open Native POV options dialogue</string>
                    </property>
                    <property name="text">
-                    <string>All Preferences...</string>
+                    <string>LDView Preferences...</string>
                    </property>
                   </widget>
                  </item>
@@ -2362,7 +2365,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Check to add LSynth parts path to LDraw search paths if not already included in search paths.</string>
             </property>
             <property name="text">
-             <string>Add LSynth Search Directory</string>
+             <string>Add LSynth Library Path To LDraw Search Directories</string>
             </property>
            </widget>
           </item>
@@ -2370,7 +2373,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="RenderMessage">
+        <widget class="QLabel" name="renderMessageLbl">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -2426,7 +2429,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
             </property>
             <property name="text">
-             <string>Display page for</string>
+             <string>Display Page For</string>
             </property>
            </widget>
           </item>
@@ -2461,7 +2464,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
             </property>
             <property name="text">
-             <string>seconds</string>
+             <string>Seconds</string>
             </property>
            </widget>
           </item>
@@ -2484,7 +2487,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Display continuous page processing options dialogue when menu action is triggered.</string>
             </property>
             <property name="text">
-             <string>Display options dialogue</string>
+             <string>Display Options Dialog</string>
             </property>
            </widget>
           </item>
@@ -2500,7 +2503,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Display all checked or enabled page attributes </string>
             </property>
             <property name="text">
-             <string>Display all page attributes</string>
+             <string>Display All Page Attributes</string>
             </property>
            </widget>
           </item>
@@ -2510,7 +2513,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Automatically generate front and back cover page</string>
             </property>
             <property name="text">
-             <string>Generate cover pages</string>
+             <string>Generate Cover Pages</string>
             </property>
            </widget>
           </item>
@@ -2523,7 +2526,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Generate table of contents in pdf output</string>
             </property>
             <property name="text">
-             <string>Generate PDF Table of Contents</string>
+             <string>Generate PDF Table Of Contents</string>
             </property>
            </widget>
           </item>
@@ -2813,6 +2816,9 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                <property name="text">
                 <string>Tracking</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
               </widget>
              </item>
              <item>
@@ -2873,7 +2879,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           <string>Uncheck to disable logging</string>
          </property>
          <property name="title">
-          <string>Logging</string>
+          <string>Individual Log Level Messages</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -2914,7 +2920,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Attributes to include in log output. Select all that apply</string>
             </property>
             <property name="title">
-             <string>Includes</string>
+             <string>Line Attributes</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_11">
              <item>
@@ -3052,7 +3058,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <string>Select individual logging levels as needed. </string>
             </property>
             <property name="title">
-             <string>Individual Logging Levels</string>
+             <string>Individual Log Level Messages</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
@@ -3158,7 +3164,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="logValiationLbl">
+           <widget class="QLabel" name="loggingMessageLbl">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -3417,7 +3423,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                    <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
                   </property>
                   <property name="text">
-                   <string>Version installed </string>
+                   <string>Version Installed </string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -3441,7 +3447,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                    <string>Show progress details while checking for updates</string>
                   </property>
                   <property name="text">
-                   <string>Show progress details</string>
+                   <string>Show Progress Details</string>
                   </property>
                  </widget>
                 </item>
@@ -3464,7 +3470,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                    <string>Download the update directly instead of opening download link through a browser</string>
                   </property>
                   <property name="text">
-                   <string>Enable downloader</string>
+                   <string>Enable Downloader</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -3477,7 +3483,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                    <string>Show download URL redirect accept message prompt</string>
                   </property>
                   <property name="text">
-                   <string>Show redirects</string>
+                   <string>Show Redirects</string>
                   </property>
                  </widget>
                 </item>
@@ -3488,10 +3494,10 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                 <item>
                  <widget class="QCheckBox" name="showUpdateNotifications_Chk">
                   <property name="toolTip">
-                   <string>Notify user when and update is available</string>
+                   <string>Notify user when an update is available</string>
                   </property>
                   <property name="text">
-                   <string>Show update available</string>
+                   <string>Show Update Available</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -3586,7 +3592,7 @@ p, li { white-space: pre-wrap; }
                  <string>Automatically download change log at application start-up</string>
                 </property>
                 <property name="text">
-                 <string>Download change log at start-up</string>
+                 <string>Download Change Log At Start-up</string>
                 </property>
                </widget>
               </item>

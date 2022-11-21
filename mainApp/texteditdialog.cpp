@@ -54,7 +54,7 @@ TextEditDialog::TextEditDialog(QWidget *parent) :
 
     setWindowTitle(tr("Edit Text"));
 
-    setWhatsThis(lpubWT(WT_TEXT_EDIT, windowTitle()));
+    setWhatsThis(lpubWT(WT_DIALOG_TEXT_EDIT, windowTitle()));
 
     ui->actionAccept->setObjectName("textEditAcceptAct.3");
     lpub->actions.insert(ui->actionAccept->objectName(), Action(QStringLiteral("File.Accept"), ui->actionAccept));

@@ -297,6 +297,7 @@ GlobalPliDialog::GlobalPliDialog(
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Annotation Options"));
+  box->setWhatsThis(lpubWT(WT_SETUP_PART_ANNOTATION_OPTIONS_WITH_TEXT_FORMAT,box->title()));
   vlayout->addWidget(box);
 
   childlayout = new QVBoxLayout(nullptr);

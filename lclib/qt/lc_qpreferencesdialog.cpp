@@ -49,18 +49,18 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 	ui->CameraGroup->setWhatsThis(lpubWT(                WT_CONTROL_LPUB3D_PREFERENCES_CAMERA_DEFAULTS,ui->CameraGroup->title()));
 	ui->CategoryEditGroup->setWhatsThis(lpubWT(          WT_CONTROL_VISUAL_PREFERENCES_CATEGORY,ui->CategoryEditGroup->title()));
 	ui->CategoryGroup->setWhatsThis(lpubWT(              WT_CONTROL_VISUAL_PREFERENCES_CATEGORY_EDIT,ui->CategoryGroup->title()));
-	ui->CustomPathsGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_CUSTOM_PATHS,ui->CustomPathsGroup->title()));
+	ui->CustomPathsGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_PATHS,ui->CustomPathsGroup->title()));
 	ui->InterfaceColorGroup->setWhatsThis(lpubWT(        WT_CONTROL_VISUAL_PREFERENCES_INTERFACE,ui->InterfaceColorGroup->title()));
 	ui->InterfaceGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_INTERFACE_COLOR,ui->InterfaceGroup->title()));
 	ui->KeyboardShortcutsTableGroup->setWhatsThis(lpubWT(WT_CONTROL_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS_TABLE,ui->KeyboardShortcutsTableGroup->title()));
-	ui->ModelViewGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_MODEL_VIEW,ui->ModelViewGroup->title()));
-	ui->MouseShortcutGroup->setWhatsThis(lpubWT(         WT_CONTROL_VISUAL_PREFERENCES_MOUSE,ui->MouseShortcutGroup->title()));
-	ui->MouseShortcutsTableGroup->setWhatsThis(lpubWT(   WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUT,ui->MouseShortcutsTableGroup->title()));
-	ui->MouseWidget->setWhatsThis(lpubWT(                WT_CONTROL_VISUAL_PREFERENCES_MOUSESHORTCUTS_TABLE,tr("Mouse Sensitivity")));
+	ui->ModelViewGroup->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE,ui->ModelViewGroup->title()));
+	ui->MouseShortcutGroup->setWhatsThis(lpubWT(         WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS,ui->MouseShortcutGroup->title()));
+	ui->MouseShortcutsTableGroup->setWhatsThis(lpubWT(   WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS_TABLE,ui->MouseShortcutsTableGroup->title()));
+	ui->MouseWidget->setWhatsThis(lpubWT(                WT_CONTROL_VISUAL_PREFERENCES_MOUSE,tr("Mouse Sensitivity")));
 	ui->ObjectsColorGroup->setWhatsThis(lpubWT(          WT_CONTROL_VISUAL_PREFERENCES_OBJECTS_COLOR,ui->ObjectsColorGroup->title()));
 	ui->PartPreviewGroup->setWhatsThis(lpubWT(           WT_CONTROL_VISUAL_PREFERENCES_PART_PREVIEW,ui->PartPreviewGroup->title()));
 	ui->RenderingWidget->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_RENDERING,tr("Rendering")));
-	ui->SettingsWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_SETTINGS,tr("Settings")));
+	ui->SettingsWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_GENERAL_SETTINGS,tr("General Settings")));
 	ui->shortcutGroup->setWhatsThis(lpubWT(              WT_CONTROL_VISUAL_PREFERENCES_SHORTCUT,ui->shortcutGroup->title()));
 	ui->TimelineWidget->setWhatsThis(lpubWT(             WT_CONTROL_VISUAL_PREFERENCES_TIMELINE,tr("Timeline")));
 	ui->ViewSphereGroup->setWhatsThis(lpubWT(            WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE,ui->ViewSphereGroup->title()));
@@ -1045,6 +1045,9 @@ void lcQPreferencesDialog::on_newCategory_clicked()
 	lcLibraryCategory category;
 
 	lcQCategoryDialog dialog(this, &category);
+/*** LPub3D Mod - Common menus help ***/
+	dialog.setWhatsThis(lpubWT(WT_DIALOG_VISUAL_CATEGORY_NEW, dialog.windowTitle()));
+/*** LPub3D Mod end ***/
 	if (dialog.exec() != QDialog::Accepted)
 		return;
 
@@ -1070,6 +1073,9 @@ void lcQPreferencesDialog::on_editCategory_clicked()
 		return;
 
 	lcQCategoryDialog dialog(this, &mOptions->Categories[categoryIndex]);
+/*** LPub3D Mod - Common menus help ***/
+	dialog.setWhatsThis(lpubWT(WT_DIALOG_VISUAL_CATEGORY_EDIT, dialog.windowTitle()));
+/*** LPub3D Mod end ***/
 	if (dialog.exec() != QDialog::Accepted)
 		return;
 

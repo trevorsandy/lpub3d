@@ -65,9 +65,9 @@
 CommandsDialog::CommandsDialog(QWidget *parent) :
     QDialog(parent)
 {
-  setWindowTitle(tr ("%1 Commands").arg(VER_PRODUCTNAME_STR));
+  setWindowTitle(tr ("%1 Meta Commands").arg(VER_PRODUCTNAME_STR));
 
-  setWhatsThis(lpubWT(WT_COMMANDS, windowTitle()));
+  setWhatsThis(lpubWT(WT_DIALOG_META_COMMANDS, windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout();
   setLayout(layout);
@@ -89,19 +89,20 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
    */
 
   widget  = new QWidget(this);
-  widget->setObjectName(tr("Commands"));
-  widget->setWhatsThis(lpubWT(WT_COMMANDS_VIEW,widget->objectName()));
+  widget->setObjectName(tr("Meta Commands"));
   widgetLayout = new QGridLayout(widget);
   widget->setLayout(widgetLayout);
 
   commandCollection = lpub->commandCollection;
 
   commandFilterEdit = new FilterLineEdit(commandCollection, widget);
+  commandFilterEdit->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_FILTER, tr("Filter Meta Commands")));
   widgetLayout->addWidget(commandFilterEdit,0,0);
   connect(commandFilterEdit, &FilterLineEdit::filterChanged,
           this,              &CommandsDialog::commandFilterEditChanged);
 
   commandTableView = new QTableView(widget);
+  commandTableView->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_VIEW, tr("View Meta Commands")));
   commandTableView->setToolTip(tr("Select command"));
   commandTableView->setSelectionMode(QAbstractItemView::SingleSelection);
   commandTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -136,7 +137,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   }
   commandTextEdit->setParent(widget);
   commandTextEdit->setToolTip(tr("Update the command description adding details and examples you find useful."));
-  commandTextEdit->setWhatsThis(lpubWT(WT_COMMANDS_EDIT, tr("LPub Commands")));
+  commandTextEdit->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_EDIT, tr("Edit Meta Command Description")));
   commandTextEdit->setReadOnly(true);
   commandTextEdit->setPalette(readOnlyPalette);
   widgetLayout->addWidget(commandTextEdit,2,0);
@@ -144,12 +145,14 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
           this,                &CommandsDialog::commandTextChanged);
 
   updateCommandButton = new QPushButton(tr("Update"),widget);
+  updateCommandButton->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_UPDATE, tr("Update Meta Command Description")));
   updateCommandButton->setToolTip(tr("Update selected command description"));
   widgetLayout->addWidget(updateCommandButton,0,1);
   connect(updateCommandButton, &QPushButton::clicked,
           this,                &CommandsDialog::updateCommandButtonClicked);
 
   resetCommandButton = new QPushButton(tr("Reset"),widget);
+  resetCommandButton->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_RESET, tr("Reset Meta Command Description")));
   resetCommandButton->setEnabled(false);
   resetCommandButton->setToolTip(tr("Reset selected command description"));
   widgetLayout->addWidget(resetCommandButton,1,1,1,1,Qt::AlignTop);
@@ -163,19 +166,20 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
    */
 
   widget  = new QWidget(this);
-  widget->setObjectName(tr("Snippets"));
-  widget->setWhatsThis(lpubWT(WT_SNIPPETS_VIEW,widget->objectName()));
+  widget->setObjectName(tr("Command Snippets"));
   widgetLayout = new QGridLayout(widget);
   widget->setLayout(widgetLayout);
 
   snippetCollection = lpub->snippetCollection;
 
   snippetFilterEdit = new FilterLineEdit(snippetCollection, widget);
+  snippetFilterEdit->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_FILTER,tr("Filter Command Snippets")));
   widgetLayout->addWidget(snippetFilterEdit,0,0);
   connect(snippetFilterEdit, &FilterLineEdit::filterChanged,
           this,              &CommandsDialog::snippetFilterEditChanged);
 
   snippetTableView = new QTableView(widget);
+  snippetTableView->setWhatsThis(lpubWT(WT_CONTROL_SNIPPETS_LIST,tr("List Command Snippets")));
   snippetTableView->setToolTip(tr("Select snippet"));
   snippetTableView->setSelectionMode(QAbstractItemView::SingleSelection);
   snippetTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -210,7 +214,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   }
   snippetTextEdit->setToolTip(tr("Create shortcuts that trigger LPub command insert or autocomplete.<br>"
                                  "Place the '$|' marker where the cursor will be after the command is inserted."));
-  snippetTextEdit->setWhatsThis(lpubWT(WT_SNIPPETS_EDIT, tr("LPub Command Snippets")));
+  snippetTextEdit->setWhatsThis(lpubWT(WT_CONTROL_SNIPPETS_EDIT, tr("Edit Command Snippet")));
   snippetTextEdit->setReadOnly(true);
   snippetTextEdit->setPalette(readOnlyPalette);
   widgetLayout->addWidget(snippetTextEdit,2,0);
@@ -218,12 +222,14 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
           this,                &CommandsDialog::snippetTextChanged);
 
   addSnippetButton = new QPushButton(tr("Add"),widget);
+  addSnippetButton->setWhatsThis(lpubWT(WT_CONTROL_SNIPPETS_ADD, tr("Add Command Snippet")));
   addSnippetButton->setToolTip(tr("Add a new command snippet"));
   widgetLayout->addWidget(addSnippetButton,0,1);
   connect(addSnippetButton,    &QPushButton::clicked,
           this,                &CommandsDialog::addSnippetButtonClicked);
 
   removeSnippetButton = new QPushButton(tr("Remove"),widget);
+  removeSnippetButton->setWhatsThis(lpubWT(WT_CONTROL_SNIPPETS_REMOVE, tr("Remove Command Snippet")));
   removeSnippetButton->setToolTip(tr("Remove the selected command snippet"));
   widgetLayout->addWidget(removeSnippetButton,1,1,1,1,Qt::AlignTop);
   connect(removeSnippetButton, &QPushButton::clicked,
