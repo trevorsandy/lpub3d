@@ -307,7 +307,6 @@ class LDrawFile {
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
     static int                  _uniquePartCount;
-    static bool                 _showLoadMessages;
     static bool                 _loadAborted;
     static bool                 _loadBuildMods;
     static bool                 _loadUnofficialParts;
@@ -324,8 +323,6 @@ class LDrawFile {
     void setLoadBuildMods(bool b) {
         _loadBuildMods = b;
     }
-
-    static void showLoadMessages();
 
     bool saveFile(const QString &fileName);
     bool saveModelFile(const QString &filename);

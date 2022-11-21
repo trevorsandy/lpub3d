@@ -68,19 +68,15 @@ void Gui::open()
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
-      if (!openFile(fileName)) {
-          emit lpub->messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
+      if (!openFile(fileName))
           return;
-      }
       displayPage();
       enableActions();
-      lpub->ldrawFile.showLoadMessages();
-      emit lpub->messageSig(LOG_STATUS, lpub->loadAborted() ?
-                            tr("Load model file %1 aborted.").arg(fileName) :
-                            tr("Model file loaded (%1 pages, %2 parts). %3")
-                               .arg(maxPages)
-                               .arg(lpub->ldrawFile.getPartCount())
-                               .arg(elapsedTime(timer.elapsed())));
+      emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
+                                           .arg(fileInfo.fileName())
+                                           .arg(maxPages)
+                                           .arg(lpub->ldrawFile.getPartCount())
+                                           .arg(elapsedTime(timer.elapsed())));
       return;
     }
   }
@@ -100,19 +96,15 @@ void Gui::openDropFile(QString &fileName){
       if (fileInfo.exists() && (ldr || mpd || dat)) {
           QSettings Settings;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
-          if (!openFile(fileName)) {
-              emit messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
+          if (!openFile(fileName))
               return;
-          }
           displayPage();
           enableActions();
-          lpub->ldrawFile.showLoadMessages();
-          emit messageSig(LOG_STATUS, lpub->loadAborted() ?
-                              tr("Load model file %1 aborted.").arg(fileName) :
-                              tr("Model file loaded (%1 pages, %2 parts). %3")
-                                 .arg(maxPages)
-                                 .arg(lpub->ldrawFile.getPartCount())
-                                 .arg(elapsedTime(timer.elapsed())));
+          emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
+                                               .arg(fileInfo.fileName())
+                                               .arg(maxPages)
+                                               .arg(lpub->ldrawFile.getPartCount())
+                                               .arg(elapsedTime(timer.elapsed())));
         } else {
           QString noExtension;
           if (extension.isEmpty())
@@ -411,18 +403,14 @@ void Gui::openRecentFile()
     QString fileName = action->data().toString();
     QFileInfo fileInfo(fileName);
     QDir::setCurrent(fileInfo.absolutePath());
-    if (!openFile(fileName)) {
-        emit lpub->messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
+    if (!openFile(fileName))
         return;
-    }
     lpub->currentStep = nullptr;
     Paths::mkDirs();
     displayPage();
     enableActions();
-    lpub->ldrawFile.showLoadMessages();
-    emit lpub->messageSig(LOG_STATUS, lpub->loadAborted() ?
-                                      tr("Load model file %1 aborted.").arg(fileName) :
-                                      tr("Model file loaded (%1 pages, %2 parts). %3")
+    emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
+                                         .arg(fileInfo.fileName())
                                          .arg(maxPages)
                                          .arg(lpub->ldrawFile.getPartCount())
                                          .arg(elapsedTime(timer.elapsed())));
@@ -460,12 +448,11 @@ bool Gui::loadFile(const QString &file, bool console)
     }
 
     QString fileName = file;
-    QFileInfo info(fileName);
-    if (info.exists()) {
+    QFileInfo fileInfo(fileName);
+    if (fileInfo.exists()) {
         timer.start();
-        QDir::setCurrent(info.absolutePath());
+        QDir::setCurrent(fileInfo.absolutePath());
         if (!openFile(fileName)) {
-            emit lpub->messageSig(LOG_INFO_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
             emit fileLoadedSig(false);
             return false;
         }
@@ -479,15 +466,12 @@ bool Gui::loadFile(const QString &file, bool console)
         Paths::mkDirs();
         cyclePageDisplay(inputPageNum);
         enableActions();
-
-        lpub->ldrawFile.showLoadMessages();
-        emit lpub->messageSig(LOG_INFO_STATUS, lpub->loadAborted() ?
-                                               tr("Load model file %1 aborted.").arg(fileName) :
-                                               tr("Model file loaded (%1 pages, %2 parts). %3")
-                                                  .arg(maxPages)
-                                                  .arg(lpub->ldrawFile.getPartCount())
-                                                  .arg(elapsedTime(timer.elapsed())));
-        emit fileLoadedSig(!lpub->loadAborted());
+        emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
+                                             .arg(fileInfo.fileName())
+                                             .arg(maxPages)
+                                             .arg(lpub->ldrawFile.getPartCount())
+                                             .arg(elapsedTime(timer.elapsed())));
+        emit fileLoadedSig(true);
         return true;
     } else {
         emit messageSig(LOG_ERROR,tr("Unable to load file %1.").arg(fileName));
@@ -636,7 +620,12 @@ void Gui::saveAs()
       extension.isEmpty()) {
     saveFile(fileName);
     closeFile();
+    int loadMsgType = Preferences::ldrawFilesLoadMsgs;
+    if (loadMsgType)
+        Preferences::ldrawFilesLoadMsgs = static_cast<int>(NEVER_SHOW);
     openFile(fileName);
+    if (loadMsgType)
+        Preferences::ldrawFilesLoadMsgs = loadMsgType;
     displayPage();
   } else {
     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -818,7 +807,7 @@ void Gui::closeModelFile(){
     closeFile();           // perform LPub3D file close operations here...
     editModeWindow->close();
     getAct("editModelFileAct.1")->setText(tr("Edit current model file"));
-    getAct("editModelFileAct.1")->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
+    getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file with detached LDraw Editor"));
     if (!topModel.isEmpty())
         emit lpub->messageSig(LOG_INFO, tr("Model unloaded. File closed - %1.").arg(topModel));
 
@@ -866,11 +855,14 @@ bool Gui::openFile(QString &fileName)
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
-  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading LDraw model file '%1'...").arg(fileName));
+  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading file '%1'...").arg(fileName));
   setPageLineEdit->setText(tr("Loading..."));
   setGoToPageCombo->addItem(tr("Loading..."));
   mpdCombo->addItem(tr("Loading..."));
   if (lpub->ldrawFile.loadFile(fileName) != 0) {
+      emit lpub->messageSig(LOG_INFO_STATUS, lpub->ldrawFile._loadAborted ?
+                                tr("Load LDraw file '%1' aborted.").arg(fileName) :
+                                tr("Load LDraw file '%1' failed.").arg(fileName));
       closeModelFile();
       if (waitingSpinner->isSpinning())
           waitingSpinner->stop();
@@ -881,7 +873,7 @@ bool Gui::openFile(QString &fileName)
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
   getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(info.fileName()));
-  getAct("editModelFileAct.1")->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
+  getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(info.fileName()));
   mSetupFadeSteps = lpub->setFadeStepsFromCommand();
   mSetupHighlightStep = lpub->setHighlightStepFromCommand();
   bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
@@ -1045,10 +1037,8 @@ void Gui::fileChanged(const QString &path)
     QString fileName = QFileInfo(path).fileName();
     if (lpub->ldrawFile.isIncludeFile(fileName) || lpub->ldrawFile.isUnofficialPart(fileName))
       absoluteFilePath = curFile;
-    if (!openFile(absoluteFilePath)) {
-      emit lpub->messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(absoluteFilePath));
+    if (!openFile(absoluteFilePath))
       return;
-    }
     displayPageNum = goToPage;
     displayPage();
   }

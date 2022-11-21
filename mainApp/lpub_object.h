@@ -143,12 +143,6 @@ public:
     return commandlineFile;
   }
 
-  /// loat status after show load messages
-  bool loadAborted()
-  {
-    return ldrawFile._loadAborted;
-  }
-
   /// Shortcut mangement
   QMap<QString, Action> actions;
 

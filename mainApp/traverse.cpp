@@ -4954,17 +4954,17 @@ void Gui::pagesCounted()
     {
         if (suspendFileDisplay) {
             if (Preferences::modeGUI && ! exporting()) {
-                emit messageSig(LOG_INFO_STATUS, lpub->loadAborted() ?
-                                    tr("Load model file %1 aborted.").arg(QFileInfo(getCurFile()).fileName()) :
-                                    tr("Model file loaded (%1 pages, %2 parts). %3")
-                                    .arg(maxPages)
-                                    .arg(lpub->ldrawFile.getPartCount())
-                                    .arg(elapsedTime(timer.elapsed())));
+                QFileInfo fileInfo(getCurFile());
+                emit messageSig(LOG_INFO_STATUS, lpub->ldrawFile._loadAborted ?
+                                    tr("Load LDraw file %1 aborted.").arg(fileInfo.fileName()) :
+                                    tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
+                                       .arg(fileInfo.fileName())
+                                       .arg(maxPages)
+                                       .arg(lpub->ldrawFile.getPartCount())
+                                       .arg(elapsedTime(timer.elapsed())));
                 if (!maxPages && !lpub->ldrawFile.getPartCount()) {
-                    emit messageSig(LOG_ERROR,tr("File '%1' is invalid - %2 pages, %3 parts loaded.")
-                                    .arg(getCurFile())
-                                    .arg(maxPages)
-                                    .arg(lpub->ldrawFile.getPartCount()));
+                    emit messageSig(LOG_ERROR,tr("LDraw file '%1' is invalid - nothing loaded.")
+                                                 .arg(fileInfo.absoluteFilePath()));
                     closeModelFile();
                     if (waitingSpinner->isSpinning())
                         waitingSpinner->stop();
