@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update November 06, 2022
+# Last Update November 11, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 
@@ -399,6 +399,9 @@ BuildLDGLite() {
   fi
   if [ "$get_local_libs" = 1 ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_LOCAL=$LP3D_LL_USR"
+  fi
+  if [ "$local_freeglut" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_FREEGLUT_LOCAL"
   fi
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
