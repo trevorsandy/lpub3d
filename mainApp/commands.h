@@ -193,6 +193,7 @@ private:
   int        position;
   QString    removedChars;
   QString    addedChars;
+  bool       isRedo;
 };
 
 #endif

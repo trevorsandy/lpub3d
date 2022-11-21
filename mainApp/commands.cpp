@@ -144,6 +144,7 @@ ContentsChangeCommand::ContentsChangeCommand(
   position     = _position;
   removedChars = _removedChars;
   addedChars   = _addedChars;
+  isRedo       = false;
 }
 
 void ContentsChangeCommand::redo()
@@ -153,13 +154,23 @@ void ContentsChangeCommand::redo()
     position,
     removedChars.size(),
     addedChars);
+
+  if ( !isRedo) {
+    isRedo = true;
+  } else {
+    Gui::maxPages = -1;
+    gui->displayPage();
+  }
 }
 
 void ContentsChangeCommand::undo()
 {
+  Gui::maxPages = -1;
+
   ldrawFile->changeContents(
     modelName,
     position,
     addedChars.size(),
     removedChars);
+  gui->displayPage();
 }
