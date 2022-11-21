@@ -1,7 +1,8 @@
 unix:!macx {
   # Install libraries not available natively - used for RHEL builds
-  install_qt_libs       = $$(get_qt5)
-  install_local_el_libs = $$(get_local_libs)
+  install_qt_libs        = $$(get_qt5)
+  install_local_el_libs  = $$(get_local_libs)
+  skip_local_POVRay_libs = $$(skip_local_POVRay_libs)
 
   isEmpty(INSTALL_SYSCONF):INSTALL_SYSCONF             = /etc
   isEmpty(LP3D_LIBDIR):LP3D_LIBDIR                     = $${INSTALL_PREFIX}/lib$${LIB_ARCH}/lpub3dlib
@@ -95,6 +96,8 @@ unix:!macx {
   equals(install_local_el_libs, 1): exists($$LP3D_LOCAL_LIBDIR_USR) {
     message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
     message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_USR ~~~")
+    equals(skip_local_POVRay_libs, 1): \
+    message("~~~ SKIP LOCAL POVRAY LIBRARIES SPECIFIED ~~~")
 
     LP3D_LDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-libs.conf
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR
@@ -117,25 +120,28 @@ unix:!macx {
         $$LP3D_LOCAL_LIBDIR_ETC/ld.so.conf.d/llvm-x86_64.conf
     local_el_llvm_conf_d.path = $$LP3D_SO_CONF_DIR
 
-    local_el_libdrm_rules.files += \
-        $$LP3D_LOCAL_LIBDIR_USR/lib/udev/rules.d/91-drm-modeset.rules
-    local_el_libdrm_rules.path = $$LP3D_DRM_RULES
+    !equals(skip_local_POVRay_libs, 1) {
+      local_el_libdrm_rules.files += \
+          $$LP3D_LOCAL_LIBDIR_USR/lib/udev/rules.d/91-drm-modeset.rules
+      local_el_libdrm_rules.path = $$LP3D_DRM_RULES
 
+      local_el_libs.files += \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm.so.2.4.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_amdgpu.so.1.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_intel.so.1.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_nouveau.so.2.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_radeon.so.1.0.1 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libHalf.so.6.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIex.so.6.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIexMath.so.6.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIlmImf.so.7.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIlmThread.so.6.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libImath.so.6.0.0 \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libkms.so.1.0.0
+    } # skip_local_POVRay_libs
     local_el_libs.files += \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm.so.2.4.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_amdgpu.so.1.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_intel.so.1.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_nouveau.so.2.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libdrm_radeon.so.1.0.1 \
         $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libglapi.so.0.0.0 \
         $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libGLU.so.1.3.1 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libHalf.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIex.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIexMath.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIlmImf.so.7.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libIlmThread.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libImath.so.6.0.0 \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libkms.so.1.0.0 \
         $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/libOSMesa.so.8.0.0
     local_el_libs.path = $$LP3D_LIBDIR
 
@@ -146,21 +152,27 @@ unix:!macx {
         $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/llvm/LLVMgold.so
     local_el_libs_llvm.path = $$LP3D_LIBDIR_LLVM
 
+    !equals(skip_local_POVRay_libs, 1) {
+      local_el_libs_pkgconfig.files += \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/IlmBase.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_amdgpu.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_intel.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_nouveau.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_radeon.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libkms.pc \
+          $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/OpenEXR.pc
+    } # skip_local_POVRay_libs
     local_el_libs_pkgconfig.files += \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/IlmBase.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_amdgpu.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_intel.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_nouveau.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libdrm_radeon.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/libkms.pc \
-        $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/OpenEXR.pc \
         $$LP3D_LOCAL_LIBDIR_USR/lib$${LIB_ARCH}/pkgconfig/osmesa.pc
     local_el_libs_pkgconfig.path = $$LP3D_LIBDIR_PKGCONFIG
 
+    !equals(skip_local_POVRay_libs, 1) {
+      INSTALLS += \
+          local_el_libdrm_rules \
+    } # skip_local_POVRay_libs
     INSTALLS += \
         local_el_llvm_conf_d \
-        local_el_libdrm_rules \
         local_el_libs \
         local_el_libs_llvm \
         local_el_libs_pkgconfig
