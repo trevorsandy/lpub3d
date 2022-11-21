@@ -45,6 +45,7 @@ OTHER_FILES += \
     ../builds/linux/obs/alldeps/debian/lpub3d.dsc \
     ../builds/linux/obs/alldeps/GetLocalLibs.sh \
     ../builds/linux/obs/alldeps/GetQt5Libs.sh \
+    ../builds/linux/obs/alldeps/LcLibPCH.sh \
     ../builds/linux/obs/alldeps/lpub3d.spec \
     ../builds/linux/obs/alldeps/PKGBUILD \
     ../builds/linux/obs/debian/changelog \
@@ -68,8 +69,9 @@ OTHER_FILES += \
     ../builds/utilities/mesa/Mesa.spec \
     ../builds/utilities/mesa/osmesa-config \
     ../builds/utilities/ci/dropbox_uploader.sh \
-    ../builds/utilities/ci/sfdeploy.sh \
     ../builds/utilities/ci/ci_cutover.sh \
+    ../builds/utilities/ci/next_cutover.sh \
+    ../builds/utilities/ci/sfdeploy.sh \
     ../builds/utilities/ci/dropbox_uploader.sh \
     ../builds/utilities/ci/travis/after_script \
     ../builds/utilities/ci/travis/before_install \

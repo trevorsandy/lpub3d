@@ -1,5 +1,5 @@
 #
-# spec file for package lpub3d
+# spec file for LPub3D package
 #
 # Last Update: November 21, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
@@ -73,10 +73,9 @@
 %define build_sdl2 1
 %endif
 
-%if 0%{?centos_version}
-%define prebuilt_3ds 1
-%if 0%{?centos_version} == 800
+%if 0%{?centos_version}==800
 %define get_local_libs 1
+%define skip_local_POVRay_libs 1
 %endif
 
 %if 0%{?almalinux_version}
@@ -85,10 +84,6 @@
 
 %if 0%{?fedora}
 %define fedora_version %{fedora}
-%endif
-
-%if 0%{?openeuler}
-%define openeuler_version %{openeuler}
 %endif
 
 %if 0%{?mageia}
@@ -100,7 +95,7 @@
 Group: Productivity/Graphics/Viewers
 %endif
 
-%if 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 Group: Graphics
 %endif
 
@@ -108,7 +103,7 @@ Group: Graphics
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora_version} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?centos_version} || 0%{?fedora_version} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
 License: GPLv2+
 %endif
 
@@ -125,7 +120,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.4.2964
+Version: 2.4.4.2965
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -135,25 +130,27 @@ Source0: lpub3d-git.tar.gz
 Source10: lpub3d-rpmlintrc
 
 # package requirements
-%if 0%{?centos_version}==600 || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?centos_version}==600 || 0%{?rhel_version}==700 || 0%{?scientificlinux_version}
 %define get_qt5 1
 BuildRequires: cmake
 %endif
 
-%if 0%{?fedora_version} || 0%{?centos_version} >= 700 || 0%{?openeuler_version}
+%if 0%{?fedora_version} || 0%{?centos_version}>=700 || 0%{?rhel_version}>=800 || 0%{?openeuler_version} || 0%{?almalinux_version}
 BuildRequires: qt5-qtbase-devel
-%if 0%{?fedora_version} == 36
+%if 0%{?fedora_version}==36
 BuildRequires: util-linux
 %endif
 %endif
 
-%if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
-%if 0%{?fedora_version} || 0%{?openeuler_version} || 0%{?centos_version} == 800
+%if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?fedora_version} || 0%{?centos_version}==800
 BuildRequires: hostname
 %endif
-%if (!0%{?rhel_version} && 0%{?centos_version}!=800)
+%if !0%{?rhel_version}
 BuildRequires: OpenEXR-devel
+%if 0%{?centos_version}!=800
 BuildRequires: mesa-libOSMesa-devel
+%endif
 %endif
 %if 0%{?local_freeglut}
 BuildRequires: mesa-libGL-devel
@@ -163,7 +160,6 @@ BuildRequires: libXi-devel
 %else
 BuildRequires: freeglut-devel
 %endif
-BuildRequires: freeglut-devel
 BuildRequires: mesa-libGLU-devel
 BuildRequires: boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
@@ -172,21 +168,18 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
-%if 0%{?scientificlinux_version}
+%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+%if 0%{?scientificlinux_version} || 0%{?openeuler_version}
 BuildRequires: gnu-free-sans-fonts
-%if !0%{?openeuler_version}
-BuildRequires: kde-runtime
-%endif
 %endif
 %if 0%{?centos_version} || 0%{?scientificlinux_version}
 BuildRequires: mesa-libwayland-egl
 %endif
 BuildRequires: libjpeg-turbo-devel
-%if 0%{?openeuler_version} || 0%{?centos_version} == 800
+%if 0%{?openeuler_version} || 0%{?almalinux_version} || 0%{?centos_version}>700
 BuildRequires: libXext-devel
 %endif
-%if 0%{?centos_version}<=700
+%if 0%{?centos_version}==700
 %define build_sdl2 1
 %endif
 %define build_tinyxml 1
@@ -260,7 +253,7 @@ BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
-%if 0%{?mageia_version} >= 7
+%if 0%{?mageia_version}>=7
 BuildRequires: lib64openssl-devel
 %endif
 %endif
@@ -272,7 +265,7 @@ BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
-%if 0%{?mageia_version} >= 7
+%if 0%{?mageia_version}>=7
 BuildRequires: libopenssl-devel
 %endif
 %endif
@@ -296,9 +289,9 @@ BuildRequires:  python-gobject-base
 %endif
 
 # POV-Ray dependencies - SUSE/CentOS builds
-%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
-BuildRequires: autoconf
-BuildRequires: automake
+%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
+BuildRequires:  autoconf
+BuildRequires:  automake
 BuildRequires:  gcc-c++
 BuildRequires:  dos2unix
 BuildRequires:  libjpeg-devel
@@ -325,7 +318,7 @@ BuildRequires:  libXpm-devel
 BuildRequires:  pkgconfig(OpenEXR)
 %endif
 # We are building sdl2 for these instances, so do not load here
-%if (0%{?suse_version}!=1315 && 0%{?centos_version}>700 && !0%{?rhel_version} && !0%{?scientificlinux_version})
+%if (0%{?suse_version}!=1315 && !0%{?rhel_version} && !0%{?scientificlinux_version} && 0%{?centos_version}>700)
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -401,7 +394,7 @@ BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %else
 %endif
-%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version} == 700
+%if 0%{?suse_version}>1320 || (0%{?sle_version}>=120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version}==700
 # needed by gtk3
 %if 0%{?scientificlinux_version}==700
 BuildRequires:  wayland-devel
@@ -411,7 +404,7 @@ BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
 %endif
 %ifarch %ix86 x86_64
-%if !0%{?rhel_version}
+%if !0%{?rhel_version} && !0%{?centos_version}
 BuildRequires:  llvm-devel
 %endif
 BuildRequires:  ncurses-devel
@@ -424,7 +417,7 @@ BuildRequires:  ncurses-devel
 BuildRequires:  cmake
 BuildRequires:  dos2unix
 BuildRequires:  gcc-c++
-%if !0%{?rhel_version} == 800
+%if 0%{?rhel_version}!=800
 BuildRequires:  nasm
 %endif
 BuildRequires:  pkg-config
@@ -433,7 +426,7 @@ BuildRequires:  pkgconfig(dbus-1)
 %if 0%{?fedora_version}
 BuildRequires:  pkgconfig(fcitx)
 %endif
-%if !0%{?rhel_version} == 600
+%if 0%{?rhel_version}!=600
 BuildRequires:  pkgconfig(egl)
 %endif
 BuildRequires:  pkgconfig(gl)
@@ -442,7 +435,7 @@ BuildRequires:  pkgconfig(gl)
 BuildRequires:  pkgconfig(glesv1_cm)
 BuildRequires:  pkgconfig(wayland-server)
 %endif
-%if !0%{?rhel_version} && !0%{?scientificlinux_version} == 600
+%if !0%{?rhel_version} && 0%{?scientificlinux_version}!=600
 BuildRequires:  pkgconfig(glesv2)
 %endif
 %endif
@@ -454,12 +447,12 @@ BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(ibus-1.0)
 BuildRequires:  pkgconfig(gbm) >= 9.0.0
 %endif
-%if 0%{?rhel_version} == 600 || 0%{?scientificlinux_version} == 600
+%if 0%{?rhel_version}==600 || 0%{?scientificlinux_version}==600
 BuildRequires:  pkgconfig(libdrm)
 %else
 BuildRequires:  pkgconfig(libdrm) >= 2.4.46
 %endif
-%if 0%{?suse_version} > 1220
+%if 0%{?suse_version}>1220
 BuildRequires:  pkgconfig(tslib)
 %endif
 BuildRequires:  pkgconfig(libpulse-simple) >= 0.9
@@ -506,6 +499,9 @@ echo "CentOS.........................%{centos_version}"
 %endif
 %if 0%{?fedora_version}
 echo "Fedora.........................%{fedora_version}"
+%endif
+%if 0%{?almalinux_version}
+echo "Alma Linux.....................%{almalinux_version}"
 %endif
 %if 0%{?openeuler_version}
 echo "openEuler......................%{openeuler_version}"
@@ -598,6 +594,11 @@ export PLATFORM_PRETTY_OBS="Fedora"
 export PLATFORM_VER_OBS=%{fedora_version}
 export PLATFORM_CODE="fc"
 %endif
+%if 0%{?almalinux_version}
+export PLATFORM_PRETTY_OBS="Alma Linux"
+export PLATFORM_VER_OBS=%{almalinux_version}
+export PLATFORM_CODE="al"
+%endif
 %if 0%{?openeuler_version}
 export PLATFORM_PRETTY_OBS="OpenEuler"
 export PLATFORM_VER_OBS=%{openeuler_version}
@@ -659,6 +660,10 @@ export get_local_libs=%{get_local_libs}
 echo "Use local freeglut library.....yes"
 export local_freeglut=%{local_freeglut}
 %endif
+%if 0%{?skip_local_POVRay_libs}
+echo "Skip local POVRay libraries....yes"
+export skip_local_POVRay_libs=%{skip_local_POVRay_libs}
+%endif
 set -x
 %endif
 # Indicate OBS status (should always be yes for this spec file)
@@ -673,15 +678,19 @@ export RPM_BUILD=true
 export RPM_STAGE=build
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
-# set Qt5 - Download Qt5 Library for CentOS 6, RHEL and Scientific Linux - these platforms don't have Qt5
+# set Qt5 Library for platforms that don't have Qt5 from qt5-5.9.3-gcc_64-el.tar.gz tarball
 %if 0%{?get_qt5}
 source builds/linux/obs/alldeps/GetQt5Libs.sh
 %else
 export QT_SELECT=qt5
 %endif
-# set OSMesa, LLVM, OpenEXR and their dependent libs from locallibs.el.x86_64.tar.gz tarball - for RHEL
+# set OSMesa, LLVM, OpenEXR and their dependent libs from locallibs.el.x86_64.tar.gz tarball
 %if 0%{?get_local_libs}
 source builds/linux/obs/alldeps/GetLocalLibs.sh
+%endif
+# remove lcLib pre-compiled header to enable build on hardened systems
+%if 0%{?rhel_version}>700 || 0%{?centos_version}>700 || 0%{?openeuler_version}
+source builds/linux/obs/alldeps/LcLibPCH.sh
 %endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
@@ -707,20 +716,23 @@ export LDRAWDIR=${HOME}/ldraw
 ${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
 make %{?_smp_mflags}
-# Check generated and updated config files
+# check generated and updated config files
 %if 0%{?get_qt5}
 [ -f "mainApp/qt.conf" ] && echo "Check generated qt.conf..." && \
-cat mainApp/qt.conf || echo "Could not find qt.conf"
+cat mainApp/qt.conf || echo "ERROR - Could not find qt.conf"
 [ -f "mainApp/lpub3d.qrc" ] && echo "Check updated lpub3d.qrc..." && \
-tail mainApp/lpub3d.qrc || echo "Could not find lpub3d.qrc"
+tail mainApp/lpub3d.qrc || echo "ERROR - Could not find lpub3d.qrc"
 [ -f "mainApp/lpub3d-qtlibs.conf" ] && echo "Check generated qtlibs.conf..." && \
-cat mainApp/lpub3d-qtlibs.conf || echo "Could not find lpub3d-qtlibs.conf"
+cat mainApp/lpub3d-qtlibs.conf || echo "ERROR - Could not find lpub3d-qtlibs.conf"
 %endif
 %if 0%{?get_local_libs}
 [ -f "mainApp/lpub3d-libs.conf" ] && echo "Check generated lpub3d-libs.conf..." && \
-cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
-echo "Check updated local library pc file..." && \
-cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc"
+cat mainApp/lpub3d-libs.conf || echo "ERROR - Could not find lpub3d-libs.conf"
+%if !0%{?skip_local_POVRay_libs}
+echo "Check updated local OpenEXR library pc file..." && \
+cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || \
+echo "ERROR - Could not find %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc"
+%endif
 %endif
 # set LDLibrary_Path if using local or custom libraries
 %if 0%{?get_qt5} || 0%{?get_local_libs}
@@ -765,6 +777,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/*
 %if 0%{?get_local_libs}
+%if 0%{?get_local_libs} && !0%{?skip_local_POVRay_libs}
 %config(noreplace) %{_exec_prefix}/lib/udev/rules.d/*
 %endif
 %endif
@@ -782,5 +795,77 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Mon Nov 21 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.2964
-- LPub3D Linux package (rpm) release
+* Mon Nov 21 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.2965
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Jun 06 2022 - trevor dot sandy at gmail dot com 2.4.4.2903
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri May 14 2021 - trevor dot sandy at gmail dot com 2.4.3.2557
+- LPub3D 2.4.3 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Mar 31 2021 - trevor dot sandy at gmail dot com 2.4.2.2432
+- LPub3D 2.4.2 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Mar 15 2021 - trevor dot sandy at gmail dot com 2.4.1.2389
+- LPub3D 2.4.1 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Mar 10 2020 - trevor dot sandy at gmail dot com 2.4.0.1990
+- LPub3D 2.4.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Sep 10 2019 - trevor dot sandy at gmail dot com 2.3.13.1511
+- LPub3D 2.3.13 enhancements and fixes - see RELEASE_NOTES for details
+
+* Thu Jun 20 2019 - trevor dot sandy at gmail dot com 2.3.12.1356
+- LPub3D 2.3.12 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri May 17 2019 - trevor dot sandy at gmail dot com 2.3.11.1269
+- LPub3D 2.3.11 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Apr 23 2019 - trevor dot sandy at gmail dot com 2.3.10.1240
+- LPub3D 2.3.10 enhancements and fixes - see RELEASE_NOTES for details
+
+* Thu Apr 18 2019 - trevor dot sandy at gmail dot com 2.3.9.1228
+- LPub3D 2.3.9 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Apr 08 2019 - trevor dot sandy at gmail dot com 2.3.8.1210
+- LPub3D 2.3.8 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Mar 27 2019 - trevor dot sandy at gmail dot com 2.3.7.1195
+- LPub3D 2.3.7 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Dec 19 2018 - trevor dot sandy at gmail dot com 2.3.6.1101
+- LPub3D 2.3.6 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Dec 17 2018 - trevor dot sandy at gmail dot com 2.3.5.1092
+- LPub3D 2.3.5 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Dec 10 2018 - trevor dot sandy at gmail dot com 2.3.4.1084
+- LPub3D 2.3.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Sat Oct 27 2018 - trevor dot sandy at gmail dot com 2.3.3.1034
+- LPub3D 2.3.3 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Oct 05 2018 - trevor dot sandy at gmail dot com 2.3.2.998
+- LPub3D 2.3.2 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Oct 03 2018 - trevor dot sandy at gmail dot com 2.3.1.977
+- LPub3D 2.3.1 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Sep 04 2018 - trevor dot sandy at gmail dot com 2.3.0.887
+- LPub3D 2.3.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Thu Apr 12 2018 - trevor dot sandy at gmail dot com 2.2.2.848
+- LPub3D 2.2.2 enhancements and fixes - see RELEASE_NOTES for details
+
+* Sat Mar 31 2018 - trevor dot sandy at gmail dot com 2.2.1.824
+- LPub3D 2.2.1 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Mar 16 2018 - trevor dot sandy at gmail dot com 2.2.0.795
+- LPub3D 2.2.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Feb 12 2018 - trevor dot sandy at gmail dot com 2.1.0.775
+- LPub3D 2.1.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Feb 10 2017 - trevor dot sandy at gmail dot com 2.0.20.645
+- LPub3D 2.0.20 enhancements and fixes - see RELEASE_NOTES for details

@@ -107,12 +107,13 @@ contains(QT_VERSION, ^6\\..*) {
   }
 }
 
-CONFIG += precompile_header
 CONFIG += incremental force_debug_info
 
 win32 {
 
     win32-msvc* {
+        CONFIG += precompile_header
+
         DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
@@ -151,6 +152,7 @@ win32 {
 
 } else {
 
+    CONFIG += precompile_header
     PRECOMPILED_HEADER = common/lc_global.h
     LIBS += -lz
 

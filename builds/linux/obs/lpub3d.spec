@@ -1,7 +1,7 @@
 #
-# spec file for package lpub3d
+# spec file for LPub3D package
 #
-# Last Update July 23, 2019
+# Last Update November 11, 2022
 # Copyright © 2018 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -309,5 +309,78 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Aug 05 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.3037
-- LPub3D Linux package (rpm) release
+%changelog
+* Mon Nov 07 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.3196
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Jun 06 2022 - trevor dot sandy at gmail dot com 2.4.4.2903
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri May 14 2021 - trevor dot sandy at gmail dot com 2.4.3.2557
+- LPub3D 2.4.3 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Mar 31 2021 - trevor dot sandy at gmail dot com 2.4.2.2432
+- LPub3D 2.4.2 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Mar 15 2021 - trevor dot sandy at gmail dot com 2.4.1.2389
+- LPub3D 2.4.1 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Mar 10 2020 - trevor dot sandy at gmail dot com 2.4.0.1990
+- LPub3D 2.4.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Sep 10 2019 - trevor dot sandy at gmail dot com 2.3.13.1511
+- LPub3D 2.3.13 enhancements and fixes - see RELEASE_NOTES for details
+
+* Thu Jun 20 2019 - trevor dot sandy at gmail dot com 2.3.12.1356
+- LPub3D 2.3.12 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri May 17 2019 - trevor dot sandy at gmail dot com 2.3.11.1269
+- LPub3D 2.3.11 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Apr 23 2019 - trevor dot sandy at gmail dot com 2.3.10.1240
+- LPub3D 2.3.10 enhancements and fixes - see RELEASE_NOTES for details
+
+* Thu Apr 18 2019 - trevor dot sandy at gmail dot com 2.3.9.1228
+- LPub3D 2.3.9 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Apr 08 2019 - trevor dot sandy at gmail dot com 2.3.8.1210
+- LPub3D 2.3.8 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Mar 27 2019 - trevor dot sandy at gmail dot com 2.3.7.1195
+- LPub3D 2.3.7 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Dec 19 2018 - trevor dot sandy at gmail dot com 2.3.6.1101
+- LPub3D 2.3.6 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Dec 17 2018 - trevor dot sandy at gmail dot com 2.3.5.1092
+- LPub3D 2.3.5 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Dec 10 2018 - trevor dot sandy at gmail dot com 2.3.4.1084
+- LPub3D 2.3.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Sat Oct 27 2018 - trevor dot sandy at gmail dot com 2.3.3.1034
+- LPub3D 2.3.3 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Oct 05 2018 - trevor dot sandy at gmail dot com 2.3.2.998
+- LPub3D 2.3.2 enhancements and fixes - see RELEASE_NOTES for details
+
+* Wed Oct 03 2018 - trevor dot sandy at gmail dot com 2.3.1.977
+- LPub3D 2.3.1 enhancements and fixes - see RELEASE_NOTES for details
+
+* Tue Sep 04 2018 - trevor dot sandy at gmail dot com 2.3.0.887
+- LPub3D 2.3.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Thu Apr 12 2018 - trevor dot sandy at gmail dot com 2.2.2.848
+- LPub3D 2.2.2 enhancements and fixes - see RELEASE_NOTES for details
+
+* Sat Mar 31 2018 - trevor dot sandy at gmail dot com 2.2.1.824
+- LPub3D 2.2.1 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Mar 16 2018 - trevor dot sandy at gmail dot com 2.2.0.795
+- LPub3D 2.2.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Mon Feb 12 2018 - trevor dot sandy at gmail dot com 2.1.0.775
+- LPub3D 2.1.0 enhancements and fixes - see RELEASE_NOTES for details
+
+* Fri Feb 10 2017 - trevor dot sandy at gmail dot com 2.0.20.645
+- LPub3D 2.0.20 enhancements and fixes - see RELEASE_NOTES for details

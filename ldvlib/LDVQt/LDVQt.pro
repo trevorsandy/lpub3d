@@ -4,12 +4,19 @@ QT      += opengl
 QT      += network
 QT      += widgets
 QT      += gui
+QT      += concurrent
+QT      *= printsupport
 CONFIG  += thread
 CONFIG  += staticlib
 CONFIG  += warn_on
 CONFIG  += skip_target_version_ext
 macx: \
 CONFIG  -= app_bundle
+
+greaterThan(QT_MAJOR_VERSION, 5) {
+  QT += core5compat openglwidgets
+  DEFINES += QOPENGLWIDGET
+}
 
 DEPENDPATH  += .
 INCLUDEPATH += .
