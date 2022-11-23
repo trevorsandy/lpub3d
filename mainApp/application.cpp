@@ -43,6 +43,29 @@
   #include <fstream>
   #include <QtPlatformHeaders\QWindowsWindowFunctions>
 
+  #if (NTDDI_VERSION >= NTDDI_WIN8)
+    #include <pathcch.h>
+    #pragma comment(lib, "<pathcch.lib")
+  #else
+    #include <shlwapi.h>
+    #pragma comment(lib, "shlwapi.lib")
+  #endif
+
+  WCHAR* GetThisPath(WCHAR* dest, size_t destSize)
+  {
+    if (!dest) return NULL;
+
+    GetModuleFileName(NULL, dest, destSize );
+
+    #if (NTDDI_VERSION >= NTDDI_WIN8)
+      PathCchRemoveFileSpec(dest, destSize);
+    #else
+      if (MAX_PATH > destSize) return NULL;
+      PathRemoveFileSpec(dest);
+    #endif
+      return dest;
+  }
+
   void Application::RedirectIOToConsole()
   {
     // Attach to the existing console of the parent process
@@ -170,7 +193,8 @@
 
   #include <tchar.h>
 
-  static TCHAR gMinidumpPath[_MAX_PATH];
+  static WCHAR gApplicationPath[MAX_PATH];
+  static WCHAR gMinidumpPath[_MAX_PATH];
   static BOOL  gConsoleMode = false;
 
   LONG WINAPI Application::lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
@@ -180,10 +204,10 @@
 
       HMODULE dbgHelp = LoadLibrary(TEXT("dbghelp.dll"));
 
-      if (dbgHelp == nullptr)
+      if (dbgHelp == NULL)
           return EXCEPTION_EXECUTE_HANDLER;
 
-      HANDLE file = CreateFile(gMinidumpPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      HANDLE file = CreateFile(gMinidumpPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
       if (file == INVALID_HANDLE_VALUE)
           return EXCEPTION_EXECUTE_HANDLER;
@@ -199,17 +223,19 @@
       mei.ExceptionPointers = exceptionPointers;
       mei.ClientPointers = TRUE;
 
-      BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : nullptr, nullptr, nullptr);
+      BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : NULL, NULL, NULL);
 
       CloseHandle(file);
       FreeLibrary(dbgHelp);
 
       if (writeDump)
       {
-          TCHAR message[_MAX_PATH + 256];
-          lstrcpy(message, TEXT(VER_PRODUCTNAME_STR " crashed. Crash information was saved to the file '"));
+          WCHAR message[_MAX_PATH + 256];
+          lstrcpy(message, TEXT(VER_PRODUCTNAME_STR " crashed. Crash information was saved to '"));
           lstrcat(message, gMinidumpPath);
-          lstrcat(message, TEXT("', please send it to the developer for debugging."));
+          lstrcat(message, TEXT("', please send it along with files " VER_PRODUCTNAME_STR ".exe, " VER_PRODUCTNAME_STR ".pdb located at '"));
+          lstrcat(message, gApplicationPath);
+          lstrcat(message, TEXT("' to the developer for debugging."));
 
           if (gConsoleMode)
           {
@@ -218,7 +244,7 @@
           }
           else
           {
-              MessageBox(nullptr, message, TEXT(VER_PRODUCTNAME_STR), MB_OK);
+              MessageBox(NULL, message, TEXT(VER_PRODUCTNAME_STR " Crashed!"), MB_ICONSTOP | MB_OK);
           }
       }
 
@@ -228,7 +254,11 @@
   void Application::lcSehInit()
   {
       if (GetTempPath(sizeof(gMinidumpPath) / sizeof(gMinidumpPath[0]), gMinidumpPath))
+      {
           lstrcat(gMinidumpPath, TEXT(VER_PRODUCTNAME_STR ".dmp"));
+
+          GetThisPath(gApplicationPath, MAX_PATH);
+      }
 
       SetUnhandledExceptionFilter(lcSehHandler);
   }

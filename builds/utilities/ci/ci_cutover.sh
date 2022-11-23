@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 31, 2022
+# Last Update: November 23, 2022
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -53,17 +53,21 @@
 #   - if standard commit, delete build tab
 #
 # Environment variables:
-#   - TAG: Git tag [Default=v2.4.5] - change as needed
-#   - MSG: Git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
-#   - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [default=no]
-#   - REV: Increment revision [Default=yes]
-#   - CNT: Increment commit count [Default=yes]
+#   - REPO_BASE: Repository base URL [Default=https://github.com/trevorsandy]
+#   - FROM_REPO: Development repository [Default=lpub3d-ci]
+#   - TO_REPO: Production or maintenance repository [Default=lpub3d]
+#   - MSG: Git commit message [Default="LPub3D ${TAG}"] - change as needed
+#   - TAG: Git tag [Default=null] - change as needed
+#   - NEW_TAG: Next Git tag [Default=null] - change as needed
+#   - AUTO: Do not prompt to continue after pausing at options status [Default=null]
 #   - CFG: Set OBS config and README file updates [Default=no]
 #   - REL: Release build, do not delete build tag [Default=no]
-#   - AUTO: Do not prompt to continue after pausing at options status [Default=null]
+#   - REV: Increment revision [Default=yes]
+#   - CNT: Increment commit count [Default=yes]
 #   - NOSTAT: Do not show the options_status [Default=null]
 #   - MIN_RN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES [Default=null]
 #   - MAX_RN_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES [Default=null]
+#   - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [Default=no]
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
@@ -98,6 +102,7 @@ HOME_DIR=$PWD
 NEXT_CUT=${AUTO:-}
 NO_STATUS=${NOSTAT:-}
 LOCAL_TAG=${TAG:-}
+NEW_VER_TAG=${NEW_TAG:-}
 FRESH_BUILD=${FRESH:-}
 INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
@@ -109,6 +114,7 @@ RELEASE_COMMIT=${REL:-}
 MIN_RN_LN_DEL=${MIN_RN_LINE_DEL:-}
 MAX_RN_LN_DEL=${MAX_RN_LINE_DEL:-}
 COMMIT_MSG=${MSG:-"LPub3D ${TAG}"}
+NEXT_VER_TAG=${NEXT_VER_TAG:-}
 
 COMMAND_COUNT=0
 
@@ -118,17 +124,23 @@ COMMAND_COUNT=0
 # Set LOCAL_TAG if not set from command
 [ -z "$LOCAL_TAG" ] && LOCAL_TAG="$(cd $HOME_DIR/$FROM_REPO_NAME ; git describe --abbrev=0)"
 
+# Set NEW_VER_TAG if new version tag
+[ "${NEW_VER_TAG}" == "${LOCAL_TAG}" ] && NEXT_VER_TAG=yes || :
+
 function options_status
 {
     echo
-    echo "--Command Options:"
+    echo "--Cutover Command Options:"
     echo "--SCRIPT_NAME....$SCRIPT_NAME"
     echo "--FROM_REPO_NAME..$FROM_REPO_NAME"
     echo "--TO_REPO_NAME....$TO_REPO_NAME"
+    echo "--COMMIT_MSG......$COMMIT_MSG"
     echo "--REPO_PATH.......$HOME_DIR"
     echo "--LOCAL_TAG.......$LOCAL_TAG"
-    echo "--COMMIT_MSG......$COMMIT_MSG"
+    [ -n "$NEW_VER_TAG" ] && echo "--NEW_VER_TAG.....$NEW_VER_TAG" || echo "--NEW_VER_TAG.....$LOCAL_TAG"
+    [ "$NEXT_VER_TAG" = "yes" ] && echo "--NEXT_VER_TAG....YES" || echo "--NEXT_VER_TAG....NO"
     [ "$INC_REVISION" = "yes" ] && echo "--INCREMENT_REV...YES" || echo "--INCREMENT_REV...NO"
+    [ "$INC_COUNT" = "yes" ] && echo "--INCREMENT_CNT...YES" || echo "--INCREMENT_CNT...NO"
     [ "$FORCE_CONFIG" = "yes" ] && echo "--OBS_CONFIG......YES" || echo "--OBS_CONFIG......NO"
     [ -n "$RELEASE_COMMIT" ] && echo "--RELEASE_COMMIT..YES" || echo "--RELEASE_COMMIT..NO"
     [ -n "$FRESH_BUILD" ] && echo "--FRESH_BUILD.....YES" || echo "--FRESH_BUILD.....NO"
@@ -476,14 +488,16 @@ unix2dos -k builds/utilities/nsis-scripts/Include/* &>> $LOG
 echo "$((COMMAND_COUNT += 1))-Add new files..."
 rm -f *.log
 git add . &>> $LOG
-git reset HEAD 'mainApp/docs/README.txt'
+#git reset HEAD 'mainApp/docs/README.txt'
 
-# Create tag here to enable commit files configuration
-echo "$((COMMAND_COUNT += 1))-Create local tag in $TO_REPO_NAME repository"
-if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
-git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
-git_tag="$(git tag -l -n $LOCAL_TAG)" && \
-[ -n "$git_tag" ] && echo "  -git tag $git_tag created."
+# Create tag here to enable commit files configuration for new version tab
+if [ -n "${NEXT_VER_TAG}" ]; then
+  echo "$((COMMAND_COUNT += 1))-Create local tag in $TO_REPO_NAME repository"
+  if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
+  git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
+  git_tag="$(git tag -l -n $LOCAL_TAG)" && \
+  [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
+fi
 
 echo "$((COMMAND_COUNT += 1))-Stage and commit changed files..."
 cat << pbEOF >.git/COMMIT_EDITMSG
@@ -491,7 +505,7 @@ $COMMIT_MSG
 
 pbEOF
 chmod a+x builds/utilities/hooks/pre-commit
-env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
+env force_all=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 
 if [ -n "$RELEASE_COMMIT" ]; then
    # Delete and recreate new version tag to place tag on last commit
@@ -500,7 +514,7 @@ if [ -n "$RELEASE_COMMIT" ]; then
    git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
    git_tag="$(git tag -l -n $LOCAL_TAG)" && \
    [ -n "$git_tag" ] && echo "  -git tag $git_tag recreated."
-else
+elif [ -n "${NEXT_VER_TAG}" ]; then
    # Delete version tag after commit as we are not releasing at this commit
    echo "$((COMMAND_COUNT += 1))-Delete local tag $LOCAL_TAG in $TO_REPO_NAME repository"
    git tag --delete $LOCAL_TAG

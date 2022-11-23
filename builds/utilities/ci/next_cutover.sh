@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 30, 2022
+# Last Update: November 23, 2022
 #
 # Purpose:
 # This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -17,17 +17,17 @@
 #
 # Environment variables:
 #   - DRY_RUN: Do not perform cutover [Default=null]
-#   - TAG: Release version [Default=2.4.5']
-#   - TO_REPO: Production or maintenance repository [default=lpub3d]
 #   - FROM_REPO: Development repository [default=lpub3dnext]
-#   - COMMIT: Starting commit - exclusive (the next commit will be processed)[Default=null]
+#   - TO_REPO: Production or maintenance repository [default=lpub3d]
+#   - TAG: Release version [Default=2.4.5']
 #   - BRANCH: Working cutover development branch [Default=CUTOVER_CI]
 #   - RELEASE: Create a release commit, preserve build tag, on the last commit [Default=null]
-#   - CLONE: Clone a new repository of TO_REPO at the first commit [Default=null]
-#   - CHERRYPICK: Cherry-pick commits as we process the range, otherwise use reset [Default=null]
 #   - RN_MIN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES on release commit [Default=null]
 #   - RN_MAX_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES on release commit [Default=null]
+#   - CLONE: Clone a new repository of TO_REPO at the first commit [Default=null]
+#   - CHERRYPICK: Cherry-pick commits as we process the range, otherwise use reset [Default=null]
 #   - STOP_AT_COMMIT: Stop at this number of commits instead of at the end of the generated list [Default=0]
+#   - COMMIT: Starting commit - exclusive (the next commit will be processed)[Default=null]
 #
 # Execution Steps:
 #
@@ -141,7 +141,7 @@ function get_commit_count()
 function options_status
 {
     echo
-    echo "--Command Options:"
+    echo "--Next Command Options:"
     echo "--SCRIPT_NAME....$SCRIPT_NAME"
     echo "--REPO_PATH.......$HOME_DIR"
     echo "--NEW_VER_TAG.....$HOLD_VER_TAG"
@@ -295,10 +295,10 @@ do
 
     if [[ $COUNT = 1 ]]  # First commit - show status
     then
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh /dev/null 2>&1
         fi
     elif [[ "${FINAL_COMMIT}" == "true" ]] # Final commit - use VER_TAG and show status
     then
@@ -306,17 +306,10 @@ do
             VER_TAG=$HOLD_VER_TAG
             CREATE_LOCAL_TAG=1
         fi
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL ./ci_cutover.sh /dev/null 2>&1
-            if [[ $STOP_AT_COMMIT_COUNT > 0 ]]
-            then
-                echo && echo "   -Stop at commit count $STOP_AT_COMMIT_COUNT: $commit"
-                FinishElapsedTime
-                cd $HOME_DIR
-                exit 1
-            fi
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL ./ci_cutover.sh /dev/null 2>&1
             if [ -n "${CREATE_LOCAL_TAG}" ]
             then
                 echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
@@ -329,11 +322,29 @@ do
                 [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
             fi
         fi
+        if [[ $STOP_AT_COMMIT_COUNT > 0 ]]
+        then
+            echo && echo "   -Stop at commit count $STOP_AT_COMMIT_COUNT: $commit"
+            RETURN_CODE=$?
+            if [[ $RETURN_CODE != 0 ]]      # return code
+            then
+                echo
+                echo "-- ZINGER! Commit '$SHORT_COMMIT' cutover failed."
+                echo "-- Return code was $RETURN_CODE - exiting!"
+                FinishElapsedTime "Terminated"
+                cd $HOME_DIR
+                exit 1
+             else
+                FinishElapsedTime
+                cd $HOME_DIR
+                exit 0
+            fi
+        fi
     else
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1 ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1 ./ci_cutover.sh /dev/null 2>&1
         fi
     fi
     RETURN_CODE=$?

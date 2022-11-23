@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 31, 2022
+# Last Update November 23, 2022
 # Copyright (C) 2016 - 2022 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -60,12 +60,12 @@ realpath() {
 }
 
 # Change these accordingly when respective config files are modified
-if [ "$OBS" = true ]
+if [ "$OBS" = "true" ]
 then
-    UPDATE_OBS_CONFIG=Yes
+    UPDATE_OBS_ALL_DEPS=Yes
     LP3D_CONFIG_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs/alldeps")
 else
-    UPDATE_OBS_CONFIG=No
+    UPDATE_OBS_ALL_DEPS=No
     LP3D_CONFIG_DIR=$(realpath "$LP3D_PWD/../builds/linux/obs")
 fi
 LP3D_UTIL_DIR=$(realpath "$LP3D_PWD/../builds/utilities")
@@ -157,7 +157,7 @@ Info "   LP3D_BRANCH............${LP3D_BRANCH}"
 Info "   LP3D_COMMIT............${LP3D_COMMIT}"
 fi
 Info "   LPUB3D_DIR.............${LPUB3D}"
-Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
+Info "   UPDATE_OBS_ALL_DEPS....${UPDATE_OBS_ALL_DEPS}"
 
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"

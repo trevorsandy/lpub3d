@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Jun 26, 2022
+#  Last Update: November 23, 2022
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 #  Automatically generate git revision info
@@ -27,11 +27,13 @@
 #    major/minor/patch version number for example.
 #
 # Environment Vars:
-#   - inc_rev: increment revision [Default=yes]
-#   - inc_cnt: increment commit count [Default=yes]
-#   - force:   update obs alldeps configuration files [Default=<unset>]
+#   - inc_rev:   increment revision [Default=yes]
+#   - inc_cnt:   increment commit count [Default=yes]
+#   - force:     update obs alldeps configuration files [Default=<unset>]
+#   - force_all: update all obs configuration files [Default=<unset>]
 #
 # Flags:
+#   -a: update all obs configration files
 #   -f: update obs alldeps configuration files
 #   -o: update obs configuration files
 #   -r: do not increment revision
@@ -84,6 +86,7 @@ git diff --cached --name-only | \
 exec 1>&2
 
 # defaults
+update_all_files=${force_all:-}
 update_alldeps_files=${force:-}
 increment_revision=${inc_rev:-yes}
 increment_commitcount=${inc_cnt:-yes}
@@ -100,6 +103,9 @@ while getopts ":rcof" opt; do
   o)
     update_alldeps_files=no
   ;;
+  a)
+    update_all_files=yes
+  ;;
   f)
     update_alldeps_files=yes
   ;;
@@ -110,10 +116,10 @@ while getopts ":rcof" opt; do
   esac
 done
 
-if test x"$update_alldeps_files" = x"yes"; then
+if test x"$update_alldeps_files" = x"yes" || test x"$update_all_files" = x"yes"; then
   export OBS=true
   config_dir=builds/linux/obs/alldeps
-elif test x"$update_alldeps_files" = x"no"; then
+elif test x"$update_alldeps_files" = x"no" && test x"$update_all_files" = x""; then
   config_dir=builds/linux/obs
 else
   exit 0
@@ -148,6 +154,10 @@ echo "   New commit count........$commit_count"
 working_dir=$PWD/mainApp
 chmod +x builds/utilities/update-config-files.sh
 ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
+if test x"$update_all_files" = x"yes"; then
+  export OBS=false
+  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
+fi
 
 git add builds/utilities/version.info
 git add mainApp/docs/lpub3d${major}${minor}.1
@@ -164,6 +174,12 @@ git add ${config_dir}/lpub3d.spec
 git add ${config_dir}/debian/changelog
 git add ${config_dir}/debian/lpub3d.dsc
 git add builds/linux/obs/debian/rules
+if test x"$update_all_files" = x"yes"; then
+  git add builds/linux/obs/PKGBUILD
+  git add builds/linux/obs/lpub3d.spec
+  git add builds/linux/obs/debian/changelog
+  git add builds/linux/obs/debian/lpub3d.dsc
+fi
 
 echo "   Staged files:"
 for file in $(git diff --name-only --cached); do
