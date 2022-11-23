@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 07, 2022
+# Last Update November 23, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -125,7 +125,7 @@ if [ -f upload.sh -a -r upload.sh ]; then
       export LP3D_GIT_TAG=$APPVEYOR_REPO_TAG_NAME
     fi
     if [ -n "$LP3D_VERSION" ]; then
-       export "$LP3D_VERSION"
+       export LP3D_VERSION="$LP3D_VERSION"
     else
        export LP3D_VERSION=${LP3D_GIT_TAG:1}
     fi

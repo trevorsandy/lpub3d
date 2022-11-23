@@ -336,7 +336,7 @@ then
         then
             Info "$((LP3D_CMD_COUNT += 1)). update appdata info    - add version and date  [$FILE]" || :
             sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" \
-                   -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes<\/p>/}" "${FILE}"
+                   -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes - see RELEASE_NOTES.html for details<\/p>/}" "${FILE}"
         fi
     fi
 else
