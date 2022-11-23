@@ -21,8 +21,8 @@
 namespace {
 
 static const QLatin1String TRIGGER("trigger");
-static const QLatin1String DESCRIPTION("description");
 static const QLatin1String SNIPPET("snippet");
+static const QLatin1String DESCRIPTION("description");
 static const QLatin1String CURSOR("cursor");
 static const QLatin1String BUILTIN("builtIn");
 
@@ -34,8 +34,8 @@ Snippet JsonSnippetTranslator::fromJsonObject(const QJsonObject &object)
     Snippet snippet;
 
     snippet.trigger = object.value(TRIGGER).toString();
-    snippet.description = object.value(DESCRIPTION).toString();
     snippet.snippet = object.value(SNIPPET).toString();
+    snippet.description = object.value(DESCRIPTION).toString();
     snippet.cursorPosition = object.value(CURSOR).toDouble();
     snippet.builtIn = object.value(BUILTIN).toInt();
 
@@ -47,8 +47,8 @@ QJsonObject JsonSnippetTranslator::toJsonObject(const Snippet &snippet)
     QJsonObject object;
 
     object.insert(TRIGGER, snippet.trigger);
-    object.insert(DESCRIPTION, snippet.description);
     object.insert(SNIPPET, snippet.snippet);
+    object.insert(DESCRIPTION, snippet.description);
     object.insert(CURSOR, snippet.cursorPosition);
     object.insert(BUILTIN, snippet.builtIn);
 

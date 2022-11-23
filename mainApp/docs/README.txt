@@ -47,6 +47,7 @@ Revisions:
 - Fix - Invalid appstream file #589
 - Fix - LPub3D plug, logo and other auto text features #594
 - Fix - Messed up and weird rendering #518
+- Fix - Missing header causing abend #619
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
 - Fix - Projection in visual editor keeps resetting to perspective #607
