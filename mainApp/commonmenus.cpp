@@ -2110,7 +2110,7 @@ void CommonMenus::setWhatsThis()
             "  - Show Submodel Preview At First Step: turn on or off\n"
             "    displaying the called out submodel at the first\n"
             "    step in the callout. This option is only available\n"
-            "    for unassembled callouts.\n\n")
+            "    for unassembled callouts.\n")
         },
         // WT_SETUP_CALLOUT_CALLOUT_POINTERS
         {
@@ -2734,10 +2734,10 @@ void CommonMenus::setWhatsThis()
             .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native") ?
             QObject::tr("\n"
             "  - Configure the camera near z plane.\n\n"
-            "  - Configure the camera far z plane.\n\n") :
+            "  - Configure the camera far z plane.\n") :
             QObject::tr("\n"
             "  - Camera near and far z planes are disabled\n\n"
-            "    when the preferred renderer is not Native.\n\n"))
+            "    when the preferred renderer is not Native.\n"))
         },
         // WT_SETUP_SHARED_POINTERS
         {
@@ -2801,7 +2801,7 @@ void CommonMenus::setWhatsThis()
             "  far plane settings.\n\n"
             "  Camera near and far plane settings are only enabled\n"
             "  when the preferred renderer is set to Native.\n\n"
-            "  The current preferred renderer is %1")
+            "  The current preferred renderer is %1\n")
             .arg(MetaDefaults::getPreferredRenderer())
         },
         // WT_DIALOG_CONSTRAIN
@@ -3071,7 +3071,7 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Configure the page size and orientation settings.\n\n"
             "  Page size settings use standard page sizes or\n"
-            "  page height and width values.\n\n")
+            "  page height and width values.\n")
         },
         // WT_DIALOG_SUBMODEL_LEVEL_COLORS
         {
@@ -3189,7 +3189,7 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  This table view presents all %1 meta commands.\n\n"
             "  The description of a selected meta command is\n"
-            "  displayed in the editor dialog.\n\n")
+            "  displayed in the editor dialog.\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_ALTERNATE_LDCONFIG
@@ -3446,7 +3446,7 @@ void CommonMenus::setWhatsThis()
             "  with %1 and is automatically installed.\n\n"
             "  By default LDGLite and automatically configured\n"
             "  at application startup using the %1 default\n"
-            "  options.\n\n")
+            "  options.\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE_INSTALL
@@ -3501,7 +3501,7 @@ void CommonMenus::setWhatsThis()
             "  removed. %1 will display this dialog to download and\n"
             "  install the LDView renderer.\n\n"
             "  Use the Install button to initiate the download and\n"
-            "  installation.")
+            "  installation.\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_SETTINGS
@@ -3611,7 +3611,7 @@ void CommonMenus::setWhatsThis()
             "  You can clear individual message categories or clear\n"
             "  all message categories with a single action.\n"
             "  The 'Clear' button is enabled when there are messages\n"
-            "  to be cleared.\n\n")
+            "  to be cleared.\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PLI_CONTROL
@@ -3664,7 +3664,7 @@ void CommonMenus::setWhatsThis()
             "  removed. %1 will display this dialog to download and\n"
             "  install the POV-Ray renderer.\n\n"
             "  Use the Install button to initiate the download and\n"
-            "  installation.")
+            "  installation.\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LDVIEW_POV_GENERATION
@@ -3858,7 +3858,7 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  You can select the %1 theme from Default and Dark\n\n"
             "  Additionally, you can set and reset theme colors\n"
-            "  using the Theme Colors... button.\n\n")
+            "  using the Theme Colors... button.\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_UNITS
@@ -3993,7 +3993,7 @@ void CommonMenus::setWhatsThis()
             "  - Export: export the entire list of part categories to\n"
             "    an external file.\n\n"
             "  - Reset: reload all part categories and their default\n"
-            "    definitions.\n\n")
+            "    definitions.\n")
         },
         // WT_CONTROL_VISUAL_PREFERENCES_CATEGORY_EDIT
         {
@@ -4219,7 +4219,7 @@ void CommonMenus::setWhatsThis()
             "  - Transparent: Enabling this option causes\n"
             "    default-colored items to be transparent.\n\n"
             "  - Random colors: Enabling this option causes the colors\n"
-            "    used in the model to be randomized.\n\n")
+            "    used in the model to be randomized.\n")
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_INI_FILE
         {
@@ -4720,7 +4720,7 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_MATERIAL
         {
             QObject::tr(
-            "  Configure LDView POV export material settings.\n\n")
+            "  Configure LDView POV export material settings.\n")
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POV_GEOMETRY
         {

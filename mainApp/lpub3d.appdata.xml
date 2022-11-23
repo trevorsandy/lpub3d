@@ -78,39 +78,44 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.4.2969" date="2022-11-21">
+            <release version="2.4.4.3196" date="2022-11-07">
                 <description>
-                    <p>LPub3D 21.11.2022 enhancements and fixes</p>
+                    <p>LPub3D 30.10.2022 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                </description>
+            </release>
+            <release version="2.4.4.2903" date="2022-06-06">
+                <description>
+                    <p>LPub3D 06.06.2022 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.4.3.2557" date="2021-05-14">
                 <description>
-                    <p>LPub3D 14.05.2021 enhancements and fixes</p>
+                    <p>LPub3D 14.05.2021 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.4.2.2432" date="2021-03-31">
                 <description>
-                    <p>LPub3D 31.03.2021 enhancements and fixes</p>
+                    <p>LPub3D 31.03.2021 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.4.1.2389" date="2021-03-15">
                 <description>
-                    <p>LPub3D 15.03.2021 enhancements and fixes</p>
+                    <p>LPub3D 15.03.2021 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.4.0.1990" date="2020-03-10">
                 <description>
-                    <p>LPub3D 03.10.2020 enhancements and fixes</p>
+                    <p>LPub3D 03.10.2020 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.3.13.1511" date="2019-09-10">
                 <description>
-                    <p>LPub3D 10.09.2019 enhancements and fixes</p>
+                    <p>LPub3D 10.09.2019 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.3.12.1356" date="2019-06-20">
                 <description>
-                    <p>LPub3D 20.06.2019 enhancements and fixes</p>
+                    <p>LPub3D 20.06.2019 enhancements and fixes - see RELEASE_NOTES.html for details</p>
                 </description>
             </release>
             <release version="2.3.11.1269" date="2019-05-17" />

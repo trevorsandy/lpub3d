@@ -1,4 +1,4 @@
-LPub3D 2.4.4.299.2971 (21 11 2022 03:56:03)
+LPub3D 2.4.4.301.3202 (21 11 2022 03:22:10)
 
 Features, enhancements, fixes and changes
 ------------
@@ -228,7 +228,7 @@ Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://g
 Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
 
 Revisions:
-        
+
 - Feature - 3DViewer point, sun and area light for Blender integration #413
 - Feature - Add bring-to-front and send-to-back for page items #244
 - Feature - Add substitute part from context menu #280
@@ -302,7 +302,7 @@ Revisions:
 - Fix - Spelling of popup #450
 - Fix - Step number displayed on cover page when PLI per step is disabled #388
 - Fix - Update scene items bring to front send to back #379
-- How To - LDraw syntax definitions for Notepad++ (added to extras folder) #444 
+- How To - LDraw syntax definitions for Notepad++ (added to extras folder) #444
 
 --------------------------------------------------------------------------------------------------
 
