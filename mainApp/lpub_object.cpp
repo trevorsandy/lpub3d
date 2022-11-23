@@ -757,9 +757,29 @@ void LPub::setCurrentStep(Step *step)
 
 void LPub::loadSnippetCollection()
 {
+    QElapsedTimer timer;
+    timer.start();
+
+    snippetCollection = new SnippetCollection(this);
+
     JsonFile<Snippet>::load(":/resources/builtinsnippets.json", snippetCollection);
-    const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
-    JsonFile<Snippet>::load(QDir::toNativeSeparators(userDataPath + "/user-snippets.json"), lpub->snippetCollection);
+    int builtinSnippetCount = snippetCollection->count();
+
+    SnippetCollection userSnippetCollection;
+    const QString userSnippets = QString("%1/extras/user-snippets.json").arg(Preferences::lpubDataPath);
+    JsonFile<Snippet>::load(QDir::toNativeSeparators(userSnippets), &userSnippetCollection);
+    for (int i = 0; i < userSnippetCollection.count(); ++i) {
+        Snippet userSnippet = userSnippetCollection.at(i);
+        if (!snippetCollection->contains(userSnippet.trigger))
+           snippetCollection->insert(userSnippet);
+    }
+
+    emit messageSig(LOG_INFO, tr("Snippet collection loaded %1 (builit-in %2 user %3) of %4 snippets. %5")
+                    .arg(snippetCollection->count())
+                    .arg(builtinSnippetCount)
+                    .arg(userSnippetCollection.count())
+                    .arg(builtinSnippetCount + userSnippetCollection.count())
+                    .arg(elapsedTime(timer.elapsed())));
 }
 
 /****************************************************************************
@@ -774,11 +794,14 @@ void LPub::loadCommandCollection()
     timer.start();
 
     commandCollection = new CommandCollection(this);
-    const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
-    JsonFile<Command>::load(QDir::toNativeSeparators(userDataPath + "/user-command-descriptions.json"), commandCollection);
 
-    CommandCollection builtinCommandCollection; // = new CommandCollection(this);
-    JsonFile<Command>::load(QDir::toNativeSeparators(":/builtincommanddescriptions.json"), &builtinCommandCollection);
+    const QString userCommandDescriptions = QString("%1/extras/user-command-descriptions.json").arg(Preferences::lpubDataPath);
+    JsonFile<Command>::load(QDir::toNativeSeparators(userCommandDescriptions), commandCollection);
+    int userCommandCount = commandCollection->count();
+
+    CommandCollection builtinCommandCollection;
+    JsonFile<Command>::load(":/resources/builtincommanddescriptions.json", &builtinCommandCollection);
+    int builtinCommandCount = builtinCommandCollection.count();
 
     QStringList commands;
     meta.doc(commands);
@@ -837,8 +860,8 @@ void LPub::loadCommandCollection()
             _command = commandCollection->command(preamble);
             _command.command         = command;
             _command.modified        = Command::True;
-        } else if (builtinCommandCollection.contains(preamble)/*->contains(preamble)*/) {
-            _command = builtinCommandCollection.command(preamble)/*->command(preamble)*/;
+        } else if (builtinCommandCollection.contains(preamble)) {
+            _command = builtinCommandCollection.command(preamble);
             _command.command         = command;
             if (_command.modified   == Command::False)
                 _command.description = command;
@@ -850,8 +873,11 @@ void LPub::loadCommandCollection()
         commandCollection->insert(_command);
     }
 
-    emit messageSig(LOG_INFO, tr("Meta command collection loaded %1 of %2 commands. %3")
+    emit messageSig(LOG_INFO, tr("Command collection loaded %1 (default %2, builit-in %3, user %4) of %5 commands. %6")
                     .arg(commandCollection->count())
+                    .arg(commands.count() - (builtinCommandCount + userCommandCount))
+                    .arg(builtinCommandCount)
+                    .arg(userCommandCount)
                     .arg(commands.count())
                     .arg(elapsedTime(timer.elapsed())));
 }

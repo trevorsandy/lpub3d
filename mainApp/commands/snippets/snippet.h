@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Christian Loose <christian.loose@hamburg.de>
+ * Copyright (C) 2022 Trevor SANDY. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +31,8 @@ struct Snippet
     };
 
     QString trigger;
-    QString description;
     QString snippet;
+    QString description;
     int cursorPosition;
     int builtIn;
 
