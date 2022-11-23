@@ -30,8 +30,8 @@ struct Snippet
     };
 
     QString trigger;
-    QString snippet;
     QString description;
+    QString snippet;
     int cursorPosition;
     int builtIn;
 

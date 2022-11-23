@@ -20,8 +20,8 @@
 #include <jsontranslatorfactory.h>
 #include <jsontranslator.h>
 
-#include "commands/snippets/snippet.h"
-#include "commands/snippets/jsonsnippettranslator.h"
+#include "snippet.h"
+#include "jsonsnippettranslator.h"
 
 
 template <> class JsonTranslatorFactory<Snippet>

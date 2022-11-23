@@ -1,10 +1,4 @@
 {
-  "commands": [
-    {
-      "command": "0 !LPUB SUBMODEL_DISPLAY STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )",
-      "description": "0 !LPUB SUBMODEL_DISPLAY STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )\n- The <stud style integer 0-7> meta value captures the 7 stud style types.\n  0 None \n  1 Thin line logo \n  2 Outline logo \n  3 Sharp top logo \n  4 Rounded top logo \n  5 Flattened logo \n  6 High contrast without logo \n  7 High contrast with logo\n",
-      "modified": 1,
-      "preamble": "0 !LPUB SUBMODEL_DISPLAY STUD_STYLE"
-    }
-  ]
+    "commands": [
+    ]
 }
