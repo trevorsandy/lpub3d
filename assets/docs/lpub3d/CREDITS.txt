@@ -103,7 +103,10 @@ https://github.com/trevorsandy/NsisMultiUser
 Ricardo Drizin, Alex Mitev
 
 TENTE LDraw Library content
-[Jasolo]
+José Alfonso Solera <jasolo.f@gmail.com> [Jasolo]
 
 VEXIQ LDraw Library content
 Philippe Hurbain <philo@philohome.com> [Philo]
+
+Snippets, JSON configuration library (adapted from CuteMarkEd)
+Christian Loose <christian.loose@hamburg.de>

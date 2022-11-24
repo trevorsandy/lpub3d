@@ -22,7 +22,7 @@ LPub3D **output** include <span style="color:#b03060">instruction document</span
 <span style="color:#ff4500">3DS</span>          |![3DS-Logo][3ds-logo]|*Autodesk 3DStudio Max* object files
 <span style="color:#ff4500">DAE</span>          |![DAE-Logo][dae-logo]|*COLLAborative Design Activity* object files
 
-LPub3D uses the LDraw standard and LGEO photo-realistic **part libraries** and reads the LDraw DAT, LDR and MPD model file formats. The LDraw libraries are not required to be preinstalled. Archive (.zip) library files for both official and unofficial LDraw parts are bundled with LPub3D. Follow the linked image below to acquire the LGEO photo-realistic part library.
+LPub3D uses the LDraw standard and LEGO® Geometrical Equivalent Objects (LGEO) photo-realistic **part libraries** and reads the LDraw DAT, LDR and MPD model file formats. The LDraw libraries are not required to be preinstalled. Archive (.zip) library files for both official and unofficial LDraw parts are bundled with LPub3D. Follow the linked image below to acquire the LGEO photo-realistic part library.
 
 :-----------------|:------------------------------------:|:--------------------
 [LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual models and scenes. Three LDraw part libraries are bundled with LPub3D.<br>![LEGO][lego-logo] LDraw.org official and unofficial LEGO® part library.<br>![TENTE][tente-logo] TENTE® unofficial LDraw part library created by José Alfonso Solera (Jasolo). <br>![VEXIQ][vexiq-logo] VEX IQ® unofficial LDraw library created by Philippe Hurbain (Philo).<br>![LSynth][lsynth-logo] [LSynth][lsynth-url] bendable parts synthesis elements created by Kevin Clague and updated by Don Heyse (deeice).
@@ -52,8 +52,8 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 ### Downloads
 
 :---------------------------------------------|:-------------------------------
-[![GitHub-Logo][github-logo]][github_releases]|[GitHub Releases][githubreleases]
-[![SF-Logo][sf-logo]][sf_releases]            |[Sourceforge Releases][sfreleases]
+[![GitHub-Logo][github-logo]][github_releases]|[GitHub Releases][githubreleases] - Linux, macOS and Windows Distributions
+[![SF-Logo][sf-logo]][sf_releases]            |[Sourceforge Releases][sfreleases] - Linux, macOS and Windows Distributions
 [![OBS-Logo][obs-logo]][obs_releases]         |[Open Build Service Releases][obsreleases] - Linux distributions
 
 ### Distributions
@@ -61,22 +61,40 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 [![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]                  |[![Centos-Icon][centos-icon]][centos-url]                   |[![Debian-Icon][debian-icon]][debian-url]             |[![Fedora-Icon][fedora-icon]][fedora-url]                |[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
 :---------------------------------------------:|:---------------------------------------------------:|:----------------------------------------------------------:|:----------------------------------------------------:|:-------------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
 [![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Raspbian-Icon][raspbian-icon]][raspbian-url]      |[![Rhel-Icon][rhel-icon]][rhel-url]                         |[![Sl-Icon][sl-icon]][sl-url]                         |[![Sle-Icon][sle-icon]][sle-url]                         |[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]            |[![Windows-Icon][windows-icon]][windows-url]
+                                               |                                                     |[![AlmaLinux-Icon][almalinux-icon]][almalinux-url]          |[![openEuler-Icon][openeuler-icon]][openeuler-url]  |[![Univention-Icon][univention-icon]][univention-url]    |                                                     |
                                                |[![Elementary-Icon][elementary-icon]][elementary-url]|[![KDE_Neon-Icon][kde_neon-icon]][kde_neon-url]             |[![Pop_Os-Icon][pop_os-icon]][pop_os-url]             |[![Manjaro-Icon][manjaro-icon]][manjaro-url]             |[![Kubuntu-Icon][kubuntu-icon]][kubuntu-url]         |
                                                |                                                     |[![Snapcraft-Icon][snapcraft-site-icon]][snapcraft-site-url]|[![Flatpak-Icon][flathub-site-icon]][flathub-site-url]|[![AppImage-Icon][appimage-site-icon]][appimage-site-url]|                                                     |
 
  - Click icon above to download and/or install distribution release.
 
+### Verify Windows Distribution Hash using PowerShell
+Windows build packages sha256 hash
+- [LPub3D-2.4.5.0.2977_20221124.exe](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221124.exe) 2593D2C93FFC0AC6A879340C584EC975548B6861981754D23377EBF8BABEE763
+- [LPub3D_x86-2.4.5.0.2977_20221124.zip](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D_x86-2.4.5.0.2977_20221124.zip) BEEB65F9A58CC300F510FD2F1DCE661B40F9A5A9C0C68FB94A6820E51AB8C24C
+- [LPub3D_x86_64-2.4.5.0.2977_20221124.zip](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D_x86_64-2.4.5.0.2977_20221124.zip) 86F2F46E28147C27C3D7BB71003F2A6669753184CA9E8A50F3ADAB9E435B1089
+
+Open a PowerShell session and perform the following:
+- Add the package download path to `$PkgUrl` and the package sha256 hash to `$PublishedHash`.
+```
+$WebClient = [System.Net.WebClient]::new()
+$PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221124.exe'
+$PublishedHash = '2593D2C93FFC0AC6A879340C584EC975548B689900874D23377EBF8BABEE763'
+$FileHash = Get-FileHash -InputStream ($WebClient.OpenRead($PkgUrl))
+$FileHash.Hash -eq $PublishedHash
+```
+- Cut and paste this code snippet into Powershell, a valid return value is `True`.
+
 ### Verify GPG Signature
-The following steps use LPub3D Windows release v2.4.4 hosted on [GitHub][githubreleases].
+The following steps is using LPub3D AppImage release v2.4.5 hosted on [GitHub][githubreleases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
 - Get the GPG public key: [pubring.auto](https://raw.github.com/trevorsandy/lpub3d/master/builds/utilities/ci/secure/pubring.auto)
-- Get the release: [LPub3D-2.4.4.0.2671_20220531.exe](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe)
-- Get the hash file: [LPub3D-2.4.4.0.2671_20220531.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe.sha512)
-- Get the GPG hash file signature: [LPub3D-2.4.4.0.2671_20220531.exe.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe.sha512.sig)
+- Get the release: [LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage)
+- Get the hash file: [LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage.sha512)
+- Get the GPG hash file signature: [LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage.sha512.sig)
 - Ensure GPG is installed and configured: `$> which gpg`
 - Import the public key file into GPG: `$> gpg --import pubring.auto`
-- Verify the against its hash file: `$> sha512sum -c LPub3D-2.4.4.0.2671_20220531.exe.sha512`
-- Verify the GPG hash file signature: `$> gpg --verify LPub3D-2.4.4.0.2671_20220531.exe.sha512.sig`
+- Verify the against its hash file: `$> sha512sum -c LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage.sha512`
+- Verify the GPG hash file signature: `$> gpg --verify LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage.sha512.sig`
 
 ### Quick Links
  - [Build and package LPub3D from source][buildfromsource]
@@ -112,14 +130,16 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - [LPub3D meta commands UDL for Notepad++ (zip download)][resources-lpub3d-npp-udl]
 
 ### Features and Enhancements
- - Add shortcut to Zoom Extents - Shift+X [#470](https://github.com/trevorsandy/lpub3d/issues/470) <span style="color:red">(NEW!)</span>
+ - LPub command snippet system [#602](https://github.com/trevorsandy/lpub3d/issues/602) <span style="color:red">(NEW!)</span>
+ - Expand WhatsThis help to preferences, dialogs and actions - Ctrl+F1 [#618](https://github.com/trevorsandy/lpub3d/issues/618) <span style="color:red">(NEW!)</span>
+ - Add shortcut to Zoom Extents - Shift+X [#470](https://github.com/trevorsandy/lpub3d/issues/470)
  - Append page step placement options [#491](https://github.com/trevorsandy/lpub3d/issues/491)
  - Bill of materials step placement options [#492](https://github.com/trevorsandy/lpub3d/issues/492)
  - Configurable Theme colors [#490](https://github.com/trevorsandy/lpub3d/issues/490)
  - Dynamically generate fade steps and/or highlight step final model step [#483](https://github.com/trevorsandy/lpub3d/issues/483)
  - Enable LEGO Digital Designer and set inventory import [#506](https://github.com/trevorsandy/lpub3d/issues/506)
  - Execute fade, highlight, and preferred renderer locally [#505](https://github.com/trevorsandy/lpub3d/issues/505)
- - Executable verification with exported SHA-512 checksum file for Appveyor and Travis builds [#460](https://github.com/trevorsandy/lpub3d/issues/460)
+ - Executable verification with exported SHA-512 checksum file for GitHub builds [#460](https://github.com/trevorsandy/lpub3d/issues/460)
  - Make generate pointer arrow optional when converting to steps to callout [#501](https://github.com/trevorsandy/lpub3d/issues/501)
  - Native renderer official, unofficial LDraw parts load/lookup order option [#509](https://github.com/trevorsandy/lpub3d/issues/509)
  - Set project start page and start step number for multi-document layouts [#477](https://github.com/trevorsandy/lpub3d/issues/477)
@@ -163,7 +183,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - Renderer config files accessible from the LPub3D user interface
  - Custom LDraw library LDConfig (part material) file can be passed to LDGlite and LDView renderers
  - Set ROTSTEP (step rotation) meta using 3D Viewer
- - Fade previous step's parts (Fadestep)
+ - Fade previous step's parts (Fade step)
  - Unlimited part list (PLI) annotations
  - Split the BOM (divide parts over number of BOM occurrences)
  - Sort PLI/BOM by part size, colour and category
@@ -260,22 +280,24 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "macOS High Sierra 10.15"
 [windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2019 10.0.17763"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221124.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221124-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221124-x86_64.AppImage
 
-[arch-icon]:           {{ '/assets/images/arch.png' | relative_url }}  "Arch Linux"
-[centos-icon]:         {{ '/assets/images/centos.png' | relative_url }} "CentOS 7"
+[almalinux-icon]:      {{ '/assets/images/almalinux_logo.png' | relative_url }} "Alma Linux 9"
+[arch-icon]:           {{ '/assets/images/arch.png' | relative_url }} "Arch Linux"
+[centos-icon]:         {{ '/assets/images/centos.png' | relative_url }} "CentOS 8"
 [debian-icon]:         {{ '/assets/images/debian.png' | relative_url }} "Debian 11"
 [fedora-icon]:         {{ '/assets/images/fedora.png' | relative_url }} "Fedora 36"
 [mageia-icon]:         {{ '/assets/images/mageia.png' | relative_url }} "Mageia 8"
 [opensuse-icon]:       {{ '/assets/images/opensuse.png' | relative_url }} "openSUSE Leap 42.3"
+[openeuler-icon]:      {{ '/assets/images/openeuler_logo.png' | relative_url }} "openEuler 21.03"
 [raspbian-icon]:       {{ '/assets/images/raspberrypi_logo.png' | relative_url }} "Raspbian 11"
-[rhel-icon]:           {{ '/assets/images/rhel.png' | relative_url }} "Red Hat Enterprise Linux 7"
+[rhel-icon]:           {{ '/assets/images/rhel.png' | relative_url }} "Red Hat Enterprise Linux 8"
 [sl-icon]:             {{ '/assets/images/sl.png' | relative_url }} "Scientific Linux 7"
 [sle-icon]:            {{ '/assets/images/sle.png' | relative_url }} "SUSE Enterprise Linux 15 SP4"
 [ubuntu-icon]:         {{ '/assets/images/ubuntu.png' | relative_url }} "Ubuntu 22.04"
-[univention-icon]:     {{ '/assets/images/univention.png' | relative_url }} "Univention 4.2"
+[univention-icon]:     {{ '/assets/images/univention_logo.png' | relative_url }} "Univention Corporate Server 5.0"
 
 [//]: # Snap icons
 [elementary-icon]:     {{ '/assets/images/elementary_logo.png' | relative_url }} "Elementary OS Snap"
@@ -284,18 +306,20 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [manjaro-icon]:        {{ '/assets/images/manjaro_logo.png' | relative_url }} "Manjaro Linux Snap"
 [kubuntu-icon]:        {{ '/assets/images/kubuntu_logo.png' | relative_url }} "Kubuntu Snap"
 
+[almalinux-url]:       https://download.opensuse.org/repositories/home:/trevorsandy/AlmaLinux_9/
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch/
-[centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/
+[centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_8/
 [debian-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Debian_11/
 [fedora-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_36/
 [mageia-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Mageia_8/
 [opensuse-url]:        https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Leap_42.3/
+[openeuler-url]:       https://download.opensuse.org/repositories/home:/trevorsandy/openEuler_21.03/
 [raspbian-url]:        https://download.opensuse.org/repositories/home:/trevorsandy/Raspbian_11/
-[rhel-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/RHEL_7/
+[rhel-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/RHEL_8/
 [sl-url]:              https://download.opensuse.org/repositories/home:/trevorsandy/ScientificLinux_7/
 [sle-url]:             https://download.opensuse.org/repositories/home:/trevorsandy/SLE_15_SP4/
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_22.04/
-[univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
+[univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_5.0/
 
 [//]: # Snap urls
 [elementary-url]:      https://snapcraft.io/install/lpub3d/elementary/
@@ -304,9 +328,9 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [manjaro-url]:         https://snapcraft.io/install/lpub3d/manjaro/
 [kubuntu-url]:         https://snapcraft.io/install/lpub3d/kubuntu/
 
-[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }} "Snapcraft"
-[flathub-site-icon]:   {{ '/assets/images/flathub_logo.png' | relative_url }} "Flathub"
-[appimage-site-icon]:  {{ '/assets/images/appimage_logo.png' | relative_url }} "AppImages"
+[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }} "Canonical Snapcraft"
+[flathub-site-icon]:   {{ '/assets/images/flathub_logo.png' | relative_url }} "Flatpak Flathub"
+[appimage-site-icon]:  {{ '/assets/images/appimage_logo.png' | relative_url }} "AppImage"
 
 [snapcraft-site-url]:  https://snapcraft.io/lpub3d
 [flathub-site-url]:    https://flathub.org/apps/details/io.github.trevorsandy.LPub3D
@@ -316,8 +340,8 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 [qt-url]:              https://www.qt.io
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.4.4
-[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.4.4
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.4.5
+[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.4.5
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
 
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files
@@ -353,7 +377,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [gh-comm-since-url]:   https://github.com/trevorsandy/lpub3d/releases/tag/continuous
 
 [gh-maintained-badge]: https://img.shields.io/maintenance/yes/2022.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
-[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited 15-06-2022 "
+[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited 24-11-2022"
 
 [sf-dw-badge]:         https://img.shields.io/sourceforge/dw/lpub3d.svg?logo=data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAyMDAxMDkwNC8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+PHN2ZyB2ZXJzaW9uPSIxLjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjMzMHB4IiBoZWlnaHQ9IjMzMHB4IiB2aWV3Qm94PSIwIDAgMzMwMCAzMzAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBtZWV0Ij48ZyBpZD0ibGF5ZXIxMDEiIGZpbGw9IiNmZmYiIHN0cm9rZT0ibm9uZSI+IDxwYXRoIGQ9Ik0xNTI4IDMwMTkgYy0xMCAtNSAtMTggLTIwIC0xOCAtMzIgMCAtMTYgMTczIC0xOTUgNjA3IC02MjkgNTYyIC01NjIgNjA2IC02MDkgNjA1IC02MzkgLTEgLTI5IC00OSAtODEgLTQ4MSAtNTEzIC0zMjMgLTMyMyAtNDgxIC00ODggLTQ4MSAtNTAyIDAgLTIzIDE5OCAtMjI0IDIyMSAtMjI0IDE5IDAgMTIzOSAxMjIxIDEyMzkgMTI0MCAwIDggLTI5MSAzMDYgLTY0NyA2NjIgbC02NDggNjQ4IC0xOTAgMCBjLTExMCAwIC0xOTcgLTUgLTIwNyAtMTF6Ii8+IDxwYXRoIGQ9Ik02ODIgMjIwNiBjLTQwMSAtNDAwIC02MTMgLTYxOSAtNjExIC02MjkgNCAtMTggMTI2MiAtMTI4MiAxMjkxIC0xMjk4IDIzIC0xMyAzNzUgLTEyIDM5OSAxIDEwIDYgMTkgMjEgMTkgMzMgMCAxNSAtMTcyIDE5NCAtNjA0IDYyNyAtMzMzIDMzMyAtNjA1IDYxMiAtNjA2IDYyMCAtMiA4IC0yIDI0IC0xIDM1IDEgMTIgMTkzIDIxMiA0ODEgNTAwIDMwOCAzMDggNDgwIDQ4NyA0ODAgNTAwIDAgMjMgLTE5NyAyMjUgLTIyMCAyMjUgLTggMCAtMjkxIC0yNzYgLTYyOCAtNjE0eiIvPiA8cGF0aCBkPSJNMTU5MiAyMjM5IGMtMTM5IC0yMyAtMjY5IC0xMjMgLTMzNiAtMjYwIC00NiAtOTUgLTYwIC0xNjkgLTUyIC0yODkgMTAgLTE2MiA1MSAtMjU4IDE4NiAtNDMxIDEwOCAtMTM4IDEzOCAtMTk2IDE1MyAtMjg4IDEyIC04MyAyNiAtOTAgNzMgLTM4IDgxIDg2IDEzNyAxODYgMTc5IDMxNyA0MCAxMjYgNTUgMjE2IDY2IDQwMCA2IDkxIDE2IDE3NiAyMiAxOTAgMTggMzcgNTEgMzcgNzYgMSA0OCAtNjYgNTUgLTEwNiA1NSAtMjg0IDAgLTEwOSA0IC0xNjYgMTEgLTE2NCAxNiA1IDUzIDkxIDgwIDE4NCA5MSAzMTIgLTg3IDYyMCAtMzgxIDY2MyAtMzggNSAtNzEgOSAtNzQgOSAtMyAtMSAtMjkgLTUgLTU4IC0xMHoiLz4gPC9nPjwvc3ZnPg==
 [sf-dw-badge-url]:     https://sourceforge.net/projects/lpub3d
