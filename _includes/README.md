@@ -85,7 +85,7 @@ $FileHash.Hash -eq $PublishedHash
 - Cut and paste this code snippet into Powershell, a valid return value is `True`.
 
 ### Verify GPG Signature
-The following steps is using LPub3D AppImage release v2.4.5 hosted on [GitHub][githubreleases].
+The following steps are using LPub3D AppImage release v2.4.5 hosted on [GitHub][githubreleases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
 - Get the GPG public key: [pubring.auto](https://raw.github.com/trevorsandy/lpub3d/master/builds/utilities/ci/secure/pubring.auto)
 - Get the release: [LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.5/LPub3D-2.4.5.0.2977_20221123-x86_64.AppImage)
