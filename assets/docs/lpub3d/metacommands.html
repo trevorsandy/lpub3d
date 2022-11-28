@@ -60,19 +60,23 @@ button:hover {
   border: 1px solid #ddd;
   margin-top: -1px; /* Prevent double borders */
   background-color: #f9f2f4;
-  padding: 12px;
+  padding: 8px;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 15px;
   color: #c7254e;
   display: block
 }
 #commandOL li code:hover:not(.header) {
   background-color: #eee;
 }
+#commandUL li code {
+  font-size: 15px;
+  color: #c7254e;
+}
 </style>
 </head>
 <body>
-<ul>
+<ul id="commandUL">
 <div class="header">
  <img alt="LPub3D Logo" src="data:image/png;base64,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" />
  <h2>LPub3D LPub Meta Commands - Generated on 2022-11-24 05:35:53</h2><br>
@@ -97,7 +101,7 @@ button:hover {
 <p>---------------------------------------------------------------------------------</p>
 <p><b>Meta Command Symbols:</b><br>
  <b>( )</b> Items within curly brackets (parentheses) are built-in meta command options.<br>
- <b>< ></b> Items within chevron (greater,less than) indicate meta command value options required to complete the command.<br>
+ <b>&lt; &gt;</b> Items within chevron (greater,less than) indicate meta command value options required to complete the command.<br>
  <b>[ ]</b> Items within square brackets indicate optional meta command(s) and or value(s).<br>
  <b>&quot; &quot;</b> Items within double quotes are &quot;string&quot; values. Strings containing space require quotes. Numeric values are not quoted.<br>
  <b>|</b> Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified.</p>
@@ -109,35 +113,35 @@ button:hover {
 <ol id="commandOL">
   <li><code>0 !COLOUR<br>
             0 // Fade previous steps custom colour command<br>
-            0 !COLOUR &quot;LPub3D_Fade_<LDraw_colour_name>&quot; CODE <100 + LDraw colour code> VALUE <&quot;#RRGGBB&quot;> EDGE <&quot;#RRGGBB&quot;> ALPHA <opacity 0-255><br>
+            0 !COLOUR &quot;LPub3D_Fade_&lt;LDraw_colour_name&gt;&quot; CODE &lt;100 + LDraw colour code&gt; VALUE &lt;&quot;#RRGGBB&quot;&gt; EDGE &lt;&quot;#RRGGBB&quot;&gt; ALPHA &lt;opacity 0-255&gt;<br>
             0 // Highlight current step custom colour command<br>
-            0 !COLOUR &quot;LPub3D_Highlight_<LDraw_colour_name>&quot; CODE <110 + LDraw colour code> VALUE <&quot;#RRGGBB&quot;> EDGE <&quot;#RRGGBB&quot;> ALPHA <opacity 255></code></li>
+            0 !COLOUR &quot;LPub3D_Highlight_&lt;LDraw_colour_name&gt;&quot; CODE &lt;110 + LDraw colour code&gt; VALUE &lt;&quot;#RRGGBB&quot;&gt; EDGE &lt;&quot;#RRGGBB&quot;&gt; ALPHA &lt;opacity 255&gt;</code></li>
   <li><code>0 !FADE<br>
             0 // Fade previous steps block opening command<br>
-            0 !FADE <fade percent integer> <LDraw colour code><br>
+            0 !FADE &lt;fade percent integer&gt; &lt;LDraw colour code&gt;<br>
             0 // Block closing command<br>
-            0 !FADE</code></li>  
-  <li><code>0 !LDCAD GROUP_NXT <&quot;string&quot;></code></li>
+            0 !FADE</code></li>
+  <li><code>0 !LDCAD GROUP_NXT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LEOCAD CAMERA</code></li>
   <li><code>0 !LEOCAD GROUP BEGIN</code></li>
   <li><code>0 !LEOCAD GROUP END</code></li>
-  <li><code>0 !LEOCAD LIGHT ANGLE <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT COLOR_RGB <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LEOCAD LIGHT CUTOFF_DISTANCE <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT HEIGHT <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT NAME <&quot;string&quot;></code></li>
-  <li><code>0 !LEOCAD LIGHT POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LEOCAD LIGHT POWER <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT RADIUS <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT SHAPE <&quot;Undefined&quot;|&quot;Square&quot;|&quot;Disk&quot;|&quot;Rectangle&quot;|&quot;Ellipse&quot;></code></li>
-  <li><code>0 !LEOCAD LIGHT SIZE <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT SPECULAR <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT SPOT_BLEND <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT SPOT_SIZE <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT STRENGTH <decimal></code></li>
-  <li><code>0 !LEOCAD LIGHT TARGET_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LEOCAD LIGHT TYPE <&quot;Point&quot;|&quot;Sun&quot;|&quot;Spot&quot;|&quot;Area&quot;></code></li>
-  <li><code>0 !LEOCAD LIGHT WIDTH <decimal></code></li>
+  <li><code>0 !LEOCAD LIGHT ANGLE &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT COLOR_RGB &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT CUTOFF_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT HEIGHT &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT NAME &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT POWER &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT RADIUS &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT SHAPE &lt;&quot;Undefined&quot;|&quot;Square&quot;|&quot;Disk&quot;|&quot;Rectangle&quot;|&quot;Ellipse&quot;&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT SIZE &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT SPECULAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT SPOT_BLEND &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT SPOT_SIZE &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT STRENGTH &lt;decimal&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT TARGET_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT TYPE &lt;&quot;Point&quot;|&quot;Sun&quot;|&quot;Spot&quot;|&quot;Area&quot;&gt;</code></li>
+  <li><code>0 !LEOCAD LIGHT WIDTH &lt;decimal&gt;</code></li>
   <li><code>0 !LEOCAD MODEL</code></li>
   <li><code>0 !LEOCAD PIECE</code></li>
   <li><code>0 !LEOCAD SYNTH</code></li>
@@ -148,51 +152,51 @@ button:hover {
   <li><code>0 !LPUB ASSEM ANNOTATION DISPLAY ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB ASSEM ANNOTATION EXTENDED ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB ASSEM ANNOTATION HOSE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM ANNOTATION ICON ( TOP_LEFT | TOP | TOP_RIGHT | LEFT | CENTER | RIGHT | BOTTOM_LEFT | BOTTOM | BOTTOM_RIGHT ) <icon offset X px> <icon offset Y px> <part offset X px> <part offset Y px> <part size X px> <part size Y px> <LDraw color code for part> <LDraw part name without extension></code></li>
+  <li><code>0 !LPUB ASSEM ANNOTATION ICON ( TOP_LEFT | TOP | TOP_RIGHT | LEFT | CENTER | RIGHT | BOTTOM_LEFT | BOTTOM | BOTTOM_RIGHT ) &lt;icon offset X px&gt; &lt;icon offset Y px&gt; &lt;part offset X px&gt; &lt;part offset Y px&gt; &lt;part size X px&gt; &lt;part size Y px&gt; &lt;LDraw color code for part&gt; &lt;LDraw part name without extension&gt;</code></li>
   <li><code>0 !LPUB ASSEM ANNOTATION PANEL ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB ASSEM ANNOTATION PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB ASSEM AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB ASSEM AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB ASSEM AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_ANGLES ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )</code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_FOV <decimal></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_NAME <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB ASSEM AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_ANGLES ( &lt;decimal&gt; &lt;decimal&gt; ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ &lt;decimal&gt; &lt;decimal&gt; ] )</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_FOV &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_NAME &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB ASSEM CAMERA_ORTHOGRAPHIC ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_TARGET <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_UPVECTOR <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_ZFAR <decimal></code></li>
-  <li><code>0 !LPUB ASSEM CAMERA_ZNEAR <decimal></code></li>
-  <li><code>0 !LPUB ASSEM FADE_STEPS COLOR <&quot;LDraw_colour_name&quot;> | <&quot;0x|#><[AA]RRGGBB&quot;> [ USE ( TRUE | FALSE ) ]</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_TARGET &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_UPVECTOR &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_ZFAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM CAMERA_ZNEAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM FADE_STEPS COLOR &lt;&quot;LDraw_colour_name&quot;&gt; | &lt;&quot;0x|#&gt;&lt;[AA]RRGGBB&quot;&gt; [ USE ( TRUE | FALSE ) ]</code></li>
   <li><code>0 !LPUB ASSEM FADE_STEPS ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM FADE_STEPS OPACITY <integer></code></li>
+  <li><code>0 !LPUB ASSEM FADE_STEPS OPACITY &lt;integer&gt;</code></li>
   <li><code>0 !LPUB ASSEM FADE_STEPS SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM HIGHLIGHT_STEP COLOR <&quot;color name|#RRGGBB&quot;></code></li>
+  <li><code>0 !LPUB ASSEM HIGHLIGHT_STEP COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
   <li><code>0 !LPUB ASSEM HIGHLIGHT_STEP ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM HIGHLIGHT_STEP LINE_WIDTH <integer></code></li>
+  <li><code>0 !LPUB ASSEM HIGHLIGHT_STEP LINE_WIDTH &lt;integer&gt;</code></li>
   <li><code>0 !LPUB ASSEM HIGHLIGHT_STEP SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB ASSEM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB ASSEM HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB ASSEM HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB ASSEM HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB ASSEM IMAGE_SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB ASSEM LDGLITE_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB ASSEM LDVIEW_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB ASSEM MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB ASSEM MODEL_SCALE <decimal></code></li>
+  <li><code>0 !LPUB ASSEM HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB ASSEM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB ASSEM HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB ASSEM HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB ASSEM IMAGE_SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM LDGLITE_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB ASSEM LDVIEW_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB ASSEM MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ASSEM MODEL_SCALE &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB ASSEM PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB ASSEM POVRAY_PARMS <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB ASSEM POVRAY_PARMS &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB ASSEM PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
   <li><code>0 !LPUB ASSEM SHOW_STEP_NUMBER ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ASSEM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
-  <li><code>0 !LPUB AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB ASSEM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
+  <li><code>0 !LPUB AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB BOM ANNOTATE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB BOM ANNOTATE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB BOM ANNOTATE MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM ANNOTATE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM ANNOTATE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM ANNOTATE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB BOM ANNOTATION AXLE ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM ANNOTATION BEAM ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM ANNOTATION CABLE ( TRUE | FALSE )</code></li>
@@ -207,479 +211,479 @@ button:hover {
   <li><code>0 !LPUB BOM ANNOTATION USE_FREE_FORM ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM ANNOTATION USE_TITLE ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM ANNOTATION USE_TITLE_AND_FREE_FORM ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB BOM AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB BOM AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB BOM AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB BOM AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB BOM BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
+  <li><code>0 !LPUB BOM AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
   <li><code>0 !LPUB BOM BEGIN IGN</code></li>
-  <li><code>0 !LPUB BOM BEGIN SUB <LDraw part name> [ <LDraw colour code> <scale decimal> <fov decimal> <camera angle latitude decimal> <camera angle longitude decimal> <target X> <target Y> <target Z> <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD ) [ LDRAW_TYPE <LDraw part name> ]]</code></li>
-  <li><code>0 !LPUB BOM BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB BOM CAMERA_ANGLES ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )</code></li>
-  <li><code>0 !LPUB BOM CAMERA_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB BOM CAMERA_FOV <decimal></code></li>
-  <li><code>0 !LPUB BOM CAMERA_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB BOM CAMERA_TARGET <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB BOM CAMERA_UPVECTOR <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB BOM CAMERA_ZFAR <decimal></code></li>
-  <li><code>0 !LPUB BOM CAMERA_ZNEAR <decimal></code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM CIRCLE_STYLE STYLE <annotation style integer 0-4></code></li>
-  <li><code>0 !LPUB BOM CONSTRAIN ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) <integer> )</code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM ELEMENT_STYLE STYLE <annotation style integer 0-4></code></li>
+  <li><code>0 !LPUB BOM BEGIN SUB &lt;LDraw part name&gt; [ &lt;LDraw colour code&gt; &lt;scale decimal&gt; &lt;fov decimal&gt; &lt;camera angle latitude decimal&gt; &lt;camera angle longitude decimal&gt; &lt;target X&gt; &lt;target Y&gt; &lt;target Z&gt; &lt;rotate X&gt; &lt;rotate Y&gt; &lt;rotate Z&gt; ( ABS | REL | ADD ) [ LDRAW_TYPE &lt;LDraw part name&gt; ]]</code></li>
+  <li><code>0 !LPUB BOM BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_ANGLES ( &lt;decimal&gt; &lt;decimal&gt; ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ &lt;decimal&gt; &lt;decimal&gt; ] )</code></li>
+  <li><code>0 !LPUB BOM CAMERA_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_FOV &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_TARGET &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_UPVECTOR &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_ZFAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM CAMERA_ZNEAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM CIRCLE_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
+  <li><code>0 !LPUB BOM CONSTRAIN ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) &lt;integer&gt; )</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM ELEMENT_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
   <li><code>0 !LPUB BOM END</code></li>
-  <li><code>0 !LPUB BOM HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB BOM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB BOM HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB BOM HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB BOM HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB BOM IMAGE_SIZE <decimal> <decimal></code></li>
+  <li><code>0 !LPUB BOM HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB BOM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB BOM HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB BOM HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB BOM IMAGE_SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB BOM INCLUDE_SUBMODELS ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB BOM INSTANCE_COUNT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB BOM INSTANCE_COUNT FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB BOM INSTANCE_COUNT MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM LDGLITE_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB BOM LDVIEW_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB BOM MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM MODEL_SCALE <decimal></code></li>
-  <li><code>0 !LPUB BOM PART MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB BOM INSTANCE_COUNT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM INSTANCE_COUNT FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM INSTANCE_COUNT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM LDGLITE_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM LDVIEW_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM MODEL_SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM PART MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB BOM PART_ELEMENTS BRICKLINK ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM PART_ELEMENTS DISPLAY ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM PART_ELEMENTS LEGO ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM PART_ELEMENTS LOCAL_LEGO_ELEMENTS_FILE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB BOM PART_GROUP <LDraw part name> <LDraw colour code> OFFSET <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB BOM PART_GROUP &lt;LDraw part name&gt; &lt;LDraw colour code&gt; OFFSET &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB BOM PART_GROUP_ENABLE ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB BOM POVRAY_PARMS <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB BOM POVRAY_PARMS &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB BOM PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM RECTANGLE_STYLE STYLE <annotation style integer 0-4></code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM RECTANGLE_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
   <li><code>0 !LPUB BOM SHOW ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB BOM SORT ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB BOM SORT_BY SORT_OPTION <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB BOM SORT_ORDER PRIMARY <&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;></code></li>
-  <li><code>0 !LPUB BOM SORT_ORDER PRIMARY_DIRECTION <&quot;Ascending&quot;|&quot;Descending&quot;></code></li>
-  <li><code>0 !LPUB BOM SORT_ORDER SECONDARY <&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;></code></li>
-  <li><code>0 !LPUB BOM SORT_ORDER SECONDARY_DIRECTION <&quot;Ascending&quot;|&quot;Descending&quot;></code></li>
-  <li><code>0 !LPUB BOM SORT_ORDER TERTIARY <&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;></code></li>
-  <li><code>0 !LPUB BOM SORT_ORDER TERTIARY_DIRECTION <&quot;Ascending&quot;|&quot;Descending&quot;></code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB BOM SQUARE_STYLE STYLE <annotation style integer 0-4></code></li>
-  <li><code>0 !LPUB BOM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
-  <li><code>0 !LPUB BOM SUBMODEL_BACKGROUND_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
-  <li><code>0 !LPUB BUILD_MOD (( BEGIN | APPLY | REMOVE ) <buildModKey> ) | ( END_MOD | END )</code></li>
+  <li><code>0 !LPUB BOM SORT_BY SORT_OPTION &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SORT_ORDER PRIMARY &lt;&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SORT_ORDER PRIMARY_DIRECTION &lt;&quot;Ascending&quot;|&quot;Descending&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SORT_ORDER SECONDARY &lt;&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SORT_ORDER SECONDARY_DIRECTION &lt;&quot;Ascending&quot;|&quot;Descending&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SORT_ORDER TERTIARY &lt;&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SORT_ORDER TERTIARY_DIRECTION &lt;&quot;Ascending&quot;|&quot;Descending&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB BOM SQUARE_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
+  <li><code>0 !LPUB BOM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
+  <li><code>0 !LPUB BOM SUBMODEL_BACKGROUND_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
+  <li><code>0 !LPUB BUILD_MOD (( BEGIN | APPLY | REMOVE ) &lt;buildModKey&gt; ) | ( END_MOD | END )</code></li>
   <li><code>0 !LPUB BUILD_MOD_ENABLED ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB CALLOUT ALLOC ( HORIZONTAL | VERTICAL )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ANGLES ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_FOV <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_NAME <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ANGLES ( &lt;decimal&gt; &lt;decimal&gt; ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ &lt;decimal&gt; &lt;decimal&gt; ] )</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_FOV &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_NAME &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ORTHOGRAPHIC ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_TARGET <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_UPVECTOR <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ZFAR <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ZNEAR <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM FADE_STEPS COLOR <&quot;LDraw_colour_name&quot;> | <&quot;0x|#><[AA]RRGGBB&quot;> [ USE ( TRUE | FALSE ) ]</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_TARGET &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_UPVECTOR &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ZFAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM CAMERA_ZNEAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM FADE_STEPS COLOR &lt;&quot;LDraw_colour_name&quot;&gt; | &lt;&quot;0x|#&gt;&lt;[AA]RRGGBB&quot;&gt; [ USE ( TRUE | FALSE ) ]</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM FADE_STEPS ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM FADE_STEPS OPACITY <integer></code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM FADE_STEPS OPACITY &lt;integer&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM FADE_STEPS SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGHLIGHT_STEP COLOR <&quot;color name|#RRGGBB&quot;></code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGHLIGHT_STEP COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM HIGHLIGHT_STEP ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGHLIGHT_STEP LINE_WIDTH <integer></code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGHLIGHT_STEP LINE_WIDTH &lt;integer&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM HIGHLIGHT_STEP SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM IMAGE_SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM MODEL_SCALE <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM IMAGE_SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM MODEL_SCALE &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB CALLOUT ASSEM PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
-  <li><code>0 !LPUB CALLOUT ASSEM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
-  <li><code>0 !LPUB CALLOUT BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
+  <li><code>0 !LPUB CALLOUT ASSEM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
+  <li><code>0 !LPUB CALLOUT BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
   <li><code>0 !LPUB CALLOUT BEGIN [( ASSEMBLED | ROTATED | WHOLE )]</code></li>
-  <li><code>0 !LPUB CALLOUT BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB CALLOUT BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB CALLOUT DIVIDER</code></li>
-  <li><code>0 !LPUB CALLOUT DIVIDER_POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) <decimal Location> <decimal X1> <decimal Y1> [ <decimal X2> <decimal Y2> <decimal X3> <decimal Y3> <decimal X4> <decimal Y4>] <decimal Base> [<integer Segments>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
-  <li><code>0 !LPUB CALLOUT DIVIDER_POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR <&quot;#RRGGBB&quot;> WIDTH <decimal> [ HIDE_TIP ( TRUE | FALSE )] [ ID <pointer number integer>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH <decimal> HEIGHT <decimal> [ ID <pointer number integer>])</code></li>
+  <li><code>0 !LPUB CALLOUT DIVIDER_POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) &lt;decimal Location&gt; &lt;decimal X1&gt; &lt;decimal Y1&gt; [ &lt;decimal X2&gt; &lt;decimal Y2&gt; &lt;decimal X3&gt; &lt;decimal Y3&gt; &lt;decimal X4&gt; &lt;decimal  Y4&gt;] &lt;decimal Base&gt; [&lt;integer Segments&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
+  <li><code>0 !LPUB CALLOUT DIVIDER_POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR &lt;&quot;#RRGGBB&quot;&gt; WIDTH &lt;decimal&gt; [ HIDE_TIP ( TRUE | FALSE )] [ ID &lt;pointer number integer&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH &lt;decimal&gt; HEIGHT &lt;decimal&gt; [ ID &lt;pointer number integer&gt;])</code></li>
   <li><code>0 !LPUB CALLOUT END</code></li>
   <li><code>0 !LPUB CALLOUT FREEFORM ( FALSE | ( STEP_NUMBER | ASSEM | PLI | ROTATE_ICON ) ( LEFT | RIGHT | TOP | BOTTOM | CENTER ))</code></li>
-  <li><code>0 !LPUB CALLOUT INSTANCE_COUNT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB CALLOUT INSTANCE_COUNT FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB CALLOUT INSTANCE_COUNT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT INSTANCE_COUNT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT INSTANCE_COUNT FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT INSTANCE_COUNT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT INSTANCE_COUNT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB CALLOUT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB CALLOUT PLI MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT PLI MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT PLI PER_STEP ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB CALLOUT PLI PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB CALLOUT POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) <decimal Location> <decimal X1> <decimal Y1> [ <decimal X2> <decimal Y2> <decimal X3> <decimal Y3> <decimal X4> <decimal Y4>] <decimal Base> [<integer Segments>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
-  <li><code>0 !LPUB CALLOUT POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR <&quot;#RRGGBB&quot;> WIDTH <decimal> [ HIDE_TIP ( TRUE | FALSE )] [ ID <pointer number integer>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH <decimal> HEIGHT <decimal> [ ID <pointer number integer>])</code></li>
-  <li><code>0 !LPUB CALLOUT ROTATE_ICON ARROW ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB CALLOUT ROTATE_ICON BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB CALLOUT ROTATE_ICON BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB CALLOUT POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) &lt;decimal Location&gt; &lt;decimal X1&gt; &lt;decimal Y1&gt; [ &lt;decimal X2&gt; &lt;decimal Y2&gt; &lt;decimal X3&gt; &lt;decimal Y3&gt; &lt;decimal X4&gt; &lt;decimal  Y4&gt;] &lt;decimal Base&gt; [&lt;integer Segments&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
+  <li><code>0 !LPUB CALLOUT POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR &lt;&quot;#RRGGBB&quot;&gt; WIDTH &lt;decimal&gt; [ HIDE_TIP ( TRUE | FALSE )] [ ID &lt;pointer number integer&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH &lt;decimal&gt; HEIGHT &lt;decimal&gt; [ ID &lt;pointer number integer&gt;])</code></li>
+  <li><code>0 !LPUB CALLOUT ROTATE_ICON ARROW ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ROTATE_ICON BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB CALLOUT ROTATE_ICON BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ROTATE_ICON DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT ROTATE_ICON MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT ROTATE_ICON MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT ROTATE_ICON PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB CALLOUT ROTATE_ICON SCALE <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT ROTATE_ICON SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB CALLOUT SEPARATOR [( PAGE_LENGTH | CUSTOM_LENGTH ) <decimal> ] THICKNESS <integer> <&quot;color name&quot;|&quot;#RRGGBB&quot;> MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB CALLOUT ROTATE_ICON SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT ROTATE_ICON SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT SEPARATOR [( PAGE_LENGTH | CUSTOM_LENGTH ) &lt;decimal&gt; ] THICKNESS &lt;integer&gt; &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB CALLOUT STEPS ( JUSTIFY_LEFT | JUSTIFY_CENTER | JUSTIFY_CENTER_HORIZONTAL | JUSTIFY_CENTER_VERTICAL )</code></li>
-  <li><code>0 !LPUB CALLOUT STEP_NUMBER FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB CALLOUT STEP_NUMBER FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB CALLOUT STEP_NUMBER MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT STEP_NUMBER FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT STEP_NUMBER FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB CALLOUT STEP_NUMBER MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT STEP_NUMBER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB CALLOUT SUBMODEL_BACKGROUND_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
-  <li><code>0 !LPUB CALLOUT SUBMODEL_DISPLAY MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB CALLOUT SUBMODEL_BACKGROUND_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
+  <li><code>0 !LPUB CALLOUT SUBMODEL_DISPLAY MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CALLOUT SUBMODEL_DISPLAY PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB CALLOUT SUBMODEL_DISPLAY SHOW ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB CALLOUT SUBMODEL_FONT <&quot;font attributes&quot;> [<&quot;font attributes&quot;> <&quot;font attributes&quot;> <&quot;font attributes&quot;>]</code></li>
-  <li><code>0 !LPUB CALLOUT SUBMODEL_FONT_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
+  <li><code>0 !LPUB CALLOUT SUBMODEL_FONT &lt;&quot;font attributes&quot;&gt; [&lt;&quot;font attributes&quot;&gt; &lt;&quot;font attributes&quot;&gt; &lt;&quot;font attributes&quot;&gt;]</code></li>
+  <li><code>0 !LPUB CALLOUT SUBMODEL_FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
   <li><code>0 !LPUB CAMERA</code></li>
-  <li><code>0 !LPUB CAMERA_DEFAULT_DISTANCE_FACTOR <decimal></code></li>
+  <li><code>0 !LPUB CAMERA_DEFAULT_DISTANCE_FACTOR &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB CONSOLIDATE_INSTANCE_COUNT ( AT_TOP | AT_MODEL | AT_STEP | TRUE | FALSE )</code></li>
   <li><code>0 !LPUB CONTINUOUS_STEP_NUMBERS ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB COVER_PAGE_MODEL_VIEW_ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB FADE_STEPS COLOR <&quot;LDraw_colour_name&quot;> | <&quot;0x|#><[AA]RRGGBB&quot;> [ USE ( TRUE | FALSE ) ]</code></li>
+  <li><code>0 !LPUB FADE_STEPS COLOR &lt;&quot;LDraw_colour_name&quot;&gt; | &lt;&quot;0x|#&gt;&lt;[AA]RRGGBB&quot;&gt; [ USE ( TRUE | FALSE ) ]</code></li>
   <li><code>0 !LPUB FADE_STEPS ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB FADE_STEPS OPACITY <integer></code></li>
+  <li><code>0 !LPUB FADE_STEPS OPACITY &lt;integer&gt;</code></li>
   <li><code>0 !LPUB FADE_STEPS SETUP ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB FINAL_MODEL_ENABLED ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB GROUP BEGIN</code></li>
   <li><code>0 !LPUB GROUP END</code></li>
-  <li><code>0 !LPUB HIGHLIGHT_STEP COLOR <&quot;color name|#RRGGBB&quot;></code></li>
+  <li><code>0 !LPUB HIGHLIGHT_STEP COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
   <li><code>0 !LPUB HIGHLIGHT_STEP ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB HIGHLIGHT_STEP LINE_WIDTH <integer></code></li>
+  <li><code>0 !LPUB HIGHLIGHT_STEP LINE_WIDTH &lt;integer&gt;</code></li>
   <li><code>0 !LPUB HIGHLIGHT_STEP SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB INCLUDE <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB INSERT ( PICTURE <&quot;file path&quot;> ) | ( TEXT <&quot;text&quot;> <&quot;#RRGGBB&quot;> ) | ( RICH_TEXT <&quot;text&quot;> ) | ( HTML_TEXT <&quot;text&quot;> ) | ( TEXT PLACEMENT ( TOP | BOTTOM | LEFT | CENTER | RIGHT | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) (PAGE | PAGE_HEADER | PAGE_FOOTER) ( INSIDE | OUTSIDE )) | ( PAGE | BOM | MODEL | DISPLAY_MODEL | COVER_PAGE [ FRONT | BACK ] | ROTATE_ICON ) ( OFFSET <decimal X> <decimal Y> )</code></li>
-  <li><code>0 !LPUB LIGHT ANGLE <decimal></code></li>
-  <li><code>0 !LPUB LIGHT COLOR_RGB <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB LIGHT CUTOFF_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB LIGHT HEIGHT <decimal></code></li>
-  <li><code>0 !LPUB LIGHT NAME <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB LIGHT POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB LIGHT POWER <decimal></code></li>
-  <li><code>0 !LPUB LIGHT RADIUS <decimal></code></li>
-  <li><code>0 !LPUB LIGHT SHAPE <&quot;Undefined&quot;|&quot;Square&quot;|&quot;Disk&quot;|&quot;Rectangle&quot;|&quot;Ellipse&quot;></code></li>
-  <li><code>0 !LPUB LIGHT SIZE <decimal></code></li>
-  <li><code>0 !LPUB LIGHT SPECULAR <decimal></code></li>
-  <li><code>0 !LPUB LIGHT SPOT_BLEND <decimal></code></li>
-  <li><code>0 !LPUB LIGHT SPOT_SIZE <decimal></code></li>
-  <li><code>0 !LPUB LIGHT STRENGTH <decimal></code></li>
-  <li><code>0 !LPUB LIGHT TARGET_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB LIGHT TYPE <&quot;Point&quot;|&quot;Sun&quot;|&quot;Spot&quot;|&quot;Area&quot;></code></li>
-  <li><code>0 !LPUB LIGHT WIDTH <decimal></code></li>
+  <li><code>0 !LPUB HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB INCLUDE &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB INSERT ( PICTURE &lt;&quot;file path&quot;&gt; ) | ( TEXT &lt;&quot;text&quot;&gt; &lt;&quot;#RRGGBB&quot;&gt; ) | ( RICH_TEXT &lt;&quot;text&quot;&gt; ) | ( HTML_TEXT &lt;&quot;text&quot;&gt; ) | ( TEXT PLACEMENT ( TOP | BOTTOM | LEFT | CENTER | RIGHT | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) (PAGE | PAGE_HEADER | PAGE_FOOTER) ( INSIDE | OUTSIDE )) | ( PAGE | BOM | MODEL | DISPLAY_MODEL | COVER_PAGE [ FRONT | BACK ] | ROTATE_ICON ) ( OFFSET &lt;decimal X&gt; &lt;decimal Y&gt; )</code></li>
+  <li><code>0 !LPUB LIGHT ANGLE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT COLOR_RGB &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB LIGHT CUTOFF_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT HEIGHT &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT NAME &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB LIGHT POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB LIGHT POWER &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT RADIUS &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT SHAPE &lt;&quot;Undefined&quot;|&quot;Square&quot;|&quot;Disk&quot;|&quot;Rectangle&quot;|&quot;Ellipse&quot;&gt;</code></li>
+  <li><code>0 !LPUB LIGHT SIZE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT SPECULAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT SPOT_BLEND &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT SPOT_SIZE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT STRENGTH &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB LIGHT TARGET_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB LIGHT TYPE &lt;&quot;Point&quot;|&quot;Sun&quot;|&quot;Spot&quot;|&quot;Area&quot;&gt;</code></li>
+  <li><code>0 !LPUB LIGHT WIDTH &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR ENABLED ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR ENABLE_SETTING ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB MODEL</code></li>
-  <li><code>0 !LPUB MODEL_STEP_NUMBER <integer></code></li>
+  <li><code>0 !LPUB MODEL_STEP_NUMBER &lt;integer&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ADJUST_ON_ITEM_OFFSET ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB MULTI_STEP ALLOC ( HORIZONTAL | VERTICAL )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ANGLES ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_FOV <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_NAME <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ANGLES ( &lt;decimal&gt; &lt;decimal&gt; ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ &lt;decimal&gt; &lt;decimal&gt; ] )</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_FOV &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_NAME &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ORTHOGRAPHIC ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_TARGET <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_UPVECTOR <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ZFAR <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ZNEAR <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM FADE_STEPS COLOR <&quot;LDraw_colour_name&quot;> | <&quot;0x|#><[AA]RRGGBB&quot;> [ USE ( TRUE | FALSE ) ]</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_TARGET &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_UPVECTOR &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ZFAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM CAMERA_ZNEAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM FADE_STEPS COLOR &lt;&quot;LDraw_colour_name&quot;&gt; | &lt;&quot;0x|#&gt;&lt;[AA]RRGGBB&quot;&gt; [ USE ( TRUE | FALSE ) ]</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM FADE_STEPS ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM FADE_STEPS OPACITY <integer></code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM FADE_STEPS OPACITY &lt;integer&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM FADE_STEPS SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGHLIGHT_STEP COLOR <&quot;color name|#RRGGBB&quot;></code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGHLIGHT_STEP COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM HIGHLIGHT_STEP ENABLED ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGHLIGHT_STEP LINE_WIDTH <integer></code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGHLIGHT_STEP LINE_WIDTH &lt;integer&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM HIGHLIGHT_STEP SETUP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM IMAGE_SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM MODEL_SCALE <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM IMAGE_SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM MODEL_SCALE &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB MULTI_STEP ASSEM PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
-  <li><code>0 !LPUB MULTI_STEP ASSEM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
+  <li><code>0 !LPUB MULTI_STEP ASSEM STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
   <li><code>0 !LPUB MULTI_STEP BEGIN</code></li>
   <li><code>0 !LPUB MULTI_STEP COUNT_GROUP_STEPS ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB MULTI_STEP DIVIDER</code></li>
-  <li><code>0 !LPUB MULTI_STEP DIVIDER_POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) <decimal Location> <decimal X1> <decimal Y1> [ <decimal X2> <decimal Y2> <decimal X3> <decimal Y3> <decimal X4> <decimal Y4>] <decimal Base> [<integer Segments>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
-  <li><code>0 !LPUB MULTI_STEP DIVIDER_POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR <&quot;#RRGGBB&quot;> WIDTH <decimal> [ HIDE_TIP ( TRUE | FALSE )] [ ID <pointer number integer>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH <decimal> HEIGHT <decimal> [ ID <pointer number integer>])</code></li>
+  <li><code>0 !LPUB MULTI_STEP DIVIDER_POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) &lt;decimal Location&gt; &lt;decimal X1&gt; &lt;decimal Y1&gt; [ &lt;decimal X2&gt; &lt;decimal Y2&gt; &lt;decimal X3&gt; &lt;decimal Y3&gt; &lt;decimal X4&gt; &lt;decimal  Y4&gt;] &lt;decimal Base&gt; [&lt;integer Segments&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
+  <li><code>0 !LPUB MULTI_STEP DIVIDER_POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR &lt;&quot;#RRGGBB&quot;&gt; WIDTH &lt;decimal&gt; [ HIDE_TIP ( TRUE | FALSE )] [ ID &lt;pointer number integer&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH &lt;decimal&gt; HEIGHT &lt;decimal&gt; [ ID &lt;pointer number integer&gt;])</code></li>
   <li><code>0 !LPUB MULTI_STEP END</code></li>
   <li><code>0 !LPUB MULTI_STEP FREEFORM ( FALSE | ( STEP_NUMBER | ASSEM | PLI | ROTATE_ICON ) ( LEFT | RIGHT | TOP | BOTTOM | CENTER ))</code></li>
-  <li><code>0 !LPUB MULTI_STEP MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB MULTI_STEP PLI MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP PLI MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP PLI PER_STEP ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB MULTI_STEP PLI PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON ARROW ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON ARROW ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ROTATE_ICON DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP ROTATE_ICON PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON SCALE <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP SEPARATOR [( PAGE_LENGTH | CUSTOM_LENGTH ) <decimal> ] THICKNESS <integer> <&quot;color name&quot;|&quot;#RRGGBB&quot;> MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP ROTATE_ICON SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP SEPARATOR [( PAGE_LENGTH | CUSTOM_LENGTH ) &lt;decimal&gt; ] THICKNESS &lt;integer&gt; &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP SHOW_GROUP_STEP_NUMBER ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB MULTI_STEP STEPS ( JUSTIFY_LEFT | JUSTIFY_CENTER | JUSTIFY_CENTER_HORIZONTAL | JUSTIFY_CENTER_VERTICAL )</code></li>
-  <li><code>0 !LPUB MULTI_STEP STEP_NUMBER FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB MULTI_STEP STEP_NUMBER FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB MULTI_STEP STEP_NUMBER MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP STEP_NUMBER FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP STEP_NUMBER FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP STEP_NUMBER MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP STEP_NUMBER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB MULTI_STEP STEP_SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB MULTI_STEP SUBMODEL_DISPLAY MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB MULTI_STEP STEP_SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB MULTI_STEP SUBMODEL_DISPLAY MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB MULTI_STEP SUBMODEL_DISPLAY PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB MULTI_STEP SUBMODEL_DISPLAY SHOW ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB MULTI_STEP SUBMODEL_FONT <&quot;font attributes&quot;> [<&quot;font attributes&quot;> <&quot;font attributes&quot;> <&quot;font attributes&quot;>]</code></li>
-  <li><code>0 !LPUB MULTI_STEP SUBMODEL_FONT_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
+  <li><code>0 !LPUB MULTI_STEP SUBMODEL_FONT &lt;&quot;font attributes&quot;&gt; [&lt;&quot;font attributes&quot;&gt; &lt;&quot;font attributes&quot;&gt; &lt;&quot;font attributes&quot;&gt;]</code></li>
+  <li><code>0 !LPUB MULTI_STEP SUBMODEL_FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
   <li><code>0 !LPUB NOSTEP</code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE APP_PLUG DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE APP_PLUG PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB PAGE APP_PLUG_IMAGE DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE FILE <&quot;file path&quot;></code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE FILE &lt;&quot;file path&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE APP_PLUG_IMAGE FILL ( ASPECT | STRETCH | TILE )</code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE APP_PLUG_IMAGE PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE SCALE <decimal></code></li>
-  <li><code>0 !LPUB PAGE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB PAGE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB PAGE APP_PLUG_IMAGE SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PAGE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB PAGE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB PAGE DISPLAY_PAGE_NUMBER ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_BACK PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_AUTHOR_FRONT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE FILE <&quot;file path&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE FILE &lt;&quot;file path&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE FILL ( ASPECT | STRETCH | TILE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE SCALE <decimal></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_COVER_IMAGE SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK FILE <&quot;file path&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK FILE &lt;&quot;file path&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK FILL ( ASPECT | STRETCH | TILE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK SCALE <decimal></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_BACK SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT FILE <&quot;file path&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT FILE &lt;&quot;file path&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT FILL ( ASPECT | STRETCH | TILE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT SCALE <decimal></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_LOGO_FRONT SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_TITLE_BACK PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE DOCUMENT_TITLE_FRONT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB PAGE ENABLE_TEXT_PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE LEGO_DISCLAIMER DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE LEGO_DISCLAIMER MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE LEGO_DISCLAIMER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PAGE MODEL_CATEGORY COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_CATEGORY CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_CATEGORY COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_CATEGORY CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_CATEGORY DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_CATEGORY FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_CATEGORY MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE MODEL_CATEGORY FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_CATEGORY MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_CATEGORY PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_DESCRIPTION DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_DESCRIPTION MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_DESCRIPTION PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_ID COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_ID CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE MODEL_ID COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_ID CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_ID DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_ID FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_ID MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE MODEL_ID FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_ID MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_ID PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_PARTS COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_PARTS CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE MODEL_PARTS COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_PARTS CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_PARTS DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE MODEL_PARTS FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE MODEL_PARTS MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE MODEL_PARTS FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE MODEL_PARTS MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE MODEL_PARTS PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE NUMBER FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE NUMBER FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE NUMBER MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE NUMBER FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE NUMBER FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE NUMBER MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE NUMBER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB PAGE ORIENTATION ( PORTRAIT | LANDSCAPE )</code></li>
   <li><code>0 !LPUB PAGE PAGE_FOOTER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PAGE_FOOTER SIZE <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PAGE_FOOTER SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PAGE_HEADER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PAGE_HEADER SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PAGE POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) <decimal Location> <decimal X1> <decimal Y1> [ <decimal X2> <decimal Y2> <decimal X3> <decimal Y3> <decimal X4> <decimal Y4>] <decimal Base> [<integer Segments>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
-  <li><code>0 !LPUB PAGE POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR <&quot;#RRGGBB&quot;> WIDTH <decimal> [ HIDE_TIP ( TRUE | FALSE )] [ ID <pointer number integer>] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH <decimal> HEIGHT <decimal> [ ID <pointer number integer>])</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PAGE_HEADER SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PAGE POINTER ( TOP | BOTTOM | LEFT | RIGHT | CENTER | TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) &lt;decimal Location&gt; &lt;decimal X1&gt; &lt;decimal Y1&gt; [ &lt;decimal X2&gt; &lt;decimal Y2&gt; &lt;decimal X3&gt; &lt;decimal Y3&gt; &lt;decimal X4&gt; &lt;decimal  Y4&gt;] &lt;decimal Base&gt; [&lt;integer Segments&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]</code></li>
+  <li><code>0 !LPUB PAGE POINTER_ATTRIBUTE ( LINE | BORDER ) ( NONE | SOLID | DASH | DOT | DASH_DOT | DASH_DOT_DOT ) COLOR &lt;&quot;#RRGGBB&quot;&gt; WIDTH &lt;decimal&gt; [ HIDE_TIP ( TRUE | FALSE )] [ ID &lt;pointer number integer&gt;] [( BASE_TOP | BASE_BOTTOM | BASE_LEFT | BASE_RIGHT )]) ( TIP WIDTH &lt;decimal&gt; HEIGHT &lt;decimal&gt; [ ID &lt;pointer number integer&gt;])</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_COPYRIGHT_BACK PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_DESCRIPTION PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_EMAIL DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_EMAIL PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_EMAIL_BACK PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_URL DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_URL PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK CONTENT <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK CONTENT &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_URL_BACK DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE PUBLISH_URL_BACK MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE PUBLISH_URL_BACK PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE SCENE ASSEM ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE ATTRIBUTE_PIXMAP ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE ATTRIBUTE_TEXT ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE CALLOUT ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE CALLOUT_INSTANCE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE CALLOUT_POINTER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE CALLOUT_UNDERPINNING ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE CSI_ANNOTATION ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE CSI_ANNOTATION_PART ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE DIVIDER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE DIVIDER_ITEM ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE DIVIDER_LINE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE DIVIDER_POINTER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE MULTI_STEP ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE MULTI_STEPS ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PAGE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PAGE_NUMBER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PAGE_POINTER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PICTURE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PLI ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PLI_ANNOTATION ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PLI_GRABBER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PLI_INSTANCE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PLI_PART ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE PLI_PART_GROUP ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE POINTER_GRABBER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE POINTER_HEAD ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE POINTER_SEG_FIRST ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE POINTER_SEG_SECOND ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE POINTER_SEG_THIRD ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE RESERVE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE ROTATE_ICON ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE STEP_NUMBER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE STEP_RECTANGLE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE SUBMODEL_DISPLAY ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE SUBMODEL_GRABBER ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE SUBMODEL_INSTANCE ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE SUBMODEL_INST_COUNT ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SCENE TEXT ( BRING_TO_FRONT | SEND_TO_BACK ) <decimal X pos> <decimal Y pos></code></li>
-  <li><code>0 !LPUB PAGE SIZE <decimal width> <decimal height> [ <&quot;page size id&quot;> ] | <&quot;page size id&quot;></code></li>
-  <li><code>0 !LPUB PAGE SUBMODEL_BACKGROUND_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
-  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PAGE SCENE ASSEM ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE ATTRIBUTE_PIXMAP ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE ATTRIBUTE_TEXT ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE CALLOUT ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE CALLOUT_INSTANCE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE CALLOUT_POINTER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE CALLOUT_UNDERPINNING ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE CSI_ANNOTATION ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE CSI_ANNOTATION_PART ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE DIVIDER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE DIVIDER_ITEM ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE DIVIDER_LINE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE DIVIDER_POINTER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE MULTI_STEP ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE MULTI_STEPS ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PAGE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PAGE_NUMBER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PAGE_POINTER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PICTURE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PLI ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PLI_ANNOTATION ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PLI_GRABBER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PLI_INSTANCE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PLI_PART ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE PLI_PART_GROUP ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE POINTER_GRABBER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE POINTER_HEAD ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE POINTER_SEG_FIRST ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE POINTER_SEG_SECOND ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE POINTER_SEG_THIRD ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE RESERVE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE ROTATE_ICON ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE STEP_NUMBER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE STEP_RECTANGLE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE SUBMODEL_DISPLAY ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE SUBMODEL_GRABBER ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE SUBMODEL_INSTANCE ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE SUBMODEL_INST_COUNT ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SCENE TEXT ( BRING_TO_FRONT | SEND_TO_BACK ) &lt;decimal X pos&gt; &lt;decimal Y pos&gt;</code></li>
+  <li><code>0 !LPUB PAGE SIZE &lt;decimal width&gt; &lt;decimal height&gt; [ &lt;&quot;page size id&quot;&gt; ] | &lt;&quot;page size id&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE SUBMODEL_BACKGROUND_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
+  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT_OVERRIDE <integer></code></li>
+  <li><code>0 !LPUB PAGE SUBMODEL_INSTANCE_COUNT_OVERRIDE &lt;integer&gt;</code></li>
   <li><code>0 !LPUB PAGE TEXT_PLACEMENT ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PAGE TOGGLE_PAGE_NUMBER_PLACEMENT ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PARSE_NOSTEP ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PART BEGIN IGN</code></li>
   <li><code>0 !LPUB PART END</code></li>
   <li><code>0 !LPUB PIECE</code></li>
-  <li><code>0 !LPUB PLI ANNOTATE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PLI ANNOTATE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PLI ANNOTATE MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PLI ANNOTATE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI ANNOTATE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI ANNOTATE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PLI ANNOTATION AXLE ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI ANNOTATION BEAM ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI ANNOTATION CABLE ( TRUE | FALSE )</code></li>
@@ -694,167 +698,167 @@ button:hover {
   <li><code>0 !LPUB PLI ANNOTATION USE_FREE_FORM ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI ANNOTATION USE_TITLE ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI ANNOTATION USE_TITLE_AND_FREE_FORM ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB PLI AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PLI AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB PLI BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
+  <li><code>0 !LPUB PLI AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
   <li><code>0 !LPUB PLI BEGIN IGN</code></li>
-  <li><code>0 !LPUB PLI BEGIN SUB <LDraw part name> [ <LDraw colour code> <scale decimal> <fov decimal> <camera angle latitude decimal> <camera angle longitude decimal> <target X> <target Y> <target Z> <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD ) [ LDRAW_TYPE <LDraw part name> ]]</code></li>
-  <li><code>0 !LPUB PLI BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB PLI CAMERA_ANGLES ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )</code></li>
-  <li><code>0 !LPUB PLI CAMERA_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB PLI CAMERA_FOV <decimal></code></li>
+  <li><code>0 !LPUB PLI BEGIN SUB &lt;LDraw part name&gt; [ &lt;LDraw colour code&gt; &lt;scale decimal&gt; &lt;fov decimal&gt; &lt;camera angle latitude decimal&gt; &lt;camera angle longitude decimal&gt; &lt;target X&gt; &lt;target Y&gt; &lt;target Z&gt; &lt;rotate X&gt; &lt;rotate Y&gt; &lt;rotate Z&gt; ( ABS | REL | ADD ) [ LDRAW_TYPE &lt;LDraw part name&gt; ]]</code></li>
+  <li><code>0 !LPUB PLI BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB PLI CAMERA_ANGLES ( &lt;decimal&gt; &lt;decimal&gt; ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ &lt;decimal&gt; &lt;decimal&gt; ] )</code></li>
+  <li><code>0 !LPUB PLI CAMERA_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI CAMERA_FOV &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PLI CAMERA_ORTHOGRAPHIC ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI CAMERA_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB PLI CAMERA_TARGET <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB PLI CAMERA_UPVECTOR <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB PLI CAMERA_ZFAR <decimal></code></li>
-  <li><code>0 !LPUB PLI CAMERA_ZNEAR <decimal></code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI CIRCLE_STYLE STYLE <annotation style integer 0-4></code></li>
-  <li><code>0 !LPUB PLI CONSTRAIN ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) <integer> )</code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI ELEMENT_STYLE STYLE <annotation style integer 0-4></code></li>
+  <li><code>0 !LPUB PLI CAMERA_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB PLI CAMERA_TARGET &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB PLI CAMERA_UPVECTOR &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB PLI CAMERA_ZFAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI CAMERA_ZNEAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI CIRCLE_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
+  <li><code>0 !LPUB PLI CONSTRAIN ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) &lt;integer&gt; )</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI ELEMENT_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
   <li><code>0 !LPUB PLI END</code></li>
-  <li><code>0 !LPUB PLI HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB PLI HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB PLI HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB PLI HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB PLI HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB PLI IMAGE_SIZE <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PLI HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB PLI HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB PLI HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB PLI HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB PLI IMAGE_SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PLI INCLUDE_SUBMODELS ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI INSTANCE_COUNT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PLI INSTANCE_COUNT FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PLI INSTANCE_COUNT MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI LDGLITE_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB PLI LDVIEW_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB PLI MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI MODEL_SCALE <decimal></code></li>
-  <li><code>0 !LPUB PLI PART MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PLI INSTANCE_COUNT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI INSTANCE_COUNT FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI INSTANCE_COUNT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI LDGLITE_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI LDVIEW_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI MODEL_SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI PART MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB PLI PART_ELEMENTS BRICKLINK ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI PART_ELEMENTS DISPLAY ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI PART_ELEMENTS LEGO ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI PART_ELEMENTS LOCAL_LEGO_ELEMENTS_FILE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI PART_GROUP <LDraw part name> <LDraw colour code> OFFSET <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB PLI PART_GROUP &lt;LDraw part name&gt; &lt;LDraw colour code&gt; OFFSET &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB PLI PART_GROUP_ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI PART_ROTATION <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD )</code></li>
+  <li><code>0 !LPUB PLI PART_ROTATION &lt;rotate X&gt; &lt;rotate Y&gt; &lt;rotate Z&gt; ( ABS | REL | ADD )</code></li>
   <li><code>0 !LPUB PLI PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB PLI POVRAY_PARMS <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB PLI POVRAY_PARMS &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB PLI PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI RECTANGLE_STYLE STYLE <annotation style integer 0-4></code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI RECTANGLE_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
   <li><code>0 !LPUB PLI SHOW ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB PLI SORT ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB PLI SORT_BY SORT_OPTION <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB PLI SORT_ORDER PRIMARY <&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;></code></li>
-  <li><code>0 !LPUB PLI SORT_ORDER PRIMARY_DIRECTION <&quot;Ascending&quot;|&quot;Descending&quot;></code></li>
-  <li><code>0 !LPUB PLI SORT_ORDER SECONDARY <&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;></code></li>
-  <li><code>0 !LPUB PLI SORT_ORDER SECONDARY_DIRECTION <&quot;Ascending&quot;|&quot;Descending&quot;></code></li>
-  <li><code>0 !LPUB PLI SORT_ORDER TERTIARY <&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;></code></li>
-  <li><code>0 !LPUB PLI SORT_ORDER TERTIARY_DIRECTION <&quot;Ascending&quot;|&quot;Descending&quot;></code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB PLI SQUARE_STYLE STYLE <annotation style integer 0-4></code></li>
-  <li><code>0 !LPUB PLI STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
-  <li><code>0 !LPUB PLI SUBMODEL_BACKGROUND_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
-  <li><code>0 !LPUB PLI SUBMODEL_FONT <&quot;font attributes&quot;> [<&quot;font attributes&quot;> <&quot;font attributes&quot;> <&quot;font attributes&quot;>]</code></li>
-  <li><code>0 !LPUB PLI SUBMODEL_FONT_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;>]</code></li>
-  <li><code>0 !LPUB POINTER_BASE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB POINTER_BASE BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB POINTER_BASE MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB PLI SORT_BY SORT_OPTION &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SORT_ORDER PRIMARY &lt;&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SORT_ORDER PRIMARY_DIRECTION &lt;&quot;Ascending&quot;|&quot;Descending&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SORT_ORDER SECONDARY &lt;&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SORT_ORDER SECONDARY_DIRECTION &lt;&quot;Ascending&quot;|&quot;Descending&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SORT_ORDER TERTIARY &lt;&quot;Part Color&quot;|&quot;Part Category&quot;|&quot;Part Size&quot;|&quot;Part Element&quot;|&quot;No Sort&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SORT_ORDER TERTIARY_DIRECTION &lt;&quot;Ascending&quot;|&quot;Descending&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB PLI SQUARE_STYLE STYLE &lt;annotation style integer 0-4&gt;</code></li>
+  <li><code>0 !LPUB PLI STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
+  <li><code>0 !LPUB PLI SUBMODEL_BACKGROUND_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
+  <li><code>0 !LPUB PLI SUBMODEL_FONT &lt;&quot;font attributes&quot;&gt; [&lt;&quot;font attributes&quot;&gt; &lt;&quot;font attributes&quot;&gt; &lt;&quot;font attributes&quot;&gt;]</code></li>
+  <li><code>0 !LPUB PLI SUBMODEL_FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
+  <li><code>0 !LPUB POINTER_BASE BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB POINTER_BASE BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB POINTER_BASE MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB POINTER_BASE PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
-  <li><code>0 !LPUB REMOVE GROUP <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB REMOVE NAME <LDraw part name></code></li>
-  <li><code>0 !LPUB REMOVE PART <LDraw part name></code></li>
-  <li><code>0 !LPUB RESERVE <decimal></code></li>
-  <li><code>0 !LPUB RESOLUTION <integer> ( DPI | DPCM )</code></li>
-  <li><code>0 !LPUB ROTATE_ICON ARROW ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB ROTATE_ICON BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB ROTATE_ICON BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
+  <li><code>0 !LPUB REMOVE GROUP &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB REMOVE NAME &lt;LDraw part name&gt;</code></li>
+  <li><code>0 !LPUB REMOVE PART &lt;LDraw part name&gt;</code></li>
+  <li><code>0 !LPUB RESERVE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB RESOLUTION &lt;integer&gt; ( DPI | DPCM )</code></li>
+  <li><code>0 !LPUB ROTATE_ICON ARROW ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB ROTATE_ICON BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB ROTATE_ICON BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
   <li><code>0 !LPUB ROTATE_ICON DISPLAY ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB ROTATE_ICON MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB ROTATE_ICON MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB ROTATE_ICON PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB ROTATE_ICON SCALE <decimal></code></li>
-  <li><code>0 !LPUB ROTATE_ICON SIZE <decimal> <decimal></code></li>
-  <li><code>0 !LPUB START_PAGE_NUMBER <integer></code></li>
-  <li><code>0 !LPUB START_STEP_NUMBER <integer></code></li>
-  <li><code>0 !LPUB STEP_NUMBER FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB STEP_NUMBER FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB STEP_NUMBER MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB ROTATE_ICON SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB ROTATE_ICON SIZE &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB START_PAGE_NUMBER &lt;integer&gt;</code></li>
+  <li><code>0 !LPUB START_STEP_NUMBER &lt;integer&gt;</code></li>
+  <li><code>0 !LPUB STEP_NUMBER FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB STEP_NUMBER FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB STEP_NUMBER MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB STEP_NUMBER PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
   <li><code>0 !LPUB STEP_PLI PER_STEP ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY AUTOMATE_EDGE_COLOR CONTRAST <decimal></code></li>
+  <li><code>0 !LPUB STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY AUTOMATE_EDGE_COLOR CONTRAST &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY AUTOMATE_EDGE_COLOR ENABLE ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY AUTOMATE_EDGE_COLOR SATURATION <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR <&quot;color name&quot;|&quot;#RRGGBB&quot;> | GRADIENT <mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;> | PICTURE <&quot;file path&quot;> [ STRETCH ])</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY BORDER ( NONE <line integer 0> | HIDDEN <line integer 0> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | SQUARE <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> | ROUND <line integer 0-5> <&quot;color name|#RRGGBB&quot;> <thickness decimal> <radius decimal> ) MARGINS <decimal X> <decimal Y></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_ANGLES ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_DISTANCE <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_FOV <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_POSITION <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_TARGET <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_UPVECTOR <decimal X> <decimal Y> <decimal Z></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_ZFAR <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_ZNEAR <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY CONSTRAIN ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) <integer> )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST BLACK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST DARK_EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST EDGE_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST STUD_CYLINDER_COLOR <&quot;#[AA]RRGGBB&quot;> | <0-255, 0-255, 0-255, 0-255></code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY AUTOMATE_EDGE_COLOR SATURATION &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY BACKGROUND ( TRANSPARENT | SUBMODEL_BACKGROUND_COLOR | COLOR &lt;&quot;color name&quot;|&quot;#RRGGBB&quot;&gt; | GRADIENT &lt;mode spread type sizeX sizeY angle &quot;points&quot; &quot;stops&quot;&gt; | PICTURE &lt;&quot;file path&quot;&gt; [ STRETCH ])</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY BORDER ( NONE &lt;line integer 0&gt; | HIDDEN &lt;line integer 0&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | SQUARE &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; | ROUND &lt;line integer 0-5&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;thickness decimal&gt; &lt;radius decimal&gt; ) MARGINS &lt;decimal X&gt; &lt;decimal Y&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_ANGLES ( &lt;decimal&gt; &lt;decimal&gt; ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ &lt;decimal&gt; &lt;decimal&gt; ] )</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_DISTANCE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_FOV &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_POSITION &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_TARGET &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_UPVECTOR &lt;decimal X&gt; &lt;decimal Y&gt; &lt;decimal Z&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_ZFAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CAMERA_ZNEAR &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY CONSTRAIN ( AREA | SQUARE | ( WIDTH | HEIGHT | COLS ) &lt;integer&gt; )</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST BLACK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST COLOR_LIGHT_DARK_INDEX &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST DARK_EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST EDGE_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY HIGH_CONTRAST STUD_CYLINDER_COLOR &lt;&quot;#[AA]RRGGBB&quot;&gt; | &lt;0-255, 0-255, 0-255, 0-255&gt;</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY INCLUDE_SUBMODELS ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY INSTANCE_COUNT FONT <&quot;font attributes&quot;></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY INSTANCE_COUNT FONT_COLOR <&quot;color name|#RRGGBB&quot;></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY INSTANCE_COUNT MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY LDGLITE_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY LDVIEW_PARMS <&quot;string&quot;></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY MARGINS <decimal> <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY MODEL_SCALE <decimal></code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY PART MARGINS <decimal> <decimal></code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY INSTANCE_COUNT FONT &lt;&quot;font attributes&quot;&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY INSTANCE_COUNT FONT_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY INSTANCE_COUNT MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY LDGLITE_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY LDVIEW_PARMS &lt;&quot;string&quot;&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY MODEL_SCALE &lt;decimal&gt;</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY PART MARGINS &lt;decimal&gt; &lt;decimal&gt;</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY PLACEMENT (( TOP | BOTTOM ) | ( LEFT | CENTER | RIGHT )) | ( TOP_LEFT | TOP_RIGHT | BOTTOM_LEFT | BOTTOM_RIGHT ) ( PAGE | ASSEM ( INSIDE | OUTSIDE ) | MULTI_STEP | STEP_NUMBER | PLI | SUBMODEL_DISPLAY | ROTATE_ICON | CALLOUT )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY POVRAY_PARMS <&quot;string&quot;></code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY POVRAY_PARMS &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY PREFERRED_RENDERER ( NATIVE | LDGLITE | LDVIEW [ SINGLE_CALL | SINGLE_CALL_EXPORT_LIST ] | POVRAY [ LDVIEW_POV_GENERATOR ])</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY SHOW ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY SHOW_INSTANCE_COUNT ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY SHOW_STEP_NUM <integer></code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY SHOW_STEP_NUM &lt;integer&gt;</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY SHOW_SUBMODEL_IN_CALLOUT ( TRUE | FALSE )</code></li>
   <li><code>0 !LPUB SUBMODEL_DISPLAY SHOW_TOP_MODEL ( TRUE | FALSE )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY SUBMODEL_BACKGROUND_COLOR <&quot;color name|#RRGGBB&quot;> [<&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> <&quot;color name|#RRGGBB&quot;> ]</code></li>
-  <li><code>0 !LPUB SUBMODEL_DISPLAY SUBMODEL_ROTATION <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD )</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY STUD_STYLE ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | &lt;stud style integer 0-7&gt; )</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY SUBMODEL_BACKGROUND_COLOR &lt;&quot;color name|#RRGGBB&quot;&gt; [&lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt; &lt;&quot;color name|#RRGGBB&quot;&gt;]</code></li>
+  <li><code>0 !LPUB SUBMODEL_DISPLAY SUBMODEL_ROTATION &lt;rotate X&gt; &lt;rotate Y&gt; &lt;rotate Z&gt; ( ABS | REL | ADD )</code></li>
   <li><code>0 !LPUB SYNTH</code></li>
   <li><code>0 !SILHOUETTE<br>
             0 // Highlight current step block opening command<br>
-            0 !SILHOUETTE <edge line width decimal> <LDraw colour code><br>
+            0 !SILHOUETTE &lt;edge line width decimal&gt; &lt;LDraw colour code&gt;<br>
             0 // Block closing command<br>
             0 !SILHOUETTE</code></li>
-  <li><code>0 BUFEXCHG <bufferName> ( STORE | RETRIEVE )</code></li>
+  <li><code>0 BUFEXCHG &lt;bufferName&gt; ( STORE | RETRIEVE )</code></li>
   <li><code>0 CLEAR</code></li>
-  <li><code>0 MLCAD BTG <&quot;string&quot;></code></li>
+  <li><code>0 MLCAD BTG &lt;&quot;string&quot;&gt;</code></li>
   <li><code>0 MLCAD SKIP_BEGIN</code></li>
   <li><code>0 MLCAD SKIP_END</code></li>
-  <li><code>0 ROTSTEP <rotate X> <rotate Y> <rotate Z> ( ABS | REL | ADD )</code></li>
+  <li><code>0 ROTSTEP &lt;rotate X&gt; &lt;rotate Y&gt; &lt;rotate Z&gt; ( ABS | REL | ADD )</code></li>
   <li><code>0 STEP</code></li>
   <li><code>0 SYNTH BEGIN</code></li>
   <li><code>0 SYNTH CROSS</code></li>
@@ -866,14 +870,15 @@ button:hover {
   <li><code>0 SYNTH SYNTHESIZED</code></li>
 </ol>
 <p><b>Meta Command Notes:</b><br>
-<li>The <&quot;page size id&quot;> meta value captures paper size, e.g. A4, B4, Letter, Custom, etc...<br>
- For custom page size use <decimal width> <decimal height> &quot;Custom&quot;</li><br>
-<li>The SUBMODEL metas below enable font and background settings for nested submodels and callouts.<br>
-- The SUBMODEL_FONT meta is supported for up to four levels.<br>
-- The SUBMODEL_FONT_COLOR meta is supported for up to four levels.<br>
-- The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels.<br><br>
--Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined.</li><br>
-<li>The <stud style integer 0-7> meta value captures the 7 stud style types.<br>
+<li>The <code>&lt;&quot;page size id&quot;&gt;</code> meta value captures paper size, e.g. <code>A4</code>, <code>B4</code>, <code>Letter</code>, <code>Custom</code>, etc...<br>
+ For custom page size use <code>&lt;decimal width&gt; &lt;decimal height&gt; &quot;Custom&quot;.</code></li><br>
+<li>The <code>SUBMODEL</code> metas below enable font and background settings for nested submodels and callouts.<br>
+- The <code>SUBMODEL_FONT</code> meta is supported for up to four levels.<br>
+- The <code>SUBMODEL_FONT_COLOR</code> meta is supported for up to four levels.<br>
+- The <code>SUBMODEL_BACKGROUND_COLOR</code> meta is supported for up to four levels.<br><br>
+-Four level colours <code>#FFFFFF</code>, <code>#FFFFCC</code>, <code>#FFCCCC</code>, and <code>#CCCCFF</code> are predefined.</li><br>
+<li>The <code>&lt;stud style integer 0-7&gt;</code> meta value captures the 7 stud style types.<br>
+ <code>
  0 None<br>
  1 Thin line logo<br>
  2 Outline logo<br>
@@ -881,21 +886,23 @@ button:hover {
  4 Rounded top logo<br>
  5 Flattened logo<br>
  6 High contrast without logo<br>
- 7 High contrast with logo</li></br>
-<li>The <annotation style integer 0-4> meta value captures the 4 annotation icon style types.<br>
+ 7 High contrast with logo</code></li></br>
+<li>The <code>&lt;annotation style integer 0-4&gt;</code> meta value captures the 4 annotation icon style types.<br>
+ <code>
  0 None<br>
  1 Circle<br>
  2 Square<br>
  3 Rectangle<br>
- 4 LEGO element</li></br>
-<li>The <line integer 0-5> meta value captures the 5 border line types.<br>
+ 4 LEGO element</code></li></br>
+<li>The <code>&lt;line integer 0-5&gt;</code> meta value captures the 5 border line types.<br>
+ <code>
  0 None<br>
  1 Solid ----<br>
  2 Dash - - <br>
  3 Dot ....<br>
  4 Dash dot -.-.<br>
- 5 Dash dot dot -..-</li><br>
-<li>The <&quot;font attributes&quot;> meta value is a comma-delimited <&quot;string&quot;> of 10 attributes.<br>
+ 5 Dash dot dot -..-</code></li><br>
+<li>The <code>&lt;&quot;font attributes&quot;&gt;</code> meta value is a comma-delimited <code>&lt;&quot;string&quot;&gt;</code> of 10 attributes.<br>
  1 FamilyName - &quot;Arial&quot;<br>
  2 PointSizeF - 64 size of font, -1 if using PixelSize<br>
  3 PixelSize - -1 size of font, -1 if using PointSizeF<br>
@@ -905,11 +912,11 @@ button:hover {
  7 Strikeout - 0 = disabled, 1 = enabled<br>
  8 StrikeOut - 0 = disabled, 1 = enabled<br>
  9 FixedPitch - 0 = disabled, 1 = enabled<br>
- 10 RawMode - 0 obsolete, use default value<br>
- Example font attributes <&quot; Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 &quot;><li>
+ 10 RawMode - 0 obsolete, use default value<br><br>
+ Example font attributes <code>&lt;&quot; Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 &quot;&gt;</code></li>
 </p>
-<p>End of file.</p>
 </ul>
+<p>End of file.</p> 
 <script>
 function commandFunction() {
     var input, filter, ol, li, code, i, txtValue;
@@ -928,4 +935,5 @@ function commandFunction() {
     }
 }
 </script>
-</body></html>
+</body>
+</html>
