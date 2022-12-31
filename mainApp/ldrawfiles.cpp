@@ -703,13 +703,11 @@ int LDrawFile::getPrevStepPosition(
       QVector<int> indexKey = { getSubmodelIndex(mcFileName), mcLineNumber };
       const int currentStepIndex = _buildModStepIndexes.indexOf(indexKey);
 
-#ifdef QT_DEBUG_MODE
       if (currentStepIndex == BM_INVALID_INDEX) {
           emit gui->messageSig(LOG_ERROR, QString("Could not find an index for TopOfStep fileName: %1 and lineNumber: %2")
                                .arg(mcFileName).arg(mcLineNumber));
           return position;
       }
-#endif
 
       Q_FOREACH (const QString &modKey, _buildMods.keys()) {
           const QMap<int,int> &modActions = _buildMods[modKey]._modActions;
@@ -3669,20 +3667,18 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
   // in to see if there are any other valid use-cases for it.
   if (!action) {
      action = setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
-#ifdef QT_DEBUG_MODE
      if (insert == " Future")
          insert = " Default (Future)";
      insert = " Default";
-#endif
   }
 
-#ifdef QT_DEBUG_MODE
   if (!action)
       emit gui->messageSig(LOG_ERROR, QString("Get BuildMod%1 Action: (INVALID), StepIndex: %2, ActionStepIndex: %3, ModKey: '%4'")
                                               .arg(insert)
                                               .arg(stepIndex)
                                               .arg(actionStepIndex)
                                               .arg(buildModKey));
+#ifdef QT_DEBUG_MODE
   else
       emit gui->messageSig(LOG_TRACE, QString("Get BuildMod%1 Action: %2, %3ActionStepIndex: %4, ModKey: '%5'")
                                               .arg(insert)
@@ -3824,10 +3820,8 @@ void LDrawFile::setBuildModNavBackward()
 
 int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber)
 {
-#ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString insert = QString("Get BuildMod");
-#endif
 
     int modelIndex = _modelIndex;
     int lineNumber = _lineNumber;
@@ -3843,25 +3837,31 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
     } else if (modelIndex > BM_INVALID_INDEX) {
         QVector<int> indexKey = { modelIndex, lineNumber };
         stepIndex = _buildModStepIndexes.indexOf(indexKey);
-#ifdef QT_DEBUG_MODE
         if (stepIndex == BM_INVALID_INDEX) {
             logType = LOG_ERROR;
             insert = QString("Get BuildMod (INVALID)");
         }
-#endif
     }
-#ifdef QT_DEBUG_MODE
     else {
         logType = LOG_ERROR;
         insert = QString("Get BuildMod (INVALID)");
     }
 
-    emit gui->messageSig(logType,  QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
-                                           .arg(insert)
-                                           .arg(stepIndex)
-                                           .arg(modelIndex)
-                                           .arg(lineNumber)
-                                           .arg(getSubmodelName(modelIndex)));
+    if (logType == LOG_ERROR)
+        emit gui->messageSig(logType, QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
+                                              .arg(insert)
+                                              .arg(stepIndex)
+                                              .arg(modelIndex)
+                                              .arg(lineNumber)
+                                              .arg(getSubmodelName(modelIndex)));
+#ifdef QT_DEBUG_MODE
+    else
+        emit gui->messageSig(logType, QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
+                                              .arg(insert)
+                                              .arg(stepIndex)
+                                              .arg(modelIndex)
+                                              .arg(lineNumber)
+                                              .arg(getSubmodelName(modelIndex)));
 #endif
 
     return stepIndex;
@@ -3871,10 +3871,8 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
 
 int LDrawFile::getBuildModStepLineNumber(int stepIndex, bool bottom)
 {
-#ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString message;
-#endif
 
     int lineNumber = 0;
     if (stepIndex  > BM_INVALID_INDEX && stepIndex < _buildModStepIndexes.size()) {
@@ -3895,16 +3893,18 @@ int LDrawFile::getBuildModStepLineNumber(int stepIndex, bool bottom)
                           .arg(lineNumber).arg(stepIndex)
                           .arg(getSubmodelName(_buildModStepIndexes.at(bottom ? stepIndex + 1 : stepIndex).at(BM_MODEL_NAME)));
 #endif
-    }
-#ifdef QT_DEBUG_MODE
-    else {
+    } else {
         logType = LOG_ERROR;
         message = QString("Get BuildMod (INVALID) %1 LineNumber: %2, StepIndex: %3")
                           .arg(bottom ? "BottomOfStep," : "TopOfStep,")
                           .arg(lineNumber).arg(stepIndex);
     }
 
-    emit gui->messageSig(logType, message);
+    if (logType == LOG_ERROR)
+        emit gui->messageSig(logType, message);
+#ifdef QT_DEBUG_MODE
+    else
+        emit gui->messageSig(logType, message);
 #endif
 
     return lineNumber;
@@ -3925,30 +3925,35 @@ int LDrawFile::getBuildModStepIndex(const QString &buildModKey)
 
 bool LDrawFile::getBuildModStepIndexWhere(const int stepIndex, QString &modelName,int &modelIndex, int &lineNumber)
 {
-#ifdef QT_DEBUG_MODE
-  LogType logType = LOG_DEBUG;
-  QString insert  = QString("Get BuildMod Where");
-#endif
+    LogType logType = LOG_DEBUG;
+    QString insert  = QString("Get BuildMod Where");
 
-  bool validIndex = false;
-  if (stepIndex > BM_INVALID_INDEX && stepIndex < _buildModStepIndexes.size()) {
-      modelIndex = _buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME);
-      lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
-      modelName  = getSubmodelName(modelIndex);
-      validIndex = ! modelName.isEmpty() && lineNumber > 0;
-  }
-#ifdef QT_DEBUG_MODE
-  else {
-      logType = LOG_ERROR;
-      insert = QString("Get BuildMod (INVALID) Where");
-  }
+    bool validIndex = false;
+    if (stepIndex > BM_INVALID_INDEX && stepIndex < _buildModStepIndexes.size()) {
+        modelIndex = _buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME);
+        lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
+        modelName  = getSubmodelName(modelIndex);
+        validIndex = ! modelName.isEmpty() && lineNumber > 0;
+    } else {
+        logType = LOG_ERROR;
+        insert = QString("Get BuildMod (INVALID) Where");
+    }
 
-  emit gui->messageSig(logType, QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
-                                        .arg(insert)
-                                        .arg(stepIndex)
-                                        .arg(modelIndex)
-                                        .arg(lineNumber)
-                                        .arg(modelName));
+    if (logType == LOG_ERROR)
+        emit gui->messageSig(logType, QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
+                                              .arg(insert)
+                                              .arg(stepIndex)
+                                              .arg(modelIndex)
+                                              .arg(lineNumber)
+                                              .arg(modelName));
+#ifdef QT_DEBUG_MODE
+    else
+        emit gui->messageSig(logType, QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
+                                              .arg(insert)
+                                              .arg(stepIndex)
+                                              .arg(modelIndex)
+                                              .arg(lineNumber)
+                                              .arg(modelName));
 #endif
 
   return validIndex;
@@ -3962,10 +3967,9 @@ int LDrawFile::getBuildModPrevStepIndex()
 int LDrawFile::getBuildModNextStepIndex()
 {
     int lineNumber  = 0;
-
-#ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString message;
+#ifdef QT_DEBUG_MODE
     bool validIndex = false;
     bool firstIndex = false;
 #endif
@@ -3987,53 +3991,56 @@ int LDrawFile::getBuildModNextStepIndex()
         validIndex = stepIndex != BM_INVALID_INDEX;
 #endif
     } else {
-
-        stepIndex = BM_INVALID_INDEX;
-
 #ifdef QT_DEBUG_MODE
+        stepIndex = BM_INVALID_INDEX;
         validIndex = false;
+#endif
         logType = LOG_ERROR;
         message = QString("Get BuildMod (INVALID) StepIndex: %1")
                           .arg(_buildModNextStepIndex);
-#endif
-
     }
 
+    if (logType == LOG_ERROR) {
+        emit gui->messageSig(logType, message);
+    }
 #ifdef QT_DEBUG_MODE
-    if (validIndex) {
-        QVector<int> topOfStep = { 0,0 };
+    else
+    {
+        if (validIndex) {
+            QVector<int> topOfStep = { 0,0 };
 
-        if (!firstIndex) {
-            topOfStep     = _buildModStepIndexes.at(_buildModNextStepIndex);
-            lineNumber    = topOfStep.at(BM_LINE_NUMBER);
+            if (!firstIndex) {
+                topOfStep     = _buildModStepIndexes.at(_buildModNextStepIndex);
+                lineNumber    = topOfStep.at(BM_LINE_NUMBER);
+            }
+
+            QString modelName = getSubmodelName(topOfStep.at(BM_MODEL_NAME));
+            QString insert    = firstIndex ? "First" : "Next";
+            validIndex        = !modelName.isEmpty() && lineNumber > BM_BEGIN_LINE_NUM;
+
+            if (!validIndex) {
+                insert.prepend("(INVALID) ");
+                if (modelName.isEmpty())
+                    modelName = "undefined";
+                if (lineNumber == -1)
+                    lineNumber = BM_BEGIN_LINE_NUM;
+            }
+            message = QString("Get BuildMod %1 "
+                              "StepIndex: %2, "
+                              "PrevStepIndex: %3, "
+                              "ModelName: %4, "
+                              "LineNumber: %5, "
+                              "Result: %6")
+                              .arg(insert)
+                              .arg(_buildModNextStepIndex)
+                              .arg(_buildModPrevStepIndex)
+                              .arg(modelName)
+                              .arg(lineNumber)
+                              .arg(validIndex ? "OK" : "KO");
         }
 
-        QString modelName = getSubmodelName(topOfStep.at(BM_MODEL_NAME));
-        QString insert    = firstIndex ? "First" : "Next";
-        validIndex        = !modelName.isEmpty() && lineNumber > BM_BEGIN_LINE_NUM;
-
-        if (!validIndex) {
-            insert.prepend("(INVALID) ");
-            if (modelName.isEmpty())
-                modelName = "undefined";
-            if (lineNumber == -1)
-                lineNumber = BM_BEGIN_LINE_NUM;
-        }
-        message = QString("Get BuildMod %1 "
-                          "StepIndex: %2, "
-                          "PrevStepIndex: %3, "
-                          "ModelName: %4, "
-                          "LineNumber: %5, "
-                          "Result: %6")
-                          .arg(insert)
-                          .arg(_buildModNextStepIndex)
-                          .arg(_buildModPrevStepIndex)
-                          .arg(modelName)
-                          .arg(lineNumber)
-                          .arg(validIndex ? "OK" : "KO");
+        emit gui->messageSig(logType, message);
     }
-
-    emit gui->messageSig(logType, message);
 #endif
 
     return stepIndex;
