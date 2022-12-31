@@ -137,8 +137,9 @@ namespace QsLogging
     QMutex logMutex;
     Level level;
     DestinationList destList;
+
+    bool includeLogLevel;
     bool includeTimeStamp;
-    bool includeLogLevel;    
     bool includeLineNumber;
     bool includeFileName;
     bool includeFunctionInfo;
