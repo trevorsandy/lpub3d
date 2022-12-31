@@ -157,8 +157,8 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox("Buffer Exchange");
   box->setWhatsThis(lpubWT(WT_SETUP_PROJECT_PARSE_BUFFER_EXCHANGE,box->title()));
   vlayout->addWidget(box);
-  CheckBoxGui *childParseNoStep = new CheckBoxGui(tr("Parse Single Step With NOSTEP And BUFEXCHG Commands"),&lpubMeta->parseNoStep,box);
-  box->setToolTip(("Parse single steps containing NOSTEP and BUFEXCHG commands. Multi-step groups are automatically parsed."));
+  CheckBoxGui *childParseNoStep = new CheckBoxGui(tr("Parse Single Step With NOSTEP Or BUFEXCHG Commands"),&lpubMeta->parseNoStep,box);
+  box->setToolTip(("Parse single steps containing NOSTEP or BUFEXCHG commands. Multi-step groups are automatically parsed."));
   data->children.append(childParseNoStep);
   connect (childParseNoStep->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 

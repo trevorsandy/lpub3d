@@ -2642,8 +2642,8 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  The following configuration setup is available for\n"
             "  buffer exchange:\n"
-            "  - Parse Single Step With NOSTEP And BUFEXCHG Commands: \n"
-            "    Parse single steps containing NOSTEP and BUFEXCHG\n"
+            "  - Parse Single Step With NOSTEP Or BUFEXCHG Commands: \n"
+            "    Parse single steps containing NOSTEP or BUFEXCHG\n"
             "    commands. Multi-step groups are automatically parsed.\n\n"
             "    Typically, a step with a NOSTEP command is not parsed.\n"
             "    However, bufexchg commands are not properly parsed if\n"

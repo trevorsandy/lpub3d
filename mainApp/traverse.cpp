@@ -3447,7 +3447,7 @@ int Gui::findPage(
                case BuildModApplyRc:
                case BuildModRemoveRc:
                  if (Preferences::buildModEnabled) {
-                   // special case where we have build mod and no step commands in the same single step
+                   // special case where we have BUILD_MOD and NOSTEP commands in the same single STEP
                    if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
                        opts.flags.parseNoStep = meta.LPub.parseNoStep.value();
                  }
@@ -3790,7 +3790,7 @@ int Gui::findPage(
                   csiParts = bfx[meta.bfx.value()];
                   lineTypeIndexes = bfxLineTypeIndexes[meta.bfx.value()];
                 }
-              // special case where we have buffer exchange load and no step commands in the same single step
+              // special case where we have BUFEXCHG load and NOSTEP commands in the same single STEP
               if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
                   opts.flags.parseNoStep = meta.LPub.parseNoStep.value();
               opts.flags.partsAdded = true;

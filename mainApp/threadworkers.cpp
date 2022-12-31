@@ -2550,68 +2550,73 @@ int CountPageWorker::countPage(
 
             case BuildModApplyRc:
             case BuildModRemoveRc:
-               // to parse build mods to display page when jumping forward and to
-               // parse lines after MULTI_STEP END in the last step of a submodel
-               if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM) { 
-                   if (opts.flags.partsAdded)
-                       emit gui->parseErrorSig(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
-                                               opts.current,Preferences::BuildModErrors,false,false);
-                   buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
-                   // if we are processing lines in the last step of a submodel, the topOfStep.lineNumber
-                   // likely will not reflect a valid value so we'll have to manually set it accordingly...
-                   if (buildModStepIndex == BM_INVALID_INDEX) {
-                       auto scanBackwardToStepMask = [&meta] (Where &topOfStep) {
-                           for ( ;topOfStep >= BM_BEGIN; topOfStep--) {
-                               QString line = gui->readLine(topOfStep);
-                               Rc rc = meta->parse(line,topOfStep);
-                               if (rc == StepRc || rc == RotStepRc)
-                                   return true;
-                           }
-                           return false;
-                       };
-                       if (scanBackwardToStepMask(topOfStep))
-                           buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
-                       else
-                           emit gui->parseErrorSig("Could not establish a valid model name and line number for the current step.",
-                                                   opts.current,Preferences::BuildModErrors,false,false);
-                   }
-                   buildMod.key = meta->LPub.buildMod.key();
-                   if (ldrawFile->buildModContains(buildMod.key)) {
-                       buildMod.action = ldrawFile->getBuildModAction(buildMod.key, buildModStepIndex);
-                       if (ldrawFile->getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
-                           emit gui->parseErrorSig(QString("Redundant build modification meta command '%1' - this command can be removed.")
-                                                   .arg(buildMod.key), opts.current,Preferences::BuildModErrors,false,false,QMessageBox::Icon::Information);
-                   } else {
-                       emit gui->parseErrorSig(QString("CountPage BuildMod for key '%1' not found").arg(buildMod.key),
-                                       opts.current,Preferences::BuildModErrors,false,false);
-                   }
-                   if ((Rc)buildMod.action != rc) {
+              if (Preferences::buildModEnabled) {
+                  // special case where we have BUILD_MOD and NOSTEP commands in the same single STEP
+                  if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
+                      opts.flags.parseNoStep = meta->LPub.parseNoStep.value();
+                  // to parse build mods to display page when jumping forward and to
+                  // parse lines after MULTI_STEP END in the last step of a submodel
+                  if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM) {
+                      if (opts.flags.partsAdded)
+                          emit gui->parseErrorSig(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
+                                                  opts.current,Preferences::BuildModErrors,false,false);
+                      buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+                      // if we are processing lines in the last step of a submodel, the topOfStep.lineNumber
+                      // likely will not reflect a valid value so we'll have to manually set it accordingly...
+                      if (buildModStepIndex == BM_INVALID_INDEX) {
+                          auto scanBackwardToStepMask = [&meta] (Where &topOfStep) {
+                              for ( ;topOfStep >= BM_BEGIN; topOfStep--) {
+                                  QString line = gui->readLine(topOfStep);
+                                  Rc rc = meta->parse(line,topOfStep);
+                                  if (rc == StepRc || rc == RotStepRc)
+                                      return true;
+                              }
+                              return false;
+                          };
+                          if (scanBackwardToStepMask(topOfStep))
+                              buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+                          else
+                              emit gui->parseErrorSig("Could not establish a valid model name and line number for the current step.",
+                                                      opts.current,Preferences::BuildModErrors,false,false);
+                      }
+                      buildMod.key = meta->LPub.buildMod.key();
+                      if (ldrawFile->buildModContains(buildMod.key)) {
+                          buildMod.action = ldrawFile->getBuildModAction(buildMod.key, buildModStepIndex);
+                          if (ldrawFile->getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
+                              emit gui->parseErrorSig(QString("Redundant build modification meta command '%1' - this command can be removed.")
+                                                      .arg(buildMod.key), opts.current,Preferences::BuildModErrors,false,false,QMessageBox::Icon::Information);
+                      } else {
+                          emit gui->parseErrorSig(QString("CountPage BuildMod for key '%1' not found").arg(buildMod.key),
+                                                  opts.current,Preferences::BuildModErrors,false,false);
+                      }
+                      if ((Rc)buildMod.action != rc) {
 #ifdef QT_DEBUG_MODE
-                       emit gui->messageSig(LOG_NOTICE, QString("Setup Reset Build Mod - Key: '%1', Current Action: %2, Next Action: %3")
-                                            .arg(buildMod.key)
-                                            .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
-                                            .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
+                          emit gui->messageSig(LOG_NOTICE, QString("Setup Reset Build Mod - Key: '%1', Current Action: %2, Next Action: %3")
+                                               .arg(buildMod.key)
+                                               .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
+                                               .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
 #endif
-                       // set BuildMod action for current step
-                       ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
-                       // set the stepKey to clear the image cache if not navigating backward
-                       //if (Gui::pageDirection < PAGE_BACKWARD) {
-                       //    // pass the submodel stack to clear step images
-                       //    QString stack;
-                       //    Q_FOREACH (const SubmodelStack &model,meta->submodelStack)
-                       //      stack.append(QString("%1:").arg(ldrawFile->getSubmodelIndex(model.modelName)));
-                       //    if (!stack.isEmpty()) {
-                       //        stack.prepend(BuildMod|); // required if using Gui::setBuildModClearStepKey();
-                       //        stack.replace(stack.lastIndexOf(":"),1,";");
-                       //        gui->setBuildModClearStepKey(QString("%1%2;%3;%4")
-                       //                                     .arg(stack).arg(topOfStep.modelIndex)
-                       //                                     .arg(topOfStep.lineNumber).arg(opts.stepNumber));
-                       //    }
-                       //}
-                   }
-                   buildMod.state = BM_NONE;
-               }
-                break;
+                          // set BuildMod action for current step
+                          ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                          // set the stepKey to clear the image cache if not navigating backward
+                          //if (Gui::pageDirection < PAGE_BACKWARD) {
+                          //    // pass the submodel stack to clear step images
+                          //    QString stack;
+                          //    Q_FOREACH (const SubmodelStack &model,meta->submodelStack)
+                          //      stack.append(QString("%1:").arg(ldrawFile->getSubmodelIndex(model.modelName)));
+                          //    if (!stack.isEmpty()) {
+                          //        stack.prepend(BuildMod|); // required if using Gui::setBuildModClearStepKey();
+                          //        stack.replace(stack.lastIndexOf(":"),1,";");
+                          //        gui->setBuildModClearStepKey(QString("%1%2;%3;%4")
+                          //                                     .arg(stack).arg(topOfStep.modelIndex)
+                          //                                     .arg(topOfStep.lineNumber).arg(opts.stepNumber));
+                          //    }
+                          //}
+                      }
+                      buildMod.state = BM_NONE;
+                  } // opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM
+              } // Preferences::buildModEnabled
+              break;
 
             case BuildModBeginRc:
               if (! Preferences::buildModEnabled) {
@@ -2771,6 +2776,7 @@ int CountPageWorker::countPage(
               meta->LPub.buildMod.clear();
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
+              opts.flags.parseNoStep = false;
 
               // terminate build modification countPage at end of step
               if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > gui->saveDisplayPageNum) {
@@ -2822,6 +2828,9 @@ int CountPageWorker::countPage(
               break;
 
             case BufferLoadRc:
+              // special case where we have BUFEXCHG load and NOSTEP commands in the same single STEP
+              if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
+                  opts.flags.parseNoStep = meta->LPub.parseNoStep.value();
               opts.flags.partsAdded = true;
               break;
 
@@ -2937,7 +2946,7 @@ int CountPageWorker::countPage(
   }
   // Added callout step parse for parse build modifications so
   // exclude from page number increment and topOfPages indices
-  if (opts.flags.partsAdded && ! opts.flags.callout && ! opts.flags.noStep) {
+  if (opts.flags.partsAdded && ! opts.flags.callout && (! opts.flags.noStep || opts.flags.parseNoStep)) {
       if (Gui::exporting()) {
           Gui::getPageSizes().remove(opts.pageNum);
           if (opts.flags.pageSizeUpdate) {
