@@ -288,8 +288,24 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
                 delete Loader;
         }
 
-        if (Loaded)
-            gui->RaiseVisualEditDockWindow();
+        if (Loaded) {
+            if (Options->IsReset) {
+                gMainWindow->SetRelativeTransform(mRelativeTransform);
+                gMainWindow->SetSeparateTransform(mSeparateTransform);
+                gui->SetVisualEditorRotateTransform(mRotateTransform);
+                if (Options->ImageType == Options::CSI) {
+                    QVector<TypeLine> LineTypeIndexes;
+                    PartSource Selection = VIEWER_CLR;
+                    lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
+                    if (ActiveModel)
+                    {
+                        emit gMainWindow->SelectedPartLinesSig(LineTypeIndexes, Selection);
+                        ActiveModel->ResetModAction();
+                    }
+                }
+            }
+        }
+        gui->RaiseVisualEditDockWindow();
     }
 
     if (Loaded && Type != NATIVE_EXPORT)
@@ -1621,4 +1637,11 @@ void LPub::updateChangelog (const QString &url)
 
     if (m_versionInfo.isEmpty())
         m_versionInfo = tr("Undefined");
+}
+
+void LPub::saveVisualEditorTransformSettings()
+{
+    mRotateTransform   = gui->VisualEditorRotateTransform();
+    mRelativeTransform = gMainWindow->GetRelativeTransform();
+    mSeparateTransform = gMainWindow->GetSeparateTransform();
 }

@@ -105,6 +105,7 @@ public:
        HighlightNewParts (false),
        TransBackground   (true),
        HomeViewMod       (false),
+       IsReset           (false),
        StudCylinderColor (0),
        PartEdgeColor     (0),
        BlackEdgeColor    (0),
@@ -151,6 +152,7 @@ public:
   bool HighlightNewParts;
   bool TransBackground;
   bool HomeViewMod;
+  bool IsReset;
   quint32 StudCylinderColor;
   quint32 PartEdgeColor;
   quint32 BlackEdgeColor;

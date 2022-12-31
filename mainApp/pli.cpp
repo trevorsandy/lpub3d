@@ -4009,9 +4009,11 @@ void PGraphicsPixmapItem::contextMenuEvent(
           if (gui->saveBuildModification()) {
               QString type = QFileInfo(part->type).completeBaseName();
               QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+              lpub->saveVisualEditorTransformSettings();
               pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
               pli->viewerOptions->ImageWidth  = part->pixmapWidth;
               pli->viewerOptions->ImageHeight = part->pixmapHeight;
+              pli->viewerOptions->IsReset     = true;
               pli->loadTheViewer();
           }
       } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {

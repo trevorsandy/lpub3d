@@ -201,7 +201,7 @@ QAction* CommonMenus::resetViewerImageMenu(
   action->setParent(menu.parent());
   action->setObjectName("resetViewerImageAction.1");
   action->setProperty("name", name);
-  action->setIcon(QIcon(":/resources/resetviewerimage.png"));
+  action->setIcon(QIcon(":/resources/reset_viewer_image.png"));
 
   formatted = QObject::tr("Reset %1 viewer image to its original position") .arg(name.toLower());
   action->setStatusTip(formatted);

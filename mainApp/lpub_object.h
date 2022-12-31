@@ -214,6 +214,9 @@ public:
   lcQPreferencesDialog *visualEditorPreferencesDialog = nullptr;
 
 public slots:
+  /// Visual editor transform
+  void saveVisualEditorTransformSettings();
+
   /// Download management calls
   void httpDownloadFinished();
   void cancelDownload();
@@ -240,6 +243,11 @@ protected:
   QNetworkReply*         mHttpReply = nullptr;
   QByteArray             mByteArray;
   QString                mTitle;
+
+  /// Visual editor transform
+  bool                   mRotateTransform;
+  bool                   mRelativeTransform;
+  bool                   mSeparateTransform;
 
 private:
   bool                   mFileLoaded;

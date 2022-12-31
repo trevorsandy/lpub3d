@@ -748,11 +748,11 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta command"),
 		"Shift+R"
 	},
-	// LC_EDIT_ACTION_APPLY_TRANSFORM
+	// LC_EDIT_ACTION_RESET_TRANSFORM
 	{
-		QT_TRANSLATE_NOOP("Action","Edit.Tool.Apply.Transform"),
-		QT_TRANSLATE_NOOP("Menu", "Apply Transform"),
-		QT_TRANSLATE_NOOP("Status", "Apply the transform coordinates to the current step - Shift+C"),
+		QT_TRANSLATE_NOOP("Action","Edit.Tool.Reset.Transform"),
+		QT_TRANSLATE_NOOP("Menu", "Reset Transform"),
+		QT_TRANSLATE_NOOP("Status", "Reset the transform coordinates for the current step"),
 		"Shift+C"
 	},
 /*** LPub3D Mod end ***/

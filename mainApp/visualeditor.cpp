@@ -130,8 +130,8 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]->setObjectName("EndSubmodelEditAct.4");
     lpub->actions.insert("EndSubmodelEditAct.4", Action(QStringLiteral("3DViewer.End Submodel Editing"), gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]));
 
-    gMainWindow->mActions[LC_EDIT_ACTION_APPLY_TRANSFORM]->setObjectName("EditApplyTransformAct.4");
-    lpub->actions.insert("EditApplyTransformAct.4", Action(QStringLiteral("3DViewer.Tools.Transform.Apply Transform"), gMainWindow->mActions[LC_EDIT_ACTION_APPLY_TRANSFORM]));
+    gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setObjectName("EditResetTransformAct.4");
+    lpub->actions.insert("EditResetTransformAct.4", Action(QStringLiteral("3DViewer.Tools.Transform.Apply Transform"), gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]));
 
     gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]->setObjectName("HideSelectedAct.4");
     lpub->actions.insert("HideSelectedAct.4", Action(QStringLiteral("3DViewer.Hide Selected"), gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]));
@@ -390,8 +390,8 @@ void Gui::create3DActions()
     lpub->actions.insert(AngleAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Rotation Snap"), AngleAct));
 
     QIcon ResetViewerImageIcon;
-    ResetViewerImageIcon.addFile(":/resources/resetviewerimage.png");
-    ResetViewerImageIcon.addFile(":/resources/resetviewerimage16.png");
+    ResetViewerImageIcon.addFile(":/resources/reset_viewer_image.png");
+    ResetViewerImageIcon.addFile(":/resources/reset_viewer_image_16.png");
     ResetViewerImageAct = lpub->getAct("resetViewerImageAction.1");
     ResetViewerImageAct->setIcon(ResetViewerImageIcon);
     ResetViewerImageAct->setText(tr("Reset Current Display"));
@@ -408,10 +408,10 @@ void Gui::create3DActions()
     EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_16.png");
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(EditActionRotstepIcon);
 
-    QIcon ApplyTransformIcon;
-    ApplyTransformIcon.addFile(":/resources/action_apply_transform.png");
-    ApplyTransformIcon.addFile(":/resources/action_apply_transform_16.png");
-    gMainWindow->mActions[LC_EDIT_ACTION_APPLY_TRANSFORM]->setIcon(ApplyTransformIcon);
+    QIcon ResetTransformIcon;
+    ResetTransformIcon.addFile(":/resources/reset_viewer_image.png");
+    ResetTransformIcon.addFile(":/resources/reset_viewer_image_16.png");
+    gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setIcon(ResetTransformIcon);
 
     // Light icons
     LightGroupAct = new QAction(tr("Lights"), this);
@@ -547,6 +547,8 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setShortcut(QStringLiteral("Shift+O"));
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setStatusTip(tr("Position camera so selection is placed at the viewport center - Shift+O"));
 
+    lpub->saveVisualEditorTransformSettings();
+
     enableVisualBuildModification();
 }
 
@@ -665,8 +667,9 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+     gMainWindow->GetToolsMenu()->addAction(ResetViewerImageAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
@@ -676,7 +679,6 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(TransformAct);
      gMainWindow->GetToolsMenu()->addAction(MoveAct);
      gMainWindow->GetToolsMenu()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
-     gMainWindow->GetToolsMenu()->addAction(ResetViewerImageAct);
      ViewerMenu->addMenu(gMainWindow->GetToolsMenu());
      // ViewPoint menu
      ViewerMenu->addMenu(gMainWindow->GetViewpointMenu());
@@ -745,8 +747,9 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+    gMainWindow->GetToolsToolBar()->addAction(ResetViewerImageAct);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
@@ -756,7 +759,6 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(TransformAct);
     gMainWindow->GetToolsToolBar()->addAction(MoveAct);
     gMainWindow->GetToolsToolBar()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
-    gMainWindow->GetToolsToolBar()->addAction(ResetViewerImageAct);
     gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");
 }
 
@@ -900,7 +902,7 @@ void Gui::enable3DActions(bool enable)
     //Tools
     //mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(enable);
-    //gMainWindow->mActions[LC_EDIT_ACTION_APPLY_TRANSFORM]->setEnabled(enable);
+    //gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_PAN]->setEnabled(enable);
@@ -1081,6 +1083,7 @@ void Gui::updatePreview()
 {
     if (previewDockWindow) {
         gMainWindow->GetPreviewWidget()->UpdatePreview();
+        RaisePreviewDockWindow();
     } else if (preview) {
         preview->UpdatePreview();
     }
@@ -1906,8 +1909,15 @@ void Gui::enableVisualBuildModification()
     if (buildModEnabled) {
         buildModEnabled &= (buildModsCount()) && !curFile.isEmpty();
         using namespace Options;
-        if (static_cast<Mt>(lcGetActiveProject()->GetImageType()) != CSI)
+        switch (lcGetActiveProject()->GetImageType())
+        {
+        case static_cast<int>(CSI):
+        case static_cast<int>(SMP):
+            break;
+
+        default:
             return;
+        }
     }
 
     EnableBuildModAct->setEnabled(Preferences::buildModEnabled);
@@ -4088,8 +4098,6 @@ bool Gui::saveBuildModification()
 void Gui::clearBuildModRange()
 {
     mBuildModRange = { 0, 0, -1 };
-    enableVisualBuildModification();
-    enableVisualBuildModActions();
 }
 
 /*********************************************
@@ -4434,25 +4442,42 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
     return true;
 }
 
-void Gui::resetViewerImage()
+void Gui::resetViewerImage(bool zoomExtents)
 {
     if (!lpub->currentStep || !Preferences::modeGUI || exporting())
         return;
 
-    using namespace Options;
-    if (static_cast<Mt>(lcGetActiveProject()->GetImageType()) != CSI)
-        return;
+    Step *currentStep = lpub->currentStep;
 
-    enableVisualBuildModActions();
-    lpub->currentStep->viewerOptions->ZoomExtents = false/*Preferences::buildModEnabled*/;
-    lpub->currentStep->loadTheViewer();
-    QVector<TypeLine> LineTypeIndexes;
-    PartSource Selection = VIEWER_CLR;
-    lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
-    if (ActiveModel)
+    using namespace Options;
+    switch (lcGetActiveProject()->GetImageType())
     {
-        emit gMainWindow->SelectedPartLinesSig(LineTypeIndexes, Selection);
-        ActiveModel->ResetModAction();
+    case static_cast<int>(CSI):
+        lpub->saveVisualEditorTransformSettings();
+        enableVisualBuildModActions();
+        currentStep->viewerOptions->IsReset     = true;
+        currentStep->viewerOptions->ZoomExtents = zoomExtents;
+        currentStep->loadTheViewer();
+        break;
+
+    case static_cast<int>(SMP):
+        if (currentStep->placeSubModel) {
+            lcPreferences& Preferences = lcGetPreferences();
+            if (!Preferences.mPreviewEnabled) {
+                if (gui->saveBuildModification()) {
+                    SubModel& subModel = currentStep->subModel;
+                    lpub->saveVisualEditorTransformSettings();
+                    subModel.viewerOptions->ZoomExtents = zoomExtents;
+                    subModel.viewerOptions->IsReset     = true;
+                    subModel.loadTheViewer();
+                }
+            }
+            currentStep->subModel.loadTheViewer();
+        }
+        break;
+
+    default:
+        break;
     }
 }
 

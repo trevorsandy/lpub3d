@@ -240,8 +240,8 @@
         <file alias="resetlineedit.png">resources/resetlineedit.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
         <file alias="resettipattributes.png">resources/resettipattributes.png</file>
-        <file alias="resetviewerimage.png">resources/resetviewerimage.png</file>
-        <file alias="resetviewerimage16.png">resources/resetviewerimage16.png</file>
+        <file alias="reset_viewer_image.png">resources/reset_viewer_image.png</file>
+        <file alias="reset_viewer_image_16.png">resources/reset_viewer_image_16.png</file>
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
         <file alias="rotate-icon.png">resources/rotate-icon.png</file>

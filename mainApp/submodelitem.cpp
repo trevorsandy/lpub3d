@@ -1431,6 +1431,8 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   } else if (selectedAction == resetViewerImageAction) {
       if (!Preferences.mPreviewEnabled) {
           if (gui->saveBuildModification()) {
+              lpub->saveVisualEditorTransformSettings();
+              subModel->viewerOptions->IsReset = true;
               subModel->loadTheViewer();
           }
       } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {

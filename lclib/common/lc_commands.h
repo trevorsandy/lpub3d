@@ -113,8 +113,8 @@ enum lcCommandId
 	LC_EDIT_ACTION_ROLL,
 	LC_EDIT_ACTION_ZOOM_REGION,
 	LC_EDIT_ACTION_ROTATESTEP,                            /*** LPub3D Mod - transform command ***/
-	LC_EDIT_ACTION_APPLY_TRANSFORM,                       /*** LPub3D Mod - transform command ***/
-	LC_EDIT_ACTION_LAST = LC_EDIT_ACTION_APPLY_TRANSFORM, /*** LPub3D Mod - transform command ***/
+	LC_EDIT_ACTION_RESET_TRANSFORM,                       /*** LPub3D Mod - transform command ***/
+	LC_EDIT_ACTION_LAST = LC_EDIT_ACTION_RESET_TRANSFORM, /*** LPub3D Mod - transform command ***/
 	LC_EDIT_CANCEL,
 	LC_VIEW_PREFERENCES,
 	LC_VIEW_ZOOM_IN,

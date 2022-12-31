@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/resources">
-        <file alias="action_apply_transform.png">resources/action_apply_transform.png</file>
-        <file alias="action_apply_transform_16.png">resources/action_apply_transform_16.png</file>
         <file alias="action_arealight.png">resources/action_arealight.png</file>
         <file alias="action_arealight_16.png">resources/action_arealight_16.png</file>
         <file alias="action_camera.png">resources/action_camera.png</file>

@@ -101,9 +101,7 @@ void CsiItem::loadTheViewer(bool override, bool zoomExtents)
             lpub->setCurrentStep(step);
             gui->showLine(step->topOfStep());
         }
-        gui->enableVisualBuildModActions();
-        step->viewerOptions->ZoomExtents = zoomExtents;
-        step->loadTheViewer();
+        gui->resetViewerImage(zoomExtents);
     }
     gui->RaiseVisualEditDockWindow();
 }

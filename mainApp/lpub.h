@@ -1219,6 +1219,17 @@ public slots:
   void updatePreview();
   void enableVisualBuildModification();
 
+  bool VisualEditorRotateTransform()
+  {
+      return EnableBuildModAct->isChecked();
+  }
+
+  void SetVisualEditorRotateTransform(bool b)
+  {
+      EnableBuildModAct->setChecked(b);
+      EnableRotstepRotateAct->setChecked(!b);
+  }
+
   QDockWidget *getPreviewDockWindow()
   {
       return previewDockWindow;
@@ -1435,7 +1446,7 @@ public slots:
   void useImageSize();
   void useSystemEditor();
   void autoCenterSelection();
-  void resetViewerImage();
+  void resetViewerImage(bool=false);
 
   void ldrawSearchDirectories();
   void showDefaultCameraProperties();
