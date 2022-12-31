@@ -148,7 +148,7 @@
          <item row="0" column="1">
           <widget class="QCheckBox" name="checkBoxPdfPageImage">
            <property name="toolTip">
-            <string>Export a single image  (versus individual items) for each page</string>
+            <string>Export each page as a single bmp image - versus a page with assembly image(s) and an image for each part list instance item</string>
            </property>
            <property name="text">
             <string>Use Page Image</string>

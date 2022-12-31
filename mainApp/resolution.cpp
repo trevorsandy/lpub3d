@@ -136,6 +136,6 @@ QString units2name()
     case DPI:
       return "inches";
     default:
-      return "centimeters";
+      return "centimetres";
   }
 }

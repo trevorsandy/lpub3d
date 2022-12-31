@@ -84,8 +84,8 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         flag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni :
                Gui::m_exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
 //        flag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
-        ui->gropuBoxLDVExport->setTitle(QString("%1 Export Settings")
-                                                .arg(iniFlagNames[IniFlag(flag)]));
+        ui->gropuBoxLDVExport->setTitle(tr("%1 Export Settings")
+                                           .arg(iniFlagNames[IniFlag(flag)]));
     } else {
         ui->gropuBoxLDVExport->hide();
     }
@@ -97,7 +97,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     }
 
     ui->spinPixelRatio->setValue(gui->exportPixelRatio);
-    ui->spinPixelRatio->setToolTip(tr("Change the export DPI pixel ratio."));
+    ui->spinPixelRatio->setToolTip(tr("Change the export DPI pixel ratio. When not 1.0, Use Page Image is automatically is selected."));
 
     ui->checkBoxResetCache->setChecked(false);
 
@@ -284,8 +284,16 @@ void DialogExportPages::groupBoxPixelRatio(bool show)
 
 void DialogExportPages::getPixelRatioMsg(double value)
 {
-    ui->labelPixelRatioFactor->setText(QString("Export DPI %1px")
-                                       .arg(value*int(resolution())));
+    const int dpi = value*int(resolution());
+    QString exportedPixels = tr("DPI %1px").arg(dpi);
+    QString pixelUnits = tr("Dots Per Inch (DPI) %1 pixels").arg(dpi);
+    if (resolutionType() == DPCM) {
+        const int dpcm = inches2centimeters(dpi);
+        exportedPixels = tr("DPCM %1px").arg(dpcm);
+        pixelUnits = tr("Dots Per Centimetre (DPCM) %1 pixels").arg(dpcm);
+    }
+    ui->labelPixelRatioFactor->setText(tr("Exported %1").arg(exportedPixels));
+    ui->labelPixelRatioFactor->setToolTip(tr("The exported build instruction document %1.").arg(pixelUnits));
     ui->checkBoxPdfPageImage->setVisible(Gui::m_exportMode == EXPORT_PDF);
     ui->checkBoxPdfPageImage->setChecked(Preferences::pdfPageImage || value > 1.0 || value < 1.0);
     ui->checkBoxPdfPageImage->setEnabled(value == 1.0);
