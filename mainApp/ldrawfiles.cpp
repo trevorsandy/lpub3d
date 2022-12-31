@@ -1655,7 +1655,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
                 // Check for include file
                 if (smLine.contains(_fileRegExp[INC_RX])) {
-                    const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1).replace("\"",""));
+                    const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
                     loadIncludeFile(filePath);
                 }
 
@@ -4840,7 +4840,7 @@ LDrawFile::LDrawFile()
         << QRegExp("^0\\s+AUTHOR:?\\s+(.*)$",Qt::CaseInsensitive)   //AUT_RX
         << QRegExp("^0\\s+NAME:?\\s+(.*)$",Qt::CaseInsensitive)     //NAM_RX
         << QRegExp("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive) //CAT_RX
-        << QRegExp("^0\\s+!?LPUB\\s+INCLUDE\\s+(.*)$",Qt::CaseSensitive) //INC_RX
+        << QRegExp("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$",Qt::CaseSensitive) //INC_RX
         << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseSensitive) //DES_RX
         << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) //LDG_RX
         ;
