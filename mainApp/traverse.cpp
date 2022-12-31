@@ -5030,8 +5030,10 @@ void Gui::pagesCounted()
         } // modeGUI and not exporting
     } // drawPage
 
-    if (suspendFileDisplay)
+    if (suspendFileDisplay) {
         suspendFileDisplay = false;
+        enableActions();
+    }
 
     // reset countPage future wait on last drawPage call from export 'printfile' where exporting() is reset to false
     if (!exporting() && countWaitForFinished())

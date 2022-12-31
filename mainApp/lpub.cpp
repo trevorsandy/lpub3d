@@ -6220,6 +6220,9 @@ void Gui::createActions()
 
 void Gui::enableActions()
 {
+  if (suspendFileDisplay)
+    return;
+
   getAct("saveAsAct.1")->setEnabled(true);
   getAct("saveCopyAct.1")->setEnabled(true);
   getAct("closeFileAct.1")->setEnabled(true);

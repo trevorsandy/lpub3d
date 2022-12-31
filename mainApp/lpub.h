@@ -1275,12 +1275,12 @@ public slots:
   void                   SetSubmodelIconsLoaded(bool);
   bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
+  void                   ReloadVisualEditor();
   void                   LoadColors();
   void                   LoadDefaults();
   void                   UpdateAllViews();
   void                   UnloadOfficialPiecesLibrary();
   void                   UnloadUnofficialPiecesLibrary();
-  void                   ClearPreviewWidget();
 
   // End native viewer calls
 
@@ -1442,7 +1442,6 @@ public slots:
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage(bool prompt = false);
-  void reloadViewer();
   void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false);
   void loadTheme();
   void restartApplication(bool changeLibrary = false, bool prompt = false);

@@ -752,7 +752,6 @@ void Gui::closeFile()
   lpub->ldrawFile.empty();
   editWindow->clearWindow();
   mpdCombo->clear();
-  ClearPreviewWidget();
   mpdCombo->setEnabled(false);
   setGoToPageCombo->clear();
   setGoToPageCombo->setEnabled(false);
@@ -783,6 +782,7 @@ void Gui::closeFile()
   SetSubmodelIconsLoaded(submodelIconsLoaded);
   if (!curFile.isEmpty())
       emit lpub->messageSig(LOG_DEBUG, tr("File closed - %1.").arg(curFile));
+  ReloadVisualEditor();
 }
 
 // This call definitively closes and clears from curFile, the current model file

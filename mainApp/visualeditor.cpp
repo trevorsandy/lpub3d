@@ -726,36 +726,6 @@ bool Gui::eventFilter(QObject *object, QEvent *event)
 
 void Gui::initiaizeVisualEditor()
 {
-    connect(this,        SIGNAL(clearViewerWindowSig()),
-            gMainWindow, SLOT(  NewProject()));
-
-    connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
-            gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
-
-    connect(gMainWindow, SIGNAL(SetRotStepMeta()),
-            this,        SLOT(  SetRotStepMeta()));
-
-    connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
-            this,        SLOT(  SetRotStepAngleX(float,bool)));
-
-    connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
-            this,        SLOT(  SetRotStepAngleY(float,bool)));
-
-    connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
-            this,        SLOT(  SetRotStepAngleZ(float,bool)));
-
-    connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),
-            this,        SLOT(  SetRotStepTransform(QString&,bool)));
-
-    connect(gMainWindow, SIGNAL(GetRotStepMeta()),
-            this,        SLOT(  GetRotStepMeta()));
-
-    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
-            this,        SLOT(  SetActiveModel(const QString&,bool)));
-
-    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-            this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
-
     connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),
             this,        SLOT(  UpdateViewerUndoRedo(const QString&,const QString&)));
 
@@ -771,6 +741,68 @@ void Gui::initiaizeVisualEditor()
 
 void Gui::enable3DActions(bool enable)
 {
+    if (enable) {
+        connect(this,        SIGNAL(clearViewerWindowSig()),
+                gMainWindow, SLOT(  NewProject()));
+
+        connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
+                gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+
+        connect(gMainWindow, SIGNAL(SetRotStepMeta()),
+                this,        SLOT(  SetRotStepMeta()));
+
+        connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
+                this,        SLOT(  SetRotStepAngleX(float,bool)));
+
+        connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
+                this,        SLOT(  SetRotStepAngleY(float,bool)));
+
+        connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
+                this,        SLOT(  SetRotStepAngleZ(float,bool)));
+
+        connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),
+                this,        SLOT(  SetRotStepTransform(QString&,bool)));
+
+        connect(gMainWindow, SIGNAL(GetRotStepMeta()),
+                this,        SLOT(  GetRotStepMeta()));
+
+        connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
+                this,        SLOT(  SetActiveModel(const QString&,bool)));
+
+        connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+                this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
+    } else {
+        disconnect(this,        SIGNAL(clearViewerWindowSig()),
+                   gMainWindow, SLOT(  NewProject()));
+
+        disconnect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
+                   gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+
+        disconnect(gMainWindow, SIGNAL(SetRotStepMeta()),
+                   this,        SLOT(  SetRotStepMeta()));
+
+        disconnect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
+                   this,        SLOT(  SetRotStepAngleX(float,bool)));
+
+        disconnect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
+                   this,        SLOT(  SetRotStepAngleY(float,bool)));
+
+        disconnect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
+                   this,        SLOT(  SetRotStepAngleZ(float,bool)));
+
+        disconnect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),
+                   this,        SLOT(  SetRotStepTransform(QString&,bool)));
+
+        disconnect(gMainWindow, SIGNAL(GetRotStepMeta()),
+                   this,        SLOT(  GetRotStepMeta()));
+
+        disconnect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
+                   this,        SLOT(  SetActiveModel(const QString&,bool)));
+
+        disconnect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+                   this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
+    }
+
     if (enable)
         enableBuildModMenuAndActions();
     else
@@ -850,6 +882,8 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_CAMERA_NONE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(enable);
+
+    gMainWindow->setEnabled(enable);
 }
 
 void Gui::halt3DViewer(bool enable)
@@ -2060,10 +2094,10 @@ void Gui::ShowStepRotationStatus()
 void Gui::loadTheme(){
   Application::instance()->setTheme();
   emit setTextEditHighlighterSig();
-  reloadViewer();
+  ReloadVisualEditor();
 }
 
-void Gui::reloadViewer(){
+void Gui::ReloadVisualEditor(){
   if (getCurrentStep()){
     Render::LoadViewer(getCurrentStep()->viewerOptions);
   } else {
