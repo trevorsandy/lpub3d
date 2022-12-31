@@ -6991,7 +6991,7 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
   out << cleanedKeywords;
 
   logInfo() << QString("Meta command keywords generated. %1")
-                  .arg(LPub::elapsedTime(timer.elapsed()));
+                       .arg(LPub::elapsedTime(timer.elapsed()));
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {

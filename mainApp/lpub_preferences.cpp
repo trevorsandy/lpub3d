@@ -65,10 +65,10 @@ const QString studStyleNames[StudStyleEnc::StyleCount] =
 
 const QString rendererNames[NUM_RENDERERS] =
 {
-  "Native",  // RENDERER_NATIVE
-  "LDView",  // RENDERER_LDVIEW
-  "LDGLite", // RENDERER_LDGLITE
-  "POVRay"   // RENDERER_POVRAY
+    "Native",  // RENDERER_NATIVE
+    "LDView",  // RENDERER_LDVIEW
+    "LDGLite", // RENDERER_LDGLITE
+    "POVRay"   // RENDERER_POVRAY
 };
 
 const QString MsgKeys[Preferences::NumKeys] =
@@ -81,14 +81,15 @@ const QString MsgKeys[Preferences::NumKeys] =
     "ShowAnnotationErrors"          // AnnotationErrors
 };
 
-const QString msgKeyTypes [][2] = {
-   // Message Title,             Type Description
-   {"Command",                   "command message"},           //ParseErrors
-   {"Insert",                    "insert message"},            //InsertErrors
-   {"Include File",              "include file message" },     //IncludeFileErrors
-   {"Build Modification",        "build modification"},        //BuildModErrors
-   {"Build Modification Edit",   "build modification edit"},   //BuildModEditErrors
-   {"Annoatation",               "annotation message"}         //AnnotationErrors
+const QString msgKeyTypes [][2] =
+{
+    // Message Title,             Type Description
+    {"Command",                   "command message"},           //ParseErrors
+    {"Insert",                    "insert message"},            //InsertErrors
+    {"Include File",              "include file message" },     //IncludeFileErrors
+    {"Build Modification",        "build modification"},        //BuildModErrors
+    {"Build Modification Edit",   "build modification edit"},   //BuildModEditErrors
+    {"Annoatation",               "annotation message"}         //AnnotationErrors
 };
 
 Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
@@ -451,8 +452,8 @@ bool    Preferences::doNotShowPageProcessDlg    = false;
 bool    Preferences::autoUpdateChangeLog        = false;
 bool    Preferences::displayPageProcessingErrors= false;
 
-bool    Preferences::includeLogLevel            = false;
-bool    Preferences::includeTimestamp           = false;
+bool    Preferences::includeLogLevel            = true;
+bool    Preferences::includeTimestamp           = true;
 bool    Preferences::includeLineNumber          = false;
 bool    Preferences::includeFileName            = false;
 bool    Preferences::includeFunction            = false;
@@ -484,9 +485,11 @@ bool    Preferences::showInstanceCount          = false;
 bool    Preferences::includeAllLogAttributes    = false;
 bool    Preferences::allLogLevels               = false;
 
-bool    Preferences::logLevel                   = false;   // logging level (combo box)
+bool    Preferences::logLevel                   = true;   // logging level (combo box)
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
+bool    Preferences::debugLogging               = false;   // set if debugLevel is enabled
+bool    Preferences::loggingEnabled             = false;   // set if logging setup successful
 
 bool    Preferences::preferCentimeters          = false;   // default is false, to use DPI
 bool    Preferences::showDownloadRedirects      = false;
@@ -516,8 +519,6 @@ bool    Preferences::customSceneGridColor       = false;
 bool    Preferences::customSceneRulerTickColor  = false;
 bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
-
-bool    Preferences::debugLogging               = false;
 
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
@@ -601,11 +602,6 @@ QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
 Preferences::Preferences()
 {
-}
-
-void Preferences::setSuppressFPrintPreference(bool option)
-{
-    suppressFPrint = option;
 }
 
 bool Preferences::checkLDrawLibrary(const QString &libPath) {
@@ -720,6 +716,317 @@ void Preferences::setDistribution(){
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
     }
 #endif
+}
+
+void Preferences::setSuppressFPrintPreference(bool option)
+{
+    if (option)
+        suppressFPrint = option;
+}
+
+void Preferences::fprintMessage(const QString &message, bool stdError)
+{
+    const QString printMessage = QString(message).replace("<br>"," ").append("\n");
+    if (!loggingEnabled) {
+#ifdef QT_DEBUG_MODE
+        qDebug() << qPrintable(printMessage);
+#endif
+        FILE *fp;
+        fp = fopen(qPrintable(logFilePath), "a");  //open file in append mode.
+        fprintf(fp,"%s", qPrintable(printMessage));
+        fclose(fp);                                //close file.
+    }
+    // Suppress fprintf is usually disabled on Unix and enabled on Windows
+    if (!suppressFPrint) {
+        fprintf(stdError ? stderr : stdout,"%s", qPrintable(printMessage));
+        fflush(stdError ? stderr : stdout);
+    }
+}
+
+bool Preferences::setMessageLogging(bool useLogLevel)
+{
+    if (loggingEnabled) {
+        using namespace QsLogging;
+        Logger &logger = Logger::instance();
+        if (useLogLevel) { // use logging Level for parse and defaul message logging
+            Level logLevel = logger.fromLevelString(loggingLevel,&loggingEnabled);
+            QString logMessage;
+            if (!loggingEnabled)
+                logMessage = QObject::tr("Failed to set log level %1.\nLogging is off - level is OffLevel\n").arg(Preferences::loggingLevel);
+            else if (logLevel == OffLevel)
+                logMessage = QObject::tr("Logging is off - level set to %1\n").arg(loggingLevel);
+            if (!logMessage.isEmpty()) {
+                logger.setLoggingLevel(OffLevel);
+                fprintMessage(logMessage, true/*standard error*/);
+                return false;
+            }
+            logger.setLoggingLevel(logLevel);
+            logger.setIncludeLogLevel(     includeLogLevel);
+            logger.setIncludeTimestamp(    includeTimestamp);
+            logger.setIncludeLineNumber(   false);
+            logger.setIncludeFileName(     false);
+            logger.setColorizeFunctionInfo(false);
+            logger.setIncludeFunctionInfo( false);
+        } else {
+            if (logLevels) {
+                logger.setLoggingLevels();
+                logger.setDebugLevel(      debugLevel);
+                logger.setTraceLevel(      traceLevel);
+                logger.setNoticeLevel(     noticeLevel);
+                logger.setInfoLevel(       infoLevel);
+                logger.setStatusLevel(     statusLevel);
+                logger.setWarningLevel(    warningLevel);
+                logger.setErrorLevel(      errorLevel);
+                logger.setFatalLevel(      fatalLevel);
+            }
+            logger.setIncludeLogLevel(     includeLogLevel);
+            logger.setIncludeTimestamp(    includeTimestamp);
+            logger.setIncludeLineNumber(   includeLineNumber);
+            logger.setIncludeFileName(     includeFileName);
+            logger.setIncludeFunctionInfo( includeFunction);
+            logger.setColorizeOutput(      true);
+            logger.setColorizeFunctionInfo(true);
+        }
+        return true;
+    }
+    return false;
+}
+
+void Preferences::loggingPreferences()
+{
+    // define log path
+    QDir logDir(lpubDataPath+"/logs");
+    if(!QDir(logDir).exists())
+        logDir.mkpath(".");
+    logFilePath = QDir(logDir).filePath(QString("%1Log.txt").arg(VER_PRODUCTNAME_STR));
+
+    QSettings Settings;
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"))) {
+        QVariant uValue(includeLogLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"),uValue);
+    } else {
+        includeLogLevel = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeLogLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"))) {
+        QVariant uValue(includeTimestamp);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"),uValue);
+    } else {
+        includeTimestamp = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeTimestamp")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeFileName"))) {
+        QVariant uValue(includeFileName);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFileName"),uValue);
+    } else {
+        includeFileName = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeFileName")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"))) {
+        QVariant uValue(includeLineNumber);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"),uValue);
+    } else {
+        includeLineNumber = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeLineNumber")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeFunction"))) {
+        QVariant uValue(includeFunction);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFunction"),uValue);
+    } else {
+        includeFunction = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeFunction")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"))) {
+        QVariant uValue(includeAllLogAttributes);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"),uValue);
+    } else {
+        includeAllLogAttributes = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"Logging"))) {
+        QVariant uValue(logging);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"Logging"),uValue);
+    } else {
+        logging = Settings.value(QString("%1/%2").arg(LOGGING,"Logging")).toBool();
+    }
+
+    // log levels combo
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LoggingLevel"))) {
+        QVariant uValue(loggingLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"LoggingLevel"),uValue);
+    } else {
+        loggingLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LoggingLevel")).toString();
+    }
+    // log levels group box
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LogLevel"))) {
+        QVariant uValue(logLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevel"),uValue);
+    } else {
+        logLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LogLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LogLevels"))) {
+        QVariant uValue(logLevels);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevels"),uValue);
+    } else {
+        logLevels = Settings.value(QString("%1/%2").arg(LOGGING,"LogLevels")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"DebugLevel"))) {
+        QVariant uValue(debugLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"DebugLevel"),uValue);
+    } else {
+        debugLevel = Settings.value(QString("%1/%2").arg(LOGGING,"DebugLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"TraceLevel"))) {
+        QVariant uValue(traceLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"TraceLevel"),uValue);
+    } else {
+        traceLevel = Settings.value(QString("%1/%2").arg(LOGGING,"TraceLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"NoticeLevel"))) {
+        QVariant uValue(noticeLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"NoticeLevel"),uValue);
+    } else {
+        noticeLevel = Settings.value(QString("%1/%2").arg(LOGGING,"NoticeLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"InfoLevel"))) {
+        QVariant uValue(infoLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"InfoLevel"),uValue);
+    } else {
+        infoLevel = Settings.value(QString("%1/%2").arg(LOGGING,"InfoLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"StatusLevel"))) {
+        QVariant uValue(statusLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"StatusLevel"),uValue);
+    } else {
+        statusLevel = Settings.value(QString("%1/%2").arg(LOGGING,"StatusLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"WarningLevel"))) {
+        QVariant uValue(warningLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"WarningLevel"),uValue);
+    } else {
+        warningLevel = Settings.value(QString("%1/%2").arg(LOGGING,"WarningLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"ErrorLevel"))) {
+        QVariant uValue(errorLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"ErrorLevel"),uValue);
+    } else {
+        errorLevel = Settings.value(QString("%1/%2").arg(LOGGING,"ErrorLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"FatalLevel"))) {
+        QVariant uValue(fatalLevel);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"FatalLevel"),uValue);
+    } else {
+        fatalLevel = Settings.value(QString("%1/%2").arg(LOGGING,"FatalLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"AllLogLevels"))) {
+        QVariant uValue(allLogLevels);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),uValue);
+    } else {
+        allLogLevels = Settings.value(QString("%1/%2").arg(LOGGING,"AllLogLevels")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"SuppressFPrint"))) {
+        QVariant uValue(suppressFPrint);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"SuppressFPrint"),uValue);
+    } else {
+        suppressFPrint = Settings.value(QString("%1/%2").arg(LOGGING,"SuppressFPrint")).toBool();
+    }
+
+    using namespace QsLogging;
+
+    Logger& logger = Logger::instance();
+
+    if ((loggingEnabled = logging))
+    {
+        if (logLevels)
+        {
+            logger.setLoggingLevels();
+            logger.setDebugLevel(  debugLevel);
+            logger.setTraceLevel(  traceLevel);
+            logger.setNoticeLevel( noticeLevel);
+            logger.setInfoLevel(   infoLevel);
+            logger.setStatusLevel( statusLevel);
+            logger.setWarningLevel(warningLevel);
+            logger.setErrorLevel(  errorLevel);
+            logger.setFatalLevel(  fatalLevel);
+
+            debugLogging = debugLevel;
+        }
+        else if (logLevel)
+        {
+            Level logLevel = logger.fromLevelString(loggingLevel,&loggingEnabled);
+            QString logMessage;
+            if (!loggingEnabled)
+                logMessage = QObject::tr("Failed to set log level %1.\nLogging is off - level is OffLevel\n").arg(Preferences::loggingLevel);
+            else if (logLevel == OffLevel)
+                logMessage = QObject::tr("Logging is off - level set to %1\n").arg(loggingLevel);
+            if (!logMessage.isEmpty()) {
+                loggingEnabled = false;
+                if (logLevel != OffLevel)
+                    logger.setLoggingLevel(OffLevel);
+                if (modeGUI)
+                    QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR), logMessage);
+                else
+                    fprintMessage(logMessage, true/*standard error*/);
+                return;
+            }
+            int logLevelIndex = QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(loggingLevel,0);
+            debugLogging = logLevelIndex > -1 && logLevelIndex <= 3;
+            logger.setLoggingLevel(logLevel);
+        }
+
+        logger.setIncludeLogLevel(     includeLogLevel);
+        logger.setIncludeTimestamp(    includeTimestamp);
+        logger.setIncludeLineNumber(   includeLineNumber);
+        logger.setIncludeFileName(     includeFileName);
+        logger.setIncludeFunctionInfo( includeFunction);
+        logger.setColorizeFunctionInfo(true);
+        logger.setColorizeOutput(      true);
+
+        // Create log destinations
+        DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(logFilePath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
+        DestinationPtr debugDestination(DestinationFactory::MakeDebugOutputDestination());
+
+        // set log destinations on the logger
+        logger.addDestination(debugDestination);
+        logger.addDestination(fileDestination);
+
+        // logging examples
+        bool showLogExamples = false;
+        if (showLogExamples)
+        {
+            logStatus()  << "Uh-oh! - this level is not displayed in the console only the log";
+            logInfo()    << "Here's a Info message - Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+            logWarning() << "Here's a Warning message";
+            logTrace()   << "Here's a Trace message - " << VER_PRODUCTNAME_STR << "started";
+            logDebug()   << "Here's a Debug (Level: " << static_cast<int>(QsLogging::DebugLevel) << ") message";
+            logNotice()  << "Here's a Notice message";
+            qDebug()     << "This qDebug message won't be picked up by the logger";
+            logError()   << "Here's an Error! message";
+            qWarning()   << "Neither will this qWarning message";
+            logFatal()   << "Here's a Fatal Error! message";
+
+            Level level = logger.loggingLevel();
+            logger.setLoggingLevel(QsLogging::OffLevel);
+            for (int i = 0;i < 10;++i)
+            {
+                logError() << QString::fromUtf8("this message should not be visible");
+            }
+            logger.setLoggingLevel(level);
+        }
+    } else {
+        logger.setLoggingLevel(OffLevel);
+    } // end init loggingPreferences
 }
 
 #ifdef Q_OS_MAC
@@ -876,43 +1183,19 @@ void Preferences::lpubPreferences()
     lpub3dAppName = QCoreApplication::applicationName();
     modeGUI = Application::instance()->modeGUI();
     QDir cwd(QCoreApplication::applicationDirPath());
-#ifdef QT_DEBUG_MODE
-    qDebug() << "";
-    qDebug() << "--------------------------";
-#else
-    fprintf(stdout, "\n");
-    fprintf(stdout, "--------------------------\n");
-#endif
+
 #ifdef Q_OS_MAC
 
-    //qDebug() << QString("macOS Binary Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath());
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
-#else
-    fprintf(stdout, "%s\n", QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName())).toLatin1().constData());
-#endif
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
         cwd.cdUp();                   // Contents/      (app bundle contents folder)
         cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
         cwd.cdUp();                   // Applications/  (app bundle installation folder)
     }
-    //qDebug() << QString("macOS Base Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath());
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
-#else
-    fprintf(stdout, "%s\n", QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName())).toLatin1().constData());
-#endif
-
     lpub3dExtrasResourcePath = QString("%1/%2.app/Contents/Resources").arg(cwd.absolutePath(),lpub3dAppName);
     lpub3dDocsResourcePath   = lpub3dExtrasResourcePath;
 
     if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
     {
-#ifdef QT_DEBUG_MODE
-        qDebug() << QString(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName));
-#else
-        fprintf(stdout, "%s\n", QString(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName)).toLatin1().constData());
-#endif
         QFileInfo plbInfo("/usr/libexec/PlistBuddy");
         QString plistCmd = QString("%1 -c").arg(plbInfo.absoluteFilePath());
         QString infoPlistFile = QString("%1/%2.app/Contents/Info.plist").arg(cwd.absolutePath(),lpub3dAppName);
@@ -925,12 +1208,6 @@ void Preferences::lpubPreferences()
             QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
             QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
             QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
-        } else {
-#ifdef QT_DEBUG_MODE
-            qDebug() << QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
-#else
-            fprintf(stdout, "%s\n", QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath())).toLatin1().constData());
-#endif
         }
     }
 
@@ -954,7 +1231,7 @@ void Preferences::lpubPreferences()
 
     // This is a shameless hack until I figure out a better way to get the application name folder
     QStringList fileFilters;
-    fileFilters << "lpub3d*";
+    fileFilters << QLatin1String("lpub3d*");
 
     QDir contentsDir(appDir.absolutePath() + "/");
     QStringList shareContents = contentsDir.entryList(fileFilters);
@@ -966,17 +1243,6 @@ void Preferences::lpubPreferences()
         // application folder, we set 'lpub3dAppName' to the value of the lpub3d application folder.
         // The application folder value is set with the DIST_TARGET variable in mainApp.pro
         lpub3dAppName = shareContents.at(0);
-#ifdef QT_DEBUG_MODE
-        qDebug() << QString(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName));
-#else
-        fprintf(stdout, "%s\n", QString(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName)).toLatin1().constData());
-#endif
-    } else {
-#ifdef QT_DEBUG_MODE
-        qDebug() << QString(QString("ERROR - Application Folder Not Found."));
-#else
-        fprintf(stdout, "%s\n", QString(QString("ERROR - Application Folder Not Found.")).toLatin1().constData());
-#endif
     }
 
 #ifdef X11_BINARY_BUILD                                               // Standard User Rights Install
@@ -1010,19 +1276,6 @@ void Preferences::lpubPreferences()
     // Default configuration path
     QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
     lpubConfigPath = configPathList.first();
-
-    // DEBUG
-#if defined (LP3D_FLATPACK) || defined(LP3D_SNAP)
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Default App Data Path.(%1)").arg(lpubDataPath));
-    qDebug() << QString(QString("LPub3D Default Config Path.. (%1)").arg(lpubConfigPath));
-    qDebug() << QString(QString("LPub3D Default 3D Parts Path.(%1)").arg(lpub3dCachePath));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Default App Data Path.(%1)").arg(lpubDataPath)).toLatin1().constData());
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Default Config Path.. (%1)").arg(lpubConfigPath)).toLatin1().constData());
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Default 3D Parts Path.(%1)").arg(lpub3dCachePath)).toLatin1().constData());
-#endif
-#endif // LP3D_FLATPACK or LP3D_SNAP
 #endif // (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 
 #ifdef Q_OS_WIN //... Windows portable or installed
@@ -1049,13 +1302,14 @@ void Preferences::lpubPreferences()
                 QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory? \n"
                                                 "If you choose No, the data directory will automatically be created in the user's AppData directory.");
                 QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) distribution \n"
-                                                  "of LPub3D installed under the system's Program Files/(x86) directory.\n\n"
+                                                  "of %1 installed under the system's Program Files/(x86) directory.\n\n"
                                                   "Updatable data will not be able to be written to unless you modify\n"
                                                   "user account access for this folder which is not recommended.\n\n"
                                                   "You should consider changing the installation folder or placing\n"
                                                   "the updatable data folder outside the Program Files/(x86) directory\n\n"
                                                   "Choose yes to continue and select a data folder outside Program Files/(x86).\n\n"
-                                                  "If you choose No, the data directory will automatically be created in the user's AppData directory.");
+                                                  "If you choose No, the data directory will automatically be created in the user's AppData directory.")
+                                                  .arg(VER_PRODUCTNAME_STR);
                 box.setText (header);
                 box.setInformativeText (body);
                 box.setDetailedText(detail);
@@ -1175,86 +1429,25 @@ void Preferences::lpubPreferences()
 #endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
 
     // applications paths:
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D App Data Path.........(%1)").arg(lpubDataPath));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D App Data Path.........(%1)").arg(lpubDataPath)).toLatin1().constData());
-#endif
-#ifdef Q_OS_MAC
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
-#endif
-#else // Q_OS_LINUX or Q_OS_WIN
-    QString _logPath = QString("%1/logs/%2Log.txt").arg(lpubDataPath).arg(VER_PRODUCTNAME_STR);
-#ifdef Q_OS_LINUX
-    _logPath = _logPath.toLower();
-#endif
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath));
-    qDebug() << QString(QString("LPub3D Log Path..............(%1)").arg(_logPath));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Log Path..............(%1)").arg(_logPath)).toLatin1().constData());
-#endif
-#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
-
 #ifdef Q_OS_WIN
-    QString dataDir = "data";
+    QString dataDir = QLatin1String("data");
     QString dataPath = lpub3dPath;
     if (portableDistribution) {
-        dataDir = "extras";
-#ifdef QT_DEBUG_MODE
-        qDebug() << QString("LPub3D Portable Distribution.(Yes)");
-#else
-        fprintf(stdout, "%s\n", QString("LPub3D Portable Distribution.(Yes)").toLatin1().constData());
-#endif
+        dataDir = QLatin1String("extras");
     // On Windows installer 'dataLocation' folder defaults to LPub3D install path but can be set with 'DataLocation' reg key
     } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,"DataLocation"))) {
         QString validDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,"DataLocation")).toString();
-        QDir validDataDir(QString("%1/%2/").arg(validDataPath,dataDir));
-        if(QDir(validDataDir).exists()) {
+        if(QDir(QString("%1/%2/").arg(validDataPath,dataDir)).exists())
            dataPath = validDataPath;
-#ifdef QT_DEBUG_MODE
-           qDebug() << QString(QString("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath()));
-#else
-           fprintf(stdout, "%s\n", QString(QString("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath())).toLatin1().constData());
-#endif
-        }
     }
     dataLocation = QString("%1/%2/").arg(dataPath,dataDir);
-
 #else // Q_OS_LINUX or Q_OS_MAC
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath)).toLatin1().constData());
-#endif
     // On Linux 'dataLocation' folder is /usr/share/lpub3d
     // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
     dataLocation = QString("%1/").arg(lpub3dExtrasResourcePath);
-#if defined Q_OS_LINUX
-    QDir rendererDir(QString("%1/../../%2/%3").arg(lpub3dPath)
-                                              .arg(optPrefix.isEmpty() ? "opt" : optPrefix+"/opt")
-                                              .arg(lpub3dAppName));
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath()));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath())).toLatin1().constData());
-#endif
-#endif // Q_OS_LINUX
 #endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
 
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Config File Path......(%1)").arg(lpubConfigPath));
-    qDebug() << QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(lpub3dCachePath));
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Config File Path......(%1)").arg(lpubConfigPath)).toLatin1().constData());
-    fprintf(stdout, "%s\n", QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(lpub3dCachePath)).toLatin1().constData());
-#endif
-
-    QDir extrasDir(lpubDataPath + QDir::separator() + "extras");
+    QDir extrasDir(lpubDataPath + QDir::separator() + QLatin1String("extras"));
     if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
 
@@ -1288,180 +1481,6 @@ void Preferences::lpubPreferences()
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_STICKER_PARTS_FILE));
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-#ifdef QT_DEBUG_MODE
-    qDebug() << QString(QString("LPub3D Loaded LDraw Library..(%1)").arg(validLDrawPartsLibrary));
-    qDebug() << "--------------------------";
-//    qDebug() << "";
-#else
-    fprintf(stdout, "%s\n", QString(QString("LPub3D Loaded LDraw Library..(%1 Parts)").arg(validLDrawLibrary)).toLatin1().constData());
-    fprintf(stdout, "--------------------------\n");
-//    fprintf(stdout, "\n");
-    fflush(stdout);
-#endif
-}
-
-void Preferences::loggingPreferences()
-{
-    // define log path
-    QDir logDir(lpubDataPath+"/logs");
-    if(!QDir(logDir).exists())
-        logDir.mkpath(".");
-    logFilePath = QDir(logDir).filePath(QString("%1Log.txt").arg(VER_PRODUCTNAME_STR));
-
-    QSettings Settings;
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"))) {
-        QVariant uValue(true);
-        includeLogLevel = true;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"),uValue);
-    } else {
-        includeLogLevel = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeLogLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"))) {
-        QVariant uValue(false);
-        includeTimestamp = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"),uValue);
-    } else {
-        includeTimestamp = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeTimestamp")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeFileName"))) {
-        QVariant uValue(false);
-        includeFileName = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFileName"),uValue);
-    } else {
-        includeFileName = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeFileName")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"))) {
-        QVariant uValue(true);
-        includeLineNumber = true;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"),uValue);
-    } else {
-        includeLineNumber = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeLineNumber")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeFunction"))) {
-        QVariant uValue(true);
-        includeFunction = true;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFunction"),uValue);
-    } else {
-        includeFunction = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeFunction")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"))) {
-        QVariant uValue(false);
-        includeAllLogAttributes = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"),uValue);
-    } else {
-        includeAllLogAttributes = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"Logging"))) {
-        QVariant uValue(true);
-        logging = true;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"Logging"),uValue);
-    } else {
-        logging = Settings.value(QString("%1/%2").arg(LOGGING,"Logging")).toBool();
-    }
-
-    // log levels combo
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LoggingLevel"))) {
-        QVariant uValue(LOGGING_LEVEL_DEFAULT);
-        loggingLevel = LOGGING_LEVEL_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"LoggingLevel"),uValue);
-    } else {
-        loggingLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LoggingLevel")).toString();
-    }
-    // log levels group box
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LogLevel"))) {
-        QVariant uValue(true);
-        logLevel = true;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevel"),uValue);
-    } else {
-        logLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LogLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LogLevels"))) {
-        QVariant uValue(false);
-        logLevels = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevels"),uValue);
-    } else {
-        logLevels = Settings.value(QString("%1/%2").arg(LOGGING,"LogLevels")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"DebugLevel"))) {
-        QVariant uValue(false);
-        debugLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"DebugLevel"),uValue);
-    } else {
-        debugLevel = Settings.value(QString("%1/%2").arg(LOGGING,"DebugLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"TraceLevel"))) {
-        QVariant uValue(false);
-        traceLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"TraceLevel"),uValue);
-    } else {
-        traceLevel = Settings.value(QString("%1/%2").arg(LOGGING,"TraceLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"NoticeLevel"))) {
-        QVariant uValue(false);
-        noticeLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"NoticeLevel"),uValue);
-    } else {
-        noticeLevel = Settings.value(QString("%1/%2").arg(LOGGING,"NoticeLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"InfoLevel"))) {
-        QVariant uValue(false);
-        infoLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"InfoLevel"),uValue);
-    } else {
-        infoLevel = Settings.value(QString("%1/%2").arg(LOGGING,"InfoLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"StatusLevel"))) {
-        QVariant uValue(false);
-        statusLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"StatusLevel"),uValue);
-    } else {
-        statusLevel = Settings.value(QString("%1/%2").arg(LOGGING,"StatusLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"WarningLevel"))) {
-        QVariant uValue(false);
-        warningLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"WarningLevel"),uValue);
-    } else {
-        warningLevel = Settings.value(QString("%1/%2").arg(LOGGING,"WarningLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"ErrorLevel"))) {
-        QVariant uValue(false);
-        errorLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"ErrorLevel"),uValue);
-    } else {
-        errorLevel = Settings.value(QString("%1/%2").arg(LOGGING,"ErrorLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"FatalLevel"))) {
-        QVariant uValue(false);
-        fatalLevel = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"FatalLevel"),uValue);
-    } else {
-        fatalLevel = Settings.value(QString("%1/%2").arg(LOGGING,"FatalLevel")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"AllLogLevels"))) {
-        QVariant uValue(false);
-        allLogLevels = false;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),uValue);
-    } else {
-        allLogLevels = Settings.value(QString("%1/%2").arg(LOGGING,"AllLogLevels")).toBool();
-    }
-
 }
 
 void Preferences::lpub3dLibPreferences(bool browse)
@@ -1946,8 +1965,8 @@ void Preferences::ldrawPreferences(bool browse)
                     if (checkLDrawLibrary(result)) {
                         ldrawLibPath = QDir::toNativeSeparators(result);
                     } else {
-                        returnMessage = QMessageBox::tr ("The specified path is not a valid LPub3D-supported LDraw Library.\n"
-                                                          "%1").arg(ldrawLibPath);
+                        returnMessage = QMessageBox::tr ("The specified path is not a valid %1-supported LDraw Library.\n"
+                                                          "%2").arg(VER_PRODUCTNAME_STR).arg(ldrawLibPath);
                     }
                 }
             }
@@ -1976,9 +1995,10 @@ void Preferences::ldrawPreferences(bool browse)
                     QString header = "<b> " + QMessageBox::tr ("No LDraw library defined!") + "</b>";
                     QString body = QMessageBox::tr ("%1\nDo you wish to continue?")
                                                     .arg(returnMessage);
-                    QString detail = QMessageBox::tr ("The LDraw library is required by the LPub3D renderer(s). "
+                    QString detail = QMessageBox::tr ("The LDraw library is required by the %1 renderer(s). "
                                                       "If an LDraw library is not defined, the renderer will not "
-                                                      "be able to find the parts and primitives needed to render images.");
+                                                      "be able to find the parts and primitives needed to render images.")
+                                                      .arg(VER_PRODUCTNAME_STR);
 
                     box.setText (header);
                     box.setInformativeText (body);
@@ -2555,8 +2575,8 @@ void Preferences::rendererPreferences()
             {
                 QString header = QMessageBox::tr ("<b>Required libraries were not found!</b>");
                 QString body = QMessageBox::tr ("The following LDView libraries were not found:%2%2-%1%2%2"
-                                                "See /Applications/LPub3D.app/Contents/Resources/README_macOS.txt for details.")
-                                                .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n"));
+                                                "See /Applications/%3.app/Contents/Resources/README_macOS.txt for details.")
+                                                .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n").arg(VER_PRODUCTNAME_STR));
                 box.setText (header);
                 box.setInformativeText (body);
 
@@ -2646,8 +2666,8 @@ void Preferences::rendererPreferences()
             {
               QString header = QMessageBox::tr ("<b>Required libraries were not found!</b>");
               QString body = QMessageBox::tr ("The following required POVRay libraries were not found:%2%2-%1%2%2 "
-                                              "See /Applications/LPub3D.app/Contents/Resources/README_macOS.txt for details.")
-                                              .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n"));
+                                              "See /Applications/%3.app/Contents/Resources/README_macOS.txt for details.")
+                                              .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n").arg(VER_PRODUCTNAME_STR));
               box.setText (header);
               box.setInformativeText (body);
 
@@ -3244,8 +3264,8 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
                                           .arg("$USER")
 #endif
                                           .arg(QDir::toNativeSeparators(QDir::homePath()));
-                QString workingdir = QString("The working directory (e.g. %1) is where LPub3D-Trace is called from.")
-                                             .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
+                QString workingdir = QString("The working directory (e.g. %1) is where %2-Trace is called from.")
+                                             .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel")).arg(VER_PRODUCTNAME_STR);
 
                 // set application 3rd party renderers path
                 line.replace(QString("__USEFUL_LOCATIONS_COMMENT__"),locations);
@@ -4350,10 +4370,6 @@ bool Preferences::isBlender28OrLater()
     if (ok)
         return version > 2.79;
     return true;
-}
-
-void Preferences::setDebugLogging(bool b){
-    debugLogging = b;
 }
 
 void Preferences::annotationPreferences()
@@ -5563,6 +5579,12 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),allLogLevels);
         }
 
+        if ((loggingChanged |= suppressFPrint != dialog->suppressFPrint()))
+        {
+            suppressFPrint = dialog->suppressFPrint();
+            Settings.setValue(QString("%1/%2").arg(LOGGING,"SuppressFPrint"),suppressFPrint);
+        }
+
         if (loggingChanged) {
             using namespace QsLogging;
             Logger& logger = Logger::instance();
@@ -6343,9 +6365,11 @@ bool Preferences::extractLDrawLib() {
         if (usingDefaultLibrary)
             fileInfo.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
         if (usingDefaultLibrary && !fileInfo.exists()) {
-            body = QMessageBox::tr ("LPub3D attempted to extract the LDraw library however the required archive files\n%1\n%2\ndoes not exist.\n").arg(lpub3dLibFile, fileInfo.absoluteFilePath());
+            body = QMessageBox::tr ("%1 attempted to extract the LDraw library however the required archive files\n%2\n%3\ndoes not exist.\n")
+                                    .arg(VER_PRODUCTNAME_STR).arg(lpub3dLibFile, fileInfo.absoluteFilePath());
         } else {
-            body = QMessageBox::tr ("LPub3D attempted to extract the LDraw library however the required archive file\n%1\ndoes not exist.\n").arg(lpub3dLibFile);
+            body = QMessageBox::tr ("%1 attempted to extract the LDraw library however the required archive file\n%2\ndoes not exist.\n")
+                                   .arg(VER_PRODUCTNAME_STR).arg(lpub3dLibFile);
         }
 
         if (modeGUI) {

@@ -46,11 +46,11 @@ class Preferences
             msgKey = _msgKey;
             uID    = _uID;
         }
-        const QString toString() const
+        QString toString() const
         {
            return QString("%1 %2").arg(msgKey).arg(uID);
         }
-        const QString keyToString() const
+        QString keyToString() const
         {
             return QString(msgKey);
         }
@@ -138,7 +138,6 @@ class Preferences
     static void setSceneGuideColorPreference(QString);
     static void setBlenderExePathPreference(QString);
     static void setBlenderVersionPreference(QString);
-    static void setDebugLogging(bool);
 
     static void setInitFadeSteps();
     static void setInitHighlightStep();
@@ -155,6 +154,8 @@ class Preferences
     static bool hasKeyboardShortcut(const QString &objectName);
     static QKeySequence keyboardShortcut(const QString &objectName);
 
+    static bool setMessageLogging(bool useLogLevel = false);
+    static void fprintMessage(const QString &message, bool stdError = false);
     static int showMessage(Preferences::MsgID,
                            const QString &message,
                            const QString &title = "",
@@ -343,9 +344,11 @@ class Preferences
     static bool    includeAllLogAttributes;
     static bool    allLogLevels;
 
-    static bool    logging;       // logging on/off offLevel (grp box)
+    static bool    logging;       // global preference, logging on/off offLevel (grp box)
     static bool    logLevel;      // log level combo (grp box)
     static bool    logLevels;     // individual logging levels (grp box)
+    static bool    debugLogging;  // set if debugLevel is enabled
+    static bool    loggingEnabled;// set if logging setup successful
 
     static bool    povrayDisplay;
     static bool    povrayAutoCrop;
@@ -378,7 +381,6 @@ class Preferences
     static bool    customSceneRulerTickColor;
     static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
-    static bool    debugLogging;
     static bool    useSystemEditor;
     static bool    removeBuildModFormat;
     static bool    removeChildSubmodelFormat;

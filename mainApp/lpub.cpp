@@ -7178,71 +7178,6 @@ void Gui::showLine(const Where &here, int type)
   }
 }
 
-void Gui::fprintMessage(const QString &message, bool stdError, bool logging)
-{
-    const QString printMessage = QString(message).replace("<br>"," ").append("\n");
-    if (!logging) {
-        FILE *fp;
-        fp = fopen(qPrintable(Preferences::logFilePath), "a");  //open file in append mode.
-        fprintf(fp,"%s", qPrintable(printMessage));
-        fclose(fp);                                             //close file.
-    }
-    fprintf(stdError ? stderr : stdout,"%s", qPrintable(printMessage));
-    fflush(stdError ? stderr : stdout);
-}
-
-bool Gui::setMessageLogging(bool setLogLevel)
-{
-    bool loggingEnabled = Preferences::logging;
-    using namespace QsLogging;
-    Logger &logger = Logger::instance();
-
-    if (loggingEnabled) {
-        if (setLogLevel) {
-            // Set logging Level
-            Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&loggingEnabled);
-            QString logMessage;
-            if (!loggingEnabled)
-                logMessage = QObject::tr("Failed to set log level %1.\nLogging is off - level is OffLevel\n").arg(Preferences::loggingLevel);
-            else if (logLevel == OffLevel)
-                logMessage = QObject::tr("Logging is off - level set to %1\n").arg(Preferences::loggingLevel);
-            if (!logMessage.isEmpty()) {
-                logger.setLoggingLevel(OffLevel);
-                fprintMessage(logMessage, true/*standard error*/, true/*logging*/);
-                return false;
-            }
-            logger.setLoggingLevel(logLevel);
-            logger.setIncludeLogLevel(Preferences::includeLogLevel);
-            logger.setIncludeTimestamp(Preferences::includeTimestamp);
-            logger.setIncludeLineNumber(false);
-            logger.setIncludeTimestamp(true);
-            logger.setIncludeFileName(false);
-            logger.setColorizeFunctionInfo(false);
-            logger.setIncludeFunctionInfo(false);
-        } else {
-            if (Preferences::logLevels) {
-                logger.setLoggingLevels();
-                logger.setDebugLevel(Preferences::debugLevel);
-                logger.setTraceLevel(Preferences::traceLevel);
-                logger.setNoticeLevel(Preferences::noticeLevel);
-                logger.setInfoLevel(Preferences::infoLevel);
-                logger.setStatusLevel(Preferences::statusLevel);
-                logger.setWarningLevel(Preferences::warningLevel);
-                logger.setErrorLevel(Preferences::errorLevel);
-                logger.setFatalLevel(Preferences::fatalLevel);
-            }
-            logger.setIncludeLineNumber(Preferences::includeLineNumber);
-            logger.setIncludeFileName(Preferences::includeFileName);
-            logger.setIncludeFunctionInfo(Preferences::includeFunction);
-            logger.setColorizeFunctionInfo(true);
-        }
-    } else {
-        logger.setLoggingLevel(OffLevel);
-        return false;
-    }
-    return true;
-}
-
 void Gui::parseError(const QString &message,
         const Where &here,
         Preferences::MsgKey msgKey,
@@ -7303,26 +7238,25 @@ void Gui::parseError(const QString &message,
         parsedMessages.append(here);
 
     // Set Logging settings
-    bool loggingEnabled = Gui::setMessageLogging();
+    Preferences::setMessageLogging(true/*useLogLevel*/);
 
-    if (!Preferences::suppressFPrint)
-        Gui::fprintMessage(parseMessage, icon > static_cast<int>(QMessageBox::Icon::Warning) ? true : false/*stdError*/, loggingEnabled);
+    Preferences::fprintMessage(parseMessage, icon > static_cast<int>(QMessageBox::Icon::Warning) ? true : false/*stdError*/);
 
     switch (icon) {
     case static_cast<int>(QMessageBox::Icon::Information):
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logInfo() << qPrintable(parseMessage.replace("<br>"," "));
         break;
     case static_cast<int>(QMessageBox::Icon::Warning):
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logWarning() << qPrintable(parseMessage.replace("<br>"," "));
         break;
     case static_cast<int>(QMessageBox::Icon::Question):
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logNotice() << qPrintable(parseMessage.replace("<br>"," "));
         break;
     case static_cast<int>(QMessageBox::Icon::Critical):
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logError() << qPrintable(parseMessage.replace("<br>"," "));
         if (abortProcess) {
             displayPageNum = prevDisplayPageNum;
@@ -7346,7 +7280,7 @@ void Gui::parseError(const QString &message,
         }
         break;
     case static_cast<int>(LOG_FATAL):
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logError() << qPrintable(parseMessage.replace("<br>"," "));
         Gui::setAbortProcess(true);
         emit setExportingSig(false);
@@ -7359,7 +7293,7 @@ void Gui::parseError(const QString &message,
     }
 
     // Reset Logging to default settings
-    Gui::setMessageLogging(false);
+    Preferences::setMessageLogging();
 }
 
 void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgBox/*false*/) {
@@ -7381,14 +7315,13 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
 
     bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
 
-    bool loggingEnabled = setMessageLogging();
+    Preferences::setMessageLogging(true/*useLogLevel*/);
 
-    if (!Preferences::suppressFPrint)
-        Gui::fprintMessage(message, logType > LOG_WARNING ? true : false/*stdError*/, loggingEnabled);
+    Preferences::fprintMessage(message, logType > LOG_WARNING ? true : false/*stdError*/);
 
     if (logType == LOG_INFO_STATUS) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logInfo() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled) {
@@ -7399,7 +7332,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_STATUS ){
 
-         if (loggingEnabled)
+         if (Preferences::loggingEnabled)
              logStatus() << qPrintable(message.replace("<br>"," "));
 
          if (guiEnabled) {
@@ -7410,7 +7343,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_INFO) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logInfo() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
@@ -7423,7 +7356,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_NOTICE) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logNotice() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
@@ -7436,7 +7369,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_TRACE) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logTrace() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
@@ -7449,7 +7382,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_DEBUG) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logDebug() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
@@ -7462,7 +7395,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_WARNING) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logError() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
@@ -7476,7 +7409,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     } else
     if (logType == LOG_ERROR) {
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logError() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
@@ -7499,7 +7432,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
 
         message.append(tr("<br>- %1 will terminate.").arg(VER_PRODUCTNAME_STR));
 
-        if (loggingEnabled)
+        if (Preferences::loggingEnabled)
             logFatal() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
@@ -7512,7 +7445,8 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
         }
     }
 
-    setMessageLogging(false);
+    // reset logging to default settings
+    Preferences::setMessageLogging();
 
     if (logType == LOG_ERROR && abortProcess) {
         displayPageNum = prevDisplayPageNum;

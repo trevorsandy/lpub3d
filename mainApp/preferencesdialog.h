@@ -166,6 +166,7 @@ class PreferencesDialog : public QDialog
     bool          errorLevel();
     bool          fatalLevel();
     bool          allLogLevels();
+    bool          suppressFPrint();
 
     int           preferredRenderer();
     int           ldrawFilesLoadMsgs();

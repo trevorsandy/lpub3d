@@ -467,10 +467,11 @@ void Application::setTheme(bool appStarted)
           QString styleSheetMessage = tr("Dark mode styleSheet. %1 (%2)")
                                          .arg(styleSheetFile.errorString())
                                          .arg(styleSheetFile.fileName());
+
           if (modeGUI()) {
               logInfo() << styleSheetMessage;
           } else {
-              fprintf(stdout,"%s", QString(styleSheetMessage.append("\n")).toLatin1().constData());
+              Preferences::fprintMessage(QString(styleSheetMessage.append("\n")));
           }
       }
     }
@@ -581,6 +582,15 @@ void Application::setTheme(bool appStarted)
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(visualEditorTheme));
 }
 
+void Application::splashMsg(const QString &message)
+{
+  logInfo() << message;
+  if (m_console_mode)
+      return;
+  splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, QColor(QString(SPLASH_FONT_COLOUR)));
+  m_application.processEvents();
+}
+
 int Application::initialize()
 {
 #ifdef Q_OS_MAC
@@ -593,11 +603,12 @@ int Application::initialize()
     m_parent_console = false;
 #endif
 
-    connect(this,           SIGNAL(splashMsgSig(QString)),
-            this,           SLOT(splashMsg(QString)));
+    connect(this, SIGNAL(splashMsgSig(const QString &)),
+            this, SLOT(  splashMsg(   const QString &)));
 
     // process arguments
     bool header_printed = false;
+    bool suppressFPrint = false;
 #ifdef Q_OS_WIN
     // Request console redirect
     bool consoleRedirect = true;
@@ -617,13 +628,6 @@ int Application::initialize()
     args = QString("Arguments:");
     for (int i = 1; i < arguments().size(); i++)
         args.append(" " + arguments().at(i));
-
-#ifdef QT_DEBUG_MODE
-    qDebug() << "";
-    qDebug() << hdr;
-    qDebug() << "==========================";
-    qDebug() << args;
-#endif
 
     for (int ArgIdx = 1; ArgIdx < arguments().size(); ArgIdx++)
     {
@@ -696,7 +700,7 @@ int Application::initialize()
             }
 
             if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log"))
-                Preferences::setSuppressFPrintPreference(true);
+                suppressFPrint = true;
             else
             // Version output
             if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
@@ -868,119 +872,38 @@ int Application::initialize()
     // initialize the logger
     Preferences::loggingPreferences();
 
-    using namespace QsLogging;
+    Preferences::setSuppressFPrintPreference(suppressFPrint);
 
-    Logger& logger = Logger::instance();
-
-    int logLevelIndex = -1;
-
-    // set default log options
-    if (Preferences::logging)
+    auto printInfo = [&] (const QString &info)
     {
-        bool debugLogging = false;
-        if (Preferences::logLevels)
-        {
-            logger.setLoggingLevels();
-            logger.setDebugLevel( Preferences::debugLevel);
-            logger.setTraceLevel( Preferences::traceLevel);
-            logger.setNoticeLevel(Preferences::noticeLevel);
-            logger.setInfoLevel(  Preferences::infoLevel);
-            logger.setStatusLevel(Preferences::statusLevel);
-            logger.setWarningLevel(Preferences::warningLevel);
-            logger.setErrorLevel( Preferences::errorLevel);
-            logger.setFatalLevel( Preferences::fatalLevel);
+        if (Preferences::loggingEnabled) {
+            logInfo() << info;
+        } else
+            Preferences::fprintMessage(info);
+    };
 
-            debugLogging = Preferences::debugLevel;
-        }
-        else if (Preferences::logLevel)
-        {
-            bool ok;
-            Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
-            if (!ok)
-            {
-                QString Message = QMessageBox::tr("Failed to set log level %1.\n"
-                                                  "Logging is off - level set to OffLevel")
-                                                  .arg(Preferences::loggingLevel);
-                if (modeGUI())
-                    QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR), Message);
-                else
-                    fprintf(stderr, "%s", Message.toLatin1().constData());
-            }
-            logLevelIndex = QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0);
-            debugLogging = logLevelIndex > -1 && logLevelIndex <= 3;
-            logger.setLoggingLevel(logLevel);
-        }
-
-        Preferences::setDebugLogging(debugLogging);
-        logger.setIncludeLogLevel(    Preferences::includeLogLevel);
-        logger.setIncludeTimestamp(   Preferences::includeTimestamp);
-        logger.setIncludeLineNumber(  Preferences::includeLineNumber);
-        logger.setIncludeFileName(    Preferences::includeFileName);
-        logger.setIncludeFunctionInfo(Preferences::includeFunction);
-
-        logger.setColorizeFunctionInfo(true);
-        logger.setColorizeOutput(true);
-
-        // Create log destinations
-        DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
-                                         Preferences::logFilePath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
-        DestinationPtr debugDestination(DestinationFactory::MakeDebugOutputDestination());
-
-        // set log destinations on the logger
-        logger.addDestination(debugDestination);
-        logger.addDestination(fileDestination);
-
-        // logging examples
-        bool showLogExamples = false;
-        if (showLogExamples)
-        {
-            logStatus() << "Uh-oh! - this level is not displayed in the console only the log";
-            logInfo()   << "Here's a Info message - Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
-            logWarning()<< "Here's a Warning message";
-            logTrace()  << "Here's a Trace message - " << VER_PRODUCTNAME_STR << "started";
-            logDebug()  << "Here's a Debug (Level: " << static_cast<int>(QsLogging::DebugLevel) << ") message";
-            logNotice() << "Here's a Notice message";
-            qDebug()    << "This qDebug message won't be picked up by the logger";
-            logError()  << "Here's an Error! message";
-            qWarning()  << "Neither will this qWarning message";
-            logFatal()  << "Here's a Fatal Error! message";
-
-            Level level = logger.loggingLevel();
-            logger.setLoggingLevel(QsLogging::OffLevel);
-            for (int i = 0;i < 10;++i)
-            {
-                logError() << QString::fromUtf8("this message should not be visible");
-            }
-            logger.setLoggingLevel(level);
-        } // end init logging
-
-    } else {
-        logger.setLoggingLevel(OffLevel);
-    }
-
-    logInfo() << tr("Initializing application...");
-
+    printInfo(tr("Initializing application..."));
     // application version information
-    logInfo() << "-----------------------------";
-    logInfo() << hdr;
-    logInfo() << "=============================";
-    logInfo() << tr("Arguments....................(%1)").arg(args);
+    printInfo("-----------------------------");
+    printInfo(hdr);
+    printInfo("=============================");
+    printInfo(tr("Arguments....................(%1)").arg(args));
 #ifndef Q_OS_WIN
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MAC           // for macOS
-    logInfo() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
+    printInfo(tr("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
         cwd.cdUp();                   // Contents/      (app bundle contents folder)
         cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
         cwd.cdUp();                   // Applications/  (app bundle installation folder)
     }
-    logInfo() << QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
+    printInfo(tr("macOS Base Directory.........(%1)").arg(cwd.dirName()));
     if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
     {
-        logInfo() << QString(QString("macOS Info.plist update......(%1)").arg(Preferences::lpub3dAppName));
+        printInfo(tr("macOS Info.plist update......(%1)").arg(Preferences::lpub3dAppName));
         QFileInfo plbInfo("/usr/libexec/PlistBuddy");
         if (!plbInfo.exists())
-            logInfo() << QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
+            printInfo(tr("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
     }
 #elif defined Q_OS_LINUX   // for Linux
     QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
@@ -988,61 +911,48 @@ int Application::initialize()
     QStringList fileFilters = QStringList() << "lpub3d*";
     QStringList shareContents = contentsDir.entryList(fileFilters);
     if (shareContents.size() > 0) {
-        logInfo() << QString(QString("LPub3D Application Folder....(%1)").arg(Preferences::lpub3dAppName));
+        printInfo(tr("%1 Application Folder....(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dAppName));
     } else {
-        logInfo() << QString(QString("ERROR - Application Folder Not Found."));
+        printInfo(tr("ERROR - Application Folder Not Found."));
     }
 #endif
 #endif // NOT Q_OS_WIN
-    // applications paths:
-    logInfo() << tr("LPub3D App Data Path.........(%1)").arg(Preferences::lpubDataPath);
+    printInfo(tr("%1 App Data Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubDataPath));
 #ifdef Q_OS_MAC
-    logInfo() << QString(QString("LPub3D Bundle App Path.......(%1)").arg(Preferences::lpub3dPath));
+    printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
 #else // Q_OS_LINUX and Q_OS_WIN
-    logInfo() << tr("LPub3D Executable Path.......(%1)").arg(Preferences::lpub3dPath);
-    logInfo() << tr("LPub3D Log File Path.........(%1)").arg(Preferences::logFilePath);
+    printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
+    printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::logFilePath));
 #endif
 #ifdef Q_OS_WIN
-    QSettings Settings;
-    QString dataDir = "data";
-    QString dataPath = Preferences::lpub3dPath;
-    if (Preferences::portableDistribution) {
-        dataDir = "extras";
-        logInfo() << tr("LPub3D Portable Distribution.(Yes)");
-        // On Windows installer 'dataLocation' folder defaults to LPub3D install path but can be set with 'DataLocation' reg key
-    } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,"DataLocation"))) {
-        QString validDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,"DataLocation")).toString();
-        QDir validDataDir(QString("%1/%2/").arg(validDataPath,dataDir));
-        if(QDir(validDataDir).exists()) {
-            dataPath = validDataPath;
-            logInfo() << tr("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath());
-        }
-    }
+    printInfo(tr("%1 Data Location.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::dataLocation));
 #else // Q_OS_LINUX and Q_OS_MAC
-    logInfo() << tr("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath);
+    printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath));
 #if defined Q_OS_LINUX
     QDir rendererDir(QString("%1/../../%2/%3").arg(Preferences::lpub3dPath)
-                                              .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix+"/opt")
-                                              .arg(Preferences::lpub3dAppName));
-    logInfo() << tr("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath());
+                     .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix+"/opt")
+                     .arg(Preferences::lpub3dAppName));
+    printInfo(tr("%1 Renderers Exe Path....(%2/3rdParty)").arg(VER_PRODUCTNAME_STR).arg(rendererDir.absolutePath()));
 #endif // Q_OS_LINUX
-    logInfo() << tr("LPub3D Config File Path......(%1)").arg(Preferences::lpubConfigPath);
-    logInfo() << tr("LPub3D 3D Editor Cache Path..(%1)").arg(Preferences::lpub3dCachePath);
+    printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubConfigPath));
+    printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dCachePath));
 #endif //  Q_OS_WIN, Q_OS_LINUX and Q_OS_MAC
-    logInfo() << tr("LPub3D Loaded LDraw Library..(%1)").arg(Preferences::validLDrawPartsLibrary);
-    logInfo() << tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
-                         .arg(QString::number(logLevelIndex)).arg(QString(VER_LOGGING_LEVELS_STR).toLower());
-    logInfo() << tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled"));
+    printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));
+    printInfo(tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
+                                                     .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
+                                                     .arg(QString(VER_LOGGING_LEVELS_STR).toLower()));
+    printInfo(tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled")));
+    printInfo(tr("Log to Standard Output.......(%1)").arg(Preferences::suppressFPrint ? tr("Enabled") : tr("Disabled")));
 #ifndef QT_NO_SSL
-    logInfo() << tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
-                                                        .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
-                                                        .arg(QSslSocket::sslLibraryBuildVersionString(),
-                                                             QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
-                                                        .arg(QSslSocket::sslLibraryVersionString()))));
+    printInfo(tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
+                                                     .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
+                                                     .arg(QSslSocket::sslLibraryBuildVersionString(),
+                                                          QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
+                                                     .arg(QSslSocket::sslLibraryVersionString())))));
 #else
-    logInfo() << tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)");
+    printInfo(tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)"));
 #endif // QT_NO_SSL
-    logInfo() << "-----------------------------";
+    printInfo("-----------------------------");
 
     // splash
     // if you want to rewrite, here is a good example:

@@ -153,6 +153,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.logLevelGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL, ui.logLevelGrpBox->title()));
   ui.logLevelsGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL_MESSAGES, ui.logLevelsGrpBox->title()));
   ui.logPathGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH, tr("Log Path")));
+  ui.printStandardOutGrpBox->setWhatsThis(lpubWT(    WT_CONTROL_LPUB3D_PREFERENCES_PRINT_STANDARD_OUT, ui.printStandardOutGrpBox->title()));
   ui.lsynthPartsGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS, ui.lsynthPartsGrpBox->title()));
   ui.renderMessageLbl->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_MESSAGE, tr("Renderer Message")));
   ui.messagesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES, ui.messagesGrpBox->title()));
@@ -432,6 +433,22 @@ void PreferencesDialog::setPreferences()
   ui.logLevelGrpBox->setChecked(                 Preferences::logLevel);
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
+  ui.debugLevelBox->setChecked(                  Preferences::debugLevel);
+  ui.traceLevelBox->setChecked(                  Preferences::traceLevel);
+  ui.noticeLevelBox->setChecked(                 Preferences::noticeLevel);
+  ui.infoLevelBox->setChecked(                   Preferences::infoLevel);
+  ui.statusLevelBox->setChecked(                 Preferences::statusLevel);
+  ui.warningLevelBox->setChecked(                Preferences::warningLevel);
+  ui.errorLevelBox->setChecked(                  Preferences::errorLevel);
+  ui.fatalLevelBox->setChecked(                  Preferences::fatalLevel);
+
+  ui.includeAllLogAttribBox->setChecked(         Preferences::includeAllLogAttributes);
+  ui.allLogLevelsBox->setChecked(                Preferences::allLogLevels);
+
+  ui.suppressFPrintBox->setChecked(              Preferences::suppressFPrint);
+
+  ui.logLevelCombo->setCurrentIndex(int(ui.logLevelCombo->findText(Preferences::loggingLevel)));
+
   ui.fadeStepGrpBox->setChecked(                 Preferences::enableFadeSteps);
   ui.fadeStepsUseColourGrpBox->setEnabled(       Preferences::enableFadeSteps);
   ui.fadeStepsUseColourGrpBox->setChecked(       Preferences::fadeStepsUseColour);
@@ -467,20 +484,6 @@ void PreferencesDialog::setPreferences()
             .arg(highlightColour.blue());
     ui.highlightStepColorLabel->setStyleSheet(styleSheet);
   }
-
-  ui.logLevelCombo->setCurrentIndex(int(ui.logLevelCombo->findText(Preferences::loggingLevel)));
-
-  ui.debugLevelBox->setChecked(                  Preferences::debugLevel);
-  ui.traceLevelBox->setChecked(                  Preferences::traceLevel);
-  ui.noticeLevelBox->setChecked(                 Preferences::noticeLevel);
-  ui.infoLevelBox->setChecked(                   Preferences::infoLevel);
-  ui.statusLevelBox->setChecked(                 Preferences::statusLevel);
-  ui.warningLevelBox->setChecked(                Preferences::warningLevel);
-  ui.errorLevelBox->setChecked(                  Preferences::errorLevel);
-  ui.fatalLevelBox->setChecked(                  Preferences::fatalLevel);
-
-  ui.includeAllLogAttribBox->setChecked(         Preferences::includeAllLogAttributes);
-  ui.allLogLevelsBox->setChecked(                Preferences::allLogLevels);
 
   // search directories
   ui.lineEditIniFile->setPalette(readOnlyPalette);
@@ -2020,6 +2023,10 @@ bool PreferencesDialog::fatalLevel()
 bool PreferencesDialog::allLogLevels()
 {
   return ui.allLogLevelsBox->isChecked();
+}
+bool PreferencesDialog::suppressFPrint()
+{
+  return ui.suppressFPrintBox->isChecked();
 }
 
 void PreferencesDialog::updateChangelog()

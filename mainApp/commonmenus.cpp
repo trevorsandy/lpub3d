@@ -3578,6 +3578,16 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  You can configure the log file path and file name.\n")
         },
+        // WT_CONTROL_LPUB3D_PREFERENCES_PRINT_STANDARD_OUT
+        {
+            QObject::tr(
+            "  You can configure printing output messages to\n"
+            "  standard output\n"
+            "  To prevent double log entries, This setting is\n"
+            "  usually enabled on Windows and disabled on Unix\n"
+            "  when logging is enabled or when executing in\n"
+            "  console mode.\n")
+        },
         // WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES
         {
             QObject::tr(

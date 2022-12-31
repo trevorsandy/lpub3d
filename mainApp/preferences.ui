@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>643</width>
-    <height>658</height>
+    <width>613</width>
+    <height>660</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2886,7 +2886,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           <string>Uncheck to disable logging</string>
          </property>
          <property name="title">
-          <string>Individual Log Level Messages</string>
+          <string>Enable Logging</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -2894,7 +2894,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
          <property name="checked">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_12">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QGroupBox" name="logPathGrpBox">
             <layout class="QHBoxLayout" name="horizontalLayout_13">
@@ -3004,54 +3004,77 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="logLevelGrpBox">
-            <property name="toolTip">
-             <string>Select logging level as needed. Levels below the selected level will also be logged.</string>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="title">
-             <string>Logging Level</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>160</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QComboBox" name="logLevelCombo"/>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>159</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_27">
+            <item>
+             <widget class="QGroupBox" name="logLevelGrpBox">
+              <property name="toolTip">
+               <string>Select logging level as needed. Levels below the selected level will also be logged.</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="title">
+               <string>Logging Level</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_12">
+               <item>
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>160</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QComboBox" name="logLevelCombo"/>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>159</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="printStandardOutGrpBox">
+              <property name="toolTip">
+               <string>Check to disable fprintf used to print to standard output</string>
+              </property>
+              <property name="title">
+               <string>Standard Output</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_12">
+               <item>
+                <widget class="QCheckBox" name="suppressFPrintBox">
+                 <property name="text">
+                  <string>Do Not Print Messages To Standard Output</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QGroupBox" name="logLevelsGrpBox">
