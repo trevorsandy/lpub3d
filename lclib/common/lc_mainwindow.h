@@ -334,7 +334,7 @@ public:
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
 /*** LPub3D Mod - Update Default Camera ***/
-	void UpdateDefaultCameraProperties(lcCamera* DefaultCamera);
+	void UpdateDefaultCameraProperties();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
 	bool IsLPub3DSubModel(QString &Piece);

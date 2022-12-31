@@ -2386,7 +2386,7 @@ void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistanc
 
 		UpdateAllViews();
 		SaveCheckpoint(tr("MovingDefaultCamera"));
-		gMainWindow->UpdateDefaultCameraProperties(Camera);
+		gMainWindow->UpdateDefaultCameraProperties();
 	}
 }
 /*** LPub3D Mod end ***/
@@ -4706,7 +4706,7 @@ void lcModel::ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const l
 	Camera->ZoomRegion(AspectRatio, Position, TargetPosition, Corners, mCurrentStep, gMainWindow->GetAddKeys());
 
 /*** LPub3D Mod - Update Default Camera ***/
-	gMainWindow->UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
+	gMainWindow->UpdateDefaultCameraProperties(); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
 	UpdateAllViews();
 
@@ -4768,7 +4768,7 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 
 	if (!mIsPreview && gMainWindow)
 /*** LPub3D Mod - Update Default Camera ***/
-		gMainWindow->UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
+		gMainWindow->UpdateDefaultCameraProperties(); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
 	UpdateAllViews();
 
@@ -4789,7 +4789,7 @@ void lcModel::Zoom(lcCamera* Camera, float Amount)
 
 	if (!mIsPreview)
 /*** LPub3D Mod - Update Default Camera ***/
-		gMainWindow->UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
+		gMainWindow->UpdateDefaultCameraProperties(); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
 	UpdateAllViews();
 

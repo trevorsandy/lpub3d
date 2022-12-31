@@ -2107,7 +2107,7 @@ void lcView::LookAt()
 	{
 		ActiveModel->LookAt(mCamera);
 		if (gMainWindow)
-			gMainWindow->UpdateDefaultCameraProperties(mCamera);
+			gMainWindow->UpdateDefaultCameraProperties();
 	}
 /*** LPub3D Mod end ***/
 }
@@ -2136,7 +2136,7 @@ void lcView::ZoomExtents()
 		if (mViewType == lcViewType::Preview)
 			Redraw();
 		else if (gMainWindow)
-			gMainWindow->UpdateDefaultCameraProperties(mCamera);
+			gMainWindow->UpdateDefaultCameraProperties();
 	}
 /*** LPub3D Mod end ***/
 }
@@ -2617,7 +2617,7 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 
 				ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 				if (!Selection.GetSize() && !Focus)
-					gMainWindow->UpdateDefaultCameraProperties(mCamera);
+					gMainWindow->UpdateDefaultCameraProperties();
 			}
 		}
 /*** LPub3D Mod end ***/
@@ -3079,7 +3079,7 @@ void lcView::OnMouseMove()
 /*** LPub3D Mod - preview widget for LPub3D ***/
 		if (mViewType != lcViewType::Preview)
 /*** LPub3D Mod end ***/
-			gMainWindow->UpdateDefaultCameraProperties(mCamera);
+			gMainWindow->UpdateDefaultCameraProperties();
 	}
 /*** LPub3D Mod end ***/
 

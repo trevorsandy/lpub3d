@@ -2790,16 +2790,44 @@ void lcMainWindow::ViewCameraChanged()
 }
 
 /*** LPub3D Mod - Update Default Camera ***/
-void lcMainWindow::UpdateDefaultCameraProperties(lcCamera* DefaultCamera)
+void lcMainWindow::UpdateDefaultCameraProperties()
 {
 	if (!lcGetPreferences().mDefaultCameraProperties ||
 		!lcGetActiveProject()->GetViewerLoaded())
 		return;
 
-	lcArray<lcObject*> Selection;
-	Selection.Add(DefaultCamera);
+	lcView* ActiveView = GetActiveView();
 
-	mPropertiesWidget->Update(Selection, DefaultCamera);
+	if (ActiveView)
+	{
+		lcCamera* Camera = ActiveView->GetCamera();
+		bool IsDefaultCamera = Camera->GetName().isEmpty();
+
+		if (Camera && IsDefaultCamera)
+		{
+			lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+			if (ActiveModel)
+			{
+				lcTool Tool = GetTool();
+				if (Tool == lcTool::Select)
+				{
+					int Flags = 0;
+					lcArray<lcObject*> Selection;
+					lcObject* Focus = nullptr;
+					ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
+					bool NoSelectionOrFocus = !Selection.GetSize() && !Focus;
+
+					if (NoSelectionOrFocus)
+					{
+						lcArray<lcObject*> Selection;
+						Selection.Add(Camera);
+						mPropertiesWidget->Update(Selection, Camera);
+					}
+				}
+			}
+		}
+	}
 }
 /*** LPub3D Mod end ***/
 
