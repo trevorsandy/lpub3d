@@ -1253,10 +1253,12 @@ int LDrawFile::loadFile(const QString &fileName)
         return count;
     };
 
-    const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique Parts %3. Total Parts %4. %5")
+    const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique %3 %4. Total %5 %6. %5")
                                             .arg(type == MPD_FILE ? "MPD" : "LDR")
                                             .arg(fileInfo.fileName())
+                                            .arg(_uniquePartCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
                                             .arg(_uniquePartCount)
+                                            .arg(_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
                                             .arg(_partCount)
                                             .arg(gui->elapsedTime(t.elapsed()));
 
@@ -2863,6 +2865,13 @@ void LDrawFile::countParts(const QString &fileName) {
                 else if (isSubstitute(line, type))
                     countThisLine = !type.isEmpty();
 
+#ifdef QT_DEBUG_MODE
+                if (type == "rect.dat") {
+                    int stopHere = 1;
+                    Q_UNUSED(stopHere)
+                }
+#endif
+
                 bool partIncluded = !ExcludedParts::isExcludedPart(type);
 
                 if (countThisLine && lineIncluded && partIncluded) {
@@ -2931,21 +2940,13 @@ void LDrawFile::countParts(const QString &fileName) {
                                         _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
                                         emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBPART").arg(type));
                                     }
-                                } else
-                                if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
-                                    if (pieceInfo->IsSubPiece()) {
-                                        //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                                        if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
-                                            _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBPART").arg(type));
-                                        }
-                                    } else {
-                                        //emit gui->messageSig(LOG_DEBUG,QString("PIECE_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                                        if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
-                                            _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a PRIMITIVE").arg(type));
-                                        }
-                                    }
+                                }
+                            } else
+                            if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
+                                //emit gui->messageSig(LOG_DEBUG,QString("PIECE_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                                if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
+                                    _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
+                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a PRIMITIVE").arg(type));
                                 }
                             } else {
                                 partString += QString("Part not found");
@@ -2964,7 +2965,12 @@ void LDrawFile::countParts(const QString &fileName) {
 
     countModelParts(top);
 
-    emit gui->messageSig(LOG_STATUS, QString("%1 total parts and %2 unique parts counted for %3").arg(_partCount).arg(_uniquePartCount).arg(top.modelName));
+    emit gui->messageSig(LOG_STATUS, QString("%1 total %2 and %3 unique %4 counted for %5")
+                                             .arg(_partCount)
+                                             .arg(_partCount == 1 ? QObject::tr("part") : QObject::tr("parts"))
+                                             .arg(_uniquePartCount)
+                                             .arg(_uniquePartCount == 1 ? QObject::tr("part") : QObject::tr("parts"))
+                                             .arg(top.modelName));
     emit gui->progressPermSetValueSig(size(top.modelName));
     emit gui->progressPermStatusRemoveSig();
 }

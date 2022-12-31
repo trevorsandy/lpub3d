@@ -76,7 +76,7 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     QColor errorColor = QColor(Qt::red);
     QBrush errorBrush (errorColor);
 
-    QColor warningColor = QColor(Qt::yellow);
+    QColor warningColor = QColor(Qt::darkYellow);
     QBrush warningBrush (warningColor);
 
     auto getCount = [&_loadedParts] (const LoadMsgType lmt)
