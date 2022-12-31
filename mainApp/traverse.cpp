@@ -4539,6 +4539,7 @@ void Gui::countPages()
 
       QString message = tr("Counting pages...");
       if (buildModJumpForward) {
+          jumpForwardPerformed = true;
           fpFlags.parseBuildMods = true;
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
       }
@@ -5248,16 +5249,21 @@ int Gui::setBuildModForNextStep(
 #endif
 
     } else {
+        //* local ldrawFile used for debugging
+#ifdef QT_DEBUG_MODE
+        LDrawFile *ldrawFile = &lpub->ldrawFile;
+        Q_UNUSED(ldrawFile)
+#endif
+        //*/
         emit gui->messageSig(LOG_INFO_STATUS, QString("Build Modification Next Step Check - Index: %1, Model: '%2', Line '%3'...")
                                                       .arg(buildModNextStepIndex).arg(topOfStep.modelName).arg(topOfStep.lineNumber));
 
         startLine = topOfStep.lineNumber;           // set starting line number
 
-        int deleteIndex = buildModNextStepIndex;    // when navigating forward, set the delete index to the next step index
-        if (pageDirection < PAGE_BACKWARD)
-            deleteIndex += 1;                       // when navigating backward, set the delete index to the index after the next step index
-
-        deleteBuildMods(deleteIndex);               // clear all build mods at and after delete index - used after jump ahead and for backward navigation
+        if (jumpForwardPerformed) {                 // jump forard performed so...
+            jumpForwardPerformed = false;           // reset jumpForwardPerformed
+            deleteBuildMods(buildModNextStepIndex); // clear all build mods at and after delete index
+        }
 
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Next StartStep - Index: %1, ModelName: %2, LineNumber: %3")

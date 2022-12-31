@@ -494,11 +494,12 @@ public:
   static int          maxPages;
 
   static int          pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
-  qreal           exportPixelRatio; // export resolution pixel density
+  qreal           exportPixelRatio;    // export resolution pixel density
 
   bool            submodelIconsLoaded; // load submodel images
 
   static bool     buildModJumpForward; // parse build mods in countPage call - special case for jump forward
+  static bool     jumpForwardPerformed;// set in countPages when buildModJumpForward detected
 
   static int       m_exportMode;        // export mode
   static int       m_saveExportMode;    // saved export mode used when exporting BOM

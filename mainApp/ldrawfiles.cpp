@@ -3785,6 +3785,8 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
 void LDrawFile::setBuildModNavBackward()
 {
 #ifdef QT_DEBUG_MODE
+    QElapsedTimer timer;
+    timer.start();
     int count = 0;
     QString keys;
 #endif
@@ -3811,8 +3813,8 @@ void LDrawFile::setBuildModNavBackward()
     }
 #ifdef QT_DEBUG_MODE
     keys.chop(1);
-    emit gui->messageSig(LOG_TRACE, QString("BuildMod Jump Backward Updated %1 %2 %3")
-                                            .arg(count).arg(count == 1 ? "Key:" : "Keys:").arg(keys));
+    emit gui->messageSig(LOG_TRACE, QString("BuildMod Jump Backward Updated %1 %2 %3 %4")
+                                            .arg(count).arg(count == 1 ? "Key:" : "Keys:").arg(keys).arg(lpub->elapsedTime(timer.elapsed())));
 #endif
 }
 

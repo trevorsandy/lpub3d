@@ -844,6 +844,7 @@ bool Gui::openFile(QString &fileName)
 
   setCountWaitForFinished(false);
   buildModJumpForward = false;
+  jumpForwardPerformed = false;
   pageDirection = PAGE_NEXT;
   suspendFileDisplay = true;
   parsedMessages.clear();
