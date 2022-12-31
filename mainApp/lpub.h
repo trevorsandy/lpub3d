@@ -802,6 +802,11 @@ public:
       lpub->ldrawFile.setViewerStepModified(stepKey);
   }
 
+  QString getViewerStepKey(const int stepIndex)
+  {
+      return lpub->ldrawFile.getViewerStepKey(stepIndex);
+  }
+
   /* Build Modifications */
 
   void insertBuildMod(const QString      &buildModKey,
@@ -888,9 +893,9 @@ public:
       return lpub->ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
-  int getBuildModStep(const Where &here)
+  int getBuildModStepAction(const Where &here)
   {
-      return lpub->ldrawFile.getBuildModStep(here.modelName, here.lineNumber);
+      return lpub->ldrawFile.getBuildModStepAction(here.modelName, here.lineNumber);
   }
 
   void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
@@ -936,6 +941,11 @@ public:
   void clearBuildModRendered(const QString &buildModKey, const QString &colorModel)
   {
       lpub->ldrawFile.clearBuildModRendered(buildModKey, colorModel);
+  }
+
+  QString getBuildModKey(const Where &here)
+  {
+      return lpub->ldrawFile.getBuildModKey(here.modelName, here.lineNumber);
   }
 
   // This function returns the equivalent of the ViewerStepKey
@@ -999,7 +1009,7 @@ public:
       return lpub->ldrawFile.getPathsFromBuildModKeys(buildModKeys);
   }
 
-  bool buildModsCount()
+  int buildModsCount()
   {
       return lpub->ldrawFile.buildModsCount();
   }
@@ -1432,6 +1442,7 @@ public slots:
   void updateBuildModification();
   void deleteBuildModification();
   bool saveBuildModification();
+  void deleteBuildModificationAction();
 
   void clearPLICache();
   void clearCSICache();

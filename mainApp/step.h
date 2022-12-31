@@ -87,6 +87,8 @@ class Step : public AbstractRangeElement
     bool                  pliPerStep;
     bool                  csiOutOfDate;
     bool                  modelDisplayOnlyStep;
+    bool                  bfxLoadStep;
+    bool                  buildModActionStep;
     bool                  fadeSteps;
     bool                  highlightStep;
     bool                  adjustOnItemOffset;
@@ -162,9 +164,7 @@ class Step : public AbstractRangeElement
            QStringList  const &csiParts,
            QVector<int> const &lineTypeIndexes,
            QPixmap            *pixmap,
-           Meta               &meta,
-           bool                bfxLoad = false,
-           bool                buildModAction = false);
+           Meta               &meta);
 
     int  sizeit(int  rows[],
                 int  cols[],

@@ -121,16 +121,19 @@ class ViewerStep {
     QString   	_filePath;
     QString     _imagePath;
     QString     _csiKey;
+    QString     _keySuffix;
     StepKey     _stepKey;
     int         _partCount;
     bool        _modified;
     bool        _multiStep;
     bool        _calledOut;
     int         _viewType;
+    bool        _hasBuildModAction;
 
     ViewerStep()
     {
       _modified = false;
+      _hasBuildModAction = false;
     }
     ViewerStep(
       const QStringList &stepKey,
@@ -471,7 +474,8 @@ class LDrawFile {
                           const int       stepIndex,
                           const int       modAction);
     int setBuildModRendered(const QString &buildModKey, const QString &renderedModel);
-    int getBuildModStep(const QString &modelName, const int &lineNumber);
+    int getBuildModStepAction(const int stepIndex);
+    int getBuildModStepAction(const QString &modelName, const int &lineNumber);
     int getBuildModStepIndex(const int modelIndex, const int lineNumber, bool indexCheck = false); // last application step index
     int getBuildModStepIndex(const QString &buildModKey);                 // creation step index
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
@@ -508,6 +512,7 @@ class LDrawFile {
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     void deleteBuildMods(const int stepIndex);
     void deleteBuildMods();
+    QString getBuildModKey(const QString &modelName, const int &lineNumber);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModStepKeyModelName(const QString &buildModKey);
     QStringList getPathsFromBuildModKeys(const QStringList &buildModKeys);
@@ -525,7 +530,7 @@ class LDrawFile {
                           bool               multiStep,
                           bool               calledOut,
                           int                viewType/*CSI,PLI,SMP*/);
-    void updateViewerStep(const QString     &fileName,
+    void updateViewerStep(const QString     &stepKey,
                           const QStringList &contents,
                           bool rotated = true);
     QString getViewerStepKeyFromRange(const int modelIndex,
@@ -537,16 +542,19 @@ class LDrawFile {
     QStringList getPathsFromViewerStepKey(const QString &stepKey);
     QStringList getViewerStepRotatedContents(const QString &stepKey);
     QStringList getViewerStepUnrotatedContents(const QString &stepKey);
+    QString     getViewerStepKey(const int stepIndex);
     QString     getViewerStepKeyWhere(const int modelIndex, const int lineNumber);
     QString     getViewerStepFilePath(const QString &stepKey);
     QString     getViewerStepImagePath(const QString &stepKey);
     QString     getViewerConfigKey(const QString &stepKey);
     int         getViewerStepPartCount(const QString &stepKey);
+    bool        getViewerStepHasBuildModAction(const QString &stepKey);
     bool        isViewerStepMultiStep(const QString &stepKey);
     bool        isViewerStepCalledOut(const QString &stepKey);
     bool        viewerStepContentExist(const QString &stepKey);
     bool        viewerStepModified(const QString &stepKey, bool reset = false);
     bool        deleteViewerStep(const QString &stepKey);
+    void        setViewerStepHasBuildModAction(const QString &stepKey, bool value);
     void        setViewerStepModified(const QString &stepKey);
     void        clearViewerSteps();
 

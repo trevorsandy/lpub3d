@@ -2644,7 +2644,7 @@ bool MetaItem::frontCoverPageExist()
 {
   QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
   Where here(lpub->ldrawFile.topLevelFile(),0);
-  return Gui::stepContains(here, rx);;
+  return Gui::stepContains(here, rx);
 }
 
 void MetaItem::appendCoverPage()
@@ -3313,6 +3313,50 @@ bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
   }
 
   return foundFinalModel;
+}
+
+QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepCheck)
+{
+    QRegExp bufExLoadRx("^0 BUFEXCHG \\S+ RETRIEVE$");                   // _bfx
+    QRegExp dispModelRx("^0 !?LPUB INSERT DISPLAY_MODEL$");              // _dm
+    QRegExp buildModActRx("^0 !?LPUB BUILD_MOD (?:REMOVE|APPLY) \\S+$"); // _bm
+    Where here;
+    bool partsAdded = false;
+    bool hasDispModel = false;
+    bool hasBufExLoad = false;
+    bool hasBuildModAct = false;
+    if (!(hasDispModel = step ? step->modelDisplayOnlyStep : false)) {
+        if (stepCheck) {
+            here = top;
+            hasDispModel = Gui::stepContains(here, dispModelRx);
+        }
+    } else if (!(hasBuildModAct = step ? step->buildModActionStep : false)) {
+        if (stepCheck) {
+            here = top;
+            scanForward(here, StepMask|StepGroupMask, partsAdded);
+            if (!partsAdded) {
+                here = top;
+                hasBuildModAct = Gui::stepContains(here, buildModActRx);
+            }
+        }
+    } else if (!(hasBufExLoad = step ? step->bfxLoadStep : false)) {
+        if (stepCheck) {
+            here = top;
+            scanForward(here, StepMask|StepGroupMask, partsAdded);
+            if (!partsAdded) {
+                here = top;
+                hasBufExLoad = Gui::stepContains(here, bufExLoadRx);
+            }
+        }
+    }
+
+    qDebug() << qPrintable(QString("DEBUG: %1VIEWER STEP KEY ends with%2")
+                           .arg(stepCheck ? "STEP_CHECK " : "")
+                           .arg(hasDispModel ? " DISPLAY_MODEL (_dm)" :
+                                hasBufExLoad ? " BUFEXCHG RETRIEVE (_bfx)" :
+                                hasBuildModAct ? " BUILD_MOD ACTION (_bm)" : " STEP_NUMBER"));
+
+    return hasDispModel ? "_dm" : hasBufExLoad ? "_bfx" : hasBuildModAct ? "_bm" : QString();
 }
 
 void MetaItem::changePreferredRenderer(

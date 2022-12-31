@@ -2051,7 +2051,7 @@ int Gui::drawPage(
               if (buildModContains(buildMod.key)) {
                   if (getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
                       parseError(tr("Redundant build modification meta command '%1' - this command can be removed.")
-                                 .arg(buildMod.key),opts.current,Preferences::BuildModErrors);
+                                    .arg(buildMod.key),opts.current,Preferences::BuildModErrors);
               } else {
                   const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
                   parseError(tr("DrawPage %1 BuildMod for key '%2' not found.")
@@ -2070,28 +2070,16 @@ int Gui::drawPage(
                                            .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
                                            .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
 #endif
+                      // set BuildMod step has action in current step
+                      const QString buildModStepKey = getViewerStepKey(getBuildModStepIndex(buildMod.key));
+                      lpub->ldrawFile.setViewerStepHasBuildModAction(buildModStepKey, true);
                       // set BuildMod action for current step
                       setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
-                      // set the stepKey to clear the image cache if not navigating backward
-                      //if (pageDirection < PAGE_BACKWARD) {
-                      //    // pass the submodel stack
-                      //    QString stack;
-                      //    Q_FOREACH (const SubmodelStack &model,curMeta.submodelStack)
-                      //      stack.append(QString("%1:").arg(getSubmodelIndex(model.modelName)));
-                      //    if (!stack.isEmpty()) {
-                      //        stack.replace(stack.lastIndexOf(":"),1,";");
-                      //        buildModClearStepKey = QString("%1%2;%3;%4")
-                      //                .arg(stack).arg(topOfStep.modelIndex)
-                      //                .arg(topOfStep.lineNumber).arg(opts.stepNum);
-                      //    }
-                      //}
-
                       // Check if CsiAnnotation and process them if any
                       if (! exportingObjects() && (multiStep || opts.calledOut))
                           lpub->mi.setCsiAnnotationMetas(steps);
-
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       pageProcessRunning = PROC_FIND_PAGE;
                       return static_cast<int>(HitBuildModAction);
@@ -2277,25 +2265,24 @@ int Gui::drawPage(
                     }
 
                   QString caseType;
-                  if (bfxLoad)
+                  if (bfxLoad) {
                       caseType.append("bfx load");
-                  if (buildModAction)
+                      step->bfxLoadStep = bfxLoad;
+                  }
+                  if (buildModAction) {
                       caseType.isEmpty() ? caseType.append("build modification") : caseType.append(" build modification");
+                      step->buildModActionStep = buildModAction;
+                  }
                   emit messageSig(LOG_INFO, QString("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
 
                   step->updateViewer = opts.updateViewer;
 
-                  // set the current step - enable access from other parts of the application - e.g. Renderer
-                  lpub->setCurrentStep(step);
-
-                  (void) step->createCsi(
+                  returnValue = static_cast<TraverseRc>(step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         configuredCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
                         opts.lineTypeIndexes,
                         &step->csiPixmap,
-                        steps->meta,
-                        bfxLoad,
-                        buildModAction);
+                        steps->meta));
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       opts.ldrStepFiles << step->ldrName;
@@ -2303,7 +2290,7 @@ int Gui::drawPage(
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
-              } // STEP - special case of no parts added, but BFX load
+              } // STEP - special case of no parts added, but BFX load or BuildMod Action and not NOSTEP
 
              /*
               *  STEP - case of not NOSTEP and not BuildMod ignore
@@ -2358,8 +2345,14 @@ int Gui::drawPage(
                               page->selectedSceneItems   = selectedSceneItems;
                           }
 
-                          // set the current step - enable access from other parts of the application - e.g. Renderer
-                          lpub->setCurrentStep(step);
+                          emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
+                          step->updateViewer = opts.updateViewer;
+                          returnValue = static_cast<TraverseRc>(step->createCsi(
+                                      opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                                      configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
+                                      opts.lineTypeIndexes,
+                                      &step->csiPixmap,
+                                      steps->meta));
 
                           step->lightList = lightList;
 
@@ -2447,15 +2440,6 @@ int Gui::drawPage(
                           } // divider type
 
                           step->placeRotateIcon = rotateIcon;
-
-                          emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
-                          step->updateViewer = opts.updateViewer;
-                          returnValue = static_cast<TraverseRc>(step->createCsi(
-                                      opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                                      configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
-                                      opts.lineTypeIndexes,
-                                      &step->csiPixmap,
-                                      steps->meta));
 
                           if (returnValue != HitNothing)
                               emit messageSig(LOG_ERROR, QMessageBox::tr("Create CSI failed to create file."));
@@ -2560,9 +2544,11 @@ int Gui::drawPage(
                               if (step) {
                                   page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
                                   step->lightList = lightList;
-
-                                  // set the current step - enable access from other parts of the application - e.g. Renderer
-                                  lpub->setCurrentStep(step);
+                                  step->viewerStepKey = QString("%1;%2;%3%4")
+                                          .arg(topOfStep.modelIndex)
+                                          .arg(topOfStep.lineNumber)
+                                          .arg(opts.stepNum)
+                                          .arg(lpub->mi.viewerStepKeySuffix(topOfStep, step));
                               }
 
                               if (! steps->meta.LPub.stepPli.perStep.value()) {
@@ -2665,15 +2651,19 @@ int Gui::drawPage(
 
                                   if (step) {
                                       step->setBottomOfStep(opts.current);
+                                      step->modelDisplayOnlyStep = true;
+                                      step->subModel.viewerSubmodel = true;
+                                      step->subModel.setSubModel(topOfStep.modelName,steps->meta);
+                                      step->viewerStepKey = QString("%1;%2;%3%4")
+                                                                     .arg(topOfStep.modelIndex)
+                                                                     .arg(topOfStep.lineNumber)
+                                                                     .arg(opts.stepNum)
+                                                                     .arg(lpub->mi.viewerStepKeySuffix(step->top, step));
 
                                       // set the current step - enable access from other parts of the application - e.g. Renderer
                                       lpub->setCurrentStep(step);
 
                                       showLine(topOfStep);
-
-                                      step->modelDisplayOnlyStep = true;
-                                      step->subModel.viewerSubmodel = true;
-                                      step->subModel.setSubModel(topOfStep.modelName,steps->meta);
 
                                       const QString modelFileName = QString("%1/%2/smi.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir);
 
@@ -4735,6 +4725,8 @@ void Gui::drawPage(
     QStringList keys = buildModClearStepKey.split("_");
     QString key      = keys.first();
     QString option   = keys.last();
+    // reset key to avoid endless loop - displayPage called in clear... calls
+    buildModClearStepKey.clear();
 
     // viewer step key or clear submodel (cm) - clear step(s) image and flag submodel stack item(s) as modified
     if (keys.size() == 1 || option == "cm") {
@@ -4751,9 +4743,6 @@ void Gui::drawPage(
       QString csiPngName = getViewerStepImagePath(key);
       clearStepCSICache(csiPngName);
     }
-
-    // reset key
-    buildModClearStepKey.clear();
   }
 
   writeToTmp();

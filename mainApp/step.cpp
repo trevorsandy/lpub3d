@@ -73,6 +73,8 @@ Step::Step(
   adjustOnItemOffset        = false;
 
   modelDisplayOnlyStep      = false;
+  bfxLoadStep               = false;
+  buildModActionStep        = false;
   dividerType               = NoDivider;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
@@ -235,9 +237,7 @@ int Step::createCsi(
     QStringList  const &csiParts,       // the partially assembles model
     QVector<int> const &_lineTypeIndexes,
     QPixmap           *pixmap,
-    Meta              &meta,
-    bool               bfxLoad,        // Bfx load special case (no parts added)
-    bool               buildModAction) // BuildMod action special case (no parts added)
+    Meta              &meta)
 {
   bool csiExist       = false;
   bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
@@ -252,8 +252,8 @@ int Step::createCsi(
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
 
-  QString nameExtension = modelDisplayOnlyStep ? "_dm" : bfxLoad ? "_bfx" : buildModAction ? "_bm" : QString();
-  QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameExtension, QString::number(Preferences::preferredRenderer));
+  QString nameSuffix    = lpub->mi.viewerStepKeySuffix(top, this);
+  QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type.toUpper() == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
@@ -362,10 +362,10 @@ int Step::createCsi(
 
   // populate viewerStepKey variable
   viewerStepKey = QString("%1;%2;%3%4")
-                          .arg(gui->getSubmodelIndex(top.modelName))
+                          .arg(top.modelIndex)
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
-                          .arg(modelDisplayOnlyStep ? "_dm" : "");
+                          .arg(nameSuffix);
 
   int rc = 0;
 
@@ -392,24 +392,39 @@ int Step::createCsi(
 
   QElapsedTimer timer;
 
-  // Generate Visual Editor CSI entry - this must come before 'Generate and renderer Submodel file'
-  // as we are using the entered key to renderCsi
+  // Generate Visual Editor CSI entry - this must come before 'Generate the renderer CSI file'
+  // as we are using the entered key to render the CSI
   if (!Gui::exportingObjects() || nativeRenderer) {
 
       timer.start();
 
+      qDebug() << qPrintable(QString("DEBUG: %1 out of date %2.")
+                                     .arg(csiOutOfDate ? "TRUE - CSI image is" : "FALSE - CSI image is not")
+                                     .arg(QFileInfo(pngName).fileName()));
+
       // Viewer Csi does not yet exist in repository
       bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerStepKey);
 
-      // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
+      qDebug() << qPrintable(QString("DEBUG: %1 - Add Viewer Step Content for Key (Model,Line,Step) %2")
+                                     .arg(addViewerStepContent ? "TRUE " : "FALSE").arg(viewerStepKey));
+
+      // We are processing again the current step but the CSI has changed - e.g. updated in the viewer
       bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey());
+      // However, do not update viewer contents for steps generated from a buildMod action (buildMod change)
+      viewerUpdate &= !lpub->ldrawFile.getViewerStepHasBuildModAction(viewerStepKey);
+
+      qDebug() << qPrintable(QString("DEBUG: %1 - Update Viewer Step Content for Key (Model,Line,Step) %2")
+                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
 
       if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
+
+          qDebug() << qPrintable(QString("DEBUG: Processing Viewer Step Content for Key (Model,Line,Step) %1")
+                                         .arg(viewerStepKey));
 
           updateViewer = true; // just to be safe
 
           // set rotated parts - input is csiParts
-          QFuture<QStringList> RenderFuture = QtConcurrent::run([this,&addLine,&meta,&csiParts,&noCA,&cameraAngles,absRotstep] () {
+          QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
               QStringList futureParts = csiParts;
               // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
               if (renderer->rotateParts(
@@ -434,7 +449,7 @@ int Step::createCsi(
 
           // Prepare content for Native renderer
           if (!rc && Preferences::inlineNativeContent) {
-              QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedParts] () {
+              QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
                   QStringList futureParts = rotatedParts;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
                   renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
@@ -514,7 +529,7 @@ int Step::createCsi(
 //          loadTheViewer();
   }
 
-  // Generate  the renderer CSI file
+  // Generate the renderer CSI file
 
   if (!rc && (!csiExist || csiOutOfDate)) {
 
@@ -586,6 +601,9 @@ int Step::createCsi(
 
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey
+
+         // set the current step - enable access from other parts of the application - e.g. Renderer
+         lpub->setCurrentStep(this);
 
          //QFuture<int> RenderFuture = QtConcurrent::run([this, &addLine, &csiParts, &csiKeys, &meta, nType] () {
          //    int frc = 0;

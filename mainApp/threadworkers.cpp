@@ -2608,22 +2608,15 @@ int CountPageWorker::countPage(
                                                .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
                                                .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
 #endif
+                          // get the viewerStepKey for the current step
+                          const QString viewerStepKey = QString("%1;%2;%3%4")
+                                                        .arg(topOfStep.modelIndex)
+                                                        .arg(topOfStep.lineNumber)
+                                                        .arg(opts.stepNumber)
+                                                        .arg(lpub->mi.viewerStepKeySuffix(topOfStep, nullptr, true/*step check*/));
+                          lpub->ldrawFile.setViewerStepHasBuildModAction(viewerStepKey, true);
                           // set BuildMod action for current step
                           ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
-                          // set the stepKey to clear the image cache if not navigating backward
-                          //if (Gui::pageDirection < PAGE_BACKWARD) {
-                          //    // pass the submodel stack to clear step images
-                          //    QString stack;
-                          //    Q_FOREACH (const SubmodelStack &model,meta->submodelStack)
-                          //      stack.append(QString("%1:").arg(ldrawFile->getSubmodelIndex(model.modelName)));
-                          //    if (!stack.isEmpty()) {
-                          //        stack.prepend(BuildMod|); // required if using Gui::setBuildModClearStepKey();
-                          //        stack.replace(stack.lastIndexOf(":"),1,";");
-                          //        gui->setBuildModClearStepKey(QString("%1%2;%3;%4")
-                          //                                     .arg(stack).arg(topOfStep.modelIndex)
-                          //                                     .arg(topOfStep.lineNumber).arg(opts.stepNumber));
-                          //    }
-                          //}
                       }
                       buildMod.state = BM_NONE;
                   } // opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM

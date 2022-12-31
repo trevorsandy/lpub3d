@@ -671,6 +671,10 @@ int SubModel::sizeSubModel(Meta *_meta, PlacementType _parentRelativeType, bool 
   parentRelativeType = _parentRelativeType;
   perStep = _perStep;
 
+  // set the current step - enable access from other parts of the application - e.g. Renderer
+  if (step)
+      lpub->setCurrentStep(step);
+
   if (parts.size() == 0) {
     return 1;
   }

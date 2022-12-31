@@ -760,17 +760,23 @@ bool LPub::setCurrentStep(const QString &key)
 
 void LPub::setCurrentStep(Step *step)
 {
-    step->viewerStepKey = QString("%1;%2;%3%4")
-                                  .arg(ldrawFile.getSubmodelIndex(step->top.modelName))
-                                  .arg(step->top.lineNumber)
-                                  .arg(step->stepNumber.number)
-                                  .arg(step->modelDisplayOnlyStep ? "_dm" : "");
-    currentStep = step;
-    viewerStepKey = currentStep->viewerStepKey;
+    if (step) {
+        if (step->viewerStepKey.isEmpty())
+            step->viewerStepKey = QString("%1;%2;%3%4")
+                                          .arg(step->top.modelIndex)
+                                          .arg(step->top.lineNumber)
+                                          .arg(step->stepNumber.number)
+                                          .arg(lpub->mi.viewerStepKeySuffix(step->top, step));
+        currentStep = step;
+        viewerStepKey = currentStep->viewerStepKey;
 #ifdef QT_DEBUG_MODE
-    emit lpub->messageSig(LOG_DEBUG,tr("Set current step %1, with key '%2'.")
-                                      .arg(currentStep->stepNumber.number).arg(currentStep->viewerStepKey));
+        emit lpub->messageSig(LOG_DEBUG,tr("Set current step %1, with key '%2'.")
+                                          .arg(currentStep->stepNumber.number).arg(currentStep->viewerStepKey));
+
+    } else {
+        emit lpub->messageSig(LOG_WARNING,tr("Specified step is NULL, cannot set current step."));
 #endif
+    }
 }
 
 /****************************************************************************

@@ -1,4 +1,4 @@
-LPub3D 2.4.5.79.3056 (31 12 2022 05:07:18)
+LPub3D 2.4.5.80.3057 (31 12 2022 05:09:00)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,13 +14,14 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add submodels to file load status #636
+- Enhancement - Build modifications - step-group step in the visual editor #635
 - Enhancement - Cover page, bill of material, export and error banners #649
 - Enhancement - Logging - update messaging and log types #634
 - Enhancement - Prompt user to archive unofficial parts #628
 - Enhancement - Show errors and warnings on export or continuous process completion #639
 - Enhancement - Messages - add option to abort processing on error #643
-- Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Build modification - declaration and action in same STEP #633
+- Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
 - Change - Parse top-model INCLUDE file at model file load #631
 - Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627

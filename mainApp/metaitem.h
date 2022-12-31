@@ -52,6 +52,7 @@ enum ScanMask {
   InsertMask = (1 << InsertRc)
 };
 
+class Step;
 class Steps;
 class StepGroup;
 class Page;
@@ -542,6 +543,8 @@ public:
                     bool askLocal = true);
   void deleteImageItem(Where &, QString &);
   void deletePLIPartGroups(const Where &,const Where &);
+
+  QString viewerStepKeySuffix(const Where &, Step *, bool = false);
 
   Where firstLine(QString);
   void firstLine(Where &);
