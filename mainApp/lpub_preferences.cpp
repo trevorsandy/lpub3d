@@ -5971,7 +5971,7 @@ bool Preferences::getPreferences()
             loadTheme = displayThemeChanged || displayThemeColorsChanged;
         }
 
-        emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Preferences updated. %1")
+        emit lpub->messageSig(LOG_INFO_STATUS,QMessageBox::tr("Preferences updated. %1")
                               .arg(lpub->elapsedTime(timer.elapsed())));
 
     } else {

@@ -488,9 +488,11 @@ int Gui::addGraphicsPageItems(
           switch (insert.type) {
             case InsertData::InsertPicture:
               {
-                fileInfo.setFile(getFilePath(insert.picName));
+                if (!insert.picName.isEmpty()) {
 
-                if (fileInfo.exists()) {
+                  fileInfo.setFile(getFilePath(insert.picName));
+
+                  if (fileInfo.exists()) {
 
                     QPixmap qpixmap;
                     qpixmap.load(insert.picName);
@@ -517,10 +519,11 @@ int Gui::addGraphicsPageItems(
                     pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
                     pixmap->relativeToSize[0] = plPage.size[XX];
                     pixmap->relativeToSize[1] = plPage.size[YY];
-                } else {
-                  emit messageSig(LOG_ERROR, QString("Unable to locate picture %1. Be sure picture file "
-                                                     "is located relative to model file or use an absolute path.")
-                                                     .arg(fileInfo.absoluteFilePath()));
+                  } else {
+                    emit messageSig(LOG_ERROR, QString("Unable to locate picture %1. Be sure picture file "
+                                                       "is located relative to model file or use an absolute path.")
+                                                       .arg(fileInfo.absoluteFilePath()));
+                  }
                 }
               }
               break;
@@ -2580,63 +2583,67 @@ int Gui::addCoverPageAttributes(
       QFileInfo fileInfo;
       // DocumentLogo (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayDocumentLogoFront) {
-          qreal picScale = double(page->meta.LPub.page.documentLogoFront.picScale.value());
-          fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoFront.file.value()));
-          if (fileInfo.exists()) {
-              QPixmap qpixmap;
-              qpixmap.load(fileInfo.absoluteFilePath());
-              pixmapLogoFront
-                      = new PageAttributePixmapItem(
-                          page,
-                          qpixmap,
-                          page->meta.LPub.page.documentLogoFront,
-                          pageBg);
-              page->addPageAttributePixmap(pixmapLogoFront);
-              pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
-              pixmapLogoFront->setScale(picScale,picScale);
-              int margin[2] = {0, 0};
-              PlacementData pld = pixmapLogoFront->placement.value();
-              if (pld.relativeTo == PageHeaderType) {
-                  pageHeader->appendRelativeTo(pixmapLogoFront);
-                  pageHeader->placeRelative(pixmapLogoFront, margin);
-                  pixmapLogoFront->relativeToSize[0] = pageHeader->size[XX];
-                  pixmapLogoFront->relativeToSize[1] = pageHeader->size[YY];
-              } else if (pld.relativeTo == PageFooterType) {
-                  pageFooter->appendRelativeTo(pixmapLogoFront);
-                  pageFooter->placeRelative(pixmapLogoFront, margin);
-                  pixmapLogoFront->relativeToSize[0] = pageFooter->size[XX];
-                  pixmapLogoFront->relativeToSize[1] = pageFooter->size[YY];
-              } else {
-                  plPage.appendRelativeTo(pixmapLogoFront);
-                  plPage.placeRelative(pixmapLogoFront, margin);
-                  pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
-                  pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
+          if (!page->meta.LPub.page.documentLogoFront.file.value().isEmpty()) {
+              fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoFront.file.value()));
+              if (fileInfo.exists()) {
+                qreal picScale = double(page->meta.LPub.page.documentLogoFront.picScale.value());
+                QPixmap qpixmap;
+                qpixmap.load(fileInfo.absoluteFilePath());
+                pixmapLogoFront
+                        = new PageAttributePixmapItem(
+                            page,
+                            qpixmap,
+                            page->meta.LPub.page.documentLogoFront,
+                            pageBg);
+                page->addPageAttributePixmap(pixmapLogoFront);
+                pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
+                pixmapLogoFront->setScale(picScale,picScale);
+                int margin[2] = {0, 0};
+                PlacementData pld = pixmapLogoFront->placement.value();
+                if (pld.relativeTo == PageHeaderType) {
+                    pageHeader->appendRelativeTo(pixmapLogoFront);
+                    pageHeader->placeRelative(pixmapLogoFront, margin);
+                    pixmapLogoFront->relativeToSize[0] = pageHeader->size[XX];
+                    pixmapLogoFront->relativeToSize[1] = pageHeader->size[YY];
+                } else if (pld.relativeTo == PageFooterType) {
+                    pageFooter->appendRelativeTo(pixmapLogoFront);
+                    pageFooter->placeRelative(pixmapLogoFront, margin);
+                    pixmapLogoFront->relativeToSize[0] = pageFooter->size[XX];
+                    pixmapLogoFront->relativeToSize[1] = pageFooter->size[YY];
+                } else {
+                    plPage.appendRelativeTo(pixmapLogoFront);
+                    plPage.placeRelative(pixmapLogoFront, margin);
+                    pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
+                    pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
+                }
+                pixmapLogoFront->setPos(pixmapLogoFront->loc[XX],pixmapLogoFront->loc[YY]);
               }
-              pixmapLogoFront->setPos(pixmapLogoFront->loc[XX],pixmapLogoFront->loc[YY]);
           }
       }
 
       // CoverImage (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayCoverImage) {
-          qreal picScale   = double(page->meta.LPub.page.coverImage.picScale.value());
-          fileInfo.setFile(getFilePath(page->meta.LPub.page.coverImage.file.value()));
-          if (fileInfo.exists()) {
-              QPixmap qpixmap;
-              qpixmap.load(fileInfo.absoluteFilePath());
-              pixmapCoverImageFront
-                      = new PageAttributePixmapItem(
-                          page,
-                          qpixmap,
-                          page->meta.LPub.page.coverImage,
-                          pageBg);
-              page->addPageAttributePixmap(pixmapCoverImageFront);
-              pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
-              pixmapCoverImageFront->setScale(picScale,picScale);
-              int margin[2] = {0, 0};
-              plPage.placeRelative(pixmapCoverImageFront, margin);
-              pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
-              pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
-              pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
+          if (!page->meta.LPub.page.coverImage.file.value().isEmpty()) {
+              fileInfo.setFile(getFilePath(page->meta.LPub.page.coverImage.file.value()));
+              if (fileInfo.exists()) {
+                  qreal picScale   = double(page->meta.LPub.page.coverImage.picScale.value());
+                  QPixmap qpixmap;
+                  qpixmap.load(fileInfo.absoluteFilePath());
+                  pixmapCoverImageFront
+                          = new PageAttributePixmapItem(
+                              page,
+                              qpixmap,
+                              page->meta.LPub.page.coverImage,
+                              pageBg);
+                  page->addPageAttributePixmap(pixmapCoverImageFront);
+                  pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
+                  pixmapCoverImageFront->setScale(picScale,picScale);
+                  int margin[2] = {0, 0};
+                  plPage.placeRelative(pixmapCoverImageFront, margin);
+                  pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
+                  pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
+                  pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
+              }
           }
       }
   }
@@ -2883,77 +2890,81 @@ int Gui::addCoverPageAttributes(
       // DocumentLogoBack (Back Cover) Placement //~~~~~~~~~~~~~~~~
       QFileInfo fileInfo;
       if (displayDocumentLogoBack) {
-          qreal picScale   = double(page->meta.LPub.page.documentLogoBack.picScale.value());
-          fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoBack.file.value()));
-          if (fileInfo.exists()) {
-              QPixmap qpixmap;
-              qpixmap.load(fileInfo.absoluteFilePath());
-              pixmapLogoBack =
-                      new PageAttributePixmapItem(
-                          page,
-                          qpixmap,
-                          page->meta.LPub.page.documentLogoBack,
-                          pageBg);
-              page->addPageAttributePixmap(pixmapLogoBack);
-              pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
-              pixmapLogoBack->setScale(picScale,picScale);
-              int margin[2] = {0, 0};
-              PlacementData pld = pixmapLogoBack->placement.value();
-              if (pld.relativeTo == PageHeaderType) {                              // Default placement
-                  pageHeader->appendRelativeTo(pixmapLogoBack);
-                  pageHeader->placeRelative(pixmapLogoBack, margin);
-                  pixmapLogoBack->relativeToSize[0] = pageHeader->size[XX];
-                  pixmapLogoBack->relativeToSize[1] = pageHeader->size[YY];
-              } else if (pld.relativeTo == PageFooterType) {                       // Alternate placement
-                  pageFooter->appendRelativeTo(pixmapLogoBack);
-                  pageFooter->placeRelative(pixmapLogoBack, margin);
-                  pixmapLogoBack->relativeToSize[0] = pageFooter->size[XX];
-                  pixmapLogoBack->relativeToSize[1] = pageFooter->size[YY];
-              } else {
-                  plPage.appendRelativeTo(pixmapLogoBack);
-                  plPage.placeRelative(pixmapLogoBack, margin);
-                  pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
-                  pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
+          if (!page->meta.LPub.page.documentLogoBack.file.value().isEmpty()) {
+              fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoBack.file.value()));
+              if (fileInfo.exists()) {
+                  qreal picScale = double(page->meta.LPub.page.documentLogoBack.picScale.value());
+                  QPixmap qpixmap;
+                  qpixmap.load(fileInfo.absoluteFilePath());
+                  pixmapLogoBack =
+                          new PageAttributePixmapItem(
+                              page,
+                              qpixmap,
+                              page->meta.LPub.page.documentLogoBack,
+                              pageBg);
+                  page->addPageAttributePixmap(pixmapLogoBack);
+                  pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
+                  pixmapLogoBack->setScale(picScale,picScale);
+                  int margin[2] = {0, 0};
+                  PlacementData pld = pixmapLogoBack->placement.value();
+                  if (pld.relativeTo == PageHeaderType) {                              // Default placement
+                      pageHeader->appendRelativeTo(pixmapLogoBack);
+                      pageHeader->placeRelative(pixmapLogoBack, margin);
+                      pixmapLogoBack->relativeToSize[0] = pageHeader->size[XX];
+                      pixmapLogoBack->relativeToSize[1] = pageHeader->size[YY];
+                  } else if (pld.relativeTo == PageFooterType) {                       // Alternate placement
+                      pageFooter->appendRelativeTo(pixmapLogoBack);
+                      pageFooter->placeRelative(pixmapLogoBack, margin);
+                      pixmapLogoBack->relativeToSize[0] = pageFooter->size[XX];
+                      pixmapLogoBack->relativeToSize[1] = pageFooter->size[YY];
+                  } else {
+                      plPage.appendRelativeTo(pixmapLogoBack);
+                      plPage.placeRelative(pixmapLogoBack, margin);
+                      pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
+                      pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
+                  }
+                  pixmapLogoBack->setPos(pixmapLogoBack->loc[XX],pixmapLogoBack->loc[YY]);
               }
-              pixmapLogoBack->setPos(pixmapLogoBack->loc[XX],pixmapLogoBack->loc[YY]);
           }
       }
 
       // PlugImage (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayPlugImageBack) {
-          qreal picScale   = double(page->meta.LPub.page.plugImage.picScale.value());
-          fileInfo.setFile(getFilePath(page->meta.LPub.page.plugImage.file.value()));
-          if (fileInfo.exists()) {
-              QPixmap qpixmap;
-              qpixmap.load(fileInfo.absoluteFilePath());
-              pixmapPlugImageBack =
-                      new PageAttributePixmapItem(
-                          page,
-                          qpixmap,
-                          page->meta.LPub.page.plugImage,
-                          pageBg);
-              page->addPageAttributePixmap(pixmapPlugImageBack);;
-              pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
-              pixmapPlugImageBack->setScale(picScale,picScale);
-              int margin[2] = {0, 0};
-              PlacementData pld = pixmapPlugImageBack->placement.value();
-              if (displayPlugBack && pld.relativeTo == PagePlugType) {
-                  plugBack->appendRelativeTo(pixmapPlugImageBack);
-                  plugBack->placeRelative(pixmapPlugImageBack, margin);
-                  pixmapPlugImageBack->relativeToSize[0] = plugBack->size[XX];
-                  pixmapPlugImageBack->relativeToSize[1] = plugBack->size[YY];
-              } else if (pld.relativeTo == PageFooterType) {
-                  pageFooter->appendRelativeTo(pixmapPlugImageBack);
-                  pageFooter->placeRelative(pixmapPlugImageBack, margin);
-                  pixmapPlugImageBack->relativeToSize[0] = pageFooter->size[XX];
-                  pixmapPlugImageBack->relativeToSize[1] = pageFooter->size[YY];
-              } else {
-                  plPage.appendRelativeTo(pixmapPlugImageBack);
-                  plPage.placeRelative(pixmapPlugImageBack, margin);
-                  pixmapPlugImageBack->relativeToSize[0] = plPage.size[XX];
-                  pixmapPlugImageBack->relativeToSize[1] = plPage.size[YY];
+          if (!page->meta.LPub.page.documentLogoBack.file.value().isEmpty()) {
+              fileInfo.setFile(getFilePath(page->meta.LPub.page.plugImage.file.value()));
+              if (fileInfo.exists()) {
+                  qreal picScale   = double(page->meta.LPub.page.plugImage.picScale.value());
+                  QPixmap qpixmap;
+                  qpixmap.load(fileInfo.absoluteFilePath());
+                  pixmapPlugImageBack =
+                          new PageAttributePixmapItem(
+                              page,
+                              qpixmap,
+                              page->meta.LPub.page.plugImage,
+                              pageBg);
+                  page->addPageAttributePixmap(pixmapPlugImageBack);;
+                  pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
+                  pixmapPlugImageBack->setScale(picScale,picScale);
+                  int margin[2] = {0, 0};
+                  PlacementData pld = pixmapPlugImageBack->placement.value();
+                  if (displayPlugBack && pld.relativeTo == PagePlugType) {
+                      plugBack->appendRelativeTo(pixmapPlugImageBack);
+                      plugBack->placeRelative(pixmapPlugImageBack, margin);
+                      pixmapPlugImageBack->relativeToSize[0] = plugBack->size[XX];
+                      pixmapPlugImageBack->relativeToSize[1] = plugBack->size[YY];
+                  } else if (pld.relativeTo == PageFooterType) {
+                      pageFooter->appendRelativeTo(pixmapPlugImageBack);
+                      pageFooter->placeRelative(pixmapPlugImageBack, margin);
+                      pixmapPlugImageBack->relativeToSize[0] = pageFooter->size[XX];
+                      pixmapPlugImageBack->relativeToSize[1] = pageFooter->size[YY];
+                  } else {
+                      plPage.appendRelativeTo(pixmapPlugImageBack);
+                      plPage.placeRelative(pixmapPlugImageBack, margin);
+                      pixmapPlugImageBack->relativeToSize[0] = plPage.size[XX];
+                      pixmapPlugImageBack->relativeToSize[1] = plPage.size[YY];
+                  }
+                  pixmapPlugImageBack->setPos(pixmapPlugImageBack->loc[XX],pixmapPlugImageBack->loc[YY]);
               }
-              pixmapPlugImageBack->setPos(pixmapPlugImageBack->loc[XX],pixmapPlugImageBack->loc[YY]);
           }
       }
   }

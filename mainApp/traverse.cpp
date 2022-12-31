@@ -1479,13 +1479,13 @@ int Gui::drawPage(
                 coverPage = true;
                 partsAdded = true;
                 lpub->page.coverPage = true;
-                QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT| BACK)?$");
-                if (line.contains(rx) && displayPageNum > lastStepPageNum) {
+                QRegExp rx("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
+                if (line.contains(rx) && rx.cap(1) == "BACK") {
                   lpub->page.backCover  = true;
                   lpub->page.frontCover = false;
                   lpub->mi.scanBackwardNoParts(top, StepMask);
                   message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
-                } else if (line.contains(rx) && displayPageNum < firstStepPageNum) {
+                } else if (line.contains(rx) && rx.cap(1) == "FRONT") {
                   lpub->page.frontCover = true;
                   lpub->page.backCover  = false;
                   lpub->mi.scanForwardNoParts(top, StepMask);
