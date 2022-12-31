@@ -2364,7 +2364,11 @@ int CountPageWorker::countPage(
                                       // so we do not set their step or end model as a new page
                                       flags2.callout        = opts.flags.callout;
                                       flags2.parseBuildMods = opts.flags.parseBuildMods;
-                                      flags2.buildModLevel  = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : opts.flags.buildModLevel;
+                                      const QString levelKey = QString("CountPages BuildMod Key: %1, ParentModel: %2, LineNumber: %3")
+                                                                       .arg(buildMod.key)
+                                                                       .arg(opts.current.modelName)
+                                                                       .arg(opts.current.lineNumber);
+                                      flags2.buildModLevel  = buildMod.state == BM_BEGIN ? getLevel(levelKey, BM_CURRENT) : opts.flags.buildModLevel;
                                   }
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);

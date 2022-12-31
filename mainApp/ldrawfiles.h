@@ -168,7 +168,7 @@ public:
     QString key;
 };
 
-extern int getLevel(const QString& key, int position, int index = -1, int line = 0);
+extern int getLevel(const QString& key, int position);
 
 /********************************************
  * build modification

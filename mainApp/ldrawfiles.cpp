@@ -82,7 +82,7 @@ HiarchLevel* addLevel(const QString& key, bool create)
     return nullptr;
 }
 
-int getLevel(const QString& key, int position, int index, int line)
+int getLevel(const QString& key, int position)
 {
     if (position == BM_BEGIN) {
         // ensure key is specified
@@ -118,14 +118,12 @@ int getLevel(const QString& key, int position, int index, int line)
 //*/
         }
     }
-
 //*
 #ifdef QT_DEBUG_MODE
+    else
     if (position == BM_CURRENT) {
-        const QString message = QString("DEBUG: Build Modification - Get absolute level [%1] from 'currentLevels'%2%3")
-                                        .arg(LDrawFile::_currentLevels.size())
-                                        .arg(index > 0 ? QString(" - ModelName: %1").arg(LDrawFile::getSubmodelName(index)) : "")
-                                        .arg(line ? QString(", LineNumber: %1").arg(line) : "");
+        const QString message = QString("DEBUG: Build Modification - Get absolute level [%1] from 'currentLevels'%2")
+                                        .arg(LDrawFile::_currentLevels.size()).arg(!key.isEmpty() ? QString(" - %1").arg(key) : "");
         qDebug() << qPrintable(message);
     }
 #endif
