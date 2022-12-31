@@ -1554,8 +1554,6 @@ protected:
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
   QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
 
-  QMutex                 mWriteToTmpMutex;
-
   int                    mViewerZoomLevel;
 
   SceneObject            selectedItemObj;
@@ -1578,8 +1576,10 @@ private:
   QLabel                *progressLabelPerm;  // 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
-  QFutureWatcher<int>    futureWatcher;
-  QMutex                 countPagesMutex;
+  QFutureWatcher<int>    futureWatcher;      // watch the countPage future
+  
+  QMutex                 pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
+  QMutex                 writeMutex;         // non-recursive write to temp working directory and countPage mutex 
 
   static QString         curFile;                // the file name for MPD, or top level file
   static bool            m_exportingContent;     // indicate export/printing underway

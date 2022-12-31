@@ -2139,13 +2139,14 @@ bool ExtractWorker::removeFile(QStringList listFile) {
     return ret;
 }
 
+QMutex countMutex(QMutex::Recursive);
+
 int CountPageWorker::countPage(
     Meta            *meta,
     LDrawFile       *ldrawFile,
     FindPageOptions  &opts)
 {
-  QMutex countPageMutex;
-  countPageMutex.lock();
+  QMutexLocker countLocker(&countMutex);
 
   Gui::pageProcessRunning = PROC_COUNT_PAGE;
 
@@ -3006,9 +3007,7 @@ int CountPageWorker::countPage(
       } // Last Step in Submodel
   } // ! abortProcess
 
-  countPageMutex.unlock();
-
-  return OkRc;
+  return Gui::abortProcess() ? static_cast<int>(HitAbortProcess) : static_cast<int>(HitNothing);
 } // CountPageWorker::countPage()
 
 /**********************************************
@@ -3018,6 +3017,8 @@ int CountPageWorker::countPage(
  **********************************************/
 
 bool LoadModelWorker::_detached = false;
+
+QMutex loadMutex;
 
 void LoadModelWorker::setPlainText(const QString &content)
 {
@@ -3057,8 +3058,7 @@ void LoadModelWorker::setLineCount(const int count)
 
 int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
 {
-    QMutex loadMutex;
-    loadMutex.lock();
+    QMutexLocker loadLocker(&loadMutex);
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QString("3.  Editor loading..."));
@@ -3081,7 +3081,6 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
                                       QMessageBox::tr("Cannot read editor display file %1:\n%2.")
                                       .arg(file.fileName())
                                       .arg(file.errorString()));
-                loadMutex.unlock();
                 return 1;
             }
 
@@ -3099,7 +3098,6 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
             content = contentList.join("\n");
         } else {
             emit gui->messageSig(LOG_ERROR,QString("No suitable data source detected for %1").arg(fileName));
-            loadMutex.unlock();
             return 1;
         }
 
@@ -3121,7 +3119,6 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
         setLineCount(lineCount);
     } else {
         emit gui->messageSig(LOG_ERROR,QString("No lines detected in %1").arg(fileName));
-        loadMutex.unlock();
         return 1;
     }
 
@@ -3139,8 +3136,6 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
         if (!content.isEmpty())
             setPlainText(content);
     }
-
-    loadMutex.unlock();
 
     return 0;
 } // LoadModelWorker::loadModel()

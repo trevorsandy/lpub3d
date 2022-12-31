@@ -5639,6 +5639,8 @@ int Gui::setBuildModForNextStep(
 void Gui::writeToTmp(const QString &fileName,
                      const QStringList &contents)
 {
+  QMutexLocker writeLocker(&writeMutex);
+
   QString filePath = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
   QFileInfo fileInfo(filePath);
   if(!fileInfo.dir().exists()) {
@@ -5646,12 +5648,11 @@ void Gui::writeToTmp(const QString &fileName,
     }
   QFile file(filePath);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-      QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
+      QMessageBox::critical(nullptr,QMessageBox::tr("%1 Write To Temp").arg(VER_PRODUCTNAME_STR),
                            QMessageBox::tr("Failed to open %1 for writing: %2")
                            .arg(filePath) .arg(file.errorString()));
+      return;
     } else {
-
-      mWriteToTmpMutex.lock();
 
       LDrawFile::_currentLevels.clear();
 
@@ -5812,8 +5813,6 @@ void Gui::writeToTmp(const QString &fileName,
       }
 
       lpub->ldrawFile.setLineTypeRelativeIndexes(topOfStep.modelIndex,lineTypeIndexes);
-
-      mWriteToTmpMutex.unlock();
 
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
@@ -6018,10 +6017,10 @@ void Gui::writeToTmp()
 
 void Gui::writeSmiContent(QStringList *content, const QString &fileName)
 {
+    QMutexLocker writeLocker(&writeMutex);
+        
     if (! Preferences::buildModEnabled)
         return;
-
-    mWriteToTmpMutex.lock();
 
     QStringList smiContent;
 
@@ -6118,8 +6117,6 @@ void Gui::writeSmiContent(QStringList *content, const QString &fileName)
             }
         }
     } // for each line
-
-    mWriteToTmpMutex.unlock();
 
     if (smiContent.size()) {
         lpub->ldrawFile.setSmiContent(fileName, smiContent);

@@ -35,6 +35,7 @@
 #include <QMap>
 #include <QDateTime>
 #include <QList>
+#include <QMutex>
 
 #include "excludedparts.h"
 #include "stickerparts.h"
@@ -279,7 +280,7 @@ class LDrawFile {
     void processMetaCommand(const QStringList &tokens);
   
   protected:
-    QMutex ldrawMutex;    // recursive
+    QMutex ldrawMutex; // recursive
 
   public:
     LDrawFile();

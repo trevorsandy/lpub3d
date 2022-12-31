@@ -2934,7 +2934,7 @@ void Gui::preferences()
  *
  ******************************************************************************/
 
-Gui::Gui()
+Gui::Gui() : pageMutex(QMutex::Recursive)
 {
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 

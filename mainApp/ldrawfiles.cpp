@@ -2455,8 +2455,8 @@ void LDrawFile::countInstances(
         bool     isMirrored,
         bool     callout)
 {
-  QMutex countMutex;
-  countMutex.lock();
+  QMutexLocker ldrawLocker(&ldrawMutex);
+
   //logTrace() << QString("countInstances, File: %1, Mirrored: %2, Callout: %3").arg(mcFileName,(isMirrored?"Yes":"No"),(callout?"Yes":"No"));
 
   /*
@@ -2587,7 +2587,6 @@ void LDrawFile::countInstances(
           }
         }
       }
-      countMutex.unlock();
       return;
     }
 
@@ -2785,7 +2784,6 @@ void LDrawFile::countInstances(
   } // subfile end
 
   f->_beenCounted = true;
-  countMutex.unlock();
 }
 
 void LDrawFile::countInstances()
@@ -3340,8 +3338,6 @@ int LDrawFile::getBuildModStep(const QString &modelName,
 
 void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex)
 {
-    QMutexLocker ldrawLocker(&ldrawMutex);
-    
     QString modKey = buildModKey.toLower();
 #ifdef QT_DEBUG_MODE
     int action = BuildModNoActionRc;
@@ -3369,8 +3365,6 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
 
 void LDrawFile::clearBuildModSteps(const QString &buildModKey)
 {
-    QMutexLocker ldrawLocker(&ldrawMutex);
-    
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_TRACE, QString("Remove BuildModStep actions for ModKey %1...") .arg(buildModKey));
 #endif
@@ -3402,8 +3396,6 @@ void LDrawFile::clearBuildModSteps(const QString &buildModKey)
 
 bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 {
-    QMutexLocker ldrawLocker(&ldrawMutex);
-        
     QString modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
@@ -4850,7 +4842,7 @@ QList<QRegExp> LDrawUnofficialSubPartRegExp;
 QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
 QList<QRegExp> LDrawUnofficialOtherRegExp;
 
-LDrawFile::LDrawFile()
+LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
 {
   _loadedParts.clear();
   {
