@@ -186,6 +186,7 @@ public:
     { }
     void clear()
     {
+        key.clear();
         level = 0;
         action = 0;
         state = -1;

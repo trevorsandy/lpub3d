@@ -4623,7 +4623,7 @@ void Gui::drawPage(
       if (!firstPage) {
         if (topOfPages.size() > displayPageIndx) {
             topOfStep     = topOfPages[displayPageIndx];
-        }else {
+        } else {
             topOfStep     = topOfPages.takeLast();
         }
       }
@@ -5415,10 +5415,16 @@ int Gui::setBuildModForNextStep(
                 if ((Rc)buildMod.action != rc) {
                     setBuildModAction(buildMod.key, buildModStepIndex, rc);
                 }
+                buildMod.state = BM_NONE;
                 break;
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
             case BuildModBeginRc:
+                if (buildMod.state == BM_BEGIN)
+                    emit gui->parseErrorSig(QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
+                                                    "Multiple build modifications per STEP are not allowed.")
+                                                    .arg(lpub->page.meta.LPub.buildMod.key()).arg(buildMod.key),
+                                                    walk,Preferences::BuildModErrors,false,false);
                 buildMod.key   = lpub->page.meta.LPub.buildMod.key();
                 buildMod.level = getLevel(buildMod.key, BM_BEGIN);
                 buildModKeys.insert(buildMod.level, buildMod.key);

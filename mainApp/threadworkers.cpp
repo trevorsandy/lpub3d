@@ -2607,6 +2607,7 @@ int CountPageWorker::countPage(
                        //    }
                        //}
                    }
+                   buildMod.state = BM_NONE;
                }
                 break;
 
@@ -2615,6 +2616,11 @@ int CountPageWorker::countPage(
                   buildMod.ignore = true;
                   break;
               }
+              if (buildMod.state == BM_BEGIN)
+                  emit gui->parseErrorSig(QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
+                                                  "Multiple build modifications per STEP are not allowed.")
+                                                  .arg(meta->LPub.buildMod.key()).arg(buildMod.key),
+                                                  opts.current,Preferences::BuildModErrors,false,false);
               buildMod.key = meta->LPub.buildMod.key();
               buildMod.level = getLevel(buildMod.key, BM_BEGIN);
               buildMod.action = BuildModApplyRc;
