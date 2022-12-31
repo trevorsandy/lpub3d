@@ -5492,7 +5492,11 @@ int Gui::setBuildModForNextStep(
 
             // Search until next occurrence of step/rotstep meta or bottom of step
             // We only need the next STEP build mod even if the next step is in a
-            // callout or step group.
+            // callout or step group UNLESS, we have callout(s) - i.e. submodel(s)
+            // before a build modification in the same STEP in which case we must
+            // register the build modification to avoid a 'not registered' error
+            // when we get to the drawPage call - basically, we must process any
+            // build modifications in the root STEP.
             case RotStepRc:
             case StepRc:
                 if (buildModKeys.size()) {
@@ -5522,8 +5526,20 @@ int Gui::setBuildModForNextStep(
                     const QString modelName = token[token.size() - 1];
                     if (isSubmodel(modelName)) {
                         Where topOfSubmodel(modelName, getSubmodelIndex(modelName), 0);
-                        setBuildModForNextStep(topOfNextStep, topOfSubmodel);
-                        bottomOfStep = ! buildModKeys.size();
+                        const TraverseRc nrc = static_cast<TraverseRc>(setBuildModForNextStep(topOfNextStep, topOfSubmodel));
+                        if (nrc == HitAbortProcess) {
+                            return static_cast<int>(HitAbortProcess);
+                        } else {
+                            bool buildModFound = false;
+                            if (walk.modelIndex == topOfNextStep.modelIndex) {
+                                QRegExp buildModBeginRx("^0 !LPUB BUILD_MOD BEGIN ");
+                                if ((buildModFound = Gui::stepContains(walk, buildModBeginRx)))
+                                    walk--; // Adjust for line increment
+                            }
+                            if (!buildModFound) {
+                                bottomOfStep = nrc == HitBottomOfStep || nrc == HitEndOfFile;
+                            }
+                        }
                     }
                 }
             }
@@ -5536,22 +5552,31 @@ int Gui::setBuildModForNextStep(
         }
     } // For every line
 
-    // Last step of submodel
-    if (buildModKeys.size()) {
-        Q_FOREACH (int buildModLevel, buildModKeys.keys())
-            insertBuildModification(buildModLevel);
+    if (Gui::abortProcess()) {
+        returnValue = HitAbortProcess;
+    } else {
+        // Last step of submodel
+        if (buildModKeys.size()) {
+            Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                insertBuildModification(buildModLevel);
+        }
+
+        if (Gui::abortProcess()) {
+            returnValue = HitAbortProcess;
+        } else if (bottomOfStep) {
+#ifdef QT_DEBUG_MODE
+            emit gui->messageSig(LOG_TRACE, QString("BuildMod Next EndStep - Index: %1, ModelName: %2, LineNumber: %3")
+                                                    .arg(buildModNextStepIndex)
+                                                    .arg(walk.modelName)
+                                                    .arg(walk.lineNumber));
+#endif
+            returnValue = HitBottomOfStep;
+        } else {
+            returnValue = HitEndOfFile;
+        }
     }
 
-    if (bottomOfStep) {
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_TRACE, QString("BuildMod Next EndStep - Index: %1, ModelName: %2, LineNumber: %3")
-                             .arg(buildModNextStepIndex)
-                             .arg(walk.modelName)
-                             .arg(walk.lineNumber));
-#endif
-        return HitBottomOfStep;
-    }
-    return HitEndOfFile;
+    return static_cast<int>(returnValue);
 } // Gui::setBuildModForNextStep()
 
 /*
