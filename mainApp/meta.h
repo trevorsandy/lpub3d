@@ -1460,10 +1460,15 @@ public:
     return _value[pushed].cameraView;
   }
 
+  virtual int type()
+  {
+    return _value[pushed].type;
+  }
+
   virtual void setValue(CameraAnglesData &value)
   {
-    _default = false;
     _value[pushed] = value;
+    _default = false;
   }
 
   virtual void setCameraView(CameraViews::CameraView value)
@@ -1475,6 +1480,12 @@ public:
   virtual void setCustomViewpoint(bool value)
   {
     _value[pushed].customViewpoint = value;
+    _default = false;
+  }
+
+  virtual void setType(int value)
+  {
+    _value[pushed].type = value;
     _default = false;
   }
 
@@ -1512,9 +1523,11 @@ public:
   CameraAnglesMeta()
   {
     _value[0].cameraView = CameraViews::CameraView::Default;
+    _value[0].type      = 1; //Options::CSI
     _value[0].angles[0] = 0.0f;
     _value[0].angles[1] = 0.0f;
     _value[1].cameraView = CameraViews::CameraView::Default;
+    _value[1].type      = 1; //Options::CSI
     _value[1].angles[0] = 0.0f;
     _value[1].angles[1] = 0.0f;
     _min = 0;
@@ -1528,9 +1541,11 @@ public:
   CameraAnglesMeta(const CameraAnglesMeta &rhs) : RcMeta(rhs)
   {
     _value[0].cameraView = rhs._value[0].cameraView;
+    _value[0].type       = rhs._value[0].type;
     _value[0].angles[0]  = rhs._value[0].angles[0];
     _value[0].angles[1]  = rhs._value[0].angles[1];
     _value[1].cameraView = rhs._value[1].cameraView;
+    _value[1].type       = rhs._value[1].type;
     _value[1].angles[0]  = rhs._value[1].angles[0];
     _value[1].angles[1]  = rhs._value[1].angles[1];
     _min                 = rhs._min;

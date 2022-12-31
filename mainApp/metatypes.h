@@ -833,10 +833,13 @@ public:
 
   bool customViewpoint;
 
+  int type;
+
   CameraAnglesData()
   {
     cameraView = CameraViews::CameraView::Default;
     customViewpoint = false;
+    type = 1; // Options::CSI
     angles[0] = 0.0f;
     angles[1] = 0.0f;
     if (map.size() == 0) {

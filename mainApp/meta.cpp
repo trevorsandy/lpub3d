@@ -2533,6 +2533,7 @@ void CameraAnglesMeta::init(BranchMeta *parent, const QString name, Rc _rc)
 
 Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
 {
+  using namespace Options;
   using namespace CameraViews;
   QString message = QObject::tr("The specified latitude %1 or longitude %2 value is not within the mininum %3 or maximum %4 allowed \"%5\".");
   QRegExp rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
@@ -2572,8 +2573,23 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
           longitude = 45.0f;
           break;
         case CameraView::LatLon:
-          latitude = 23.0f;
-          longitude = 45.0f;
+          switch (_value[pushed].type)
+          {
+            case CSI:
+              latitude = MetaDefaults::getAssemblyCameraLatitude();
+              longitude = MetaDefaults::getAssemblyCameraLongitude();
+              break;
+            case PLI:
+              latitude = MetaDefaults::getPartCameraLatitude();
+              longitude = MetaDefaults::getPartCameraLongitude();
+              break;
+            case SMI:
+              latitude = MetaDefaults::getSubmodelCameraLatitude();
+              longitude = MetaDefaults::getSubmodelCameraLongitude();
+              break;
+            default:
+              break;
+          }
           break;
       }
       _value[pushed].cameraView = cameraView;
@@ -3988,6 +4004,7 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   cameraAngles.setFormats(6,1,"###9.0");
   cameraAngles.setRange(-360.0f,360.0f);
   cameraAngles.setValues(MetaDefaults::getAssemblyCameraLatitude(),MetaDefaults::getAssemblyCameraLongitude());
+  cameraAngles.setType(static_cast<int>(Options::CSI));
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
@@ -5313,6 +5330,7 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraAngles.setFormats(6,1,"###9.0");
   cameraAngles.setRange(-360.0f,360.0f);
   cameraAngles.setValues(MetaDefaults::getSubmodelCameraLatitude(),MetaDefaults::getSubmodelCameraLongitude());
+  cameraAngles.setType(static_cast<int>(Options::SMI));
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
@@ -5740,6 +5758,7 @@ AssemMeta::AssemMeta() : BranchMeta()
   cameraAngles.setFormats(6,1,"###9.0");
   cameraAngles.setRange(-360.0f,360.0f);
   cameraAngles.setValues(MetaDefaults::getAssemblyCameraLatitude(),MetaDefaults::getAssemblyCameraLongitude());                   // using LPub3D Default 0.0,0.0f
+  cameraAngles.setType(static_cast<int>(Options::CSI));
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
@@ -5860,6 +5879,7 @@ PliMeta::PliMeta() : BranchMeta()
   cameraAngles.setFormats(6,1,"###9.0");
   cameraAngles.setRange(-360.0f,360.0f);
   cameraAngles.setValues(MetaDefaults::getPartCameraLatitude(),MetaDefaults::getPartCameraLongitude());
+  cameraAngles.setType(static_cast<int>(Options::PLI));
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
@@ -6009,6 +6029,7 @@ BomMeta::BomMeta() : PliMeta()
   cameraAngles.setFormats(6,1,"###9.0");
   cameraAngles.setRange(-360.0f,360.0f);
   cameraAngles.setValues(MetaDefaults::getPartCameraLatitude(),MetaDefaults::getPartCameraLongitude());
+  cameraAngles.setType(static_cast<int>(Options::PLI));
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(MetaDefaults::getFOVMinRange(),

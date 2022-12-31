@@ -33,6 +33,7 @@
 namespace Options
 {
   enum Mt { PLI, CSI ,SMI ,MON };
+  const QString MtNames[4] = { "PLI", "CSI" ,"SMI" ,"MON" };
 }
 
 class Vector3
