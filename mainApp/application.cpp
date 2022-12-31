@@ -1052,13 +1052,17 @@ int Application::initialize()
         splash = new QSplashScreen(pixmap);
 
         QFont splashFont;
-        splashFont.setFamily("Arial");
-#ifdef Q_OS_MACOS
-        splashFont.setPixelSize(10);
+#ifdef Q_OS_LINUX
+        splashFont.setFamily("Geneva");
+        splashFont.setPointSize(16);
+#elif defined(Q_OS_MAC)
+        splashFont.setFamily("Menlo");
+        splashFont.setPointSize(14);
 #else
-        splashFont.setPixelSize(16);
+        splashFont.setFamily("Segoe UI");
+        splashFont.setPointSize(16);
 #endif
-        splashFont.setStretch(130);
+        splashFont.setStretch(100);
 
         splash->setFont(splashFont);
         splash->show();
