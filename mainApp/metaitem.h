@@ -584,6 +584,7 @@ public:
   void clearCsiCache() const;
   void clearSubmodelCache() const;
   void clearPliCache() const;
+  void clearBomCache() const;
   void clearTempCache() const;
   void reloadCurrentPage(bool savePrompt = false) const;
   void restartApplication(bool changeLibrary = false, bool prompt = false) const;

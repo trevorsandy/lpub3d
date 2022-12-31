@@ -130,9 +130,9 @@ enum ActionModuleType { NO_ACTION,                 //  0
 };
 enum PageDirection { DIRECTION_NOT_SET,
                      FILE_DEFAULT  = DIRECTION_NOT_SET,
-                     FILE_RELOAD,
-                     PAGE_FORWARD  = FILE_RELOAD,
-                     PAGE_NEXT     = PAGE_FORWARD,
+                     PAGE_NEXT,
+                     PAGE_FORWARD  = PAGE_NEXT,
+                     FILE_RELOAD   = PAGE_NEXT,
                      PAGE_JUMP_FORWARD,
                      PAGE_BACKWARD,
                      PAGE_PREVIOUS = PAGE_BACKWARD,

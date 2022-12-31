@@ -1830,6 +1830,7 @@ void Gui::clearAllCaches()
     }
 
     clearPLICache();
+    clearBOMCache();
     clearCSICache();
     clearSubmodelCache();
     clearTempCache();
@@ -1981,6 +1982,47 @@ void Gui::clearCSICache()
     }
 
     emit messageSig(LOG_INFO_STATUS,tr("Assembly content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+}
+
+void Gui::clearBOMCache()
+{
+    if (getCurFile().isEmpty()) {
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its bill of material cache - no action taken."));
+        return;
+    }
+
+    if (sender() == getAct("clearBOMCacheAct.1")) {
+        bool _continue;
+        if (Preferences::saveOnRedraw) {
+            _continue = maybeSave(false); // No prompt
+        } else {
+            _continue = maybeSave(true);
+        }
+        if (!_continue)
+            return;
+    }
+
+    QDir dir(QDir::currentPath() + QDir::separator() + Paths::bomDir);
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    QFileInfoList list = dir.entryInfoList();
+    int count = 0;
+    for (int i = 0; i < list.size(); i++) {
+        QFileInfo fileInfo = list.at(i);
+        QFile     file(fileInfo.absoluteFilePath());
+        if (file.exists()) {
+            if (!file.remove()) {
+                emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(fileInfo.absoluteFilePath()));
+            } else {
+#ifdef QT_DEBUG_MODE
+                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+#endif
+                count++;
+            }
+        }
+    }
+    emit messageSig(LOG_INFO_STATUS,tr("Bill of material content cache cleaned. %1 %2 removed.")
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
@@ -3243,6 +3285,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     connect(this,           SIGNAL(clearPLICacheSig()),
             this,           SLOT(  clearPLICache()));
 
+    connect(this,           SIGNAL(clearBOMCacheSig()),
+            this,           SLOT(  clearBOMCache()));
+
     connect(this,           SIGNAL(clearCSICacheSig()),
             this,           SLOT(  clearCSICache()));
 
@@ -3579,6 +3624,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 timer.start();
 
                 clearPLICache();
+                clearBOMCache();
                 clearCSICache();
                 clearSubmodelCache();
                 clearTempCache();
@@ -4110,6 +4156,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       timer.start();
 
       clearPLICache();
+      clearBOMCache();
       clearCSICache();
       clearSubmodelCache();
       clearTempCache();
@@ -5599,6 +5646,13 @@ void Gui::createActions()
     lpub->actions.insert(clearPLICacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Parts Image Cache"), clearPLICacheAct));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
+    QAction *clearBOMCacheAct = new QAction(QIcon(":/resources/clearbomcache.png"),tr("Bill Of Material Image Cache"), this);
+    clearBOMCacheAct->setObjectName("clearBOMCacheAct.1");
+    clearBOMCacheAct->setShortcut(QStringLiteral("Alt+O"));
+    clearBOMCacheAct->setStatusTip(tr("Reset the bill of material list image cache"));
+    lpub->actions.insert(clearBOMCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Bill Of Material Image Cache"), clearBOMCacheAct));
+    connect(clearBOMCacheAct, SIGNAL(triggered()), this, SLOT(clearBOMCache()));
+
     QAction *clearCSICacheAct = new QAction(QIcon(":/resources/clearcsicache.png"),tr("Assembly Image Cache"), this);
     clearCSICacheAct->setObjectName("clearCSICacheAct.1");
     clearCSICacheAct->setShortcut(QStringLiteral("Alt+S"));
@@ -5613,25 +5667,25 @@ void Gui::createActions()
     lpub->actions.insert(clearSubmodelCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Submodel Image Cache"), clearSubmodelCacheAct));
     connect(clearSubmodelCacheAct, SIGNAL(triggered()), this, SLOT(clearSubmodelCache()));
 
-    QAction *clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Temp File Cache"), this);
+    QAction *clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Temporary LDraw File Cache"), this);
     clearTempCacheAct->setObjectName("clearTempCacheAct.1");
     clearTempCacheAct->setShortcut(QStringLiteral("Alt+T"));
-    clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
-    lpub->actions.insert(clearTempCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Temp File Cache"), clearTempCacheAct));
+    clearTempCacheAct->setStatusTip(tr("Reset the temporary LDraw working files cache"));
+    lpub->actions.insert(clearTempCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Temporary LDraw File Cache"), clearTempCacheAct));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
-    QAction *clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Model Caches"), this);
+    QAction *clearAllCachesAct = new QAction(QIcon(":/resources/clearallfilecaches.png"),tr("All Image And LDraw File Caches"), this);
     clearAllCachesAct->setObjectName("clearAllCachesAct.1");
     clearAllCachesAct->setShortcut(QStringLiteral("Alt+M"));
-    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches"));
-    lpub->actions.insert(clearAllCachesAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Model Caches"), clearAllCachesAct));
+    clearAllCachesAct->setStatusTip(tr("Reset the parts, bill of material, assembly, submodel image and the temporary LDraw file caches"));
+    lpub->actions.insert(clearAllCachesAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.All Image And LDraw File Caches"), clearAllCachesAct));
     connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
-    QAction *clearCustomPartCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Custom Files Cache"), this);
+    QAction *clearCustomPartCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Custom LDraw Files Cache"), this);
     clearCustomPartCacheAct->setObjectName("clearCustomPartCacheAct.1");
     clearCustomPartCacheAct->setShortcut(QStringLiteral("Alt+C"));
-    clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache"));
-    lpub->actions.insert(clearCustomPartCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Custom Files Cache"), clearCustomPartCacheAct));
+    clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight LDraw colour part file cache"));
+    lpub->actions.insert(clearCustomPartCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Custom LDraw Files Cache"), clearCustomPartCacheAct));
     connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
     QAction *archivePartsOnDemandAct = new QAction(QIcon(":/resources/archivefilesondemand.png"),tr("Archive Unofficial Parts"), this);
@@ -6685,6 +6739,7 @@ void Gui::createMenus()
     cacheMenu->setStatusTip(tr("Reset working caches"));
     cacheMenu->addAction(getAct("clearAllCachesAct.1"));
     cacheMenu->addAction(getAct("clearPLICacheAct.1"));
+    cacheMenu->addAction(getAct("clearBOMCacheAct.1"));
     cacheMenu->addAction(getAct("clearSubmodelCacheAct.1"));
     cacheMenu->addAction(getAct("clearCSICacheAct.1"));
     cacheMenu->addAction(getAct("clearTempCacheAct.1"));
@@ -6851,6 +6906,7 @@ void Gui::createToolBars()
     cacheToolBar->addSeparator();
     cacheToolBar->addAction(getAct("clearAllCachesAct.1"));
     cacheToolBar->addAction(getAct("clearPLICacheAct.1"));
+    cacheToolBar->addAction(getAct("clearBOMCacheAct.1"));
     cacheToolBar->addAction(getAct("clearSubmodelCacheAct.1"));
     cacheToolBar->addAction(getAct("clearCSICacheAct.1"));
     cacheToolBar->addAction(getAct("clearTempCacheAct.1"));

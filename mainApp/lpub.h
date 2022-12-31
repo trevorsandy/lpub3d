@@ -1470,9 +1470,10 @@ public slots:
   void deleteBuildModificationAction();
 
   void clearPLICache();
+ void clearBOMCache();
   void clearCSICache();
-  void clearTempCache();
   void clearSubmodelCache(const QString &key = QString());
+  void clearTempCache();
   void clearAllCaches();
   void clearCustomPartCache(bool silent = false);
   void clearStepCSICache(QString &pngName);
@@ -1535,6 +1536,7 @@ signals:
   void clearAllCachesSig();
   void clearSubmodelCacheSig();
   void clearPLICacheSig();
+  void clearBOMCacheSig();
   void clearCSICacheSig();
   void clearTempCacheSig();
 

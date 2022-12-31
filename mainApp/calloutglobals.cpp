@@ -35,12 +35,15 @@ public:
   QString    topLevelFile;
   QList<MetaGui *> children;
   bool     clearCache;
+  bool     clearPliCache;
 
   GlobalCalloutPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
     clearCache   = false;
+    clearPliCache= false;
+
 
     MetaItem mi; // examine all the globals and then return
 
@@ -244,6 +247,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   childStudStyle->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearPliCache(bool)));
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -383,6 +387,12 @@ void GlobalCalloutDialog::getCalloutGlobals(
   dialog->exec();
 }
 
+void GlobalCalloutDialog::clearPliCache(bool b)
+{
+  if (!data->clearPliCache)
+    data->clearPliCache = b;
+}
+
 void GlobalCalloutDialog::clearCache(bool b)
 {
   if (!data->clearCache)
@@ -393,9 +403,12 @@ void GlobalCalloutDialog::accept()
 {
   MetaItem mi;
 
-  if (data->clearCache) {
+  if (data->clearCache)
     mi.clearCsiCache();
+
+  if (data->clearPliCache) {
     mi.clearPliCache();
+    mi.clearBomCache();
   }
 
   mi.beginMacro("Global Callout");

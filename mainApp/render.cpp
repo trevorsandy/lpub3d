@@ -752,7 +752,7 @@ int POVRay::renderCsi(
   // Populate render attributes
   QStringList ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
   QString transform  = meta.rotStep.value().type.toUpper();
-  bool customViewpoint   = meta.LPub.assem.cameraAngles.customViewpoint();
+  bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == "ABS");
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = meta.LPub.assem.modelScale.value();
@@ -1094,7 +1094,7 @@ int POVRay::renderPli(
   // Populate render attributes
   QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
   QString transform  = metaType.rotStep.value().type.toUpper();
-  bool customViewpoint   = metaType.cameraAngles.customViewpoint();
+  bool customViewpoint = metaType.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
@@ -1408,7 +1408,8 @@ int POVRay::renderPli(
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
   povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
-  QString workingDirectory = pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir;
+  QString partsDir = pliType == BOM ? Paths::bomDir : Paths::partsDir;
+  QString workingDirectory = pliType == SUBMODEL ? Paths::submodelDir : partsDir;
   povray.setEnvironment(povEnv);
   povray.setWorkingDirectory(QDir::currentPath()+ "/" + workingDirectory); // pov win console app will not write to dir different from cwd or source file dir
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
@@ -1624,7 +1625,7 @@ int LDGLite::renderPli(
 
   // Populate render attributes
   QString transform  = metaType.rotStep.value().type.toUpper();
-  bool customViewpoint   = metaType.cameraAngles.customViewpoint();
+  bool customViewpoint = metaType.cameraAngles.customViewpoint();
   bool  noCA         = !customViewpoint && transform  == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
@@ -1837,7 +1838,7 @@ int LDView::renderCsi(
     else
         ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
     QString transform  = meta.rotStep.value().type.toUpper();
-    bool customViewpoint   = meta.LPub.assem.cameraAngles.customViewpoint();
+    bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
     bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == "ABS");
     bool pp            = Preferences::perspectiveProjection;
     float modelScale   = meta.LPub.assem.modelScale.value();
@@ -2356,12 +2357,13 @@ int LDView::renderPli(
 
   // paths
   QString tempPath  = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir);
-  QString partsPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + (pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir));
+  QString partsDir  = pliType == BOM ? Paths::bomDir : Paths::partsDir;
+  QString partsPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + (pliType == SUBMODEL ? Paths::submodelDir : partsDir));
 
   // Populate render attributes
   QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
   QString transform  = metaType.rotStep.value().type.toUpper();
-  bool customViewpoint   = metaType.cameraAngles.customViewpoint();
+  bool customViewpoint = metaType.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
@@ -3044,7 +3046,7 @@ int Native::renderPli(
   float cameraZNear    = metaType.cameraZNear.value();
   float cameraZFar     = metaType.cameraZFar.value();
   bool  isOrtho        = metaType.isOrtho.value();
-  bool  customViewpoint    = metaType.cameraAngles.customViewpoint();
+  bool  customViewpoint= metaType.cameraAngles.customViewpoint();
   QString cameraName   = metaType.cameraName.value();
   Vector3 position     = Vector3(metaType.position.x(),metaType.position.y(),metaType.position.z());
   Vector3 target       = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());

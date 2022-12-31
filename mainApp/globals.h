@@ -290,6 +290,7 @@ public:
 
 public slots:
   void clearCache(bool);
+  void clearPliCache(bool);
   void accept() override;
   void cancel();
 };

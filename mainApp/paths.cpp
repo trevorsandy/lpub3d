@@ -42,6 +42,7 @@ QString Paths::lpubDir          = QLatin1String(VER_PRODUCTNAME_STR);
 QString Paths::tmpDir           = QString("%1/tmp").arg(VER_PRODUCTNAME_STR);
 QString Paths::assemDir         = QString("%1/assem").arg(VER_PRODUCTNAME_STR);
 QString Paths::partsDir         = QString("%1/parts").arg(VER_PRODUCTNAME_STR);
+QString Paths::bomDir           = QString("%1/bom").arg(VER_PRODUCTNAME_STR);
 QString Paths::submodelDir      = QString("%1/submodels").arg(VER_PRODUCTNAME_STR);
 QString Paths::povrayRenderDir  = QString("%1/povray").arg(VER_PRODUCTNAME_STR);
 QString Paths::blenderRenderDir = QString("%1/blender").arg(VER_PRODUCTNAME_STR);
@@ -50,12 +51,12 @@ QString Paths::logsDir          = QLatin1String("logs");
 QString Paths::extrasDir        = QLatin1String("extras");
 QString Paths::libraryDir       = QLatin1String("libraries");
 
-QString Paths::customDir       = QString();
-QString Paths::customPartDir   = QString();
-QString Paths::customSubDir    = QString();
-QString Paths::customPrimDir   = QString();
-QString Paths::customPrim8Dir  = QString();
-QString Paths::customPrim48Dir = QString();
+QString Paths::customDir        = QString();
+QString Paths::customPartDir    = QString();
+QString Paths::customSubDir     = QString();
+QString Paths::customPrimDir    = QString();
+QString Paths::customPrim8Dir   = QString();
+QString Paths::customPrim48Dir  = QString();
 
 QStringList Paths::customDirs;
 
@@ -78,6 +79,7 @@ void Paths::mkDirs(){
     QDir dir;
     dir.mkdir(lpubDir);
     dir.mkdir(tmpDir);
+    dir.mkdir(bomDir);
     dir.mkdir(assemDir);
     dir.mkdir(partsDir);
     dir.mkdir(submodelDir);

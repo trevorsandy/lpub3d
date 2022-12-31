@@ -566,8 +566,9 @@ void Pli::setParts(
           }
 
           // assemble image name
+          QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
           QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
-                                                       Paths::partsDir + QDir::separator() + nameKey + ".png");
+                                                       partsDir + QDir::separator() + nameKey + ".png");
 
           if (bom && splitBom){
               if ( ! tempParts.contains(key)) {
@@ -1030,7 +1031,8 @@ int Pli::createPartImage(
         emit gui->messageSig(LOG_INFO, QObject::tr("Generate PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
-        QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
+        QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
+        QString imageDir = isSubModel ? Paths::submodelDir : partsDir;
         imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ptn[pT].typeName + ".png");
         ldrNames  = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "pli.ldr");
 
@@ -2494,7 +2496,8 @@ int Pli::partSizeLDViewSCall() {
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
                 QString ldrName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + key + ".ldr");
-                QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
+                QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
+                QString imageDir = isSubModel ? Paths::submodelDir : partsDir;
                 // remove _SUB for imageName
                 if (keySub && key.endsWith("_SUB"))
                     key.replace("_SUB","");

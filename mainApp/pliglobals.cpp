@@ -42,6 +42,7 @@ public:
   QList<MetaGui *> children;
   bool     bom;
   bool     clearCache;
+  bool     clearBomCache;
 
   GlobalPliPrivate(QString &_topLevelFile, Meta &_meta, bool _bom = false)
   {
@@ -49,6 +50,8 @@ public:
     meta         = _meta;
     bom          = _bom;
     clearCache   = false;
+    clearBomCache= false;
+
     MetaItem mi; // examine all the globals and then return
 
     mi.sortedGlobalWhere(meta,topLevelFile,"ZZZZZZZ");
@@ -566,8 +569,13 @@ void GlobalPliDialog::getBomGlobals(
 
 void GlobalPliDialog::clearCache(bool b)
 {
-  if (!data->clearCache)
-    data->clearCache = b;
+  if (data->bom) {
+    if (!data->clearBomCache)
+      data->clearBomCache = b;
+  } else {
+    if (!data->clearCache)
+      data->clearCache = b;
+  }
 }
 
 void GlobalPliDialog::styleOptionChanged(bool b){
@@ -718,6 +726,9 @@ void GlobalPliDialog::accept()
 
   if (data->clearCache)
     mi.clearPliCache();
+
+  if (data->clearBomCache)
+    mi.clearBomCache();
 
   mi.beginMacro("Global Pli");
 

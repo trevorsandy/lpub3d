@@ -5457,6 +5457,11 @@ void MetaItem::clearPliCache() const
     emit gui->clearPLICacheSig();
 }
 
+void MetaItem::clearBomCache() const
+{
+    emit gui->clearBOMCacheSig();
+}
+
 void MetaItem::clearCsiCache() const
 {
     emit gui->clearCSICacheSig();
