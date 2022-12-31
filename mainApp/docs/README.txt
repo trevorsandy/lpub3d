@@ -1,4 +1,4 @@
-LPub3D 2.4.5.44.3021 (31 12 2022 04:08:14)
+LPub3D 2.4.5.45.3022 (31 12 2022 04:09:55)
 
 Features, enhancements, fixes and changes
 ------------
@@ -16,6 +16,7 @@ Revisions:
 - Enhancement - Add submodels to file load status #636
 - Enhancement - Logging - update messaging and log types #634
 - Enhancement - Prompt user to archive unofficial parts #628
+- Enhancement - Show errors and warnings on export or continuous process completion #639
 - Change - Build modification - declaration and action in same STEP #633
 - Change - Change reset image menu action description to refresh image #623
 - Change - Parse top-model INCLUDE file at model file load #631

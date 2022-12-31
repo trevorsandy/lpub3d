@@ -460,6 +460,7 @@ void Gui::exportAsObjDialog(){
 
 bool Gui::exportAsDialog(ExportMode m)
 {
+  messageList.clear();
   m_exportMode = m;
 
  if (m_exportMode != PAGE_PROCESS)
@@ -563,6 +564,7 @@ bool Gui::exportAsDialog(ExportMode m)
 
 void Gui::exportAsHtmlSteps()
 {
+    messageList.clear();
     lpub->Options                     = new NativeOptions();
     lpub->Options->ExportMode         = EXPORT_HTML_STEPS;
     lpub->Options->ImageType          = Options::CSI;
@@ -593,6 +595,7 @@ void Gui::exportAsHtmlSteps()
 }
 void Gui::exportAsHtml()
 {
+    messageList.clear();
     lpub->Options              = new NativeOptions();
     lpub->Options->ExportMode  = EXPORT_HTML_PARTS;
     // Visual Editor only
@@ -737,6 +740,7 @@ void Gui::exportAsHtml()
 
 void Gui::exportAsCsv()
 {
+    messageList.clear();
     lpub->Options             = new NativeOptions();
     lpub->Options->ImageType  = Options::CSI;
     lpub->Options->ExportMode = EXPORT_CSV;
@@ -769,6 +773,7 @@ void Gui::exportAsCsv()
 
 void Gui::exportAsBricklinkXML()
 {
+    messageList.clear();
     lpub->Options             = new NativeOptions();
     lpub->Options->ImageType  = Options::CSI;
     lpub->Options->ExportMode = EXPORT_BRICKLINK;
@@ -1347,8 +1352,10 @@ void Gui::exportAsPdf()
   box.setDefaultButton   (QMessageBox::Yes);
 
   QString title = "<b>" + tr ("Export to pdf completed.") + "</b>";
-  QString text = tr ("Your instruction document has finished exporting.\n\n"
-                     "Do you want to open this document ?\n\n%1")
+  QString text = tr ("Your instruction document has finished exporting.<br><br>%1"
+                     "Do you want to open this document ?<br><br>%2")
+                     .arg(messageList.size() ? tr("<br>There were errors or wanings:<br>%1<br><br>")
+                                                  .arg(messageList.join(" ")) : "")
                      .arg(QDir::toNativeSeparators(fileName));
 
   box.setText (title);
@@ -1732,10 +1739,34 @@ void Gui::exportAs(const QString &_suffix)
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   box.setWindowTitle(tr ("Export %1 %2").arg(suffix).arg(type));
 
+  QString messages;
+  if (messageList.size()) {
+    QString msgType;
+    bool errorSet = false;
+    bool warnSet = false;
+    QRegExp errorRx(">ERROR<");
+    QRegExp fatalRx(">FATAL<");
+    QRegExp warnRx(">WARNING<");
+    for (const QString &item : messageList) {
+      if (! errorSet && (item.contains(errorRx) || item.contains(fatalRx))) {
+        errorSet = true;
+        msgType = msgType.isEmpty() ? tr("errors") : tr("and errors");
+      } else if (! warnSet && item.contains(warnRx)) {
+        warnSet = true;
+        msgType = msgType.isEmpty() ? tr("warnings") : tr("and warnings");
+      }
+    }
+    messages = tr("<br><br>There were %1 %2:<br>%3")
+                  .arg(messageList.size())
+                  .arg(msgType)
+                  .arg(messageList.join(" "));
+  }
+
   QString title = "<b>" + tr ("Export %1 %2 completed.").arg(suffix).arg(type) + "</b>";
-  QString text = tr ("Your instruction document %1 have finished exportng.\n\n"
-                     "Do you want to open the %1 folder ?\n\n%2")
+  QString text = tr ("Your instruction document %1 have finished exportng.<br><br>%2"
+                     "Do you want to open the %1 folder ?<br><br>%3")
                      .arg(type)
+                     .arg(messages)
                      .arg(directoryName);
 
   box.setText (title);

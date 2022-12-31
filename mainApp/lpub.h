@@ -474,13 +474,14 @@ public:
   static int      lastStepPageNum;  // the last Step page number - used to specify backCover page
 
   static QList<Where> parsedMessages; // previously parsed messages within the current session
+  static QStringList  messageList;    // message list used when exporting or continuous processing
 
   static int      displayPageNum;   // what page are we displaying
   static int      processOption;    // export Option
   static int      pageDirection;    // page processing direction
   static int      savePrevStepPosition; // indicate the previous step position amongst current and previous steps
-  static bool     resetCache;        // reset model, fade and highlight parts
-  static QString  saveFileName;      // user specified output file Name [commandline only]
+  static bool     resetCache;       // reset model, fade and highlight parts
+  static QString  saveFileName;     // user specified output file Name [commandline only]
 
   static QList<Where> topOfPages;   // topOfStep list of modelName and lineNumber for each page
 
@@ -494,28 +495,28 @@ public:
   static int          maxPages;
 
   static int          pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
-  qreal           exportPixelRatio;    // export resolution pixel density
+  qreal           exportPixelRatio;     // export resolution pixel density
 
-  bool            submodelIconsLoaded; // load submodel images
+  bool            submodelIconsLoaded;  // load submodel images
 
-  static bool     buildModJumpForward; // parse build mods in countPage call - special case for jump forward
+  static bool     buildModJumpForward;  // parse build mods in countPage call - special case for jump forward
 
   static int       m_exportMode;        // export mode
   static int       m_saveExportMode;    // saved export mode used when exporting BOM
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
 
   bool             m_previewDialog;
-  ProgressDialog  *m_progressDialog; // general use progress dialogue
+  ProgressDialog  *m_progressDialog;    // general use progress dialogue
 
   bool             m_partListCSIFile;   // processing part list CSI file
   static bool      suspendFileDisplay;  // when true, the endMacro() call will not call displayPage()
   void            *noData;
 
-  FadeStepsMeta      *fadeStepsMeta;      // propagate fade step settings
+  FadeStepsMeta      *fadeStepsMeta;     // propagate fade step settings
 
-  HighlightStepMeta *highlightStepMeta; // propagate highlight step settings
+  HighlightStepMeta *highlightStepMeta;  // propagate highlight step settings
 
-  FitMode          fitMode;             // how to fit the scene into the view
+  FitMode          fitMode;              // how to fit the scene into the view
 
   static QString  AttributeNames[];      // Pointer arrow attribute names
   static QString  PositionNames[];       // Pointer arrow position names
@@ -1537,7 +1538,7 @@ public:
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
 
-  static QMap<int, PageSizeData>  pageSizes;            // page size and orientation object
+  static QMap<int, PageSizeData>  pageSizes;          // page size and orientation object
 
 protected:
   // capture camera rotation from Visual Editor module

@@ -138,6 +138,7 @@ QString      Gui::saveFileName;           // user specified output file Name [co
 QString      Gui::pageRangeText;          // page range parameters
 QList<Where> Gui::topOfPages;             // topOfStep list of modelName and lineNumber for each page
 QList<Where> Gui::parsedMessages;         // previously parsed messages within the current session
+QStringList  Gui::messageList;            // message list used when exporting or continuous processing
 
 bool         Gui::m_exportingContent;     // indicate export/printing underway
 bool         Gui::m_exportingObjects;     // indicate exporting non-image object file content
@@ -739,6 +740,7 @@ void Gui::setContinuousPageAct(PAction p) {
 
 bool Gui::continuousPageDialog(PageDirection d)
 {
+  messageList.clear();
   pageDirection = d;
   int pageCount = 0;
   int _maxPages = 0;
@@ -1020,6 +1022,27 @@ bool Gui::continuousPageDialog(PageDirection d)
       emit messageSig(LOG_INFO_STATUS,message);
 
       if (Preferences::modeGUI) {
+          if (messageList.size()) {
+              QString msgType;
+              bool errorSet = false;
+              bool warnSet = false;
+              QRegExp errorRx(">ERROR<");
+              QRegExp fatalRx(">FATAL<");
+              QRegExp warnRx(">WARNING<");
+              for (const QString &item : messageList) {
+                  if (! errorSet && (item.contains(errorRx) || item.contains(fatalRx))) {
+                      errorSet = true;
+                      msgType = msgType.isEmpty() ? tr("errors") : tr("and errors");
+                  } else if (! warnSet && item.contains(warnRx)) {
+                      warnSet = true;
+                      msgType = msgType.isEmpty() ? tr("warnings") : tr("and warnings");
+                  }
+              }
+              message.append(tr("<br><br>There were %1 %2:<br>%3")
+                                .arg(messageList.size())
+                                .arg(msgType)
+                                .arg(messageList.join(" ")));
+          }
           m_progressDialog->setBtnToClose();
           m_progressDialog->setLabelText(message);
           m_progressDialog->setValue(_maxPages);
@@ -7111,21 +7134,26 @@ void Gui::parseError(const QString &message,
     };
 
     QString parseMessage = tr("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
-    if (Preferences::modeGUI && !exporting() && !ContinuousPage()) {
-        if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
-            showLine(here, LINE_ERROR);
+    if (Preferences::modeGUI) {
+        if (!exporting() && !ContinuousPage()) {
+            if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
+                showLine(here, LINE_ERROR);
+            }
+            bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
+            if (okToShowMessage) {
+                Where messageLine = here;
+                messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
+                Preferences::MsgID msgID(msgKey,messageLine.indexToString());
+                Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override, icon);
+            }
+            if (pageProcessRunning == PROC_WRITE_TO_TMP)
+                emit progressPermMessageSig(tr("Writing submodel [Parse Error%1")
+                                               .arg(okToShowMessage ? "]...          " : " - see log]... " ));
+        } else {
+            const QString status(icon == 2 ? "<FONT COLOR='#FFBF00'>WARNING</FONT>: " : icon == 3 ? "<FONT COLOR='#FF0000'>ERROR</FONT>: " : "");
+            Gui::messageList << QString("%1%2<br>").arg(status).arg(parseMessage);
         }
-        bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
-        if (okToShowMessage) {
-            Where messageLine = here;
-            messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
-            Preferences::MsgID msgID(msgKey,messageLine.indexToString());
-            Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override, icon);
-        }
-        if (pageProcessRunning == PROC_WRITE_TO_TMP)
-            emit progressPermMessageSig(tr("Writing submodel [Parse Error%1")
-                                           .arg(okToShowMessage ? "]...          " : " - see log]... " ));
-    }
+    } // <FONT COLOR='#ff0000'>Are you ready?</FONT>
 
     const char *printableMessage = qPrintable(parseMessage.replace("<br>"," "));
 
@@ -7278,6 +7306,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
 
             if (guiEnabled) {
                 if (ContinuousPage() || exporting()) {
+                    Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
                 } else {
                     QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
@@ -7292,6 +7321,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
 
             if (guiEnabled) {
                 if (ContinuousPage() || exporting()) {
+                    Gui::messageList << QString("<FONT COLOR='#FF0000'>ERROR</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
                 } else {
                     QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message);
@@ -7306,6 +7336,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
 
             if (guiEnabled) {
                 if (ContinuousPage() || exporting()) {
+                    Gui::messageList << QString("<FONT COLOR='#FF0000'>FATAL</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("FATAL: "));
                 } else {
                     QMessageBox::critical(this,tr("%1 Fatal").arg(VER_PRODUCTNAME_STR),message);
