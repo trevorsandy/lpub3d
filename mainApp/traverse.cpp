@@ -1781,7 +1781,6 @@ int Gui::drawPage(
                       parseError("Expected STEP before MULTI_STEP END", opts.current);
                     }
                   multiStep = false;
-                  steps->setBottomOfSteps(opts.current);
 
                  /*
                   * TODO

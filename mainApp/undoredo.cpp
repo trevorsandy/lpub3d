@@ -216,10 +216,10 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
   const bool onStepMeta = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber) == QStringLiteral("0 STEP");
   QRegExp endRx("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP");
   if (isScanPastGlobal) {
-      if (onStepMeta)
-          return;
-      else
-          endRx.setPattern("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP|^0 !?LPUB MULTI_STEP BEGIN$|^0 !?LPUB CALLOUT BEGIN$|^0 !?LPUB INSERT");
+    if (onStepMeta)
+      return;
+    else
+      endRx.setPattern("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP|^0 !?LPUB MULTI_STEP BEGIN$|^0 !?LPUB CALLOUT BEGIN$|^0 !?LPUB INSERT");
   }
   Where walk    = onStepMeta ? topOfStep + 1 : topOfStep;
   Where lastPos = topOfStep;
@@ -227,14 +227,15 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
   if (walk < numLines) {
     QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if (isScanPastGlobal && line.contains(endRx))
-        return;
+      return;
     for ( ++walk; walk < numLines; ++walk) {
       line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
       lastPos = line.contains(lineRx) ? walk : lastPos;
       if ( ! line.contains(lineRx) && ! isHeader(line)) {
         topOfStep = lastPos;
         if (line.contains(endRx)) {
-          ++topOfStep;
+            if (! isScanPastGlobal)
+              ++topOfStep;
           break;
         }
       }

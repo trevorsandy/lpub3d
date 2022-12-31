@@ -668,18 +668,17 @@ void MetaItem::addNextMultiStep(
   if (rc1 == StepGroupBeginRc) {                          // BEGIN
     firstChange = false;
     beginMacro("addNextStep1");
-    removeFirstStep(bottomOfSteps);                      // remove BEGIN
+    removeFirstStep(bottomOfSteps);                       // remove BEGIN
     partsAdded = false;
     rc1 = scanForwardStepGroup(walk,partsAdded);
   }
 
-  // bottomOfSteps - STEP
+  // bottomOfSteps  - STEP
   // end            - StepGroupEnd
   // walk           - (STEP || EOF)
 
   if (firstChange) {
     beginMacro("addNextStep2");
-    firstChange = false;
   }
   if (rc1 == EndOfFileRc && partsAdded) {
     insertMeta(walk,step);
