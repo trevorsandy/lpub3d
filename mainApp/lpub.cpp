@@ -4497,6 +4497,19 @@ void Gui::createOpenWithActions(int maxPrograms)
     // adjust for separator and system editor
     const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
     const int maxOpenWithPrograms = maxPrograms ? maxPrograms + systemEditor : Preferences::maxOpenWithPrograms + systemEditor;
+
+    if (!maxPrograms) {
+        // set open with default program entries
+        QSettings Settings;
+        QString const openWithProgramListKey("OpenWithProgramList");
+        if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
+            QStringList programEntries;
+            for (int i = 0; i < maxPrograms; i++)
+                programEntries.append(QString("Program %1|").arg(i + 1));
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,openWithProgramListKey), programEntries);
+        }
+    }
+
     for (int i = 0; i < maxOpenWithPrograms; i++) {
         QAction *openWithAct = new QAction(tr("Open With Application %1").arg(i),this);
         openWithAct->setObjectName(tr("openWith%1Act.1").arg(i));

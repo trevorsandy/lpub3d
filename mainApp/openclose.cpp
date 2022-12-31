@@ -221,9 +221,9 @@ void Gui::updateOpenWithActions()
 
       numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
-#ifdef QT_DEBUG_MODE
-      emit lpub->messageSig(LOG_DEBUG, tr("1. Number of Programs: %1").arg(numPrograms));
-#endif
+      if (Preferences::debugLogging) {
+          emit lpub->messageSig(LOG_DEBUG, tr("- Number of default openWith programs: %1").arg(numPrograms));
+      }
 
       QString programData, programName, programPath;
 
@@ -239,7 +239,7 @@ void Gui::updateOpenWithActions()
               QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
               QPixmap iconPixmap = fileIcon.pixmap(16,16);
               if (!iconPixmap.save(iconFile))
-                  emit lpub->messageSig(LOG_INFO,tr("Could not save program file icon: %1").arg(iconFile));
+                  emit lpub->messageSig(LOG_INFO,tr("- Could not save program file icon: %1").arg(iconFile));
               return fileIcon;
           }
           return QIcon(iconFile);
@@ -265,6 +265,9 @@ void Gui::updateOpenWithActions()
                                               .arg(fileInfo.fileName()));
           openWithActList[i]->setVisible(true);
           i++;
+          if (Preferences::debugLogging) {
+              lpub->messageSig(LOG_DEBUG, tr("- Add openWith program: %1. %2").arg(i).arg(programData));
+          }
         } else {
           programEntries.removeOne(programEntries.at(i));
           --numPrograms;
@@ -294,12 +297,15 @@ void Gui::updateOpenWithActions()
           openWithActList[i]->setVisible(true);
           programEntries.append(QString("%1|%2").arg(programName).arg(programData));
           numPrograms = programEntries.size();
+          if (Preferences::debugLogging) {
+              lpub->messageSig(LOG_DEBUG, tr("- Add openWith system editor: %1").arg(programData));
+          }
         }
       }
 
-#ifdef QT_DEBUG_MODE
-      lpub->messageSig(LOG_DEBUG, tr("2. Number of Programs: %1").arg(numPrograms));
-#endif
+      if (Preferences::debugLogging) {
+          lpub->messageSig(LOG_DEBUG, tr("- Number of loaded openWith programs: %1").arg(numPrograms));
+      }
 
       // hide empty program actions - redundant
       for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++)
@@ -416,8 +422,6 @@ void Gui::openRecentFile()
                                          .arg(elapsedTime(timer.elapsed())));
   }
 }
-
-
 
 void Gui::clearRecentFiles()
 {
