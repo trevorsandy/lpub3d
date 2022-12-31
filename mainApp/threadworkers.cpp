@@ -2266,11 +2266,13 @@ int CountPageWorker::countPage(
                                 buildModStepIndex);
   };
 
+#ifndef QT_DEBUG_MODE
   auto documentPageCount = [&] ()
   {
       emit gui->messageSig(LOG_INFO_STATUS, tr("Counting document page %1...")
                            .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
   };
+#endif
 
   for ( ;
         opts.current.lineNumber < opts.flags.numLines;
@@ -2536,7 +2538,8 @@ int CountPageWorker::countPage(
                   ++opts.pageNum;
                   Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
 #ifndef QT_DEBUG_MODE
-                  documentPageCount();
+                  if (Preferences::debugLogging)
+                      documentPageCount();
 #endif
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
@@ -2742,7 +2745,8 @@ int CountPageWorker::countPage(
                       ++opts.pageNum;
                       Gui::topOfPages.append(opts.current); // Set TopOfStep (Step)
 #ifndef QT_DEBUG_MODE
-                      documentPageCount();
+                      if (Preferences::debugLogging)
+                          documentPageCount();
 #endif
 
                   } // ! StepGroup and ! Callout (Single step)
@@ -2984,9 +2988,11 @@ int CountPageWorker::countPage(
                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       ++opts.pageNum;
+      opts.flags.parseNoStep = false;
       Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
 #ifndef QT_DEBUG_MODE
-      documentPageCount();
+      if (Preferences::debugLogging)
+          documentPageCount();
 #endif
     } // Last Step in Submodel
 
