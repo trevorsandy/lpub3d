@@ -486,21 +486,21 @@ void Gui::enableNavigationActions(bool enable)
   setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enable);
   mpdCombo->setEnabled(mpdCombo->count() && enable);
 
-  bool atStart = enable && (displayPageNum == (1 + pa));
-  bool atEnd = enable && (displayPageNum == maxPages);
+  bool atStart = displayPageNum == (1 + pa);
+  bool atEnd = displayPageNum == maxPages;
 
-  getAct("firstPageAct.1")->setEnabled(!atStart);
+  getAct("firstPageAct.1")->setEnabled(!atStart && enable);
 
-  getAct("lastPageAct.1")->setEnabled(!atEnd);
+  getAct("lastPageAct.1")->setEnabled(!atEnd && enable);
 
-  getAct("nextPageAct.1")->setEnabled(!atEnd);
-  getAct("previousPageAct.1")->setEnabled(!atStart);
+  getAct("nextPageAct.1")->setEnabled(!atEnd && enable);
+  getAct("previousPageAct.1")->setEnabled(!atStart && enable);
 
-  getAct("nextPageComboAct.1")->setEnabled(!atEnd);
-  getAct("previousPageComboAct.1")->setEnabled(!atStart);
+  getAct("nextPageComboAct.1")->setEnabled(!atEnd && enable);
+  getAct("previousPageComboAct.1")->setEnabled(!atStart && enable);
 
-  getAct("nextPageContinuousAct.1")->setEnabled(!atEnd);
-  getAct("previousPageContinuousAct.1")->setEnabled(!atStart);
+  getAct("nextPageContinuousAct.1")->setEnabled(!atEnd && enable);
+  getAct("previousPageContinuousAct.1")->setEnabled(!atStart && enable);
 }
 
 void Gui::nextPage()
