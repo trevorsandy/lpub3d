@@ -4536,26 +4536,25 @@ void Gui::exportMetaCommands()
                               .arg(QDir::toNativeSeparators(fileName)));
 
   if (box.exec() == QMessageBox::Yes) {
+    QStringList arguments;
     QString CommandPath = fileName;
     QProcess *Process = new QProcess(this);
-    Process->setWorkingDirectory(QFileInfo(fileName).absolutePath() + QDir::separator());
-
+    Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
 #ifdef Q_OS_WIN
-    Process->setNativeArguments(CommandPath);
     if (Preferences::usingNPP) {
-        const QStringList arguments = QStringList() << CommandPath << QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
+        Process->setNativeArguments(CommandPath);
+        arguments << CommandPath << QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
         Process->startDetached(Preferences::systemEditor, arguments);
     } else
         QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-    Process->execute(CommandPath);
+    arguments << CommandPath;
+    Process->start(UNIX_SHELL, arguments);
     Process->waitForFinished();
-
-    QProcess::ExitStatus Status = Process->exitStatus();
-
-    if (Status != 0) {  // look for error
-      QErrorMessage *m = new QErrorMessage(this);
-      m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
+    if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
+        QErrorMessage *m = new QErrorMessage(this);
+        m->showMessage(tr("Failed to launch PDF document.\n%1\n%2")
+                         .arg(CommandPath).arg(QString(Process->readAllStandardError())));
     }
 #endif
   } else {

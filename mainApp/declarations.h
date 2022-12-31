@@ -774,6 +774,7 @@ enum ThemeColorType {
 
 #define LOGGING_LEVEL_DEFAULT                   "STATUS"
 
+#define UNIX_SHELL                              "/bin/sh"
 #define LINUX_SYS_EDITOR                        "gedit"
 #define MACOS_SYS_EDITOR                        "textedit"
 #define WINDOWS_SYS_EDITOR                      "notepad.exe"

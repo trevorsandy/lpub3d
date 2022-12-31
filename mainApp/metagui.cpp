@@ -9661,16 +9661,22 @@ void BlenderRenderDialogGui::configureBlender()
         process->start(blenderExe, arguments);
 
         if (! process->waitForStarted()) {
-            message = tr("Cannot start addon install process.");
+            message = tr("Cannot start Blender addon install process.\n%1")
+                         .arg(QString(process->readAllStandardError()));
             emit gui->messageSig(LOG_ERROR, message);
             statusUpdate();
             // Close process
             delete process;
             process = nullptr;
             return;
-        } else{
-            statusUpdate(true, tr("Installing Blender addon... "));
-            emit gui->messageSig(LOG_INFO, tr("Addon install process [%1] running...").arg(process->processId()));
+        } else {
+            if (process->exitStatus() != QProcess::NormalExit || process->exitCode() != 0) {
+                emit gui->messageSig(LOG_ERROR, tr("Failed to install Blender addon.\n%1")
+                                                  .arg(QString(process->readAllStandardError())));
+            } else {
+                statusUpdate(true, tr("Installing Blender addon..."));
+                emit gui->messageSig(LOG_INFO, tr("Addon install process [%1] running...").arg(process->processId()));
+            }
         }
     } else {
         emit gui->messageSig(LOG_ERROR, tr("Blender executable not found at [%1]").arg(blenderFile));

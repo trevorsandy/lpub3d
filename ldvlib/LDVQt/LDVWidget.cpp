@@ -786,21 +786,19 @@ void LDVWidget::showDocument(QString &htmlFilename){
 	  box.setInformativeText (text);
 
 	  if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
-		  QString CommandPath = htmlFilename;
-		  QProcess *Process = new QProcess(this);
-		  Process->setWorkingDirectory(QDir::currentPath() + "/");
+		  const QString CommandPath = htmlFilename;
 #ifdef Q_OS_WIN
-		  Process->setNativeArguments(CommandPath);
 		  QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-		  Process->execute(CommandPath);
+		  QProcess *Process = new QProcess(this);
+		  Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
+		  QStringList arguments = QStringList() << CommandPath;
+		  Process->start(UNIX_SHELL, arguments);
 		  Process->waitForFinished();
-
-		  QProcess::ExitStatus Status = Process->exitStatus();
-
-		  if (Status != 0) {         // look for error
+		  if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
 			  QErrorMessage *m = new QErrorMessage(this);
-			  m->showMessage(QString("%1<br>%2").arg("Failed to launch HTML part list web page!").arg(CommandPath));
+			  m->showMessage(tr("Failed to launch HTML part list web page.\n%1\n%2")
+							   .arg(CommandPath).arg(QString(Process->readAllStandardError())));
 		  }
 #endif
 		  return;
