@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 23, 2022
+# Last Update November 24, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -248,6 +248,7 @@ find ${LP3D_GPGHOME}/ -type f -exec chmod 600 {} \;
 # Capture the deployment folder if deploy package
 
 # Display asset paths info
+set +x
 echo
 echo "LP3D_PROJECT_NAME...........${LP3D_PROJECT_NAME}"
 [ -n "${LP3D_VERSION}" ] && \
@@ -283,6 +284,7 @@ echo && echo "Remove download artifacts that should not be published..." && \
 ) >$c.out 2>&1 && rm $c.out || :
 [ -f $c.out ] && \
 echo "WARNING - Failed to clean up artifacts." && tail -80 $c.out || echo "Ok."
+set -x
 
 # Publish assets
 echo && echo "Publishing Github download assets..." && \
@@ -309,6 +311,7 @@ done
 # Publish update and download assets to Sourceforge
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   export LP3D_ASSET_EXT=".all"
+  export LP3D_DEPLOY_PKG="$LP3D_DEPLOY_PKG"
   echo && echo "Publishing Sourceforge update and download assets..."
   ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok
   [ -f $p.out ] && echo "WARNING - Sourceforge upload failed." && tail -80 $p.out && exit 1 || cat $p.ok
