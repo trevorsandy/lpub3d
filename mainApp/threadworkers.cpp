@@ -2147,8 +2147,12 @@ int CountPageWorker::countPage(
   QMutex countPageMutex;
   countPageMutex.lock();
 
-  // local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
-  //int displayPageNum = Gui::displayPageNum;
+  //* local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
+#ifdef QT_DEBUG_MODE
+  int displayPageNum = Gui::displayPageNum;
+  Q_UNUSED(displayPageNum)
+#endif
+  //*/
 
   opts.flags.countInstances = meta->LPub.countInstance.value();
 
@@ -2268,6 +2272,15 @@ int CountPageWorker::countPage(
   for ( ;
         opts.current.lineNumber < opts.flags.numLines;
         opts.current.lineNumber++) {
+
+      //* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
+#ifdef QT_DEBUG_MODE
+      int optsPageNum = opts.pageNum;
+      int saveDisplayPageNum = gui->saveDisplayPageNum;
+      Q_UNUSED(optsPageNum)
+      Q_UNUSED(saveDisplayPageNum)
+#endif
+      //*/
 
       // if reading include file, return to current line, do not advance
 
@@ -2391,7 +2404,7 @@ int CountPageWorker::countPage(
                                       meta->submodelStack.pop_back();       // remove where we stopped in the parent model
 
                                   // terminate build modification countPage at end of submodel
-                                  if (Gui::buildModJumpForward && ! opts.flags.callout && modelOpts.pageNum == gui->saveDisplayPageNum) {
+                                  if (Gui::buildModJumpForward && ! opts.flags.callout && modelOpts.pageNum >= gui->saveDisplayPageNum) {
                                       opts.flags.parseBuildMods = modelOpts.flags.parseBuildMods;
                                       if (! opts.flags.parseBuildMods) {
                                           countPageMutex.unlock();
@@ -2475,11 +2488,12 @@ int CountPageWorker::countPage(
 
                   // terminate parse build modifications
                   if (opts.flags.parseBuildMods) {
-                      // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
+                      // terminate parse build mods at end of display page when called from gui::countPage for jump to page
                       if (Gui::buildModJumpForward && ! opts.flags.callout) {
-                          // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
-                          // to use the correct page number value in determining when to terminate the buildMod parse.
-                          opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
+                          // we will be at the bottom of the current (display) page as pageNum is advanced at the end of the page step,
+                          // so set pageNum + 1 to use the correct page number to determine when to terminate the buildMod parse.
+                          // Use <= comparison between (pageNum + 1 and displayPageNum) to parse buildMod up to display page.
+                          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
                       }
                       // terminate parse build modification for steps after first step in step group
                       else if (opts.flags.parseStepGroupBM) {
@@ -2658,11 +2672,12 @@ int CountPageWorker::countPage(
               if (opts.flags.partsAdded && ! opts.flags.noStep) {
                   // parse build modifications
                   if (opts.flags.parseBuildMods) {
-                      // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-                      if (Gui::buildModJumpForward && ! opts.flags.callout) {
-                          // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
-                          // to use the correct page number value in determining when to terminate the buildMod parse.
-                          opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
+                      // terminate parse build mods at end of display page when called from gui::countPage for jump to page
+                      if (Gui::buildModJumpForward && ! opts.flags.callout && !opts.flags.stepGroup) {
+                          // we will be at the bottom of the current (display) page as pageNum is advanced at the end of the page step,
+                          // so set pageNum + 1 to use the correct page number to determine when to terminate the buildMod parse.
+                          // Use <= comparison between (pageNum + 1 and displayPageNum) to parse buildMod up to display page.
+                          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
                       }
                       // BuildMod create
                       if (buildModKeys.size()) {
@@ -2717,7 +2732,6 @@ int CountPageWorker::countPage(
 
                   topOfStep = opts.current;
                   opts.flags.partsAdded = 0;
-                  meta->pop();
                   opts.flags.coverPage = false;
                   opts.flags.stepPage = false;
                   opts.flags.bfxStore2 = opts.flags.bfxStore1;
@@ -2733,6 +2747,7 @@ int CountPageWorker::countPage(
                           opts.flags.parseStepGroupBM = opts.flags.parseBuildMods = true;
                       } // we only care about the next page during each page count run
                   } // enable parse build modifications for steps after first step in step group
+                  meta->pop();
                } // PartsAdded && ! NoStep
 
               if ( ! opts.flags.stepGroup && ! opts.flags.callout && ! opts.flags.noStep) {
@@ -2898,20 +2913,19 @@ int CountPageWorker::countPage(
     } // For Every Line
 
   // last step in submodel
+  // terminate parse build modifications
+  if (opts.flags.parseBuildMods) {
+      // terminate parse build mods at end of display page when called from gui::countPage for jump to page
+      if (Gui::buildModJumpForward && !opts.flags.stepGroup) {
+          // we will be at the bottom of the current (display) page as pageNum is advanced at the end of the page step,
+          // so set pageNum + 1 to use the correct page number to determine when to terminate the buildMod parse.
+          // Use <= comparison between (pageNum + 1 and displayPageNum) to parse buildMod up to display page.
+          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
+      }
+  }
   // Added callout step parse for parse build modifications so
   // exclude from page number increment and topOfPages indices
   if (opts.flags.partsAdded && ! opts.flags.callout && ! opts.flags.noStep) {
-
-      // terminate parse build modifications
-      if (opts.flags.parseBuildMods) {
-          // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-          if (Gui::buildModJumpForward) {
-              // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
-              // to use the correct page number value in determining when to terminate the buildMod parse.
-              opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
-          }
-      }
-
       if (Gui::exporting()) {
           Gui::getPageSizes().remove(opts.pageNum);
           if (opts.flags.pageSizeUpdate) {
