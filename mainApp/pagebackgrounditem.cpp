@@ -235,8 +235,12 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         bool ok;
         int maxNextSteps = maxSteps - lastStepNumber;
         int numOfSteps = QInputDialog::getInt(gui,QObject::tr("Next Steps"),QObject::tr("Number of next steps"),maxNextSteps,1,maxNextSteps,1,&ok);
-        if (ok)
-            addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+        if (ok) {
+            if (numOfSteps > 1)
+                addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+            else
+                addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
+        }
       } else if (selectedAction == addPrevStepAction) {
         addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
       } else if (selectedAction == refreshPageCacheAction){

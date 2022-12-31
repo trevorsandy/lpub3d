@@ -618,8 +618,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         bool ok;
         int maxNextSteps = maxSteps - lastStepNumber;
         int numOfSteps = QInputDialog::getInt(gui,QMessageBox::tr("Next Steps"),QMessageBox::tr("Number of next steps"),maxNextSteps,1,maxNextSteps,1,&ok);
-        if (ok)
-            addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+        if (ok) {
+            if (numOfSteps > 1)
+                addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+            else
+                addNextMultiStep(topOfSteps,bottomOfSteps);
+        }
     } else if (selectedAction == removeStepAction) {
         if (boundary & StartOfSteps) {
             deleteFirstMultiStep(topOfSteps);

@@ -554,13 +554,17 @@ void MetaItem::addNextStepsMultiStep(
         bool lastStep = stepNum == numOfSteps;
         bool partsAdded = false;
 
+        // after first pass, nextStep may be on '0 STEP',
+        // so increment to allow scanForward
         Where walk = nextStep+1;
         Where finalTopOfSteps = startTopOfSteps;
 
-        rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
-        Where end;
+        bool onStepMeta = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber) == "0 STEP";
+        if (! onStepMeta)
+            rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
 
         // encountered end of current step group
+        Where end;
         if (rc1 == StepGroupEndRc) {        // END
             amendGroup = true;
             end = walk++;                   // encountered current multi step end meta
