@@ -5884,21 +5884,21 @@ void Gui::createActions()
         lpub->actions.insert(removeCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Remove Callout"), removeCalloutAction));
 
         QAction *rotateCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotate.png"),tr("Rotate Callout"));
-        rotateCalloutAction->setObjectName("rotateAction.1");
+        rotateCalloutAction->setObjectName("rotateCalloutAction.1");
         rotateCalloutAction->setStatusTip(tr("Rotate the assembled callout"));
         rotateCalloutAction->setWhatsThis(tr("Rotate Callout:\n"
                                              "  You can rotate the assembled callout.\n"));
         lpub->actions.insert(rotateCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Rotate Callout"), rotateCalloutAction));
 
         QAction *unrotateCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/unrotate.png"),tr("Unrotate Callout"));
-        unrotateCalloutAction->setObjectName("rotateAction.1");
+        unrotateCalloutAction->setObjectName("unrotateCalloutAction.1");
         unrotateCalloutAction->setStatusTip(tr("Unrotate the assembled callout"));
         unrotateCalloutAction->setWhatsThis(tr("Unrotate Callout:\n"
                                                "  You can unrotate the unassembled callout.\n"));
         lpub->actions.insert(unrotateCalloutAction->objectName(), Action(QStringLiteral("CalloutContext.Unrotate Callout"), unrotateCalloutAction));
 
         QAction *addPointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointer.png"),tr("Add Callout Pointer"));
-        addPointerAction->setObjectName("rotateAction.1");
+        addPointerAction->setObjectName("addPointerAction.1");
         addPointerAction->setStatusTip(tr("Add pointer from this callout to the step model where it is used"));
         addPointerAction->setWhatsThis(tr("Add Callout Pointer:\n"
                                           "  You can add a pointer from this callout to the step\n"
