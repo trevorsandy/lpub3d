@@ -4023,13 +4023,13 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     return result;
 }
 
-int  Preferences::showMessage(
-        Preferences::MsgID msgID,
+int  Preferences::showMessage(Preferences::MsgID msgID,
         const QString &message,
         const QString &title,
         const QString &type,
         bool option  /*OkCancel=false*/,
-        bool override/*false*/)
+        bool override/*false*/,
+        int icon/*Critical*/)
 {
     for (QString &messageNotShown : messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
@@ -4038,10 +4038,13 @@ int  Preferences::showMessage(
     QString msgTitle = title.isEmpty() ? msgKeyTypes[msgID.msgKey][0] : title;
     QString msgType  = type.isEmpty()  ? msgKeyTypes[msgID.msgKey][1] : type;
 
+    if (static_cast<QMessageBox::Icon>(icon) == QMessageBox::Icon::Critical)
+        LPub::loadBanner(ERROR_ENCOUNTERED);
+
     QMessageBoxResizable box;
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(msgTitle));
     box.setText(message);
-    box.setIcon(QMessageBox::Icon::Warning);
+    box.setIcon(static_cast<QMessageBox::Icon>(icon));
     box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : QMessageBox::Ok);
     box.setDefaultButton   (option ? QMessageBox::Cancel : QMessageBox::Ok);
     if (!override) {
@@ -4053,9 +4056,6 @@ int  Preferences::showMessage(
         });
     }
     box.adjustSize();
-
-    // keep the Visual Editor model updated to avoid crashing at paint/draw event
-    LPub::loadBanner(ERROR_ENCOUNTERED);
 
     return box.exec();
 }

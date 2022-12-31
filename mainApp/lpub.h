@@ -1307,10 +1307,11 @@ public slots:
                   const Where &here,
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
                   bool option = false,
-                  bool override = false);
+                  bool override = false,
+                  int icon = 3/*Critical*/);
 
   void statusBarMsg(QString msg);
-  void statusMessage(LogType logType, QString message);
+  void statusMessage(LogType logType, QString message, bool msgBox = false);
   void showExportedFile();
   void showLine(const Where &here, int type = LINE_HIGHLIGHT);
   void openDropFile(QString &fileName);
@@ -1466,7 +1467,7 @@ public slots:
 signals:
   /* tell the editor to display this file */
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile, const StepLines &lineScope);
-  void parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool);
+  void parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int = 3);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);

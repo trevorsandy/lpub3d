@@ -2267,7 +2267,7 @@ int CountPageWorker::countPage(
 
   auto documentPageCount = [&] ()
   {
-      emit gui->messageSig(LOG_COUNT_STATUS, tr("Counting document page %1...")
+      emit gui->messageSig(LOG_INFO_STATUS, tr("Counting document page %1...")
                            .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
   };
 
@@ -2534,8 +2534,9 @@ int CountPageWorker::countPage(
 #endif
                   ++opts.pageNum;
                   Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
+#ifndef QT_DEBUG_MODE
                   documentPageCount();
-
+#endif
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
 
@@ -2734,7 +2735,9 @@ int CountPageWorker::countPage(
 #endif
                       ++opts.pageNum;
                       Gui::topOfPages.append(opts.current); // Set TopOfStep (Step)
+#ifndef QT_DEBUG_MODE
                       documentPageCount();
+#endif
 
                   } // ! StepGroup and ! Callout (Single step)
 
@@ -2972,7 +2975,9 @@ int CountPageWorker::countPage(
 #endif
       ++opts.pageNum;
       Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
+#ifndef QT_DEBUG_MODE
       documentPageCount();
+#endif
     } // Last Step in Submodel
 
   countPageMutex.unlock();

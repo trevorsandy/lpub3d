@@ -5631,7 +5631,7 @@ void Gui::writeToTmp(const QString &fileName,
                           break;
                       if (buildModApplicable) {
                           if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
-                              emit parseErrorSig("Key required for nested build mod meta command",
+                              emit gui->parseErrorSig("Key required for nested build mod meta command",
                                                  here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
                           if (buildModActions.value(buildModLevel) == BuildModApplyRc)
                               buildModIgnore = true;

@@ -159,7 +159,8 @@ class Preferences
                            const QString &title = "",
                            const QString &type = "",
                            bool option = false,
-                           bool override = false);
+                           bool override = false,
+                           int icon = 3);
 
     static ThemeSettings defaultThemeColors[];
     static QString themeColors[];
