@@ -385,7 +385,7 @@ void lcPiecesLibrary::UpdateStudStyleSource()
 bool lcPiecesLibrary::OpenArchive(const QString& FileName, lcZipFileType ZipFileType)
 {
 /*** LPub3D Mod - loading library ***/
-	lpub->messageSig(LOG_INFO, QString("Loading archive %1...").arg(FileName));
+	emit lpub->messageSig(LOG_INFO, QString("Loading archive %1...").arg(QDir::toNativeSeparators(FileName)));
 /*** LPub3D Mod end ***/
 
 	std::unique_ptr<lcDiskFile> File(new lcDiskFile(FileName));
@@ -2023,7 +2023,7 @@ bool lcPiecesLibrary::Reload()
 	QString OfficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawPartsArchive);
 	if (!OpenArchive(OfficialFileName, lcZipFileType::Official))
 	{
-		lpub->messageSig(LOG_ERROR, QString("Failed to load archive %1").arg(OfficialFileName));
+		emit lpub->messageSig(LOG_ERROR, QString("Failed to load archive %1").arg(QDir::toNativeSeparators(OfficialFileName)));
 		return false;
 	}
 

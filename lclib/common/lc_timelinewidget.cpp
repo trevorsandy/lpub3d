@@ -135,7 +135,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 /*** LPub3D Mod - set Timeline top item to loaded model name when loading single step ***/
 		QString TimelineTopItem = tr("Step %1").arg(TopLevelItemIdx + 1);
 		if (LastStep == 1)
-			TimelineTopItem = lcGetActiveProject()->GetTimelineTopItem();
+			TimelineTopItem = lcGetActiveProject()->GetTimelineTopItemString();
 		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(TimelineTopItem));
 		StepItem->setData(0, Qt::UserRole, qVariantFromValue<int>(int(TopLevelItemIdx) + 1));
 /*** LPub3D Mod end ***/

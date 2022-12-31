@@ -456,6 +456,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	mImageType = Type;
 	QString FileName = LoadFileName;
 	bool IsLPubModel = false;
+	bool IsLPubBanner = false;
 	QWidget* parent = nullptr;
 
 	if (mIsPreview)
@@ -466,7 +467,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		parent = gMainWindow;
 	}
 
-	auto SetTimeLineTopItem = [this, &FileName, &StepKey, &parent] (const QStringList& Content)
+	auto SetTimeLineTopItem = [&] (const QStringList& Content)
 	{
 		if (!mIsPreview)
 		{
@@ -486,6 +487,10 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 				return s;
 			};
 
+			if (IsLPubBanner) {
+				return SetTimelineTopItemString(tr("Banner"));
+			}
+
 			// viewerStepKey - 3 elements:
 			// CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)],
 			// SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
@@ -498,7 +503,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 				const QString TimelineTopItem = QString("%1 Step %2")
 														.arg(QString::fromStdString(TitleCase(PieceName.toStdString())))
 														.arg(Keys.at(BM_STEP_NUM_KEY));
-				SetTimelineTopItem(TimelineTopItem);
+				SetTimelineTopItemString(TimelineTopItem);
 
 #ifdef QT_DEBUG_MODE
 				if (!IsPli) {
@@ -542,6 +547,9 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		}
 
 		FileData = File.readAll();
+
+		if ((IsLPubBanner = QFileInfo(FileName).baseName() == QLatin1String("banner")))
+			SetTimeLineTopItem(QStringList());
 	}
 	else if (!StepKey.isEmpty() || IsLPubModel)
 	{

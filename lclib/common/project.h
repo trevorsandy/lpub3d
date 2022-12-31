@@ -89,11 +89,11 @@ public:
 		return mFileName;
 	}
 /*** LPub3D Mod - set Timeline top item ***/
-	QString &GetTimelineTopItem()
+	QString &GetTimelineTopItemString()
 	{
 		return mTimelineTopItem;
 	}
-	void SetTimelineTopItem(
+	void SetTimelineTopItemString(
 		const QString& TimelineTitle)
 	{
 		mTimelineTopItem  = TimelineTitle;
