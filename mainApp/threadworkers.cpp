@@ -2158,18 +2158,16 @@ int CountPageWorker::countPage(
 #endif
   //*/
 
+  Where topOfStep = opts.current;
   if (opts.flags.countPageContains) {
       gui->skipHeader(opts.current);
+      topOfStep = opts.current;
       opts.flags.countPageContains = false;
       opts.flags.addCountPage = true;
+  } else if (Preferences::buildModEnabled) {
+      // set the topOfStep, lineNumber from findPage is automatically incremented
+      ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
   }
-
-  Rc rc;
-  QStringList bfxParts;
-  Where topOfStep = opts.current;
-  if (Preferences::buildModEnabled) // Check if the topOfStep is a valid build mod step index
-      if (ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber, true/*index check*/) == BM_INVALID_INDEX)
-          ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
   Where topOfSteps = topOfStep;
 
   if (opts.pageNum == 1 + Gui::pa && opts.current.modelName == ldrawFile->topLevelFile()) {
@@ -2191,6 +2189,9 @@ int CountPageWorker::countPage(
                          opts.stepNumber,
                          opts.flags.countInstances,
                          true/*countPage*/);
+
+  Rc rc;
+  QStringList bfxParts;
 
   BuildModFlags           buildMod = opts.flags.buildMod;
   QMap<int, QString>      buildModKeys;
@@ -2573,24 +2574,12 @@ int CountPageWorker::countPage(
                       if (opts.flags.partsAdded)
                           emit gui->parseErrorSig(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                                   opts.current,Preferences::BuildModErrors,false,false);
-                      buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+                      buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber, true/*index check*/);
                       // if we are processing lines in the last step of a submodel, the topOfStep.lineNumber
                       // likely will not reflect a valid value so we'll have to manually set it accordingly...
                       if (buildModStepIndex == BM_INVALID_INDEX) {
-                          auto scanBackwardToStepMask = [&meta] (Where &topOfStep) {
-                              for ( ;topOfStep >= BM_BEGIN; topOfStep--) {
-                                  QString line = gui->readLine(topOfStep);
-                                  Rc rc = meta->parse(line,topOfStep);
-                                  if (rc == StepRc || rc == RotStepRc)
-                                      return true;
-                              }
-                              return false;
-                          };
-                          if (scanBackwardToStepMask(topOfStep))
-                              buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
-                          else
-                              emit gui->parseErrorSig("Could not establish a valid model name and line number for the current step.",
-                                                      opts.current,Preferences::BuildModErrors,false,false);
+                          ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
+                          buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
                       }
                       buildMod.key = meta->LPub.buildMod.key();
                       if (ldrawFile->buildModContains(buildMod.key)) {
