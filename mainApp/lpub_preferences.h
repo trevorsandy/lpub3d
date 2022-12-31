@@ -335,6 +335,7 @@ class Preferences
     static bool    noticeLevel;
     static bool    infoLevel;
     static bool    statusLevel;
+    static bool    warningLevel;
     static bool    errorLevel;
     static bool    fatalLevel;
 

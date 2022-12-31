@@ -7324,6 +7324,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
             logger.setNoticeLevel(Preferences::noticeLevel);
             logger.setInfoLevel(Preferences::infoLevel);
             logger.setStatusLevel(Preferences::statusLevel);
+            logger.setWarningLevel(Preferences::warningLevel);
             logger.setErrorLevel(Preferences::errorLevel);
             logger.setFatalLevel(Preferences::fatalLevel);
         }

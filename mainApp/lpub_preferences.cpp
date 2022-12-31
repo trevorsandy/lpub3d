@@ -468,6 +468,7 @@ bool    Preferences::traceLevel                 = false;
 bool    Preferences::noticeLevel                = false;
 bool    Preferences::infoLevel                  = false;
 bool    Preferences::statusLevel                = false;
+bool    Preferences::warningLevel               = false;
 bool    Preferences::errorLevel                 = false;
 bool    Preferences::fatalLevel                 = false;
 
@@ -1423,6 +1424,14 @@ void Preferences::loggingPreferences()
         Settings.setValue(QString("%1/%2").arg(LOGGING,"StatusLevel"),uValue);
     } else {
         statusLevel = Settings.value(QString("%1/%2").arg(LOGGING,"StatusLevel")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"WarningLevel"))) {
+        QVariant uValue(false);
+        warningLevel = false;
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"WarningLevel"),uValue);
+    } else {
+        warningLevel = Settings.value(QString("%1/%2").arg(LOGGING,"WarningLevel")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"ErrorLevel"))) {
@@ -5500,6 +5509,12 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(LOGGING,"StatusLevel"),statusLevel);
         }
 
+        if ((loggingChanged |= warningLevel != dialog->warningLevel()))
+        {
+            warningLevel = dialog->warningLevel();
+            Settings.setValue(QString("%1/%2").arg(LOGGING,"WarningLevel"),warningLevel);
+        }
+
         if ((loggingChanged |= errorLevel != dialog->errorLevel()))
         {
             errorLevel = dialog->errorLevel();
@@ -5529,6 +5544,7 @@ bool Preferences::getPreferences()
                     logger.setNoticeLevel(noticeLevel);
                     logger.setInfoLevel(infoLevel);
                     logger.setStatusLevel(statusLevel);
+                    logger.setWarningLevel(warningLevel);
                     logger.setErrorLevel(errorLevel);
                     logger.setFatalLevel(fatalLevel);
                 } else if (logLevel) {

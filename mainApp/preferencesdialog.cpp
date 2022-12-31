@@ -475,6 +475,7 @@ void PreferencesDialog::setPreferences()
   ui.noticeLevelBox->setChecked(                 Preferences::noticeLevel);
   ui.infoLevelBox->setChecked(                   Preferences::infoLevel);
   ui.statusLevelBox->setChecked(                 Preferences::statusLevel);
+  ui.warningLevelBox->setChecked(                Preferences::warningLevel);
   ui.errorLevelBox->setChecked(                  Preferences::errorLevel);
   ui.fatalLevelBox->setChecked(                  Preferences::fatalLevel);
 
@@ -929,6 +930,7 @@ void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
   ui.noticeLevelBox->setChecked(checked);
   ui.infoLevelBox->setChecked(checked);
   ui.statusLevelBox->setChecked(checked);
+  ui.warningLevelBox->setChecked(checked);
   ui.errorLevelBox->setChecked(checked);
   ui.fatalLevelBox->setChecked(checked);
 }
@@ -1971,6 +1973,10 @@ bool PreferencesDialog::infoLevel()
 bool PreferencesDialog::statusLevel()
 {
   return ui.statusLevelBox->isChecked();
+}
+bool PreferencesDialog::warningLevel()
+{
+  return ui.warningLevelBox->isChecked();
 }
 bool PreferencesDialog::errorLevel()
 {

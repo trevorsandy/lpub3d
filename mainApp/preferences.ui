@@ -3076,29 +3076,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
             <layout class="QVBoxLayout" name="verticalLayout_10">
              <item>
               <layout class="QGridLayout" name="gridLayout_4">
-               <item row="0" column="0">
-                <widget class="QCheckBox" name="fatalLevelBox">
-                 <property name="toolTip">
-                  <string>Log Fatal messages</string>
-                 </property>
-                 <property name="text">
-                  <string>Fatal</string>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QCheckBox" name="noticeLevelBox">
-                 <property name="toolTip">
-                  <string>Log Notice messages</string>
-                 </property>
-                 <property name="text">
-                  <string>Notice</string>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="0">
                 <widget class="QCheckBox" name="errorLevelBox">
                  <property name="toolTip">
@@ -3112,13 +3089,16 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="traceLevelBox">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="fatalLevelBox">
                  <property name="toolTip">
-                  <string>Log Trace messages</string>
+                  <string>Log Fatal messages</string>
                  </property>
                  <property name="text">
-                  <string>Trace</string>
+                  <string>Fatal</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -3135,7 +3115,14 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
+               <item row="4" column="0">
+                <widget class="QCheckBox" name="allLogLevelsBox">
+                 <property name="text">
+                  <string>All Levels</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
                 <widget class="QCheckBox" name="debugLevelBox">
                  <property name="toolTip">
                   <string>Log Debug messages</string>
@@ -3145,7 +3132,27 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="traceLevelBox">
+                 <property name="toolTip">
+                  <string>Log Trace messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Trace</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="noticeLevelBox">
+                 <property name="toolTip">
+                  <string>Log Notice messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Notice</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
                 <widget class="QCheckBox" name="infoLevelBox">
                  <property name="toolTip">
                   <string>Log Information messages</string>
@@ -3155,13 +3162,13 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
-                <widget class="QCheckBox" name="allLogLevelsBox">
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="warningLevelBox">
                  <property name="toolTip">
                   <string>Log all messages</string>
                  </property>
                  <property name="text">
-                  <string>All Levels</string>
+                  <string>Warning</string>
                  </property>
                 </widget>
                </item>
@@ -3836,13 +3843,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>logLevelCombo</tabstop>
   <tabstop>logLevelsGrpBox</tabstop>
   <tabstop>fatalLevelBox</tabstop>
-  <tabstop>noticeLevelBox</tabstop>
   <tabstop>errorLevelBox</tabstop>
-  <tabstop>traceLevelBox</tabstop>
   <tabstop>statusLevelBox</tabstop>
-  <tabstop>debugLevelBox</tabstop>
-  <tabstop>infoLevelBox</tabstop>
-  <tabstop>allLogLevelsBox</tabstop>
   <tabstop>commandList</tabstop>
   <tabstop>KeyboardFilterEdit</tabstop>
   <tabstop>shortcutsImport</tabstop>

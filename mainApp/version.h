@@ -89,7 +89,7 @@
 
 // ~~~~~~ App Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
+#define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,WARNING,ERROR,FATAL,OFF"
 
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"

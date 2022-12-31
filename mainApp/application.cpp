@@ -886,6 +886,7 @@ int Application::initialize()
             logger.setNoticeLevel(Preferences::noticeLevel);
             logger.setInfoLevel(  Preferences::infoLevel);
             logger.setStatusLevel(Preferences::statusLevel);
+            logger.setWarningLevel(Preferences::warningLevel);
             logger.setErrorLevel( Preferences::errorLevel);
             logger.setFatalLevel( Preferences::fatalLevel);
 
@@ -934,15 +935,15 @@ int Application::initialize()
         if (showLogExamples)
         {
             logStatus() << "Uh-oh! - this level is not displayed in the console only the log";
-            logInfo()   << VER_PRODUCTNAME_STR << "started";
-            logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
-            logTrace()  << "Here's a" << QString("trace") << "message";
-            logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
-            logNotice() << "Here's a" << QString("Notice") << "message";
-            qDebug()    << "This message won't be picked up by the logger";
-            logError()  << "An error has occurred";
-            qWarning()  << "Neither will this one";
-            logFatal()  << "Fatal error!";
+            logInfo()   << "Here's a Info message - Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+            logWarning()<< "Here's a Warning message";
+            logTrace()  << "Here's a Trace message - " << VER_PRODUCTNAME_STR << "started";
+            logDebug()  << "Here's a Debug (Level: " << static_cast<int>(QsLogging::DebugLevel) << ") message";
+            logNotice() << "Here's a Notice message";
+            qDebug()    << "This qDebug message won't be picked up by the logger";
+            logError()  << "Here's an Error! message";
+            qWarning()  << "Neither will this qWarning message";
+            logFatal()  << "Here's a Fatal Error! message";
 
             Level level = logger.loggingLevel();
             logger.setLoggingLevel(QsLogging::OffLevel);

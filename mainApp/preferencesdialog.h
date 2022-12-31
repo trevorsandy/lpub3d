@@ -161,6 +161,7 @@ class PreferencesDialog : public QDialog
     bool          noticeLevel();
     bool          infoLevel();
     bool          statusLevel();
+    bool          warningLevel();
     bool          errorLevel();
     bool          fatalLevel();
     bool          allLogLevels();
