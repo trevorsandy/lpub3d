@@ -927,6 +927,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label_35">
+            <property name="text">
+             <string>minutes</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
