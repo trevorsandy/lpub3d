@@ -1,4 +1,4 @@
-LPub3D 2.4.5.19.2996 (31 12 2022 03:26:43)
+LPub3D 2.4.5.20.2997 (31 12 2022 03:28:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Prompt user to archive unofficial parts #628
 - Change - Change reset image menu action description to refresh image #623
 - Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
 - Fix - Build modification - correct jump forward parse error #622

@@ -875,6 +875,34 @@ bool Gui::openFile(QString &fileName)
   Paths::mkDirs();
   getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(info.fileName()));
   getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(info.fileName()));
+  if (lpub->ldrawFile.getHelperPartsNotInArchive()) {
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
+      QMessageBoxResizable box;
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (_icon);
+      box.setTextFormat (Qt::RichText);
+      box.setWindowTitle(tr ("Update LDraw Unofficial Archive Library"));
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      QString title = "<b>" + tr ("LDraw unofficial parts in loaded model are not in archive library.") + "</b><br>" +
+                              tr ("Would you like to archive your LDraw unofficial parts now?");
+      box.setText (title);
+      QString searchDirs;
+      QFontMetrics fontMetrics = box.fontMetrics();
+      for (const QString &ldDir: Preferences::ldSearchDirs)
+          searchDirs.append(QString(" - %1<br>").arg(fontMetrics.elidedText(ldDir, Qt::ElideMiddle, box.width())));
+      QString text = tr("LDraw <b>helper</b> parts were detected in the loaded model file <i>%1</i>.<br><br>"
+                        "Parts not in the archive library will not be rendered by the "
+                        "%2 Visual Editor or Native renderer.<br><br>"
+                        "%2 will archive parts from your search directory paths.<br>"
+                        "%3").arg(info.fileName()).arg(VER_PRODUCTNAME_STR).arg(searchDirs);
+      box.setInformativeText (text);
+      box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+      box.setDefaultButton   (QMessageBox::Yes);
+
+      if (box.exec() == QMessageBox::Yes) {
+          loadLDSearchDirParts(false/*Process*/, true/*OnDemand*/, false/*Update*/);
+      }
+  }
   mSetupFadeSteps = lpub->setFadeStepsFromCommand();
   mSetupHighlightStep = lpub->setHighlightStepFromCommand();
   bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;

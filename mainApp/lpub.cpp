@@ -3978,11 +3978,12 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
     partWorkerLDSearchDirs.ldsearchDirPreferences();
 
   QStringList items = Preferences::ldSearchDirs;
+  QString message;
   if (items.count()) {
-      QString message = tr("Archiving search directory parts. Please wait...");
-      emit messageSig(LOG_STATUS,message);
+      message = tr("Archiving search directory parts. Please wait...");
+      emit messageSig(LOG_INFO_STATUS,message);
       m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-      m_progressDialog->setWindowTitle(QString("Archive Library Update"));
+      m_progressDialog->setWindowTitle(QString("LDraw Archive Library Update"));
       m_progressDialog->setLabelText(QString("Archiving search directory parts..."));
       m_progressDialog->setRange(0,items.count());
       m_progressDialog->setAutoHide(true);
@@ -4029,18 +4030,16 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       wait->exec();
 
       m_progressDialog->setValue(items.count());
-
-      QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
-      message = tr("Added %1 %2 into Unofficial library archive %3")
-                   .arg(m_workerJobResult)
-                   .arg(partsLabel)
-                   .arg(Preferences::validLDrawCustomArchive);
-      emit messageSig(LOG_INFO,message);
-
       connect (m_progressDialog, SIGNAL (cancelClicked()),
                this, SLOT (cancelExporting()));
 
       m_progressDialog->hide();
+      QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
+      message = tr("Added %1 %2 to %3 unofficial library archive.")
+                   .arg(m_workerJobResult)
+                   .arg(partsLabel)
+                   .arg(Preferences::validLDrawCustomArchive);
+      emit messageSig(LOG_INFO_STATUS,message);
   }
 
   if (! getCurFile().isEmpty()) {
@@ -4063,8 +4062,9 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       //reload current model file
       cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-      emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                      .arg(lpub->ldrawFile.getPartCount())
+      emit messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
+                      .arg(message)
+                      .arg(QFileInfo(getCurFile()).fileName())
                       .arg(elapsedTime(timer.elapsed())));
   }
 }

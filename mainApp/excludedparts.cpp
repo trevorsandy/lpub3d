@@ -90,7 +90,7 @@ ExcludedParts::ExcludedParts()
                 if (comment == '#' || comment == ' ')
                     continue;
                 if (sLine.contains(rx)) {
-                    Part excludedPart(rx.cap(1), rx.cap(2).toLower().startsWith("helper") ? EP_HELPER : EP_STANDARD);
+                    Part excludedPart(rx.cap(1), rx.cap(2).trimmed().toLower().startsWith("helper") ? EP_HELPER : EP_STANDARD);
                     excludedParts.append(excludedPart);
                 }
             }

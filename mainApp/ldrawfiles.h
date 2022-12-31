@@ -250,6 +250,7 @@ class LDrawFile {
     int                         _buildModNextStepIndex;
     int                         _buildModPrevStepIndex;
     bool                        _mpd;
+    static bool                 _helperPartsNotInArchive;
     static int                  _emptyInt;
     static QList<QRegExp>       _fileRegExp;
 
@@ -266,6 +267,7 @@ class LDrawFile {
     bool metaFinalModelNotFound;
     bool metaStartPageNumNotFound;
     bool metaStartStepNumNotFound;
+    bool helperPartsNotFound;
     bool topLevelModel;
     bool topHeaderFinished;
     bool ldcadGroupsLoaded;
@@ -313,7 +315,7 @@ class LDrawFile {
     static bool                 _hasUnofficialParts;
 
     int getUniquePartCount() {
-        return _uniquePartCount;
+      return _uniquePartCount;
     }
 
     int getPartCount(){
@@ -321,7 +323,12 @@ class LDrawFile {
     }
 
     void setLoadBuildMods(bool b) {
-        _loadBuildMods = b;
+      _loadBuildMods = b;
+    }
+
+    bool getHelperPartsNotInArchive()
+    {
+      return _helperPartsNotInArchive;
     }
 
     bool saveFile(const QString &fileName);

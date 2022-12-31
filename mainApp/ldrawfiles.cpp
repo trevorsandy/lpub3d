@@ -143,6 +143,7 @@ bool    LDrawFile::_loadAborted    = false;
 bool    LDrawFile::_loadBuildMods  = false;
 bool    LDrawFile::_loadUnofficialParts = true;
 bool    LDrawFile::_hasUnofficialParts = false;
+bool    LDrawFile::_helperPartsNotInArchive = false;
 
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
@@ -245,6 +246,7 @@ void LDrawFile::empty()
   _name.clear();
   _author.clear();
   _file.clear();
+  _helperPartsNotInArchive = false;
   _mpd                   = false;
   _loadAborted           = false;
   _loadBuildMods         = false;
@@ -1382,6 +1384,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         hdrFILENotFound          = true;
         hdrDescNotFound          = true;
         hdrCategNotFound         = true;
+        helperPartsNotFound      = true;
         loadUnoffPartsNotFound   = true;
         metaBuildModNotFund      = true;
         metaFinalModelNotFound   = true;
@@ -1477,6 +1480,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                 stagedSubfiles.append(subFile);
                 stagedSubfilesFound = true;
+            }
+            // determine if helper part
+            if (helperPartsNotFound) {
+                if (ExcludedParts::isExcludedHelperPart(subFile)) {
+                    helperPartsNotFound = false;
+                    _helperPartsNotInArchive = ! pieceInfo;
+                }
             }
         }
 
@@ -1849,6 +1859,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             topHeaderFinished        = false;
             hdrDescNotFound          = true;
             hdrCategNotFound         = true;
+            helperPartsNotFound      = true;
             loadUnoffPartsNotFound   = true;
             metaBuildModNotFund      = true;
             metaFinalModelNotFound   = true;
@@ -1983,6 +1994,12 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
                 if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                     stagedSubfiles.append(subFile);
+                }
+                if (helperPartsNotFound) {
+                    if (ExcludedParts::isExcludedHelperPart(subFile)) {
+                        helperPartsNotFound = false;
+                        _helperPartsNotInArchive = ! pieceInfo;
+                    }
                 }
             }
 
