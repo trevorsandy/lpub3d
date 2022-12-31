@@ -120,7 +120,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.5.2980
+Version: 2.4.5.2981
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -139,6 +139,9 @@ BuildRequires: cmake
 BuildRequires: qt5-qtbase-devel
 %if 0%{?fedora_version}==36
 BuildRequires: util-linux
+%endif
+%if 0%{?fedora_version}==37
+BuildRequires: libverto-libevent
 %endif
 %endif
 
@@ -794,7 +797,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sat Dec 31 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.5.2980
+* Sat Dec 31 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.5.2981
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670

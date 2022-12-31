@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update November 11, 2022
+# Last Update November 24, 2022
 # Copyright © 2018 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -82,7 +82,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.5.2980
+Version: 2.4.5.2981
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -110,6 +110,9 @@ BuildRequires: git
 %endif
 %if 0%{?fedora_version}>30
 BuildRequires: libXext-devel
+%if 0%{?fedora_version}==37
+BuildRequires: libverto-libevent
+%endif
 %endif
 %endif
 
@@ -310,7 +313,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sat Dec 31 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.5.2980
+* Sat Dec 31 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.5.2981
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670
