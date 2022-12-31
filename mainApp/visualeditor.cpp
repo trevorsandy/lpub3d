@@ -216,6 +216,12 @@ void Gui::create3DActions()
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
+    CreateBuildModComboAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
+    CreateBuildModComboAct->setObjectName("CreateBuildModComboAct.4");
+    CreateBuildModComboAct->setStatusTip(tr("Create a new build modification for this step"));
+    lpub->actions.insert(CreateBuildModComboAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Create Build Modification Combo"), CreateBuildModComboAct));
+    connect(CreateBuildModComboAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+
     CreateBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
     CreateBuildModAct->setObjectName("CreateBuildModAct.4");
     CreateBuildModAct->setStatusTip(tr("Create a new build modification for this step"));
@@ -544,6 +550,8 @@ void Gui::create3DMenus()
      AngleAct->setMenu(SnapAngleMenu);
 
      BuildModMenu = new QMenu(tr("Build Modification"),this);
+     BuildModMenu->addAction(CreateBuildModAct);
+     BuildModMenu->addSeparator();
      BuildModMenu->addAction(UpdateBuildModAct);
      BuildModMenu->addSeparator();
      BuildModMenu->addAction(ApplyBuildModAct);
@@ -551,7 +559,7 @@ void Gui::create3DMenus()
      BuildModMenu->addSeparator();
      BuildModMenu->addAction(LoadBuildModAct);
      BuildModMenu->addAction(DeleteBuildModAct);
-     CreateBuildModAct->setMenu(BuildModMenu);
+     CreateBuildModComboAct->setMenu(BuildModMenu);
 
      LightMenu = new QMenu(tr("Lights"), this);
      LightMenu->addAction(ApplyLightAct);
@@ -609,7 +617,7 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-     gMainWindow->GetToolsMenu()->addAction(CreateBuildModAct);
+     gMainWindow->GetToolsMenu()->addAction(CreateBuildModComboAct);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
      gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
@@ -688,7 +696,7 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-    gMainWindow->GetToolsToolBar()->addAction(CreateBuildModAct);
+    gMainWindow->GetToolsToolBar()->addAction(CreateBuildModComboAct);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
@@ -766,7 +774,7 @@ void Gui::enable3DActions(bool enable)
     if (enable)
         enableBuildModMenuAndActions();
     else
-        CreateBuildModAct->setEnabled(enable);
+        CreateBuildModComboAct->setEnabled(enable);
 
     LightGroupAct->setEnabled(enable);
     ViewpointGroupAct->setEnabled(enable);
@@ -1798,7 +1806,7 @@ void Gui::enableBuildModification()
 
 void Gui::enableBuildModActions()
 {
-    if (!CreateBuildModAct->isEnabled() || !Preferences::modeGUI || exporting())
+    if (!CreateBuildModComboAct->isEnabled() || !Preferences::modeGUI || exporting())
         return;
 
     Rc buildModStep = BuildModNoActionRc;
@@ -1856,7 +1864,7 @@ void Gui::enableBuildModActions()
 void Gui::enableBuildModMenuAndActions()
 {
     if (!curFile.isEmpty() && Preferences::buildModEnabled)
-        CreateBuildModAct->setEnabled(mBuildModRange.first() || buildModsCount());
+        CreateBuildModComboAct->setEnabled(mBuildModRange.first() || buildModsCount());
     enableBuildModification();
 }
 
@@ -3788,7 +3796,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source) {
                         mBuildModRange = { lineNumber, lineNumber, modelIndex };
                     }
                     if (!modsEnabled) {
-                        CreateBuildModAct->setEnabled(true);
+                        CreateBuildModComboAct->setEnabled(true);
                         enableBuildModification();
                         modsEnabled = true;
                     }
@@ -3829,7 +3837,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source) {
             // delete action with no selected lines
             if (source == VIEWER_DEL && Preferences::buildModEnabled) {
                 if (!modsEnabled) {
-                    CreateBuildModAct->setEnabled(true);
+                    CreateBuildModComboAct->setEnabled(true);
                     enableBuildModification();
                 }
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")

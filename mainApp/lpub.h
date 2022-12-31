@@ -1974,6 +1974,7 @@ private:
   QAction *povrayRenderAct;
 
   QAction *ApplyCameraAct;
+  QAction *CreateBuildModComboAct;
   QAction *CreateBuildModAct;
   QAction *ApplyBuildModAct;
   QAction *RemoveBuildModAct;
