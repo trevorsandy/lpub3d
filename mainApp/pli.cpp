@@ -2115,12 +2115,12 @@ int Pli::sortPli()
     //int rc = PartsFuture.result();
     int rc = partSize();
     if (rc)
-        emit gui->messageSig(LOG_ERROR, QObject::tr("There was a problem sizing parts for this PLI instance"));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("There was a problem sizing parts for this part list instance"));
 
     rc = !parts.size();
 
     if (rc) {
-        emit gui->messageSig(LOG_ERROR, QObject::tr("No valid parts were found for this PLI instance"));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("No valid parts were found for this part list instance"));
         return rc;
     }
 
