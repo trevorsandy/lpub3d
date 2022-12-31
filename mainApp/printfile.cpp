@@ -1038,7 +1038,7 @@ void Gui::exportAsPdf()
           }
 
           // render this page
-          dpFlags.printing = false;
+          dpFlags.printing = true;
           drawPage(&view,&scene,dpFlags);
           scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           scene.render(&painter);

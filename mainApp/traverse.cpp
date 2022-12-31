@@ -4718,6 +4718,9 @@ void Gui::drawPage(
   saveGroupStepNum     =  1 + sa;
   saveContStepNum      =  1 + sa;
 
+  // reset buildModActionChange
+  dpFlags.buildModActionChange = false;
+
   QString empty;
   FindPageFlags fpFlags;
   QList<SubmodelStack> modelStack;
