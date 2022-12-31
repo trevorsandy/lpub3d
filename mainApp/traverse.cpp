@@ -891,7 +891,8 @@ int Gui::drawPage(
 
           // STEP - Process callout
 
-          /* if it is a called out sub-model, then process it */
+          /* if it is a called out sub-model, then process it.
+           * Non called out sub-model are processed in findPage() */
 
           if (lpub->ldrawFile.isSubmodel(type) && callout && ! noStep && ! buildMod.ignore) {
 
@@ -955,6 +956,7 @@ int Gui::drawPage(
                       callout->meta.rotStep.clear();
                   }
                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNum);
+                  int buildModLevel = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : BM_BASE_LEVEL;
                   callout->meta.submodelStack << tos;
                   Meta saveMeta = callout->meta;
                   callout->meta.LPub.pli.constrain.resetToDefault();
@@ -982,6 +984,7 @@ int Gui::drawPage(
                               calloutBfxLineTypeIndexes,
                               1                   /*stepNum*/,
                               opts.groupStepNumber,
+                              buildModLevel,
                               opts.updateViewer,
                               lpub->ldrawFile.mirrored(tokens),
                               opts.printing,
@@ -2164,12 +2167,7 @@ int Gui::drawPage(
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               buildMod.level = getLevel(QString(), BM_END);
-              if (buildMod.level == BM_BASE_LEVEL ||
-                /*shameless hack until I figure out the level called out scenario
-                  buildMod.level == curMeta.submodelStack.size() || */
-                  buildMod.level == (opts.calledOut ? curMeta.submodelStack.size() - 1 :
-                                                      curMeta.submodelStack.size()))
-              {
+              if (buildMod.level == opts.buildModLevel) {
                   buildMod.ignore = false;
                   buildModPliIgnore = pliIgnore;
               }
@@ -3102,6 +3100,9 @@ int Gui::findPage(
                   QString type = token[token.size()-1];
                   QString colorType = token[1]+type;
 
+                  /* if it is a sub-model (or assembled/rotated callout), then process it.
+                   * Called out sub-models (except those assembled/rotated) are processed in drawPage() */
+
                   bool contains = lpub->ldrawFile.isSubmodel(type);
                   CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
@@ -3134,6 +3135,7 @@ int Gui::findPage(
                                   // add buildMod settings for this step, needed for submodels in a buildMod.
                                   FindPageFlags flags2;
                                   flags2.buildModStack << buildMod;
+                                  flags2.buildModLevel = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : BM_BASE_LEVEL;
 
                                   lpub->ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
 
@@ -3210,11 +3212,14 @@ int Gui::findPage(
                                           opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
                                           // if no parts added to last step, set partsAdded to -1 so later increment
                                           // will result in a value of 0.
-                                          if (opts.flags.parseBuildMods)
+                                          if (opts.flags.parseBuildMods) {
                                               opts.flags.partsAdded = -1;
+                                              opts.flags.buildModLevel = modelOpts.flags.buildModLevel;
+                                          }
                                       } else {
                                           // capture the final buildMod flags for this page
                                           opts.flags.buildModStack << buildMod;
+                                          opts.flags.buildModLevel = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : BM_BASE_LEVEL;
                                       }
                                   } // opts.pageDisplayed
                                   else if (meta.submodelStack.size())
@@ -3359,6 +3364,8 @@ int Gui::findPage(
                       lpub->page.meta.pop();
                       lpub->page.meta.rotStep = saveRotStep;
 
+                      opts.flags.buildModLevel = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : BM_BASE_LEVEL;
+
                       QStringList pliParts;
                       DrawPageOptions pageOptions(
                                   stepGroupCurrent,
@@ -3373,6 +3380,7 @@ int Gui::findPage(
                                   saveBfxLineTypeIndexes,
                                   saveStepNumber,
                                   opts.groupStepNumber,    // pass group step number to drawPage
+                                  opts.flags.buildModLevel,
                                   opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
@@ -3513,7 +3521,7 @@ int Gui::findPage(
                     break;
                 if (! opts.pageDisplayed) {
                     buildMod.level = getLevel(QString(), BM_END);
-                    if (buildMod.level == BM_BASE_LEVEL || buildMod.level == meta.submodelStack.size())
+                    if (buildMod.level == opts.flags.buildModLevel)
                         buildMod.ignore = false;
                 }
                 if (buildModInsert) {
@@ -3611,6 +3619,8 @@ int Gui::findPage(
                             lpub->page.meta.rotStep = saveRotStep;
                             lpub->page.meta.rotStep = meta.rotStep;
 
+                            opts.flags.buildModLevel = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : BM_BASE_LEVEL;
+
                             QStringList pliParts;
                             DrawPageOptions pageOptions(
                                         saveCurrent,
@@ -3625,6 +3635,7 @@ int Gui::findPage(
                                         saveBfxLineTypeIndexes,
                                         saveStepNumber,
                                         opts.groupStepNumber,
+                                        opts.flags.buildModLevel,
                                         opts.updateViewer,
                                         opts.isMirrored,
                                         opts.printing,
@@ -4007,6 +4018,7 @@ int Gui::findPage(
           }
           savePrevStepPosition = saveCsiParts.size();
           lpub->page.meta = saveMeta;
+          opts.flags.buildModLevel = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : BM_BASE_LEVEL;
           QStringList pliParts;
           DrawPageOptions pageOptions(
                       saveCurrent,
@@ -4021,6 +4033,7 @@ int Gui::findPage(
                       saveBfxLineTypeIndexes,
                       saveStepNumber,
                       opts.groupStepNumber,
+                      opts.flags.buildModLevel,
                       opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,

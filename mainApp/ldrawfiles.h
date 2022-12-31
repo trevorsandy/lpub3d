@@ -168,7 +168,7 @@ public:
     QString key;
 };
 
-extern int getLevel(const QString& key, int position);
+extern int getLevel(const QString& key, int position, int index = -1, int line = 0);
 
 /********************************************
  * build modification
@@ -296,10 +296,10 @@ class LDrawFile {
       _loadedParts.clear();
     }
 
-    QStringList                 _subFileOrder;
-    QStringList                 _subFileOrderNoUnoff;
-    QStringList                 _includeFileList;
-    QStringList                 _buildModList;
+    static QStringList          _subFileOrder;
+    static QStringList          _subFileOrderNoUnoff;
+    static QStringList          _includeFileList;
+    static QStringList          _buildModList;
     static QList<HiarchLevel*>  _currentLevels;
     static QList<HiarchLevel*>  _allLevels;
     static QStringList          _loadedParts;
@@ -548,8 +548,9 @@ class LDrawFile {
 
     /* Line index functions */
 
-    QString     getSubmodelName(int submodelIndx);
-    int         getSubmodelIndex(const QString &fileName);
+    static QString getSubmodelName(int submodelIndx);
+    static int     getSubmodelIndex(const QString &fileName);
+
     int         getLineTypeIndex(int submodelIndx, int relativeTypeIndx);
     int         getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx);
     int         getLineTypeRelativeIndexCount(int submodelIndx);

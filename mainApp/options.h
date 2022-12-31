@@ -217,8 +217,9 @@ public:
     bool resetIncludeRc;
     bool includeFileFound;
     int  includeFileRc;
-    int  countInstances;
     int  includeLineNum;
+    int  countInstances;
+    int  buildModLevel;
     int  partsAdded;
     int  numLines;
 
@@ -246,8 +247,9 @@ public:
           resetIncludeRc    (false),
           includeFileFound  (false),
           includeFileRc     (-1),    // EndOfIncludeFileRc
-          countInstances    (2),     // CountAtModel
           includeLineNum    (0),
+          countInstances    (2),     // CountAtModel
+          buildModLevel     (0),     // BM_BASE_LEVEL
           partsAdded        (0),
           numLines          (0)
     { }
@@ -340,6 +342,7 @@ public:
 
             int                          _stepNum,
             int                          _groupStepNumber,
+            int                          _buildModLevel,
             bool                         _updateViewer,
             bool                         _isMirrored,
             bool                         _printing,
@@ -360,6 +363,7 @@ public:
 
           stepNum                       (_stepNum),
           groupStepNumber               (_groupStepNumber),
+          buildModLevel                 (_buildModLevel),
           updateViewer                  (_updateViewer),
           isMirrored                    (_isMirrored),
           printing                      (_printing),
@@ -380,6 +384,7 @@ public:
 
     int                          stepNum;
     int                          groupStepNumber;
+    int                          buildModLevel;
     bool                         updateViewer;
     bool                         isMirrored;
     bool                         printing;

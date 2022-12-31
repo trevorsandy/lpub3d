@@ -2364,6 +2364,7 @@ int CountPageWorker::countPage(
                                       // so we do not set their step or end model as a new page
                                       flags2.callout        = opts.flags.callout;
                                       flags2.parseBuildMods = opts.flags.parseBuildMods;
+                                      flags2.buildModLevel  = buildMod.state == BM_BEGIN ? getLevel(QString(), BM_CURRENT) : opts.flags.buildModLevel;
                                   }
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
@@ -2679,7 +2680,7 @@ int CountPageWorker::countPage(
               }
               if (buildMod.state == BM_END_MOD) {
                   buildMod.level = getLevel(QString(), BM_END);
-                  if (buildMod.level == BM_BASE_LEVEL || buildMod.level == opts.modelStack.size())
+                  if (buildMod.level == opts.flags.buildModLevel)
                       buildMod.ignore = false;
               }
               buildMod.state = BM_END;

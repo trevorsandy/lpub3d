@@ -197,7 +197,9 @@ enum BuildModRc {
     BM_MULTI_STEP,                         //   9
     BM_CALLOUT_STEP,                       //  10
     BM_CHANGE,                             //  11
-    BM_DELETE                              //  12
+    BM_DELETE,                             //  12
+    BM_CURRENT,                            //  12
+
 };
 enum GridStepSize {
     GRID_SIZE_FIRST,

@@ -82,7 +82,7 @@ HiarchLevel* addLevel(const QString& key, bool create)
     return nullptr;
 }
 
-int getLevel(const QString& key, int position)
+int getLevel(const QString& key, int position, int index, int line)
 {
     if (position == BM_BEGIN) {
         // ensure key is specified
@@ -92,7 +92,7 @@ int getLevel(const QString& key, int position)
         // add level object to 'all' levels
         HiarchLevel* level = addLevel(key, true);
 
-        // if there are 'current' level objects...
+        // if there are 'currentLevel' objects...
         if (LDrawFile::_currentLevels.size())
             // set last 'current' level object as parent of this level object
             level->level = LDrawFile::_currentLevels[LDrawFile::_currentLevels.size() - 1];
@@ -106,21 +106,32 @@ int getLevel(const QString& key, int position)
     } else if (position == BM_END) {
         // if there are 'current' level objects...
         if (LDrawFile::_currentLevels.size()) {
-            // return absolute level, remove last level object from the 'current' list - reset to parent level or BM_BASE_LEVEL [0]
+            // return absolute level, remove last level object from 'currentLevels' - reset to parent level or BM_BASE_LEVEL [0]
             LDrawFile::_currentLevels.removeAt(LDrawFile::_currentLevels.size() - 1);
 /*
 #ifdef QT_DEBUG_MODE
-            if (!key.isEmpty())
-                emit gui->messageSig(LOG_DEBUG, QString("BUILD_MOD - GetLevel: Key '%1', Absolute level [%2]")
-                                     .arg(key).arg(LDrawFile::_currentLevels.size()));
-            else
-                emit gui->messageSig(LOG_DEBUG, QString("BUILD_MOD - GetLevel absolute level [%1]")
-                                     .arg(LDrawFile::_currentLevels.size()));
+            const QString message = QString("BUILD_MOD - Get absolute level [%1] from 'currentLevels'%2")
+                                            .arg(LDrawFile::_currentLevels.size()).arg(!key.isEmpty() ? QString(" - Key: %1").arg(key) : "");
+
+            emit gui->messageSig(LOG_DEBUG, message);
 #endif
 //*/
         }
     }
 
+//*
+#ifdef QT_DEBUG_MODE
+    if (position == BM_CURRENT) {
+        const QString message = QString("DEBUG: Build Modification - Get absolute level [%1] from 'currentLevels'%2%3")
+                                        .arg(LDrawFile::_currentLevels.size())
+                                        .arg(index > 0 ? QString(" - ModelName: %1").arg(LDrawFile::getSubmodelName(index)) : "")
+                                        .arg(line ? QString(", LineNumber: %1").arg(line) : "");
+        qDebug() << qPrintable(message);
+    }
+#endif
+//*/
+
+    // return the absolute level from the 'current' list
     return LDrawFile::_currentLevels.size();
 }
 
@@ -128,6 +139,10 @@ int getLevel(const QString& key, int position)
  *
  ********************************************/
 
+QStringList LDrawFile::_subFileOrder;
+QStringList LDrawFile::_subFileOrderNoUnoff;
+QStringList LDrawFile::_includeFileList;
+QStringList LDrawFile::_buildModList;
 QStringList LDrawFile::_loadedParts;
 QString LDrawFile::_file           = "";
 QString LDrawFile::_name           = "";
