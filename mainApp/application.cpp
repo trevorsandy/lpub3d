@@ -696,7 +696,7 @@ int Application::initialize()
             }
 
             if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log"))
-                Preferences::setStdOutToLogPreference(true);
+                Preferences::setSuppressFPrintPreference(true);
             else
             // Version output
             if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
@@ -923,7 +923,7 @@ int Application::initialize()
 
         // Create log destinations
         DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
-                                         Preferences::logPath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
+                                         Preferences::logFilePath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
         DestinationPtr debugDestination(DestinationFactory::MakeDebugOutputDestination());
 
         // set log destinations on the logger
@@ -965,6 +965,7 @@ int Application::initialize()
     logInfo() << hdr;
     logInfo() << "=============================";
     logInfo() << tr("Arguments....................(%1)").arg(args);
+#ifndef Q_OS_WIN
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MAC           // for macOS
     logInfo() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
@@ -992,14 +993,14 @@ int Application::initialize()
         logInfo() << QString(QString("ERROR - Application Folder Not Found."));
     }
 #endif
+#endif // NOT Q_OS_WIN
     // applications paths:
     logInfo() << tr("LPub3D App Data Path.........(%1)").arg(Preferences::lpubDataPath);
 #ifdef Q_OS_MAC
     logInfo() << QString(QString("LPub3D Bundle App Path.......(%1)").arg(Preferences::lpub3dPath));
 #else // Q_OS_LINUX and Q_OS_WIN
-    QString logPath = QString("%1/logs/%2Log.txt").arg(Preferences::lpubDataPath).arg(VER_PRODUCTNAME_STR);
     logInfo() << tr("LPub3D Executable Path.......(%1)").arg(Preferences::lpub3dPath);
-    logInfo() << tr("LPub3D Log Path..............(%1)").arg(logPath);
+    logInfo() << tr("LPub3D Log File Path.........(%1)").arg(Preferences::logFilePath);
 #endif
 #ifdef Q_OS_WIN
     QSettings Settings;
@@ -1225,7 +1226,6 @@ void Application::mainApp()
 int Application::run()
 {
     int ExecReturn = EXIT_FAILURE;
-
     try
     {
       mainApp();
@@ -1248,7 +1248,7 @@ int Application::run()
       emit lpub->messageSig(LOG_ERROR, tr("Run: An unhandled exception has been thrown."));
     }
 
-    emit lpub->messageSig(LOG_INFO, tr("Run: Application terminated with return code %1.").arg(ExecReturn));
+    emit lpub->messageSig(LOG_INFO, QString("Run: Application terminated with return code %1.").arg(ExecReturn));
 
     if (!m_print_output)
     {

@@ -1321,6 +1321,9 @@ public slots:
   void openDropFile(QString &fileName);
   void enableApplyLightAction();
 
+  static void fprintMessage(const QString &message, bool stdError = false, bool logging = false);
+  static bool setMessageLogging(bool setLogLevel = true);
+
   /* Fade color processing */
   static QString createColourEntry(
     const QString &colourCode,

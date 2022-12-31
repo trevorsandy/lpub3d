@@ -124,7 +124,7 @@ class Preferences
     static void setSceneRulerTrackingPreference(int);
     static void setShowSaveOnRedrawPreference(bool);
     static void setShowSaveOnUpdatePreference(bool);
-    static void setStdOutToLogPreference(bool);
+    static void setSuppressFPrintPreference(bool);
 
     static void setCustomSceneBackgroundColorPreference(bool = true);
     static void setCustomSceneGridColorPreference(bool = true);
@@ -197,7 +197,7 @@ class Preferences
     static QString ldrawiniFile;
     static QString ldgliteSearchDirs;
     static QString moduleVersion;
-    static QString logPath;
+    static QString logFilePath;
     static QString loggingLevel;
     static QString availableVersions;
     static QString povrayConf;
@@ -367,7 +367,7 @@ class Preferences
     static bool    showAnnotationErrors;
     static bool    showSaveOnRedraw;
     static bool    showSaveOnUpdate;
-    static bool    suppressStdOutToLog;
+    static bool    suppressFPrint;
     static bool    archivePartsOnLaunch;
     static bool    inlineNativeContent;
     static bool    autoUpdateChangeLog;

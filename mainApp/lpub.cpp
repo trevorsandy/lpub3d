@@ -2869,12 +2869,12 @@ void Gui::viewLog()
     if (Preferences::useSystemEditor) {
 #ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl("file:///"+Preferences::logPath, QUrl::TolerantMode));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::logFilePath, QUrl::TolerantMode));
         else
 #endif
-            openWith(Preferences::logPath);
+            openWith(Preferences::logFilePath);
     } else {
-        displayParmsFile(Preferences::logPath);
+        displayParmsFile(Preferences::logFilePath);
         parmsWindow->setWindowTitle(tr(VER_PRODUCTNAME_STR " log",VER_PRODUCTNAME_STR " logs"));
         parmsWindow->show();
     }
@@ -7178,6 +7178,71 @@ void Gui::showLine(const Where &here, int type)
   }
 }
 
+void Gui::fprintMessage(const QString &message, bool stdError, bool logging)
+{
+    const QString printMessage = QString(message).replace("<br>"," ").append("\n");
+    if (!logging) {
+        FILE *fp;
+        fp = fopen(qPrintable(Preferences::logFilePath), "a");  //open file in append mode.
+        fprintf(fp,"%s", qPrintable(printMessage));
+        fclose(fp);                                             //close file.
+    }
+    fprintf(stdError ? stderr : stdout,"%s", qPrintable(printMessage));
+    fflush(stdError ? stderr : stdout);
+}
+
+bool Gui::setMessageLogging(bool setLogLevel)
+{
+    bool loggingEnabled = Preferences::logging;
+    using namespace QsLogging;
+    Logger &logger = Logger::instance();
+
+    if (loggingEnabled) {
+        if (setLogLevel) {
+            // Set logging Level
+            Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&loggingEnabled);
+            QString logMessage;
+            if (!loggingEnabled)
+                logMessage = QObject::tr("Failed to set log level %1.\nLogging is off - level is OffLevel\n").arg(Preferences::loggingLevel);
+            else if (logLevel == OffLevel)
+                logMessage = QObject::tr("Logging is off - level set to %1\n").arg(Preferences::loggingLevel);
+            if (!logMessage.isEmpty()) {
+                logger.setLoggingLevel(OffLevel);
+                fprintMessage(logMessage, true/*standard error*/, true/*logging*/);
+                return false;
+            }
+            logger.setLoggingLevel(logLevel);
+            logger.setIncludeLogLevel(Preferences::includeLogLevel);
+            logger.setIncludeTimestamp(Preferences::includeTimestamp);
+            logger.setIncludeLineNumber(false);
+            logger.setIncludeTimestamp(true);
+            logger.setIncludeFileName(false);
+            logger.setColorizeFunctionInfo(false);
+            logger.setIncludeFunctionInfo(false);
+        } else {
+            if (Preferences::logLevels) {
+                logger.setLoggingLevels();
+                logger.setDebugLevel(Preferences::debugLevel);
+                logger.setTraceLevel(Preferences::traceLevel);
+                logger.setNoticeLevel(Preferences::noticeLevel);
+                logger.setInfoLevel(Preferences::infoLevel);
+                logger.setStatusLevel(Preferences::statusLevel);
+                logger.setWarningLevel(Preferences::warningLevel);
+                logger.setErrorLevel(Preferences::errorLevel);
+                logger.setFatalLevel(Preferences::fatalLevel);
+            }
+            logger.setIncludeLineNumber(Preferences::includeLineNumber);
+            logger.setIncludeFileName(Preferences::includeFileName);
+            logger.setIncludeFunctionInfo(Preferences::includeFunction);
+            logger.setColorizeFunctionInfo(true);
+        }
+    } else {
+        logger.setLoggingLevel(OffLevel);
+        return false;
+    }
+    return true;
+}
+
 void Gui::parseError(const QString &message,
         const Where &here,
         Preferences::MsgKey msgKey,
@@ -7237,18 +7302,28 @@ void Gui::parseError(const QString &message,
     if (!abortProcess && !abortInProgress)
         parsedMessages.append(here);
 
+    // Set Logging settings
+    bool loggingEnabled = Gui::setMessageLogging();
+
+    if (!Preferences::suppressFPrint)
+        Gui::fprintMessage(parseMessage, icon > static_cast<int>(QMessageBox::Icon::Warning) ? true : false/*stdError*/, loggingEnabled);
+
     switch (icon) {
     case static_cast<int>(QMessageBox::Icon::Information):
-        logInfo() << qPrintable(parseMessage.replace("<br>"," "));
+        if (loggingEnabled)
+            logInfo() << qPrintable(parseMessage.replace("<br>"," "));
         break;
     case static_cast<int>(QMessageBox::Icon::Warning):
-        logWarning() << qPrintable(parseMessage.replace("<br>"," "));
+        if (loggingEnabled)
+            logWarning() << qPrintable(parseMessage.replace("<br>"," "));
         break;
     case static_cast<int>(QMessageBox::Icon::Question):
-        logNotice() << qPrintable(parseMessage.replace("<br>"," "));
+        if (loggingEnabled)
+            logNotice() << qPrintable(parseMessage.replace("<br>"," "));
         break;
     case static_cast<int>(QMessageBox::Icon::Critical):
-        logError() << qPrintable(parseMessage.replace("<br>"," "));
+        if (loggingEnabled)
+            logError() << qPrintable(parseMessage.replace("<br>"," "));
         if (abortProcess) {
             displayPageNum = prevDisplayPageNum;
             if (exporting()) {             // exporting
@@ -7271,7 +7346,8 @@ void Gui::parseError(const QString &message,
         }
         break;
     case static_cast<int>(LOG_FATAL):
-        logError() << qPrintable(parseMessage.replace("<br>"," "));
+        if (loggingEnabled)
+            logError() << qPrintable(parseMessage.replace("<br>"," "));
         Gui::setAbortProcess(true);
         emit setExportingSig(false);
         emit setContinuousPageSig(false);
@@ -7281,6 +7357,9 @@ void Gui::parseError(const QString &message,
             emit restartApplicationSig(false,false);
         }
     }
+
+    // Reset Logging to default settings
+    Gui::setMessageLogging(false);
 }
 
 void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgBox/*false*/) {
@@ -7302,194 +7381,138 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
 
     bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
 
-    auto fprintMessage = [&] (const QString &message, bool stdError = false)
-    {
-        fprintf(stdError ? stderr : stdout,"%s", qPrintable(QString(message).replace("<br>"," ").append("\n")));
-        fflush(stdError ? stderr : stdout);
-    };
+    bool loggingEnabled = setMessageLogging();
 
-    // Set StatusMessage Logging options
-    using namespace QsLogging;
-    Logger& logger = Logger::instance();
-    if (Preferences::logging) {
+    if (!Preferences::suppressFPrint)
+        Gui::fprintMessage(message, logType > LOG_WARNING ? true : false/*stdError*/, loggingEnabled);
 
-        // Set logging Level
-        bool ok;
-        Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
-        if (!ok)
-        {
-            message = tr("Failed to set log level %1.\n"
-                         "Logging is off - level set to OffLevel\n")
-                         .arg(Preferences::loggingLevel);
-            fprintMessage(message, true/*standard error*/);
-            return;
-        }
-        logger.setLoggingLevel(logLevel);
-        logger.setIncludeLogLevel(Preferences::includeLogLevel);
-        logger.setIncludeTimestamp(Preferences::includeTimestamp);
-        logger.setIncludeLineNumber(false);
-        logger.setIncludeTimestamp(true);
-        logger.setIncludeFileName(false);
-        logger.setColorizeFunctionInfo(false);
-        logger.setIncludeFunctionInfo(false);
+    if (logType == LOG_INFO_STATUS) {
 
-        if (logType == LOG_INFO_STATUS) {
-
+        if (loggingEnabled)
             logInfo() << qPrintable(message.replace("<br>"," "));
 
-            if (guiEnabled) {
-                statusBarMsg(message);
-                if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
-                    QMessageBox::information(this,tr("%1 Info Status").arg(VER_PRODUCTNAME_STR),message);
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
-            }
-        } else
-         if (logType == LOG_STATUS ){
+        if (guiEnabled) {
+            statusBarMsg(message);
+            if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
+                QMessageBox::information(this,tr("%1 Info Status").arg(VER_PRODUCTNAME_STR),message);
+        }
+    } else
+    if (logType == LOG_STATUS ){
 
+         if (loggingEnabled)
              logStatus() << qPrintable(message.replace("<br>"," "));
 
-             if (guiEnabled) {
-                 statusBarMsg(message);
-                 if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
-                     QMessageBox::information(this,tr("%1 Status").arg(VER_PRODUCTNAME_STR),message);
-             } else if (!Preferences::suppressStdOutToLog) {
-                 fprintMessage(message);
-             }
+         if (guiEnabled) {
+             statusBarMsg(message);
+             if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
+                 QMessageBox::information(this,tr("%1 Status").arg(VER_PRODUCTNAME_STR),message);
+         }
+    } else
+    if (logType == LOG_INFO) {
 
-        } else
-        if (logType == LOG_INFO) {
-
+        if (loggingEnabled)
             logInfo() << qPrintable(message.replace("<br>"," "));
 
-            if (guiEnabled && msgBox) {
-                if (ContinuousPage() || exporting()) {
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("INFO: "));
-                } else if (!abortInProgress) {
-                    QMessageBox::information(this,tr("%1 Information").arg(VER_PRODUCTNAME_STR),message);
-                }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
+        if (guiEnabled && msgBox) {
+            if (ContinuousPage() || exporting()) {
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("INFO: "));
+            } else if (!abortInProgress) {
+                QMessageBox::information(this,tr("%1 Information").arg(VER_PRODUCTNAME_STR),message);
             }
-        } else
-        if (logType == LOG_NOTICE) {
+        }
+    } else
+    if (logType == LOG_NOTICE) {
 
+        if (loggingEnabled)
             logNotice() << qPrintable(message.replace("<br>"," "));
 
-            if (guiEnabled && msgBox) {
-                if (ContinuousPage() || exporting()) {
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("NOTICE: "));
-                } else if (!abortInProgress) {
-                    QMessageBox::information(this,tr("%1 Notice").arg(VER_PRODUCTNAME_STR),message);
-                }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
+        if (guiEnabled && msgBox) {
+            if (ContinuousPage() || exporting()) {
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("NOTICE: "));
+            } else if (!abortInProgress) {
+                QMessageBox::information(this,tr("%1 Notice").arg(VER_PRODUCTNAME_STR),message);
             }
-        } else
-        if (logType == LOG_TRACE) {
+        }
+    } else
+    if (logType == LOG_TRACE) {
 
+        if (loggingEnabled)
             logTrace() << qPrintable(message.replace("<br>"," "));
 
-            if (guiEnabled && msgBox) {
-                if (ContinuousPage() || exporting()) {
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("TRACE: "));
-                } else if (!abortInProgress) {
-                    QMessageBox::information(this,tr("%1 Trace").arg(VER_PRODUCTNAME_STR),message);
-                }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
+        if (guiEnabled && msgBox) {
+            if (ContinuousPage() || exporting()) {
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("TRACE: "));
+            } else if (!abortInProgress) {
+                QMessageBox::information(this,tr("%1 Trace").arg(VER_PRODUCTNAME_STR),message);
             }
-        } else
-        if (logType == LOG_DEBUG) {
+        }
+    } else
+    if (logType == LOG_DEBUG) {
+
+        if (loggingEnabled)
             logDebug() << qPrintable(message.replace("<br>"," "));
 
-            if (guiEnabled && msgBox) {
-                if (ContinuousPage() || exporting()) {
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("DEBUG: "));
-                } else if (!abortInProgress) {
-                    QMessageBox::information(this,tr("%1 Debug").arg(VER_PRODUCTNAME_STR),message);
-                }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
+        if (guiEnabled && msgBox) {
+            if (ContinuousPage() || exporting()) {
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("DEBUG: "));
+            } else if (!abortInProgress) {
+                QMessageBox::information(this,tr("%1 Debug").arg(VER_PRODUCTNAME_STR),message);
             }
-        } else
-        if (logType == LOG_WARNING) {
+        }
+    } else
+    if (logType == LOG_WARNING) {
 
+        if (loggingEnabled)
             logError() << qPrintable(QString(message).replace("<br>"," "));
 
-            if (guiEnabled) {
-                if (ContinuousPage() || exporting()) {
-                    Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
-                } else if (((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) && !abortInProgress) {
-                    QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
-                }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
+        if (guiEnabled) {
+            if (ContinuousPage() || exporting()) {
+                Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
+            } else if (((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) && !abortInProgress) {
+                QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
             }
-        } else
-        if (logType == LOG_ERROR) {
+        }
+    } else
+    if (logType == LOG_ERROR) {
 
+        if (loggingEnabled)
             logError() << qPrintable(QString(message).replace("<br>"," "));
-            
-            if (guiEnabled) {
-                if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
-                    Gui::messageList << QString("<FONT COLOR='#FF0000'>ERROR</FONT>: %1<br>").arg(message);
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
-                } else if (!abortInProgress) {
-                    Gui::setAbortProcess(true);
-                    if (pageProcessRunning == PROC_NONE) {
-                        QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,QMessageBox::Ok,QMessageBox::Ok);
-                    } else {
-                        abortProcess = QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,
-                                                             QMessageBox::Abort | QMessageBox::Ignore,QMessageBox::Ignore) == QMessageBox::Abort;
-                        Gui::setAbortProcess(abortProcess);
-                    }
+
+        if (guiEnabled) {
+            if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
+                Gui::messageList << QString("<FONT COLOR='#FF0000'>ERROR</FONT>: %1<br>").arg(message);
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
+            } else if (!abortInProgress) {
+                Gui::setAbortProcess(true);
+                if (pageProcessRunning == PROC_NONE) {
+                    QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,QMessageBox::Ok,QMessageBox::Ok);
+                } else {
+                    abortProcess = QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,
+                                                         QMessageBox::Abort | QMessageBox::Ignore,QMessageBox::Ignore) == QMessageBox::Abort;
+                    Gui::setAbortProcess(abortProcess);
                 }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
             }
-        } else
-        if (logType == LOG_FATAL) {
+        }
+    } else
+    if (logType == LOG_FATAL) {
 
-            message.append(tr("<br>- %1 will terminate.").arg(VER_PRODUCTNAME_STR));
+        message.append(tr("<br>- %1 will terminate.").arg(VER_PRODUCTNAME_STR));
 
+        if (loggingEnabled)
             logFatal() << qPrintable(QString(message).replace("<br>"," "));
 
-            if (guiEnabled) {
-                if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
-                    Gui::messageList << QString("<FONT COLOR='#FF0000'>FATAL</FONT>: %1<br>").arg(message);
-                    statusBarMsg(QString(message).replace("<br>"," ").prepend("FATAL: "));
-                } else {
-                    QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message);
-                }
-            } else if (!Preferences::suppressStdOutToLog) {
-                fprintMessage(message);
+        if (guiEnabled) {
+            if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
+                Gui::messageList << QString("<FONT COLOR='#FF0000'>FATAL</FONT>: %1<br>").arg(message);
+                statusBarMsg(QString(message).replace("<br>"," ").prepend("FATAL: "));
+            } else {
+                QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message);
             }
         }
-
-        // Reset Logging to default settings
-        if (Preferences::logLevels){
-
-            logger.setLoggingLevels();
-            logger.setDebugLevel(Preferences::debugLevel);
-            logger.setTraceLevel(Preferences::traceLevel);
-            logger.setNoticeLevel(Preferences::noticeLevel);
-            logger.setInfoLevel(Preferences::infoLevel);
-            logger.setStatusLevel(Preferences::statusLevel);
-            logger.setWarningLevel(Preferences::warningLevel);
-            logger.setErrorLevel(Preferences::errorLevel);
-            logger.setFatalLevel(Preferences::fatalLevel);
-        }
-
-        logger.setIncludeLineNumber(Preferences::includeLineNumber);
-        logger.setIncludeFileName(Preferences::includeFileName);
-        logger.setIncludeFunctionInfo(Preferences::includeFunction);
-        logger.setColorizeFunctionInfo(true);
-
-    } else {
-        logger.setLoggingLevel(OffLevel);
     }
+
+    setMessageLogging(false);
 
     if (logType == LOG_ERROR && abortProcess) {
         displayPageNum = prevDisplayPageNum;

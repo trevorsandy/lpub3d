@@ -319,7 +319,7 @@ QString Preferences::moduleVersion              = qApp->applicationVersion();
 QString Preferences::availableVersions;
 QString Preferences::ldgliteSearchDirs;
 QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
-QString Preferences::logPath;
+QString Preferences::logFilePath;
 QString Preferences::dataLocation;
 QString Preferences::systemEditor;
 QString Preferences::currentLibrarySave         = EMPTY_STRING_DEFAULT;
@@ -507,7 +507,7 @@ bool    Preferences::snapToGrid                 = false;
 bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
-bool    Preferences::suppressStdOutToLog        = false;
+bool    Preferences::suppressFPrint             = false;
 bool    Preferences::archivePartsOnLaunch       = false;
 bool    Preferences::highlightFirstStep         = false;
 
@@ -603,9 +603,9 @@ Preferences::Preferences()
 {
 }
 
-void Preferences::setStdOutToLogPreference(bool option)
+void Preferences::setSuppressFPrintPreference(bool option)
 {
-    suppressStdOutToLog = option;
+    suppressFPrint = option;
 }
 
 bool Preferences::checkLDrawLibrary(const QString &libPath) {
@@ -1306,7 +1306,7 @@ void Preferences::loggingPreferences()
     QDir logDir(lpubDataPath+"/logs");
     if(!QDir(logDir).exists())
         logDir.mkpath(".");
-    logPath = QDir(logDir).filePath(QString("%1Log.txt").arg(VER_PRODUCTNAME_STR));
+    logFilePath = QDir(logDir).filePath(QString("%1Log.txt").arg(VER_PRODUCTNAME_STR));
 
     QSettings Settings;
     if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"))) {

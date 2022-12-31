@@ -421,7 +421,7 @@ void PreferencesDialog::setPreferences()
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
   ui.logPathEdit->setEnabled(                    Preferences::logging);
-  ui.logPathEdit->setText(                       Preferences::logPath);
+  ui.logPathEdit->setText(                       Preferences::logFilePath);
 
   ui.includeLogLevelBox->setChecked(             Preferences::includeLogLevel);
   ui.includeTimestampBox->setChecked(            Preferences::includeTimestamp);
