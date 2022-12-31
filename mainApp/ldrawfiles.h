@@ -52,6 +52,7 @@ class LDrawSubFile {
     QStringList  _contents;
     QStringList  _smiContents;
     QString      _subFilePath;
+    QString      _description;
     bool         _modified;
     QDateTime    _datetime;
     QStringList  _renderedKeys;
@@ -82,7 +83,8 @@ class LDrawSubFile {
             int                unofficialPart,
             bool               generated = false,
             bool               includeFile = false,
-            const QString     &subFilePath = QString());
+            const QString     &subFilePath = QString(),
+            const QString     &description = QString());
     ~LDrawSubFile()
     {
       _contents.clear();
@@ -311,11 +313,10 @@ class LDrawFile {
     static QList<HiarchLevel*>  _allLevels;
     static QStringList          _loadedParts;
     static QString              _file;
+    static QString              _description;
     static QString              _name;
     static QString              _author;
-    static QString              _description;
     static QString              _category;
-    static QString              _partDescription;
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
     static int                  _uniquePartCount;
@@ -351,7 +352,8 @@ class LDrawFile {
                       int            unofficialPart,
                       bool           generated = false,
                       bool           includeFile = false,
-                      const QString &subFilePath = QString());
+                      const QString &subFilePath = QString(),
+                      const QString &description = QString());
 
     int  size(const QString &fileName);
     void empty();
@@ -397,9 +399,8 @@ class LDrawFile {
                               int      position, 
                               int      charsRemoved, 
                         const QString &charsAdded);
-
     // Only used to insert fade or highlight content
-    void insertConfiguredSubFile (const QString &fileName,
+    void insertConfiguredSubFile (const QString &mcFileName,
                                         QStringList &contents,
                                   const QString &subFilePath = QString());
     // Only used to read fade or highlight content
@@ -409,6 +410,7 @@ class LDrawFile {
 
     bool isMpd();
     QString topLevelFile();
+    QString description(const QString &mcFileName);
     int isUnofficialPart(const QString &name);
     bool isIncludeFile(const QString &fileName);
     int numSteps(const QString &fileName);

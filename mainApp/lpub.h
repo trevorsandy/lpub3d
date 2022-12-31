@@ -653,7 +653,14 @@ public:
   void insertGeneratedModel(const QString &name,
                                   QStringList &csiParts) {
     QDateTime date;
-    lpub->ldrawFile.insert(name,csiParts,date,false,true);
+    lpub->ldrawFile.insert(name,
+                           csiParts,
+                           date,
+                           UNOFFICIAL_SUBMODEL,
+                           true  /*generated*/,
+                           false /*includeFile*/,
+                           QString(),
+                           QFileInfo(name).completeBaseName());
     writeToTmp();
   }
 

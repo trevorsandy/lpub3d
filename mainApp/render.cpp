@@ -255,7 +255,7 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
 int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int imageType, bool displayOnly) {
 
     QStringList tokens;
-    QString baseName = QFileInfo(_modelName).completeBaseName()/*.toLower()*/;
+    QString baseName = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
     bool isMPD       = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
@@ -288,10 +288,10 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
         }
     }
 
-    // special case where the modelName will match the line type name so we append '_smi' to the modelName
+    // special case where the modelName will match the line type name so we append '-Smi' to the modelName
     if (imageType == Options::SMI) {
          QString smi(SUBMODEL_IMAGE_BASENAME);
-         baseName = baseName.append(QString("-%1").arg(smi.replace(smi.indexOf(smi.at(0)),1,smi.at(0).toUpper())));
+         baseName = baseName.append(QString("-%1").arg(smi.toUpper()));
     }
 
     // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround Visual Editor abend
@@ -320,12 +320,12 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
     return isMPD;
 }
 
-bool Render::useLDViewSCall(){
+bool Render::useLDViewSCall() {
     return (Preferences::preferredRenderer == RENDERER_LDVIEW &&
             Preferences::enableLDViewSingleCall);
 }
 
-bool Render::useLDViewSList(){
+bool Render::useLDViewSList() {
     return (Preferences::preferredRenderer == RENDERER_LDVIEW &&
             Preferences::enableLDViewSnaphsotList);
 }

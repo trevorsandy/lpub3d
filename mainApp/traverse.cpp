@@ -2665,7 +2665,7 @@ int Gui::drawPage(
 
                                       showLine(topOfStep);
 
-                                      const QString modelFileName = QString("%1/%2/smi.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir);
+                                      const QString modelFileName = QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(SUBMODEL_IMAGE_BASENAME);
 
                                       if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0)
                                           emit gui->messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(modelFileName));
@@ -5159,7 +5159,14 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 
         disableWatcher();
         QDateTime datetime = fileInfo.lastModified();
-        lpub->ldrawFile.insert(fileName,contents,datetime,UNOFFICIAL_OTHER/*unofficial*/,true/*generated*/,true/*includeFile*/,fileInfo.absoluteFilePath());
+        lpub->ldrawFile.insert(fileName,
+                               contents,
+                               datetime,
+                               UNOFFICIAL_OTHER,
+                               true/*generated*/,
+                               true/*includeFile*/,
+                               fileInfo.absoluteFilePath(),
+                               QFileInfo(fileName).completeBaseName());
 
         int comboIndex = mpdCombo->count() - 1;
         if (lpub->ldrawFile.includeFileList().size() == 1) {

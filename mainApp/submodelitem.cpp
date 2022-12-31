@@ -138,7 +138,6 @@ void SubModel::setSubModel(
   QString &_file,
   Meta    &_meta)
 {
-  QString color = "0";
   subModelMeta  = _meta.LPub.subModel;
 
   // setup Visual Editor entry
@@ -166,10 +165,10 @@ void SubModel::setSubModel(
                         .arg(fileInfo.completeBaseName())
                         .arg(SUBMODEL_IMAGE_BASENAME)
                         .arg(Preferences::preferredRenderer)
-                        .arg(color);
+                        .arg(LDRAW_MAIN_MATERIAL_COLOUR);
 
   if ( ! parts.contains(key)) {
-      SubModelPart *part = new SubModelPart(type,color);
+      SubModelPart *part = new SubModelPart(type,LDRAW_MAIN_MATERIAL_COLOUR);
       part->description  = Pli::titleDescription(type);
       part->instanceMeta = subModelMeta.instance;
       part->csiMargin    = subModelMeta.part.margin;
@@ -341,7 +340,6 @@ int SubModel::createSubModelImage(
                                    .arg(SUBMODEL_IMAGE_BASENAME));
 #endif
 
-
   QElapsedTimer timer;
 
   // Generate the Visual Editor Submodel entry - this must come before 'Generate and renderer Submodel file'
@@ -428,6 +426,22 @@ int SubModel::createSubModelImage(
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
           lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMI);
+      } // addViewerStepContent || ! submodel.exists() || imageOutOfDate
+
+      // Update smi file
+      if (!rc) {
+        QFuture<int> RenderFuture = QtConcurrent::run([this, &ldrNames, &type, &color, noCA] () {
+            int frc = 0;
+            // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
+            if (! rotateModel(ldrNames.first(),type,color,noCA)) {
+                emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.")
+                                     .arg(ldrNames.first()));
+                return frc = 1;
+            }
+            return frc;
+        });
+
+        rc = RenderFuture.result();
       }
 
       // set viewer display options
@@ -473,27 +487,12 @@ int SubModel::createSubModelImage(
                            QString("Generate Visual Editor submodel options entry took %1 milliseconds.")
                                    .arg(timer.elapsed()));
 #endif
-  }
+  } // !Gui::exportingObjects() || nativeRenderer
 
   // Generate and renderer Submodel file
   if (!rc && (! submodel.exists() || imageOutOfDate)) {
 
       timer.start();
-
-      QFuture<int> RenderFuture = QtConcurrent::run([this, &ldrNames, &type, &color, noCA] () {
-          int frc = 0;
-
-          // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
-          if (! rotateModel(ldrNames.first(),type,color,noCA)) {
-              emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.")
-                                   .arg(ldrNames.first()));
-              return frc = 1;
-          }
-
-          return frc;
-      });
-
-      rc = RenderFuture.result();
 
       if ( ! viewerSubmodel) {
           // feed DAT to renderer
@@ -555,10 +554,6 @@ int SubModel::generateSubModelItem()
     part = parts[key];
 
     if (lpub->ldrawFile.isSubmodel(part->type)) {
-
-        if (part->color == "16") {
-            part->color = "0";
-        }
 
         // Create Image
         QPixmap *pixmap = new QPixmap();
@@ -1382,12 +1377,16 @@ void SMGraphicsPixmapItem::previewSubModel(bool preferDockedPreview)
         gui->RaisePreviewDockWindow();
     }
 
-    QString submodelName = part->type;
-    Preferences.mPreviewLoadPath = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir);
-    if (Preferences::buildModEnabled)
-        submodelName = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
+    QString ldrPath = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir);
+    QString type    = part->type;
+    QString color   = part->color;
 
-    gui->PreviewPiece(submodelName, part->color.toInt(), dockable, QRect(), position);
+    Preferences.mPreviewLoadPath = ldrPath;
+
+    if (Preferences::buildModEnabled)
+        type = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
+
+    gui->PreviewPiece(type, color.toInt(), dockable, QRect(), position);
 }
 
 void SMGraphicsPixmapItem::contextMenuEvent(

@@ -55,12 +55,18 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 		}
 		QString PartLabel;
 		if (HasMaterialColor && !mPreview->GetDescription().isEmpty())
+		{
 			PartLabel = mPreview->GetDescription();
+			if (PartLabel.endsWith("-smi",Qt::CaseInsensitive))
+				PartLabel.chop(4);
+		}
 		else
+		{
 			PartLabel = QString("%1 (%2)%3")
 								.arg(mPreview->GetDescription())
 								.arg(QFileInfo(PartType).completeBaseName().toUpper())
 								.arg(Color ? QString(", %1 (%2)").arg(ColorName).arg(ColorCode) : QString());
+		}
 		mLabel->setText(PartLabel);
 		mLabel->setToolTip(PartLabel);
 /*** LPub3D Mod end ***/
@@ -128,15 +134,25 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 
 	if (Info)
 	{
-		for (lcPiece* ModelPiece : mModel->GetPieces())
+/*** LPub3D Mod - preview widget for LPub3D (submodel check) ***/
+		if (mIsModel)
 		{
-			if (Info == ModelPiece->mPieceInfo)
+			if (mDescription == Info->m_strDescription)
+				return true;
+		}
+		else
+		{
+			for (lcPiece* ModelPiece : mModel->GetPieces())
 			{
-				int ModelColorCode = ModelPiece->GetColorCode();
-				if (ModelColorCode == ColorCode)
-					return true;
+				if (Info == ModelPiece->mPieceInfo)
+				{
+					int ModelColorCode = ModelPiece->GetColorCode();
+					if (ModelColorCode == ColorCode)
+						return true;
+				}
 			}
 		}
+/*** LPub3D Mod end ***/
 
 		mIsModel = Info->IsModel();
 		mDescription = Info->m_strDescription;
@@ -153,7 +169,7 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 	}
 	else
 	{
-/*** LPub3D Mod - preview widget for LPub3D ***/
+/*** LPub3D Mod - preview widget for LPub3D (load submodel file) ***/
 		lcPreferences& Preferences = lcGetPreferences();
 		QString Path = Preferences.mPreviewLoadPath;
 		if (Path.isEmpty())

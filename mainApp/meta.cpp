@@ -5575,7 +5575,7 @@ PageMeta::PageMeta() : BranchMeta()
   modelDesc.placement.setValue(BottomLeftOutside,PagePartsType);
   modelDesc.type = PageModelDescType;
   modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  modelDesc.setValue(LDrawFile::_description);
+  modelDesc.setValue(Preferences::publishDescription);
 
   //publisher description text
   publishDesc.placement.setValue(BottomLeftOutside,PageModelDescType);

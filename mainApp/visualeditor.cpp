@@ -1094,6 +1094,30 @@ void Gui::PreviewPiece(const QString &partType, int colorCode, bool dockable, QR
     QMessageBox::warning(this, tr("Warning"), tr("Part preview for '%1' failed.").arg(partType));
 }
 
+bool Gui::PreviewPiece(const QString &type, int colorCode)
+{
+    // Set preview project path
+    lcPreferences& Preferences = lcGetPreferences();
+    Preferences.mPreviewLoadPath = QFileInfo(type).absolutePath();
+
+    // Load preview
+    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
+        gMainWindow->PreviewPiece(QFileInfo(type).fileName(), colorCode, false/*UNUSED*/);
+        gui->previewDockWindow->raise();
+    }
+    // Or load visual editor if preview is floating
+    else {
+        // Create empty project
+        Project* NewProject = new Project();
+        gApplication->SetProject(NewProject);
+        UpdateAllViews();
+
+        if (!gMainWindow->OpenProject(type))
+            return false;
+    }
+    return true;
+}
+
 void Gui::updatePreview()
 {
     if (previewDockWindow) {
@@ -2531,27 +2555,6 @@ void Gui::ReloadVisualEditor(){
      if (gMainWindow)
          return gMainWindow->GetShadingMenu();
      return nullptr;
- }
-
- bool Gui::PreviewPiece(const QString &type, int colorCode)
- {
-     // Set preview project path
-     lcPreferences& Preferences = lcGetPreferences();
-     Preferences.mPreviewLoadPath = QFileInfo(type).absolutePath();
-
-     // Create empty project
-     Project* NewProject = new Project();
-     gApplication->SetProject(NewProject);
-     UpdateAllViews();
-
-     // Load preview
-     if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
-         gMainWindow->PreviewPiece(QFileInfo(type).fileName(), colorCode, false/*UNUSED*/);
-         gui->previewDockWindow->raise();
-     } else if (!gMainWindow->OpenProject(type)) {
-         return false;
-     }
-     return true;
  }
 
 /*********************************************
