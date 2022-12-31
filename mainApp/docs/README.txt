@@ -1,4 +1,4 @@
-LPub3D 2.4.5.35.3012 (31 12 2022 03:53:04)
+LPub3D 2.4.5.36.3013 (31 12 2022 03:54:44)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add submodels to file load status #636
 - Enhancement - Logging - update messaging and log types #634
 - Enhancement - Prompt user to archive unofficial parts #628
 - Change - Build modification - declaration and action in same STEP #633

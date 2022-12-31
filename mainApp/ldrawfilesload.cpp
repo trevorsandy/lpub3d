@@ -79,12 +79,15 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     QColor warningColor = QColor(Qt::darkYellow);
     QBrush warningBrush (warningColor);
 
-    auto getCount = [&_loadedParts] (const LoadMsgType lmt)
+    bool ok;
+
+    auto getCount = [&] (const LoadMsgType lmt)
     {
         int count = 0;
         for (const QString &part : _loadedParts)
         {
-            if (part.startsWith(int(lmt)))
+            int mt = QString(part[0]).toInt(&ok);
+            if (ok && static_cast<LoadMsgType>(mt) == lmt)
                 count++;
         }
         return count;
@@ -100,19 +103,30 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     {
         for (const QString &part : _loadedParts)
         {
-            if (part.startsWith(int(lmt))) {
+            int mt = QString(part[0]).toInt(&ok);
+            if (ok && static_cast<LoadMsgType>(mt) == lmt) {
                 QStringList columns = part.split("|");
                 QList<QStandardItem *>childRow = prepareRow(columns.at(1),columns.at(2));
-                if (lmt == MISSING_LOAD_MSG) {
-                    QStandardItem *part = childRow.at(0);
-                    part->setForeground(errorBrush);
-                    QStandardItem *desc = childRow.at(1);
-                    desc->setForeground(errorBrush);
-                } else if (lmt != VALID_LOAD_MSG) {
-                    QStandardItem *part = childRow.at(0);
-                    part->setForeground(warningBrush);
-                    QStandardItem *desc = childRow.at(1);
-                    desc->setForeground(errorBrush);
+                switch (lmt) {
+                    case MISSING_LOAD_MSG:
+                    {
+                        QStandardItem *part = childRow.at(0);
+                        part->setForeground(errorBrush);
+                        QStandardItem *desc = childRow.at(1);
+                        desc->setForeground(errorBrush);
+                    }
+                    break;
+                    case SUBPART_LOAD_MSG:
+                    case PRIMITIVE_LOAD_MSG:
+                    {
+                        QStandardItem *part = childRow.at(0);
+                        part->setForeground(warningBrush);
+                        QStandardItem *desc = childRow.at(1);
+                        desc->setForeground(warningBrush);
+                    }
+                    break;
+                    default:
+                    break;
                 }
                 parentRow.first()->appendRow(childRow);
             }
@@ -120,8 +134,9 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     };
 
     QStandardItem *rootNode = lm->invisibleRootItem();
-    if (getCount(MISSING_LOAD_MSG)) {
-        QList<QStandardItem *>missingRow = prepareRow(tr("Error - Missing Parts"),"");
+    int count = getCount(MISSING_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>missingRow = prepareRow(tr("Error - Missing Parts - %1").arg(count),"");
         QStandardItem *header = missingRow.at(0);
         header->setForeground(errorBrush);
         rootNode->appendRow(missingRow);
@@ -129,20 +144,47 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
         ui->buttonBox->addButton(QDialogButtonBox::Discard);
         connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),SLOT(getButton(QAbstractButton*)));
     }
-    if (getCount(VALID_LOAD_MSG)) {
-        QList<QStandardItem *>validRow = prepareRow(tr("Validated Parts"),"");
+    count = getCount(VALID_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>validRow = prepareRow(tr("Validated Parts - %1").arg(count),"");
         rootNode->appendRow(validRow);
         setChildItems(VALID_LOAD_MSG, validRow);
     }
-    if (getCount(PRIMITIVE_LOAD_MSG)) {
-        QList<QStandardItem *>primitiveRow = prepareRow(tr("Warning - Primitive Parts"),"");
+    count = getCount(MPD_SUBMODEL_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>validRow = prepareRow(tr("MPD Submodels - %1").arg(count),"");
+        rootNode->appendRow(validRow);
+        setChildItems(MPD_SUBMODEL_LOAD_MSG, validRow);
+    }
+    count = getCount(LDR_SUBMODEL_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>validRow = prepareRow(tr("LDR Submodels - %1").arg(count),"");
+        rootNode->appendRow(validRow);
+        setChildItems(LDR_SUBMODEL_LOAD_MSG, validRow);
+    }
+    count = getCount(INLINE_SUBPART_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>validRow = prepareRow(tr("Inline Subparts - %1").arg(count),"");
+        rootNode->appendRow(validRow);
+        setChildItems(INLINE_SUBPART_LOAD_MSG, validRow);
+    }
+    count = getCount(INLINE_PRIMITIVE_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>validRow = prepareRow(tr("Inline Primitives - %1").arg(count),"");
+        rootNode->appendRow(validRow);
+        setChildItems(INLINE_PRIMITIVE_LOAD_MSG, validRow);
+    }
+    count = getCount(PRIMITIVE_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>primitiveRow = prepareRow(tr("Warning - Primitive Parts - %1").arg(count),"");
         QStandardItem *header = primitiveRow.at(0);
         header->setForeground(warningBrush);
         rootNode->appendRow(primitiveRow);
         setChildItems(PRIMITIVE_LOAD_MSG, primitiveRow);
     }
-    if (getCount(SUBPART_LOAD_MSG)) {
-        QList<QStandardItem *>subpartRow = prepareRow(tr("Warning - Sublevel Parts"),"");
+    count = getCount(SUBPART_LOAD_MSG);
+    if (count) {
+        QList<QStandardItem *>subpartRow = prepareRow(tr("Warning - Sublevel Parts - %1").arg(count),"");
         QStandardItem *header = subpartRow.at(0);
         header->setForeground(warningBrush);
         rootNode->appendRow(subpartRow);

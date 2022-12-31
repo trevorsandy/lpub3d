@@ -79,7 +79,6 @@ enum NativeRenderType { NATIVE_VIEW, NATIVE_IMAGE, NATIVE_EXPORT };
 enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, SHOW_ERROR, SHOW_WARNING, SHOW_MESSAGE, ALWAYS_SHOW };
-enum LoadMsgType { MISSING_LOAD_MSG, PRIMITIVE_LOAD_MSG, SUBPART_LOAD_MSG, VALID_LOAD_MSG, ALL_LOAD_MSG };
 enum MissingHeader { NoneMissing, NameMissing, AuthorMissing, BothMissing };
 enum LDrawFileRegExp { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, INC_RX, DES_RX, LDG_RX };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
@@ -98,15 +97,25 @@ enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum SceneObjectInfo { ObjectId };
 enum RecentFilesType { MAX_RECENT_FILES = 8 };
-enum ActionModuleType {NO_ACTION,                 //  0
-                       MAIN_WINDOW_ACTION,        //  1
-                       COMMAND_EDITOR_ACTION,     //  2
-                       TEXT_EDITOR_ACTION,        //  3
-                       VISUAL_EDITOR_ACTION,      //  4
-                       PARAMS_EDITOR_ACTION,      //  5
-                       COMMANDS_DIALOG_ACTION,    //  6
-                       COMMANDS_TEXT_EDIT_ACTION, //  7
-                       OTHER_ACTION               //  8
+enum LoadMsgType { MISSING_LOAD_MSG,
+                   PRIMITIVE_LOAD_MSG,
+                   SUBPART_LOAD_MSG,
+                   INLINE_PART_LOAD_MSG,
+                   INLINE_SUBPART_LOAD_MSG,
+                   INLINE_PRIMITIVE_LOAD_MSG,
+                   MPD_SUBMODEL_LOAD_MSG,
+                   LDR_SUBMODEL_LOAD_MSG,
+                   VALID_LOAD_MSG,
+                   ALL_LOAD_MSG };
+enum ActionModuleType { NO_ACTION,                 //  0
+                        MAIN_WINDOW_ACTION,        //  1
+                        COMMAND_EDITOR_ACTION,     //  2
+                        TEXT_EDITOR_ACTION,        //  3
+                        VISUAL_EDITOR_ACTION,      //  4
+                        PARAMS_EDITOR_ACTION,      //  5
+                        COMMANDS_DIALOG_ACTION,    //  6
+                        COMMANDS_TEXT_EDIT_ACTION, //  7
+                        OTHER_ACTION               //  8
 };
 enum PageDirection { DIRECTION_NOT_SET,
                      FILE_DEFAULT  = DIRECTION_NOT_SET,

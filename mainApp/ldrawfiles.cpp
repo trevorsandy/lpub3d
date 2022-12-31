@@ -1242,11 +1242,13 @@ int LDrawFile::loadFile(const QString &fileName)
         if (lmt == ALL_LOAD_MSG)
             return _loadedParts.size();
 
+        bool ok;
         int count = 0;
 
-        for (QString part : _loadedParts)
+        for (const QString &part : _loadedParts)
         {
-            if (part.startsWith(int(lmt)))
+            int mt = QString(part[0]).toInt(&ok);
+            if (ok && static_cast<LoadMsgType>(mt) == lmt)
                 count++;
         }
 
@@ -1287,22 +1289,33 @@ int LDrawFile::loadFile(const QString &fileName)
         }
 
         if (showLoadMessages) {
-            int vpc = getCount(VALID_LOAD_MSG);
-            int apc = _partCount;
-            int upc = _uniquePartCount;
+            int vpc  = getCount(VALID_LOAD_MSG);
+            int msmc = getCount(MPD_SUBMODEL_LOAD_MSG);
+            int lsmc = getCount(LDR_SUBMODEL_LOAD_MSG);
+            int ipc  = getCount(INLINE_PART_LOAD_MSG);
+            int ippc = getCount(INLINE_PRIMITIVE_LOAD_MSG);
+            int ispc = getCount(INLINE_SUBPART_LOAD_MSG);
+            int apc  = _partCount;
+            int upc  = _uniquePartCount;
             bool delta = apc != vpc;
 
-            _loadedParts << QObject::tr("Loaded LDraw %1 model file <b>%2</b>.%3%4%5%6%7%8%9%10")
-                               /* 01 */ .arg(type == MPD_FILE ? "MPD" : "LDR")
+            _loadedParts << QObject::tr("Loaded LDraw %1 model file <b>%2</b>.%3%4%5%6%7%8%9%10%11%12%13%14%15")
+                               /* 01 */ .arg(type == MPD_FILE ? "<b>MPD</b>" : "<b>LDR</b>")
                                /* 02 */ .arg(fileInfo.fileName())
                                /* 03 */ .arg(delta ? QObject::tr("<br>Parts count:            <b>%1</b>").arg(apc) : "")
-                               /* 04 */ .arg(mpc   ? QObject::tr("<span style=\"color:red\"><br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
-                               /* 05 */ .arg(vpc   ? QObject::tr("<br>Total validated parts:  <b>%1</b>").arg(vpc) : "")
-                               /* 06 */ .arg(upc   ? QObject::tr("<br>Unique validated parts: <b>%1</b>").arg(upc) : "")
-                               /* 07 */ .arg(ppc   ? QObject::tr("<br>Primitive parts:        <b>%1</b>").arg(ppc) : "")
-                               /* 08 */ .arg(spc   ? QObject::tr("<br>Subparts:               <b>%1</b>").arg(spc) : "")
-                               /* 09 */ .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
-                               /* 10 */ .arg(mpc   ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
+                               /* 04 */ .arg(mpc   ? QObject::tr("<span style=\"color:red\">"
+                                                                 "<br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
+                               /* 05 */ .arg(vpc   ? QObject::tr("<br>Total validated parts:  <b>%1</b>").arg(vpc)  : "")
+                               /* 06 */ .arg(upc   ? QObject::tr("<br>Unique validated parts: <b>%1</b>").arg(upc)  : "")
+                               /* 07 */ .arg(msmc  ? QObject::tr("<br>Submodels:              <b>%1</b>").arg(msmc) : "")
+                               /* 08 */ .arg(lsmc  ? QObject::tr("<br>Submodels:              <b>%1</b>").arg(lsmc) : "")
+                               /* 09 */ .arg(ipc   ? QObject::tr("<br>Inline parts:           <b>%1</b>").arg(ipc)  : "")
+                               /* 10 */ .arg(ippc  ? QObject::tr("<br>Inline primitives:      <b>%1</b>").arg(ippc) : "")
+                               /* 11 */ .arg(ispc  ? QObject::tr("<br>Inline subparts:        <b>%1</b>").arg(ispc) : "")
+                               /* 12 */ .arg(ppc   ? QObject::tr("<br>Primitive parts:        <b>%1</b>").arg(ppc)  : "")
+                               /* 13 */ .arg(spc   ? QObject::tr("<br>Subparts:               <b>%1</b>").arg(spc)  : "")
+                               /* 14 */ .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
+                               /* 15 */ .arg(mpc   ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
                                                                  "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
                                                                  "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
                                                                  .arg(mpc > 1 ? QObject::tr("parts") : QObject::tr("part"))          /* 01 */
@@ -2826,8 +2839,21 @@ void LDrawFile::countParts(const QString &fileName) {
     emit gui->progressPermRangeSig(1, size(top.modelName));
     emit gui->progressPermMessageSig("Counting parts for " + top.modelName + "...");
 
+    auto setStatusEntry = [&] (const QString &statusEntry, const QString &statusMessage = "", bool uniqueCount = false)
+    {
+        if (!_loadedParts.contains(statusEntry)) {
+            if (uniqueCount)
+                _uniquePartCount++;
+            else
+                _loadedParts.append(statusEntry);
+            emit gui->messageSig(LOG_NOTICE, statusMessage);
+        }
+        if (uniqueCount)
+            _loadedParts.append(statusEntry);
+    };
+
     std::function<void(Where&)> countModelParts;
-    countModelParts = [this, &countModelParts, &topModelIndx] (Where& top)
+    countModelParts = [&] (Where& top)
     {
 
         QStringList content = contents(top.modelName);
@@ -2907,90 +2933,66 @@ void LDrawFile::countParts(const QString &fileName) {
                 bool partIncluded = !ExcludedParts::isExcludedPart(type);
 
                 if (countThisLine && lineIncluded && partIncluded) {
-                    QString partString = "|" + type + "|";
+                    QString statusEntry;
                     if (contains(type)) {
+                        const QString name = QFileInfo(type).baseName();
                         LDrawUnofficialFileType subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
-                            //emit gui->messageSig(LOG_TRACE,QString("UNOFFICIAL_SUBMODEL %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                            statusEntry = QObject::tr("%1|%2|Submodel %3")
+                                                      .arg(_mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBMODEL_LOAD_MSG).arg(type).arg(name);
+                            setStatusEntry(statusEntry, QObject::tr("Model [%1] is a SUBMODEL").arg(type));
                             Where top(type, getSubmodelIndex(type), 0);
                             countModelParts(top);
                         } else {
                             switch(subFileType){
-                            case  UNOFFICIAL_PART:
-                                 _partCount++;modelPartCount++;
-                                 //emit gui->messageSig(LOG_TRACE,QString("UNOFFICIAL_PART %1 LINE %2 MODEL %3 COUNT %4").arg(type).arg(i).arg(modelName).arg(_partCount));
-                                 //emit gui->messageSig(LOG_STATUS, QString("Part count for [%1] %2").arg(modelName).arg(modelPartCount));
-                                 partString += QString("Unofficial part");
-                                if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                                    _uniquePartCount++;
-                                    _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [Unofficial %2] validated.").arg(_uniquePartCount).arg(type));
-                                }
+                            case UNOFFICIAL_PART:
+                                _partCount++;modelPartCount++;
+                                statusEntry = QObject::tr("%1|%2|Inline Part %3").arg(VALID_LOAD_MSG).arg(type).arg(name);
+                                setStatusEntry(statusEntry, QObject::tr("Part %1 [Inline %2] validated.").arg(_uniquePartCount).arg(type),true/*unique count*/);
+                                statusEntry = QObject::tr("%1|%2|Inline Part").arg(INLINE_PART_LOAD_MSG).arg(type);
+                                setStatusEntry(statusEntry, QObject::tr("Part %1 [%2] is an INLINE PART.").arg(_uniquePartCount).arg(type));
                                 break;
-                            case  UNOFFICIAL_SUBPART:
-                                partString += QString("Unofficial subpart");
-                                //emit gui->messageSig(LOG_DEBUG,QString("UNOFFICIAL_SUBPART %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                                if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
-                                    _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part [Unofficial %1] is a SUBPART").arg(type));
-                                }
+                            case UNOFFICIAL_SUBPART:
+                                statusEntry = QObject::tr("%1|%2|Inline Subpart %3").arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(name);
+                                setStatusEntry(statusEntry, QObject::tr("Part [%1] is a INLINE SUBPART").arg(type));
                                 break;
-                            case  UNOFFICIAL_PRIMITIVE:
-                                partString += QString("Unofficial primitive");
-                                //emit gui->messageSig(LOG_DEBUG,QString("UNOFFICIAL_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                                if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
-                                    _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part [Unofficial %1] is a PRIMITIVE").arg(type));
-                                }
+                            case UNOFFICIAL_PRIMITIVE:
+                                statusEntry = QObject::tr("%1|%2|Inline Primitive %3").arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(name);
+                                setStatusEntry(statusEntry, QObject::tr("Part [%1] is a INLINE PRIMITIVE").arg(type));
                                 break;
                             default:
                                 break;
                             }
                         }
                     } else {
+                        const QString name = QFileInfo(type).baseName();
                         QString partFile = type.toUpper();
-                        if (partFile.startsWith("S\\")) {
+                        if (partFile.startsWith("S\\"))
                             partFile.replace("S\\","S/");
-                        }
-                        if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
-                            if (pieceInfo) {
-                                partString += pieceInfo->m_strDescription;
-                                if (pieceInfo->IsPartType()) {
-                                    _partCount++;modelPartCount++;;
-                                    //emit gui->messageSig(LOG_TRACE,QString("PIECE_PART %1 LINE %2 MODEL %3 COUNT %4").arg(type).arg(i).arg(modelName).arg(_partCount));
-                                    //emit gui->messageSig(LOG_STATUS, QString("Part count for [%1] %2").arg(modelName).arg(modelPartCount));
-                                    if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                                        _uniquePartCount++;
-                                        emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_uniquePartCount).arg(type));
-                                    }
-                                    _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                } else
-                                if (pieceInfo->IsSubPiece()) {
-                                    //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                                    if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)){
-                                        _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBPART").arg(type));
-                                    }
-                                }
+                        PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
+                        if (pieceInfo) {
+                            if (pieceInfo->IsPartType()) {
+                                _partCount++;modelPartCount++;;
+                                statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription);
+                                setStatusEntry(statusEntry, QObject::tr("Part %1 [%2] validated.").arg(_uniquePartCount).arg(type),true/*unique count*/);
                             } else
-                            if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
-                                //emit gui->messageSig(LOG_DEBUG,QString("PIECE_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                                if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
-                                    _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a PRIMITIVE").arg(type));
-                                }
-                            } else {
-                                partString += QString("Part not found");
-                                if (!_loadedParts.contains(QString(MISSING_LOAD_MSG) + partString)) {
-                                    _loadedParts.append(QString(MISSING_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] not excluded, not a submodel or external file and not found in the %2 library archives.")
-                                                         .arg(type).arg(VER_PRODUCTNAME_STR));
-                                }
+                            if (pieceInfo->IsSubPiece()) {
+                                statusEntry = QObject::tr("%1|%2|%3").arg(SUBPART_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription);
+                                setStatusEntry(statusEntry, QObject::tr("Part [%1] is a SUBPART").arg(type));
                             }
+                        } else
+                        if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
+                            statusEntry = QObject::tr("%1|%2|Part Primitive %3").arg(PRIMITIVE_LOAD_MSG).arg(type).arg(name);
+                            setStatusEntry(statusEntry, QObject::tr("Part [%1] is a PRIMITIVE").arg(type));
+                        } else {
+                            const QString message = QObject::tr("Part [%1] is not excluded, inlined, a submodel or an "
+                                                                "external file and was not found in the %2 library archives.")
+                                                                .arg(type).arg(VER_PRODUCTNAME_STR);
+                            statusEntry = QObject::tr("%1|%2|Part not found").arg(MISSING_LOAD_MSG).arg(type);
+                            setStatusEntry(statusEntry, message);
                         }
                     }  // check archive
-                }
+                } // countThisLine && lineIncluded && partIncluded
             } // process submodel content
         } // content size
     };
@@ -3817,7 +3819,7 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
             clearBuildModStep(modKey, stepIndex);
 
             QMap<QString, LDrawSubFile>::iterator s = _subFiles.find(modFileName);
-            if (s != _subFiles.end()) {              
+            if (s != _subFiles.end()) {
               s.value()._modified = true;
               s.value()._changedSinceLastWrite = true;
 #ifdef QT_DEBUG_MODE
