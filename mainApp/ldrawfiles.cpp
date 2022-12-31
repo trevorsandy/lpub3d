@@ -554,7 +554,7 @@ bool LDrawFile::modified(const QVector<int> &parsedIndexes, bool reset)
     if (result) {
         modifiedSubmodels = modifiedSubmodels.trimmed();
         modifiedSubmodels.chop(1);
-        emit gui->messageSig(LOG_TRACE, QString("BuildMod Modified %1 %2 %3")
+        emit gui->messageSig(LOG_TRACE, QString("LDrawFile Modified %1 %2 %3")
                                                 .arg(count).arg(count == 1 ? "Submodel:" : "Submodels:")
                                                 .arg(modifiedSubmodels));
     }
@@ -1385,9 +1385,12 @@ void LDrawFile::loadIncludeFile(const QString &mcFileName)
     QStringList tokens;
     while (! in.atEnd()) {
         QString smLine = in.readLine(0).trimmed();
+        if (isComment(smLine))
+            continue;
         if (isValidLine(smLine)) {
             split(smLine,tokens);
-            processMetaCommand(tokens);
+            if (tokens.size() >= 4)
+                processMetaCommand(tokens);
         }
     }
     file.close();
@@ -1660,7 +1663,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 }
 
                 // Check meta commands
-                processMetaCommand(tokens);
+                if (!isComment(smLine))
+                    processMetaCommand(tokens);
             }
         } // modelHeaderFinished
 
@@ -2132,7 +2136,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     }
 
                     // Check meta commands
-                    processMetaCommand(tokens);
+                    if (!isComment(smLine))
+                        processMetaCommand(tokens);
                 }
             } // topHeaderFinished
 
@@ -2546,7 +2551,7 @@ void LDrawFile::countInstances(
   };
 
   if (firstStep) {
-    if (top.modelName == topLevelFile()) {
+    if (top.modelName.toLower() == topLevelFile().toLower()) {
       buildModLevel = BM_BASE_LEVEL;
       _currentLevels.clear();
       _buildModStepIndexes.clear();
@@ -2556,7 +2561,7 @@ void LDrawFile::countInstances(
       _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
   }
 
-  QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(top.modelName);
+  QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(top.modelName.toLower());
   if (f != _subFiles.end()) {
     if (f->_beenCounted) {
       if (isMirrored) {
@@ -2939,8 +2944,8 @@ void LDrawFile::countParts(const QString &fileName) {
                         const QString name = QFileInfo(type).baseName();
                         LDrawUnofficialFileType subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
-                            statusEntry = QObject::tr("%1|%2|Submodel %3")
-                                                      .arg(_mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBMODEL_LOAD_MSG).arg(type).arg(name);
+                            statusEntry = QObject::tr("%1|%2|Submodel %3 with %4 lines")
+                                                      .arg(_mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBMODEL_LOAD_MSG).arg(type).arg(name).arg(size(type));
                             setStatusEntry(statusEntry, QObject::tr("Model [%1] is a SUBMODEL").arg(type));
                             Where top(type, getSubmodelIndex(type), 0);
                             countModelParts(top);

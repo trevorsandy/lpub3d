@@ -2167,8 +2167,9 @@ int CountPageWorker::countPage(
   Rc rc;
   QStringList bfxParts;
   Where topOfStep = opts.current;
-  if (ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber, true/*index check*/) == BM_INVALID_INDEX)
-      ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
+  if (Preferences::buildModEnabled) // Check if the topOfStep is a valid build mod step index
+      if (ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber, true/*index check*/) == BM_INVALID_INDEX)
+          ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
   Where topOfSteps = topOfStep;
 
   if (opts.pageNum == 1 + Gui::pa && opts.current.modelName == ldrawFile->topLevelFile()) {
