@@ -2152,6 +2152,8 @@ void EditWindow::pageUpDown(
 
   connect(verticalScrollBar, SIGNAL(valueChanged(int)),
           this,              SLOT(  verticalScrollValueChanged(int)));
+
+  _textEdit->ensureCursorVisible();
 }
 
 void EditWindow::showLine(int lineNumber, int lineType)
@@ -2192,7 +2194,7 @@ void EditWindow::showLine(int lineNumber, int lineType)
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
   for (int i = 0; i < showLineNumber; i++)
     _textEdit->moveCursor(QTextCursor::Down/*QTextCursor::EndOfLine*/,QTextCursor::MoveAnchor/*QTextCursor::KeepAnchor*/);
-  _textEdit->ensureCursorVisible();
+  //_textEdit->ensureCursorVisible();
 
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
