@@ -1,4 +1,4 @@
-LPub3D 2.4.5.64.3041 (31 12 2022 04:42:04)
+LPub3D 2.4.5.65.3042 (31 12 2022 04:43:45)
 
 Features, enhancements, fixes and changes
 ------------
@@ -33,6 +33,7 @@ Revisions:
 - Fix - Option Add pointer missing in Call Out #647
 - Fix - Primitives shown as missing parts in file load status #630
 - Fix - Remove LPub Formatting menu action does nothing #638
+- Fix - Set Attributes to Page Pointer globally #648
 - Fix - Settings for Coverpage and Backcover do not work #620
 - Quality - Multiplication result converted to larger type #641
 

@@ -4314,6 +4314,14 @@ void PointerAttribGui::hideTipChange(bool checked)
 void PointerAttribGui::apply(QString &modelName)
 {
   if (modified) {
+    PointerAttribData _data = meta->value();
+    if (isBorder)
+        _data.attribType = PointerAttribData::Border;
+    else if (isLine)
+        _data.attribType = PointerAttribData::Line;
+    else if (isTip)
+        _data.attribType = PointerAttribData::Tip;
+    meta->setValue(_data);
     MetaItem mi;
     mi.setGlobalMeta(modelName,meta);
   }
