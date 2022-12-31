@@ -582,7 +582,7 @@ public:
   void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false) const;
   void clearCustomPartCache(bool silent = true) const;
   void clearCsiCache() const;
-  void clearSubmodelCache() const;
+  void clearSMICache() const;
   void clearPliCache() const;
   void clearBomCache() const;
   void clearTempCache() const;

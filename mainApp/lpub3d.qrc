@@ -78,7 +78,7 @@
         <file alias="clearcsicache.png">resources/clearcsicache.png</file>
         <file alias="clearcustompartcache.png">resources/clearcustompartcache.png</file>
         <file alias="clearplicache.png">resources/clearplicache.png</file>
-        <file alias="clearsubmodelcache.png">resources/clearsubmodelcache.png</file>
+        <file alias="clearsmicache.png">resources/clearsmicache.png</file>
         <file alias="cleartempcache.png">resources/cleartempcache.png</file>
         <file alias="closemodelfile.png">resources/closemodelfile.png</file>
         <file alias="command16.png">resources/command16.png</file>

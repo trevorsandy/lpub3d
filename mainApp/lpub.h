@@ -1472,7 +1472,7 @@ public slots:
   void clearPLICache();
  void clearBOMCache();
   void clearCSICache();
-  void clearSubmodelCache(const QString &key = QString());
+  void clearSMICache(const QString &key = QString());
   void clearTempCache();
   void clearAllCaches();
   void clearCustomPartCache(bool silent = false);
@@ -1534,7 +1534,7 @@ signals:
   void clearAndReloadModelFileSig(bool, bool);
   void clearCustomPartCacheSig(bool);
   void clearAllCachesSig();
-  void clearSubmodelCacheSig();
+  void clearSMICacheSig();
   void clearPLICacheSig();
   void clearBOMCacheSig();
   void clearCSICacheSig();

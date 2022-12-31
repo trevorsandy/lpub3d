@@ -5467,9 +5467,9 @@ void MetaItem::clearCsiCache() const
     emit gui->clearCSICacheSig();
 }
 
-void MetaItem::clearSubmodelCache() const
+void MetaItem::clearSMICache() const
 {
-    emit gui->clearSubmodelCacheSig();
+    emit gui->clearSMICacheSig();
 }
 
 void MetaItem::clearTempCache() const

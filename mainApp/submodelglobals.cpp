@@ -328,7 +328,7 @@ void GlobalSubModelDialog::accept()
   MetaItem mi;
 
   if (data->clearCache)
-    mi.clearSubmodelCache();
+    mi.clearSMICache();
 
   mi.beginMacro("GlobalSubmodel");
 

@@ -1832,7 +1832,7 @@ void Gui::clearAllCaches()
     clearPLICache();
     clearBOMCache();
     clearCSICache();
-    clearSubmodelCache();
+    clearSMICache();
     clearTempCache();
 
     emit messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
@@ -2026,14 +2026,14 @@ void Gui::clearBOMCache()
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
-void Gui::clearSubmodelCache(const QString &key)
+void Gui::clearSMICache(const QString &key)
 {
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,tr("A model must be open to clean its Submodel cache - no action taken."));
         return;
     }
 
-    if (sender() == getAct("clearSubmodelCacheAct.1")) {
+    if (sender() == getAct("clearSMICacheAct.1")) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2052,7 +2052,11 @@ void Gui::clearSubmodelCache(const QString &key)
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(fileInfo.absoluteFilePath());
-        bool deleteSpecificFile = fileInfo.absoluteFilePath().contains(key);
+        bool deleteSpecificFile = false;
+        if (!key.isEmpty()) {
+            const QString filePath = QDir::toNativeSeparators(fileInfo.absoluteFilePath()).toLower();
+            deleteSpecificFile = filePath.contains(QDir::toNativeSeparators(key).toLower());
+        }
         if (key.isEmpty() || deleteSpecificFile) {
             if (file.exists()) {
                 if (!file.remove()) {
@@ -3279,8 +3283,8 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     connect(this,           SIGNAL(clearAllCachesSig()),
             this,           SLOT(  clearAllCaches()));
 
-    connect(this,           SIGNAL(clearSubmodelCacheSig()),
-            this,           SLOT(  clearSubmodelCache()));
+    connect(this,           SIGNAL(clearSMICacheSig()),
+            this,           SLOT(  clearSMICache()));
 
     connect(this,           SIGNAL(clearPLICacheSig()),
             this,           SLOT(  clearPLICache()));
@@ -3626,7 +3630,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 clearPLICache();
                 clearBOMCache();
                 clearCSICache();
-                clearSubmodelCache();
+                clearSMICache();
                 clearTempCache();
 
                 //reload current model file
@@ -4158,7 +4162,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       clearPLICache();
       clearBOMCache();
       clearCSICache();
-      clearSubmodelCache();
+      clearSMICache();
       clearTempCache();
 
       //reload current model file
@@ -5660,12 +5664,12 @@ void Gui::createActions()
     lpub->actions.insert(clearCSICacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Assembly Image Cache"), clearCSICacheAct));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    QAction *clearSubmodelCacheAct = new QAction(QIcon(":/resources/clearsubmodelcache.png"),tr("Submodel Image Cache"), this);
-    clearSubmodelCacheAct->setObjectName("clearSubmodelCacheAct.1");
-    clearSubmodelCacheAct->setShortcut(QStringLiteral("Alt+E"));
-    clearSubmodelCacheAct->setStatusTip(tr("Reset the submodel image cache"));
-    lpub->actions.insert(clearSubmodelCacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Submodel Image Cache"), clearSubmodelCacheAct));
-    connect(clearSubmodelCacheAct, SIGNAL(triggered()), this, SLOT(clearSubmodelCache()));
+    QAction *clearSMICacheAct = new QAction(QIcon(":/resources/clearsmicache.png"),tr("Submodel Image Cache"), this);
+    clearSMICacheAct->setObjectName("clearSMICacheAct.1");
+    clearSMICacheAct->setShortcut(QStringLiteral("Alt+E"));
+    clearSMICacheAct->setStatusTip(tr("Reset the submodel image cache"));
+    lpub->actions.insert(clearSMICacheAct->objectName(), Action(QStringLiteral("Configuration.Reset Cache.Submodel Image Cache"), clearSMICacheAct));
+    connect(clearSMICacheAct, SIGNAL(triggered()), this, SLOT(clearSMICache()));
 
     QAction *clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Temporary LDraw File Cache"), this);
     clearTempCacheAct->setObjectName("clearTempCacheAct.1");
@@ -6740,7 +6744,7 @@ void Gui::createMenus()
     cacheMenu->addAction(getAct("clearAllCachesAct.1"));
     cacheMenu->addAction(getAct("clearPLICacheAct.1"));
     cacheMenu->addAction(getAct("clearBOMCacheAct.1"));
-    cacheMenu->addAction(getAct("clearSubmodelCacheAct.1"));
+    cacheMenu->addAction(getAct("clearSMICacheAct.1"));
     cacheMenu->addAction(getAct("clearCSICacheAct.1"));
     cacheMenu->addAction(getAct("clearTempCacheAct.1"));
     cacheMenu->addAction(getAct("clearCustomPartCacheAct.1"));
@@ -6907,7 +6911,7 @@ void Gui::createToolBars()
     cacheToolBar->addAction(getAct("clearAllCachesAct.1"));
     cacheToolBar->addAction(getAct("clearPLICacheAct.1"));
     cacheToolBar->addAction(getAct("clearBOMCacheAct.1"));
-    cacheToolBar->addAction(getAct("clearSubmodelCacheAct.1"));
+    cacheToolBar->addAction(getAct("clearSMICacheAct.1"));
     cacheToolBar->addAction(getAct("clearCSICacheAct.1"));
     cacheToolBar->addAction(getAct("clearTempCacheAct.1"));
     cacheToolBar->addAction(getAct("clearCustomPartCacheAct.1"));
