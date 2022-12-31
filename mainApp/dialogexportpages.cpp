@@ -250,6 +250,7 @@ DialogExportPages::~DialogExportPages()
 
 void DialogExportPages::displayPageProcessingErrors(bool b)
 {
+    Q_UNUSED(b)
     QSettings Settings;
     if (Preferences::displayPageProcessingErrors != ui->displayPageProcessingErrorsChk->isChecked()) {
         Preferences::displayPageProcessingErrors = ui->displayPageProcessingErrorsChk->isChecked();
