@@ -4791,23 +4791,10 @@ void Gui::drawPage(
               0            /*groupStepNumber*/,
               empty        /*renderParentModel*/);
 
-  auto visualEditorBanner = [&] ()
-  {
-      // I don't like this but we have to keep the Visual Editor
-      // updated when exporting or running continuous page processing
-      // to avoid crashing at paint/draw event
-      if (exporting() || (ContinuousPage() && m_exportMode == GENERATE_BOM)) {
-          deployBanner(true);
-          if (m_exportMode == GENERATE_BOM)
-              m_exportMode = m_saveExportMode;
-      }
-  };
-
   const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
   if (frc == HitAbortProcess) {
 
-    visualEditorBanner();
-    QApplication::processEvents();
+    pageProcessRunning = PROC_NONE;
     QApplication::restoreOverrideCursor();
     return;
 
@@ -4961,16 +4948,12 @@ void Gui::drawPage(
           return;
     } // iterate the model stack
 
-    visualEditorBanner();
-
     if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
         bool enable = m_exportMode != GENERATE_BOM &&
                      (!lpub->page.coverPage &&
                       lpub->page.meta.LPub.coverPageViewEnabled.value());
         enable3DActions(enable);
     } // modeGUI and not exporting
-
-    QApplication::processEvents();
 
     QApplication::restoreOverrideCursor();
   }
