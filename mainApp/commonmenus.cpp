@@ -2958,7 +2958,13 @@ void CommonMenus::setWhatsThis()
             "  Edit %1 meta command description and create command\n"
             "  snippets.\n\n"
             "  Use the command filter to efficiently filter the\n"
-            "  command or snippet list.\n")
+            "  command or snippet list.\n\n"
+            "  You can insert/autocomplete individual meta commands\n"
+            "  using Ctrl+E to select the desired command.\n\n"
+            "  You can insert/autocomplete snippets using\n"
+            "  Ctrl+Space to select the desired command or to\n"
+            "  automatically insert the command after typing\n"
+            "  the 'trigger.'\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_DIALOG_PAGE_ORIENTATION
