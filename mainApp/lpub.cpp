@@ -107,6 +107,8 @@ bool lt(const int &v1, const int &v2){ return v1 < v2; }
 // Compare two variants - greater than.
 bool gt(const int &v1, const int &v2){ return v1 > v2; }
 
+const bool showMsgBox = true;
+
 QHash<SceneObject, QString> soMap;
 
 int          Gui::pa;                     // page adjustment
@@ -1587,7 +1589,7 @@ void Gui::mpdComboChanged(int index)
       if (modelPageNum && displayPageNum != modelPageNum) {
         if (!saveBuildModification())
           return;
-        messageSig(LOG_INFO, QString( "Select subModel: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
+        messageSig(LOG_INFO, tr( "Select subModel: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
         cyclePageDisplay(modelPageNum);
       } else {
         callDisplayFile = true;
@@ -1595,8 +1597,8 @@ void Gui::mpdComboChanged(int index)
     }
 
     if (callDisplayFile) {
-      messageSig(LOG_INFO, QString( "Selected %1: %2")
-                 .arg(isIncludeFile ? "includeFile" : "subModel").arg(newSubFile));
+      messageSig(LOG_INFO, tr( "Selected %1: %2")
+                              .arg(isIncludeFile ? QLatin1String("includeFile") : QLatin1String("subModel")).arg(newSubFile));
       displayFile(&lpub->ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
       emit showLineSig(0, LINE_HIGHLIGHT);
       if (isIncludeFile) {  // Combo will not be set to include toolTip, so set here
@@ -1618,7 +1620,7 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
         args = QApplication::arguments();
         args.removeFirst();
         if (!args.contains(getCurFile(),Qt::CaseInsensitive))
-            args << QString("%1").arg(getCurFile());
+            args << getCurFile();
         QSettings Settings;
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),displayPageNum);
     } else {
@@ -1626,8 +1628,8 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
     }
     QProcess::startDetached(QApplication::applicationFilePath(), args);
-    messageSig(LOG_INFO, QString("Restarted %1 with Command: %2 %3")
-                                 .arg(VER_PRODUCTNAME_STR).arg(QApplication::applicationFilePath()).arg(args.join(" ")));
+    messageSig(LOG_INFO, tr("Restarted %1 with Command: %2 %3")
+                            .arg(VER_PRODUCTNAME_STR).arg(QApplication::applicationFilePath()).arg(args.join(" ")));
     QCoreApplication::quit();
 }
 
@@ -1645,7 +1647,7 @@ void Gui::insertConfiguredSubFile(const QString &name,
 
 void Gui::reloadCurrentPage(bool prompt) {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"No model file page to redisplay.");
+        emit messageSig(LOG_STATUS,tr("No model file page to redisplay."));
         return;
     }
 
@@ -1665,15 +1667,15 @@ void Gui::reloadCurrentPage(bool prompt) {
     // displayPage();
     cyclePageDisplay(displayPageNum, false/*silent*/);
 
-    emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
-                    .arg(displayPageNum)
-                    .arg(elapsedTime(timer.elapsed())));
+    emit messageSig(LOG_STATUS, tr("Page %1 reloaded. %2")
+                                   .arg(displayPageNum)
+                                   .arg(elapsedTime(timer.elapsed())));
 
 }
 
 void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"No model file to reopen.");
+        emit messageSig(LOG_STATUS,tr("No model file to reopen."));
         return;
     }
 
@@ -1693,15 +1695,15 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     //reload current model
     cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-    emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
-                    .arg(lpub->ldrawFile.getPartCount())
-                    .arg(elapsedTime(timer.elapsed())));
+    emit messageSig(LOG_STATUS, tr("Model file reloaded (%1 parts). %2")
+                                   .arg(lpub->ldrawFile.getPartCount())
+                                   .arg(elapsedTime(timer.elapsed())));
 }
 
 void Gui::clearWorkingFiles(const QStringList &filePaths)
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to clean its parts cache - no action taken.");
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."),showMsgBox);
         return;
     }
 
@@ -1711,18 +1713,19 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
         QFile     file(filePaths.at(i));
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                emit messageSig(LOG_ERROR,tr("Unable to remove %1")
                                 .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.completeBaseName()));
+                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.completeBaseName()));
 #endif
                 count++;
             }
         }
     }
     if (count)
-        emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
+        emit messageSig(LOG_INFO,tr("Parts content cache cleaned. %1 %2 removed.")
+                                    .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsgBox);
 }
 
 void Gui::resetModelCache(QString file, bool commandLine)
@@ -1731,32 +1734,35 @@ void Gui::resetModelCache(QString file, bool commandLine)
         if (commandLine)
             timer.start();
 
-        emit messageSig(LOG_TRACE, QString("Reset parts cache is destructive!"));
+        emit messageSig(LOG_TRACE, tr("Reset parts cache is destructive!"));
         curFile = file;
         QString fileDir = QFileInfo(file).absolutePath();
-        emit messageSig(LOG_INFO, QString("Reset parts cache directory %1").arg(fileDir));
+        emit messageSig(LOG_INFO, tr("Reset parts cache directory %1").arg(fileDir));
         QString saveCurrentDir = QDir::currentPath();
         if (! QDir::setCurrent(fileDir))
-            emit messageSig(LOG_ERROR, QString("Reset cache failed to set current directory %1").arg(fileDir));
+            emit messageSig(LOG_ERROR, tr("Reset cache failed to set current directory %1").arg(fileDir));
 
         if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
             clearCustomPartCache(true);
         clearAllCaches();
 
         if (! QDir::setCurrent(saveCurrentDir))
-            emit messageSig(LOG_ERROR, QString("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
+            emit messageSig(LOG_ERROR, tr("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
 
         Gui::resetCache = false;
 
         if (commandLine)
-            emit messageSig(LOG_INFO, QString("All caches reset. %1").arg(elapsedTime(timer.elapsed())));
+            emit messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
+                                         .arg(lpub->ldrawFile.getSubModels().size())
+                                         .arg(lpub->ldrawFile.getPartCount())
+                                         .arg(elapsedTime(timer.elapsed())));
     }
 }
 
 void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
 
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
+        emit messageSig(LOG_STATUS, tr("A model must be open to reset its caches - no action taken."));
         return;
     }
 
@@ -1785,9 +1791,10 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     //reload current model
     cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-    emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                    .arg(lpub->ldrawFile.getPartCount())
-                    .arg(elapsedTime(timer.elapsed())));
+    emit messageSig(LOG_INFO_STATUS, tr("All caches reset and model file reloaded (%1 models, %2 parts). %3")
+                                        .arg(lpub->ldrawFile.getSubModels().size())
+                                        .arg(lpub->ldrawFile.getPartCount())
+                                        .arg(elapsedTime(timer.elapsed())));
 
     changeAccepted = saveChange;
 }
@@ -1812,7 +1819,7 @@ void Gui::clearAndReloadModelFile(bool fileReload, bool savePrompt) { // EditWin
 void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
+        emit messageSig(LOG_STATUS,tr("A model must be open to reset its caches - no action taken."));
         return;
     }
 
@@ -1827,9 +1834,10 @@ void Gui::clearAllCaches()
     clearSubmodelCache();
     clearTempCache();
 
-    emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                    .arg(lpub->ldrawFile.getPartCount())
-                    .arg(elapsedTime(timer.elapsed())));
+    emit messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
+                                 .arg(lpub->ldrawFile.getSubModels().size())
+                                 .arg(lpub->ldrawFile.getPartCount())
+                                 .arg(elapsedTime(timer.elapsed())),showMsgBox);
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -1849,10 +1857,10 @@ void Gui::clearCustomPartCache(bool silent)
   }
 
   QMessageBox::StandardButton ret = QMessageBox::Ok;
-  QString message = QString("Fade and highlight parts in %1 will be deleted. The current model parts will be regenerated. "
-                            "Regenerated files will be updated in %2.")
-                            .arg(Paths::customDir)
-                            .arg(Preferences::validLDrawCustomArchive);
+  QString message = tr("Fade and highlight parts in %1 will be deleted. The current model parts will be regenerated. "
+                       "Regenerated files will be updated in %2.")
+                       .arg(Paths::customDir)
+                       .arg(Preferences::validLDrawCustomArchive);
   if (silent || !Preferences::modeGUI) {
       emit messageSig(LOG_INFO,message);
   } else {
@@ -1867,13 +1875,13 @@ void Gui::clearCustomPartCache(bool silent)
   QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
 
   int count = 0;
-  emit messageSig(LOG_INFO,QString("-Removing folder %1").arg(dirName));
-  if (removeDir(count, dirName)){
-      emit messageSig(LOG_INFO_STATUS,QString("Custom parts cache cleaned.  %1 %2 removed.")
-                                              .arg(count)
-                                              .arg(count == 1 ? "item": "items"));
+  emit messageSig(LOG_INFO,tr("-Removing folder %1").arg(dirName));
+  if (removeDir(count, dirName)) {
+      emit messageSig(LOG_INFO_STATUS,tr("Custom parts cache cleaned.  %1 %2 removed.")
+                                         .arg(count)
+                                         .arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
   } else {
-      emit messageSig(LOG_ERROR,QString("Unable to remove custom parts cache directory: %1").arg(dirName));
+      emit messageSig(LOG_ERROR,tr("Unable to remove custom parts cache directory: %1").arg(dirName));
       return;
   }
 
@@ -1887,7 +1895,7 @@ void Gui::clearCustomPartCache(bool silent)
   if (!getCurFile().isEmpty() && Preferences::modeGUI) {
       bool cycleEachPage = Preferences::cycleEachPage;
       if (!cycleEachPage && displayPageNum > 1)
-        cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
+        cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, tr("Cycle each page on model file reload ?"),nullptr);
       cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
   }
 }
@@ -1895,7 +1903,7 @@ void Gui::clearCustomPartCache(bool silent)
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to clean its parts cache - no action taken.");
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."));
         return;
     }
 
@@ -1910,7 +1918,7 @@ void Gui::clearPLICache()
             return;
     }
 
-    QDir dir(QDir::currentPath() + "/" + Paths::partsDir);
+    QDir dir(QDir::currentPath() + QDir::separator() + Paths::partsDir);
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
@@ -1920,23 +1928,23 @@ void Gui::clearPLICache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                .arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
         }
     }
-    emit messageSig(LOG_INFO_STATUS,QString("Parts content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
+    emit messageSig(LOG_INFO_STATUS,tr("Parts content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
 void Gui::clearCSICache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to clean its assembly cache - no action taken.");
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its assembly cache - no action taken."));
         return;
     }
 
@@ -1951,7 +1959,7 @@ void Gui::clearCSICache()
             return;
     }
 
-    QDir dir(QDir::currentPath() + "/" + Paths::assemDir);
+    QDir dir(QDir::currentPath() + QDir::separator() + Paths::assemDir);
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
@@ -1961,24 +1969,25 @@ void Gui::clearCSICache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                emit messageSig(LOG_ERROR,tr("Unable to remove %1")
                                 .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
         }
     }
 
-    emit messageSig(LOG_INFO_STATUS,QString("Assembly content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
+    emit messageSig(LOG_INFO_STATUS,tr("Assembly content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
 void Gui::clearSubmodelCache(const QString &key)
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to clean its Submodel cache - no action taken.");
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its Submodel cache - no action taken."));
         return;
     }
 
@@ -1993,7 +2002,7 @@ void Gui::clearSubmodelCache(const QString &key)
             return;
     }
 
-    QDir dir(QDir::currentPath() + "/" + Paths::submodelDir);
+    QDir dir(QDir::currentPath() + QDir::separator() + Paths::submodelDir);
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
@@ -2005,11 +2014,11 @@ void Gui::clearSubmodelCache(const QString &key)
         if (key.isEmpty() || deleteSpecificFile) {
             if (file.exists()) {
                 if (!file.remove()) {
-                    emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                    .arg(fileInfo.absoluteFilePath()));
+                    emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+                                                 .arg(fileInfo.absoluteFilePath()));
                 } else {
 #ifdef QT_DEBUG_MODE
-                    emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                    emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                     count++;
                     if (deleteSpecificFile)
@@ -2019,13 +2028,14 @@ void Gui::clearSubmodelCache(const QString &key)
         }
     }
 
-    emit messageSig(LOG_INFO_STATUS,QString("Submodel content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
+    emit messageSig(LOG_INFO_STATUS,tr("Submodel content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
 void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,QString("A model must be open to clean its 3D cache - no action taken."));
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its 3D cache - no action taken."));
         return;
     }
 
@@ -2040,7 +2050,7 @@ void Gui::clearTempCache()
             return;
     }
 
-    QDir tmpDir(QDir::currentPath() + "/" + Paths::tmpDir);
+    QDir tmpDir(QDir::currentPath() + QDir::separator() + Paths::tmpDir);
     tmpDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = tmpDir.entryInfoList();
@@ -2050,11 +2060,11 @@ void Gui::clearTempCache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                emit messageSig(LOG_ERROR,tr("Unable to remove %1")
                                 .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
@@ -2063,7 +2073,8 @@ void Gui::clearTempCache()
 
     lpub->ldrawFile.tempCacheCleared();
 
-    emit messageSig(LOG_INFO_STATUS,QString("Temporary model file cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
+    emit messageSig(LOG_INFO_STATUS,tr("Temporary model file cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -2082,7 +2093,7 @@ bool Gui::removeDir(int &count, const QString & dirName)
             if (fileInfo.isFile()){
                 if ((result = QFile::remove(fileInfo.absoluteFilePath()))) {
 #ifdef QT_DEBUG_MODE
-                    emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                    emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                     count++;
                 }
@@ -2092,35 +2103,35 @@ bool Gui::removeDir(int &count, const QString & dirName)
             }
         }
         if ((result = dir.rmdir(dir.absolutePath())))
-            emit messageSig(LOG_TRACE,QString("-Folder %1 cleaned").arg(dir.absolutePath()));
+            emit messageSig(LOG_TRACE,tr("-Folder %1 cleaned").arg(dir.absolutePath()));
     }
     return result;
 }
 
 void Gui::clearStepCSICache(QString &pngName) {
-    QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
-    QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
-    QString ldrName      = tmpDirName + "/csi.ldr";
+    QString tmpDirName   = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
+    QString assemDirName = QDir::currentPath() + QDir::separator() + Paths::assemDir;
+    QString ldrName      = tmpDirName + QDir::separator() + QLatin1String("csi.ldr");
     QFileInfo fileInfo(pngName);
-    QFile file(assemDirName + "/" + fileInfo.fileName());
+    QFile file(assemDirName + QDir::separator() + fileInfo.fileName());
     if (file.exists()) {
         if (!file.remove())
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                            .arg(assemDirName + "/" + fileInfo.fileName()));
+            emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+                                         .arg(assemDirName + QDir::separator() + fileInfo.fileName()));
 #ifdef QT_DEBUG_MODE
         else
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.fileName()));
+            emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.fileName()));
 #endif
     }
     if (renderer->useLDViewSCall())
-        ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
+        ldrName = tmpDirName + QDir::separator() + fileInfo.completeBaseName() + QLatin1String(".ldr");
     file.setFileName(ldrName);
     if (file.exists()) {
         if (!file.remove())
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(file.fileName()));
+            emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(file.fileName()));
 #ifdef QT_DEBUG_MODE
         else
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(file.fileName()));
+            emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(file.fileName()));
 #endif
     }
     if (Preferences::enableFadeSteps)
@@ -2165,17 +2176,17 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
 void Gui::clearPageGraphicsItems(Step *step, int option) {
     // Capture ldr and image file names
     QStringList fileNames;
-    QString tmpDirName = QDir::currentPath() + "/" + Paths::tmpDir;
+    QString tmpDirName = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
 
     if (option == Options::CSI) {
         if (renderer->useLDViewSCall())
-            fileNames << QDir::toNativeSeparators(tmpDirName + "/" + QFileInfo(step->pngName).completeBaseName() + ".ldr");
+            fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QFileInfo(step->pngName).completeBaseName() + QLatin1String(".ldr"));
          else
-            fileNames << QDir::toNativeSeparators(tmpDirName + "/csi.ldr");
+            fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QLatin1String("csi.ldr"));
         fileNames << step->pngName;
     } else  if (option == Options::PLI) {
         if (!renderer->useLDViewSCall())
-            fileNames << QDir::toNativeSeparators(tmpDirName + "/pli.ldr");
+            fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QLatin1String("pli.ldr"));
         QHash<QString, PliPart*> pliParts;
         step->pli.getParts(pliParts);
         if (pliParts.size()) {
@@ -2190,7 +2201,7 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
         }
     } else if (option == Options::SMI) {
         if (!renderer->useLDViewSCall())
-            fileNames << QDir::toNativeSeparators(tmpDirName + "/smi.ldr");
+            fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + SUBMODEL_IMAGE_BASENAME + QLatin1String(".ldr"));
         SubModelPart* submodel = step->subModel.getSubmodel();
         if (submodel) {
             const QString key = QString("%1;%2;%3_%4")
@@ -2212,10 +2223,10 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
         file.setFileName(fileName);
         if (file.exists()) {
             if (!file.remove())
-                emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(file.fileName()));
+                emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(file.fileName()));
 #ifdef QT_DEBUG_MODE
             else
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(file.fileName()));
+                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(file.fileName()));
 #endif
         }
     }
@@ -3575,9 +3586,10 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 //reload current model file
                 cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-                emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                .arg(lpub->ldrawFile.getPartCount())
-                                .arg(elapsedTime(timer.elapsed())));
+                emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 models, %2 parts). %3")
+                                                    .arg(lpub->ldrawFile.getSubModels().size())
+                                                    .arg(lpub->ldrawFile.getPartCount())
+                                                    .arg(elapsedTime(timer.elapsed())));
             }
         } else {
             box.setDefaultButton   (QMessageBox::Ok);

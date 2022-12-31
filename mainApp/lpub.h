@@ -2102,6 +2102,7 @@ public:
                                            Options options = Options());
 };
 
+extern const bool showMsgBox;
 extern QHash<SceneObject, QString> soMap;
 extern class Gui *gui;
 
