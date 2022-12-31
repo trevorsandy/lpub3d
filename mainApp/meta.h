@@ -965,6 +965,10 @@ public:
     _value[0].sizeH       = 0.0f;
     _value[0].sizeID      = QStringLiteral("A4");
     _value[0].orientation = Portrait;
+    _value[1].sizeW       = 0.0f;
+    _value[1].sizeH       = 0.0f;
+    _value[1].sizeID      = QStringLiteral("A4");
+    _value[1].orientation = Portrait;
     _min = 0;
     _max = 0;
     _fieldWidth = 6;
@@ -1394,12 +1398,15 @@ public:
     _value[0].thickness = DEFAULT_LINE_THICKNESS;
     _value[0].margin[0] = 0;
     _value[0].margin[1] = 0;
+    _value[1].thickness = DEFAULT_LINE_THICKNESS;
+    _value[1].margin[0] = 0;
+    _value[1].margin[1] = 0;
   }
   BorderMeta(const BorderMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
-    _result = rhs._result;
+    _result   = rhs._result;
   }
 //  virtual ~BorderMeta() { }
   Rc parse(QStringList &argv, int index, Where &here);
@@ -1417,7 +1424,6 @@ public:
 };
 
 /*------------------------*/
-
 class CameraAnglesMeta  : public RcMeta
 {
 protected:
@@ -1505,9 +1511,12 @@ public:
 
   CameraAnglesMeta()
   {
-    _value[0].cameraView = CameraAnglesData::CameraViewEnc::Default;
+    _value[0].cameraView = CameraViews::CameraView::Default;
     _value[0].angles[0] = 0.0f;
     _value[0].angles[1] = 0.0f;
+    _value[1].cameraView = CameraViews::CameraView::Default;
+    _value[1].angles[0] = 0.0f;
+    _value[1].angles[1] = 0.0f;
     _min = 0;
     _max = 0;
     _fieldWidth = 6;
@@ -1519,7 +1528,6 @@ public:
   CameraAnglesMeta(const CameraAnglesMeta &rhs) : RcMeta(rhs)
   {
     _value[0].cameraView = rhs._value[0].cameraView;
-    _value[1].cameraView = rhs._value[1].cameraView;
     _value[0].angles[0]  = rhs._value[0].angles[0];
     _value[0].angles[1]  = rhs._value[0].angles[1];
     _value[1].cameraView = rhs._value[1].cameraView;
@@ -1650,6 +1658,11 @@ public:
     _value[0].tipData.thickness    = DEFAULT_BORDER_THICKNESS;
     _value[0].tipData.tipWidth     = DEFAULT_TIP_WIDTH;
     _value[0].tipData.tipHeight    = DEFAULT_TIP_HEIGHT;
+    _value[1].borderData.thickness = DEFAULT_BORDER_THICKNESS;
+    _value[1].lineData.thickness   = DEFAULT_LINE_THICKNESS;
+    _value[1].tipData.thickness    = DEFAULT_BORDER_THICKNESS;
+    _value[1].tipData.tipWidth     = DEFAULT_TIP_WIDTH;
+    _value[1].tipData.tipHeight    = DEFAULT_TIP_HEIGHT;
   }
 
   PointerAttribMeta(const PointerAttribMeta &rhs) : LeafMeta(rhs)
@@ -2009,7 +2022,8 @@ private:
 public:
   InsertData _value;
   InsertMeta() : LeafMeta()
-  {}
+  {
+  }
   InsertMeta(const InsertMeta &rhs) : LeafMeta(rhs)
   {
     _value = rhs._value;
@@ -2161,6 +2175,7 @@ public:
   AlignmentMeta()
   {
     _value[0] = Qt::AlignLeft;
+    _value[1] = Qt::AlignLeft;
   }
   AlignmentMeta(const AlignmentMeta &rhs) : LeafMeta(rhs)
   {
@@ -2206,6 +2221,7 @@ public:
   ArrowEndMeta() : LeafMeta()
   {
     _value[0] = false;
+    _value[1] = false;
   }
   ArrowEndMeta(const ArrowEndMeta &rhs) : LeafMeta(rhs)
   {
@@ -2461,7 +2477,9 @@ public:
   {
     return _value[pushed].direction;
   }
-  SceneObjectMeta() : LeafMeta() {}
+  SceneObjectMeta() : LeafMeta()
+  {
+  }
   SceneObjectMeta(const SceneObjectMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
@@ -2647,6 +2665,7 @@ public:
   }
   BuffExchgMeta(const BuffExchgMeta &rhs) : LeafMeta(rhs)
   {
+    _value = rhs._value;
   }
 
   virtual ~BuffExchgMeta() { }
@@ -2681,6 +2700,7 @@ public:
   }
   BuildModMeta(const BuildModMeta &rhs) : LeafMeta(rhs)
   {
+    _value = rhs._value;
   }
 
 //  virtual ~BuildModMeta() { }
@@ -2774,7 +2794,9 @@ public:
   {
     _value[pushed] = rhs;
   }
-  CsiAnnotationIconMeta();
+  CsiAnnotationIconMeta()
+  {
+  }
   CsiAnnotationIconMeta(const CsiAnnotationIconMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
@@ -2865,6 +2887,8 @@ public:
   }
   EnableMeta(const EnableMeta &rhs) : RcMeta(rhs)
   {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
   }
 //  virtual ~EnableMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);

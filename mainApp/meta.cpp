@@ -1753,6 +1753,19 @@ PointerMeta::PointerMeta() : LeafMeta()
   _value[0].base      = 0.125;  // BasePoint
   _value[0].segments  = 1;      // NumberOfSegments
   _value[0].rectPlacement = TopLeftOutsideCorner; // Page Pointer Base Rect Placement
+  _value[1].placement = TopLeft;
+  _value[1].loc       = 0;      // Location
+  _value[1].x1        = 0.5;    // TipX
+  _value[1].y1        = 0.5;    // TipY
+  _value[1].x2        = 0.5;    // BaseX
+  _value[1].y2        = 0.5;    // BaseY
+  _value[1].x3        = 0.5;    // MidBaseX
+  _value[1].y3        = 0.5;    // MidBaseY
+  _value[1].x4        = 0.5;    // MidTipX
+  _value[1].y4        = 0.5;    // MidTipY
+  _value[1].base      = 0.125;  // BasePoint
+  _value[1].segments  = 1;      // NumberOfSegments
+  _value[1].rectPlacement = TopLeftOutsideCorner; // Page Pointer Base Rect Placement
 }
 
 /*
@@ -2068,13 +2081,8 @@ void PointerMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " TOP BOTTOM LEFT RIGHT CENTER TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT BASE_TOP BASE_BOTTOM BASE_LEFT BASE_RIGHT";
 }
+
 //--------------
-
-CsiAnnotationIconMeta::CsiAnnotationIconMeta() : LeafMeta()
-{
-}
-
-
 Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 {
 //#ifdef QT_DEBUG_MODE
@@ -2229,6 +2237,12 @@ PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
   _value[0].useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
   _value[0].useNativeGenerator = Preferences::useNativePovGenerator;
   _value[0].usePerspectiveProjection = Preferences::perspectiveProjection;
+
+  _value[1].renderer           = Preferences::preferredRenderer;
+  _value[1].useLDVSingleCall   = Preferences::enableLDViewSingleCall;
+  _value[1].useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
+  _value[1].useNativeGenerator = Preferences::useNativePovGenerator;
+  _value[1].usePerspectiveProjection = Preferences::perspectiveProjection;
 }
 
 void PreferredRendererMeta::setPreferences(bool reset)
@@ -2353,6 +2367,7 @@ void PreferredRendererMeta::metaKeywords(QStringList &out, QString preamble)
 FreeFormMeta::FreeFormMeta() : LeafMeta()
 {
   _value[0].mode = false;
+  _value[1].mode = false;
 }
 Rc FreeFormMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -2403,6 +2418,7 @@ void FreeFormMeta::metaKeywords(QStringList &out, QString preamble)
 ConstrainMeta::ConstrainMeta()
 {
   _value[0].type = ConstrainData::PliConstrainArea;
+  _value[1].type = ConstrainData::PliConstrainArea;
   _default = true;
 }
 Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
@@ -2472,6 +2488,7 @@ void ConstrainMeta::metaKeywords(QStringList &out, QString preamble)
 AllocMeta::AllocMeta() : LeafMeta()
 {
   type[0] = Vertical;
+  type[1] = Vertical;
 }
 
 Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
@@ -2646,6 +2663,7 @@ void CameraAnglesMeta::metaKeywords(QStringList &out, QString preamble)
 FillMeta::FillMeta() : LeafMeta()
 {
   type[0] = Aspect;
+  type[1] = Aspect;
 }
 
 Rc FillMeta::parse(QStringList &argv, int index, Where &here)
@@ -2689,6 +2707,8 @@ JustifyStepMeta::JustifyStepMeta() : LeafMeta()
 {
   _value[0].type    = JustifyLeft;
   _value[0].spacing = STEP_SPACING_DEFAULT;
+  _value[1].type    = JustifyLeft;
+  _value[1].spacing = STEP_SPACING_DEFAULT;
 }
 Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
 {
@@ -2743,6 +2763,7 @@ void JustifyStepMeta::metaKeywords(QStringList &out, QString preamble)
 PageOrientationMeta::PageOrientationMeta() : LeafMeta()
 {
   type[0] = Landscape;
+  type[1] = Landscape;
 }
 Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
 {
@@ -2787,6 +2808,7 @@ CountInstanceMeta::CountInstanceMeta() : LeafMeta()
   countInstanceMap["AT_MODEL"] = CountAtModel;
   countInstanceMap["AT_STEP"]  = CountAtStep;
   type[0] = CountAtModel;
+  type[1] = CountAtModel;
 }
 
 Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
@@ -2842,6 +2864,7 @@ ContStepNumMeta::ContStepNumMeta() : LeafMeta()
   contStepNumMap["FALSE"] = ContStepNumFalse;
   contStepNumMap["TRUE"]  = ContStepNumTrue;
   type[0] = ContStepNumFalse;
+  type[1] = ContStepNumFalse;
 }
 
 Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
@@ -2888,7 +2911,9 @@ BuildModEnabledMeta::BuildModEnabledMeta() : LeafMeta()
 {
   buildModEnabledMap["FALSE"] = BuildModEnabledFalse;
   buildModEnabledMap["TRUE"]  = BuildModEnabledTrue;
-  type[0] = Preferences::buildModEnabled ? BuildModEnabledTrue : BuildModEnabledFalse;
+  BuildModEnabledEnc enabled = Preferences::buildModEnabled ? BuildModEnabledTrue : BuildModEnabledFalse;
+  type[0] = enabled;
+  type[1] = enabled;
 }
 
 Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
@@ -2937,7 +2962,9 @@ FinalModelEnabledMeta::FinalModelEnabledMeta() : LeafMeta()
 {
   finalModelEnabledMap["FALSE"] = FinalModelEnabledFalse;
   finalModelEnabledMap["TRUE"]  = FinalModelEnabledTrue;
-  type[0] = Preferences::finalModelEnabled ? FinalModelEnabledTrue : FinalModelEnabledFalse;
+  FinalModelEnabledEnc enabled  = Preferences::finalModelEnabled ? FinalModelEnabledTrue : FinalModelEnabledFalse;
+  type[0] = enabled;
+  type[1] = enabled;
 }
 
 Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
@@ -3112,12 +3139,19 @@ void PageSizeMeta::doc(QStringList &out, QString preamble)
 
 SepMeta::SepMeta() : LeafMeta()
 {
-  _value[pushed].type      = SepData::Default;
-  _value[pushed].color     = "black";
-  _value[pushed].length    = -1.0;
-  _value[pushed].thickness = DEFAULT_LINE_THICKNESS;
-  _value[pushed].margin[0] = DEFAULT_MARGIN;
-  _value[pushed].margin[1] = DEFAULT_MARGIN;
+  _value[0].type      = SepData::Default;
+  _value[0].color     = "black";
+  _value[0].length    = -1.0;
+  _value[0].thickness = DEFAULT_LINE_THICKNESS;
+  _value[0].margin[0] = DEFAULT_MARGIN;
+  _value[0].margin[1] = DEFAULT_MARGIN;
+
+  _value[1].type      = SepData::Default;
+  _value[1].color     = "black";
+  _value[1].length    = -1.0;
+  _value[1].thickness = DEFAULT_LINE_THICKNESS;
+  _value[1].margin[0] = DEFAULT_MARGIN;
+  _value[1].margin[1] = DEFAULT_MARGIN;
 }
 Rc SepMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -3350,6 +3384,7 @@ StudStyleMeta::StudStyleMeta() : LeafMeta()
   studStyleMap["HIGH_CONTRAST"]           = StyleHighContrast;
   studStyleMap["HIGH_CONTRAST_WITH_LOGO"] = StyleHighContrastWithLogo;
   type[0] = static_cast<StudStyleEnc>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
+  type[1] = static_cast<StudStyleEnc>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
 }
 
 Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
