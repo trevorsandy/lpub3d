@@ -108,6 +108,10 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
 {
   ui.setupUi(this);
 
+  PreferencesSizeWidget sw(QSize(500,620), QSize(500,600));
+  QVBoxLayout layout(ui.preferencesTabWidget);
+  layout.addWidget(&sw);
+
   setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES, tr("Preferences")));
 
   ui.tabGeneral->setWhatsThis(lpubWT(                WT_LPUB3D_PREFERENCES_GENERAL, tr("General")));
@@ -323,7 +327,6 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   connect(lpub,                             SIGNAL(checkForUpdatesFinished ()),
           this,                             SLOT(updateChangelog ()));
 
-  setMinimumSize(500, 600);
   setSizeGripEnabled(true);
 }
 

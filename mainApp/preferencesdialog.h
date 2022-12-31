@@ -25,6 +25,21 @@
 #include "parmswindow.h"
 #include "meta.h"
 
+// Set minimum size
+class PreferencesSizeWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    PreferencesSizeWidget(const QSize _sh, const QSize _msh, QWidget *_parent = 0) :
+        sh(_sh), msh(_msh), QWidget(_parent) {}
+    ~PreferencesSizeWidget() {}
+    QSize sizeHint() const { QSize s = QWidget::sizeHint(); return s.expandedTo(sh); }
+    QSize minimumSizeHint() const { QSize s = QWidget::minimumSizeHint(); return s.expandedTo(msh); }
+private:
+    QSize sh;
+    QSize msh;
+};
+
 // LcLib Preferences
 #include "lc_application.h"
 
