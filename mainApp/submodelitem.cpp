@@ -1350,13 +1350,13 @@ QString SMGraphicsPixmapItem::subModelToolTip(QString type)
   return toolTip;
 }
 
-void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
+void SMGraphicsPixmapItem::previewSubModel(bool preferDockedPreview)
 {
     if (!part)
         return;
 
     lcPreferences& Preferences = lcGetPreferences();
-    bool dockable = Preferences.mPreviewPosition != lcPreviewPosition::Floating && previewSubmodelAction;
+    bool dockable = Preferences.mPreviewPosition != lcPreviewPosition::Floating && preferDockedPreview;
     QPoint position;
     if (!dockable) {
         QPointF sceneP;
@@ -1427,7 +1427,7 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   Where bottom = subModel->bottom;
 
   if (selectedAction == previewSubModelAction) {
-    previewSubModel(true /*previewSubmodelAction*/);
+    previewSubModel(true /*preferDockedPreview*/);
   } else if (selectedAction == resetViewerImageAction) {
       if (!Preferences.mPreviewEnabled) {
           if (gui->saveBuildModification()) {
@@ -1495,7 +1495,7 @@ void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 }
             }
         } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
-            previewSubModel();
+            previewSubModel(true /*preferDockedPreview*/);
         }
     }
 
