@@ -411,7 +411,6 @@ void Gui::openRecentFile()
     QDir::setCurrent(fileInfo.absolutePath());
     if (!openFile(fileName))
         return;
-    lpub->currentStep = nullptr;
     Paths::mkDirs();
     displayPage();
     enableActions();
@@ -441,14 +440,9 @@ bool Gui::loadFile(const QString &file)
 
 bool Gui::loadFile(const QString &file, bool console)
 {
-    lpub->currentStep = nullptr;
-
     if(Gui::resetCache) {
         emit lpub->messageSig(LOG_INFO,tr("Reset parts cache specified."));
-        //QFuture<void> ResetFuture = QtConcurrent::run([this,&file, console] {
         resetModelCache(QFileInfo(file).absoluteFilePath(), console);
-        //});
-        //ResetFuture.waitForFinished();
     }
 
     QString fileName = file;

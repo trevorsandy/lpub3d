@@ -61,6 +61,7 @@ enum Rc {
          RangeErrorRc = -2,
          FailureRc = -1,
          EndOfIncludeFileRc = FailureRc,
+         BuildModInvalidIndexRc = FailureRc,
          OkRc = 0,
          BuildModNoActionRc = OkRc,
 
@@ -145,7 +146,6 @@ enum Rc {
          BuildModApplyRc,
          BuildModRemoveRc,
          BuildModEnableRc,
-         BuildModSourceRc,
 
          FinalModelEnableRc,
 

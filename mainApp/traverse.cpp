@@ -1997,7 +1997,7 @@ int Gui::drawPage(
                   }
 
                   if (Preferences::modeGUI) {
-                      // load the Visual Editor with the last step of the step group
+                      // Load the Visual Editor with the last step of the step group
                       Step *lastStep = step;
                       if (!lastStep) {
                           Range *lastRange = range;
@@ -4963,6 +4963,15 @@ void Gui::drawPage(
 
     visualEditorBanner();
 
+    if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
+        bool enable = m_exportMode != GENERATE_BOM &&
+                     (!lpub->page.coverPage &&
+                      lpub->page.meta.LPub.coverPageViewEnabled.value());
+        enable3DActions(enable);
+        if (enable && lpub->currentStep)
+            gui->enableBuildModActions();
+    } // modeGUI and not exporting
+
     QApplication::processEvents();
 
     QApplication::restoreOverrideCursor();
@@ -5058,12 +5067,10 @@ void Gui::pagesCounted()
         }
 
         if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
+
             enableActions2();
             if (!ContinuousPage())
                 enableNavigationActions(true);
-            enable3DActions(m_exportMode != GENERATE_BOM &&
-                            (!lpub->page.coverPage &&
-                             lpub->page.meta.LPub.coverPageViewEnabled.value()));
             if (m_exportMode == GENERATE_BOM)
                 m_exportMode = m_saveExportMode;
             if (waitingSpinner->isSpinning())

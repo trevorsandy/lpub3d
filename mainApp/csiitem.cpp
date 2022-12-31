@@ -95,7 +95,7 @@ CsiItem::CsiItem(
 
 void CsiItem::loadTheViewer(bool override, bool zoomExtents)
 {
-    bool stepAlreadySet = gui->getViewerStepKey() == step->viewerStepKey;
+    bool stepAlreadySet = gui->getViewerStepKey() == step->viewerStepKey && lpub->currentStep;
     if (!stepAlreadySet || override) {
         if (!stepAlreadySet) {
             lpub->setCurrentStep(step);
@@ -565,6 +565,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QAction *applyBuildModAction       = nullptr;
     QAction *removeBuildModAction      = nullptr;
     QAction *deleteBuildModAction      = nullptr;
+    QAction *deleteBuildModActionAction= nullptr;
     if (Preferences::buildModEnabled) {
         menu.addSeparator();
         // these trigger the gui slot so nothing is done in selectedAction below
@@ -576,6 +577,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
         deleteBuildModAction           = lpub->getAct("DeleteBuildModAct.4");
         commonMenus.addAction(deleteBuildModAction,menu);
+
+        deleteBuildModActionAction     = lpub->getAct("DeleteBuildModActionAct.4");
+        commonMenus.addAction(deleteBuildModActionAction,menu);
     }
 
     QAction *resetViewerImageAction    = nullptr;

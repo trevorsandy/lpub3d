@@ -1999,6 +1999,7 @@ private:
   QAction *LoadBuildModAct;
   QAction *UpdateBuildModAct;
   QAction *DeleteBuildModAct;
+  QAction *DeleteBuildModActionAct;
   QAction *EnableBuildModAct;
   QAction *EnableRotstepRotateAct;
   QAction *UseImageSizeAct;

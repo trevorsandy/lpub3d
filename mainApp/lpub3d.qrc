@@ -49,6 +49,8 @@
         <file alias="bricklink32.png">resources/bricklink32.png</file>
         <file alias="bringtofront.png">resources/bringtofront.png</file>
         <file alias="bug.png">resources/bug.png</file>
+        <file alias="buildmodactiondelete.png">resources/buildmodactiondelete.png</file>
+        <file alias="buildmodactiondelete16.png">resources/buildmodactiondelete16.png</file>
         <file alias="buildmodapply.png">resources/buildmodapply.png</file>
         <file alias="buildmodapply16.png">resources/buildmodapply16.png</file>
         <file alias="buildmodcreate.png">resources/buildmodcreate.png</file>
