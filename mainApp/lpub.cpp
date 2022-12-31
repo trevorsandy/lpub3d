@@ -1444,13 +1444,25 @@ void Gui::displayFile(
             }
 
             // limit the scope to the current page
-            const Where top = lpub->page.top;
+            Where top = lpub->page.top;
             Where bottom = lpub->page.bottom;
-            if (!bottom.lineNumber) {
-                bool multiStep = false;
-                if (lpub->currentStep)
-                    multiStep = lpub->currentStep->multiStep;
-                lpub->mi.scanForward(bottom, multiStep ? StepGroupEndMask : StepMask);
+            bool current;
+            if ((current = top.lineNumber)) {
+                if (!bottom.lineNumber) {
+                    if ((current = lpub->currentStep)) {
+                        bottom = lpub->currentStep->multiStep ?
+                                    lpub->currentStep->bottomOfSteps() :
+                                    lpub->currentStep->bottomOfStep();
+                    }
+                }
+            }
+            // error message load for showLine - no current page/step
+            if (!current) {
+                if (!top.lineNumber)
+                    top = here;
+                bottom = top;
+                bool multiStep = lpub->mi.scanForward(bottom, StepMask|StepGroupEndMask) == StepGroupEndRc;
+                lpub->mi.scanBackward(top, multiStep ? StepGroupEndMask : StepMask);
             }
 
             const StepLines lineScope(top.lineNumber, bottom.lineNumber);
@@ -1577,7 +1589,7 @@ void Gui::mpdComboChanged(int index)
       messageSig(LOG_INFO, QString( "Selected %1: %2")
                  .arg(isIncludeFile ? "includeFile" : "subModel").arg(newSubFile));
       displayFile(&lpub->ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
-      showLineSig(0, LINE_HIGHLIGHT);
+      emit showLineSig(0, LINE_HIGHLIGHT);
       if (isIncludeFile) {  // Combo will not be set to include toolTip, so set here
           mpdCombo->setToolTip(tr("Include file: %1").arg(newSubFile));
       }
@@ -7126,7 +7138,7 @@ void Gui::parseError(const QString &message,
 
     const QString keyType[][2] = {
        // Message Title,              Type Description
-       {"Command Meta",            tr("meta parse error")},               //ParseErrors
+       {"LPub Meta Command",       tr("LPub command parse error")},       //ParseErrors
        {"Insert Meta",             tr("insert parse error")},             //InsertErrors
        {"Build Modification Meta", tr("build modification parse error")}, //BuildModErrors
        {"Include File Meta",       tr("include file parse error")},       //IncludeFileErrors

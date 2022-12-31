@@ -544,7 +544,7 @@ void MetaItem::addNextStepsMultiStep(
         const Where &bottomOfSteps,
         const int   &numOfSteps)
 {
-    Rc rc1;
+    Rc rc1 = OkRc;
     Where startTopOfSteps = topOfSteps;
     Where nextStep = bottomOfSteps;
     bool firstChange = true;

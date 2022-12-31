@@ -2559,6 +2559,11 @@ int CountPageWorker::countPage(
             case BuildModApplyRc:
             case BuildModRemoveRc:
               if (Preferences::buildModEnabled) {
+                  Where current = opts.current;
+                  if (lpub->mi.scanForwardNoParts(current, StepMask|StepGroupMask) == StepGroupEndRc)
+                      gui->parseErrorSig(QString("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
+                                                 .arg(rc == BuildModRemoveRc ? QString("REMOVE") : QString("APPLY"))
+                                                 .arg(meta->LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
                   // special case where we have BUILD_MOD and NOSTEP commands in the same single STEP
                   if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
                       opts.flags.parseNoStep = meta->LPub.parseNoStep.value();
