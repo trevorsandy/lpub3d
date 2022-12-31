@@ -1531,7 +1531,7 @@ void LPub::loadBanner(const int &type)
 
     QTemporaryDir tempDir;
     if (tempDir.isValid())
-        Gui::loadBanner(type, QDir::toNativeSeparators(QString("%1/banner.ldr").arg(tempDir.path())));
+        Gui::loadBanner(type, tempDir.path());
 }
 
 void LPub::setupChangeLogUpdate()

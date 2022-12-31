@@ -803,10 +803,14 @@ void Gui::enable3DActions(bool enable)
                    this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
     }
 
-    if (enable)
+    if (enable) {
         enableBuildModMenuAndActions();
-    else
+        gui->visualEditDockWindow->raise();
+    } else {
         CreateBuildModComboAct->setEnabled(enable);
+        if (lpub->page.coverPage && lpub->page.meta.LPub.coverPageViewEnabled.value())
+            gui->previewDockWindow->raise();
+    }
 
     LightGroupAct->setEnabled(enable);
     ViewpointGroupAct->setEnabled(enable);
@@ -1000,7 +1004,7 @@ bool Gui::createPreviewWidget()
     return false;
 }
 
-void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QRect parentRect, QPoint position)
+void Gui::PreviewPiece(const QString &partType, int colorCode, bool dockable, QRect parentRect, QPoint position)
 {
     if (dockable) {
         if (gMainWindow)
@@ -1022,7 +1026,7 @@ void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QR
         }
     }
 
-    QMessageBox::information(this, tr("Error"), tr("Part preview for '%1' failed.").arg(partType));
+    QMessageBox::warning(this, tr("Warning"), tr("Part preview for '%1' failed.").arg(partType));
 }
 
 void Gui::updatePreview()
@@ -1069,12 +1073,6 @@ void Gui::enableWindowFlags(bool detached)
                                    Qt::WindowCloseButtonHint);
         dockWidget->show();
     }
-}
-
-void Gui::ClearPreviewWidget()
-{
-    if (gMainWindow && gMainWindow->GetPreviewWidget())
-         gMainWindow->GetPreviewWidget()->ClearPreview();
 }
 
 void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
@@ -1583,14 +1581,16 @@ void Gui::applyCameraSettings()
     }
 }
 
-bool Gui::loadBanner(const int &type, const QString &banner) {
+bool Gui::loadBanner(const int &type, const QString &bannerPath)
+{
+    if (!gMainWindow)
+        return false;
 
     const bool bom = type == GENERATE_BOM;
     const bool error = type == ERROR_ENCOUNTERED;
-    const QString description = bom ? "BOM" : error ? "Error" : "Print";
+    QString banner = bom ? "BOM" : error ? "Error" : "Export";
+    QString description = bom ? "Bill of Material (" + banner + ")" : banner;
     QList<QString> bannerData;
-    bannerData << "0 " + description + " Banner";
-    bannerData << "0 Name: banner.ldr";
     bannerData << "0 Author: Trevor SANDY";
     bannerData << "0 !LDRAW_ORG Unofficial_Model";
     if (error) {
@@ -1671,72 +1671,100 @@ bool Gui::loadBanner(const int &type, const QString &banner) {
         bannerData << "1 72 4.9537 -45.523 -14.4722 -0.891007 -0.17025 0.420859 0 0.927021 0.375008 -0.45399 0.334135 -0.825982 4865a.dat";
         switch (type) {
         case EXPORT_PNG:
+            banner = "PNG";
+            description = "Export Portable Network Graphics (" + banner + ")";
             bannerData << "1 25 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 25 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptn.dat";
             bannerData << "1 25 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptg.dat";
             break;
         case EXPORT_JPG:
+            banner = "JPEG";
+            description = "Export Joint Photographic Experts Group (" + banner + ")";
             bannerData << "1 92 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptj.dat";
             bannerData << "1 92 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 92 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptg.dat";
             break;
         case EXPORT_BMP:
+            banner = "BMP";
+            description = "Export Bitmap Image (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptb.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             break;
         case EXPORT_WAVEFRONT:
+            banner = "OBJ";
+            description = "Export Wavefront 3D Object (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpto.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptb.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptj.dat";
             break;
         case EXPORT_COLLADA:
+            banner = "DAE";
+            description = "Export COLLADA Digital Asset Exchange (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpta.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpte.dat";
             break;
         case EXPORT_3DS_MAX:
+            banner = "3DS";
+            description = "Export Autodesk 3DS Max (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptx.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpts.dat";
             break;
         case EXPORT_STL:
+            banner = "STL";
+            description = "Export Stereolithography Standard Tessellation Language (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpts.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptt.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
             break;
         case EXPORT_POVRAY:
+            banner = "POV";
+            description = "Export POV-Ray Scene Description (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpto.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptv.dat";
             break;
         case EXPORT_HTML_PARTS:
+            banner = "HTM";
+            description = "Export Hypertext Markup Language (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpth.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptt.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
             break;
         case EXPORT_CSV:
+            banner = "CSV";
+            description = "Export Comma-Separated Values (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptc.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpts.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptv.dat";
             break;
         case EXPORT_BRICKLINK:
-            bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptb.dat";
-            bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
-            bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptk.dat";
+            banner = "XML";
+            description = "Export The LEGO Group Bricklink (" + banner + ")";
+            bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptx.dat";
+            bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
+            bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
             break;
         default:
+            banner = "PDF";
+            description = "Export Portable Document Format (" + banner + ")";
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptf.dat";
         }
     }
     bannerData << "0";
+    bannerData.prepend("0 Name: " + banner + "_banner.ldr");
+    bannerData.prepend("0 " + description + " Banner");
 
-    QFile bannerFile(banner);
+    const QString bannerFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(bannerPath).arg(QString("%1_banner.ldr").arg(banner)));
+
+    QFile bannerFile(bannerFilePath);
     if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
         emit gui->messageSig(LOG_ERROR,tr("Could not open banner file '%1' for writing:\n%2")
-                             .arg(banner)
+                             .arg(bannerFilePath)
                              .arg(bannerFile.errorString()));
         return false;
     }
@@ -1745,12 +1773,10 @@ bool Gui::loadBanner(const int &type, const QString &banner) {
         out << bannerData[i] << lpub_endl;
     bannerFile.close();
 
-    if (!gMainWindow->OpenProject(bannerFile.fileName()))
-    {
-        emit gui->messageSig(LOG_ERROR, tr("Could not load banner file '%1'.").arg(bannerFile.fileName()));
+    if (!gui->PreviewPiece(bannerFilePath, LDRAW_MATERIAL_COLOUR)) {
+        emit gui->messageSig(LOG_WARNING, tr("Could not load banner file '%1'.").arg(bannerFilePath));
         return false;
     }
-
     return true;
 }
 
@@ -2118,7 +2144,6 @@ void Gui::ReloadVisualEditor(){
      return lcGetPiecesLibrary();
  }
 
-
  lcView* Gui::GetActiveView()
  {
      if (gMainWindow)
@@ -2274,6 +2299,26 @@ void Gui::ReloadVisualEditor(){
      return nullptr;
  }
 
+ bool Gui::PreviewPiece(const QString &type, int colorCode)
+ {
+     // Set preview project path
+     lcPreferences& Preferences = lcGetPreferences();
+     Preferences.mPreviewLoadPath = QFileInfo(type).absolutePath();
+
+     // Create empty project
+     Project* NewProject = new Project();
+     gApplication->SetProject(NewProject);
+     UpdateAllViews();
+
+     // Load preview
+     if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
+         gMainWindow->PreviewPiece(QFileInfo(type).fileName(), colorCode, false/*UNUSED*/);
+         gui->previewDockWindow->raise();
+     } else if (!gMainWindow->OpenProject(type)) {
+         return false;
+     }
+     return true;
+ }
 /*********************************************
  *
  * build modificaitons

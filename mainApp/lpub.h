@@ -1193,7 +1193,8 @@ public slots:
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   void openFolderSelect(const QString &absoluteFilePath);
   void setViewerStepKey(const QString &stepKey, int notPliPart);
-  void previewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
+  void PreviewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
+  bool PreviewPiece(const QString &type, int colorCode);
   void setStepForLine();
   void togglePreviewWidget(bool);
   void updatePreview();
@@ -1278,7 +1279,7 @@ public slots:
   void                   ReloadVisualEditor();
   void                   LoadColors();
   void                   LoadDefaults();
-  void                   UpdateAllViews();
+  static void            UpdateAllViews();
   void                   UnloadOfficialPiecesLibrary();
   void                   UnloadUnofficialPiecesLibrary();
 
@@ -1334,7 +1335,7 @@ public slots:
   }
 
   static void deployBanner(bool b);
-  static bool loadBanner(const int &type,const QString &banner);
+  static bool loadBanner(const int &type, const QString &bannerPath);
   static void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
   static void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
   static void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }

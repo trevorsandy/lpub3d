@@ -3787,7 +3787,7 @@ void PGraphicsPixmapItem::previewPart(bool useDockable) {
         position = view->viewport()->mapToGlobal(viewP);
     }
 
-    gui->previewPiece(part->type, part->color.toInt(), dockable, QRect(), position);
+    gui->PreviewPiece(part->type, part->color.toInt(), dockable, QRect(), position);
 }
 
 void PGraphicsPixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

@@ -2650,36 +2650,41 @@ int Gui::drawPage(
 
                           // Load the top model into the visual editor on cover page
                           if (coverPage && Preferences::modeGUI && !exportingObjects()) {
-                             showLine(topOfStep);
-                             if (curMeta.LPub.coverPageViewEnabled.value()) {
-                                 if (step == nullptr) {
-                                     if (range == nullptr) {
-                                         range = newRange(steps,opts.calledOut);
-                                     }
-                                     step = new Step(topOfStep,
-                                                     range,
-                                                     0     /* stepNum */,
-                                                     curMeta,
-                                                     false /* calledOut */,
-                                                     false /* multiStep */);
-                                 }
+                              if (curMeta.LPub.coverPageViewEnabled.value()) {
+                                  if (step == nullptr) {
+                                      if (range == nullptr) {
+                                          range = newRange(steps,opts.calledOut);
+                                      }
+                                      step = new Step(topOfStep,
+                                                      range,
+                                                      0     /* stepNum */,
+                                                      curMeta,
+                                                      false /* calledOut */,
+                                                      false /* multiStep */);
+                                  }
 
-                                 emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
+                                  emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
 
-                                 if (step) {
+                                  if (step) {
+                                      step->setBottomOfStep(opts.current);
 
-                                    // set the current step - enable access from other parts of the application - e.g. Renderer
-                                    lpub->setCurrentStep(step);
+                                      // set the current step - enable access from other parts of the application - e.g. Renderer
+                                      lpub->setCurrentStep(step);
 
-                                    step->modelDisplayOnlyStep = true;
-                                    step->subModel.setSubModel(opts.current.modelName,steps->meta);
-                                    step->subModel.viewerSubmodel = true;
-                                    if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                        emit messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(topOfStep.modelName));
-                                    else
-                                        step->subModel.loadTheViewer();
-                                 }
-                             }
+                                      showLine(topOfStep);
+
+                                      step->modelDisplayOnlyStep = true;
+                                      step->subModel.viewerSubmodel = true;
+                                      step->subModel.setSubModel(topOfStep.modelName,steps->meta);
+
+                                      const QString modelFileName = QString("%1/%2/smi.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir);
+
+                                      if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0)
+                                          emit gui->messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(modelFileName));
+                                      else if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
+                                          emit gui->messageSig(LOG_WARNING, tr("Could not load model file '%1'.").arg(modelFileName));
+                                  } // step
+                              } // cover page view enabled
                           } // cover page
 
                           addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
@@ -5024,7 +5029,11 @@ void Gui::pagesCounted()
             enableActions2();
             if (!ContinuousPage())
                 enableNavigationActions(true);
-            enable3DActions(!lpub->page.coverPage || lpub->page.meta.LPub.coverPageViewEnabled.value());
+            enable3DActions(m_exportMode != GENERATE_BOM &&
+                            (!lpub->page.coverPage &&
+                             lpub->page.meta.LPub.coverPageViewEnabled.value()));
+            if (m_exportMode == GENERATE_BOM)
+                m_exportMode = m_saveExportMode;
             if (waitingSpinner->isSpinning())
                 waitingSpinner->stop();
         } // modeGUI and not exporting

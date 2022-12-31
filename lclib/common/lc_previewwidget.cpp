@@ -47,15 +47,20 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 /*** LPub3D Mod - preview widget for LPub3D ***/
 		QString ColorName;
 		lcColor* Color = nullptr;
-		if (ColorCode != 16)
+		bool HasMaterialColor = ColorCode == LDRAW_MATERIAL_COLOUR;
+		if (!HasMaterialColor)
 		{
 			Color = &gColorList[lcGetColorIndex(ColorCode)];
 			ColorName = Color ? Color->Name : "Undefined";
 		}
-		QString PartLabel = QString("%1 (%2)%3")
-				.arg(mPreview->GetDescription())
-				.arg(QFileInfo(PartType).completeBaseName().toUpper())
-				.arg(Color ? QString(", %1 (%2)").arg(ColorName).arg(ColorCode) : QString());
+		QString PartLabel;
+		if (HasMaterialColor && !mPreview->GetDescription().isEmpty())
+			PartLabel = mPreview->GetDescription();
+		else
+			PartLabel = QString("%1 (%2)%3")
+								.arg(mPreview->GetDescription())
+								.arg(QFileInfo(PartType).completeBaseName().toUpper())
+								.arg(Color ? QString(", %1 (%2)").arg(ColorName).arg(ColorCode) : QString());
 		mLabel->setText(PartLabel);
 		mLabel->setToolTip(PartLabel);
 /*** LPub3D Mod end ***/

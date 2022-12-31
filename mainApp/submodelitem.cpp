@@ -406,7 +406,7 @@ int SubModel::createSubModelImage(
                   renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMP,false/*displayModel*/);
                   // consolidate submodel subfiles into single file
                   int rcf = 0;
-                  if (Preferences::buildModEnabled)
+                  if (Preferences::buildModEnabled && !meta->LPub.coverPageViewEnabled.value())
                       rcf = renderer->mergeSubmodelContent(futureModel);
                   else
                       rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/);
@@ -476,7 +476,7 @@ int SubModel::createSubModelImage(
   }
 
   // Generate and renderer Submodel file
-  if (!rc && (! submodel.exists() || imageOutOfDate) && ! viewerSubmodel) {
+  if (!rc && (! submodel.exists() || imageOutOfDate)) {
 
       timer.start();
 
@@ -495,35 +495,37 @@ int SubModel::createSubModelImage(
 
       rc = RenderFuture.result();
 
+      if ( ! viewerSubmodel) {
           // feed DAT to renderer
           if (rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
               emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
-                                                     .arg(rendererNames[Render::getRenderer()])
-                                                     .arg(imageName)
-                                                     .arg(callout ? "called out," : "simple,")
-                                                     .arg(multistep ? "step group" : "single step")
-                                                     .arg(step ? step->stepNumber.number : 0)
-                                                     .arg(gui->stepPageNum));
+                                   .arg(rendererNames[Render::getRenderer()])
+                      .arg(imageName)
+                      .arg(callout ? "called out," : "simple,")
+                      .arg(multistep ? "step group" : "single step")
+                      .arg(step ? step->stepNumber.number : 0)
+                      .arg(gui->stepPageNum));
               imageName = QString(":/resources/missingimage.png");
               /*f*/rc = -1;
           }
 
-      //    return frc;
-      //});
+          //    return frc;
+          //});
 
-      //rc = RenderFuture.result();
+          //rc = RenderFuture.result();
 
-      if (!rc) {
-          emit gui->messageSig(LOG_INFO,
-                               QObject::tr("%1 Submodel render call took %2 milliseconds "
-                                           "to render %3 for %4 %5 %6 on page %7.")
-                               .arg(rendererNames[Render::getRenderer()])
-                               .arg(timer.elapsed())
-                               .arg(imageName)
-                               .arg(callout ? "called out," : "simple,")
-                               .arg(multistep ? "step group" : "single step")
-                               .arg(step ? step->stepNumber.number : 0)
-                               .arg(gui->stepPageNum));
+          if (!rc) {
+              emit gui->messageSig(LOG_INFO,
+                                   QObject::tr("%1 Submodel render call took %2 milliseconds "
+                                               "to render %3 for %4 %5 %6 on page %7.")
+                                   .arg(rendererNames[Render::getRenderer()])
+                                   .arg(timer.elapsed())
+                                   .arg(imageName)
+                                   .arg(callout ? "called out," : "simple,")
+                                   .arg(multistep ? "step group" : "single step")
+                                   .arg(step ? step->stepNumber.number : 0)
+                                   .arg(gui->stepPageNum));
+          }
       }
   }
 
@@ -559,8 +561,6 @@ int SubModel::generateSubModelItem()
         }
 
         // Create Image
-        QFileInfo info(part->type);
-
         QPixmap *pixmap = new QPixmap();
 
         if (pixmap == nullptr) {
@@ -1381,7 +1381,7 @@ void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
     if (Preferences::buildModEnabled)
         submodelName = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
 
-    gui->previewPiece(submodelName, part->color.toInt(), dockable, QRect(), position);
+    gui->PreviewPiece(submodelName, part->color.toInt(), dockable, QRect(), position);
 }
 
 void SMGraphicsPixmapItem::contextMenuEvent(

@@ -292,7 +292,7 @@ void CsiItem::previewCsi(bool useDockable) {
         position = view->viewport()->mapToGlobal(viewP);
     }
 
-    gui->previewPiece(csiFileName, colorCode, dockable, QRect(), position);
+    gui->PreviewPiece(csiFileName, colorCode, dockable, QRect(), position);
 }
 
 void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
