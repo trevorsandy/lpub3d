@@ -166,7 +166,7 @@ void lcMainWindow::CreateWidgets()
 	mActions[LC_FILE_EXPORT_POVRAY]->setDisabled(true);
 	mActions[LC_FILE_EXPORT_WAVEFRONT]->setDisabled(true);
 	//Tools
-	//[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_SELECT]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_ROTATE]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_PAN]->setDisabled(true);
@@ -844,20 +844,24 @@ void lcMainWindow::CreateToolBars()
 	TransformLayout->addWidget(TransformButton);
 
 /*** LPub3D Mod - Add transform X,Y,Z status messages ***/
+	QString color("<font color=\"%1\"><b>%2</b></font>");
 	QLabel* mTransformLabel;
-	mTransformLabel = new QLabel(" X:");
+	mTransformLabel = new QLabel();
+	mTransformLabel->setText(color.arg(QColor(Qt::red).name(),QLatin1String("X:")));
 	TransformLayout->addWidget(mTransformLabel);
 	mTransformXEdit = new lcTransformLineEdit();
 	mTransformXEdit->setClearButtonEnabled(true);
 	mTransformXEdit->setStatusTip(tr("LDraw Format - Enter ROTSTEP meta X coordinate"));
 	TransformLayout->addWidget(mTransformXEdit);
-	mTransformLabel = new QLabel(" Y:");
+	mTransformLabel = new QLabel();
+	mTransformLabel->setText(color.arg(QColor(Qt::darkGreen).name(),QLatin1String("Y:")));
 	TransformLayout->addWidget(mTransformLabel);
 	mTransformYEdit = new lcTransformLineEdit();
 	mTransformYEdit->setClearButtonEnabled(true);
 	mTransformYEdit->setStatusTip(tr("LDraw Format - Enter ROTSTEP meta Y coordinate"));
 	TransformLayout->addWidget(mTransformYEdit);
-	mTransformLabel = new QLabel(" Z:");
+	mTransformLabel = new QLabel("<b>Z:</b>");
+	mTransformLabel->setText(color.arg(QColor(Qt::blue).name(),QLatin1String("Z:")));
 	TransformLayout->addWidget(mTransformLabel);
 	mTransformZEdit = new lcTransformLineEdit();
 	mTransformZEdit->setClearButtonEnabled(true);
@@ -1008,7 +1012,7 @@ void lcMainWindow::TogglePreviewWidget(bool Visible)
 		else
 			mPreviewToolBar->hide();
 	}
-	else if (Visible) 
+	else if (Visible)
 	{
 		CreatePreviewWidget();
 	}
@@ -1242,38 +1246,37 @@ int lcMainWindow::GetImageType(){
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - transform command ***/
-void lcMainWindow::ApplyTransform(lcCommandId CommandId)
+void lcMainWindow::ApplyRotStepMeta(lcCommandId CommandId)
 {
-	bool okToPropagate = false;
+	if (CommandId == LC_EDIT_TRANSFORM) {
+		if (GetTransformType() == lcTransformType::RelativeTranslation ||
+			GetTransformType() == lcTransformType::AbsoluteTranslation)
+			return;
 
-	if (CommandId == LC_EDIT_TRANSFORM){
-		QString RotStepType = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
-							  (GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
+		QString RotStepType =
+				GetTransformType() == lcTransformType::RelativeRotation ? QLatin1String("REL") : QLatin1String("ABS");
+
 		lcVector3 RotStepAngles = GetRotStepTransformAmount();
-		okToPropagate = ((mExistingRotStep != RotStepAngles) ||
-						 (mRotStepType != RotStepType));
-		if (okToPropagate) {
+
+		if ((mExistingRotStep != RotStepAngles) || (mRotStepType != RotStepType)) {
+			mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
+			mExistingRotStep = RotStepAngles;
+			mRotStepType = RotStepType;
 			emit SetRotStepAngleX(RotStepAngles.x);
 			emit SetRotStepAngleY(RotStepAngles.y);
 			emit SetRotStepAngleZ(RotStepAngles.z);
 			emit SetRotStepType(RotStepType);
-			mExistingRotStep = RotStepAngles;
-			mRotStepType = RotStepType;
 		} else {
 			emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
 								   .arg(QString::number(double(mExistingRotStep[0]), 'f', 2),
-								   QString::number(double(mExistingRotStep[1]), 'f', 2),
-					QString::number(double(mExistingRotStep[2]), 'f', 2),
-					QString::number(double(RotStepAngles[0]), 'f', 2),
-					QString::number(double(RotStepAngles[1]), 'f', 2),
-					QString::number(double(RotStepAngles[2]), 'f', 2))
-					.arg(mRotStepType,RotStepType));
+										QString::number(double(mExistingRotStep[1]), 'f', 2),
+										QString::number(double(mExistingRotStep[2]), 'f', 2),
+										QString::number(double(RotStepAngles[0]), 'f', 2),
+										QString::number(double(RotStepAngles[1]), 'f', 2),
+										QString::number(double(RotStepAngles[2]), 'f', 2))
+								   .arg(mRotStepType,RotStepType));
 		}
 	} else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
-		okToPropagate = true;
-	}
-
-	if (okToPropagate) {
 		emit SetRotStepMeta();
 		lcView::UpdateAllViews();
 	}
@@ -1282,21 +1285,19 @@ void lcMainWindow::ApplyTransform(lcCommandId CommandId)
 void lcMainWindow::EnableApplyTransform(lcTransformType TransformType)
 {
 	bool enable = false;
+	enable |= !mTransformXEdit->text().isEmpty();
+	enable |= !mTransformYEdit->text().isEmpty();
+	enable |= !mTransformZEdit->text().isEmpty();
 	switch (TransformType)
 	{
-	case lcTransformType::AbsoluteTranslation:
-	case lcTransformType::RelativeTranslation:
-		enable |= !mTransformXEdit->text().isEmpty();
-		enable |= !mTransformYEdit->text().isEmpty();
-		enable |= !mTransformZEdit->text().isEmpty();
-		mActions[LC_EDIT_ACTION_APPLY_TRANSFORM]->setEnabled(enable);
-		break;
-
 	case lcTransformType::AbsoluteRotation:
 	case lcTransformType::RelativeRotation:
+		if (!mActions[LC_EDIT_ACTION_ROTATESTEP]->isEnabled())
+			mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enable);
+		ApplyRotStepMeta(LC_EDIT_TRANSFORM);
 		break;
 
-	case lcTransformType::Count:
+	default:
 		break;
 	}
 }
@@ -1353,7 +1354,7 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 	// Here we are only setting the ROTSTEP angles and transform variables
 	// mExistingRotStep and mRotStepType for consumption when parts
 	// are manually user-rotated from the Visual Editor
-	QRegExp RotStepRx("ADD|ABS|REL");
+	QRegExp RotStepRx("ABS|REL");
 
 	while (!LineStream.atEnd())
 	{
@@ -3930,17 +3931,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_TRANSFORM:
-		if (ActiveModel) {
-			ActiveModel->TransformSelectedObjects(GetTransformType(), GetTransformAmount());
+		if (ActiveModel)
 /*** LPub3D Mod - transform command ***/
-			if (!ActiveModel->AnyPiecesSelected())
-				QMessageBox::information(this, tr("Visual Editor Properties"),
-										 tr("Nothing selected. Make a selection to transform."));
-			else
-				EnableApplyTransform(GetTransformType());
-		}
-		break;
+			ActiveModel->TransformSelectedObjects(GetTransformType(), GetTransformAmount(), ActiveModel->AnyPiecesSelected());
 /*** LPub3D Mod end ***/
+		break;
 
 	case LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION:
 		SetTransformType(lcTransformType::AbsoluteTranslation);
@@ -3994,7 +3989,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(lcTool::Rotate);
-/*** LPub3D Mod - rotate step ***/
+/*** LPub3D Mod - rotate step transform command ***/
 		if (ActiveModel && !lcGetPreferences().mBuildModificationEnabled)
 			ActiveModel->SelectAllPieces();
 /*** LPub3D Mod end ***/
@@ -4039,7 +4034,8 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_APPLY_TRANSFORM:
-		ApplyTransform(LC_EDIT_TRANSFORM);
+		//if (!lcGetPreferences().mBuildModificationEnabled)
+		//    ApplyRotStepMeta(LC_EDIT_TRANSFORM);
 		break;
 /*** LPub3D Mod end ***/
 

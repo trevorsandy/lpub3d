@@ -3124,8 +3124,19 @@ void lcModel::ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoin
 	}
 }
 
-void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform)
+/*** LPub3D Mod - transform command ***/
+void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform, bool PiecesSelected)
 {
+	if (!PiecesSelected)
+	{
+		QMessageBox::information(gMainWindow, tr("Visual Editor Transform"),
+											  tr("Nothing selected. Make a selection to transform."));
+		return;
+	}
+
+	gMainWindow->ApplyRotStepMeta(LC_EDIT_TRANSFORM);
+/*** LPub3D Mod end ***/
+
 	switch (TransformType)
 	{
 	case lcTransformType::AbsoluteTranslation:

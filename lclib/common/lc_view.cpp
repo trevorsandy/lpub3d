@@ -967,16 +967,16 @@ void lcView::OnDraw()
 		else if (GetCurrentTool() == lcTool::Move && mTrackButton != lcTrackButton::None)
 			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool);
 		else if ((Tool == lcTool::Rotate || (Tool == lcTool::Select && mTrackButton != lcTrackButton::None && mTrackTool >= lcTrackTool::RotateX && mTrackTool <= lcTrackTool::RotateXYZ)) && ActiveModel->AnyPiecesSelected())
-			mViewManipulator->DrawRotate(mTrackButton, mTrackTool);
-		else if ((mTrackTool == lcTrackTool::Select || mTrackTool == lcTrackTool::ZoomRegion) && mTrackButton != lcTrackButton::None)
-			DrawSelectZoomRegionOverlay();
-		else if (Tool == lcTool::RotateView && mTrackButton == lcTrackButton::None)
 /*** LPub3D Mod - Rotate step angles ***/
 		{
-			DrawRotateViewOverlay();
+			mViewManipulator->DrawRotate(mTrackButton, mTrackTool);
 			gMainWindow->GetRotStepMetaAngles();
 		}
 /*** LPub3D Mod end ***/
+		else if ((mTrackTool == lcTrackTool::Select || mTrackTool == lcTrackTool::ZoomRegion) && mTrackButton != lcTrackButton::None)
+			DrawSelectZoomRegionOverlay();
+		else if (Tool == lcTool::RotateView && mTrackButton == lcTrackButton::None)
+			DrawRotateViewOverlay();
 	}
 
 	if (DrawOverlays)

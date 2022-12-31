@@ -713,6 +713,7 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 
       int ExecReturn = box.exec();
       if (ExecReturn == QMessageBox::Save) {
+        saveBuildModification();
         save();
       } else
       if (ExecReturn == QMessageBox::Cancel) {
@@ -792,7 +793,7 @@ void Gui::closeFile()
 // This call definitively closes and clears from curFile, the current model file
 void Gui::closeModelFile()
 {
-  if (maybeSave() && saveBuildModification()) {
+  if (maybeSave()) {
     disableWatcher();
     QString topModel = lpub->ldrawFile.topLevelFile();
     curFile.clear();       // clear file from curFile here...

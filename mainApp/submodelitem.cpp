@@ -1378,6 +1378,8 @@ void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
         QGraphicsView *view = subModel->background->scene()->views().first();
         QPoint viewP = view->mapFromScene(sceneP);
         position = view->viewport()->mapToGlobal(viewP);
+    } else {
+        gui->RaisePreviewDockWindow();
     }
 
     QString submodelName = part->type;

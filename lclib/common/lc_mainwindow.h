@@ -372,7 +372,7 @@ public slots:
 
 /*** LPub3D Mod - transform command ***/
 	void EnableApplyTransform(lcTransformType TransformType);
-	void ApplyTransform(lcCommandId CommandId);
+	void ApplyRotStepMeta(lcCommandId CommandId);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Selected Parts ***/

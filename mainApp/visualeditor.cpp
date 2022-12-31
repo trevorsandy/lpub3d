@@ -233,6 +233,7 @@ void Gui::create3DActions()
     BuildModComboAct->setObjectName("BuildModComboAct.4");
     BuildModComboAct->setEnabled(false);
     BuildModComboAct->setStatusTip(tr("Create or update a build modification for this step"));
+    connect(BuildModComboAct, &QAction::triggered, [&]( ) { BuildModMenu->popup(QCursor::pos()); });
 
     CreateBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
     CreateBuildModAct->setObjectName("CreateBuildModAct.4");
@@ -303,20 +304,26 @@ void Gui::create3DActions()
     lpub->actions.insert(DeleteBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Build Modification.Delete"), DeleteBuildModAct));
     connect(DeleteBuildModAct, SIGNAL(triggered()), this, SLOT(deleteBuildModification()));
 
-    EnableBuildModAct = new QAction(tr("Build Modifications Enabled"),this);
+    QIcon EnableBuildModIcon;
+    EnableBuildModIcon.addFile(":/resources/rotatebuildmod.png");
+    EnableBuildModIcon.addFile(":/resources/rotatebuildmod16.png");
+    EnableBuildModAct = new QAction(EnableBuildModIcon,tr("Rotate Build Modification"),this);
     EnableBuildModAct->setObjectName("EnableBuildModAct.4");
-    EnableBuildModAct->setStatusTip(tr("Enable build modification configuration on rotate action"));
+    EnableBuildModAct->setStatusTip(tr("This option allows you to choose your selection and will transform the rotated parts"));
     EnableBuildModAct->setChecked(false);
     EnableBuildModAct->setCheckable(true);
-    lpub->actions.insert(EnableBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.Build Modifications Enabled"), EnableBuildModAct));
+    lpub->actions.insert(EnableBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.Build Modification Rotate"), EnableBuildModAct));
     connect(EnableBuildModAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
 
-    EnableRotstepRotateAct = new QAction(tr("ROTSTEP Rotate Enabled"),this);
+    QIcon EnableRotstepRotateIcon;
+    EnableRotstepRotateIcon.addFile(":/resources/rotaterotstep.png");
+    EnableRotstepRotateIcon.addFile(":/resources/rotaterotstep16.png");
+    EnableRotstepRotateAct = new QAction(EnableRotstepRotateIcon,tr("Rotate LPub ROTSTEP"),this);
     EnableRotstepRotateAct->setObjectName("EnableRotstepRotateAct.4");
-    EnableRotstepRotateAct->setStatusTip(tr("Enable ROTSTEP configuration on rotate action"));
+    EnableRotstepRotateAct->setStatusTip(tr("This option will rotate the entire model and populate the LPub ROTSTEP command"));
     EnableRotstepRotateAct->setChecked(false);
     EnableRotstepRotateAct->setCheckable(true);
-    lpub->actions.insert(EnableRotstepRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.ROTSTEP Rotate Enabled"), EnableRotstepRotateAct));
+    lpub->actions.insert(EnableRotstepRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.ROTSTEP Rotate"), EnableRotstepRotateAct));
     connect(EnableRotstepRotateAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
 
     QIcon ApplyLightIcon;
@@ -381,6 +388,15 @@ void Gui::create3DActions()
     AngleAct->setStatusTip(tr("Snap rotations to fixed intervals"));
     AngleAct->setIcon(QIcon(":/resources/edit_snap_angle.png"));
     lpub->actions.insert(AngleAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Rotation Snap"), AngleAct));
+
+    QIcon ResetViewerImageIcon;
+    ResetViewerImageIcon.addFile(":/resources/resetviewerimage.png");
+    ResetViewerImageIcon.addFile(":/resources/resetviewerimage16.png");
+    ResetViewerImageAct = lpub->getAct("resetViewerImageAction.1");
+    ResetViewerImageAct->setIcon(ResetViewerImageIcon);
+    ResetViewerImageAct->setText(tr("Reset Assembly Display"));
+    ResetViewerImageAct->setStatusTip(tr("Reset the current step assembly display"));
+    connect(ResetViewerImageAct, SIGNAL(triggered()), this, SLOT(resetViewerImage()));
 
     QIcon ViewViewPointHomeIcon;
     ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home.png");
@@ -660,6 +676,7 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(TransformAct);
      gMainWindow->GetToolsMenu()->addAction(MoveAct);
      gMainWindow->GetToolsMenu()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
+     gMainWindow->GetToolsMenu()->addAction(ResetViewerImageAct);
      ViewerMenu->addMenu(gMainWindow->GetToolsMenu());
      // ViewPoint menu
      ViewerMenu->addMenu(gMainWindow->GetViewpointMenu());
@@ -739,6 +756,7 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(TransformAct);
     gMainWindow->GetToolsToolBar()->addAction(MoveAct);
     gMainWindow->GetToolsToolBar()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
+    gMainWindow->GetToolsToolBar()->addAction(ResetViewerImageAct);
     gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");
 }
 
@@ -846,6 +864,9 @@ void Gui::enable3DActions(bool enable)
     blenderImportAct->setEnabled(enable);
     povrayRenderAct->setEnabled(enable);
     ViewerExportMenu->setEnabled(enable);
+
+    ResetViewerImageAct->setEnabled(enable &&
+        static_cast<Options::Mt>(lcGetActiveProject()->GetImageType()) == Options::CSI);
 
     GetToolsToolBar()->setEnabled(enable);
     GetTimelineToolBar()->setEnabled(enable);
@@ -1878,34 +1899,60 @@ void Gui::enableVisualBuildModification()
     bool buildModEnabled = Preferences::buildModEnabled;
 
     if (sender() == EnableBuildModAct)
-        buildModEnabled |= EnableBuildModAct->isChecked();
+        buildModEnabled &= EnableBuildModAct->isChecked();
     else if (sender() == EnableRotstepRotateAct)
-        buildModEnabled |= !EnableRotstepRotateAct->isChecked();
-
-    buildModEnabled &= (buildModsCount()) && !curFile.isEmpty();
+        buildModEnabled &= !EnableRotstepRotateAct->isChecked();
 
     if (buildModEnabled) {
+        buildModEnabled &= (buildModsCount()) && !curFile.isEmpty();
         using namespace Options;
         if (static_cast<Mt>(lcGetActiveProject()->GetImageType()) != CSI)
             return;
     }
 
-    QIcon RotateIcon;
-    if (buildModEnabled)
-        RotateIcon.addFile(":/resources/rotatebuildmod.png");
-    else
-        RotateIcon.addFile(":/resources/rotaterotstep.png");
-
-    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setIcon(RotateIcon);
-    gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(!buildModEnabled);
-    gApplication->mPreferences.mBuildModificationEnabled = buildModEnabled;
-
+    EnableBuildModAct->setEnabled(Preferences::buildModEnabled);
     EnableBuildModAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
     BuildModComboAct->setEnabled(buildModEnabled);
-
     CreateBuildModAct->setEnabled(false);
     UpdateBuildModAct->setEnabled(false);
+
+    QIcon RotateIcon;
+    QString RotateText,RotateStatusTip,RelTranslateStatusTip,AbsTranslateStatusTip;
+    if (buildModEnabled) {
+        RotateText = tr("Rotate build modification pieces");
+        RotateStatusTip = tr("Rotate selected build modification pieces - Shift+L");
+        RelTranslateStatusTip = tr("Switch to relative translation mode when applying transforms");
+        AbsTranslateStatusTip = tr("Switch to absolute translation mode when applying transforms");
+        RotateIcon.addFile(":/resources/rotatebuildmod.png");
+        RotateIcon.addFile(":/resources/rotatebuildmod16.png");
+        if (gMainWindow->GetTransformType() == lcTransformType::RelativeRotation ||
+            gMainWindow->GetTransformType() == lcTransformType::AbsoluteRotation)
+            gMainWindow->SetTransformType(lcTransformType::RelativeTranslation);
+    } else {
+        RotateText = tr("Rotate model for ROTSTEP command");
+        RotateStatusTip = tr("Rotate selected model for ROTSTEP command - Shift+L");
+        RelTranslateStatusTip = tr("Relative translation mode is disabled when build modifications are disabled");
+        AbsTranslateStatusTip = tr("Absolute translation mode is disabled when build modifications are disabled");
+        RotateIcon.addFile(":/resources/rotaterotstep.png");
+        RotateIcon.addFile(":/resources/rotaterotstep16.png");
+        if (gMainWindow->GetTransformType() == lcTransformType::RelativeTranslation ||
+            gMainWindow->GetTransformType() == lcTransformType::AbsoluteTranslation)
+            gMainWindow->SetTransformType(lcTransformType::RelativeRotation);
+    }
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setIcon(RotateIcon);
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setText(RotateText);
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setStatusTip(RotateStatusTip);
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(false);
+
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]->setEnabled(buildModEnabled);
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]->setStatusTip(RelTranslateStatusTip);
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]->setEnabled(buildModEnabled);
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]->setStatusTip(AbsTranslateStatusTip);
+
+    gApplication->mPreferences.mBuildModificationEnabled = buildModEnabled;
 }
 
 void Gui::enableVisualBuildModActions()
@@ -2002,11 +2049,13 @@ void Gui::enableVisualBuildModEditAction()
     if (buildModStepAction == BuildModBeginRc) {
         disconnect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
         connect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
+        BuildModComboAct->setText(tr("Update Build Modification"));
         BuildModComboAct->setStatusTip(tr("Update the existing build modification in this step"));
         UpdateBuildModAct->setEnabled(buildModEnabled);
     } else {
         disconnect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
         connect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+        BuildModComboAct->setText(tr("Create Build Modification"));
         BuildModComboAct->setStatusTip(tr("Create a new build modification for this step"));
         CreateBuildModAct->setEnabled(buildModEnabled);
     }
@@ -2014,25 +2063,25 @@ void Gui::enableVisualBuildModEditAction()
 
 void Gui::showDefaultCameraProperties()
 {
-  gApplication->mPreferences.mDefaultCameraProperties = DefaultCameraPropertiesAct->isChecked();
-  lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, DefaultCameraPropertiesAct->isChecked());
+    gApplication->mPreferences.mDefaultCameraProperties = DefaultCameraPropertiesAct->isChecked();
+    lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, DefaultCameraPropertiesAct->isChecked());
 }
 
 void Gui::useImageSize()
 {
-  lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, UseImageSizeAct->isChecked());
+    lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, UseImageSizeAct->isChecked());
 }
 
 void Gui::autoCenterSelection()
 {
-  lcSetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION, AutoCenterSelectionAct->isChecked());
+    lcSetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION, AutoCenterSelectionAct->isChecked());
 }
 
 void Gui::createStatusBar()
 {
-  statusBar()->showMessage(tr("Ready"));
-  if (Preferences::modeGUI)
-      connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
+    statusBar()->showMessage(tr("Ready"));
+    if (Preferences::modeGUI)
+        connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
 }
 
 void Gui::readNativeSettings()
@@ -4081,11 +4130,12 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
             return false;
 
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_TRACE, tr("LPub Step lineIndex count: %1 item(s)")
+        emit messageSig(LOG_TRACE, tr("%1 Step lineIndex count: %2 item(s)")
+                                      .arg(VER_PRODUCTNAME_STR)
                                       .arg(lpub->currentStep->lineTypeIndexes.size()));
 //      for (int i = 0; i < lpub->currentStep->lineTypeIndexes.size(); ++i)
-//          emit messageSig(LOG_TRACE, tr(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
-//                                        .arg(lpub->currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
+//          emit messageSig(LOG_TRACE, tr(" -%1 Part lineNumber [%2] at step line lineIndex [%3] - specified lineIndex [%4]")
+//                                        .arg(.arg(VER_PRODUCTNAME_STR)).arg(lpub->currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
 #endif
 
         if (fromViewer)      // input relativeIndes
@@ -4139,18 +4189,18 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
 #ifdef QT_DEBUG_MODE
         const QString SourceNames[] =
         {
-            QLatin1String("EDITOR_CLR"),  // -2
-            QLatin1String("NOT_FOUND"),   // -1 OUT_OF_BOUNDS, NEW_PART, NEW_MODEL
-            QLatin1String("EDITOR_LINE"), //  0 VIEWER_NONE
-            QLatin1String("VIEWER_LINE"), //  1
-            QLatin1String("VIEWER_MOD"),  //  2
-            QLatin1String("VIEWER_DEL"),  //  3
-            QLatin1String("VIEWER_SEL"),  //  4
-            QLatin1String("VIEWER_CLR")   //  5
+            QLatin1String("EDITOR_CLR (-2)"), // -2
+            QLatin1String("NOT_FOUND (-1)"),  // -1 OUT_OF_BOUNDS (-1), NEW_PART (-1), NEW_MODEL (-1)
+            QLatin1String("EDITOR_LINE (0)"), //  0 VIEWER_NONE
+            QLatin1String("VIEWER_LINE (1)"), //  1
+            QLatin1String("VIEWER_MOD (2)"),  //  2
+            QLatin1String("VIEWER_DEL (3)"),  //  3
+            QLatin1String("VIEWER_SEL (4)"),  //  4
+            QLatin1String("VIEWER_CLR (5)")   //  5
         };
         QString fromSource;
         if (!fromViewer && source == EDITOR_LINE)
-            fromSource = QLatin1String("EDITOR_LINE");
+            fromSource = QLatin1String("EDITOR_LINE (0)");
         else
             fromSource = SourceNames[source+2];
         emit gui->messageSig(LOG_DEBUG, QString("Selection Source: %1 (%2)")
@@ -4201,23 +4251,27 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
             QString Message;
             if (fromViewer) {
                 if (lineIndex == NEW_PART) {
-                    Message = tr("New viewer part specified at step %1, modelName: [%2]")
+                    fromSource = QLatin1String("VIEWER_NEW_PART (-1)");
+                    Message = tr("New %1 part specified at step %2, modelName: [%3]")
+                                 .arg(fromSource)
                                  .arg(lpub->currentStep->stepNumber.number)
                                  .arg(modelName);
                 } else if (validLine) {
-                    Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                                 .arg(modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
+                    Message = tr("Selected %1 part modelName [%2] lineNumber: [%3] at step line index [%4]")
+                                 .arg(fromSource).arg(modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
                 } else {
+                    fromSource = indexes.size() ? QLatin1String("VIEWER_OUT_OF_BOUNDS (-1)") : QLatin1String("VIEWER_INVALID (-1)");
                     Message = tr("%1 part lineNumber [%2] for step line index [%3]")
-                                 .arg(indexes.size() ? "Out of bounds" : "Invalid")
+                                 .arg(fromSource)
                                  .arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineNumber));
                 }
             } else if (validLine) { // valid and not from viewer
-                Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                             .arg(modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
+                Message = tr("Selected %1 part modelName [%2] lineNumber: [%3] at step line index [%4]")
+                             .arg(fromSource).arg(modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
             } else {                // invalid and not from viewer
+                fromSource = indexes.size() ? QLatin1String("OUT_OF_BOUNDS (-1)") : QLatin1String("INVALID (-1)");
                 Message = tr("%1 part lineNumber [%2] for step line index [%3]") // index and number flipped
-                             .arg(indexes.size() ? "Out of bounds" : "Invalid")
+                             .arg(fromSource)
                              .arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineNumber));
             }
             emit messageSig(LOG_TRACE, Message);
@@ -4233,9 +4287,12 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                 if (!modsEnabled) {
                     enableVisualBuildModEditAction();
                 }
-                emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")
+#ifdef QT_DEBUG_MODE
+                emit messageSig(LOG_TRACE, tr("Delete %1 part(s) specified at step %2, modelName: [%3]")
+                                              .arg(fromSource)
                                               .arg(lpub->currentStep->stepNumber.number)
                                               .arg(modelName));
+#endif
             }
         } else { // indexes from editor
             if (lines.size() && gMainWindow->isVisible())
@@ -4342,6 +4399,28 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
     Preferences::ldrawFilesLoadMsgs = saveLoadMessageFlag;
 
     return true;
+}
+
+void Gui::resetViewerImage()
+{
+    if (!lpub->currentStep || !Preferences::modeGUI || exporting())
+        return;
+
+    using namespace Options;
+    if (static_cast<Mt>(lcGetActiveProject()->GetImageType()) != CSI)
+        return;
+
+    enableVisualBuildModActions();
+    lpub->currentStep->viewerOptions->ZoomExtents = false/*Preferences::buildModEnabled*/;
+    lpub->currentStep->loadTheViewer();
+    QVector<TypeLine> LineTypeIndexes;
+    PartSource Selection = VIEWER_CLR;
+    lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
+    if (ActiveModel)
+    {
+        emit gMainWindow->SelectedPartLinesSig(LineTypeIndexes, Selection);
+        ActiveModel->ResetModAction();
+    }
 }
 
 /*********************************************

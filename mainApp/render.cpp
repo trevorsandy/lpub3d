@@ -3644,7 +3644,6 @@ bool Render::LoadViewer(const NativeOptions *Options) {
 
         lpub->SetAutomateEdgeColor(Options);
     }
-
     Loaded = lpub->OpenProject(Options);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QObject::tr("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use Key]")

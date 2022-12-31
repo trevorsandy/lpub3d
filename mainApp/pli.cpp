@@ -3789,6 +3789,8 @@ void PGraphicsPixmapItem::previewPart(bool useDockable) {
         QGraphicsView *view = pli->background->scene()->views().first();
         QPoint viewP = view->mapFromScene(sceneP);
         position = view->viewport()->mapToGlobal(viewP);
+    } else {
+        gui->RaisePreviewDockWindow();
     }
 
     gui->PreviewPiece(part->type, part->color.toInt(), dockable, QRect(), position);

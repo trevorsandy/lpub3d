@@ -105,6 +105,7 @@ void CsiItem::loadTheViewer(bool override, bool zoomExtents)
         step->viewerOptions->ZoomExtents = zoomExtents;
         step->loadTheViewer();
     }
+    gui->RaiseVisualEditDockWindow();
 }
 
 /********************************************
@@ -290,6 +291,8 @@ void CsiItem::previewCsi(bool useDockable) {
         QGraphicsView *view = scene()->views().first();
         QPoint viewP = view->mapFromScene(sceneP);
         position = view->viewport()->mapToGlobal(viewP);
+    } else {
+        gui->RaisePreviewDockWindow();
     }
 
     gui->PreviewPiece(csiFileName, colorCode, dockable, QRect(), position);

@@ -1259,6 +1259,12 @@ public slots:
           visualEditDockWindow->raise();
   }
 
+  void RaisePreviewDockWindow()
+  {
+      if (previewDockWindow && previewDockWindow->visibleRegion().isEmpty())
+          previewDockWindow->raise();
+  }
+
   QString GetPliIconsPath(QString& key);
 
   void setPliIconPath(QString& key, QString& value);
@@ -1428,6 +1434,7 @@ public slots:
   void useImageSize();
   void useSystemEditor();
   void autoCenterSelection();
+  void resetViewerImage();
 
   void ldrawSearchDirectories();
   void showDefaultCameraProperties();
@@ -2013,6 +2020,7 @@ private:
   QAction *TransformAct;
   QAction *MoveAct;
   QAction *AngleAct;
+  QAction *ResetViewerImageAct;
 
   QAction *recentFilesSeparatorAct;
   QAction *recentFilesActs[MAX_RECENT_FILES];
