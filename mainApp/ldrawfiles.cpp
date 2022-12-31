@@ -3916,9 +3916,12 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
         QVector<int> indexKey = { modelIndex, lineNumber };
         stepIndex = _buildModStepIndexes.indexOf(indexKey);
         if (stepIndex == BM_INVALID_INDEX) {
-            if (!indexCheck)
+            if (indexCheck) {
+                insert = QString("Index Check BuildMod (INVALID)");
+            } else {
                 logType = LOG_ERROR;
-            insert = QString("Get BuildMod (INVALID)");
+                insert = QString("Get BuildMod (INVALID)");
+            }
         }
     }
     else {
