@@ -41,13 +41,14 @@ namespace QsLogging
 {
   typedef QVector<DestinationPtr> DestinationList;
 
-  static const char TraceString[] = "TRACE";
-  static const char NoticeString[]= "NOTICE";
-  static const char DebugString[] = "DEBUG";
-  static const char InfoString[]  = "INFO";
-  static const char StatusString[]= "STATUS";
-  static const char ErrorString[] = "ERROR";
-  static const char FatalString[] = "FATAL";
+  static const char TraceString[]  = "TRACE";
+  static const char NoticeString[] = "NOTICE";
+  static const char DebugString[]  = "DEBUG";
+  static const char InfoString[]   = "INFO";
+  static const char StatusString[] = "STATUS";
+  static const char WarningString[]= "WARNING";
+  static const char ErrorString[]  = "ERROR";
+  static const char FatalString[]  = "FATAL";
 
   // not using Qt::ISODate because we need the milliseconds too
   static const QString fmtDateTime("yyyy-MM-ddThh:mm:ss.zzz");
@@ -68,6 +69,8 @@ namespace QsLogging
         return InfoString;
       case StatusLevel:
         return StatusString;
+      case WarningLevel:
+        return WarningString;
       case ErrorLevel:
         return ErrorString;
       case FatalLevel:
@@ -86,19 +89,21 @@ namespace QsLogging
     switch( theLevel )
       {
       case TraceLevel:
-        return QString("%1%2%3").arg(QS_LOG_MAGENTA).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_MAGENTA, output, QS_LOG_NC);
       case NoticeLevel:
-        return QString("%1%2%3").arg(QS_LOG_CYAN).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_CYAN, output, QS_LOG_NC);
       case DebugLevel:
-        return QString("%1%2%3").arg(QS_LOG_BLUE).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_BLUE, output, QS_LOG_NC);
       case InfoLevel:
-        return QString("%1%2%3").arg(QS_LOG_GREEN).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_GREEN, output, QS_LOG_NC);
       case StatusLevel:
-        return QString("%1%2%3").arg(QS_LOG_YELLOW).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_LGREEN, output, QS_LOG_NC);
+      case WarningLevel:
+        return QString("%1%2%3").arg(QS_LOG_YELLOW, output, QS_LOG_NC);
       case ErrorLevel:
-        return QString("%1%2%3").arg(QS_LOG_RED).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_RED, output, QS_LOG_NC);
       case FatalLevel:
-        return QString("%1%2%3").arg(QS_LOG_RED).arg(output).arg(QS_LOG_NC);
+        return QString("%1%2%3").arg(QS_LOG_RED, output, QS_LOG_NC);
       default:
         {
           Q_ASSERT(!"bad log level");
@@ -147,6 +152,7 @@ namespace QsLogging
     bool noticeLevel;
     bool infoLevel;
     bool statusLevel;
+    bool warningLevel;
     bool errorLevel;
     bool fatalLevel;
   };
@@ -183,6 +189,7 @@ namespace QsLogging
     , noticeLevel(         false)
     , infoLevel(           false)
     , statusLevel(         false)
+    , warningLevel(        false)
     , errorLevel(          false)
     , fatalLevel(          false)
   {
@@ -231,6 +238,8 @@ namespace QsLogging
       return InfoLevel;
     if (logMessage.startsWith(QLatin1String(StatusString)))
       return StatusLevel;
+    if (logMessage.startsWith(QLatin1String(WarningString)))
+      return WarningLevel;
     if (logMessage.startsWith(QLatin1String(ErrorString)))
       return ErrorLevel;
     if (logMessage.startsWith(QLatin1String(FatalString)))
@@ -256,6 +265,8 @@ namespace QsLogging
       return InfoLevel;
     if (string.contains(QLatin1String(StatusString)))
       return StatusLevel;
+    if (string.contains(QLatin1String(WarningString)))
+      return WarningLevel;
     if (string.contains(QLatin1String(ErrorString)))
       return ErrorLevel;
     if (string.contains(QLatin1String(FatalString)))
@@ -289,6 +300,8 @@ namespace QsLogging
             return d->infoLevel;
           case StatusLevel:
             return d->statusLevel;
+          case WarningLevel:
+            return d->warningLevel;
           case ErrorLevel:
             return d->errorLevel;
           case FatalLevel:
@@ -441,6 +454,11 @@ namespace QsLogging
     d->statusLevel = l;
   }
 
+  void Logger::setWarningLevel(bool l)
+  {
+    d->warningLevel = l;
+  }
+
   void Logger::setErrorLevel(bool l)
   {
     d->errorLevel = l;
@@ -459,7 +477,7 @@ namespace QsLogging
     QString fileRelPath   = headers.section('|',0,0).trimmed();
     QString functionInfo  = headers.section('|',1,1).trimmed();
     QString lineNumber    = headers.section('|',2,2).trimmed();
-    buffer.remove(QString("%1 %2 ").arg(headers).arg(split));
+    buffer.remove(QString("%1 %2 ").arg(headers, split));
     QFileInfo info(fileRelPath);
     QString fileName      = info.fileName();
 
@@ -471,7 +489,7 @@ namespace QsLogging
 //                "\nfileName:     " << fileName <<
 //                "\nfunctionInfo: " << functionInfo <<
 //                "\nlineNumber:   " << lineNumber <<
-//                "\nRemove:       " << QString("%1%2 ").arg(headers).arg(split);
+//                "\nRemove:       " << QString("%1%2 ").arg(headers, split);
 
     QString completePlainMessage,
         completeColorizedMessage;
@@ -483,15 +501,16 @@ namespace QsLogging
 //                  "\nFunctionInfo " << logger.includeFunctionInfo() <<
 //                  "\nTimeStamp    " << logger.includeTimestamp()    <<
 //                  "\nFileName     " << logger.includeFileName()     <<
-//                  "\n\nLevel:     " <<(logger.loggingLevel() == StatusLevel ? "StatusLevel" :
-//                                       logger.loggingLevel() == InfoLevel   ? "InfoLevel"   :
-//                                       logger.loggingLevel() == TraceLevel  ? "TraceLevel"  :
-//                                       logger.loggingLevel() == DebugLevel  ? "DebugLevel"  :
-//                                       logger.loggingLevel() == NoticeLevel ? "NoticeLevel" :
-//                                       logger.loggingLevel() == ErrorLevel  ? "ErrorLevel"  :
-//                                       logger.loggingLevel() == FatalLevel  ? "FatalLevel"  :
-//                                       logger.loggingLevel() == OffLevel    ? "OffLevel"    :
-//                                                                            "No Valid Level");
+//                  "\n\nLevel:     " <<(logger.loggingLevel() == StatusLevel  ? "StatusLevel"  :
+//                                       logger.loggingLevel() == InfoLevel    ? "InfoLevel"    :
+//                                       logger.loggingLevel() == TraceLevel   ? "TraceLevel"   :
+//                                       logger.loggingLevel() == DebugLevel   ? "DebugLevel"   :
+//                                       logger.loggingLevel() == NoticeLevel  ? "NoticeLevel"  :
+//                                       logger.loggingLevel() == WarningLevel ? "WarningLevel" :
+//                                       logger.loggingLevel() == ErrorLevel   ? "ErrorLevel"   :
+//                                       logger.loggingLevel() == FatalLevel   ? "FatalLevel"   :
+//                                       logger.loggingLevel() == OffLevel     ? "OffLevel"     :
+//                                                                             "No Valid Level");
 
     if (logger.includeLogLevel()) {
         completePlainMessage.

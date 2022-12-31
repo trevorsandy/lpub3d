@@ -119,6 +119,8 @@ public:
   void setInfoLevel(bool l);
   //! Set to true to enable Status log level
   void setStatusLevel(bool l);
+  //! Set to true to enable Warning log level
+  void setWarningLevel(bool l);
   //! Set to true to enable Error log level
   void setErrorLevel(bool l);
   //! Set to true to enable Fatal log level
@@ -181,6 +183,10 @@ private:
    if( QsLogging::Logger::instance().loggingLevel(QsLogging::StatusLevel) ) \
      QsLogging::Logger::Helper(QsLogging::StatusLevel).stream() \
      << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logWarning()  \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::WarningLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::WarningLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
 #define logError() \
    if( QsLogging::Logger::instance().loggingLevel(QsLogging::ErrorLevel) ) \
      QsLogging::Logger::Helper(QsLogging::ErrorLevel).stream() \
@@ -190,7 +196,7 @@ private:
      QsLogging::Logger::Helper(QsLogging::FatalLevel).stream() \
      << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
 
-/*
+/* Backup Copy
 #define logTrace() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::TraceLevel ){} \
    else QsLogging::Logger::Helper(QsLogging::TraceLevel).stream() \
@@ -210,6 +216,10 @@ private:
 #define logStatus()  \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::StatusLevel ){} \
    else QsLogging::Logger::Helper(QsLogging::StatusLevel).stream() \
+      << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logWarning()  \
+   if( QsLogging::Logger::instance().loggingLevel() > QsLogging::WarningLevel ){} \
+   else QsLogging::Logger::Helper(QsLogging::WarningLevel).stream() \
       << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
 #define logError() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::ErrorLevel ){} \

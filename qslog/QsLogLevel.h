@@ -36,6 +36,7 @@ enum Level
   TraceLevel,
   DebugLevel,
   NoticeLevel,
+  WarningLevel,
   ErrorLevel,
   FatalLevel,
   OffLevel
