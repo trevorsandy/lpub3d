@@ -4924,7 +4924,7 @@ void Gui::createActions()
 
     QAction *removeBuildModFormatAct = new QAction(tr("Remove Build Mod Format"),this);
     removeBuildModFormatAct->setObjectName("removeBuildModFormatAct.1");
-    removeBuildModFormatAct->setStatusTip(tr("Remove build modification formatting including modified part lines."));
+    removeBuildModFormatAct->setStatusTip(tr("Remove build modification formatting, including modified part lines, for submodel, step, or page unformat."));
     removeBuildModFormatAct->setCheckable(true);
     removeBuildModFormatAct->setEnabled(Preferences::buildModEnabled);
     removeBuildModFormatAct->setChecked(Preferences::removeBuildModFormat);
@@ -4933,7 +4933,7 @@ void Gui::createActions()
 
     QAction *removeChildSubmodelFormatAct = new QAction(tr("Remove Child Submodel Format"),this);
     removeChildSubmodelFormatAct->setObjectName("removeChildSubmodelFormatAct.1");
-    removeChildSubmodelFormatAct->setStatusTip(tr("Remove child submodel formatting for submodel, step, page or callout removals."));
+    removeChildSubmodelFormatAct->setStatusTip(tr("Remove child submodel formatting for submodel, step, or page unformat."));
     removeChildSubmodelFormatAct->setCheckable(true);
     removeChildSubmodelFormatAct->setChecked(Preferences::removeChildSubmodelFormat);
     lpub->actions.insert(removeChildSubmodelFormatAct->objectName(), Action(QStringLiteral("Edit.Remove LPub Format.Remove Child Submodel Format"), removeChildSubmodelFormatAct));

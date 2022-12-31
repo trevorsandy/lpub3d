@@ -1,4 +1,4 @@
-LPub3D 2.4.5.43.3020 (31 12 2022 04:06:33)
+LPub3D 2.4.5.44.3021 (31 12 2022 04:08:14)
 
 Features, enhancements, fixes and changes
 ------------
@@ -27,6 +27,7 @@ Revisions:
 - Fix - Next Step menu actions not working as expected #637
 - Fix - Open with programs menu action not enabled #629
 - Fix - Primitives shown as missing parts in file load status #630
+- Fix - Remove LPub Formatting menu action does nothing #638
 - Fix - Settings for Coverpage and Backcover do not work #620
 
 --------------------------------------------------------------------------------------------------

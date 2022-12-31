@@ -5227,15 +5227,15 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
           switch (line.toLatin1()[0])
           {
               case '0':
-                  if ((bmMeta = Preferences::buildModEnabled && option != RLPF_BOM)) {
+                  if (Preferences::buildModEnabled && option != RLPF_BOM) {
                       QRegExp bmRx("(BUILD_MOD_ENABLED|BUILD_MOD BEGIN|BUILD_MOD END_MOD|BUILD_MOD END)");
-                      if (line.contains(bmRx)) {
+                      if ((bmMeta = line.contains(bmRx))) {
                           if (bmRx.cap(1).endsWith("END_MOD"))
                               bmLine = true;
                           else if (bmRx.cap(1).endsWith("BEGIN"))
                               bmLine = false;
+                          bmMeta = !Preferences::removeBuildModFormat && option != RLPF_DOCUMENT;
                       }
-                      bmMeta = !Preferences::removeBuildModFormat;
                   }
                   split(line,argv);
                   if (argv.size() > 2 && (argv[1] == "!LPUB" || argv[1] == "LPUB") && !bmMeta) {
@@ -5278,19 +5278,17 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
   Where top = _top;
   Where bottom = _bottom;
 
-  if (option < RLPF_PAGE) { // RLPF_DOCUMENT, RLPF_SUBMODEL
+  if (option < RLPF_PAGE) {
       QStringList fileList;
-      if (option == RLPF_DOCUMENT)
+      if (option == RLPF_DOCUMENT)    // RLPF_DOCUMENT
           fileList = lpub->ldrawFile.subFileOrder();
       else
-          fileList << top.modelName;
+          fileList << top.modelName;  // RLPF_SUBMODEL
       beginMacro("RemoveLPubFormatting");
       for (int i = 0; i < fileList.size(); ++i) {
-          // skip setting top for the topLevelFile (modelIndex == 0)
-          if (top.modelIndex) {
-            top.modelName = fileList[i];
-            top.lineNumber = 1;
-          }
+          top.modelName = fileList[i];
+          top.modelIndex = i;
+          top.lineNumber = 1;
           bottom.modelName = top.modelName;
           bottom.lineNumber = lpub->ldrawFile.size(bottom.modelName);
           removeFormatting(option, top, bottom);
@@ -5298,7 +5296,7 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
       endMacro();
       return;
   }
-  else if (option == RLPF_BOM)
+  else if (option == RLPF_BOM)        // RLPF_BOM
   {
       bool forModel;
       int option = BomOptionDialog::getOption(forModel, bottom.modelIndex, nullptr, true);
@@ -5335,7 +5333,7 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
           }
       }
   }
-  else if (option == RLPF_CALLOUT)
+  else if (option == RLPF_CALLOUT)   // RLPF_CALLOUT
   {
       ;
   }
