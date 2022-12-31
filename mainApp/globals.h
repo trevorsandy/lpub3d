@@ -50,7 +50,7 @@ class GlobalSizeWidget : public QWidget
     Q_OBJECT
 public:
     GlobalSizeWidget(const QSize _sh, const QSize _msh, QWidget *_parent = 0) :
-        sh(_sh), msh(_msh), QWidget(_parent) {}
+        QWidget(_parent), sh(_sh), msh(_msh) {}
     ~GlobalSizeWidget() {}
     QSize sizeHint() const { QSize s = QWidget::sizeHint(); return s.expandedTo(sh); }
     QSize minimumSizeHint() const { QSize s = QWidget::minimumSizeHint(); return s.expandedTo(msh); }
