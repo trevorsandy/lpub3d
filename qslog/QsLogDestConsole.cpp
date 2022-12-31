@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,14 @@
 #include <QString>
 #include <QtGlobal>
 
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_UNIX) || defined(Q_OS_WIN) && defined(QS_LOG_WIN_PRINTF_CONSOLE)
+#include <cstdio>
+void QsDebugOutput::output( const QString& message )
+{
+   fprintf(stderr, "%s\n", qPrintable(message));
+   fflush(stderr);
+}
+#elif defined(Q_OS_WIN)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 void QsDebugOutput::output( const QString& message )
@@ -35,14 +42,9 @@ void QsDebugOutput::output( const QString& message )
    OutputDebugStringW(reinterpret_cast<const WCHAR*>(message.utf16()));
    OutputDebugStringW(L"\n");
 }
-#elif defined(Q_OS_UNIX)
-#include <cstdio>
-void QsDebugOutput::output( const QString& message )
-{
-   fprintf(stderr, "%s\n", qPrintable(message));
-   fflush(stderr);
-}
 #endif
+
+const char* const QsLogging::DebugOutputDestination::Type = "console";
 
 void QsLogging::DebugOutputDestination::write(const QString& message, Level)
 {
@@ -54,7 +56,7 @@ bool QsLogging::DebugOutputDestination::isValid()
     return true;
 }
 
-QsLogging::DestType QsLogging::DebugOutputDestination::destType()
+QString QsLogging::DebugOutputDestination::type() const
 {
-    return Console;
+    return QString::fromLatin1(Type);
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,6 @@
 #define QSLOGDESTCONSOLE_H
 
 #include "QsLogDest.h"
-
 class QString;
 
 class QsDebugOutput
@@ -43,9 +42,11 @@ namespace QsLogging
 class DebugOutputDestination : public Destination
 {
 public:
+    static const char* const Type;
+
     virtual void write(const QString& message, Level level);
-    virtual DestType destType();
     virtual bool isValid();
+    virtual QString type() const;
 };
 
 }

@@ -1,9 +1,9 @@
 INCLUDEPATH += $$PWD
 
 #Log output options
-#DEFINES += QS_LOG_SEPARATE_THREAD # messages are queued and written from a separate thread
-#DEFINES += QS_LOG_DISABLE         # logging code is replaced with a no-op
-
+#DEFINES += QS_LOG_DISABLE            # logging code is replaced with a no-op
+#DEFINES += QS_LOG_SEPARATE_THREAD    # messages are queued and written from a separate thread
+#DEFINES += QS_LOG_WIN_PRINTF_CONSOLE # Use fprintf instead of OutputDebugString on Windows
 SOURCES += \
 	$$PWD/QsLogDest.cpp \
     $$PWD/QsLog.cpp \
@@ -22,5 +22,5 @@ HEADERS += \
 
 OTHER_FILES += \
     $$PWD/QsLogChanges.txt \
-    $$PWD/QsLogReadme.txt \
+    $$PWD/README.md \
     $$PWD/LICENSE.txt

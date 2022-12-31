@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -42,13 +42,6 @@ class QObject;
 
 namespace QsLogging
 {
-  // named parameters to identify the type of log being written
- typedef enum
-  {
-    Console = 0,
-    LogFile,
-    Functor
-  } DestType;
 
   class QSLOG_SHARED_OBJECT Destination
   {
@@ -58,8 +51,18 @@ namespace QsLogging
   public:
     virtual ~Destination();
     virtual void write(const QString& message, Level level) = 0;
-    virtual DestType destType() = 0; // default is console
-    virtual bool isValid() = 0; // returns whether the destination was created correctly
+    //!
+    //! \brief isValid
+    //! \return whether the destination was created correctly
+    //!
+    virtual bool isValid() = 0;
+    //!
+    //! \brief type
+    //! \return the type as a string e.g: console, file.
+    //!         The returned value may change in different versions of QsLog, but two destinations
+    //!         of the same type will return the same value.
+    //!
+    virtual QString type() const = 0;
   };
   typedef QSharedPointer<Destination> DestinationPtr;
 

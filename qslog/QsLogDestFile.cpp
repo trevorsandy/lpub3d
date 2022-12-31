@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,6 +26,7 @@
 #include "QsLogDestFile.h"
 #include <QTextCodec>
 #include <QDateTime>
+#include <QString>
 #include <QtGlobal>
 #include <iostream>
 
@@ -48,6 +49,12 @@ void QsLogging::SizeRotationStrategy::setInitialInfo(const QFile &file)
     mCurrentSizeInBytes = file.size();
 }
 
+void QsLogging::SizeRotationStrategy::setInitialInfo(const QString &filePath, int fileSize)
+{
+    mFileName = filePath;
+    mCurrentSizeInBytes = fileSize;
+}
+
 void QsLogging::SizeRotationStrategy::includeMessageInCalculation(const QString &message)
 {
     mCurrentSizeInBytes += message.toUtf8().size();
@@ -63,8 +70,9 @@ bool QsLogging::SizeRotationStrategy::shouldRotate()
 void QsLogging::SizeRotationStrategy::rotate()
 {
     if (!mBackupsCount) {
-        if (!QFile::remove(mFileName))
+        if (!removeFileAtPath(mFileName)) {
             std::cerr << "QsLog: backup delete failed " << qPrintable(mFileName);
+        }
         return;
     }
 
@@ -73,18 +81,20 @@ void QsLogging::SizeRotationStrategy::rotate()
      int lastExistingBackupIndex = 0;
      for (int i = 1;i <= mBackupsCount;++i) {
          const QString backupFileName = logNamePattern.arg(i);
-         if (QFile::exists(backupFileName))
+         if (fileExistsAtPath(backupFileName)) {
              lastExistingBackupIndex = qMin(i, mBackupsCount - 1);
-         else
+         }
+         else {
              break;
+         }
      }
 
      // 2. shift up
      for (int i = lastExistingBackupIndex;i >= 1;--i) {
          const QString oldName = logNamePattern.arg(i);
          const QString newName = logNamePattern.arg(i + 1);
-         QFile::remove(newName);
-         const bool renamed = QFile::rename(oldName, newName);
+         removeFileAtPath(newName);
+         const bool renamed = renameFileFromTo(oldName, newName);
          if (!renamed) {
              std::cerr << "QsLog: could not rename backup " << qPrintable(oldName)
                        << " to " << qPrintable(newName);
@@ -93,9 +103,10 @@ void QsLogging::SizeRotationStrategy::rotate()
 
      // 3. rename current log file
      const QString newName = logNamePattern.arg(1);
-     if (QFile::exists(newName))
-         QFile::remove(newName);
-     if (!QFile::rename(mFileName, newName)) {
+     if (fileExistsAtPath(newName)) {
+         removeFileAtPath(newName);
+     }
+     if (!renameFileFromTo(mFileName, newName)) {
          std::cerr << "QsLog: could not rename log " << qPrintable(mFileName)
                    << " to " << qPrintable(newName);
      }
@@ -118,13 +129,30 @@ void QsLogging::SizeRotationStrategy::setBackupCount(int backups)
     mBackupsCount = qMin(backups, SizeRotationStrategy::MaxBackupCount);
 }
 
+bool QsLogging::SizeRotationStrategy::removeFileAtPath(const QString &path)
+{
+    return QFile::remove(path);
+}
+
+bool QsLogging::SizeRotationStrategy::fileExistsAtPath(const QString &path)
+{
+    return QFile::exists(path);
+}
+
+bool QsLogging::SizeRotationStrategy::renameFileFromTo(const QString &from, const QString &to)
+{
+    return QFile::rename(from, to);
+}
+
+const char* const QsLogging::FileDestination::Type = "file";
 
 QsLogging::FileDestination::FileDestination(const QString& filePath, RotationStrategyPtr rotationStrategy)
     : mRotationStrategy(rotationStrategy)
 {
     mFile.setFileName(filePath);
-    if (!mFile.open(QFile::WriteOnly | QFile::Text | mRotationStrategy->recommendedOpenModeFlag()))
+    if (!mFile.open(QFile::WriteOnly | QFile::Text | mRotationStrategy->recommendedOpenModeFlag())) {
         std::cerr << "QsLog: could not open log file " << qPrintable(filePath);
+    }
     mOutputStream.setDevice(&mFile);
     mOutputStream.setCodec(QTextCodec::codecForName("UTF-8"));
 
@@ -138,10 +166,12 @@ void QsLogging::FileDestination::write(const QString& message, Level)
         mOutputStream.setDevice(nullptr);
         mFile.close();
         mRotationStrategy->rotate();
-        if (!mFile.open(QFile::WriteOnly | QFile::Text | mRotationStrategy->recommendedOpenModeFlag()))
+        if (!mFile.open(QFile::WriteOnly | QFile::Text | mRotationStrategy->recommendedOpenModeFlag())) {
             std::cerr << "QsLog: could not reopen log file " << qPrintable(mFile.fileName());
+        }
         mRotationStrategy->setInitialInfo(mFile);
         mOutputStream.setDevice(&mFile);
+        mOutputStream.setCodec(QTextCodec::codecForName("UTF-8"));
     }
 
     mOutputStream << message << QString("\n");
@@ -153,7 +183,8 @@ bool QsLogging::FileDestination::isValid()
     return mFile.isOpen();
 }
 
-QsLogging::DestType QsLogging::FileDestination::destType()
+QString QsLogging::FileDestination::type() const
 {
-  return LogFile;
+    return QString::fromLatin1(Type);
 }
+

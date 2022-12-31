@@ -1,5 +1,29 @@
 -------------------
+QsLog version 2.1
+
+Changes:
+* Allowed checking if a destination of a certain type has already been added.
+* Allowed using fprintf instead of OutputDebugString on Windows.
+* Made building/running the example from QtCreator easier. Unfortunately I couldn't find a
+satisfactory way of doing this using pure qmake, so an env var is needed.
+* Added support for CMake builds (Qt5 only, courtesy of A.Gembe).
+
+Fixes:
+* Fixed build for Qt < 5.4 (courtesy of P.Hille).
+
+-------------------
+QsLog version 2.0
+
+Changes:
+* Added possibility to remove destinations.
+* Added unit tests for rotation and destination removal.
+
+Fixes:
+* Fixed rare codec error in combination with custom ICU.
+
+-------------------
 QsLog version 2.0b4
+
 Fixes:
 Fixed file name case error for Linux.
 

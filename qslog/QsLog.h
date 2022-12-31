@@ -1,4 +1,5 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
+// Copyright (C) 2022 Trevor SANDY. All rights reserved.
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +32,7 @@
 #include <QDebug>
 #include <QString>
 
-#define QS_LOG_VERSION "2.0b4"
+#define QS_LOG_VERSION "2.1"
 
 #define QS_LOG_SPLIT "__sp|it__"
 
@@ -58,14 +59,12 @@
 namespace QsLogging
 {
 class Destination;
-
 class LoggerImpl; // d pointer
 
 class QSLOG_SHARED_OBJECT Logger
 {
 public:
   static Logger& instance();
-  static void destroyInstance();
   static Level levelFromLogMessage(const QString& logMessage, bool* conversionSucceeded = 0);
   static Level fromLevelString(const QString& string, bool* conversionSucceeded = 0);
 
@@ -73,6 +72,10 @@ public:
 
   //! Adds a log message destination. Don't add null destinations.
   void addDestination(DestinationPtr destination);
+  //! Removes a previously added destination. Does nothing if destination was not previously added.
+  void removeDestination(const DestinationPtr& destination);
+  //! Checks if a destination of a specific type has been added. Pass T::Type as parameter.
+  bool hasDestinationOfType(const char* type) const;
   //! Logging at a level < 'newLevel' will be ignored
   void setLoggingLevel(Level newLevel);
   //! Use one or more logging levels

@@ -1,4 +1,4 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -65,6 +65,7 @@ public:
     static const int MaxBackupCount;
 
     virtual void setInitialInfo(const QFile &file);
+    void setInitialInfo(const QString& filePath, int fileSize);
     virtual void includeMessageInCalculation(const QString &message);
     virtual bool shouldRotate();
     virtual void rotate();
@@ -72,6 +73,12 @@ public:
 
     void setMaximumSizeInBytes(qint64 size);
     void setBackupCount(int backups);
+
+protected:
+    // can be overridden for testing
+    virtual bool removeFileAtPath(const QString& path);
+    virtual bool fileExistsAtPath(const QString& path);
+    virtual bool renameFileFromTo(const QString& from, const QString& to);
 
 private:
     QString mFileName;
@@ -86,10 +93,12 @@ typedef QSharedPointer<RotationStrategy> RotationStrategyPtr;
 class FileDestination : public Destination
 {
 public:
+    static const char* const Type;
+
     FileDestination(const QString& filePath, RotationStrategyPtr rotationStrategy);
     virtual void write(const QString& message, Level level);
-    virtual DestType destType();
     virtual bool isValid();
+    virtual QString type() const;
 
 private:
     QFile mFile;

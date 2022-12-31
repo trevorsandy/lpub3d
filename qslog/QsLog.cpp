@@ -1,4 +1,5 @@
-// Copyright (C) 2013, Razvan Petru
+// Copyright (c) 2010 - 2015 Razvan Petru
+// Copyright (C) 2022 Trevor SANDY. All rights reserved.
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +33,9 @@
 #include <QMutex>
 #include <QVector>
 #include <QDateTime>
+#include <QLatin1String>
 #include <QtGlobal>
+#include <cassert>
 #include <cstdlib>
 #include <stdexcept>
 #include <QFileInfo>
@@ -52,8 +55,6 @@ namespace QsLogging
 
   // not using Qt::ISODate because we need the milliseconds too
   static const QString fmtDateTime("yyyy-MM-ddThh:mm:ss.zzz");
-
-  static Logger* sInstance = 0;
 
   static const char* LevelToText(Level theLevel)
   {
@@ -77,7 +78,7 @@ namespace QsLogging
         return FatalString;
       default:
         {
-          Q_ASSERT(!"bad log level");
+          assert(!"bad log level");
           return InfoString;
         }
       }
@@ -106,7 +107,7 @@ namespace QsLogging
         return QString("%1%2%3").arg(QS_LOG_RED, output, QS_LOG_NC);
       default:
         {
-          Q_ASSERT(!"bad log level");
+          assert(!"bad log level");
           return output;
         }
       }
@@ -136,8 +137,8 @@ namespace QsLogging
     QMutex logMutex;
     Level level;
     DestinationList destList;
-    bool includeLogLevel;
     bool includeTimeStamp;
+    bool includeLogLevel;    
     bool includeLineNumber;
     bool includeFileName;
     bool includeFunctionInfo;
@@ -182,7 +183,7 @@ namespace QsLogging
 
     , colorizeOutput(      false)
     , colorizeFunctionInfo(false)
-    , useLogLevels(       false)
+    , useLogLevels(        false)
 
     , debugLevel(          false)
     , traceLevel(          false)
@@ -201,7 +202,6 @@ namespace QsLogging
 #endif
   }
 
-
   Logger::Logger()
     : d(new LoggerImpl)
   {
@@ -209,16 +209,8 @@ namespace QsLogging
 
   Logger& Logger::instance()
   {
-    if (!sInstance)
-      sInstance = new Logger;
-
-    return *sInstance;
-  }
-
-  void Logger::destroyInstance()
-  {
-    delete sInstance;
-    sInstance = 0;
+      static Logger instance;
+      return instance;
   }
 
   // tries to extract the level from a string log message. If available, conversionSucceeded will
@@ -250,33 +242,6 @@ namespace QsLogging
     return OffLevel;
   }
 
-  Level Logger::fromLevelString(const QString& string, bool* conversionSucceeded)
-  {
-    if (conversionSucceeded)
-      *conversionSucceeded = true;
-
-    if (string.contains(QLatin1String(TraceString)))
-      return TraceLevel;
-    if (string.contains(QLatin1String(NoticeString)))
-      return NoticeLevel;
-    if (string.contains(QLatin1String(DebugString)))
-      return DebugLevel;
-    if (string.contains(QLatin1String(InfoString)))
-      return InfoLevel;
-    if (string.contains(QLatin1String(StatusString)))
-      return StatusLevel;
-    if (string.contains(QLatin1String(WarningString)))
-      return WarningLevel;
-    if (string.contains(QLatin1String(ErrorString)))
-      return ErrorLevel;
-    if (string.contains(QLatin1String(FatalString)))
-      return FatalLevel;
-
-    if (conversionSucceeded)
-      *conversionSucceeded = false;
-    return OffLevel;
-  }
-
   Logger::~Logger()
   {
 #ifdef QS_LOG_SEPARATE_THREAD
@@ -286,6 +251,52 @@ namespace QsLogging
     d = 0;
   }
 
+  void Logger::addDestination(DestinationPtr destination)
+  {
+      assert(destination.data());
+      QMutexLocker lock(&d->logMutex);
+      d->destList.push_back(destination);
+  }
+
+  void Logger::removeDestination(const DestinationPtr& destination)
+  {
+      QMutexLocker lock(&d->logMutex);
+      const int destinationIndex = d->destList.indexOf(destination);
+      if (destinationIndex != -1) {
+          d->destList.remove(destinationIndex);
+      }
+  }
+
+  bool Logger::hasDestinationOfType(const char* type) const
+  {
+      QMutexLocker lock(&d->logMutex);
+      for (DestinationList::iterator it = d->destList.begin(),
+          endIt = d->destList.end();it != endIt;++it) {
+          if ((*it)->type() == QLatin1String(type)) {
+              return true;
+          }
+      }
+
+      return false;
+  }
+
+  void Logger::setLoggingLevel(Level newLevel)
+  {
+    d->useLogLevels = false;
+    d->level        = newLevel;
+  }
+  
+  void Logger::setLoggingLevels()
+  {
+    d->useLogLevels = true;
+    d->level        = OffLevel;
+  }
+  
+  Level Logger::loggingLevel() const
+  {
+    return d->level;
+  }
+  
   bool Logger::loggingLevel(Level l){
     if (d->useLogLevels){
         switch (l)
@@ -308,37 +319,14 @@ namespace QsLogging
             return d->fatalLevel;
           default:
             {
-              Q_ASSERT(!"bad error level");
+              assert(!"bad error level");
               return l == OffLevel;
             }
           }
       }
     return d->level <= l;
   }
-
-  void Logger::addDestination(DestinationPtr destination)
-  {
-    Q_ASSERT(destination.data());
-    d->destList.push_back(destination);
-  }
-
-  void Logger::setLoggingLevel(Level newLevel)
-  {
-    d->useLogLevels = false;
-    d->level        = newLevel;
-  }
-
-  void Logger::setLoggingLevels()
-  {
-    d->useLogLevels = true;
-    d->level        = OffLevel;
-  }
-
-  Level Logger::loggingLevel() const
-  {
-    return d->level;
-  }
-
+  
   void Logger::setIncludeTimestamp(bool e)
   {
     d->includeTimeStamp = e;
@@ -349,7 +337,6 @@ namespace QsLogging
     return d->includeTimeStamp;
   }
 
-  //
   void Logger::setIncludeLineNumber(bool e)
   {
     d->includeLineNumber = e;
@@ -575,7 +562,7 @@ namespace QsLogging
     }
     catch(std::exception&) {
       // you shouldn't throw exceptions from a sink
-      Q_ASSERT(!"exception in logger helper destructor");
+      assert(!"exception in logger helper destructor");
       //throw;
     }
   }
@@ -599,13 +586,40 @@ namespace QsLogging
     for (DestinationList::iterator it = d->destList.begin(),
          endIt = d->destList.end();it != endIt;++it) {
         //if console, do not write status level
-        if ((*it)->destType() != LogFile && level != StatusLevel)
+        if ((*it)->type() != "file" && level != StatusLevel)
           (*it)->write(colourMessage, level);
-        else if ((*it)->destType() == LogFile)
+        else if ((*it)->type() == "file")
           (*it)->write(plainMessage, level);
       }
   }
 
+  Level Logger::fromLevelString(const QString& string, bool* conversionSucceeded)
+  {
+    if (conversionSucceeded)
+      *conversionSucceeded = true;
+
+    if (string.contains(QLatin1String(TraceString)))
+      return TraceLevel;
+    if (string.contains(QLatin1String(NoticeString)))
+      return NoticeLevel;
+    if (string.contains(QLatin1String(DebugString)))
+      return DebugLevel;
+    if (string.contains(QLatin1String(InfoString)))
+      return InfoLevel;
+    if (string.contains(QLatin1String(StatusString)))
+      return StatusLevel;
+    if (string.contains(QLatin1String(WarningString)))
+      return WarningLevel;
+    if (string.contains(QLatin1String(ErrorString)))
+      return ErrorLevel;
+    if (string.contains(QLatin1String(FatalString)))
+      return FatalLevel;
+
+    if (conversionSucceeded)
+      *conversionSucceeded = false;
+    return OffLevel;
+  }
+  
   //!  function to parse the Q_FUNC_INFO string and add a little more color.
   QString Logger::Helper::colorizeFunctionInfo(QString functionInfo)
   {

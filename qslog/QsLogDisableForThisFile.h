@@ -14,13 +14,13 @@
 #undef logError
 #undef logFatal
 
-#define logTrace() if (1) {} else qDebug()
-#define logNotice() if (1) {} else qDebug()
-#define logDebug()  if (1) {} else qDebug()
-#define logInfo()  if (1) {} else qDebug()
+#define logTrace()   if (1) {} else qDebug()
+#define logNotice()  if (1) {} else qDebug()
+#define logDebug()   if (1) {} else qDebug()
+#define logInfo()    if (1) {} else qDebug()
 #define logStatus()  if (1) {} else qDebug()
-#define logWarning()  if (1) {} else qDebug()
-#define logError() if (1) {} else qDebug()
-#define logFatal() if (1) {} else qDebug()
+#define logWarning() if (1) {} else qDebug()
+#define logError()   if (1) {} else qDebug()
+#define logFatal()   if (1) {} else qDebug()
 
 #endif // QSLOGDISABLEFORTHISFILE_H

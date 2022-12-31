@@ -1,5 +1,5 @@
-// Copyright (C) 2014, Razvan Petru
-// Copyright (C) 2014, Omar Carey
+// Copyright (c) 2010 - 2015 Razvan Petru
+// Copyright (c) 2014, Omar Carey
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,6 +27,9 @@
 #include "QsLogDestFunctor.h"
 #include <cstddef>
 #include <QtGlobal>
+#include <QString>
+
+const char* const QsLogging::FunctorDestination::Type = "functor";
 
 QsLogging::FunctorDestination::FunctorDestination(LogFunction f)
     : QObject(nullptr)
@@ -51,12 +54,12 @@ void QsLogging::FunctorDestination::write(const QString &message, QsLogging::Lev
         emit logMessageReady(message, static_cast<int>(level));
 }
 
-QsLogging::DestType QsLogging::FunctorDestination::destType()
-{
-    return Functor;
-}
-
 bool QsLogging::FunctorDestination::isValid()
 {
     return true;
+}
+
+QString QsLogging::FunctorDestination::type() const
+{
+    return QString::fromLatin1(Type);
 }

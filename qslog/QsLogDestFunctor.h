@@ -1,4 +1,4 @@
-// Copyright (C) 2014, Razvan Petru
+// Copyright (C) 2010 - 2015 Razvan Petru
 // Copyright (C) 2014, Omar Carey
 // All rights reserved.
 
@@ -41,12 +41,14 @@ class FunctorDestination : public QObject, public Destination
 {
     Q_OBJECT
 public:
+    static const char* const Type;
+
     explicit FunctorDestination(LogFunction f);
     FunctorDestination(QObject *receiver, const char *member);
 
     virtual void write(const QString &message, Level level);
-    virtual DestType destType();
     virtual bool isValid();
+    virtual QString type() const;
 
 protected:
     // int used to avoid registering a new enum type
