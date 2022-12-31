@@ -266,7 +266,7 @@ void Gui::checkMixedPageSizeStatus(){
           if (pageSizes[key].orientation != orientation && orientation_warning != true) {
               orientation_warning = true;
               text = text1;
-              title = "<b>" + tr ("Mixed page orientation detected") + "</b>";
+              title = "<b>" + tr ("Mixed page orientation detected.") + "</b>";
               box.setIcon (QMessageBox::Information);
             }
 
@@ -808,12 +808,14 @@ void Gui::exportAsPdf()
   int savePageNumber = displayPageNum;
 
   // return to whatever page we were viewing before printing
-  auto restoreCurrentPage = [&]()
+  auto restoreCurrentPage = [&](bool restoreKpage = true)
   {
       displayPageNum = savePageNumber;
-      dpFlags.printing = false;
-      clearPage(KpageView,KpageScene);
-      drawPage(KpageView,KpageScene,dpFlags);
+      if (restoreKpage) {
+          dpFlags.printing = false;
+          clearPage(KpageView,KpageScene);
+          drawPage(KpageView,KpageScene,dpFlags);
+      }
   };
 
   // add pixel ratio info to file name
@@ -838,7 +840,7 @@ void Gui::exportAsPdf()
       if (fileName == "") {
           // release Visual Editor
           emit setExportingSig(false);
-          restoreCurrentPage();
+          restoreCurrentPage(false);
           return;
       }
   } else if (!saveFileName.isEmpty()) { // command line user specified file name
@@ -889,7 +891,7 @@ void Gui::exportAsPdf()
           emit messageSig(LOG_STATUS, tr("Cannot open file. %1").arg(text));
           // release Visual Editor
           emit setExportingSig(false);
-          restoreCurrentPage();
+          restoreCurrentPage(false);
           return;
       }
   }
@@ -1037,6 +1039,13 @@ void Gui::exportAsPdf()
               image.fill(Qt::white);
           }
 
+          //* local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
+#ifdef QT_DEBUG_MODE
+          int debugDisplayPageNum = displayPageNum;
+          Q_UNUSED(debugDisplayPageNum)
+#endif
+          //*/
+
           // render this page
           dpFlags.printing = true;
           drawPage(&view,&scene,dpFlags);
@@ -1074,7 +1083,7 @@ void Gui::exportAsPdf()
               // wrap up paint to image
               painter.end();
           }
-      }
+      } // end of step 1. generate page pixmaps
 
       m_progressDialog->setValue(_maxPages);
 
@@ -1125,7 +1134,7 @@ void Gui::exportAsPdf()
           painter.end();
       }
 
-    } else {
+  } else {
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
@@ -1161,7 +1170,7 @@ void Gui::exportAsPdf()
       }
 
       // step 1. generate page pixmaps
-      Q_FOREACH (int printPage,printPages){
+      Q_FOREACH (int printPage,printPages) {
 
           _pageCount++;
 
@@ -1268,7 +1277,7 @@ void Gui::exportAsPdf()
               // wrap up
               painter.end();
           }
-      }
+      } // end of step 1. generate page pixmaps
 
       m_progressDialog->setValue(printPages.count());
 
@@ -1317,7 +1326,7 @@ void Gui::exportAsPdf()
           // wrap up paint to pdfWriter
           pages.clear();
           painter.end();
-      }
+      } // end of step 2. paint generated page pixmaps to the pdfWriter
   }
 
   // hide progress bar
