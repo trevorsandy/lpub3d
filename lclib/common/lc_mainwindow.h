@@ -370,8 +370,9 @@ public slots:
 	void NewProject();               // move from public:
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - rotate step objects ***/
-	void SetStepRotStepMeta(lcCommandId CommandId);
+/*** LPub3D Mod - transform command ***/
+	void EnableApplyTransform(lcTransformType TransformType);
+	void ApplyTransform(lcCommandId CommandId);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Selected Parts ***/
@@ -391,7 +392,7 @@ signals:
 	void SetRotStepAngleX(float, bool=false);
 	void SetRotStepAngleY(float, bool=false);
 	void SetRotStepAngleZ(float, bool=false);
-	void SetRotStepTransform(QString&, bool=false);
+	void SetRotStepType(QString&, bool=false);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export image completion ***/
 	void updateSig();
@@ -486,7 +487,7 @@ protected:
 	QToolBar* mToolsToolBar;
 /*** LPub3D Mod - rotate step ***/
 	lcVector3 mExistingRotStep;
-	QString mRotStepTransform;
+	QString mRotStepType;
 /*** LPub3D Mod end ***/
 
 	QToolBar* mTimeToolBar;
@@ -520,6 +521,9 @@ protected:
 	QMenu* mProjectionMenu;
 	QMenu* mShadingMenu;
 	QMenu* mSelectionModeMenu;
+/*** LPub3D Mod - transform command ***/
+	friend class Gui;
+/*** LPub3D Mod end ***/
 };
 
 extern class lcMainWindow* gMainWindow;

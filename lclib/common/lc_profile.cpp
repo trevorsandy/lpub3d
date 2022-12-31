@@ -168,10 +168,6 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                                     // LC_PROFILE_PREVIEW_LOAD_PATH                          /*** LPub3D Mod - preview widget for LPub3D ***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Build Modification ***/
-	lcProfileEntry("Settings", "BuildModification", 0),                                                    // LC_PROFILE_BUILD_MODIFICATION                         /*** LPub3D Mod - Build Modification ***/
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - Build mod object selected colour ***/
 	lcProfileEntry("Settings", "BMObjectSelectedColor", static_cast<uint>(LC_RGBA(121, 216, 121, 255))),   // LC_PROFILE_BM_OBJECT_SELECTED_COLOR                   /*** LPub3D Mod - Build mod object selected colour ***/
 /*** LPub3D Mod - ***/

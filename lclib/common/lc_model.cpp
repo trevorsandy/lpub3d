@@ -3390,7 +3390,8 @@ bool lcModel::AnyPiecesSelected() const
 bool lcModel::AnyObjectsSelected() const
 {
 /*** LPub3D Mod - Build Modification ***/
-	if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
+	const lcPreferences& Preferences = lcGetPreferences();
+	if (Preferences.mBuildModificationEnabled) {
 		if (gMainWindow->GetImageType() != Options::PLI) {
 			for (const lcPiece* Piece : mPieces)
 				if (Piece->IsSelected())

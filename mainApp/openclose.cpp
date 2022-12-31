@@ -763,10 +763,16 @@ void Gui::closeFile()
   Preferences::resetFadeSteps();
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
-  if (Preferences::modeGUI)
-      enableBuildModMenuAndActions();
-  emit clearViewerWindowSig();
-  emit updateAllViewsSig();
+  Preferences::unsetBuildModifications();
+  //Visual Editor
+  if (Preferences::modeGUI) {
+      enableVisualBuildModification();
+      enable3DActions(false);
+      emit clearViewerWindowSig();
+      emit updateAllViewsSig();
+  }
+  lpub->SetStudStyle(nullptr, true/*reload*/);
+  lpub->SetAutomateEdgeColor(nullptr);
   Preferences::preferredRendererPreferences();
   Preferences::fadestepPreferences();
   Preferences::highlightstepPreferences();
@@ -784,22 +790,12 @@ void Gui::closeFile()
 }
 
 // This call definitively closes and clears from curFile, the current model file
-void Gui::closeModelFile(){
+void Gui::closeModelFile()
+{
   if (maybeSave() && saveBuildModification()) {
     disableWatcher();
     QString topModel = lpub->ldrawFile.topLevelFile();
     curFile.clear();       // clear file from curFile here...
-    Preferences::unsetBuildModifications();
-    //Visual Editor
-    if (Preferences::modeGUI) {
-        enableBuildModMenuAndActions();
-        enable3DActions(false);
-        emit clearViewerWindowSig();
-        emit updateAllViewsSig();
-    }
-    lpub->SetStudStyle(nullptr, true/*reload*/);
-    lpub->SetAutomateEdgeColor(nullptr);
-
     // Editor
     emit clearEditorWindowSig();
     // Gui
@@ -812,7 +808,6 @@ void Gui::closeModelFile(){
     getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file with detached LDraw Editor"));
     if (!topModel.isEmpty())
         emit lpub->messageSig(LOG_INFO, tr("Model unloaded. File closed - %1.").arg(topModel));
-
     QString windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
     QString versionInfo;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD

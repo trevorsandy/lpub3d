@@ -1,4 +1,4 @@
-LPub3D 2.4.5.82.3059 (31 12 2022 05:12:27)
+LPub3D 2.4.5.83.3060 (31 12 2022 05:14:10)
 
 Features, enhancements, fixes and changes
 ------------
@@ -28,6 +28,7 @@ Revisions:
 - Fix - Build modification - correct jump forward parse error #622
 - Fix - Build modification - correct navigate backward parse error #621
 - Fix - Build modification - unable to validate nested build mod level #642
+- Fix - Build modification - visual editor build mod actions #651
 - Fix - Configuration preferences dialog cutoff/min window size #616
 - Fix - Export to PDF abnormal behaviour #624
 - Fix - Next Step menu actions not working as expected #637

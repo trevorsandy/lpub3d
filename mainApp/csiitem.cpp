@@ -101,7 +101,7 @@ void CsiItem::loadTheViewer(bool override, bool zoomExtents)
             lpub->setCurrentStep(step);
             gui->showLine(step->topOfStep());
         }
-        gui->enableBuildModActions();
+        gui->enableVisualBuildModActions();
         step->viewerOptions->ZoomExtents = zoomExtents;
         step->loadTheViewer();
     }
@@ -560,7 +560,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-    gui->enableBuildModActions();
+    gui->enableVisualBuildModActions();
 
     QAction *applyBuildModAction       = nullptr;
     QAction *removeBuildModAction      = nullptr;
@@ -678,7 +678,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     } else if (selectedAction == resetViewerImageAction) {
         if (gui->saveBuildModification())
-            loadTheViewer(true/*override*/, false/*zoomExtents*/);
+            loadTheViewer(true/*override*/, Preferences::buildModEnabled/*zoomExtents*/);
     } else if (selectedAction == allocAction) {
         if (parentRelativeType == StepGroupType) {
             changeAlloc(topOfSteps,

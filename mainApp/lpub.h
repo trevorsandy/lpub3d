@@ -1036,9 +1036,9 @@ public:
 
   void setBuildModClearStepKey(const QString &text);
 
-  void enableBuildModMenuAndActions();
+  void enableVisualBuildModActions();
 
-  void enableBuildModActions();
+  void enableVisualBuildModEditAction();
 
   bool setBuildModChangeKey();
 
@@ -1197,19 +1197,26 @@ public slots:
   // Native viewer functions
   void enable3DActions(bool enable);
   void halt3DViewer(bool enable);
-  void UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText);
+  void UpdateVisualEditUndoRedo(const QString& UndoText, const QString& RedoText);
 
-  void ShowStepRotationStatus();
+  QVector<float> GetRotStepMeta() const;
+  void SetRotStepAngleX(float AngleX, bool display);
+  void SetRotStepAngleY(float AngleY, bool display);
+  void SetRotStepAngleZ(float AngleZ, bool display);
+  void SetRotStepType(QString& RotStepType, bool display);
   void SetRotStepMeta();
+  void ShowStepRotationStatus();
   void SetActiveModel(const QString &modelName, bool setActive);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   void openFolderSelect(const QString &absoluteFilePath);
-  void setViewerStepKey(const QString &stepKey, int notPliPart);
+  void clearBuildModRange();
+  void clearVisualEditUndoRedoText();
   void PreviewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
   bool PreviewPiece(const QString &type, int colorCode);
   void setStepForLine();
   void togglePreviewWidget(bool);
   void updatePreview();
+  void enableVisualBuildModification();
 
   QDockWidget *getPreviewDockWindow()
   {
@@ -1246,22 +1253,15 @@ public slots:
       return bomOccurrence;
   }
 
+  void RaiseVisualEditDockWindow()
+  {
+      if (visualEditDockWindow && visualEditDockWindow->visibleRegion().isEmpty())
+          visualEditDockWindow->raise();
+  }
+
   QString GetPliIconsPath(QString& key);
 
   void setPliIconPath(QString& key, QString& value);
-
-  QVector<float> GetRotStepMeta() const
-  {
-      return mStepRotation;
-  }
-
-  void SetRotStepAngleX(float AngleX, bool display);
-
-  void SetRotStepAngleY(float AngleY, bool display);
-
-  void SetRotStepAngleZ(float AngleZ, bool display);
-
-  void SetRotStepTransform(QString& Transform, bool display);
 
   int GetImageWidth();
   int GetImageHeight();
@@ -1425,7 +1425,6 @@ public slots:
   void gridSize(int index);
   void gridSizeTriggered();
   void groupActionTriggered();
-  void enableBuildModification();
   void useImageSize();
   void useSystemEditor();
   void autoCenterSelection();
@@ -1561,7 +1560,7 @@ protected:
   float                  mRotStepAngleX;
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
-  QString                mRotStepTransform;
+  QString                mRotStepType;
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
   QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
 
@@ -1630,11 +1629,12 @@ private:
 
   QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
-  bool            viewerUndo;                // set the unod action enabled/disabled, text and status tip
-  bool            viewerRedo;                // set the redo action enabled/disabled, text and status tip
+  bool            visualEditUndo;            // set the undo action enabled/disabled, text and status tip
+  bool            visualEditRedo;            // set the redo action enabled/disabled, text and status tip
+  QString         visualEditUndoRedoText;    // undo/redo text used to compare viewer change triggers
 
-  bool     previousPageContinuousIsRunning;// stop the continuous previous page action
-  bool     nextPageContinuousIsRunning;    // stop the continuous next page action
+  bool     previousPageContinuousIsRunning;  // stop the continuous previous page action
+  bool     nextPageContinuousIsRunning;      // stop the continuous next page action
 
   bool isUserSceneObject(const int so);
 
@@ -1964,7 +1964,7 @@ private:
   QMenu *FileMenuViewer;
   QMenu *ViewerExportMenu;
   QMenu *ViewerZoomSliderMenu;
-  QMenu *RotateActionMenu;
+  QMenu *RotateStepActionMenu;
 
   // main window menus
   QMenu  *openWithMenu;
@@ -1992,7 +1992,7 @@ private:
   QAction *povrayRenderAct;
 
   QAction *ApplyCameraAct;
-  QAction *CreateBuildModComboAct;
+  QAction *BuildModComboAct;
   QAction *CreateBuildModAct;
   QAction *ApplyBuildModAct;
   QAction *RemoveBuildModAct;

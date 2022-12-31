@@ -3945,7 +3945,7 @@ int Gui::findPage(
                   bool enabled = meta.LPub.buildModEnabled.value();
                   if (Preferences::buildModEnabled != enabled) {
                       Preferences::buildModEnabled  = enabled;
-                      enableBuildModMenuAndActions();
+                      enableVisualBuildModification();
                       emit messageSig(LOG_INFO, QString("Build Modifications are %1")
                                       .arg(enabled ? "Enabled" : "Disabled"));
                   }
@@ -3959,7 +3959,7 @@ int Gui::findPage(
                 bool enabled = meta.LPub.finalModelEnabled.value();
                 if (Preferences::finalModelEnabled != enabled) {
                     Preferences::finalModelEnabled  = enabled;
-                    enableBuildModMenuAndActions();
+                    enableVisualBuildModification();
                     emit messageSig(LOG_INFO, QString("Fade/Highlight final model step is %1")
                                     .arg(enabled ? "Enabled" : "Disabled"));
                 }
@@ -4968,8 +4968,6 @@ void Gui::drawPage(
                      (!lpub->page.coverPage &&
                       lpub->page.meta.LPub.coverPageViewEnabled.value());
         enable3DActions(enable);
-        if (enable && lpub->currentStep)
-            gui->enableBuildModActions();
     } // modeGUI and not exporting
 
     QApplication::processEvents();

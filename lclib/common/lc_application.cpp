@@ -130,10 +130,6 @@ void lcPreferences::LoadDefaults()
 /*** LPub3D Mod - true fade ***/
 	mLPubTrueFade     = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
 /*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - Selected Parts ***/
-	mBuildModificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
-/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -236,10 +232,6 @@ void lcPreferences::SaveDefaults()
 
 /*** LPub3D Mod - true fade ***/
 	lcSetProfileInt(LC_PROFILE_LPUB_TRUE_FADE, mLPubTrueFade);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - Selected Parts ***/
-	lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, mBuildModificationEnabled);
 /*** LPub3D Mod end ***/
 }
 

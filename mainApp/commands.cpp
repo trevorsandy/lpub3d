@@ -138,7 +138,7 @@ ContentsChangeCommand::ContentsChangeCommand(
   QUndoCommand  *parent)
   : QUndoCommand(parent)
 {
-  setText("userTyped");
+  setText("commandEdit");
   ldrawFile    = _ldrawFile;
   modelName    = _modelName;
   position     = _position;

@@ -192,34 +192,6 @@ void Gui::setPliIconPath(QString& key, QString& value)
 //                                         .arg(key).arg(value));
 }
 
-void Gui::SetRotStepAngleX(float AngleX, bool display)
-{
-    mRotStepAngleX = AngleX;
-    if (display)
-        ShowStepRotationStatus();
-}
-
-void Gui::SetRotStepAngleY(float AngleY, bool display)
-{
-    mRotStepAngleY = AngleY;
-    if (display)
-        ShowStepRotationStatus();
-}
-
-void Gui::SetRotStepAngleZ(float AngleZ, bool display)
-{
-    mRotStepAngleZ = AngleZ;
-    if (display)
-        ShowStepRotationStatus();
-}
-
-void Gui::SetRotStepTransform(QString& Transform, bool display)
-{
-    mRotStepTransform = Transform;
-    if (display)
-        ShowStepRotationStatus();
-}
-
 void Gui::fullScreenView()
 {
     if (getAct("fullScreenViewAct.1")->isChecked()) {
@@ -3078,7 +3050,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     mRotStepAngleX    = 0.0f;
     mRotStepAngleY    = 0.0f;
     mRotStepAngleZ    = 0.0f;
-    mRotStepTransform = QString();
+    mRotStepType = QString();
     mPliIconsPath.clear();
 
     selectedItemObj   = UndefinedObj;
@@ -3136,8 +3108,8 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
 
     undoStack = new QUndoStack();
     macroNesting = 0;
-    viewerUndo = false;
-    viewerRedo = false;
+    visualEditUndo = false;
+    visualEditRedo = false;
 
 #if defined Q_OS_MACOS
     if (Preferences::systemEditor.isEmpty())

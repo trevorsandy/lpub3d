@@ -3613,8 +3613,18 @@ bool Render::LoadViewer(const NativeOptions *Options) {
     if (!Preferences::modeGUI)
         return !Loaded;
 
+    bool keyMatch = lpub->currentStep && lpub->currentStep->viewerStepKey == lpub->viewerStepKey;
 
-    gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
+    if (!keyMatch || Options->ViewerStepKey != lpub->viewerStepKey) {
+        emit gui->messageSig(LOG_ERROR, QObject::tr("The visual editor step to load key: '%1' does not match current step key: '%2'")
+                                                    .arg(Options->ViewerStepKey).arg(lpub->viewerStepKey));
+        if (Gui::abortProcess())
+            return Loaded;
+    }
+
+    gui->clearBuildModRange();
+
+    gui->clearVisualEditUndoRedoText();
 
     if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
         lpub->SetStudStyle(Options, true/*reload*/);

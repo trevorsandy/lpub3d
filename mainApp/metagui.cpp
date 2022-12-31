@@ -2921,7 +2921,7 @@ void BuildModEnabledGui::apply(QString &modelName)
 {
   if (modified) {
     Preferences::buildModEnabled = meta->value();
-    gui->enableBuildModMenuAndActions();
+    gui->enableVisualBuildModification();
     changeMessage = meta->value() ? tr("Build Modifications are Enabled") :
                                     tr("Build Modifications are Disabled");
     emit gui->messageSig(LOG_INFO, changeMessage);

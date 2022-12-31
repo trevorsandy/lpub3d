@@ -116,10 +116,6 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_PREVIEW_LOAD_PATH,
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Build Modification ***/
-	LC_PROFILE_BUILD_MODIFICATION,
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - Build Mod object selected color ***/
 	LC_PROFILE_BM_OBJECT_SELECTED_COLOR,
 /*** LPub3D Mod end ***/

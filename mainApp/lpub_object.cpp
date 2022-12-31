@@ -287,6 +287,9 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
             else
                 delete Loader;
         }
+
+        if (Loaded)
+            gui->RaiseVisualEditDockWindow();
     }
 
     if (Loaded && Type != NATIVE_EXPORT)

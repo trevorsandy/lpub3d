@@ -2786,7 +2786,19 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Edit build modifications.\n\n"
             "  You can apply, remove, change or delete\n"
-            "  build modifications from this dialog.\n")
+            "  build modifications from this dialog.\n\n"
+            "  Select the desired build modification and\n"
+            "  click OK to perform the respective apply,"
+            "  remove, or change (load) action.\n"
+            "  Do not apply a build modification action that\n"
+            "  is the same as the last action of the build\n"
+            "  modification. Likewise, if you are adding\n"
+            "  the first action after creating the build\n"
+            "  modification, then the this action should\n"
+            "  be the remove action.\n\n"
+            "  If you are loading a build modification, you\n"
+            "  will be able to edit the loaded modification\n"
+            "  in the visual editor.\n")
         },
         // WT_DIALOG_CAMERA_ANGLES **
         {

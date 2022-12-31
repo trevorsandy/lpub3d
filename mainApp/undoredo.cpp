@@ -88,13 +88,13 @@ void Gui::contentsChange(
         int      _charsRemoved,
   const QString &charsAdded)
 {
-  // Undo or redo the last 'userTyped' command and quit.
+  // Undo or redo the last 'commandEdit' and quit.
   // Do not push undo or redo content to the stack (ldrawFile)
   // as this content is already in the undo or redo command on the stack.
-  if (isUndo && undoStack->undoText() == "userTyped") {
+  if (isUndo && undoStack->undoText() == "commandEdit") {
       undoStack->undo();
       return;
-  } else if (isRedo && undoStack->redoText() == "userTyped") {
+  } else if (isRedo && undoStack->redoText() == "commandEdit") {
       undoStack->redo();
       return;
   }
@@ -129,11 +129,11 @@ void Gui::setBuildModClearStepKey(const QString &text)
 
 void Gui::undo()
 {
-  if (undoStack->undoText() == "userTyped" && editWindow->updateEnabled()) {
+  if (undoStack->undoText() == "commandEdit" && editWindow->updateEnabled()) {
       emit editWindow->triggerUndoSig();
       return;
   }
-  if (viewerUndo) {
+  if (visualEditUndo) {
     lcView* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
     if (ActiveModel)
@@ -149,11 +149,11 @@ void Gui::undo()
 
 void Gui::redo()
 {
-  if (undoStack->redoText() == "userTyped" && !editWindow->updateEnabled()) {
+  if (undoStack->redoText() == "commandEdit" && !editWindow->updateEnabled()) {
       emit editWindow->triggerRedoSig();
       return;
   }
-  if (viewerRedo) {
+  if (visualEditRedo) {
       lcView* ActiveView = GetActiveView();
       lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
       if (ActiveModel)
@@ -174,18 +174,18 @@ void Gui::canRedoChanged(bool enabled)
   {
     redoAct->setText(QString(tr("&Redo %1")).arg(undoStack->redoText()));
 #ifdef __APPLE__
-    redoAct->setStatusTip(tr("Redo %1 - Ctrl+Shift+Z").arg(undoStack->redoText()));
+    redoAct->setStatusTip(tr("Redo %1").arg(undoStack->redoText()));
 #else
-    redoAct->setStatusTip(tr("Redo %1 - Ctrl+Y").arg(undoStack->redoText()));
+    redoAct->setStatusTip(tr("Redo %1").arg(undoStack->redoText()));
 #endif
   }
   else
   {
     redoAct->setText(tr("&Redo"));
 #ifdef __APPLE__
-    redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
+    redoAct->setStatusTip(tr("Redo last change"));
 #else
-    redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo last change"));
 #endif
   }
 }
@@ -196,18 +196,20 @@ void Gui::canUndoChanged(bool enabled)
   if (!undoStack->undoText().isEmpty())
   {
     undoAct->setText(QString(tr("&Undo %1")).arg(undoStack->undoText()));
-    undoAct->setStatusTip(tr("Undo %1 - Ctrl+Z").arg(undoStack->undoText()));
+    undoAct->setStatusTip(tr("Undo %1").arg(undoStack->undoText()));
   }
   else
   {
     undoAct->setText(tr("&Undo"));
-    undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
+    undoAct->setStatusTip(tr("Undo last change"));
   }
 }
 
 void Gui::cleanChanged(bool cleanState)
 {
-  getAct("saveAct.1")->setDisabled( cleanState);
+  getAct("saveAct.1")->setDisabled(cleanState);
+  if (cleanState)
+      visualEditUndoRedoText.clear();
 }
 
 void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)

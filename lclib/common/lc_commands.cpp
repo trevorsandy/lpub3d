@@ -587,8 +587,8 @@ const lcCommand gCommands[] =
 	// LC_EDIT_TRANSFORM
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Transform"),
-		QT_TRANSLATE_NOOP("Menu", "Rotation Transform"),
-		QT_TRANSLATE_NOOP("Status", "Apply ROTSTEP rotation transform to selected objects"),
+		QT_TRANSLATE_NOOP("Menu", "Transform"),
+		QT_TRANSLATE_NOOP("Status", "Apply transform to selected objects"),
 		""
 	},
 	// LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
@@ -596,28 +596,28 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "Edit.TransformAbsoluteTranslation"),
 		QT_TRANSLATE_NOOP("Menu", "Absolute Translation"),
 		QT_TRANSLATE_NOOP("Status", "Switch to absolute translation mode when applying transforms"),
-		""
+		"Shift+M"                                                                                   /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.TransformRelativeTranslation"),
 		QT_TRANSLATE_NOOP("Menu", "Relative Translation"),
 		QT_TRANSLATE_NOOP("Status", "Switch to relative translation mode when applying transforms"),
-		""
+		"Shift+D"                                                                                   /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.TransformAbsoluteRotation"),
 		QT_TRANSLATE_NOOP("Menu", "Absolute Rotation"),
-		QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying transforms - Shift+B"),   /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+B"
+		QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying transforms"),
+		"Shift+B"                                                                                   /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_TRANSFORM_RELATIVE_ROTATION
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.TransformRelativeRotation"),
 		QT_TRANSLATE_NOOP("Menu", "Relative Rotation"),
-		QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms - Shift+E"),   /*** LPub3D Mod - LPub3D Menu update ***/
-		"Shift+E"
+		QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms"),
+		"Shift+E"                                                                                   /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_EDIT_ACTION_INSERT
 	{
@@ -740,7 +740,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen - Shift+G"),          /*** LPub3D Mod - LPub3D Menu update ***/
 		"Shift+G"
 	},
-/*** LPub3D Mod - rotatestep command ***/
+/*** LPub3D Mod - transform command ***/
 	 // LC_EDIT_ACTION_ROTATESTEP
 	{
 		QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
@@ -748,11 +748,11 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta command - Shift+R"),
 		"Shift+R"
 	},
-	// LC_EDIT_ACTION_CLEAR_TRANSFORM
+	// LC_EDIT_ACTION_APPLY_TRANSFORM
 	{
-		QT_TRANSLATE_NOOP("Action","Edit.Tool.Clear.Transform"),
-		QT_TRANSLATE_NOOP("Menu", "Clear Transform"),
-		QT_TRANSLATE_NOOP("Status", "Clear the transform dialogues - Shift+C"),
+		QT_TRANSLATE_NOOP("Action","Edit.Tool.Apply.Transform"),
+		QT_TRANSLATE_NOOP("Menu", "Apply Transform"),
+		QT_TRANSLATE_NOOP("Status", "Apply the transform coordinates to the current step - Shift+C"),
 		"Shift+C"
 	},
 /*** LPub3D Mod end ***/
