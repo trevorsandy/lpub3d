@@ -141,6 +141,7 @@ class PreferencesDialog : public QDialog
     bool          showLineParseErrors();
     bool          showInsertErrors();
     bool          showBuildModErrors();
+    bool          showBuildModEditErrors();
     bool          showIncludeFileErrors();
     bool          showAnnotationErrors();
     bool          showSaveOnRedraw();
@@ -295,6 +296,8 @@ private:
     QLabel      *insertErrorLbl;
     QToolButton *buildModErrorTBtn;
     QLabel      *buildModErrorLbl;
+    QToolButton *buildModEditErrorTBtn;
+    QLabel      *buildModEditErrorLbl;
     QToolButton *includeErrorTBtn;
     QLabel      *includeErrorLbl;
     QToolButton *annotationErrorTBtn;
@@ -310,6 +313,7 @@ private:
     bool mShowLineParseErrors;
     bool mShowInsertErrors;
     bool mShowBuildModErrors;
+    bool mShowBuildModEditErrors;
     bool mShowIncludeFileErrors;
     bool mShowAnnotationErrors;
 

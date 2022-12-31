@@ -365,16 +365,13 @@ void LDrawFile::insertConfiguredSubFile(const QString &mcFileName,
 int LDrawFile::size(const QString &mcFileName)
 {
   QString fileName = mcFileName.toLower();
-  int mySize;
 
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
-  if (i == _subFiles.end()) {
-    mySize = 0;
-  } else {
-    mySize = i.value()._contents.size();
+  if (i != _subFiles.end()) {
+    return i.value()._contents.size();
   }
-  return mySize;
+  return 0;
 }
 
 /* Only used to return fade or highlight content size */
@@ -382,16 +379,13 @@ int LDrawFile::size(const QString &mcFileName)
 int LDrawFile::configuredSubFileSize(const QString &mcFileName)
 {
   QString fileName = mcFileName.toLower();
-  int mySize;
 
   QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
 
-  if (i == _configuredSubFiles.end()) {
-    mySize = 0;
-  } else {
-    mySize = i.value()._contents.size();
+  if (i != _configuredSubFiles.end()) {
+    return i.value()._contents.size();
   }
-  return mySize;
+  return 0;
 }
 
 bool LDrawFile::isMpd()
@@ -401,12 +395,12 @@ bool LDrawFile::isMpd()
 
 int LDrawFile::isUnofficialPart(const QString &name)
 {
-  int _unofficialPart = UNOFFICIAL_UNKNOWN;
   QString fileName = name.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (i != _subFiles.end())
-     _unofficialPart = i.value()._unofficialPart;
-  return _unofficialPart;
+  if (i != _subFiles.end()) {
+    return i.value()._unofficialPart;
+  }
+  return UNOFFICIAL_UNKNOWN;
 }
 
 int LDrawFile::isIncludeFile(const QString &name)
@@ -414,9 +408,10 @@ int LDrawFile::isIncludeFile(const QString &name)
   int _includeFile = UNOFFICIAL_UNKNOWN;
   QString fileName = name.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (i != _subFiles.end())
-    _includeFile = i.value()._includeFile;
-  return _includeFile;
+  if (i != _subFiles.end()) {
+    return i.value()._includeFile;
+  }
+  return UNOFFICIAL_UNKNOWN;
 }
 
 /* return the name of the top level file */
@@ -597,8 +592,7 @@ QStringList LDrawFile::contents(const QString &mcFileName)
   }
 }
 
-void LDrawFile::setContents(const QString     &mcFileName,
-                 const QStringList &contents)
+void LDrawFile::setContents(const QString &mcFileName, const QStringList &contents)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
@@ -1010,7 +1004,8 @@ void LDrawFile::deleteLine(const QString &mcFileName, int lineNumber)
   }
 }
 
-void LDrawFile::changeContents(const QString &mcFileName,
+void LDrawFile::changeContents(
+                    const QString &mcFileName,
                           int      position,
                           int      charsRemoved,
                     const QString &charsAdded)
@@ -2718,8 +2713,8 @@ void LDrawFile::countInstances(
           if (! noStep) {
             if (partsAdded) {
               // parts added - increment step
-              int incr = ((isMirrored && f->_mirrorInstances == 0) ||
-                          (! isMirrored && f->_instances == 0) && ! isInsertStep);
+              int incr = (((isMirrored && f->_mirrorInstances == 0) ||
+                           (! isMirrored && f->_instances == 0)) && ! isInsertStep);
               f->_numSteps += incr;
             }
             // set step index for occurrences of STEP or ROTSTEP not ignored by BuildMod
@@ -2768,8 +2763,8 @@ void LDrawFile::countInstances(
 
     // increment steps and add BuildMod step index if parts added in the last step of the sub/model and not ignored by BuildMod
     if (partsAdded && ! noStep) {
-      int incr = ((isMirrored && f->_mirrorInstances == 0) ||
-                  (! isMirrored && f->_instances == 0) && ! isInsertStep);
+      int incr = (((isMirrored && f->_mirrorInstances == 0) ||
+                   (! isMirrored && f->_instances == 0)) && ! isInsertStep);
       f->_numSteps += incr;
       if (! buildModIgnore) {
         _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
@@ -3346,6 +3341,8 @@ int LDrawFile::getBuildModStep(const QString &modelName,
 
 void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex)
 {
+    QMutexLocker ldrawLocker(&ldrawMutex);
+    
     QString modKey = buildModKey.toLower();
 #ifdef QT_DEBUG_MODE
     int action = BuildModNoActionRc;
@@ -3373,6 +3370,8 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
 
 void LDrawFile::clearBuildModSteps(const QString &buildModKey)
 {
+    QMutexLocker ldrawLocker(&ldrawMutex);
+    
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_TRACE, QString("Remove BuildModStep actions for ModKey %1...") .arg(buildModKey));
 #endif
@@ -3404,6 +3403,8 @@ void LDrawFile::clearBuildModSteps(const QString &buildModKey)
 
 bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 {
+    QMutexLocker ldrawLocker(&ldrawMutex);
+        
     QString modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {

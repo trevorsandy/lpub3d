@@ -30,8 +30,9 @@ class Preferences
     enum MsgKey {
         ParseErrors,
         InsertErrors,
-        BuildModErrors,
         IncludeFileErrors,
+        BuildModErrors,
+        BuildModEditErrors,
         AnnotationErrors,
         NumKeys
     };
@@ -361,6 +362,7 @@ class Preferences
     static bool    lineParseErrors;
     static bool    showInsertErrors;
     static bool    showBuildModErrors;
+    static bool    showBuildModEditErrors;
     static bool    showIncludeFileErrors;
     static bool    showAnnotationErrors;
     static bool    showSaveOnRedraw;

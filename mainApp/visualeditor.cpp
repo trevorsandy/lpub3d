@@ -3170,7 +3170,7 @@ void Gui::applyBuildModification()
             type  = "apply build modification error message";
             title = "Build Modification";
 
-            Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Apply_Before_" + model,line).nameToString());
+            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Apply_Before_" + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
 
             return;
@@ -3182,7 +3182,7 @@ void Gui::applyBuildModification()
         type  = "apply build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Source_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Source_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -3193,7 +3193,7 @@ void Gui::applyBuildModification()
         type  = "apply build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already_Applied_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Already_Applied_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -3204,7 +3204,7 @@ void Gui::applyBuildModification()
         type  = "apply build modification message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
         switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
         {
         default:
@@ -3282,7 +3282,7 @@ void Gui::removeBuildModification()
 
             return;
 
-            Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
+            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Remove_Before_" + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
     } else if (getBuildModStepKey(buildModKey) == lpub->viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
@@ -3293,7 +3293,7 @@ void Gui::removeBuildModification()
         type  = "remove build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Not_Applied_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Not_Applied_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -3304,7 +3304,7 @@ void Gui::removeBuildModification()
         type  = "remove build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already_Removed_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Already_Removed_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -3315,7 +3315,7 @@ void Gui::removeBuildModification()
         type  = "remove build modification message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
         switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
         {
         default:
@@ -3380,7 +3380,7 @@ void Gui::loadBuildModification()
                     "to allow editing.<br><br>Are you sure ?<br>";
     QString type  = "load build modification";
     QString title = "Build Modification";
-    Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+    Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
     switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
     {
     default:
@@ -3501,7 +3501,7 @@ void Gui::deleteBuildModification()
     QString type  = "delete build modification";
     QString title = "Build Modification";
 
-    Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+    Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
     switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
     {
     default:

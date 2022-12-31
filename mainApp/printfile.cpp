@@ -614,7 +614,7 @@ void Gui::exportAsHtml()
     setNativeRenderer();
 
     // store current display page number
-    int savePageNumber = displayPageNum;
+    prevDisplayPageNum = displayPageNum;
 
     // start at the last page moving backward until we find a valid CSI
     Meta meta;
@@ -682,7 +682,7 @@ void Gui::exportAsHtml()
 
     // return to whatever page we were viewing before capturing the CSI
     m_partListCSIFile = false;
-    displayPageNum    = savePageNumber;
+    displayPageNum    = prevDisplayPageNum;
     displayPage();
 
     // create partList key
@@ -810,17 +810,16 @@ void Gui::exportAsPdf()
   DrawPageFlags dpFlags;
 
   // store current display page number
-  int savePageNumber = displayPageNum;
+  prevDisplayPageNum = displayPageNum;
 
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&](bool restoreKpage = true)
   {
-      displayPageNum = savePageNumber;
-      if (restoreKpage) {
-          dpFlags.printing = false;
-          clearPage(KpageView,KpageScene);
-          drawPage(KpageView,KpageScene,dpFlags);
-      }
+      displayPageNum = prevDisplayPageNum;
+      if (abortProcess())
+          restorePreviousPage();
+      else if (restoreKpage)
+          displayPage();
   };
 
   // add pixel ratio info to file name
@@ -929,7 +928,7 @@ void Gui::exportAsPdf()
   dpFlags.printing = true;
   drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
-  displayPageNum = savePageNumber;
+  displayPageNum = prevDisplayPageNum;
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
@@ -1409,7 +1408,7 @@ void Gui::exportAs(const QString &_suffix)
   }
 
   // store current display page number
-  int savePageNumber = displayPageNum;
+  prevDisplayPageNum = displayPageNum;
 
   // init drawPage flags
   DrawPageFlags dpFlags;
@@ -1417,10 +1416,11 @@ void Gui::exportAs(const QString &_suffix)
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&]()
   {
-      displayPageNum = savePageNumber;
-      dpFlags.printing = false;
-      clearPage(KpageView,KpageScene);
-      drawPage(KpageView,KpageScene,dpFlags);
+      displayPageNum = prevDisplayPageNum;
+      if (abortProcess())
+          restorePreviousPage();
+      else
+          displayPage();
   };
 
   // Switch to Native Renderer for fast processing
@@ -1486,7 +1486,7 @@ void Gui::exportAs(const QString &_suffix)
   dpFlags.printing = true;
   drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
-  displayPageNum = savePageNumber;
+  displayPageNum = prevDisplayPageNum;
 
   // Support transparency for formats that can handle it, but use white for those that can't.
   bool fillPng = suffix.compare(".png", Qt::CaseInsensitive) == 0;
@@ -1799,7 +1799,7 @@ void Gui::Print(QPrinter* Printer)
   int PageCopies;
 
   int PageCount = maxPages;
-  int savePageNumber = displayPageNum;
+  prevDisplayPageNum = displayPageNum;
 
   // set drawPage flags
   DrawPageFlags dpFlags;
@@ -1807,10 +1807,11 @@ void Gui::Print(QPrinter* Printer)
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&]()
   {
-      displayPageNum = savePageNumber;
-      dpFlags.printing = false;
-      clearPage(KpageView,KpageScene);
-      drawPage(KpageView,KpageScene,dpFlags);
+      displayPageNum = prevDisplayPageNum;
+      if (abortProcess())
+          restorePreviousPage();
+      else
+          displayPage();
   };
 
   if (Printer->collateCopies())
@@ -1893,7 +1894,7 @@ void Gui::Print(QPrinter* Printer)
 
           if (processOption == EXPORT_CURRENT_PAGE){
               // reset display page from saved page
-              displayPageNum = savePageNumber;
+              displayPageNum = prevDisplayPageNum;
               // reset page layout using display page
               Printer->setPageLayout(getPageLayout());
               // set range to display page
@@ -2119,7 +2120,7 @@ void Gui::Print(QPrinter* Printer)
   setExportingSig(false);
 
   // return to whatever page we were viewing before output
-  displayPageNum = savePageNumber;
+  displayPageNum = prevDisplayPageNum;
   dpFlags.printing = false;
   drawPage(KpageView,KpageScene,dpFlags);
 

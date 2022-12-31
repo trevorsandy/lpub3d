@@ -476,14 +476,16 @@ public:
   static QList<Where> parsedMessages; // previously parsed messages within the current session
   static QStringList  messageList;    // message list used when exporting or continuous processing
 
-  static int      displayPageNum;   // what page are we displaying
-  static int      processOption;    // export Option
-  static int      pageDirection;    // page processing direction
-  static int      savePrevStepPosition; // indicate the previous step position amongst current and previous steps
-  static bool     resetCache;       // reset model, fade and highlight parts
-  static QString  saveFileName;     // user specified output file Name [commandline only]
+  static int      displayPageNum;       // what page are we displaying
+  static int      prevDisplayPageNum;   // previous displayed page - used to roll back after encountering an error.
+  static int      prevMaxPages;         // previous page count - used by continuousPageDialog to roll back after encountering an error.
+  static int      processOption;        // export Option
+  static int      pageDirection;        // page processing direction
+  static int      savePrevStepPosition; // previously displayed page - used to roll back after exporting or an error.
+  static bool     resetCache;           // reset model, fade and highlight parts
+  static QString  saveFileName;         // user specified output file Name [commandline only]
 
-  static QList<Where> topOfPages;   // topOfStep list of modelName and lineNumber for each page
+  static QList<Where> topOfPages;       // topOfStep list of modelName and lineNumber for each page
 
   static RendererData savedRendererData;// store current renderer data when temporarily switching renderer;
   static int          saveRenderer;     // saved renderer when temporarily switching to Native renderer
@@ -1313,7 +1315,7 @@ public slots:
                   int icon = 3/*Critical*/);
 
   void statusBarMsg(QString msg);
-  void statusMessage(LogType logType, QString message, bool msgBox = false);
+  void statusMessage(LogType logType, const QString &statusMessage, bool msgBox = false);
   void showExportedFile();
   void showLine(const Where &here, int type = LINE_HIGHLIGHT);
   void openDropFile(QString &fileName);
@@ -1336,21 +1338,23 @@ public slots:
 
   static void deployBanner(bool b);
   static bool loadBanner(const int &type, const QString &bannerPath);
-  static void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
-  static void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
-  static void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }
+  static void setExporting(bool b) { m_exportingContent = b; m_abort = m_exportingContent && !b ? true : m_abort; if (!b) { m_exportingObjects = b; }; if (b) { m_countWaitForFinished = b; } }
+  static void setExportingObjects(bool b) { m_exportingContent = m_exportingObjects = b; }
+  static void setCountWaitForFinished(bool b) { m_countWaitForFinished = b; }
   static bool exporting() { return m_exportingContent; }
   static bool exportingImages() { return m_exportingContent && !m_exportingObjects; }
   static bool exportingObjects() { return m_exportingContent && m_exportingObjects; }
   static bool countWaitForFinished() { return m_countWaitForFinished; }
-  static void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
+  static void cancelExporting() { m_exportingContent = m_exportingObjects = false; m_abort = m_exportingContent ? true : m_abort; }
+  static void setAbortProcess(int b) { m_abort = b; }
+  static bool abortProcess() { return m_abort; }
 
   static int exportMode() { return m_exportMode; }
   static QString saveDirectoryName () { return m_saveDirectoryName; }
 
   static bool ContinuousPage() { return m_contPageProcessing; }
-  static void setContinuousPage(bool b){ m_contPageProcessing = b; }
-  static void cancelContinuousPage(){ m_contPageProcessing = false; }
+  static void setContinuousPage(bool b) { m_contPageProcessing = b; m_abort = m_contPageProcessing && !b ? true : m_abort; }
+  static void cancelContinuousPage() { m_contPageProcessing = false; m_abort = m_contPageProcessing ? true : m_abort; }
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
 
@@ -1518,7 +1522,7 @@ signals:
   void progressPermResetSig();
   void progressPermStatusRemoveSig();
 
-  void messageSig(LogType logType, QString message);
+  void messageSig(LogType logType, const QString &message);
 
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
@@ -1582,6 +1586,7 @@ private:
   static bool            m_exportingObjects;     // indicate exporting non-image object file content
   static bool            m_contPageProcessing;   // indicate continuous page processing underway
   static bool            m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
+  static bool            m_abort;                // set to true when response to critcal error is abort
 
   QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
@@ -1731,6 +1736,7 @@ private:
   bool getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber);
 
 private slots:
+    void finishedCountingPages();
     void pagesCounted();
     void open();
     void openWith();
@@ -1896,10 +1902,11 @@ private slots:
      *****************************************************************/
 
     void setCurrentFile(const QString &fileName);
-    bool openFile(QString &fileName);
+    bool openFile(const QString &fileName);
     bool maybeSave(bool prompt = true, int sender = SaveOnNone);
     bool saveFile(const QString &fileName);
     void closeFile();
+    void restorePreviousPage();
     void updateOpenWithActions();
     void updateRecentFileActions();
     void closeModelFile();

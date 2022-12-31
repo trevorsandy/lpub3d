@@ -73,20 +73,22 @@ const QString rendererNames[NUM_RENDERERS] =
 
 const QString MsgKeys[Preferences::NumKeys] =
 {
-    "ShowLineParseErrors",    // ParseErrors
-    "ShowInsertErrors",       // InsertErrors
-    "ShowBuildModErrors",     // BuildModErrors
-    "ShowIncludeLineErrors",  // IncludeFileErrors
-    "ShowAnnotationErrors"    // AnnotationErrors
+    "ShowLineParseErrors",          // ParseErrors
+    "ShowInsertErrors",             // InsertErrors
+    "ShowIncludeLineErrors",        // IncludeFileErrors
+    "ShowBuildModErrors",           // BuildModErrors
+    "ShowBuildModEditErrors",       // BuildModEditErrors
+    "ShowAnnotationErrors"          // AnnotationErrors
 };
 
 const QString msgKeyTypes [][2] = {
-   // Message Title,      Type Description
-   {"Command",            "command message"},       //ParseErrors
-   {"Insert",             "insert message"},        //InsertErrors
-   {"Build Modification", "build modification"},    //BuildModErrors
-   {"Include File",       "include file message" }, //IncludeFileErrors
-   {"Annoatation",        "annotation message"}     //AnnotationErrors
+   // Message Title,             Type Description
+   {"Command",                   "command message"},           //ParseErrors
+   {"Insert",                    "insert message"},            //InsertErrors
+   {"Include File",              "include file message" },     //IncludeFileErrors
+   {"Build Modification",        "build modification"},        //BuildModErrors
+   {"Build Modification Edit",   "build modification edit"},   //BuildModEditErrors
+   {"Annoatation",               "annotation message"}         //AnnotationErrors
 };
 
 Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
@@ -418,6 +420,7 @@ bool    Preferences::enableDownloader           = true;
 bool    Preferences::lineParseErrors            = true;
 bool    Preferences::showInsertErrors           = true;
 bool    Preferences::showBuildModErrors         = true;
+bool    Preferences::showBuildModEditErrors     = true;
 bool    Preferences::showIncludeFileErrors      = true;
 bool    Preferences::showAnnotationErrors       = true;
 
@@ -3511,13 +3514,12 @@ void Preferences::themePreferences()
 {
     QSettings Settings;
 
-
     QString const displayThemeKey("DisplayTheme");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
-            displayTheme = THEME_DEFAULT;
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+        displayTheme = THEME_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
     } else {
-            displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
+        displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
     }
 
     for (int i = 0; i < THEME_NUM_COLORS; i++) {
@@ -3533,178 +3535,178 @@ void Preferences::themePreferences()
 
 void Preferences::userInterfacePreferences()
 {
-  QSettings Settings;
-  QString const sceneRulerKey("SceneRuler");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerKey))) {
-          QVariant uValue(false);
-          sceneRuler = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
-  } else {
-          sceneRuler = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerKey)).toBool();
-  }
+    QSettings Settings;
+    QString const sceneRulerKey("SceneRuler");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerKey))) {
+        QVariant uValue(false);
+        sceneRuler = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
+    } else {
+        sceneRuler = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerKey)).toBool();
+    }
 
-  QString const sceneRulerTrackingKey("SceneRulerTracking");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey))) {
-          sceneRulerTracking = TRACKING_NONE;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),sceneRulerTracking);
-  } else {
-          sceneRulerTracking = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey)).toInt();
-  }
+    QString const sceneRulerTrackingKey("SceneRulerTracking");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey))) {
+        sceneRulerTracking = TRACKING_NONE;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),sceneRulerTracking);
+    } else {
+        sceneRulerTracking = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey)).toInt();
+    }
 
-  QString const sceneGuidesKey("SceneGuides");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesKey))) {
-          QVariant uValue(false);
-          sceneGuides = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesKey),uValue);
-  } else {
-          sceneGuides = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesKey)).toBool();
-  }
+    QString const sceneGuidesKey("SceneGuides");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesKey))) {
+        QVariant uValue(false);
+        sceneGuides = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesKey),uValue);
+    } else {
+        sceneGuides = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesKey)).toBool();
+    }
 
-  QString const sceneGuidesLineKey("SceneGuidesLine");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey))) {
-          sceneGuidesLine = int(Qt::DashLine);
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey),sceneGuidesLine);
-  } else {
-          sceneGuidesLine = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey)).toInt();
-  }
+    QString const sceneGuidesLineKey("SceneGuidesLine");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey))) {
+        sceneGuidesLine = int(Qt::DashLine);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey),sceneGuidesLine);
+    } else {
+        sceneGuidesLine = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey)).toInt();
+    }
 
-  QString const sceneGuidesPositionKey("SceneGuidesPosition");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey))) {
-      sceneGuidesPosition = int(GUIDES_TOP_LEFT);
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey),sceneGuidesPosition);
-  } else {
-      sceneGuidesPosition = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey)).toInt();
-  }
+    QString const sceneGuidesPositionKey("SceneGuidesPosition");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey))) {
+        sceneGuidesPosition = int(GUIDES_TOP_LEFT);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey),sceneGuidesPosition);
+    } else {
+        sceneGuidesPosition = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey)).toInt();
+    }
 
-  QString const customSceneBackgroundColorKey("CustomSceneBackgroundColor");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey))) {
-          QVariant uValue(false);
-          customSceneBackgroundColor = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey),uValue);
-  } else {
-          customSceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey)).toBool();
-  }
+    QString const customSceneBackgroundColorKey("CustomSceneBackgroundColor");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey))) {
+        QVariant uValue(false);
+        customSceneBackgroundColor = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey),uValue);
+    } else {
+        customSceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey)).toBool();
+    }
 
-  QString const customSceneGridColorKey("CustomSceneGridColor");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey))) {
-          QVariant uValue(false);
-          customSceneGridColor = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey),uValue);
-  } else {
-          customSceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey)).toBool();
-  }
+    QString const customSceneGridColorKey("CustomSceneGridColor");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey))) {
+        QVariant uValue(false);
+        customSceneGridColor = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey),uValue);
+    } else {
+        customSceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey)).toBool();
+    }
 
-  QString const customSceneRulerTickColorKey("CustomSceneRulerTickColor");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey))) {
-          QVariant uValue(false);
-          customSceneRulerTickColor = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey),uValue);
-  } else {
-          customSceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey)).toBool();
-  }
+    QString const customSceneRulerTickColorKey("CustomSceneRulerTickColor");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey))) {
+        QVariant uValue(false);
+        customSceneRulerTickColor = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey),uValue);
+    } else {
+        customSceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey)).toBool();
+    }
 
   QString const customSceneRulerTrackingColorKey("CustomSceneRulerTrackingColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey))) {
-          QVariant uValue(false);
-          customSceneRulerTrackingColor = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey),uValue);
+      QVariant uValue(false);
+      customSceneRulerTrackingColor = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey),uValue);
   } else {
-          customSceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey)).toBool();
+      customSceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey)).toBool();
   }
 
   QString const customSceneGuideColorKey("CustomSceneGuideColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey))) {
-          QVariant uValue(false);
-          customSceneGuideColor = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey),uValue);
+      QVariant uValue(false);
+      customSceneGuideColor = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey),uValue);
   } else {
-          customSceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey)).toBool();
+      customSceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey)).toBool();
   }
 
   QString const sceneBackgroundColorKey("SceneBackgroundColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey))) {
-          displayTheme == THEME_DARK ?
+      displayTheme == THEME_DARK ?
                   sceneBackgroundColor = themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
                   sceneBackgroundColor = themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR];
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
   } else {
-          sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString().toUpper();
+      sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString().toUpper();
   }
 
   QString const sceneGridColorKey("SceneGridColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGridColorKey))) {
-          displayTheme == THEME_DARK ?
+      displayTheme == THEME_DARK ?
                   sceneGridColor = themeColors[THEME_DARK_GRID_PEN] :
                   sceneGridColor = themeColors[THEME_DEFAULT_GRID_PEN];
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
   } else {
-          sceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGridColorKey)).toString().toUpper();
+      sceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGridColorKey)).toString().toUpper();
   }
 
   QString const sceneRulerTickColorKey("SceneRulerTickColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey))) {
-          displayTheme == THEME_DARK ?
+      displayTheme == THEME_DARK ?
                   sceneRulerTickColor = themeColors[THEME_DARK_RULER_TICK_PEN] :
                   sceneRulerTickColor = themeColors[THEME_DEFAULT_RULER_TICK_PEN];
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
   } else {
-          sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString().toUpper();
+      sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString().toUpper();
   }
 
   QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey))) {
-          displayTheme == THEME_DARK ?
+      displayTheme == THEME_DARK ?
                   sceneRulerTrackingColor = themeColors[THEME_DARK_RULER_TRACK_PEN] :
                   sceneRulerTrackingColor = themeColors[THEME_DEFAULT_RULER_TRACK_PEN];
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
   } else {
-          sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString().toUpper();
+      sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString().toUpper();
   }
 
   QString const sceneGuideColorKey("SceneGuideColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey))) {
-          displayTheme == THEME_DARK ?
+      displayTheme == THEME_DARK ?
                   sceneGuideColor = themeColors[THEME_DARK_GUIDE_PEN] :
                   sceneGuideColor = themeColors[THEME_DEFAULT_GUIDE_PEN];
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
   } else {
-          sceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey)).toString().toUpper();
+      sceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey)).toString().toUpper();
   }
 
   QString const snapToGridKey("SnapToGrid");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,snapToGridKey))) {
-          QVariant uValue(false);
-          snapToGrid = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
+      QVariant uValue(false);
+      snapToGrid = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
   } else {
-          snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
+      snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
   }
 
   QString const hidePageBackgroundKey("HidePageBackground");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey))) {
-          QVariant uValue(false);
-          hidePageBackground = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey),uValue);
+      QVariant uValue(false);
+      hidePageBackground = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey),uValue);
   } else {
-          hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey)).toBool();
+      hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey)).toBool();
   }
 
   QString const showGuidesCoordinatesKey("ShowGuidesCoordinates");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey))) {
-          QVariant uValue(false);
-          showGuidesCoordinates = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey),uValue);
+      QVariant uValue(false);
+      showGuidesCoordinates = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey),uValue);
   } else {
-          showGuidesCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey)).toBool();
+      showGuidesCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey)).toBool();
   }
 
   QString const showTrackingCoordinatesKey("ShowTrackingCoordinates");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey))) {
-          QVariant uValue(false);
-          showTrackingCoordinates = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey),uValue);
+      QVariant uValue(false);
+      showTrackingCoordinates = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey),uValue);
   } else {
-          showTrackingCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey)).toBool();
+      showTrackingCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey)).toBool();
   }
 
   QString const gridSizeIndexKey("GridSizeIndex");
@@ -3717,11 +3719,11 @@ void Preferences::userInterfacePreferences()
 
   QString const lineParseErrorsKey("ShowLineParseErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey))) {
-          QVariant uValue(true);
-          lineParseErrors = true;
-          Settings.setValue(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey),uValue);
+      QVariant uValue(true);
+      lineParseErrors = true;
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey),uValue);
   } else {
-          lineParseErrors = Settings.value(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey)).toBool();
+      lineParseErrors = Settings.value(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey)).toBool();
   }
 
   QString const insertErrorsKey("ShowInsertErrors");
@@ -3734,47 +3736,56 @@ void Preferences::userInterfacePreferences()
 
   QString const showIncludeFileErrorsKey("ShowIncludeFileErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey))) {
-          QVariant uValue(true);
-          showIncludeFileErrors = true;
-          Settings.setValue(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey),uValue);
+      QVariant uValue(true);
+      showIncludeFileErrors = true;
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey),uValue);
   } else {
-          showIncludeFileErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey)).toBool();
+      showIncludeFileErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey)).toBool();
   }
 
   QString const showBuildModErrorsKey("ShowBuildModErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey))) {
-          QVariant uValue(true);
-          showBuildModErrors = true;
-          Settings.setValue(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey),uValue);
+      QVariant uValue(true);
+      showBuildModErrors = true;
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey),uValue);
   } else {
-          showBuildModErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey)).toBool();
+      showBuildModErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey)).toBool();
+  }
+
+  QString const showBuildModEditErrorsKey("ShowBuildModEditErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showBuildModEditErrorsKey))) {
+      QVariant uValue(true);
+      showBuildModEditErrors = true;
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,showBuildModEditErrorsKey),uValue);
+  } else {
+      showBuildModEditErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModEditErrorsKey)).toBool();
   }
 
   QString const showAnnotationErrorsKey("ShowAnnotationErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey))) {
-          QVariant uValue(true);
-          showAnnotationErrors = true;
-          Settings.setValue(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey),uValue);
+      QVariant uValue(true);
+      showAnnotationErrors = true;
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey),uValue);
   } else {
-          showAnnotationErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey)).toBool();
+      showAnnotationErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey)).toBool();
   }
 
   QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey))) {
-          QVariant uValue(true);
-          showSaveOnRedraw = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
+      QVariant uValue(true);
+      showSaveOnRedraw = true;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
   } else {
-          showSaveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey)).toBool();
+      showSaveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey)).toBool();
   }
 
   QString const showSaveOnUpdateKey("ShowSaveOnUpdate");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey))) {
-          QVariant uValue(true);
-          showSaveOnUpdate = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
+      QVariant uValue(true);
+      showSaveOnUpdate = true;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
   } else {
-          showSaveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey)).toBool();
+      showSaveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey)).toBool();
   }
 
   QString const displayPageProcessingErrorsKey("DisplayPageProcessingErrors");
@@ -4023,11 +4034,14 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     case InsertErrors:
         showInsertErrors = result;
         break;
+    case IncludeFileErrors:
+        showIncludeFileErrors = result;
+        break;
     case BuildModErrors:
         showBuildModErrors = result;
         break;
-    case IncludeFileErrors:
-        showIncludeFileErrors = result;
+    case BuildModEditErrors:
+        showBuildModEditErrors = result;
         break;
     case AnnotationErrors:
         showAnnotationErrors = result;
@@ -4038,7 +4052,8 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     return result;
 }
 
-int  Preferences::showMessage(Preferences::MsgID msgID,
+int  Preferences::showMessage(
+        Preferences::MsgID msgID,
         const QString &message,
         const QString &title,
         const QString &type,
@@ -4053,15 +4068,18 @@ int  Preferences::showMessage(Preferences::MsgID msgID,
     QString msgTitle = title.isEmpty() ? msgKeyTypes[msgID.msgKey][0] : title;
     QString msgType  = type.isEmpty()  ? msgKeyTypes[msgID.msgKey][1] : type;
 
-    if (static_cast<QMessageBox::Icon>(icon) == QMessageBox::Icon::Critical)
+    bool critical = static_cast<QMessageBox::Icon>(icon) == QMessageBox::Icon::Critical;
+    bool abort  = critical && msgID.msgKey < MsgKey::BuildModEditErrors;
+
+    if (critical)
         LPub::loadBanner(ERROR_ENCOUNTERED);
 
     QMessageBoxResizable box;
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(msgTitle));
     box.setText(message);
     box.setIcon(static_cast<QMessageBox::Icon>(icon));
-    box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : QMessageBox::Ok);
-    box.setDefaultButton   (option ? QMessageBox::Cancel : QMessageBox::Ok);
+    box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : abort ? QMessageBox::Abort | QMessageBox::Ignore : QMessageBox::Ok);
+    box.setDefaultButton   (option ? QMessageBox::Cancel : abort ? QMessageBox::Ignore : QMessageBox::Ok);
     if (!override) {
         QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(msgType));
         box.setCheckBox(cb);
@@ -5094,6 +5112,12 @@ bool Preferences::getPreferences()
         {
             showBuildModErrors = dialog->showBuildModErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowBuildModErrors"),showBuildModErrors);
+        }
+
+        if (showBuildModEditErrors != dialog->showBuildModEditErrors())
+        {
+            showBuildModEditErrors = dialog->showBuildModEditErrors();
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowBuildModEditErrors"),showBuildModEditErrors);
         }
 
         if (showIncludeFileErrors != dialog->showIncludeFileErrors())

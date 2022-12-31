@@ -573,11 +573,12 @@ void PreferencesDialog::setPreferences()
   updateChangelog();
 
   // show message options
-  mShowLineParseErrors    = Preferences::lineParseErrors;
-  mShowInsertErrors       = Preferences::showInsertErrors;
-  mShowBuildModErrors     = Preferences::showBuildModErrors;
-  mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
-  mShowAnnotationErrors   = Preferences::showAnnotationErrors;
+  mShowLineParseErrors      = Preferences::lineParseErrors;
+  mShowInsertErrors         = Preferences::showInsertErrors;
+  mShowBuildModErrors       = Preferences::showBuildModErrors;
+  mShowBuildModEditErrors   = Preferences::showBuildModEditErrors;
+  mShowIncludeFileErrors    = Preferences::showIncludeFileErrors;
+  mShowAnnotationErrors     = Preferences::showAnnotationErrors;
 }
 
 void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
@@ -1297,50 +1298,65 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     parseErrorLayout->addWidget(separator,5,0,1,2);
     QObject::connect(insertErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
-    // options - build modification errors
-    QCheckBox * buildModErrorChkBox = new QCheckBox(tr("Show build modification errors"), messageDialog);
-    buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
-    parseErrorLayout->addWidget(buildModErrorChkBox,6,0,1,2);
-    buildModErrorTBtn = new QToolButton(messageDialog);
-    parseErrorLayout->addWidget(buildModErrorTBtn,7,0);
-    buildModErrorLbl = new QLabel("", messageDialog);
-    parseErrorLayout->addWidget(buildModErrorLbl,7,1);
-    separator = new QFrame();
-    separator->setFrameShape(QFrame::HLine);
-    parseErrorLayout->addWidget(separator,8,0,1,2);
-    QObject::connect(buildModErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
-
     // options - include file errors
     QCheckBox * includeFileErrorChkBox = new QCheckBox(tr("Show include file errors"), messageDialog);
     includeFileErrorChkBox->setChecked(Preferences::showIncludeFileErrors);
-    parseErrorLayout->addWidget(includeFileErrorChkBox,9,0,1,2);
+    parseErrorLayout->addWidget(includeFileErrorChkBox,6,0,1,2);
     includeErrorTBtn = new QToolButton(messageDialog);
-    parseErrorLayout->addWidget(includeErrorTBtn,10,0);
+    parseErrorLayout->addWidget(includeErrorTBtn,7,0);
     includeErrorLbl = new QLabel("", messageDialog);
-    parseErrorLayout->addWidget(includeErrorLbl,10,1);
+    parseErrorLayout->addWidget(includeErrorLbl,7,1);
+    separator = new QFrame();
+    separator->setFrameShape(QFrame::HLine);
+    parseErrorLayout->addWidget(separator,8,0,1,2);
+    QObject::connect(includeErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
+
+    // options - build modification errors
+    QCheckBox * buildModErrorChkBox = new QCheckBox(tr("Show build modification errors"), messageDialog);
+    buildModErrorChkBox->setToolTip(tr("Show build modification errors encountered during model file parse operations."));
+    buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
+    parseErrorLayout->addWidget(buildModErrorChkBox,9,0,1,2);
+    buildModErrorTBtn = new QToolButton(messageDialog);
+    parseErrorLayout->addWidget(buildModErrorTBtn,10,0);
+    buildModErrorLbl = new QLabel("", messageDialog);
+    parseErrorLayout->addWidget(buildModErrorLbl,10,1);
     separator = new QFrame();
     separator->setFrameShape(QFrame::HLine);
     parseErrorLayout->addWidget(separator,11,0,1,2);
-    QObject::connect(includeErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
+    QObject::connect(buildModErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
+
+    // options - build modification errors
+    QCheckBox * buildModEditErrorChkBox = new QCheckBox(tr("Show build modification editing errors"), messageDialog);
+    buildModEditErrorChkBox->setToolTip(tr("Show errors encountered during build modification editing."));
+    buildModEditErrorChkBox->setChecked(Preferences::showBuildModEditErrors);
+    parseErrorLayout->addWidget(buildModEditErrorChkBox,12,0,1,2);
+    buildModEditErrorTBtn = new QToolButton(messageDialog);
+    parseErrorLayout->addWidget(buildModEditErrorTBtn,13,0);
+    buildModEditErrorLbl = new QLabel("", messageDialog);
+    parseErrorLayout->addWidget(buildModEditErrorLbl,13,1);
+    separator = new QFrame();
+    separator->setFrameShape(QFrame::HLine);
+    parseErrorLayout->addWidget(separator,14,0,1,2);
+    QObject::connect(buildModEditErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - annotation errors
     QCheckBox * annotationErrorChkBox = new QCheckBox(tr("Show annotation errors"), messageDialog);
     annotationErrorChkBox->setChecked(Preferences::showAnnotationErrors);
-    parseErrorLayout->addWidget(annotationErrorChkBox,12,0,1,2);
+    parseErrorLayout->addWidget(annotationErrorChkBox,15,0,1,2);
     annotationErrorTBtn = new QToolButton(messageDialog);
-    parseErrorLayout->addWidget(annotationErrorTBtn,13,0);
+    parseErrorLayout->addWidget(annotationErrorTBtn,16,0);
     annotationErrorLbl = new QLabel("", messageDialog);
-    parseErrorLayout->addWidget(annotationErrorLbl,13,1);
+    parseErrorLayout->addWidget(annotationErrorLbl,16,1);
     QObject::connect(annotationErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
     separator = new QFrame();
     separator->setFrameShape(QFrame::HLine);
-    parseErrorLayout->addWidget(separator,14,0,1,2);
+    parseErrorLayout->addWidget(separator,17,0,1,2);
 
     // options - clear all detail messages
     clearDetailErrorsTBtn = new QToolButton(messageDialog);
-    parseErrorLayout->addWidget(clearDetailErrorsTBtn,15,0);
+    parseErrorLayout->addWidget(clearDetailErrorsTBtn,18,0);
     clearDetailErrorsLbl = new QLabel("", messageDialog);
-    parseErrorLayout->addWidget(clearDetailErrorsLbl,15,1);
+    parseErrorLayout->addWidget(clearDetailErrorsLbl,18,1);
     QObject::connect(clearDetailErrorsTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - button box
@@ -1355,12 +1371,13 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     // load message counts
     messageManagement();
 
-    if (messageDialog->exec() == QDialog::Accepted) {
-        mShowLineParseErrors   = parseErrorChkBox->isChecked();
-        mShowInsertErrors      = insertErrorChkBox ->isChecked();
-        mShowBuildModErrors    = buildModErrorChkBox->isChecked();
-        mShowIncludeFileErrors = includeFileErrorChkBox->isChecked();
-        mShowAnnotationErrors  = annotationErrorChkBox->isChecked();
+    if (messageDialog->exec()     == QDialog::Accepted) {
+        mShowLineParseErrors       = parseErrorChkBox->isChecked();
+        mShowInsertErrors          = insertErrorChkBox ->isChecked();
+        mShowBuildModErrors        = buildModErrorChkBox->isChecked();
+        mShowBuildModEditErrors    = buildModEditErrorChkBox->isChecked();
+        mShowIncludeFileErrors     = includeFileErrorChkBox->isChecked();
+        mShowAnnotationErrors      = annotationErrorChkBox->isChecked();
     }
 }
 
@@ -1439,11 +1456,12 @@ void PreferencesDialog::messageManagement()
 {
     auto countErrors = [this] ()
     {
-        int lineParseErrorCount   = 0;
-        int insertErrorCount      = 0;
-        int buildModErrorCount    = 0;
-        int includeFileErrorCount = 0;
-        int annotationErrorCount  = 0;
+        int lineParseErrorCount      = 0;
+        int insertErrorCount         = 0;
+        int buildModErrorCount       = 0;
+        int buildModEditErrorCount   = 0;
+        int includeFileErrorCount    = 0;
+        int annotationErrorCount     = 0;
 
         if (Preferences::messagesNotShown.size()) {
             bool ok;
@@ -1459,6 +1477,8 @@ void PreferencesDialog::messageManagement()
                         insertErrorCount++; break;
                     case Preferences::BuildModErrors:
                         buildModErrorCount++; break;
+                    case Preferences::BuildModEditErrors:
+                        buildModEditErrorCount++; break;
                     case Preferences::IncludeFileErrors:
                         includeFileErrorCount++; break;
                     case Preferences::AnnotationErrors:
@@ -1474,6 +1494,8 @@ void PreferencesDialog::messageManagement()
         parseErrorTBtn->setEnabled(lineParseErrorCount);
         buildModErrorLbl->setText(tr("Clear %1 build modification errors").arg(buildModErrorCount));
         buildModErrorTBtn->setEnabled(buildModErrorCount);
+        buildModEditErrorLbl->setText(tr("Clear %1 build modification edit errors").arg(buildModEditErrorCount));
+        buildModEditErrorTBtn->setEnabled(buildModEditErrorCount);
         insertErrorLbl->setText(tr("Clear %1 model insert errors").arg(insertErrorCount));
         insertErrorTBtn->setEnabled(insertErrorCount);
         includeErrorLbl->setText(tr("Clear %1 include file errors") .arg(includeFileErrorCount));
@@ -1519,7 +1541,11 @@ void PreferencesDialog::messageManagement()
     } else if (sender() == buildModErrorTBtn) {
         cleared = clearErrors(Preferences::BuildModErrors);
         buildModErrorLbl->setStyleSheet(style);
-        buildModErrorLbl->setText(tr("Cleared %1 build modification errorss").arg(cleared));
+        buildModErrorLbl->setText(tr("Cleared %1 build modification errors").arg(cleared));
+    } else if (sender() == buildModEditErrorTBtn) {
+        cleared = clearErrors(Preferences::BuildModEditErrors);
+        buildModEditErrorLbl->setStyleSheet(style);
+        buildModEditErrorLbl->setText(tr("Cleared %1 build modification edit errors").arg(cleared));
     } else if (sender() == includeErrorTBtn) {
         cleared = clearErrors(Preferences::IncludeFileErrors);
         includeErrorLbl->setStyleSheet(style);
@@ -1892,6 +1918,11 @@ bool PreferencesDialog::showInsertErrors()
 bool PreferencesDialog::showBuildModErrors()
 {
   return mShowBuildModErrors;
+}
+
+bool PreferencesDialog::showBuildModEditErrors()
+{
+  return mShowBuildModEditErrors;
 }
 
 bool PreferencesDialog::showIncludeFileErrors()

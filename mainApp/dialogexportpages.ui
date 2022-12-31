@@ -376,7 +376,7 @@
          <string>Do not show this dialogue. You can reset this opton in Preferences.</string>
         </property>
         <property name="text">
-         <string>Do not show this dialogue in the future.</string>
+         <string>Do not show this dialog in the future</string>
         </property>
        </widget>
       </item>

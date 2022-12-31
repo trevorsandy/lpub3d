@@ -1,4 +1,4 @@
-LPub3D 2.4.5.73.3050 (31 12 2022 04:57:07)
+LPub3D 2.4.5.74.3051 (31 12 2022 04:58:49)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - Logging - update messaging and log types #634
 - Enhancement - Prompt user to archive unofficial parts #628
 - Enhancement - Show errors and warnings on export or continuous process completion #639
+- Enhancement - Messages - add option to abort processing on error #643
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Build modification - declaration and action in same STEP #633
 - Change - Change reset image menu action description to refresh image #623

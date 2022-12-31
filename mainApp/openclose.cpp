@@ -749,6 +749,9 @@ bool Gui::saveFile(const QString &fileName)
 void Gui::closeFile()
 {
   pa = sa = 0;
+  buildModJumpForward = false;
+  pageDirection = PAGE_NEXT;
+  pageProcessRunning = PROC_NONE;
   lpub->ldrawFile.empty();
   editWindow->clearWindow();
   mpdCombo->clear();
@@ -762,6 +765,7 @@ void Gui::closeFile()
   undoStack->clear();
   pageDirection = PAGE_NEXT;
   buildModJumpForward = false;
+  setAbortProcess(false);
   Preferences::resetFadeSteps();
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
@@ -834,7 +838,7 @@ void Gui::closeModelFile(){
  * File opening closing stuff
  **************************************************************************/
 
-bool Gui::openFile(QString &fileName)
+bool Gui::openFile(const QString &fileName)
 {
 
   if (maybeSave() && saveBuildModification()) {
@@ -847,8 +851,6 @@ bool Gui::openFile(QString &fileName)
   disableWatcher();
 
   setCountWaitForFinished(false);
-  buildModJumpForward = false;
-  pageDirection = PAGE_NEXT;
   suspendFileDisplay = true;
   parsedMessages.clear();
   Preferences::unsetBuildModifications();
@@ -873,6 +875,7 @@ bool Gui::openFile(QString &fileName)
       return false;
   }
   displayPageNum = 1 + pa;
+  prevDisplayPageNum = displayPageNum;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();

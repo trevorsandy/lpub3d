@@ -2276,7 +2276,7 @@ int CountPageWorker::countPage(
 #endif
 
   for ( ;
-        opts.current.lineNumber < opts.flags.numLines;
+        opts.current.lineNumber < opts.flags.numLines && ! Gui::abortProcess();
         opts.current.lineNumber++) {
 
       //* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
@@ -2408,7 +2408,10 @@ int CountPageWorker::countPage(
                                               opts.contStepNumber,
                                               opts.groupStepNumber,
                                               opts.current.modelName /*renderParentModel*/);
-                                  countPage(meta, ldrawFile, modelOpts);
+
+                                  const TraverseRc drc = static_cast<TraverseRc>(countPage(meta, ldrawFile, modelOpts));
+                                  if (drc == HitAbortProcess)
+                                      return static_cast<int>(drc);
 
                                   meta->rotStep = saveRotStep2;             // restore old rotstep
                                   if (meta->submodelStack.size())
@@ -2417,10 +2420,8 @@ int CountPageWorker::countPage(
                                   // terminate build modification countPage at end of submodel
                                   if (Gui::buildModJumpForward && ! opts.flags.callout && modelOpts.pageNum >= gui->saveDisplayPageNum) {
                                       opts.flags.parseBuildMods = modelOpts.flags.parseBuildMods;
-                                      if (! opts.flags.parseBuildMods) {
-                                          countPageMutex.unlock();
-                                          return OkRc;
-                                      }
+                                      if (! opts.flags.parseBuildMods)
+                                          return static_cast<int>(drc);
                                   }
 
                                   if (Gui::exporting()) {
@@ -2591,10 +2592,12 @@ int CountPageWorker::countPage(
                       if (ldrawFile->buildModContains(buildMod.key)) {
                           buildMod.action = ldrawFile->getBuildModAction(buildMod.key, buildModStepIndex);
                           if (ldrawFile->getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
-                              emit gui->parseErrorSig(QString("Redundant build modification meta command '%1' - this command can be removed.")
+                              emit gui->parseErrorSig(tr("Redundant build modification meta command '%1' - this command can be removed.")
                                                       .arg(buildMod.key), opts.current,Preferences::BuildModErrors,false,false,QMessageBox::Icon::Information);
                       } else {
-                          emit gui->parseErrorSig(QString("CountPage BuildMod for key '%1' not found").arg(buildMod.key),
+                          const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
+                          emit gui->parseErrorSig(tr("CountPage %1 BuildMod for key '%2' not found")
+                                                  .arg(action).arg(buildMod.key),
                                                   opts.current,Preferences::BuildModErrors,false,false);
                       }
                       if ((Rc)buildMod.action != rc) {
@@ -2954,54 +2957,54 @@ int CountPageWorker::countPage(
               opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
           }
       }
-  }
-  // Added callout step parse for parse build modifications so
-  // exclude from page number increment and topOfPages indices
-  if (opts.flags.partsAdded && ! opts.flags.callout && (! opts.flags.noStep || opts.flags.parseNoStep)) {
-      if (Gui::exporting()) {
-          Gui::getPageSizes().remove(opts.pageNum);
-          if (opts.flags.pageSizeUpdate) {
-              opts.flags.pageSizeUpdate = false;
-              Gui::insertPageSize(opts.pageNum,opts.pageSize);
+      // Added callout step parse for parse build modifications so
+      // exclude from page number increment and topOfPages indices
+      if (opts.flags.partsAdded && ! opts.flags.callout && (! opts.flags.noStep || opts.flags.parseNoStep)) {
+          if (Gui::exporting()) {
+              Gui::getPageSizes().remove(opts.pageNum);
+              if (opts.flags.pageSizeUpdate) {
+                  opts.flags.pageSizeUpdate = false;
+                  Gui::insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
-              logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << opts.pageSize.sizeID
-                         << "Model:" << opts.current.modelName;
+                  logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                             << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                             << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:"   << opts.pageSize.sizeID
+                             << "Model:" << opts.current.modelName;
 #endif
-            } else {
-              Gui::insertPageSize(opts.pageNum,Gui::getPageSize(DEF_SIZE));
+              } else {
+                  Gui::insertPageSize(opts.pageNum,Gui::getPageSize(DEF_SIZE));
 #ifdef PAGE_SIZE_DEBUG
-              logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                         << "W:"    << Gui::getPageSize(DEF_SIZE).sizeW << "H:"    << Gui::getPageSize(DEF_SIZE).sizeH
-                         << "O:"    << (Gui::getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << Gui::getPageSize(DEF_SIZE).sizeID
-                         << "Model:" << opts.current.modelName;
+                  logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                             << "W:"    << Gui::getPageSize(DEF_SIZE).sizeW << "H:"    << Gui::getPageSize(DEF_SIZE).sizeH
+                             << "O:"    << (Gui::getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:"   << Gui::getPageSize(DEF_SIZE).sizeID
+                             << "Model:" << opts.current.modelName;
 #endif
-            }
-      } // Exporting
+              }
+          } // Exporting
 
-      // BuildMod create
-      if (buildModKeys.size()) {
-          if (buildMod.state != BM_END)
-              emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
-                                      opts.current, Preferences::BuildModErrors,false,false);
-          Q_FOREACH (int buildModLevel, buildModKeys.keys())
-              insertBuildModification(buildModLevel);
-      }
+          // BuildMod create
+          if (buildModKeys.size()) {
+              if (buildMod.state != BM_END)
+                  emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
+                                          opts.current, Preferences::BuildModErrors,false,false);
+              Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                  insertBuildModification(buildModLevel);
+          }
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
-                           .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+          emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
+                               .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
-      ++opts.pageNum;
-      opts.flags.parseNoStep = false;
-      Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
+          ++opts.pageNum;
+          opts.flags.parseNoStep = false;
+          Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
 #ifndef QT_DEBUG_MODE
-      if (Preferences::debugLogging)
-          documentPageCount();
+          if (Preferences::debugLogging)
+              documentPageCount();
 #endif
-    } // Last Step in Submodel
+      } // Last Step in Submodel
+  } // ! abortProcess
 
   countPageMutex.unlock();
 

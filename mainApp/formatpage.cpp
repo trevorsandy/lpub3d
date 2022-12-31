@@ -1138,7 +1138,7 @@ int Gui::addGraphicsPageItems(
                                     .arg(elapsedTime(t.elapsed())));
 #endif
 
-  return 0;
+  return Gui::abortProcess() ? static_cast<int>(HitAbortProcess) : static_cast<int>(HitNothing);
 }
 
 /*
@@ -1147,7 +1147,6 @@ int Gui::addGraphicsPageItems(
  * Call only if using LDView Single Call (useLDViewsCall=true)
  */
 int Gui::addStepImageGraphics(Step *step) {
-  int retVal = 0;
   step->csiPixmap.load(step->pngName);
   step->csiPlacement.size[0] = step->csiPixmap.width();
   step->csiPlacement.size[1] = step->csiPixmap.height();
@@ -1170,11 +1169,10 @@ int Gui::addStepImageGraphics(Step *step) {
           } // 1.3 for each Range list-item within a Callout...=>list[AbstractStepsElement]->RangeType
       } // 1.2 validate if relativeType is CalloutType - to cast as Callout...
   } // 1.1 for each Callout list-item within a Step...=>list[Steps]->CalloutType
-  return retVal;
+  return 0;
 }
 
 int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
-    int retVal = 0;
     // add Pli part group to scene
     QHash<QString, PliPart*> pliParts;
     PliPart *part;
@@ -1210,7 +1208,7 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
             }
         }
     }
-    return retVal;
+    return 0;
 }
 
 int Gui::addPliPartGroupsToScene(

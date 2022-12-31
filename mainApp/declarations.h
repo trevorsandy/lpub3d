@@ -91,12 +91,22 @@ enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum DisplayModelType { DM_FINAL_MODEL = -1, DM_DISPLAY_MODEL = - 2 };
 enum ShowLineType { PS_POS, LINE_HIGHLIGHT = PS_POS, PS_LAST_POS, LINE_ERROR = PS_LAST_POS, PS_STEP_NUM };
 enum ProcessType { PROC_NONE, PROC_WRITE_TO_TMP, PROC_FIND_PAGE, PROC_DRAW_PAGE, PROC_DISPLAY_PAGE, PROC_COUNT_PAGE };
-enum TraverseRc { HitNothing, HitEndOfFile = HitNothing, HitEndOfPage, HitBuildModAction, HitBottomOfStep, HitEndOfSubmodel, HitCsiAnnotation };
 enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum SceneObjectInfo { ObjectId };
 enum RecentFilesType { MAX_RECENT_FILES = 8 };
+enum TraverseRc { HitNothing,
+                  HitEndOfFile = HitNothing,
+                  HitEndOfPage,
+                  HitBuildModAction,
+                  HitBottomOfStep,
+                  HitEndOfSubmodel,
+                  HitCsiAnnotation,
+                  HitInvalidLDrawLine,
+                  HitRangeError,
+                  HitAbortProcess
+};
 enum LoadMsgType { MISSING_LOAD_MSG,
                    PRIMITIVE_LOAD_MSG,
                    SUBPART_LOAD_MSG,
@@ -106,7 +116,8 @@ enum LoadMsgType { MISSING_LOAD_MSG,
                    MPD_SUBMODEL_LOAD_MSG,
                    LDR_SUBMODEL_LOAD_MSG,
                    VALID_LOAD_MSG,
-                   ALL_LOAD_MSG };
+                   ALL_LOAD_MSG
+};
 enum ActionModuleType { NO_ACTION,                 //  0
                         MAIN_WINDOW_ACTION,        //  1
                         COMMAND_EDITOR_ACTION,     //  2

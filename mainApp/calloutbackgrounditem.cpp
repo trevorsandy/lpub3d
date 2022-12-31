@@ -54,7 +54,8 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   csiRect     = _csiRect;
 
   QPixmap *pixmap = new QPixmap(_calloutRect.width(),_calloutRect.height());
-  QString toolTip = QObject::tr("Callout %1 [%1 x %2 px] - right-click to modify").arg(_path)
+  QString toolTip = QObject::tr("Callout %1 [%2 x %3 px] - right-click to modify")
+                            .arg(_path)
                             .arg(_calloutRect.width())
                             .arg(_calloutRect.height());;
 

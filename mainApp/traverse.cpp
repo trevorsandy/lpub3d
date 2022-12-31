@@ -446,6 +446,7 @@ int Gui::drawPage(
   bool     partIgnore      = false;
   bool     synthBegin      = false;
   bool     multiStep       = false;
+  bool     multiStepPage   = false;
   bool     partsAdded      = false;
   bool     coverPage       = false;
   bool     bfxStore1       = false;
@@ -496,7 +497,8 @@ int Gui::drawPage(
 
   Rc gprc    = OkRc;
   Rc rc      = OkRc;
-  int retVal = 0;
+
+  TraverseRc returnValue = HitNothing;
 
   // include file vars
   Where includeHere;
@@ -560,8 +562,7 @@ int Gui::drawPage(
   };
 
   auto insertAttribute =
-          [this,
-           &opts,
+          [&opts,
            &buildMod,
            &topOfStep] (
           QMap<int, QVector<int>> &buildModAttributes,
@@ -699,7 +700,7 @@ int Gui::drawPage(
 #endif
   //*/
 
-  for ( ; opts.current <= numLines; opts.current++) {
+  for ( ; opts.current <= numLines && !Gui::abortProcess() ; opts.current++) {
 
       // if reading include file, return to current line, do not advance
 
@@ -997,7 +998,7 @@ int Gui::drawPage(
                               true               /*calledOut*/
                               );
 
-                  const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, callout, line, calloutOpts));
+                  returnValue = static_cast<TraverseRc>(drawPage(view, scene, callout, line, calloutOpts));
 
                   callout->meta = saveMeta;
 
@@ -1010,15 +1011,15 @@ int Gui::drawPage(
                       opts.pliParts += calloutParts;
                   }
 
-                  if (static_cast<int>(drc)) {
+                  if (returnValue != HitNothing) {
                       steps->placement = steps->meta.LPub.assem.placement;
-                      if (drc == HitBuildModAction || drc == HitCsiAnnotation)
+                      if (returnValue == HitBuildModAction || returnValue == HitCsiAnnotation)
                           // return to init drawPage to rerun findPage to regenerate content
                           pageProcessRunning = PROC_DISPLAY_PAGE;
                       else
                           // return to init findPage
                           pageProcessRunning = PROC_FIND_PAGE;
-                      return drc;
+                      return static_cast<int>(returnValue);
                   }
               } else {
                 callout->instances++;
@@ -1091,11 +1092,11 @@ int Gui::drawPage(
         } // Allocate step for type
       } // Process line, triangle, or polygon type
 
-      // STEP - Process meta command
+      // STEP - Process meta-command
 
       else if ( (tokens.size() && tokens[0] == "0") || gprc == EndOfFileRc) {
 
-          /* must be meta-command (or comment) */
+          /* must be a meta-command (or comment) */
 
           if (global && tokens.contains("!LPUB") && tokens.contains("GLOBAL")) {
               topOfStep = opts.current;
@@ -1121,7 +1122,7 @@ int Gui::drawPage(
               }
           }
 
-          /* handle specific meta-commands */
+          /* handle specific meta-command */
 
           switch (rc) {
             /* toss it all out the window, per James' original plan */
@@ -1781,12 +1782,12 @@ int Gui::drawPage(
 
               /* finished off a multiStep */
             case StepGroupEndRc:
-              if (multiStep && steps->list.size()) {
+              if ((multiStepPage = multiStep && steps->list.size())) {
                   // save the current meta as the meta for step group
                   // PLI for non-pli-per-step
                   if (partsAdded) {
                       parseError("Expected STEP before MULTI_STEP END", opts.current);
-                    }
+                  }
                   multiStep = false;
 
                  /*
@@ -1954,10 +1955,10 @@ int Gui::drawPage(
                   if (! exportingObjects()) {
                       suspendFileDisplay = true;
                       //steps->setCsiAnnotationMetas();
-                      const TraverseRc trc = static_cast<TraverseRc>(lpub->mi.setCsiAnnotationMetas(steps));
+                      returnValue = static_cast<TraverseRc>(lpub->mi.setCsiAnnotationMetas(steps));
                       suspendFileDisplay = false;
-                      if (trc == HitCsiAnnotation)
-                          return static_cast<int>(trc);
+                      if (returnValue == HitCsiAnnotation)
+                          return static_cast<int>(returnValue);
                   }
 
                   Page *page = dynamic_cast<Page *>(steps);
@@ -1978,12 +1979,9 @@ int Gui::drawPage(
 
                       // renderer parms are added to csiKeys in createCsi()
 
-                      int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta);
-                      if (rrc != 0) {
+                      if (static_cast<TraverseRc>(renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta)) != HitNothing) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
-                          pageProcessRunning = PROC_FIND_PAGE;
-                          return rrc;
-                        }
+                      }
 
                       emit messageSig(LOG_INFO,
                                           QString("%1 CSI (Single Call) render took "
@@ -1998,19 +1996,19 @@ int Gui::drawPage(
                                              .arg(stepPageNum));
                   }
 
-                  // load the Visual Editor with the last step of the step group
-                  Step *lastStep = step;
-                  if (!lastStep) {
-                      Range *lastRange = range;
-                      if (!lastRange)
-                          lastRange = dynamic_cast<Range *>(steps->list[steps->list.size() - 1]);
-                      if (lastRange) {
-                          int lastStepIndex = lastRange->list.size() - 1;
-                          lastStep = dynamic_cast<Step *>(lastRange->list[lastStepIndex]);
-                      }
-                  }
-
                   if (Preferences::modeGUI) {
+                      // load the Visual Editor with the last step of the step group
+                      Step *lastStep = step;
+                      if (!lastStep) {
+                          Range *lastRange = range;
+                          if (!lastRange)
+                              lastRange = dynamic_cast<Range *>(steps->list[steps->list.size() - 1]);
+                          if (lastRange) {
+                              int lastStepIndex = lastRange->list.size() - 1;
+                              lastStep = dynamic_cast<Step *>(lastRange->list[lastStepIndex]);
+                          }
+                      }
+
                       if (lastStep && !lastStep->csiPixmap.isNull()) {
                           emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
                           lpub->setCurrentStep(lastStep);
@@ -2018,21 +2016,26 @@ int Gui::drawPage(
                               showLine(lastStep->topOfStep());
                               lastStep->loadTheViewer();
                           }
-                      } else {
-                          if (!exportingObjects())
-                              showLine(steps->topOfSteps());
+                      } else if (!exportingObjects() && step) {
+                          lpub->setCurrentStep(step);
+                          showLine(steps->topOfSteps());
                       }
                   }
 
-                  addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
+                  if ((returnValue = static_cast<TraverseRc>(addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing))) != HitAbortProcess)
+                      returnValue = HitEndOfPage;
 
                   drawPageElapsedTime();
-                  return HitEndOfPage;
+
+                  if (Gui::abortProcess())
+                      returnValue = HitAbortProcess;
                 }
               inserts.clear();
               buildModKeys.clear();
               pagePointers.clear();
               selectedSceneItems.clear();
+              if (multiStepPage)
+                  return static_cast<int>(returnValue);
               break;
 
             // Update BuildMod action for 'current' step
@@ -2055,6 +2058,7 @@ int Gui::drawPage(
                              .arg(action).arg(buildMod.key),
                              opts.current,Preferences::BuildModErrors);
               }
+              buildModAction = true;
               if (multiStep || opts.calledOut)
                   buildModChange = topOfStep != steps->topOfSteps(); // uses list[0].topOfStep for both multiStep and callout
               if (buildModChange) {
@@ -2090,10 +2094,9 @@ int Gui::drawPage(
 
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       pageProcessRunning = PROC_FIND_PAGE;
-                      return HitBuildModAction;
-                  }
-              }
-              buildModAction = true;
+                      return static_cast<int>(HitBuildModAction);
+                  } // buildMod action != rc
+              } // buildModChange
               break;
 
             // Get BuildMod attributes and set ModIgnore based on 'current' step buildModAction
@@ -2414,7 +2417,7 @@ int Gui::drawPage(
                               }
                           } // Pli per Step
 
-                          switch (dividerType){
+                          switch (dividerType) {
                           // for range divider, we set the dividerType for the last STEP of the previous RANGE.
                           case RangeDivider:
                               if (steps && steps->list.size() > 1) {
@@ -2441,24 +2444,21 @@ int Gui::drawPage(
                           default:
                               step->dividerType = dividerType;
                               break;
-                          }
+                          } // divider type
 
                           step->placeRotateIcon = rotateIcon;
 
                           emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
                           step->updateViewer = opts.updateViewer;
-                          int crc = step->createCsi(
+                          returnValue = static_cast<TraverseRc>(step->createCsi(
                                       opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                                       configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
                                       opts.lineTypeIndexes,
                                       &step->csiPixmap,
-                                      steps->meta);
+                                      steps->meta));
 
-                          if (crc) {
+                          if (returnValue != HitNothing)
                               emit messageSig(LOG_ERROR, QMessageBox::tr("Create CSI failed to create file."));
-                              pageProcessRunning = PROC_FIND_PAGE;
-                              return crc;
-                          }
 
                           // BuildMod create and update - performed after createCsi to enable viewerStepKey
                           if (buildModKeys.size()) {
@@ -2477,10 +2477,10 @@ int Gui::drawPage(
                           // Set CSI annotations - single step only
                           if (! exportingObjects() &&  ! multiStep && ! opts.calledOut) {
                               suspendFileDisplay = true;
-                              const TraverseRc trc = static_cast<TraverseRc>(step->setCsiAnnotationMetas(steps->meta));
+                              returnValue = static_cast<TraverseRc>(step->setCsiAnnotationMetas(steps->meta));
                               suspendFileDisplay = false;
-                              if (trc == HitCsiAnnotation)
-                                  return static_cast<int>(trc);
+                              if (returnValue == HitCsiAnnotation)
+                                  return static_cast<int>(returnValue);
                           }
 
                           if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
@@ -2615,12 +2615,9 @@ int Gui::drawPage(
                               // LDView renderer parms are added to csiKeys in createCsi()
 
                               // render the partially assembled model
-                              int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
-                              if (rrc != 0) {
+                              returnValue = static_cast<TraverseRc>(renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta));
+                              if (returnValue != HitNothing)
                                   emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
-                                  pageProcessRunning = PROC_FIND_PAGE;
-                                  return rrc;
-                              }
 
                               emit messageSig(LOG_INFO,
                                                    QString("%1 CSI (Single Call) render took "
@@ -2688,12 +2685,19 @@ int Gui::drawPage(
                               } // cover page view enabled
                           } // cover page
 
-                          addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
+                          if ((returnValue = static_cast<TraverseRc>(addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing))) != HitAbortProcess)
+                              returnValue = HitEndOfPage;
 
                           stepPageNum += ! coverPage;
+
                           steps->setBottomOfSteps(opts.current);
+
                           drawPageElapsedTime();
-                          return HitEndOfPage;
+
+                          if (Gui::abortProcess())
+                              returnValue = HitAbortProcess;
+
+                          return static_cast<int>(returnValue);
                       } // STEP - Simple, not mulitStep, not calledOut (draw graphics)
 #ifdef WRITE_PARTS_DEBUG
                       writeDrawPartsFile();
@@ -2798,37 +2802,40 @@ int Gui::drawPage(
               break;
 
             case RangeErrorRc:
-            {
-              showLine(opts.current);
-              QString message;
-              if (Preferences::preferredRenderer == RENDERER_NATIVE &&
-                  line.indexOf("CAMERA_FOV") != -1)
-                  message = QString("Native renderer CAMERA_FOV value is out of range [%1:%2]"
-                                    "<br>Meta command: %3"
-                                    "<br>Valid values: minimum 1.0, maximum 359.0")
-                                        .arg(opts.current.modelName)
-                                        .arg(opts.current.lineNumber)
-                                        .arg(line);
-              else
-                  message = QString("Parameter(s) out of range: %1:%2<br>Meta command: %3")
-                          .arg(opts.current.modelName)
-                          .arg(opts.current.lineNumber)
-                          .arg(line);
+              {
+                showLine(opts.current);
+                QString message;
+                if (Preferences::preferredRenderer == RENDERER_NATIVE &&
+                    line.indexOf("CAMERA_FOV") != -1)
+                    message = QString("Native renderer CAMERA_FOV value is out of range [%1:%2]"
+                                      "<br>Meta command: %3"
+                                      "<br>Valid values: minimum 1.0, maximum 359.0")
+                                          .arg(opts.current.modelName)
+                                          .arg(opts.current.lineNumber)
+                                          .arg(line);
+                else
+                    message = QString("Parameter(s) out of range: %1:%2<br>Meta command: %3")
+                            .arg(opts.current.modelName)
+                            .arg(opts.current.lineNumber)
+                            .arg(line);
 
-              emit messageSig(LOG_ERROR,message);
-              pageProcessRunning = PROC_FIND_PAGE;
-              return RangeErrorRc;
-            }
+                returnValue = HitRangeError;
+
+                emit messageSig(LOG_ERROR,message);
+
+              }
             default:
               break;
-            }
-        }
+            } // Handle Specific meta-command
+        } // STEP - Process meta-command
       // STEP - Process invalid line
       else if (line != "") {
           const QChar type = line.at(0);
+
           parseError(QString("Invalid LDraw type %1 line. Expected %2 elements, got \"%3\".")
                      .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),opts.current);
-          retVal = InvalidLDrawLineRc;
+
+          returnValue = HitInvalidLDrawLine;
       }
       /* if part is on excludedPart.lst, unset pliIgnore if still set */
       if (pliIgnore && tokens[0] == "1" &&
@@ -2839,7 +2846,14 @@ int Gui::drawPage(
 
   // if we get here it's likely and empty page or cover page...
   drawPageElapsedTime();
-  return retVal;
+
+  if (Gui::abortProcess()) {
+      pageProcessRunning = PROC_FIND_PAGE;
+      if (returnValue != HitInvalidLDrawLine && returnValue != HitRangeError)
+          returnValue = HitAbortProcess;
+  }
+
+  return static_cast<int>(returnValue);
 }
 
 int Gui::findPage(
@@ -3055,7 +3069,7 @@ int Gui::findPage(
    */
 
   for ( ;
-        opts.current.lineNumber < opts.flags.numLines && ! opts.pageDisplayed;
+        opts.current.lineNumber < opts.flags.numLines && ! opts.pageDisplayed && ! Gui::abortProcess();
         opts.current.lineNumber++) {
 
       // if reading include file, return to current line, do not advance
@@ -3195,10 +3209,10 @@ int Gui::findPage(
                                               opts.current.modelName /*renderParentModel*/);
 
                                   const TraverseRc frc = static_cast<TraverseRc>(findPage(view, scene, meta, line, modelOpts));
-                                  if (frc == HitBuildModAction || frc == HitCsiAnnotation) {
-                                      // return to init drawPage to rerun findPage to regenerate content
+                                  if (frc == HitBuildModAction || frc == HitCsiAnnotation || frc == HitAbortProcess) {
+                                      // Set processing state and return to parent findPage
                                       pageProcessRunning = PROC_DISPLAY_PAGE;
-                                      return frc;
+                                      return static_cast<int>(frc);
                                   }
 
                                   opts.pageDisplayed = modelOpts.pageDisplayed;
@@ -3402,10 +3416,10 @@ int Gui::findPage(
                       writeFindPartsFile("a_find_save_csi_parts");
 #endif
                       const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, &lpub->page, addLine, pageOptions));
-                      if (drc == HitBuildModAction || drc == HitCsiAnnotation) {
-                          // return to init drawPage to rerun findPage to regenerate content
+                      if (drc == HitBuildModAction || drc == HitCsiAnnotation || drc == HitAbortProcess) {
+                          // Set processing state and return to init drawPage
                           pageProcessRunning = PROC_DISPLAY_PAGE;
-                          return drc;
+                          return static_cast<int>(drc);;
                       }
 
                       opts.pageDisplayed = true;
@@ -3522,10 +3536,10 @@ int Gui::findPage(
                 if (buildModInsert) {
                     if (buildMod.level > 1 && buildMod.key.isEmpty())
                         parseError("Key required for nested build mod meta command",
-                                opts.current,Preferences::BuildModErrors,false,false);
+                                opts.current,Preferences::BuildModErrors);
                     if (buildMod.state != BM_BEGIN)
                         parseError(QString("Required meta BUILD_MOD BEGIN not found"),
-                                opts.current, Preferences::BuildModErrors,false,false);
+                                opts.current, Preferences::BuildModErrors);
                     insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
                 }
                 buildMod.state = BM_END_MOD;
@@ -3543,7 +3557,7 @@ int Gui::findPage(
                 if (buildModInsert) {
                     if (buildMod.state != BM_END_MOD)
                         parseError(QString("Required meta BUILD_MOD END_MOD not found"),
-                                opts.current, Preferences::BuildModErrors,false,false);
+                                opts.current, Preferences::BuildModErrors);
                     insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
                 }
                 buildMod.state = BM_END;
@@ -3592,7 +3606,7 @@ int Gui::findPage(
                                 if (buildModKeys.size()) {
                                     if (buildMod.state != BM_END)
                                         parseError(QString("Required meta BUILD_MOD END not found"),
-                                                   opts.current, Preferences::BuildModErrors,false,false);
+                                                   opts.current, Preferences::BuildModErrors);
                                     Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
                                         insertBuildModification(buildModLevel);
                                     }
@@ -3658,11 +3672,10 @@ int Gui::findPage(
                             writeFindPartsFile("b_find_save_csi_parts");
 #endif
                             const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, &lpub->page, addLine, pageOptions));
-                            if (drc == HitBuildModAction || drc == HitCsiAnnotation) {
-                                // Set processing state and return to init drawPage to rerun findPage to regenerate content
+                            if (drc == HitBuildModAction || drc == HitCsiAnnotation || drc == HitAbortProcess) {
+                                // Set processing state and return to init drawPage
                                 pageProcessRunning = PROC_DISPLAY_PAGE;
-                                // rerun findPage to reflect change in pre-displayPageNum csiParts
-                                return drc;
+                                return static_cast<int>(drc);
                             }
 
                             opts.pageDisplayed = true;
@@ -3715,7 +3728,7 @@ int Gui::findPage(
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
                                     parseError(QString("Required meta BUILD_MOD END not found"),
-                                               opts.current, Preferences::BuildModErrors,false,false);
+                                               opts.current, Preferences::BuildModErrors);
                                 Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
                                     insertBuildModification(buildModLevel);
                                 }
@@ -4003,7 +4016,10 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (opts.flags.partsAdded && ! opts.pageDisplayed && (! opts.flags.noStep || opts.flags.parseNoStep)) {
+  if (! Gui::abortProcess() &&
+        opts.flags.partsAdded &&
+      ! opts.pageDisplayed &&
+      (! opts.flags.noStep || opts.flags.parseNoStep)) {
       isPreDisplayPage = opts.pageNum < displayPageNum;
       isDisplayPage = opts.pageNum == displayPageNum;
       // increment continuous step number
@@ -4055,11 +4071,10 @@ int Gui::findPage(
                       writeFindPartsFile("b_find_save_csi_parts");
 #endif
           const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, &lpub->page, addLine, pageOptions));
-          if (drc == HitBuildModAction || drc == HitCsiAnnotation) {
-              // Set processing state and return to init drawPage to rerun findPage to regenerate content
+          if (drc == HitBuildModAction || drc == HitCsiAnnotation || drc == HitAbortProcess) {
+              // Set processing state and return to init drawPage
               pageProcessRunning = PROC_DISPLAY_PAGE;
-              // rerun findPage to reflect change in pre-displayPageNum csiParts
-              return drc;
+              return static_cast<int>(drc);
           }
 
           opts.pageDisplayed = true;
@@ -4114,7 +4129,7 @@ int Gui::findPage(
 
   // Set processing state
   pageProcessRunning = PROC_DISPLAY_PAGE;
-  return OkRc;
+  return Gui::abortProcess() ? static_cast<int>(HitAbortProcess) : static_cast<int>(HitNothing);
 }
 
 int Gui::getBOMParts(
@@ -4680,7 +4695,8 @@ void Gui::drawPage(
         const QList<Where> saveJumpTopOfPages = topOfPages;
         const Where saveJumpCurrent = current;
 
-        setBuildModForNextStep(topOfStep);
+        if (static_cast<TraverseRc>(setBuildModForNextStep(topOfStep)) == HitAbortProcess)
+          return;
 
         // revert registers to pre jump forward count page settings
         buildModJumpForward = false;
@@ -4692,7 +4708,8 @@ void Gui::drawPage(
         lpub->ldrawFile.unrendered();
 
       } else {
-        setBuildModForNextStep(topOfStep);
+        if (static_cast<TraverseRc>(setBuildModForNextStep(topOfStep)) == HitAbortProcess)
+          return;
       }
     } // buildModEnabled
 
@@ -4785,12 +4802,30 @@ void Gui::drawPage(
               0            /*groupStepNumber*/,
               empty        /*renderParentModel*/);
 
-  const TraverseRc trc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
+  auto visualEditorBanner = [&] ()
+  {
+      // I don't like this but we have to keep the Visual Editor
+      // updated when exporting or running continuous page processing
+      // to avoid crashing at paint/draw event
+      if (exporting() || (ContinuousPage() && m_exportMode == GENERATE_BOM)) {
+          deployBanner(true);
+          if (m_exportMode == GENERATE_BOM)
+              m_exportMode = m_saveExportMode;
+      }
+  };
 
-  if (Preferences::buildModEnabled && (trc == HitBuildModAction || trc == HitCsiAnnotation)) {
+  const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
+  if (frc == HitAbortProcess) {
 
-    dpFlags.buildModActionChange = trc == HitBuildModAction;
-    dpFlags.csiAnnotation = trc == HitCsiAnnotation;
+    visualEditorBanner();
+    QApplication::processEvents();
+    QApplication::restoreOverrideCursor();
+    return;
+
+  } else if (Preferences::buildModEnabled && (frc == HitBuildModAction || frc == HitCsiAnnotation)) {
+
+    dpFlags.buildModActionChange = frc == HitBuildModAction;
+    dpFlags.csiAnnotation = frc == HitCsiAnnotation;
     pageProcessRunning = PROC_DISPLAY_PAGE;
     clearPage(KpageView,KpageScene);
     QApplication::restoreOverrideCursor();
@@ -4800,7 +4835,7 @@ void Gui::drawPage(
 
     int modelStackCount = opts.modelStack.size();
 
-    auto countPage = [this, &opts](int modelStackCount)
+    auto countPage = [&] (int modelStackCount)
     {
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
@@ -4813,14 +4848,17 @@ void Gui::drawPage(
           emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished suspendFileDisplay WAIT YES"));
 #endif
         future.waitForFinished();
+        if (static_cast<TraverseRc>(future.result()) == HitAbortProcess)
+            return static_cast<int>(HitAbortProcess);
         if (!modelStackCount)
           pagesCounted();
       } else {
 #ifdef QT_DEBUG_MODE
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher setFuture WAIT NO"));
+        emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher setFuture WAIT NO"));
 #endif
         futureWatcher.setFuture(future);
       }
+      return static_cast<int>(HitNothing);
     };
 
 #ifdef QT_DEBUG_MODE
@@ -4853,7 +4891,8 @@ void Gui::drawPage(
       opts.flags.buildModStack.pop_back();
     }
 
-    countPage(modelStackCount);
+    if (static_cast<TraverseRc>(countPage(modelStackCount)) == HitAbortProcess)
+        return;
 
     // if we start counting from a child submodel, load where findPage stopped in the parent model
     for (int i = 0; i < modelStackCount; i++) {
@@ -4912,10 +4951,10 @@ void Gui::drawPage(
             opts.current++;
 
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Page entry ADJUSTED, PART ADDED for LineNumber %1, ModelName %2, Line [%3]")
-                          .arg(opts.current.lineNumber, 3, 10, QChar('0'))
-                          .arg(opts.current.modelName)
-                          .arg(line));
+            emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Page entry ADJUSTED, PART ADDED for LineNumber %1, ModelName %2, Line [%3]")
+                                 .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                                 .arg(opts.current.modelName)
+                                 .arg(line));
 #endif
           }
         }
@@ -4929,20 +4968,23 @@ void Gui::drawPage(
       int stackCount = opts.modelStack.size();
 
       // let's go
-      countPage(stackCount);
+      if (static_cast<TraverseRc>(countPage(stackCount)) == HitAbortProcess)
+          return;
     } // iterate the model stack
 
-    // keep the Visual Editor model updated to avoid crashing at paint/draw event
-    if (exporting() || (ContinuousPage() && m_exportMode == GENERATE_BOM)) {
-        deployBanner(true);
-        if (m_exportMode == GENERATE_BOM)
-            m_exportMode = m_saveExportMode;
-    }
+    visualEditorBanner();
 
     QApplication::processEvents();
 
     QApplication::restoreOverrideCursor();
   }
+}
+
+void Gui::finishedCountingPages()
+{
+    if (static_cast<TraverseRc>(futureWatcher.result()) == HitAbortProcess)
+        return;
+    pagesCounted();
 }
 
 void Gui::pagesCounted()
@@ -5026,7 +5068,7 @@ void Gui::pagesCounted()
                             .arg(gui->elapsedTime(timer.elapsed())));
         }
 
-        if (Preferences::modeGUI && ! exporting()) {
+        if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
             enableActions2();
             if (!ContinuousPage())
                 enableNavigationActions(true);
@@ -5300,7 +5342,7 @@ int Gui::setBuildModForNextStep(
         Rc rc;
         QStringList token;
         int numLines = subFileSize(walk.modelName);
-        for ( ;walk.lineNumber < numLines; walk.lineNumber++) {
+        for ( ;walk.lineNumber < numLines && !Gui::abortProcess(); walk.lineNumber++) {
             QString line = gui->readLine(walk);
             switch (line.toLatin1()[0]) {
             case '1':
@@ -5324,6 +5366,8 @@ int Gui::setBuildModForNextStep(
                 case RotStepRc:
                 case StepRc:                        // at the end of the current/submodel step so return the index
                     return index;
+                default:
+                    break;
                 }
             }
         }
@@ -5420,6 +5464,7 @@ int Gui::setBuildModForNextStep(
     if (!submodel)
         LDrawFile::_currentLevels.clear();
 
+    TraverseRc returnValue = HitNothing;
     QString line = readLine(walk);
     Rc rc = lpub->page.meta.parse(line, walk, false);
     if (rc == StepRc || rc == RotStepRc)
@@ -5427,7 +5472,7 @@ int Gui::setBuildModForNextStep(
 
     // Parse the step lines
     for ( ;
-          walk.lineNumber < numLines && !bottomOfStep;
+          walk.lineNumber < numLines && !bottomOfStep && !Gui::abortProcess();
           walk.lineNumber++) {
 
        line = readLine(walk);
@@ -5444,11 +5489,14 @@ int Gui::setBuildModForNextStep(
             case BuildModRemoveRc:
                 buildModStepIndex = getBuildModStepIndex(topOfStep);
                 buildMod.key = lpub->page.meta.LPub.buildMod.key();
-                if (buildModContains(buildMod.key))
+                if (buildModContains(buildMod.key)) {
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
-                else
-                    gui->parseErrorSig(QString("BuildMod for key '%1' not found").arg(buildMod.key),
+                } else {
+                    const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
+                    gui->parseErrorSig(QString("Next Step %1 BuildMod for key '%2' not found.")
+                                               .arg(action).arg(buildMod.key),
                                                walk,Preferences::ParseErrors,false,false);
+                }
                 if ((Rc)buildMod.action != rc) {
                     setBuildModAction(buildMod.key, buildModStepIndex, rc);
                 }
@@ -5550,7 +5598,7 @@ int Gui::setBuildModForNextStep(
         case '5':
             partsAdded++;
             break;
-        }
+        } // Process meta-command
     } // For every line
 
     if (Gui::abortProcess()) {
@@ -5635,7 +5683,7 @@ void Gui::writeToTmp(const QString &fileName,
 
       Rc    rc;
       Meta  meta;
-      for (int i = 0; i < contents.size(); i++) {
+      for (int i = 0; i < contents.size() && !Gui::abortProcess(); i++) {
           QString line = contents[i];
           QStringList tokens;
 
@@ -5795,7 +5843,7 @@ void Gui::writeToTmp()
   QStringList fileContent;
 
   std::function<QStringList()> getFileContent;
-  getFileContent = [this, &fileName] ()
+  getFileContent = [&fileName] ()
   {
       QFile file(fileName);
       if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -5820,7 +5868,7 @@ void Gui::writeToTmp()
       emit progressPermRangeSig(1, subFileCount);
   }
 
-  for (int i = 0; i < subFileCount; i++) {
+  for (int i = 0; i < subFileCount && !Gui::abortProcess(); i++) {
 
       fileName = lpub->ldrawFile._subFileOrder[i].toLower();
 

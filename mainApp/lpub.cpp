@@ -107,13 +107,6 @@ bool lt(const int &v1, const int &v2){ return v1 < v2; }
 // Compare two variants - greater than.
 bool gt(const int &v1, const int &v2){ return v1 > v2; }
 
-// Sleeper
-class secSleeper : public QThread
-{
-public:
-    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
-};
-
 QHash<SceneObject, QString> soMap;
 
 int          Gui::pa;                     // page adjustment
@@ -122,6 +115,8 @@ int          Gui::maxPages;
 int          Gui::boms;                   // the number of pli BOMs in the document
 int          Gui::bomOccurrence;          // the actual occurrence of each pli BO
 int          Gui::displayPageNum;         // what page are we displaying
+int          Gui::prevDisplayPageNum;     // previously displayed page - used to roll back after exporting or an error.
+int          Gui::prevMaxPages;           // previous page count - used by continuousPageDialog to roll back after encountering an error.
 int          Gui::processOption;          // export Option
 int          Gui::pageDirection;          // page processing direction
 int          Gui::savePrevStepPosition;   // indicate the previous step position amongst current and previous steps
@@ -144,7 +139,8 @@ bool         Gui::m_exportingContent;     // indicate export/printing underway
 bool         Gui::m_exportingObjects;     // indicate exporting non-image object file content
 bool         Gui::m_contPageProcessing;   // indicate continuous page processing underway
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
-bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage() 
+bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage()
+bool         Gui::m_abort;                 // set to true when response to critcal error is abort
 
 int          Gui::m_exportMode;           // export Mode
 int          Gui::m_saveExportMode;       // saved export mode used when exporting BOM
@@ -401,9 +397,25 @@ void Gui::displayPage()
     timer.start();
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
+    setAbortProcess(false);
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,dpFlags);
     pageProcessRunning = PROC_NONE;
+    if (abortProcess()) {
+      if (Preferences::modeGUI) {
+        if (displayPageNum > (1 + pa)) {
+          restorePreviousPage();
+        } else {
+          Gui::setAbortProcess(false);
+          current  = Where(lpub->ldrawFile.topLevelFile(),0,0);
+          buildModJumpForward = false;
+          maxPages = 1 + pa;
+          pagesCounted();
+        }
+      }
+    } else if (!exporting()) {
+      prevDisplayPageNum = displayPageNum;
+    }
   }
 }
 
@@ -422,7 +434,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   int move = 0;
   int goToPageNum = inputPageNum;
 
-  auto setDirection = [this, &goToPageNum] (int &move)
+  auto setDirection = [&] (int &move)
   {
     move = goToPageNum - displayPageNum;
     if (move > 1)
@@ -435,20 +447,24 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       pageDirection = PAGE_PREVIOUS;
   };
 
-  auto cycleDisplay = [this, &goToPageNum] ()
+  auto cycleDisplay = [&] ()
   {
     setContinuousPage(displayPageNum);
     if (pageDirection < PAGE_BACKWARD)
       while (displayPageNum < goToPageNum) {
         ++displayPageNum;
         displayPage();
-        secSleeper::secSleep(PAGE_CYCLE_DISPLAY_DEFAULT);
+        QTime waiting = QTime::currentTime().addSecs(PAGE_CYCLE_DISPLAY_DEFAULT);
+        while (QTime::currentTime() < waiting)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
       }
     else
       while (displayPageNum > goToPageNum) {
         --displayPageNum;
         displayPage();
-        secSleeper::secSleep(PAGE_CYCLE_DISPLAY_DEFAULT);
+        QTime waiting = QTime::currentTime().addSecs(PAGE_CYCLE_DISPLAY_DEFAULT);
+        while (QTime::currentTime() < waiting)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
       }
     cancelContinuousPage();
   };
@@ -744,6 +760,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   pageDirection = d;
   int pageCount = 0;
   int _maxPages = 0;
+  prevMaxPages  = maxPages;
   bool terminateProcess = false;
   emit setContinuousPageSig(true);
   QElapsedTimer continuousTimer;
@@ -757,6 +774,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
+              pageProcessRunning = PROC_NONE;
               return false;
           }
       }
@@ -806,6 +824,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
+              pageProcessRunning = PROC_NONE;
               return false;
           }
       }
@@ -824,6 +843,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
           setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
+          pageProcessRunning = PROC_NONE;
           return false;
       }
   }
@@ -882,6 +902,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                 disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
                 connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
+              pageProcessRunning = PROC_NONE;
               return false;
           }
 
@@ -896,7 +917,9 @@ bool Gui::continuousPageDialog(PageDirection d)
               enableNavigationActions(true);
               m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
-              secSleeper::secSleep(Preferences::pageDisplayPause);
+              QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
+              while (QTime::currentTime() < waiting)
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
           }
       }
 
@@ -984,6 +1007,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                   disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
                   connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
+              pageProcessRunning = PROC_NONE;
               return false;
           }
 
@@ -1003,7 +1027,9 @@ bool Gui::continuousPageDialog(PageDirection d)
               enableNavigationActions(true);
               m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(pageCount);
-              secSleeper::secSleep(Preferences::pageDisplayPause);
+              QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
+              while (QTime::currentTime() < waiting)
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
           }
       }
 
@@ -1098,6 +1124,17 @@ bool Gui::processPageRange(const QString &range)
       return true;
     }
   return false;
+}
+
+void Gui::restorePreviousPage()
+{
+    if (!Preferences::modeGUI)
+        return;
+
+    displayPageNum = 1 + pa;
+    maxPages = prevMaxPages != displayPageNum ? prevMaxPages : displayPageNum;
+    countPages();
+    cyclePageDisplay(prevDisplayPageNum != displayPageNum ? prevDisplayPageNum : displayPageNum);
 }
 
 void Gui::firstPage()
@@ -1427,7 +1464,7 @@ void Gui::displayFile(
 #ifdef QT_DEBUG_MODE
         QElapsedTimer t;
         t.start();
-#endif        
+#endif
         const QString &modelName = here.modelName;
         if (editModelFile) {
 
@@ -3107,15 +3144,15 @@ Gui::Gui()
         Preferences::systemEditor = QString("");
 #endif
 
-    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::pagesCounted);
+    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::finishedCountingPages);
 
     // LPub - Object connection is Qt::AutoConnection so it will trigger without an active event loop
-    connect(lpub,           SIGNAL(messageSig( LogType,QString)),
-            this,           SLOT(statusMessage(LogType,QString)));
+    connect(lpub,           SIGNAL(messageSig( LogType,const QString &)),
+            this,           SLOT(statusMessage(LogType,const QString &)));
 
     // Gui - MainWindow
-    connect(this,           SIGNAL(messageSig( LogType,QString)),
-            this,           SLOT(statusMessage(LogType,QString)),
+    connect(this,           SIGNAL(messageSig( LogType,const QString &)),
+            this,           SLOT(statusMessage(LogType,const QString &)),
             Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
     connect(this,           SIGNAL(setExportingSig(bool)),
@@ -4791,7 +4828,7 @@ void Gui::createActions()
     blenderImportAct->setEnabled(false);
     lpub->actions.insert(blenderImportAct->objectName(), Action(QStringLiteral("3DViewer.Blender Import"), blenderImportAct));
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
-    
+
     povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
     povrayRenderAct->setObjectName("povrayRenderAct.4");
     povrayRenderAct->setShortcut(QStringLiteral("Alt+9"));
@@ -5671,14 +5708,14 @@ void Gui::createActions()
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
     // End Jaco's code
-    
+
     QAction *commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands..."), this);
     commandsDialogAct->setObjectName("commandsDialogAct.1");
     commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));
     lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
-    
+
     QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands..."), this);
     exportMetaCommandsAct->setObjectName("exportMetaCommandsAct.1");
     exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
@@ -7154,25 +7191,40 @@ void Gui::parseError(const QString &message,
 
     const QString keyType[][2] = {
        // Message Title,              Type Description
-       {"LPub Meta Command",       tr("LPub command parse error")},       //ParseErrors
-       {"Insert Meta",             tr("insert parse error")},             //InsertErrors
-       {"Build Modification Meta", tr("build modification parse error")}, //BuildModErrors
-       {"Include File Meta",       tr("include file parse error")},       //IncludeFileErrors
-       {"Annoatation Meta",        tr("annotation parse error")}          //AnnotationErrors
+       {"LPub Meta Command",       tr("LPub command parse error")},         //ParseErrors
+       {"Insert Meta",             tr("insert parse error")},               //InsertErrors
+       {"Include File Meta",       tr("include file parse error")},         //IncludeFileErrors
+       {"Build Modification Meta", tr("build modification parse error")},   //BuildModErrors
+       {"Build Modification Edit", tr("build modification editing error")}, //BuildModEditErrors
+       {"Annoatation Meta",        tr("annotation configuration error")}    //AnnotationErrors
     };
 
     QString parseMessage = tr("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
-    if (Preferences::modeGUI) {
+
+    if (icon == static_cast<int>(LOG_FATAL))
+        parseMessage.append(tr("<br>- %1 will restart.").arg(VER_PRODUCTNAME_STR));
+
+    int abortProcess = false;
+
+    bool abortInProgress = Gui::abortProcess();
+
+    bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
+
+    if (guiEnabled && !abortInProgress) {
         if ((!exporting() && !ContinuousPage()) || ((exporting() || ContinuousPage()) && Preferences::displayPageProcessingErrors)) {
             if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
                 showLine(here, LINE_ERROR);
             }
+            int criticalMessage = icon == static_cast<int>(QMessageBox::Icon::Critical);
+            Gui::setAbortProcess(criticalMessage);
             bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
             if (okToShowMessage) {
                 Where messageLine = here;
                 messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
                 Preferences::MsgID msgID(msgKey,messageLine.indexToString());
-                Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override, icon);
+                abortProcess = Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override, icon) == QMessageBox::Abort;
+                if (criticalMessage)
+                    Gui::setAbortProcess(abortProcess);
             }
             if (pageProcessRunning == PROC_WRITE_TO_TMP)
                 emit progressPermMessageSig(tr("Writing submodel [Parse Error%1")
@@ -7183,27 +7235,56 @@ void Gui::parseError(const QString &message,
         }
     }
 
-    const char *printableMessage = qPrintable(parseMessage.replace("<br>"," "));
+    if (!abortProcess && !abortInProgress)
+        parsedMessages.append(here);
 
     switch (icon) {
-    case QMessageBox::Icon::Information:
-        logInfo() << printableMessage;
+    case static_cast<int>(QMessageBox::Icon::Information):
+        logInfo() << qPrintable(parseMessage.replace("<br>"," "));
         break;
-    case QMessageBox::Icon::Warning:
-        logWarning() << printableMessage;
+    case static_cast<int>(QMessageBox::Icon::Warning):
+        logWarning() << qPrintable(parseMessage.replace("<br>"," "));
         break;
-    case QMessageBox::Icon::Question:
-        logNotice() << printableMessage;
+    case static_cast<int>(QMessageBox::Icon::Question):
+        logNotice() << qPrintable(parseMessage.replace("<br>"," "));
         break;
-    default:
-        logError() << printableMessage;
+    case static_cast<int>(QMessageBox::Icon::Critical):
+        logError() << qPrintable(parseMessage.replace("<br>"," "));
+        if (abortProcess) {
+            displayPageNum = prevDisplayPageNum;
+            if (exporting()) {             // exporting
+                emit setExportingSig(false);
+            } else if (ContinuousPage()) { // continuous page processing
+                emit setContinuousPageSig(false);
+                while (pageProcessRunning != PROC_NONE) {
+                    QTime waiting = QTime::currentTime().addMSecs(500);
+                    while (QTime::currentTime() < waiting)
+                        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                }
+                if (pageProcessRunning == PROC_NONE) {
+                    Gui::setAbortProcess(false);
+                    current = topOfPages.last();
+                    buildModJumpForward = false;
+                    maxPages = prevMaxPages;
+                    pagesCounted();
+                }
+            }                            // processing a page
+        }
         break;
+    case static_cast<int>(LOG_FATAL):
+        logError() << qPrintable(parseMessage.replace("<br>"," "));
+        Gui::setAbortProcess(true);
+        emit setExportingSig(false);
+        emit setContinuousPageSig(false);
+        if (guiEnabled) {
+            QApplication::restoreOverrideCursor();
+            displayPageNum = prevDisplayPageNum;
+            emit restartApplicationSig(false,false);
+        }
     }
-
-    parsedMessages.append(here);
 }
 
-void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) {
+void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgBox/*false*/) {
     /* logTypes
      * LOG_STATUS:   - same as INFO but writes to log file also
      * LOG_INFO:
@@ -7214,6 +7295,13 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
      * LOG_ERROR:
      * LOG_FATAL:
      */
+    QString message = statusMessage;
+
+    bool abortProcess = false;
+
+    bool abortInProgress = Gui::abortProcess();
+
+    bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
 
     auto fprintMessage = [&] (const QString &message, bool stdError = false)
     {
@@ -7246,15 +7334,13 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
         logger.setColorizeFunctionInfo(false);
         logger.setIncludeFunctionInfo(false);
 
-        bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
-
         if (logType == LOG_INFO_STATUS) {
 
             logInfo() << qPrintable(message.replace("<br>"," "));
 
             if (guiEnabled) {
                 statusBarMsg(message);
-                if (msgBox && !ContinuousPage() && !exporting())
+                if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
                     QMessageBox::information(this,tr("%1 Info Status").arg(VER_PRODUCTNAME_STR),message);
             } else if (!Preferences::suppressStdOutToLog) {
                 fprintMessage(message);
@@ -7266,7 +7352,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
 
              if (guiEnabled) {
                  statusBarMsg(message);
-                 if (msgBox && !ContinuousPage() && !exporting())
+                 if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
                      QMessageBox::information(this,tr("%1 Status").arg(VER_PRODUCTNAME_STR),message);
              } else if (!Preferences::suppressStdOutToLog) {
                  fprintMessage(message);
@@ -7280,7 +7366,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
             if (guiEnabled && msgBox) {
                 if (ContinuousPage() || exporting()) {
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("INFO: "));
-                } else {
+                } else if (!abortInProgress) {
                     QMessageBox::information(this,tr("%1 Information").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7294,7 +7380,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
             if (guiEnabled && msgBox) {
                 if (ContinuousPage() || exporting()) {
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("NOTICE: "));
-                } else {
+                } else if (!abortInProgress) {
                     QMessageBox::information(this,tr("%1 Notice").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7308,7 +7394,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
             if (guiEnabled && msgBox) {
                 if (ContinuousPage() || exporting()) {
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("TRACE: "));
-                } else {
+                } else if (!abortInProgress) {
                     QMessageBox::information(this,tr("%1 Trace").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7321,7 +7407,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
             if (guiEnabled && msgBox) {
                 if (ContinuousPage() || exporting()) {
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("DEBUG: "));
-                } else {
+                } else if (!abortInProgress) {
                     QMessageBox::information(this,tr("%1 Debug").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7336,7 +7422,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
                 if (ContinuousPage() || exporting()) {
                     Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
-                } else if ((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) {
+                } else if (((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) && !abortInProgress) {
                     QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7346,13 +7432,20 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
         if (logType == LOG_ERROR) {
 
             logError() << qPrintable(QString(message).replace("<br>"," "));
-
+            
             if (guiEnabled) {
-                if (ContinuousPage() || exporting()) {
+                if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
                     Gui::messageList << QString("<FONT COLOR='#FF0000'>ERROR</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
-                } else if ((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) {
-                    QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message);
+                } else if (!abortInProgress) {
+                    Gui::setAbortProcess(true);
+                    if (pageProcessRunning == PROC_NONE) {
+                        QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,QMessageBox::Ok,QMessageBox::Ok);
+                    } else {
+                        abortProcess = QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,
+                                                             QMessageBox::Abort | QMessageBox::Ignore,QMessageBox::Ignore) == QMessageBox::Abort;
+                        Gui::setAbortProcess(abortProcess);
+                    }
                 }
             } else if (!Preferences::suppressStdOutToLog) {
                 fprintMessage(message);
@@ -7360,13 +7453,15 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
         } else
         if (logType == LOG_FATAL) {
 
+            message.append(tr("<br>- %1 will terminate.").arg(VER_PRODUCTNAME_STR));
+
             logFatal() << qPrintable(QString(message).replace("<br>"," "));
 
             if (guiEnabled) {
-                if (ContinuousPage() || exporting()) {
+                if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
                     Gui::messageList << QString("<FONT COLOR='#FF0000'>FATAL</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("FATAL: "));
-                } else if ((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) {
+                } else {
                     QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7395,6 +7490,48 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
 
     } else {
         logger.setLoggingLevel(OffLevel);
+    }
+
+    if (logType == LOG_ERROR && abortProcess) {
+        displayPageNum = prevDisplayPageNum;
+        if (exporting()) {             // exporting
+            emit setExportingSig(false);
+        } else if (ContinuousPage()) { // continuous page processing
+            emit setContinuousPageSig(false);
+            while (pageProcessRunning != PROC_NONE) {
+                QTime waiting = QTime::currentTime().addMSecs(500);
+                while (QTime::currentTime() < waiting)
+                    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            }
+            if (pageProcessRunning == PROC_NONE) {
+                Gui::setAbortProcess(false);
+                current = topOfPages.last();
+                buildModJumpForward = false;
+                maxPages = prevMaxPages;
+                pagesCounted();
+            }
+        } else {                     // processing a page
+            if (pageProcessRunning == PROC_NONE) {
+                if (displayPageNum > (1 + pa)) {
+                    restorePreviousPage();
+                } else {
+                    Gui::setAbortProcess(false);
+                    current  = Where(lpub->ldrawFile.topLevelFile(),0,0);
+                    buildModJumpForward = false;
+                    maxPages = 1 + pa;
+                    pagesCounted();
+                }
+            }
+        }
+    } else if (logType == LOG_FATAL) {
+        Gui::setAbortProcess(true);
+        emit setExportingSig(false);
+        emit setContinuousPageSig(false);
+        if (guiEnabled) {
+            QApplication::restoreOverrideCursor();
+            displayPageNum = prevDisplayPageNum;
+            emit restartApplicationSig(false,false);
+        }
     }
 }
 

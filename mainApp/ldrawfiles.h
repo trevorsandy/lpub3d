@@ -277,6 +277,9 @@ class LDrawFile {
 
     void loadIncludeFile(const QString &mcFileName);
     void processMetaCommand(const QStringList &tokens);
+  
+  protected:
+    QMutex ldrawMutex;    // recursive
 
   public:
     LDrawFile();
