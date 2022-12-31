@@ -306,9 +306,21 @@ bool LPub::setFadeStepsFromCommand()
   QRegExp fadeRx = QRegExp("FADE_STEPS ENABLED\\s*(GLOBAL)?\\s*TRUE");
   if (!Preferences::enableFadeSteps) {
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
-    if (Preferences::enableFadeSteps && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS ENABLED meta command must be GLOBAL"));
-      Preferences::enableFadeSteps = false;
+    if (Preferences::enableFadeSteps) {
+      if (result != "GLOBAL") {
+        emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS set to ENABLED command must have GLOBAL qualifier."));
+        Preferences::enableFadeSteps = false;
+      } else if (!Preferences::finalModelEnabled) {
+        result.clear();
+        fadeRx.setPattern("FINAL_MODEL_ENABLED\\s*(GLOBAL)?\\s*TRUE");
+        Preferences::finalModelEnabled = Gui::stepContains(topLevelModel,fadeRx,result,1);
+        if (Preferences::finalModelEnabled) {
+          emit lpub->messageSig(LOG_INFO, QObject::tr("Display Final Model is Enabled"));
+        }
+        if (result != "GLOBAL") {
+          emit lpub->messageSig(LOG_NOTICE,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."));
+        }
+      }
     }
   }
 
@@ -318,7 +330,7 @@ bool LPub::setFadeStepsFromCommand()
     fadeRx.setPattern("FADE_STEPS SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (setupFadeSteps && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS SETUP command must have GLOBAL qualifier."));
       setupFadeSteps = false;
     }
   }
@@ -374,9 +386,21 @@ bool LPub::setHighlightStepFromCommand()
   QRegExp highlightRx = QRegExp("HIGHLIGHT_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
   if (!Preferences::enableHighlightStep) {
     Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
-    if (Preferences::enableHighlightStep && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
-      Preferences::enableHighlightStep = false;
+    if (Preferences::enableHighlightStep) {
+      if (result != "GLOBAL") {
+        emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP ENABLED command must have GLOBAL qualifier."));
+        Preferences::enableHighlightStep = false;
+      } else if (!Preferences::finalModelEnabled) {
+        result.clear();
+        highlightRx.setPattern("FINAL_MODEL_ENABLED\\s*(GLOBAL)?\\s*TRUE");
+        Preferences::finalModelEnabled = Gui::stepContains(topLevelModel,highlightRx,result,1);
+        if (Preferences::finalModelEnabled) {
+          emit lpub->messageSig(LOG_INFO, QObject::tr("Display Final Model is Enabled"));
+        }
+        if (result != "GLOBAL") {
+          emit lpub->messageSig(LOG_NOTICE,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."));
+        }
+      }
     }
   }
 
@@ -386,7 +410,7 @@ bool LPub::setHighlightStepFromCommand()
     highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (setupHighlightStep && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP SETUP command must have GLOBAL qualifier."));
       setupHighlightStep = false;
     }
   }

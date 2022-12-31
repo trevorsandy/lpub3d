@@ -257,7 +257,7 @@ class LDrawFile {
     ExcludedParts               excludedParts; // internal list of part count excluded parts
 
     bool topFileNotFound;
-    bool loadUnoffPartsNotFound;
+    bool metaLoadUnoffPartsNotFound;
     bool hdrFILENotFound;
     bool hdrNameNotFound;
     bool hdrAuthorNotFound;
@@ -274,6 +274,9 @@ class LDrawFile {
     int  unofficialPart;
     int  descriptionLine;
     int  buildModLevel;
+
+    void loadIncludeFile(const QString &mcFileName);
+    void processMetaCommand(const QStringList &tokens);
 
   public:
     LDrawFile();

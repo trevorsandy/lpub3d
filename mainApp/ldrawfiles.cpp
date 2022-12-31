@@ -1253,7 +1253,7 @@ int LDrawFile::loadFile(const QString &fileName)
         return count;
     };
 
-    const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique %3 %4. Total %5 %6. %5")
+    const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique %3 %4. Total %5 %6. %7")
                                             .arg(type == MPD_FILE ? "MPD" : "LDR")
                                             .arg(fileInfo.fileName())
                                             .arg(_uniquePartCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
@@ -1261,9 +1261,6 @@ int LDrawFile::loadFile(const QString &fileName)
                                             .arg(_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
                                             .arg(_partCount)
                                             .arg(gui->elapsedTime(t.elapsed()));
-
-    emit gui->messageSig(LOG_INFO, QObject::tr("Build Modifications are %1")
-                                               .arg(Preferences::buildModEnabled ? QObject::tr("Enabled") : QObject::tr("Disabled")));
 
     if (Preferences::modeGUI) {
         bool showLoadMessages = false;
@@ -1337,6 +1334,113 @@ int LDrawFile::loadFile(const QString &fileName)
     return 0;
 }
 
+void LDrawFile::loadIncludeFile(const QString &mcFileName)
+{
+    QFile file(mcFileName);
+    if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+        emit lpub->messageSig(LOG_ERROR, QObject::tr("Cannot read include file %1<br>%2")
+                                                     .arg(mcFileName)
+                                                     .arg(file.errorString()));
+        return;
+    }
+
+    emit lpub->messageSig(LOG_TRACE, QObject::tr("Loading include file '%1'...").arg(mcFileName));
+
+    QTextStream in(&file);
+    in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+
+    auto isValidLine = [] (const QString &smLine) {
+        if (smLine.isEmpty())
+            return false;
+
+        switch (smLine.toLatin1()[0]) {
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+            emit lpub->messageSig(LOG_NOTICE, QObject::tr("Invalid include line [%1].<br>"
+                                                          "Part lines (type 1 to 5) are ignored in include file.").arg(smLine));
+            return false;
+        case '0':
+            return true;
+        }
+
+        return false;
+    };
+
+    QStringList tokens;
+    while (! in.atEnd()) {
+        QString smLine = in.readLine(0).trimmed();
+        if (isValidLine(smLine)) {
+            split(smLine,tokens);
+            processMetaCommand(tokens);
+        }
+    }
+    file.close();
+}
+
+void LDrawFile::processMetaCommand(const QStringList &tokens)
+{
+    int number;
+    bool validNumber;
+
+    if (tokens.size() < 4)
+        return;
+
+    // Check if load external parts in command editor is disabled
+    if (metaLoadUnoffPartsNotFound) {
+        if (tokens.at(2) == QLatin1String("LOAD_UNOFFICIAL_PARTS_IN_EDITOR")) {
+            _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
+            emit gui->messageSig(LOG_INFO, QObject::tr("Load Custom Unofficial Parts In Command Editor is %1")
+                                                       .arg(_loadUnofficialParts ? QObject::tr("Enabled") : QObject::tr("Disabled")));
+            metaLoadUnoffPartsNotFound = false;
+        }
+    }
+
+    // Check if BuildMod is disabled
+    if (metaBuildModNotFund) {
+        if (tokens.at(2) == QLatin1String("BUILD_MOD_ENABLED")) {
+            _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
+            Preferences::buildModEnabled = _loadBuildMods;
+            emit gui->messageSig(LOG_INFO, QObject::tr("Build Modifications are %1")
+                                                       .arg(Preferences::buildModEnabled ? QObject::tr("Enabled") : QObject::tr("Disabled")));
+            metaBuildModNotFund = false;
+        }
+    }
+
+    // Check if insert final model is disabled
+    if (metaFinalModelNotFound) {
+        if (tokens.at(2) == QLatin1String("FINAL_MODEL_ENABLED")) {
+            Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
+            if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
+                emit gui->messageSig(LOG_INFO, QObject::tr("Display Final Model is %1")
+                                                           .arg(Preferences::finalModelEnabled ? QObject::tr("Enabled") : QObject::tr("Disabled")));
+            metaFinalModelNotFound = false;
+        }
+    }
+
+    // Check if Start Page Number is specified
+    if (metaStartPageNumNotFound) {
+        if (tokens.at(2) == QLatin1String("START_PAGE_NUMBER")) {
+            number = tokens.last().toInt(&validNumber);
+            Gui::pa  = validNumber ? number - 1 : 0;
+            emit gui->messageSig(LOG_INFO, QObject::tr("Start Page Number Set to %1").arg(QString::number(Gui::pa)));
+            metaStartPageNumNotFound = false;
+        }
+    }
+
+    // Check if Start Step Number is specified
+    if (metaStartStepNumNotFound) {
+        if (tokens.at(2) == QLatin1String("START_STEP_NUMBER")) {
+            number = tokens.last().toInt(&validNumber);
+            Gui::sa  = validNumber ? number - 1 : 0;
+            emit gui->messageSig(LOG_INFO, QObject::tr("Start Step Number Set to %1").arg(QString::number(Gui::sa)));
+            metaStartStepNumNotFound = false;
+        }
+    }
+}
+
 void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 {
     MissingHeader headerMissing = NoneMissing;
@@ -1369,9 +1473,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         return;
     }
 
-    int number;
     int subfileIndx;
-    bool validNumber;
     bool alreadyLoaded;
     bool subFileFound        = false;
     bool partHeaderFinished  = false;
@@ -1381,18 +1483,18 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     bool eosf = false;
 
     if (topLevelModel) {
-        topHeaderFinished        = false;
-        topFileNotFound          = true;
-        hdrFILENotFound          = true;
-        hdrDescNotFound          = true;
-        hdrCategNotFound         = true;
-        helperPartsNotFound      = true;
-        loadUnoffPartsNotFound   = true;
-        metaBuildModNotFund      = true;
-        metaFinalModelNotFound   = true;
-        metaStartPageNumNotFound = true;
-        metaStartStepNumNotFound = true;
-        descriptionLine          = 0;
+        topHeaderFinished          = false;
+        topFileNotFound            = true;
+        hdrFILENotFound            = true;
+        hdrDescNotFound            = true;
+        hdrCategNotFound           = true;
+        helperPartsNotFound        = true;
+        metaLoadUnoffPartsNotFound = true;
+        metaBuildModNotFund        = true;
+        metaFinalModelNotFound     = true;
+        metaStartPageNumNotFound   = true;
+        metaStartStepNumNotFound   = true;
+        descriptionLine            = 0;
     }
 
     hdrNameNotFound   = true;
@@ -1538,48 +1640,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     }
                 }
 
-                // Check if load external parts in command editor is disabled
-                if (loadUnoffPartsNotFound) {
-                    if (smLine.startsWith("0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR")){
-                        _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
-                        loadUnoffPartsNotFound = false;
-                    }
+                // Check for include file
+                if (smLine.contains(_fileRegExp[INC_RX])) {
+                    const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1).replace("\"",""));
+                    loadIncludeFile(filePath);
                 }
 
-                // Check if BuildMod is disabled
-                if (metaBuildModNotFund) {
-                    if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                        _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
-                        Preferences::buildModEnabled = _loadBuildMods;
-                        metaBuildModNotFund = false;
-                    }
-                }
-
-                // Check if insert final model is disabled
-                if (metaFinalModelNotFound) {
-                    if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
-                        Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
-                        metaFinalModelNotFound = false;
-                    }
-                }
-
-                // Check if Start Page Number is specified
-                if (metaStartPageNumNotFound) {
-                    if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
-                        number = tokens.last().toInt(&validNumber);
-                        Gui::pa = validNumber ? number - 1 : 0;
-                        metaStartPageNumNotFound = false;
-                    }
-                }
-
-                // Check if Start Step Number is specified
-                if (metaStartStepNumNotFound) {
-                    if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
-                        number = tokens.last().toInt(&validNumber);
-                        Gui::sa = validNumber ? number - 1 : 0;
-                        metaStartStepNumNotFound = false;
-                    }
-                }
+                // Check meta commands
+                processMetaCommand(tokens);
             }
         } // modelHeaderFinished
 
@@ -1847,9 +1915,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             return;
         }
 
-        int number;
         int subfileIndx;
-        bool validNumber;
         bool alreadyLoaded;
         bool subFileFound        = false;
         bool partHeaderFinished  = false;
@@ -1857,17 +1923,17 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         bool eosf = false;
 
         if (topLevelModel) {
-            topFileNotFound          = true;
-            topHeaderFinished        = false;
-            hdrDescNotFound          = true;
-            hdrCategNotFound         = true;
-            helperPartsNotFound      = true;
-            loadUnoffPartsNotFound   = true;
-            metaBuildModNotFund      = true;
-            metaFinalModelNotFound   = true;
-            metaStartPageNumNotFound = true;
-            metaStartStepNumNotFound = true;
-            descriptionLine          = 0;
+            topFileNotFound            = true;
+            topHeaderFinished          = false;
+            hdrDescNotFound            = true;
+            hdrCategNotFound           = true;
+            helperPartsNotFound        = true;
+            metaLoadUnoffPartsNotFound = true;
+            metaBuildModNotFund        = true;
+            metaFinalModelNotFound     = true;
+            metaStartPageNumNotFound   = true;
+            metaStartStepNumNotFound   = true;
+            descriptionLine            = 0;
         }
 
         hdrNameNotFound   = true;
@@ -2040,54 +2106,20 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                         }
                     }
 
-                    // Check if load external parts in command editor is disabled
-                    if (loadUnoffPartsNotFound) {
-                        if (smLine.startsWith("0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR")){
-                            _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
-                            loadUnoffPartsNotFound = false;
-                        }
-                    }
-
-                    // Check if BuildMod is disabled
-                    if (metaBuildModNotFund) {
-                        if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                            _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
-                            Preferences::buildModEnabled = _loadBuildMods;
-                            metaBuildModNotFund = false;
-                        }
-                    }
-
-                    // Check if insert final model is disabled
-                    if (metaFinalModelNotFound) {
-                        if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
-                            Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
-                            metaFinalModelNotFound = false;
-                        }
-                    }
-
-                    // Check if Start Page Number is specified
-                    if (metaStartPageNumNotFound) {
-                        if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
-                            number = tokens.last().toInt(&validNumber);
-                            Gui::pa  = validNumber ? number - 1 : 0;
-                            metaStartPageNumNotFound = false;
-                        }
-                    }
-
-                    // Check if Start Step Number is specified
-                    if (metaStartStepNumNotFound) {
-                        if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
-                            number = tokens.last().toInt(&validNumber);
-                            Gui::sa  = validNumber ? number - 1 : 0;
-                            metaStartStepNumNotFound = false;
-                        }
-                    }
-
                     if (! unofficialPart) {
                         unofficialPart = getUnofficialFileType(smLine);
                         if (unofficialPart)
                             emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' specified as Unofficial Part.");
                     }
+
+                    // Check for include file
+                    if (smLine.contains(_fileRegExp[INC_RX])) {
+                        const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
+                        loadIncludeFile(filePath);
+                    }
+
+                    // Check meta commands
+                    processMetaCommand(tokens);
                 }
             } // topHeaderFinished
 
@@ -4805,7 +4837,8 @@ LDrawFile::LDrawFile()
         << QRegExp("^0\\s+AUTHOR:?\\s+(.*)$",Qt::CaseInsensitive)   //AUT_RX
         << QRegExp("^0\\s+NAME:?\\s+(.*)$",Qt::CaseInsensitive)     //NAM_RX
         << QRegExp("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive) //CAT_RX
-        << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseInsensitive) //DES_RX
+        << QRegExp("^0\\s+!?LPUB\\s+INCLUDE\\s+(.*)$",Qt::CaseSensitive) //INC_RX
+        << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseSensitive) //DES_RX
         << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) //LDG_RX
         ;
   }

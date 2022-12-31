@@ -2973,31 +2973,5 @@ int Gui::addCoverPageAttributes(
 
 QString Gui::getFilePath(const QString &fileName) const
 {
-    QFileInfo fileInfo(fileName);
-
-    // current path
-    QString dotSlash = QString(".%1").arg(QDir::separator());
-    if (QDir::toNativeSeparators(fileName).startsWith(dotSlash)) {
-        QString file = QDir::toNativeSeparators(fileName).replace(dotSlash,"");
-        QString cwd = QDir::currentPath();
-        if (!cwd.isEmpty())
-            fileInfo.setFile(QDir::toNativeSeparators(cwd+"/"+file));
-    }
-    if (fileInfo.exists() && fileInfo.isFile()) {
-        return fileInfo.absoluteFilePath();
-    }
-    // absolute path
-    fileInfo.setFile(fileName);
-    if (fileInfo.exists() && fileInfo.isFile()) {
-        return fileInfo.absoluteFilePath();
-    }
-
-    QString message = QString("Failed to resolve file at path:<br>[%1]").arg(fileName);
-    if (fileName.contains("Google Drive",Qt::CaseInsensitive))
-        message.append(QString("<br>Replace '...\\Google Drive\\' absolute path with mapped path 'G:\\My Drive\\'."
-                               "<br>Use your specified drive letter (versus 'G:\\') accordingly."));
-
-    emit gui->messageSig(LOG_ERROR,message);
-
-    return QString();
+    return LPub::getFilePath(fileName);
 }

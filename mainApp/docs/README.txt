@@ -1,4 +1,4 @@
-LPub3D 2.4.5.28.3005 (31 12 2022 03:41:32)
+LPub3D 2.4.5.29.3006 (31 12 2022 03:43:08)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Prompt user to archive unofficial parts #628
 - Change - Change reset image menu action description to refresh image #623
+- Change - Parse top-model INCLUDE file at model file load #631
 - Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
 - Fix - Build modification - correct jump forward parse error #622
 - Fix - Build modification - correct navigate backward parse error #621
