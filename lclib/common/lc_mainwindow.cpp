@@ -495,6 +495,9 @@ void lcMainWindow::CreateMenus()
 	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_TOP]);
 	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
 	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
+/*** LPub3D Mod - Viewpoint latitude longitude ***/
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_LAT_LON]);
+/*** LPub3D Mod end ***/
 
 	mProjectionMenu = new QMenu(tr("Projection"), this);
 	mProjectionMenu->addAction(mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
@@ -3821,6 +3824,13 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 			ActiveView->SetViewpoint(lcViewpoint::Home);
 		break;
 
+/*** LPub3D Mod - Viewpoint latitude longitude ***/
+	case LC_VIEW_VIEWPOINT_LAT_LON:
+		if (ActiveView)
+			ActiveView->SetViewpoint(lcViewpoint::LatLon);
+		break;
+/*** LPub3D Mod end ***/
+
 	case LC_VIEW_CAMERA_NONE:
 		if (ActiveView)
 			ActiveView->RemoveCamera();
@@ -4099,8 +4109,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_RESET_TRANSFORM:
-		//if (!lcGetPreferences().mBuildModificationEnabled)
-		//    ApplyRotStepMeta(LC_EDIT_TRANSFORM);
+		gui->resetViewerImage();
 		break;
 /*** LPub3D Mod end ***/
 

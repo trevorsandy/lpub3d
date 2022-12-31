@@ -1,4 +1,4 @@
-LPub3D 2.4.5.87.3064 (31 12 2022 05:21:06)
+LPub3D 2.4.5.88.3065 (31 12 2022 05:22:51)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Add submodels to file load status #636
 - Enhancement - Add reset viewer assembly display menu action #652
+- Enhancement - Add specify latitude longitude to viewpoints #654
 - Enhancement - Build modifications - step-group step in the visual editor #635
 - Enhancement - Cover page, bill of material, export and error banners #649
 - Enhancement - Logging - update messaging and log types #634

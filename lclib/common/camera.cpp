@@ -82,7 +82,10 @@ lcViewpoint lcCamera::GetViewpoint(const QString& ViewpointName)
 		QLatin1String("bottom"),
 		QLatin1String("left"),
 		QLatin1String("right"),
-		QLatin1String("home")
+		QLatin1String("home"),
+/*** LPub3D Mod - Viewpoint latitude longitude ***/
+		QLatin1String("latlon")
+/*** LPub3D Mod end ***/
 	};
 
 	LC_ARRAY_SIZE_CHECK(ViewpointNames, lcViewpoint::Count);

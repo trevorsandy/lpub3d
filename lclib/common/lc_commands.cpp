@@ -889,6 +889,13 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "View model from the default position"),                    /*** LPub3D Mod - LPub3D Menu update ***/
 		"H"
 	},
+	// LC_VIEW_VIEWPOINT_LAT_LON                                                                /*** LPub3D Mod - Viewpoint latitude longitude ***/
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Viewpoint.Latitude_Longitude"),                       /*** LPub3D Mod - Viewpoint latitude longitude ***/
+		QT_TRANSLATE_NOOP("Menu", "Latitude Longitude"),                                        /*** LPub3D Mod - Viewpoint latitude longitude ***/
+		QT_TRANSLATE_NOOP("Status", "View model from the specified camera latitude/longitude"), /*** LPub3D Mod - Viewpoint latitude longitude ***/
+		"G"                                                                                     /*** LPub3D Mod - Viewpoint latitude longitude ***/
+	},
 	// LC_VIEW_CAMERA_NONE
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Cameras.Default"),                                    /*** LPub3D Mod - Update Default Camera ***/

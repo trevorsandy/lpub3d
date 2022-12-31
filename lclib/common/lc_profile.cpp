@@ -187,7 +187,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native projection options ***/
-	lcProfileEntry("Settings", "NativeViewpoint",  7),                                                     // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT] /*** LPub3D Mod - Native Renderer settings ***/
+	lcProfileEntry("Settings", "NativeViewpoint",  8),                                                     // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT] /*** LPub3D Mod - Native Renderer settings ***/
 	lcProfileEntry("Settings", "NativeProjection", 0),                                                     // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
 /*** LPub3D Mod end ***/
 

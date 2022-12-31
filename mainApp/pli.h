@@ -132,7 +132,7 @@ class PliPart {
       annotateElement = nullptr;
       pixmap          = nullptr;
       pliPartGroup    = nullptr;
-      cameraView      = 7; // CameraViewEnc::Default
+      cameraView      = 8; // CameraView::Default
     }
 
     PliPart(QString _type, QString _color)
@@ -146,7 +146,7 @@ class PliPart {
       annotateElement = nullptr;
       pixmap          = nullptr;
       pliPartGroup    = nullptr;
-      cameraView      = 7; // CameraViewEnc::Default
+      cameraView      = 8; // CameraView::Default
     }
 
     void addPartGroupToScene(LGraphicsScene *scene,

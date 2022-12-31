@@ -205,6 +205,9 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setObjectName("ViewViewpointsHomeAct.4");
     lpub->actions.insert("ViewViewpointsHomeAct.4", Action(QStringLiteral("3DViewer.Tools.Viewpoints.Home"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]));
 
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setObjectName("ViewViewpointsLatLonAct.4");
+    lpub->actions.insert("ViewViewpointsLatLonAct.4", Action(QStringLiteral("3DViewer.Tools.Viewpoints.Latitude Longitude"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]));
+
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setObjectName("ViewViewpointsFrontAct.4");
     lpub->actions.insert("ViewViewpointsFrontAct.4", Action(QStringLiteral("3DViewer.Tools.Viewpoints.Front"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]));
 
@@ -403,6 +406,11 @@ void Gui::create3DActions()
     ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home_16.png");
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setIcon(ViewViewPointHomeIcon);
 
+    QIcon ViewViewPointLatLonIcon;
+    ViewViewPointLatLonIcon.addFile(":/resources/veiw_viewpoint_latitude_longitude.png");
+    ViewViewPointLatLonIcon.addFile(":/resources/veiw_viewpoint_latitude_longitude_16.png");
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setIcon(ViewViewPointLatLonIcon);
+
     QIcon EditActionRotstepIcon;
     EditActionRotstepIcon.addFile(":/resources/edit_rotatestep.png");
     EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_16.png");
@@ -467,6 +475,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setIcon(QIcon(":/resources/right.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setIcon(QIcon(":/resources/top.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setIcon(QIcon(":/resources/bottom.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setIcon(QIcon(":/resources/veiw_viewpoint_latitude_longitude.png"));
 
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_FRONT));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_BACK));
@@ -475,6 +484,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_TOP));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_BOTTOM));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_LAT_LON));
 
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]-> setProperty("CommandTip", QVariant("Viewpoints - Front"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->  setProperty("CommandTip", QVariant("Viewpoints - Back"));
@@ -483,6 +493,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->   setProperty("CommandTip", QVariant("Viewpoints - Top"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setProperty("CommandTip", QVariant("Viewpoints - Bottom"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->  setProperty("CommandTip", QVariant("Viewpoints - Home"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setProperty("CommandTip", QVariant("Viewpoints - Specify Latitude Longitude"));
     connect(ViewpointGroupAct,                               SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
@@ -505,6 +516,9 @@ void Gui::create3DActions()
             this,                                            SLOT(groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME],   SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON],SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
     ViewpointZoomExtAct = new QAction(tr("Fit To View"),this);
@@ -933,6 +947,7 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_CAMERA_NONE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(enable);
@@ -1877,12 +1892,14 @@ void Gui::groupActionTriggered()
                 ViewpointGroupAct->setToolTip(tr(commandTip.toLatin1()));
                 ViewpointGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
                 ViewpointGroupAct->setProperty("CommandId", QVariant(commandId));
+                if (Action == gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON] && commandId == LC_VIEW_VIEWPOINT_HOME)
+                    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_LAT_LON));
             }
         }
     }
 }
 
-void Gui::restoreLightAndViewpointDefaults(){
+void Gui::restoreLightAndViewpointDefaults() {
     LightGroupAct->setToolTip(tr("Lights - Pointlight"));
     LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
     LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());

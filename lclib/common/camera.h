@@ -26,6 +26,9 @@ enum class lcViewpoint
 	Left,
 	Right,
 	Home,
+/*** LPub3D Mod - Viewpoint latitude longitude ***/
+	LatLon,
+/*** LPub3D Mod end ***/
 	Count
 };
 

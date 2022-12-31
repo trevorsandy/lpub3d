@@ -252,7 +252,7 @@ int SubModel::createSubModelImage(
   int stepNumber     = subModelMeta.showStepNum.value() ?
                        subModelMeta.showStepNum.value() : 1;
   bool noCA          = subModelMeta.rotStep.value().type.toUpper() == "ABS" &&
-                      !subModelMeta.cameraAngles.homeViewpointModified();
+                      !subModelMeta.cameraAngles.customViewpoint();
   float camDistance  = subModelMeta.cameraDistance.value();
   bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
 
@@ -440,8 +440,8 @@ int SubModel::createSubModelImage(
       viewerOptions->FoV            = subModelMeta.cameraFoV.value();
       viewerOptions->ImageFileName  = imageName;
       viewerOptions->ImageType      = Options::SMP;
-      viewerOptions->CameraView     = subModelMeta.cameraAngles.cameraView();
-      viewerOptions->HomeViewMod    = subModelMeta.cameraAngles.homeViewpointModified();
+      viewerOptions->Viewpoint      = static_cast<int>(subModelMeta.cameraAngles.cameraView());
+      viewerOptions->CustomViewpoint= subModelMeta.cameraAngles.customViewpoint();
       viewerOptions->Latitude       = noCA ? 0.0f : subModelMeta.cameraAngles.value(0);
       viewerOptions->Longitude      = noCA ? 0.0f : subModelMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = subModelMeta.modelScale.value();

@@ -2516,51 +2516,56 @@ void CameraAnglesMeta::init(BranchMeta *parent, const QString name, Rc _rc)
 
 Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
 {
-  QString message = QMessageBox::tr("There was an error with \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
-  QRegExp rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|DEFAULT)$");
+  using namespace CameraViews;
+  QString message = QObject::tr("The specified latitude %1 or longitude %2 value is not within the mininum %3 or maximum %4 allowed \"%5\".");
+  QRegExp rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
   if (argv.size() - index == 1) {
     if (argv[index].contains(rx)) {
       float latitude  = 0.0f;
       float longitude = 0.0f;
-      int cameraView = static_cast<int>(_value[pushed].map[argv[index]]);
+      CameraView cameraView  = static_cast<CameraView>(_value[pushed].map[argv[index]]);
       switch (cameraView)
       {
-        case CameraAnglesData::CameraViewEnc::Front:
+        case CameraView::Front:
           latitude = 0.0f;
           longitude = 0.0f;
           break;
-        case CameraAnglesData::CameraViewEnc::Back:
+        case CameraView::Back:
           latitude = 0.0f;
           longitude = 180.0f;
           break;
-        case CameraAnglesData::CameraViewEnc::Top:
+        case CameraView::Top:
           latitude = 90.0f;
           longitude = 0.0f;
           break;
-        case CameraAnglesData::CameraViewEnc::Bottom:
+        case CameraView::Bottom:
           latitude = -90.0f;
           longitude =  0.0f;
           break;
-        case CameraAnglesData::CameraViewEnc::Left:
+        case CameraView::Left:
           latitude = 0.0f;
           longitude = 90.0f;
           break;
-        case CameraAnglesData::CameraViewEnc::Right:
+        case CameraView::Right:
           latitude = 0.0f;
           longitude = -90.0f;
           break;
-        case CameraAnglesData::CameraViewEnc::Home:
+        case CameraView::Home:
           latitude = 30.0f;
           longitude = 45.0f;
           break;
+        case CameraView::LatLon:
+          latitude = 23.0f;
+          longitude = 45.0f;
+          break;
       }
-      _value[pushed].cameraView = CameraAnglesData::CameraViewEnc(cameraView);
+      _value[pushed].cameraView = cameraView;
       _value[pushed].angles[0]  = latitude;
       _value[pushed].angles[1]  = longitude;
       _here[pushed] = here;
       return OkRc;
     }
-    message = QMessageBox::tr("Expected FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME or DEFAULT, but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    message = QObject::tr("Expected FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
   } else if (argv.size() - index == 2) {
     bool ok[2];
     float latitude = argv[index  ].toFloat(&ok[0]);
@@ -2568,18 +2573,18 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
     if (ok[0] && ok[1]) {
       if (latitude < _min || latitude > _max ||
           longitude < _min || longitude > _max) {
-        emit gui->messageSig(LOG_ERROR,message);
+        emit gui->messageSig(LOG_ERROR,message .arg(latitude) .arg(longitude) .arg(_min) .arg(_max) .arg(argv.join(" ")));
         return RangeErrorRc;
       }
-      _value[pushed].cameraView = CameraAnglesData::Default;
+      _value[pushed].cameraView = CameraView::Default;
       _value[pushed].angles[0]  = latitude;
       _value[pushed].angles[1]  = longitude;
       _here[pushed] = here;
       return rc;
     }
-    message = QMessageBox::tr("Expected two decimals (e.g. 23.0 45.0), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    message = QObject::tr("Expected <decimal> <decimal> (e.g. 23.0 45.0), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
   } else if (argv.size() - index == 3) {
-    rx.setPattern("^(HOME)$");
+    rx.setPattern("^(HOME|LAT_LON)$");
     if (argv[index].contains(rx)) {
       bool ok[2];
       float latitude = argv[index+1].toFloat(&ok[0]);
@@ -2587,19 +2592,20 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
       if (ok[0] && ok[1]) {
         if (latitude < _min || latitude > _max ||
             longitude < _min || longitude > _max) {
-          emit gui->messageSig(LOG_ERROR,message);
+          emit gui->messageSig(LOG_ERROR,message .arg(latitude) .arg(longitude) .arg(_min) .arg(_max) .arg(argv.join(" ")));
           return RangeErrorRc;
         }
-        _value[pushed].homeViewpointModified = true;
-        _value[pushed].cameraView = CameraAnglesData::Home;
+        CameraView cameraView  = static_cast<CameraView>(_value[pushed].map[argv[index]]);
+        _value[pushed].customViewpoint = true;
+        _value[pushed].cameraView = cameraView;
         _value[pushed].angles[0]  = latitude;
         _value[pushed].angles[1]  = longitude;
         _here[pushed] = here;
         return rc;
       }
-      message = QMessageBox::tr("Expected HOME <decimal> <decimal> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      message = QObject::tr("Expected LAT_LON <decimal> <decimal> or HOME  <decimal> <decimal> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
     }
-    message = QMessageBox::tr("Expected HOME but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    message = QObject::tr("Expected LAT_LON or HOME but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
   }
   if (reportErrors) {
       emit gui->messageSig(LOG_ERROR,message);
@@ -2609,14 +2615,15 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
 
 QString CameraAnglesMeta::format(bool local, bool global)
 {
+  using namespace CameraViews;
   QString foo;
-  if (_value[pushed].cameraView == CameraAnglesData::Default) {
+  if (_value[pushed].cameraView == CameraView::Default) {
     foo = QString("%1 %2")
                   .arg(double(_value[pushed].angles[0]),_fieldWidth,'f',_precision)
                   .arg(double(_value[pushed].angles[1]),_fieldWidth,'f',_precision);
   } else {
     foo = cameraViewNames[_value[pushed].cameraView];
-    if (_value[pushed].homeViewpointModified) {
+    if (_value[pushed].customViewpoint) {
         foo += QString(" %1 %2")
                        .arg(double(_value[pushed].angles[0]),_fieldWidth,'f',_precision)
                        .arg(double(_value[pushed].angles[1]),_fieldWidth,'f',_precision);
@@ -2627,12 +2634,12 @@ QString CameraAnglesMeta::format(bool local, bool global)
 
 void CameraAnglesMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )";
+  out << preamble + " ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] | LAT_LON <decimal> <decimal> | <decimal> <decimal> )";
 }
 
 void CameraAnglesMeta::metaKeywords(QStringList &out, QString preamble)
 {
-  out << preamble + " <decimal> FRONT BACK TOP BOTTOM LEFT RIGHT HOME";
+  out << preamble + " <decimal> FRONT BACK TOP BOTTOM LEFT RIGHT HOME LAT_LON";
 }
 /* ------------------ */
 

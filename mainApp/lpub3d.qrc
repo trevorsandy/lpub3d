@@ -233,6 +233,8 @@
         <file alias="removesubstitutepart.png">resources/removesubstitutepart.png</file>
         <file alias="rendererarguments.png">resources/rendererarguments.png</file>
         <file alias="renderersetup.png">resources/renderersetup.png</file>
+        <file alias="reset_viewer_image.png">resources/reset_viewer_image.png</file>
+        <file alias="reset_viewer_image_16.png">resources/reset_viewer_image_16.png</file>
         <file alias="resetaction.png">resources/resetaction.png</file>
         <file alias="resetborderattributes.png">resources/resetborderattributes.png</file>
         <file alias="resetcache.png">resources/resetcache.png</file>
@@ -240,8 +242,6 @@
         <file alias="resetlineedit.png">resources/resetlineedit.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
         <file alias="resettipattributes.png">resources/resettipattributes.png</file>
-        <file alias="reset_viewer_image.png">resources/reset_viewer_image.png</file>
-        <file alias="reset_viewer_image_16.png">resources/reset_viewer_image_16.png</file>
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
         <file alias="rotate-icon.png">resources/rotate-icon.png</file>
@@ -289,6 +289,8 @@
         <file alias="update.png">resources/update.png</file>
         <file alias="veiw_viewpoint_home.png">resources/veiw_viewpoint_home.png</file>
         <file alias="veiw_viewpoint_home_16.png">resources/veiw_viewpoint_home_16.png</file>
+        <file alias="veiw_viewpoint_latitude_longitude.png">resources/veiw_viewpoint_latitude_longitude.png</file>
+        <file alias="veiw_viewpoint_latitude_longitude_16.png">resources/veiw_viewpoint_latitude_longitude_16.png</file>
         <file alias="viewlog.png">resources/viewlog.png</file>
         <file alias="viewzoomextents.png">resources/viewzoomextents.png</file>
         <file alias="viewzoomextents16.png">resources/viewzoomextents16.png</file>

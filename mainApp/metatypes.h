@@ -800,50 +800,57 @@ public:
   }
 };
 
+namespace CameraViews
+{
+    enum CameraView
+    {
+      Front,  // set camera view at   0 lat,   0 lon
+      Back,   // set camera view at   0 lat, 180 lon
+      Top,    // set camera view at  90 lat,   0 lon
+      Bottom, // set camera view at -90 lat,   0 lon
+      Left,   // set camera view at   0 lat,  90 lon
+      Right,  // set camera view at   0 lat, -90 lon
+      Home,   // set camera view at  30 lat,  45 lon
+      LatLon, // set camera view to specified latitude and longitude
+      Default // do not set camera view
+    };
+
+    const QString cameraViewNames[CameraView::Default] =
+    {
+      "FRONT","BACK","TOP","BOTTOM",
+      "LEFT","RIGHT","HOME","LAT_LON"
+    };
+}
+
 class CameraAnglesData
 {
 public:
-  QHash<QString, int> map;
+  QHash<QString, CameraViews::CameraView> map;
 
-  enum CameraViewEnc
-  {
-    Front,  // set camera view at   0 lat,   0 lon
-    Back,   // set camera view at   0 lat, 180 lon
-    Top,    // set camera view at  90 lat,   0 lon
-    Bottom, // set camera view at -90 lat,   0 lon
-    Left,   // set camera view at   0 lat,  90 lon
-    Right,  // set camera view at   0 lat, -90 lon
-    Home,   // set camera view at  30 lat,  45 lon
-    Default // do not set camera view
-  } cameraView;
+  CameraViews::CameraView cameraView;
 
   float  angles[2];
 
-  bool homeViewpointModified;
+  bool customViewpoint;
 
   CameraAnglesData()
   {
-    cameraView = CameraViewEnc::Default;
-    homeViewpointModified = false;
+    cameraView = CameraViews::CameraView::Default;
+    customViewpoint = false;
     angles[0] = 0.0f;
     angles[1] = 0.0f;
     if (map.size() == 0) {
-       map["FRONT"]   = CameraViewEnc::Front;
-       map["BACK"]    = CameraViewEnc::Back;
-       map["TOP"]     = CameraViewEnc::Top;
-       map["BOTTOM"]  = CameraViewEnc::Bottom;
-       map["LEFT"]    = CameraViewEnc::Left;
-       map["RIGHT"]   = CameraViewEnc::Right;
-       map["HOME"]    = CameraViewEnc::Home;
-       map["DEFAULT"] = CameraViewEnc::Default;
+       map["FRONT"]   = CameraViews::CameraView::Front;
+       map["BACK"]    = CameraViews::CameraView::Back;
+       map["TOP"]     = CameraViews::CameraView::Top;
+       map["BOTTOM"]  = CameraViews::CameraView::Bottom;
+       map["LEFT"]    = CameraViews::CameraView::Left;
+       map["RIGHT"]   = CameraViews::CameraView::Right;
+       map["HOME"]    = CameraViews::CameraView::Home;
+       map["LAT_LON"] = CameraViews::CameraView::LatLon;
+       map["DEFAULT"] = CameraViews::CameraView::Default;
     }
   }
-};
-
-const QString cameraViewNames[CameraAnglesData::CameraViewEnc::Default] =
-{
-  "FRONT","BACK","TOP","BOTTOM",
-  "LEFT","RIGHT","HOME"
 };
 
 /*********************************************

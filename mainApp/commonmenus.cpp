@@ -2816,6 +2816,21 @@ void CommonMenus::setWhatsThis()
             "  The current preferred renderer is %1\n")
             .arg(MetaDefaults::getPreferredRenderer())
         },
+        // WT_DIALOG_CAMERA_LAT_LON
+        {
+            QObject::tr(
+            "  Configure the camera angles.\n"
+            "  - Latitude: set the camera angle x-axis in degrees.\n\n"
+            "  - Longitude: set the camera angle y-axis in degrees.\n\n"
+            "  - Distance Factor: optionally, you can check this\n"
+            "    to enable the default distance factor spin dialog\n"
+            "    where you can change the default camera distance.\n"
+            "  The Distance dialog is a read-only display of the\n"
+            "  calculated camera distance. The calculated distance\n"
+            "  uses the distance factor, default position, page width\n"
+            "  image resolution, image scale and LDraw Unit (LDU)."
+            )
+        },
         // WT_DIALOG_CONSTRAIN
         {
             QObject::tr(
@@ -4977,6 +4992,10 @@ void CommonMenus::setWhatsThis()
             "    * Home: set the camera view at 30 lat, 45 lon.\n"
             "      You can change the latitude and longitude angles\n"
             "      for Home camera view.\n"
+            "    * Latitude/Loingitude: set the latitude and longitude\n"
+            "      angles. This setting is equivalent to selecting Use\n"
+            "      Latitude And Longitude Angles to allow Home camera\n"
+            "      view changes.\n"
             "    * Default: do not use Camera Viewpoint.\n\n"
             "  - Use Latitude And Longitude Angles: enable the\n"
             "    Latitude and Longitude dialogues to allow Home\n"

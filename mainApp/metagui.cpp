@@ -4855,6 +4855,7 @@ CameraAnglesGui::CameraAnglesGui(
     CameraAnglesMeta *_meta,
     QGroupBox        *parent)
 {
+  using namespace CameraViews;
   meta = _meta;
   data = meta->value();
 
@@ -4926,6 +4927,7 @@ CameraAnglesGui::CameraAnglesGui(
   cameraViewCombo->addItem("Left");
   cameraViewCombo->addItem("Right");
   cameraViewCombo->addItem("Home");
+  cameraViewCombo->addItem("Latitude/Longitude");
   cameraViewCombo->addItem("Default");
   cameraViewCombo->setCurrentIndex(int(data.cameraView));
   connect(cameraViewCombo,SIGNAL(currentIndexChanged(int)),
@@ -4934,13 +4936,13 @@ CameraAnglesGui::CameraAnglesGui(
 
   // Home viewpoint angles change
   homeViewpointBox = new QCheckBox(tr("Use Latitude And Longitude Angles"),parent);
-  homeViewpointBox->setChecked(data.cameraView == CameraAnglesData::CameraViewEnc::Home && data.homeViewpointModified);
+  homeViewpointBox->setChecked(data.cameraView == CameraView::Home && data.customViewpoint);
   homeViewpointBox->setToolTip(tr("Set Home viewpoint angles to use specified latitude and longitude."));
   connect(homeViewpointBox,SIGNAL(stateChanged(        int)),
           this,            SLOT(  homeViewpointChanged(int)));
   grid->addWidget(homeViewpointBox,1,2,1,2);
 
-  setEnabled(data.cameraView == CameraAnglesData::CameraViewEnc::Default);
+  setEnabled(data.cameraView == CameraView::Default);
 }
 
 void CameraAnglesGui::enableReset(const QString &displayText)
@@ -4975,7 +4977,7 @@ void CameraAnglesGui::latitudeChange(QString const &string)
   CameraAnglesData cad = meta->value();
   cad.angles[0] = value;
   if (homeViewpointBox->isChecked())
-      cad.homeViewpointModified = notEqual(value, 30.0f) || notEqual(cad.angles[1], 45.0f);
+      cad.customViewpoint = notEqual(value, 30.0f) || notEqual(cad.angles[1], 45.0f);
   meta->setValue(cad);
   modified = notEqual(value, data.angles[0]) || notEqual(cad.angles[1], data.angles[1]);
   emit settingsChanged(modified);
@@ -4987,7 +4989,7 @@ void CameraAnglesGui::longitudeChange(QString const &string)
   CameraAnglesData cad = meta->value();
   cad.angles[1] = string.toFloat();
   if (homeViewpointBox->isChecked())
-      cad.homeViewpointModified = notEqual(cad.angles[0], 30.0f) || notEqual(value, 45.0f);
+      cad.customViewpoint = notEqual(cad.angles[0], 30.0f) || notEqual(value, 45.0f);
   meta->setValue(cad);
   modified = notEqual(cad.angles[0], data.angles[0]) || notEqual(value, data.angles[1]);
   emit settingsChanged(modified);
@@ -4995,39 +4997,40 @@ void CameraAnglesGui::longitudeChange(QString const &string)
 
 void CameraAnglesGui::cameraViewChange(int value)
 {
-  CameraAnglesData::CameraViewEnc cameraView = CameraAnglesData::CameraViewEnc(value);
-  setEnabled(cameraView == CameraAnglesData::CameraViewEnc::Default);
+  using namespace CameraViews;
+  CameraView cameraView = static_cast<CameraView>(value);
+  setEnabled(cameraView > CameraView::Home);
 
   if (cameraView != meta->cameraView()) {
     double latitude = 0.0f;
     double longitude = 0.0f;
     switch (cameraView)
     {
-      case CameraAnglesData::CameraViewEnc::Front:
+      case CameraView::Front:
         latitude = 0.0f;
         longitude = 0.0f;
         break;
-      case CameraAnglesData::CameraViewEnc::Back:
+      case CameraView::Back:
         latitude = 0.0f;
         longitude = 180.0f;
         break;
-      case CameraAnglesData::CameraViewEnc::Top:
+      case CameraView::Top:
         latitude = 90.0f;
         longitude = 0.0f;
         break;
-      case CameraAnglesData::CameraViewEnc::Bottom:
+      case CameraView::Bottom:
         latitude = -90.0f;
         longitude =  0.0f;
         break;
-      case CameraAnglesData::CameraViewEnc::Left:
+      case CameraView::Left:
         latitude = 0.0f;
         longitude = 90.0f;
         break;
-      case CameraAnglesData::CameraViewEnc::Right:
+      case CameraView::Right:
         latitude = 0.0f;
         longitude = -90.0f;
         break;
-      case CameraAnglesData::CameraViewEnc::Home:
+      case CameraView::Home:
         latitude = 30.0f;
         longitude = 45.0f;
         break;
@@ -5060,9 +5063,9 @@ void CameraAnglesGui::homeViewpointChanged(int state)
 
 void CameraAnglesGui::setEnabled(bool enable)
 {
-  bool homeViewpoint = cameraViewCombo->currentIndex() == static_cast<int>(CameraAnglesData::CameraViewEnc::Home);
+  bool homeViewpoint = cameraViewCombo->currentIndex() == static_cast<int>(CameraViews::CameraView::Home);
   homeViewpointBox->setEnabled(homeViewpoint);
-  homeViewpointBox->setChecked(homeViewpoint && meta->homeViewpointModified());
+  homeViewpointBox->setChecked(homeViewpoint && meta->customViewpoint());
   latitudeLabel->setEnabled(enable);
   longitudeLabel->setEnabled(enable);
   latitudeEdit->setEnabled(enable);

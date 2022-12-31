@@ -32,7 +32,7 @@
 
 namespace Options
 {
-  enum Mt { PLI, CSI ,SMP ,MON    };
+  enum Mt { PLI, CSI ,SMP ,MON };
 }
 
 class Vector3
@@ -85,7 +85,7 @@ public:
        StudStyle         (0  /*Plain*/),
        IniFlag           (-1 /*NONE*/),
        ExportMode        (-1 /*EXPORT_NONE*/),
-       CameraView        (7  /*Viewpoint*/),
+       Viewpoint         (8  /*Viewpoint::count/CameraView::Default*/),
        LineWidth         (1.0f),
        Resolution        (150.0f),
        ModelScale        (1.0f),
@@ -104,7 +104,7 @@ public:
        AutoEdgeColor     (false),
        HighlightNewParts (false),
        TransBackground   (true),
-       HomeViewMod       (false),
+       CustomViewpoint   (false),
        IsReset           (false),
        StudCylinderColor (0),
        PartEdgeColor     (0),
@@ -132,7 +132,7 @@ public:
   int StudStyle;
   int IniFlag;
   int ExportMode;
-  int CameraView; // Viewpoint
+  int Viewpoint; // Viewpoint
   float LineWidth;
   float Resolution;
   float ModelScale;
@@ -151,7 +151,7 @@ public:
   bool AutoEdgeColor;
   bool HighlightNewParts;
   bool TransBackground;
-  bool HomeViewMod;
+  bool CustomViewpoint;
   bool IsReset;
   quint32 StudCylinderColor;
   quint32 PartEdgeColor;

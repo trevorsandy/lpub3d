@@ -1444,12 +1444,12 @@ public:
     return _value[pushed].angles[which];
   }
 
-  virtual bool homeViewpointModified()
+  virtual bool customViewpoint()
   {
-    return _value[pushed].homeViewpointModified;
+    return _value[pushed].customViewpoint;
   }
 
-  virtual CameraAnglesData::CameraViewEnc cameraView()
+  virtual CameraViews::CameraView cameraView()
   {
     return _value[pushed].cameraView;
   }
@@ -1460,15 +1460,15 @@ public:
     _value[pushed] = value;
   }
 
-  virtual void setCameraView(CameraAnglesData::CameraViewEnc value)
+  virtual void setCameraView(CameraViews::CameraView value)
   {
     _value[pushed].cameraView = value;
     _default = false;
   }
 
-  virtual void setHomeViewpointLatLon(bool value)
+  virtual void setCustomViewpoint(bool value)
   {
-    _value[pushed].homeViewpointModified = value;
+    _value[pushed].customViewpoint = value;
     _default = false;
   }
 
@@ -1522,6 +1522,7 @@ public:
     _value[1].cameraView = rhs._value[1].cameraView;
     _value[0].angles[0]  = rhs._value[0].angles[0];
     _value[0].angles[1]  = rhs._value[0].angles[1];
+    _value[1].cameraView = rhs._value[1].cameraView;
     _value[1].angles[0]  = rhs._value[1].angles[0];
     _value[1].angles[1]  = rhs._value[1].angles[1];
     _min                 = rhs._min;
