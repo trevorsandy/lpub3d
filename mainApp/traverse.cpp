@@ -2108,6 +2108,7 @@ int Gui::drawPage(
               // assign buildMod key
               if (! buildModKeys.contains(buildMod.level))
                   buildModKeys.insert(buildMod.level, buildMod.key);
+              // step-group and callout build modifications are parsed and configured in the following lines
               // insert new or update existing buildMod
               if (multiStep)
                   buildModInsert = topOfStep != steps->topOfSteps();
@@ -2117,7 +2118,7 @@ int Gui::drawPage(
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
               // set buildModAction
               if (buildModExists)
-                  if (multiStep || opts.calledOut) // always take the last action
+                  if (multiStep || opts.calledOut) // the last action is appended at each step so it should always be current
                       buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, BM_LAST_ACTION));
                   else // take the action for the current step if exists or last action
                       buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
