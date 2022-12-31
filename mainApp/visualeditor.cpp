@@ -51,14 +51,15 @@
 #include "lc_setsdatabasedialog.h"
 
 const QStringList BuildModChangeTriggers = QStringList()
-        << "Deleting" << "Adding Piece"
-        << "Move"     << "Rotate"
-        << "Moving"   << "Rotating"
-        << "Painting" << "New Model"
-        << "Cutting"  << "Pasting"
-        << "Removing Step" << "Inserting Step"
-        << "Duplicating Pieces" << "New Model"
-        << "Ungrouping" << "Grouping" << "Inlining"
+        << QLatin1String("Deleting")           << QLatin1String("Adding Piece")
+        << QLatin1String("Move")               << QLatin1String("Rotate")
+        << QLatin1String("Moving")             << QLatin1String("Rotating")
+        << QLatin1String("Painting")           << QLatin1String("New Model")
+        << QLatin1String("Cutting")            << QLatin1String("Pasting")
+        << QLatin1String("Removing Step")      << QLatin1String("Inserting Step")
+        << QLatin1String("Duplicating Pieces") << QLatin1String("New Model")
+        << QLatin1String("Ungrouping")         << QLatin1String("Grouping")
+        << QLatin1String("Inlining")
            ;
 
 void Gui::create3DActions()
@@ -1188,7 +1189,7 @@ void Gui::applyLightSettings()
             return qAbs(v1 - v2) > 0.1f;
         };
 
-        beginMacro("LightSettings");
+        beginMacro(QLatin1String("LightSettings"));
 
         // Delete existing LIGHT commands starting at the bottom of the current step
         for (Where walk = bottom - 1; walk >= top.lineNumber; --walk)
@@ -1197,7 +1198,7 @@ void Gui::applyLightSettings()
 
         for (lcLight* Light : ActiveModel->GetLights()) {
 
-            emit messageSig(LOG_INFO, QString("Setting Light [%1]").arg(Light->mName));
+            emit messageSig(LOG_INFO, tr("Setting Light [%1]").arg(Light->mName));
 
             QString Type = "Undefined";
             switch(Light->mLightType)
@@ -1372,6 +1373,8 @@ void Gui::applyLightSettings()
 
 void Gui::applyCameraSettings()
 {
+    using namespace Options;
+
     if (lpub->currentStep){
 
         lcView* ActiveView = gMainWindow->GetActiveView();
@@ -1408,7 +1411,7 @@ void Gui::applyCameraSettings()
 
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
-        case Options::PLI:
+        case PLI:
             cameraMeta.cameraAngles   = lpub->currentStep->pli.pliMeta.cameraAngles;
             cameraMeta.cameraDistance = lpub->currentStep->pli.pliMeta.cameraDistance;
             cameraMeta.modelScale     = lpub->currentStep->pli.pliMeta.modelScale;
@@ -1421,7 +1424,7 @@ void Gui::applyCameraSettings()
             cameraMeta.position       = lpub->currentStep->pli.pliMeta.position;
             cameraMeta.upvector       = lpub->currentStep->pli.pliMeta.upvector;
             break;
-        case Options::SMP:
+        case SMP:
             cameraMeta.cameraAngles   = lpub->currentStep->subModel.subModelMeta.cameraAngles;
             cameraMeta.cameraDistance = lpub->currentStep->subModel.subModelMeta.cameraDistance;
             cameraMeta.modelScale     = lpub->currentStep->subModel.subModelMeta.modelScale;
@@ -1434,7 +1437,7 @@ void Gui::applyCameraSettings()
             cameraMeta.position       = lpub->currentStep->subModel.subModelMeta.position;
             cameraMeta.upvector       = lpub->currentStep->subModel.subModelMeta.upvector;
             break;
-        default: /*Options::CSI:*/
+        default: /*CSI:*/
             cameraMeta                = lpub->currentStep->csiStepMeta;
             imageFileName             = lpub->currentStep->pngName;
             break;
@@ -1446,7 +1449,6 @@ void Gui::applyCameraSettings()
         lcVector3 ldrawVector;
         Where undefined = Where();
         Where top = lpub->currentStep->topOfStep();
-        Where bottom = lpub->currentStep->bottomOfStep();
 
         float Latitude, Longitude, Distance;
         Camera->GetAngles(Latitude, Longitude, Distance);
@@ -1463,7 +1465,7 @@ void Gui::applyCameraSettings()
         bool applyZPlanes = applyUpVector;
 
 
-        beginMacro("CameraSettings");
+        beginMacro(QLatin1String("CameraSettings"));
 
         // execute first in last out
 
@@ -1885,7 +1887,7 @@ void Gui::enableBuildModActions()
 
     bool oneMod = modCount == 1;
 
-    bool appliedMod = false, sourceMod = false, removedMod = false;
+    bool appliedMod = false, beginMod = false, removedMod = false;
 
     bool applyModDialogTitle = ApplyBuildModAct->text().endsWith("...");
 
@@ -1895,7 +1897,7 @@ void Gui::enableBuildModActions()
     switch (buildModStepAction)
     {
         case BuildModBeginRc:
-            sourceMod = haveMod;
+            beginMod = haveMod;
             break;
         case BuildModApplyRc:
             appliedMod = haveMod;
@@ -1930,13 +1932,13 @@ void Gui::enableBuildModActions()
     }
 
     // enable actions
-    CreateBuildModAct->setEnabled(!appliedMod && !removedMod && !sourceMod);
-    ApplyBuildModAct->setEnabled((!appliedMod || removedMod) && !sourceMod);
-    RemoveBuildModAct->setEnabled((appliedMod || !removedMod) && !sourceMod);
-    DeleteBuildModActionAct->setEnabled((appliedMod || removedMod) && !sourceMod);
-    UpdateBuildModAct->setEnabled(sourceMod);
-    LoadBuildModAct->setEnabled(!sourceMod && !oneMod);
-    DeleteBuildModAct->setEnabled(sourceMod);
+    CreateBuildModAct->setEnabled(      !appliedMod && !removedMod  && !beginMod);
+    ApplyBuildModAct->setEnabled((      !appliedMod ||  removedMod) && !beginMod);
+    RemoveBuildModAct->setEnabled((      appliedMod || !removedMod) && !beginMod);
+    DeleteBuildModActionAct->setEnabled((appliedMod ||  removedMod) && !beginMod);
+    UpdateBuildModAct->setEnabled(       beginMod);
+    LoadBuildModAct->setEnabled(        !beginMod && !oneMod);
+    DeleteBuildModAct->setEnabled(       beginMod);
 }
 
 void Gui::enableBuildModMenuAndActions()
@@ -2126,12 +2128,15 @@ void Gui::SetRotStepMeta()
 void Gui::ShowStepRotationStatus()
 {
     QString rotLabel = QString("%1 X: %2 Y: %3 Z: %4 Transform: %5")
-                               .arg(lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) ? "BUILD MOD ROTATE" : "ROTSTEP")
+                               .arg(lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) ?
+                                        QLatin1String("BUILD MOD ROTATE") :
+                                        QLatin1String("ROTSTEP"))
                                .arg(QString::number(double(mRotStepAngleX), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleY), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
-                               .arg(mRotStepTransform.toUpper() == "REL" ? "RELATIVE" :
-                                    mRotStepTransform.toUpper() == "ABS" ? "ABSOLUTE" : "ADD");
+                               .arg(mRotStepTransform.toUpper() == QLatin1String("REL") ? QLatin1String("RELATIVE") :
+                                    mRotStepTransform.toUpper() == QLatin1String("ABS") ? QLatin1String("ABSOLUTE") :
+                                                                   QLatin1String("ADD"));
     statusBarMsg(rotLabel);
 }
 
@@ -2362,10 +2367,11 @@ void Gui::createBuildModification()
         return;
     }
 
-    Options::Mt imageType = static_cast<Options::Mt>(lcGetActiveProject()->GetImageType());
-    if (imageType != Options::CSI) {
-        const QString model = imageType == Options::CSI ? tr("a part instance") :
-                              imageType == Options::SMP ? tr("a preview submodel") :
+    using namespace Options;
+    Mt imageType = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+    if (imageType != CSI) {
+        const QString model = imageType == CSI ? tr("a part instance") :
+                              imageType == SMP ? tr("a preview submodel") :
                               tr("not an assembly");
         emit statusMessage(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
                                        "The active model is %1.").arg(model), showMessage);
@@ -2396,13 +2402,13 @@ void Gui::createBuildModification()
 
         emit progressBarPermInitSig();
         emit progressPermRangeSig(0, 0);   // Busy indicator
-        emit progressPermMessageSig(QString("%1 Build Modification...").arg(statusLabel));
+        emit progressPermMessageSig(tr("%1 Build Modification...").arg(statusLabel));
 
         if (mBuildModRange.first() || edit){
 
-            emit messageSig(LOG_INFO, QString("%1 BuildMod for Step %2...")
-                            .arg(statusLabel)
-                            .arg(lpub->currentStep->stepNumber.number));
+            emit messageSig(LOG_INFO, tr("%1 BuildMod for Step %2...")
+                                         .arg(statusLabel)
+                                         .arg(lpub->currentStep->stepNumber.number));
 
             // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
             lcArray<lcGroup*>  mGroups;
@@ -2452,10 +2458,10 @@ void Gui::createBuildModification()
             buildModChangeKey     = QString();
 
             if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
-                emit messageSig(LOG_ERROR, QString("BuildMod model (%1) '%2' and StepKey model (%3) mismatch")
-                                                   .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
+                emit messageSig(LOG_ERROR, tr("BuildMod model (%1) '%2' and StepKey model (%3) mismatch")
+                                              .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
 
-            // Check if there is an existing build mod in this Step
+            // Check if there is an existing build modification in this Step
             QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
             if (stepContains(lpub->currentStep->top, lineRx) && !edit) {
 
@@ -2469,10 +2475,10 @@ void Gui::createBuildModification()
                 box.setIconPixmap (_icon);
                 box.setTextFormat (Qt::RichText);
                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-                QString title = "<b>" + QMessageBox::tr ("You specified create action for an existing Build Modification") + "</b>";
-                QString text = QMessageBox::tr("<br>This action will replace the existing Build Modification."
-                                               "<br>You can cancel and select 'Update Build Modification...' from the build modification submenu."
-                                               "<br>Do you want to continue with this create action ?");
+                QString title = "<b>" + tr ("You specified create action for an existing Build Modification") + "</b>";
+                QString text = tr("<br>This action will replace the existing Build Modification."
+                                  "<br>You can cancel and select 'Update Build Modification...' from the build modification submenu."
+                                  "<br>Do you want to continue with this create action ?");
                 box.setText (title);
                 box.setInformativeText (text);
                 box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Ok);
@@ -2829,12 +2835,14 @@ void Gui::createBuildModification()
             if (PieceAdjustment < 0)
                 EndModLineNum -= PieceAdjustment;
 
-#ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_DEBUG, QString("%1Pieces [%2], Viewer Pieces Count [%3], LPub Pieces Count [%4]")
-                            .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
-                            .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
-                            .arg(mViewerPieces.GetSize()).arg(ModStepPieces));
-#endif
+            if (Preferences::debugLogging) {
+                const QString message =
+                        QString("%1Pieces [%2], Viewer Pieces Count [%3], %4 Pieces Count [%5]")
+                                .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
+                                .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
+                                .arg(mViewerPieces.GetSize()).arg(VER_PRODUCTNAME_STR).arg(ModStepPieces);
+                emit messageSig(LOG_DEBUG, message);
+            }
 
             for (lcPiece* Piece : mViewerPieces)
             {
@@ -2859,14 +2867,16 @@ void Gui::createBuildModification()
                 // Set PieceModified. Only modified pieces are added to ViewerModContents
                 PieceModified = LineNumber <= ModActionLineNum || Piece->PieceModified() || NewPiece;
 
-#ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_DEBUG, QString("Viewer Piece LineIndex [%1], ID [%2], Name [%3], LineNumber [%4], Modified: [%5]")
-                                                   .arg(LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex))
-                                                   .arg(Piece->GetID())
-                                                   .arg(Piece->GetName())
-                                                   .arg(LineNumber)
-                                                   .arg(PieceModified ? "Yes" : "No"));
-#endif
+                if (Preferences::debugLogging) {
+                    const QString message =
+                            QString("Viewer Piece LineIndex [%1], ID [%2], Name [%3], LineNumber [%4], Modified: [%5]")
+                                    .arg(LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex))
+                                    .arg(Piece->GetID())
+                                    .arg(Piece->GetName())
+                                    .arg(LineNumber)
+                                    .arg(PieceModified ? QLatin1String("Yes") : QLatin1String("No"));
+                    emit messageSig(LOG_DEBUG, message);
+                }
 
                 // If PieceAdjustment is not 0, we increment EndModLineNum as we process each piece
                 if (PieceAdjustment > 0)
@@ -3046,15 +3056,16 @@ void Gui::createBuildModification()
             int SaveModPieces        = edit ? SaveModEndLineNum - SaveModActionLineNum - 1/*Meta Line*/
                                             : BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0);
 
-#ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_TRACE, QString("%1 BuildMod Save LineNumbers "
-                                               "Begin: %2, Action: %3, End: %4, ModPieces: %5")
-                                               .arg(edit ? "Update" : "Create")
-                                               .arg(SaveModBeginLineNum)
-                                               .arg(SaveModActionLineNum)
-                                               .arg(SaveModEndLineNum)
-                                               .arg(SaveModPieces));
-#endif
+            if (Preferences::debugLogging) {
+                const QString message = QString("%1 BuildMod Save LineNumbers "
+                                                "Begin: %2, Action: %3, End: %4, ModPieces: %5")
+                                                .arg(edit ? "Update" : "Create")
+                                                .arg(SaveModBeginLineNum)
+                                                .arg(SaveModActionLineNum)
+                                                .arg(SaveModEndLineNum)
+                                                .arg(SaveModPieces);
+                emit messageSig(LOG_TRACE, message);
+            }
 
             // BuildMod meta command lines are written in a bottom up manner
 
@@ -3077,7 +3088,7 @@ void Gui::createBuildModification()
                 QString metaString;
                 buildModData.buildModKey = QString();
 
-                beginMacro("BuildModCreate|" + lpub->viewerStepKey);
+                beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
 
                 // Delete old BUILD_MOD END meta command
                 Where endMod = Where(ModelName, SaveModEndLineNum);
@@ -3156,27 +3167,29 @@ void Gui::createBuildModification()
                            ModAttributes,
                            ModStepIndex);   // Unique ID
 
-#ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_DEBUG, QString("Create BuildMod StepIndex: %1, "
-                                               "Action: Apply(64) - %2, "
-                                               "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
-                                               "ModKey: %11, "
-                                               "Level: %12")
-                                               .arg(edit ? "Update" : "Create")     // 01
-                                               .arg(ModStepIndex)                   // 02
-                                               .arg(ModBeginLineNum)                // 03 - 0 BM_BEGIN_LINE_NUM
-                                               .arg(ModActionLineNum)               // 04 - 1 BM_ACTION_LINE_NUM
-                                               .arg(ModEndLineNum)                  // 05 - 2 BM_END_LINE_NUM
-                                               .arg(ModDisplayPageNum)              // 06 - 3 BM_DISPLAY_PAGE_NUM
-                                               .arg(ModStepPieces)                  // 08 - 4 BM_STEP_PIECES
-                                               .arg(ModelIndex)                     // 07 - 5 BM_MODEL_NAME_INDEX
-                                               .arg(ModStepLineNum)                 // 08 - 6 BM_MODEL_LINE_NUM
-                                               .arg(ModStepNum)                     // 09 - 7 BM_MODEL_STEP_NUM
-                                               .arg(ModStepKey)                     // 10
-                                               .arg(BuildModKey));                  // 11
-#endif
+            if (Preferences::debugLogging) {
+                const QString message =
+                        QString("Create BuildMod StepIndex: %1, "
+                                "Action: Apply(64) - %2, "
+                                "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
+                                "ModKey: %11, "
+                                "Level: %12")
+                                .arg(edit ? "Update" : "Create")     // 01
+                                .arg(ModStepIndex)                   // 02
+                                .arg(ModBeginLineNum)                // 03 - 0 BM_BEGIN_LINE_NUM
+                                .arg(ModActionLineNum)               // 04 - 1 BM_ACTION_LINE_NUM
+                                .arg(ModEndLineNum)                  // 05 - 2 BM_END_LINE_NUM
+                                .arg(ModDisplayPageNum)              // 06 - 3 BM_DISPLAY_PAGE_NUM
+                                .arg(ModStepPieces)                  // 08 - 4 BM_STEP_PIECES
+                                .arg(ModelIndex)                     // 07 - 5 BM_MODEL_NAME_INDEX
+                                .arg(ModStepLineNum)                 // 08 - 6 BM_MODEL_LINE_NUM
+                                .arg(ModStepNum)                     // 09 - 7 BM_MODEL_STEP_NUM
+                                .arg(ModStepKey)                     // 10
+                                .arg(BuildModKey);                  // 11
+                emit messageSig(LOG_DEBUG, message);
+            }
 
-            // Reset the build mod range
+            // Reset the build modification range
             mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
         } // mBuildModRange || edit
 
@@ -3190,81 +3203,77 @@ void Gui::applyBuildModification()
     if (!lpub->currentStep || exporting())
         return;
 
-    //* local ldrawFile and step used for debugging for debugging
-#ifdef QT_DEBUG_MODE
-    LDrawFile *ldrawFile = &lpub->ldrawFile;
-    Step *currentStep = lpub->currentStep;
-    Q_UNUSED(currentStep)
-    Q_UNUSED(ldrawFile)
-#endif
-    //*/
-
-    QStringList buildModKeys;
-    if (!buildModsCount()) {
-        return;
-    } else if (buildModsCount() == 1) {
-        buildModKeys = getBuildModsList();
-    } else {
-        BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
-        buildModDialogGui->getBuildMod(buildModKeys, BuildModApplyRc);
+    QString buildModKey = getBuildModKey(lpub->currentStep->topOfStep());
+    if (buildModKey.isEmpty()) {
+        QStringList buildModKeys;
+        if (buildModsCount() == 1) {
+            buildModKeys = getBuildModsList();
+        } else {
+            BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
+            buildModDialogGui->getBuildMod(buildModKeys, BuildModApplyRc);
+        }
+        buildModKey = buildModKeys.first();
     }
-    const QString buildModKey = buildModKeys.first();
 
-    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'apply' action..."));
+    if (buildModKey.isEmpty())
+        return;
+
+    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Apply' action..."));
 
     Where topOfStep = lpub->currentStep->topOfStep();
 
-    // get the last action for this build mod
+    // get the last action for this build modification
     Rc buildModAction = static_cast<Rc>(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
     // was the last action defined in this step ?
     Rc buildModStepAction =  static_cast<Rc>(getBuildModStepAction(topOfStep));
     // set flag to remove the last action command if it is not 'Apply'
-    bool removeActionCommand = buildModStepAction == buildModAction;
+    const bool removeActionCommand = buildModStepAction == buildModAction;
 
-    QString model = topOfStep.modelName;
-    QString line = QString::number(topOfStep.lineNumber);
-    QString step = QString::number(lpub->currentStep->stepNumber.number);
+    const QString model(topOfStep.modelName);
+    const QString line(QString::number(topOfStep.lineNumber));
+    const QString step(QString::number(lpub->currentStep->stepNumber.number));
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
-            text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
-                    "model '" + model + "', at line " + line + ".<br>"
-                    "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>";
-            type  = "apply build modification error message";
-            title = "Build Modification";
+            text  = tr("Build modification '%1' was created after this step (%2), model '%3', at line %4.<br>"
+                       "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>")
+                       .arg(buildModKey).arg(step).arg(model).arg(line);
+            type  = tr("apply build modification error message");
+            title = tr("Build Modification");
 
-            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Apply_Before_" + model,line).nameToString());
+            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Apply_Before_") + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
 
             return;
 
     } else if (getBuildModStepKey(buildModKey) == lpub->currentStep->viewerStepKey) {
-        text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
-                "model '" + model + "', at line " + line + ".<br>"
-                "It was automatically applied to the step it was created in.<br><br>No action taken.<br>";
-        type  = "apply build modification error message";
-        title = "Build Modification";
+        text  = tr("Build modification '%1' was created in this step (%2), model '%3', at line %4.<br>"
+                   "It was automatically applied to the step it was created in.<br><br>No action taken.<br>")
+                   .arg(buildModKey).arg(step).arg(model).arg(line);
+        type  = tr("apply build modification error message");
+        title = tr("Build Modification");
 
-        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Source_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Begin_") + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
 
     } else if (buildModAction == BuildModApplyRc) {
-        text  = "Build modification '" + buildModKey + "' was already applied to step (" + step + "), "
-                "model '" + model + ".<br><br>No action taken.<br>";
-        type  = "apply build modification error message";
-        title = "Build Modification";
+        text  = tr("Build modification '%1' was already applied to step (%2), model '%3'.<br><br>No action taken.<br>")
+                .arg(buildModKey).arg(step).arg(model);
+        type  = tr("apply build modification error message");
+        title = tr("Build Modification");
 
-        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Already_Applied_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Already_Applied_") + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
 
-    }  /* else {
-        text  = "This action will apply build modification '" + buildModKey + "' "
-                "beginning at step " + step + ", in model '" + model + "'.<br><br>Are you sure ?<br>";
-        type  = "apply build modification message";
-        title = "Build Modification";
+    } /* else {
+        text  = tr("This action will apply build modification '%1' "
+                   "beginning at step (%2), in model '%3'.<br><br>Are you sure ?<br>")
+                   .arg(buildModKey).arg(step).arg(model);
+        type  = tr("apply build modification message");
+        title = tr("Build Modification");
 
         Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
         switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
@@ -3279,13 +3288,14 @@ void Gui::applyBuildModification()
 
     } */
 
-    int it = lcGetActiveProject()->GetImageType();
-    if (it == Options::CSI) {
+    using namespace Options;
+    Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+    if (it == CSI) {
         QString metaString;
         bool newCommand = false;
         BuildModData buildModData = lpub->currentStep->buildMod.value();
 
-        beginMacro("BuildModApply|" + lpub->currentStep->viewerStepKey);
+        beginMacro(QLatin1String("BuildModApply|") + lpub->currentStep->viewerStepKey);
 
         buildModData.action      = QLatin1String("APPLY");
         buildModData.buildModKey = buildModKey;
@@ -3308,83 +3318,77 @@ void Gui::removeBuildModification()
     if (!lpub->currentStep || exporting())
         return;
 
-    //* local ldrawFile and step used for debugging
-#ifdef QT_DEBUG_MODE
-    LDrawFile *ldrawFile = &lpub->ldrawFile;
-    Step *currentStep = lpub->currentStep;
-    Q_UNUSED(currentStep)
-    Q_UNUSED(ldrawFile)
-#endif
-    //*/
-
-    QStringList buildModKeys;
-    if (!buildModsCount()) {
-        return;
-    } else if (buildModsCount() == 1) {
-        buildModKeys = getBuildModsList();
-    } else {
-        BuildModDialogGui *buildModDialogGui =
-                new BuildModDialogGui();
-        buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
+    QString buildModKey = getBuildModKey(lpub->currentStep->topOfStep());
+    if (buildModKey.isEmpty()) {
+        QStringList buildModKeys;
+        if (buildModsCount() == 1) {
+            buildModKeys = getBuildModsList();
+        } else {
+            BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
+            buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
+        }
+        buildModKey = buildModKeys.first();
     }
-    const QString buildModKey = buildModKeys.first();
 
-    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'remove' action..."));
+    if (buildModKey.isEmpty())
+        return;
+
+    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove' action..."));
 
     Where topOfStep = lpub->currentStep->topOfStep();
 
-    // get the last action for this build mod
+    // get the last action for this build modification
     Rc buildModAction = static_cast<Rc>(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
     // was the last action defined in this step ?
     Rc buildModStepAction =  static_cast<Rc>(getBuildModStepAction(topOfStep));
     // set flag to remove the last action command if it is not 'Remove'
-    bool removeActionCommand = buildModStepAction == buildModAction;
+    const bool removeActionCommand = buildModStepAction == buildModAction;
 
-    QString model = topOfStep.modelName;
-    QString line = QString::number(topOfStep.lineNumber);
-    QString step = QString::number(lpub->currentStep->stepNumber.number);
+    const QString model(topOfStep.modelName);
+    const QString line(QString::number(topOfStep.lineNumber));
+    const QString step(QString::number(lpub->currentStep->stepNumber.number));
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
-            text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
-                    "model '" + model + "', at line " + line + ".<br>"
-                    "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>";
-            type  = "remove build modification error message";
-            title = "Build Modification";
+            text  = tr("Build modification '%1' was created after this step (%2), model '%3', at line %4.<br>"
+                       "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>")
+                       .arg(buildModKey).arg(step).arg(model).arg(line);
+            type  = tr("remove build modification error message");
+            title = tr("Build Modification");
 
             return;
 
-            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Remove_Before_" + model,line).nameToString());
+            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Remove_Before_") + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
     } else if (getBuildModStepKey(buildModKey) == lpub->viewerStepKey) {
-        text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
-                "in model '" + model + "' at line " + line + ".<br><br>"
-                "It cannot be removed from the step it was created in.<br><br>"
-                "Select 'Delete Build Modification' to delete from '" + model + "', "
-                "step " + step + " at line " + line;
-        type  = "remove build modification error message";
-        title = "Build Modification";
+        text  = tr("Build modification '%1' was created in this step (%2), in model '%3' at line %4.<br><br>"
+                   "It cannot be removed from the step it was created in.<br><br>"
+                   "Select 'Delete Build Modification' to delete from '%3', step %2 at line %4")
+                   .arg(buildModKey).arg(step).arg(model).arg(line);
+        type  = tr("remove build modification error message");
+        title = tr("Build Modification");
 
-        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Not_Applied_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Not_Applied_") + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
 
     } else if (buildModAction == BuildModRemoveRc) {
-        text  = "Build modification '" + buildModKey + "' was already removed from step (" + step + "), "
-                "model '" + model + ".<br><br>No action taken.<br>";
-        type  = "remove build modification error message";
-        title = "Build Modification";
+        text  = tr("Build modification '%1' was already removed from step (%2), model '%3.<br><br>No action taken.<br>")
+                   .arg(buildModKey).arg(step).arg(model);
+        type  = tr("remove build modification error message");
+        title = tr("Build Modification");
 
-        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Already_Removed_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Already_Removed_") + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
 
     } /* else {
-        text  = "This action will remove build modification '" + buildModKey + "' "
-                "beginning at step " + step + " in model '" + model + "'.<br><br>Are you sure ?<br>";
-        type  = "remove build modification message";
-        title = "Build Modification";
+        text  = tr("This action will remove build modification '%1' "
+                   "beginning at step (%2) in model '%3'.<br><br>Are you sure ?<br>")
+                   .arg(buildModKey).arg(step).arg(model);
+        type  = tr("remove build modification message");
+        title = tr("Build Modification");
 
         Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
         switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
@@ -3397,13 +3401,14 @@ void Gui::removeBuildModification()
         }
     } */
 
-    int it = lcGetActiveProject()->GetImageType();
-    if (it == Options::CSI) {
+    using namespace Options;
+    Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+    if (it == CSI) {
         QString metaString;
         bool newCommand = false;
         BuildModData buildModData = lpub->currentStep->buildMod.value();
 
-        beginMacro("BuildModRemove|" + lpub->currentStep->viewerStepKey);
+        beginMacro(QLatin1String("BuildModRemove|") + lpub->currentStep->viewerStepKey);
 
         buildModData.action      = QLatin1String("REMOVE");
         buildModData.buildModKey = buildModKey;
@@ -3428,26 +3433,20 @@ void Gui::deleteBuildModificationAction()
     if (!lpub->currentStep || exporting())
         return;
 
-    //* local ldrawFile and step used for debugging
-#ifdef QT_DEBUG_MODE
-    LDrawFile *ldrawFile = &lpub->ldrawFile;
-    Step *currentStep = lpub->currentStep;
-    Q_UNUSED(currentStep)
-    Q_UNUSED(ldrawFile)
-#endif
-    //*/
-
-    QStringList buildModKeys;
-    if (!buildModsCount()) {
-        return;
-    } else if (buildModsCount() == 1) {
-        buildModKeys = getBuildModsList();
-    } else {
-        BuildModDialogGui *buildModDialogGui =
-                new BuildModDialogGui();
-        buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
+    QString buildModKey = getBuildModKey(lpub->currentStep->topOfStep());
+    if (buildModKey.isEmpty()) {
+        QStringList buildModKeys;
+        if (buildModsCount() == 1) {
+            buildModKeys = getBuildModsList();
+        } else {
+            BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
+            buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
+        }
+        buildModKey = buildModKeys.first();
     }
-    const QString buildModKey = buildModKeys.first();
+
+    if (buildModKey.isEmpty())
+        return;
 
     Where topOfStep = lpub->currentStep->topOfStep();
 
@@ -3455,7 +3454,7 @@ void Gui::deleteBuildModificationAction()
     Rc buildModStepAction =  static_cast<Rc>(getBuildModStepAction(topOfStep));
 
     // remove the action command
-    bool removeActionCommand = true;
+    const bool removeActionCommand = true;
 
     // determine current step action
     QString actionString, macroString;
@@ -3474,39 +3473,41 @@ void Gui::deleteBuildModificationAction()
             break;
     }
 
-    QString model = topOfStep.modelName;
-    QString line = QString::number(topOfStep.lineNumber);
-    QString step = QString::number(lpub->currentStep->stepNumber.number);
+    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove Action' action..."));
+
+    const QString model(topOfStep.modelName);
+    const QString line(QString::number(topOfStep.lineNumber));
+    const QString step(QString::number(lpub->currentStep->stepNumber.number));
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
-            text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
-                    "model '" + model + "', at line " + line + ".<br>"
-                    "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>";
-            type  = "remove build modification error message";
-            title = "Build Modification";
+            text  = tr("Build modification '%1' was created after this step (%2), model '%3', at line %4.<br>"
+                       "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>")
+                       .arg(buildModKey).arg(step).arg(model).arg(line);
+            type  = tr("remove build modification error message");
+            title = tr("Build Modification");
 
             return;
 
-            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Remove_Before_" + model,line).nameToString());
+            Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Remove_Before_") + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
     } else if (getBuildModStepKey(buildModKey) == lpub->viewerStepKey) {
-        text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
-                "in model '" + model + "' at line " + line + ".<br><br>"
-                "It cannot be removed from the step it was created in.<br><br>"
-                "Select 'Delete Build Modification' to delete from '" + model + "', "
-                "step " + step + " at line " + line;
-        type  = "remove build modification error message";
-        title = "Build Modification";
+        text  = tr("Build modification '%1' was created in this step (%2), in model '%3' at line %4.<br><br>"
+                   "It cannot be removed from the step it was created in.<br><br>"
+                   "Select 'Delete Build Modification' to delete from '%3', "
+                   "step %2 at line %4")
+                   .arg(buildModKey).arg(step).arg(model).arg(line);
+        type  = tr("remove build modification error message");
+        title = tr("Build Modification");
 
-        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where("Not_Applied_" + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(QLatin1String("Not_Applied_") + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
-
     }
 
-    int it = lcGetActiveProject()->GetImageType();
-    if (it == Options::CSI) {
+    using namespace Options;
+    Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+    if (it == CSI) {
         QString metaString;
         bool newCommand = false;
         BuildModData buildModData = lpub->currentStep->buildMod.value();
@@ -3533,41 +3534,36 @@ void Gui::deleteBuildModificationAction()
 
 void Gui::loadBuildModification()
 {
-    if (exporting())
+    if (!lpub->currentStep || exporting())
         return;
 
-    //* local ldrawFile and step used for debugging
-#ifdef QT_DEBUG_MODE
-    LDrawFile *ldrawFile = &lpub->ldrawFile;
-    Step *currentStep = lpub->currentStep;
-    Q_UNUSED(currentStep)
-    Q_UNUSED(ldrawFile)
-#endif
-    //*/
-
-    QStringList buildModKeys;
-    if (!buildModsCount()) {
-        return;
-    } else if (buildModsCount() == 1) {
-        buildModKeys = getBuildModsList();
-    } else {
-        BuildModDialogGui *buildModDialogGui =
-                new BuildModDialogGui();
-        buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
+    QString buildModKey = getBuildModKey(lpub->currentStep->topOfStep());
+    if (buildModKey.isEmpty()) {
+        QStringList buildModKeys;
+        if (buildModsCount() == 1) {
+            buildModKeys = getBuildModsList();
+        } else {
+            BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
+            buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
+        }
+        buildModKey = buildModKeys.first();
     }
-    const QString buildModKey = buildModKeys.first();
 
-    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'load' action..."));
+    if (buildModKey.isEmpty())
+        return;
+
+    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Load' action..."));
 
     /*
     QString model = "undefined", line = "undefined", step = "undefined";
     QStringList keys = getViewerStepKeys(true/ *get Name* /, false/ *pliPart* /, getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
-    QString text  = "This action will load build modification '" + buildModKey + "' "
-                     ", step " + step + ", model '" + model + "' into the Visual Editor "
-                    "to allow editing.<br><br>Are you sure ?<br>";
-    QString type  = "load build modification";
-    QString title = "Build Modification";
+    QString text  = tr("This action will load build modification '%1' "
+                       ", step (%2), model '%3' into the Visual Editor "
+                       "to allow editing.<br><br>Are you sure ?<br>")
+                       .arg(buildModKey).arg(step).arg(model);
+    QString type  = tr("load build modification");
+    QString title = tr("Build Modification");
     Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
     switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
     {
@@ -3579,21 +3575,20 @@ void Gui::loadBuildModification()
     }
     */
 
-    int it = lcGetActiveProject()->GetImageType();
-    if (it == Options::CSI) {
+    using namespace Options;
+    Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+    if (it == CSI) {
 
-        buildModChangeKey = "";
+        buildModChangeKey.clear();
 
-        int buildModDisplayPageNum = getBuildModDisplayPageNumber(buildModKey);
+        const int buildModDisplayPageNum = getBuildModDisplayPageNumber(buildModKey);
 
-        QString buildModStepKey = getBuildModStepKey(buildModKey);
+        const QString buildModStepKey = getBuildModStepKey(buildModKey);
 
         if (buildModDisplayPageNum && ! buildModStepKey.isEmpty()) {
 
-            if (buildModDisplayPageNum != displayPageNum) {
-                displayPageNum = buildModDisplayPageNum;
-                displayPage();
-            }
+            if (buildModDisplayPageNum != displayPageNum)
+                cyclePageDisplay(buildModDisplayPageNum);
 
             bool setBuildModStep = lpub->currentStep && lpub->currentStep->viewerStepKey != buildModStepKey;
 
@@ -3614,8 +3609,11 @@ bool Gui::setBuildModChangeKey()
     if (!lpub->currentStep)
         return false;
 
-    int it = lcGetActiveProject()->GetImageType();
-    if (it == Options::CSI) {
+    using namespace Options;
+    Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+    if (it == CSI) {
+        buildModChangeKey.clear();
+
         Rc rc;
         Where walk = lpub->currentStep->top;
 
@@ -3663,17 +3661,6 @@ void Gui::deleteBuildModification()
     if (!lpub->currentStep)
         return;
 
-    using namespace Options;
-
-    //* local ldrawFile and step used for debugging
-#ifdef QT_DEBUG_MODE
-    LDrawFile *ldrawFile = &lpub->ldrawFile;
-    Step *currentStep = lpub->currentStep;
-    Q_UNUSED(currentStep)
-    Q_UNUSED(ldrawFile)
-#endif
-    //*/
-
     if (!buildModsCount())
         return;
 
@@ -3683,8 +3670,7 @@ void Gui::deleteBuildModification()
         if (buildModsCount() == 1) {
             buildModKeys = getBuildModsList();
         } else {
-            BuildModDialogGui *buildModDialogGui =
-                    new BuildModDialogGui();
+            BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
             buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
         }
         buildModKey = buildModKeys.first();
@@ -3693,21 +3679,21 @@ void Gui::deleteBuildModification()
     if (buildModKey.isEmpty())
         return;
 
-    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'delete' action..."));
-
+    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Delete' action..."));
 
     const QString step(QString::number(lpub->currentStep->stepNumber.number));
     /*
     const QString model(lpub->currentStep->topOfStep().modelName);
     const QString line(lpub->currentStep->topOfStep().lineNumber);
 
-    QString text  = "This action will permanently delete build modification '" + buildModKey + "' "
-                    "from '" + model + "' at step " + step + "' and cannot be completelly undone using the Undo menu action.<br><br>"
-                    "The modified CSI image and Visual Editor entry will be parmanently deleted.<br>"
-                    "However, you can use 'Reload' menu action to restore all deleted content.<br><br>"
-                    "Do you want to continue ?<br>";
-    QString type  = "delete build modification";
-    QString title = "Build Modification";
+    QString text  = tr("This action will permanently delete build modification '%1' "
+                       "from '%3' at step (%2)' and cannot be completelly undone using the Undo menu action.<br><br>"
+                       "The modified CSI image and Visual Editor entry will be parmanently deleted.<br>"
+                       "However, you can use 'Reload' menu action to restore all deleted content.<br><br>"
+                       "Do you want to continue ?<br>")
+                       .arg(buildModKey).arg(step).arg(model);
+    QString type  = tr("delete build modification");
+    QString title = tr("Build Modification");
 
     Preferences::MsgID msgID(Preferences::BuildModEditErrors, Where(model,line).nameToString());
     switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
@@ -3731,8 +3717,8 @@ void Gui::deleteBuildModification()
     box.setIconPixmap (_icon);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    QString title = tr("Build Modification Image");
-    QString text = tr("Click 'Submodel',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? " 'Page',": "");
+    const QString title = tr("Build Modification Image");
+    const QString text = tr("Click 'Submodel',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? tr(" 'Page',") : "");
 
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
     box.setText (tr("Delete build modification <b>%1</b><br><br>"
@@ -3754,29 +3740,33 @@ void Gui::deleteBuildModification()
 
     box.exec();
 
-    bool clearSubmodel = box.clickedButton() == clearSubmodelButton;
-    bool clearPage     = box.clickedButton() == clearPageButton;
-    bool clearStep     = box.clickedButton() == clearStepButton;
+    const bool clearSubmodel = box.clickedButton() == clearSubmodelButton;
+    const bool clearPage     = box.clickedButton() == clearPageButton;
+    const bool clearStep     = box.clickedButton() == clearStepButton;
 
     if (box.clickedButton() == cancelButton)
         return;
 
-    QString clearOption = clearSubmodel ? "_cm" : clearPage ? "_cp" : clearStep ? "_cs" : QString();
+    const QString clearOption = clearSubmodel ?
+                QLatin1String("_cm") : clearPage ?
+                QLatin1String("_cp") : clearStep ?
+                QLatin1String("_cs") : QString();
 
+    using namespace Options;
     Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
-    if (it == Options::CSI) {
-        int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
-        int modActionLineNum = getBuildModActionLineNumber(buildModKey);
-        int modEndLineNum    = getBuildModEndLineNumber(buildModKey);
+    if (it == CSI) {
+        const int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
+        const int modActionLineNum = getBuildModActionLineNumber(buildModKey);
+        const int modEndLineNum    = getBuildModEndLineNumber(buildModKey);
         QString modelName    = getBuildModStepKeyModelName(buildModKey);
 
         if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
-            emit messageSig(LOG_ERROR, QString("There was a problem receiving build mod attributes for key [%1]<br>"
-                                               "Delete build modification cannot continue.").arg(buildModKey));
+            emit messageSig(LOG_ERROR, tr("There was a problem receiving build modification attributes for key [%1]<br>"
+                                          "Delete build modification cannot continue.").arg(buildModKey));
             return;
         }
 
-        beginMacro("BuildModDelete|" + buildModStepKey + clearOption);
+        beginMacro(QLatin1String("BuildModDelete|") + buildModStepKey + clearOption);
 
         // delete existing APPLY/REMOVE (action) commands, starting from the bottom of the step
         Rc rc;
@@ -3831,7 +3821,7 @@ void Gui::deleteBuildModification()
             clearWorkingFiles(getPathsFromViewerStepKey(buildModStepKey));
         } else if (clearPage) {
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-            clearPageCache(relativeType, &lpub->page, Options::CSI);
+            clearPageCache(relativeType, &lpub->page, CSI);
         } else if (clearStep) {
             QString csiPngName = getViewerStepImagePath(buildModStepKey);
             clearStepCSICache(csiPngName);
@@ -3861,8 +3851,9 @@ bool Gui::saveBuildModification()
     if (!Preferences::buildModEnabled)
         return true;     // continue
 
-    Project* Project = lcGetActiveProject();
-    if (Project->GetImageType() != Options::CSI)
+    using namespace Options;
+    Project* Loader = lcGetActiveProject();
+    if (Loader->GetImageType() != CSI)
         return true;     // continue
 
     QString change = undoAct->data().toString();
