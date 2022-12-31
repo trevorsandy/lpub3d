@@ -5256,7 +5256,7 @@ int Gui::setBuildModForNextStep(
                        buildModStepIndex);
     };
 
-    // get start index when navigating backwards
+    // get start index when navigating backwards - check step for first submodel that contan a build modification
     std::function<int(const Where &, int, bool)> getStartIndex;
     getStartIndex = [&](const Where &top, int startIndex, bool submodel) -> int {
         int index = submodel ? startIndex : startIndex + 1;
@@ -5286,15 +5286,16 @@ int Gui::setBuildModForNextStep(
                 case BuildModBeginRc:
                 case BuildModApplyRc:
                 case BuildModRemoveRc:
-                    if (submodel)
+                    if (submodel)                   // we enountered a  build modification in the step submodel so increment and return the index
                         return index + 1;
+                    break;
                 case RotStepRc:
-                case StepRc:
+                case StepRc:                        // at the end of the current/submodel step so return the index
                     return index;
                 }
             }
         }
-        return index;
+        return index;                               // return the index
     };
 
     // we do this submodel->else block because this call only processes to the end of the specified next step
