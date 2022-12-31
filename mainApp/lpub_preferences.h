@@ -369,6 +369,7 @@ class Preferences
     static bool    archivePartsOnLaunch;
     static bool    inlineNativeContent;
     static bool    autoUpdateChangeLog;
+    static bool    displayPageProcessingErrors;
 
     static bool    customSceneBackgroundColor;
     static bool    customSceneGridColor;

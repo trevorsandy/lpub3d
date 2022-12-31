@@ -446,6 +446,7 @@ bool    Preferences::generateCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
 bool    Preferences::doNotShowPageProcessDlg    = false;
 bool    Preferences::autoUpdateChangeLog        = false;
+bool    Preferences::displayPageProcessingErrors= false;
 
 bool    Preferences::includeLogLevel            = false;
 bool    Preferences::includeTimestamp           = false;
@@ -3774,6 +3775,11 @@ void Preferences::userInterfacePreferences()
           Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
   } else {
           showSaveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey)).toBool();
+  }
+
+  QString const displayPageProcessingErrorsKey("DisplayPageProcessingErrors");
+  if (Settings.contains(QString("%1/%2").arg(DEFAULTS,displayPageProcessingErrorsKey))) {
+      displayPageProcessingErrors = Settings.value(QString("%1/%2").arg(DEFAULTS,"DisplayPageProcessingErrors")).toBool();
   }
 
   QString const showSubmodelsKey("ShowSubmodels");

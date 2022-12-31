@@ -51,6 +51,7 @@ private slots:
   void on_pushButtonExportPreferences_clicked();
   void on_spinPixelRatio_valueChanged(double arg1);
   void lineEditPageRangeFocusChanged(bool);
+  void displayPageProcessingErrors(bool);
   void lineEditPageRangeReset();
   void enableLineEditPageRangeReset(const QString &);
 

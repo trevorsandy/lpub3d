@@ -26,6 +26,8 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 {
     ui->setupUi(this); 
 
+    setWhatsThis(lpubWT(WT_DIALOG_EXPORT_PAGES,windowTitle()));
+
     static const QString directionNames[] =
     {
       tr("Unspecified"), //DIRECTION_NOT_SET,
@@ -70,6 +72,10 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->doNotShowPageProcessDlgChk->hide();
         ui->pageProcessingContinuousGrpBox->hide();
     }
+
+    ui->displayPageProcessingErrorsChk->setChecked(Preferences::displayPageProcessingErrors);
+    connect(ui->displayPageProcessingErrorsChk, SIGNAL(clicked(bool)),
+            this,                               SLOT(displayPageProcessingErrors(bool)));
 
     if ((! preview) &&
         (Gui::m_exportMode == EXPORT_POVRAY ||
@@ -129,30 +135,35 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(preview ? tr("Print preview options") : tr("Print to file options"));
         ui->checkBoxResetCache->setText(preview ? tr("Reset all caches before previewing file") : tr("Reset all caches before exporting file"));
         ui->checkBoxResetCache->setToolTip(preview ? tr("Check to reset all caches before previewing file"): tr("Check to reset all caches before exporting file"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display print to file warnings and errors in a message box, messages will also be logged."));
         break;
     case EXPORT_PDF:
         setWindowTitle(preview ? tr("Export Preview PDF") : tr("Export To PDF"));
         ui->groupBoxPrintOptions->setTitle(preview ? tr("Export preview options") : tr("Export to pdf options"));
         ui->checkBoxResetCache->setText(preview ? tr("Reset all caches before previewing pdf") : tr("Reset all caches before exporting pdf"));
         ui->checkBoxResetCache->setToolTip(preview ? tr("Check to reset all caches before previewing pdf"): tr("Check to reset all caches before exporting pdf"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to PDF warnings and errors in a message box, messages will also be logged."));
         break;
     case EXPORT_PNG:
         setWindowTitle(tr("Export As PNG"));
         ui->groupBoxPrintOptions->setTitle(tr("Export as PNG options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before export to PNG"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to PNG"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to PNG warnings and errors in a message box, messages will also be logged."));
         break;
     case EXPORT_JPG:
         setWindowTitle(tr("Export As JPG"));
         ui->groupBoxPrintOptions->setTitle(tr("Export as JPG options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before export to JPG"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to JPG"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to JPG warnings and errors in a message box, messages will also be logged."));
         break;
     case EXPORT_BMP:
         setWindowTitle(tr("Export As BMP"));
         ui->groupBoxPrintOptions->setTitle(tr("Export as BMP options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to BMP"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to BMP"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to BMP warnings and errors in a message box, messages will also be logged."));
         break;
 
     case EXPORT_3DS_MAX:
@@ -160,6 +171,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(tr("Export as 3DS options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to 3DS"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to 3DS"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to 3DS warnings and errors in a message box, messages will also be logged."));
         break;
 
     case EXPORT_COLLADA:
@@ -167,6 +179,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(tr("Export as DAE options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to DAE"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to DAE"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to DAE warnings and errors in a message box, messages will also be logged."));
         break;
 
     case EXPORT_WAVEFRONT:
@@ -174,6 +187,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(tr("Export as OBJ options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to OBJ"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to OBJ"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to OBJ warnings and errors in a message box, messages will also be logged."));
         break;
 
     case EXPORT_STL:
@@ -181,6 +195,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(tr("Export as STL options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to STL"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to STL"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to STL warnings and errors in a message box, messages will also be logged."));
         break;
 
     case EXPORT_POVRAY:
@@ -188,6 +203,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(tr("Export as POV options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to POV"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to POV"));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to POV warnings and errors in a message box, messages will also be logged."));
         break;
 
     case PAGE_PROCESS:
@@ -196,6 +212,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxPrintOptions->setTitle(tr("Page Processing Options"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before %1 page processing").arg(direction.toLower()));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 page processing").arg(direction.toLower()));
+        ui->displayPageProcessingErrorsChk->setToolTip(tr("Display page processing warnings and errors in a message box, messages will also be logged."));
 
         ui->pageProcessingContinuousGrpBox->show();
         ui->doNotShowPageProcessDlgChk->show();
@@ -205,8 +222,6 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxMixedPageSizes->hide();
         break;
     }
-
-    setWhatsThis(lpubWT(WT_DIALOG_EXPORT_PAGES,windowTitle()));
 
     switch(Gui::m_exportMode) {
     case EXPORT_PDF:
@@ -231,6 +246,17 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 DialogExportPages::~DialogExportPages()
 {
     delete ui;
+}
+
+void DialogExportPages::displayPageProcessingErrors(bool b)
+{
+    QSettings Settings;
+    if (Preferences::displayPageProcessingErrors != ui->displayPageProcessingErrorsChk->isChecked()) {
+        Preferences::displayPageProcessingErrors = ui->displayPageProcessingErrorsChk->isChecked();
+        QString const displayPageProcessingErrorsKey("DisplayPageProcessingErrors");
+        QVariant uValue(Preferences::displayPageProcessingErrors);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,displayPageProcessingErrorsKey),uValue);
+    }
 }
 
 void DialogExportPages::lineEditPageRangeReset()

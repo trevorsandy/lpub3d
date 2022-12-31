@@ -7135,7 +7135,7 @@ void Gui::parseError(const QString &message,
 
     QString parseMessage = tr("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
-        if (!exporting() && !ContinuousPage()) {
+        if ((!exporting() && !ContinuousPage()) || ((exporting() || ContinuousPage()) && Preferences::displayPageProcessingErrors)) {
             if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
                 showLine(here, LINE_ERROR);
             }
@@ -7153,7 +7153,7 @@ void Gui::parseError(const QString &message,
             const QString status(icon == 2 ? "<FONT COLOR='#FFBF00'>WARNING</FONT>: " : icon == 3 ? "<FONT COLOR='#FF0000'>ERROR</FONT>: " : "");
             Gui::messageList << QString("%1%2<br>").arg(status).arg(parseMessage);
         }
-    } // <FONT COLOR='#ff0000'>Are you ready?</FONT>
+    }
 
     const char *printableMessage = qPrintable(parseMessage.replace("<br>"," "));
 
@@ -7308,7 +7308,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
                 if (ContinuousPage() || exporting()) {
                     Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
-                } else {
+                } else if ((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) {
                     QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7323,7 +7323,7 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
                 if (ContinuousPage() || exporting()) {
                     Gui::messageList << QString("<FONT COLOR='#FF0000'>ERROR</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
-                } else {
+                } else if ((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) {
                     QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
@@ -7338,8 +7338,8 @@ void Gui::statusMessage(LogType logType, QString message, bool msgBox/*false*/) 
                 if (ContinuousPage() || exporting()) {
                     Gui::messageList << QString("<FONT COLOR='#FF0000'>FATAL</FONT>: %1<br>").arg(message);
                     statusBarMsg(QString(message).replace("<br>"," ").prepend("FATAL: "));
-                } else {
-                    QMessageBox::critical(this,tr("%1 Fatal").arg(VER_PRODUCTNAME_STR),message);
+                } else if ((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) {
+                    QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message);
                 }
             } else if (!Preferences::suppressStdOutToLog) {
                 fprintMessage(message);

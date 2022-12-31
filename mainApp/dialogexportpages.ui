@@ -355,6 +355,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="displayPageProcessingErrorsChk">
+        <property name="text">
+         <string>Display page processing errors</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
         <property name="enabled">
          <bool>false</bool>
@@ -381,6 +388,7 @@
      <zorder>pageProcessingContinuousGrpBox</zorder>
      <zorder>gropuBoxLDVExport</zorder>
      <zorder>groupBoxPixelRatio</zorder>
+     <zorder>displayPageProcessingErrorsChk</zorder>
     </widget>
    </item>
    <item>
