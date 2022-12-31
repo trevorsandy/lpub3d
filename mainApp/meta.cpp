@@ -3556,7 +3556,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       if (Gui::pageProcessRunning != PROC_NONE) {
           QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
           Where top = here;
-          lpub->ldrawFile.getTopOfStepWhere(top.modelName,top.modelIndex,top.lineNumber);
+          lpub->ldrawFile.getTopOfStep(top.modelName,top.modelIndex,top.lineNumber);
           if (Gui::stepContains(top, partTypeLineRx)) {
               here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
               emit gui->parseErrorSig(QString("INSERT %1 meta command STEP cannot contain type 1 to 5 line. Invalid type at line %2.")

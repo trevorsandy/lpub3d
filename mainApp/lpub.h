@@ -1045,9 +1045,9 @@ public:
       return lpub->ldrawFile.getStepIndex(here.modelName, here.lineNumber);
   }
 
-  void getTopOfStepWhere(Where &here)
+  void getTopOfStep(Where &here)
   {
-      lpub->ldrawFile.getTopOfStepWhere(here.modelName, here.modelIndex, here.lineNumber);
+      lpub->ldrawFile.getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
   }
 
   void setExportedFile(const QString &fileName)
