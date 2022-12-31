@@ -3229,7 +3229,7 @@ void LDrawFile::insertBuildModStep(const QString &buildModKey,
 }
 
 int LDrawFile::getBuildModStep(const QString &modelName,
-                               const int &lineNumber)
+                               const     int &lineNumber)
 {
     QString modKey = "Undefined";
     int modAction = BuildModNoActionRc;
@@ -3820,7 +3820,7 @@ void LDrawFile::setBuildModNavBackward()
 
 /* Returns index for BEGIN, APPLY and REMOVE BuildMod commands, requires valid TopOfStep */
 
-int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber)
+int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber, bool indexCheck)
 {
     LogType logType = LOG_DEBUG;
     QString insert = QString("Get BuildMod");
@@ -3840,7 +3840,8 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
         QVector<int> indexKey = { modelIndex, lineNumber };
         stepIndex = _buildModStepIndexes.indexOf(indexKey);
         if (stepIndex == BM_INVALID_INDEX) {
-            logType = LOG_ERROR;
+            if (!indexCheck)
+                logType = LOG_ERROR;
             insert = QString("Get BuildMod (INVALID)");
         }
     }
@@ -4085,16 +4086,27 @@ bool LDrawFile::setBuildModNextStepIndex(const QString &modelName, const int &li
 
 int LDrawFile::getStepIndex(const int &modelIndex, const int &lineNumber)
 {
-    int stepIndex = BM_INVALID_INDEX;
-
-    for (QVector<int> &topOfStep : _buildModStepIndexes) {
-        if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
-            if (topOfStep.at(BM_STEP_LINE_KEY) == lineNumber)
-                stepIndex = _buildModStepIndexes.indexOf(topOfStep);
-            else if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
-                stepIndex = _buildModStepIndexes.indexOf(topOfStep) - 1;
-            if (stepIndex > BM_INVALID_INDEX)
+    QVector<int> topOfStep = { modelIndex, lineNumber };
+    int stepIndex = _buildModStepIndexes.indexOf(topOfStep);
+    if (stepIndex == BM_INVALID_INDEX) {
+        int stepLineNumber = 0;
+        for (QVector<int> &topOfStep : _buildModStepIndexes) {
+            if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
+                stepLineNumber = topOfStep.at(BM_STEP_LINE_KEY);
+                if (stepLineNumber == lineNumber) {
+                    stepIndex = _buildModStepIndexes.indexOf(topOfStep);
+                } else if (stepLineNumber > lineNumber) {
+                    stepIndex = _buildModStepIndexes.indexOf(topOfStep) - 1;
+                }
+            }
+            // When lineNumber is greater than last step topOfStep lineNumber
+            // set the stepIndex of the last step topOfStep
+            else if (stepIndex == BM_INVALID_INDEX && stepLineNumber) {
+                stepIndex = getStepIndex(modelIndex, stepLineNumber);
+            }
+            if (stepIndex > BM_INVALID_INDEX) {
                 break;
+            }
         }
     }
     return stepIndex;

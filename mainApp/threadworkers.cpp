@@ -2147,6 +2147,10 @@ int CountPageWorker::countPage(
   QMutex countPageMutex;
   countPageMutex.lock();
 
+  Gui::pageProcessRunning = PROC_COUNT_PAGE;
+
+  opts.flags.countInstances = meta->LPub.countInstance.value();
+
   //* local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
 #ifdef QT_DEBUG_MODE
   int displayPageNum = Gui::displayPageNum;
@@ -2154,15 +2158,20 @@ int CountPageWorker::countPage(
 #endif
   //*/
 
-  opts.flags.countInstances = meta->LPub.countInstance.value();
-
-  Gui::pageProcessRunning = PROC_COUNT_PAGE;
-
   if (opts.flags.countPageContains) {
       gui->skipHeader(opts.current);
       opts.flags.countPageContains = false;
       opts.flags.addCountPage = true;
   }
+
+  Rc rc;
+  QStringList bfxParts;
+  Where topOfStep = opts.current;
+  if (ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber, true/*index check*/) == BM_INVALID_INDEX) {
+      const int stepIndex  = ldrawFile->getStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+      topOfStep.lineNumber = ldrawFile->getBuildModStepLineNumber(stepIndex,false/*bottom*/);
+  }
+  Where topOfSteps = topOfStep;
 
   if (opts.pageNum == 1 + Gui::pa && opts.current.modelName == ldrawFile->topLevelFile()) {
       if (!opts.stepNumber)
@@ -2183,11 +2192,6 @@ int CountPageWorker::countPage(
                          opts.stepNumber,
                          opts.flags.countInstances,
                          true/*countPage*/);
-
-  Rc rc;
-  QStringList bfxParts;
-  Where topOfStep  = opts.current;
-  Where topOfSteps = topOfStep;
 
   BuildModFlags           buildMod = opts.flags.buildMod;
   QMap<int, QString>      buildModKeys;

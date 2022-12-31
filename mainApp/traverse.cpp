@@ -692,6 +692,13 @@ int Gui::drawPage(
    */
   int numLines = lpub->ldrawFile.size(opts.current.modelName);
 
+  //* local ldrawFile used for debugging
+#ifdef QT_DEBUG_MODE
+  LDrawFile *ldrawFile = &lpub->ldrawFile;
+  Q_UNUSED(ldrawFile)
+#endif
+  //*/
+
   for ( ; opts.current <= numLines; opts.current++) {
 
       // if reading include file, return to current line, do not advance
@@ -732,6 +739,13 @@ int Gui::drawPage(
        *
        * When the buildModLevel flag is false (0), pli and csi lines are processed normally
        */
+
+      //* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
+#ifdef QT_DEBUG_MODE
+      int debugDisplayPageNum = displayPageNum;
+      Q_UNUSED(debugDisplayPageNum)
+#endif
+      //*/
 
       Meta &curMeta = callout ? callout->meta : steps->meta;
 
@@ -2021,16 +2035,18 @@ int Gui::drawPage(
               if (!Preferences::buildModEnabled)
                   break;
               if (partsAdded)
-                  parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
+                  parseError(tr("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                              opts.current,Preferences::BuildModErrors);
               buildModStepIndex = getBuildModStepIndex(topOfStep);
               buildMod.key = curMeta.LPub.buildMod.key();
               if (buildModContains(buildMod.key)) {
                   if (getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
-                      parseError("Redundant build modification meta command - this command can be removed.",
-                                 opts.current,Preferences::BuildModErrors);
+                      parseError(tr("Redundant build modification meta command '%1' - this command can be removed.")
+                                 .arg(buildMod.key),opts.current,Preferences::BuildModErrors);
               } else {
-                  parseError(QString("DrawPage BuildMod for key '%1' not found").arg(buildMod.key),
+                  const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
+                  parseError(tr("DrawPage %1 BuildMod for key '%2' not found.")
+                             .arg(action).arg(buildMod.key),
                              opts.current,Preferences::BuildModErrors);
               }
               if (multiStep || opts.calledOut)
