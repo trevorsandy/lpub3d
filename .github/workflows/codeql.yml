@@ -1,6 +1,6 @@
 # LPub3D security and quality analysis
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Oct 24, 2022
+# Last Update: Dec 06, 2022
 # Copyright (c) 2021 - 2022 by Trevor SANDY
 #
 name: quality # used for badge label
@@ -19,6 +19,7 @@ on:
       - 'lclib/docs/**'
       - 'lclib/resources/**'
       - 'ldvlib/LDVQt/resources/**'
+      - 'ldvlib/WPngImage/**'
       - 'qsimpleupdater/doc/**'
       - 'qsimpleupdater/etc/**'
 

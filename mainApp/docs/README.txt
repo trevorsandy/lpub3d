@@ -1,4 +1,4 @@
-LPub3D 2.4.5.49.3026 (31 12 2022 04:16:35)
+LPub3D 2.4.5.50.3027 (31 12 2022 04:18:15)
 
 Features, enhancements, fixes and changes
 ------------
@@ -30,6 +30,7 @@ Revisions:
 - Fix - Primitives shown as missing parts in file load status #630
 - Fix - Remove LPub Formatting menu action does nothing #638
 - Fix - Settings for Coverpage and Backcover do not work #620
+- Quality - Multiplication result converted to larger type #641
 
 --------------------------------------------------------------------------------------------------
 
