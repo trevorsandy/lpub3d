@@ -178,6 +178,8 @@ Step::Step(
 
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
 
+  rotStepMeta               = _meta.rotStep;
+
   rotateIcon.placement      = rotateIconMeta.placement;
   rotateIcon.margin         = rotateIconMeta.margin;
   rotateIcon.setSize(         rotateIconMeta.size,
@@ -252,10 +254,14 @@ int Step::createCsi(
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
 
+  // set RotStep meta
+  if (!rotStepMeta.isPopulated())
+      rotStepMeta = meta.rotStep;
+
   QString nameSuffix    = lpub->mi.viewerStepKeySuffix(top, this);
   QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
-  bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
-  bool    absRotstep    = meta.rotStep.value().type.toUpper() == "ABS";
+  bool    invalidIMStep = (modelDisplayOnlyStep || stepNumber.number == 1);
+  bool    absRotstep    = rotStepMeta.value().type.toUpper() == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
   FloatPairMeta noCA;
   lineTypeIndexes       =_lineTypeIndexes;
@@ -307,10 +313,10 @@ int Step::createCsi(
   if (renderer->useLDViewSCall()) {
       QString compareKey = keyPart2;
       // append rotate type if specified
-      if (meta.rotStep.isPopulated())
+      if (rotStepMeta.isPopulated())
           compareKey.append(QString("_%1")
-                                  .arg(meta.rotStep.value().type.isEmpty() ? "REL" :
-                                       meta.rotStep.value().type));
+                                  .arg(rotStepMeta.value().type.isEmpty() ? "REL" :
+                                       rotStepMeta.value().type));
       csiKey = QString("CSI_%1|%2").arg(compareKey).arg(nameAndStepKey);
       // add LDView parms to csiKey if not empty
       if (!ldviewParms.value().isEmpty())
@@ -322,12 +328,9 @@ int Step::createCsi(
   }
 
   // append rotstep if specified
-  if (meta.rotStep.isPopulated())
+  if (rotStepMeta.isPopulated())
       keyPart2.append(QString("_%1")
-                     .arg(renderer->getRotstepMeta(meta.rotStep,true)));
-
-  // set RotStep meta
-  rotStepMeta = meta.rotStep;
+                     .arg(renderer->getRotstepMeta(rotStepMeta,true)));
 
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
@@ -398,28 +401,60 @@ int Step::createCsi(
 
       timer.start();
 
+#ifdef QT_DEBUG_MODE
+      // Viewer step png file is out of date
       qDebug() << qPrintable(QString("DEBUG: %1 out of date %2.")
-                                     .arg(csiOutOfDate ? "TRUE - CSI image is" : "FALSE - CSI image is not")
+                                     .arg(csiOutOfDate
+                                          ? "TRUE - Viewer Step CSI image IS"
+                                          : "FALSE - Viewer Step CSI image IS NOT")
                                      .arg(QFileInfo(pngName).fileName()));
+#endif
 
-      // Viewer Csi does not yet exist in repository
+      // Viewer step does not yet exist in repository
       bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerStepKey);
 
-      qDebug() << qPrintable(QString("DEBUG: %1 - Add Viewer Step Content for Key (Model,Line,Step) %2")
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Does Not Exist for Key (Model,Line,Step) %2")
                                      .arg(addViewerStepContent ? "TRUE " : "FALSE").arg(viewerStepKey));
+#endif
 
       // We are processing again the current step but the CSI has changed - e.g. updated in the viewer
-      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey());
-      // However, do not update viewer contents for steps generated from a buildMod action (buildMod change)
+      bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
+
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Changed for Key (Model,Line,Step) %2")
+                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+#endif
+
+      // However, update if we are processing an updated step - e.g. a step in a step-group
+      viewerUpdate |= lpub->ldrawFile.viewerStepModified(viewerStepKey,true/*reset*/);
+
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Modified for Key (Model,Line,Step) %2")
+                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+#endif
+
+      // Or the current step submodel file has been updated
+      viewerUpdate |= lpub->ldrawFile.modified(top.modelName,false/*reset*/);
+
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Model [%2] Is Modified for Key (Model,Line,Step) %3")
+                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(top.modelName).arg(viewerStepKey));
+#endif
+
+      // But do not update viewer contents for steps generated from a buildMod action (buildMod change)
       viewerUpdate &= !lpub->ldrawFile.getViewerStepHasBuildModAction(viewerStepKey);
 
-      qDebug() << qPrintable(QString("DEBUG: %1 - Update Viewer Step Content for Key (Model,Line,Step) %2")
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Has BuildMod Action for Key (Model,Line,Step) %2")
                                      .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
 
-      if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
+      // Finally, will the current step's viewer content be processed ?
+      qDebug() << qPrintable(QString("DEBUG: %1 - Update Viewer Step Content for Key (Model,Line,Step) %2")
+                                     .arg(addViewerStepContent || csiOutOfDate || viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+#endif
 
-          qDebug() << qPrintable(QString("DEBUG: Processing Viewer Step Content for Key (Model,Line,Step) %1")
-                                         .arg(viewerStepKey));
+      if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
 
           updateViewer = true; // just to be safe
 
@@ -429,7 +464,7 @@ int Step::createCsi(
               // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
               if (renderer->rotateParts(
                           addLine,
-                          meta.rotStep,
+                          rotStepMeta,
                           futureParts,
                           absRotstep ? noCA : cameraAngles,
                           false/*applyCA*/) != 0) {
@@ -439,7 +474,7 @@ int Step::createCsi(
               }
               // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
               if (futureParts.size())
-                  futureParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+                  futureParts.prepend(renderer->getRotstepMeta(rotStepMeta));
 
               return futureParts;
           });
@@ -469,7 +504,7 @@ int Step::createCsi(
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
           if (!csiStepMeta.target.isPopulated())
               keyPart2.append(QString("_0_0_0"));
-          if (!meta.rotStep.isPopulated())
+          if (!rotStepMeta.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
           lpub->ldrawFile.insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
@@ -499,8 +534,8 @@ int Step::createCsi(
       viewerOptions->PageWidth      = lpub->pageSize(meta.LPub.page, 0);
       viewerOptions->Position       = Vector3(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
       viewerOptions->Resolution     = resolution();
-      viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
-      viewerOptions->RotStepType    = meta.rotStep.value().type;
+      viewerOptions->RotStep        = Vector3(float(rotStepMeta.value().rots[0]),float(rotStepMeta.value().rots[1]),float(rotStepMeta.value().rots[2]));
+      viewerOptions->RotStepType    = rotStepMeta.value().type;
       viewerOptions->AutoEdgeColor  = aecm->enable.value();
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();
@@ -558,7 +593,7 @@ int Step::createCsi(
              // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
              if ((rcf = renderer->rotateParts(
                       addLine,
-                      meta.rotStep,
+                      rotStepMeta,
                       futureParts,
                       ldrName,
                       top.modelName,

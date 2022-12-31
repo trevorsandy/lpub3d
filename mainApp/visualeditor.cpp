@@ -394,7 +394,7 @@ void Gui::create3DActions()
     ResetViewerImageIcon.addFile(":/resources/resetviewerimage16.png");
     ResetViewerImageAct = lpub->getAct("resetViewerImageAction.1");
     ResetViewerImageAct->setIcon(ResetViewerImageIcon);
-    ResetViewerImageAct->setText(tr("Reset Assembly Display"));
+    ResetViewerImageAct->setText(tr("Reset Current Display"));
     ResetViewerImageAct->setStatusTip(tr("Reset the current step assembly display"));
     connect(ResetViewerImageAct, SIGNAL(triggered()), this, SLOT(resetViewerImage()));
 
@@ -792,8 +792,8 @@ void Gui::enable3DActions(bool enable)
         connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
                 gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
 
-        connect(gMainWindow, SIGNAL(SetRotStepMeta()),
-                this,        SLOT(  SetRotStepMeta()));
+        connect(gMainWindow, SIGNAL(SetRotStepCommand()),
+                this,        SLOT(  SetRotStepCommand()));
 
         connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
                 this,        SLOT(  SetRotStepAngleX(float,bool)));
@@ -807,8 +807,8 @@ void Gui::enable3DActions(bool enable)
         connect(gMainWindow, SIGNAL(SetRotStepType(QString&,bool)),
                 this,        SLOT(  SetRotStepType(QString&,bool)));
 
-        connect(gMainWindow, SIGNAL(GetRotStepMeta()),
-                this,        SLOT(  GetRotStepMeta()));
+        connect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
+                this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
 
         connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
                 this,        SLOT(  SetActiveModel(const QString&,bool)));
@@ -822,8 +822,8 @@ void Gui::enable3DActions(bool enable)
         disconnect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
                    gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
 
-        disconnect(gMainWindow, SIGNAL(SetRotStepMeta()),
-                   this,        SLOT(  SetRotStepMeta()));
+        disconnect(gMainWindow, SIGNAL(SetRotStepCommand()),
+                   this,        SLOT(  SetRotStepCommand()));
 
         disconnect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
                    this,        SLOT(  SetRotStepAngleX(float,bool)));
@@ -837,8 +837,8 @@ void Gui::enable3DActions(bool enable)
         disconnect(gMainWindow, SIGNAL(SetRotStepType(QString&,bool)),
                    this,        SLOT(  SetRotStepType(QString&,bool)));
 
-        disconnect(gMainWindow, SIGNAL(GetRotStepMeta()),
-                   this,        SLOT(  GetRotStepMeta()));
+        disconnect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
+                   this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
 
         disconnect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
                    this,        SLOT(  SetActiveModel(const QString&,bool)));
@@ -2196,9 +2196,13 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
  * RotStep Meta
  *
  ********************************************/
-QVector<float> Gui::GetRotStepMeta() const
+void Gui::SetRotStepAngles(QVector<float> &Angles, bool display)
 {
-    return mStepRotation;
+    mRotStepAngleX = Angles[0];
+    mRotStepAngleY = Angles[1];
+    mRotStepAngleZ = Angles[2];
+    if (display)
+        ShowStepRotationStatus();
 }
 
 void Gui::SetRotStepAngleX(float AngleX, bool display)
@@ -2229,60 +2233,89 @@ void Gui::SetRotStepType(QString& RotStepType, bool display)
         ShowStepRotationStatus();
 }
 
-void Gui::SetRotStepMeta()
+void Gui::SetRotStepCommand()
 {
-    mStepRotation[0] = mRotStepAngleX;
-    mStepRotation[1] = mRotStepAngleY;
-    mStepRotation[2] = mRotStepAngleZ;
+    Step *currentStep = Gui::getCurrentStep();
 
-    if (getCurFile() != "") {
-        ShowStepRotationStatus();
-        Step *currentStep = Gui::getCurrentStep();
+    if (currentStep) {
+        using namespace Options;
+        int it = lcGetActiveProject()->GetImageType();
 
-        if (lpub->currentStep){
-            bool newCommand = currentStep->rotStepMeta.here() == Where();
-            int it = lcGetActiveProject()->GetImageType();
-            Where top = currentStep->topOfStep();
+        RotStepData rotStepData = currentStep->rotStepMeta.value();
 
-            RotStepData rotStepData = lpub->currentStep->rotStepMeta.value();
-            rotStepData.type    = mRotStepType;
-            rotStepData.rots[0] = double(mStepRotation[0]);
-            rotStepData.rots[1] = double(mStepRotation[1]);
-            rotStepData.rots[2] = double(mStepRotation[2]);
-            currentStep->rotStepMeta.setValue(rotStepData);
-            QString metaString = lpub->currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
+        if (! exporting() && Preferences::modeGUI) {
+            const QString type = it == static_cast<int>(CSI) ? QLatin1String("Step") :
+                                 it == static_cast<int>(PLI) ? QLatin1String("Part") :
+                                 it == static_cast<int>(SMP) ? QLatin1String("Submodel Preview") :
+                                                               QLatin1String("Item");
+            const QString question = tr("Apply command ROTSTEP %1 %2 %3 %4 to %5 %6 ?<br><br>"
+                                        "Current command is <i>ROTSTEP %7 %8 %9 %10</i>")
+                                        .arg(QString::number(double(mRotStepAngleX),'g',2),
+                                             QString::number(double(mRotStepAngleY),'g',2),
+                                             QString::number(double(mRotStepAngleZ),'g',2))
+                                        .arg(mRotStepType)
+                                        .arg(type)
+                                        .arg(QString::number(currentStep->stepNumber.number))
+                                        .arg(QString::number(double(rotStepData.rots[0]),'g',2),
+                                             QString::number(double(rotStepData.rots[1]),'g',2),
+                                             QString::number(double(rotStepData.rots[2]),'g',2))
+                                        .arg(rotStepData.type);
+            if (QMessageBox::question(this, tr("%1 Rotate Step Command").arg(VER_PRODUCTNAME_STR), question,
+                                      QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+                return;
 
-            if (newCommand){
-                if (top.modelName == gui->topLevelFile())
-                    currentStep->mi(it)->scanPastLPubMeta(top);
-
-                QString line = gui->readLine(top);
-                Rc rc = lpub->page.meta.parse(line,top);
-                if (rc == RotStepRc || rc == StepRc){
-                   currentStep->mi(it)->replaceMeta(top, metaString);
-                } else {
-                   currentStep->mi(it)->insertMeta(top, metaString);
-                }
-            } else {
-                currentStep->mi(it)->replaceMeta(top, metaString);
-            }
+            ShowStepRotationStatus();
         }
+
+        lpub->ldrawFile.setViewerStepModified(currentStep->viewerStepKey);
+
+        mStepRotation[0] = mRotStepAngleX;
+        mStepRotation[1] = mRotStepAngleY;
+        mStepRotation[2] = mRotStepAngleZ;
+
+        rotStepData.type    = mRotStepType;
+        rotStepData.rots[0] = double(mStepRotation[0]);
+        rotStepData.rots[1] = double(mStepRotation[1]);
+        rotStepData.rots[2] = double(mStepRotation[2]);
+        currentStep->rotStepMeta.setValue(rotStepData);
+
+        QString metaString = currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
+        Where top = currentStep->rotStepMeta.here();
+        bool newCommand = top == Where() || top < currentStep->topOfStep();
+        if (newCommand) {
+            top = currentStep->topOfStep();
+            QString line = gui->readLine(top);
+            Rc rc = lpub->page.meta.parse(line,top);
+            if (rc == RotStepRc || rc == StepRc){
+                currentStep->mi(it)->replaceMeta(top, metaString);
+            } else {
+                bool firstStep = top.modelName == gui->topLevelFile() &&
+                                 currentStep->stepNumber.number == 1 + sa;
+                if (firstStep)
+                    currentStep->mi(it)->scanPastLPubMeta(top);
+                currentStep->mi(it)->insertMeta(top, metaString);
+            }
+        } else {
+            currentStep->mi(it)->replaceMeta(top, metaString);
+        }
+    } else {
+        emit statusMessage(LOG_WARNING,tr("No current step was detected. Cannot create a build modification."), true/*showMessage*/);
     }
 }
 
 void Gui::ShowStepRotationStatus()
 {
-    QString rotLabel = QString("%1 X: %2 Y: %3 Z: %4 RotStepType: %5")
-                               .arg(lcGetPreferences().mBuildModificationEnabled ?
-                                        QLatin1String("BUILD MOD ROTATE") :
-                                        QLatin1String("ROTSTEP"))
+    QString rotLabel = QString("%1 X: %2 Y: %3 Z: %4 Transform: %5")
+                               .arg(lcGetPreferences().mBuildModificationEnabled ? QLatin1String("Rotate Build Modification") : QLatin1String("ROTSTEP"))
                                .arg(QString::number(double(mRotStepAngleX), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleY), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
-                               .arg(mRotStepType.toUpper() == QLatin1String("REL") ? QLatin1String("RELATIVE") :
-                                    mRotStepType.toUpper() == QLatin1String("ABS") ? QLatin1String("ABSOLUTE") :
-                                                                   QLatin1String("ADD"));
+                               .arg(mRotStepType.toUpper() == QLatin1String("REL") ? QLatin1String("Relative") :
+                                    mRotStepType.toUpper() == QLatin1String("ABS") ? QLatin1String("Absolute") :
+                                                              QLatin1String("None"));
     statusBarMsg(rotLabel);
+
+    qDebug() << qPrintable(QString("DEBUG: ShowStepRotationStatus %1").arg(rotLabel));
 }
 
 /*********************************************

@@ -4487,16 +4487,17 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
   _viewerSteps.insert(stepKey,viewerStep);
 
 #ifdef QT_DEBUG_MODE
-  emit gui->messageSig(LOG_DEBUG,
-                       QString("Insert %1 ViewerStep Key: '%2' [%3 %4 StepNumber: %5], Type: [%6]")
-                               .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
-                               .arg(stepKey)
-                               .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
-                                                               QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
-                               .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
-                                                               QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
-                               .arg(keys.at(BM_STEP_NUM_KEY))
-                               .arg(calledOut ? "called out" : multiStep ? "step group" : viewType == Options::PLI ? "part" : "single step"));
+  const QString debugMessage =
+          QString("Insert %1 ViewerStep Key: '%2' [%3 %4 StepNumber: %5], Type: [%6]")
+                  .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                  .arg(stepKey)
+                  .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
+                                                  QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
+                  .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
+                                                  QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
+                  .arg(keys.at(BM_STEP_NUM_KEY))
+                  .arg(calledOut ? "called out" : multiStep ? "step group" : viewType == Options::PLI ? "part" : "single step");
+  emit gui->messageSig(LOG_DEBUG, debugMessage);
 #endif
 }
 
@@ -4707,14 +4708,14 @@ void LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
 #ifdef QT_DEBUG_MODE
   else if (!stepKey.isEmpty()) {
     const QStringList Keys = stepKey.split(";");
-    const QString debugMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
+    const QString warnMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
                                          .arg(Keys.at(BM_STEP_MODEL_KEY))
                                          .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
                                          .arg(Keys.at(BM_STEP_LINE_KEY))
                                          .arg(Keys.at(BM_STEP_NUM_KEY))
                                          .arg(stepKey);
-    //emit gui->messageSig(LOG_DEBUG, debugMessage);
-    qDebug() << qPrintable(QString("DEBUG: %1").arg(debugMessage));
+    //emit gui->messageSig(LOG_WARNING, warnMessage);
+    qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
   }
 #endif
 }
@@ -4730,17 +4731,18 @@ bool LDrawFile::viewerStepModified(const QString &stepKey, bool reset)
 #ifdef QT_DEBUG_MODE
     const QStringList keys = stepKey.split(";");
     int viewType = i.value()._viewType;
-    emit gui->messageSig(LOG_DEBUG,
-                         QString("%1%2 ViewerStep Key: '%3' [%4 %5 StepNumber: %6] %7")
-                                 .arg(reset && modified ? "Reset " : "")
-                                 .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
-                                 .arg(stepKey)
-                                 .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
-                                                                 QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
-                                 .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
-                                                                 QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
-                                 .arg(keys.at(BM_STEP_NUM_KEY))
-                                 .arg(i.value()._modified ? ", Modified: [Yes]." :", Modified: [No]."));
+    const QString debugMessage =
+            QString("%1%2 ViewerStep Key: '%3' [%4 %5 StepNumber: %6] %7")
+                    .arg(reset && modified ? "Reset " : "")
+                    .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                    .arg(stepKey)
+                    .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
+                                                    QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
+                    .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
+                                                    QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
+                    .arg(keys.at(BM_STEP_NUM_KEY))
+                    .arg(i.value()._modified ? ", Modified: [Yes]." :", Modified: [No].");
+    emit gui->messageSig(LOG_DEBUG, debugMessage);
 #endif
     return modified;
   } else {
@@ -4755,24 +4757,29 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
     i.value()._modified = true;
 #ifdef QT_DEBUG_MODE
     int viewType = i.value()._viewType;
-    emit gui->messageSig(LOG_DEBUG, QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, Modified: [Yes].")
-                         .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
-                         .arg(stepKey)
-                         .arg(i.value()._stepKey.modIndex)
-                         .arg(getSubmodelName(i.value()._stepKey.modIndex))
-                         .arg(i.value()._stepKey.lineNum)
-                         .arg(i.value()._stepKey.stepNum));
+    const QString debugMessage =
+            QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, Modified: [Yes].")
+                    .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                    .arg(stepKey)
+                    .arg(i.value()._stepKey.modIndex)
+                    .arg(getSubmodelName(i.value()._stepKey.modIndex))
+                    .arg(i.value()._stepKey.lineNum)
+                    .arg(i.value()._stepKey.stepNum);
+    emit gui->messageSig(LOG_DEBUG, debugMessage);
 #endif
   }
 #ifdef QT_DEBUG_MODE
   else {
     const QStringList Keys = stepKey.split(";");
-    emit gui->messageSig(LOG_DEBUG, QString("Cannot modify, ViewerStep  Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
-                         .arg(Keys.at(BM_STEP_MODEL_KEY))
-                         .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
-                         .arg(Keys.at(BM_STEP_LINE_KEY))
-                         .arg(Keys.at(BM_STEP_NUM_KEY))
-                         .arg(stepKey));
+    const QString warnMessage =
+            QString("Cannot modify, ViewerStep  Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
+                    .arg(Keys.at(BM_STEP_MODEL_KEY))
+                    .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
+                    .arg(Keys.at(BM_STEP_LINE_KEY))
+                    .arg(Keys.at(BM_STEP_NUM_KEY))
+                    .arg(stepKey);
+    //emit gui->messageSig(LOG_WARNING, warnMessage);
+    qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
   }
 #endif
 }

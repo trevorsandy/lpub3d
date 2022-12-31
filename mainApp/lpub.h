@@ -1199,12 +1199,13 @@ public slots:
   void halt3DViewer(bool enable);
   void UpdateVisualEditUndoRedo(const QString& UndoText, const QString& RedoText);
 
-  QVector<float> GetRotStepMeta() const;
+  void SetRotStepAngles(QVector<float>& Angles, bool display);
   void SetRotStepAngleX(float AngleX, bool display);
   void SetRotStepAngleY(float AngleY, bool display);
   void SetRotStepAngleZ(float AngleZ, bool display);
   void SetRotStepType(QString& RotStepType, bool display);
-  void SetRotStepMeta();
+  void SetRotStepCommand();
+
   void ShowStepRotationStatus();
   void SetActiveModel(const QString &modelName, bool setActive);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);

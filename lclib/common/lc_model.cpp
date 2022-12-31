@@ -3133,8 +3133,6 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 											  tr("Nothing selected. Make a selection to transform."));
 		return;
 	}
-
-	gMainWindow->ApplyRotStepMeta(LC_EDIT_TRANSFORM);
 /*** LPub3D Mod end ***/
 
 	switch (TransformType)
@@ -3148,10 +3146,16 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 		break;
 
 	case lcTransformType::AbsoluteRotation:
+/*** LPub3D Mod - transform command ***/
+		gMainWindow->ApplyRotStepMeta(LC_EDIT_TRANSFORM);
+/*** LPub3D Mod end ***/
 		RotateSelectedPieces(Transform, false, false, true, true);
 		break;
 
 	case lcTransformType::RelativeRotation:
+/*** LPub3D Mod - transform command ***/
+		gMainWindow->ApplyRotStepMeta(LC_EDIT_TRANSFORM);
+/*** LPub3D Mod end ***/
 		RotateSelectedPieces(Transform, true, false, true, true);
 		break;
 

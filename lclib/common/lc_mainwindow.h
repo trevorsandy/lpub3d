@@ -387,12 +387,12 @@ public slots:
 /*** LPub3D Mod - signals ***/
 signals:
 /*** LPub3D Mod - rotate step signals ***/
-	QVector<float> GetRotStepMeta();   // used to capture step meta angles
-	void SetRotStepMeta();
-	void SetRotStepAngleX(float, bool=false);
-	void SetRotStepAngleY(float, bool=false);
-	void SetRotStepAngleZ(float, bool=false);
+	void SetRotStepAngles(QVector<float>&, bool=false);
+	void SetRotStepAngleX(float,  bool=false);
+	void SetRotStepAngleY(float,  bool=false);
+	void SetRotStepAngleZ(float,  bool=false);
 	void SetRotStepType(QString&, bool=false);
+	void SetRotStepCommand();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export image completion ***/
 	void updateSig();
@@ -486,6 +486,7 @@ protected:
 	QToolBar* mStandardToolBar;
 	QToolBar* mToolsToolBar;
 /*** LPub3D Mod - rotate step ***/
+	lcVector3 mExistingTransform;
 	lcVector3 mExistingRotStep;
 	QString mRotStepType;
 /*** LPub3D Mod end ***/

@@ -2551,10 +2551,11 @@ void lcView::StopTracking(bool Accept)
 			}
 		}
 		break;
+
 /*** LPub3D Mod - rotate step tool ***/
 	case lcTool::RotateStep:
-/*** LPub3D Mod end ***/
 		break;
+/*** LPub3D Mod end ***/
 
 	case lcTool::Count:
 		break;

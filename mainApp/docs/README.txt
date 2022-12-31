@@ -1,4 +1,4 @@
-LPub3D 2.4.5.85.3062 (31 12 2022 05:17:36)
+LPub3D 2.4.5.86.3063 (31 12 2022 05:19:21)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,6 +25,7 @@ Revisions:
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
 - Change - Parse top-model INCLUDE file at model file load #631
+- Fix - Apply ROTSTEP to step-group STEP #653
 - Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
 - Fix - Build modification - correct jump forward parse error #622
 - Fix - Build modification - correct navigate backward parse error #621

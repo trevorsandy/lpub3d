@@ -554,10 +554,14 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 					Context->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
 					break;
 				case 1:
-					Context->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - Axis Circle, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+					Context->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/*** LPub3D Mod end ***/
 					break;
 				case 2:
-					Context->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/*** LPub3D Mod - Axis Circle, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+					Context->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 					break;
 			}
 		}
@@ -608,35 +612,35 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 
 		lcVector4 Rotation;
 		float Angle;
-/*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+/*** LPub3D Mod - Rotate Tangent Vector Text ***/
 		char Axis[24];
 /*** LPub3D Mod end ***/
 
 		switch (TrackTool)
 		{
 			case lcTrackTool::RotateX:
-/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+/*** LPub3D Mod - Rotate Tangent Vector Text ***/
 				strncpy(Axis, "X", 24);
 /*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[0];
 				Rotation = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateY:
-/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
+/*** LPub3D Mod - Rotate Tangent Vector Text, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				strncpy(Axis, "Z", 24);
 /*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[1];
 				Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateZ:
-/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
+/*** LPub3D Mod - Rotate Tangent Vector Text, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				strncpy(Axis, "Y", 24);
 /*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[2];
 				Rotation = lcVector4(90.0f, 0.0f, -1.0f, 0.0f);
 				break;
 			default:
-/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
+/*** LPub3D Mod - Rotate Tangent Vector Text ***/
 				strncpy(Axis, "", 24);
 /*** LPub3D Mod end ***/
 				Angle = 0.0f;
@@ -683,13 +687,13 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 		Context->EnableColorBlend(true);
 
 		char buf[32];
-/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+/*** LPub3D Mod - Angle In Degrees Text ***/
 		sprintf(buf, "[%s %.2f]", Axis, fabsf(Angle));
 /*** LPub3D Mod end ***/
 		int cx, cy;
 		gTexFont.GetStringDimensions(&cx, &cy, buf);
 
-/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+/*** LPub3D Mod - Angle In Degrees Text Color, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 		switch (TrackTool)
 		{
 			case lcTrackTool::RotateX:

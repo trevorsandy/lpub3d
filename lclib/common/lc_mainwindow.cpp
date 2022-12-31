@@ -457,6 +457,10 @@ void lcMainWindow::CreateActions()
 		ModelGroup->addAction(mActions[ActionIdx]);
 	}
 
+/*** LPub3D Mod - undo set rotestep checkable ***/
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setCheckable(false);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - macOS menu management ***/
 #ifdef Q_OS_MAC
   mActions[LC_FILE_EXIT]->setMenuRole(QAction::NoRole);
@@ -1248,18 +1252,41 @@ int lcMainWindow::GetImageType(){
 /*** LPub3D Mod - transform command ***/
 void lcMainWindow::ApplyRotStepMeta(lcCommandId CommandId)
 {
-	if (CommandId == LC_EDIT_TRANSFORM) {
-		if (GetTransformType() == lcTransformType::RelativeTranslation ||
-			GetTransformType() == lcTransformType::AbsoluteTranslation)
+	if (CommandId == LC_EDIT_TRANSFORM)
+	{
+		if (lcGetPreferences().mBuildModificationEnabled)
 			return;
 
 		QString RotStepType =
 				GetTransformType() == lcTransformType::RelativeRotation ? QLatin1String("REL") : QLatin1String("ABS");
 
-		lcVector3 RotStepAngles = GetRotStepTransformAmount();
+		lcVector3 RotStepAngles;
+		lcVector3 AddTransform = GetRotStepTransformAmount();
+		RotStepAngles.x = normaliseRotation(mExistingRotStep.x + AddTransform.x,-360.0,360.0);
+		RotStepAngles.y = normaliseRotation(mExistingRotStep.y + AddTransform.y,-360.0,360.0);
+		RotStepAngles.z = normaliseRotation(mExistingRotStep.z + AddTransform.z,-360.0,360.0);
 
-		if ((mExistingRotStep != RotStepAngles) || (mRotStepType != RotStepType)) {
+		if ((mExistingTransform != RotStepAngles) || (mRotStepType != RotStepType))
+		{
+			if (RotStepAngles.x != mExistingRotStep.x)
+				emit SetRotStepAngleX(RotStepAngles.x);
+			if (RotStepAngles.y != mExistingRotStep.y)
+				emit SetRotStepAngleY(RotStepAngles.y);
+			if (RotStepAngles.z != mExistingRotStep.z)
+				emit SetRotStepAngleZ(RotStepAngles.z);
+			emit SetRotStepType(RotStepType,true/*display*/);
+
 			mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
+
+			qDebug() << qPrintable(tr("DEBUG: LC_EDIT_TRANSFORM ROTSTEP old[new] TRANS: %1[%2] X: %3[%4] Y: %5[%6] Z: %7[%8]")
+									  .arg(mRotStepType,RotStepType)
+									  .arg(QString::number(double(mExistingRotStep.x),'g',2),
+										   QString::number(double(RotStepAngles.x),'g',2),
+										   QString::number(double(mExistingRotStep.y),'g',2),
+										   QString::number(double(RotStepAngles.y),'g',2),
+										   QString::number(double(mExistingRotStep.z),'g',2),
+										   QString::number(double(RotStepAngles.z),'g',2)));
+
 			mExistingRotStep = RotStepAngles;
 			mRotStepType = RotStepType;
 			emit SetRotStepAngleX(RotStepAngles.x);
@@ -1276,9 +1303,11 @@ void lcMainWindow::ApplyRotStepMeta(lcCommandId CommandId)
 										QString::number(double(RotStepAngles[2]), 'f', 2))
 								   .arg(mRotStepType,RotStepType));
 		}
-	} else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
-		emit SetRotStepMeta();
-		lcView::UpdateAllViews();
+	}
+	else if (CommandId == LC_EDIT_ACTION_ROTATESTEP)
+	{
+		emit SetRotStepCommand();
+		//lcView::UpdateAllViews();
 	}
 }
 
@@ -1306,42 +1335,87 @@ void lcMainWindow::EnableApplyTransform(lcTransformType TransformType)
 /*** LPub3D Mod - Rotate step angles ***/
 void lcMainWindow::GetRotStepMetaAngles()
 {
-	lcModel* mModel = lcGetActiveModel();
 	lcView* mView = GetActiveView();
-
-	lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 
 	if (mView->IsTracking())
 	{
-		bool display = true;
-		QVector<float> mExistingRotStep = GetRotStepMeta();
+		lcModel* mModel = lcGetActiveModel();
+
+		lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
+
+		QString RotStepType = mRotStepType;
+
 		lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
+
+		lcVector3 ExistingRotStep = mExistingTransform;
+
+		bool display = false;
+
 		switch (mView->GetTrackTool())
 		{
 		case lcTrackTool::RotateX:
-			RotStepAngles.x = normaliseRotation(MouseToolDistance[0] + mExistingRotStep[0],-360.0,360.0);
-			emit SetRotStepAngleX(RotStepAngles.x,display);
-			qDebug() << "Rotate X: " << RotStepAngles.x;
+			RotStepAngles.x = normaliseRotation(MouseToolDistance.x + ExistingRotStep.x,-360.0,360.0);
+			if ((display = RotStepAngles.x != mExistingTransform.x))
+				emit SetRotStepAngleX(RotStepAngles.x);
+			// qDebug() << "DEBUG: Rotate X: " << RotStepAngles.x;
 			break;
+
 		case lcTrackTool::RotateY:
 			/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-			RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
-			emit SetRotStepAngleZ(RotStepAngles.y,display);
-			qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
+			RotStepAngles.y = normaliseRotation(MouseToolDistance.y + ExistingRotStep.z,-360.0,360.0);
+			if ((display |= RotStepAngles.y != mExistingTransform.y))
+				emit SetRotStepAngleZ(RotStepAngles.y);
+			// qDebug() << "DEBUG: Rotate Y(Z): " << RotStepAngles.y;
 			break;
+
 		case lcTrackTool::RotateZ:
 			/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-			RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
-			emit SetRotStepAngleY(-RotStepAngles.z,display);
-			qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
+			RotStepAngles.z = normaliseRotation(MouseToolDistance.z - ExistingRotStep.y,-360.0,360.0);
+			if ((display |= RotStepAngles.z != mExistingTransform.z))
+				emit SetRotStepAngleY(-RotStepAngles.z);
+			// qDebug() << "DEBUG: Rotate Z(Y): " << -RotStepAngles.z;
 			break;
+
+		case lcTrackTool::RotateXYZ:
+			RotStepAngles.x = normaliseRotation(MouseToolDistance.x + ExistingRotStep.x,-360.0,360.0);
+			RotStepAngles.y = normaliseRotation(MouseToolDistance.y + ExistingRotStep.z,-360.0,360.0);
+			RotStepAngles.z = normaliseRotation(MouseToolDistance.z - ExistingRotStep.y,-360.0,360.0);
+			if ((display |= RotStepAngles != mExistingTransform))
+			{
+				QVector<float> Angles(3);
+				Angles.append(RotStepAngles.x);
+				Angles.append(-RotStepAngles.z);
+				Angles.append(RotStepAngles.y);
+				emit SetRotStepAngles(Angles);
+			}
+			break;
+
 		default:
 			RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
 			break;
 		};
-		QString TransformType = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
-								(GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
-		emit SetRotStepType(TransformType,display);
+
+		RotStepType = GetRelativeTransform() ? QLatin1String("REL") : QLatin1String("ABS");
+
+		emit SetRotStepType(RotStepType,display);
+
+		if ((mExistingTransform != RotStepAngles) || (mRotStepType != RotStepType))
+		{
+			mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
+
+			/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
+			qDebug() << qPrintable(tr("DEBUG: GetRotStepMetaAngles ROTSTEP old[new] TRANS: %1[%2] X: %3[%4] Y: %5[%6] Z: %7[%8]")
+									  .arg(mRotStepType,RotStepType)
+									  .arg(QString::number(double(mExistingTransform.x),'g',2),
+										   QString::number(double(RotStepAngles.x),'g',2),
+										   QString::number(double(-mExistingTransform.z),'g',2),
+										   QString::number(double(-RotStepAngles.z),'g',2),
+										   QString::number(double(mExistingTransform.y),'g',2),
+										   QString::number(double(RotStepAngles.y),'g',2)));
+
+			mExistingTransform = RotStepAngles;
+			mRotStepType = RotStepType;
+		}
 	}
 }
 /*** LPub3D Mod end ***/
@@ -1352,9 +1426,13 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 	// Note: parts are rotated (i.e. ROTSTEP angles applied to rotation) in
 	// LPub3D Step (createCsi) and Submodel (createSubModelImage) routines.
 	// Here we are only setting the ROTSTEP angles and transform variables
-	// mExistingRotStep and mRotStepType for consumption when parts
+	// mExistingTransform and mRotStepType for consumption when parts
 	// are manually user-rotated from the Visual Editor
 	QRegExp RotStepRx("ABS|REL");
+
+	lcVector3 ExistingRotStep = mExistingTransform;
+
+	const QString RotStepType = mRotStepType;
 
 	while (!LineStream.atEnd())
 	{
@@ -1368,10 +1446,22 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 
 		LineStream >> mExistingRotStep[0] >> mExistingRotStep[1] >> mExistingRotStep[2];
 
-		emit SetRotStepAngleX(mExistingRotStep.x);
-		emit SetRotStepAngleY(mExistingRotStep.y);
-		emit SetRotStepAngleZ(mExistingRotStep.z);
-		emit SetRotStepType(  mRotStepType);
+		mExistingTransform = lcVector3(mExistingRotStep.x,-mExistingRotStep.z,mExistingRotStep.y);
+
+		if (ExistingRotStep != mExistingRotStep || RotStepType != mRotStepType)
+		{
+			QVector<float> Angles(3);
+			Angles.append(mExistingRotStep.x);
+			Angles.append(mExistingRotStep.y);
+			Angles.append(mExistingRotStep.z);
+			emit SetRotStepAngles(Angles);
+		}
+		emit SetRotStepType(mRotStepType);
+		qDebug() << qPrintable(tr("DEBUG: INPUT ROTSTEP 0 // ROTSTEP %1 %2 %3 %4")
+								  .arg(mRotStepType)
+								  .arg(QString::number(double(mExistingRotStep.x),'g',2),
+									   QString::number(double(mExistingRotStep.y),'g',2),
+									   QString::number(double(mExistingRotStep.z),'g',2)));
 		break;
 	}
 }
@@ -2032,7 +2122,9 @@ void lcMainWindow::SetTool(lcTool Tool)
 
 	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + static_cast<int>(mTool)];
 
-	if (Action)
+/*** LPub3D Mod - undo set rotestep checkable ***/
+	if (Action && Action->isCheckable())
+/*** LPub3D Mod end ***/
 		Action->setChecked(true);
 
 	lcView::UpdateAllViews();
@@ -2114,29 +2206,32 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 /*** LPub3D Mod - rotstep transform ***/
 	constexpr const char* StatusTips[][3] =
 	{   // EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
-		{"LDraw Format - Enter Build Modification absolute X coordinate translation",
-		 "LDraw Format - Enter Build Modification absolute Y coordinate translation",
-		 "LDraw Format - Enter Build Modification absolute Z coordinate translation"},
+		{"Enter %1 X angle value",
+		 "Enter %1 Y angle value",
+		 "Enter %1 Z angle value"},
 		// EDIT_TRANSFORM_RELATIVE_TRANSLATION
-		{"LDraw Format - Enter Build Modification relative X coordinate translation",
-		 "LDraw Format - Enter Build Modification relative Y coordinate translation",
-		 "LDraw Format - Enter Build Modification relative Z coordinate translation"},
+		{"Enter %1 X angle value",
+		 "Enter %1 Y angle value",
+		 "Enter %1 Z angle value"},
 		// EDIT_TRANSFORM_ABSOLUTE_ROTATION
-		{"LDraw Format - Enter ROTSTEP absolute X coordinate rotation",
-		 "LDraw Format - Enter ROTSTEP absolute Y coordinate rotation",
-		 "LDraw Format - Enter ROTSTEP absolute Z coordinate rotation"},
+		{"Enter %1 X angle value",
+		 "Enter %1 Y angle value",
+		 "Enter %1 Z angle value"},
 		// EDIT_TRANSFORM_RELATIVE_ROTATION
-		{"LDraw Format - Enter ROTSTEP relative X coordinate rotation",
-		 "LDraw Format - Enter ROTSTEP relative Y coordinate rotation",
-		 "LDraw Format - Enter ROTSTEP relative Z coordinate rotation"}
+		{"Enter %1 X angle value",
+		 "Enter %1 Y angle value",
+		 "Enter %1 Z angle value"}
 	};
 
 	LC_ARRAY_SIZE_CHECK(StatusTips, lcTransformType::Count);
 
 	enum Coord {X,Y,Z};
-	mTransformXEdit->setStatusTip(tr(StatusTips[TransformIndex][Coord::X]));
-	mTransformYEdit->setStatusTip(tr(StatusTips[TransformIndex][Coord::Y]));
-	mTransformZEdit->setStatusTip(tr(StatusTips[TransformIndex][Coord::Z]));
+	const QString option = lcGetPreferences().mBuildModificationEnabled
+					 ? QLatin1String("build modification")
+					 : QLatin1String("ROTSTEP");
+	mTransformXEdit->setStatusTip(tr(StatusTips[TransformIndex][Coord::X]).arg(option));
+	mTransformYEdit->setStatusTip(tr(StatusTips[TransformIndex][Coord::Y]).arg(option));
+	mTransformZEdit->setStatusTip(tr(StatusTips[TransformIndex][Coord::Z]).arg(option));
 /*** LPub3D Mod end ***/
 	mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION + TransformIndex]->setChecked(true);
 	mActions[LC_EDIT_TRANSFORM]->setIcon(QIcon(IconNames[TransformIndex]));
@@ -4029,8 +4124,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 /*** LPub3D Mod - transform command ***/
 	case LC_EDIT_ACTION_ROTATESTEP:
-		SetTool(lcTool::RotateStep);
-		ApplyTransform(LC_EDIT_ACTION_ROTATESTEP);
+		ApplyRotStepMeta(LC_EDIT_ACTION_ROTATESTEP);
 		break;
 
 	case LC_EDIT_ACTION_APPLY_TRANSFORM:

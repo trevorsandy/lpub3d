@@ -3560,16 +3560,14 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         }
         removeEmptyStrings(arguments);
 
-        QString message = QObject::tr("%1 %2 Arguments: %3")
+        QString message = QObject::tr("%1 %2 Arguments: %3%4")
                                       .arg(RenderImage ? QObject::tr("Native Renderer") : QObject::tr("Visual Editor"))
                                       .arg(ImageType)
                                       .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message);
-      qDebug() << QString();
+      qDebug() << qPrintable(message.arg(QLatin1String("\r\n")));
 #else
-      emit gui->messageSig(LOG_INFO, message);
-      emit gui->messageSig(LOG_INFO, QString());
+      emit gui->messageSig(LOG_INFO, message.arg(QLatin1String("\r\n")));
 #endif
     }
 

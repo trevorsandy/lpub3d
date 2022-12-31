@@ -3350,12 +3350,13 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
         }
     }
 
+/*
     qDebug() << qPrintable(QString("DEBUG: %1VIEWER STEP KEY ends with%2")
                            .arg(stepCheck ? "STEP_CHECK " : "")
                            .arg(hasDispModel ? " DISPLAY_MODEL (_dm)" :
                                 hasBufExLoad ? " BUFEXCHG RETRIEVE (_bfx)" :
                                 hasBuildModAct ? " BUILD_MOD ACTION (_bm)" : " STEP_NUMBER"));
-
+//*/
     return hasDispModel ? "_dm" : hasBufExLoad ? "_bfx" : hasBuildModAct ? "_bm" : QString();
 }
 
