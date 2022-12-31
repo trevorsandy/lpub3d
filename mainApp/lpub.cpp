@@ -7117,6 +7117,19 @@ void Gui::writeSettings()
     QVariant uValue(data);
     QString const MessagesNotShownKey("MessagesNotShown");
     Settings.setValue(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey),uValue);
+
+    // remove tab layouts greater than 10 entries
+    Settings.beginGroup(TABLAYOUTS);
+    const QStringList tabLayoutKeys = Settings.allKeys();
+    if (tabLayoutKeys.size() > MAX_TABLAYOUTS) {
+        const int retainedTabLayouts = tabLayoutKeys.size() - MAX_TABLAYOUTS;
+        for (int i = 0; i < tabLayoutKeys.size(); i++) {
+            if (i < retainedTabLayouts) {
+                Settings.remove(tabLayoutKeys.at(i));
+            }
+        }
+    }
+    Settings.endGroup();
 }
 
 void Gui::showLine(const Where &here, int type)
