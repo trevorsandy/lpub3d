@@ -60,6 +60,8 @@ public:
   /// Process viewer key to return model, line number and step number
   static QStringList getViewerStepKeys(bool = true, bool = false, const QString & = "");
 
+  static QString getFilePath(const QString &fileName);
+
   /// Stud sytle and automated edge color setting calls
   int     GetStudStyle();
   float   GetPartEdgeContrast();

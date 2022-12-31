@@ -751,6 +751,47 @@ void LPub::setCurrentStep(Step *step)
 
 /****************************************************************************
  *
+ * Get current path
+ *
+ ***************************************************************************/
+
+QString LPub::getFilePath(const QString &fileName)
+{
+    QFileInfo fileInfo(fileName);
+
+    // relative path
+    if (fileInfo.exists() && fileInfo.isFile()) {
+        return fileInfo.absoluteFilePath();
+    }
+
+    // current path
+    bool hasDot = false;
+    const QString filePath(QDir::toNativeSeparators(fileName));
+    const QString dot(     QDir::toNativeSeparators("./"));
+    const QString dotDot(  QDir::toNativeSeparators("../"));
+    if ((hasDot = filePath.startsWith(dot)) || filePath.startsWith(dotDot)) {
+        const QString file(hasDot ? QString(filePath).replace(dot,"") : filePath);
+        if (!QDir::currentPath().isEmpty())
+            fileInfo.setFile(QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + file));
+    }
+
+    // absolute path
+    if (fileInfo.exists() && fileInfo.isFile()) {
+        return fileInfo.absoluteFilePath();
+    }
+
+    QString message = QString("Failed to resolve file at path:<br>[%1]").arg(fileName);
+    if (fileName.contains("Google Drive",Qt::CaseInsensitive))
+        message.append(QString("<br>Replace '...\\Google Drive\\' absolute path with mapped path 'G:\\My Drive\\'."
+                               "<br>Use your specified drive letter (versus 'G:\\') accordingly."));
+
+    emit lpub->messageSig(LOG_ERROR,message);
+
+    return QString();
+}
+
+/****************************************************************************
+ *
  * LPub snippet collection load
  *
  ***************************************************************************/
