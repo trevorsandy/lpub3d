@@ -948,8 +948,10 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
     doc.prepend(tr("  [ ] Items within square brackets indicate optional meta command(s) and or value(s)."));
     doc.prepend(tr("  < > Items within chevron (greater,less than) indicate meta command value options required to complete the command."));
     doc.prepend(tr("  ( ) Items within curly brackets (parentheses) are built-in meta command options."));
+    doc.prepend(QString());
     doc.prepend(tr("Meta Command Symbols:"));
     doc.prepend(QString());
+#ifdef Q_OS_WIN
     doc.prepend(tr("---------------------------------------------------------------------------------"));
     doc.prepend(QString());
     doc.prepend(tr("  LPub UDL: %1assets/resources/LPub3D_Npp_UDL.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR));
@@ -957,8 +959,9 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
     doc.prepend(tr("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
     doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
     doc.prepend(tr("  %1 has an LPub User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
-    doc.prepend(tr("  Best viewed with Notepad++ <https://notepad-plus-plus.org>."));
+    doc.prepend(tr("  Best viewed on Windows with Notepad++ <https://notepad-plus-plus.org>."));
     doc.prepend(QString());
+#endif
     doc.prepend(tr("---------------------------------------------------------------------------------"));
     doc.prepend(QString());
     doc.prepend(tr("  Copyright © 2022 by %1").arg(VER_PUBLISHER_STR));
