@@ -1532,7 +1532,7 @@ signals:
   void progressPermResetSig();
   void progressPermStatusRemoveSig();
 
-  void messageSig(LogType logType, const QString &message);
+  void messageSig(LogType logType, const QString &message, bool msgBox = false);
 
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);

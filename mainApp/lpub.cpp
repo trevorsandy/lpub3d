@@ -3119,12 +3119,12 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::finishedCountingPages);
 
     // LPub - Object connection is Qt::AutoConnection so it will trigger without an active event loop
-    connect(lpub,           SIGNAL(messageSig( LogType,const QString &)),
-            this,           SLOT(statusMessage(LogType,const QString &)));
+    connect(lpub,           SIGNAL(messageSig( LogType,const QString &,bool)),
+            this,           SLOT(statusMessage(LogType,const QString &,bool)));
 
     // Gui - MainWindow
-    connect(this,           SIGNAL(messageSig( LogType,const QString &)),
-            this,           SLOT(statusMessage(LogType,const QString &)),
+    connect(this,           SIGNAL(messageSig( LogType,const QString &,bool)),
+            this,           SLOT(statusMessage(LogType,const QString &,bool)),
             Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
     connect(this,           SIGNAL(setExportingSig(bool)),

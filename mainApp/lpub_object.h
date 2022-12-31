@@ -229,7 +229,7 @@ public slots:
   void updateChangelog(const QString &);
 
 signals:
-  void messageSig(LogType, const QString &);
+  void messageSig(LogType, const QString &, bool = false);
   void loadFileSig(QString, bool);
   void consoleCommandSig(int, int*);
   void checkForUpdatesFinished();
