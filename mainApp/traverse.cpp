@@ -2113,7 +2113,7 @@ int Gui::drawPage(
               if (buildModExists)
                   if (multiStep || opts.calledOut) // always take the last action
                       buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, BM_LAST_ACTION));
-                  else // take the for the current step if exists or last action
+                  else // take the action for the current step if exists or last action
                       buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
               else if (buildModInsert)
                   buildModActions.insert(buildMod.level, BuildModApplyRc);
@@ -4555,7 +4555,6 @@ void Gui::countPages()
 
       QString message = tr("Counting pages...");
       if (buildModJumpForward) {
-          jumpForwardPerformed = true;
           fpFlags.parseBuildMods = true;
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
       }
@@ -5253,6 +5252,47 @@ int Gui::setBuildModForNextStep(
                        buildModStepIndex);
     };
 
+    // get start index when navigating backwards
+    std::function<int(const Where &, int, bool)> getStartIndex;
+    getStartIndex = [&](const Where &top, int startIndex, bool submodel) -> int {
+        int index = submodel ? startIndex : startIndex + 1;
+        Where walk(top);
+        if (!walk.lineNumber)
+            skipHeader(walk);  // advance past headers
+        else
+            walk++;            // Advance past STEP meta
+        Rc rc;
+        QStringList token;
+        int numLines = subFileSize(walk.modelName);
+        for ( ;walk.lineNumber < numLines; walk.lineNumber++) {
+            QString line = gui->readLine(walk);
+            switch (line.toLatin1()[0]) {
+            case '1':
+                split(line,token);
+                if (token.size() == 15) {
+                    const QString modelName = token[token.size() - 1];
+                    if (isSubmodel(modelName)) {
+                        Where topOfSubmodel(modelName, getSubmodelIndex(modelName), 0);
+                        index = getStartIndex(topOfSubmodel, index, true);
+                    }
+                }
+            case '0':
+                rc = lpub->page.meta.parse(line,walk);
+                switch (rc) {
+                case BuildModBeginRc:
+                case BuildModApplyRc:
+                case BuildModRemoveRc:
+                    if (submodel)
+                        return index + 1;
+                case RotStepRc:
+                case StepRc:
+                    return index;
+                }
+            }
+        }
+        return index;
+    };
+
     // we do this submodel->else block because this call only processes to the end of the specified next step
     if (submodel) {
         if (!topOfSubmodel.lineNumber)
@@ -5279,10 +5319,13 @@ int Gui::setBuildModForNextStep(
 
         startLine = topOfStep.lineNumber;           // set starting line number
 
-        if (jumpForwardPerformed) {                 // jump forard performed so...
-            jumpForwardPerformed = false;           // reset jumpForwardPerformed
-            deleteBuildMods(buildModNextStepIndex); // clear all build mods at and after delete index
-        }
+        int startIndex = buildModNextStepIndex;     // when navigating forward, set the delete index to the next step index
+        if (pageDirection > PAGE_JUMP_FORWARD)
+            startIndex =
+               getStartIndex(topOfStep,startIndex,false); // when navigating backward, set the delete index to the index after the next step index
+
+        deleteBuildMods(startIndex);                // clear all build mods at and after delete index - used after jump ahead and for backward navigation
+
 
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Next StartStep - Index: %1, ModelName: %2, LineNumber: %3")

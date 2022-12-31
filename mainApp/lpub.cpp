@@ -132,7 +132,6 @@ int          Gui::saveRenderer;           // saved renderer when temporarily swi
 
 bool         Gui::saveProjection;         // saved projection when temporarily switching to Native renderer
 bool         Gui::buildModJumpForward;    // parse build mods in countPage call - special case for jump forward
-bool         Gui::jumpForwardPerformed;   // set in countPages when buildModJumpForward detected
 bool         Gui::resetCache;             // reset model, fade and highlight parts
 QString      Gui::curFile;                // the file name for MPD, or top level file
 QString      Gui::saveFileName;           // user specified output file Name [commandline only]

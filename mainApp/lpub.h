@@ -499,7 +499,6 @@ public:
   bool            submodelIconsLoaded; // load submodel images
 
   static bool     buildModJumpForward; // parse build mods in countPage call - special case for jump forward
-  static bool     jumpForwardPerformed;// set in countPages when buildModJumpForward detected
 
   static int       m_exportMode;        // export mode
   static int       m_saveExportMode;    // saved export mode used when exporting BOM
