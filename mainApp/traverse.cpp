@@ -2164,7 +2164,12 @@ int Gui::drawPage(
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               buildMod.level = getLevel(QString(), BM_END);
-              if (buildMod.level == BM_BASE_LEVEL || buildMod.level == curMeta.submodelStack.size()) {
+              if (buildMod.level == BM_BASE_LEVEL ||
+                /*shameless hack until I figure out the level called out scenario
+                  buildMod.level == curMeta.submodelStack.size() || */
+                  buildMod.level == (opts.calledOut ? curMeta.submodelStack.size() - 1 :
+                                                      curMeta.submodelStack.size()))
+              {
                   buildMod.ignore = false;
                   buildModPliIgnore = pliIgnore;
               }
