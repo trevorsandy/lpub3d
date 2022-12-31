@@ -3153,17 +3153,18 @@ BackgroundGui::BackgroundGui(
 
   /* Color and Gradient button */
 
-  colorButton = new QPushButton("Change",parent);
-  colorButton->setToolTip(tr("Change Color"));
+  colorButton = new QPushButton("Change Color...",parent);
+  colorButton->setToolTip(tr("Change color using color picker"));
   connect(colorButton,SIGNAL(clicked(    bool)),
           this,       SLOT(  browseColor(bool)));
   grid->addWidget(colorButton,0,1);
 
-  gradientButton = new QPushButton("Change",parent);
-  gradientButton->setToolTip(tr("Change Gradient"));
+  gradientButton = new QPushButton("Change Gradient...",parent);
+  gradientButton->setToolTip(tr("Change gradient using gradient dialog"));
   connect(gradientButton,SIGNAL(clicked(     bool)),
           this,          SLOT(setGradient(   bool)));
   grid->addWidget(gradientButton,0,1);
+  gradientButton->hide();
 
   /* Color label */
 
@@ -3172,7 +3173,7 @@ BackgroundGui::BackgroundGui(
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   QColor c = QColor(color);
   QString styleSheet =
-      QString("QLabel { background-color: %1; }")
+      QString("QLabel { background-color: %1; inset grey;}")
       .arg(color.isEmpty() ? "transparent" :
            QString("rgb(%1, %2, %3)")
            .arg(c.red()).arg(c.green()).arg(c.blue()));
@@ -3187,12 +3188,12 @@ BackgroundGui::BackgroundGui(
   pictureEdit->setToolTip("Enter image path");
   connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
           this,       SLOT(  imageChange(QString const &)));
-  grid->addWidget(pictureEdit,1,0);
+  grid->addWidget(pictureEdit,1,0,1,2);
 
   pictureButton = new QPushButton("Browse",parent);
   connect(pictureButton,SIGNAL(clicked(     bool)),
           this,         SLOT(  browseImage(bool)));
-  grid->addWidget(pictureButton,1,1);
+  grid->addWidget(pictureButton,1,2);
 
   /* Image Fill */
 
@@ -3534,6 +3535,7 @@ BorderGui::BorderGui(
   /* Radius */
 
   spinLabel = new QLabel(tr("Radius"),parent);
+  spinLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   grid->addWidget(spinLabel,0,1);
 
   spin = new QSpinBox(parent);
@@ -3574,6 +3576,7 @@ BorderGui::BorderGui(
   /* Thickness */
 
   thicknessLabel = new QLabel(tr("Width"),parent);
+  thicknessLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   grid->addWidget(thicknessLabel,1,1);
 
   thicknessEdit = new QLineEdit(parent);
@@ -3597,6 +3600,7 @@ BorderGui::BorderGui(
   /* Color */
 
   QLabel *label = new QLabel(tr("Color"),parent);
+  label->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   grid->addWidget(label,2,0);
 
   colorExample = new QLabel(parent);
@@ -3617,6 +3621,7 @@ BorderGui::BorderGui(
   /* Margins */
 
   label = new QLabel(tr("Margins"),parent);
+  label->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   grid->addWidget(label,3,0);
 
   marginXEdit = new QLineEdit(parent);
@@ -4038,6 +4043,7 @@ void PlacementGui::apply(QString &topLevelFile)
     /*  Width */
 
     label = new QLabel(tr("%1 Width").arg(title),parent);
+    label->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     grid->addWidget(label,0,1);
 
     thicknessEdit = new QLineEdit(parent);
@@ -4062,6 +4068,7 @@ void PlacementGui::apply(QString &topLevelFile)
     /*  Color */
 
     label = new QLabel(tr("%1 Color").arg(title),parent);
+    label->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     grid->addWidget(label,1,0);
 
     colorExample = new QLabel(parent);
@@ -4099,6 +4106,7 @@ void PlacementGui::apply(QString &topLevelFile)
     /*  Width */
 
     label = new QLabel(tr("%1 Width").arg(title),parent);
+    label->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     grid->addWidget(label,0,0);
 
     widthEdit = new QLineEdit(parent);
@@ -4123,6 +4131,7 @@ void PlacementGui::apply(QString &topLevelFile)
     /*  Height */
 
     label = new QLabel(tr("%1 Height").arg(title),parent);
+    label->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     grid->addWidget(label,0,2);
 
     heightEdit = new QLineEdit(parent);

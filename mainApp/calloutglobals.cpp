@@ -59,7 +59,9 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   setWhatsThis(lpubWT(WT_SETUP_CALLOUT,windowTitle()));
 
   QTabWidget  *tabwidget = new QTabWidget();
-  QVBoxLayout *layout = new QVBoxLayout();
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
+  GlobalSizeWidget sw(QSize(200,300), QSize(200,200));
+  layout->addWidget(&sw);
 
   setLayout(layout);
   layout->addWidget(tabwidget);
@@ -372,8 +374,6 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
-  adjustSize();
 }
 
 void GlobalCalloutDialog::getCalloutGlobals(

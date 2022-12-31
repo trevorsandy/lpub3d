@@ -1347,7 +1347,8 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     form->addRow(messageButtonBox);
     QObject::connect(messageButtonBox, SIGNAL(accepted()), messageDialog, SLOT(accept()));
     QObject::connect(messageButtonBox, SIGNAL(rejected()), messageDialog, SLOT(reject()));
-    messageDialog->setMinimumSize(250,200);
+
+    messageDialog->setMinimumHeight(parseErrorGrpBox->sizeHint().height());
 
     // load message counts
     messageManagement();

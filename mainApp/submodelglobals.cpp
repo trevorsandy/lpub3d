@@ -62,9 +62,11 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   setWhatsThis(lpubWT(WT_SETUP_SUBMODEL,windowTitle()));
 
   QTabWidget  *tabwidget = new QTabWidget(nullptr);
-  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
+  GlobalSizeWidget sw(QSize(100,150), QSize(80,80));
+  layout->addWidget(&sw);
   setLayout(layout);
   layout->addWidget(tabwidget);
 
@@ -299,8 +301,6 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
-  adjustSize();
 }
 
 void GlobalSubModelDialog::getSubModelGlobals(

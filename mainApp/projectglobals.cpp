@@ -67,9 +67,11 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   setWhatsThis(lpubWT(WT_SETUP_PROJECT,windowTitle()));
 
-  QTabWidget  *tabwidget = new QTabWidget();
-  QVBoxLayout *layout = new QVBoxLayout(this);
+  QTabWidget  *tabwidget = new QTabWidget(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
 
+  GlobalSizeWidget sw(QSize(80,120), QSize(80,80));
+  layout->addWidget(&sw);
   setLayout(layout);
   layout->addWidget(tabwidget);
 
@@ -211,7 +213,6 @@ GlobalProjectDialog::GlobalProjectDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
 }
 
 void GlobalProjectDialog::getProjectGlobals(

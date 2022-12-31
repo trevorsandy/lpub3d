@@ -58,9 +58,11 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP,windowTitle()));
 
   QTabWidget  *tabwidget = new QTabWidget(nullptr);
-  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
   QGridLayout *boxGrid = new QGridLayout();
 
+  GlobalSizeWidget sw(QSize(200,300), QSize(200,200));
+  layout->addWidget(&sw);
   setLayout(layout);
   layout->addWidget(tabwidget);
 
@@ -298,8 +300,6 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
-  adjustSize();
 }
 
 void GlobalMultiStepDialog::getMultiStepGlobals(QString topLevelFile, Meta &meta)

@@ -67,11 +67,13 @@ GlobalAssemDialog::GlobalAssemDialog(
   setWhatsThis(lpubWT(WT_SETUP_ASSEM,windowTitle()));
 
   QTabWidget  *tabwidget = new QTabWidget(nullptr);
-  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
   QGridLayout *boxGrid = new QGridLayout();
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
+  GlobalSizeWidget sw(QSize(200,300), QSize(200,200));
+  layout->addWidget(&sw);
   setLayout(layout);
   layout->addWidget(tabwidget);
 
@@ -210,7 +212,6 @@ GlobalAssemDialog::GlobalAssemDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
 }
 
 void GlobalAssemDialog::getAssemGlobals(

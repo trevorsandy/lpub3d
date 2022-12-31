@@ -75,6 +75,8 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   setWhatsThis(lpubWT(WT_SETUP_FADE_STEPS,windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
+  GlobalSizeWidget sw(QSize(40,50), QSize(40,40));
+  layout->addWidget(&sw);
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox(tr("Fade Previous Steps"));
@@ -110,7 +112,6 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
 }
 
 void GlobalFadeStepDialog::enableControls(bool b)

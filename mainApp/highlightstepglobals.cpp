@@ -79,6 +79,8 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   setWhatsThis(lpubWT(WT_SETUP_HIGHLIGHT_STEP,windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
+  GlobalSizeWidget sw(QSize(40,50), QSize(40,40));
+  layout->addWidget(&sw);
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox(tr("Highlight Current Step"));
@@ -115,7 +117,6 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(300,20);
 }
 
 void GlobalHighlightStepDialog::enableControls(bool b)

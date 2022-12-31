@@ -66,13 +66,15 @@ GlobalPageDialog::GlobalPageDialog(
 
   setWhatsThis(lpubWT(WT_SETUP_PAGE,windowTitle()));
 
-  QTabWidget  *tabwidget = new QTabWidget();
-  QVBoxLayout *layout = new QVBoxLayout();
+  QTabWidget  *tabwidget = new QTabWidget(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
   QTabWidget  *childtabwidget;
   QVBoxLayout *childlayout;
   QSpacerItem *childspacer;
   QWidget     *childwidget;
 
+  GlobalSizeWidget sw(QSize(200,300), QSize(200,200));
+  layout->addWidget(&sw);
   setLayout(layout);
   layout->addWidget(tabwidget);
 
@@ -666,12 +668,6 @@ GlobalPageDialog::GlobalPageDialog(
 
   layout->addWidget(buttonBox);
   setModal(true);
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-  if (Preferences::displayTheme == THEME_DARK)
-    setMinimumHeight(780);
-  else
-    setMinimumSize(40,20);
 }
 
 void GlobalPageDialog::displayGroup(bool b) {

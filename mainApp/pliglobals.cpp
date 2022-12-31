@@ -68,11 +68,12 @@ GlobalPliDialog::GlobalPliDialog(
     setWhatsThis(lpubWT(WT_SETUP_PART_PLI,windowTitle()));
   }
 
-
   QTabWidget  *tabwidget = new QTabWidget(nullptr);
-  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(tabwidget);
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
+  GlobalSizeWidget sw(QSize(200,300), QSize(200,200));
+  layout->addWidget(&sw);
   setLayout(layout);
   layout->addWidget(tabwidget);
 
@@ -547,8 +548,6 @@ GlobalPliDialog::GlobalPliDialog(
   styleOptionChanged(true);
 
   setModal(true);
-  setMinimumSize(40,20);
-  adjustSize();
 }
 
 void GlobalPliDialog::getPliGlobals(
