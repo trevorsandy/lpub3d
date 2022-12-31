@@ -529,7 +529,7 @@ class LDrawFile {
                           const QString     &csiKey,
                           bool               multiStep,
                           bool               calledOut,
-                          int                viewType/*CSI,PLI,SMP*/);
+                          int                viewType/*CSI,PLI,SMI*/);
     void updateViewerStep(const QString     &stepKey,
                           const QStringList &contents,
                           bool rotated = true);

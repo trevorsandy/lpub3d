@@ -256,7 +256,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
 
     QStringList tokens;
     QString baseName = QFileInfo(_modelName).completeBaseName()/*.toLower()*/;
-    bool isMPD       = imageType == Options::SMP || imageType == Options::MON;  // always MPD if imageType is SMP or MON[o] image
+    bool isMPD       = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
     // Test for MPD
@@ -289,7 +289,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
     }
 
     // special case where the modelName will match the line type name so we append '_smi' to the modelName
-    if (imageType == Options::SMP) {
+    if (imageType == Options::SMI) {
          QString smi(SUBMODEL_IMAGE_BASENAME);
          baseName = baseName.append(QString("-%1").arg(smi.replace(smi.indexOf(smi.at(0)),1,smi.at(0).toUpper())));
     }
@@ -3110,7 +3110,7 @@ int Native::renderPli(
     Options->CameraName     = cameraName;
     Options->FoV            = cameraFoV;
     Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
-    Options->ImageType      = pliType == SUBMODEL ? Options::SMP : Options::PLI;
+    Options->ImageType      = pliType == SUBMODEL ? Options::SMI : Options::PLI;
     Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
     Options->InputFileName  = ldrNames.first();
     Options->IsOrtho        = isOrtho;
@@ -3143,13 +3143,13 @@ int Native::renderPli(
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QObject::tr("Render %1 using viewer step key '%2' for image '%3'.")
-                                               .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI")
+                                               .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI")
                                                .arg(viewerStepKey)
                                                .arg(QFileInfo(pngName).fileName()));
 #endif
   } else {
     emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve %1 render options %2 for image '%3'.")
-                                               .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI")
+                                               .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI")
                                                .arg(viewerStepKey.isEmpty() ? "and viewer step key" : QString("using viewer step key '%1'").arg(viewerStepKey))
                                                .arg(QFileInfo(pngName).fileName()));
     return -1;
@@ -3158,7 +3158,7 @@ int Native::renderPli(
   // Render image
   emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Executing Native %1 %2 image render - please wait...")
                                                     .arg(pp ? "Perspective" : "Orthographic")
-                                                    .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI"));
+                                                    .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI"));
 
   if (!RenderNativeImage(Options)) {
       return -1;
@@ -3353,7 +3353,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     int  ImageHeight  = 0;
     QString ImageType = O->ImageType == Options::CSI ? "CSI" :
                         O->ImageType == Options::PLI ? "PLI" :
-                        O->ImageType == Options::SMP ? "SMP" : "MON";
+                        O->ImageType == Options::SMI ? "SMI" : "MON";
 
     // Generate Image
     if (RenderImage) {

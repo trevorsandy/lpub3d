@@ -2188,7 +2188,7 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
                 }
             }
         }
-    } else if (option == Options::SMP) {
+    } else if (option == Options::SMI) {
         if (!renderer->useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + "/smi.ldr");
         SubModelPart* submodel = step->subModel.getSubmodel();

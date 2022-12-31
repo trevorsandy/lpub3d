@@ -1,4 +1,4 @@
-LPub3D 2.4.5.91.3068 (31 12 2022 05:28:03)
+LPub3D 2.4.5.92.3069 (31 12 2022 05:29:45)
 
 Features, enhancements, fixes and changes
 ------------
@@ -65,7 +65,7 @@ Revisions:
 - Enhancement - Add load unofficial parts in command editor to project setup #591
 - Enhancement - Add load visual editor at cover page to project setup #593
 - Enhancement - Expand WhatsThis help to common dialogues #618
-- Enhancement - Improve performance - enable CLI, PLI and SMP multi-thread execution #598
+- Enhancement - Improve performance - enable CLI, PLI and SMI multi-thread execution #598
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - LPub command editor snippet system #602
 - Enhancement - Manage context menu actions #606

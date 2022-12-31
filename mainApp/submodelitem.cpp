@@ -215,7 +215,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
             step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
             cameraAngles,
             false/*ldv*/,
-            Options::SMP)) != 0) {
+            Options::SMI)) != 0) {
        emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
        imageName = QString(":/resources/missingimage.png");
    //    rcf = false
@@ -329,7 +329,7 @@ int SubModel::createSubModelImage(
 
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG,
-                           QString("Create SMP ViewerStep "
+                           QString("Create SMI ViewerStep "
                                    "Key: '%1' ["
                                    "ModelIndex: %2 (%3), "
                                    "LineNumber: %4, "
@@ -403,7 +403,7 @@ int SubModel::createSubModelImage(
               QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedModel] () {
                   QStringList futureModel = rotatedModel;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
-                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMP,false/*displayModel*/);
+                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI,false/*displayModel*/);
                   // consolidate submodel subfiles into single file
                   int rcf = 0;
                   if (Preferences::buildModEnabled && !meta->LPub.coverPageViewEnabled.value())
@@ -411,7 +411,7 @@ int SubModel::createSubModelImage(
                   else
                       rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/);
                   if (rcf) {
-                      emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged Submodel Preview (SMP) file"));
+                      emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged Submodel Preview (SMI) file"));
                       imageName = QString(":/resources/missingimage.png");
                   }
                   return futureModel;
@@ -427,7 +427,7 @@ int SubModel::createSubModelImage(
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMP);
+          lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMI);
       }
 
       // set viewer display options
@@ -439,7 +439,7 @@ int SubModel::createSubModelImage(
       viewerOptions->CameraName     = subModelMeta.cameraName.value();
       viewerOptions->FoV            = subModelMeta.cameraFoV.value();
       viewerOptions->ImageFileName  = imageName;
-      viewerOptions->ImageType      = Options::SMP;
+      viewerOptions->ImageType      = Options::SMI;
       viewerOptions->Viewpoint      = static_cast<int>(subModelMeta.cameraAngles.cameraView());
       viewerOptions->CustomViewpoint= subModelMeta.cameraAngles.customViewpoint();
       viewerOptions->Latitude       = noCA ? 0.0f : subModelMeta.cameraAngles.value(0);
@@ -1836,7 +1836,7 @@ void SubModelBackgroundItem::contextMenuEvent(
                              &subModel->subModelMeta.povrayParms);
     } else if (selectedAction == refreshSubmodelCacheAction) {
         Page *page = dynamic_cast<Page *>(subModel->steps);
-        clearPageCache(parentRelativeType,page,Options::SMP);
+        clearPageCache(parentRelativeType,page,Options::SMI);
     } else if (selectedAction == copySmpImagePathAction) {
         QObject::connect(copySmpImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
         copySmpImagePathAction->setData(subModel->imageName);

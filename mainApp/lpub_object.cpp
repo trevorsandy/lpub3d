@@ -579,7 +579,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
 {
     // viewerStepKey - 3 elements:
     // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
-    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
+    // SMI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
     // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
     QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
     // confirm keys has at least 3 elements
@@ -613,7 +613,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
 
 /*********************************************
  *
- * extract stepKey - callled for CSI and SMP only
+ * extract stepKey - callled for CSI and SMI only
  *
  ********************************************/
 

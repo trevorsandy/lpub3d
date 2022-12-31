@@ -32,7 +32,7 @@
 
 namespace Options
 {
-  enum Mt { PLI, CSI ,SMP ,MON };
+  enum Mt { PLI, CSI ,SMI ,MON };
 }
 
 class Vector3

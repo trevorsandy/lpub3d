@@ -143,7 +143,7 @@ class Step : public AbstractRangeElement
             return static_cast<MetaItem *>(pli.background);
         case Options::CSI:
             return static_cast<MetaItem *>(csiItem);
-        case Options::SMP:
+        case Options::SMI:
             return static_cast<MetaItem *>(subModel.background);
         default:
            return static_cast<MetaItem *>(csiItem);

@@ -1483,7 +1483,7 @@ void Gui::applyCameraSettings()
             cameraMeta.position       = lpub->currentStep->pli.pliMeta.position;
             cameraMeta.upvector       = lpub->currentStep->pli.pliMeta.upvector;
             break;
-        case SMP:
+        case SMI:
             cameraMeta.cameraAngles   = lpub->currentStep->subModel.subModelMeta.cameraAngles;
             cameraMeta.cameraDistance = lpub->currentStep->subModel.subModelMeta.cameraDistance;
             cameraMeta.modelScale     = lpub->currentStep->subModel.subModelMeta.modelScale;
@@ -1929,7 +1929,7 @@ void Gui::enableVisualBuildModification()
         switch (lcGetActiveProject()->GetImageType())
         {
         case static_cast<int>(CSI):
-        case static_cast<int>(SMP):
+        case static_cast<int>(SMI):
             break;
 
         default:
@@ -2273,7 +2273,7 @@ void Gui::SetRotStepCommand()
         if (! exporting() && Preferences::modeGUI) {
             const QString type = it == static_cast<int>(CSI) ? QLatin1String("Step") :
                                  it == static_cast<int>(PLI) ? QLatin1String("Part") :
-                                 it == static_cast<int>(SMP) ? QLatin1String("Submodel Preview") :
+                                 it == static_cast<int>(SMI) ? QLatin1String("Submodel Preview") :
                                                                QLatin1String("Item");
             const QString question = tr("Apply command ROTSTEP %1 %2 %3 %4 to %5 %6 ?<br><br>"
                                         "Current command is <i>ROTSTEP %7 %8 %9 %10</i>")
@@ -2582,7 +2582,7 @@ void Gui::createBuildModification()
     Mt imageType = static_cast<Mt>(lcGetActiveProject()->GetImageType());
     if (imageType != CSI) {
         const QString model = imageType == CSI ? tr("a part instance") :
-                              imageType == SMP ? tr("a preview submodel") :
+                              imageType == SMI ? tr("a submodel preview") :
                               tr("not an assembly");
         emit statusMessage(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
                                        "The active model is %1.").arg(model), showMessage);
@@ -4477,7 +4477,7 @@ void Gui::resetViewerImage(bool zoomExtents)
         currentStep->loadTheViewer();
         break;
 
-    case static_cast<int>(SMP):
+    case static_cast<int>(SMI):
         if (currentStep->placeSubModel) {
             lcPreferences& Preferences = lcGetPreferences();
             if (!Preferences.mPreviewEnabled) {

@@ -4260,7 +4260,7 @@ QString LDrawFile::getViewerStepKey(const int stepIndex)
 
         QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
         while (i != _viewerSteps.constEnd()) {
-            bool validType = i->_viewType == Options::CSI || i->_viewType == Options::SMP;
+            bool validType = i->_viewType == Options::CSI || i->_viewType == Options::SMI;
             if (validType && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber) {
                 if (i->_stepKey.stepNum) {
                     stepKey.chop(1);
@@ -4489,7 +4489,7 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
 #ifdef QT_DEBUG_MODE
   const QString debugMessage =
           QString("Insert %1 ViewerStep Key: '%2' [%3 %4 StepNumber: %5], Type: [%6]")
-                  .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                  .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                   .arg(stepKey)
                   .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
                                                   QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
@@ -4694,7 +4694,7 @@ void LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
 #ifdef QT_DEBUG_MODE
     int viewType = i.value()._viewType;
     const QString debugMessage = QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, HasBuildModAction: %7.")
-                                         .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                                         .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                                          .arg(stepKey)
                                          .arg(i.value()._stepKey.modIndex)
                                          .arg(getSubmodelName(i.value()._stepKey.modIndex))
@@ -4734,7 +4734,7 @@ bool LDrawFile::viewerStepModified(const QString &stepKey, bool reset)
     const QString debugMessage =
             QString("%1%2 ViewerStep Key: '%3' [%4 %5 StepNumber: %6] %7")
                     .arg(reset && modified ? "Reset " : "")
-                    .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                    .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                     .arg(stepKey)
                     .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
                                                     QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
@@ -4759,7 +4759,7 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
     int viewType = i.value()._viewType;
     const QString debugMessage =
             QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, Modified: [Yes].")
-                    .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                    .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                     .arg(stepKey)
                     .arg(i.value()._stepKey.modIndex)
                     .arg(getSubmodelName(i.value()._stepKey.modIndex))

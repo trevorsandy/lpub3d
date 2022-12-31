@@ -238,7 +238,7 @@ int Render::rotateParts(
 
       // consolidate subfiles and parts into single file
       int rc = 0;
-      if (Preferences::buildModEnabled && imageType == Options::SMP)
+      if (Preferences::buildModEnabled && imageType == Options::SMI)
           rc = mergeSubmodelContent(rotatedParts);
       else
           rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
@@ -246,7 +246,7 @@ int Render::rotateParts(
           emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
                                .arg(imageType == static_cast<int>(Options::CSI) ?
                                         "Current Step Instance (CSI)" : static_cast<int>(Options::MON) ?
-                                        "Mono Color Submodel (MON)" :  "Submodel Preview (SMP)"));
+                                        "Mono Color Submodel (MON)" :  "Submodel Preview (SMI)"));
   }
 
   // Write parts to file
