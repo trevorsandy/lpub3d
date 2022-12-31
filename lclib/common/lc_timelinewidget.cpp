@@ -137,7 +137,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 		if (LastStep == 1)
 			TimelineTopItem = lcGetActiveProject()->GetTimelineTopItemString();
 		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(TimelineTopItem));
-		StepItem->setData(0, Qt::UserRole, qVariantFromValue<int>(int(TopLevelItemIdx) + 1));
+		StepItem->setData(0, Qt::UserRole, QVariant::fromValue(int(TopLevelItemIdx) + 1));
 /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 		addTopLevelItem(StepItem);
@@ -264,10 +264,10 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 			if (Piece->mPieceInfo->IsPlaceholder())
 				Color = QColor(208, 0, 0);
-/*** LPub3D Mod - Set color only if hidden otherwise use default ***/				
+/*** LPub3D Mod - Set color only if hidden otherwise use default ***/
 			else if (Piece->IsHidden()) 
 			{
-				Color = PieceItem->textColor(0);
+				Color = PieceItem->foreground(0).color();
 				Color.setAlpha(128);
 			}
 			PieceItem->setForeground(0, Color);

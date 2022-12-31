@@ -403,15 +403,14 @@ int LDrawFile::isUnofficialPart(const QString &name)
   return UNOFFICIAL_UNKNOWN;
 }
 
-int LDrawFile::isIncludeFile(const QString &name)
+bool LDrawFile::isIncludeFile(const QString &name)
 {
-  int _includeFile = UNOFFICIAL_UNKNOWN;
   QString fileName = name.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
     return i.value()._includeFile;
   }
-  return UNOFFICIAL_UNKNOWN;
+  return false;
 }
 
 /* return the name of the top level file */

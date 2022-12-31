@@ -1279,7 +1279,6 @@ void LDVHtmlInventory::writeElementCell(
 	const LDPartCount &partCount,
 	int colorNumber)
 {
-	bool bl = m_lookupSite == LookUp::Bricklink;
 	std::string partName = partCount.getFilename();
 	std::string style = "";
 	size_t nDotSpot = partName.find('.');

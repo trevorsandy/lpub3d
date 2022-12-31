@@ -445,6 +445,23 @@ void Project::SetFileName(const QString& FileName)
 	mFileName = FileName;
 }
 
+/*** LPub3D Mod - viewer interface ***/
+void Project::AddModel(lcModel *Model)
+{
+	mModels.Add(Model);
+}
+
+void Project::DeleteAllModels()
+{
+	mModels.DeleteAll();
+}
+
+void Project::SetModified(bool value)
+{
+	mModified = value;
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - preview widget ***/
 bool Project::Load(const QString& FileName, bool ShowErrors)
 {
@@ -459,6 +476,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	bool IsLPubBanner = false;
 	QWidget* parent = nullptr;
 
+	QStringList Content;
+
 	if (mIsPreview)
 	{
 		if (FileName.isEmpty())
@@ -467,7 +486,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		parent = gMainWindow;
 	}
 
-	auto SetTimeLineTopItem = [&] (const QStringList& Content)
+	auto SetTimeLineTopItem = [&] ()
 	{
 		if (!mIsPreview)
 		{
@@ -549,12 +568,10 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		FileData = File.readAll();
 
 		if ((IsLPubBanner = QFileInfo(FileName).baseName() == QLatin1String("banner")))
-			SetTimeLineTopItem(QStringList());
+			SetTimeLineTopItem();
 	}
 	else if (!StepKey.isEmpty() || IsLPubModel)
 	{
-		QStringList Content;
-
 		if (!IsLPubModel/*We have a StepKey*/)
 		{
 /*** LPub3D Mod - viewer step key ***/
@@ -575,7 +592,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 			Content = lpub->ldrawFile.getViewerStepRotatedContents(StepKey);
 
-			SetTimeLineTopItem(Content);
+			SetTimeLineTopItem();
 		}
 		else
 		{

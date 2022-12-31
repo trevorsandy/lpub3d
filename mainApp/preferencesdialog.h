@@ -31,10 +31,10 @@ class PreferencesSizeWidget : public QWidget
     Q_OBJECT
 public:
     PreferencesSizeWidget(const QSize _sh, const QSize _msh, QWidget *_parent = 0) :
-        sh(_sh), msh(_msh), QWidget(_parent) {}
+        QWidget(_parent), sh(_sh), msh(_msh) {}
     ~PreferencesSizeWidget() {}
-    QSize sizeHint() const { QSize s = QWidget::sizeHint(); return s.expandedTo(sh); }
-    QSize minimumSizeHint() const { QSize s = QWidget::minimumSizeHint(); return s.expandedTo(msh); }
+    QSize sizeHint() const override { QSize s = QWidget::sizeHint(); return s.expandedTo(sh); }
+    QSize minimumSizeHint() const override { QSize s = QWidget::minimumSizeHint(); return s.expandedTo(msh); }
 private:
     QSize sh;
     QSize msh;
@@ -183,7 +183,7 @@ class PreferencesDialog : public QDialog
     bool          eventFilter(QObject* Object, QEvent* Event) override;
 
   public slots:
-    void accept();
+    void accept() override;
     void cancel();
 
     void on_shortcutAssign_clicked();
@@ -275,7 +275,7 @@ class PreferencesDialog : public QDialog
     void enableShortcutEditReset(const QString &displayText);
 
     bool maybeSave();
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     Ui::PreferencesDialog ui;

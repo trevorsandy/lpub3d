@@ -1868,7 +1868,7 @@ private slots:
     QPageLayout getPageLayout(bool nextPage = false);
     void checkMixedPageSizeStatus();
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
     void mpdComboChanged(int index);
     void refreshLDrawUnoffParts();
@@ -1931,7 +1931,7 @@ private:
   void writeNativeSettings();
   bool createPreviewWidget();
 
-  bool eventFilter(QObject *object, QEvent *event);
+  bool eventFilter(QObject *object, QEvent *event) override;
 
   QDockWidget       *commandEditDockWindow;
   QDockWidget       *visualEditDockWindow;

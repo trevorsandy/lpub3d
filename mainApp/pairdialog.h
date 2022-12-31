@@ -66,7 +66,7 @@ public:
   FloatPairMeta *meta;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 
 private:
@@ -109,7 +109,7 @@ private:
   MetaGui   *spin;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 };
 
@@ -153,7 +153,7 @@ private:
   MetaGui   *cameraZFar;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 };
 
@@ -178,7 +178,7 @@ public:
   CameraAnglesMeta meta;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 
 private:

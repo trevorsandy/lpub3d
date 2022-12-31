@@ -192,7 +192,7 @@ protected:
 
     QAbstractItemModel *metaCommandModel(QObject *parent = nullptr);
 
-    void closeEvent(QCloseEvent*_event);
+    void closeEvent(QCloseEvent*_event) override;
 
     WaitingSpinnerWidget *_waitingSpinner;
     TextEditor        *_textEdit;
@@ -364,7 +364,7 @@ public:
         textEditor = editor;
     }
 
-    QSize sizeHint() const
+    QSize sizeHint() const override
     {
         return QSize(textEditor->lineNumberAreaWidth(), 0);
     }

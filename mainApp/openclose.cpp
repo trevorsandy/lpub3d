@@ -1070,7 +1070,7 @@ void Gui::fileChanged(const QString &path)
     int goToPage = displayPageNum;
     QString absoluteFilePath = path;
     QString fileName = QFileInfo(path).fileName();
-    if (lpub->ldrawFile.isIncludeFile(fileName) || lpub->ldrawFile.isUnofficialPart(fileName))
+    if (lpub->ldrawFile.isIncludeFile(fileName) || static_cast<bool>(lpub->ldrawFile.isUnofficialPart(fileName)))
       absoluteFilePath = curFile;
     if (!openFile(absoluteFilePath))
       return;

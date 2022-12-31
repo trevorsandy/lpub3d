@@ -144,19 +144,11 @@ public:
 		return mRenderer;
 	}
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - viewer interface ***/
-	void AddModel(lcModel *Model)
-	{
-		mModels.Add(Model);
-	}
-	void DeleteAllModels()
-	{
-		mModels.DeleteAll();
-	}
-	void SetModified(bool value)
-	{
-		mModified = value;
-	}
+	void AddModel(lcModel *Model);
+	void DeleteAllModels();
+	void SetModified(bool value);
 	void SetFileName(const QString& FileName); // moved from protected
 /*** LPub3D Mod end ***/
 

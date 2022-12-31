@@ -57,7 +57,7 @@ public:
     QColor mLDrawColor;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 
 private slots:

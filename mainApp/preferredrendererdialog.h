@@ -51,7 +51,7 @@ public:
   PreferredRendererMeta meta;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 
 private:

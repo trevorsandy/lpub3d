@@ -102,7 +102,7 @@ private slots:
     void showAllCharacters();
     void showContextMenu(const QPoint &pt);
     void setSelectionHighlighter();
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
 public slots:
     void displayParmsFile(const QString &fileName);
@@ -133,7 +133,7 @@ public:
     QWidget     *popUp;
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -159,13 +159,13 @@ public:
         textEditor = editor;
     }
 
-    QSize sizeHint() const
+    QSize sizeHint() const override
     {
         return QSize(textEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
-    void paintEvent(QPaintEvent *event)
+    void paintEvent(QPaintEvent *event) override
     {
         textEditor->lineNumberAreaPaintEvent(event);
     }

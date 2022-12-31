@@ -52,8 +52,8 @@ public:
     GlobalSizeWidget(const QSize _sh, const QSize _msh, QWidget *_parent = 0) :
         QWidget(_parent), sh(_sh), msh(_msh) {}
     ~GlobalSizeWidget() {}
-    QSize sizeHint() const { QSize s = QWidget::sizeHint(); return s.expandedTo(sh); }
-    QSize minimumSizeHint() const { QSize s = QWidget::minimumSizeHint(); return s.expandedTo(msh); }
+    QSize sizeHint() const override { QSize s = QWidget::sizeHint(); return s.expandedTo(sh); }
+    QSize minimumSizeHint() const override { QSize s = QWidget::minimumSizeHint(); return s.expandedTo(msh); }
 private:
     QSize sh;
     QSize msh;
@@ -153,7 +153,7 @@ public:
   BorderGui             *lpub3dLogoBorderChildBack;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
   void indexChanged(int selection);
   void displayGroup(bool b);
@@ -181,7 +181,7 @@ public:
 
 public slots:
   void clearCache(bool);
-  void accept();
+  void accept() override;
   void cancel();
 };
 
@@ -240,7 +240,7 @@ public slots:
   void styleOptionChanged(bool);
   void displayAnnotationsChanged(bool);
   void enableElementStyleChanged(bool);
-  void accept();
+  void accept() override;
   void cancel();
 };
 
@@ -264,7 +264,7 @@ public:
   static void getSubModelGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
   void clearCache(bool);
   void instanceCountClicked(bool);
@@ -290,7 +290,7 @@ public:
 
 public slots:
   void clearCache(bool);
-  void accept();
+  void accept() override;
   void cancel();
 };
 
@@ -319,7 +319,7 @@ public slots:
   void clearCache(bool);
   void pliPerStepStateChanged(int state);
   void showGrpStepNumStateChanged(int state);
-  void accept();
+  void accept() override;
   void cancel();
 };
 
@@ -345,7 +345,7 @@ public:
   static void getFadeStepGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
   void enableControls(bool);
   void reloadDisplayPage(bool);
@@ -373,7 +373,7 @@ public:
   static void getHighlightStepGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
   void reloadDisplayPage(bool);
   void enableControls(bool);
@@ -405,7 +405,7 @@ public:
   static void getProjectGlobals(const QString topLevelFile, Meta &meta);
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
   void clearCache(bool);
   void reloadWhatsThis(int value);

@@ -96,7 +96,7 @@ private slots:
 
     void on_actionItalic_triggered();
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
     bool maybeSave();
 

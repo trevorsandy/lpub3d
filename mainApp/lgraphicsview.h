@@ -132,7 +132,7 @@ LRuler(LRuler::RulerType rulerType, QWidget* parent)
   setRulerTrackingPen();
 }
 
-QSize minimumSizeHint() const
+QSize minimumSizeHint() const override
 {
   return QSize(RULER_BREADTH,RULER_BREADTH);
 }
@@ -172,8 +172,8 @@ public slots:
   void setRulerBackgroundColor();
 
 protected:
-  void mouseMoveEvent(QMouseEvent* event);
-  void paintEvent(QPaintEvent* event);
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void paintEvent(QPaintEvent* event) override;
 
 private:
   void drawAScaleMeter(QPainter* painter, QRectF rulerRect, qreal scaleMeter, qreal startPositoin);

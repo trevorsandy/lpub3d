@@ -134,7 +134,7 @@ public:
         commandsTextEdit = editor;
     }
 
-    QSize sizeHint() const
+    QSize sizeHint() const override
     {
         return QSize(commandsTextEdit->lineNumberAreaWidth(), 0);
     }

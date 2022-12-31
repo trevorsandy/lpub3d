@@ -406,7 +406,7 @@ class LDrawFile {
     bool isMpd();
     QString topLevelFile();
     int isUnofficialPart(const QString &name);
-    int isIncludeFile(const QString &fileName);
+    bool isIncludeFile(const QString &fileName);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
     int fileOrderIndex(const QString &file);

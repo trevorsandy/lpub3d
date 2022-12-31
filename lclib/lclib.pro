@@ -204,6 +204,7 @@ QMAKE_CFLAGS_WARN_ON += \
 macx {
 
 QMAKE_CFLAGS_WARN_ON += \
+    -Wno-deprecated-copy \
     -Wno-overloaded-virtual \
     -Wno-sometimes-uninitialized \
     -Wno-self-assign \

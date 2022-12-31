@@ -109,7 +109,6 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		iniFlag(iniflag),
 		forceIni(forceIni),
 		darkTheme(Preferences::displayTheme == THEME_DARK),
-		ldvFormat(nullptr),
 		ldvContext(nullptr),
 		ldPrefs(nullptr),
 		modelViewer(nullptr),
@@ -199,7 +198,13 @@ bool LDVWidget::doCommand(QStringList &arguments)
 	TCUserDefaults::setCommandLine(arguments.join(" ").toUtf8().constData());
 
 	QImage studImage(":/resources/StudLogo.png");
-	TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
+	long studLength =
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+		studImage.sizeInBytes();
+#else
+		studImage.byteCount();
+#endif
+	TREMainModel::setRawStudTextureData(studImage.bits(),studLength);
 
 	bool retValue = true;
 	if (!LDSnapshotTaker::doCommandLine(false, true))
@@ -297,8 +302,13 @@ bool LDVWidget::setupLDVApplication(){
 	}
 
 	QImage fontImage2x(":/resources/SansSerif@2x.png");
-	long len = fontImage2x.byteCount();
-	modelViewer->setRawFont2xData(fontImage2x.bits(),len);
+	long fontLength =
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+		fontImage2x.sizeInBytes();
+#else
+		fontImage2x.byteCount();
+#endif
+	modelViewer->setRawFont2xData(fontImage2x.bits(),fontLength);
 
 	return true;
 }

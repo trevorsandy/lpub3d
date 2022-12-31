@@ -94,11 +94,11 @@ private slots:
   void addSnippetButtonClicked();
   void removeSnippetButtonClicked();
   void copyToClipboard();
-  void closeEvent(QCloseEvent *event);
+  void closeEvent(QCloseEvent *event) override;
   bool maybeSave();
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 };
 #endif // COMMANDSDIALOG_H

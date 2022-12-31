@@ -1394,7 +1394,7 @@ const QString &LDVPreferences::getRecentFileKey(int index)
 {
 	static QString key;
 
-	key.sprintf("%s/File%02d", RECENT_FILES_KEY, index);
+	key = QString("%1/File%2").arg(RECENT_FILES_KEY).arg(index,2,10,QLatin1Char('0'));
 	return key;
 }
 

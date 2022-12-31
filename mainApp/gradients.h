@@ -66,9 +66,9 @@ public:
 
     void setGradientStops(const QGradientStops &stops);
 
-    void paintEvent(QPaintEvent *e);
+    void paintEvent(QPaintEvent *e) override;
 
-    QSize sizeHint() const { return QSize(150, 40); }
+    QSize sizeHint() const override { return QSize(150, 40); }
     QPolygonF points() const;
 
     HoverPoints *hoverPoints() const { return m_hoverPoints; }
@@ -96,9 +96,9 @@ public:
 
     void paint(QPainter *p);
 
-    QSize sizeHint() const { return QSize(400, 400); }
+    QSize sizeHint() const override { return QSize(400, 400); }
     HoverPoints *hoverPoints() const { return m_hoverPoints; }
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *) override;
     bool preferImage() const { return m_prefer_image; }
     QGradient getGradient();
 
@@ -183,7 +183,7 @@ public slots:
     void setDefault3() { setDefault(3); }
     void setDefault4() { setDefault(4); }
     void setGradient() { setGradient(m_gradient);}
-    void accept();
+    void accept() override;
     void cancel();
 
 private:
@@ -218,7 +218,7 @@ public:
         setAttribute(Qt::WA_AcceptTouchEvents);
     }
     void disableAutoBufferSwap() { setAutoBufferSwap(false); }
-    void paintEvent(QPaintEvent *) { parentWidget()->update(); }
+    void paintEvent(QPaintEvent *) override { parentWidget()->update(); }
 protected:
     bool event(QEvent *event)
     {

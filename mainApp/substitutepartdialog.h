@@ -68,7 +68,7 @@ public:
     QStringList mAttributes;
 
 public slots:
-  void accept();
+  void accept() override;
   void cancel();
 
 private slots:
@@ -87,7 +87,7 @@ protected:
   void typeChanged(Which);
   void showPartPreview(Which);
 
-  bool eventFilter(QObject *target, QEvent *event);
+  bool eventFilter(QObject *target, QEvent *event) override;
 
 private:
   Ui::SubstitutePartDialog *ui;
