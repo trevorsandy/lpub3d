@@ -2578,8 +2578,8 @@ int CountPageWorker::countPage(
                    if (ldrawFile->buildModContains(buildMod.key)) {
                        buildMod.action = ldrawFile->getBuildModAction(buildMod.key, buildModStepIndex);
                        if (ldrawFile->getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
-                           emit gui->parseErrorSig("Redundant build modification meta command - this command can be removed.",
-                                                   opts.current,Preferences::BuildModErrors,false,false);
+                           emit gui->parseErrorSig(QString("Redundant build modification meta command '%1' - this command can be removed.")
+                                                   .arg(buildMod.key), opts.current,Preferences::BuildModErrors,false,false,QMessageBox::Icon::Information);
                    } else {
                        emit gui->parseErrorSig(QString("CountPage BuildMod for key '%1' not found").arg(buildMod.key),
                                        opts.current,Preferences::BuildModErrors,false,false);
