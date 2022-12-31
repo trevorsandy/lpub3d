@@ -1,4 +1,4 @@
-LPub3D 2.4.5.36.3013 (31 12 2022 03:54:44)
+LPub3D 2.4.5.37.3014 (31 12 2022 03:56:25)
 
 Features, enhancements, fixes and changes
 ------------
@@ -24,6 +24,7 @@ Revisions:
 - Fix - Build modification - correct navigate backward parse error #621
 - Fix - Configuration preferences dialog cutoff/min window size #616
 - Fix - Export to PDF abnormal behaviour #624
+- Fix - Next Step menu actions not working as expected #637
 - Fix - Open with programs menu action not enabled #629
 - Fix - Primitives shown as missing parts in file load status #630
 - Fix - Settings for Coverpage and Backcover do not work #620

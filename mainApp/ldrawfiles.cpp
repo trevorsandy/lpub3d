@@ -2464,6 +2464,7 @@ void LDrawFile::countInstances(
 
   bool partsAdded        = false;
   bool noStep            = false;
+  bool isInsertStep      = false;
   bool stepIgnore        = false;
   bool buildModIgnore    = false;
   int  buildModState     = BM_NONE;
@@ -2686,7 +2687,7 @@ void LDrawFile::countInstances(
               // page insert, e.g. dispaly model, bom
             } else if (tokens[2] == "INSERT" &&
                     (tokens[3] == "PAGE" || tokens[3] == "COVER_PAGE")) {
-              partsAdded = true;
+              isInsertStep = partsAdded = true;
             } else if (tokens[1] == "BUFEXCHG") {}
           } // lines with 4 elements
         // no step
@@ -2699,8 +2700,8 @@ void LDrawFile::countInstances(
           if (! noStep) {
             if (partsAdded) {
               // parts added - increment step
-              int incr = (isMirrored && f->_mirrorInstances == 0) ||
-                         (! isMirrored && f->_instances == 0);
+              int incr = ((isMirrored && f->_mirrorInstances == 0) ||
+                          (! isMirrored && f->_instances == 0) && ! isInsertStep);
               f->_numSteps += incr;
             }
             // set step index for occurrences of STEP or ROTSTEP not ignored by BuildMod
@@ -2726,7 +2727,7 @@ void LDrawFile::countInstances(
           // set top of next step
           topOfStep = top;
           // reset partsAdded, noStep and emptyLines
-          partsAdded = false;
+          isInsertStep = partsAdded = false;
           noStep = false;
         } // step or rotstep
       // check if subfile and process
@@ -2749,8 +2750,8 @@ void LDrawFile::countInstances(
 
     // increment steps and add BuildMod step index if parts added in the last step of the sub/model and not ignored by BuildMod
     if (partsAdded && ! noStep) {
-      int incr = (isMirrored && f->_mirrorInstances == 0) ||
-              (! isMirrored && f->_instances == 0);
+      int incr = ((isMirrored && f->_mirrorInstances == 0) ||
+                  (! isMirrored && f->_instances == 0) && ! isInsertStep);
       f->_numSteps += incr;
       if (! buildModIgnore) {
         _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
