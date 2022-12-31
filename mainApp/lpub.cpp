@@ -5969,8 +5969,8 @@ void Gui::createActions()
         QAction *deleteImageAction = commonMenus.deleteMenu(*contextMenu,name,"deleteImageAction.1","deleteimage.png");
         lpub->actions.insert(deleteImageAction->objectName(), Action(QStringLiteral("PageContext.Delete Image"), deleteImageAction));
 
-        QAction *clearPageCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearPageCacheAction.1");
-        lpub->actions.insert(clearPageCacheAction->objectName(), Action(QStringLiteral("PageContext.Reset Page Image Cache"), clearPageCacheAction));
+        QAction *refreshPageCacheAction = commonMenus.refreshImageCacheMenu(*contextMenu,name,"refreshPageCacheAction.1");
+        lpub->actions.insert(refreshPageCacheAction->objectName(), Action(QStringLiteral("PageContext.Reset Page Image Cache"), refreshPageCacheAction));
 
         QAction *deletePointerAction = commonMenus.deleteMenu(*contextMenu,name,"deletePointerAction.1","deletepointer.png");
         lpub->actions.insert(deletePointerAction->objectName(), Action(QStringLiteral("PointerContext.Delete Pointer"), deletePointerAction));
@@ -6007,16 +6007,16 @@ void Gui::createActions()
         QAction *partsListAction = commonMenus.partsListMenu(*contextMenu,name);
         lpub->actions.insert(partsListAction->objectName(), Action(QStringLiteral("StepContext.Parts List Per Step"), partsListAction));
 
-        QAction *clearStepCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearStepCacheAction.1","clearcsicache.png", CsiType);
-        lpub->actions.insert(clearStepCacheAction->objectName(), Action(QStringLiteral("StepContext.Reset Step Assembly Image Cache"), clearStepCacheAction));
+        QAction *refreshStepCacheAction = commonMenus.refreshImageCacheMenu(*contextMenu,name,"refreshStepCacheAction.1","refreshstepcache.png", CsiType);
+        lpub->actions.insert(refreshStepCacheAction->objectName(), Action(QStringLiteral("StepContext.Reset Step Assembly Image Cache"), refreshStepCacheAction));
 
         // shared context menu actions
 
-        QAction *clearPartsCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearPartsCacheAction.1","clearplicache.png", PartsListType);
-        lpub->actions.insert(clearPartsCacheAction->objectName(), Action(QStringLiteral("SharedContext.Reset Step Assembly Image Cache"), clearPartsCacheAction));
+        QAction *refreshPartsCacheAction = commonMenus.refreshImageCacheMenu(*contextMenu,name,"refreshPartsCacheAction.1","refreshpartscache.png", PartsListType);
+        lpub->actions.insert(refreshPartsCacheAction->objectName(), Action(QStringLiteral("SharedContext.Reset Step Assembly Image Cache"), refreshPartsCacheAction));
 
-        QAction *clearSubmodelCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearSubmodelCacheAction.1","clearsubmodelcache.png", SubModelType);
-        lpub->actions.insert(clearSubmodelCacheAction->objectName(), Action(QStringLiteral("SharedContext.Reset Step Assembly Image Cache"), clearSubmodelCacheAction));
+        QAction *refreshSubmodelCacheAction = commonMenus.refreshImageCacheMenu(*contextMenu,name,"refreshSubmodelCacheAction.1","refreshsubmodelcache.png", SubModelType);
+        lpub->actions.insert(refreshSubmodelCacheAction->objectName(), Action(QStringLiteral("SharedContext.Reset Step Assembly Image Cache"), refreshSubmodelCacheAction));
 
         QAction *rendererArgumentsAction = commonMenus.rendererArgumentsMenu(*contextMenu,name);
         lpub->actions.insert(rendererArgumentsAction->objectName(), Action(QStringLiteral("SharedContext.Add Renderer Arguments"), rendererArgumentsAction));

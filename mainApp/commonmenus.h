@@ -527,7 +527,7 @@ public:
                 QMenu   &menu,
           const QString &name = "");
 
-  QAction *clearImageCacheMenu(
+  QAction *refreshImageCacheMenu(
                 QMenu   &menu,
           const QString &name = "",
           const QString &objectName = "",

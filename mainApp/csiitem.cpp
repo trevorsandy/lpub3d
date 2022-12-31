@@ -533,10 +533,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-    QAction *clearStepCacheAction      = nullptr;
+    QAction *refreshStepCacheAction      = nullptr;
     if (parentRelativeType == StepGroupType) {
-        clearStepCacheAction           = lpub->getAct("clearStepCacheAction.1");
-        commonMenus.addAction(clearStepCacheAction,menu,name);
+        refreshStepCacheAction           = lpub->getAct("refreshStepCacheAction.1");
+        commonMenus.addAction(refreshStepCacheAction,menu,name);
     }
 
     QAction *noStepAction              = lpub->getAct("noStepAction.1");
@@ -752,7 +752,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                            bottomOfStep,
                            rendererNames[Render::getRenderer()],
                            &step->povrayParms);
-    } else if (selectedAction == clearStepCacheAction) {
+    } else if (selectedAction == refreshStepCacheAction) {
         Page *page = step->page();
         clearPageCache(parentRelativeType,page,Options::CSI);
         //gui->clearStepCSICache(step->pngName);

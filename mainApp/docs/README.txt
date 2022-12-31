@@ -1,4 +1,4 @@
-LPub3D 2.4.5.14.2991 (31 12 2022 03:18:28)
+LPub3D 2.4.5.15.2992 (31 12 2022 03:20:08)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Change - Change reset image menu action description to refresh image #623
 - Fix - Build modification - correct navigate backward parse error #621
 - Fix - Build modification - correct jump forward parse error #622
 - Fix - Configuration preferences dialog cutoff/min window size #616

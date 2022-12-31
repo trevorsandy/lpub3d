@@ -1713,8 +1713,8 @@ void SubModelBackgroundItem::contextMenuEvent(
         }
     }
 
-    QAction *clearSubmodelCacheAction = lpub->getAct("clearSubmodelCacheAction.1");
-    commonMenus.addAction(clearSubmodelCacheAction,menu,name);
+    QAction *refreshSubmodelCacheAction = lpub->getAct("refreshSubmodelCacheAction.1");
+    commonMenus.addAction(refreshSubmodelCacheAction,menu,name);
 
     QAction *copySmpImagePathAction  = nullptr;
 #ifndef QT_NO_CLIPBOARD
@@ -1826,7 +1826,7 @@ void SubModelBackgroundItem::contextMenuEvent(
                              bottom,
                              rendererNames[Render::getRenderer()],
                              &subModel->subModelMeta.povrayParms);
-    } else if (selectedAction == clearSubmodelCacheAction) {
+    } else if (selectedAction == refreshSubmodelCacheAction) {
         Page *page = dynamic_cast<Page *>(subModel->steps);
         clearPageCache(parentRelativeType,page,Options::SMP);
     } else if (selectedAction == copySmpImagePathAction) {

@@ -3389,10 +3389,10 @@ void PliBackgroundItem::contextMenuEvent(
 
         QAction *splitBomAction        = nullptr;
         QAction *deleteBomAction       = nullptr;
-        QAction *clearPartsCacheAction = nullptr;
+        QAction *refreshPartsCacheAction = nullptr;
         if (!pli->bom) {
-            clearPartsCacheAction      = lpub->getAct("clearPartsCacheAction.1");
-            commonMenus.addAction(clearPartsCacheAction,menu,name);
+            refreshPartsCacheAction      = lpub->getAct("refreshPartsCacheAction.1");
+            commonMenus.addAction(refreshPartsCacheAction,menu,name);
         } else {
             splitBomAction             = lpub->getAct("splitBomAction.1");
             commonMenus.addAction(splitBomAction,menu);
@@ -3533,7 +3533,7 @@ void PliBackgroundItem::contextMenuEvent(
                                  bottom,
                                  rendererNames[Render::getRenderer()],
                                  &pli->pliMeta.povrayParms);
-        } else if (selectedAction == clearPartsCacheAction) {
+        } else if (selectedAction == refreshPartsCacheAction) {
             Page *page = dynamic_cast<Page *>(pli->steps);
             clearPageCache(parentRelativeType,page,Options::PLI);
         }

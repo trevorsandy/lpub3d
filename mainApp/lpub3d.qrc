@@ -74,9 +74,7 @@
         <file alias="clearcsicache.png">resources/clearcsicache.png</file>
         <file alias="clearcustompartcache.png">resources/clearcustompartcache.png</file>
         <file alias="clearimagemodelcache.png">resources/clearimagemodelcache.png</file>
-        <file alias="clearpagecache.png">resources/clearpagecache.png</file>
         <file alias="clearplicache.png">resources/clearplicache.png</file>
-        <file alias="clearstepcache.png">resources/clearstepcache.png</file>
         <file alias="clearsubmodelcache.png">resources/clearsubmodelcache.png</file>
         <file alias="cleartempcache.png">resources/cleartempcache.png</file>
         <file alias="closemodelfile.png">resources/closemodelfile.png</file>
@@ -136,6 +134,7 @@
         <file alias="exportpng.png">resources/exportpng.png</file>
         <file alias="fadesteps.png">resources/fadesteps.png</file>
         <file alias="fadestepsetup.png">resources/fadestepsetup.png</file>
+        <file alias="filter.png">resources/filter.png</file>
         <file alias="find.png">resources/find.png</file>
         <file alias="first.png">resources/first.png</file>
         <file alias="fitPage.png">resources/fitPage.png</file>
@@ -214,6 +213,10 @@
         <file alias="recentfiles.png">resources/recentfiles.png</file>
         <file alias="redraw.png">resources/redraw.png</file>
         <file alias="refreshoffarchive.png">resources/refreshoffarchive.png</file>
+        <file alias="refreshpagecache.png">resources/refreshpagecache.png</file>
+        <file alias="refreshpartscache.png">resources/refreshpartscache.png</file>
+        <file alias="refreshstepcache.png">resources/refreshstepcache.png</file>
+        <file alias="refreshsubmodelcache.png">resources/refreshsubmodelcache.png</file>
         <file alias="refreshunoffarchive.png">resources/refreshunoffarchive.png</file>
         <file alias="reloadpartannotation.png">resources/reloadpartannotation.png</file>
         <file alias="remove.png">resources/remove.png</file>

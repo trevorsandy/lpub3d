@@ -123,7 +123,7 @@ void FilterLineEdit::initialize()
     m_patternGroup->addAction(patternAction);
     connect(m_patternGroup, &QActionGroup::triggered, this, &FilterLineEdit::filterChanged);
 
-    const QIcon icon = QIcon(QPixmap(":/resources/parts_search.png"));
+    const QIcon icon = QIcon(QPixmap(":/resources/filter.png"));
     QToolButton *optionsButton = new QToolButton;
 #ifndef QT_NO_CURSOR
     optionsButton->setCursor(Qt::ArrowCursor);

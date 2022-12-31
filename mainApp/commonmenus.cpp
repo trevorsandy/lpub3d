@@ -841,7 +841,7 @@ QAction* CommonMenus::cameraAnglesMenu(
   return action;
 }
 
-QAction* CommonMenus::clearImageCacheMenu(
+QAction* CommonMenus::refreshImageCacheMenu(
         QMenu   &menu,
   const QString &name,
   const QString &objectName,
@@ -850,21 +850,21 @@ QAction* CommonMenus::clearImageCacheMenu(
 {
   QAction *action;
 
-  QString formatted = QObject::tr("Reset %1 Image Cache") .arg(name);
+  const QString imagelabel = type != CsiType && type != SubModelType ? QObject::tr("Images") : QObject::tr("Image");
+
+  QString formatted = QObject::tr("Refresh %1 %2") .arg(name,imagelabel);
   action = menu.addAction(formatted);
   action->setParent(menu.parent());
   action->setObjectName(objectName.isEmpty() ? "clearImageCacheAction.1" : objectName);
   action->setProperty("name", name);
-  action->setIcon(QIcon(iconImage.isEmpty() ? ":/resources/clearpagecache.png" : ":/resources/" + iconImage));
+  action->setIcon(QIcon(iconImage.isEmpty() ? ":/resources/refreshpagecache.png" : ":/resources/" + iconImage));
 
-  const QString imagelabel = type != CsiType && type != SubModelType ? QObject::tr("images") : QObject::tr("image");
-
-  formatted = QObject::tr("Clear the %1 %2 and working LDraw (.ldr) cache files") .arg(name.toLower(),imagelabel);
+  formatted = QObject::tr("Clear the %1 %2 and working LDraw (.ldr) cache files") .arg(name.toLower(),imagelabel.toLower());
   action->setStatusTip(formatted);
 
-  formatted = QObject::tr("Reset %1 Image Cache:\n"
-                          "  You can clear this %2 %3 and working LDraw (.ldr)\n"
-                          "  cache files.\n") .arg(name, name.toLower(), imagelabel);
+  formatted = QObject::tr("Refresh %1 %2:\n"
+                          "  You can clear this %3 %4 and working LDraw (.ldr)\n"
+                          "  cache files.\n") .arg(name, imagelabel, name.toLower(), imagelabel.toLower());
   action->setWhatsThis(formatted);
 
   return action;
@@ -1000,7 +1000,7 @@ QAction* CommonMenus::restoreCountMenu(
   action->setParent(menu.parent());
   action->setObjectName("restoreCountAction.1");
   action->setProperty("name", name);
-  action->setIcon(QIcon(":/resources/clearsubmodelcache.png"));
+  action->setIcon(QIcon(":/resources/refreshsubmodelcache.png"));
 
   formatted = QObject::tr("Restore the default %1 instance count.") .arg(name.toLower());
   action->setStatusTip(formatted);

@@ -96,7 +96,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *assembledAction           = nullptr;
   QAction *ignoreAction              = nullptr;
   QAction *partAction                = nullptr;
-  QAction *clearPageCacheAction      = nullptr;
+  QAction *refreshPageCacheAction      = nullptr;
   if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
       if (range->relativeType == RangeType) {
@@ -192,8 +192,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   commonMenus.addAction(sizeAndOrientationAction,menu);
 
   if (fullContextMenu) {
-      clearPageCacheAction           = lpub->getAct("clearPageCacheAction.1");
-      commonMenus.addAction(clearPageCacheAction,menu,name);
+      refreshPageCacheAction           = lpub->getAct("refreshPageCacheAction.1");
+      commonMenus.addAction(refreshPageCacheAction,menu,name);
   }
 
   QAction *selectedAction            = menu.exec(event->screenPos());
@@ -239,7 +239,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
       } else if (selectedAction == addPrevStepAction) {
         addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
-      } else if (selectedAction == clearPageCacheAction){
+      } else if (selectedAction == refreshPageCacheAction){
         clearPageCache(relativeType,page,Options::CSI);
       }
   }
