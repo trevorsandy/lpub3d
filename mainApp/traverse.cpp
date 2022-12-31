@@ -2102,8 +2102,8 @@ int Gui::drawPage(
               else if (buildModInsert)
                   buildModActions.insert(buildMod.level, BuildModApplyRc);
               else
-                  parseError(QString("Expected BuildMod action - Ensure your meta command is well formed."),
-                             opts.current,Preferences::BuildModErrors);
+                  parseError(tr("Build modification '%1' is not registered. BuildMod key was not found.").arg(buildMod.key),
+                                opts.current,Preferences::BuildModErrors);
               // set buildMod and buildModPli ignore
               if (buildModActions.value(buildMod.level) == BuildModApplyRc) {
                   buildMod.ignore = false;
