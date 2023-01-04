@@ -1831,6 +1831,8 @@ void Gui::clearAllCaches()
         return;
     }
 
+    bool showMsg = sender() == getAct("clearAllCachesAct.1");
+
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
@@ -1843,10 +1845,11 @@ void Gui::clearAllCaches()
     clearSMICache();
     clearTempCache();
 
-    emit messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
+    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                    tr("Parts, bill of material, assembly, submodel and temporary LDraw file caches reset (%1 models, %2 parts).%3")
                                  .arg(lpub->ldrawFile.getSubModels().size())
                                  .arg(lpub->ldrawFile.getPartCount())
-                                 .arg(elapsedTime(timer.elapsed())),showMsgBox);
+                                 .arg(showMsg ? "" : QString(" %1").arg(elapsedTime(timer.elapsed()))),showMsg);
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -1854,7 +1857,9 @@ void Gui::clearCustomPartCache(bool silent)
   if (Paths::customDir.isEmpty())
       return;
 
+  bool showMsg = false;
   if (sender() == getAct("clearCustomPartCacheAct.1")) {
+      showMsg = true;
       bool _continue;
       if (Preferences::saveOnRedraw) {
           _continue = maybeSave(false); // No prompt
@@ -1886,9 +1891,10 @@ void Gui::clearCustomPartCache(bool silent)
   int count = 0;
   emit messageSig(LOG_INFO,tr("-Removing folder %1").arg(dirName));
   if (removeDir(count, dirName)) {
-      emit messageSig(LOG_INFO_STATUS,tr("Custom parts cache cleaned.  %1 %2 removed.")
+      emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                      tr("Custom parts cache cleaned.  %1 %2 removed.")
                                          .arg(count)
-                                         .arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+                                         .arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
   } else {
       emit messageSig(LOG_ERROR,tr("Unable to remove custom parts cache directory: %1").arg(dirName));
       return;
@@ -1916,7 +1922,9 @@ void Gui::clearPLICache()
         return;
     }
 
+    bool showMsg = false;
     if (sender() == getAct("clearPLICacheAct.1")) {
+        showMsg = true;
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1946,8 +1954,10 @@ void Gui::clearPLICache()
             }
         }
     }
-    emit messageSig(LOG_INFO_STATUS,tr("Parts content cache cleaned. %1 %2 removed.")
-                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+
+    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                    tr("Parts content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 void Gui::clearCSICache()
@@ -1957,7 +1967,9 @@ void Gui::clearCSICache()
         return;
     }
 
+    bool showMsg = false;
     if (sender() == getAct("clearCSICacheAct.1")) {
+        showMsg = true;
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1989,8 +2001,9 @@ void Gui::clearCSICache()
         }
     }
 
-    emit messageSig(LOG_INFO_STATUS,tr("Assembly content cache cleaned. %1 %2 removed.")
-                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                    tr("Assembly content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")), showMsg);
 }
 
 void Gui::clearBOMCache()
@@ -2000,7 +2013,9 @@ void Gui::clearBOMCache()
         return;
     }
 
+    bool showMsg = false;
     if (sender() == getAct("clearBOMCacheAct.1")) {
+        showMsg = true;
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2030,8 +2045,10 @@ void Gui::clearBOMCache()
             }
         }
     }
-    emit messageSig(LOG_INFO_STATUS,tr("Bill of material content cache cleaned. %1 %2 removed.")
-                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+
+    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                    tr("Bill of material content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 void Gui::clearSMICache(const QString &key)
@@ -2041,7 +2058,9 @@ void Gui::clearSMICache(const QString &key)
         return;
     }
 
+    bool showMsg = false;
     if (sender() == getAct("clearSMICacheAct.1")) {
+        showMsg = true;
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2082,8 +2101,9 @@ void Gui::clearSMICache(const QString &key)
         }
     }
 
-    emit messageSig(LOG_INFO_STATUS,tr("Submodel content cache cleaned. %1 %2 removed.")
-                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                    tr("Submodel content cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 void Gui::clearTempCache()
@@ -2093,7 +2113,9 @@ void Gui::clearTempCache()
         return;
     }
 
+    bool showMsg = false;
     if (sender() == getAct("clearTempCacheAct.1")) {
+        showMsg = true;
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2127,8 +2149,9 @@ void Gui::clearTempCache()
 
     lpub->ldrawFile.tempCacheCleared();
 
-    emit messageSig(LOG_INFO_STATUS,tr("Temporary model file cache cleaned. %1 %2 removed.")
-                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
+    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+                    tr("Temporary model file cache cleaned. %1 %2 removed.")
+                                       .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
