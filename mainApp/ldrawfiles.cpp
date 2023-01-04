@@ -218,6 +218,7 @@ BuildModStep::BuildModStep(const int      buildModStepIndex,
 
 /* initialize viewer step*/
 ViewerStep::ViewerStep(const QStringList &stepKey,
+                       const QStringList &rotatedViewerContents,
                        const QStringList &rotatedContents,
                        const QStringList &unrotatedContents,
                        const QString     &filePath,
@@ -227,8 +228,9 @@ ViewerStep::ViewerStep(const QStringList &stepKey,
                        bool               calledOut,
                        int                viewType)
 {
-    _rotatedContents   << rotatedContents;
-    _unrotatedContents << unrotatedContents;
+    _rotatedViewerContents << rotatedViewerContents;
+    _rotatedContents       << rotatedContents;
+    _unrotatedContents     << unrotatedContents;
     _partCount = 0;
     _filePath  = filePath;
     _imagePath = imagePath;
@@ -4521,6 +4523,7 @@ void LDrawFile::clearBuildModSteps()
 /* Visual Editor routines */
 
 void LDrawFile::insertViewerStep(const QString     &stepKey,
+                                 const QStringList &rotatedViewerContents,
                                  const QStringList &rotatedContents,
                                  const QStringList &unrotatedContents,
                                  const QString     &filePath,
@@ -4538,13 +4541,10 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
   const QStringList keyList = stepKey.split("_");
   const QStringList keys = keyList.size() > 1 ? keyList.first().split(";") : stepKey.split(";");
 
-  ViewerStep viewerStep(keys,rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
+  ViewerStep viewerStep(keys,rotatedViewerContents,rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
 
   viewerStep._keySuffix = keyList.size() > 1 ? QString("_%1").arg(keyList.last()) : QString();
-
-  Q_FOREACH(QString line, rotatedContents)
-    if (line[0] == '1')
-      viewerStep._partCount++;
+  viewerStep._partCount = rotatedContents.size();
 
   _viewerSteps.insert(stepKey,viewerStep);
 
@@ -4571,7 +4571,7 @@ void LDrawFile::updateViewerStep(const QString &stepKey, const QStringList &cont
 
   if (i != _viewerSteps.end()) {
     if (rotated)
-      i.value()._rotatedContents = contents;
+      i.value()._rotatedViewerContents = contents;
     else
       i.value()._unrotatedContents = contents;
     i.value()._partCount = 0;
@@ -4582,13 +4582,60 @@ void LDrawFile::updateViewerStep(const QString &stepKey, const QStringList &cont
   }
 }
 
-/* return viewer step rotatedContents */
+/* return viewer step Content line */
+
+QString LDrawFile::getViewerStepContentLine(const QString &stepKey, const int lineTypeIndex, bool rotated, bool relative)
+{
+  if (lineTypeIndex == BM_INVALID_INDEX)
+      return QString();
+
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
+  if (i != _viewerSteps.end()) {
+    if (rotated) {
+      if (i.value()._rotatedContents.size()) {
+        if (relative) {
+          if (i.value()._rotatedContents.size() > lineTypeIndex)
+            return i.value()._rotatedContents.at(lineTypeIndex);
+        } else {
+          for (int j = 0; j < i.value()._rotatedContents.size(); ++j)
+            if (j == lineTypeIndex)
+              return i.value()._rotatedContents.at(j);
+        }
+      }
+    } else {
+      if (i.value()._unrotatedContents.size()) {
+        if (relative) {
+          if (i.value()._unrotatedContents.size() > lineTypeIndex)
+            return i.value()._unrotatedContents.at(lineTypeIndex);
+        } else {
+          for (int j = 0; j < i.value()._unrotatedContents.size(); ++j)
+            if (j == lineTypeIndex)
+              return i.value()._unrotatedContents.at(j);
+        }
+      }
+    }
+  }
+  return QString();
+}
+
+/* return viewer step Contents. */
+
+QStringList LDrawFile::getViewerStepContents(const QString &stepKey)
+{
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
+  if (i != _viewerSteps.end()) {
+    return i.value()._rotatedContents;
+  }
+  return _emptyList;
+}
+
+/* return viewer step rotatedContents - Called by viewer project*/
 
 QStringList LDrawFile::getViewerStepRotatedContents(const QString &stepKey)
 {
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
-    return i.value()._rotatedContents;
+    return i.value()._rotatedViewerContents;
   }
   return _emptyList;
 }

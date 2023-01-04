@@ -2573,849 +2573,1080 @@ void Gui::ReloadVisualEditor(){
  *
  ********************************************/
 
-void Gui::createBuildModification()
-{
-    if (!Preferences::buildModEnabled)
-        return;
+ void Gui::createBuildModification()
+ {
+     if (!Preferences::buildModEnabled)
+         return;
 
-    if (!lpub->currentStep)
-        return;
+     if (!lpub->currentStep)
+         return;
 
-    bool update = !buildModChangeKey.isEmpty();
+     bool Update = !buildModChangeKey.isEmpty();
 
-    if ((!update && !CreateBuildModAct->isEnabled()) || (update && !UpdateBuildModAct->isEnabled()))
-        return;
+     if ((!Update && !CreateBuildModAct->isEnabled()) || (Update && !UpdateBuildModAct->isEnabled()))
+         return;
 
-    bool showMessage = true;
-    using namespace Options;
-    Mt imageType = static_cast<Mt>(lcGetActiveProject()->GetImageType());
-    if (imageType != CSI) {
-        const QString model = imageType == CSI ? tr("a part instance") :
-                              imageType == SMI ? tr("a submodel preview") :
-                              tr("not an assembly");
-        emit messageSig(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
-                                       "The active model is %1.").arg(model), showMessage);
-        return;
-    }
+     bool showMsgBox = true;
+     using namespace Options;
+     Mt imageType = static_cast<Mt>(lcGetActiveProject()->GetImageType());
+     if (imageType != CSI) {
+         const QString model = imageType == CSI ? tr("a part instance") :
+                               imageType == SMI ? tr("a submodel preview") :
+                               tr("not an assembly");
+         statusMessage(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
+                                      "The active model is %1.").arg(model), showMsgBox);
+         return;
+     }
 
-    if (buildModChangeKey.isEmpty() && ! mBuildModRange.first()) {
-        emit messageSig(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMessage);
-        return;
-    }
+     if (buildModChangeKey.isEmpty() && ! mBuildModRange.first()) {
+         statusMessage(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMsgBox);
+         return;
+     }
 
-    //* local ldrawFile and step used for debugging
+//* local ldrawFile and step used for debugging
 #ifdef QT_DEBUG_MODE
-    LDrawFile *ldrawFile = &lpub->ldrawFile;
-    Step *currentStep = lpub->currentStep;
-    Q_UNUSED(currentStep)
-    Q_UNUSED(ldrawFile)
+     LDrawFile *ldrawFile = &lpub->ldrawFile;
+     Step *currentStep = lpub->currentStep;
+     Q_UNUSED(currentStep)
+     Q_UNUSED(ldrawFile)
 #endif
-    //*/
-
-    lcView* ActiveView = GetActiveView();
-    lcModel* ActiveModel = ActiveView->GetActiveModel();
-
-    if (ActiveModel) {
-        QString BuildModKey = buildModChangeKey;
-        QString statusLabel = update ? "Updating" : "Creating";
-
-        emit progressBarPermInitSig();
-        emit progressPermRangeSig(0, 0);   // Busy indicator
-        emit progressPermMessageSig(tr("%1 Build Modification...").arg(statusLabel));
-
-        if (mBuildModRange.first() || update){
-
-            emit messageSig(LOG_INFO, tr("%1 BuildMod for Step %2...")
-                                         .arg(statusLabel)
-                                         .arg(lpub->currentStep->stepNumber.number));
-
-            // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
-            lcArray<lcGroup*>  mGroups;
-            lcArray<lcCamera*> mCameras;
-            lcArray<lcLight*>  mLights;
-            lcArray<lcPiece*>  mLPubPieces;                     // Pieces in the buildMod - may include removed viewer pieces
-            lcArray<lcGroup*>  mLPubGroups;
-            lcArray<lcPiece*>  mViewerPieces;                   // All viewer pieces in the step
-            lcArray<lcGroup*>  mViewerGroups;
-            lcModelProperties  mViewerProperties;
-            lcArray<lcPieceControlPoint> ControlPoints;
-            QStringList  mLPubFileLines, mViewerFileLines,
-                         LPubModContents, ViewerModContents,
-                         ModStepKeys;
-
-            bool FadeStep         = Preferences::enableFadeSteps;
-            bool HighlightStep    = Preferences::enableHighlightStep && !suppressColourMeta();
-
-            int AddedPieces       = 0;
-            int CurrentStep       = 1;
-            lcPiece *Piece        = nullptr;
-            lcCamera *Camera      = nullptr;
-            lcLight  *Light       = nullptr;
-            mViewerProperties     = ActiveModel->GetProperties();
-            mViewerFileLines      = ActiveModel->GetFileLines();
-            mViewerPieces         = ActiveModel->GetPieces();
-            lcPiecesLibrary *Library = lcGetPiecesLibrary();
-
-            QString ModStepKey    = lpub->viewerStepKey;
-            ModStepKeys           = ModStepKey.split(";");
-
-            // When update, initialize BuildMod StepPieces, and Begin and End range with the existing values
-            int BuildModBegin     = update ? getBuildModBeginLineNumber(BuildModKey)  : 0;
-            int BuildModAction    = update ? getBuildModActionLineNumber(BuildModKey) : 0;
-            int BuildModEnd       = update ? getBuildModEndLineNumber(BuildModKey)    : 0;
-
-            int ModBeginLineNum   = update ? BuildModBegin  : mBuildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModActionLineNum  = update ? BuildModAction : mBuildModRange.at(BM_ACTION_LINE_NUM);
-            int ModEndLineNum     = update ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModStepPieces     = update ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
-            int ModelIndex        = update ? getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
-            int ModStepIndex      = getBuildModStepIndex(lpub->currentStep->topOfStep());
-            int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
-            int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
-            int ModDisplayPageNum = displayPageNum;
-            QString ModelName     = getSubmodelName(ModelIndex);
-            buildModChangeKey     = QString();
-
-            if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
-                emit messageSig(LOG_ERROR, tr("BuildMod model (%1) '%2' and StepKey model (%3) mismatch")
-                                              .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
-
-            // Check if there is an existing build modification in this Step
-            QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
-            if (stepContains(lpub->currentStep->top, lineRx) && !update) {
-
-                // Get the application icon as a pixmap
-                QPixmap _icon = QPixmap(":/icons/lpub96.png");
-                if (_icon.isNull())
-                    _icon = QPixmap (":/icons/update.png");
-
-                QMessageBox box;
-                box.setWindowIcon(QIcon());
-                box.setIconPixmap (_icon);
-                box.setTextFormat (Qt::RichText);
-                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-                QString title = "<b>" + tr ("You specified create action for an existing Build Modification") + "</b>";
-                QString text = tr("<br>This action will replace the existing Build Modification."
-                                  "<br>You can cancel and select 'Update Build Modification...' from the build modification submenu."
-                                  "<br>Do you want to continue with this create action ?");
-                box.setText (title);
-                box.setInformativeText (text);
-                box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Ok);
-                box.setDefaultButton   (QMessageBox::Cancel);
-
-                if (box.exec() == QMessageBox::Cancel)
-                    return;
-            }
-
-            auto GetGroup = [&mGroups](const QString& Name, bool CreateIfMissing)
-            {
-                lcGroup* nullGroup = nullptr;
-                for (lcGroup* Group : mGroups)
-                    if (Group->mName == Name)
-                        return Group;
-
-                if (CreateIfMissing)
-                {
-                    lcGroup* Group = new lcGroup();
-                    Group->mName = Name;
-                    mGroups.Add(Group);
-
-                    return Group;
-                }
-
-                return nullGroup;
-            };
-
-            auto ConfigurePartLine = [&ModelIndex, &FadeStep, &HighlightStep, &LPubModContents] (int LineTypeIndex, QTextStream &Stream)
-            {
-                if (!FadeStep && !HighlightStep)
-                    return;
-
-                if (!Stream.string()->isEmpty()) {
-
-                    QStringList ModLines = Stream.string()->split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
-                    QString PartLine = ModLines.last();
-
-                    QStringList argv;
-                    split(PartLine, argv);
-
-                    if (argv.size() == 15 && argv[0] == "1") {
-
-                        QString NameMod, ColourPrefix;
-                        if (FadeStep) {
-                            NameMod = FADE_SFX;
-                            ColourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
-                        } else if (HighlightStep) {
-                            NameMod = HIGHLIGHT_SFX;
-                            ColourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
-                        }
-
-                        // Colour code
-                        if (argv[1].startsWith(ColourPrefix)) {
-                            int LineNumber;
-                            QString LPubPartLine, NewColorCode;
-                            bool NewLine = !gui->getSelectedLine(ModelIndex, LineTypeIndex, VIEWER_MOD, LineNumber);
-
-                            if (NewLine) {
-                                NewColorCode = argv[1];
-
-                            } else {
-                                LPubPartLine = LPubModContents.at(LineTypeIndex);
-                                QStringList dargv;
-                                split(LPubPartLine, dargv);
-
-                                if (dargv.size() == 15 && dargv[0] == "1") {
-                                    NewColorCode = dargv[1];
-
-                                } else {
-                                    NewColorCode = argv[1].right(argv[1].size() - ColourPrefix.size());
-                                    if (FadeStep && Preferences::fadeStepsUseColour)
-                                        NewColorCode = LDRAW_MAIN_MATERIAL_COLOUR;
-                                }
-                            }
-
-                            argv[1] = NewColorCode;
-                        }
-
-                        // fileName
-                        QString FileName = QString(argv[argv.size()-1]).toLower();
-                        if (FileName.contains(NameMod)) {
-
-                            QString NewFileName = FileName.replace(NameMod,"");
-                            argv[argv.size()-1] = NewFileName;
-                        }
-
-                        PartLine = argv.join(" ");
-
-                        ModLines.removeLast();
-                        ModLines.append(PartLine);
-
-                        Stream.string()->clear();
-
-                        for (int i = 0; i < ModLines.size(); i++)
-                            Stream << ModLines.at(i);
-                    }
-                }
-            };
-
-            auto InsertPiece = [] (lcArray<lcPiece*> &mLPubPieces, lcPiece* Piece, int PieceIdx)
-            {
-                PieceInfo* Info = Piece->mPieceInfo;
-
-                if (!Info->IsModel())
-                {
-                    lcMesh* Mesh = Info->GetMesh();
-
-                    if (Mesh && Mesh->mVertexCacheOffset == -1)
-                        lcGetPiecesLibrary()->mBuffersDirty = true;
-                }
-
-                mLPubPieces.InsertAt(PieceIdx, Piece);
-            };
-
-            auto AddPiece = [&InsertPiece](lcArray<lcPiece*> &mLPubPieces, lcPiece* Piece)
-            {
-                for (int PieceIdx = 0; PieceIdx < mLPubPieces.GetSize(); PieceIdx++)
-                {
-                    if (mLPubPieces[PieceIdx]->GetStepShow() > Piece->GetStepShow())
-                    {
-                        InsertPiece(mLPubPieces, Piece, PieceIdx);
-                        return;
-                    }
-                }
-
-                InsertPiece(mLPubPieces, Piece, mLPubPieces.GetSize());
-            };
-
-            // load LPub content
-            QByteArray ByteArray;
-            for (int i = 0; i < lpub->ldrawFile.contents(ModelName).size(); i++){
-                if (i > ModActionLineNum)
-                    break;
-                QString ModLine = lpub->ldrawFile.contents(ModelName).at(i);
-                if (i >= ModBeginLineNum)
-                    LPubModContents.append(ModLine);
-                ByteArray.append(ModLine.toUtf8());
-                ByteArray.append(QString("\n").toUtf8());
-            }
-            QBuffer Buffer(&ByteArray);
-            Buffer.open(QIODevice::ReadOnly);
-            Buffer.seek(0);
-
-            // load mLPubFileLines, mLPubGroups and mLPubPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
-            while (!Buffer.atEnd())
-            {
-                qint64 Pos = Buffer.pos();
-                QString OriginalLine = Buffer.readLine();
-                QString Line = OriginalLine.trimmed();
-                QTextStream LineStream(&Line, QIODevice::ReadOnly);
-
-                QString Token;
-                LineStream >> Token;
-
-                if (Token == QLatin1String("0"))
-                {
-                    LineStream >> Token;
-                    if (Token == QLatin1String("FILE"))
-                    {
-                        QString Name = LineStream.readAll().trimmed();
-
-                        if (mViewerProperties.mFileName != Name)
-                        {
-                            Buffer.seek(Pos);
-                            break;
-                        }
-
-                        continue;
-                    }
-                    else if (Token == QLatin1String("NOFILE"))
-                    {
-                        break;
-                    }
-                    else if (Token == QLatin1String("STEP"))
-                    {
-                        CurrentStep++;
-                        mLPubFileLines.append(OriginalLine);
-                        continue;
-                    }
-
-                    if (Token != QLatin1String("!LPUB"))
-                    {
-                        mLPubFileLines.append(OriginalLine);
-                        continue;
-                    }
-
-                    LineStream >> Token;
-
-                    if (Token == QLatin1String("MODEL"))
-                    {
-                        mViewerProperties.ParseLDrawLine(LineStream);
-                    }
-                    else if (Token == QLatin1String("PIECE"))
-                    {
-                        if (!Piece)
-                            Piece = new lcPiece(nullptr);
-
-                        Piece->ParseLDrawLine(LineStream);
-                    }
-                    else if (Token == QLatin1String("CAMERA"))
-                    {
-                        if (!Camera)
-                            Camera = new lcCamera(false);
-
-                        if (Camera->ParseLDrawLine(LineStream))
-                        {
-                            Camera->CreateName(mCameras);
-                            mCameras.Add(Camera);
-                            Camera = nullptr;
-                        }
-                    }
-                    else if (Token == QLatin1String("LIGHT"))
-                    {
-                        if (!Light)
-                            Light = new lcLight(0.0f, 0.0f, 0.0f);
-
-                        if (Light->ParseLDrawLine(LineStream))
-                        {
-                            Light->CreateName(mLights);
-                            mLights.Add(Light);
-                            Light = nullptr;
-                        }
-                    }
-                    else if (Token == QLatin1String("GROUP"))
-                    {
-                        LineStream >> Token;
-
-                        if (Token == QLatin1String("BEGIN"))
-                        {
-                            QString Name = LineStream.readAll().trimmed();
-                            lcGroup* Group = GetGroup(Name, true);
-                            if (!mLPubGroups.IsEmpty())
-                                Group->mGroup = mLPubGroups[mLPubGroups.GetSize() - 1];
-                            else
-                                Group->mGroup = nullptr;
-                            mLPubGroups.Add(Group);
-                        }
-                        else if (Token == QLatin1String("END"))
-                        {
-                            if (!mLPubGroups.IsEmpty())
-                                mLPubGroups.RemoveIndex(mLPubGroups.GetSize() - 1);
-                        }
-                    }
-                    else if (Token == QLatin1String("SYNTH"))
-                    {
-                        LineStream >> Token;
-
-                        if (Token == QLatin1String("BEGIN"))
-                        {
-                            ControlPoints.RemoveAll();
-                        }
-                        else if (Token == QLatin1String("END"))
-                        {
-                            ControlPoints.RemoveAll();
-                        }
-                        else if (Token == QLatin1String("CONTROL_POINT"))
-                        {
-                            float Numbers[13];
-                            for (int TokenIdx = 0; TokenIdx < 13; TokenIdx++)
-                                LineStream >> Numbers[TokenIdx];
-
-                            lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
-                            PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-                                                                     lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
-                            PieceControlPoint.Scale = Numbers[12];
-                        }
-                    }
-
-                    continue;
-
-                }
-                else if (Token == QLatin1String("1"))
-                {
-                    int ColorCode;
-                    LineStream >> ColorCode;
-                    float IncludeMatrix[12];
-
-                    for (int TokenIdx = 0; TokenIdx < 12; TokenIdx++)
-                        LineStream >> IncludeMatrix[TokenIdx];
-
-                    lcMatrix44 IncludeTransform(lcVector4(IncludeMatrix[3], IncludeMatrix[6], IncludeMatrix[9], 0.0f), lcVector4(IncludeMatrix[4], IncludeMatrix[7], IncludeMatrix[10], 0.0f),
-                            lcVector4(IncludeMatrix[5], IncludeMatrix[8], IncludeMatrix[11], 0.0f), lcVector4(IncludeMatrix[0], IncludeMatrix[1], IncludeMatrix[2], 1.0f));
-
-                    QString PartId = LineStream.readAll().trimmed();
-                    QByteArray CleanId = PartId.toLatin1().toUpper().replace('\\', '/');
-
-                    if (Library->IsPrimitive(CleanId.constData()))
-                    {
-                        mLPubFileLines.append(OriginalLine);
-                    }
-                    else
-                    {
-                        if (!Piece)
-                            Piece = new lcPiece(nullptr);
-
-                        if (!mLPubGroups.IsEmpty())
-                            Piece->SetGroup(mLPubGroups[mLPubGroups.GetSize() - 1]);
-
-                        PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), lcGetActiveProject(), true, true);
-
-                        float* Matrix = IncludeTransform;
-                        lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
-                                lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
-
-                        Piece->SetFileLine(mLPubFileLines.size());
-                        Piece->SetPieceInfo(Info, PartId, false);
-                        Piece->Initialize(Transform, quint32(CurrentStep));
-                        Piece->SetColorCode(quint32(ColorCode));
-                        Piece->SetControlPoints(ControlPoints);
-                        AddPiece(mLPubPieces, Piece);
-
-                        Piece = nullptr;
-                    }
-                }
-                else
-                    mLPubFileLines.append(OriginalLine);
-
-                Library->WaitForLoadQueue();
-                Library->mBuffersDirty = true;
-                Library->UnloadUnusedParts();
-
-                delete Piece;
-                delete Camera;
-            }
-
-            Buffer.close();
-
-            // load Viewer content from mViewerFileLines, mViewerGroups and mViewerPieces, Camera, Lights and LSynth Control Points
-            bool NewPiece      = false;
-            bool SelectedOnly  = false;
-            bool PieceInserted = false;
-            bool PieceModified = true;
-            QLatin1String LineEnding("\r\n");
-
-            QString ViewerModContentsString;
-            QTextStream Stream(&ViewerModContentsString, QIODevice::ReadWrite);
-
-            lcStep Step       = 1;
-            int CurrentLine   = ModBeginLineNum/*0*/;
-            int AddedSteps    = 0;
-
-            int LineIndex     = NEW_PART;
-            int LineNumber    = 0;
-            int PieceAdjustment = 0;
-            int EndModLineNum = ModActionLineNum;
-
-            // Do we have a difference between the number of LPub pieces and Viewer pieces ?
-            // If pieces have been added or removed, we capture the delta in PieceAdjustment
-            // and AddedPieces.
-            PieceAdjustment = AddedPieces = update ? mViewerPieces.GetSize() - ModStepPieces : mViewerPieces.GetSize() - getViewerStepPartCount(ModStepKey);
-
-            // Adjust EndModLineNum to accomodate removed pieces
-            if (PieceAdjustment < 0)
-                EndModLineNum -= PieceAdjustment;
-
-            if (Preferences::debugLogging) {
-                const QString message =
-                        QString("%1Pieces [%2], Viewer Pieces Count [%3], %4 Pieces Count [%5]")
-                                .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
-                                .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
-                                .arg(mViewerPieces.GetSize()).arg(VER_PRODUCTNAME_STR).arg(ModStepPieces);
-                emit messageSig(LOG_DEBUG, message);
-            }
-
-            for (lcPiece* Piece : mViewerPieces)
-            {
-                LineIndex  = Piece->GetLineTypeIndex();
-
-                // We have a new piece (NewPiece set to true) when the piece LineIndex is -1
-                NewPiece   = !getSelectedLine(ModelIndex, LineIndex, VIEWER_MOD, LineNumber);
-
-                // If PieceInserted, we must increment the 'original' line number for the next piece
-                if (PieceInserted) {
-                    LineNumber   += PieceInserted;
-                }
-
-                // Added pieces have a line number of 0 so we must reset the LineNumber to EndModLineNum
-                // and set PieceInserted to true so we can increment the line number for the next piece.
-                // For each NewPiece, we'll decrement PieceAdjustment.
-                if ((PieceInserted = NewPiece)) {
-                    PieceAdjustment--;
-                    LineNumber = EndModLineNum;
-                }
-
-                // Set PieceModified. Only modified pieces are added to ViewerModContents
-                PieceModified = LineNumber <= ModActionLineNum || Piece->PieceModified() || NewPiece;
-
-                if (Preferences::debugLogging) {
-                    const QString message =
-                            QString("Viewer Piece LineIndex [%1], ID [%2], Name [%3], LineNumber [%4], Modified: [%5]")
-                                    .arg(LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex))
-                                    .arg(Piece->GetID())
-                                    .arg(Piece->GetName())
-                                    .arg(LineNumber)
-                                    .arg(PieceModified ? QLatin1String("Yes") : QLatin1String("No"));
-                    emit messageSig(LOG_DEBUG, message);
-                }
-
-                // If PieceAdjustment is not 0, we increment EndModLineNum as we process each piece
-                if (PieceAdjustment > 0)
-                     EndModLineNum = LineNumber + 1;
-
-                // No more modified pieces so we exit the loop
-                if (LineNumber > EndModLineNum)
-                    break;
-
-                // Process the current piece
-                if (LineNumber >= ModBeginLineNum && PieceModified) {
-
-                    // Use LPubFileLines
-                    while (LineNumber/*Piece->GetFileLine()*/ > CurrentLine && CurrentLine < mLPubFileLines.size()/*mViewerFileLines.size()*/)
-                    {
-                        QString Line = mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
-                        QTextStream LineStream(&Line, QIODevice::ReadOnly);
-
-                        QString Token;
-                        LineStream >> Token;
-                        bool Skip = false;
-
-                        if (Token == QLatin1String("0"))
-                        {
-                            LineStream >> Token;
-
-                            if (Token == QLatin1String("STEP"))
-                            {
-                                if (Piece->GetStepShow() > Step)
-                                    Step++;
-                                else
-                                    Skip = true;
-                            }
-                        }
-
-                        if (!Skip)
-                        {
-                            Stream << mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
-                            if (AddedSteps > 0)
-                                AddedSteps--;
-                        }
-                        CurrentLine++;
-                    }
-
-                    // Use Viewer Pieces
-                    while (Piece->GetStepShow() > Step)
-                    {
-                        Stream << QLatin1String("0 STEP\r\n");
-                        AddedSteps++;
-                        Step++;
-                    }
-
-                    lcGroup* PieceGroup = Piece->GetGroup();
-
-                    if (PieceGroup)
-                    {
-                        if (mViewerGroups.IsEmpty() || (!mViewerGroups.IsEmpty() && PieceGroup != mViewerGroups[mViewerGroups.GetSize() - 1]))
-                        {
-                            lcArray<lcGroup*> PieceParents;
-
-                            for (lcGroup* Group = PieceGroup; Group; Group = Group->mGroup)
-                                PieceParents.InsertAt(0, Group);
-
-                            int FoundParent = -1;
-
-                            while (!mViewerGroups.IsEmpty())
-                            {
-                                lcGroup* Group = mViewerGroups[mViewerGroups.GetSize() - 1];
-                                int Index = PieceParents.FindIndex(Group);
-
-                                if (Index == -1)
-                                {
-                                    mViewerGroups.RemoveIndex(mViewerGroups.GetSize() - 1);
-                                    Stream << QLatin1String("0 !LPUB GROUP END\r\n");
-                                }
-                                else
-                                {
-                                    FoundParent = Index;
-                                    break;
-                                }
-                            }
-
-                            for (int ParentIdx = FoundParent + 1; ParentIdx < PieceParents.GetSize(); ParentIdx++)
-                            {
-                                lcGroup* Group = PieceParents[ParentIdx];
-                                mViewerGroups.Add(Group);
-                                Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        while (mViewerGroups.GetSize())
-                        {
-                            mViewerGroups.RemoveIndex(mViewerGroups.GetSize() - 1);
-                            Stream << QLatin1String("0 !LPUB GROUP END\r\n");
-                        }
-                    }
-
-                    if (Piece->mPieceInfo->GetSynthInfo())
-                    {
-                        Stream << QLatin1String("0 !LPUB SYNTH BEGIN\r\n");
-
-                        const lcArray<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
-                        for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
-                        {
-                            const lcPieceControlPoint& ControlPoint = ControlPoints[ControlPointIdx];
-
-                            Stream << QLatin1String("0 !LPUB SYNTH CONTROL_POINT");
-
-                            const float* FloatMatrix = ControlPoint.Transform;
-                            float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
-
-                            for (int NumberIdx = 0; NumberIdx < 13; NumberIdx++)
-                                Stream << ' ' << lcFormatValue(Numbers[NumberIdx], NumberIdx < 3 ? 4 : 6);
-
-                            Stream << LineEnding;
-                        }
-                    }
-
-                    Piece->SaveLDraw(Stream);
-
-                    ConfigurePartLine(Piece->GetLineTypeIndex(), Stream);
-
-                    if (Piece->mPieceInfo->GetSynthInfo())
-                        Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
-                }
-            }
-
-            while (CurrentLine < mLPubFileLines.size()/*mViewerFileLines.size()*/)
-            {
-                QString Line = mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
-                QTextStream LineStream(&Line, QIODevice::ReadOnly);
-
-                QString Token;
-                LineStream >> Token;
-                bool Skip = false;
-
-                if (Token == QLatin1String("0"))
-                {
-                    LineStream >> Token;
-
-                    if (Token == QLatin1String("STEP") && AddedSteps-- > 0)
-                        Skip = true;
-                }
-
-                if (!Skip)
-                    Stream << mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
-                CurrentLine++;
-            }
-
-            while (mViewerGroups.GetSize())
-            {
-                mViewerGroups.RemoveIndex(mViewerGroups.GetSize() - 1);
-                Stream << QLatin1String("0 !LPUB GROUP END\r\n");
-            }
-
-            for (lcCamera* Camera : mCameras)
-                if (!SelectedOnly || Camera->IsSelected())
-                    Camera->SaveLDraw(Stream);
-
-            for (lcLight* Light : mLights)
-                if (!SelectedOnly || Light->IsSelected())
-                    Light->SaveLDraw(Stream);
-
-            ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
-
-            int BuildModPieces = ViewerModContents.size();
-
-            if (!update)
-                BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsCount() + 1);
-
-            // Delete meta commands uses the 'original' BuildMod values
-            int SaveModBeginLineNum  = update ? BuildModBegin  : ModBeginLineNum;
-            int SaveModActionLineNum = update ? BuildModAction : ModActionLineNum;
-            int SaveModEndLineNum    = update ? BuildModEnd    : ModEndLineNum;
-            int SaveModPieces        = update ? SaveModEndLineNum - SaveModActionLineNum - 1/*Meta Line*/
-                                            : BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0);
-
-            if (Preferences::debugLogging) {
-                const QString message = QString("%1 BuildMod Save LineNumbers "
-                                                "Begin: %2, Action: %3, End: %4, ModPieces: %5")
-                                                .arg(update ? "Update" : "Create")
-                                                .arg(SaveModBeginLineNum)
-                                                .arg(SaveModActionLineNum)
-                                                .arg(SaveModEndLineNum)
-                                                .arg(SaveModPieces);
-                emit messageSig(LOG_TRACE, message);
-            }
-
-            // BuildMod meta command lines are written in a bottom up manner
-
-            // Set ModBeginLineNum to the top of the BuildMod step plus the number of 'AddedPieces' introduced by the BuildMod command
-            // This is the position for BUILD_MOD END
-            ModBeginLineNum += SaveModPieces;
-
-            // Set ModActionLineNum to SaveModBeginLineNum - initial BuildMod insertion line
-            // This is the position of BUILD_MOD MOD_END
-            ModActionLineNum = SaveModBeginLineNum;
-
-            BuildModData buildModData;
-
-            Where modHere;
-
-            if (BuildModPieces) {
-
-                buildModData = lpub->currentStep->buildMod.value();
-
-                QString metaString;
-                buildModData.buildModKey = QString();
-
-                beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
-
-                // Delete old BUILD_MOD END meta command
-                Where endMod = Where(ModelName, SaveModEndLineNum);
-                QString modLine = readLine(endMod);
-                Rc rc = lpub->page.meta.parse(modLine, endMod);
-                if (rc == BuildModEndRc)
-                    deleteLine(endMod);
-
-                // Delete old BUILD_MOD content from bottom up including END_MOD meta command
-                endMod = Where(ModelName, SaveModActionLineNum);
-                modLine = readLine(endMod);
-                rc = lpub->page.meta.parse(modLine, endMod);
-                if (rc == BuildModEndModRc)
-                    for (modHere = endMod; modHere >= SaveModBeginLineNum; --modHere)
-                        deleteLine(modHere);
-
-                // Write BUILD_MOD END meta command at the BuildMod insert position
-                modHere = Where(ModelName, ModBeginLineNum);
-                buildModData.action      = QLatin1String("END");
-                lpub->currentStep->buildMod.setValue(buildModData);
-                metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
-                insertLine(modHere, metaString, nullptr);
-
-                // Write BUILD_MOD END_MOD meta command above LPub content first line - last to first
-                modHere = Where(ModelName, ModActionLineNum);
-                buildModData.action      = QLatin1String("END_MOD");
-                lpub->currentStep->buildMod.setValue(buildModData);
-                metaString = lpub->currentStep->buildMod.format(false,false);
-                insertLine(modHere, metaString, nullptr);
-
-                // Write buildMod content last to first
-                for (int i = BuildModPieces - 1; i >= 0; --i) {
-                    metaString = ViewerModContents.at(i);
-                    insertLine(modHere, metaString, nullptr);
-                }
-
-                // Write BUILD_MOD BEGIN meta command above buildMod content first line
-                buildModData.action      = QLatin1String("BEGIN");
-                buildModData.buildModKey = BuildModKey;
-                lpub->currentStep->buildMod.setValue(buildModData);
-                metaString = lpub->currentStep->buildMod.format(false,false);
-                insertLine(modHere, metaString, nullptr);
-
-                clearWorkingFiles(getPathsFromViewerStepKey(lpub->viewerStepKey));
-
-                endMacro();
-            }
-
-            // BuildMod attribute values are calculated in a top down manner
-
-            // Reset to BUILD_MOD BEGIN
-            ModBeginLineNum = SaveModBeginLineNum;
-
-            // Reset to BUILD_MOD END_MOD command line number - add 1 for meta command
-            ModActionLineNum = ModBeginLineNum + BuildModPieces + 1;
-
-            // Set to BUILD_MOD END command line number - add 1 for meta command
-            ModEndLineNum = ModActionLineNum + SaveModPieces + 1;
-
-            // Set to updated number of pieces in the current Step
-            ModStepPieces = mViewerPieces.GetSize();
-
-            QVector<int> ModAttributes =
-            {
-                ModBeginLineNum,            // 0 BM_BEGIN_LINE_NUM
-                ModActionLineNum,           // 1 BM_ACTION_LINE_NUM
-                ModEndLineNum,              // 2 BM_END_LINE_NUM
-                ModDisplayPageNum,          // 3 BM_DISPLAY_PAGE_NUM
-                ModStepPieces,              // 4 BM_STEP_PIECES
-                ModelIndex,                 // 5 BM_MODEL_NAME_INDEX
-                ModStepLineNum,             // 6 BM_MODEL_LINE_NUM
-                ModStepNum                  // 7 BM_MODEL_STEP_NUM
-            };
-
-            insertBuildMod(BuildModKey,
-                           ModAttributes,
-                           ModStepIndex);   // Unique ID
-
-            if (Preferences::debugLogging) {
-                const QString message =
-                        QString("Create BuildMod StepIndex: %1, "
-                                "Action: Apply(64) - %2, "
-                                "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
-                                "ModKey: %11, "
-                                "Level: %12")
-                                .arg(update ? "Update" : "Create")     // 01
-                                .arg(ModStepIndex)                   // 02
-                                .arg(ModBeginLineNum)                // 03 - 0 BM_BEGIN_LINE_NUM
-                                .arg(ModActionLineNum)               // 04 - 1 BM_ACTION_LINE_NUM
-                                .arg(ModEndLineNum)                  // 05 - 2 BM_END_LINE_NUM
-                                .arg(ModDisplayPageNum)              // 06 - 3 BM_DISPLAY_PAGE_NUM
-                                .arg(ModStepPieces)                  // 08 - 4 BM_STEP_PIECES
-                                .arg(ModelIndex)                     // 07 - 5 BM_MODEL_NAME_INDEX
-                                .arg(ModStepLineNum)                 // 08 - 6 BM_MODEL_LINE_NUM
-                                .arg(ModStepNum)                     // 09 - 7 BM_MODEL_STEP_NUM
-                                .arg(ModStepKey)                     // 10
-                                .arg(BuildModKey);                  // 11
-                emit messageSig(LOG_DEBUG, message);
-            }
-
-            // Reset the build modification range
-            mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
-        } // mBuildModRange || update
-
-        emit progressPermStatusRemoveSig();
-        enableVisualBuildModActions();
-    }
-}
+//*/
+
+     lcView* ActiveView = GetActiveView();
+     lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+     if (ActiveModel) {
+         const QString Action = Update ? QLatin1String("Update") : QLatin1String("Create");
+         QString BuildModKey = buildModChangeKey;
+
+         progressBarPermInit();
+         progressBarPermSetRange(0, 0);   // Busy indicator
+         progressBarPermSetText(tr("%1 Build Modification...").arg(Action));
+
+         if (mBuildModRange.first() || Update) {
+
+             statusMessage(LOG_INFO, tr("%1 Build Modification for Step %2...")
+                                        .arg(Action)
+                                        .arg(lpub->currentStep->stepNumber.number));
+
+             // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
+             lcArray<lcGroup*>  Groups;
+             lcArray<lcCamera*> Cameras;
+             lcArray<lcLight*>  Lights;
+             lcArray<lcPiece*>  LPubPieces;                     // Pieces in the buildMod - may include removed viewer pieces
+             lcArray<lcGroup*>  LPubGroups;
+             lcArray<lcPiece*>  ViewerPieces;                   // All viewer pieces in the step
+             lcArray<lcGroup*>  ViewerGroups;
+             lcModelProperties  ViewerProperties;
+             lcArray<lcPieceControlPoint> ControlPoints;
+             QStringList  LPubFileLines,   ViewerFileLines,
+                          LPubModContents, ViewerModContents,
+                          ModStepKeys;
+
+             bool FadeSteps        = Preferences::enableFadeSteps;
+             bool HighlightStep    = Preferences::enableHighlightStep && !suppressColourMeta();
+
+             int AddedPieces       = 0;
+             int CurrentStep       = 1;
+             lcPiece  *Piece       = nullptr;
+             lcCamera *Camera      = nullptr;
+             lcLight  *Light       = nullptr;
+             ViewerProperties      = ActiveModel->GetProperties();
+             ViewerFileLines       = ActiveModel->GetFileLines();
+             ViewerPieces          = ActiveModel->GetPieces();
+             lcPiecesLibrary *Library = lcGetPiecesLibrary();
+
+             QString ModStepKey    = lpub->viewerStepKey;
+             ModStepKeys           = ModStepKey.split(";");
+
+             // When Update, initialize BuildMod StepPieces, and Begin and End range with the existing values
+             int BuildModBegin     = BM_INIT;
+             int BuildModAction    = BM_INIT;
+             int BuildModEnd       = BM_INIT;
+             int ModBeginLineNum   = BM_INIT;
+             int ModActionLineNum  = BM_INIT;
+             int ModEndLineNum     = BM_INIT;
+             int ModStepPieces     = BM_INIT;
+             int ModelIndex        = BM_NONE;
+             if (Update) {
+                 BuildModBegin     = getBuildModBeginLineNumber(BuildModKey);
+                 BuildModAction    = getBuildModActionLineNumber(BuildModKey);
+                 BuildModEnd       = getBuildModEndLineNumber(BuildModKey);
+                 ModBeginLineNum   = BuildModBegin;
+                 ModActionLineNum  = BuildModAction;
+                 ModEndLineNum     = BuildModEnd;
+                 ModStepPieces     = getBuildModStepPieces(BuildModKey);  // All pieces in the previous step
+                 ModelIndex        = getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey));
+             } else {
+                 ModBeginLineNum   = mBuildModRange.at(BM_BEGIN_LINE_NUM);
+                 ModActionLineNum  = mBuildModRange.at(BM_ACTION_LINE_NUM);
+                 ModEndLineNum     = mBuildModRange.at(BM_BEGIN_LINE_NUM);
+                 ModelIndex        = mBuildModRange.at(BM_MODEL_INDEX);
+             }
+             int ModStepIndex      = getBuildModStepIndex(lpub->currentStep->topOfStep());
+             int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
+             int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
+             int ModDisplayPageNum = displayPageNum;
+             QString ModelName     = getSubmodelName(ModelIndex);
+             buildModChangeKey     = QString(); // clear the change key
+             int Top               = lpub->currentStep->topOfStep().lineNumber;
+             int Bottom            = lpub->currentStep->bottomOfStep().lineNumber;
+
+             // Check that the the build mod and current step shares the same submodel
+             if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
+                 statusMessage(LOG_ERROR, tr("%1 BuildMod model (%2) '%3' and current Step model (%4) are not the same")
+                                             .arg(Action)
+                                             .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
+
+             if (Gui::abortProcess()) {
+                 showLine(lpub->currentStep->topOfStep());
+                 progressPermStatusRemove();
+                 return;
+             }
+
+             // Check that the build mod is in the current step
+             if (ModBeginLineNum && (ModBeginLineNum < Top || (Bottom && ModBeginLineNum > Bottom))) {
+                 const QString message = tr("%1 BuildMod at line '%2' is %3 the current step.<br>"
+                                            "Top of current step '%4', Bottom of current step '%5'.<br><br>"
+                                            "Do you want to continue ?")
+                                            .arg(Action)
+                                            .arg(ModBeginLineNum)
+                                            .arg(ModBeginLineNum < Top ? tr("before") : tr("after"))
+                                            .arg(Top)
+                                            .arg(Bottom);
+                 if (QMessageBox::warning(this,tr("%1 BuildMod Warning").arg(VER_PRODUCTNAME_STR),message,
+                                          QMessageBox::Abort|QMessageBox::Ignore,QMessageBox::Ignore) == QMessageBox::Abort) {
+                     showLine(lpub->currentStep->topOfStep());
+                     progressPermStatusRemove();
+                     return;
+                 }
+             }
+
+#ifdef QT_DEBUG_MODE
+             qDebug() << qPrintable(QString("DEBUG: LPubRotStepMeta:   %1")
+                                            .arg(renderer->getRotstepMeta(lpub->currentStep->rotStepMeta)));
+
+             qDebug() << qPrintable(QString("DEBUG: LPubViewpoint:     %1 [%2]")
+                                            .arg(lpub->currentStep->viewerOptions->Viewpoint)
+                                            .arg(lpub->currentStep->viewerOptions->Viewpoint == CameraViews::Default ?
+                                                     "DEFAULT(OFF)" : CameraViews::cameraViewNames[lpub->currentStep->viewerOptions->Viewpoint]));
+
+             qDebug() << qPrintable(QString("DEBUG: LPubCameraAngles:  Latitude: [%1], Longitude [%2]")
+                                            .arg(QString::number(double(lpub->currentStep->viewerOptions->Latitude),'g', 2))
+                                            .arg(QString::number(double(lpub->currentStep->viewerOptions->Longitude), 'g', 2)));
+#endif
+
+             // Check if there is an existing build modification in this Step
+             QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
+             if (stepContains(lpub->currentStep->top, lineRx) && !Update) {
+
+                 // Get the application icon as a pixmap
+                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                 if (_icon.isNull())
+                     _icon = QPixmap (":/icons/update.png");
+
+                 QMessageBox box;
+                 box.setWindowIcon(QIcon());
+                 box.setIconPixmap (_icon);
+                 box.setTextFormat (Qt::RichText);
+                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                 QString title = "<b>" + tr ("You specified create action for an existing Build Modification") + "</b>";
+                 QString text = tr("<br>This action will replace the existing Build Modification."
+                                   "<br>You can cancel and select 'Update Build Modification...' from the build modification submenu."
+                                   "<br>Do you want to continue with this create action ?");
+                 box.setText (title);
+                 box.setInformativeText (text);
+                 box.setStandardButtons (QMessageBox::Abort | QMessageBox::Ignore);
+                 box.setDefaultButton   (QMessageBox::Abort);
+
+                 if (box.exec() == QMessageBox::Abort)
+                     return;
+             }
+
+             // Process a step group
+             auto GetGroup = [&Groups](const QString& Name, bool CreateIfMissing)
+             {
+                 lcGroup* nullGroup = nullptr;
+                 for (lcGroup* Group : Groups)
+                     if (Group->mName == Name)
+                         return Group;
+
+                 if (CreateIfMissing)
+                 {
+                     lcGroup* Group = new lcGroup();
+                     Group->mName = Name;
+                     Groups.Add(Group);
+
+                     return Group;
+                 }
+
+                 return nullGroup;
+             };
+
+             // Configure LPub fade previous steps and/or highlight current step lines
+             auto ConfigureFadeHighlightPartLine = [&] (int LineTypeIndex, QTextStream &Stream)
+             {
+                 if (!FadeSteps && !HighlightStep)
+                     return;
+
+                 if (!Stream.string()->isEmpty()) {
+
+                     QStringList ModLines = Stream.string()->split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
+                     QString PartLine = ModLines.last();
+
+                     QStringList argv;
+                     split(PartLine, argv);
+
+                     if (argv.size() == 15 && argv[0] == "1") {
+
+                         QString NameMod, ColourPrefix;
+                         if (FadeSteps) {
+                             NameMod = FADE_SFX;
+                             ColourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+                         } else if (HighlightStep) {
+                             NameMod = HIGHLIGHT_SFX;
+                             ColourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+                         }
+
+                         // Colour code
+                         if (argv[1].startsWith(ColourPrefix)) {
+                             int LineNumber;
+                             QString LPubPartLine, NewColorCode;
+                             bool NewLine = !gui->getSelectedLine(ModelIndex, LineTypeIndex, VIEWER_MOD, LineNumber);
+
+                             if (NewLine) {
+                                 NewColorCode = argv[1];
+
+                             } else {
+                                 LPubPartLine = LPubModContents.at(LineTypeIndex);
+                                 QStringList dargv;
+                                 split(LPubPartLine, dargv);
+
+                                 if (dargv.size() == 15 && dargv[0] == "1") {
+                                     NewColorCode = dargv[1];
+
+                                 } else {
+                                     NewColorCode = argv[1].right(argv[1].size() - ColourPrefix.size());
+                                     if (FadeSteps && Preferences::fadeStepsUseColour)
+                                         NewColorCode = LDRAW_MAIN_MATERIAL_COLOUR;
+                                 }
+                             }
+
+                             argv[1] = NewColorCode;
+                         }
+
+                         // fileName
+                         QString FileName = QString(argv[argv.size()-1]).toLower();
+                         if (FileName.contains(NameMod)) {
+
+                             QString NewFileName = FileName.replace(NameMod,"");
+                             argv[argv.size()-1] = NewFileName;
+                         }
+
+                         PartLine = argv.join(" ");
+
+                         ModLines.removeLast();
+                         ModLines.append(PartLine);
+
+                         Stream.string()->clear();
+
+                         for (int i = 0; i < ModLines.size(); i++)
+                             Stream << ModLines.at(i);
+                     }
+                 }
+             };
+
+             // Process piece insert
+             auto InsertPiece = [] (lcArray<lcPiece*> &LPubPieces, lcPiece* Piece, int PieceIdx)
+             {
+                 PieceInfo* Info = Piece->mPieceInfo;
+
+                 if (!Info->IsModel())
+                 {
+                     lcMesh* Mesh = Info->GetMesh();
+
+                     if (Mesh && Mesh->mVertexCacheOffset == -1)
+                         lcGetPiecesLibrary()->mBuffersDirty = true;
+                 }
+
+                 LPubPieces.InsertAt(PieceIdx, Piece);
+             };
+
+             // Process piece add
+             auto AddPiece = [&InsertPiece](lcArray<lcPiece*> &LPubPieces, lcPiece* Piece)
+             {
+                 for (int PieceIdx = 0; PieceIdx < LPubPieces.GetSize(); PieceIdx++)
+                 {
+                     if (LPubPieces[PieceIdx]->GetStepShow() > Piece->GetStepShow())
+                     {
+                         InsertPiece(LPubPieces, Piece, PieceIdx);
+                         return;
+                     }
+                 }
+
+                 InsertPiece(LPubPieces, Piece, LPubPieces.GetSize());
+             };
+
+             // Process piece transform - add transformation and rotation delta to unrotated line
+             auto TransformPiece = [&] (const QString & PieceString, const int PieceLineIndex, const bool NewPiece)
+             {
+                 if (NewPiece)
+                     return PieceString;
+
+                 if (PieceLineIndex == BM_INVALID_INDEX) {
+                     lpub->messageSig(LOG_WARNING, tr("%1 BuildMod invalid piece line index for piece string %1").arg(Action).arg(PieceString));
+                     return PieceString;
+                 }
+
+                 QString ULine = lpub->ldrawFile.getViewerStepContentLine(ModStepKey, PieceLineIndex, false/*rotated*/);
+                 QString RLine = lpub->ldrawFile.getViewerStepContentLine(ModStepKey, PieceLineIndex);
+                 QString VLine = QString(PieceString).replace(QRegExp("(\\r\\n)|\\r|\\n"),"");
+
+                 QStringList UTokens, RTokens, VTokens;
+
+                 split(ULine,UTokens); // Unrotated lpub line
+                 split(RLine,RTokens); // Rotated lpub line
+                 split(VLine,VTokens); // Rotated viewer line
+
+                 enum TRc {
+                     X, Y, Z
+                 };
+
+                 if (UTokens.size() < 15 || VTokens.size() < 15 || RTokens.size() < 15)
+                   return PieceString;
+
+                 // Result string
+                 QString Result;
+
+                 // Translation arrays
+                 double TU[3];
+                 double TR[3];
+                 double TV[3];
+
+                 // Rotation arrays
+                 double RU[3][3];
+                 double RR[3][3];
+                 double RV[3][3];
+
+                 if (UTokens[0] == "1" && VTokens[0] == "1" && RTokens[0] == "1") {
+                   int C = 2;
+                   TU[X] = UTokens[C]  .toFloat();
+                   TU[Y] = UTokens[C+1].toFloat();
+                   TU[Z] = UTokens[C+2].toFloat();
+                   TR[X] = RTokens[C]  .toFloat();
+                   TR[Y] = RTokens[C+1].toFloat();
+                   TR[Z] = RTokens[C+2].toFloat();
+                   TV[X] = VTokens[C]  .toFloat();
+                   TV[Y] = VTokens[C+1].toFloat();
+                   TV[Z] = VTokens[C+2].toFloat();
+                   C += 3;
+                   for (int y = 0; y < 3; y++) {
+                     for (int x = 0; x < 3; x++) {
+                       int I = C++;
+                       RU[y][x] = UTokens[I].toDouble();
+                       RR[y][x] = RTokens[I].toDouble();
+                       RV[y][x] = VTokens[I].toDouble();
+                     }
+                   }
+
+                   // Calculate translation delta
+                   double TDeltaX = TV[X] - TR[X];
+                   double TDeltaY = TV[Y] - TR[Y];
+                   double TDeltaZ = TV[Z] - TR[Z];
+
+                   // Add delta to unrotated translation
+                   TV[X] = TU[X] + TDeltaX;
+                   TV[Y] = TU[Y] + TDeltaY;
+                   TV[Z] = TU[Z] + TDeltaZ;
+
+                   // Calculate rotation delta
+                   double RDelta[3][3];
+
+                   for (int i = 0; i < 3; i++) {
+                     for (int j = 0; j < 3; j++) {
+                       RDelta[i][j] = 0.0;
+                     }
+                   }
+
+                   for (int i = 0; i < 3; i++) {
+                     for (int j = 0; j < 3; j++) {
+                       RDelta[i][j] = RV[i][j] - RR[i][j];
+                     }
+                   }
+
+                   // Add delta to unrotated rotation
+                   for (int i = 0; i < 3; i++) {
+                     for (int j = 0; j < 3; j++) {
+                       RV[i][j] = RU[i][j] + RDelta[i][j];
+                     }
+                   }
+
+                   // Result
+                   Result = QString("1 %1 "         // Line Type and Colour
+                                    "%2 %3 %4 "     // Translation
+                                    "%5 %6 %7 "     // Rotation X
+                                    "%8 %9 %10 "    // Rotation Y
+                                    "%11 %12 %13 "  // Rotation Z
+                                    "%14\r\n")      // Part Type
+                                    .arg(VTokens[1])
+                                    .arg(TV[X])    .arg(TV[Y])    .arg(TV[Z])
+                                    .arg(RV[X][X]) .arg(RV[X][Y]) .arg(RV[X][Z])
+                                    .arg(RV[Y][X]) .arg(RV[Y][Y]) .arg(RV[Y][Z])
+                                    .arg(RV[Z][X]) .arg(RV[Z][Y]) .arg(RV[Z][Z])
+                                    .arg(VTokens[VTokens.size()-1]);
+                 }
+#ifdef QT_DEBUG_MODE
+                 qDebug() << qPrintable(QString("DEBUG: TransformPiece PieceLineIndex: %1 Lines:\n"
+                                                "       Unrotated: %2\n"
+                                                "       Rotated:   %3\n"
+                                                "       Piece:     %4\n"
+                                                "       Result:    %5")
+                                                .arg(PieceLineIndex).arg(ULine).arg(RLine).arg(VLine).arg(Result));
+#endif
+                 return Result;
+             };
+
+             // Load LPub content - unrotated from ldrawFile
+             QByteArray ByteArray;
+             for (int i = 0; i < lpub->ldrawFile.contents(ModelName).size(); i++) {
+                 if (i > ModActionLineNum)
+                     break;
+                 QString ModLine = lpub->ldrawFile.contents(ModelName).at(i);
+                 if (i >= ModBeginLineNum)
+                     LPubModContents.append(ModLine);
+                 ByteArray.append(ModLine.toUtf8());
+                 ByteArray.append(QString("\n").toUtf8());
+             }
+             QBuffer Buffer(&ByteArray);
+             Buffer.open(QIODevice::ReadOnly);
+             Buffer.seek(0);
+
+             // load LPubFileLines, LPubGroups and LPubPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
+             while (!Buffer.atEnd())
+             {
+                 qint64 Pos = Buffer.pos();
+                 QString OriginalLine = Buffer.readLine();
+                 QString Line = OriginalLine.trimmed();
+                 QTextStream LineStream(&Line, QIODevice::ReadOnly);
+
+                 QString Token;
+                 LineStream >> Token;
+
+                 if (Token == QLatin1String("0"))
+                 {
+                     LineStream >> Token;
+                     if (Token == QLatin1String("FILE"))
+                     {
+                         QString Name = LineStream.readAll().trimmed();
+
+                         if (ViewerProperties.mFileName != Name)
+                         {
+                             Buffer.seek(Pos);
+                             break;
+                         }
+
+                         continue;
+                     }
+                     else if (Token == QLatin1String("NOFILE"))
+                     {
+                         break;
+                     }
+                     else if (Token == QLatin1String("STEP"))
+                     {
+                         CurrentStep++;
+                         LPubFileLines.append(OriginalLine);
+                         continue;
+                     }
+
+                     if (Token != QLatin1String("!LPUB"))
+                     {
+                         LPubFileLines.append(OriginalLine);
+                         continue;
+                     }
+
+                     LineStream >> Token;
+
+                     if (Token == QLatin1String("MODEL"))
+                     {
+                         ViewerProperties.ParseLDrawLine(LineStream);
+                     }
+                     else if (Token == QLatin1String("PIECE"))
+                     {
+                         if (!Piece)
+                             Piece = new lcPiece(nullptr);
+
+                         Piece->ParseLDrawLine(LineStream);
+                     }
+                     else if (Token == QLatin1String("CAMERA"))
+                     {
+                         if (!Camera)
+                             Camera = new lcCamera(false);
+
+                         if (Camera->ParseLDrawLine(LineStream))
+                         {
+                             Camera->CreateName(Cameras);
+                             Cameras.Add(Camera);
+                             Camera = nullptr;
+                         }
+                     }
+                     else if (Token == QLatin1String("LIGHT"))
+                     {
+                         if (!Light)
+                             Light = new lcLight(0.0f, 0.0f, 0.0f);
+
+                         if (Light->ParseLDrawLine(LineStream))
+                         {
+                             Light->CreateName(Lights);
+                             Lights.Add(Light);
+                             Light = nullptr;
+                         }
+                     }
+                     else if (Token == QLatin1String("GROUP"))
+                     {
+                         LineStream >> Token;
+
+                         if (Token == QLatin1String("BEGIN"))
+                         {
+                             QString Name = LineStream.readAll().trimmed();
+                             lcGroup* Group = GetGroup(Name, true);
+                             if (!LPubGroups.IsEmpty())
+                                 Group->mGroup = LPubGroups[LPubGroups.GetSize() - 1];
+                             else
+                                 Group->mGroup = nullptr;
+                             LPubGroups.Add(Group);
+                         }
+                         else if (Token == QLatin1String("END"))
+                         {
+                             if (!LPubGroups.IsEmpty())
+                                 LPubGroups.RemoveIndex(LPubGroups.GetSize() - 1);
+                         }
+                     }
+                     else if (Token == QLatin1String("SYNTH"))
+                     {
+                         LineStream >> Token;
+
+                         if (Token == QLatin1String("BEGIN"))
+                         {
+                             ControlPoints.RemoveAll();
+                         }
+                         else if (Token == QLatin1String("END"))
+                         {
+                             ControlPoints.RemoveAll();
+                         }
+                         else if (Token == QLatin1String("CONTROL_POINT"))
+                         {
+                             float Numbers[13];
+                             for (int TokenIdx = 0; TokenIdx < 13; TokenIdx++)
+                                 LineStream >> Numbers[TokenIdx];
+
+                             lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
+                             PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
+                                                                      lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+                             PieceControlPoint.Scale = Numbers[12];
+                         }
+                     }
+
+                     continue;
+
+                 }
+                 else if (Token == QLatin1String("1"))
+                 {
+                     int ColorCode;
+                     LineStream >> ColorCode;
+                     float IncludeMatrix[12];
+
+                     for (int TokenIdx = 0; TokenIdx < 12; TokenIdx++)
+                         LineStream >> IncludeMatrix[TokenIdx];
+
+                     lcMatrix44 IncludeTransform(lcVector4(IncludeMatrix[3], IncludeMatrix[6], IncludeMatrix[9],  0.0f), lcVector4(IncludeMatrix[4], IncludeMatrix[7], IncludeMatrix[10], 0.0f),
+                                                 lcVector4(IncludeMatrix[5], IncludeMatrix[8], IncludeMatrix[11], 0.0f), lcVector4(IncludeMatrix[0], IncludeMatrix[1], IncludeMatrix[2],  1.0f));
+
+                     QString PartId = LineStream.readAll().trimmed();
+                     QByteArray CleanId = PartId.toLatin1().toUpper().replace('\\', '/');
+
+                     if (Library->IsPrimitive(CleanId.constData()))
+                     {
+                         LPubFileLines.append(OriginalLine);
+                     }
+                     else
+                     {
+                         if (!Piece)
+                             Piece = new lcPiece(nullptr);
+
+                         if (!LPubGroups.IsEmpty())
+                             Piece->SetGroup(LPubGroups[LPubGroups.GetSize() - 1]);
+
+                         PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), lcGetActiveProject(), true, true);
+
+                         float* Matrix = IncludeTransform;
+                         lcMatrix44 Transform(lcVector4( Matrix[0],  Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8],  Matrix[10], -Matrix[9],  0.0f),
+                                              lcVector4(-Matrix[4], -Matrix[6],  Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
+
+                         Piece->SetFileLine(LPubFileLines.size());
+                         Piece->SetPieceInfo(Info, PartId, false);
+                         Piece->Initialize(Transform, quint32(CurrentStep));
+                         Piece->SetColorCode(quint32(ColorCode));
+                         Piece->SetControlPoints(ControlPoints);
+                         AddPiece(LPubPieces, Piece);
+
+                         Piece = nullptr;
+                     }
+                 }
+                 else
+                     LPubFileLines.append(OriginalLine);
+
+                 Library->WaitForLoadQueue();
+                 Library->mBuffersDirty = true;
+                 Library->UnloadUnusedParts();
+
+                 delete Piece;
+                 delete Camera;
+             } // Load LPub content buffer
+
+             Buffer.close();
+
+             // Load Visual Editor content from ViewerFileLines, ViewerGroups and ViewerPieces, Camera, Lights and LSynth Control Points
+             bool NewPiece      = false;
+             bool SelectedOnly  = false;
+             bool PieceInserted = false;
+             bool PieceModified = true;
+             QLatin1String LineEnding("\r\n");
+
+             QString ViewerModContentsString;
+             QTextStream Stream(&ViewerModContentsString, QIODevice::ReadWrite);
+
+             lcStep Step       = 1;
+             int CurrentLine   = ModBeginLineNum/*0*/;
+             int AddedSteps    = 0;
+
+             int LineIndex     = NEW_PART;
+             int LineNumber    = 0;
+             int PieceAdjustment = 0;
+             int EndModLineNum = ModActionLineNum;
+
+             // Do we have a difference between the number of LPub pieces and Viewer pieces ?
+             // If pieces have been added or removed, we capture the delta in PieceAdjustment
+             // and AddedPieces.
+             PieceAdjustment = AddedPieces = Update ? ViewerPieces.GetSize() - ModStepPieces : ViewerPieces.GetSize() - getViewerStepPartCount(ModStepKey);
+
+             // Adjust EndModLineNum to accomodate removed pieces
+             if (PieceAdjustment < 0)
+                 EndModLineNum -= PieceAdjustment;
+
+             if (Preferences::debugLogging) {
+                 const QString message =
+                         QString("%1 BuildMod - %2Pieces [%3], Viewer Pieces Count [%4], %5 Pieces Count [%6]")
+                                 .arg(Action)
+                                 .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
+                                 .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
+                                 .arg(ViewerPieces.GetSize()).arg(VER_PRODUCTNAME_STR).arg(ModStepPieces);
+                 emit messageSig(LOG_DEBUG, message);
+             }
+
+             // Viewer current step pieces
+             for (lcPiece* Piece : ViewerPieces)
+             {
+                 LineIndex  = Piece->GetLineTypeIndex();
+
+                 // We have a new piece (NewPiece set to true) when the piece LineIndex is -1
+                 NewPiece   = !getSelectedLine(ModelIndex, LineIndex, VIEWER_MOD, LineNumber);
+
+                 // If PieceInserted, we must increment the 'original' line number for the next piece
+                 if (PieceInserted)
+                 {
+                     LineNumber   += PieceInserted;
+                 }
+
+                 // Added pieces have a line number of 0 so we must reset the LineNumber to EndModLineNum
+                 // and set PieceInserted to true so we can increment the line number for the next piece.
+                 // For each NewPiece, we'll decrement PieceAdjustment.
+                 if ((PieceInserted = NewPiece))
+                 {
+                     PieceAdjustment--;
+                     LineNumber = EndModLineNum;
+                 }
+
+                 // Set PieceModified. Only modified pieces are added to ViewerModContents
+                 PieceModified = LineNumber <= ModActionLineNum || Piece->PieceModified() || NewPiece;
+
+                 if (Preferences::debugLogging)
+                 {
+                     const QString message =
+                             QString("%1 BuildMod Viewer Piece - LineIndex [%2], ID [%3], Name [%4], LineNumber [%5], Modified: [%6]")
+                                     .arg(Action)
+                                     .arg(LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex))
+                                     .arg(Piece->GetID())
+                                     .arg(Piece->GetName())
+                                     .arg(LineNumber)
+                                     .arg(PieceModified ? QLatin1String("Yes") : QLatin1String("No"));
+                     emit messageSig(LOG_DEBUG, message);
+                 }
+
+                 // If PieceAdjustment is not 0, we increment EndModLineNum as we process each piece
+                 if (PieceAdjustment > 0)
+                      EndModLineNum = LineNumber + 1;
+
+                 // No more modified pieces so we exit the loop
+                 if (LineNumber > EndModLineNum)
+                     break;
+
+                 // Process the current piece
+                 if (LineNumber >= ModBeginLineNum && PieceModified)
+                 {
+
+                     // Use LPubFileLines
+                     while (LineNumber/*Piece->GetFileLine()*/ > CurrentLine && CurrentLine < LPubFileLines.size()/*ViewerFileLines.size()*/)
+                     {
+                         QString Line = LPubFileLines[CurrentLine]/*ViewerFileLines[CurrentLine]*/;
+                         QTextStream LineStream(&Line, QIODevice::ReadOnly);
+
+                         QString Token;
+                         LineStream >> Token;
+                         bool Skip = false;
+
+                         if (Token == QLatin1String("0"))
+                         {
+                             LineStream >> Token;
+
+                             if (Token == QLatin1String("STEP"))
+                             {
+                                 if (Piece->GetStepShow() > Step)
+                                     Step++;
+                                 else
+                                     Skip = true;
+                             }
+                         }
+
+                         if (!Skip)
+                         {
+                             Stream << LPubFileLines[CurrentLine]/*ViewerFileLines[CurrentLine]*/;
+                             if (AddedSteps > 0)
+                                 AddedSteps--;
+                         }
+                         CurrentLine++;
+                     }
+
+                     // Use Viewer Pieces
+
+                     // Skip previous and hidden steps
+                     while (Piece->GetStepShow() > Step)
+                     {
+                         Stream << QLatin1String("0 STEP\r\n");
+                         AddedSteps++;
+                         Step++;
+                     }
+
+                     // Process piece groups
+                     lcGroup* PieceGroup = Piece->GetGroup();
+
+                     if (PieceGroup)
+                     {
+                         if (ViewerGroups.IsEmpty() || (!ViewerGroups.IsEmpty() && PieceGroup != ViewerGroups[ViewerGroups.GetSize() - 1]))
+                         {
+                             lcArray<lcGroup*> PieceParents;
+
+                             for (lcGroup* Group = PieceGroup; Group; Group = Group->mGroup)
+                                 PieceParents.InsertAt(0, Group);
+
+                             int FoundParent = -1;
+
+                             while (!ViewerGroups.IsEmpty())
+                             {
+                                 lcGroup* Group = ViewerGroups[ViewerGroups.GetSize() - 1];
+                                 int Index = PieceParents.FindIndex(Group);
+
+                                 if (Index == -1)
+                                 {
+                                     ViewerGroups.RemoveIndex(ViewerGroups.GetSize() - 1);
+                                     Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+                                 }
+                                 else
+                                 {
+                                     FoundParent = Index;
+                                     break;
+                                 }
+                             }
+
+                             for (int ParentIdx = FoundParent + 1; ParentIdx < PieceParents.GetSize(); ParentIdx++)
+                             {
+                                 lcGroup* Group = PieceParents[ParentIdx];
+                                 ViewerGroups.Add(Group);
+                                 Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
+                             }
+                         }
+                     }
+                     else
+                     {
+                         while (ViewerGroups.GetSize())
+                         {
+                             ViewerGroups.RemoveIndex(ViewerGroups.GetSize() - 1);
+                             Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+                         }
+                     }
+
+                     // Process piece synth info
+                     if (Piece->mPieceInfo->GetSynthInfo())
+                     {
+                         Stream << QLatin1String("0 !LPUB SYNTH BEGIN\r\n");
+
+                         const lcArray<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
+                         for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
+                         {
+                             const lcPieceControlPoint& ControlPoint = ControlPoints[ControlPointIdx];
+
+                             Stream << QLatin1String("0 !LPUB SYNTH CONTROL_POINT");
+
+                             const float* FloatMatrix = ControlPoint.Transform;
+                             float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
+
+                             for (int NumberIdx = 0; NumberIdx < 13; NumberIdx++)
+                                 Stream << ' ' << lcFormatValue(Numbers[NumberIdx], NumberIdx < 3 ? 4 : 6);
+
+                             Stream << LineEnding;
+                         }
+                     }
+
+                     QString PieceString;
+                     QTextStream PieceStream(&PieceString, QIODevice::ReadWrite);
+
+                     // Write piece lines to piece string
+                     Piece->SaveLDraw(PieceStream);
+
+                     // Set piece lines to stream
+                     Stream << TransformPiece(PieceString, LineIndex, NewPiece);;
+
+                     // Process fade previous steps and highlight current step colour lines
+                     if (FadeSteps || HighlightStep)
+                         ConfigureFadeHighlightPartLine(Piece->GetLineTypeIndex(), Stream);
+
+                     // End piece synth info
+                     if (Piece->mPieceInfo->GetSynthInfo())
+                         Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
+                 } // Process the current piece
+             } // Viewer current step pieces
+
+             // Process to bottom of current step
+             while (CurrentLine < LPubFileLines.size()/*ViewerFileLines.size()*/)
+             {
+                 QString Line = LPubFileLines[CurrentLine]/*ViewerFileLines[CurrentLine]*/;
+                 QTextStream LineStream(&Line, QIODevice::ReadOnly);
+
+                 QString Token;
+                 LineStream >> Token;
+                 bool Skip = false;
+
+                 if (Token == QLatin1String("0"))
+                 {
+                     LineStream >> Token;
+
+                     if (Token == QLatin1String("STEP") && AddedSteps-- > 0)
+                         Skip = true;
+                 }
+
+                 if (!Skip)
+                     Stream << LPubFileLines[CurrentLine]/*ViewerFileLines[CurrentLine]*/;
+                 CurrentLine++;
+             } // Process to bottom of current step
+
+             // Process step group end
+             while (ViewerGroups.GetSize())
+             {
+                 ViewerGroups.RemoveIndex(ViewerGroups.GetSize() - 1);
+                 Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+             }
+
+             // Process camera lines
+             for (lcCamera* Camera : Cameras)
+                 if (!SelectedOnly || Camera->IsSelected())
+                     Camera->SaveLDraw(Stream);
+
+             // Process light lines
+             for (lcLight* Light : Lights)
+                 if (!SelectedOnly || Light->IsSelected())
+                     Light->SaveLDraw(Stream);
+
+             // Set step stream (of lines) to content list
+             ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
+
+             int BuildModPieces = ViewerModContents.size();
+
+//#ifdef QT_DEBUG_MODE
+//             QStringList Items;
+//             for (const int &LineIndex: lpub->currentStep->lineTypeIndexes)
+//                 Items << QString::number(LineIndex);
+//             if (Items.size())
+//                 qDebug() << qPrintable(QString("DEBUG: LPubStepLineTypeIndexes: %1").arg(Items.join(" ")));
+
+//             for (const QString &Line : LPubModContents)
+//                 qDebug() << qPrintable(QString("DEBUG: LPubModContents:   %1").arg(Line));
+
+//             for (const QString &Line : ViewerModContents)
+//                 qDebug() << qPrintable(QString("DEBUG: ViewerModContents: %1").arg(Line));
+//#endif
+
+             if (!Update)
+                 BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsCount() + 1);
+
+             // Delete meta commands uses the 'original' BuildMod values
+             int SaveModBeginLineNum  = BM_INIT;
+             int SaveModActionLineNum = BM_INIT;
+             int SaveModEndLineNum    = BM_INIT;
+             int SaveModPieces        = BM_INIT;
+             if (Update) {
+                 SaveModBeginLineNum  = BuildModBegin;
+                 SaveModActionLineNum = BuildModAction;
+                 SaveModEndLineNum    = BuildModEnd;
+                 SaveModPieces        = SaveModEndLineNum - SaveModActionLineNum - 1/*Meta Line*/;
+             } else {
+                 SaveModBeginLineNum  = ModBeginLineNum;
+                 SaveModActionLineNum = ModActionLineNum;
+                 SaveModEndLineNum    = ModEndLineNum;
+                 SaveModPieces        = BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0);
+             }
+
+             if (Preferences::debugLogging) {
+                 const QString message = QString("%1 BuildMod Save LineNumbers - "
+                                                 "Begin: %2, Action: %3, End: %4, ModPieces: %5")
+                                                 .arg(Action)
+                                                 .arg(SaveModBeginLineNum)
+                                                 .arg(SaveModActionLineNum)
+                                                 .arg(SaveModEndLineNum)
+                                                 .arg(SaveModPieces);
+                 emit messageSig(LOG_DEBUG, message);
+             }
+
+             // BuildMod meta command lines are written in a bottom up manner
+
+             // Set ModBeginLineNum to the top of the BuildMod step plus the number of 'AddedPieces' introduced by the BuildMod command
+             // This is the position for BUILD_MOD END
+             ModBeginLineNum += SaveModPieces;
+
+             // Set ModActionLineNum to SaveModBeginLineNum - initial BuildMod insertion line
+             // This is the position of BUILD_MOD MOD_END
+             ModActionLineNum = SaveModBeginLineNum;
+
+             BuildModData buildModData;
+
+             Where modHere;
+
+             if (BuildModPieces) {
+
+                 buildModData = lpub->currentStep->buildMod.value();
+
+                 QString metaString;
+                 buildModData.buildModKey = QString();
+
+                 beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
+
+                 // Delete old BUILD_MOD END meta command
+                 Where endMod = Where(ModelName, SaveModEndLineNum);
+                 QString modLine = readLine(endMod);
+                 Rc rc = lpub->page.meta.parse(modLine, endMod);
+                 if (rc == BuildModEndRc)
+                     deleteLine(endMod);
+
+                 // Delete old BUILD_MOD content from bottom up including END_MOD meta command
+                 endMod = Where(ModelName, SaveModActionLineNum);
+                 modLine = readLine(endMod);
+                 rc = lpub->page.meta.parse(modLine, endMod);
+                 if (rc == BuildModEndModRc)
+                     for (modHere = endMod; modHere >= SaveModBeginLineNum; --modHere)
+                         deleteLine(modHere);
+
+                 // Write BUILD_MOD END meta command at the BuildMod insert position
+                 modHere = Where(ModelName, ModBeginLineNum);
+                 buildModData.action      = QLatin1String("END");
+                 lpub->currentStep->buildMod.setValue(buildModData);
+                 metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
+                 insertLine(modHere, metaString, nullptr);
+
+                 // Write BUILD_MOD END_MOD meta command above LPub content first line - last to first
+                 modHere = Where(ModelName, ModActionLineNum);
+                 buildModData.action      = QLatin1String("END_MOD");
+                 lpub->currentStep->buildMod.setValue(buildModData);
+                 metaString = lpub->currentStep->buildMod.format(false,false);
+                 insertLine(modHere, metaString, nullptr);
+
+                 // Write buildMod content last to first
+                 for (int i = BuildModPieces - 1; i >= 0; --i) {
+                     metaString = ViewerModContents.at(i);
+                     insertLine(modHere, metaString, nullptr);
+                 }
+
+                 // Write BUILD_MOD BEGIN meta command above buildMod content first line
+                 buildModData.action      = QLatin1String("BEGIN");
+                 buildModData.buildModKey = BuildModKey;
+                 lpub->currentStep->buildMod.setValue(buildModData);
+                 metaString = lpub->currentStep->buildMod.format(false,false);
+                 insertLine(modHere, metaString, nullptr);
+
+                 clearWorkingFiles(getPathsFromViewerStepKey(lpub->viewerStepKey));
+
+                 endMacro();
+             }
+
+             // BuildMod attribute values are calculated in a top down manner
+
+             // Reset to BUILD_MOD BEGIN
+             ModBeginLineNum = SaveModBeginLineNum;
+
+             // Reset to BUILD_MOD END_MOD command line number - add 1 for meta command
+             ModActionLineNum = ModBeginLineNum + BuildModPieces + 1;
+
+             // Set to BUILD_MOD END command line number - add 1 for meta command
+             ModEndLineNum = ModActionLineNum + SaveModPieces + 1;
+
+             // Set to updated number of pieces in the current Step
+             ModStepPieces = ViewerPieces.GetSize();
+
+             QVector<int> ModAttributes =
+             {
+                 ModBeginLineNum,            // 0 BM_BEGIN_LINE_NUM
+                 ModActionLineNum,           // 1 BM_ACTION_LINE_NUM
+                 ModEndLineNum,              // 2 BM_END_LINE_NUM
+                 ModDisplayPageNum,          // 3 BM_DISPLAY_PAGE_NUM
+                 ModStepPieces,              // 4 BM_STEP_PIECES
+                 ModelIndex,                 // 5 BM_MODEL_NAME_INDEX
+                 ModStepLineNum,             // 6 BM_MODEL_LINE_NUM
+                 ModStepNum                  // 7 BM_MODEL_STEP_NUM
+             };
+
+             insertBuildMod(BuildModKey,
+                            ModAttributes,
+                            ModStepIndex);   // Unique ID
+
+             if (Preferences::debugLogging) {
+                 const QString message =
+                         QString("%1 BuildMod - StepIndex: %2, "
+                                 "Action: Apply(64), "
+                                 "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
+                                 "ModKey: %11, "
+                                 "Level: %12")
+                                 .arg(Action)   // 01
+                                 .arg(ModStepIndex)                   // 02     ModAttributes:
+                                 .arg(ModBeginLineNum)                // 03 - 0 BM_BEGIN_LINE_NUM
+                                 .arg(ModActionLineNum)               // 04 - 1 BM_ACTION_LINE_NUM
+                                 .arg(ModEndLineNum)                  // 05 - 2 BM_END_LINE_NUM
+                                 .arg(ModDisplayPageNum)              // 06 - 3 BM_DISPLAY_PAGE_NUM
+                                 .arg(ModStepPieces)                  // 07 - 4 BM_STEP_PIECES
+                                 .arg(ModelIndex)                     // 08 - 5 BM_MODEL_NAME_INDEX
+                                 .arg(ModStepLineNum)                 // 09 - 6 BM_MODEL_LINE_NUM
+                                 .arg(ModStepNum)                     // 10 - 7 BM_MODEL_STEP_NUM
+                                 .arg(ModStepKey)                     // 11
+                                 .arg(BuildModKey);                   // 12
+                 emit messageSig(LOG_DEBUG, message);
+             }
+
+             // Reset the build modification range
+             mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
+
+         } // mBuildModRange || Update
+
+         progressPermStatusRemove();
+         enableVisualBuildModActions();
+         showLine(lpub->currentStep->topOfStep());
+     }
+ }
 
 void Gui::applyBuildModification()
 {

@@ -396,6 +396,9 @@ int SubModel::createSubModelImage(
           QStringList rotatedModel = RenderFuture.result();
           rc = rotatedModel.isEmpty();
 
+          // rotated model without header or consolidation
+          QStringList rotatedModelNH = rotatedModel;
+
           // Prepare content for Native renderer
           if (!rc && Preferences::inlineNativeContent) {
               QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedModel] () {
@@ -425,7 +428,7 @@ int SubModel::createSubModelImage(
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMI);
+          lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,rotatedModelNH,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMI);
       } // addViewerStepContent || ! submodel.exists() || imageOutOfDate
 
       // Update smi file

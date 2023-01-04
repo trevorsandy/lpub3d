@@ -715,6 +715,7 @@ public:
   }
 
   void insertViewerStep(const QString     &stepKey,
+                        const QStringList &rotatedViewerContents,
                         const QStringList &rotatedContents,
                         const QStringList &unrotatedContents,
                         const QString     &filePath,
@@ -725,6 +726,7 @@ public:
                         int                viewType)
   {
       lpub->ldrawFile.insertViewerStep(stepKey,
+                                 rotatedViewerContents,
                                  rotatedContents,
                                  unrotatedContents,
                                  filePath,

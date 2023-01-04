@@ -118,6 +118,7 @@ class ViewerStep {
        int lineNum;
        int stepNum;
     };
+    QStringList _rotatedViewerContents;
     QStringList _rotatedContents;
     QStringList _unrotatedContents;
     QString   	_filePath;
@@ -139,6 +140,7 @@ class ViewerStep {
     }
     ViewerStep(
       const QStringList &stepKey,
+      const QStringList &rotatedViewerContents,
       const QStringList &rotatedContents,
       const QStringList &unrotatedContents,
       const QString     &filePath,
@@ -149,6 +151,7 @@ class ViewerStep {
       int                viewType);
     ~ViewerStep()
     {
+      _rotatedViewerContents.clear();
       _rotatedContents.clear();
       _unrotatedContents.clear();
     }
@@ -524,6 +527,7 @@ class LDrawFile {
     /* ViewerStep functions */
 
     void insertViewerStep(const QString     &stepKey,
+                          const QStringList &rotatedViewerContents,
                           const QStringList &rotatedContents,
                           const QStringList &unrotatedContents,
                           const QString     &filePath,
@@ -542,8 +546,10 @@ class LDrawFile {
                                       const int bottomModelIndex,
                                       const int bottomLineNumber);
     QStringList getPathsFromViewerStepKey(const QString &stepKey);
+    QStringList getViewerStepContents(const QString &stepKey);
     QStringList getViewerStepRotatedContents(const QString &stepKey);
     QStringList getViewerStepUnrotatedContents(const QString &stepKey);
+    QString     getViewerStepContentLine(const QString &stepKey, const int lineTypeIndex, bool rotated = true, bool relative = true);
     QString     getViewerStepKey(const int stepIndex);
     QString     getViewerStepKeyWhere(const int modelIndex, const int lineNumber);
     QString     getViewerStepFilePath(const QString &stepKey);

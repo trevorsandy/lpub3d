@@ -1156,13 +1156,21 @@ int Pli::createPartImage(
             QStringList pliFileU = QStringList()
                     << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(typeName.toLower());
 
+            // rotated part - without header
+            QStringList pliFileR;
+            for(const QString &line : pliFile)
+              if (line[0] == '1') {
+                pliFileR << line;
+                break;
+              }
+
             // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
             if (targetPosition.isEmpty())
                 keyPart2.append(QString("_0_0_0"));
             if (rotStep.isEmpty())
                 keyPart2.append(QString("_0_0_0_REL"));
             QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-            lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+            lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileR,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
             if (! rc && ! part.exists()) {
 
@@ -2645,13 +2653,21 @@ int Pli::partSizeLDViewSCall() {
                     QStringList pliFileU = QStringList()
                             << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
 
+                    // rotated part - without header
+                    QStringList pliFileR;
+                    for(const QString &line : pliFile)
+                      if (line[0] == '1') {
+                        pliFileR << line;
+                        break;
+                      }
+
                     // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
                     if (targetPosition.isEmpty())
                         keyPart2.append(QString("_0_0_0"));
                     if (rotStep.isEmpty())
                         keyPart2.append(QString("_0_0_0_REL"));
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+                    lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileR,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
                     if (! rc && ! part.exists()) {
 

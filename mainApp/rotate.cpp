@@ -49,17 +49,17 @@ matrixMakeRot(
   double s3 = sin(2*pi*rots[2]/360.0);
   double c3 = cos(2*pi*rots[2]/360.0);
 
-  rm[0][0] = c2*c3;
+  rm[0][0] =  c2*c3;
   rm[0][1] = -c2*s3;
-  rm[0][2] = s2;
+  rm[0][2] =  s2;
 
-  rm[1][0] = c1 * s3 + s1 * s2 * c3;
-  rm[1][1] = c1 * c3 - s1 * s2 * s3;
+  rm[1][0] =  c1 * s3 + s1 * s2 * c3;
+  rm[1][1] =  c1 * c3 - s1 * s2 * s3;
   rm[1][2] = -s1 * c2;
 
-  rm[2][0] = s1 * s3 - c1 * s2 * c3;
-  rm[2][1] = s1 * c3 + c1 * s2 * s3;
-  rm[2][2] = c1 * c2;
+  rm[2][0] =  s1 * s3 - c1 * s2 * c3;
+  rm[2][1] =  s1 * c3 + c1 * s2 * s3;
+  rm[2][2] =  c1 * c2;
 }
 
 void
@@ -288,14 +288,18 @@ int Render::rotateParts(
   bool cal = Preferences::applyCALocally;
   bool defaultRot = (cal && applyCA);
 
+  // declare min, max
   double min[3], max[3];
 
+  // initialize min, max
   min[0] = 1e23, max[0] = -1e23,
   min[1] = 1e23, max[1] = -1e23,
   min[2] = 1e23, max[2] = -1e23;
 
+  // declare default Matrix and Rots
   double defaultViewMatrix[3][3], defaultViewRots[3];
 
+  // initialize default Rots
   if (defaultRot) {
     defaultViewRots[0] = ca.value(0);
     defaultViewRots[1] = ca.value(1);
@@ -306,23 +310,32 @@ int Render::rotateParts(
     defaultViewRots[2] = 0;
   }
 
+  // initialize default matrix - should be [0]100 [1]010 [2]001 with no ca
   matrixMakeRot(defaultViewMatrix,defaultViewRots);
 
+  // set rotstep data
   RotStepData rotStepData = rotStep.value();
 
+  // declare rm (rotation matrix)
   double rm[3][3];
 
+  // if not rotation type, copy default matrix to rm
   if (rotStepData.type.size() == 0) {
     matrixCp(rm,defaultViewMatrix);
   } else {
+    // set rotstep matrix
     double rotStepMatrix[3][3];
     matrixMakeRot(rotStepMatrix,rotStepData.rots);
+    // if type is ABS, copy rotstep matrix to rm
     if (rotStepData.type.toUpper() == QLatin1String("ABS")) {
       matrixCp(rm,rotStepMatrix);
     } else {
+      // if type is REL, multiply rm by default by rotstep matrixes
       matrixMult3(rm,defaultViewMatrix,rotStepMatrix);
     }
   }
+
+  // multiply rm by addLine matrix if not mirrored or not default rots
 
   QStringList tokens;
 
@@ -361,8 +374,10 @@ int Render::rotateParts(
       v[0][1] = tokens[3].toFloat();
       v[0][2] = tokens[4].toFloat();
 
+      // rotate position points by rm
       rotatePoint(v[0],rm);
 
+      // set minimum and maximum points from rm
       for (int d = 0; d < 3; d++) {
         if (v[0][d] < min[d]) {
           min[d] = v[0][d];
@@ -444,15 +459,17 @@ int Render::rotateParts(
         }
       }
     }
-  }
+  } // rotate all the parts
 
   // center the design at the LDraw origin
 
+  // declare center points (min + max)/2
   double center[3];
   for (int d = 0; d < 3; d++) {
     center[d] = (min[d] + max[d])/2;
   }
 
+  // rotate each line
   for (int i = 0; i < parts.size(); i++) {
     QString line = parts[i];
     QStringList tokens;
@@ -590,7 +607,7 @@ int Render::rotateParts(
                      .arg( v[3][0]) .arg( v[3][1]) .arg( v[3][2]);
       parts[i] = t1;
     }
-  }
+  } // center the design at the LDraw origin
   return 0;
 }
 

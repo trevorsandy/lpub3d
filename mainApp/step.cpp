@@ -404,58 +404,58 @@ int Step::createCsi(
 
       timer.start();
 
-#ifdef QT_DEBUG_MODE
-      // Viewer step png file is out of date
-      qDebug() << qPrintable(QString("DEBUG: %1 out of date %2.")
-                                     .arg(csiOutOfDate
-                                          ? "TRUE - Viewer Step CSI image IS"
-                                          : "FALSE - Viewer Step CSI image IS NOT")
-                                     .arg(QFileInfo(pngName).fileName()));
-#endif
+//#ifdef QT_DEBUG_MODE
+//      // Viewer step png file is out of date
+//      qDebug() << qPrintable(QString("DEBUG: %1 out of date %2.")
+//                                     .arg(csiOutOfDate
+//                                          ? "TRUE - Viewer Step CSI image IS"
+//                                          : "FALSE - Viewer Step CSI image IS NOT")
+//                                     .arg(QFileInfo(pngName).fileName()));
+//#endif
 
       // Viewer step does not yet exist in repository
       bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerStepKey);
 
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Does Not Exist for Key (Model,Line,Step) %2")
-                                     .arg(addViewerStepContent ? "TRUE " : "FALSE").arg(viewerStepKey));
-#endif
+//#ifdef QT_DEBUG_MODE
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Does Not Exist for Key (Model,Line,Step) %2")
+//                                     .arg(addViewerStepContent ? "TRUE " : "FALSE").arg(viewerStepKey));
+//#endif
 
       // We are processing again the current step but the CSI has changed - e.g. updated in the viewer
       bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
 
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Changed for Key (Model,Line,Step) %2")
-                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
-#endif
+//#ifdef QT_DEBUG_MODE
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Changed for Key (Model,Line,Step) %2")
+//                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+//#endif
 
       // However, update if we are processing an updated step - e.g. a step in a step-group
       viewerUpdate |= lpub->ldrawFile.viewerStepModified(viewerStepKey,true/*reset*/);
 
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Modified for Key (Model,Line,Step) %2")
-                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
-#endif
+//#ifdef QT_DEBUG_MODE
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Modified for Key (Model,Line,Step) %2")
+//                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+//#endif
 
       // Or the current step submodel file has been updated
       viewerUpdate |= lpub->ldrawFile.modified(top.modelName,false/*reset*/);
 
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Model [%2] Is Modified for Key (Model,Line,Step) %3")
-                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(top.modelName).arg(viewerStepKey));
-#endif
+//#ifdef QT_DEBUG_MODE
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Model [%2] Is Modified for Key (Model,Line,Step) %3")
+//                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(top.modelName).arg(viewerStepKey));
+//#endif
 
       // But do not update viewer contents for steps generated from a buildMod action (buildMod change)
       viewerUpdate &= !lpub->ldrawFile.getViewerStepHasBuildModAction(viewerStepKey);
 
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Has BuildMod Action for Key (Model,Line,Step) %2")
-                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+//#ifdef QT_DEBUG_MODE
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Has BuildMod Action for Key (Model,Line,Step) %2")
+//                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
 
-      // Finally, will the current step's viewer content be processed ?
-      qDebug() << qPrintable(QString("DEBUG: %1 - Update Viewer Step Content for Key (Model,Line,Step) %2")
-                                     .arg(addViewerStepContent || csiOutOfDate || viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
-#endif
+//      // Finally, will the current step's viewer content be processed ?
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Update Viewer Step Content for Key (Model,Line,Step) %2")
+//                                     .arg(addViewerStepContent || csiOutOfDate || viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+//#endif
 
       if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
 
@@ -485,6 +485,11 @@ int Step::createCsi(
           QStringList rotatedParts = RenderFuture.result();
           rc = rotatedParts.isEmpty();
 
+          // rotated parts without ROTSTEP
+          QStringList rotatedPartsNH = rotatedParts;
+          if (rotatedPartsNH.size() && rotatedPartsNH.at(0)[0] == '0')
+              rotatedPartsNH.takeFirst();
+
           // Prepare content for Native renderer
           if (!rc && Preferences::inlineNativeContent) {
               QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
@@ -510,7 +515,7 @@ int Step::createCsi(
           if (!rotStepMeta.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          lpub->ldrawFile.insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
+          lpub->ldrawFile.insertViewerStep(viewerStepKey,rotatedParts,rotatedPartsNH,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
       }
 
       // Are any children submodels modified ? - trigger the native renderer to update input files on disc
