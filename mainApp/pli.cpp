@@ -483,12 +483,13 @@ void Pli::setParts(
               return groupMeta;
           };
 
-          bool  useImageSize  = pliMeta.imageSize.value(0) > 0;
-          float modelScale    = pliMeta.modelScale.value();
-          qreal cameraFoV     = double(pliMeta.cameraFoV.value());
-          bool noCA           = pliMeta.rotStep.value().type.toUpper() == "ABS";
-          qreal cameraAngleXX = noCA ? 0.0 : double(pliMeta.cameraAngles.value(0));
-          qreal cameraAngleYY = noCA ? 0.0 : double(pliMeta.cameraAngles.value(1));
+          bool  useImageSize    = pliMeta.imageSize.value(0) > 0;
+          float modelScale      = pliMeta.modelScale.value();
+          qreal cameraFoV       = double(pliMeta.cameraFoV.value());
+          bool  customViewpoint = pliMeta.cameraAngles.customViewpoint();
+          bool noCA             = !customViewpoint && pliMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
+          qreal cameraAngleXX   = noCA ? double(0.0f) : double(pliMeta.cameraAngles.value(0));
+          qreal cameraAngleYY   = noCA ? double(0.0f) : double(pliMeta.cameraAngles.value(1));
 
           // extract substitute part arguments
 
@@ -867,7 +868,9 @@ int Pli::createSubModelIcons()
 
         float modelScale  = pliMeta.modelScale.value();
 
-        bool noCA = pliMeta.rotStep.value().type.toUpper() == "ABS";
+        bool customViewpoint = pliMeta.cameraAngles.customViewpoint();
+
+        bool noCA = !customViewpoint && pliMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
 
         // assemble icon name key
         QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
@@ -878,8 +881,8 @@ int Pli::createSubModelIcons()
                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                 .arg(double(modelScale))
                 .arg(double(pliMeta.cameraFoV.value()))
-                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
-                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)));
+                .arg(noCA ? double(0.0f) : double(pliMeta.cameraAngles.value(0)))
+                .arg(noCA ? double(0.0f) : double(pliMeta.cameraAngles.value(1)));
         if (pliMeta.target.isPopulated())
             nameKey.append(QString("_%1_%2_%3")
                            .arg(double(pliMeta.target.x()))
@@ -977,7 +980,8 @@ int Pli::createPartImage(
                           .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
                           .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
                           .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
-        emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
+        if (Preferences::debugLogging)
+            emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
     }
 
     // populate targetPosition string from nameKeys - if exist
@@ -988,7 +992,8 @@ int Pli::createPartImage(
                         .arg(nameKeys.at(nTargetY))                       // targetY
                         .arg(nameKeys.at(nTargetZ));                      // targetZ
 
-        emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
+        if (Preferences::debugLogging)
+            emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
     }
 
     PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
@@ -1073,15 +1078,17 @@ int Pli::createPartImage(
             // set viewer display options
             QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
             QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
+            bool customViewpoint          = pliMeta.cameraAngles.customViewpoint();
+            bool noCA                     = !customViewpoint && rotate.at(3).toUpper() == QLatin1String("ABS");
             viewerOptions                 = new NativeOptions();
             viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
             viewerOptions->CameraName     = pliMeta.cameraName.value();
             viewerOptions->ImageFileName  = imageName;
             viewerOptions->ImageType      = Options::PLI;
             viewerOptions->Viewpoint      = static_cast<int>(pliMeta.cameraAngles.cameraView());
-            viewerOptions->CustomViewpoint= pliMeta.cameraAngles.customViewpoint();
-            viewerOptions->Latitude       = pliMeta.cameraAngles.customViewpoint() ? pliMeta.cameraAngles.value(0) : nameKeys.at(7).toFloat();
-            viewerOptions->Longitude      = pliMeta.cameraAngles.customViewpoint() ? pliMeta.cameraAngles.value(1) : nameKeys.at(8).toFloat();
+            viewerOptions->CustomViewpoint= customViewpoint;
+            viewerOptions->Latitude       = noCA ? 0.0f : pliMeta.cameraAngles.value(0);
+            viewerOptions->Longitude      = noCA ? 0.0f : pliMeta.cameraAngles.value(1);
             viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
             viewerOptions->PageHeight     = pageSizeP(meta, 1);
             viewerOptions->PageWidth      = pageSizeP(meta, 0);
@@ -1166,7 +1173,6 @@ int Pli::createPartImage(
                     emit gui->messageSig(LOG_ERROR,QObject::tr("Cannot open file for writing %1:\n%2.")
                                          .arg(ldrNames.first())
                                          .arg(part.errorString()));
-                    ptRc = -1;
                     continue;
                 }
 
@@ -1483,9 +1489,9 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
                                      .arg(nameKeys.at(hr ? nRotX : nRot_X))
                                      .arg(nameKeys.at(hr ? nRotY : nRot_Y))
                                      .arg(nameKeys.at(hr ? nRotZ : nRot_Z))));
-                rotStepData.rots[0] = 0.0;
-                rotStepData.rots[1] = 0.0;
-                rotStepData.rots[2] = 0.0;
+                rotStepData.rots[0] = 0.0f;
+                rotStepData.rots[1] = 0.0f;
+                rotStepData.rots[2] = 0.0f;
             }
             rotStepData.type    = nameKeys.at(hr ? nRotTrans : nRot_Trans);
             rotStepMeta.setValue(rotStepData);
@@ -1508,7 +1514,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
         // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
         if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
-                emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate type: %1.").arg(typeName));
+            emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate type: %1.").arg(typeName));
 
         out << rotatedType;
     } else {
@@ -2444,7 +2450,8 @@ int Pli::partSizeLDViewSCall() {
                                   .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
                                   .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
                                   .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
-                emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
+                if (Preferences::debugLogging)
+                    emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type ROTSTEP meta: %1").arg(rotStep));
             }
 
             // populate targetPosition string from nameKeys - if exist
@@ -2454,8 +2461,8 @@ int Pli::partSizeLDViewSCall() {
                                 .arg(nameKeys.at(nTargetX))                       // targetX
                                 .arg(nameKeys.at(nTargetY))                       // targetY
                                 .arg(nameKeys.at(nTargetZ));                      // targetZ
-
-                emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
+                if (Preferences::debugLogging)
+                    emit gui->messageSig(LOG_DEBUG, QObject::tr("Substitute type TARGET meta: %1").arg(targetPosition));
             }
 
             emit gui->messageSig(LOG_INFO, QObject::tr("Processing PLI part for nameKey [%1]").arg(nameKey));
@@ -2558,15 +2565,17 @@ int Pli::partSizeLDViewSCall() {
                     // set viewer display options
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
                     QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
+                    bool customViewpoint          = pliMeta.cameraAngles.customViewpoint();
+                    bool noCA                     = !customViewpoint && rotate.at(3).toUpper() == QLatin1String("ABS");
                     viewerOptions                 = new NativeOptions();
                     viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
                     viewerOptions->CameraName     = pliMeta.cameraName.value();
                     viewerOptions->ImageFileName  = imageName;
                     viewerOptions->ImageType      = Options::PLI;
                     viewerOptions->Viewpoint      = static_cast<int>(pliMeta.cameraAngles.cameraView());
-                    viewerOptions->CustomViewpoint= pliMeta.cameraAngles.customViewpoint();
-                    viewerOptions->Latitude       = pliMeta.cameraAngles.customViewpoint() ? pliMeta.cameraAngles.value(0) : nameKeys.at(7).toFloat();
-                    viewerOptions->Longitude      = pliMeta.cameraAngles.customViewpoint() ? pliMeta.cameraAngles.value(1) : nameKeys.at(8).toFloat();
+                    viewerOptions->CustomViewpoint= customViewpoint;
+                    viewerOptions->Latitude       = noCA ? 0.0f : pliMeta.cameraAngles.value(0);
+                    viewerOptions->Longitude      = noCA ? 0.0f : pliMeta.cameraAngles.value(1);
                     viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
                     viewerOptions->PageHeight     = pageSizeP(meta, 1);
                     viewerOptions->PageWidth      = pageSizeP(meta, 0);
@@ -2699,7 +2708,6 @@ int Pli::partSizeLDViewSCall() {
             iaSub = ia.sub[pT]; // keySub
         if ((createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),iaSub) != 0)) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("LDView Single Call PLI render failed."));
-            ptRc = -1;
             continue;
         }
 
@@ -3198,8 +3206,8 @@ PliBackgroundItem::PliBackgroundItem(
     }
 
   //gradient settings
-  if (pli->pliMeta.background.value().gsize[0] == 0.0 &&
-      pli->pliMeta.background.value().gsize[1] == 0.0) {
+  if (pli->pliMeta.background.value().gsize[0] == 0.0f &&
+      pli->pliMeta.background.value().gsize[1] == 0.0f) {
       pli->pliMeta.background.value().gsize[0] = pixmap->width();
       pli->pliMeta.background.value().gsize[1] = pixmap->width();
       QSize gSize(pli->pliMeta.background.value().gsize[0],
@@ -3975,11 +3983,12 @@ void PGraphicsPixmapItem::contextMenuEvent(
       QStringList defaultList;
       if (this->part->subType/*sUpdate*/) {
           float modelScale = this->pli->pliMeta.modelScale.value();
-          bool noCA = this->pli->pliMeta.rotStep.value().type.toUpper() == "ABS";
+          bool customViewpoint = this->pli->pliMeta.cameraAngles.customViewpoint();
+          bool noCA = !customViewpoint && this->pli->pliMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
           defaultList.append(QString::number(double(modelScale)));
           defaultList.append(QString::number(double(this->pli->pliMeta.cameraFoV.value())));
-          defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(0))));
-          defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(1))));
+          defaultList.append(QString::number(noCA ? double(0.0f) : double(this->pli->pliMeta.cameraAngles.value(0))));
+          defaultList.append(QString::number(noCA ? double(0.0f) : double(this->pli->pliMeta.cameraAngles.value(1))));
           defaultList.append(QString(QString("%1 %2 %3")
                                      .arg(double(this->pli->pliMeta.target.x()))
                                      .arg(double(this->pli->pliMeta.target.y()))

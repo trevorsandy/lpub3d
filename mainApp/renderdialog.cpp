@@ -265,8 +265,8 @@ void RenderDialog::on_RenderButton_clicked()
         /* set LDV arguments */
         QString CA = QString("-ca%1") .arg(0.01);        // Effectively defaults to orthographic projection.
         QString cg = QString("-cg%1,%2,%3")
-                .arg(noCA ? 0.0 : mCsiKeyList.at(K_LATITUDE).toDouble())
-                .arg(noCA ? 0.0 : mCsiKeyList.at(K_LONGITUDE).toDouble())
+                .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LATITUDE).toDouble())
+                .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble())
                 .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
 
         QString m  = mKey == "0 0 0" ? QString() : mKey;
@@ -309,8 +309,8 @@ void RenderDialog::on_RenderButton_clicked()
             QString dz = QString("-DefaultZoom=%1")
                     .arg(mCsiKeyList.at(K_MODELSCALE).toDouble());
             QString dl = QString("-DefaultLatLong=%1,%2")
-                    .arg(noCA ? 0.0 : mCsiKeyList.at(K_LATITUDE).toDouble())
-                    .arg(noCA ? 0.0 : mCsiKeyList.at(K_LONGITUDE).toDouble());
+                    .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LATITUDE).toDouble())
+                    .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble());
             Render::addArgument(Arguments, dz, "-DefaultZoom");
             Render::addArgument(Arguments, dl, "-DefaultLatLong");
         }

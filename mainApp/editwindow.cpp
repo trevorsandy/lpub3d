@@ -1350,11 +1350,12 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
             QStringList defaultList;
             if (action == sUpdate) {
                 const float modelScale = step->pli.pliMeta.modelScale.value();
-                const bool noCA = step->pli.pliMeta.rotStep.value().type.toUpper() == "ABS";
+                const bool customViewpoint = step->pli.pliMeta.cameraAngles.customViewpoint();
+                const bool noCA = !customViewpoint && step->pli.pliMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
                 defaultList.append(QString::number(double(modelScale)));
                 defaultList.append(QString::number(double(step->pli.pliMeta.cameraFoV.value())));
-                defaultList.append(QString::number(noCA ? 0.0 : double(step->pli.pliMeta.cameraAngles.value(0))));
-                defaultList.append(QString::number(noCA ? 0.0 : double(step->pli.pliMeta.cameraAngles.value(1))));
+                defaultList.append(QString::number(noCA ? double(0.0f) : double(step->pli.pliMeta.cameraAngles.value(0))));
+                defaultList.append(QString::number(noCA ? double(0.0f) : double(step->pli.pliMeta.cameraAngles.value(1))));
                 defaultList.append(QString(QString("%1 %2 %3")
                                            .arg(double(step->pli.pliMeta.target.x()))
                                            .arg(double(step->pli.pliMeta.target.y()))

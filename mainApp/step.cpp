@@ -241,30 +241,33 @@ int Step::createCsi(
     QPixmap           *pixmap,
     Meta              &meta)
 {
-  bool csiExist       = false;
-  bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
-  int  nType          = NTypeDefault;
-  FloatPairMeta cameraAngles;
-  cameraAngles.setValues( csiStepMeta.cameraAngles.value(0),
-                          csiStepMeta.cameraAngles.value(1));
+  bool csiExist         = false;
+  bool nativeRenderer   = Preferences::preferredRenderer == RENDERER_NATIVE;
+  int  nType            = static_cast<int>(NTypeDefault);
+  bool  customViewpoint = csiStepMeta.cameraAngles.customViewpoint();
+  bool  noCA            = !customViewpoint && rotStepMeta.value().type.toUpper() == QLatin1String("ABS");
   float cameraFoV       = csiStepMeta.cameraFoV.value();
   float modelScale      = csiStepMeta.modelScale.value();
   float camDistance     = csiStepMeta.cameraDistance.value();
-  if (nativeRenderer) {
-    nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
-  }
+
+  if (nativeRenderer)
+    nType = calledOut ? static_cast<int>(NTypeCalledOut) : multiStep ? static_cast<int>(NTypeMultiStep) : static_cast<int>(NTypeDefault);
+
+  // set camera angles
+  FloatPairMeta cameraAngles;
+  if (!noCA)
+      cameraAngles.setValues( csiStepMeta.cameraAngles.value(0),
+                              csiStepMeta.cameraAngles.value(1));
 
   // set RotStep meta
   if (!rotStepMeta.isPopulated())
       rotStepMeta = meta.rotStep;
 
-  QString nameSuffix    = lpub->mi.viewerStepKeySuffix(top, this);
-  QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
-  bool    invalidIMStep = (modelDisplayOnlyStep || stepNumber.number == 1);
-  bool    absRotstep    = rotStepMeta.value().type.toUpper() == "ABS";
-  bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
-  FloatPairMeta noCA;
-  lineTypeIndexes       =_lineTypeIndexes;
+  QString nameSuffix      = lpub->mi.viewerStepKeySuffix(top, this);
+  QString csi_Name        = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
+  bool    invalidIMStep   = (modelDisplayOnlyStep || stepNumber.number == 1);
+  bool    useImageSize    = csiStepMeta.imageSize.value(0) > 0;
+  lineTypeIndexes         = _lineTypeIndexes;
 
   ldrName.clear();
 
@@ -295,8 +298,8 @@ int Step::createCsi(
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
                              .arg(double(cameraFoV))
-                             .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
-                             .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
+                             .arg(double(cameraAngles.value(0)))
+                             .arg(double(cameraAngles.value(1)));
 
   // append target vector if specified
   if (csiStepMeta.target.isPopulated())
@@ -466,7 +469,7 @@ int Step::createCsi(
                           addLine,
                           rotStepMeta,
                           futureParts,
-                          absRotstep ? noCA : cameraAngles,
+                          cameraAngles,
                           false/*applyCA*/) != 0) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
                   pngName = QString(":/resources/missingimage.png");
@@ -526,9 +529,9 @@ int Step::createCsi(
       viewerOptions->ImageFileName  = pngName;
       viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
       viewerOptions->Viewpoint      = static_cast<int>(csiStepMeta.cameraAngles.cameraView());
-      viewerOptions->CustomViewpoint= csiStepMeta.cameraAngles.customViewpoint();
-      viewerOptions->Latitude       = absRotstep && !csiStepMeta.cameraAngles.customViewpoint() ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
-      viewerOptions->Longitude      = absRotstep && !csiStepMeta.cameraAngles.customViewpoint() ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
+      viewerOptions->CustomViewpoint= customViewpoint;
+      viewerOptions->Latitude       = cameraAngles.value(0);
+      viewerOptions->Longitude      = cameraAngles.value(1);
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
       viewerOptions->PageHeight     = lpub->pageSize(meta.LPub.page, 1);
       viewerOptions->PageWidth      = lpub->pageSize(meta.LPub.page, 0);
@@ -587,7 +590,7 @@ int Step::createCsi(
          }
 
          // set rotated parts
-         QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&meta,&csiParts,&noCA,&cameraAngles,absRotstep] () {
+         QFuture<int> RenderFuture = QtConcurrent::run([&] () {
              int rcf = 0;
              QStringList futureParts = csiParts;
              // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
@@ -597,7 +600,7 @@ int Step::createCsi(
                       futureParts,
                       ldrName,
                       top.modelName,
-                      absRotstep ? noCA : cameraAngles,
+                      cameraAngles,
                       false/*ldv*/,
                       Options::CSI)) != 0) {
                  emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.").arg(ldrName));

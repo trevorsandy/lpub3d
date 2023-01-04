@@ -753,7 +753,7 @@ int POVRay::renderCsi(
   QStringList ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
   QString transform  = meta.rotStep.value().type.toUpper();
   bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
-  bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == "ABS");
+  bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == QLatin1String("ABS"));
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = meta.LPub.assem.modelScale.value();
   float cameraFoV    = meta.LPub.assem.cameraFoV.value();
@@ -1095,7 +1095,7 @@ int POVRay::renderPli(
   QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
   QString transform  = metaType.rotStep.value().type.toUpper();
   bool customViewpoint = metaType.cameraAngles.customViewpoint();
-  bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
+  bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == QLatin1String("ABS") : transform == QLatin1String("ABS");
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
@@ -1176,7 +1176,7 @@ int POVRay::renderPli(
         QStringList attributes = getImageAttributes(pngName);
         bool hr;
         if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
-          noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == "ABS";
+          noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == QLatin1String("ABS");
         if (attributes.size() >= nHasTarget)
           target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
         if (keySub > PliBeginSub2Rc) {
@@ -1512,8 +1512,8 @@ int LDGLite::   renderCsi(
                .arg(double(meta.LPub.assem.target.y()))
                .arg(double(meta.LPub.assem.target.z()));
   } else {
-      cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(XX)))
-                                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(YY)))
+      cg = QString("-cg%1,%2,%3") .arg(noCA ? double(0.0f) : double(meta.LPub.assem.cameraAngles.value(XX)))
+                                  .arg(noCA ? double(0.0f) : double(meta.LPub.assem.cameraAngles.value(YY)))
                                   .arg(cd);
   }
 
@@ -1626,7 +1626,7 @@ int LDGLite::renderPli(
   // Populate render attributes
   QString transform  = metaType.rotStep.value().type.toUpper();
   bool customViewpoint = metaType.cameraAngles.customViewpoint();
-  bool  noCA         = !customViewpoint && transform  == "ABS";
+  bool  noCA         = !customViewpoint && transform  == QLatin1String("ABS");
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
@@ -1639,7 +1639,7 @@ int LDGLite::renderPli(
     QStringList attributes = getImageAttributes(pngName);
     bool hr;
     if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
-      noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == "ABS";
+      noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == QLatin1String("ABS");
     if (attributes.size() >= nHasTarget)
       target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
@@ -1675,8 +1675,8 @@ int LDGLite::renderPli(
                    .arg(double(target.y))
                    .arg(double(target.z));
   } else {
-      cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(cameraAngleX))
-                                  .arg(noCA ? 0.0 : double(cameraAngleY))
+      cg = QString("-cg%1,%2,%3") .arg(noCA ? double(0.0f) : double(cameraAngleX))
+                                  .arg(noCA ? double(0.0f) : double(cameraAngleY))
                                   .arg(cd);
   }
 
@@ -1839,7 +1839,7 @@ int LDView::renderCsi(
         ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
     QString transform  = meta.rotStep.value().type.toUpper();
     bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
-    bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == "ABS");
+    bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == QLatin1String("ABS"));
     bool pp            = Preferences::perspectiveProjection;
     float modelScale   = meta.LPub.assem.modelScale.value();
     float cameraFoV    = meta.LPub.assem.cameraFoV.value();
@@ -1999,7 +1999,7 @@ int LDView::renderCsi(
             // set scale FOV and camera angles
             bool hr;
             if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
-                noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == "ABS";
+                noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == QLatin1String("ABS");
             // set target attribute
             if (attributes.size() >= nHasTarget)
                 target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
@@ -2364,7 +2364,7 @@ int LDView::renderPli(
   QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
   QString transform  = metaType.rotStep.value().type.toUpper();
   bool customViewpoint = metaType.cameraAngles.customViewpoint();
-  bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
+  bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == QLatin1String("ABS") : transform == QLatin1String("ABS");
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
@@ -2514,7 +2514,7 @@ int LDView::renderPli(
           // set scale FOV and camera angles
           bool hr;
           if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
-              noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == "ABS";
+              noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == QLatin1String("ABS");
           // set target attribute
           if (attributes.size() >= nHasTarget)
               target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
@@ -2795,7 +2795,7 @@ int Native::renderCsi(
   float cameraZNear    = meta.LPub.assem.cameraZNear.value();
   float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
-  bool  customViewpoint    = meta.LPub.assem.cameraAngles.customViewpoint();
+  bool  customViewpoint= meta.LPub.assem.cameraAngles.customViewpoint();
   QString cameraName   = meta.LPub.assem.cameraName.value();
   Vector3 position     = Vector3(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
   Vector3 target       = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
@@ -2809,7 +2809,7 @@ int Native::renderCsi(
     cameraAngleX       = meta.LPub.callout.csi.cameraAngles.value(XX);
     cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(YY);
     cameraView         = meta.LPub.callout.csi.cameraAngles.cameraView();
-    customViewpoint        = meta.LPub.callout.csi.cameraAngles.customViewpoint();
+    customViewpoint    = meta.LPub.callout.csi.cameraAngles.customViewpoint();
     modelScale         = meta.LPub.callout.csi.modelScale.value();
     cameraFoV          = meta.LPub.callout.csi.cameraFoV.value();
     cameraZNear        = meta.LPub.callout.csi.cameraZNear.value();
@@ -2827,7 +2827,7 @@ int Native::renderCsi(
     cameraAngleX       = meta.LPub.multiStep.csi.cameraAngles.value(XX);
     cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(YY);
     cameraView         = meta.LPub.multiStep.csi.cameraAngles.cameraView();
-    customViewpoint        = meta.LPub.multiStep.csi.cameraAngles.customViewpoint();
+    customViewpoint    = meta.LPub.multiStep.csi.cameraAngles.customViewpoint();
     modelScale         = meta.LPub.multiStep.csi.modelScale.value();
     cameraFoV          = meta.LPub.multiStep.csi.cameraFoV.value();
     cameraZNear        = meta.LPub.multiStep.csi.cameraZNear.value();
@@ -2843,7 +2843,7 @@ int Native::renderCsi(
   }
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
-  bool noCA            = !customViewpoint && meta.rotStep.value().type.toUpper() == "ABS";
+  bool noCA            = !customViewpoint && meta.rotStep.value().type.toUpper() == QLatin1String("ABS");
   bool pp              = Preferences::perspectiveProjection;
   bool useImageSize    = meta.LPub.assem.imageSize.value(XX) > 0;
 
@@ -2975,8 +2975,8 @@ int Native::renderCsi(
 
               qreal cdf = LP3D_CDF;
               QString cg = QString("-cg%1,%2,%3")
-                                   .arg(noCA ? 0.0 : double(cameraAngleX))
-                                   .arg(noCA ? 0.0 : double(cameraAngleY))
+                                   .arg(noCA ? double(0.0f) : double(cameraAngleX))
+                                   .arg(noCA ? double(0.0f) : double(cameraAngleY))
                                    .arg(pp ? QString::number(cd * cdf,'f',0) : QString::number(cd) );
 
               QString ss,ae,ac,ai,hs,hp,pb,hd;
@@ -3060,7 +3060,7 @@ int Native::renderPli(
   bool useImageSize    = metaType.imageSize.value(XX) > 0;
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
-  bool noCA            = !customViewpoint && metaType.rotStep.value().type.toUpper() == "ABS";
+  bool noCA            = !customViewpoint && metaType.rotStep.value().type.toUpper() == QLatin1String("ABS");
   bool pp              = Preferences::perspectiveProjection;
 
   // Process substitute part attributes
@@ -3070,7 +3070,7 @@ int Native::renderPli(
     if (attributes.size() >= nTypeNameKey)
         nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
     if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
-      noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == "ABS";
+      noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == QLatin1String("ABS");
     if (attributes.size() >= nHasTarget)
       target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
@@ -3118,9 +3118,9 @@ int Native::renderPli(
     Options->IsOrtho        = isOrtho;
     Options->Viewpoint      = static_cast<int>(cameraView);
     Options->CustomViewpoint= customViewpoint;
-    Options->Latitude       = noCA ? 0.0 : cameraAngleX;
-    Options->LineWidth      = lcGetPreferences().mLineWidth;;
-    Options->Longitude      = noCA ? 0.0 : cameraAngleY;
+    Options->Latitude       = noCA ? 0.0f : cameraAngleX;
+    Options->Longitude      = noCA ? 0.0f : cameraAngleY;
+    Options->LineWidth      = lcGetPreferences().mLineWidth;
     Options->ModelScale     = modelScale;
     Options->OutputFileName = pngName;
     Options->PageHeight     = LPub::pageSize(meta.LPub.page, YY);

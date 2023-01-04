@@ -247,13 +247,13 @@ int SubModel::createSubModelImage(
 {
   int rc = 0;
 
-  float modelScale   = subModelMeta.modelScale.value();
-  int stepNumber     = subModelMeta.showStepNum.value() ?
-                       subModelMeta.showStepNum.value() : 1;
-  bool noCA          = subModelMeta.rotStep.value().type.toUpper() == "ABS" &&
-                      !subModelMeta.cameraAngles.customViewpoint();
-  float camDistance  = subModelMeta.cameraDistance.value();
-  bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
+  float modelScale     = subModelMeta.modelScale.value();
+  int stepNumber       = subModelMeta.showStepNum.value() ?
+                         subModelMeta.showStepNum.value() : 1;
+  bool customViewpoint = subModelMeta.cameraAngles.customViewpoint();
+  bool noCA            = !customViewpoint && subModelMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
+  float camDistance    = subModelMeta.cameraDistance.value();
+  bool  useImageSize   = subModelMeta.imageSize.value(0) > 0;
 
   // assemble name key - create unique file when a value that impacts the image changes
   QString keyPart1 = QString("%1").arg(partialKey); /* baseName + -smi + -renderer + _colour (0) */
@@ -265,8 +265,8 @@ int SubModel::createSubModelImage(
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
                              .arg(double(subModelMeta.cameraFoV.value()))
-                             .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(0)))
-                             .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)));
+                             .arg(noCA ? double(0.0f) : double(subModelMeta.cameraAngles.value(0)))
+                             .arg(noCA ? double(0.0f) : double(subModelMeta.cameraAngles.value(1)));
 
   // append target vector if specified
   if (subModelMeta.target.isPopulated())
@@ -430,7 +430,7 @@ int SubModel::createSubModelImage(
 
       // Update smi file
       if (!rc) {
-        QFuture<int> RenderFuture = QtConcurrent::run([this, &ldrNames, &type, &color, noCA] () {
+        QFuture<int> RenderFuture = QtConcurrent::run([&] () {
             int frc = 0;
             // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
             if (! rotateModel(ldrNames.first(),type,color,noCA)) {
@@ -455,7 +455,7 @@ int SubModel::createSubModelImage(
       viewerOptions->ImageFileName  = imageName;
       viewerOptions->ImageType      = Options::SMI;
       viewerOptions->Viewpoint      = static_cast<int>(subModelMeta.cameraAngles.cameraView());
-      viewerOptions->CustomViewpoint= subModelMeta.cameraAngles.customViewpoint();
+      viewerOptions->CustomViewpoint= customViewpoint;
       viewerOptions->Latitude       = noCA ? 0.0f : subModelMeta.cameraAngles.value(0);
       viewerOptions->Longitude      = noCA ? 0.0f : subModelMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = subModelMeta.modelScale.value();
@@ -762,7 +762,8 @@ int SubModel::resizeSubModel(
 
       if (bomCols) {
         for (height = maxHeight/(4*bomCols); height <= maxHeight; height++) {
-          int rc = placeSubModel(sortedKeys,10000000,
+          int rc = placeSubModel(sortedKeys,
+                            10000000,
                             height,
                             cols,
                             subModelWidth,
@@ -770,7 +771,7 @@ int SubModel::resizeSubModel(
           if (rc == 0 && cols == bomCols) {
             break;
           }
-            }
+        }
       }
     }
   } else if (constrainData.type == ConstrainData::PliConstrainWidth) {
@@ -1853,6 +1854,9 @@ void SubModelBackgroundItem::contextMenuEvent(
 
 void SubModelBackgroundItem::resize(QPointF grabbed)
 {
+  if (!subModel)
+      return;
+
   // recalculate corners Y
 
   point = grabbed;

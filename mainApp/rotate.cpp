@@ -154,10 +154,10 @@ void rotateMatrix(
 // RotateParts #1 - 5 parms - updates the parts list (used exclusively by RenderDialog)
 int Render::rotatePartsRD(
         const QStringList &parts,
-        QString &ldrName,
-        const QString &rs,
-        QString &ca,
-        int imageType)
+              QString     &ldrName,
+        const QString     &rs,
+              QString     &ca,
+              int          imageType)
 {
     bool ldvExport = true, good = false, ok = false;
     const QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
@@ -317,7 +317,7 @@ int Render::rotateParts(
   } else {
     double rotStepMatrix[3][3];
     matrixMakeRot(rotStepMatrix,rotStepData.rots);
-    if (rotStepData.type.toUpper() == "ABS") {
+    if (rotStepData.type.toUpper() == QLatin1String("ABS")) {
       matrixCp(rm,rotStepMatrix);
     } else {
       matrixMult3(rm,defaultViewMatrix,rotStepMatrix);

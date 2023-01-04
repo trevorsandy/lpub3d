@@ -686,8 +686,7 @@ void Gui::exportAsHtml()
     displayPage();
 
     // create partList key
-    FloatPairMeta emptyCA;
-    bool noCA = meta.rotStep.value().type.toUpper() == "ABS";
+    bool noCA = Preferences::applyCALocally || meta.rotStep.value().type.toUpper() == QLatin1String("ABS");
     float partListModelScale = meta.LPub.bom.modelScale.value();
     bool suffix = QFileInfo(getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
     QString partListKey = QString("%1_%2_%3_%4_%5_%6_%7.%8")
@@ -696,8 +695,8 @@ void Gui::exportAsHtml()
                                   .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                                   .arg(double(partListModelScale))
                                   .arg(double(meta.LPub.bom.cameraFoV.value()))
-                                  .arg(noCA ? double(emptyCA.value(0)) : double(meta.LPub.bom.cameraAngles.value(0)))
-                                  .arg(noCA ? double(emptyCA.value(1)) : double(meta.LPub.bom.cameraAngles.value(1)))
+                                  .arg(noCA ? double(0.0f) : double(meta.LPub.bom.cameraAngles.value(0)))
+                                  .arg(noCA ? double(0.0f) : double(meta.LPub.bom.cameraAngles.value(1)))
                                   .arg(suffix ? QFileInfo(getCurFile()).suffix() : "ldr");
 
     // generate HTML parts list
@@ -711,10 +710,10 @@ void Gui::exportAsHtml()
     QString snapshot    = QDir::toNativeSeparators(ldrBaseFile+"_snapshot.ldr");
     if (QFileInfo(snapshot).exists()) {
         // always use LDView settings regardless of preferred renderer
-        noCA = Preferences::applyCALocally || meta.rotStep.value().type.toUpper() == "ABS";
+        noCA = Preferences::applyCALocally || meta.rotStep.value().type.toUpper() == QLatin1String("ABS");
         // setup camera globe (latitude, longitude) using LDView default camera distance
-        QString cg = QString("-cg%1,%2") .arg(noCA ? double(emptyCA.value(0)) : double(meta.LPub.assem.cameraAngles.value(0)))
-                                         .arg(noCA ? double(emptyCA.value(1)) : double(meta.LPub.assem.cameraAngles.value(1)));
+        QString cg = QString("-cg%1,%2") .arg(noCA ? double(0.0f) : double(meta.LPub.assem.cameraAngles.value(0)))
+                                         .arg(noCA ? double(0.0f) : double(meta.LPub.assem.cameraAngles.value(1)));
         arguments << cg;
         arguments << QString("-Snapshot=\"%1\"").arg(snapshot);
         if (!Preferences::altLDConfigPath.isEmpty())
