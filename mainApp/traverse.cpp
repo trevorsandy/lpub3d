@@ -4794,6 +4794,10 @@ void Gui::drawPage(
   const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
   if (frc == HitAbortProcess) {
 
+    if (m_exportMode == GENERATE_BOM) {
+        emit clearViewerWindowSig();
+        m_exportMode = m_saveExportMode;
+    }
     pageProcessRunning = PROC_NONE;
     QApplication::restoreOverrideCursor();
     return;
@@ -4949,9 +4953,9 @@ void Gui::drawPage(
     } // iterate the model stack
 
     if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
-        bool enable = m_exportMode != GENERATE_BOM &&
-                     (!lpub->page.coverPage &&
-                      lpub->page.meta.LPub.coverPageViewEnabled.value());
+        bool enable =  m_exportMode != GENERATE_BOM &&
+                     (!lpub->page.coverPage    &&
+                      !lpub->page.meta.LPub.coverPageViewEnabled.value());
         enable3DActions(enable);
     } // modeGUI and not exporting
 
@@ -5048,12 +5052,13 @@ void Gui::pagesCounted()
         }
 
         if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
-
-            enableActions2();
+            if (m_exportMode == GENERATE_BOM) {
+                emit clearViewerWindowSig();
+                m_exportMode = m_saveExportMode;
+            }
+            enableEditActions();
             if (!ContinuousPage())
                 enableNavigationActions(true);
-            if (m_exportMode == GENERATE_BOM)
-                m_exportMode = m_saveExportMode;
             if (waitingSpinner->isSpinning())
                 waitingSpinner->stop();
         } // modeGUI and not exporting

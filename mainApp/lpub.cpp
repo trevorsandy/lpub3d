@@ -791,8 +791,8 @@ bool Gui::continuousPageDialog(PageDirection d)
               m_progressDialog->setBtnToCancel();
               m_progressDialog->setPageDirection(d);
               disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
-              connect (   m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
-              connect (   m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
+              connect    (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
+              connect    (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
 
           } else {
               emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
@@ -828,9 +828,9 @@ bool Gui::continuousPageDialog(PageDirection d)
   if(resetCache)
       resetModelCache();
 
-  QString message = tr("Continuous %1 Page Processing").arg(direction);
+  QString message = tr("Continuous %1 Page Processing...").arg(direction);
 
-  emit messageSig(LOG_STATUS,tr("%1 Start...").arg(message));
+  emit messageSig(LOG_STATUS,tr("Start %1").arg(message));
 
   if (processOption == EXPORT_ALL_PAGES){
 
@@ -841,8 +841,8 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
           m_progressDialog->show();
-
           QApplication::setOverrideCursor(Qt::ArrowCursor);
+          QCoreApplication::processEvents();
       }
 
       int progress = 0;
@@ -874,7 +874,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                 m_progressDialog->setLabelText(message, true/*alert*/);
                 disconnect (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
                 disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
-                connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+                connect    (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
               pageProcessRunning = PROC_NONE;
               return false;
@@ -884,16 +884,21 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           displayPage();
 
-          message = tr("%1 Page Processing - Processed page %2 of %3.").arg(direction).arg(pageCount).arg(maxPages);
+          message = tr("%1 Page Processing - Processed page %2 of %3.")
+                       .arg(direction)
+                       .arg(pageCount)
+                       .arg(maxPages);
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
               m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
-              QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
-              while (QTime::currentTime() < waiting)
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+              if (d == PAGE_NEXT ? displayPageNum < maxPages : displayPageNum > 1 + pa) {
+                  QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
+                  while (QTime::currentTime() < waiting)
+                      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+              }
           }
       }
 
@@ -947,6 +952,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDialog->setRange(0,_maxPages);
           m_progressDialog->show();
           QApplication::setOverrideCursor(Qt::BusyCursor);
+          QCoreApplication::processEvents();
       }
 
       // process each page
@@ -979,7 +985,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                   m_progressDialog->setLabelText(message, true/*alert*/);
                   disconnect (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
                   disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
-                  connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+                  connect    (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
               pageProcessRunning = PROC_NONE;
               return false;
@@ -1001,9 +1007,11 @@ bool Gui::continuousPageDialog(PageDirection d)
               enableNavigationActions(true);
               m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(pageCount);
-              QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
-              while (QTime::currentTime() < waiting)
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+              if (displayPageNum < _maxPages) {
+                  QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
+                  while (QTime::currentTime() < waiting)
+                      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+              }
           }
       }
 
@@ -1048,7 +1056,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDialog->setValue(_maxPages);
           disconnect (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
           disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
-          connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+          connect    (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
       }
   }
 
@@ -6473,7 +6481,7 @@ void Gui::disableActions()
 
 }
 
-void Gui::enableActions2()
+void Gui::enableEditActions()
 {
     bool frontCoverPageExist = lpub->mi.frontCoverPageExist();
     getAct("insertCoverPageAct.1")->setEnabled(!frontCoverPageExist &&
@@ -6493,7 +6501,7 @@ void Gui::enableActions2()
     getAct("addTextAct.1")->setEnabled(true);
 }
 
-void Gui::disableActions2()
+void Gui::disableEditActions()
 {
     getAct("insertCoverPageAct.1")->setEnabled(false);
     getAct("appendCoverPageAct.1")->setEnabled(false);

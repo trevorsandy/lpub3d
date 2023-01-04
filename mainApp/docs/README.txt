@@ -1,4 +1,4 @@
-LPub3D 2.4.5.99.3076 (31 12 2022 05:41:54)
+LPub3D 2.4.5.100.3077 (04 01 2023 12:55:19)
 
 Features, enhancements, fixes and changes
 ------------
@@ -35,6 +35,7 @@ Revisions:
 - Fix - Build modification - unable to validate nested build mod level #642
 - Fix - Build modification - visual editor build mod actions #651
 - Fix - Configuration preferences dialog cutoff/min window size #616
+- Fix - Crash when generating BOM images #657
 - Fix - Enable navigation actions #656
 - Fix - Export to PDF abnormal behaviour #624
 - Fix - Next Step menu actions not working as expected #637

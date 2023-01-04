@@ -1291,7 +1291,7 @@ public slots:
   int GetImageWidth();
   int GetImageHeight();
 
-  // Native viewer convenience calls
+  // Native Viewer and Visual Editor convenience calls
   lcView*                GetActiveView();
   lcModel*               GetActiveModel();
   Project*               GetActiveProject();
@@ -1319,7 +1319,6 @@ public slots:
   static void            UpdateAllViews();
   void                   UnloadOfficialPiecesLibrary();
   void                   UnloadUnofficialPiecesLibrary();
-
   // End native viewer calls
 
   void loadBLCodes();
@@ -1922,9 +1921,9 @@ private slots:
       bool clearViewPageBg = false);
 
     void enableActions();
-    void enableActions2();
+    void enableEditActions();
     void disableActions();
-    void disableActions2();
+    void disableEditActions();
 
     void importToolBarVisibilityChanged(bool);
     void exportToolBarVisibilityChanged(bool);

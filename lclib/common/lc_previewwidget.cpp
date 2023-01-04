@@ -51,14 +51,18 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 		if (!HasMaterialColor)
 		{
 			Color = &gColorList[lcGetColorIndex(ColorCode)];
-			ColorName = Color ? Color->Name : "Undefined";
+			ColorName = Color ? QString(Color->Name) : QLatin1String("Undefined");
 		}
 		QString PartLabel;
-		if (HasMaterialColor && !mPreview->GetDescription().isEmpty())
+		if (HasMaterialColor)
 		{
-			PartLabel = mPreview->GetDescription();
-			if (PartLabel.endsWith("-smi",Qt::CaseInsensitive))
-				PartLabel.chop(4);
+			if (!mPreview->GetDescription().isEmpty())
+				PartLabel = mPreview->GetDescription();
+			else
+				PartLabel = QFileInfo(PartType).completeBaseName();
+			const QString PartSuffix = QString("-%1").arg(SUBMODEL_IMAGE_BASENAME);
+			if (PartLabel.endsWith(PartSuffix,Qt::CaseInsensitive))
+				PartLabel.chop(PartSuffix.size());
 		}
 		else
 		{

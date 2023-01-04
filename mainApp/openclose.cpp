@@ -802,7 +802,7 @@ void Gui::closeModelFile()
     // Gui
     clearPage(KpageView,KpageScene,true);
     disableActions();
-    disableActions2();
+    disableEditActions();
     closeFile();           // perform LPub3D file close operations here...
     editModeWindow->close();
     getAct("editModelFileAct.1")->setText(tr("Edit current model file"));

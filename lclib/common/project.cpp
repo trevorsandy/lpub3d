@@ -507,7 +507,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			};
 
 			if (IsLPubBanner) {
-				return SetTimelineTopItemString(tr("Banner"));
+				return SetTimelineTopItemString(tr("Visual Banner"));
 			}
 
 			// viewerStepKey - 3 elements:
@@ -567,7 +567,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 		FileData = File.readAll();
 
-		if ((IsLPubBanner = QFileInfo(FileName).baseName() == QLatin1String("banner")))
+		if ((IsLPubBanner = QFileInfo(FileName).completeBaseName().endsWith(QLatin1String(VISUAL_BANNER_SUFFIX))))
 			SetTimeLineTopItem();
 	}
 	else if (!StepKey.isEmpty() || IsLPubModel)

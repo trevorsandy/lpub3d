@@ -69,13 +69,13 @@ void ProgressDialog::setRange(int min, int max)
 {
     ui->progressDlgProgressBar->setMinimum(min);
     ui->progressDlgProgressBar->setMaximum(max);
-    QApplication::processEvents();
+    //QApplication::processEvents();
 }
 
 void ProgressDialog::setValue(int value)
 {
     ui->progressDlgProgressBar->setValue(value);
-    QApplication::processEvents(/*QEventLoop::ExcludeUserInputEvents*/);
+    //QApplication::processEvents(/*QEventLoop::ExcludeUserInputEvents*/);
 }
 
 void ProgressDialog::cancel (void)

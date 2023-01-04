@@ -801,6 +801,9 @@ void Gui::initiaizeVisualEditor()
 
 void Gui::enable3DActions(bool enable)
 {
+    if (gMainWindow->isEnabled() == enable)
+        return;
+
     if (enable) {
         connect(this,        SIGNAL(clearViewerWindowSig()),
                 gMainWindow, SLOT(  NewProject()));
@@ -1064,7 +1067,7 @@ bool Gui::createPreviewWidget()
 
         return true;
     } else {
-        messageSig(LOG_ERROR, QString("Preview failed."));
+        emit messageSig(LOG_ERROR, tr("Preview failed."));
     }
     return false;
 }
@@ -1091,17 +1094,28 @@ void Gui::PreviewPiece(const QString &partType, int colorCode, bool dockable, QR
         }
     }
 
-    QMessageBox::warning(this, tr("Warning"), tr("Part preview for '%1' failed.").arg(partType));
+    emit messageSig(LOG_WARNING, tr("Part preview for '%1' failed.").arg(partType));
 }
 
 bool Gui::PreviewPiece(const QString &type, int colorCode)
 {
+    if (!gMainWindow)
+        return false;
+
     // Set preview project path
+    const QFileInfo typeInfo(type);
+    const QFileInfo typePath(typeInfo.absolutePath());
     lcPreferences& Preferences = lcGetPreferences();
-    Preferences.mPreviewLoadPath = QFileInfo(type).absolutePath();
+    if (typePath.exists() && typePath.isDir()) {
+        Preferences.mPreviewLoadPath = QFileInfo(type).absolutePath();
+    } else {
+        PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(typeInfo.completeBaseName().toLatin1().constData(), nullptr, false, false);
+        if (! pieceInfo)
+            emit messageSig(LOG_ERROR, tr("Preview file path '%1' is invalid.").arg(typePath.absolutePath()));
+    }
 
     // Load preview
-    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
+    if (/*gMainWindow->GetPreviewWidget() && */Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
         gMainWindow->PreviewPiece(QFileInfo(type).fileName(), colorCode, false/*UNUSED*/);
         gui->previewDockWindow->raise();
     }
@@ -1114,6 +1128,8 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
 
         if (!gMainWindow->OpenProject(type))
             return false;
+        else
+            gui->visualEditDockWindow->raise();
     }
     return true;
 }
@@ -1850,11 +1866,14 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptf.dat";
         }
     }
-    bannerData << "0";
-    bannerData.prepend("0 Name: " + banner + "_banner.ldr");
-    bannerData.prepend("0 " + description + " Banner");
 
-    const QString bannerFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(bannerPath).arg(QString("%1_banner.ldr").arg(banner)));
+    const QString bannerFileName = QString("%1 %2.ldr").arg(banner).arg(VISUAL_BANNER_SUFFIX);
+
+    bannerData << "0";
+    bannerData.prepend("0 Name: " + bannerFileName);
+    bannerData.prepend("0 " + description + " "  + VISUAL_BANNER_SUFFIX);
+
+    const QString bannerFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(bannerPath).arg(bannerFileName));
 
     QFile bannerFile(bannerFilePath);
     if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
@@ -1872,6 +1891,7 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
         emit gui->messageSig(LOG_WARNING, tr("Could not load banner file '%1'.").arg(bannerFilePath));
         return false;
     }
+
     return true;
 }
 

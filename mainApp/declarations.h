@@ -824,6 +824,7 @@ enum ThemeColorType {
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stereolithography (STL) library is available"
 
+#define VISUAL_BANNER_SUFFIX                    "Visual Banner"
 #define SUBMODEL_IMAGE_BASENAME                 "smi"
 #define PREVIEW_MODEL_DEFAULT                   "Preview.ldr"
 #define VIEWER_MODEL_DEFAULT                    "Model.ldr"
