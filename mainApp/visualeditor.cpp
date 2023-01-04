@@ -236,7 +236,7 @@ void Gui::create3DActions()
     BuildModComboAct->setObjectName("BuildModComboAct.4");
     BuildModComboAct->setEnabled(false);
     BuildModComboAct->setStatusTip(tr("Create or update a build modification for this step"));
-    connect(BuildModComboAct, &QAction::triggered, [&]( ) { BuildModMenu->popup(QCursor::pos()); });
+    //connect(BuildModComboAct, &QAction::triggered, [&]( ) { BuildModMenu->popup(QCursor::pos()); });
 
     CreateBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
     CreateBuildModAct->setObjectName("CreateBuildModAct.4");
@@ -1958,7 +1958,7 @@ void Gui::enableVisualBuildModification()
         buildModEnabled &= !EnableRotstepRotateAct->isChecked();
 
     if (buildModEnabled) {
-        buildModEnabled &= (buildModsCount()) && !curFile.isEmpty();
+        buildModEnabled /*&= (buildModsCount())*/ && !curFile.isEmpty();
         using namespace Options;
         switch (lcGetActiveProject()->GetImageType())
         {
@@ -2092,9 +2092,9 @@ void Gui::enableVisualBuildModActions()
     }
     // for now we do not enable apply/remove actions if there is a beginMod
     // as we are not yet universally treating both action and buildMod in same step
-    ApplyBuildModAct->setEnabled(        !appliedMod && !removedMod && !beginMod);
-    RemoveBuildModAct->setEnabled(       !appliedMod && !removedMod && !beginMod);
-    LoadBuildModAct->setEnabled(         !beginMod && !oneMod);
+    ApplyBuildModAct->setEnabled(         haveMod && !appliedMod && !removedMod && !beginMod);
+    RemoveBuildModAct->setEnabled(        haveMod && !appliedMod && !removedMod && !beginMod);
+    LoadBuildModAct->setEnabled(          haveMod && !beginMod   && !oneMod);
     DeleteBuildModAct->setEnabled(        beginMod);
     DeleteBuildModActionAct->setEnabled(  buildModAction);
     DeleteBuildModActionAct->setText(     buildModActionText);
@@ -2575,22 +2575,18 @@ void Gui::ReloadVisualEditor(){
 
 void Gui::createBuildModification()
 {
+    if (!Preferences::buildModEnabled)
+        return;
+
+    if (!lpub->currentStep)
+        return;
+
+    bool update = !buildModChangeKey.isEmpty();
+
+    if ((!update && !CreateBuildModAct->isEnabled()) || (update && !UpdateBuildModAct->isEnabled()))
+        return;
+
     bool showMessage = true;
-    if (!Preferences::buildModEnabled) {
-        emit messageSig(LOG_INFO,tr("Build modifications are not enabled for this model file."), showMessage);
-        return;
-    }
-
-    if (!lpub->currentStep) {
-        emit messageSig(LOG_WARNING,tr("No current step was detected. Cannot create a build modification."), showMessage);
-        return;
-    }
-
-    if (sender() == BuildModComboAct && !CreateBuildModAct->isEnabled()) {
-        emit messageSig(LOG_INFO,tr("Create build modification is not enabled for this step."), showMessage);
-        return;
-    }
-
     using namespace Options;
     Mt imageType = static_cast<Mt>(lcGetActiveProject()->GetImageType());
     if (imageType != CSI) {
@@ -2621,14 +2617,13 @@ void Gui::createBuildModification()
 
     if (ActiveModel) {
         QString BuildModKey = buildModChangeKey;
-        bool edit = ! BuildModKey.isEmpty();
-        QString statusLabel = edit ? "Updating" : "Creating";
+        QString statusLabel = update ? "Updating" : "Creating";
 
         emit progressBarPermInitSig();
         emit progressPermRangeSig(0, 0);   // Busy indicator
         emit progressPermMessageSig(tr("%1 Build Modification...").arg(statusLabel));
 
-        if (mBuildModRange.first() || edit){
+        if (mBuildModRange.first() || update){
 
             emit messageSig(LOG_INFO, tr("%1 BuildMod for Step %2...")
                                          .arg(statusLabel)
@@ -2664,16 +2659,16 @@ void Gui::createBuildModification()
             QString ModStepKey    = lpub->viewerStepKey;
             ModStepKeys           = ModStepKey.split(";");
 
-            // When edit, initialize BuildMod StepPieces, and Begin and End range with the existing values
-            int BuildModBegin     = edit ? getBuildModBeginLineNumber(BuildModKey)  : 0;
-            int BuildModAction    = edit ? getBuildModActionLineNumber(BuildModKey) : 0;
-            int BuildModEnd       = edit ? getBuildModEndLineNumber(BuildModKey)    : 0;
+            // When update, initialize BuildMod StepPieces, and Begin and End range with the existing values
+            int BuildModBegin     = update ? getBuildModBeginLineNumber(BuildModKey)  : 0;
+            int BuildModAction    = update ? getBuildModActionLineNumber(BuildModKey) : 0;
+            int BuildModEnd       = update ? getBuildModEndLineNumber(BuildModKey)    : 0;
 
-            int ModBeginLineNum   = edit ? BuildModBegin  : mBuildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModActionLineNum  = edit ? BuildModAction : mBuildModRange.at(BM_ACTION_LINE_NUM);
-            int ModEndLineNum     = edit ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModStepPieces     = edit ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
-            int ModelIndex        = edit ? getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
+            int ModBeginLineNum   = update ? BuildModBegin  : mBuildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModActionLineNum  = update ? BuildModAction : mBuildModRange.at(BM_ACTION_LINE_NUM);
+            int ModEndLineNum     = update ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModStepPieces     = update ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
+            int ModelIndex        = update ? getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
             int ModStepIndex      = getBuildModStepIndex(lpub->currentStep->topOfStep());
             int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
             int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
@@ -2687,7 +2682,7 @@ void Gui::createBuildModification()
 
             // Check if there is an existing build modification in this Step
             QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
-            if (stepContains(lpub->currentStep->top, lineRx) && !edit) {
+            if (stepContains(lpub->currentStep->top, lineRx) && !update) {
 
                 // Get the application icon as a pixmap
                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -3053,7 +3048,7 @@ void Gui::createBuildModification()
             // Do we have a difference between the number of LPub pieces and Viewer pieces ?
             // If pieces have been added or removed, we capture the delta in PieceAdjustment
             // and AddedPieces.
-            PieceAdjustment = AddedPieces = edit ? mViewerPieces.GetSize() - ModStepPieces : mViewerPieces.GetSize() - getViewerStepPartCount(ModStepKey);
+            PieceAdjustment = AddedPieces = update ? mViewerPieces.GetSize() - ModStepPieces : mViewerPieces.GetSize() - getViewerStepPartCount(ModStepKey);
 
             // Adjust EndModLineNum to accomodate removed pieces
             if (PieceAdjustment < 0)
@@ -3270,20 +3265,20 @@ void Gui::createBuildModification()
 
             int BuildModPieces = ViewerModContents.size();
 
-            if (!edit)
+            if (!update)
                 BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsCount() + 1);
 
             // Delete meta commands uses the 'original' BuildMod values
-            int SaveModBeginLineNum  = edit ? BuildModBegin  : ModBeginLineNum;
-            int SaveModActionLineNum = edit ? BuildModAction : ModActionLineNum;
-            int SaveModEndLineNum    = edit ? BuildModEnd    : ModEndLineNum;
-            int SaveModPieces        = edit ? SaveModEndLineNum - SaveModActionLineNum - 1/*Meta Line*/
+            int SaveModBeginLineNum  = update ? BuildModBegin  : ModBeginLineNum;
+            int SaveModActionLineNum = update ? BuildModAction : ModActionLineNum;
+            int SaveModEndLineNum    = update ? BuildModEnd    : ModEndLineNum;
+            int SaveModPieces        = update ? SaveModEndLineNum - SaveModActionLineNum - 1/*Meta Line*/
                                             : BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0);
 
             if (Preferences::debugLogging) {
                 const QString message = QString("%1 BuildMod Save LineNumbers "
                                                 "Begin: %2, Action: %3, End: %4, ModPieces: %5")
-                                                .arg(edit ? "Update" : "Create")
+                                                .arg(update ? "Update" : "Create")
                                                 .arg(SaveModBeginLineNum)
                                                 .arg(SaveModActionLineNum)
                                                 .arg(SaveModEndLineNum)
@@ -3398,7 +3393,7 @@ void Gui::createBuildModification()
                                 "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
                                 "ModKey: %11, "
                                 "Level: %12")
-                                .arg(edit ? "Update" : "Create")     // 01
+                                .arg(update ? "Update" : "Create")     // 01
                                 .arg(ModStepIndex)                   // 02
                                 .arg(ModBeginLineNum)                // 03 - 0 BM_BEGIN_LINE_NUM
                                 .arg(ModActionLineNum)               // 04 - 1 BM_ACTION_LINE_NUM
@@ -3415,7 +3410,7 @@ void Gui::createBuildModification()
 
             // Reset the build modification range
             mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
-        } // mBuildModRange || edit
+        } // mBuildModRange || update
 
         emit progressPermStatusRemoveSig();
         enableVisualBuildModActions();

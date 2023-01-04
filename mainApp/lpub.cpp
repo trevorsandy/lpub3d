@@ -1711,7 +1711,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
 void Gui::clearWorkingFiles(const QStringList &filePaths)
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."),showMsgBox);
+        emit messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."));
         return;
     }
 
@@ -1732,8 +1732,8 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
         }
     }
     if (count)
-        emit messageSig(LOG_INFO,tr("Parts content cache cleaned. %1 %2 removed.")
-                                    .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsgBox);
+        emit messageSig(LOG_INFO_STATUS,tr("Parts content cache cleaned. %1 %2 removed.")
+                                           .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
 void Gui::resetModelCache(QString file, bool commandLine)
