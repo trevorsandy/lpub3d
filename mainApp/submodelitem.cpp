@@ -1386,6 +1386,8 @@ void SMGraphicsPixmapItem::previewSubModel(bool preferDockedPreview)
     if (Preferences::buildModEnabled)
         type = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
 
+    gui->showLine(subModel->topOfStep());
+
     gui->PreviewPiece(type, color.toInt(), dockable, QRect(), position);
 }
 

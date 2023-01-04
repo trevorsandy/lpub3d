@@ -3796,6 +3796,8 @@ void PGraphicsPixmapItem::previewPart(bool useDockable) {
         gui->RaisePreviewDockWindow();
     }
 
+    gui->showLine(pli->topOfStep());
+
     gui->PreviewPiece(part->type, part->color.toInt(), dockable, QRect(), position);
 }
 

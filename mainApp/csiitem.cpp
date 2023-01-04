@@ -97,13 +97,12 @@ void CsiItem::loadTheViewer(bool override, bool zoomExtents)
 {
     bool stepAlreadySet = gui->getViewerStepKey() == step->viewerStepKey && lpub->currentStep;
     if (!stepAlreadySet || override) {
-        if (!stepAlreadySet) {
+        if (!stepAlreadySet)
             lpub->setCurrentStep(step);
-            gui->showLine(step->topOfStep());
-        }
         gui->resetViewerImage(zoomExtents);
-    }
-    gui->RaiseVisualEditDockWindow();
+        gui->showLine(step->topOfStep());
+    } else
+        gui->RaiseVisualEditDockWindow();
 }
 
 /********************************************
