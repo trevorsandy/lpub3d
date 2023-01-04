@@ -1779,6 +1779,15 @@ void lcModel::SaveCheckpoint(const QString& Description)
 	{
 		gMainWindow->UpdateModified(IsModified());
 		gMainWindow->UpdateUndoRedo(mUndoHistory.size() > 1 ? mUndoHistory[0]->Description : QString(), !mRedoHistory.empty() ? mRedoHistory[0]->Description : QString());
+/*** LPub3D Mod - Build Modification ***/
+		const lcPreferences& Preferences = lcGetPreferences();
+		if (Preferences.mBuildModificationEnabled)
+		{
+			QRegExp CheckpointRx("^(Move|Rotate)$");
+			if (Description.contains(CheckpointRx))
+				gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
+		}
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -2971,7 +2980,7 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 		if (Checkpoint)
 			SaveCheckpoint(tr("Moving"));
 /*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
 	}
 }
@@ -3092,7 +3101,7 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 		if (Checkpoint)
 			SaveCheckpoint(tr("Rotating"));
 /*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
 	}
 }
@@ -4554,9 +4563,7 @@ void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool
 	MoveSelectedObjects(PieceDistance, ObjectDistance, AllowRelative, AlternateButtonDrag, true, false);
 	mMouseToolDistance = Distance;
 
-/*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
-/*** LPub3D Mod end ***/
+	gMainWindow->UpdateSelectedObjects(false);
 	UpdateAllViews();
 }
 

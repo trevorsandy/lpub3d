@@ -2360,7 +2360,7 @@ void Gui::SetRotStepCommand()
             currentStep->mi(it)->replaceMeta(top, metaString);
         }
     } else {
-        emit statusMessage(LOG_WARNING,tr("No current step was detected. Cannot create a build modification."), true/*showMessage*/);
+        emit messageSig(LOG_WARNING,tr("No current step was detected. Cannot create a build modification."), true/*showMessage*/);
     }
 }
 
@@ -2577,17 +2577,17 @@ void Gui::createBuildModification()
 {
     bool showMessage = true;
     if (!Preferences::buildModEnabled) {
-        emit statusMessage(LOG_INFO,tr("Build modifications are not enabled for this model file."), showMessage);
+        emit messageSig(LOG_INFO,tr("Build modifications are not enabled for this model file."), showMessage);
         return;
     }
 
     if (!lpub->currentStep) {
-        emit statusMessage(LOG_WARNING,tr("No current step was detected. Cannot create a build modification."), showMessage);
+        emit messageSig(LOG_WARNING,tr("No current step was detected. Cannot create a build modification."), showMessage);
         return;
     }
 
     if (sender() == BuildModComboAct && !CreateBuildModAct->isEnabled()) {
-        emit statusMessage(LOG_INFO,tr("Create build modification is not enabled for this step."), showMessage);
+        emit messageSig(LOG_INFO,tr("Create build modification is not enabled for this step."), showMessage);
         return;
     }
 
@@ -2597,13 +2597,13 @@ void Gui::createBuildModification()
         const QString model = imageType == CSI ? tr("a part instance") :
                               imageType == SMI ? tr("a submodel preview") :
                               tr("not an assembly");
-        emit statusMessage(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
+        emit messageSig(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
                                        "The active model is %1.").arg(model), showMessage);
         return;
     }
 
     if (buildModChangeKey.isEmpty() && ! mBuildModRange.first()) {
-        emit statusMessage(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMessage);
+        emit messageSig(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMessage);
         return;
     }
 

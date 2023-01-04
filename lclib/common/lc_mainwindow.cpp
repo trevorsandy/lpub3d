@@ -2449,6 +2449,7 @@ void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionType)
 {
 	int Flags = 0;
+	bool ModAction = false;
 	lcArray<lcObject*> Selection;
 	lcObject* Focus = nullptr;
 
@@ -2456,6 +2457,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	if (ActiveModel)
 	{
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
+		ModAction = ActiveModel->GetModAction() || Focus && Focus->IsPiece() || Flags & LC_SEL_PIECE || Flags & LC_SEL_MODEL_SELECTED;
 #ifdef QT_DEBUG_MODE
 		const QString TypeNames[] =
 		{
@@ -2467,7 +2469,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			"VIEWER_CLR"   // 5
 		};
 
-		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "Yes" : "No");
+		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ModAction ? "Yes" : "No");
 		emit gui->messageSig(LOG_DEBUG, _Message);
 #endif
 	}
@@ -2566,7 +2568,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 					}
 				}
 				if (SelectionType != VIEWER_LINE) {
-					PartSource Selection = ActiveModel->GetModAction() || SelectionType == VIEWER_CLR ? PartSource(SelectionType) : VIEWER_SEL;
+					PartSource Selection = ModAction || SelectionType == VIEWER_CLR ? PartSource(SelectionType) : VIEWER_SEL;
 					emit SelectedPartLinesSig(LineTypeIndexes, Selection);
 					ActiveModel->ResetModAction();
 				}
