@@ -77,7 +77,7 @@
            <string/>
           </property>
           <property name="currentIndex">
-           <number>7</number>
+           <number>8</number>
           </property>
           <item>
            <property name="text">
@@ -112,6 +112,11 @@
           <item>
            <property name="text">
             <string>Home</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Latitude Longitude</string>
            </property>
           </item>
           <item>
