@@ -1,4 +1,4 @@
-LPub3D 2.4.5.111.3088 (04 01 2023 13:13:44)
+LPub3D 2.4.5.112.3089 (04 01 2023 13:15:23)
 
 Features, enhancements, fixes and changes
 ------------
@@ -39,6 +39,7 @@ Revisions:
 - Fix - Crash when generating BOM images #657
 - Fix - Enable navigation actions #656
 - Fix - Export to PDF abnormal behaviour #624
+- Fix - Failed to resolve file at path #561
 - Fix - Moving a part in the 3D editor misplaces it #646
 - Fix - Next Step menu actions not working as expected #637
 - Fix - Open with programs menu action not enabled #629

@@ -408,7 +408,6 @@ void Gui::openRecentFile()
     timer.start();
     QString fileName = action->data().toString();
     QFileInfo fileInfo(fileName);
-    QDir::setCurrent(fileInfo.absolutePath());
     if (!openFile(fileName))
         return;
     Paths::mkDirs();
@@ -449,7 +448,6 @@ bool Gui::loadFile(const QString &file, bool console)
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
         timer.start();
-        QDir::setCurrent(fileInfo.absolutePath());
         if (!openFile(fileName)) {
             emit fileLoadedSig(false);
             return false;
@@ -851,14 +849,16 @@ bool Gui::openFile(const QString &fileName)
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
-  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading file '%1'...").arg(fileName));
+  QFileInfo fileInfo(fileName);
+  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading file '%1'...").arg(fileInfo.absoluteFilePath()));
   setPageLineEdit->setText(tr("Loading..."));
   setGoToPageCombo->addItem(tr("Loading..."));
   mpdCombo->addItem(tr("Loading..."));
-  if (lpub->ldrawFile.loadFile(fileName) != 0) {
+  QDir::setCurrent(fileInfo.absolutePath());
+  if (lpub->ldrawFile.loadFile(fileInfo.absoluteFilePath()) != 0) {
       emit lpub->messageSig(LOG_INFO_STATUS, lpub->ldrawFile._loadAborted ?
-                                tr("Load LDraw file '%1' aborted.").arg(fileName) :
-                                tr("Load LDraw file '%1' failed.").arg(fileName));
+                                tr("Load LDraw file '%1' aborted.").arg(fileInfo.absoluteFilePath()) :
+                                tr("Load LDraw file '%1' failed.").arg(fileInfo.absoluteFilePath()));
       closeModelFile();
       if (waitingSpinner->isSpinning())
           waitingSpinner->stop();
@@ -866,11 +866,9 @@ bool Gui::openFile(const QString &fileName)
   }
   displayPageNum = 1 + pa;
   prevDisplayPageNum = displayPageNum;
-  QFileInfo info(fileName);
-  QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
-  getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(info.fileName()));
-  getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(info.fileName()));
+  getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
+  getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(fileInfo.fileName()));
   if (lpub->ldrawFile.getHelperPartsNotInArchive()) {
       QPixmap _icon = QPixmap(":/icons/lpub96.png");
       QMessageBoxResizable box;
@@ -890,7 +888,7 @@ bool Gui::openFile(const QString &fileName)
                         "Parts not in the archive library will not be rendered by the "
                         "%2 Visual Editor or Native renderer.<br><br>"
                         "%2 will archive parts from your search directory paths.<br>"
-                        "%3").arg(info.fileName()).arg(VER_PRODUCTNAME_STR).arg(searchDirs);
+                        "%3").arg(fileInfo.fileName()).arg(VER_PRODUCTNAME_STR).arg(searchDirs);
       box.setInformativeText (text);
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
@@ -930,14 +928,13 @@ bool Gui::openFile(const QString &fileName)
   mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
   connect(mpdCombo,SIGNAL(activated(int)), this,    SLOT(mpdComboChanged(int)));
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
-  setCurrentFile(fileName);
+  setCurrentFile(fileInfo.absoluteFilePath());
   undoStack->setClean();
-  curFile = fileName;
   for (int i = 0; i < numPrograms; i++) {
-    QFileInfo fileInfo(programEntries.at(i).split("|").last());
+    QFileInfo programFileInfo(programEntries.at(i).split("|").last());
     openWithActList[i]->setStatusTip(tr("Open %1 with %2")
-                                        .arg(QFileInfo(curFile).fileName())
-                                        .arg(fileInfo.fileName()));
+                                        .arg(fileInfo.fileName())
+                                        .arg(programFileInfo.fileName()));
   }
 
   insertFinalModelStep();  //insert final fully coloured model if fadeSteps turned on
@@ -948,7 +945,7 @@ bool Gui::openFile(const QString &fileName)
 
   defaultResolutionType(Preferences::preferCentimeters);
 
-  emit lpub->messageSig(LOG_INFO, tr("Open file '%1' completed.").arg(fileName));
+  emit lpub->messageSig(LOG_INFO, tr("Open file '%1' completed.").arg(fileInfo.absoluteFilePath()));
   return true;
 }
 
@@ -990,6 +987,7 @@ void Gui::updateRecentFileActions()
 
 void Gui::setCurrentFile(const QString &fileName)
 {
+  curFile = fileName;
   QString windowTitle;
   if (fileName.size() == 0) {
     windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
