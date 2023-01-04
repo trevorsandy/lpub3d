@@ -792,6 +792,12 @@ void Gui::initiaizeVisualEditor()
     connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),
             this,        SLOT(  togglePreviewWidget(bool)));
 
+    connect(this,        SIGNAL(clearViewerWindowSig()),
+            gMainWindow, SLOT(  NewProject()));
+
+    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
+            this,        SLOT(  SetActiveModel(const QString&,bool)));
+
     enable3DActions(false);
 
     gMainWindow->installEventFilter(gui);
@@ -801,15 +807,12 @@ void Gui::initiaizeVisualEditor()
 
 void Gui::enable3DActions(bool enable)
 {
-    if (gMainWindow->isEnabled() == enable)
-        return;
-
     if (enable) {
-        connect(this,        SIGNAL(clearViewerWindowSig()),
-                gMainWindow, SLOT(  NewProject()));
-
         connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
                 gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+
+        connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+                this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
 
         connect(gMainWindow, SIGNAL(SetRotStepCommand()),
                 this,        SLOT(  SetRotStepCommand()));
@@ -829,17 +832,13 @@ void Gui::enable3DActions(bool enable)
         connect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
                 this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
 
-        connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
-                this,        SLOT(  SetActiveModel(const QString&,bool)));
-
-        connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-                this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
     } else {
-        disconnect(this,        SIGNAL(clearViewerWindowSig()),
-                   gMainWindow, SLOT(  NewProject()));
 
         disconnect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
                    gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+
+        disconnect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+                   this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
 
         disconnect(gMainWindow, SIGNAL(SetRotStepCommand()),
                    this,        SLOT(  SetRotStepCommand()));
@@ -858,22 +857,14 @@ void Gui::enable3DActions(bool enable)
 
         disconnect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
                    this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
-
-        disconnect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
-                   this,        SLOT(  SetActiveModel(const QString&,bool)));
-
-        disconnect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-                   this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
     }
 
     if (enable) {
         enableVisualBuildModification();
         enableVisualBuildModActions();
         gui->visualEditDockWindow->raise();
-    } else {
-        BuildModComboAct->setEnabled(enable && Preferences::buildModEnabled);
-        if (lpub->page.coverPage && lpub->page.meta.LPub.coverPageViewEnabled.value())
-            gui->previewDockWindow->raise();
+    } else if (lpub->page.coverPage && lpub->page.meta.LPub.coverPageViewEnabled.value()) {
+        gui->previewDockWindow->raise();
     }
 
     LightGroupAct->setEnabled(enable);
@@ -954,8 +945,6 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_CAMERA_NONE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(enable);
-
-    gMainWindow->setEnabled(enable);
 }
 
 void Gui::halt3DViewer(bool enable)
@@ -1918,7 +1907,8 @@ void Gui::groupActionTriggered()
         if (ok)
             gMainWindow->mActions[commandId]->trigger();
     }
-    else {
+    else
+    {
         commandId = lcCommandId(Action->property("CommandId").toInt(&ok));
         commandTip = Action->property("CommandTip").toString();
         if (ok)

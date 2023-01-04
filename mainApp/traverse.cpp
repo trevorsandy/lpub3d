@@ -4954,10 +4954,12 @@ void Gui::drawPage(
 
     if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
         bool enable =  m_exportMode != GENERATE_BOM &&
-                     (!lpub->page.coverPage    &&
-                      !lpub->page.meta.LPub.coverPageViewEnabled.value());
+                     (!lpub->page.coverPage || (lpub->page.coverPage &&
+                      !lpub->page.meta.LPub.coverPageViewEnabled.value()));
         enable3DActions(enable);
     } // modeGUI and not exporting
+
+    QCoreApplication::processEvents();
 
     QApplication::restoreOverrideCursor();
   }
@@ -5052,13 +5054,13 @@ void Gui::pagesCounted()
         }
 
         if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
+            enableEditActions();
+            if (!ContinuousPage())
+                enableNavigationActions(true);
             if (m_exportMode == GENERATE_BOM) {
                 emit clearViewerWindowSig();
                 m_exportMode = m_saveExportMode;
             }
-            enableEditActions();
-            if (!ContinuousPage())
-                enableNavigationActions(true);
             if (waitingSpinner->isSpinning())
                 waitingSpinner->stop();
         } // modeGUI and not exporting
