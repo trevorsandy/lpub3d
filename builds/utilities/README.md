@@ -213,4 +213,4 @@ CALL .\%AppInstance%\builds\utilities\ci\github\windows-build.bat > %AppInstance
 [ldview]:            https://github.com/trevorsandy/ldview
 [povray]:            https://github.com/trevorsandy/povray
 
-Copyright (C) 2015 - 2022 by Trevor SANDY
+Copyright (C) 2015 - 2023 by Trevor SANDY

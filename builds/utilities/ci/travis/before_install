@@ -4,7 +4,7 @@
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update May 27, 2021
-# Copyright (C) 2017 - 2022 by Trevor SANDY
+# Copyright (C) 2017 - 2023 by Trevor SANDY
 #
 
 # Skip build if the commit message contains [skip travis] or [travis skip]

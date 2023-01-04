@@ -3,7 +3,7 @@ Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: Jun 05, 2022
-rem  Copyright (C) 2021 - 2022 by Trevor SANDY
+rem  Copyright (C) 2021 - 2023 by Trevor SANDY
 rem --
 rem --
 rem This script is distributed in the hope that it will be useful,

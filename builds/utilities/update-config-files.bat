@@ -3,7 +3,7 @@ Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: Oct 12, 2022
-rem  Copyright (C) 2015 - 2022 by Trevor SANDY
+rem  Copyright (C) 2015 - 2023 by Trevor SANDY
 rem --
 rem --
 rem This script is distributed in the hope that it will be useful,

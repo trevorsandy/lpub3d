@@ -4,7 +4,7 @@ Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: October 26, 2022
-rem  Copyright (C) 2018 - 2022 by Trevor SANDY
+rem  Copyright (C) 2018 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of

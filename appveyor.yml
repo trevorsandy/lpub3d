@@ -1,7 +1,7 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update: July 03, 2021
-# Copyright (C) 2017 - 2022 by Trevor SANDY
+# Copyright (C) 2017 - 2023 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
 
