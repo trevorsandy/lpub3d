@@ -294,6 +294,8 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
                 gMainWindow->SetSeparateTransform(mSeparateTransform);
                 gui->SetVisualEditorRotateTransform(mRotateTransform);
                 gui->restoreLightAndViewpointDefaults();
+                gui->enableVisualBuildModification();
+                gui->enableVisualBuildModActions();
                 if (Options->ImageType == Options::CSI) {
                     QVector<TypeLine> LineTypeIndexes;
                     PartSource Selection = VIEWER_CLR;

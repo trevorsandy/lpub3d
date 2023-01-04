@@ -4493,16 +4493,15 @@ void Gui::resetViewerImage(bool zoomExtents)
     case static_cast<int>(SMI):
         if (currentStep->placeSubModel) {
             lcPreferences& Preferences = lcGetPreferences();
+            SubModel& subModel = currentStep->subModel;
             if (!Preferences.mPreviewEnabled) {
                 if (gui->saveBuildModification()) {
-                    SubModel& subModel = currentStep->subModel;
                     lpub->saveVisualEditorTransformSettings();
                     subModel.viewerOptions->ZoomExtents = zoomExtents;
                     subModel.viewerOptions->IsReset     = true;
-                    subModel.loadTheViewer();
                 }
             }
-            currentStep->subModel.loadTheViewer();
+            subModel.loadTheViewer();
         }
         break;
 
