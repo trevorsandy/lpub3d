@@ -1,4 +1,4 @@
-LPub3D 2.4.5.115.3092 (06 01 2023 14:18:29)
+LPub3D 2.4.5.116.3093 (06 01 2023 14:20:03)
 
 Features, enhancements, fixes and changes
 ------------
@@ -48,6 +48,7 @@ Revisions:
 - Fix - Option Add pointer missing in Call Out #647
 - Fix - Primitives shown as missing parts in file load status #630
 - Fix - Remove LPub Formatting menu action does nothing #638
+- Fix - Selecting a submodel in the Visual editor gives error #665
 - Fix - Set Attributes to Page Pointer globally #648
 - Fix - Settings for Coverpage and Backcover do not work #620
 - Fix - Submodel preview ldr file not generated #655

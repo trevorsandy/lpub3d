@@ -54,7 +54,7 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 			ColorName = Color ? QString(Color->Name) : QLatin1String("Undefined");
 		}
 		QString PartLabel;
-		if (HasMaterialColor)
+		if (HasMaterialColor || mPreview->IsModel())
 		{
 			if (!mPreview->GetDescription().isEmpty())
 				PartLabel = mPreview->GetDescription();
@@ -63,6 +63,7 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 			const QString PartSuffix = QString("-%1").arg(SUBMODEL_IMAGE_BASENAME);
 			if (PartLabel.endsWith(PartSuffix,Qt::CaseInsensitive))
 				PartLabel.chop(PartSuffix.size());
+			PartLabel = PartLabel.replace(PartLabel.indexOf(PartLabel.at(0)),1,PartLabel.at(0).toUpper());
 		}
 		else
 		{
@@ -138,11 +139,13 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 
 	if (Info)
 	{
+		mIsModel = Info->IsModel();
+		mDescription = Info->m_strDescription;
+
 /*** LPub3D Mod - preview widget for LPub3D (submodel check) ***/
 		if (mIsModel)
 		{
-			if (mDescription == Info->m_strDescription)
-				return true;
+			return true;
 		}
 		else
 		{
@@ -157,9 +160,6 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 			}
 		}
 /*** LPub3D Mod end ***/
-
-		mIsModel = Info->IsModel();
-		mDescription = Info->m_strDescription;
 
 		mModel->SelectAllPieces();
 		mModel->DeleteSelectedObjects();
