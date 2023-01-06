@@ -101,20 +101,20 @@ QString MetaGui::formatMask(
   for (int i = 0; i < wholeSize; i++) i + 1 == wholeSize ? mask.append("xx")/*extra 'x' at end for '-' sign*/ : mask.append("x");
   for (int i = 0; i < decimalPlaces; i++) mask.append("x");
 
-#ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(QString("FORMAT MASK - Input: %1, Mask: %2, "
-                                 "Whole String %3, Decimal String: %4, "
-                                 "Decimal Places %5, Field Width %6, "
-                                 "Precision %7, Default Decimal Places %8")
-                                 /*1*/.arg(value)
-                                 /*2*/.arg(mask)
-                                 /*3*/.arg(QString::number(int(real)))
-                                 /*4*/.arg(QString::number(residual,'f',precision))
-                                 /*5*/.arg(decimalPlaces)
-                                 /*6*/.arg(width)
-                                 /*7*/.arg(precision)
-                                 /*8*/.arg(defaultDecimalPlaces));
-#endif
+//#ifdef QT_DEBUG_MODE
+//  qDebug() << qPrintable(QString("FORMAT MASK - Input: %1, Mask: %2, "
+//                                 "Whole String %3, Decimal String: %4, "
+//                                 "Decimal Places %5, Field Width %6, "
+//                                 "Precision %7, Default Decimal Places %8")
+//                                 /*1*/.arg(value)
+//                                 /*2*/.arg(mask)
+//                                 /*3*/.arg(QString::number(int(real)))
+//                                 /*4*/.arg(QString::number(residual,'f',precision))
+//                                 /*5*/.arg(decimalPlaces)
+//                                 /*6*/.arg(width)
+//                                 /*7*/.arg(precision)
+//                                 /*8*/.arg(defaultDecimalPlaces));
+//#endif
 
   return mask;
 }

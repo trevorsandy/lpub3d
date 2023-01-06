@@ -4810,8 +4810,8 @@ void LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
                                          .arg(i.value()._stepKey.lineNum)
                                          .arg(i.value()._stepKey.stepNum)
                                          .arg(value ? "Yes" : "No");
-    //emit gui->messageSig(LOG_DEBUG, debugMessage);
-    qDebug() << qPrintable(QString("DEBUG: %1").arg(debugMessage));
+    emit gui->messageSig(LOG_DEBUG, debugMessage);
+    //qDebug() << qPrintable(QString("DEBUG: %1").arg(debugMessage));
 #endif
   }
 #ifdef QT_DEBUG_MODE
@@ -4823,8 +4823,8 @@ void LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
                                          .arg(Keys.at(BM_STEP_LINE_KEY))
                                          .arg(Keys.at(BM_STEP_NUM_KEY))
                                          .arg(stepKey);
-    //emit gui->messageSig(LOG_WARNING, warnMessage);
-    qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
+    emit gui->messageSig(LOG_WARNING, warnMessage);
+    //qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
   }
 #endif
 }
@@ -4887,8 +4887,8 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
                     .arg(Keys.at(BM_STEP_LINE_KEY))
                     .arg(Keys.at(BM_STEP_NUM_KEY))
                     .arg(stepKey);
-    //emit gui->messageSig(LOG_WARNING, warnMessage);
-    qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
+    emit gui->messageSig(LOG_WARNING, warnMessage);
+    //qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
   }
 #endif
 }

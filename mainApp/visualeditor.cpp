@@ -2375,8 +2375,6 @@ void Gui::ShowStepRotationStatus()
                                     mRotStepType.toUpper() == QLatin1String("ABS") ? QLatin1String("Absolute") :
                                                               QLatin1String("None"));
     statusBarMsg(rotLabel);
-
-    qDebug() << qPrintable(QString("DEBUG: ShowStepRotationStatus %1").arg(rotLabel));
 }
 
 /*********************************************
@@ -2722,20 +2720,6 @@ void Gui::ReloadVisualEditor(){
                  }
              }
 
-#ifdef QT_DEBUG_MODE
-             qDebug() << qPrintable(QString("DEBUG: LPubRotStepMeta:   %1")
-                                            .arg(renderer->getRotstepMeta(lpub->currentStep->rotStepMeta)));
-
-             qDebug() << qPrintable(QString("DEBUG: LPubViewpoint:     %1 [%2]")
-                                            .arg(lpub->currentStep->viewerOptions->Viewpoint)
-                                            .arg(lpub->currentStep->viewerOptions->Viewpoint == CameraViews::Default ?
-                                                     "DEFAULT(OFF)" : CameraViews::cameraViewNames[lpub->currentStep->viewerOptions->Viewpoint]));
-
-             qDebug() << qPrintable(QString("DEBUG: LPubCameraAngles:  Latitude: [%1], Longitude [%2]")
-                                            .arg(QString::number(double(lpub->currentStep->viewerOptions->Latitude),'g', 2))
-                                            .arg(QString::number(double(lpub->currentStep->viewerOptions->Longitude), 'g', 2)));
-#endif
-
              // Check if there is an existing build modification in this Step
              QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
              if (stepContains(lpub->currentStep->top, lineRx) && !Update) {
@@ -2995,14 +2979,14 @@ void Gui::ReloadVisualEditor(){
                                     .arg(RV[Z][X]) .arg(RV[Z][Y]) .arg(RV[Z][Z])
                                     .arg(VTokens[VTokens.size()-1]);
                  }
-#ifdef QT_DEBUG_MODE
-                 qDebug() << qPrintable(QString("DEBUG: TransformPiece PieceLineIndex: %1 Lines:\n"
-                                                "       Unrotated: %2\n"
-                                                "       Rotated:   %3\n"
-                                                "       Piece:     %4\n"
-                                                "       Result:    %5")
-                                                .arg(PieceLineIndex).arg(ULine).arg(RLine).arg(VLine).arg(Result));
-#endif
+//#ifdef QT_DEBUG_MODE
+//                 qDebug() << qPrintable(QString("DEBUG: TransformPiece PieceLineIndex: %1 Lines:\n"
+//                                                "       Unrotated: %2\n"
+//                                                "       Rotated:   %3\n"
+//                                                "       Piece:     %4\n"
+//                                                "       Result:    %5")
+//                                                .arg(PieceLineIndex).arg(ULine).arg(RLine).arg(VLine).arg(Result));
+//#endif
                  return Result;
              };
 

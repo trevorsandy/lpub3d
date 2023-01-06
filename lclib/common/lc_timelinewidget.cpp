@@ -240,16 +240,11 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 					GetIcon(Size,ColorIndex,IsModel);
 					PieceItem->setIcon(0, mIcons[IconIndex]);
-#ifdef QT_DEBUG_MODE
-					qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
-												   .arg(IsModel ? "Submodel" : "Piece")
-												   .arg(ImageKey));
-//#else
-//                    fprintf(stdout, "%s", QString(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
-//                                            .arg(IsModel ? "Submodel" : "Piece")
-//                                            .arg(ImageKey)).toLatin1().constData());
-//                    fflush(stdout);
-#endif
+//#ifdef QT_DEBUG_MODE
+//					qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
+//												   .arg(IsModel ? "Submodel" : "Piece")
+//												   .arg(ImageKey));
+//#endif
 				}
 
 			} else {
