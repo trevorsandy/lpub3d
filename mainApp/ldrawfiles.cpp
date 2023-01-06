@@ -172,6 +172,7 @@ LDrawSubFile::LDrawSubFile(
   _datetime = datetime;
   _modified = false;
   _numSteps = 0;
+  _buildMods = 0;
   _instances = 0;
   _mirrorInstances = 0;
   _rendered = false;
@@ -2540,6 +2541,8 @@ void LDrawFile::countInstances(
 
   Where topOfStep(top); // set after skipHeader
 
+  setBuildModsCount(topOfStep.modelName, BM_INIT);
+
   bool partsAdded        = false;
   bool noStep            = false;
   bool isInsertStep      = false;
@@ -2686,6 +2689,7 @@ void LDrawFile::countInstances(
                 buildModLevel = getLevel(tokens[4], BM_BEGIN);
                 buildModIgnore = false;
                 buildModAction = BuildModApplyRc;
+                setBuildModsCount(topOfStep.modelName);
                 if (loadBuildMods()) {
                   buildModKeys.insert(buildModLevel, tokens[4]);
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM);
@@ -2792,7 +2796,6 @@ void LDrawFile::countInstances(
             }
             buildModLevel     = BM_BASE_LEVEL;
             buildModState     = BM_NONE;
-            buildModStepIndex = BM_NONE;
             buildModAction    = BuildModNoActionRc;
             buildModIgnore    = false;
             if (loadBuildMods()) {
@@ -3495,6 +3498,8 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
         QString modFileName = getBuildModStepKeyModelName(modKey);
         QMap<QString, LDrawSubFile>::iterator s = _subFiles.find(modFileName);
         if (s != _subFiles.end()) {
+          if (s.value()._buildMods > 0)
+            s.value()._buildMods -= 1;
           s.value()._modified = true;
           s.value()._changedSinceLastWrite = true;
         }
@@ -4497,6 +4502,44 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
 #endif
 
   return imageFilePaths;
+}
+
+/* return the number of build mods within the submodel file */
+
+int LDrawFile::getBuildModsCount(const QString &mcFileName)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    return i.value()._buildMods;
+  }
+  return 0;
+}
+
+void LDrawFile::setBuildModsCount(const QString &mcFileName, const int value)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    if (value == BM_NONE)
+      i.value()._buildMods += 1;
+    else
+      i.value()._buildMods = value;
+  }
+}
+
+bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buildModKey)
+{
+    QString fileName = mcFileName.toLower();
+    QRegExp buildModBeginRx("^0 !LPUB BUILD_MOD BEGIN ");
+    for(const QString &line : lpub->ldrawFile.contents(fileName)) {
+        if (line[0] == '1')
+            continue;
+        if (line.contains(buildModBeginRx))
+            if (line.contains(buildModKey,Qt::CaseInsensitive))
+                return true;
+    }
+    return false;
 }
 
 bool LDrawFile::buildModContains(const QString &buildModKey)

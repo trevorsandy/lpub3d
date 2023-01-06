@@ -61,6 +61,7 @@ class LDrawSubFile {
     QVector<int> _prevStepPosition;
     QVector<int> _subFileIndexes;
     int          _numSteps;
+    int          _buildMods;
     bool         _beenCounted;
     int          _instances;
     int          _mirrorInstances;
@@ -478,6 +479,7 @@ class LDrawFile {
     int setBuildModAction(const QString  &buildModKey,
                           const int       stepIndex,
                           const int       modAction);
+    void setBuildModsCount(const QString &fileName, const int value = -1);
     int setBuildModRendered(const QString &buildModKey, const QString &renderedModel);
     int getBuildModStepAction(const int stepIndex);
     int getBuildModStepAction(const QString &modelName, const int &lineNumber);
@@ -498,9 +500,11 @@ class LDrawFile {
     int getBuildModStepKeyLineNum(const QString &buildModKey);
     int getBuildModStepKeyStepNum(const QString &buildModKey);
     int getBuildModStepKeyModelIndex(const QString &buildModKey);
+    int getBuildModsCount(const QString &fileName);
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsCount();
+    bool getBuildModExists(const QString &fileName, const QString &buildModKey);
     bool getBuildModRendered(const QString &buildModKey, const QString &renderedModel, bool countPage = false);
     bool getBuildModStepIndexWhere(const int stepIndex, QString &modelName, int &modelIndex, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);

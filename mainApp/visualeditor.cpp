@@ -3468,8 +3468,13 @@ void Gui::ReloadVisualEditor(){
 //                 qDebug() << qPrintable(QString("DEBUG: ViewerModContents: %1").arg(Line));
 //#endif
 
-             if (!Update)
-                 BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsCount() + 1);
+             // Generate build modification key
+             if (!Update) {
+                 int buildModCount = lpub->ldrawFile.getBuildModsCount(ModelName) + 1;
+                 BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModCount);
+                 while (lpub->ldrawFile.getBuildModExists(ModelName, BuildModKey))
+                   BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(++buildModCount);
+             }
 
              // Delete meta commands uses the 'original' BuildMod values
              int SaveModBeginLineNum  = BM_INIT;

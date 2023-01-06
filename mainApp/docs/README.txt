@@ -1,4 +1,4 @@
-LPub3D 2.4.5.113.3090 (06 01 2023 14:15:25)
+LPub3D 2.4.5.114.3091 (06 01 2023 14:16:58)
 
 Features, enhancements, fixes and changes
 ------------
@@ -29,6 +29,7 @@ Revisions:
 - Change - Change reset image menu action description to refresh image #623
 - Change - Display clear cache message in information dialog #660
 - Change - Parse top-model INCLUDE file at model file load #631
+- Change - Re-use Build Mod name (ID) #663
 - Fix - Apply ROTSTEP to step-group STEP #653
 - Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
 - Fix - Build modification - correct jump forward parse error #622
