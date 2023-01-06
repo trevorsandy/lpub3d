@@ -4710,6 +4710,8 @@ void Gui::resetViewerImage(bool zoomExtents)
 
     Step *currentStep = lpub->currentStep;
 
+    gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setEnabled(false);
+
     using namespace Options;
     switch (lcGetActiveProject()->GetImageType())
     {

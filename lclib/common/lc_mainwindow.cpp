@@ -1280,7 +1280,6 @@ void lcMainWindow::ApplyRotStepMeta(lcCommandId CommandId)
 			emit SetRotStepType(RotStepType,true/*display*/);
 
 			mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
-			mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setEnabled(true);
 			/*
 			qDebug() << qPrintable(tr("DEBUG: LC_EDIT_TRANSFORM ROTSTEP old[new] TRANS: %1[%2] X: %3[%4] Y: %5[%6] Z: %7[%8]")
 									  .arg(mRotStepType,RotStepType)

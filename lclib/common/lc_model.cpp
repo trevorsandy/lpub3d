@@ -3142,6 +3142,8 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 											  tr("Nothing selected. Make a selection to transform."));
 		return;
 	}
+
+	gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setEnabled(Transform != lcVector3(0,0,0));
 /*** LPub3D Mod end ***/
 
 	switch (TransformType)
