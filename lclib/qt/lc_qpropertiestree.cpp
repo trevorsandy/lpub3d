@@ -1483,9 +1483,9 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	{
 		Show = Piece->GetStepShow();
 		Hide = Piece->GetStepHide();
-		ColorIndex = Piece->GetColorIndex();
-		Info = Piece->mPieceInfo;
 /*** LPub3D Mod - preview widget for LPub3D ***/
+		Info = Piece->mPieceInfo;
+		ColorIndex = Info->IsModel() ? lcGetColorIndex(LDRAW_MATERIAL_COLOUR) : Piece->GetColorIndex();
 		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 		{
 /*** LPub3D Mod end ***/

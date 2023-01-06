@@ -45,16 +45,8 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 	if (mPreview->SetCurrentPiece(PartType, ColorCode))
 	{
 /*** LPub3D Mod - preview widget for LPub3D ***/
-		QString ColorName;
-		lcColor* Color = nullptr;
-		bool HasMaterialColor = ColorCode == LDRAW_MATERIAL_COLOUR;
-		if (!HasMaterialColor)
-		{
-			Color = &gColorList[lcGetColorIndex(ColorCode)];
-			ColorName = Color ? QString(Color->Name) : QLatin1String("Undefined");
-		}
 		QString PartLabel;
-		if (HasMaterialColor || mPreview->IsModel())
+		if (mPreview->IsModel())
 		{
 			if (!mPreview->GetDescription().isEmpty())
 				PartLabel = mPreview->GetDescription();
@@ -67,6 +59,8 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 		}
 		else
 		{
+			lcColor* Color = &gColorList[lcGetColorIndex(ColorCode)];
+			QString ColorName = Color ? QString(Color->Name) : QLatin1String("No Color");
 			PartLabel = QString("%1 (%2)%3")
 								.arg(mPreview->GetDescription())
 								.arg(QFileInfo(PartType).completeBaseName().toUpper())
@@ -135,31 +129,22 @@ lcPreview::lcPreview(bool SubstituteView)
 bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 {
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	PieceInfo* Info = Library->FindPiece(PartType.toLatin1().constData(), mLoader.get(), false, false);
+	PieceInfo* Info = Library->FindPiece(PartType.toLatin1().constData(), nullptr, false, false);
 
 	if (Info)
 	{
-		mIsModel = Info->IsModel();
-		mDescription = Info->m_strDescription;
-
-/*** LPub3D Mod - preview widget for LPub3D (submodel check) ***/
-		if (mIsModel)
+		for (lcPiece* ModelPiece : mModel->GetPieces())
 		{
-			return true;
-		}
-		else
-		{
-			for (lcPiece* ModelPiece : mModel->GetPieces())
+			if (Info == ModelPiece->mPieceInfo)
 			{
-				if (Info == ModelPiece->mPieceInfo)
-				{
-					int ModelColorCode = ModelPiece->GetColorCode();
-					if (ModelColorCode == ColorCode)
-						return true;
-				}
+				int ModelColorCode = ModelPiece->GetColorCode();
+				if (ModelColorCode == ColorCode)
+					return true;
 			}
 		}
-/*** LPub3D Mod end ***/
+
+		mIsModel = Info->IsModel();
+		mDescription = Info->m_strDescription;
 
 		mModel->SelectAllPieces();
 		mModel->DeleteSelectedObjects();
