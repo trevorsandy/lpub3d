@@ -54,6 +54,9 @@ public:
   /// Open project to enable native visual editor or image render
   bool OpenProject(const NativeOptions*, int = NATIVE_VIEW, bool = false);
 
+  /// Visual Editor viewpoint latitude longitude
+  int SetViewpointLatLonDialog(bool SetCamera = false);
+
   /// Flip page size per orientation and return size in pixels
   static int pageSize(PageMeta  &, int);
 
@@ -194,6 +197,9 @@ public:
   static bool       m_updaterCancelled;
   static bool       m_setReleaseNotesAsText;
   static QString    m_releaseNotesContent;
+
+/// Visual Editor viewpoint latitude longitude
+  static int        ViewpointsComboSaveIndex;
 
   /// Text editor dialog
   TextEditDialog   *textEdit = nullptr;

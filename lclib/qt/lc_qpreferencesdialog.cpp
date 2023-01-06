@@ -15,6 +15,7 @@
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Common menus help ***/
+#include "lpub_object.h"
 #include "commonmenus.h"
 /*** LPub3D Mod end ***/
 
@@ -346,6 +347,7 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 /*** LPub3D Mod - Native Renderer settings ***/
 	ui->ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
 	ui->ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
+	LPub::ViewpointsComboSaveIndex = mOptions->Preferences.mNativeViewpoint;
 /*** LPub3D Mod end ***/
 
 	on_studStyleCombo_currentIndexChanged(ui->studStyleCombo->currentIndex());
@@ -1695,8 +1697,25 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 /*** LPub3D Mod - Native Renderer settings ***/
 void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
+	int ProjectionComboSaveIndex = ui->ProjectionCombo->currentIndex();
+
 	if (index < static_cast<int>(lcViewpoint::Count))
 		ui->ProjectionCombo->setCurrentIndex(2/*Default*/);
+
+	QDialog::DialogCode DialogCode = QDialog::Accepted;
+
+	if (index == static_cast<int>(lcViewpoint::LatLon))
+	{
+		DialogCode = static_cast<QDialog::DialogCode>(lpub->SetViewpointLatLonDialog(true/*SetCamera*/));
+		if (DialogCode != QDialog::Accepted)
+		{
+			ui->ViewpointsCombo->setCurrentIndex(LPub::ViewpointsComboSaveIndex);
+			ui->ProjectionCombo->setCurrentIndex(ProjectionComboSaveIndex);
+		}
+	}
+
+	if (DialogCode == QDialog::Accepted)
+		LPub::ViewpointsComboSaveIndex = index;
 }
 
 void lcQPreferencesDialog::on_ProjectionCombo_currentIndexChanged(int index)

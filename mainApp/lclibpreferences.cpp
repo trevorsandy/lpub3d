@@ -15,6 +15,8 @@
 ****************************************************************************/
 
 #include "preferencesdialog.h"
+#include "lpub_object.h"
+
 #include "lc_library.h"
 #include "lc_glextensions.h"
 #include "lc_edgecolordialog.h"
@@ -72,6 +74,8 @@ void PreferencesDialog::lcQPreferencesInit()
     ui.ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
     ui.LPubTrueFade->setChecked(mOptions->Preferences.mLPubTrueFade);
     ui.ZoomExtentCombo->setCurrentIndex(mOptions->Preferences.mZoomExtents);
+
+    LPub::ViewpointsComboSaveIndex = mOptions->Preferences.mNativeViewpoint;
 
     auto SetButtonPixmap = [](quint32 Color, QToolButton* Button)
     {
@@ -221,8 +225,23 @@ void PreferencesDialog::on_AutomateEdgeColor_toggled()
 
 void PreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
-    if (index < static_cast<int>(lcViewpoint::Count))
+    int ProjectionComboSaveIndex = ui.ProjectionCombo->currentIndex();
+
+    if (index < static_cast<int>(lcViewpoint::Count/*Default*/))
         ui.ProjectionCombo->setCurrentIndex(2/*Default*/);
+
+    QDialog::DialogCode DialogCode = QDialog::Accepted;
+
+    if (index == static_cast<int>(lcViewpoint::LatLon)) {
+        DialogCode = static_cast<QDialog::DialogCode>(lpub->SetViewpointLatLonDialog(true/*SetCamera*/));
+        if (DialogCode != QDialog::Accepted) {
+            ui.ViewpointsCombo->setCurrentIndex(LPub::ViewpointsComboSaveIndex);
+            ui.ProjectionCombo->setCurrentIndex(ProjectionComboSaveIndex);
+        }
+    }
+
+    if (DialogCode == QDialog::Accepted)
+        LPub::ViewpointsComboSaveIndex = index;
 }
 
 void PreferencesDialog::on_ProjectionCombo_currentIndexChanged(int index)

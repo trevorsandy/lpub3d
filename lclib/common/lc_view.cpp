@@ -7,9 +7,6 @@
 /*** LPub3D Mod - enable lights ***/
 #include "light.h"
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - Viewpoint latitude longitude ***/
-#include "commonmenus.h"
-/*** LPub3D Mod end ***/
 #include "texfont.h"
 #include "lc_texture.h"
 #include "piece.h"
@@ -1732,14 +1729,6 @@ void lcView::EndDrag(bool Accept)
 
 void lcView::SetViewpoint(lcViewpoint Viewpoint)
 {
-/*** LPub3D Mod - Viewpoint latitude longitude ***/
-	if (Viewpoint == lcViewpoint::LatLon)
-	{
-		SetViewpointLatLon();
-		return;
-	}
-/*** LPub3D Mod end ***/
-
 	if (!mCamera || !mCamera->IsSimple())
 	{
 		lcCamera* OldCamera = mCamera;
@@ -1749,6 +1738,16 @@ void lcView::SetViewpoint(lcViewpoint Viewpoint)
 		if (OldCamera)
 			mCamera->CopySettings(OldCamera);
 	}
+
+/*** LPub3D Mod - Viewpoint latitude longitude ***/
+	if (Viewpoint == lcViewpoint::LatLon)
+	{
+		lpub->SetViewpointLatLonDialog();
+		return;
+	}
+
+	LPub::ViewpointsComboSaveIndex = static_cast<int>(Viewpoint);
+/*** LPub3D Mod end ***/
 
 	mCamera->SetViewpoint(Viewpoint);
 
@@ -1936,148 +1935,6 @@ void lcView::SetViewpointLatLon(const float Latitude, const float Longitude, con
 	Redraw();
 
 	emit CameraChanged();
-}
-
-void lcView::SetViewpointLatLon()
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-
-	float Latitude  = 0.0f;
-	float Longitude = 0.0f;
-	float Distance  = 1.0f;
-	float DistanceFactor = qAbs(mCamera->GetDDF());
-
-	mCamera->GetAngles(Latitude, Longitude, Distance);
-
-	QPalette ReadOnlyPalette = QApplication::palette();
-	if (Preferences::displayTheme == THEME_DARK)
-		ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
-	else
-		ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
-	ReadOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
-
-	QDialog * LatLonDialog = new QDialog(gMainWindow);
-
-	LatLonDialog->setWindowTitle(tr("Camera Latitude/Longitude"));
-
-	LatLonDialog->setWhatsThis(lpubWT(WT_DIALOG_CAMERA_LAT_LON, LatLonDialog->windowTitle()));
-
-	QFormLayout *LatLonForm = new QFormLayout(LatLonDialog);
-
-	QGroupBox *LatLonGrpBox = new QGroupBox();
-
-	LatLonForm->addWidget(LatLonGrpBox);
-
-	QGridLayout *LatLonLayout = new QGridLayout(LatLonGrpBox);
-
-	QLabel *LatLabel = new QLabel(tr("Latitude:"),LatLonDialog);
-	LatLonLayout->addWidget(LatLabel,0,0);
-
-	QSpinBox *LatSpin = new QSpinBox(LatLonDialog);
-	LatSpin->setRange(-360,360);
-	LatSpin->setSingleStep(1);
-	LatSpin->setValue(Latitude);
-	LatLonLayout->addWidget(LatSpin,0,1);
-
-	QPushButton *LatResetButton = new QPushButton(LatLonDialog);
-	LatResetButton->setIcon(QIcon(":/resources/resetaction.png"));
-	LatResetButton->setIconSize(QSize(16,16));
-	LatResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
-	LatResetButton->setToolTip(tr("Reset"));
-	LatResetButton->setEnabled(false);
-	LatLonLayout->addWidget(LatResetButton,0,2);
-	connect(LatSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] (int i) { LatResetButton->setEnabled(i != static_cast<int>(Latitude)); });
-	connect(LatResetButton, &QPushButton::clicked, [&] () { LatResetButton->setEnabled(false); if(LatSpin) { LatSpin->setValue(Latitude); LatSpin->setFocus(); } });
-
-	QLabel *LonLabel = new QLabel(tr("Longitude:"), LatLonDialog);
-	LatLonLayout->addWidget(LonLabel,1,0);
-
-	QSpinBox *LonSpin = new QSpinBox(LatLonDialog);
-	LonSpin->setRange(-360,360);
-	LonSpin->setSingleStep(1);
-	LonSpin->setValue(Longitude);
-	LatLonLayout->addWidget(LonSpin,1,1);
-
-	QPushButton *LonResetButton = new QPushButton(LatLonDialog);
-	LonResetButton->setIcon(QIcon(":/resources/resetaction.png"));
-	LonResetButton->setIconSize(QSize(16,16));
-	LonResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
-	LonResetButton->setToolTip(tr("Reset"));
-	LonResetButton->setEnabled(false);
-	LatLonLayout->addWidget(LonResetButton,1,2);
-	connect(LonSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] (int i) { LonResetButton->setEnabled(i != static_cast<int>(Longitude)); });
-	connect(LonResetButton, &QPushButton::clicked, [&] () { LonResetButton->setEnabled(false); if(LonSpin) { LonSpin->setValue(Longitude); LonSpin->setFocus(); } });
-
-	QCheckBox *DistanceCheck = new QCheckBox(tr("Distance Factor:"), LatLonDialog);
-	LatLonLayout->addWidget(DistanceCheck,2,0);
-
-	QDoubleSpinBox *DDFSpin = new QDoubleSpinBox(LatLonDialog);
-	DDFSpin->setEnabled(false);
-	DDFSpin->setRange(0.0f,100.0f);
-	DDFSpin->setSingleStep(0.01);
-	DDFSpin->setDecimals(2);
-	DDFSpin->setValue(DistanceFactor);
-	LatLonLayout->addWidget(DDFSpin,2,1);
-
-	QPushButton *DDFResetButton = new QPushButton(LatLonDialog);
-	DDFResetButton->setIcon(QIcon(":/resources/resetaction.png"));
-	DDFResetButton->setIconSize(QSize(16,16));
-	DDFResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
-	DDFResetButton->setToolTip(tr("Reset"));
-	DDFResetButton->setEnabled(false);
-	LatLonLayout->addWidget(DDFResetButton,2,2);
-	connect(DistanceCheck, &QCheckBox::clicked,    [&] (bool b) { DDFSpin->setEnabled(b); });
-	connect(DDFSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&] (double d) { DDFResetButton->setEnabled(d != static_cast<double>(DistanceFactor)); });
-	connect(DDFResetButton, &QPushButton::clicked, [&] () { DDFResetButton->setEnabled(false); if(DDFSpin) { DDFSpin->setValue(DistanceFactor); DDFSpin->setFocus(); } });
-
-	QLabel *DistanceLabel = new QLabel(tr("Disance:"), LatLonDialog);
-	LatLonLayout->addWidget(DistanceLabel,2,3);
-	QLineEdit *DistanceEdit = new QLineEdit(LatLonDialog);
-	DistanceEdit->setText(QString::number(int(Distance)));
-	DistanceEdit->setPalette(ReadOnlyPalette);
-	DistanceEdit->setReadOnly(true);
-	LatLonLayout->addWidget(DistanceEdit,2,4);
-
-	// options - button box
-	QDialogButtonBox *LatLonButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-															 Qt::Horizontal, LatLonDialog);
-	LatLonForm->addRow(LatLonButtonBox);
-	QObject::connect(LatLonButtonBox, SIGNAL(accepted()), LatLonDialog, SLOT(accept()));
-	QObject::connect(LatLonButtonBox, SIGNAL(rejected()), LatLonDialog, SLOT(reject()));
-
-	if (LatLonDialog->exec() == QDialog::Accepted)
-	{
-		 bool ApplyZoomExtents = true;
-		 float Latitude  = static_cast<float>(LatSpin->value());
-		 float Longitude = static_cast<float>(LonSpin->value());
-		 lcPreferences& Preferences = lcGetPreferences();
-
-		 if(DistanceCheck->isChecked())
-		 {
-			 ApplyZoomExtents = false;
-			 Preferences.mDDF = static_cast<float>(DDFSpin->value());
-		 }
-
-		 SetViewpointLatLon(Latitude, Longitude, Distance, ApplyZoomExtents, false/*SetCamera*/);
-
-		 if (Preferences.mDDF != DistanceFactor)
-			 Preferences.mDDF = DistanceFactor;
-	}
-	else
-	{
-		// hack the lat/lon action CommandId to reset ViewpointGroup action to Home on cancel
-		gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
-
-		delete LatLonDialog;
-	}
 }
 /*** LPub3D Mod end ***/
 

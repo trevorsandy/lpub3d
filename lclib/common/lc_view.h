@@ -257,7 +257,6 @@ public:
 	void SetCameraAngles(float Latitude, float Longitude);
 /*** LPub3D Mod - Viewpoint latitude longitude ***/
 	void SetViewpointLatLon(const float Latitude, const float Longitude, const float Distance, bool ApplyZoomExtents = true, bool SetCamera = true);
-	void SetViewpointLatLon();
 /*** LPub3D Mod end ***/
 	void SetDefaultCamera();
 	void SetCamera(lcCamera* Camera, bool ForceCopy);
