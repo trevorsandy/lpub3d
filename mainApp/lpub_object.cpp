@@ -312,7 +312,10 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
     }
 
     if (Loaded && Type != NATIVE_EXPORT)
-        return Render::RenderNativeView(Options, Type == NATIVE_IMAGE);
+        Loaded = Render::RenderNativeView(Options, Type == NATIVE_IMAGE);
+
+    if (gMainWindow && Options->IsReset && Loaded)
+        gMainWindow->UpdateDefaultCameraProperties();
 
     return Loaded;
 }

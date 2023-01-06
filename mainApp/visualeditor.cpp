@@ -1971,6 +1971,8 @@ void Gui::enableVisualBuildModification()
         }
     }
 
+    gMainWindow->UpdateDefaultCameraProperties();
+
     EnableBuildModAct->setEnabled(Preferences::buildModEnabled);
     EnableBuildModAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
