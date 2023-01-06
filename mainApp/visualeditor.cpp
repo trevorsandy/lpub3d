@@ -3731,18 +3731,29 @@ void Gui::applyBuildModification()
     using namespace Options;
     Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
     if (it == CSI) {
-        QString metaString;
-        bool newCommand = false;
         BuildModData buildModData = lpub->currentStep->buildMod.value();
+        buildModData.action       = QLatin1String("APPLY");
+        buildModData.buildModKey  = buildModKey;
+        lpub->currentStep->buildMod.setValue(buildModData);
 
         beginMacro(QLatin1String("BuildModApply|") + lpub->currentStep->viewerStepKey);
 
-        buildModData.action      = QLatin1String("APPLY");
-        buildModData.buildModKey = buildModKey;
-        lpub->currentStep->buildMod.setValue(buildModData);
-        metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
-        newCommand = lpub->currentStep->buildMod.here() ==  Where();
-        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
+        QString metaString        = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
+        bool newCommand           = lpub->currentStep->buildMod.here() ==  Where();
+        Where top                 = topOfStep;
+
+        if (newCommand) {
+            QString line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
+            Rc rc = lpub->page.meta.parse(line,top);
+            if (rc == StepGroupEndRc)
+                top++;
+            line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
+            rc = lpub->page.meta.parse(line,top);
+            if (rc == StepGroupBeginRc)
+                top++;
+        }
+
+        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
 
         if (removeActionCommand)
             clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
@@ -3845,18 +3856,29 @@ void Gui::removeBuildModification()
     using namespace Options;
     Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
     if (it == CSI) {
-        QString metaString;
-        bool newCommand = false;
         BuildModData buildModData = lpub->currentStep->buildMod.value();
+        buildModData.action       = QLatin1String("REMOVE");
+        buildModData.buildModKey  = buildModKey;
+        lpub->currentStep->buildMod.setValue(buildModData);
 
         beginMacro(QLatin1String("BuildModRemove|") + lpub->currentStep->viewerStepKey);
 
-        buildModData.action      = QLatin1String("REMOVE");
-        buildModData.buildModKey = buildModKey;
-        lpub->currentStep->buildMod.setValue(buildModData);
-        metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
-        newCommand = lpub->currentStep->buildMod.here() == Where();
-        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
+        QString metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
+        bool newCommand    = lpub->currentStep->buildMod.here() == Where();
+        Where top          = topOfStep;
+
+        if (newCommand) {
+            QString line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
+            Rc rc = lpub->page.meta.parse(line,top);
+            if (rc == StepGroupEndRc)
+                top++;
+            line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
+            rc = lpub->page.meta.parse(line,top);
+            if (rc == StepGroupBeginRc)
+                top++;
+        }
+
+        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
 
         if (removeActionCommand)
             clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
@@ -3894,9 +3916,6 @@ void Gui::deleteBuildModificationAction()
 
     // was the last action defined in this step ?
     Rc buildModStepAction =  static_cast<Rc>(getBuildModStepAction(topOfStep));
-
-    // remove the action command
-    const bool removeActionCommand = true;
 
     // determine current step action
     QString actionString, macroString;
@@ -3950,21 +3969,18 @@ void Gui::deleteBuildModificationAction()
     using namespace Options;
     Mt it = static_cast<Mt>(lcGetActiveProject()->GetImageType());
     if (it == CSI) {
-        QString metaString;
-        bool newCommand = false;
         BuildModData buildModData = lpub->currentStep->buildMod.value();
+        buildModData.action       = actionString;
+        buildModData.buildModKey  = buildModKey;
+        lpub->currentStep->buildMod.setValue(buildModData);
 
         beginMacro(macroString + lpub->currentStep->viewerStepKey);
 
-        buildModData.action      = actionString;
-        buildModData.buildModKey = buildModKey;
-        lpub->currentStep->buildMod.setValue(buildModData);
-        metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
-        newCommand = lpub->currentStep->buildMod.here() == Where();
-        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
+        QString metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
 
-        if (removeActionCommand)
-            clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
+        lpub->currentStep->mi(it)->setMetaAlt(lpub->currentStep->buildMod.here(), metaString, false/*newCommand*/, true/*removeCommand*/);
+
+        clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
 
         clearWorkingFiles(getPathsFromViewerStepKey(lpub->currentStep->viewerStepKey));
 
@@ -4202,7 +4218,7 @@ void Gui::deleteBuildModification()
         const int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
         const int modActionLineNum = getBuildModActionLineNumber(buildModKey);
         const int modEndLineNum    = getBuildModEndLineNumber(buildModKey);
-        QString modelName    = getBuildModStepKeyModelName(buildModKey);
+        QString modelName          = getBuildModStepKeyModelName(buildModKey);
 
         if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
             emit messageSig(LOG_ERROR, tr("There was a problem receiving build modification attributes for key [%1]<br>"
