@@ -81,7 +81,8 @@ class Step : public AbstractRangeElement
     StringMeta            ldgliteParms;
     StringMeta            povrayParms;
     JustifyStepMeta       justifyStep;
-    BuildModMeta          buildMod;
+    BuildModMeta          buildModMeta;
+    BuildModMeta          buildModActionMeta;
     bool                  showStepNumber;
     int                   submodelLevel;
     bool                  pliPerStep;

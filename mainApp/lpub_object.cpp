@@ -875,8 +875,8 @@ void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
 
     if (!stepMatch)
         step = nullptr;
-
-    currentStep = step;
+    else
+        setCurrentStep(step);
 
     if (Preferences::debugLogging && !stepMatch)
         emit lpub->messageSig(LOG_DEBUG, tr("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
@@ -918,7 +918,7 @@ bool LPub::setCurrentStep(const QString &key)
 
 #ifdef QT_DEBUG_MODE
     if (currentStep)
-        emit lpub->messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2")
+        emit lpub->messageSig(LOG_TRACE,tr("Step %1 loaded from key: %2")
                         .arg(currentStep->stepNumber.number).arg(key));
 #endif
 

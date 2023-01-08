@@ -466,12 +466,14 @@ int Gui::drawPage(
   bool     buildModExists     = false;
   bool     buildModChange     = false;
   bool     buildModPliIgnore  = false;
-  bool     buildModAction     = false;
+  bool     buildModActionStep = false;
   bool     buildModTypeIgnore = false;
 
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
   BuildModFlags buildMod;
+  BuildModMeta  buildModMeta;
+  BuildModMeta  buildModActionMeta;
 
   QMap<int, QString> buildModKeys;
   QMap<int, QVector<int>> buildModAttributes;
@@ -2047,6 +2049,7 @@ int Gui::drawPage(
                   parseError(tr("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                              opts.current,Preferences::BuildModErrors);
               buildModStepIndex = getBuildModStepIndex(topOfStep);
+              buildModActionMeta = curMeta.LPub.buildMod;
               buildMod.key = curMeta.LPub.buildMod.key();
               if (buildModContains(buildMod.key)) {
                   if (getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
@@ -2058,7 +2061,7 @@ int Gui::drawPage(
                              .arg(action).arg(buildMod.key),
                              opts.current,Preferences::BuildModErrors);
               }
-              buildModAction = true;
+              buildModActionStep = true;
               if (multiStep || opts.calledOut)
                   buildModChange = topOfStep != steps->topOfSteps(); // uses list[0].topOfStep for both multiStep and callout
               if (buildModChange) {
@@ -2087,12 +2090,13 @@ int Gui::drawPage(
               } // buildModChange
               break;
 
-            // Get BuildMod attributes and set ModIgnore based on 'current' step buildModAction
+            // Get BuildMod attributes and set ModIgnore based on 'current' step buildModActions
             case BuildModBeginRc:
               if (!Preferences::buildModEnabled) {
                   buildMod.ignore = true;
                   break;
               }
+              buildModMeta = curMeta.LPub.buildMod;
               buildMod.key = curMeta.LPub.buildMod.key();
               buildModExists = buildModContains(buildMod.key);
               buildMod.level = getLevel(buildMod.key, BM_BEGIN);
@@ -2107,7 +2111,7 @@ int Gui::drawPage(
                   buildModInsert = !buildModExists;
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
-              // set buildModAction
+              // set buildModActions
               if (buildModExists)
                   if (multiStep || opts.calledOut) // the last action is appended at each step so it should always be current
                       buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, BM_LAST_ACTION));
@@ -2129,7 +2133,7 @@ int Gui::drawPage(
               buildMod.state = BM_BEGIN;
               break;
 
-            // Set modActionLineNum and ModIgnore based on 'current' step buildModAction
+            // Set modActionLineNum and ModIgnore based on 'current' step buildModActions
             case BuildModEndModRc:
               if (!Preferences::buildModEnabled) {
                   buildMod.ignore = getLevel(QString(), BM_END);
@@ -2248,7 +2252,7 @@ int Gui::drawPage(
              /*
               * STEP - special case of no parts added, but BFX load or BuildMod Action and not NOSTEP
               */
-              if (! partsAdded && ! noStep && (bfxLoad || buildModAction)) {
+              if (! partsAdded && ! noStep && (bfxLoad || buildModActionStep)) {
                   if (step == nullptr) {
                       if (range == nullptr) {
                           range = newRange(steps,opts.calledOut);
@@ -2269,13 +2273,18 @@ int Gui::drawPage(
                       caseType.append("bfx load");
                       step->bfxLoadStep = bfxLoad;
                   }
-                  if (buildModAction) {
-                      caseType.isEmpty() ? caseType.append("build modification") : caseType.append(" build modification");
-                      step->buildModActionStep = buildModAction;
+                  if (buildModActionStep) {
+                      caseType.append(" build modification");
+                      step->buildModActionStep = buildModActionStep;
+                      if (buildModActionMeta.action())
+                          step->buildModActionMeta = buildModActionMeta;
                   }
                   emit messageSig(LOG_INFO, QString("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
 
                   step->updateViewer = opts.updateViewer;
+
+                  if (buildModActionMeta.action())
+                      step->buildModActionMeta = buildModActionMeta;
 
                   returnValue = static_cast<TraverseRc>(step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -2346,7 +2355,15 @@ int Gui::drawPage(
                           }
 
                           emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
+
                           step->updateViewer = opts.updateViewer;
+
+                          if (buildModMeta.action())
+                              step->buildModMeta = buildModMeta;
+
+                          if (buildModActionMeta.action())
+                              step->buildModActionMeta = buildModActionMeta;
+
                           returnValue = static_cast<TraverseRc>(step->createCsi(
                                       opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                                       configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
@@ -2763,7 +2780,7 @@ int Gui::drawPage(
                       rotateIcon     = false;
                       bfxStore1      = false;
                       bfxLoad        = false;
-                      buildModAction = false;
+                      buildModActionStep = false;
                       step           = nullptr;
 
                   } // STEP - normal case of parts added

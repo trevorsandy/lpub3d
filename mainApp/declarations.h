@@ -189,6 +189,7 @@ enum BuildModRc {
     BM_MODEL_NAME       = BM_BEGIN,        //   0
     BM_STEP_MODEL_KEY   = BM_BEGIN,        //   0
     BM_BEGIN_LINE_NUM   = BM_BEGIN,        //   0 BUILD_MOD BEGIN   BuildModRange[0] Attributes[0]
+    BM_ACTION_KEY_INDEX = BM_BEGIN,        //   0
     BM_END_MOD,                            //   1
     BM_FIRST_LEVEL      = BM_END_MOD,      //   1
     BM_STEP_LINE_KEY    = BM_END_MOD,      //   1
@@ -198,6 +199,7 @@ enum BuildModRc {
     BM_END_LINE_NUM     = BM_END,          //   2 BUILD_MOD END                      Attributes[2]
     BM_STEP_NUM_KEY     = BM_END,          //   2
     BM_MODEL_INDEX      = BM_END,          //   2 MODEL_INDEX       BuildModRange[2]
+    BM_ACTION_CODE      = BM_END,          //   2
     BM_STEP_KEYS,                          //   3
     BM_DISPLAY_PAGE_NUM = BM_STEP_KEYS,    //   3                                    Attributes[3]
     BM_STEP_PIECES,                        //   4                                    Attributes[4]
@@ -824,6 +826,10 @@ enum ThemeColorType {
 #define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"   // last version of LPub3D to use html change notes
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stereolithography (STL) library is available"
+
+#define BUILD_MOD_APPLY                         "APPLY"
+#define BUILD_MOD_REMOVE                        "REMOVE"
+#define BUILD_MOD_BEGIN                         "BEGIN"
 
 #define VISUAL_BANNER_SUFFIX                    "Visual Banner"
 #define SUBMODEL_IMAGE_BASENAME                 "smi"

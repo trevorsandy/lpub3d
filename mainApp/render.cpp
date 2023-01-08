@@ -3618,8 +3618,8 @@ bool Render::LoadViewer(const NativeOptions *Options) {
     bool keyMatch = lpub->currentStep && lpub->currentStep->viewerStepKey == lpub->viewerStepKey;
 
     if (!keyMatch || Options->ViewerStepKey != lpub->viewerStepKey) {
-        emit gui->messageSig(LOG_ERROR, QObject::tr("The visual editor step to load key: '%1' does not match current step key: '%2'")
-                                                    .arg(Options->ViewerStepKey).arg(lpub->viewerStepKey));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("The visual editor step to load key: '%1' does not match current step key: '%2' or lpub key: '%3'")
+                                                    .arg(Options->ViewerStepKey).arg(lpub->currentStep->viewerStepKey).arg(lpub->viewerStepKey));
         if (Gui::abortProcess())
             return Loaded;
     }

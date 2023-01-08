@@ -171,7 +171,6 @@ Step::Step(
   subModel.steps            = grandparent();
   subModel.step             = this;
 
-  buildMod                  = _meta.LPub.buildMod;
   ldviewParms               = _meta.LPub.assem.ldviewParms;
   ldgliteParms              = _meta.LPub.assem.ldgliteParms;
   povrayParms               = _meta.LPub.assem.povrayParms;

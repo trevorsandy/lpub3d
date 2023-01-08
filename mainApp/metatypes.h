@@ -415,7 +415,7 @@ class BuildModData
 {
 public:
   QString buildModKey;
-  QString action;
+  int action;
 };
 
 class JustifyStepData

@@ -2702,6 +2702,10 @@ public:
   {
     return _value.buildModKey;
   }
+  Rc action()
+  {
+    return static_cast<Rc>(_value.action);
+  }
   BuildModData value()
   {
     return _value;
@@ -2712,6 +2716,7 @@ public:
   }
   BuildModMeta()
   {
+    _value.action = 0;
   }
   BuildModMeta(const BuildModMeta &rhs) : LeafMeta(rhs)
   {
@@ -2721,7 +2726,6 @@ public:
 //  virtual ~BuildModMeta() { }
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
-  void    pop() { pushed = 0; }
   virtual void doc(QStringList &out, QString preamble);
   virtual void metaKeywords(QStringList &out, QString preamble);
 };

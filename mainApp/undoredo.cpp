@@ -133,6 +133,8 @@ void Gui::undo()
       emit editWindow->triggerUndoSig();
       return;
   }
+  if (Preferences::buildModEnabled)
+    setUndoRedoBuildModAction();
   if (visualEditUndo) {
     lcView* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
@@ -155,6 +157,8 @@ void Gui::redo()
       emit editWindow->triggerRedoSig();
       return;
   }
+  if (Preferences::buildModEnabled)
+    setUndoRedoBuildModAction(false/*Undo*/);
   if (visualEditRedo) {
       lcView* ActiveView = GetActiveView();
       lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;

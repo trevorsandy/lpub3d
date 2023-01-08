@@ -907,6 +907,11 @@ public:
       return lpub->ldrawFile.getBuildModStepAction(here.modelName, here.lineNumber);
   }
 
+  QList<QVector<int> > getBuildModStepActions(const Where &here)
+  {
+      return lpub->ldrawFile.getBuildModStepActions(here.modelName, here.lineNumber);
+  }
+
   void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
   {
       lpub->ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
@@ -1033,9 +1038,9 @@ public:
       lpub->ldrawFile.deleteBuildMods(stepIndex);
   }
 
-  QString getBuildModChangeKey()
+  QString getBuildModificationKey()
   {
-      return buildModChangeKey;
+      return buildModificationKey;
   }
 
   QString getBuildModClearStepKey()
@@ -1049,10 +1054,12 @@ public:
 
   void enableVisualBuildModEditAction();
 
-  bool setBuildModChangeKey();
+  bool setBuildModificationKey(Rc key = OkRc);
 
   int setBuildModForNextStep(Where topOfNextStep,
                              Where topOfSubmodel = Where());
+
+  void setUndoRedoBuildModAction(bool Undo = true);
 
   /* End Build Modifications */
 
@@ -1628,7 +1635,7 @@ private:
   static bool            m_abort;                // set to true when response to critcal error is abort
 
   QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
-  QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
+  QString                buildModificationKey;   // populated at buildMod change and cleared at buildMod create
   QStringList            programEntries;      // list of 'open with' programs populated on startup
 
   bool                   mSetupFadeSteps;

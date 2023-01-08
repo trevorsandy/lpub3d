@@ -481,8 +481,9 @@ class LDrawFile {
                           const int       modAction);
     void setBuildModsCount(const QString &fileName, const int value = -1);
     int setBuildModRendered(const QString &buildModKey, const QString &renderedModel);
+    QList<QVector<int> > getBuildModStepActions(const QString &modelName, const int &lineNumber);
     int getBuildModStepAction(const int stepIndex);
-    int getBuildModStepAction(const QString &modelName, const int &lineNumber);
+    int getBuildModStepAction(const QString &modelName, const int &lineNumber);    
     int getBuildModStepIndex(const int modelIndex, const int lineNumber, bool indexCheck = false); // last application step index
     int getBuildModStepIndex(const QString &buildModKey);                 // creation step index
     int getBuildModStepLineNumber(int stepIndex, bool bottom);

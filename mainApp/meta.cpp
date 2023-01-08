@@ -4940,9 +4940,6 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
   QRegExp actionRx("^(BEGIN|END_MOD|END|APPLY|REMOVE)$");
   if (index + 1 == argv.size()) {
     if (argv[index].contains(actionRx)) {
-      _value.action = argv[index];
-      _here[0] = here;
-      _here[1] = here;
       if (argv[index] == "BEGIN")
         missingMeta = argv[index];
       else if (argv[index] == "END_MOD")
@@ -4953,14 +4950,13 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
         missingMeta = argv[index];
       else if (argv[index] == "REMOVE")
         missingMeta = argv[index];
+      _value.action = static_cast<int>(rc);
+      _here[0] = here;
+      _here[1] = here;
     }
   } else if (index + 2 == argv.size()) {
     QRegExp keyRx("^.*$",Qt::CaseInsensitive);
     if (argv[index].contains(actionRx) && argv[index + 1].contains(keyRx)) {
-      _value.action      = argv[index];
-      _value.buildModKey = argv[index + 1];
-      _here[0] = here;
-      _here[1] = here;
       if (argv[index] == "BEGIN")
         rc = BuildModBeginRc;
       else if (argv[index] == "END_MOD")
@@ -4971,6 +4967,10 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
         rc = BuildModApplyRc;
       else if (argv[index] == "REMOVE")
         rc = BuildModRemoveRc;
+      _value.action      = static_cast<int>(rc);
+      _value.buildModKey = argv[index + 1];
+      _here[0] = here;
+      _here[1] = here;
     }
   }
 
@@ -4987,7 +4987,27 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
 
 QString BuildModMeta::format(bool local, bool global)
 {
-  QString foo = _value.action;
+  QString foo;
+  switch(_value.action) {
+  case BuildModBeginRc:
+      foo = QLatin1String("BEGIN");
+      break;
+  case BuildModEndModRc:
+      foo = QLatin1String("END_MOD");
+      break;
+  case BuildModEndRc:
+      foo = QLatin1String("END");
+      break;
+  case BuildModApplyRc:
+      foo = QLatin1String("APPLY");
+      break;
+  case BuildModRemoveRc:
+      foo = QLatin1String("REMOVE");
+      break;
+  default:
+      break;
+  }
+
   if (!_value.buildModKey.isEmpty())
     foo += QString(" \"%1\"").arg(_value.buildModKey);
 
