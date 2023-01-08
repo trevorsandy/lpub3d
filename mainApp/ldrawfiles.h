@@ -501,6 +501,7 @@ class LDrawFile {
     int getBuildModStepKeyStepNum(const QString &buildModKey);
     int getBuildModStepKeyModelIndex(const QString &buildModKey);
     int getBuildModsCount(const QString &fileName);
+    int getBuildModFirstStepIndex();
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsCount();

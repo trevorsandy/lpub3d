@@ -4126,6 +4126,14 @@ bool LDrawFile::getBuildModStepIndexWhere(const int stepIndex, QString &modelNam
   return validIndex;
 }
 
+/* Returns the first step index that contains a build modification declaration */
+int LDrawFile::getBuildModFirstStepIndex()
+{
+    if (_buildMods.size())
+        return _buildMods.first()._modStepIndex;
+    return BM_INVALID_INDEX;
+}
+
 int LDrawFile::getBuildModPrevStepIndex()
 {
     return _buildModPrevStepIndex;

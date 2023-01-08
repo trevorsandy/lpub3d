@@ -2027,17 +2027,29 @@ void Gui::enableVisualBuildModActions()
     if (static_cast<Mt>(lcGetActiveProject()->GetImageType()) != CSI)
         return;
 
+    // count build mods declared at or before the current step
     int modCount = buildModsCount();
 
+    // get the current step index
+    int stepIndex = getBuildModStepIndex(lpub->currentStep->topOfStep());
+
+    // build mods declared at or before last step of current page
     bool haveMod = static_cast<bool>(modCount);
 
+    // check if number of declared build mods at or before current page is 1
     bool oneMod = modCount == 1;
 
     bool appliedMod = false, beginMod = false, removedMod = false;
 
     bool applyModDialogTitle = ApplyBuildModAct->text().endsWith("...");
 
+    // get the first build mod action of the current step
+    // TODO - this should be updated to get all step actions - e.g. apply, remove, begin
+    // Use bit-shifting to return single value
     Rc buildModStepAction = static_cast<Rc>(getBuildModStepAction(lpub->currentStep->topOfStep()));
+
+    // check if the earliest build mod was declared before or at the current step
+    haveMod &= lpub->ldrawFile.getBuildModFirstStepIndex() <= stepIndex;
 
     // determine current step
     switch (buildModStepAction)
@@ -2067,7 +2079,7 @@ void Gui::enableVisualBuildModActions()
         << LoadBuildModAct
         << DeleteBuildModAct;
 
-        Q_FOREACH(QAction* action, modActions) {
+        for(QAction* action : modActions) {
             QString text = action->text();
             if (oneMod && applyModDialogTitle)
                 text.chop(3);
@@ -2092,6 +2104,12 @@ void Gui::enableVisualBuildModActions()
         buildModActionText = tr("Delete Build Modification Action");
         buildModActionStatusTip = tr("Delete build modification action command from this step");
     }
+
+    if (!CreateBuildModAct->isEnabled() && !UpdateBuildModAct->isEnabled()) {
+        BuildModComboAct->setText(tr("Build Modification"));
+        BuildModComboAct->setStatusTip(tr("Create update or manage build modifications"));
+    }
+
     // for now we do not enable apply/remove actions if there is a beginMod
     // as we are not yet universally treating both action and buildMod in same step
     ApplyBuildModAct->setEnabled(         haveMod && !appliedMod && !removedMod && !beginMod);
