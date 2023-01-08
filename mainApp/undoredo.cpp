@@ -138,6 +138,8 @@ void Gui::undo()
     lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
     if (ActiveModel)
       ActiveModel->UndoAction();
+    clearVisualEditUndoRedoText();
+    enableVisualBuildModActions();
   } else {
     setBuildModClearStepKey(undoStack->undoText());
     macroNesting++;
@@ -158,6 +160,8 @@ void Gui::redo()
       lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
       if (ActiveModel)
           ActiveModel->RedoAction();
+      clearVisualEditUndoRedoText();
+      enableVisualBuildModActions();
   } else {
     setBuildModClearStepKey(undoStack->redoText());
     macroNesting++;

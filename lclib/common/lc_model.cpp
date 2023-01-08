@@ -4382,6 +4382,9 @@ void lcModel::UndoAction()
 
 	gMainWindow->UpdateModified(IsModified());
 	gMainWindow->UpdateUndoRedo(mUndoHistory.size() > 1 ? mUndoHistory[0]->Description : nullptr, !mRedoHistory.empty() ? mRedoHistory[0]->Description : nullptr);
+/*** LPub3D Mod - Update Default Camera ***/
+	gMainWindow->UpdateDefaultCameraProperties();
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::RedoAction()
@@ -4397,6 +4400,9 @@ void lcModel::RedoAction()
 
 	gMainWindow->UpdateModified(IsModified());
 	gMainWindow->UpdateUndoRedo(mUndoHistory.size() > 1 ? mUndoHistory[0]->Description : nullptr, !mRedoHistory.empty() ? mRedoHistory[0]->Description : nullptr);
+/*** LPub3D Mod - Update Default Camera ***/
+	gMainWindow->UpdateDefaultCameraProperties();
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::BeginMouseTool()

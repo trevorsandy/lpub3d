@@ -1958,7 +1958,7 @@ void Gui::enableVisualBuildModification()
         buildModEnabled &= !EnableRotstepRotateAct->isChecked();
 
     if (buildModEnabled) {
-        buildModEnabled /*&= (buildModsCount())*/ && !curFile.isEmpty();
+        buildModEnabled && !curFile.isEmpty();
         using namespace Options;
         switch (lcGetActiveProject()->GetImageType())
         {
@@ -1976,7 +1976,8 @@ void Gui::enableVisualBuildModification()
     EnableBuildModAct->setEnabled(Preferences::buildModEnabled);
     EnableBuildModAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
-    BuildModComboAct->setEnabled(buildModEnabled);
+
+    BuildModComboAct->setEnabled( false);
     CreateBuildModAct->setEnabled(false);
     UpdateBuildModAct->setEnabled(false);
 
@@ -2020,7 +2021,7 @@ void Gui::enableVisualBuildModification()
 
 void Gui::enableVisualBuildModActions()
 {
-    if (!lpub->currentStep || !BuildModComboAct->isEnabled() || !Preferences::modeGUI || exporting())
+    if (!lpub->currentStep || !Preferences::buildModEnabled || !Preferences::modeGUI || exporting())
         return;
 
     using namespace Options;
@@ -2068,17 +2069,16 @@ void Gui::enableVisualBuildModActions()
             break;
     }
 
+    QList<QAction*> modActions;
+    modActions
+    << ApplyBuildModAct
+    << RemoveBuildModAct
+    << DeleteBuildModActionAct
+    << LoadBuildModAct
+    << DeleteBuildModAct;
+
     // set action labels
     if (oneMod || !applyModDialogTitle) {
-
-        QList<QAction*> modActions;
-        modActions
-        << ApplyBuildModAct
-        << RemoveBuildModAct
-        << DeleteBuildModActionAct
-        << LoadBuildModAct
-        << DeleteBuildModAct;
-
         for(QAction* action : modActions) {
             QString text = action->text();
             if (oneMod && applyModDialogTitle)
@@ -2105,11 +2105,6 @@ void Gui::enableVisualBuildModActions()
         buildModActionStatusTip = tr("Delete build modification action command from this step");
     }
 
-    if (!CreateBuildModAct->isEnabled() && !UpdateBuildModAct->isEnabled()) {
-        BuildModComboAct->setText(tr("Build Modification"));
-        BuildModComboAct->setStatusTip(tr("Create update or manage build modifications"));
-    }
-
     // for now we do not enable apply/remove actions if there is a beginMod
     // as we are not yet universally treating both action and buildMod in same step
     ApplyBuildModAct->setEnabled(         haveMod && !appliedMod && !removedMod && !beginMod);
@@ -2119,6 +2114,18 @@ void Gui::enableVisualBuildModActions()
     DeleteBuildModActionAct->setEnabled(  buildModAction);
     DeleteBuildModActionAct->setText(     buildModActionText);
     DeleteBuildModActionAct->setStatusTip(buildModActionStatusTip);
+
+    bool buildModComboEnabled = false;
+    modActions
+    << CreateBuildModAct
+    << UpdateBuildModAct;
+    for(QAction* action : modActions)
+        buildModComboEnabled |= action->isEnabled();
+    BuildModComboAct->setEnabled(buildModComboEnabled);
+    if (!buildModComboEnabled) {
+        BuildModComboAct->setText(tr("Build Modification"));
+        BuildModComboAct->setStatusTip(tr("Create update or manage build modifications"));
+    }
 }
 
 void Gui::enableVisualBuildModEditAction()
@@ -2140,6 +2147,9 @@ void Gui::enableVisualBuildModEditAction()
         BuildModComboAct->setStatusTip(tr("Create a new build modification for this step"));
         CreateBuildModAct->setEnabled(buildModEnabled);
     }
+
+    if(UpdateBuildModAct->isEnabled() || CreateBuildModAct->isEnabled())
+        BuildModComboAct->setEnabled(buildModEnabled);
 }
 
 void Gui::showDefaultCameraProperties()
@@ -4338,6 +4348,8 @@ bool Gui::saveBuildModification()
     if (!VisualEditChangeTriggers.contains(visualEditUndoRedoText))
         return true;     // continue
 
+    clearVisualEditUndoRedoText();
+
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBox box;
     box.setWindowIcon(QIcon());
@@ -4346,11 +4358,11 @@ bool Gui::saveBuildModification()
     box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     QString title = setBuildModChangeKey()
-             ? tr("Save model changes to build modification <b>'%1'</b>?").arg(getBuildModChangeKey())
-             : tr("Save model changes as build modification?");
-    QString text = tr("Save changes as a build modification to this step?");
+             ? tr("Save build modification <b>'%1'</b> model changes to step %2 ?")
+                  .arg(getBuildModChangeKey()).arg(lpub->currentStep->stepNumber.number)
+             : tr("Save model changes as build modification to step %1 ?")
+                  .arg(lpub->currentStep->stepNumber.number);
     box.setText (title);
-    box.setInformativeText (text);
     box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     box.setDefaultButton   (QMessageBox::Cancel);
     switch (box.exec())
@@ -4390,6 +4402,10 @@ void Gui::clearBuildModRange()
 void Gui::clearVisualEditUndoRedoText()
 {
     visualEditUndoRedoText.clear();
+    if (Preferences::buildModEnabled) {
+        CreateBuildModAct->setEnabled(false);
+        UpdateBuildModAct->setEnabled(false);
+    }
 }
 
 /*********************************************
