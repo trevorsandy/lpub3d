@@ -3426,18 +3426,18 @@ void Gui::closeEvent(QCloseEvent *event)
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
 
-  writeSettings();
-
   emit requestEndThreadNowSig();
 
   if (parmsWindow->isVisible())
     parmsWindow->close();
 
   if (maybeSave() && saveBuildModification()) {
-      event->accept();
-    } else {
-      event->ignore();
-    }
+    event->accept();
+  } else {
+    event->ignore();
+  }
+
+  writeSettings();
 }
 
 void Gui::workerJobResult(int value){
@@ -3517,7 +3517,6 @@ void Gui::initialize()
 
   setCurrentFile("");
   updateOpenWithActions(); // also adds the system editor if defined
-  readSettings();
 
   // scene item z direction
   if (soMap.size() == 0) {
@@ -3567,6 +3566,8 @@ void Gui::initialize()
 
       lpub->loadPreferencesDialog();
   }
+
+  readSettings();
 }
 
 void Gui::getSubFileList()
@@ -7203,12 +7204,13 @@ void Gui::readSettings()
 
     readNativeSettings();
 
-    QString const MessagesNotShownKey("MessagesNotShown");
-    if (Settings.contains(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey))) {
-        QByteArray data = Settings.value(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey)).toByteArray();
+    Settings.beginGroup(MESSAGES);
+    QByteArray data = Settings.value("MessagesNotShown", QByteArray()).toByteArray();
+    if (!data.isEmpty()) {
         QDataStream dataStreamRead(data);
         dataStreamRead >> Preferences::messagesNotShown;
     }
+    Settings.endGroup();
 }
 
 void Gui::writeSettings()
@@ -7222,12 +7224,13 @@ void Gui::writeSettings()
 
     writeNativeSettings();
 
+    Settings.beginGroup(MESSAGES);
     QByteArray data;
     QDataStream dataStreamWrite(&data, QIODevice::WriteOnly);
     dataStreamWrite << Preferences::messagesNotShown;
     QVariant uValue(data);
-    QString const MessagesNotShownKey("MessagesNotShown");
-    Settings.setValue(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey),uValue);
+    Settings.setValue("MessagesNotShown",uValue);
+    Settings.endGroup();
 
     // remove tab layouts greater than 10 entries
     Settings.beginGroup(TABLAYOUTS);
