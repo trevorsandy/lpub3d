@@ -1925,8 +1925,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 #endif
 
     emit gui->progressPermSetValueSig(lineCount);
-    if (!stagedSubfiles.size())
+    if (!stagedSubfiles.size()) {
+        emit gui->progressPermMessageSig(QString());
         emit gui->progressPermStatusRemoveSig();
+    }
 
     emit gui->messageSig(LOG_NOTICE, QString("MPD file '%1' with %2 lines loaded.")
                          .arg(subfileName).arg(lineCount));
@@ -2392,8 +2394,10 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 #endif
 
         emit gui->progressPermSetValueSig(lineCount);
-        if (!stagedSubfiles.size())
+        if (!stagedSubfiles.size()) {
+            emit gui->progressPermMessageSig(QString());
             emit gui->progressPermStatusRemoveSig();
+        }
 
         emit gui->messageSig(LOG_NOTICE, QString("LDR file '%1' with %2 lines loaded.")
                              .arg(subfileName).arg(lineCount));
@@ -3083,6 +3087,7 @@ void LDrawFile::countParts(const QString &fileName) {
                                              .arg(_uniquePartCount == 1 ? QObject::tr("part") : QObject::tr("parts"))
                                              .arg(top.modelName));
     emit gui->progressPermSetValueSig(size(top.modelName));
+    emit gui->progressPermMessageSig(QString());
     emit gui->progressPermStatusRemoveSig();
 }
 
