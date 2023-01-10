@@ -5601,13 +5601,13 @@ PageMeta::PageMeta() : BranchMeta()
   authorFront.placement.setValue(BottomLeftOutside,PageTitleType);
   authorFront.type = PageAuthorType;
   authorFront.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
-  authorFront.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
+  authorFront.setValue(QObject::tr("Model instructions by %1").arg(Preferences::defaultAuthor));
 
   //model number of Parts text
   parts.placement.setValue(BottomLeftOutside,PageAuthorType);
   parts.type = PagePartsType;
   parts.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
-  parts.setValue(QString("%1 Parts").arg(QString::number(LDrawFile::_partCount)));
+  parts.setValue(QString("%1 %2").arg(QString::number(LDrawFile::_partCount)).arg(LDrawFile::_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts")));
 
   //model description text
   modelDesc.placement.setValue(BottomLeftOutside,PagePartsType);
@@ -5643,7 +5643,7 @@ PageMeta::PageMeta() : BranchMeta()
   copyright.placement.setValue(BottomLeftInsideCorner,PageType);
   copyright.type = PageCopyrightType;
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  copyright.setValue(Preferences::copyright + " by " + Preferences::defaultAuthor);
+  copyright.setValue(QObject::tr("%1 by %2").arg(Preferences::copyright).arg(Preferences::defaultAuthor));
 
   //publisher author text
   author.placement.setValue(LeftBottomOutside,PageNumberType);
@@ -5669,13 +5669,13 @@ PageMeta::PageMeta() : BranchMeta()
   authorBack.placement.setValue(BottomOutside,PageTitleType);
   authorBack.type = PageAuthorType;
   authorBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  authorBack.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
+  authorBack.setValue(QObject::tr("Model instructions by %1").arg(Preferences::defaultAuthor));
 
   //publisher copyrightBack text
   copyrightBack.placement.setValue(BottomOutside,PageAuthorType);
   copyrightBack.type = PageCopyrightType;
   copyrightBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  copyrightBack.setValue(Preferences::copyright + " by " + Preferences::defaultAuthor);
+  copyrightBack.setValue(QObject::tr("%1 by %2").arg(Preferences::copyright).arg(Preferences::defaultAuthor));
 
   //publisher urlBack text
   urlBack.placement.setValue(BottomOutside,PageCopyrightType);

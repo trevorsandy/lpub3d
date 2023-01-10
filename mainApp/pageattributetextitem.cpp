@@ -88,6 +88,9 @@ PageAttributeTextItem::PageAttributeTextItem(
 {
   page          = _page;
 
+  int partCount = 0;
+  bool partCountOk = true;
+
   QString       toolTip;
   QString       name;
   switch(_pageAttributeText.type)
@@ -122,19 +125,21 @@ PageAttributeTextItem::PageAttributeTextItem(
       break;
   case PageEmailType:
       name    = tr("Email");
-      toolTip = tr("Email - click to edit, right-click to modify");
+      toolTip = tr("Author Email - click to edit, right-click to modify");
       break;
   case PageDisclaimerType:
       name    = tr("LEGO Disclaimer");
-      toolTip = tr("Disclaimer - click to edit, right-click to modify");
+      toolTip = tr("LEGO Disclaimer - click to edit, right-click to modify");
       break;
   case PagePartsType:
-      name    = tr("Parts");
-      toolTip = tr("Parts - click to edit, right-click to modify");
+      partCount = _pageAttributeText.content.value().split(" ").first().toInt(&partCountOk);
+      partCountOk &= partCount == 1;
+      name    = partCountOk ? tr("Part") : tr("Parts");
+      toolTip = tr("Part count - click to edit, right-click to modify");
       break;
   case PagePlugType:
       name    = tr("Plug");
-      toolTip = tr("Plug - click to edit, right-click to modify");
+      toolTip = tr("%1 Plug - click to edit, right-click to modify").arg(VER_PRODUCTNAME_STR);
       break;
   case PageCategoryType:
       name    = tr("Category");
