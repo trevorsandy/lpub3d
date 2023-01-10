@@ -8397,7 +8397,7 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
         actionLabel = tr("Remove");
         break;
     case BM_CHANGE:
-        actionLabel = tr("Change");
+        actionLabel = tr("Edit");
         break;
     case BM_DELETE:
         actionLabel = tr("Delete");

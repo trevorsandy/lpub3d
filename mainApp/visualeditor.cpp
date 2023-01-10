@@ -2835,8 +2835,11 @@ void Gui::ReloadVisualEditor(){
                  box.setStandardButtons (QMessageBox::Abort | QMessageBox::Ignore);
                  box.setDefaultButton   (QMessageBox::Abort);
 
-                 if (box.exec() == QMessageBox::Abort)
+                 if (box.exec() == QMessageBox::Abort) {
+                     showLine(currentStep->topOfStep());
+                     progressPermStatusRemove();
                      return;
+                 }
              }
 
              // Process a step group
@@ -3610,17 +3613,17 @@ void Gui::ReloadVisualEditor(){
 
              Where modHere;
 
+             buildModData = currentStep->buildModMeta.value();
+
+             QString metaString;
+             buildModData.buildModKey = QString();
+
+             if (!Update)
+                 currentStep->buildModMeta.preamble = QLatin1String("0 !LPUB BUILD_MOD ");
+
+             beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
+
              if (BuildModPieces) {
-
-                 buildModData = currentStep->buildModMeta.value();
-
-                 QString metaString;
-                 buildModData.buildModKey = QString();
-
-                 if (!Update)
-                     currentStep->buildModMeta.preamble = QLatin1String("0 !LPUB BUILD_MOD ");
-
-                 beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
 
                  // Delete old BUILD_MOD END meta command
                  Where endMod = Where(ModelName, SaveModEndLineNum);
@@ -3665,8 +3668,6 @@ void Gui::ReloadVisualEditor(){
                  insertLine(modHere, metaString, nullptr);
 
                  clearWorkingFiles(getPathsFromViewerStepKey(lpub->viewerStepKey));
-
-                 endMacro();
              }
 
              // BuildMod attribute values are calculated in a top down manner
@@ -3721,14 +3722,17 @@ void Gui::ReloadVisualEditor(){
                  emit messageSig(LOG_DEBUG, message);
              }
 
+             endMacro();
+
              // Reset the build modification range
-             mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
+             clearBuildModRange();
 
          } // mBuildModRange || Update
 
          progressPermStatusRemove();
-//         enableVisualBuildModActions();
-         showLine(currentStep->topOfStep());
+
+         emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' created at step %1")
+                                             .arg(BuildModKey).arg(lpub->currentStep->stepNumber.number));
      }
  }
 
@@ -3752,7 +3756,7 @@ void Gui::applyBuildModification()
         buildModKeys = getBuildModsList();
     } else {
         BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
-        buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
+        buildModDialogGui->getBuildMod(buildModKeys, BuildModApplyRc);
     }
 
     if (buildModKeys.size())
@@ -3853,6 +3857,9 @@ void Gui::applyBuildModification()
         clearWorkingFiles(getPathsFromViewerStepKey(currentStep->viewerStepKey));
 
         endMacro();
+
+        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' applied at step %1")
+                                            .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -3876,7 +3883,7 @@ void Gui::removeBuildModification()
          buildModKeys = getBuildModsList();
      } else {
          BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
-         buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
+         buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
      }
 
      if (buildModKeys.size())
@@ -3978,6 +3985,9 @@ void Gui::removeBuildModification()
         clearWorkingFiles(getPathsFromViewerStepKey(currentStep->viewerStepKey));
 
         endMacro();
+
+        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' removed at step %1")
+                                            .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -3998,8 +4008,10 @@ void Gui::deleteBuildModificationAction()
     QString buildModKey = currentStep->buildModActionMeta.value().buildModKey;
 
     if (buildModKey.isEmpty()) {
-        buildModKey = getBuildModKey(currentStep->topOfStep());
-        if (buildModKey.isEmpty()) {
+        setBuildModificationKey(BuildModRemoveRc);
+        if (buildModificationKey.isEmpty())
+            setBuildModificationKey(BuildModApplyRc);
+        if (buildModificationKey.isEmpty()) {
             QStringList buildModKeys;
             if (buildModsCount() == 1) {
                 buildModKeys = getBuildModsList();
@@ -4009,6 +4021,9 @@ void Gui::deleteBuildModificationAction()
             }
             if (buildModKeys.size())
                 buildModKey = buildModKeys.first();
+        } else {
+            buildModKey = buildModificationKey;
+            buildModificationKey.clear();
         }
     }
 
@@ -4021,13 +4036,15 @@ void Gui::deleteBuildModificationAction()
     Rc buildModStepAction =  static_cast<Rc>(getBuildModStepAction(topOfStep));
 
     // determine current step action
-    QString macroString;
+    QString macroString, actionString;
     switch (buildModStepAction)
     {
         case BuildModApplyRc:
+            actionString = QLatin1String(BUILD_MOD_APPLY);
             macroString = QLatin1String("DeleteBuildModApplyAction|");
             break;
         case BuildModRemoveRc:
+            actionString = QLatin1String(BUILD_MOD_REMOVE);
             macroString = QLatin1String("DeleteBuildModRemoveAction|");
             break;
         case BuildModNoActionRc:
@@ -4087,6 +4104,9 @@ void Gui::deleteBuildModificationAction()
         clearWorkingFiles(getPathsFromViewerStepKey(currentStep->viewerStepKey));
 
         endMacro();
+
+        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' %2 action deleted at step %1")
+                                            .arg(buildModKey).arg(actionString.toLower()).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -4103,7 +4123,7 @@ void Gui::loadBuildModification()
         buildModKeys = getBuildModsList();
     } else {
         BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
-        buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
+        buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
     }
 
     if (buildModKeys.size())
@@ -4149,9 +4169,12 @@ void Gui::loadBuildModification()
 
         if (buildModDisplayPageNum && ! buildModStepKey.isEmpty()) {
 
+            int stepNumber = currentStep->stepNumber.number;
+
             if (buildModDisplayPageNum != displayPageNumber) {
                 cyclePageDisplay(buildModDisplayPageNum);
                 currentStep = lpub->currentStep;
+                stepNumber = currentStep->stepNumber.number;
             }
 
             bool setBuildModStep = currentStep && currentStep->viewerStepKey != buildModStepKey;
@@ -4164,11 +4187,15 @@ void Gui::loadBuildModification()
                         showLine(currentStep->topOfStep());
                         if (gMainWindow)
                             gMainWindow->UpdateDefaultCameraProperties();
+                        stepNumber = currentStep->stepNumber.number;
                     }
                 }
             }
 
             buildModificationKey = buildModKey;
+
+            emit messageSig(LOG_INFO_STATUS, tr("Step %1 with build modification '%1' loaded")
+                                                .arg(stepNumber).arg(buildModKey));
         }
     }
 }
@@ -4183,7 +4210,7 @@ void Gui::setUndoRedoBuildModAction(bool Undo)
         int buildModStepIndex = getBuildModStepIndex(lpub->currentStep->topOfStep());
         setBuildModificationKey(buildModAction);
         if (!buildModificationKey.isEmpty()) {
-            Rc undoRedoBuildModAction = buildModAction == BuildModRemoveRc ? BuildModApplyRc : BuildModApplyRc;
+            Rc undoRedoBuildModAction = buildModAction == BuildModRemoveRc ? BuildModApplyRc : BuildModRemoveRc;
             setBuildModAction(buildModificationKey, buildModStepIndex, undoRedoBuildModAction);
             buildModificationKey.clear();
         }
@@ -4294,8 +4321,8 @@ void Gui::deleteBuildModification()
     QString buildModKey = currentStep->buildModMeta.value().buildModKey;
 
     if (buildModKey.isEmpty()) {
-        buildModKey = getBuildModKey(currentStep->topOfStep());
-        if (buildModKey.isEmpty()) {
+        setBuildModificationKey(BuildModBeginRc);
+        if (buildModificationKey.isEmpty()) {
             QStringList buildModKeys;
             if (buildModsCount() == 1) {
                 buildModKeys = getBuildModsList();
@@ -4305,6 +4332,9 @@ void Gui::deleteBuildModification()
             }
             if (buildModKeys.size())
                 buildModKey = buildModKeys.first();
+        } else {
+            buildModKey = buildModificationKey;
+            buildModificationKey.clear();
         }
     }
 
@@ -4464,9 +4494,17 @@ void Gui::deleteBuildModification()
 
         // delete BuildMod
         if (!deleteBuildMod(buildModKey))
-            emit messageSig(LOG_ERROR,tr("Failed to delete build modification for key %1.").arg(buildModKey));
+            emit messageSig(LOG_ERROR,tr("Failed to delete build modification '%1'.").arg(buildModKey));
+
+        if (Gui::abortProcess()) {
+            showLine(currentStep->topOfStep());
+            return;
+        }
 
         endMacro();
+
+        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' deleted at step %2.")
+                                            .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -4539,7 +4577,7 @@ bool Gui::saveBuildModification()
 
 void Gui::clearBuildModRange()
 {
-    mBuildModRange = { 0, 0, -1 };
+    mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
 }
 
 /*********************************************
