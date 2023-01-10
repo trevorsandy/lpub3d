@@ -28,16 +28,16 @@ LeoCAD 21.06 commit 22d4d2c
 https://github.com/leozide/leocad
 Leonardo Zide <leozide@gmail.com>
 
-LDGlite 1.3.4 commit 492071
+LDGlite 1.3.4 commit 00fef0e7
 https://github.com/deeice/ldglite
 Don Heyse <dheyse@hotmail.com>
 
-LDView 4.4 commit fb24648
+LDView 4.4 commit 6d8e2177
 https://github.com/tcobbs/ldview
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
 
-POV-Ray 3.8 commit 74b3ebe
+POV-Ray 3.8 commit 588ba80c
 https://github.com/POV-Ray/povray
 Persistence of Vision Raytracer Pty. Ltd.
 
