@@ -52,6 +52,22 @@
 
 #include "lc_previewwidget.h"
 
+QList<QRegExp> LDrawFile::_fileRegExp;
+QList<QRegExp> LDrawHeaderRegExp;
+QList<QRegExp> LDrawUnofficialPartRegExp;
+QList<QRegExp> LDrawUnofficialSubPartRegExp;
+QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
+QList<QRegExp> LDrawUnofficialShortcutRegExp;
+const QString LDrawUnofficialType[UNOFFICIAL_NUM] =
+{
+    QLatin1String("Unofficial Submodel"),  // UNOFFICIAL_SUBMODEL
+    QLatin1String("Unofficial Part"),      // UNOFFICIAL_PART
+    QLatin1String("Unofficial Subpart"),   // UNOFFICIAL_SUBPART
+    QLatin1String("Unofficial Primitive"), // UNOFFICIAL_PRIMITIVE
+    QLatin1String("Unofficial Shortcut"),  // UNOFFICIAL_SHORTUCT
+    QLatin1String("Unofficial Other File") // UNOFFICIAL_OTHER
+};
+
 /********************************************
  *
  * routines for nested levels
@@ -366,7 +382,39 @@ void LDrawFile::insertConfiguredSubFile(const QString &mcFileName,
   _configuredSubFiles.insert(fileName,subFile);
 }
 
-/* return the number of lines in the file */
+/* return the number of lines in the loaded model file */
+
+int LDrawFile::loadedLines()
+{
+  int lines = 0;
+  for (int i = 0; i < _subFileOrder.size(); i++) {
+    QString subFileName = _subFileOrder[i];
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
+
+    if (f != _subFiles.end() && ! f.value()._generated) {
+      lines += f.value()._contents.size();
+    }
+  }
+  return lines;
+}
+
+/* return the number of steps in the loaded model file */
+
+int LDrawFile::loadedSteps()
+{
+  int steps = 0;
+  for (int i = 0; i < _subFileOrder.size(); i++) {
+    QString subFileName = _subFileOrder[i];
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
+
+    if (f != _subFiles.end() && ! f.value()._generated) {
+      steps += f.value()._numSteps;
+    }
+  }
+  return steps;
+}
+
+/* return the number of lines in the subfile */
 
 int LDrawFile::size(const QString &mcFileName)
 {
@@ -1321,7 +1369,7 @@ int LDrawFile::loadFile(const QString &fileName)
             int upc  = _uniquePartCount;
             bool delta = apc != vpc;
 
-            _loadedParts << QObject::tr("Loaded LDraw %1 model file <b>%2</b>.%3%4%5%6%7%8%9%10%11%12%13%14%15")
+            _loadedParts << QObject::tr("Loaded LDraw %1 model file <b>%2</b>.%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18")
                                /* 01 */ .arg(type == MPD_FILE ? "<b>MPD</b>" : "<b>LDR</b>")
                                /* 02 */ .arg(fileInfo.fileName())
                                /* 03 */ .arg(delta ? QObject::tr("<br>Parts count:            <b>%1</b>").arg(apc) : "")
@@ -1336,16 +1384,19 @@ int LDrawFile::loadFile(const QString &fileName)
                                /* 11 */ .arg(ispc  ? QObject::tr("<br>Inline subparts:        <b>%1</b>").arg(ispc) : "")
                                /* 12 */ .arg(ppc   ? QObject::tr("<br>Primitive parts:        <b>%1</b>").arg(ppc)  : "")
                                /* 13 */ .arg(spc   ? QObject::tr("<br>Subparts:               <b>%1</b>").arg(spc)  : "")
-                               /* 14 */ .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
-                               /* 15 */ .arg(mpc   ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
+                               /* 14 */ .arg(        QObject::tr("<br>Loaded steps:           <b>%1</b>").arg(loadedSteps()))
+                               /* 15 */ .arg(        QObject::tr("<br>Loaded subfiles:        <b>%1</b>").arg(_subFileOrder.size()))
+                               /* 16 */ .arg(        QObject::tr("<br>Loaded lines:           <b>%1</b>").arg(loadedLines()))
+                               /* 17 */ .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
+                               /* 18 */ .arg(mpc   ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
                                                                  "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
                                                                  "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
                                                                  .arg(mpc > 1 ? QObject::tr("parts") : QObject::tr("part"))          /* 01 */
-                                                                 .arg(mpc > 1 ? QObject::tr("were") : QObject::tr("was"))            /* 02 */
+                                                                 .arg(mpc > 1 ? QObject::tr("were") :  QObject::tr("was"))           /* 02 */
                                                                  .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)                                 /* 03 */
                                                                  .arg(VER_LDRAW_OFFICIAL_ARCHIVE)                                    /* 04 */
                                                                  .arg(mpc > 1 ? QObject::tr("these are") : QObject::tr("this is a")) /* 05 */
-                                                                 .arg(mpc > 1 ? QObject::tr("their") : QObject::tr("its")) : "");    /* 07 */
+                                                                 .arg(mpc > 1 ? QObject::tr("their") :     QObject::tr("its")) : "");/* 07 */
 
             int response = LdrawFilesLoad::showLoadMessages(_loadedParts);
             if (response == QDialog::Rejected) {
@@ -1495,19 +1546,27 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         return NoneMissing;
     };
 
-    std::function<QString()> fileType;
-    fileType = [this] ()
+    auto fileType = [&,this] (int isUnofficial = 0)
     {
-        return topLevelModel ? "model" : unofficialPart ? "unofficial part" : hdrFILENotFound ? "subfile" : "submodel";
+        if (isUnofficial)
+            return LDrawUnofficialType[unofficialPart];
+        else
+            return topLevelModel
+                    ? QObject::tr("model")
+                    : unofficialPart
+                      ? LDrawUnofficialType[unofficialPart]
+                        : hdrFILENotFound
+                        ? QObject::tr("subfile")
+                        : QObject::tr("submodel");
     };
 
     QFileInfo   fileInfo(fileName);
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QString("Cannot read mpd file %1<br>%2")
-                             .arg(fileName)
-                             .arg(file.errorString()));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read mpd file %1<br>%2")
+                                                    .arg(fileName)
+                                                    .arg(file.errorString()));
         return;
     }
 
@@ -1573,7 +1632,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     else
         emit gui->progressBarPermReset();
     emit gui->progressPermRangeSig(1, lineCount);
-    emit gui->progressPermMessageSig(QString("Loading %1 '%2'").arg(fileType()).arg( fileInfo.fileName()));
+    emit gui->progressPermMessageSig(QObject::tr("Loading MPD subfile '%1'...").arg( fileInfo.fileName()));
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1").arg(lineCount));
@@ -1592,11 +1651,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
         bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
-
-#ifdef QT_DEBUG_MODE
-        if (sof || eof)
-            smLine = smLine;
-#endif
 
         // load LDCad groups
         if (!ldcadGroupsLoaded) {
@@ -1671,6 +1725,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     }
                 }
 
+                if (unofficialPart == UNOFFICIAL_UNKNOWN) {
+                    unofficialPart = getUnofficialFileType(smLine);
+                    if (unofficialPart) {
+                        emit gui->messageSig(LOG_TRACE, QObject::tr("Subfile '%1' spcified as %2.")
+                                                                    .arg(subfileName).arg(fileType()));
+                    }
+                }
+
                 // One time populate model category (not used)
                 if (hdrCategNotFound) {
                     if (smLine.contains(_fileRegExp[CAT_RX])) {
@@ -1693,7 +1755,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         } // modelHeaderFinished
 
         if ((alreadyLoaded = LDrawFile::contains(subfileName))) {
-            emit gui->messageSig(LOG_TRACE, QString("MPD " + fileType() + " '" + subfileName + "' already loaded."));
+            emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
             subfileIndx = stagedSubfiles.indexOf(subfileName);
             if (subfileIndx > NOT_FOUND)
                 stagedSubfiles.removeAt(subfileIndx);
@@ -1721,16 +1783,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 }
                 if (! partHeaderFinished && unofficialPart == UNOFFICIAL_UNKNOWN) {
                     unofficialPart = getUnofficialFileType(smLine);
-                    if (unofficialPart)
-                        emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' spcified as Unofficial Part.");
+                    if (unofficialPart) {
+                        emit gui->messageSig(LOG_TRACE, QObject::tr("Inline file '%1' spcified as %2.")
+                                                                    .arg(subfileName).arg(fileType()));
+                    }
                 }
             }
         }
-
-#ifdef QT_DEBUG_MODE
-        if (sosf || eosf)
-            smLine = smLine;
-#endif
 
         /* - if at start of file marker, populate subfileName
          * - if at end of file marker, clear subfileName
@@ -1753,10 +1812,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     if (contents.size()) {
                         if ((headerMissing = MissingHeader(missingHeaders())))
                             normalizeHeader(subfileName, headerMissing);
-                        emit gui->messageSig(LOG_NOTICE, QString("MPD " + fileType() + " '" + subfileName + "' with " +
-                                                                QString::number(size(subfileName)) + " lines loaded."));
+                        emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
+                                                                     .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
                     }
                     topLevelModel = false;
+                    unofficialPart = UNOFFICIAL_UNKNOWN;
                 }
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
@@ -1784,7 +1844,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     contents << smLine;
                 }
                 if (! alreadyLoaded) {
-                    emit gui->messageSig(LOG_INFO_STATUS, "Loading MPD " + fileType() + " '" + subfileName + "'...");
+                    emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading MPD subfile '%1'...").arg(subfileName));
                 }
             } else if (eof || eosf) {
                 /* - at the end of submodel file or inline part
@@ -1821,7 +1881,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     // at end of file - NOFILE tag not specified
     if ( ! subfileName.isEmpty() && ! contents.isEmpty()) {
         if (LDrawFile::contains(subfileName)) {
-            emit gui->messageSig(LOG_TRACE, QString("MPD " + fileType() + " '" + subfileName + "' already loaded."));
+            emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded").arg(fileType()).arg(subfileName));
         } else {
             insert(subfileName,
                    contents,
@@ -1834,8 +1894,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             if (contents.size()) {
                 if ((headerMissing = MissingHeader(missingHeaders())))
                     normalizeHeader(subfileName, headerMissing);
-                emit gui->messageSig(LOG_NOTICE, QString("MPD " + fileType() + " '" + subfileName + "' with " +
-                                                        QString::number(size(subfileName)) + " lines loaded."));
+                emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
+                                                             .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
             }
         }
 
@@ -1849,19 +1909,20 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     // resolve outstanding subfiles
     if (stagedSubfiles.size()) {
         stagedSubfiles.removeDuplicates();
+
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("%1 unresolved staged %2 specified.")
-                             .arg(stagedSubfiles.size()).arg(stagedSubfiles.size() == 1 ? "subfile" : "subfiles"));
+                                                .arg(stagedSubfiles.size()).arg(stagedSubfiles.size() == 1 ? "subfile" : "subfiles"));
 #endif
         QString projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
 
-        for (QString subfile : stagedSubfiles) {
+        for (const QString &subfile : stagedSubfiles) {
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_DEBUG, QString("Processing staged subfile '%1'...").arg(subfile));
 #endif
             if (LDrawFile::contains(subfile)) {
-                QString label = isUnofficialPart(subfile) ? "Unofficial part" : "submodel";
-                emit gui->messageSig(LOG_TRACE, QString("MPD %1 '%2' already loaded.").arg(label).arg(subfile));
+                QString subfileType = fileType(isUnofficialPart(subfile));
+                emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded.").arg(subfileType).arg(subfile));
                 continue;
             }
             // current path
@@ -1883,14 +1944,33 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 }
             }
 
+            bool externalSubfile = true;
             if (!subfileFound) {
-                emit gui->messageSig(LOG_NOTICE, QString("Staged subfile '%1' not found.").arg(subfile));
-            } else {
+                QString partFile = subfile.toUpper();
+                if (partFile.startsWith("S\\"))
+                    partFile.replace("S\\","S/");
+                PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
+                if ((subfileFound = pieceInfo) && pieceInfo->IsPartType()) {
+                    emit gui->messageSig(LOG_NOTICE, QObject::tr("Staged subfile '%1' is a part.").arg(subfile));
+                } else
+                if ((subfileFound = lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData()))) {
+                    lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
+                    if (Primitive) {
+                        emit gui->messageSig(LOG_NOTICE, QObject::tr("Staged subfile '%1' is a %2.")
+                                                                     .arg(subfile).arg(Primitive->mSubFile ? QObject::tr("subpart") : QObject::tr("primitive")));
+                    }
+                }
+                externalSubfile = !subfileFound;
+            }
+
+            if (!subfileFound) {
+                emit gui->messageSig(LOG_NOTICE, QObject::tr("Staged subfile '%1' not found.").arg(subfile));
+            } else if (externalSubfile) {
+                emit gui->messageSig(LOG_NOTICE, QObject::tr("External subfile '%1' found.").arg(subfile));
+
                 bool savedTopLevelModel  = topLevelModel;
                 bool savedUnofficialPart = unofficialPart;
                 topLevelModel            = false;
-
-                emit gui->messageSig(LOG_NOTICE, QString("External subfile '%1' found.").arg(subfile));
 
                 loadMPDFile(fileInfo.absoluteFilePath(), true/*external*/);
 
@@ -1930,8 +2010,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         emit gui->progressPermStatusRemoveSig();
     }
 
-    emit gui->messageSig(LOG_NOTICE, QString("MPD file '%1' with %2 lines loaded.")
-                         .arg(subfileName).arg(lineCount));
+    emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD file '%1' with %2 lines loaded.")
+                                                 .arg(subfileName).arg(lineCount));
 }
 
 void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bool externalFile)
@@ -1950,10 +2030,16 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         return NoneMissing;
     };
 
-    std::function<QString()> fileType;
-    fileType = [this] ()
+    auto fileType = [&,this] (int isUnofficial = 0)
     {
-        return topLevelModel ? "model" : unofficialPart ? "unofficial part" : "subfile";
+        if (isUnofficial)
+            return LDrawUnofficialType[unofficialPart];
+        else
+            return topLevelModel
+                    ? QObject::tr("model")
+                    : unofficialPart
+                      ? LDrawUnofficialType[unofficialPart]
+                      : QObject::tr("subfile");
     };
 
     QString fullName;
@@ -1968,9 +2054,9 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
         QFile file(fullName);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            emit gui->messageSig(LOG_ERROR,QString("Cannot read ldr file %1<br>%2")
-                                 .arg(fullName)
-                                 .arg(file.errorString()));
+            emit gui->messageSig(LOG_ERROR,QObject::tr("Cannot read ldr file %1<br>%2")
+                                                       .arg(fullName)
+                                                       .arg(file.errorString()));
             return;
         }
 
@@ -2045,7 +2131,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         else
             emit gui->progressBarPermReset();
         emit gui->progressPermRangeSig(1, lineCount);
-        emit gui->progressPermMessageSig(QString("Loading LDR %1 '%2'...").arg(fileType()).arg(fileInfo.fileName()));
+        emit gui->progressPermMessageSig(QString("Loading LDR subfile '%1'...").arg(fileInfo.fileName()));
 
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1").arg(lineCount));
@@ -2076,8 +2162,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     const QString &lastLine = contents.last();
                     if (lastLine.contains(_fileRegExp[DES_RX])) {
                         _description = contents.takeLast(); // for inline files
-                        //qDebug() << qPrintable(QString("DEBUG: LAST_LINE Model [%1] Description: [%2] Line: [%3]")
-                        //                       .arg(subfileName).arg(_description).arg(smLine));
                     }
                 } else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
                     contents << smLine;                     // for external files
@@ -2125,6 +2209,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                     stagedSubfiles.append(subFile);
                 }
+                // determine if helper part
                 if (helperPartsNotFound) {
                     if (ExcludedParts::isExcludedHelperPart(subFile)) {
                         helperPartsNotFound = false;
@@ -2149,8 +2234,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                             hdrDescNotFound = false;
                         } else
                             _description = QFileInfo(subfileName).completeBaseName();
-                        //qDebug() << qPrintable(QString("DEBUG: DESC_LINE Model [%1] Description: [%2] Line: [%3]")
-                        //                       .arg(subfileName).arg(_description).arg(smLine));
                     }
 
                     if (hdrNameNotFound) {
@@ -2171,6 +2254,14 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                         }
                     }
 
+                    if (unofficialPart == UNOFFICIAL_UNKNOWN) {
+                        unofficialPart = getUnofficialFileType(smLine);
+                        if (unofficialPart) {
+                            emit gui->messageSig(LOG_TRACE, QObject::tr("Subfile '%1' spcified as %2.")
+                                                                        .arg(subfileName).arg(fileType()));
+                        }
+                    }
+
                     // One time populate model category
                     if (hdrCategNotFound) {
                         if (smLine.contains(_fileRegExp[CAT_RX])) {
@@ -2178,12 +2269,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                                 _category = _fileRegExp[CAT_RX].cap(1);
                             hdrCategNotFound = false;
                         }
-                    }
-
-                    if (! unofficialPart) {
-                        unofficialPart = getUnofficialFileType(smLine);
-                        if (unofficialPart)
-                            emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' specified as Unofficial Part.");
                     }
 
                     // Check for include file
@@ -2199,13 +2284,13 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             } // topHeaderFinished
 
             if ((alreadyLoaded = LDrawFile::contains(subfileName))) {
-                emit gui->messageSig(LOG_TRACE, QString("LDR " + fileType() + " '" + subfileName + "' already loaded."));
+                emit gui->messageSig(LOG_TRACE, QString("LDR %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
                     stagedSubfiles.removeAt(subfileIndx);
             }
 
-            // processing unofficialPart flag for inlined parts
+            // processing inlined parts
             if (! topLevelModel && ! hdrNameNotFound) {
                 if (hdrAuthorNotFound) {
                     if (smLine.contains(_fileRegExp[AUT_RX]))
@@ -2213,8 +2298,10 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 }
                 if (! partHeaderFinished && unofficialPart == UNOFFICIAL_UNKNOWN) {
                     unofficialPart = getUnofficialFileType(smLine);
-                    if (unofficialPart)
-                        emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' spcified as Unofficial Part.");
+                    if (unofficialPart) {
+                        emit gui->messageSig(LOG_TRACE, QObject::tr("Inline file '%1' spcified as %2.")
+                                                                    .arg(subfileName).arg(fileType()));
+                    }
                 }
             }
 
@@ -2239,10 +2326,11 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                         if (contents.size()) {
                             if ((headerMissing = MissingHeader(missingHeaders())))
                                 normalizeHeader(subfileName, headerMissing);
-                            emit gui->messageSig(LOG_NOTICE, QString("LDR %1 '%2' with %3 lines loaded.")
-                                                 .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
+                            emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
+                                                                         .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
                         }
                         topLevelModel = false;
+                        unofficialPart = UNOFFICIAL_UNKNOWN;
                     }
                     subfileIndx = stagedSubfiles.indexOf(subfileName);
                     if (subfileIndx > NOT_FOUND)
@@ -2262,7 +2350,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     contents << smLine;
                     if (! alreadyLoaded) {
-                        emit gui->messageSig(LOG_INFO_STATUS, QString("Loading LDR %1 '%2'...").arg(fileType()).arg(subfileName));
+                        emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading LDR '%1'...").arg(subfileName));
                     }
                 } else if (eosf) {
                     /* - at the end of inline part
@@ -2294,7 +2382,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         // at end of file
         if ( ! subfileName.isEmpty() && ! contents.isEmpty()) {
             if (LDrawFile::contains(subfileName)) {
-                emit gui->messageSig(LOG_TRACE, QString("LDR %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
+                emit gui->messageSig(LOG_TRACE, QObject::tr("LDR %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
             } else {
                 insert(subfileName,
                        contents,
@@ -2307,8 +2395,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if (contents.size()) {
                     if ((headerMissing = MissingHeader(missingHeaders())))
                         normalizeHeader(subfileName, headerMissing);
-                    emit gui->messageSig(LOG_NOTICE, QString("LDR  %1 '%2' with %3 lines loaded.")
-                                         .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
+                    emit gui->messageSig(LOG_NOTICE, QObject::tr("LDR  %1 '%2' with %3 lines loaded.")
+                                                                 .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
                 }
             }
 
@@ -2322,9 +2410,10 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         // resolve outstanding subfiles
         if (stagedSubfiles.size()) {
             stagedSubfiles.removeDuplicates();
+
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_DEBUG, QString("%1 unresolved staged %2 specified.")
-                                 .arg(stagedSubfiles.size()).arg(stagedSubfiles.size() == 1 ? "subfile" : "subfiles"));
+                                                    .arg(stagedSubfiles.size()).arg(stagedSubfiles.size() == 1 ? "subfile" : "subfiles"));
 #endif
             QString projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
 
@@ -2333,8 +2422,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 emit gui->messageSig(LOG_DEBUG, QString("Processing staged subfile '%1'...").arg(subfile));
 #endif
                 if (LDrawFile::contains(subfile)) {
-                    QString label = isUnofficialPart(subfile) ? "Unofficial part" : "submodel";
-                    emit gui->messageSig(LOG_TRACE, QString("LDR %1 '%2' already loaded.").arg(label).arg(subfile));
+                    QString subfileType = fileType(isUnofficialPart(subfile));
+                    emit gui->messageSig(LOG_TRACE, QObject::tr("LDR %1 '%2' already loaded.").arg(subfileType).arg(subfile));
                     continue;
                 }
                 // current path
@@ -2356,14 +2445,33 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     }
                 }
 
+                bool externalSubfile = true;
                 if (!subfileFound) {
-                    emit gui->messageSig(LOG_NOTICE, QString("Staged subfile '%1' not found.").arg(subfile));
+                    QString partFile = subfile.toUpper();
+                    if (partFile.startsWith("S\\"))
+                        partFile.replace("S\\","S/");
+                    PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
+                    if ((subfileFound = pieceInfo) && pieceInfo->IsPartType()) {
+                        emit gui->messageSig(LOG_NOTICE, QObject::tr("Staged subfile '%1' is a part.").arg(subfile));
+                    } else
+                    if ((subfileFound = lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData()))) {
+                        lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
+                        if (Primitive) {
+                            emit gui->messageSig(LOG_NOTICE, QObject::tr("Staged subfile '%1' is a %2.")
+                                                 .arg(subfile).arg(Primitive->mSubFile ? QObject::tr("subpart") : QObject::tr("primitive")));
+                        }
+                    }
+                    externalSubfile = !subfileFound;
+                }
+
+                if (!subfileFound) {
+                    emit gui->messageSig(LOG_NOTICE, QObject::tr("Staged subfile '%1' not found.").arg(subfile));
                 } else {
                     bool savedTopLevelModel  = topLevelModel;
                     bool savedUnofficialPart = unofficialPart;
                     topLevelModel            = false;
 
-                    emit gui->messageSig(LOG_NOTICE, QString("External subfile '%1' found.").arg(subfile));
+                    emit gui->messageSig(LOG_NOTICE, QObject::tr("External subfile '%1' found.").arg(subfile));
 
                     loadLDRFile(fileInfo.absoluteFilePath(), QString(), true/*external*/);
 
@@ -2399,8 +2507,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             emit gui->progressPermStatusRemoveSig();
         }
 
-        emit gui->messageSig(LOG_NOTICE, QString("LDR file '%1' with %2 lines loaded.")
-                             .arg(subfileName).arg(lineCount));
+        emit gui->messageSig(LOG_NOTICE, QObject::tr("LDR file '%1' with %2 lines loaded.")
+                                                     .arg(subfileName).arg(lineCount));
     }
 }
 
@@ -2920,14 +3028,25 @@ void LDrawFile::countParts(const QString &fileName) {
     emit gui->progressPermRangeSig(1, size(top.modelName));
     emit gui->progressPermMessageSig("Counting parts for " + top.modelName + "...");
 
-    auto setStatusEntry = [&] (const QString &statusEntry, const QString &statusMessage = "", bool uniqueCount = false)
+    auto setStatusEntry = [&] (
+            const QString &statusEntry,
+            const QString &type,
+            const QString &statusMessage = "",
+            bool uniqueCount = false)
     {
         if (!_loadedParts.contains(statusEntry)) {
             if (uniqueCount)
                 _uniquePartCount++;
             else
                 _loadedParts.append(statusEntry);
-            emit gui->messageSig(LOG_NOTICE, statusMessage);
+            QString message;
+            if (statusMessage.endsWith(" validated."))
+                message = statusMessage.arg(_uniquePartCount).arg(type);
+            else if (statusMessage.endsWith(" archives."))
+                message = statusMessage.arg(type).arg(VER_PRODUCTNAME_STR);
+            else
+                message = statusMessage.arg(type);
+            emit gui->messageSig(LOG_NOTICE, message);
         }
         if (uniqueCount)
             _loadedParts.append(statusEntry);
@@ -3004,73 +3123,84 @@ void LDrawFile::countParts(const QString &fileName) {
                 else if (isSubstitute(line, type))
                     countThisLine = !type.isEmpty();
 
-#ifdef QT_DEBUG_MODE
-                if (type == "rect.dat") {
-                    int stopHere = 1;
-                    Q_UNUSED(stopHere)
-                }
-#endif
-
                 bool partIncluded = !ExcludedParts::isExcludedPart(type);
 
                 if (countThisLine && lineIncluded && partIncluded) {
                     QString statusEntry;
                     if (contains(type)) {
-                        const QString name = QFileInfo(type).baseName();
+                        QString description = QFileInfo(type).baseName();
                         LDrawUnofficialFileType subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
-                            statusEntry = QObject::tr("%1|%2|Submodel %3 with %4 lines")
-                                                      .arg(_mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBMODEL_LOAD_MSG).arg(type).arg(name).arg(size(type));
-                            setStatusEntry(statusEntry, QObject::tr("Model [%1] is a SUBMODEL").arg(type));
+                            statusEntry = QObject::tr("%1|%2|Submodel: %3 with %4 lines")
+                                                      .arg(_mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBMODEL_LOAD_MSG).arg(type).arg(description).arg(size(type));
+                            setStatusEntry(statusEntry, type, QObject::tr("Model [%1] is a SUBMODEL"));
                             Where top(type, getSubmodelIndex(type), 0);
                             countModelParts(top);
                         } else {
-                            switch(subFileType){
+                            QString partFile = type.toUpper();
+                            if (partFile.startsWith("S\\"))
+                                partFile.replace("S\\","S/");
+                            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
+                            if (pieceInfo && pieceInfo->IsPartType()) {
+                                description = pieceInfo->m_strDescription;
+                            } else
+                            if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
+                                lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
+                                description = Primitive->mName;
+                            }
+                            switch(subFileType) {
                             case UNOFFICIAL_PART:
+                            case UNOFFICIAL_SHORTCUT:
                                 _partCount++;modelPartCount++;
-                                statusEntry = QObject::tr("%1|%2|Inline Part %3").arg(VALID_LOAD_MSG).arg(type).arg(name);
-                                setStatusEntry(statusEntry, QObject::tr("Part %1 [Inline %2] validated.").arg(_uniquePartCount).arg(type),true/*unique count*/);
-                                statusEntry = QObject::tr("%1|%2|Inline Part").arg(INLINE_PART_LOAD_MSG).arg(type);
-                                setStatusEntry(statusEntry, QObject::tr("Part %1 [%2] is an INLINE PART.").arg(_uniquePartCount).arg(type));
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(INLINE_PART_LOAD_MSG).arg(type).arg(description);
+                                setStatusEntry(statusEntry, type, QObject::tr("Part %1 is an INLINE PART."));
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(VALID_LOAD_MSG).arg(type).arg(description);
+                                setStatusEntry(statusEntry, type, QObject::tr("Part %1 [Inline %2] validated."),true/*unique count*/);
                                 break;
                             case UNOFFICIAL_SUBPART:
-                                statusEntry = QObject::tr("%1|%2|Inline Subpart %3").arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(name);
-                                setStatusEntry(statusEntry, QObject::tr("Part [%1] is a INLINE SUBPART").arg(type));
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(description);
+                                setStatusEntry(statusEntry, type, QObject::tr("Part [%1] is a INLINE SUBPART"));
                                 break;
+                            /* Add these primitives into the load status dialogue because they are loaded in the LDrawFile.subfiles */
                             case UNOFFICIAL_PRIMITIVE:
-                                statusEntry = QObject::tr("%1|%2|Inline Primitive %3").arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(name);
-                                setStatusEntry(statusEntry, QObject::tr("Part [%1] is a INLINE PRIMITIVE").arg(type));
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(description);
+                                setStatusEntry(statusEntry, type, QObject::tr("Part [%1] is a INLINE PRIMITIVE"));
                                 break;
                             default:
                                 break;
                             }
+                            Where top(type, getSubmodelIndex(type), 0);
+                            countModelParts(top);
                         }
                     } else {
-                        const QString name = QFileInfo(type).baseName();
                         QString partFile = type.toUpper();
                         if (partFile.startsWith("S\\"))
                             partFile.replace("S\\","S/");
                         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
-                        if (pieceInfo) {
-                            if (pieceInfo->IsPartType()) {
-                                _partCount++;modelPartCount++;;
-                                statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription);
-                                setStatusEntry(statusEntry, QObject::tr("Part %1 [%2] validated.").arg(_uniquePartCount).arg(type),true/*unique count*/);
-                            } else
-                            if (pieceInfo->IsSubPiece()) {
-                                statusEntry = QObject::tr("%1|%2|%3").arg(SUBPART_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription);
-                                setStatusEntry(statusEntry, QObject::tr("Part [%1] is a SUBPART").arg(type));
-                            }
+                        if (pieceInfo && pieceInfo->IsPartType()) {
+                            _partCount++;modelPartCount++;;
+                            statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription);
+                            setStatusEntry(statusEntry, type, QObject::tr("Part %1 [%2] validated."),true/*unique count*/);
                         } else
                         if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
-                            statusEntry = QObject::tr("%1|%2|Part Primitive %3").arg(PRIMITIVE_LOAD_MSG).arg(type).arg(name);
-                            setStatusEntry(statusEntry, QObject::tr("Part [%1] is a PRIMITIVE").arg(type));
+                            continue;
+                            /* Do not add these primitives into the load status dialogue because they are not loaded in the LDrawFile.subfiles
+                            lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
+                            if (Primitive) {
+                                const QString description = Primitive->mName;
+                                if (Primitive->mSubFile) {
+                                    statusEntry = QObject::tr("%1|%2|%3").arg(SUBPART_LOAD_MSG).arg(type).arg(description);
+                                    setStatusEntry(statusEntry, type, QObject::tr("Part [%1] is a SUBPART"));
+                                } else {
+                                    statusEntry = QObject::tr("%1|%2|%3").arg(PRIMITIVE_LOAD_MSG).arg(type).arg(description);
+                                    setStatusEntry(statusEntry, type, QObject::tr("Part [%1] is a PRIMITIVE"));
+                                }
+                            }*/
                         } else {
                             const QString message = QObject::tr("Part [%1] is not excluded, inlined, a submodel or an "
-                                                                "external file and was not found in the %2 library archives.")
-                                                                .arg(type).arg(VER_PRODUCTNAME_STR);
-                            statusEntry = QObject::tr("%1|%2|Part not found").arg(MISSING_LOAD_MSG).arg(type);
-                            setStatusEntry(statusEntry, message);
+                                                                "external file and was not found in the %2 library archives.");
+                            statusEntry = QObject::tr("%1|%2|Part not found!").arg(MISSING_LOAD_MSG).arg(type);
+                            setStatusEntry(statusEntry, type, message);
                         }
                     }  // check archive
                 } // countThisLine && lineIncluded && partIncluded
@@ -5161,13 +5291,6 @@ int validSoQ(const QString &line, int soq){
   return soq;
 }
 
-QList<QRegExp> LDrawFile::_fileRegExp;
-QList<QRegExp> LDrawHeaderRegExp;
-QList<QRegExp> LDrawUnofficialPartRegExp;
-QList<QRegExp> LDrawUnofficialSubPartRegExp;
-QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
-QList<QRegExp> LDrawUnofficialOtherRegExp;
-
 LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
 {
   _loadedParts.clear();
@@ -5219,8 +5342,12 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
               << QRegExp("^0\\s+!?UNOFFICIAL\\s+PART[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Alias)[^\n]*",Qt::CaseInsensitive)
+              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical Colour)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Alias)[^\n]*",Qt::CaseInsensitive)
+              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical Colour)[^\n]*",Qt::CaseInsensitive)
               ;
   }
 
@@ -5243,15 +5370,15 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
   }
 
   {
-      LDrawUnofficialOtherRegExp
+      LDrawUnofficialShortcutRegExp
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical Colour)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
-              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+              << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical Colour)[^\n]*",Qt::CaseInsensitive)
               ;
   }
 }
@@ -5311,10 +5438,10 @@ int getUnofficialFileType(QString &line)
       return UNOFFICIAL_PRIMITIVE;
     }
   }
-  size = LDrawUnofficialOtherRegExp.size();
+  size = LDrawUnofficialShortcutRegExp.size();
   for (int i = 0; i < size; i++) {
-    if (line.contains(LDrawUnofficialOtherRegExp[i])) {
-      return UNOFFICIAL_OTHER;
+    if (line.contains(LDrawUnofficialShortcutRegExp[i])) {
+      return UNOFFICIAL_SHORTCUT;
     }
   }
 

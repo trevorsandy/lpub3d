@@ -235,7 +235,9 @@ enum LDrawUnofficialFileType {
     UNOFFICIAL_PART,
     UNOFFICIAL_SUBPART,
     UNOFFICIAL_PRIMITIVE,
-    UNOFFICIAL_OTHER
+    UNOFFICIAL_SHORTCUT,
+    UNOFFICIAL_OTHER,
+    UNOFFICIAL_NUM
 };
 enum SubAttributes {
     sAdj = -2,

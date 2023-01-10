@@ -46,6 +46,7 @@ extern QList<QRegExp> LDrawUnofficialPartRegExp;
 extern QList<QRegExp> LDrawUnofficialSubPartRegExp;
 extern QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
 extern QList<QRegExp> LDrawUnofficialOtherRegExp;
+extern const QString  LDrawUnofficialType[];
 
 class LDrawSubFile {
   public:
@@ -359,6 +360,8 @@ class LDrawFile {
                       const QString &subFilePath = QString(),
                       const QString &description = QString());
 
+    int  loadedLines();
+    int  loadedSteps();
     int  size(const QString &fileName);
     void empty();
 

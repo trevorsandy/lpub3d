@@ -164,19 +164,20 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     }
     count = getCount(INLINE_SUBPART_LOAD_MSG);
     if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("Inline Subparts - %1").arg(count),"");
+        QList<QStandardItem *>validRow = prepareRow(tr("Subparts - %1").arg(count),"");
         rootNode->appendRow(validRow);
         setChildItems(INLINE_SUBPART_LOAD_MSG, validRow);
     }
     count = getCount(INLINE_PRIMITIVE_LOAD_MSG);
     if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("Inline Primitives - %1").arg(count),"");
+        QList<QStandardItem *>validRow = prepareRow(tr("Primitives - %1").arg(count),"");
         rootNode->appendRow(validRow);
         setChildItems(INLINE_PRIMITIVE_LOAD_MSG, validRow);
     }
+    // These should never trigger because to do so means official primitives or subparts have been loaded
     count = getCount(PRIMITIVE_LOAD_MSG);
     if (count) {
-        QList<QStandardItem *>primitiveRow = prepareRow(tr("Warning - Primitive Parts - %1").arg(count),"");
+        QList<QStandardItem *>primitiveRow = prepareRow(tr("Warning - Primitives - %1").arg(count),"");
         QStandardItem *header = primitiveRow.at(0);
         header->setForeground(warningBrush);
         rootNode->appendRow(primitiveRow);
@@ -184,7 +185,7 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     }
     count = getCount(SUBPART_LOAD_MSG);
     if (count) {
-        QList<QStandardItem *>subpartRow = prepareRow(tr("Warning - Sublevel Parts - %1").arg(count),"");
+        QList<QStandardItem *>subpartRow = prepareRow(tr("Warning - Subparts - %1").arg(count),"");
         QStandardItem *header = subpartRow.at(0);
         header->setForeground(warningBrush);
         rootNode->appendRow(subpartRow);

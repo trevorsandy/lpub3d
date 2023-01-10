@@ -1,4 +1,4 @@
-LPub3D 2.4.5.127.3104 (10 01 2023 20:50:48)
+LPub3D 2.4.5.128.3105 (10 01 2023 20:52:48)
 
 Features, enhancements, fixes and changes
 ------------
@@ -29,6 +29,7 @@ Revisions:
 - Change - Check BUILD_MOD action is after MULTI_STEP END #644
 - Change - Change reset image menu action description to refresh image #623
 - Change - Display clear cache message in information dialog #660
+- Change - Loading inline unofficial parts, subparts and primitives #667
 - Change - Parse top-model INCLUDE file at model file load #631
 - Change - Re-use Build Mod name (ID) #663
 - Fix - Apply ROTSTEP to step-group STEP #653
