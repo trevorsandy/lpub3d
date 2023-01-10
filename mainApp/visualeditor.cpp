@@ -2987,9 +2987,7 @@ void Gui::ReloadVisualEditor(){
                  split(RLine,RTokens); // Rotated lpub line
                  split(VLine,VTokens); // Rotated viewer line
 
-                 enum TRc {
-                     X, Y, Z
-                 };
+                 enum TRc { X, Y, Z, N };
 
                  if (UTokens.size() < 15 || VTokens.size() < 15 || RTokens.size() < 15)
                    return PieceString;
@@ -2998,14 +2996,14 @@ void Gui::ReloadVisualEditor(){
                  QString Result;
 
                  // Translation arrays
-                 double TU[3];
-                 double TR[3];
-                 double TV[3];
+                 double TU[N];
+                 double TR[N];
+                 double TV[N];
 
                  // Rotation arrays
-                 double RU[3][3];
-                 double RR[3][3];
-                 double RV[3][3];
+                 double RU[N][N];
+                 double RR[N][N];
+                 double RV[N][N];
 
                  if (UTokens[0] == "1" && VTokens[0] == "1" && RTokens[0] == "1") {
                    int C = 2;
