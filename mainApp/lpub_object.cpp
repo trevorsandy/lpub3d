@@ -243,7 +243,7 @@ void LPub::SetAutomateEdgeColor(const NativeOptions* Options)
 }
 
 /********************************************************************
- *
+ * Open visual editor project
  * *****************************************************************/
 
 bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bool UseFile/*false*/)
@@ -322,6 +322,10 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
     return Loaded;
 }
 
+/********************************************************************
+ *  Visual Editor viewpoint latitude longitude
+ * *****************************************************************/
+
 int LPub::SetViewpointLatLonDialog(bool SetCamera)
 {
     if (!gMainWindow)
@@ -329,12 +333,12 @@ int LPub::SetViewpointLatLonDialog(bool SetCamera)
 
     lcView* ActiveView = gui->GetActiveView();
 
-    float Latitude  = 0.0f;
-    float Longitude = 0.0f;
+    mLatitude       = 0.0f;
+    mLongitude      = 0.0f;
+    mDistanceFactor = qAbs(ActiveView->GetCamera()->GetDDF());
     float Distance  = 1.0f;
-    float DistanceFactor = qAbs(ActiveView->GetCamera()->GetDDF());
 
-    ActiveView->GetCamera()->GetAngles(Latitude, Longitude, Distance);
+    ActiveView->GetCamera()->GetAngles(mLatitude, mLongitude, Distance);
 
     QPalette ReadOnlyPalette = QApplication::palette();
     if (Preferences::displayTheme == THEME_DARK)
@@ -360,62 +364,62 @@ int LPub::SetViewpointLatLonDialog(bool SetCamera)
     QLabel *LatLabel = new QLabel(tr("Latitude:"),LatLonDialog);
     LatLonLayout->addWidget(LatLabel,0,0);
 
-    QSpinBox *LatSpin = new QSpinBox(LatLonDialog);
-    LatSpin->setRange(-360,360);
-    LatSpin->setSingleStep(1);
-    LatSpin->setValue(Latitude);
-    LatLonLayout->addWidget(LatSpin,0,1);
+    mLatSpin = new QSpinBox(LatLonDialog);
+    mLatSpin->setRange(-360,360);
+    mLatSpin->setSingleStep(1);
+    mLatSpin->setValue(mLatitude);
+    LatLonLayout->addWidget(mLatSpin,0,1);
 
-    QPushButton *LatResetButton = new QPushButton(LatLonDialog);
-    LatResetButton->setIcon(QIcon(":/resources/resetaction.png"));
-    LatResetButton->setIconSize(QSize(16,16));
-    LatResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
-    LatResetButton->setToolTip(tr("Reset"));
-    LatResetButton->setEnabled(false);
-    LatLonLayout->addWidget(LatResetButton,0,2);
-    connect(LatSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] (int i) { LatResetButton->setEnabled(i != static_cast<int>(Latitude)); });
-    connect(LatResetButton, &QPushButton::clicked, [&] () { LatResetButton->setEnabled(false); if(LatSpin) { LatSpin->setValue(Latitude); LatSpin->setFocus(); } });
+    mLatResetButton = new QPushButton(LatLonDialog);
+    mLatResetButton->setIcon(QIcon(":/resources/resetaction.png"));
+    mLatResetButton->setIconSize(QSize(16,16));
+    mLatResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+    mLatResetButton->setToolTip(tr("Reset"));
+    mLatResetButton->setEnabled(false);
+    LatLonLayout->addWidget(mLatResetButton,0,2);
+    connect(mLatSpin, SIGNAL(valueChanged(int)), this, SLOT(latResetEnabled(int)));
+    connect(mLatResetButton, SIGNAL(clicked(bool)), this, SLOT(latReset(bool)));
 
     QLabel *LonLabel = new QLabel(tr("Longitude:"), LatLonDialog);
     LatLonLayout->addWidget(LonLabel,1,0);
 
-    QSpinBox *LonSpin = new QSpinBox(LatLonDialog);
-    LonSpin->setRange(-360,360);
-    LonSpin->setSingleStep(1);
-    LonSpin->setValue(Longitude);
-    LatLonLayout->addWidget(LonSpin,1,1);
+    mLonSpin = new QSpinBox(LatLonDialog);
+    mLonSpin->setRange(-360,360);
+    mLonSpin->setSingleStep(1);
+    mLonSpin->setValue(mLongitude);
+    LatLonLayout->addWidget(mLonSpin,1,1);
 
-    QPushButton *LonResetButton = new QPushButton(LatLonDialog);
-    LonResetButton->setIcon(QIcon(":/resources/resetaction.png"));
-    LonResetButton->setIconSize(QSize(16,16));
-    LonResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
-    LonResetButton->setToolTip(tr("Reset"));
-    LonResetButton->setEnabled(false);
-    LatLonLayout->addWidget(LonResetButton,1,2);
-    connect(LonSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] (int i) { LonResetButton->setEnabled(i != static_cast<int>(Longitude)); });
-    connect(LonResetButton, &QPushButton::clicked, [&] () { LonResetButton->setEnabled(false); if(LonSpin) { LonSpin->setValue(Longitude); LonSpin->setFocus(); } });
+    mLonResetButton = new QPushButton(LatLonDialog);
+    mLonResetButton->setIcon(QIcon(":/resources/resetaction.png"));
+    mLonResetButton->setIconSize(QSize(16,16));
+    mLonResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+    mLonResetButton->setToolTip(tr("Reset"));
+    mLonResetButton->setEnabled(false);
+    LatLonLayout->addWidget(mLonResetButton,1,2);
+    connect(mLonSpin, SIGNAL(valueChanged(int)), this, SLOT(lonResetEnabled(int)));
+    connect(mLonResetButton, SIGNAL(clicked(bool)), this, SLOT(lonReset(bool)));
 
     QCheckBox *DistanceCheck = new QCheckBox(tr("Distance Factor:"), LatLonDialog);
     LatLonLayout->addWidget(DistanceCheck,2,0);
 
-    QDoubleSpinBox *DDFSpin = new QDoubleSpinBox(LatLonDialog);
-    DDFSpin->setEnabled(false);
-    DDFSpin->setRange(0.0f,100.0f);
-    DDFSpin->setSingleStep(0.01);
-    DDFSpin->setDecimals(2);
-    DDFSpin->setValue(DistanceFactor);
-    LatLonLayout->addWidget(DDFSpin,2,1);
+    mDDFSpin = new QDoubleSpinBox(LatLonDialog);
+    mDDFSpin->setEnabled(false);
+    mDDFSpin->setRange(0.0f,100.0f);
+    mDDFSpin->setSingleStep(0.01);
+    mDDFSpin->setDecimals(2);
+    mDDFSpin->setValue(mDistanceFactor);
+    LatLonLayout->addWidget(mDDFSpin,2,1);
 
-    QPushButton *DDFResetButton = new QPushButton(LatLonDialog);
-    DDFResetButton->setIcon(QIcon(":/resources/resetaction.png"));
-    DDFResetButton->setIconSize(QSize(16,16));
-    DDFResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
-    DDFResetButton->setToolTip(tr("Reset"));
-    DDFResetButton->setEnabled(false);
-    LatLonLayout->addWidget(DDFResetButton,2,2);
-    connect(DistanceCheck, &QCheckBox::clicked,    [&] (bool b) { DDFSpin->setEnabled(b); });
-    connect(DDFSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&] (double d) { DDFResetButton->setEnabled(d != static_cast<double>(DistanceFactor)); });
-    connect(DDFResetButton, &QPushButton::clicked, [&] () { DDFResetButton->setEnabled(false); if(DDFSpin) { DDFSpin->setValue(DistanceFactor); DDFSpin->setFocus(); } });
+    mDDFResetButton = new QPushButton(LatLonDialog);
+    mDDFResetButton->setIcon(QIcon(":/resources/resetaction.png"));
+    mDDFResetButton->setIconSize(QSize(16,16));
+    mDDFResetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+    mDDFResetButton->setToolTip(tr("Reset"));
+    mDDFResetButton->setEnabled(false);
+    LatLonLayout->addWidget(mDDFResetButton,2,2);
+    connect(DistanceCheck, SIGNAL(clicked(bool)), this, SLOT(ddfSpinEnabled(bool)));
+    connect(mDDFSpin, SIGNAL(valueChanged(double)), this, SLOT(ddfResetEnabled(double)));
+    connect(mDDFResetButton, SIGNAL(clicked(bool)), this, SLOT(ddfReset(bool)));
 
     QLabel *DistanceLabel = new QLabel(tr("Disance:"), LatLonDialog);
     LatLonLayout->addWidget(DistanceLabel,2,3);
@@ -436,20 +440,21 @@ int LPub::SetViewpointLatLonDialog(bool SetCamera)
     if (DialogCode == QDialog::Accepted)
     {
          bool ApplyZoomExtents = true;
-         float Latitude  = static_cast<float>(LatSpin->value());
-         float Longitude = static_cast<float>(LonSpin->value());
+         float Latitude  = static_cast<float>(mLatSpin->value());
+         float Longitude = static_cast<float>(mLonSpin->value());
+
          lcPreferences& Preferences = lcGetPreferences();
 
          if(DistanceCheck->isChecked())
          {
              ApplyZoomExtents = false;
-             Preferences.mDDF = static_cast<float>(DDFSpin->value());
+             Preferences.mDDF = static_cast<float>(mDDFSpin->value());
          }
 
          ActiveView->SetViewpointLatLon(Latitude, Longitude, Distance, ApplyZoomExtents, SetCamera);
 
-         if (Preferences.mDDF != DistanceFactor)
-             Preferences.mDDF = DistanceFactor;
+         if (Preferences.mDDF != mDistanceFactor)
+             Preferences.mDDF  = mDistanceFactor;
     }
     else
     {
@@ -462,8 +467,55 @@ int LPub::SetViewpointLatLonDialog(bool SetCamera)
     return static_cast<int>(DialogCode);
 }
 
+void LPub::latResetEnabled(int i)
+{
+    mLatResetButton->setEnabled(i != static_cast<int>(mLatitude));
+}
+
+void LPub::latReset(bool)
+{
+    mLatResetButton->setEnabled(false);
+    if(mLatSpin) {
+        mLatSpin->setValue(mLatitude);
+        mLatSpin->setFocus();
+    }
+}
+
+void LPub::lonResetEnabled(int i)
+{
+    mLonResetButton->setEnabled(i != static_cast<int>(mLongitude));
+}
+
+void LPub::lonReset(bool)
+{
+    mLonResetButton->setEnabled(false);
+    if(mLonSpin) {
+        mLonSpin->setValue(mLongitude);
+        mLonSpin->setFocus();
+    }
+}
+
+void LPub::ddfResetEnabled(double d)
+{
+    mDDFResetButton->setEnabled(d != static_cast<double>(mDistanceFactor));
+}
+
+void LPub::ddfReset(bool)
+{
+    mDDFResetButton->setEnabled(false);
+    if(mDDFSpin) {
+        mDDFSpin->setValue(mDistanceFactor);
+        mDDFSpin->setFocus();
+    }
+}
+
+void LPub::ddfSpinEnabled(bool b)
+{
+    mDDFSpin->setEnabled(b);
+}
+
 /********************************************************************
- *
+ *  Fade previous steps from command
  * *****************************************************************/
 
 bool LPub::setFadeStepsFromCommand()

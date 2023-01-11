@@ -31,6 +31,8 @@ class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
 class QSimpleUpdater;
+class QSpinBox;
+class QDoubleSpinBox;
 
 class CommandsDialog;
 class CommandsTextEdit;
@@ -237,6 +239,16 @@ public slots:
   void updaterCancelled();
   void updateChangelog(const QString &);
 
+  /// Visual Editor viewpoint latitude longitude
+private slots:
+  void latReset(bool);
+  void lonReset(bool);
+  void ddfReset(bool);
+  void latResetEnabled(int);
+  void lonResetEnabled(int);
+  void ddfResetEnabled(double);
+  void ddfSpinEnabled(bool);
+
 signals:
   void messageSig(LogType, const QString &, bool = false);
   void loadFileSig(QString, bool);
@@ -249,6 +261,17 @@ protected:
   QNetworkReply*         mHttpReply = nullptr;
   QByteArray             mByteArray;
   QString                mTitle;
+
+  /// Visual Editor viewpoint latitude longitude
+  QSpinBox              *mLatSpin;
+  QSpinBox              *mLonSpin;
+  QDoubleSpinBox        *mDDFSpin;
+  QPushButton           *mLatResetButton;
+  QPushButton           *mLonResetButton;
+  QPushButton           *mDDFResetButton;
+  float                  mLatitude;
+  float                  mLongitude;
+  float                  mDistanceFactor;
 
   /// Visual editor transform
   bool                   mRotateTransform;
