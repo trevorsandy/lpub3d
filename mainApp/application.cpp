@@ -618,6 +618,7 @@ int Application::initialize()
 #endif
     QString hdr, args, ldrawLibrary;
     const int NumArgsIdx = arguments().size() - 1;
+
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
     hdr = QString("%1 v%2 r%3 (%4) for %5")
                   .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR), QString::fromLatin1(VER_COMPILED_FOR));

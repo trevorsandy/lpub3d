@@ -41,7 +41,7 @@ equals(GIT_DIR, undefined) {
 
     # Check if we do not have a valid version number (i.e. no version tag found)
     isEmpty(GIT_VERSION) {
-        GIT_REVISION = 132
+        GIT_REVISION = 133
         GIT_SHA      = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
         GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
@@ -69,7 +69,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 3109
+            GIT_COMMIT = 3110
             message("~~~ ERROR! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
@@ -105,6 +105,7 @@ equals(GIT_DIR, undefined) {
     # Get the git repository name
     GIT_BASE_NAME = $$system($$GIT_BASE_COMMAND rev-parse --show-toplevel 2> $$NULL_DEVICE)
     VER_BASE_NAME = $$basename(GIT_BASE_NAME)
+    message("~~~ USING GIT_BASE_NAME $$GIT_BASE_NAME ~~~")
 }
 
 if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
@@ -116,7 +117,7 @@ if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
             GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
         } else {
             message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-            GIT_VERSION = $${VERSION}.132.3109.a34f929b7
+            GIT_VERSION = $${VERSION}.133.3110.966589c81
             message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
             GIT_VERSION ~= s/\./" "
         }
@@ -184,12 +185,16 @@ contains(BUILD_TYPE,continuous) {
     DEFINES += LP3D_CONTINUOUS_BUILD
 }
 
-!equals(VER_BASE_NAME, $$lower("lpub3d")) {
-    equals(VER_BASE_NAME, $$lower("lpub3dnext")) {
+if (contains(VER_BASE_NAME, $$lower("lpub3d-ci"))|contains(VER_BASE_NAME, $$lower("lpub3dnext"))) {
+    contains(VER_BASE_NAME, $$lower("lpub3dnext")) {
+        message("~~~ USING NEXT DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
         DEFINES += LP3D_NEXT_BUILD
     } else {
+        message("~~~ USING CI DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
         DEFINES += LP3D_DEVOPS_BUILD
     }
+} else {
+    message("~~~ USING RELEASE BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
 }
 
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
