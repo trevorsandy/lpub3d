@@ -584,7 +584,9 @@ void Application::setTheme(bool appStarted)
 
 void Application::splashMsg(const QString &message)
 {
+  Preferences::setMessageLogging(true/*useLogLevel*/);
   logInfo() << message;
+  Preferences::setMessageLogging();
   if (m_console_mode)
       return;
   splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, QColor(QString(SPLASH_FONT_COLOUR)));
@@ -874,36 +876,28 @@ int Application::initialize()
 
     Preferences::setSuppressFPrintPreference(suppressFPrint);
 
-    auto printInfo = [&] (const QString &info)
-    {
-        if (Preferences::loggingEnabled) {
-            logInfo() << info;
-        } else
-            Preferences::fprintMessage(info);
-    };
-
-    printInfo(tr("Initializing application..."));
+    Preferences::printInfo(tr("Initializing application..."));
     // application version information
-    printInfo("-----------------------------");
-    printInfo(hdr);
-    printInfo("=============================");
-    printInfo(tr("Arguments....................(%1)").arg(args));
+    Preferences::printInfo("-----------------------------");
+    Preferences::printInfo(hdr);
+    Preferences::printInfo("=============================");
+    Preferences::printInfo(tr("Arguments....................(%1)").arg(args));
 #ifndef Q_OS_WIN
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MAC           // for macOS
-    printInfo(tr("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
+    Preferences::printInfo(tr("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
         cwd.cdUp();                   // Contents/      (app bundle contents folder)
         cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
         cwd.cdUp();                   // Applications/  (app bundle installation folder)
     }
-    printInfo(tr("macOS Base Directory.........(%1)").arg(cwd.dirName()));
+    Preferences::printInfo(tr("macOS Base Directory.........(%1)").arg(cwd.dirName()));
     if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
     {
-        printInfo(tr("macOS Info.plist update......(%1)").arg(Preferences::lpub3dAppName));
+        Preferences::printInfo(tr("macOS Info.plist update......(%1)").arg(Preferences::lpub3dAppName));
         QFileInfo plbInfo("/usr/libexec/PlistBuddy");
         if (!plbInfo.exists())
-            printInfo(tr("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
+            Preferences::printInfo(tr("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
     }
 #elif defined Q_OS_LINUX   // for Linux
     QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
@@ -911,48 +905,48 @@ int Application::initialize()
     QStringList fileFilters = QStringList() << "lpub3d*";
     QStringList shareContents = contentsDir.entryList(fileFilters);
     if (shareContents.size() > 0) {
-        printInfo(tr("%1 Application Folder....(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dAppName));
+        Preferences::printInfo(tr("%1 Application Folder....(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dAppName));
     } else {
-        printInfo(tr("ERROR - Application Folder Not Found."));
+        Preferences::printInfo(tr("ERROR - Application Folder Not Found."));
     }
 #endif
 #endif // NOT Q_OS_WIN
-    printInfo(tr("%1 App Data Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubDataPath));
+    Preferences::printInfo(tr("%1 App Data Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubDataPath));
 #ifdef Q_OS_MAC
-    printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
+    Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
 #else // Q_OS_LINUX and Q_OS_WIN
-    printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
-    printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::logFilePath));
+    Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
+    Preferences::printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::logFilePath));
 #endif
 #ifdef Q_OS_WIN
-    printInfo(tr("%1 Data Location.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::dataLocation));
+    Preferences::printInfo(tr("%1 Data Location.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::dataLocation));
 #else // Q_OS_LINUX and Q_OS_MAC
-    printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath));
+    Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath));
 #if defined Q_OS_LINUX
     QDir rendererDir(QString("%1/../../%2/%3").arg(Preferences::lpub3dPath)
                      .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix+"/opt")
                      .arg(Preferences::lpub3dAppName));
-    printInfo(tr("%1 Renderers Exe Path....(%2/3rdParty)").arg(VER_PRODUCTNAME_STR).arg(rendererDir.absolutePath()));
+    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2/3rdParty)").arg(VER_PRODUCTNAME_STR).arg(rendererDir.absolutePath()));
 #endif // Q_OS_LINUX
-    printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubConfigPath));
-    printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dCachePath));
+    Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubConfigPath));
+    Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dCachePath));
 #endif //  Q_OS_WIN, Q_OS_LINUX and Q_OS_MAC
-    printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));
-    printInfo(tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
-                                                     .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
-                                                     .arg(QString(VER_LOGGING_LEVELS_STR).toLower()));
-    printInfo(tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled")));
-    printInfo(tr("Log to Standard Output.......(%1)").arg(Preferences::suppressFPrint ? tr("Enabled") : tr("Disabled")));
+    Preferences::printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));
+    Preferences::printInfo(tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
+                                                                  .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
+                                                                  .arg(QString(VER_LOGGING_LEVELS_STR).toLower()));
+    Preferences::printInfo(tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled")));
+    Preferences::printInfo(tr("Log to Standard Output.......(%1)").arg(Preferences::suppressFPrint ? tr("Enabled") : tr("Disabled")));
 #ifndef QT_NO_SSL
-    printInfo(tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
-                                                     .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
-                                                     .arg(QSslSocket::sslLibraryBuildVersionString(),
-                                                          QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
-                                                     .arg(QSslSocket::sslLibraryVersionString())))));
+    Preferences::printInfo(tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
+                                                                  .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
+                                                                  .arg(QSslSocket::sslLibraryBuildVersionString(),
+                                                                       QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
+                                                                  .arg(QSslSocket::sslLibraryVersionString())))));
 #else
-    printInfo(tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)"));
+    Preferences::printInfo(tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)"));
 #endif // QT_NO_SSL
-    printInfo("-----------------------------");
+    Preferences::printInfo("-----------------------------");
 
     // splash
     // if you want to rewrite, here is a good example:

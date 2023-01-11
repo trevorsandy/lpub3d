@@ -452,11 +452,6 @@ bool    Preferences::doNotShowPageProcessDlg    = false;
 bool    Preferences::autoUpdateChangeLog        = false;
 bool    Preferences::displayPageProcessingErrors= false;
 
-bool    Preferences::includeLogLevel            = true;
-bool    Preferences::includeTimestamp           = true;
-bool    Preferences::includeLineNumber          = false;
-bool    Preferences::includeFileName            = false;
-bool    Preferences::includeFunction            = false;
 bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::archiveLSynthParts         = false;
 bool    Preferences::skipPartsArchive           = false;
@@ -468,6 +463,18 @@ bool    Preferences::usingNPP                   = false;
 bool    Preferences::pdfPageImage               = false;
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
+bool    Preferences::logging                    = true;    // logging on/off offLevel     (grp box)
+bool    Preferences::logLevel                   = true;    // logging level               (combo box)
+bool    Preferences::logLevels                  = false;   // individual logging levels   (grp box)
+bool    Preferences::debugLogging               = false;   // set if debugLevel is enabled
+bool    Preferences::loggingEnabled             = false;   // set if logging setup successful
+
+bool    Preferences::includeLogLevel            = true;
+bool    Preferences::includeLineNumber          = true;
+bool    Preferences::includeFunction            = true;
+bool    Preferences::includeFileName            = false;
+bool    Preferences::includeTimestamp           = true;
+
 bool    Preferences::debugLevel                 = false;
 bool    Preferences::traceLevel                 = false;
 bool    Preferences::noticeLevel                = false;
@@ -477,19 +484,13 @@ bool    Preferences::warningLevel               = false;
 bool    Preferences::errorLevel                 = false;
 bool    Preferences::fatalLevel                 = false;
 
+bool    Preferences::includeAllLogAttributes    = false;
+bool    Preferences::allLogLevels               = false;
+
 bool    Preferences::showSubmodels              = false;
 bool    Preferences::showTopModel               = false;
 bool    Preferences::showSubmodelInCallout      = false;
 bool    Preferences::showInstanceCount          = false;
-
-bool    Preferences::includeAllLogAttributes    = false;
-bool    Preferences::allLogLevels               = false;
-
-bool    Preferences::logLevel                   = true;   // logging level (combo box)
-bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
-bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
-bool    Preferences::debugLogging               = false;   // set if debugLevel is enabled
-bool    Preferences::loggingEnabled             = false;   // set if logging setup successful
 
 bool    Preferences::preferCentimeters          = false;   // default is false, to use DPI
 bool    Preferences::showDownloadRedirects      = false;
@@ -741,6 +742,16 @@ void Preferences::fprintMessage(const QString &message, bool stdError)
         fprintf(stdError ? stderr : stdout,"%s", qPrintable(printMessage));
         fflush(stdError ? stderr : stdout);
     }
+}
+
+void Preferences::printInfo(const QString &info)
+{
+    if (loggingEnabled) {
+        Preferences::setMessageLogging(true/*useLogLevel*/);
+        logInfo() << info;
+        Preferences::setMessageLogging();
+    } else
+        fprintMessage(info);
 }
 
 bool Preferences::setMessageLogging(bool useLogLevel)

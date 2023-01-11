@@ -155,6 +155,7 @@ class Preferences
     static QKeySequence keyboardShortcut(const QString &objectName);
 
     static bool setMessageLogging(bool useLogLevel = false);
+    static void printInfo(const QString &info);
     static void fprintMessage(const QString &message, bool stdError = false);
     static int showMessage(Preferences::MsgID,
                            const QString &message,
@@ -323,14 +324,20 @@ class Preferences
     static bool    finalModelEnabled;
     static bool    cycleEachPage;
 
-    static bool    includeLogLevel;
-    static bool    includeTimestamp;
-    static bool    includeLineNumber;
-    static bool    includeFileName;
-    static bool    includeFunction;
-
     static bool    pdfPageImage;
     static bool    ignoreMixedPageSizesMsg;
+
+    static bool    logging;         // global preference, logging on/off offLevel (grp box)
+    static bool    logLevel;        // log level combo (grp box)
+    static bool    logLevels;       // individual logging levels (grp box)
+    static bool    debugLogging;    // set if debugLevel is enabled
+    static bool    loggingEnabled;  // set if logging setup successful
+
+    static bool    includeLogLevel;
+    static bool    includeLineNumber;
+    static bool    includeFunction;
+    static bool    includeFileName;
+    static bool    includeTimestamp;
 
     static bool    debugLevel;
     static bool    traceLevel;
@@ -343,12 +350,6 @@ class Preferences
 
     static bool    includeAllLogAttributes;
     static bool    allLogLevels;
-
-    static bool    logging;       // global preference, logging on/off offLevel (grp box)
-    static bool    logLevel;      // log level combo (grp box)
-    static bool    logLevels;     // individual logging levels (grp box)
-    static bool    debugLogging;  // set if debugLevel is enabled
-    static bool    loggingEnabled;// set if logging setup successful
 
     static bool    povrayDisplay;
     static bool    povrayAutoCrop;
