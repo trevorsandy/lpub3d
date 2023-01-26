@@ -1629,6 +1629,8 @@ private:
   QMutex                 pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
   QMutex                 writeMutex;         // non-recursive write to temp working directory and countPage mutex 
 
+  QTimer                 updateTimer;        // keep UI responsive when exporting or using continuous page processing
+
   static QString         curFile;                // the file name for MPD, or top level file
   static bool            m_exportingContent;     // indicate export/printing underway
   static bool            m_exportingObjects;     // indicate exporting non-image object file content
@@ -1835,6 +1837,8 @@ private slots:
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();
     void enableWindowFlags(bool);
+
+    void pageProcessUpdate();
 
     void visitHomepage()
     {

@@ -619,30 +619,46 @@ int Gui::addGraphicsPageItems(
             case InsertData::InsertBom:
               {
                 Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : lpub->ldrawFile.topLevelFile(),0);
-
-                emit messageSig(LOG_INFO_STATUS, tr("Processing Bill Of Material for %1...").arg(current.modelName));
+                QString const message = tr("Processing Bill Of Material...");
+                emit messageSig(LOG_INFO, message);
                 if (Preferences::modeGUI && !exporting()) {
+                    emit progressBarPermInitSig();
+                    emit progressPermMessageSig(message);
+                    emit progressPermRangeSig(0, 100);
+                    emit progressPermSetValueSig(0);
                     m_saveExportMode = m_exportMode;
                     m_exportMode = GENERATE_BOM;
                     emit setGeneratingBomSig(true);
                     QApplication::processEvents();
                 }
-
-                QFuture<void> future = QtConcurrent::run([this, current]() {
+                QFuture<void> future = QtConcurrent::run([&]() {
                     bomParts.clear();
                     bomPartGroups.clear();
                     getBOMParts(current, QString());
                 });
                 future.waitForFinished();
-                page->pli.steps = steps;
-                future = QtConcurrent::run([this, current]() {
+                future = QtConcurrent::run([&]() {
                     getBOMOccurrence(current);
                 });
                 future.waitForFinished();
-                page->pli.setParts(bomParts,bomPartGroups,page->meta,true,(boms > 1/*Split BOM Parts*/));
+                page->pli.steps = steps;
+                page->pli.setParts(bomParts,bomPartGroups,page->meta,true/*isBOM*/,(boms > 1/*Split BOM Parts*/));
+                if (Preferences::modeGUI && !exporting()) {
+                    int partCount = page->pli.getPartCount();
+                    if (renderer->useLDViewSCall()) {
+                        partCount++; // normal parts
+                        if (Preferences::enableFadeSteps)
+                            partCount++;
+                        if (Preferences::enableHighlightStep)
+                            partCount++;
+                    }
+                    emit progressPermRangeSig(0, partCount);
+                }
                 page->pli.sizePli(&page->meta,page->relativeType,false);
                 page->pli.relativeToSize[0] = plPage.size[XX];
                 page->pli.relativeToSize[1] = plPage.size[YY];
+                if (Preferences::modeGUI && !exporting())
+                    emit progressPermStatusRemoveSig();
               }
               break;
             case InsertData::InsertRotateIcon:

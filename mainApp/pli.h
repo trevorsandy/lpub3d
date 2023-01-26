@@ -288,14 +288,18 @@ class Pli : public Placement {
 
     void operator= (Pli& from)
     {
-      QString key;
-      Q_FOREACH (key,from.parts.keys()) {
+      Q_FOREACH (const QString &key, from.parts.keys()) {
         PliPart *part = from.parts[key];
         parts.insert(key,part);
       }
       placement = from.placement;
       margin    = from.margin;
       bom       = from.bom;
+    }
+
+    int getPartCount() const
+    {
+        return parts.size();
     }
 
     PliPart* getPart(const QString& key) const

@@ -1,4 +1,4 @@
-LPub3D 2.4.6.34.3145 (26 01 2023 03:53:33)
+LPub3D 2.4.6.35.3146 (26 01 2023 03:55:19)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Change - Enable Bill of material progress status #679
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on insert BOM without a preceding STEP command #670

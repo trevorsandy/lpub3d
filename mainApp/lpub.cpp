@@ -505,6 +505,13 @@ void Gui::enableNavigationActions(bool enable)
   getAct("previousPageContinuousAct.1")->setEnabled(!atStart && enable);
 }
 
+void Gui::pageProcessUpdate()
+{
+    if (!exporting() && !ContinuousPage())
+        return;
+    QCoreApplication::processEvents();
+}
+
 void Gui::nextPage()
 {
   QString string = setPageLineEdit->displayText();

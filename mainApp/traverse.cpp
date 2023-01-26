@@ -3109,7 +3109,7 @@ int Gui::findPage(
       case '1':
           split(line,tokens);
 
-          if (tokens.size() > 2 && tokens[1] == "16") {
+          if (tokens.size() > 2 && tokens[1] == LDRAW_MAIN_MATERIAL_COLOUR) {
               split(addLine,addTokens);
               if (addTokens.size() == 15) {
                   tokens[1] = addTokens[1];
@@ -4195,7 +4195,7 @@ int Gui::getBOMParts(
 
               QString    type = token[token.size()-1];
 
-              if (token[1] == "16") {
+              if (token[1] == LDRAW_MAIN_MATERIAL_COLOUR) {
                   split(addLine,addToken);
                   if (addToken.size() == 15) {
                       token[1] = addToken[1];

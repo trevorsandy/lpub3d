@@ -571,7 +571,7 @@ void Pli::setParts(
           QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
                                                        partsDir + QDir::separator() + nameKey + ".png");
 
-          if (bom && splitBom){
+          if (bom && splitBom) {
               if ( ! tempParts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
                   part->subType         = subType;
@@ -633,7 +633,7 @@ void Pli::setParts(
     } //instances
 
   // now sort then divide the list based on BOM occurrence
-  if (bom && splitBom){
+  if (bom && splitBom) {
 
       sortedKeys = tempParts.keys();
 
@@ -653,8 +653,7 @@ void Pli::setParts(
           startIndex = maxParts - quotient;
         }
 
-      QString key;
-      Q_FOREACH (key,sortedKeys){
+      for (QString const &key : sortedKeys) {
           PliPart *part;
           part = tempParts[key];
 
@@ -2169,11 +2168,18 @@ int Pli::partSize()
       widestPart = 0;
       tallestPart = 0;
 
-      Q_FOREACH (const QString& key,parts.keys()) {
-          PliPart *part;
+      bool populateBomProgress = bom && Preferences::modeGUI && !gui->exporting();
+      int partCounter = 0;
+
+      Q_FOREACH (const QString &key, parts.keys()) {
+
+          if (populateBomProgress)
+              emit gui->progressPermSetValueSig(++partCounter);
 
           // get part info
+          PliPart *part;
           part = parts[key];
+
           QFileInfo info(part->type);
           PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
@@ -2400,13 +2406,21 @@ int Pli::partSizeLDViewSCall() {
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
+    bool populateBomProgress = bom && Preferences::modeGUI && !gui->exporting();
+    int partCounter = 0;
 
     // 1. generate ldr files
-    Q_FOREACH (const QString& key, parts.keys()) {
-        PliPart *pliPart;
+    Q_FOREACH (const QString &key, parts.keys()) {
+
+        if (populateBomProgress)
+            emit gui->progressPermSetValueSig(++partCounter);
 
         // get part info
+
+        PliPart *pliPart;
+
         pliPart = parts[key];
+
         QFileInfo info(pliPart->type);
         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
@@ -2698,13 +2712,15 @@ int Pli::partSizeLDViewSCall() {
         emit gui->progressPermRangeSig(1, ptn.size());
     }
 
+    // 2. generate part image
     for (int pT = 0; pT < ptn.size(); pT++ ) {   // for every part type
 
         int ptRc = 0;
         if (isSubModel) {
             emit gui->progressPermMessageSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(pT + 1).arg(ptn.size()));
             emit gui->progressPermSetValueSig(pT);
-        }
+        } else if (populateBomProgress)
+            emit gui->progressPermSetValueSig(++partCounter);
 
 //#ifdef QT_DEBUG_MODE
 //        QString CurrentPartType = PartTypeNames[pT];
@@ -2741,7 +2757,7 @@ int Pli::partSizeLDViewSCall() {
                 rc = ptRc;
             }
         }
-    }
+    } // for every part type
 
     if (isSubModel) {
       emit gui->progressPermSetValueSig(ptn.size());
