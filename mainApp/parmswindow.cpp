@@ -328,7 +328,23 @@ void ParmsWindow::showContextMenu(const QPoint &pt)
 
 void ParmsWindow::systemEditor()
 {
-    QDesktopServices::openUrl(QUrl("file:///"+fileName, QUrl::TolerantMode));
+    QRegExp ldrawExtRx("\\.mpd$|\\.ldr$|\\.dat$|\\.lst", Qt::CaseInsensitive);
+    bool hasLDrawExtension = fileName.contains(ldrawExtRx);
+    if (hasLDrawExtension && !Preferences::systemEditor.isEmpty()) {
+        QString const program = Preferences::systemEditor;
+        QStringList arguments = QStringList() << fileName;
+        if (Preferences::usingNPP)
+            arguments << QLatin1String("-udl=LPUB3D");
+        qint64 pid;
+        QString workingDirectory = QDir::currentPath() + QDir::separator();
+        QProcess::startDetached(Preferences::systemEditor, arguments, workingDirectory, &pid);
+        emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
+                              .arg(QFileInfo(fileName).fileName()).arg(pid)
+                              .arg(QFileInfo(program).fileName())
+                              .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+    } else {
+        QDesktopServices::openUrl(QUrl("file:///"+fileName, QUrl::TolerantMode));
+    }
 }
 
 void ParmsWindow::displayParmsFile(

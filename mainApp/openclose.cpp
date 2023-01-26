@@ -385,7 +385,7 @@ void Gui::openWith(const QString &filePath)
         }
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
-        QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
+        QProcess::startDetached(program, arguments, workingDirectory, &pid);
         emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
                                            .arg(QFileInfo(filePath).fileName()).arg(pid)
                                            .arg(QFileInfo(program).fileName())
