@@ -8912,11 +8912,22 @@ void BlenderRenderDialogGui::getRenderSettings(
     blenderVersionGridLayout->addWidget(blenderAddOnVersionEdit,1,1);
     blenderVersionGridLayout->setColumnStretch(1,1/*1 is greater than 0 (default)*/);
 
+    blenderImportActBox = new QCheckBox(tr("Enable Import"),blenderContent);
+    blenderImportActBox->setToolTip(tr("Enable the %1 LDraw Import LDraw action in Blender").arg(VER_PRODUCTNAME_STR));
+    blenderVersionGridLayout->addWidget(blenderImportActBox,2,1);
+
+    blenderRenderActBox = new QCheckBox(tr("Enable Render"), blenderContent);
+    blenderRenderActBox->setToolTip(tr("Enable the %1 Image Render LDraw action in Blender").arg(VER_PRODUCTNAME_STR));
+    blenderVersionGridLayout->addWidget(blenderRenderActBox,2,2);
+
     if (mBlenderConfigured) {
         blenderVersionLabel->setText(tr("Blender Version"));
         blenderVersionEdit->setText(blenderVersion);
-        if (!blenderAddOnVersion.isEmpty())
+        if (!blenderAddOnVersion.isEmpty()) {
             blenderAddOnVersionEdit->setText(blenderAddOnVersion);
+            blenderRenderActBox->setChecked(true);
+            blenderImportActBox->setChecked(true);
+        }
     } else {
         if (Preferences::displayTheme == THEME_DARK) {
             const QString themeColor = Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT];
@@ -9705,6 +9716,12 @@ void BlenderRenderDialogGui::configureBlender()
         arguments << QString("--background");
         arguments << QString("--python");
         arguments << blenderInstallFile;
+        if (!blenderRenderActBox->isChecked() && !blenderImportActBox->isChecked())
+            arguments << "--" << QString("--disable_ldraw_addons");
+        else if (!blenderImportActBox->isChecked())
+            arguments << "--" << QString("--disable_ldraw_import");
+        else if (!blenderRenderActBox->isChecked())
+            arguments << "--" << QString("--disable_ldraw_render");
 
         QString message = tr("Blender Addon Arguments: %1 %2").arg(blenderExe).arg(arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);

@@ -2361,6 +2361,8 @@ private:
   QLabel      *blenderVersionLabel;
   QLabel      *blenderAddOnVersionLabel;
   QLineEdit   *blenderAddOnVersionEdit;
+  QCheckBox   *blenderRenderActBox;
+  QCheckBox   *blenderImportActBox;
 
   QDialog      *dialog;
   QProgressBar *progressBar;
