@@ -2300,7 +2300,6 @@ private:
  * Blender renderer
  *
  **********************************************************************/
-
 class BlenderRenderDialogGui : public QWidget
 {
   Q_OBJECT
@@ -2354,13 +2353,15 @@ private:
   QFormLayout *blenderForm;
   QWidget     *blenderContent;
   QGridLayout *blenderVersionGridLayout;
+  QGridLayout *blenderExeGridLayout;
 
   QGroupBox   *blenderPathsBox;
+  QGroupBox   *blenderAddonModulesBox;
   QGroupBox   *blenderSettingsBox;
   QLineEdit   *blenderVersionEdit;
   QLabel      *blenderVersionLabel;
-  QLabel      *blenderAddOnVersionLabel;
-  QLineEdit   *blenderAddOnVersionEdit;
+  QLabel      *blenderAddonVersionLabel;
+  QLineEdit   *blenderAddonVersionEdit;
   QCheckBox   *blenderRenderActBox;
   QCheckBox   *blenderImportActBox;
 
@@ -2519,7 +2520,7 @@ private:
   static bool    dialogCancelled;
   static bool    documentRender;
   static QString blenderVersion;
-  static QString blenderAddOnVersion;
+  static QString blenderAddonVersion;
   static QString searchDirectoriesKey;
   static QString parameterFileKey;
 
