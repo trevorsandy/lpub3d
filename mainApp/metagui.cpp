@@ -8796,6 +8796,7 @@ BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::defaultSettings
 /*16   LBL_POSITION_CAMERA       */ {"positionCamera",                 "1",        QObject::tr("Position Camera"),        QObject::tr("Position the camera to show the whole model")},
 /*17   LBL_REMOVE_DOUBLES        */ {"removeDoubles",                  "1",        QObject::tr("No Duplicate Vertices"),  QObject::tr("Remove duplicate vertices (recommended)")},
 /*18   LBL_RENDER_WINDOW         */ {"renderWindow",                   "1",        QObject::tr("Display Render Window"),  QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
+/*19   LBL_USE_ARCHIVE_LIBS      */ {"useArchiveLibrary",              "0",        QObject::tr("Use Archive Libraries"),  QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
 /*19   LBL_SEARCH_ADDL_PATHS     */ {"searchAdditionalPaths",          "0",        QObject::tr("Search Additional Paths"),QObject::tr("Specify whether to search additional LDraw paths")},
 /*20   LBL_SMOOTH_SHADING        */ {"smoothShading",                  "1",        QObject::tr("Smooth Shading"),         QObject::tr("Smooth faces and add an edge-split modifier (recommended)")},
 /*21   LBL_TRANSPARENT_BACKGROUND*/ {"transparentBackground",          "0",        QObject::tr("Transparent Background"), QObject::tr("Specify whether to render a background (affects 'Photo-realistic look only)")},

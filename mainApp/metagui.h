@@ -2404,34 +2404,35 @@ private:
     LBL_POSITION_CAMERA,                    // 16   QCheckBox
     LBL_REMOVE_DOUBLES,                     // 17   QCheckBox
     LBL_RENDER_WINDOW,                      // 18   QCheckBox
-    LBL_SEARCH_ADDL_PATHS,                  // 19   QCheckBox
-    LBL_SMOOTH_SHADING,                     // 20   QCheckBox
-    LBL_TRANSPARENT_BACKGROUND,             // 21   QCheckBox
-    LBL_UNOFFICIAL_PARTS,                   // 22   QCheckBox
-    LBL_USE_LOGO_STUDS,                     // 23   QCheckBox
-    LBL_VERBOSE,                            // 24   QCheckBox
+    LBL_USE_ARCHIVE_LIBS,                   // 19   QChekcBox
+    LBL_SEARCH_ADDL_PATHS,                  // 20   QCheckBox
+    LBL_SMOOTH_SHADING,                     // 21   QCheckBox
+    LBL_TRANSPARENT_BACKGROUND,             // 22   QCheckBox
+    LBL_UNOFFICIAL_PARTS,                   // 23   QCheckBox
+    LBL_USE_LOGO_STUDS,                     // 24   QCheckBox
+    LBL_VERBOSE,                            // 25   QCheckBox
 
-    LBL_BEVEL_WIDTH,                        // 25/0 QLineEdit
-    LBL_CAMERA_BORDER_PERCENT,              // 26/1 QLineEdit
-    LBL_DEFAULT_COLOUR,                     // 27/2 QLineEdit
-    LBL_GAPS_SIZE,                          // 28/3 QLineEdit
-    LBL_IMAGE_WIDTH,                        // 29/4 QLineEdit
-    LBL_IMAGE_HEIGHT,                       // 30/5 QLineEdit
-    LBL_IMAGE_SCALE,                        // 31/6 QLineEdit
+    LBL_BEVEL_WIDTH,                        // 26/0 QLineEdit
+    LBL_CAMERA_BORDER_PERCENT,              // 27/1 QLineEdit
+    LBL_DEFAULT_COLOUR,                     // 28/2 QLineEdit
+    LBL_GAPS_SIZE,                          // 29/3 QLineEdit
+    LBL_IMAGE_WIDTH,                        // 30/4 QLineEdit
+    LBL_IMAGE_HEIGHT,                       // 31/5 QLineEdit
+    LBL_IMAGE_SCALE,                        // 32/6 QLineEdit
 
-    LBL_COLOUR_SCHEME,                      // 32/0 QComboBox
-    LBL_FLEX_PARTS_SOURCE,                  // 33/1 QComboBox
-    LBL_LOGO_STUD_VERSION,                  // 34/2 QComboBox
-    LBL_LOOK,                               // 25/3 QComboBox
-    LBL_POSITION_OBJECT,                    // 36/4 QComboBox
-    LBL_RESOLUTION,                         // 37/5 QComboBox
-    LBL_RESOLVE_NORMALS,                    // 38/6 QComboBox
+    LBL_COLOUR_SCHEME,                      // 33/0 QComboBox
+    LBL_FLEX_PARTS_SOURCE,                  // 34/1 QComboBox
+    LBL_LOGO_STUD_VERSION,                  // 35/2 QComboBox
+    LBL_LOOK,                               // 26/3 QComboBox
+    LBL_POSITION_OBJECT,                    // 37/4 QComboBox
+    LBL_RESOLUTION,                         // 38/5 QComboBox
+    LBL_RESOLVE_NORMALS,                    // 39/6 QComboBox
 
     NUM_SETTINGS
   };
 
   enum BlenderRenControlType
-  {                                                    // Index
+  {                                                  // Index
     BLENDER_PATH_EDIT,                               // 0
     ADD_ENVIRONMENT_BOX     = BLENDER_PATH_EDIT,     // 0
     BEVEL_WIDTH_EDIT        = BLENDER_PATH_EDIT,     // 0
@@ -2469,12 +2470,13 @@ private:
     POSITION_CAMERA_BOX,                             //16
     REMOVE_DOUBLES_BOX,                              //17
     RENDER_WINDOW_BOX,                               //18
-    SEARCH_ADDL_PATHS_BOX,                           //19
-    SMOOTH_SHADING_BOX,                              //20
-    TRANSPARENT_BACKGROUND_BOX,                      //21
-    UNOFFICIAL_PARTS_BOX,                            //22
-    USE_LOGO_STUDS_BOX,                              //23
-    VERBOSE_BOX                                      //24
+    USE_ARCHIVE_LIBS_BOX,                            //19
+    SEARCH_ADDL_PATHS_BOX,                           //20
+    SMOOTH_SHADING_BOX,                              //21
+    TRANSPARENT_BACKGROUND_BOX,                      //22
+    UNOFFICIAL_PARTS_BOX,                            //23
+    USE_LOGO_STUDS_BOX,                              //24
+    VERBOSE_BOX                                      //25
   };
 
   enum BlenderRenBrickType
