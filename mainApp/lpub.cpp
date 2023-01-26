@@ -749,12 +749,12 @@ bool Gui::continuousPageDialog(PageDirection d)
 
   m_exportMode = PAGE_PROCESS;
 
-  QString message = tr("Continuous %1 Page Processing...").arg(direction);
+  QString message = tr("%1 Page Processing...").arg(direction);
 
   if (Preferences::modeGUI) {
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
-              emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
+              emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               pageProcessRunning = PROC_NONE;
@@ -769,7 +769,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               continuousTimer.start();
 
               // initialize progress dialogue
-              m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
+              m_progressDialog->setWindowTitle(tr("Continuous %1 Page Processing").arg(direction));
               m_progressDialog->setLabelText(message);
               m_progressDialog->setBtnToCancel();
               m_progressDialog->setPageDirection(d);
@@ -808,7 +808,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PageDisplayPause"),Preferences::pageDisplayPause);
               }
           } else {
-              emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
+              emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               pageProcessRunning = PROC_NONE;
@@ -827,7 +827,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   // Validate the page range
   if (processOption == EXPORT_PAGE_RANGE) {
       if (! validatePageRange()) {
-          message = tr("%1 page processing terminated.").arg(direction);
+          message = tr("Continuous %1 page processing terminated.").arg(direction);
           m_progressDialog->setBtnToClose();
           m_progressDialog->setLabelText(message, true/*alert*/);
           emit messageSig(LOG_STATUS,message);
@@ -851,7 +851,7 @@ bool Gui::continuousPageDialog(PageDirection d)
       _maxPages = maxPages;
 
       if (Preferences::modeGUI) {
-          m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
+          m_progressDialog->setWindowTitle(tr("Continuous %1 Page Processing").arg(direction));
           m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
           QCoreApplication::processEvents();
@@ -959,7 +959,7 @@ bool Gui::continuousPageDialog(PageDirection d)
       _maxPages = printPages.count();
 
       if (Preferences::modeGUI) {
-          m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
+          m_progressDialog->setWindowTitle(tr("Continuous %1 Page Processing").arg(direction));
           m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
           QCoreApplication::processEvents();
