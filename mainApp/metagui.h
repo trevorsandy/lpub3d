@@ -2354,12 +2354,14 @@ public slots:
 private:
   QFormLayout *blenderForm;
   QWidget     *blenderContent;
-  QHBoxLayout *blenderVersionHLayout;
+  QGridLayout *blenderVersionGridLayout;
 
   QGroupBox   *blenderPathsBox;
   QGroupBox   *blenderSettingsBox;
   QLineEdit   *blenderVersionEdit;
-  QLabel      *blenderLabel;
+  QLabel      *blenderVersionLabel;
+  QLabel      *blenderAddOnVersionLabel;
+  QLineEdit   *blenderAddOnVersionEdit;
 
   QDialog      *dialog;
   QProgressBar *progressBar;
@@ -2513,6 +2515,7 @@ private:
 
   static bool    documentRender;
   static QString blenderVersion;
+  static QString blenderAddOnVersion;
   static QString searchDirectoriesKey;
   static QString parameterFileKey;
 

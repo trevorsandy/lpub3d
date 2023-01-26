@@ -8758,6 +8758,7 @@ void POVRayRenderDialogGui::textChanged(const QString &value)
  **********************************************************************/
 bool    BlenderRenderDialogGui::documentRender       = false;
 QString BlenderRenderDialogGui::blenderVersion;
+QString BlenderRenderDialogGui::blenderAddOnVersion;
 QString BlenderRenderDialogGui::searchDirectoriesKey = QString("additionalSearchDirectories");
 QString BlenderRenderDialogGui::parameterFileKey     = QString("parameterFile");
 
@@ -8881,27 +8882,36 @@ void BlenderRenderDialogGui::getRenderSettings(
     QGroupBox *blenderVersionBox = new QGroupBox(QString(),blenderContent);
     blenderForm->addRow(blenderVersionBox);
 
-    blenderVersionHLayout = new QHBoxLayout(blenderVersionBox);
-    blenderVersionBox->setLayout(blenderVersionHLayout);
+    blenderVersionGridLayout = new QGridLayout(blenderVersionBox);
+    blenderVersionBox->setLayout(blenderVersionGridLayout);
 
-    blenderLabel = new QLabel(blenderContent);
-    blenderVersionHLayout->addWidget(blenderLabel);
+    blenderVersionLabel = new QLabel(blenderContent);
+    blenderVersionGridLayout->addWidget(blenderVersionLabel,0,0);
 
     blenderVersionEdit = new QLineEdit(blenderContent);
+    blenderVersionEdit->setPalette(ReadOnlyPalette);
     blenderVersionEdit->setReadOnly(true);
-    blenderVersionHLayout->addWidget(blenderVersionEdit);
+    blenderVersionGridLayout->addWidget(blenderVersionEdit,0,1);
+    blenderAddOnVersionLabel = new QLabel(tr("%1 AddOn Version").arg(VER_PRODUCTNAME_STR), blenderContent);
+    blenderVersionGridLayout->addWidget(blenderAddOnVersionLabel,1,0);
+    blenderAddOnVersionEdit = new QLineEdit(blenderContent);
+    blenderAddOnVersionEdit->setPalette(ReadOnlyPalette);
+    blenderAddOnVersionEdit->setReadOnly(true);
+    blenderVersionGridLayout->addWidget(blenderAddOnVersionEdit,1,1);
 
     if (mBlenderConfigured){
-        blenderLabel->setText(tr("Blender Version"));
-        blenderVersionEdit->setText(Preferences::blenderVersion);
+        blenderVersionLabel->setText(tr("Blender Version"));
+        blenderVersionEdit->setText(blenderVersion);
+        if (!blenderAddOnVersion.isEmpty())
+            blenderAddOnVersionEdit->setText(blenderAddOnVersion);
     } else {
         if (Preferences::displayTheme == THEME_DARK) {
             const QString themeColor = Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT];
-            blenderLabel->setStyleSheet("QLabel { color : " + themeColor + "; }");
+            blenderVersionLabel->setStyleSheet("QLabel { color : " + themeColor + "; }");
         } else {
-            blenderLabel->setStyleSheet("QLabel { color : blue; }");
+            blenderVersionLabel->setStyleSheet("QLabel { color : blue; }");
         }
-        blenderLabel->setText(tr("Blender not configured"));
+        blenderVersionLabel->setText(tr("Blender not configured"));
         blenderVersionEdit->setVisible(mBlenderConfigured);
     }
 
@@ -9169,10 +9179,13 @@ bool BlenderRenderDialogGui::settingsModified(int &width, int &height, double &s
 
 void BlenderRenderDialogGui::resetSettings()
 {
-    blenderVersion                       = Preferences::blenderVersion;
     blenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
+    const QStringList versionItems       = Preferences::blenderVersion.split("|");
+    blenderVersion                       = versionItems.first();
+    blenderAddOnVersion                  = versionItems.size() == 2 ? versionItems.last() : QString();
 
     blenderVersionEdit->setText(blenderVersion);
+    blenderAddOnVersionEdit->setText(blenderAddOnVersion);
 
     mBlenderConfigured = !Preferences::blenderExe.isEmpty() && !Preferences::blenderRenderConfigFile.isEmpty();;
 
@@ -9286,8 +9299,10 @@ void BlenderRenderDialogGui::loadSettings(){
         }
     }
 
-    blenderVersion                       = Preferences::blenderVersion;
     blenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
+    const QStringList versionItems       = Preferences::blenderVersion.split("|");
+    blenderVersion                       = versionItems.first();
+    blenderAddOnVersion                  = versionItems.size() == 2 ? versionItems.last() : QString();
 }
 
 void BlenderRenderDialogGui::saveSettings()
@@ -9295,13 +9310,13 @@ void BlenderRenderDialogGui::saveSettings()
     if (!numSettings())
         loadSettings();
 
-    QString label;
+//    QString label;
 //    label = blenderPaths[LBL_BLENDER_PATH].label;
     QString value = blenderPaths[LBL_BLENDER_PATH].value;
     Preferences::setBlenderExePathPreference(value);
 
 //    label = "Blender Version";
-    value = blenderVersion;
+    value = QString("%1|%2").arg(blenderVersion).arg(blenderAddOnVersion);
     Preferences::setBlenderVersionPreference(value);
 
     QString blenderConfigFile;
@@ -9593,8 +9608,8 @@ void BlenderRenderDialogGui::configureBlender()
     if (blenderFile.isEmpty()) {
         blenderVersion.clear();
         mBlenderConfigured = false;
-        blenderLabel->setStyleSheet("QLabel { color : blue; }");
-        blenderLabel->setText(tr("Blender not configured"));
+        blenderVersionLabel->setStyleSheet("QLabel { color : blue; }");
+        blenderVersionLabel->setText(tr("Blender not configured"));
         blenderVersionEdit->setVisible(mBlenderConfigured);
         blenderPathEditAction->setEnabled(mBlenderConfigured);
         blenderPathsBox->setEnabled(mBlenderConfigured);
@@ -9626,17 +9641,19 @@ void BlenderRenderDialogGui::configureBlender()
         // Download and extract blender addon
         if (!extractBlenderAddon(blenderDir)) {
             if (mBlenderAddonUpdate) {
-                blenderVersionHLayout->replaceWidget(progressBar, blenderVersionEdit);
+                blenderVersionGridLayout->replaceWidget(progressBar, blenderVersionEdit);
                 mBlenderConfigured = true;
                 mBlenderAddonUpdate = !mBlenderConfigured;
-                blenderLabel->setText(tr("Blender Version"));
+                blenderVersionLabel->setText(tr("Blender Version"));
                 if (Preferences::displayTheme == THEME_DARK)
-                    blenderLabel->setStyleSheet("QLabel { color : white ; }");
+                    blenderVersionLabel->setStyleSheet("QLabel { color : white ; }");
                 else
-                    blenderLabel->setStyleSheet("QLabel { color : black; }");
-                blenderVersionEdit->setText(Preferences::blenderVersion);
+                    blenderVersionLabel->setStyleSheet("QLabel { color : black; }");
+                blenderVersionEdit->setText(blenderVersion);
                 blenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
                 blenderVersionEdit->setVisible(mBlenderConfigured);
+                if (!blenderAddOnVersion.isEmpty())
+                    blenderAddOnVersionEdit->setText(blenderAddOnVersion);
                 blenderPathEditAction->setEnabled(mBlenderConfigured);
             } else {
                 statusUpdate();
@@ -9712,15 +9729,15 @@ void BlenderRenderDialogGui::statusUpdate(bool ok, const QString &message)
         colour = "black";
     } else {
         if (progressBar) {
-            blenderVersionHLayout->replaceWidget(progressBar, blenderVersionEdit);
+            blenderVersionGridLayout->replaceWidget(progressBar, blenderVersionEdit);
             progressBar->close();
         }
         pathLineEditList[LBL_BLENDER_PATH]->text() = QString();
         label  = ! message.isEmpty() ? message : tr("Blender not configured");
         colour = message.startsWith("Error:", Qt::CaseInsensitive) ? "red" : "blue";
     }
-    blenderLabel->setText(label);
-    blenderLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
+    blenderVersionLabel->setText(label);
+    blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
 }
 
 void BlenderRenderDialogGui::update()
@@ -9805,7 +9822,7 @@ void BlenderRenderDialogGui::readStdOut()
         } else if (stdOutLine.contains(rxAddonVersion)) {
             // Get Addon version
             items = stdOutLine.split(":");
-            blenderVersion.append(", LDraw Addon v"+items.at(1).trimmed()); // 1 addon version
+            blenderAddOnVersion = tr("LDraw Addon v%1").arg(items.at(1).trimmed()); // 1 addon version
         }
     }
 }
@@ -9900,18 +9917,20 @@ void BlenderRenderDialogGui::showResult()
         statusUpdate(false, tr("%1: Addon install failed.").arg("Error"));
         showMessage(StdErrLog);
     } else {
-        blenderVersionHLayout->replaceWidget(progressBar, blenderVersionEdit);
+        blenderVersionGridLayout->replaceWidget(progressBar, blenderVersionEdit);
         message = tr("Blender version %1").arg(blenderVersion);
         mBlenderConfigured = true;
         mBlenderAddonUpdate = !mBlenderConfigured;
-        blenderLabel->setText(tr("Blender Version"));
+        blenderVersionLabel->setText(tr("Blender Version"));
         if (Preferences::displayTheme == THEME_DARK)
-            blenderLabel->setStyleSheet("QLabel { color : white ; }");
+            blenderVersionLabel->setStyleSheet("QLabel { color : white ; }");
         else
-            blenderLabel->setStyleSheet("QLabel { color : black; }");
+            blenderVersionLabel->setStyleSheet("QLabel { color : black; }");
         blenderVersionEdit->setText(blenderVersion);
         blenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
         blenderVersionEdit->setVisible(mBlenderConfigured);
+        if (!blenderAddOnVersion.isEmpty())
+            blenderAddOnVersionEdit->setText(blenderAddOnVersion);
         blenderPathEditAction->setEnabled(mBlenderConfigured);
         blenderPathsBox->setEnabled(mBlenderConfigured);
         blenderSettingsBox->setEnabled(mBlenderConfigured);
@@ -9985,7 +10004,7 @@ int BlenderRenderDialogGui::getBlenderAddon(const QString &blenderDir)
             }
         }
 
-        blenderRenderDialog->blenderVersionHLayout->replaceWidget(blenderRenderDialog->blenderVersionEdit, blenderRenderDialog->progressBar);
+        blenderRenderDialog->blenderVersionGridLayout->replaceWidget(blenderRenderDialog->blenderVersionEdit, blenderRenderDialog->progressBar);
         blenderRenderDialog->progressBar->show();
 
         QDir dir(blenderAddonDir);
