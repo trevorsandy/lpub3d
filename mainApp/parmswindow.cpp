@@ -120,7 +120,7 @@ void ParmsWindow::createActions()
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setObjectName("exitAct.5");
     exitAct->setShortcut(QStringLiteral("Ctrl+Q"));
-    exitAct->setStatusTip(tr("Exit the application"));
+    exitAct->setStatusTip(tr("Exit this window"));
     lpub->actions.insert(exitAct->objectName(), Action(QStringLiteral("Edit.Exit"), exitAct));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -499,6 +499,9 @@ void ParmsWindow::displayParmsFile(
         showAllCharsAct->setVisible(true);
     else
         showAllCharsAct->setVisible(false);
+
+    saveAct->setStatusTip(tr("Save %1 to disc").arg(fileInfo.absoluteFilePath()));
+    systemEditorAct->setStatusTip(tr("Open %1 with the system editor").arg(fileInfo.absoluteFilePath()));
 
     statusBar()->showMessage(tr("File %1 loaded").arg(file.fileName()), 2000);
 }

@@ -217,6 +217,8 @@ void RenderDialog::on_RenderButton_clicked()
 
     if (mRenderType == POVRAY_RENDER) {
 
+        lpub->getAct("povrayRenderAct.4")->setEnabled(false);
+
         ui->TimeLabel->setText(tr("Generating POV-Ray scene file..."));
         QApplication::processEvents();
 
@@ -224,6 +226,7 @@ void RenderDialog::on_RenderButton_clicked()
         if (csiParts.isEmpty())
         {
             emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI parts for %1.").arg(mViewerStepKey));
+            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
             return;
         }
 
@@ -243,8 +246,10 @@ void RenderDialog::on_RenderButton_clicked()
                 mCsiKeyList.at(K_ROTSTYPE);              // type [REL|ABS]
 
         // RotateParts #1 - 5 parms, rotate parts for ldvExport - apply rotstep and camera angles
-        if ((Render::rotatePartsRD(csiParts, mModelFile, rsKey, caKey, Options::CSI)) != 0)
+        if ((Render::rotatePartsRD(csiParts, mModelFile, rsKey, caKey, Options::CSI)) != 0) {
+            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
             return ;
+        }
 
         // Camera distance keys
         QString cdKey = QString::number(mWidth)+" "+     // imageWidth
@@ -333,8 +338,10 @@ void RenderDialog::on_RenderButton_clicked()
         emit gui->messageSig(LOG_INFO, message);
 
         // generate POV file
-        if (!Render::doLDVCommand(Arguments,POVRAY_RENDER))
+        if (!Render::doLDVCommand(Arguments,POVRAY_RENDER)) {
+            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
             return ;
+        }
 
         message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));
         emit gui->messageSig(LOG_INFO, message);
@@ -396,6 +403,7 @@ void RenderDialog::on_RenderButton_clicked()
         }
         else
         {
+            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
             message = tr("Error starting POV-Ray.");
             emit gui->messageSig(LOG_ERROR, message);
             CloseProcess();
@@ -416,8 +424,6 @@ void RenderDialog::on_RenderButton_clicked()
                 .arg(Preferences::lpub3d3rdPartyConfigDir)
                 .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
-
-        QString Program = QDir::toNativeSeparators(Preferences::blenderExe);
 
         QStringList Arguments;
         QString pythonExpression;
@@ -440,6 +446,7 @@ void RenderDialog::on_RenderButton_clicked()
             Arguments << QString("200 100 1440 900");
         } else {
             Arguments << QString("--background");
+            lpub->getAct("blenderRenderAct.4")->setEnabled(false);
         }
 
         pythonExpression.append(", cli_render=True)\"");
@@ -482,10 +489,12 @@ void RenderDialog::on_RenderButton_clicked()
                 emit gui->messageSig(LOG_ERROR, tr("Cannot write Blender render script file [%1] %2.")
                                      .arg(script.fileName())
                                      .arg(script.errorString()));
+                lpub->getAct("blenderRenderAct.4")->setEnabled(true);
                 return;
             }
         } else {
             emit gui->messageSig(LOG_ERROR, tr("Cannot create Blender render script temp path."));
+            lpub->getAct("blenderRenderAct.4")->setEnabled(true);
             return;
         }
 
@@ -544,12 +553,13 @@ void RenderDialog::on_RenderButton_clicked()
         }
         else
         {
+            lpub->getAct("blenderRenderAct.4")->setEnabled(true);
             message = tr("Error starting Blender render process");
             emit gui->messageSig(LOG_ERROR, message);
             CloseProcess();
         }
-    }
-#endif
+    }  // BLENDER_RENDER
+#endif // ndef QT_NO_PROCESS
 }
 
 #ifdef Q_OS_WIN
@@ -558,7 +568,6 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
 //    emit gui->messageSig(LOG_DEBUG, QString("PID %1, Parent PID: %2").arg(pid).arg(ppid));
     DWORD pID        = DWORD(pid);
     DWORD ppID       = DWORD(ppid);
-    BOOL bResult     = FALSE;
     BOOL bChild      = FALSE;
     HANDLE hSnapshot = INVALID_HANDLE_VALUE, hProcess = INVALID_HANDLE_VALUE;
     PROCESSENTRY32 pe32;
@@ -568,7 +577,7 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
         return -1;
     }
     pe32.dwSize = sizeof(PROCESSENTRY32);
-    if ((bResult = Process32First(hSnapshot, &pe32)) == FALSE) {
+    if (Process32First(hSnapshot, &pe32) == FALSE) {
         emit gui->messageSig(LOG_ERROR, QString("%1 failed: %2").arg("Process32First").arg(GetLastError()));
         CloseHandle(hSnapshot);
         return -2;
@@ -591,7 +600,7 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
                 }
             }
         }
-    } while ((bResult = Process32Next(hSnapshot, &pe32)));
+    } while (Process32Next(hSnapshot, &pe32));
     CloseHandle(hSnapshot);
 
     return 0;
@@ -799,6 +808,8 @@ void RenderDialog::ShowResult()
 
     if (mRenderType == POVRAY_RENDER) {
 
+        lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+
         ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
 
         emit gui->messageSig(LOG_INFO,tr("Writing POV-Ray rendered image '%1'...").arg(ui->OutputEdit->text()));
@@ -816,6 +827,8 @@ void RenderDialog::ShowResult()
         }
 
     } else if (mRenderType == BLENDER_RENDER) {
+
+        lpub->getAct("blenderRenderAct.4")->setEnabled(true);
 
         Success = QFileInfo(FileName).exists();
         if (Success){
@@ -914,6 +927,10 @@ bool RenderDialog::PromptCancel()
                                   tr("Are you sure you want to cancel the current Render?"),
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
+            if (mRenderType == POVRAY_RENDER)
+                lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+            else if (mRenderType == BLENDER_RENDER && !mImportOnly)
+                lpub->getAct("blenderRenderAct.4")->setEnabled(true);
 #ifdef Q_OS_WIN
             TerminateChildProcess(mProcess->processId(),
                                   QCoreApplication::applicationPid());

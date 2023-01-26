@@ -2305,8 +2305,8 @@ class BlenderRenderDialogGui : public QWidget
 {
   Q_OBJECT
 public:
-  BlenderRenderDialogGui(){}
-  ~BlenderRenderDialogGui(){}
+  BlenderRenderDialogGui();
+  ~BlenderRenderDialogGui();
 
   void getRenderSettings(int &width,
                          int &height,
@@ -2319,6 +2319,7 @@ public:
   static int numPaths(bool = false);
   static int numSettings(bool = false);
   static int numComboOptItems();
+  static int getBlenderAddon(const QString &);
   static bool extractBlenderAddon(const QString &);
   static void loadDefaultParameters(QByteArray& Buffer, int Which);
   static bool exportParameterFile();
@@ -2482,6 +2483,14 @@ private:
      PARAMS_LIGHTED_BRICKS
   };
 
+  enum BlenderAddOnUpdate
+  {
+      ADD_ON_FAIL = -1,
+      ADD_ON_DOWNLOAD,
+      ADD_ON_RELOAD,
+      ADD_ON_CANCEL
+  };
+
   struct BlenderSettings
   {
       QString key;
@@ -2525,5 +2534,7 @@ private:
   int mHeight;
   qreal mScale;
 };
+
+extern class BlenderRenderDialogGui *blenderRenderDialog;
 
 #endif
