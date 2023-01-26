@@ -7493,7 +7493,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
     if (logType == LOG_WARNING) {
 
         if (Preferences::loggingEnabled)
-            logError() << qPrintable(QString(message).replace("<br>"," "));
+            logWarning() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
             if (ContinuousPage() || exporting()) {
@@ -7539,6 +7539,35 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
             } else {
                 QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message);
             }
+        }
+    } else
+    if (logType == LOG_BLENDER_ADDON) {
+
+        bool const errorEncountered = msgBox;
+
+        if (Preferences::loggingEnabled) {
+            if (errorEncountered)
+                logError() << qPrintable(message.replace("<br>"," "));
+            else
+                logWarning() << qPrintable(message.replace("<br>"," "));
+        }
+
+        if (guiEnabled && !abortInProgress) {
+            QMessageBoxResizable box;
+            box.setTextFormat (Qt::RichText);
+            box.setIcon (errorEncountered ? QMessageBox::Critical : QMessageBox::Warning);
+            box.setStandardButtons (QMessageBox::Ok);
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+            box.setWindowTitle(tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR));
+            int const lines = message.count("<br>");
+            bool const multi = lines > 1;
+            QString const type = errorEncountered ? multi ? tr("errors") : tr("error") : multi ? tr("warnings") : tr("warning");
+            QString const header = "<b>" + tr ("Addon install %1 encountered.").arg(type) + "&nbsp;</b>";
+            QString const body = tr ("Addon install encountered %1 %2. See Show Details...").arg(multi ? tr("an") : tr("a")).arg(type);
+            box.setText (header);
+            box.setInformativeText (body);
+            box.setDetailedText(message);
+            box.exec();
         }
     }
 

@@ -73,7 +73,6 @@ enum RemoveLPubFormatType { RLPF_NONE = -1, RLPF_DOCUMENT, RLPF_SUBMODEL, RLPF_P
 enum RendererType { RENDERER_INVALID = -1, RENDERER_NATIVE, RENDERER_LDVIEW, RENDERER_LDGLITE, RENDERER_POVRAY, NUM_RENDERERS };
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
-enum LogType { LOG_STATUS, LOG_INFO_STATUS, LOG_NOTICE, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_WARNING, LOG_ERROR, LOG_FATAL };
 enum CamFlag { DefFoV, DefZNear, DefZFar };
 enum NativeRenderType { NATIVE_VIEW, NATIVE_IMAGE, NATIVE_EXPORT };
 enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
@@ -96,6 +95,17 @@ enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum SceneObjectInfo { ObjectId };
 enum RecentFilesType { MAX_RECENT_FILES = 8 };
+enum LogType { LOG_STATUS,
+               LOG_INFO_STATUS,
+               LOG_NOTICE,
+               LOG_INFO,
+               LOG_TRACE,
+               LOG_DEBUG,
+               LOG_WARNING,
+               LOG_ERROR,
+               LOG_FATAL,
+               LOG_BLENDER_ADDON
+};
 enum TraverseRc { HitNothing,
                   HitEndOfFile = HitNothing,
                   HitEndOfPage,

@@ -8892,14 +8892,17 @@ void BlenderRenderDialogGui::getRenderSettings(
     blenderVersionEdit->setPalette(ReadOnlyPalette);
     blenderVersionEdit->setReadOnly(true);
     blenderVersionGridLayout->addWidget(blenderVersionEdit,0,1);
-    blenderAddOnVersionLabel = new QLabel(tr("%1 AddOn Version").arg(VER_PRODUCTNAME_STR), blenderContent);
+
+    blenderAddOnVersionLabel = new QLabel(tr("Addon Version"), blenderContent);
     blenderVersionGridLayout->addWidget(blenderAddOnVersionLabel,1,0);
+
     blenderAddOnVersionEdit = new QLineEdit(blenderContent);
+    blenderAddOnVersionEdit->setToolTip(tr("%1 Blender LDraw import and image renderer addon").arg(VER_PRODUCTNAME_STR));
     blenderAddOnVersionEdit->setPalette(ReadOnlyPalette);
     blenderAddOnVersionEdit->setReadOnly(true);
     blenderVersionGridLayout->addWidget(blenderAddOnVersionEdit,1,1);
 
-    if (mBlenderConfigured){
+    if (mBlenderConfigured) {
         blenderVersionLabel->setText(tr("Blender Version"));
         blenderVersionEdit->setText(blenderVersion);
         if (!blenderAddOnVersion.isEmpty())
@@ -9316,7 +9319,11 @@ void BlenderRenderDialogGui::saveSettings()
     Preferences::setBlenderExePathPreference(value);
 
 //    label = "Blender Version";
-    value = QString("%1|%2").arg(blenderVersion).arg(blenderAddOnVersion);
+    value.clear();
+    if (!blenderVersion.isEmpty())
+        value = blenderVersion;
+    if (!blenderAddOnVersion.isEmpty())
+        value.append(QString("|%1").arg(blenderAddOnVersion));
     Preferences::setBlenderVersionPreference(value);
 
     QString blenderConfigFile;
@@ -9380,21 +9387,24 @@ void BlenderRenderDialogGui::showPathsGroup()
     }
 }
 
-int BlenderRenderDialogGui::numSettings(bool defaultSettings){
+int BlenderRenderDialogGui::numSettings(bool defaultSettings)
+{
   int size = 0;
   if (!blenderSettings[0].key.isEmpty() || defaultSettings)
       size = sizeof(blenderSettings)/sizeof(blenderSettings[0]);
   return size;
 }
 
-int BlenderRenderDialogGui::numPaths(bool defaultSettings){
+int BlenderRenderDialogGui::numPaths(bool defaultSettings)
+{
   int size = 0;
   if (!blenderPaths[0].key.isEmpty() || defaultSettings)
       size = sizeof(blenderPaths)/sizeof(blenderPaths[0]);
   return size;
 }
 
-int BlenderRenderDialogGui::numComboOptItems(){
+int BlenderRenderDialogGui::numComboOptItems()
+{
     return sizeof(comboOptItems)/sizeof(comboOptItems[0]);
 }
 
@@ -9464,6 +9474,9 @@ void BlenderRenderDialogGui::browseBlender(bool unused)
                     QFileInfo  pathInfo(selectedPath.at(0));
                     if (pathInfo.exists()) {
                         pathLineEditList[i]->setText(selectedPath.at(0));
+                        if (i == LBL_BLENDER_PATH && blenderPath.toLower() != QDir::toNativeSeparators(pathInfo.absoluteFilePath().toLower())) {
+                            updateLDrawAddon();
+                        }
                     }
                 }
             }
@@ -9618,10 +9631,19 @@ void BlenderRenderDialogGui::configureBlender()
         return;
     }
 
-    if (mBlenderConfigured && !mBlenderAddonUpdate)
-        return;
-
     if (QFileInfo(blenderFile).exists()) {
+
+        // Setup
+        QString const blenderExe = QDir::toNativeSeparators(blenderFile);
+        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+        QString const blenderConfigDir   = QString("%1/config").arg(blenderDir);
+        QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
+        QString const blenderExeCompare = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
+
+        bool newBlenderExe = blenderExeCompare != blenderExe.toLower();
+
+        if (mBlenderConfigured && !mBlenderAddonUpdate && !newBlenderExe)
+            return;
 
         connect(&updateTimer, SIGNAL(timeout()), this, SLOT(update()));
         updateTimer.start(500);
@@ -9631,12 +9653,6 @@ void BlenderRenderDialogGui::configureBlender()
         progressBar->setMaximum(0);
         progressBar->setMinimum(0);
         progressBar->setValue(1);
-
-        // Setup
-        QString const blenderExe = QDir::toNativeSeparators(blenderFile);
-        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
-        QString const blenderConfigDir   = QString("%1/config").arg(blenderDir);
-        QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
 
         // Download and extract blender addon
         if (!extractBlenderAddon(blenderDir)) {
@@ -9765,10 +9781,12 @@ void BlenderRenderDialogGui::readStdOut()
 
     QRegExp rxInfo("^INFO: ");
     QRegExp rxData("^DATA: ");
-    QRegExp rxError("^WARNING: |ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxError("^ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxWarning("^WARNING: ", Qt::CaseInsensitive);
     QRegExp rxAddonVersion("^ADDON VERSION: ", Qt::CaseInsensitive);
 
-    QStringList items;
+    bool errorEncountered = false;
+    QStringList items,messages;
     QStringList stdOutLines = StdOut.split(QRegExp("\n|\r\n|\r"));
 
     for (QString stdOutLine: stdOutLines) {
@@ -9781,11 +9799,12 @@ void BlenderRenderDialogGui::readStdOut()
             // Get Blender Version
             items = stdOutLine.split(" ");
             if (items.count() > 6 && items.at(0) == QLatin1String("Blender")) {
-                items.takeLast();                       // remove HH:MM::SS)
+                items.takeLast();
                 blenderVersion.clear();
                 for (int i = 1; i < items.size(); i++)
                     blenderVersion.append(items.at(i)+" ");
                 blenderVersion = blenderVersion.trimmed().append(")");
+                blenderVersionEdit->setText(blenderVersion);
                 emit gui->messageSig(LOG_DEBUG, tr("Blender version: %1").arg(blenderVersion));
             } else {
                 QString message = tr("Invaid Blender version: %1").arg(stdOutLine);
@@ -9809,21 +9828,21 @@ void BlenderRenderDialogGui::readStdOut()
                 blenderPaths[LBL_STUDLOGO_DIRECTORY].value = items.at(2);
                 pathLineEditList[LBL_STUDLOGO_DIRECTORY]->setText(items.at(2));
             }
-        } else if (stdOutLine.contains(rxError)){
-            QString detailedText = stdOutLine.trimmed()
-                    .replace("<","&lt;")
-                    .replace(">","&gt;")
-                    .replace("&","&amp;") + "<br>";
-            if (Preferences::modeGUI){
-                showMessage(detailedText);
-            } else {
-                emit gui->messageSig(LOG_ERROR, detailedText);
-            }
+        } else if (stdOutLine.contains(rxError) || stdOutLine.contains(rxWarning)) {
+            errorEncountered = stdOutLine.contains(rxError);
+            messages << stdOutLine.trimmed()
+                        .replace("<","&lt;")
+                        .replace(">","&gt;")
+                        .replace("&","&amp;") + "<br>";
         } else if (stdOutLine.contains(rxAddonVersion)) {
             // Get Addon version
             items = stdOutLine.split(":");
             blenderAddOnVersion = tr("LDraw Addon v%1").arg(items.at(1).trimmed()); // 1 addon version
+            blenderAddOnVersionEdit->setText(blenderAddOnVersion);
         }
+    }
+    if (messages.size()) {
+        emit gui->messageSig(LOG_BLENDER_ADDON, messages.join(" "), errorEncountered);
     }
 }
 
@@ -9915,7 +9934,7 @@ void BlenderRenderDialogGui::showResult()
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
         message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
         statusUpdate(false, tr("%1: Addon install failed.").arg("Error"));
-        showMessage(StdErrLog);
+        emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
     } else {
         blenderVersionGridLayout->replaceWidget(progressBar, blenderVersionEdit);
         message = tr("Blender version %1").arg(blenderVersion);
@@ -9946,25 +9965,6 @@ void BlenderRenderDialogGui::showResult()
     emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
 }
 
-void BlenderRenderDialogGui::showMessage(const QString &message)
-{
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
-    QMessageBoxResizable box;
-    box.setTextFormat (Qt::RichText);
-    box.setIcon (QMessageBox::Critical);
-    box.setStandardButtons (QMessageBox::Ok);
-    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    box.setWindowTitle(tr ("Blender Addon Install"));
-    QString header = "<b>" + tr ("Addon install error.") + "&nbsp;</b>";
-    QString body = tr ("An error occurred. See Show Details...");
-    box.setText (header);
-    box.setInformativeText (body);
-    box.setDetailedText(message);
-    box.exec();
-}
-
 int BlenderRenderDialogGui::getBlenderAddon(const QString &blenderDir)
 {
     QString const blenderAddonDir    = QString("%1/addons").arg(blenderDir);
@@ -9975,7 +9975,7 @@ int BlenderRenderDialogGui::getBlenderAddon(const QString &blenderDir)
     // Remove old addon archive if exist
     if (QFileInfo(blenderAddonDir).exists()) {
         if (QFileInfo(blenderInstallFile).exists()) {
-            if (Preferences::modeGUI){
+            if (Preferences::modeGUI) {
                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
                 if (_icon.isNull())
                     _icon = QPixmap (":/icons/update.png");
@@ -9984,11 +9984,11 @@ int BlenderRenderDialogGui::getBlenderAddon(const QString &blenderDir)
                 box.setWindowIcon(QIcon());
                 box.setIconPixmap (_icon);
                 box.setTextFormat (Qt::RichText);
-                box.setWindowTitle(tr ("Blender Addon"));
+                box.setWindowTitle(tr ("%1 Blender Addon").arg(VER_PRODUCTNAME_STR));
                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-                QString title = tr ("An existing LDraw Blender addon was detected.");
+                QString title = tr ("An existing %1 LDraw Blender addon archive file was detected.").arg(VER_PRODUCTNAME_STR);
                 box.setText (title);
-                QString text  = tr ("Do you want to download the addon again?");
+                QString text  = tr ("Do you want to download the addon archive file again?");
                 box.setInformativeText (text);
                 box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
                 box.setDefaultButton   (QMessageBox::No);

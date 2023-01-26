@@ -2348,7 +2348,6 @@ public slots:
   bool promptCancel();
   void showResult();
   QString readStdErr(bool &hasError) const;
-  void showMessage(const QString &message);
   void statusUpdate(bool ok = false, const QString &message = QString());
 
 private:
