@@ -321,11 +321,10 @@ int SubModel::createSubModelImage(
 
   // Populate viewerSubmodelKey variable
   viewerSubmodelKey = QString("%1;%2;%3%4")
-                          .arg(gui->getSubmodelIndex(bottom.modelName))
-                          .arg(bottom.lineNumber)
+                          .arg(gui->getSubmodelIndex(top.modelName))
+                          .arg(top.lineNumber)
                           .arg(stepNumber)
                           .arg(lpub->mi.viewerStepKeySuffix(top, step));
-  step->viewerStepKey = viewerSubmodelKey;
 
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG,

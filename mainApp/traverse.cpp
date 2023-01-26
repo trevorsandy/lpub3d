@@ -2666,9 +2666,9 @@ int Gui::drawPage(
                                                       false /* multiStep */);
                                   }
 
-                                  emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
-
                                   if (step) {
+                                      emit messageSig(LOG_INFO, QString("Set cover page model display for %1...")
+                                                      .arg(topOfStep.modelName));
                                       step->setBottomOfStep(opts.current);
                                       step->modelDisplayOnlyStep = true;
                                       step->subModel.viewerSubmodel = true;
@@ -2678,10 +2678,18 @@ int Gui::drawPage(
                                       } else {
                                           // set the current step - enable access from other parts of the application - e.g. Renderer
                                           lpub->setCurrentStep(step);
-                                          showLine(topOfStep);
-                                          const QString modelFileName = QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(SUBMODEL_IMAGE_BASENAME);
-                                          if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
-                                              emit gui->messageSig(LOG_WARNING, tr("Could not load preview model (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+                                          if (lpub->currentStep) {
+                                              if (step->subModel.viewerSubmodelKey == lpub->currentStep->viewerStepKey) {
+                                                  showLine(topOfStep);
+                                                  const QString modelFileName = QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(SUBMODEL_IMAGE_BASENAME);
+                                                  if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
+                                                      emit gui->messageSig(LOG_WARNING, tr("Could not load preview model (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+                                              } else {
+                                                  QString const currentStepKey = lpub->currentStep->viewerStepKey;
+                                                  emit gui->messageSig(LOG_WARNING, QObject::tr("The specified submodel step key: '%1' does not match the current step key: '%2'")
+                                                                       .arg(step->subModel.viewerSubmodelKey).arg(currentStepKey));
+                                              }
+                                          }
                                       }
                                   } // step
                               } // cover page view enabled
