@@ -1826,14 +1826,21 @@ void lcView::SetCameraAngles(float Latitude, float Longitude)
 
 void lcView::SetDefaultCamera()
 {
+/*** LPub3D Mod - View Camera None ***/
+	if (mCamera && mCamera->IsSimple())
+		return;
+/*** LPub3D Mod end ***/
+
 	if (!mCamera || !mCamera->IsSimple())
 		mCamera = new lcCamera(true);
 
 	mCamera->SetViewpoint(lcViewpoint::Home);
-	ZoomExtents();
-	Redraw();
+/*** LPub3D Mod - View Camera None ***/
+/***ZoomExtents();***/
 
 	emit CameraChanged();
+	Redraw();
+/*** LPub3D Mod end ***/
 }
 
 void lcView::SetCamera(lcCamera* Camera, bool ForceCopy)

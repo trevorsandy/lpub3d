@@ -2826,9 +2826,10 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 					ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 
 					if (!Selection.GetSize() && !Focus)
+					{
 						Selection.Add(Camera);
-
-					mPropertiesWidget->Update(Selection, Camera);
+						mPropertiesWidget->Update(Selection, Camera);
+					}
 				}
 			}
 		}
@@ -3866,7 +3867,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_VIEW_CAMERA_NONE:
 		if (ActiveView)
-			ActiveView->RemoveCamera();
+/*** LPub3D Mod - View Camera None ***/
+			ActiveView->SetDefaultCamera();
+/***		ActiveView->RemoveCamera();***/
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_VIEW_CAMERA1:
