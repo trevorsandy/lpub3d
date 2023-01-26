@@ -3591,7 +3591,7 @@ void Gui::initialize()
 
 void Gui::getSubFileList()
 {
-   setSubFilesSig(fileList());
+   emit setSubFilesSig(fileList());
 }
 
 void Gui::loadBLCodes()

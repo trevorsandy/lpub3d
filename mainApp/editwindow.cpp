@@ -413,11 +413,9 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
 
 void EditWindow::openWith()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    QString filePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
-    QStringList arguments = QStringList() << QDir::toNativeSeparators(QString("%1/%2").arg(filePath).arg(QFileInfo(fileName).fileName()));
+    QStringList arguments = QStringList() << QDir::toNativeSeparators(fileName);
     QString program;
-
+    QAction *action = qobject_cast<QAction *>(sender());
     if (action) {
         program = action->data().toString();
         if (program.isEmpty()) {
@@ -441,7 +439,7 @@ void EditWindow::openWith()
         }
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
-        QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
+        QProcess::startDetached(program, arguments, workingDirectory, &pid);
         emit lpub->messageSig(LOG_INFO, QString("Launched %1 with pid=%2 %3%4...")
                               .arg(QFileInfo(fileName).fileName()).arg(pid)
                               .arg(QFileInfo(program).fileName())
@@ -2307,6 +2305,7 @@ void EditWindow::displayFile(
     _textEdit->document()->clear();
 
   } else if (modelFileEdit()) { // Detached Editor
+
     if (!ldrawFile && !QFileInfo(_fileName).exists()) {
       _textEdit->document()->setModified(false);
       connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
@@ -2403,6 +2402,7 @@ void EditWindow::loadFinished()
         statusBar()->showMessage(message);
 
         if (modelFileEdit()) {
+            saveAct->setStatusTip(tr("Save %1").arg(QDir::toNativeSeparators(fileName)));
             if(QFileInfo(fileName).exists())
                 fileWatcher.addPath(fileName);
         }
