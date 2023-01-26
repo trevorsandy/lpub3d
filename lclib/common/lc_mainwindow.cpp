@@ -2802,14 +2802,21 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 	if (ActiveView)
 	{
 		lcCamera* Camera = ActiveView->GetCamera();
-		bool IsDefaultCamera = Camera->GetName().isEmpty();
 
-		if (Camera && IsDefaultCamera)
+		if (Camera)
 		{
 			lcModel* ActiveModel = ActiveView->GetActiveModel();
 
 			if (ActiveModel)
 			{
+				bool IsCustomCamera = ActiveModel->GetCameras().FindIndex(Camera) != -1;
+
+				if (!IsCustomCamera && !Camera->IsSimple())
+				{
+					Camera = new lcCamera(true);
+					ActiveView->SetCamera(Camera, false);
+				}
+
 				lcTool Tool = GetTool();
 				if (Tool == lcTool::Select)
 				{
@@ -2817,14 +2824,11 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 					lcArray<lcObject*> Selection;
 					lcObject* Focus = nullptr;
 					ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
-					bool NoSelectionOrFocus = !Selection.GetSize() && !Focus;
 
-					if (NoSelectionOrFocus)
-					{
-						lcArray<lcObject*> Selection;
+					if (!Selection.GetSize() && !Focus)
 						Selection.Add(Camera);
-						mPropertiesWidget->Update(Selection, Camera);
-					}
+
+					mPropertiesWidget->Update(Selection, Camera);
 				}
 			}
 		}
