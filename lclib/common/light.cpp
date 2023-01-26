@@ -110,61 +110,63 @@ lcLight::~lcLight()
 void lcLight::SaveLDraw(QTextStream& Stream) const
 {
 /*** LPub3D Mod - enable lights ***/
-	QLatin1String LineEnding("\r\n");
+	lcVector3 Vector;
+	QByteArray Meta(mLPubMeta ? "0 !LPUB" : "0 !LEOCAD");
+	const QLatin1String LineEnding("\r\n");
 
 	if (mPositionKeys.GetSize() > 1)
 		mPositionKeys.SaveKeysLDraw(Stream, "LIGHT POSITION_KEY ");
 	else
-		if (mLPubMeta)
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			Stream << QLatin1String("0 !LPUB LIGHT POSITION ") << mPosition[0] << ' ' << -mPosition[2] << ' ' << mPosition[1] << LineEnding;
-		else
-			Stream << QLatin1String("0 !LEOCAD LIGHT POSITION ") << mPosition[0] << ' ' << mPosition[1] << ' ' << mPosition[2] << LineEnding;
+	{
+		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mPosition) : mPosition;
+		Stream << QLatin1String(Meta + " LIGHT POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+	}
 
 	if (mTargetPositionKeys.GetSize() > 1)
 		mTargetPositionKeys.SaveKeysLDraw(Stream, "LIGHT TARGET_POSITION_KEY ");
 	else
-		if (mLPubMeta)
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			Stream << QLatin1String("0 !LPUB LIGHT TARGET_POSITION ") << mTargetPosition[0] << ' ' << -mTargetPosition[2] << ' ' << mTargetPosition[1] << LineEnding;
-		else
-			Stream << QLatin1String("0 !LEOCAD LIGHT TARGET_POSITION ") << mTargetPosition[0] << ' ' << mTargetPosition[1] << ' ' << mTargetPosition[2] << LineEnding;
+	{
+		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mTargetPosition) : mTargetPosition;
+		Stream << QLatin1String(Meta + " LIGHT TARGET_POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+	}
 
 	if (mLightColorKeys.GetSize() > 1)
 		mLightColorKeys.SaveKeysLDraw(Stream, "LIGHT COLOR_RGB_KEY ");
 	else
-		Stream << QLatin1String(QString("0 %1 LIGHT COLOR_RGB ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightColor[0] << ' ' << mLightColor[1] << ' ' << mLightColor[2] << LineEnding;
+		Stream << QLatin1String(Meta + " LIGHT COLOR_RGB ") << mLightColor[0] << ' ' << mLightColor[1] << ' ' << mLightColor[2] << LineEnding;
 
 	if (mLightSpecularKeys.GetSize() > 1)
 		mLightSpecularKeys.SaveKeysLDraw(Stream, "LIGHT SPECULAR_KEY ");
 	else
-		Stream << QLatin1String(QString("0 %1 LIGHT SPECULAR ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightSpecular << LineEnding;
+		Stream << QLatin1String(Meta + " LIGHT SPECULAR ") << mLightSpecular << LineEnding;
 
 	if (mLightType == LC_SUNLIGHT)
 	{
 		if (mSpotExponentKeys.GetSize() > 1)
 			mSpotExponentKeys.SaveKeysLDraw(Stream, "LIGHT STRENGTH_KEY ");
 		else
-			Stream << QLatin1String(QString("0 %1 LIGHT STRENGTH ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mSpotExponent << LineEnding;
+			Stream << QLatin1String(Meta + " LIGHT STRENGTH ") << mSpotExponent << LineEnding;
 
 		if (mLightFactorKeys.GetSize() > 1)
 			mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT ANGLE_KEY ");
 		else
-			Stream << QLatin1String(QString("0 %1 LIGHT ANGLE ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightFactor[0] << LineEnding;
+			Stream << QLatin1String(Meta + " LIGHT ANGLE ") << mLightFactor[0] << LineEnding;
 	}
 	else
 	{
 		if (mSpotExponentKeys.GetSize() > 1)
 			mSpotExponentKeys.SaveKeysLDraw(Stream, "LIGHT POWER_KEY ");
 		else
-			Stream << QLatin1String(QString("0 %1 LIGHT POWER ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mSpotExponent << LineEnding;
+			Stream << QLatin1String(Meta + " LIGHT POWER ") << mSpotExponent << LineEnding;
 
 		if (mEnableCutoff)
 		{
 			if (mSpotCutoffKeys.GetSize() > 1)
 				mSpotCutoffKeys.SaveKeysLDraw(Stream, "LIGHT CUTOFF_DISTANCE_KEY ");
 			else
-				Stream << QLatin1String(QString("0 %1 LIGHT CUTOFF_DISTANCE ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mSpotCutoff << LineEnding;
+				Stream << QLatin1String(Meta + " LIGHT CUTOFF_DISTANCE ") << mSpotCutoff << LineEnding;
 		}
 
 		switch (mLightType)
@@ -173,33 +175,33 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 			if (mLightFactorKeys.GetSize() > 1)
 				mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT RADIUS_KEY ");
 			else
-				Stream << QLatin1String(QString("0 %1 LIGHT RADIUS ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightFactor[0] << LineEnding;
+				Stream << QLatin1String(Meta + " LIGHT RADIUS ") << mLightFactor[0] << LineEnding;
 			break;
 		case LC_SPOTLIGHT:
 			if (mLightFactorKeys.GetSize() > 1) {
 				mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT RADIUS_AND_SPOT_BLEND_KEY ");
 			} else {
-				Stream << QLatin1String(QString("0 %1 LIGHT RADIUS ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightFactor[0] << LineEnding;
-				Stream << QLatin1String(QString("0 %1 SPOT_BLEND ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightFactor[1] << LineEnding;
+				Stream << QLatin1String(Meta + " LIGHT RADIUS ") << mLightFactor[0] << LineEnding;
+				Stream << QLatin1String(Meta + " SPOT_BLEND ") << mLightFactor[1] << LineEnding;
 			}
 			if (mLightSpotSizeKeys.GetSize() > 1)
 				mLightSpotSizeKeys.SaveKeysLDraw(Stream, "LIGHT SPOT_SIZE_KEY ");
 			else
-				Stream << QLatin1String(QString("0 %1 LIGHT SPOT_SIZE ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mSpotSize << LineEnding;
+				Stream << QLatin1String(Meta + " LIGHT SPOT_SIZE ") << mSpotSize << LineEnding;
 			break;
 		case LC_AREALIGHT:
 			if (mLightFactorKeys.GetSize() > 1) {
 				mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT SIZE_KEY ");
 			} else {
 				if (mLightShape == LC_LIGHT_SHAPE_RECTANGLE || mLightShape == LC_LIGHT_SHAPE_ELLIPSE)
-					Stream << QLatin1String(QString("0 %1 LIGHT WIDTH ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightFactor[0] << QLatin1String(" HEIGHT ") << mLightFactor[1] << LineEnding;
+					Stream << QLatin1String(Meta + " LIGHT WIDTH ") << mLightFactor[0] << QLatin1String(" HEIGHT ") << mLightFactor[1] << LineEnding;
 				else
-					Stream << QLatin1String(QString("0 %1 LIGHT SIZE ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << mLightFactor[0] << LineEnding;
+					Stream << QLatin1String(Meta + " LIGHT SIZE ") << mLightFactor[0] << LineEnding;
 			}
 			if (mLightShapeKeys.GetSize() > 1) {
 				mLightShapeKeys.SaveKeysLDraw(Stream, "LIGHT SHAPE_KEY ");
 			} else {
-				Stream << QLatin1String(QString("0 %1 LIGHT SHAPE ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1());
+				Stream << QLatin1String(Meta + " LIGHT SHAPE ");
 
 				QString Shape = "Undefined ";
 				switch(mLightShape){
@@ -229,7 +231,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 	}
 	else
 	{
-		Stream << QLatin1String(QString("0 %1 LIGHT TYPE ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1());
+		Stream << QLatin1String(Meta + " LIGHT TYPE ");
 
 		QString Type = "Undefined ";
 		switch(mLightType){

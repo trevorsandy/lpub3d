@@ -157,8 +157,9 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 
 /*** LPub3D Mod - LPUB meta command ***/
 	lcVector3 Vector;
-	QString Meta(mLPubMeta ? "!LPUB" : "!LEOCAD");
-	Stream << QLatin1String(QString("0 %1 CAMERA FOV ").arg(Meta).toLatin1()) << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding;
+	QByteArray Meta(mLPubMeta ? "0 !LPUB" : "0 !LEOCAD");
+
+	Stream << QLatin1String(Meta + " CAMERA FOV ") << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding;
 /*** LPub3D Mod end ***/
 
 	if (mPositionKeys.GetSize() > 1)
@@ -167,7 +168,7 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	{
 		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mPosition) : mPosition;
-		Stream << QLatin1String(QString("0 %1 CAMERA POSITION ").arg(Meta).toLatin1()) << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+		Stream << QLatin1String(Meta + " CAMERA POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
 	}
 /*** LPub3D Mod end ***/
 
@@ -177,7 +178,7 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	{
 		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mTargetPosition) : mTargetPosition;
-		Stream << QLatin1String(QString("0 %1 CAMERA TARGET_POSITION ").arg(Meta).toLatin1()) << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+		Stream << QLatin1String(Meta + " CAMERA TARGET_POSITION ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
 	}
 /*** LPub3D Mod end ***/
 
@@ -187,12 +188,12 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	{
 		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mUpVector) : mUpVector;
-		Stream << QLatin1String(QString("0 %1 CAMERA UP_VECTOR ").arg(Meta).toLatin1()) << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+		Stream << QLatin1String(Meta + " CAMERA UP_VECTOR ") << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
 	}
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - LPUB meta command ***/
-	Stream << QLatin1String(QString("0 %1 CAMERA ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1());
+	Stream << QLatin1String(Meta + " CAMERA ");
 /*** LPub3D Mod end ***/
 
 	if (IsHidden())
