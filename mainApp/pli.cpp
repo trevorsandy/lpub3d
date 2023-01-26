@@ -2181,10 +2181,6 @@ int Pli::partSize()
               lpub->ldrawFile.isUnofficialPart(part->type) ||
               lpub->ldrawFile.isSubmodel(part->type)) {
 
-              if (part->color == "16") {
-                  part->color = "0";
-                }
-
               QPixmap *pixmap = new QPixmap();
               if (pixmap == nullptr) {
                   return -1;
@@ -2418,7 +2414,7 @@ int Pli::partSizeLDViewSCall() {
             lpub->ldrawFile.isSubmodel(pliPart->type) ||
             lpub->ldrawFile.isUnofficialPart(pliPart->type)) {
 
-            if (pliPart->color == "16" || isSubModel) {
+            if (pliPart->color == LDRAW_MAIN_MATERIAL_COLOUR || isSubModel) {
                 pliPart->color = "0";
             }
 

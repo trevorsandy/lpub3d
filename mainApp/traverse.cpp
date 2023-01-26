@@ -780,7 +780,7 @@ int Gui::drawPage(
           QString color = tokens[1];
           QString type  = tokens[tokens.size()-1];
 
-          if (color == "16") {
+          if (color == LDRAW_MAIN_MATERIAL_COLOUR) {
               QStringList addTokens;
               split(addLine,addTokens);
               if (addTokens.size() == 15) {
