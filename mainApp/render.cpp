@@ -4049,7 +4049,7 @@ int Render::createNativeModelFile(
         } //end for
 
       /* process extracted submodels and unofficial files */
-      if (nativeSubModels.size()){
+      if (nativeSubModels.size()) {
           nativeSubModels.removeDuplicates();
           if ((rc = mergeNativeSubModels(nativeSubModels, nativeSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
               emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to process viewer submodels"));
@@ -4058,30 +4058,55 @@ int Render::createNativeModelFile(
         }
 
       /* add sub model content to nativeRotatedParts file */
-      if (! nativeSubModelParts.empty())
-        {
+      const QLatin1String mpdModelMeta("0 FILE ");
+      bool mpdModel = nativeParts.at(0).startsWith(mpdModelMeta);
+      if (! nativeSubModelParts.empty()) {
+          bool singleSubmodel = false;
+          QString rotStepLine;
+          // check if main model and submodel shares the same name
+          if (mpdModel && nativeParts.at(0) == nativeSubModelParts.at(0)) {
+              int typeCount = 0;
+              bool mpdModelNotTransformed = false;
+              for (const QString &line : nativeParts) {
+                  if (line[0] != '0') {
+                      typeCount++;
+                      if (typeCount == 1)
+                          mpdModelNotTransformed = line.contains(QLatin1String(" 0 0 0 1 0 0 0 1 0 0 0 1 "));
+                  }
+                  else if (line.startsWith("0 // ROTSTEP "))
+                      rotStepLine = line;
+              }
+              singleSubmodel = mpdModelNotTransformed && nativeSubModels.size() == 1;
+              if (singleSubmodel) {
+                  nativeParts.clear();
+                  nativeSubModels.clear();
+              }
+          }
+
           for (int i = 0; i < nativeSubModelParts.size(); i++) {
               QString smLine = nativeSubModelParts[i];
               nativeParts << smLine;
-            }
-        }
+          }
+
+          if (singleSubmodel && !rotStepLine.isEmpty())
+              nativeParts.insert(3,rotStepLine);
+      }
 
       /* remove scenario where main model and submodel share the same name*/
       auto tc = [] (const QString &s)
       {
           return QString(s).replace(s.indexOf(s.at(0)),1,s.at(0).toUpper());
       };
-      QRegExp mpdRx = QRegExp("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
-      if (nativeParts.at(0).contains(mpdRx)) {
-          QFileInfo fi(mpdRx.cap(1));
+      if (mpdModel) {
+          QFileInfo fi(nativeParts[0].split(mpdModelMeta).last());
           if (nativeSubModels.contains(fi.fileName())) {
               QString baseName  = fi.completeBaseName();
               QString modelName = QString(fi.fileName()).replace(baseName, QString("%1-main").arg(baseName));
               nativeParts[0]    = QString("0 FILE %1").arg(modelName);
               nativeParts[1]    = QString("0 %1").arg(tc(modelName));
               nativeParts[2]    = QString("0 Name: %1").arg(modelName);
-            }
-        }
+          }
+      }
 
       /* return rotated parts by reference */
       rotatedParts = nativeParts;
@@ -4119,7 +4144,6 @@ int Render::mergeNativeSubModels(QStringList &subModels,
           if (imageType != Options::MON) {
               nativeSubModelParts << QString("0 %1").arg(modelName);
               nativeSubModelParts << QString("0 Name: %1").arg(nativeSubModels[index]);
-//              nativeSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
           }
 
           /* read the actual submodel file */
