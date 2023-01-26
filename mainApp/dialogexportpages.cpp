@@ -115,8 +115,10 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         pages = Gui::maxPages;
         if (Gui::m_exportMode == PAGE_PROCESS) {
             pages = Gui::displayPageNum > 1 ? Gui::displayPageNum - 1 : Gui::displayPageNum;
-            if (rangeMax == Gui::displayPageNum && rangeMax > 1)
+            if (rangeMax == Gui::displayPageNum && rangeMax > 1) {
                 rangeMax = rangeMax - 1;
+                rangeMin = 1 + Gui::pa;
+            }
         }
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(1 + Gui::pa));
         ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMax).arg(rangeMin));

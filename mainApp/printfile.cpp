@@ -306,7 +306,7 @@ void Gui::checkMixedPageSizeStatus(){
     }
 }
 
-bool Gui::validatePageRange(){
+bool Gui::validatePageRange() {
 
   QMessageBox box;
   box.setTextFormat (Qt::RichText);
@@ -337,13 +337,13 @@ bool Gui::validatePageRange(){
   bool validEntry = true;
   QString message;
   QStringList pageRanges = pageRangeText.split(",");
-  Q_FOREACH (QString ranges, pageRanges){
+  for (QString const &ranges: pageRanges){
       if (ranges.contains("-")){
           bool ok[2];
           QStringList range = ranges.split("-");
 
-          int startPage = range[0].toInt(&ok[0]);
-          int endPage = range[1].toInt(&ok[1]);
+          int startPage = QString(range[0].trimmed()).toInt(&ok[0]);
+          int endPage = QString(range[1].trimmed()).toInt(&ok[1]);
           if (!ok[0] || !ok[1]){
               message = QString("%1-%2").arg(startPage).arg(endPage);
               validEntry = false;
