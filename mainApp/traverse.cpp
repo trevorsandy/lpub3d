@@ -444,6 +444,7 @@ int Gui::drawPage(
   bool     global          = true;
   bool     pliIgnore       = false;
   bool     partIgnore      = false;
+  bool     excludedPart    = false;
   bool     synthBegin      = false;
   bool     multiStep       = false;
   bool     multiStepPage   = false;
@@ -754,27 +755,27 @@ int Gui::drawPage(
 
       QStringList tokens;
 
-      // If we hit end of file we've got to note end of step
+      /* If we hit end of file we've got to note end of step */
 
       if (opts.current >= numLines) {
           line.clear();
           gprc = EndOfFileRc;
           tokens << "0";
+      }
 
-          // not end of file, so get the next LDraw line
+      /* not end of file, so get the next LDraw line */
 
-        } else {
+      else {
 
-          // read the line from the ldrawFile db
+          /* read the line from the ldrawFile repository */
 
           line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber);
           split(line,tokens);
-        }
+      } // If we hit end of file, note end of step or if not, get the next LDraw line
 
       // STEP - Process part type
 
       if (tokens.size() == 15 && tokens[0] == "1") {
-
           // STEP - Create partType
 
           QString color = tokens[1];
@@ -785,10 +786,10 @@ int Gui::drawPage(
               split(addLine,addTokens);
               if (addTokens.size() == 15) {
                   tokens[1] = addTokens[1];
-                }
+              }
               line = tokens.join(" ");
               color = tokens[1];
-            }
+          }
 
           // STEP - Allocate step for type
 
@@ -822,16 +823,16 @@ int Gui::drawPage(
               }
           } // Allocate step for type
 
-          // STEP - Allocate PLI part
+          /* if part is on excludedPart.lst, set excludedPart */
 
-          /* check if part is on excludedPart.lst and set pliIgnore*/
-
-          if (ExcludedParts::isExcludedPart(type))
-              pliIgnore = true;
+          excludedPart = ExcludedParts::isExcludedPart(type);
 
           /* addition of ldraw parts */
 
+          // STEP - Allocate PLI part
+
           if (curMeta.LPub.pli.show.value()
+              && ! excludedPart
               && ! pliIgnore
               && ! partIgnore
               && ! buildModPliIgnore
@@ -1007,9 +1008,9 @@ int Gui::drawPage(
                   bool calloutPliPerStep = callout->meta.LPub.pli.show.value() &&
                                            callout->meta.LPub.callout.pli.perStep.value();
 
-                  buildModPliIgnore = calloutPliPerStep || pliIgnore;
+                  buildModPliIgnore = calloutPliPerStep || pliIgnore || excludedPart;
 
-                  if (! calloutPliPerStep && ! pliIgnore && ! buildModPliIgnore && ! partIgnore && ! synthBegin && calloutMode == CalloutBeginMeta::Unassembled) {
+                  if (! calloutPliPerStep && ! excludedPart && ! pliIgnore && ! buildModPliIgnore && ! partIgnore && ! synthBegin && calloutMode == CalloutBeginMeta::Unassembled) {
                       opts.pliParts += calloutParts;
                   }
 
@@ -1096,7 +1097,7 @@ int Gui::drawPage(
 
       // STEP - Process meta-command
 
-      else if ( (tokens.size() && tokens[0] == "0") || gprc == EndOfFileRc) {
+      else if ((tokens.size() && tokens[0] == "0") || gprc == EndOfFileRc) {
 
           /* must be a meta-command (or comment) */
 
@@ -1313,11 +1314,12 @@ int Gui::drawPage(
               if (pliIgnore) {
                   parseError("Nested PLI BEGIN/ENDS not allowed",opts.current);
                 }
-              if (steps->meta.LPub.pli.show.value() &&
-                  ! pliIgnore &&
-                  ! partIgnore &&
-                  ! buildModPliIgnore &&
-                  ! synthBegin) {
+              if (steps->meta.LPub.pli.show.value()
+                  && ! excludedPart
+                  && ! pliIgnore
+                  && ! partIgnore
+                  && ! buildModPliIgnore
+                  && ! synthBegin) {
                   QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2")
                                             .arg(curMeta.LPub.pli.begin.sub.value().color)
                                             .arg(curMeta.LPub.pli.begin.sub.value().part);
@@ -2128,7 +2130,7 @@ int Gui::drawPage(
                   buildModPliIgnore = true;
               } else if (buildModActions.value(buildMod.level) == BuildModRemoveRc) {
                   buildMod.ignore = true;
-                  buildModPliIgnore = pliIgnore;
+                  buildModPliIgnore = pliIgnore || excludedPart ;
               }
               buildMod.state = BM_BEGIN;
               break;
@@ -2149,7 +2151,7 @@ int Gui::drawPage(
               // set buildMod and buildModPli ignore
               if (buildModActions.value(buildMod.level) == BuildModApplyRc) {
                   buildMod.ignore = true;
-                  buildModPliIgnore = pliIgnore;
+                  buildModPliIgnore = pliIgnore || excludedPart;
               } else if (buildModActions.value(buildMod.level) == BuildModRemoveRc) {
                   buildMod.ignore = false;
                   buildModPliIgnore = true;
@@ -2169,7 +2171,7 @@ int Gui::drawPage(
               buildMod.level = getLevel(QString(), BM_END);
               if (buildMod.level == opts.buildModLevel) {
                   buildMod.ignore = false;
-                  buildModPliIgnore = pliIgnore;
+                  buildModPliIgnore = pliIgnore || excludedPart;
               }
               buildMod.state = BM_END;
               break;
@@ -2827,8 +2829,10 @@ int Gui::drawPage(
             default:
               break;
             } // Handle Specific meta-command
-        } // STEP - Process meta-command
+      } // STEP - Process meta-command
+
       // STEP - Process invalid line
+
       else if (line != "") {
           const QChar type = line.at(0);
 
@@ -2836,12 +2840,12 @@ int Gui::drawPage(
                      .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),opts.current);
 
           returnValue = HitInvalidLDrawLine;
-      }
-      /* if part is on excludedPart.lst, unset pliIgnore if still set */
-      if (pliIgnore && tokens[0] == "1" &&
-          ExcludedParts::isExcludedPart(tokens[tokens.size()-1])) {
-          pliIgnore = false;
-      }
+      } // Process invalid line
+
+      /* unset excludedPart */
+
+      excludedPart = false;
+
     } // for every line
 
   // if we get here it's likely and empty page or cover page...

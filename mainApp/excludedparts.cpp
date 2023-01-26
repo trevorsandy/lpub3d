@@ -125,14 +125,29 @@ const bool &ExcludedParts::isExcludedHelperPart(QString part)
 const bool &ExcludedParts::lineHasExcludedPart(const QString &line)
 {
     result = false;
-    QString part;
-    QStringList tt = line.split(" ", SkipEmptyParts);
 
-    if (tt.size() < 15)
+    QRegExp typeRx("^([1-5]) ");
+    if (!line.contains(typeRx))
         return result;
 
-    for (int t = 14; t < tt.size(); t++) // treat parts with spaces in the name
-        part += (tt[t]+" ");
+    QString part;
+    QString type = typeRx.cap(1);
+    QStringList le = line.split(" ", SkipEmptyParts);
+    int i = 0;
+
+    // treat parts with spaces in the name
+    if (le.size() >= 15 && type == "1")
+        i = 14;
+    else if (le.size() >= 14 && type.contains(QRegExp("4|5")))
+        i = 13;
+    else if (le.size() >= 11 && type == "3")
+        i = 10;
+    else if (le.size() >= 8 && type == "2")
+        i = 7;
+    else
+        return result;
+    for (i; i < le.size(); i++)
+        part += (le[i]+" ");
 
     result = isExcludedPart(part.replace(QRegExp("[\"']"),""));
     return result;
