@@ -1541,28 +1541,25 @@ void Gui::applyCameraSettings()
         lcVector3 ldrawVector;
         Where undefined = Where();
         Where top = currentStep->topOfStep();
-
         float Latitude, Longitude, Distance;
-        Camera->GetAngles(Latitude, Longitude, Distance);
 
-        bool applyTarget = !(Camera->mTargetPosition[0] == 0.0f  &&
-                             Camera->mTargetPosition[1] == 0.0f  &&
-                             Camera->mTargetPosition[2] == 0.0f);
-        bool applyPosition = !(Camera->mPosition[0] == 0.0f &&
-                             Camera->mPosition[1] == -1.0f &&
-                             Camera->mPosition[2] == 0.0);
-        bool applyUpVector = applyPosition && !(Camera->mUpVector[0] == 0.0f &&
-                             Camera->mUpVector[1] == 0.0f &&
-                             Camera->mUpVector[2] == 1.0);
-        bool applyZPlanes = applyUpVector;
-
+        bool applyTarget   = Camera->mTargetPosition != lcVector3(0.0f, 0.0f, 0.0f);
+        bool applyPosition = Camera->mPosition       != lcVector3(0.0f, -0.0f, 0.0f);
+        bool applyUpVector = Camera->mUpVector       != lcVector3(0.0f, 0.0f, -0.0f) && applyPosition;
+        bool applyZPlanes  = applyUpVector;
+        bool applyAngles   = !applyPosition && !applyUpVector;
+        if (applyAngles) {
+            Camera->GetAngles(Latitude, Longitude, Distance);
+            applyAngles    = (notEqual(qRound(Latitude), qRound(cameraMeta.cameraAngles.value(0))) ||
+                              notEqual(qRound(Longitude),qRound(cameraMeta.cameraAngles.value(1))));
+        }
+        bool applyDistance = applyAngles && notEqual(qRound(Distance), cameraMeta.cameraDistance.value());
 
         beginMacro(QLatin1String("CameraSettings"));
 
         // execute first in last out
 
         if (applyUpVector) {
-
             clearStepCache = true;
             if (QFileInfo(imageFileName).exists())
                 clearStepCSICache(imageFileName);
@@ -1576,7 +1573,6 @@ void Gui::applyCameraSettings()
         }
 
         if (applyTarget) {
-
             clearStepCache = true;
             if (QFileInfo(imageFileName).exists())
                 clearStepCSICache(imageFileName);
@@ -1590,7 +1586,6 @@ void Gui::applyCameraSettings()
         }
 
         if (applyPosition) {
-
             clearStepCache = true;
             if (QFileInfo(imageFileName).exists())
                 clearStepCSICache(imageFileName);
@@ -1620,8 +1615,7 @@ void Gui::applyCameraSettings()
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.modelScale.here(), metaString, newCommand);
         }
 
-        if (notEqual(qRound(Distance), cameraMeta.cameraDistance.value()) &&
-                    !UseImageSizeAct->isChecked()) {
+        if (applyDistance && !UseImageSizeAct->isChecked()) {
             clearStepCache = true;
             cameraMeta.cameraDistance.setValue(qRound(Distance));
             metaString = cameraMeta.cameraDistance.format(true,false);
@@ -1629,8 +1623,7 @@ void Gui::applyCameraSettings()
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraDistance.here(), metaString, newCommand);
         }
 
-        if (notEqual(qRound(Latitude), cameraMeta.cameraAngles.value(0)) ||
-            notEqual(qRound(Longitude),cameraMeta.cameraAngles.value(1))) {
+        if (applyAngles) {
             clearStepCache = true;
             cameraMeta.cameraAngles.setFormats(5,2,"###9");
             cameraMeta.cameraAngles.setValues(qRound(Latitude), qRound(Longitude));
@@ -1665,6 +1658,7 @@ void Gui::applyCameraSettings()
         }
 
         if (Camera->IsOrtho() != cameraMeta.isOrtho.value()) {
+            clearStepCache = true;
             cameraMeta.isOrtho.setValue(Camera->IsOrtho());
             metaString = cameraMeta.isOrtho.format(true,false);
             newCommand = cameraMeta.isOrtho.here() == undefined;
