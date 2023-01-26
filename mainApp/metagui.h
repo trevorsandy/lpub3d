@@ -2512,6 +2512,7 @@ private:
   static BlenderSettings defaultPaths [];
   static ComboOptItems comboOptItems [];
 
+  static bool    dialogCancelled;
   static bool    documentRender;
   static QString blenderVersion;
   static QString blenderAddOnVersion;
@@ -2519,7 +2520,7 @@ private:
   static QString parameterFileKey;
 
   QAction     *defaultColourEditAction;
-  QAction     *blenderPathEditAction;
+  QPushButton *blenderAddonUpdateButton;
   QPushButton *pathsGroupButton;
 
   QList<QLabel *> settingLabelList;

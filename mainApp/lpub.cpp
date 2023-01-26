@@ -4898,26 +4898,26 @@ void Gui::createActions()
     QIcon blenderIcon;
     blenderIcon.addFile(":/resources/blendericon.png");
     blenderIcon.addFile(":/resources/blendericon16.png");
-    blenderRenderAct = new QAction(blenderIcon,tr("Blender Render..."), this);
+    blenderRenderAct = new QAction(blenderIcon,tr("Render With Blender..."), this);
     blenderRenderAct->setObjectName("blenderRenderAct.4");
     blenderRenderAct->setShortcut(QStringLiteral("Alt+Shift+8"));
-    blenderRenderAct->setStatusTip(tr("Render the current step using Blender Cycles"));
+    blenderRenderAct->setStatusTip(tr("Render the current step model using Blender Cycles"));
     blenderRenderAct->setEnabled(false);
     lpub->actions.insert(blenderRenderAct->objectName(), Action(QStringLiteral("3DViewer.Blender Render"), blenderRenderAct));
     connect(blenderRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
-    blenderImportAct = new QAction(blenderIcon,tr("Blender Import..."), this);
+    blenderImportAct = new QAction(blenderIcon,tr("Open In Blender..."), this);
     blenderImportAct->setObjectName("blenderImportAct.4");
     blenderImportAct->setShortcut(QStringLiteral("Alt+Shift+9"));
-    blenderImportAct->setStatusTip(tr("Import the current step and launch Blender"));
+    blenderImportAct->setStatusTip(tr("Import and open the current step model in Blender"));
     blenderImportAct->setEnabled(false);
     lpub->actions.insert(blenderImportAct->objectName(), Action(QStringLiteral("3DViewer.Blender Import"), blenderImportAct));
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
-    povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
+    povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("Render With POVRay..."), this);
     povrayRenderAct->setObjectName("povrayRenderAct.4");
     povrayRenderAct->setShortcut(QStringLiteral("Alt+9"));
-    povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray"));
+    povrayRenderAct->setStatusTip(tr("Render the current step model using POV-Ray"));
     povrayRenderAct->setEnabled(false);
     lpub->actions.insert(povrayRenderAct->objectName(), Action(QStringLiteral("3DViewer.POVRay Render"), povrayRenderAct));
     connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));

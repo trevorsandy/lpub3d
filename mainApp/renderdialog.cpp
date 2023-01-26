@@ -19,6 +19,7 @@
 #include "render.h"
 #include "paths.h"
 #include "lpub.h"
+#include "step.h"
 #include "metagui.h"
 #include "parmswindow.h"
 #include "commonmenus.h"
@@ -44,6 +45,20 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     mProcess = nullptr;
 #endif
 
+    QRegExp verRx("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(\\*|\\d+)");
+    if (Preferences::blenderVersion.contains(verRx)) {
+        bool ok[3];
+        int vMaj = verRx.cap(1).toInt(&ok[0]);
+        int vMin = verRx.cap(2).toInt(&ok[1]);
+        int vPat = verRx.cap(3).toInt(&ok[2]);
+        if (ok[0])
+            mBlenderVersion << vMaj;
+        if (ok[1])
+            mBlenderVersion << vMin;
+        if (ok[2])
+            mBlenderVersion << vPat;
+    }
+
     mWidth      = RENDER_DEFAULT_WIDTH;
     mHeight     = RENDER_DEFAULT_HEIGHT;
 
@@ -55,9 +70,14 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     mCsiKeyList = QString(lpub->ldrawFile.getViewerConfigKey(mViewerStepKey).split(";").last()).split("_");
 
-    // If the render dialog is launched from a blank/cover/bom page, disable the controls
+    QString labelMessage = tr("Nothing to Render");
+
+    Step *currentStep = lpub->currentStep;
+
     bool haveKeys = true;
-    if (mCsiKeyList.isEmpty() || (mCsiKeyList.size() == 1 && mCsiKeyList.at(0) == "")) {
+
+    // If the render dialog is launched from a blank/bom page, disable the controls
+    if (!currentStep || mCsiKeyList.isEmpty() || (mCsiKeyList.size() == 1 && mCsiKeyList.at(0) == "")) {
         haveKeys = false;
         mCsiKeyList.clear();
         ui->OutputEdit->clear();
@@ -81,7 +101,15 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         setWindowTitle(tr("POV-Ray Render"));
 
-        ui->TimeLabel->setText(haveKeys ? tr("Preparing POV file...") : tr("Nothing to Render"));
+        if (haveKeys) {
+            bool displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
+            labelMessage = tr("Preparing POV file for %1...")
+                              .arg(displayModel
+                                   ? currentStep->topOfStep().modelName
+                                   : tr(" step %1").arg(currentStep->stepNumber.number));
+        }
+
+        ui->TimeLabel->setText(labelMessage);
 
         ui->RenderSettingsButton->setToolTip(tr("POV-Ray render settings"));
 
@@ -97,34 +125,42 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        QString title = mImportOnly ? tr("Import") : tr("Render");
-        ui->RenderButton->setToolTip(tr("Render LDraw model"));
+        setWindowTitle(tr("Blender %1").arg(mImportOnly ? tr("Import") : tr("Render")));
+
+        setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
+
+        bool blenderInstalled = !Preferences::blenderVersion.isEmpty();
+
+        ui->RenderButton->setEnabled(blenderInstalled);
+
+        ui->RenderButton->setToolTip(blenderInstalled
+                                        ? tr("Render LDraw model")
+                                        : tr("Blender not configured. Click 'Settings' to configure."));
 
         if (mImportOnly) {
-            ui->RenderButton->setText(tr("Import"));
-            ui->RenderButton->setToolTip(tr("Import LDraw model"));
+            if (haveKeys) {
+                bool displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
+                labelMessage = tr("Import and open %1 in Blender")
+                                  .arg(displayModel
+                                       ? currentStep->topOfStep().modelName
+                                       : tr(" step %1").arg(currentStep->stepNumber.number));
+            }
+
+            ui->RenderButton->setText(tr("Open in Blender"));
+            ui->RenderButton->setToolTip(tr("Import and open LDraw model in Blender"));
+            ui->RenderSettingsButton->setToolTip(tr("Blender import settings"));
+            ui->TimeLabel->setText(labelMessage);
 
             ui->outputLabel->hide();
             ui->OutputEdit->hide();
             ui->RenderProgress->hide();
             ui->OutputBrowseButton->hide();
+            ui->StandardOutButton->hide();
             ui->OutputLine->hide();
             ui->ProgressLine->hide();
+        } else {
+            ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
         }
-
-        setWindowTitle(tr("Blender %1").arg(title));
-
-        setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
-
-        if (mImportOnly)
-            ui->TimeLabel->setText(haveKeys ? tr("Open model in Blender") : tr("Nothing to Render"));
-
-        bool blenderInstalled = ! Preferences::blenderVersion.isEmpty();
-
-        ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
-        ui->RenderButton->setEnabled(blenderInstalled);
-        if (!blenderInstalled)
-            ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
 
         bool useConfigSize = false;
         if (QFileInfo(Preferences::blenderRenderConfigFile).exists())
@@ -411,7 +447,10 @@ void RenderDialog::on_RenderButton_clicked()
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        ui->TimeLabel->setText(tr("Saving model..."));
+        QString const option = mImportOnly ? tr("import") : tr("render");
+
+        ui->TimeLabel->setText(tr("Saving Blender %1 model...").arg(option));
+
         QApplication::processEvents();
 
         mBlendProgValue = 0;
@@ -425,6 +464,7 @@ void RenderDialog::on_RenderButton_clicked()
                 .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
 
+        QString message;
         QStringList Arguments;
         QString pythonExpression;
         pythonExpression.append(QString("\"import bpy; bpy.ops.render_scene.lpub3drenderldraw("
@@ -433,7 +473,7 @@ void RenderDialog::on_RenderButton_clicked()
                                         "render_percentage=%3, model_file=r'%4', "
                                         "image_file=r'%5', preferences_file=r'%6'")
                                 .arg(mWidth).arg(mHeight)
-                                .arg(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100)
+                                .arg(qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100))
                                 .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"))
                                 .arg(QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\"))
                                 .arg(QDir::toNativeSeparators(Preferences::blenderRenderConfigFile).replace("\\","\\\\")));
@@ -469,10 +509,14 @@ void RenderDialog::on_RenderButton_clicked()
 #else
             scriptName =  "render_ldraw_model.sh";
 #endif
-            scriptCommand =QString("%1 %2").arg(Preferences::blenderExe).arg(Arguments.join(" "));
+            scriptCommand = QString("%1 %2").arg(Preferences::blenderExe).arg(Arguments.join(" "));
 
-            QString message = tr("Blender image render command: %1").arg(scriptCommand);
-            emit gui->messageSig(LOG_DEBUG, message);
+            message = tr("Blender %1 command: %2").arg(option).arg(scriptCommand);
+#ifdef QT_DEBUG_MODE
+            qDebug() << qPrintable(message);
+#else
+            emit gui->messageSig(LOG_INFO, message);
+#endif
 
             script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
             if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -484,7 +528,12 @@ void RenderDialog::on_RenderButton_clicked()
 #endif
                 stream << scriptCommand << lpub_endl;
                 script.close();
-                emit gui->messageSig(LOG_DEBUG, tr("Script: %1").arg(script.fileName()));
+                message = tr("Blender %1 script: %2").arg(option).arg(QDir::toNativeSeparators(script.fileName()));
+#ifdef QT_DEBUG_MODE
+                qDebug() << qPrintable(message);
+#else
+                emit gui->messageSig(LOG_INFO, message);
+#endif
             } else {
                 emit gui->messageSig(LOG_ERROR, tr("Cannot write Blender render script file [%1] %2.")
                                      .arg(script.fileName())
@@ -611,16 +660,28 @@ void RenderDialog::ReadStdOut()
 {
     QString StdOut = QString(mProcess->readAllStandardOutput());
     mStdOutList.append(StdOut);
-    QRegExp rxRenderProgress("\\/(\\d+) Tiles, Denoised (\\d+) tiles",Qt::CaseInsensitive);
+    QString renderType;
+    QRegExp rxRenderProgress;
+    rxRenderProgress.setCaseSensitivity(Qt::CaseInsensitive);
+    bool blenderVersion3 = mBlenderVersion[0] == 3;
+    if (blenderVersion3)
+    {
+        rxRenderProgress.setPattern("Sample (\\d+)\\/(\\d+)");
+        renderType = QLatin1String("Sample");
+    } else {
+        rxRenderProgress.setPattern("(\\d+)\\/(\\d+) Tiles");
+        renderType = QLatin1String("Tile");
+    }
     if (StdOut.contains(rxRenderProgress))
     {
-        mBlendProgValue = rxRenderProgress.cap(2).toInt();
-        mBlendProgMax   = rxRenderProgress.cap(1).toInt();
+        mBlendProgValue = rxRenderProgress.cap(1).toInt();
+        mBlendProgMax   = rxRenderProgress.cap(2).toInt();
         ui->RenderProgress->setMaximum(mBlendProgMax);
         ui->RenderProgress->setValue(mBlendProgValue);
-        emit gui->messageSig(LOG_INFO, tr("Rendered Tile %1/%2")
-                                          .arg(mBlendProgValue)
-                                          .arg(mBlendProgMax));
+        emit gui->messageSig(LOG_INFO, tr("Rendered %1 %2/%3")
+                             .arg(renderType)
+                             .arg(mBlendProgValue)
+                             .arg(mBlendProgMax));
     }
 }
 
@@ -886,7 +947,11 @@ void RenderDialog::UpdateElapsedTime()
 {
     if (mProcess && !mImportOnly)
     {
-        ui->TimeLabel->setText(tr("Tiles: %1/%2, %3")
+        QString const renderType = mBlenderVersion[0] == 3
+                ? QLatin1String("Samples")
+                : QLatin1String("Tiles");
+        ui->TimeLabel->setText(tr("%1: %2/%3, %4")
+                                  .arg(renderType)
                                   .arg(mBlendProgValue)
                                   .arg(mBlendProgMax)
                                   .arg(gui->elapsedTime(mRenderTime.elapsed())));

@@ -60,7 +60,6 @@ private slots:
     void Update();
 
 protected slots:
-    QString ReadStdErr(bool &hasError) const;
     void ReadStdOut();
     void WriteStdOut();
     void UpdateElapsedTime();
@@ -70,6 +69,7 @@ protected:
     QString GetOutputFileName() const;
     QString GetPOVFileName() const;
     QString GetLogFileName(bool = true) const;
+    QString ReadStdErr(bool &hasError) const;
     void CloseProcess();
     bool PromptCancel();
     void ShowResult();
@@ -96,6 +96,7 @@ protected:
     QStringList mStdOutList;
 
     bool mTransBackground;
+    QVector<int> mBlenderVersion;
     int mWidth;
     int mHeight;
     int mResolution;
