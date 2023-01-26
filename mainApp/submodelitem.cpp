@@ -249,7 +249,7 @@ int SubModel::createSubModelImage(
 
   float modelScale     = subModelMeta.modelScale.value();
   int stepNumber       = subModelMeta.showStepNum.value() ?
-                         subModelMeta.showStepNum.value() : 1;
+                         subModelMeta.showStepNum.value() : step->stepNumber.number;
   bool customViewpoint = subModelMeta.cameraAngles.customViewpoint();
   bool noCA            = !customViewpoint && subModelMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
   float camDistance    = subModelMeta.cameraDistance.value();
@@ -320,11 +320,12 @@ int SubModel::createSubModelImage(
   }
 
   // Populate viewerSubmodelKey variable
-  viewerSubmodelKey = QString("%1;%2;%3_%4")
+  viewerSubmodelKey = QString("%1;%2;%3%4")
                           .arg(gui->getSubmodelIndex(bottom.modelName))
                           .arg(bottom.lineNumber)
                           .arg(stepNumber)
-                          .arg(SUBMODEL_IMAGE_BASENAME);
+                          .arg(lpub->mi.viewerStepKeySuffix(top, step));
+  step->viewerStepKey = viewerSubmodelKey;
 
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG,
@@ -337,7 +338,7 @@ int SubModel::createSubModelImage(
                                    .arg(gui->getSubmodelIndex(bottom.modelName))
                                    .arg(bottom.modelName)
                                    .arg(bottom.lineNumber)
-                                   .arg(SUBMODEL_IMAGE_BASENAME));
+                                   .arg(stepNumber));
 #endif
 
   QElapsedTimer timer;

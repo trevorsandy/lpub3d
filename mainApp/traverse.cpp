@@ -2671,23 +2671,16 @@ int Gui::drawPage(
                                       step->modelDisplayOnlyStep = true;
                                       step->subModel.viewerSubmodel = true;
                                       step->subModel.setSubModel(topOfStep.modelName,steps->meta);
-                                      step->viewerStepKey = QString("%1;%2;%3%4")
-                                                                     .arg(topOfStep.modelIndex)
-                                                                     .arg(topOfStep.lineNumber)
-                                                                     .arg(opts.stepNum)
-                                                                     .arg(lpub->mi.viewerStepKeySuffix(step->top, step));
-
-                                      // set the current step - enable access from other parts of the application - e.g. Renderer
-                                      lpub->setCurrentStep(step);
-
-                                      showLine(topOfStep);
-
-                                      const QString modelFileName = QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(SUBMODEL_IMAGE_BASENAME);
-
-                                      if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0)
-                                          emit gui->messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(modelFileName));
-                                      else if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
-                                          emit gui->messageSig(LOG_WARNING, tr("Could not load model file '%1'.").arg(modelFileName));
+                                      if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0) {
+                                          emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page model (%1) display (%2.ldr).").arg(topOfStep.modelName).arg(SUBMODEL_IMAGE_BASENAME));
+                                      } else {
+                                          // set the current step - enable access from other parts of the application - e.g. Renderer
+                                          lpub->setCurrentStep(step);
+                                          showLine(topOfStep);
+                                          const QString modelFileName = QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(SUBMODEL_IMAGE_BASENAME);
+                                          if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
+                                              emit gui->messageSig(LOG_WARNING, tr("Could not load preview model (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+                                      }
                                   } // step
                               } // cover page view enabled
                           } // cover page

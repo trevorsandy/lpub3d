@@ -2286,45 +2286,108 @@ int Gui::GetImageHeight()
 
 void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 {
+    Step *currentStep = lpub->currentStep;
+
+    if (!currentStep)
+        return;
+
+    //* local ldrawFile and step used for debugging
+#ifdef QT_DEBUG_MODE
+    LDrawFile *ldrawFile = &lpub->ldrawFile;
+    Q_UNUSED(ldrawFile)
+#endif
+    //*/
+
     lcView* ActiveView   = gMainWindow->GetActiveView();
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-    if (ActiveModel){
-        // Create a copy of the current camera and add it to cameras
+    if (ActiveModel)
+    {
+        // Get the current camera
         lcCamera* Camera = ActiveView->GetCamera();
-        Camera->CreateName(ActiveModel->GetCameras());
-        Camera->SetSelected(true);
-        ActiveModel->AddCamera(ActiveView->GetCamera());
 
-        // Get the created camera name
-        const QString cameraName = QString("Camera %1").arg(ActiveModel->GetCameras().GetSize());
+        bool IsDefaultCamera = true;
 
-        // Set the created camera
-        ActiveView->SetCamera(cameraName);
+        // If default camera, name it, add it to cameras and set it to the active view so it can be exported
+        if (Camera)
+        {
+            if ((IsDefaultCamera = Camera->GetName().isEmpty()))
+            {
+                Camera->CreateName(ActiveModel->GetCameras());
+                ActiveModel->AddCamera(Camera);
+                ActiveView->SetCamera(Camera->GetName());
+            }
+        }
 
         // Save the current model
         if (!lcGetActiveProject()->Save(modelFile))
-            emit messageSig(LOG_ERROR, QString("Failed to save current model to file [%1]").arg(modelFile));
+            emit messageSig(LOG_ERROR, tr("Failed to save current model to file [%1]").arg(modelFile));
 
-        // Reset the camera
-        bool RemovedCamera = false;
-        for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
+        if (currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel)
         {
-            QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
-            if (Name == cameraName)
-            {
-                RemovedCamera = true;
-                ActiveModel->RemoveCameraIndex(CameraIdx);
+            QFile vf(modelFile);
+            if (vf.open(QFile::ReadOnly | QFile::Text)) {
+                QTextStream in(&vf);
+                in.setCodec(QTextCodec::codecForName("UTF-8"));
+                QStringList vcl;
+                QLatin1String lpubMeta("0 !LPUB ");
+                while ( ! in.atEnd()) {
+                    QString line = in.readLine(0);
+                    if (line.startsWith(lpubMeta))
+                        vcl << line.trimmed();
+                }
+                vf.close();
+
+                QFile rf(modelFile);
+                if (rf.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text)) {
+                    QTextStream out(&rf);
+                    out.setCodec(QTextCodec::codecForName("UTF-8"));
+                    QStringList const scl = lpub->ldrawFile.getViewerStepRotatedContents(currentStep->viewerStepKey);
+                    QRegExp insertRx("^0 // ROTSTEP ");
+                    bool inserted = false;
+                    for (QString const &sl : scl) {
+                        if (!inserted) {
+                            if ((inserted = sl.contains(insertRx))) {
+                                for (QString const &vl : vcl)
+                                    out << vl << lpub_endl;
+                                continue;
+                            }
+                        }
+                        out << sl << lpub_endl;
+                    }
+                    rf.close();
+                } else {
+                    emit gui->messageSig(LOG_ERROR, tr("Cannot write render file: [%1]<br>%2.")
+                                         .arg(modelFile).arg(rf.errorString()));
+                }
+            } else {
+                emit messageSig(LOG_ERROR, tr("Cannot read viewer file: [%1]<br>%2.")
+                                .arg(modelFile).arg(vf.errorString()));
             }
-            else
-                CameraIdx++;
         }
 
-        ActiveView->SetCamera(Camera, true);
-        ActiveView->GetCamera()->SetName(QString());
+        // Reset the camera
+        if (Camera && IsDefaultCamera)
+        {
+            bool RemovedCamera = false;
+            for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
+            {
+                QString const Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
+                if (Name == Camera->GetName())
+                {
+                    RemovedCamera = true;
+                    ActiveModel->RemoveCameraIndex(CameraIdx);
+                }
+                else
+                    CameraIdx++;
+            }
 
-        if (RemovedCamera)
-            gMainWindow->UpdateCameraMenu();
+            Camera->SetName(QString());
+            ActiveView->SetCamera(Camera, true);
+
+            if (RemovedCamera)
+                gMainWindow->UpdateCameraMenu();
+        }
 
         Camera = nullptr;
     }
@@ -2687,13 +2750,6 @@ void Gui::ReloadVisualEditor(){
          statusMessage(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMsgBox);
          return;
      }
-
-//* local ldrawFile and step used for debugging
-#ifdef QT_DEBUG_MODE
-     LDrawFile *ldrawFile = &lpub->ldrawFile;
-     Q_UNUSED(ldrawFile)
-#endif
-//*/
 
      lcView* ActiveView = GetActiveView();
      lcModel* ActiveModel = ActiveView->GetActiveModel();

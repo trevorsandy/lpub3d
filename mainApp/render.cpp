@@ -4103,7 +4103,7 @@ int Render::createNativeModelFile(
               QString baseName  = fi.completeBaseName();
               QString modelName = QString(fi.fileName()).replace(baseName, QString("%1-main").arg(baseName));
               nativeParts[0]    = QString("0 FILE %1").arg(modelName);
-              nativeParts[1]    = QString("0 %1").arg(tc(modelName));
+              nativeParts[1]    = QString("0 %1").arg(tc(baseName));
               nativeParts[2]    = QString("0 Name: %1").arg(modelName);
           }
       }
