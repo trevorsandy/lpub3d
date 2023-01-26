@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 12, 2023
+# Last Update January 14, 2023
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -8,6 +8,7 @@
 # bash -ex builds/utilities/ci/github/build-deploy.sh
 
 set +x
+echo
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
@@ -31,32 +32,33 @@ SignHashAndPublishToGitHub() {
       if [ -f "${LP3D_RELEASE}.sha512" ]; then
         # Generate hash file signature
         if [ "${LP3D_USE_GPG}" = "true" ]; then
-          echo "- Signing ${LP3D_RELEASE}.sha512 hash file..."
+          echo -n "- Signing ${LP3D_RELEASE}.sha512 hash file..."
           ( gpg --home "${LP3D_GPGHOME}" --clearsign -u ${GPG_SIGN_KEY_ALIAS} \
             -o "${LP3D_RELEASE}.sha512.sig" "${LP3D_RELEASE}.sha512" \
           ) >$s.out 2>&1 && rm $s.out
           if [ ! -f $s.out ]; then
-            echo "- Uploading signature file ${LP3D_RELEASE}.sha512.sig..."
+            echo "Ok."
+            echo -n "- Uploading signature file ${LP3D_RELEASE}.sha512.sig..."
             ( bash upload.sh "${LP3D_RELEASE}.sha512.sig" ) >$p.out 2>&1 && rm $p.out
             [ -f $p.out ] && \
-            echo "WARNING - ${LP3D_RELEASE}.sha512.sig GitHub upload failed." && tail -80 $p.out || echo "Ok."
+            echo "\nWARNING - ${LP3D_RELEASE}.sha512.sig GitHub upload failed." && tail -80 $p.out || echo "Ok."
           else
             echo "WARNING - Create signature for ${LP3D_RELEASE}.sha512 file failed." && tail -80 $s.out
           fi
         fi
-        echo "- Uploading hash file ${LP3D_RELEASE}.sha512..."
+        echo -n "- Uploading hash file ${LP3D_RELEASE}.sha512..."
         ( bash upload.sh "${LP3D_RELEASE}.sha512" ) >$p.out 2>&1 && rm $p.out
         [ -f $p.out ] && \
-        echo "WARNING - ${LP3D_RELEASE}.sha512 GitHub upload failed." && tail -80 $p.out || echo "Ok."
+        echo "\nWARNING - ${LP3D_RELEASE}.sha512 GitHub upload failed." && tail -80 $p.out || echo "Ok."
       else
         echo "WARNING - ${LP3D_RELEASE}.sha512 file not found."
       fi
       ;;
     esac
-    echo "- Uploading build file ${LP3D_RELEASE}..."
+    echo -n "- Uploading build file ${LP3D_RELEASE}..."
     ( bash upload.sh "${LP3D_RELEASE}" ) >$p.out 2>&1 && rm $p.out
     [ -f $p.out ] && \
-    echo "ERROR - ${LP3D_RELEASE} GitHub upload failed." && tail -80 $p.out && return 3 || echo "Ok."
+    echo "\nERROR - ${LP3D_RELEASE} GitHub upload failed." && tail -80 $p.out && return 3 || echo "Ok."
   else
     echo "ERROR - ${LP3D_RELEASE} file not found."
     return 3
@@ -101,7 +103,10 @@ if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
 fi
 
 # Get upload script
-wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+echo && echo -n "Get GitHub upload script..." && \
+( wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh ) >$p.out 2>&1 && rm $p.out
+[ -f $p.out ] && \
+echo "\nERROR - Could not get GitHub upload script." && tail -80 $p.out && exit 1 || echo "Ok."
 
 _PRO_FILE_PWD_=${PWD}/mainApp
 _EXPORT_CONFIG_ONLY_=1
@@ -169,7 +174,7 @@ else
 fi
 
 # Setup GPG sign keys
-echo && echo "Initialize default GPG keyring..."
+echo "Setup GPG keyring" && echo
 declare -r LP3D_GPGHOME=$(mktemp -d)
 declare -r LP3D_OWNRING="${LP3D_GPGHOME}/ownring.auto"
 declare -r LP3D_SECRING="${LP3D_GPGHOME}/secring.auto"
@@ -182,20 +187,20 @@ chmod 700 ${LP3D_GPGHOME}
 cp -f ./builds/utilities/ci/secure/*.auto* ${LP3D_GPGHOME}/
 export LP3D_USE_GPG=true
 
-echo "Decoding ${LP3D_SECRING}..." && \
+echo -n "Decoding ${LP3D_SECRING}..." && \
 ( echo ${GPG_SIGN_KEY_BASE64} | base64 --decode > ${LP3D_SECRING}.gpg ) >$s.out 2>&1 && rm $s.out
 [ -f $s.out ] && \
-echo "WARNING - Could not decode ${LP3D_SECRING}." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
+echo "\nWARNING - Could not decode ${LP3D_SECRING}." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
 
-echo "Decoding ${LP3D_SFDEPLOY}..." && \
-( echo ${SFDEPLOY_RSA_BASE64} | base64 --decode > ${LP3D_SFDEPLOY}.gpg ) >$s.out 2>&1 && rm $s.out
+echo -n "Decoding ${LP3D_SFDEPLOY}..." && \
+( echo ${SFDEPLOY_ED25519_BASE64} | base64 --decode > ${LP3D_SFDEPLOY}.gpg ) >$s.out 2>&1 && rm $s.out
 [ -f $s.out ] && \
-echo "WARNING - Could not decode ${LP3D_SFDEPLOY}." && LP3D_SF_DEPLOY_ABORT=true && tail -80 $s.out || echo "Ok."
+echo "\nWARNING - Could not decode ${LP3D_SFDEPLOY}." && LP3D_SF_DEPLOY_ABORT=true && tail -80 $s.out || echo "Ok."
 
 export GNUPGHOME="${LP3D_GPGHOME}"
-export LP3D_HOST_RSA_KEY="${LP3D_SFDEPLOY}"_rsa
+export LP3D_HOST_SSH_KEY="${LP3D_SFDEPLOY}_ed25519"
 
-[ "${LP3D_USE_GPG}" = "true" ] && echo "Initializing default GPG keyring..." && \
+[ "${LP3D_USE_GPG}" = "true" ] && echo -n "Initializing GPG keyring..." && \
 ( cd ${LP3D_GPGHOME}
 gpgconf --kill gpg-agent  # in case agent_genkey fail...
 gpg --generate-key --batch <<eoGPGConf
@@ -213,39 +218,41 @@ gpg --generate-key --batch <<eoGPGConf
 eoGPGConf
 ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-echo "WARNING - Failed to initialize default GPG keyring." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
+echo "\nWARNING - Failed to initialize GPG keyring." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
 
 # Import the owner public key first so it can be accessed for the decrypt and signature calls
-[ "${LP3D_USE_GPG}" = "true" ] && echo "Importing public owner keyring..." && \
+[ "${LP3D_USE_GPG}" = "true" ] && echo -n "Importing public owner keyring..." && \
 ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_OWNRING}" ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-echo "WARNING - Could not import public owner keyring into gpg." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
+echo "\nWARNING - Could not import public owner keyring into gpg." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
 
-[ "${LP3D_USE_GPG}" = "true" ] && echo "Importing public signing key..." && \
+[ "${LP3D_USE_GPG}" = "true" ] && echo -n "Importing public signing key..." && \
 ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_PUBRING}" ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-echo "WARNING - Could not import public signing keyring into gpg." && LP3D_USE_GPG=false && tail -80 $s.out  || echo "Ok."
+echo "\nWARNING - Could not import public signing keyring into gpg." && LP3D_USE_GPG=false && tail -80 $s.out  || echo "Ok."
 
-[ "${LP3D_USE_GPG}" = "true" ] && echo "Decrypting private signing keyring..." && \
+[ "${LP3D_USE_GPG}" = "true" ] && echo -n "Decrypting private signing keyring..." && \
 ( echo ${GPG_SIGN_PASSPHRASE} | gpg --decrypt --pinentry-mode loopback --passphrase-fd 0 \
   --batch --quiet --output "${LP3D_SECRING}" "${LP3D_SECRING}".gpg ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-echo "WARNING - Failed to decrypt private signing keyring." && LP3D_USE_GPG=false && tail -80 $s.out  || echo "Ok."
+echo "\nWARNING - Failed to decrypt private signing keyring." && LP3D_USE_GPG=false && tail -80 $s.out  || echo "Ok."
 
-[ "${LP3D_USE_GPG}" = "true" ] && echo "Importing private signing keyring..." && \
+[ "${LP3D_USE_GPG}" = "true" ] && echo -n "Importing private signing keyring..." && \
 ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_SECRING}" ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-echo "WARNING - Could not import private signing keyring into gpg." && LP3D_USE_GPG=false && tail -80 $s.out  || echo "Ok."
+echo "\nWARNING - Could not import private signing keyring into gpg." && LP3D_USE_GPG=false && tail -80 $s.out  || echo "Ok."
 
-[ -z "$LP3D_SF_DEPLOY_ABORT" ] && echo "Decrypting Sourceforge host rsa key..." && \
+[ -z "$LP3D_SF_DEPLOY_ABORT" ] && echo -n "Decrypting Sourceforge host ed25519 key..." && \
 ( echo ${GPG_SIGN_PASSPHRASE} | gpg --decrypt --pinentry-mode loopback --passphrase-fd 0 \
-  --batch --quiet --output "${LP3D_HOST_RSA_KEY}" "${LP3D_SFDEPLOY}".gpg ) >$s.out 2>&1 && rm $s.out || :
+  --batch --quiet --output "${LP3D_HOST_SSH_KEY}" "${LP3D_SFDEPLOY}".gpg ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-echo "WARNING - Failed to decrypt Sourceforge host rsa key." && LP3D_SF_DEPLOY_ABORT=true && tail -80 $s.out  || echo "Ok."
+echo "\nWARNING - Failed to decrypt Sourceforge host ed25519 key." && LP3D_SF_DEPLOY_ABORT=true && tail -80 $s.out  || echo "Ok."
 
 # Protect private keys access
-echo "Restricting secret keys permission..." && \
-find ${LP3D_GPGHOME}/ -type f -exec chmod 600 {} \;
+echo -n "Restricting secret keys permission..." && \
+( find ${LP3D_GPGHOME}/ -type f -exec chmod 600 {} \; ) >$s.out 2>&1 && rm $s.out || :
+[ -f $s.out ] && \
+echo "\nWARNING - Failed to restrict secret keys permission." && LP3D_SF_DEPLOY_ABORT=true && tail -80 $s.out  || echo "Ok."
 
 # Capture the deployment folder if deploy package
 
@@ -268,7 +275,7 @@ echo "WARNING - GPG is not available. Sign sha512 hash will be skipped."
 # Remove download artifacts that should not be published
 declare -r c=Clean
 [ -d "${LP3D_BUILD_ASSETS}" ] && \
-echo && echo "Remove download artifacts that should not be published..." && \
+echo && echo -n "Remove download artifacts that should not be published..." && \
 ( find "${LP3D_BUILD_ASSETS}"/*-download -type f \( \
   -name 'Dockerfile' -o \
   -name '*_Assets.zip' -o \
@@ -284,7 +291,7 @@ echo && echo "Remove download artifacts that should not be published..." && \
   -exec rm -rf {} \;
 ) >$c.out 2>&1 && rm $c.out || :
 [ -f $c.out ] && \
-echo "WARNING - Failed to clean up artifacts." && tail -80 $c.out || echo "Ok."
+echo "\nWARNING - Failed to clean up artifacts." && tail -80 $c.out || echo "Ok."
 
 # Publish assets
 echo && echo "Publishing Github download assets..." && \
@@ -312,9 +319,10 @@ done
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   export LP3D_ASSET_EXT=".all"
   export LP3D_DEPLOY_PKG="$LP3D_DEPLOY_PKG"
-  echo && echo "Publishing Sourceforge update and download assets..." && echo
+  echo && echo -n "Publishing Sourceforge update and download assets..."
   ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok
-  [ -f $p.out ] && echo "WARNING - Sourceforge upload failed." && tail -80 $p.out && exit 1 || cat $p.ok
+  [ -f $p.out ] && \
+  echo "\nERROR - Publish Sourceforge assets failed." && tail -80 $p.out && exit 1 || echo "Ok." && cat $p.ok
 fi
 
 exit 0

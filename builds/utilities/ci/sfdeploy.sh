@@ -3,10 +3,12 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Jan 12, 2023
+#  Last Update: Jan 14, 2023
 #  Copyright (C) 2017 - 2023 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
+
+set +x
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
@@ -74,20 +76,20 @@ if [ "$APPVEYOR" = "True" ]; then
   fi
 
   # set host private key
-  LP3D_HOST_RSA_KEY=".sfdeploy_appveyor_rsa"
+  LP3D_HOST_SSH_KEY=".sfdeploy_appveyor_rsa"
 
   # move host private key to tmp folder
-  if [ -f "builds/utilities/ci/secure/$LP3D_HOST_RSA_KEY" ]; then
-    mv -f "builds/utilities/ci/secure/$LP3D_HOST_RSA_KEY" "/tmp/$LP3D_HOST_RSA_KEY"
+  if [ -f "builds/utilities/ci/secure/$LP3D_HOST_SSH_KEY" ]; then
+    mv -f "builds/utilities/ci/secure/$LP3D_HOST_SSH_KEY" "/tmp/$LP3D_HOST_SSH_KEY"
   else
-    echo "  ERROR - builds/utilities/ci/secure/$LP3D_HOST_RSA_KEY was not found."
+    echo "  ERROR - builds/utilities/ci/secure/$LP3D_HOST_SSH_KEY was not found."
     export LP3D_SF_DEPLOY_ABORT=true;
   fi
 elif [ "$TRAVIS" = "true" ]; then
   echo && echo "Deploying Travis release assets to Sourceforge.net..."
 
   # set host private key
-  LP3D_HOST_RSA_KEY=".sfdeploy_travis_rsa"
+  LP3D_HOST_SSH_KEY=".sfdeploy_travis_rsa"
 elif [ "$GITHUB" = "true" ]; then
   echo && echo "Deploying Github actions release assets to Sourceforge.net..."
 fi
@@ -106,15 +108,18 @@ echo && echo "  WORKING DIRECTORY............[$sfWD]" && echo
 
 # add host private key to ssh-agent
 eval "$(ssh-agent -s)"
-if [ -s "${LP3D_HOST_RSA_KEY}" ]; then
-  ssh-add $LP3D_HOST_RSA_KEY
-elif [ -f "/tmp/${LP3D_HOST_RSA_KEY}" ]; then
-  chmod 600 /tmp/$LP3D_HOST_RSA_KEY
-  ssh-add /tmp/$LP3D_HOST_RSA_KEY
+if [ -s "${LP3D_HOST_SSH_KEY}" ]; then
+  ssh-add $LP3D_HOST_SSH_KEY
+elif [ -f "/tmp/${LP3D_HOST_SSH_KEY}" ]; then
+  chmod 600 /tmp/$LP3D_HOST_SSH_KEY
+  ssh-add /tmp/$LP3D_HOST_SSH_KEY
 else
-  echo "ERROR - RSA key not found at $LP3D_HOST_RSA_KEY - cannot perform transfers"
+  echo "ERROR - RSA key not found at $LP3D_HOST_SSH_KEY - cannot perform transfers"
   export LP3D_SF_DEPLOY_ABORT=true
 fi
+
+# DEBUG SSH command
+# ssh -vvv -i $LP3D_HOST_SSH_KEY $LP3D_SF_REMOTE_HOST
 
 # upload assets
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
@@ -153,18 +158,23 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
     case $OPTION in
     UDPATE)
       # Verify release files in the Update directory
-      if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-        echo && echo "$LP3D_UPDATE_ASSETS is empty. $OPTION assets deploy aborted." && echo
+      if [ -d "$LP3D_UPDATE_ASSETS" ]; then
+        if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
+          echo && echo "WARNING - Folder $LP3D_UPDATE_ASSETS is empty. $OPTION assets deploy aborted." && echo
+        else
+          echo && echo "- $OPTION Assets:" && \
+          find "$LP3D_UPDATE_ASSETS" -type f
+          echo && echo "Executing rsync upload for $(basename $LP3D_UPDATE_ASSETS)..." && echo
+          rsync --recursive --verbose --compress $LP3D_UPDATE_ASSETS/ $LP3D_SF_UDPATE_CONNECT/
+        fi
       else
-        echo && echo "- $OPTION Assets:" && find "$LP3D_UPDATE_ASSETS" -type f
-        echo && echo "Executing rsync upload for $(basename $LP3D_UPDATE_ASSETS)..." && echo
-        rsync --recursive --verbose --compress $LP3D_UPDATE_ASSETS/ $LP3D_SF_UDPATE_CONNECT/
+        echo && echo "WARNING - Folder ${LP3D_UPDATE_ASSETS} was not found."
       fi
       ;;
     DOWNLOAD)
       # Verify release files in the Download directory
       if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-        echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. $OPTION assets deploy aborted."
+        echo && echo "WARNING - Folder $LP3D_DOWNLOAD_ASSETS is empty. $OPTION assets deploy aborted."
       else
         echo && echo "- $OPTION Assets:" && \
         find "$LP3D_DOWNLOAD_ASSETS" -type f -not -path "$LP3D_UPDATE_ASSETS/*"
