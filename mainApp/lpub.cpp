@@ -2239,11 +2239,19 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
               } // for each step within divided group...=>list[AbstractRangeElement]->StepType
           } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
       }
-      if (Preferences::enableFadeSteps && !option) {
+      if (Preferences::enableFadeSteps && option != Options::PLI) {
           clearPrevStepPositions();
       }
       cyclePageDisplay(displayPageNum);
    }
+}
+
+void Gui::clearStepCache(Step *step, int option) {
+    clearStepGraphicsItems(step, option);
+    if (Preferences::enableFadeSteps && option != Options::PLI) {
+        clearPrevStepPositions();
+    }
+    cyclePageDisplay(displayPageNum);
 }
 
 /*
@@ -2255,13 +2263,19 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
     QStringList fileNames;
     QString tmpDirName = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
 
-    if (option == Options::CSI) {
+    using namespace Options;
+    Mt stepOption = static_cast<Mt>(option);
+    const bool clearAll = stepOption == MON;
+
+    if (stepOption == CSI || clearAll) {
         if (renderer->useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QFileInfo(step->pngName).completeBaseName() + QLatin1String(".ldr"));
          else
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QLatin1String("csi.ldr"));
         fileNames << step->pngName;
-    } else  if (option == Options::PLI) {
+    }
+
+    if (stepOption == PLI || clearAll) {
         if (!renderer->useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QLatin1String("pli.ldr"));
         QHash<QString, PliPart*> pliParts;
@@ -2276,7 +2290,9 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
                 }
             }
         }
-    } else if (option == Options::SMI) {
+    }
+
+    if (stepOption == SMI || clearAll) {
         if (!renderer->useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + SUBMODEL_IMAGE_BASENAME + QLatin1String(".ldr"));
         SubModelPart* submodel = step->subModel.getSubmodel();
@@ -3302,8 +3318,8 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
             this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
 
     // cache management
-    connect(this,           SIGNAL(clearStepCacheSig(Step *, int)),
-            this,           SLOT(  clearStepGraphicsItems(Step *, int)));
+    connect(this,           SIGNAL(clearStepCacheSig(Step*, int)),
+            this,           SLOT(  clearStepCache(Step*, int)));
 
     connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
             this,           SLOT(  clearPageCache(PlacementType, Page*, int)));

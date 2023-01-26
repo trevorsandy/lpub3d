@@ -244,7 +244,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       } else if (selectedAction == addPrevStepAction) {
         addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
       } else if (selectedAction == refreshPageCacheAction){
-        clearPageCache(relativeType,page,Options::CSI);
+        clearPageCache(relativeType,page,Options::MON/*Clear All Page Images*/);
       }
   }
 

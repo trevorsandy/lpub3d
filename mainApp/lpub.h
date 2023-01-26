@@ -1485,6 +1485,7 @@ public slots:
   void clearAllCaches();
   void clearCustomPartCache(bool silent = false);
   void clearStepCSICache(QString &pngName);
+  void clearStepCache(Step *step, int option);
   void clearPageCache(PlacementType relativeType, Page *page, int option);
   void clearStepGraphicsItems(Step *step, int option);
   void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
