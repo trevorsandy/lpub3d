@@ -155,7 +155,7 @@ class Preferences
     static QKeySequence keyboardShortcut(const QString &objectName);
 
     static bool setMessageLogging(bool useLogLevel = false);
-    static void printInfo(const QString &info);
+    static void printInfo(const QString &info, bool isError = false);
     static void fprintMessage(const QString &message, bool stdError = false);
     static int showMessage(Preferences::MsgID,
                            const QString &message,

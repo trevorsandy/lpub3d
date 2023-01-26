@@ -744,14 +744,19 @@ void Preferences::fprintMessage(const QString &message, bool stdError)
     }
 }
 
-void Preferences::printInfo(const QString &info)
+void Preferences::printInfo(const QString &info, bool isError)
 {
     if (loggingEnabled) {
         Preferences::setMessageLogging(true/*useLogLevel*/);
-        logInfo() << info;
+        if (isError) {
+            logError() << info;
+        } else {
+            logInfo() << info;
+        }
         Preferences::setMessageLogging();
-    } else
-        fprintMessage(info);
+    } else {
+        fprintMessage(info, isError);
+    }
 }
 
 bool Preferences::setMessageLogging(bool useLogLevel)
