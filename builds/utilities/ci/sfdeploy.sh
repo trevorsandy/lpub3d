@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Jun 07, 2022
+#  Last Update: Jan 12, 2023
 #  Copyright (C) 2017 - 2023 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -48,7 +48,7 @@ if [ "$APPVEYOR" != "True" ]; then
   exec 2> >(tee -a ${LOG} >&2)
 fi
 
-echo && echo "Start S${ME:1} execution"
+echo && echo "Start S${ME:1} execution" && echo
 
 # set working directory
 sfParent_dir=${PWD##*/}
@@ -154,9 +154,10 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
     UDPATE)
       # Verify release files in the Update directory
       if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-        echo && echo "$LP3D_UPDATE_ASSETS is empty. $OPTION assets deploy aborted."
+        echo && echo "$LP3D_UPDATE_ASSETS is empty. $OPTION assets deploy aborted." && echo
       else
-        echo && echo "- $OPTION Assets:" && find "$LP3D_UPDATE_ASSETS" -type f && echo
+        echo && echo "- $OPTION Assets:" && find "$LP3D_UPDATE_ASSETS" -type f
+        echo && echo "Executing rsync upload for $(basename $LP3D_UPDATE_ASSETS)..." && echo
         rsync --recursive --verbose --compress $LP3D_UPDATE_ASSETS/ $LP3D_SF_UDPATE_CONNECT/
       fi
       ;;
@@ -168,24 +169,23 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "- $OPTION Assets:" && \
         find "$LP3D_DOWNLOAD_ASSETS" -type f -not -path "$LP3D_UPDATE_ASSETS/*"
         if [ "$GITHUB" = "true" ]; then
-          echo && echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
+          echo && echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..." && echo
           rsync --recursive --verbose --compress --delete-before \
           --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512','*.sig','*.html','*.txt'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         elif [ "$APPVEYOR" = "True" ]; then
-          echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
+          echo && echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..." && echo
           rsync --recursive --verbose --compress --delete-before \
           --include={'*.exe','*.zip','*.html','*.txt','*.sha512'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         else
-          echo "Executing rsync upload for file type ${LP3D_ASSET_EXT}..."
+          echo && echo "Executing rsync upload for file type ${LP3D_ASSET_EXT}..." && echo
           rsync --recursive --verbose --compress --delete-before \
           --include "*${LP3D_ASSET_EXT}*" --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         fi
       fi
-      local status=$?
-      [ $status -ne 0 ] && exit 1 || :
+      [ $? -ne 0 ] && exit 1 || :
       ;;
     esac
   done
