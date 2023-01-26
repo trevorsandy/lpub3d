@@ -128,7 +128,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox(tr("Cover Page Viewer Display"));
   vlayout->addWidget(box);
   CoverPageViewEnabledGui *childCoverPageViewEnabled = new CoverPageViewEnabledGui(tr("Enable model view at cover page"),&lpubMeta->coverPageViewEnabled,box);
-  box->setToolTip(tr("Enable top model view (read only) in the Visual Editor when a cover page is loaded."));
+  box->setToolTip(tr("Enable the top model preview in the Visual Editor when a cover page is loaded."));
   data->children.append(childCoverPageViewEnabled);
 
   //spacer
