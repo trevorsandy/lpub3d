@@ -31,10 +31,13 @@
 #include "QsLog.h"
 #include "declarations.h"
 
-class InitException: public QException
+struct lcCommandLineOptions;
+
+class InitException: public std::runtime_error
 {
 public:
-    void raise() const {throw InitException{};}
+    InitException(const char *msg) : std::runtime_error(msg) {}
+    ~InitException() throw() {}
 };
 
 /// The Application class is responsible for further initialization of the app
@@ -57,7 +60,7 @@ public:
     QStringList arguments();
 
     /// Initialize the Application and process the command line arguments.
-    int initialize();
+    int initialize(lcCommandLineOptions &Options);
 
     /// This is the equivalent of the main function.
     void mainApp();

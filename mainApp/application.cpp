@@ -593,7 +593,7 @@ void Application::splashMsg(const QString &message)
   m_application.processEvents();
 }
 
-int Application::initialize()
+int Application::initialize(lcCommandLineOptions &Options)
 {
 #ifdef Q_OS_MAC
     m_application.setStyle(QStyleFactory::create("macintosh"));
@@ -837,6 +837,7 @@ int Application::initialize()
 #endif
                 }
             }
+
             // Invoke LEGO library in command console mode
             if (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))
                 ldrawLibrary = LEGO_LIBRARY;
@@ -877,7 +878,8 @@ int Application::initialize()
 
     Preferences::setSuppressFPrintPreference(suppressFPrint);
 
-    Preferences::printInfo(tr("Initializing application..."));
+    Preferences::printInfo(tr("Initializing application %1...").arg(VER_PRODUCTNAME_STR));
+
     // application version information
     Preferences::printInfo("-----------------------------");
     Preferences::printInfo(hdr);
@@ -1066,7 +1068,33 @@ int Application::initialize()
     if (modeGUI())
         setTheme(false/*appStarted*/);
 
-    emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
+    emit splashMsgSig("20% - OpenGL context initialization...");
+
+    if (!Options.StdErr.isEmpty())
+    {
+        Preferences::printInfo(Options.StdErr,true/*isError*/);
+    }
+
+    if (!Options.ParseOK)
+    {
+        const QString message = QObject::tr("Parse command line options failed. (return code 1)");
+        Preferences::printInfo(message,true);
+        throw InitException(qPrintable(message));
+    }
+
+    // initialize Visual Editor application
+    gApplication = new lcApplication(&Options);
+
+    // Set global Visual Editor shared OpenGL context
+    if (!lcContext::InitializeRenderer())
+    {
+        gApplication->Shutdown();
+        const QString message = QObject::tr("Error creating shared OpenGL context. (return code 1)");
+        Preferences::printInfo(message,true);
+        throw InitException(qPrintable(message));
+    }
+
+    emit splashMsgSig(QString("25% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
     // initialize LPub object
     lpub = new LPub();
@@ -1084,9 +1112,10 @@ int Application::initialize()
     emit splashMsgSig(tr("40% - Visual Editor initialization..."));
 
     if (gApplication->Initialize(LibraryPaths, gui) == lcStartupMode::Error) {
-        emit lpub->messageSig(LOG_ERROR, tr("Unable to initialize Visual Editor."));
         gApplication->Shutdown();
-        throw InitException{};
+        const QString message = QObject::tr("Unable to initialize Visual Editor. (return code 1)");
+        Preferences::printInfo(message,true);
+        throw InitException(qPrintable(message));
     } else {
         gui->initialize();
     }
@@ -1214,16 +1243,8 @@ int main(int argc, char** argv)
     QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 
     lcCommandLineOptions Options;
-    initializeSurfaceFormat(argc, argv, Options);
-    if (!Options.StdErr.isEmpty())
-    {
-        fprintf(stderr, "%s\n", Options.StdErr.toLatin1().constData());
-        fflush(stderr);
-    }
 
-    int rc = Options.ParseOK ? EXIT_SUCCESS : EXIT_FAILURE;
-    if (rc == EXIT_FAILURE)
-       return rc;
+    initializeSurfaceFormat(argc, argv, Options);
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
@@ -1236,19 +1257,11 @@ int main(int argc, char** argv)
 
     Application app(argc, argv);
 
-    lcApplication ve(&Options);
-
-    // Set global shared OpenGL context
-    if (!lcContext::InitializeRenderer())
-    {
-        ve.Shutdown();
-        fprintf(stderr, "Error creating shared OpenGL context.\n");
-        return EXIT_FAILURE;
-    }
+    int rc = EXIT_SUCCESS;
 
     try
     {
-        rc = app.initialize();
+        rc = app.initialize(Options);
     }
     catch(const InitException &ex)
     {

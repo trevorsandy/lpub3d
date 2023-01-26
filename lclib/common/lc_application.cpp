@@ -1384,8 +1384,6 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 
 	bool OnlyUsePaths = false;
 
-	emit Application::instance()->splashMsgSig("45% - Visual Editor widgets loading...");
-
 	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 	QTextStream StdErr(stderr, QIODevice::WriteOnly);
 
@@ -1395,13 +1393,13 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		StdErr << mOptions.StdErr;
 		StdErr.flush();
 	}
-	***/
+
 	if (!mOptions.StdOut.isEmpty())
 	{
 		StdOut << mOptions.StdOut;
 		StdOut.flush();
 	}
-	/***
+
 	if (!mOptions.ParseOK)
 		return lcStartupMode::Error;
 
