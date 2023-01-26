@@ -1982,7 +1982,7 @@ void Gui::enableVisualBuildModification()
     QIcon RotateIcon;
     QString RotateText,RotateStatusTip,RelTranslateStatusTip,AbsTranslateStatusTip;
     if (buildModEnabled) {
-        RotateText = tr("Rotate build modification pieces");
+        RotateText = tr("Rotate Build Modification");
         RotateStatusTip = tr("Rotate selected build modification pieces - Shift+L");
         RelTranslateStatusTip = tr("Switch to relative translation mode when applying transforms");
         AbsTranslateStatusTip = tr("Switch to absolute translation mode when applying transforms");
@@ -1992,7 +1992,7 @@ void Gui::enableVisualBuildModification()
             gMainWindow->GetTransformType() == lcTransformType::AbsoluteRotation)
             gMainWindow->SetTransformType(lcTransformType::RelativeTranslation);
     } else {
-        RotateText = tr("Rotate model for ROTSTEP command");
+        RotateText = tr("Rotate ROTSTEP");
         RotateStatusTip = tr("Rotate selected model for ROTSTEP command - Shift+L");
         RelTranslateStatusTip = tr("Relative translation mode is disabled when build modifications are disabled");
         AbsTranslateStatusTip = tr("Absolute translation mode is disabled when build modifications are disabled");
