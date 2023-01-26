@@ -3610,15 +3610,31 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       }
   }
 
-  if (rc != OkRc) {
+  if (rc != OkRc && !Gui::abortProcess()) {
       if (Gui::pageProcessRunning != PROC_NONE) {
-          QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
-          Where top = here;
-          lpub->ldrawFile.getTopOfStep(top.modelName,top.modelIndex,top.lineNumber);
-          if (Gui::stepContains(top, partTypeLineRx)) {
-              here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
+          bool errorFound = false;
+          here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
+          Where start(here.modelName,here.modelIndex,here.lineNumber);
+          Where top(here.modelName,here.modelIndex,0);
+          lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
+          QRegExp errorRx("^[1-5]\\s+|\\bBEGIN SUB\\b|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
+          for (; start.lineNumber > top.lineNumber; start--) {
+              QString line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
+              if (line.contains(errorRx)) {
+                  errorFound = !errorRx.cap(1).contains(QRegExp("0 STEP|0 ROTSTEP"));
+                  break;
+              }
+          }
+          if (!errorFound) {
+              start = here;
+              if (lpub->ldrawFile.size(here.modelName) > here.lineNumber)
+                  start++; // advance past current line
+              errorRx.setPattern("^[1-5]\\s+|\\bBEGIN SUB\\b");
+          }
+          if (errorFound || Gui::stepContains(start, errorRx)) {
               emit gui->parseErrorSig(QString("INSERT %1 meta command STEP cannot contain type 1 to 5 line. Invalid type at line %2.")
-                                              .arg(argv[index]).arg(top.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
+                                              .arg(argv[index]).arg(start.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
+              Gui::setAbortProcess(true);
           }
       }
       return rc;

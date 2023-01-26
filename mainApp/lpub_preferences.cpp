@@ -4112,8 +4112,8 @@ int  Preferences::showMessage(
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(msgTitle));
     box.setText(message);
     box.setIcon(static_cast<QMessageBox::Icon>(icon));
-    box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : abort ? QMessageBox::Abort | QMessageBox::Ignore : QMessageBox::Ok);
-    box.setDefaultButton   (option ? QMessageBox::Cancel : abort ? QMessageBox::Ignore : QMessageBox::Ok);
+    box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : abort ? override ? QMessageBox::Ok : QMessageBox::Abort | QMessageBox::Ignore : QMessageBox::Ok);
+    box.setDefaultButton   (option ? QMessageBox::Cancel : abort ? override ? QMessageBox::Ok : QMessageBox::Ignore : QMessageBox::Ok);
     if (!override) {
         QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(msgType));
         box.setCheckBox(cb);
