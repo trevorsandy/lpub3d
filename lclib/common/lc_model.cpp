@@ -3318,7 +3318,10 @@ void lcModel::SetCameraOrthographic(lcCamera* Camera, bool Ortho)
 
 	SaveCheckpoint(tr("Editing Camera"));
 	UpdateAllViews();
-	gMainWindow->UpdatePerspective();
+/*** LPub3D Mod - Camera Globe ***/
+	if (gMainWindow)
+		gMainWindow->UpdatePerspective();
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::SetCameraFOV(lcCamera* Camera, float FOV)

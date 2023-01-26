@@ -2720,14 +2720,6 @@ void Preferences::rendererPreferences()
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
-    // Native camera fov adjustment for image generation
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"))) {
-        nativeImageCameraFoVAdjust = NATIVE_IMAGE_CAMERA_FOV_ADJUST;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"),rendererTimeout);
-    } else {
-        nativeImageCameraFoVAdjust = Settings.value(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust")).toInt();
-    }
-
     // Image matting [future use]
     QString const enableImageMattingKey("EnableImageMatting");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableImageMattingKey))) {

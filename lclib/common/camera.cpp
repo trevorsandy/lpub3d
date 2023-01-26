@@ -496,6 +496,17 @@ void lcCamera::MoveRelative(const lcVector3& Distance, lcStep Step, bool AddKey)
 	UpdatePosition(Step);
 }
 
+/*** LPub3D Mod - Camera Globe ***/
+void lcCamera::SetPosition(lcStep Step)
+{
+	mPositionKeys.ChangeKey(mPosition, Step, false);
+	mTargetPositionKeys.ChangeKey(mTargetPosition, Step, false);
+	mUpVectorKeys.ChangeKey(mUpVector, Step, false);
+
+	UpdatePosition(1);
+}
+/*** LPub3D Mod end ***/
+
 void lcCamera::UpdatePosition(lcStep Step)
 {
 	if (!IsSimple())

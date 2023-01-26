@@ -284,6 +284,9 @@ public:
 	static bool FileLoad(lcFile& file);
 
 	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
+/*** LPub3D Mod - Camera Globe ***/
+	void SetPosition(lcStep Step);
+/*** LPub3D Mod end ***/
 	void UpdatePosition(lcStep Step);
 	void CopyPosition(const lcCamera* Camera);
 	void CopySettings(const lcCamera* Camera);

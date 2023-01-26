@@ -101,12 +101,12 @@ public:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	void SetRenderAttributes(
+		const int Renderer,
 		const int ImageType,
 		const int ImageWidth,
 		const int ImageHeight,
 		const int PageWidth,
 		const int PageHeight,
-		const int Renderer,
 		const QString FileName,
 		const float Resolution);
 	void SetImageSize(

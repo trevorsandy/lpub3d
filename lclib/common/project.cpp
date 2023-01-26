@@ -106,19 +106,19 @@ Project::~Project()
 
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 void Project::SetRenderAttributes(
+	const int     Renderer,
 	const int     ImageType,
 	const int     ImageWidth,
 	const int     ImageHeight,
 	const int     PageWidth,
 	const int     PageHeight,
-	const int     Renderer,
 	const QString FileName,
 	const float   Resolution)
 {
+	mRenderer      = Renderer;
 	mImageType     = ImageType;
 	mPageWidth     = PageWidth;
 	mPageHeight    = PageHeight;
-	mRenderer      = Renderer;
 	mImageFileName = FileName;
 	mResolution    = Resolution;
 	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
