@@ -4604,12 +4604,15 @@ void Gui::setStepForLine()
     if (!lpub->currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
         return;
 
+    if (lpub->page.coverPage)
+        return;
+
     disconnect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
                editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
 
     enableVisualBuildModActions();
-    getCurrentStep()->viewerOptions->ZoomExtents = true;
-    getCurrentStep()->loadTheViewer();
+    lpub->currentStep->viewerOptions->ZoomExtents = true;
+    lpub->currentStep->loadTheViewer();
 
     connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
             editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));

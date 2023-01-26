@@ -1,4 +1,4 @@
-LPub3D 2.4.6.5.3116 (26 01 2023 03:05:00)
+LPub3D 2.4.6.6.3117 (26 01 2023 03:06:41)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Fix - Segfault after running --help or --version from console #668
+- Fix - Segfault if selection in command editor and also on cover page #669
 
 --------------------------------------------------------------------------------------------------
 
