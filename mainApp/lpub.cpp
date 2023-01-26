@@ -742,6 +742,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
   m_exportMode = PAGE_PROCESS;
 
+  QString message = tr("Continuous %1 Page Processing...").arg(direction);
+
   if (Preferences::modeGUI) {
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
@@ -759,6 +761,18 @@ bool Gui::continuousPageDialog(PageDirection d)
           if (dialog->exec() == QDialog::Accepted) {
               continuousTimer.start();
 
+              // initialize progress dialogue
+              m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
+              m_progressDialog->setLabelText(message);
+              m_progressDialog->setBtnToCancel();
+              m_progressDialog->setPageDirection(d);
+              m_progressDialog->show();
+              QApplication::setOverrideCursor(Qt::ArrowCursor);
+              QCoreApplication::processEvents();
+              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+              connect    (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
+              connect    (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
+
               if(dialog->allPages()){
                   if (dialog->allPagesRange()) {
                       processOption = EXPORT_PAGE_RANGE;
@@ -768,7 +782,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                   }
               }
               else
-              if(dialog->pageRange()){
+              if(dialog->pageRange()) {
                   processOption  = EXPORT_PAGE_RANGE;
                   pageRangeText = dialog->pageRangeText();
               }
@@ -782,18 +796,10 @@ bool Gui::continuousPageDialog(PageDirection d)
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),uValue);
               }
 
-              if (Preferences::pageDisplayPause != dialog->pageDisplayPause()){
+              if (Preferences::pageDisplayPause != dialog->pageDisplayPause()) {
                   Preferences::pageDisplayPause = dialog->pageDisplayPause();
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PageDisplayPause"),Preferences::pageDisplayPause);
               }
-
-              // initialize progress dialogue
-              m_progressDialog->setBtnToCancel();
-              m_progressDialog->setPageDirection(d);
-              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
-              connect    (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
-              connect    (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
-
           } else {
               emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
@@ -812,9 +818,12 @@ bool Gui::continuousPageDialog(PageDirection d)
   }
 
   // Validate the page range
-  if (processOption == EXPORT_PAGE_RANGE){
-      if (! validatePageRange()){
-          emit messageSig(LOG_STATUS,tr("%1 page processing terminated.").arg(direction));
+  if (processOption == EXPORT_PAGE_RANGE) {
+      if (! validatePageRange()) {
+          message = tr("%1 page processing terminated.").arg(direction);
+          m_progressDialog->setBtnToClose();
+          m_progressDialog->setLabelText(message, true/*alert*/);
+          emit messageSig(LOG_STATUS,message);
           setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
           pageProcessRunning = PROC_NONE;
@@ -828,11 +837,9 @@ bool Gui::continuousPageDialog(PageDirection d)
   if(resetCache)
       resetModelCache();
 
-  QString message = tr("Continuous %1 Page Processing...").arg(direction);
-
   emit messageSig(LOG_STATUS,tr("Start %1").arg(message));
 
-  if (processOption == EXPORT_ALL_PAGES){
+  if (processOption == EXPORT_ALL_PAGES) {
 
       _maxPages = maxPages;
 
@@ -840,8 +847,6 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
           m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
-          m_progressDialog->show();
-          QApplication::setOverrideCursor(Qt::ArrowCursor);
           QCoreApplication::processEvents();
       }
 
@@ -950,8 +955,6 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
           m_progressDialog->setLabelText(message);
           m_progressDialog->setRange(0,_maxPages);
-          m_progressDialog->show();
-          QApplication::setOverrideCursor(Qt::BusyCursor);
           QCoreApplication::processEvents();
       }
 
@@ -1031,25 +1034,22 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       if (Preferences::modeGUI) {
           if (messageList.size()) {
-              QString msgType;
-              bool errorSet = false;
-              bool warnSet = false;
+              int errorSet = 0;
+              int warnSet  = 0;
               QRegExp errorRx(">ERROR<");
               QRegExp fatalRx(">FATAL<");
               QRegExp warnRx(">WARNING<");
-              for (const QString &item : messageList) {
-                  if (! errorSet && (item.contains(errorRx) || item.contains(fatalRx))) {
-                      errorSet = true;
-                      msgType = msgType.isEmpty() ? tr("errors") : tr("and errors");
-                  } else if (! warnSet && item.contains(warnRx)) {
-                      warnSet = true;
-                      msgType = msgType.isEmpty() ? tr("warnings") : tr("and warnings");
-                  }
-              }
-              message.append(tr("<br><br>There were %1 %2:<br>%3")
-                                .arg(messageList.size())
-                                .arg(msgType)
-                                .arg(messageList.join(" ")));
+              for (const QString &item : messageList)
+                  if (item.contains(errorRx) || item.contains(fatalRx))
+                      errorSet++;
+                  else if (! warnSet && item.contains(warnRx))
+                      warnSet++;
+
+              message.append(tr("<br><br>There %1 %2%3 :<br>%4")
+                             .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                             .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
+                             .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
+                             .arg(messageList.join(" ")));
           }
           m_progressDialog->setBtnToClose();
           m_progressDialog->setLabelText(message);
