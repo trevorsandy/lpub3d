@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>589</width>
+    <width>593</width>
     <height>558</height>
    </rect>
   </property>
@@ -717,7 +717,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidgetViews">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabUserInterface">
         <attribute name="title">
@@ -973,17 +973,17 @@
             <string>Part Preview</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
+            <item row="4" column="0" colspan="2">
+             <widget class="QLabel" name="label_31">
+              <property name="text">
+               <string>Preview Size:</string>
+              </property>
+             </widget>
+            </item>
             <item row="4" column="3">
              <widget class="QLabel" name="label_32">
               <property name="text">
                <string>Floating Location:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="5">
-             <widget class="QLabel" name="label_33">
-              <property name="text">
-               <string>Position:</string>
               </property>
              </widget>
             </item>
@@ -993,19 +993,6 @@
                <string>View Sphere Location:</string>
               </property>
              </widget>
-            </item>
-            <item row="4" column="7">
-             <spacer name="horizontalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
             <item row="5" column="4">
              <widget class="QComboBox" name="PreviewViewSphereLocationCombo">
@@ -1027,6 +1014,60 @@
               <item>
                <property name="text">
                 <string>Bottom Right</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="4" column="5">
+             <widget class="QLabel" name="label_33">
+              <property name="text">
+               <string>Position:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QComboBox" name="PreviewSizeCombo">
+              <item>
+               <property name="text">
+                <string>Docked</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Small</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Large</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QCheckBox" name="PreviewAxisIconCheckBox">
+              <property name="text">
+               <string>Axis Icon</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>View Sphere Size:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="6">
+             <widget class="QComboBox" name="PreviewPositionCombo">
+              <item>
+               <property name="text">
+                <string>Dockable</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Floating</string>
                </property>
               </item>
              </widget>
@@ -1055,46 +1096,6 @@
               </item>
              </widget>
             </item>
-            <item row="4" column="6">
-             <widget class="QComboBox" name="PreviewPositionCombo">
-              <item>
-               <property name="text">
-                <string>Dockable</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Floating</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QComboBox" name="PreviewSizeCombo">
-              <item>
-               <property name="text">
-                <string>Docked</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Small</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Large</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="QLabel" name="label_31">
-              <property name="text">
-               <string>Preview Size:</string>
-              </property>
-             </widget>
-            </item>
             <item row="5" column="2">
              <widget class="QComboBox" name="PreviewViewSphereSizeCombo">
               <item>
@@ -1119,19 +1120,18 @@
               </item>
              </widget>
             </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>View Sphere Size:</string>
+            <item row="5" column="6">
+             <spacer name="horizontalSpacer_12">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QCheckBox" name="PreviewAxisIconCheckBox">
-              <property name="text">
-               <string>Axis Icon</string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
               </property>
-             </widget>
+             </spacer>
             </item>
            </layout>
           </widget>
