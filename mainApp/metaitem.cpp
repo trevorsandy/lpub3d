@@ -5442,6 +5442,11 @@ void MetaItem::clearAllCaches() const
     emit gui->clearAllCachesSig();
 }
 
+void MetaItem::clearStepCache(Step *step, int option) const
+{
+    emit gui->clearStepCacheSig(step, option);
+}
+
 void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option) const
 {
     emit gui->clearPageCacheSig(relativeType, page, option);

@@ -521,6 +521,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QAction *rendererAction            = lpub->getAct("preferredRendererAction.1");
     commonMenus.addAction(rendererAction,menu,name);
 
+    QAction *refreshStepCacheAction    = lpub->getAct("refreshStepCacheAction.1");
+    commonMenus.addAction(refreshStepCacheAction,menu,name);
+
     QAction *rendererArgumentsAction   = nullptr;
     QAction *povrayRendererArgumentsAction = nullptr;
     bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
@@ -533,16 +536,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-    QAction *refreshStepCacheAction      = nullptr;
-    if (parentRelativeType == StepGroupType) {
-        refreshStepCacheAction           = lpub->getAct("refreshStepCacheAction.1");
-        commonMenus.addAction(refreshStepCacheAction,menu,name);
-    }
-
     QAction *noStepAction              = lpub->getAct("noStepAction.1");
     noStepAction->setText(tr("Do Not Show This %1").arg(fullContextMenu ? tr("Step") : tr("Final Model")));
     commonMenus.addAction(noStepAction,menu);
-
 
     QAction *previewCsiAction          = lpub->getAct("previewPartAction.1");
     lcPreferences& Preferences         = lcGetPreferences();
@@ -761,9 +757,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                            rendererNames[Render::getRenderer()],
                            &step->povrayParms);
     } else if (selectedAction == refreshStepCacheAction) {
-        Page *page = step->page();
-        clearPageCache(parentRelativeType,page,Options::CSI);
-        //gui->clearStepCSICache(step->pngName);
+        if (step)
+            clearStepCache(step, Options::CSI);
     } else if (selectedAction == copyCsiImagePathAction) {
         QObject::connect(copyCsiImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
         copyCsiImagePathAction->setData(step->pngName);

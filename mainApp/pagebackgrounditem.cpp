@@ -96,7 +96,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *assembledAction           = nullptr;
   QAction *ignoreAction              = nullptr;
   QAction *partAction                = nullptr;
-  QAction *refreshPageCacheAction      = nullptr;
+  QAction *refreshPageCacheAction    = nullptr;
   if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
       if (range->relativeType == RangeType) {

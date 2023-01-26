@@ -3565,8 +3565,8 @@ void PliBackgroundItem::contextMenuEvent(
                                  rendererNames[Render::getRenderer()],
                                  &pli->pliMeta.povrayParms);
         } else if (selectedAction == refreshPartsCacheAction) {
-            Page *page = dynamic_cast<Page *>(pli->steps);
-            clearPageCache(parentRelativeType,page,Options::PLI);
+            if (pli->step)
+                clearStepCache(pli->step,Options::PLI);
         }
     }
 }

@@ -1840,8 +1840,8 @@ void SubModelBackgroundItem::contextMenuEvent(
                              rendererNames[Render::getRenderer()],
                              &subModel->subModelMeta.povrayParms);
     } else if (selectedAction == refreshSubmodelCacheAction) {
-        Page *page = dynamic_cast<Page *>(subModel->steps);
-        clearPageCache(parentRelativeType,page,Options::SMI);
+        if (subModel->step)
+            clearStepCache(subModel->step,Options::SMI);
     } else if (selectedAction == copySmpImagePathAction) {
         QObject::connect(copySmpImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
         copySmpImagePathAction->setData(subModel->imageName);

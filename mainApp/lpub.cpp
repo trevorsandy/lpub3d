@@ -2223,7 +2223,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
           if (range->relativeType == RangeType) {
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
-                  clearPageGraphicsItems(step, option);
+                  clearStepGraphicsItems(step, option);
               } // validate step (StepType) and process...
           } // validate RangeType - to cast step
       } else if (relativeType == StepGroupType) {  // multi-step page
@@ -2233,7 +2233,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
                       if (step && step->relativeType == StepType) {
-                          clearPageGraphicsItems(step, option);
+                          clearStepGraphicsItems(step, option);
                       } // validate step (StepType) and process...
                   } // validate RangeType - to cast step
               } // for each step within divided group...=>list[AbstractRangeElement]->StepType
@@ -2250,7 +2250,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
  * Clear step image graphics items
  * This function recurses the step's model to clear images and associated model files.
  */
-void Gui::clearPageGraphicsItems(Step *step, int option) {
+void Gui::clearStepGraphicsItems(Step *step, int option) {
     // Capture ldr and image file names
     QStringList fileNames;
     QString tmpDirName = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
@@ -2318,7 +2318,7 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[m]);
                         if (step && step->relativeType == StepType) {
-                            clearPageGraphicsItems(step, option);
+                            clearStepGraphicsItems(step, option);
                         } // 1.6 validate if Step relativeType is StepType - to clear image, check for Callout
                     } // 1.5 validate if Range relativeType is RangeType - to cast as Step
                 } // 1.4 for each Step list-item within a Range...=>list[AbstractRangeElement]->StepType
@@ -3302,6 +3302,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
             this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
 
     // cache management
+    connect(this,           SIGNAL(clearStepCacheSig(Step *, int)),
+            this,           SLOT(  clearStepGraphicsItems(Step *, int)));
+
     connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
             this,           SLOT(  clearPageCache(PlacementType, Page*, int)));
 

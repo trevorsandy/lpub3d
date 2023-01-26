@@ -1486,7 +1486,7 @@ public slots:
   void clearCustomPartCache(bool silent = false);
   void clearStepCSICache(QString &pngName);
   void clearPageCache(PlacementType relativeType, Page *page, int option);
-  void clearPageGraphicsItems(Step *step, int option);
+  void clearStepGraphicsItems(Step *step, int option);
   void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
   void clearAndRedrawModelFile();
   void reloadCurrentModelFile();
@@ -1538,6 +1538,7 @@ signals:
   void setGeneratingBomSig(bool);
 
   // cache management
+  void clearStepCacheSig(Step *, int);
   void clearPageCacheSig(PlacementType, Page*, int);
   void clearAndReloadModelFileSig(bool, bool);
   void clearCustomPartCacheSig(bool);
