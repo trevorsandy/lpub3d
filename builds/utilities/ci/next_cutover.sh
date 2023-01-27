@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: November 23, 2022
+# Last Update: January 27, 2023
 #
 # Purpose:
 # This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -19,7 +19,7 @@
 #   - DRY_RUN: Do not perform cutover [Default=null]
 #   - FROM_REPO: Development repository [default=lpub3dnext]
 #   - TO_REPO: Production or maintenance repository [default=lpub3d]
-#   - TAG: Release version [Default=2.4.5']
+#   - TAG: Release version [Default=2.4.7']
 #   - BRANCH: Working cutover development branch [Default=CUTOVER_CI]
 #   - RELEASE: Create a release commit, preserve build tag, on the last commit [Default=null]
 #   - RN_MIN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES on release commit [Default=null]
@@ -36,17 +36,17 @@
 # Identify starting commit
 # Execute:
 #   $ chmod +x next_cutover.sh
-#   $ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.5 BRANCH=CUTOVER_CI RELEASE=1 RN_MAX_LINE_DEL=<number> RN_MIN_LINE_DEL=<number> COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.7 BRANCH=CUTOVER_CI RELEASE=1 RN_MAX_LINE_DEL=<number> RN_MIN_LINE_DEL=<number> COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
 #
 # NOTE: Set RELEASE=1 and TAG=<new tag> if this cutover will end with a new version tag
 #       You can set TAG=<current tag> (or no tag at all) if this cutover will not end in a new tagged version
 #
 # Command Examples:
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 STOP_AT_COMMIT=3 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 CLONE=1 RELEASE=1 DRY_RUN=1 STOP_AT_COMMIT=3 COMMIT=<commit hash> ./next_cutover.sh
 #   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
 #
 # Useful DEBUG Commands:
 # $ COMMIT_LIST_FILE="../cutover_commits.lst"
@@ -152,6 +152,7 @@ function options_status
     [ -n "$START_COMMIT" ] && \
     echo "--START_COMMIT....$START_COMMIT $(cd $FROM_REPO_NAME; get_elided_string "$(git show -s --format=%s $START_COMMIT)")" || \
     echo "--START_COMMIT....Not Specified!"
+    [ -n "$RELEASE_BUILD" ] && echo "--RELEASE_BUILD...YES" || echo "--RELEASE_BUILD...NO"
     [[ $STOP_AT_COMMIT_COUNT > 0 ]] && \
     echo "--STOP_AT_COMMIT..$STOP_AT_COMMIT_COUNT" || true
     [[ -n "$MAX_RN_LINE_DEL" && -n "$MIN_RN_LINE_DEL" ]] && \

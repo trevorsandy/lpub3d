@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 14, 2023
+# Last Update January 27, 2023
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -69,7 +69,10 @@ SignHashAndPublishToGitHub() {
 declare -r p=Publish
 export CI="${CI:-true}"
 export GITHUB="${GITHUB:-true}" # GITHUB_ACTIONS
+
+LP3D_COMMIT_MSG_ORIG="${LP3D_COMMIT_MSG}"
 export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
+
 
 # Check commit for skip directives
 if [[ "${LP3D_COMMIT_MSG}" == *"SKIP_DEPLOY"* ]]; then
@@ -162,7 +165,7 @@ if [ -f upload.sh -a -r upload.sh ]; then
     else
       sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
     fi
-    LP3D_RELEASE_DESCRIPTION="${LP3D_COMMIT_MSG}"
+    LP3D_RELEASE_DESCRIPTION="${LP3D_COMMIT_MSG_ORIG}"
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
     else

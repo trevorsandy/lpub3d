@@ -4,7 +4,7 @@ If you prefer to build your own LPub3D install package, these notes might be hel
 
 Starting with **v2.0.0**, LPub3D build scripts builds the core applicaiton (LPub3D), Visual Editor (based on LeoCAD), LDV (based on LDView) along with its three bundled 3rd-party image renderers - [LDGlite][ldglite], [LDView][ldview] and [LPub3D-Trace (POV-Ray)][povray]. Furthermore, the LPub3D build process is now fully cloud-enabled and optimized for containerized builds. This means the build process is highly automated requiring zero intervention between pushing a build tag and downloading the built installation assets.  
 
-However, as the build process is specifically designed to exploit cloud-based CI services and tools like [Travis-ci][travis-ci], [AppVeyor][appveyor-ci]  
+However, as the build process is specifically designed to exploit cloud-based CI services and tools like [GitHub Actions][github-actions], [AppVeyor][appveyor-ci]  
 and [Docker][dockerrepo], building LPub3D locally may require some presets and dependencies likely not availabe on your build environment. The details below hopefully address the necessary procedures to complete your build process but, it also goes without saying, that your local environment may present uinque configuration requirements not addressed in the steps below.
 
 The LPub3D build process automatically resolves required build dependencies across all its supported platform builds. Execeptions are noted under **Platform-specific Dependencies** - which require manual resolution.
@@ -134,7 +134,7 @@ SET LP3D_LOCAL_CI_BUILD=1
 rem Set LP3D_INSTALL_PKG_ONLY=1 to skip package build and perform install for packaging only
 SET LP3D_INSTALL_PKG_ONLY=0
 rem Set your desired commit message
-SET LP3D_COMMIT_MSG=LPub3D 26.10.2022
+SET LP3D_COMMIT_MSG=LPub3D 26.01.2023
 SET LP3D_BUILD_BASE=%CD%
 SET LP3D_3RD_PARTY=third_party
 SET LP3D_3RD_PARTY_PATH=%LP3D_BUILD_BASE%\%LP3D_3RD_PARTY%
@@ -202,7 +202,7 @@ CALL .\%AppInstance%\builds\utilities\ci\github\windows-build.bat > %AppInstance
 [vs2019]:            https://www.visualstudio.com/downloads/
 [qtmscv2017-64-bug]: https://bugreports.qt.io/browse/QTBUG-72073
 [msvc2017-bug]:      https://developercommunity.visualstudio.com/content/problem/406329/compiler-error-c2666-when-using-stdbitset-and-cust.html
-[travis-ci]:         https://travis-ci.com/trevorsandy/lpub3d
+[github-actions]:    https://github.com/trevorsandy/lpub3d/actions
 [appveyor-ci]:       https://ci.appveyor.com/project/trevorsandy/lpub3d
 [gh-rel-badge]:      https://img.shields.io/github/release/trevorsandy/lpub3d.svg
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: November 23, 2022
+# Last Update: January 27, 2023
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -99,7 +99,7 @@ SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
 HOME_DIR=$PWD
 
-NEXT_CUT=${AUTO:-}
+AUTO_MODE=${AUTO:-}
 NO_STATUS=${NOSTAT:-}
 LOCAL_TAG=${TAG:-}
 NEW_VER_TAG=${NEW_TAG:-}
@@ -125,7 +125,7 @@ COMMAND_COUNT=0
 [ -z "$LOCAL_TAG" ] && LOCAL_TAG="$(cd $HOME_DIR/$FROM_REPO_NAME ; git describe --abbrev=0)"
 
 # Set NEW_VER_TAG if new version tag
-[ "${NEW_VER_TAG}" == "${LOCAL_TAG}" ] && NEXT_VER_TAG=yes || :
+[[ -n "$RELEASE_COMMIT" && "${NEW_VER_TAG}" == "${LOCAL_TAG}" ]] && NEXT_VER_TAG=yes || :
 
 function options_status
 {
@@ -186,7 +186,7 @@ echo "==========================================================================
 [ -z "$NO_STATUS" ] && options_status || echo
 
 # Confirmation
-if [ -z "NEXT_CUT" ]
+if [ -z "AUTO_MODE" ]
 then
     sleep 1s && read -p "  Are you sure (y/n)? " -n 1 -r
     echo    # (optional) move to a new line
@@ -506,6 +506,7 @@ $COMMIT_MSG
 pbEOF
 chmod a+x builds/utilities/hooks/pre-commit
 env force_all=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
+find . -name '*.log*' -type f -exec rm -f *.log {} +
 
 if [ -n "$RELEASE_COMMIT" ]; then
    # Delete and recreate new version tag to place tag on last commit
@@ -537,7 +538,7 @@ fi
 [ -z "$CHECKOUT_MASTER" ] && git checkout master || true
 
 # Checkout master in destination [in FROM_REPO_NAME] when not called from next_cutover (AUTO=)
-if [ -z "$NEXT_CUT" ]
+if [ -z "$AUTO_MODE" ]
 then
     if [ -n "$RELEASE_COMMIT" ]; then
         echo "$((COMMAND_COUNT += 1))-Create new version tag in $FROM_REPO_NAME repository"
