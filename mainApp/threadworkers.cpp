@@ -2268,13 +2268,13 @@ int CountPageWorker::countPage(
                                 buildModStepIndex);
   };
 
-#ifndef QT_DEBUG_MODE
-  auto documentPageCount = [&] ()
-  {
-      emit gui->messageSig(LOG_INFO_STATUS, tr("Counting document page %1...")
-                           .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
-  };
-#endif
+//#ifndef QT_DEBUG_MODE
+//  auto documentPageCount = [&] ()
+//  {
+//      emit gui->messageSig(LOG_INFO_STATUS, tr("Counting document page %1...")
+//                           .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
+//  };
+//#endif
 
   for ( ;
         opts.current.lineNumber < opts.flags.numLines && ! Gui::abortProcess();
@@ -2545,10 +2545,10 @@ int CountPageWorker::countPage(
 #endif
                   ++opts.pageNum;
                   Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
-#ifndef QT_DEBUG_MODE
-                  if (Preferences::debugLogging)
-                      documentPageCount();
-#endif
+//#ifndef QT_DEBUG_MODE
+//                  if (Preferences::debugLogging)
+//                      documentPageCount();
+//#endif
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
 
@@ -2746,10 +2746,10 @@ int CountPageWorker::countPage(
 #endif
                       ++opts.pageNum;
                       Gui::topOfPages.append(opts.current); // Set TopOfStep (Step)
-#ifndef QT_DEBUG_MODE
-                      if (Preferences::debugLogging)
-                          documentPageCount();
-#endif
+//#ifndef QT_DEBUG_MODE
+//                      if (Preferences::debugLogging)
+//                          documentPageCount();
+//#endif
 
                   } // ! StepGroup and ! Callout (Single step)
 
@@ -2993,10 +2993,10 @@ int CountPageWorker::countPage(
           ++opts.pageNum;
           opts.flags.parseNoStep = false;
           Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
-#ifndef QT_DEBUG_MODE
-          if (Preferences::debugLogging)
-              documentPageCount();
-#endif
+//#ifndef QT_DEBUG_MODE
+//          if (Preferences::debugLogging)
+//              documentPageCount();
+//#endif
       } // Last Step in Submodel
   } // ! abortProcess
 
