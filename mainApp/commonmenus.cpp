@@ -5475,12 +5475,32 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Enable and configure part element annotation.\n"
             "  Bill of material part element identifiers can\n"
-            "  be sourced from one of three files:\n"
-            "  - Bricklink: brickline part element identifier\n"
-            "    file.\n\n"
-            "  - LEGO: Element identifiers sourced from the \n"
-            "    LEGO group.\n\n"
-            "  - Local: Local LEGO elements identifier file.\n")
+            "  be sourced from one of two files:\n"
+            "  - Bricklink Codes: codes.txt is the raw tab-delimited\n"
+            "    Bricklink file downloaded from\n"
+            "    https://www.bricklink.com/catalogDownload.asp\n"
+            "    %1 will automatically download a stored copy of\n"
+            "    this file if it is not found in the 'extras' folder.\n\n"
+            "  - LEGO elements: legoelements.lst is a tab-delimited\n"
+            "    user-defined text file that should be placed in the\n"
+            "    %1 'extras' user data folder and include part id,\n"
+            "    color id and the LEGO element id (or whatever id you\n"
+            "    want to display) delimited by tabs.\n\n"
+            "  You can set %1 to use either LEGO element id or\n"
+            "  Bricklink id - a combination of the Bricklink part id\n"
+            "  and color id delimited with '-', for example 11145-87.\n\n"
+            "  The three options availale to display part element\n"
+            "  annotations are therefore:\n"
+            "  - Bricklink: use Bricklink part element identifier\n"
+            "    sourced from Bricklink codes.txt.\n\n"
+            "  - LEGO: use LEGO part element identifiers sourced\n"
+            "    from Bricklink codes.txt.\n\n"
+            "  - Local: use the part element identifier sourced from\n"
+            "    the local legoelements.lst file.\n\n"
+            "  As with the other %1 configuration files, you can\n"
+            "  edit the local instance of these files to update\n"
+            "  add or remove part elements.\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
         },
         // WT_GUI_BUILD_MODIFICATIONS
         {

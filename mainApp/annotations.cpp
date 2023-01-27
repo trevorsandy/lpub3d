@@ -43,7 +43,7 @@ QHash<QString, QString>     Annotations::ld2rbCodesXRef;
 
 QList<Where>                Annotations::AnnotationErrors;
 
-void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
+void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer) {
 /*
 # File: ld2blcolorsxref.lst
 #
@@ -212,7 +212,7 @@ void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
         Buffer.append(LD2BLColorsXRef, sizeof(LD2BLColorsXRef));
 }
 
-void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer){
+void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer) {
 /*
 # File: ld2blcodesxref.lst
 #
@@ -531,7 +531,7 @@ void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer){
         Buffer.append(LD2BLCodesXRef, sizeof(LD2BLCodesXRef));
 }
 
-void Annotations::loadBLColors(QByteArray& Buffer){
+void Annotations::loadBLColors(QByteArray& Buffer) {
 /*
 # File: colors.txt
 #
@@ -771,7 +771,7 @@ void Annotations::loadBLColors(QByteArray& Buffer){
         Buffer.append(BLColors, sizeof(BLColors));
 }
 
-void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
+void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer) {
 
 /*
 # File: styledAnnotations.lst
@@ -985,7 +985,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         Buffer.append(VEXIQDefaultAnnotationStyles, sizeof(VEXIQDefaultAnnotationStyles));
 }
 
-void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer){
+void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer) {
 /*
 # File: ld2rbcolorsxref.lst
 #
@@ -1022,7 +1022,7 @@ void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer){
         Buffer.append(LD2RBColorsXRef, sizeof(LD2RBColorsXRef));
 }
 
-void Annotations::loadLD2RBCodesXRef(QByteArray& Buffer){
+void Annotations::loadLD2RBCodesXRef(QByteArray& Buffer) {
 /*
 # File: ld2rbcodesxref.lst
 #
@@ -1212,7 +1212,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 message = QString("Failed to open title annotations file: %1:<br>%2")
                                   .arg(annotations, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Title Annotations"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1280,7 +1280,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open freeform annotations file: %1:<br>%2")
                                           .arg(annotations, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Freeform Annotations"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1334,7 +1334,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open annotation style file: %1:<br>%2")
                                           .arg(styleFile, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Annotation Style"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1478,7 +1478,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open LDraw to BrickLink color reference file: %1:<br>%2")
                                           .arg(ld2blColorsXRefFile, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw to BrickLink Colors"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1546,7 +1546,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open LDraw to BrickLink part identification reference file: %1:<br>%2")
                                           .arg(ld2blCodesXRefFile, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw to BrickLink Codes"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1616,7 +1616,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open LDraw to Rebrickable color reference file: %1:<br>%2")
                                           .arg(ld2rbColorsXRefFile, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw to Rebrickable Colors"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1684,7 +1684,7 @@ Annotations::Annotations()
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open LDraw to Rebrickable part identification reference file: %1:<br>%2")
                                           .arg(ld2rbCodesXRefFile, file.errorString());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw to Rebrickable Codes"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1748,7 +1748,7 @@ Annotations::Annotations()
 // key : blitemid+blcolorid
 // val1: blitemid+"-"+blcolorid
 // val2: elementid
-bool Annotations::loadBLCodes(){
+bool Annotations::loadBLCodes() {
     if (blCodes.size() == 0) {
         QString message;
         QString blCodesFile = Preferences::blCodesFile;
@@ -1757,9 +1757,8 @@ bool Annotations::loadBLCodes(){
             QFile file(blCodesFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 message = QString("Failed to open BrickLink part identification reference file: %1:<br>%2")
-                        .arg(blCodesFile)
-                        .arg(file.errorString());
-                if (Preferences::modeGUI){
+                                  .arg(blCodesFile, file.errorString());
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - BrickLink Codes"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1805,7 +1804,7 @@ bool Annotations::loadBLCodes(){
     return true;
 }
 
-bool Annotations::loadBLCodes(QByteArray &Buffer){
+bool Annotations::loadBLCodes(QByteArray &Buffer) {
     if (blCodes.size() == 0) {
         QString message;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
@@ -1847,7 +1846,7 @@ bool Annotations::loadBLCodes(QByteArray &Buffer){
             message = QString("Finished Writing, Proceed %1 lines for file [%2]")
                               .arg(counter)
                               .arg(file.fileName());
-            if (Preferences::modeGUI){
+            if (Preferences::modeGUI) {
                 QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - BrickLink Codes"),message);
             } else {
                 logInfo() << message;
@@ -1856,9 +1855,8 @@ bool Annotations::loadBLCodes(QByteArray &Buffer){
         else
         {
            message = QString("Failed to write file: %1:<br>%2")
-                             .arg(file.fileName())
-                             .arg(file.errorString());
-           if (Preferences::modeGUI){
+                             .arg(file.fileName(), file.errorString());
+           if (Preferences::modeGUI) {
                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - BrickLink Codes"),message);
            } else {
                logError() << message.replace("<br>"," ");
@@ -1871,7 +1869,7 @@ bool Annotations::loadBLCodes(QByteArray &Buffer){
 
 // key: ldpartid+ldcolorid
 // val: elementid
-bool Annotations::loadLEGOElements(){
+bool Annotations::loadLEGOElements() {
     if (legoElements.size() == 0) {
         QString message;
         bool rxFound = false;
@@ -1881,9 +1879,8 @@ bool Annotations::loadLEGOElements(){
             QFile file(legoElementsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open LEGO part elements file: %1:<br>%2")
-                                          .arg(legoElementsFile)
-                                          .arg(file.errorString());
-                if (Preferences::modeGUI){
+                                          .arg(legoElementsFile, file.errorString());
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LEGO Part Elements"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1921,7 +1918,7 @@ bool Annotations::loadLEGOElements(){
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(legoElementsFile).fileName());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LEGO Part Elements"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -1929,7 +1926,7 @@ bool Annotations::loadLEGOElements(){
             }
         } else {
             message = QString("LEGO Part Element file was not found : %1").arg(legoElementsFile);
-            if (Preferences::modeGUI){
+            if (Preferences::modeGUI) {
                 QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LEGO Part Elements"),message);
             } else {
                 logError() << message.replace("<br>"," ");
@@ -1960,7 +1957,7 @@ const int &Annotations::getAnnotationStyle(QString part)
   return returnInt;
 }
 
-const int &Annotations::getAnnotationCategory(QString part){
+const int &Annotations::getAnnotationCategory(QString part) {
   returnInt = 0;
   if (annotationStyles.contains(part.toLower())) {
     bool ok;
@@ -2000,14 +1997,14 @@ const QString &Annotations::getLEGOElement(QString elementkey)
 
 const QString &Annotations::getBLElement(QString ldcolorid, QString ldpartid, int which)
 {
-    loadBLCodes();
     QString blcolorid,elementkey;
     if (ld2blColorsXRef.contains(ldcolorid.toLower())) {
         blcolorid = ld2blColorsXRef[ldcolorid.toLower()];
     }
-    if (QFileInfo::exists(blcolorid)){
+    if (!blcolorid.isEmpty()) {
+        loadBLCodes();
         elementkey = QString(ldpartid+blcolorid).toLower();
-        if (blCodes.contains(elementkey)){
+        if (blCodes.contains(elementkey)) {
             return blCodes[elementkey][which];
         }
         else
@@ -2078,7 +2075,7 @@ bool Annotations::overwriteFile(const QString &file)
     return (box.exec() == QMessageBox::Yes);
 }
 
-bool Annotations::exportBLColorsFile(){
+bool Annotations::exportBLColorsFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCOLORS_FILE));
 
     if (!overwriteFile(file.fileName()))
@@ -2135,7 +2132,7 @@ bool Annotations::exportBLColorsFile(){
         QString message = QString("Finished Writing BrickLink Color Code Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - BrickLink Colors"),message);
         } else {
             logNotice() << message;
@@ -2145,7 +2142,7 @@ bool Annotations::exportBLColorsFile(){
     {
         QString message = QString("Failed to open BrickLink Color Code file: %1:<br>%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - BrickLink Colors"),message);
         } else {
             logError() << message.replace("<br>"," ");
@@ -2155,7 +2152,7 @@ bool Annotations::exportBLColorsFile(){
     return true;
 }
 
-bool Annotations::exportLD2BLColorsXRefFile(){    
+bool Annotations::exportLD2BLColorsXRefFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2BLCOLORSXREF_FILE));
 
     if (!overwriteFile(file.fileName()))
@@ -2212,7 +2209,7 @@ bool Annotations::exportLD2BLColorsXRefFile(){
         QString message = QString("Finished Writing LDConfig and BrickLink Color Code Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To BrickLink Colors"),message);
         } else {
             logNotice() << message;
@@ -2222,7 +2219,7 @@ bool Annotations::exportLD2BLColorsXRefFile(){
     {
         QString message = QString("Failed to open LDConfig and BrickLink Color Code file: %1:<br>%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To BrickLink Colors"),message);
         } else {
             logError() << message.replace("<br>"," ");
@@ -2232,7 +2229,7 @@ bool Annotations::exportLD2BLColorsXRefFile(){
     return true;
 }
 
-bool Annotations::exportLD2BLCodesXRefFile(){
+bool Annotations::exportLD2BLCodesXRefFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE));
 
     if (!overwriteFile(file.fileName()))
@@ -2290,7 +2287,7 @@ bool Annotations::exportLD2BLCodesXRefFile(){
         QString message = QString("Finished Writing LDraw Design ID and BrickLink Item Number Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To BrickLink Codes"),message);
         } else {
             logNotice() << message;
@@ -2300,7 +2297,7 @@ bool Annotations::exportLD2BLCodesXRefFile(){
     {
         QString message = QString("Failed to open LDraw Design ID and BrickLink Item Number file: %1:<br>%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To BrickLink Codes"),message);
         } else {
             logError() << message.replace("<br>"," ");
@@ -2310,7 +2307,7 @@ bool Annotations::exportLD2BLCodesXRefFile(){
     return true;
 }
 
-bool Annotations::exportLD2RBColorsXRefFile(){
+bool Annotations::exportLD2RBColorsXRefFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE));
 
     if (!overwriteFile(file.fileName()))
@@ -2353,7 +2350,7 @@ bool Annotations::exportLD2RBColorsXRefFile(){
         QString message = QString("Finished Writing LDConfig and Rebrickable Color Code Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To Rebrickable Colors"),message);
         } else {
             logNotice() << message;
@@ -2363,7 +2360,7 @@ bool Annotations::exportLD2RBColorsXRefFile(){
     {
         QString message = QString("Failed to open LDConfig and Rebrickable Color Code file: %1:<br>%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To Rebrickable Colors"),message);
         } else {
             logError() << message.replace("<br>"," ");
@@ -2373,7 +2370,7 @@ bool Annotations::exportLD2RBColorsXRefFile(){
     return true;
 }
 
-bool Annotations::exportLD2RBCodesXRefFile(){
+bool Annotations::exportLD2RBCodesXRefFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE));
 
     if (!overwriteFile(file.fileName()))
@@ -2416,7 +2413,7 @@ bool Annotations::exportLD2RBCodesXRefFile(){
         QString message = QString("Finished Writing LDraw Design ID and Rebrickable Part ID Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To Rebrickable Codes"),message);
         } else {
             logNotice() << message;
@@ -2426,7 +2423,7 @@ bool Annotations::exportLD2RBCodesXRefFile(){
     {
         QString message = QString("Failed to open LDraw Design ID and Rebrickable Part ID file: %1:<br>%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - LDraw To Rebrickable Codes"),message);
         } else {
             logError() << message.replace("<br>"," ");
@@ -2436,7 +2433,7 @@ bool Annotations::exportLD2RBCodesXRefFile(){
     return true;
 }
 
-bool Annotations::exportTitleAnnotationsFile(){
+bool Annotations::exportTitleAnnotationsFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validTitleAnnotations));
 
     if (!overwriteFile(file.fileName()))
@@ -2489,7 +2486,7 @@ bool Annotations::exportTitleAnnotationsFile(){
         QString message = QString("Finished Writing Title Annotation Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Title Annotations"),message);
         } else {
             logNotice() << message;
@@ -2499,7 +2496,7 @@ bool Annotations::exportTitleAnnotationsFile(){
     {
         QString message = QString("Failed to open Title Annotations file: %1:\n%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Title Annotations"),message);
         } else {
             logError() << message;
@@ -2509,7 +2506,7 @@ bool Annotations::exportTitleAnnotationsFile(){
     return true;
 }
 
-bool Annotations::exportAnnotationStyleFile(){
+bool Annotations::exportAnnotationStyleFile() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validAnnotationStyles));
 
     if (!overwriteFile(file.fileName()))
@@ -2587,7 +2584,7 @@ bool Annotations::exportAnnotationStyleFile(){
         QString message = QString("Finished Writing Annotation Style Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Annotation Style"),message);
         } else {
             logNotice() << message;
@@ -2597,7 +2594,7 @@ bool Annotations::exportAnnotationStyleFile(){
     {
         QString message = QString("Failed to open Annotation style file: %1:<br>%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Annotation Style"),message);
         } else {
             logError() << message.replace("<br>"," ");
@@ -2607,7 +2604,7 @@ bool Annotations::exportAnnotationStyleFile(){
     return true;
 }
 
-bool Annotations::exportfreeformAnnotationsHeader(){
+bool Annotations::exportfreeformAnnotationsHeader() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validFreeFormAnnotations));
 
     if (!overwriteFile(file.fileName()))
@@ -2655,7 +2652,7 @@ bool Annotations::exportfreeformAnnotationsHeader(){
         QString message = QString("Finished Writing Free-form Annotation Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Freeform Annotations"),message);
         } else {
             logNotice() << message;
@@ -2665,7 +2662,7 @@ bool Annotations::exportfreeformAnnotationsHeader(){
     {
         QString message = QString("Failed to open Free-form Annotations file: %1:\n%2")
                                   .arg(file.fileName(), file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Freeform Annotations"),message);
         } else {
             logError() << message;

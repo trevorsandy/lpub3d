@@ -4404,7 +4404,7 @@ void Preferences::annotationPreferences()
     QString const ld2rbColorsXRefKey(    "LD2RBColorsXRefFile");
     QString const ld2rbCodesXRefKey(     "LD2RBCodesXRefFile");
 
-     titleAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_TITLE_ANNOTATIONS_FILE);
+    titleAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_TITLE_ANNOTATIONS_FILE);
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)))
         titleAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)).toString();
     annInfo.setFile(titleAnnotationsFile);

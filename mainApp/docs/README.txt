@@ -1,4 +1,4 @@
-LPub3D 2.4.6.37.3148 (26 01 2023 03:58:45)
+LPub3D 2.4.6.38.3149 (27 01 2023 09:52:43)
 
 Features, enhancements, fixes and changes
 ------------
@@ -19,6 +19,7 @@ Revisions:
 - Fix - Crash on insert BOM without a preceding STEP command #670
 - Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Parameter file viewer bad path for save copy as menu action #674
+- Fix - Part IDs missing in BOM #680
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
