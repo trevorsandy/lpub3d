@@ -5536,6 +5536,12 @@ void Gui::createActions()
     lpub->actions.insert(useSystemEditorAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Use System Editor"), useSystemEditorAct));
     connect(useSystemEditorAct, SIGNAL(triggered()), this, SLOT(useSystemEditor()));
 
+    QAction *openParameterFileFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Parameter File Folder..."), this);
+    openParameterFileFolderAct->setObjectName("openParameterFileFolderAct.1");
+    openParameterFileFolderAct->setStatusTip(tr("Open the folder containing common %1 parameter files").arg(VER_PRODUCTNAME_STR));
+    lpub->actions.insert(openParameterFileFolderAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Open Parameter File Folder"), openParameterFileFolderAct));
+    connect(openParameterFileFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
+
     QAction *editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Part Title PLI Annotations List"), this);
     editTitleAnnotationsAct->setObjectName("editTitleAnnotationsAct.1");
     editTitleAnnotationsAct->setStatusTip(tr("Add/Edit part title PLI part annotatons"));
@@ -6410,6 +6416,7 @@ void Gui::enableActions()
   getAct("editModelFileAct.1")->setEnabled(true);
   getAct("editPliControlFileAct.1")->setEnabled(!Preferences::pliControlFile.isEmpty());
   getAct("openWorkingFolderAct.1")->setEnabled(true);
+  getAct("openParameterFileFolderAct.1")->setEnabled(true);
 
 //  setPageLineEdit)->setEnabled(true);
 
@@ -6786,6 +6793,8 @@ void Gui::createMenus()
     if (!Preferences::blenderExe.isEmpty())
         editorMenu->addAction(getAct("editBlenderParametersAct.1"));
     editorMenu->addSeparator();
+    editorMenu->addAction(getAct("openParameterFileFolderAct.1"));
+    editorMenu->addSeparator();
 
     configMenu->addAction(getAct("editModelFileAct.1"));
     configMenu->addAction(getAct("generateCustomColourPartsAct.1"));
@@ -7082,6 +7091,8 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(getAct("generateCustomColourPartsAct.1"));
     editParamsToolBar->addSeparator();
     editParamsToolBar->addAction(getAct("viewLogAct.1"));
+    editParamsToolBar->addSeparator();
+    editParamsToolBar->addAction(getAct("openParameterFileFolderAct.1"));
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY)).toBool();

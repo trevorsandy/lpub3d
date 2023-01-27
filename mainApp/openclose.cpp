@@ -207,8 +207,12 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
 }
 
 void Gui::openWorkingFolder() {
-    if (!getCurFile().isEmpty())
-        openFolderSelect(getCurFile());
+    if (sender() == getAct("openWorkingFolderAct.1")) {
+        if (!getCurFile().isEmpty())
+            openFolderSelect(getCurFile());
+    } else if (sender() == getAct("openParameterFileFolderAct.1")) {
+        openFolderSelect(QDir::toNativeSeparators(Preferences::pliControlFile));
+    }
 }
 
 void Gui::updateOpenWithActions()
