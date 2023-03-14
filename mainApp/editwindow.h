@@ -80,6 +80,14 @@ public:
     {
         return _contentLoading;
     }
+    int linesTop()
+    {
+        return stepLines.top;
+    }
+    int linesBottom()
+    {
+        return stepLines.bottom;
+    }
     bool updateEnabled();
 
     QToolBar *editToolBar;

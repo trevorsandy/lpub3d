@@ -1460,21 +1460,21 @@ void Gui::displayFile(
             emit displayModelFileSig(ldrawFile, modelName);
 
         } else {
+            Where top = lpub->page.top;
+            Where bottom = lpub->page.bottom;
 
             if (!displayStartPage) {
                 const QString loadedFile = editWindow->getCurrentFile().toLower();
-                if( loadedFile == modelName.toLower()) {
+                if( loadedFile == modelName.toLower() && top.lineNumber == editWindow->linesTop()) {
                     if (!ldrawFile->modified(modelName))
                         return;
                 }
             }
 
             // limit the scope to the current page
-            Where top = lpub->page.top;
-            Where bottom = lpub->page.bottom;
             bool current;
             if ((current = top.lineNumber)) {
-                if (!bottom.lineNumber) {
+                if (!bottom.lineNumber || bottom.lineNumber == top.lineNumber) {
                     if ((current = lpub->currentStep)) {
                         bottom = lpub->currentStep->multiStep ?
                                     lpub->currentStep->bottomOfSteps() :
