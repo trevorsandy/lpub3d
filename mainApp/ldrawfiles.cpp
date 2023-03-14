@@ -3253,7 +3253,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
         if (f != _subFiles.end() && ! f.value()._generated) {
 
             unofficialPart = f.value()._unofficialPart > UNOFFICIAL_SUBMODEL;
-            addFILEMeta = !f.value()._includeFile && !unofficialPart && _mpd;
+            addFILEMeta    = _mpd && !f.value()._includeFile;
 
             if (!f.value()._subFilePath.isEmpty()) {
 
