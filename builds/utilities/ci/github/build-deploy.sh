@@ -141,8 +141,7 @@ if [ -f upload.sh -a -r upload.sh ]; then
     fi
     sed -i    "s/      RELEASE_TITLE=\"Release build.*\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
     LP3D_RELEASE_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
-    LP3D_RELEASE_BODY="${LP3D_RELEASE_BODY}\n\nGitHub Actions build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-    sed -i    "s,  RELEASE_BODY=\"GitHub Actions.*\",  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"," "upload.sh"
+    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/" "upload.sh"
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
@@ -156,9 +155,8 @@ if [ -f upload.sh -a -r upload.sh ]; then
     sed -i    "s/      RELEASE_NAME=\"continuous\"/      RELEASE_NAME=\"${LP3D_RELEASE_NAME}\"/" "upload.sh"
     LP3D_RELEASE_TITLE="Continuous ${LP3D_TITLE} ${LP3D_VER_BUILD} (${LP3D_VERSION}-r${LP3D_VER_REVISION})"
     sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
-    LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG//;/,}"
-    LP3D_RELEASE_BODY="${LP3D_RELEASE_BODY}\n\nGitHub Actions build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-    sed -i    "s;  RELEASE_BODY=\"GitHub Actions.*\";  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\";" "upload.sh"
+    LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG}"
+    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/" "upload.sh"
   fi
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
@@ -251,14 +249,18 @@ echo "\nWARNING - Failed to restrict secret keys permission." && LP3D_SF_DEPLOY_
 echo
 echo "LP3D_PROJECT_NAME...........${LP3D_PROJECT_NAME}"
 [ -n "${LP3D_VERSION}" ] && \
-echo "LP3D_VERSION................${LP3D_VERSION}" || :
+echo "LP3D_VERSION................${LP3D_VERSION}" || \
+echo "LP3D_VERSION................ERROR: NOT SPECIFIED"
 [ "${LP3D_DEPLOY_PKG}" = "yes" ] && \
 echo "LP3D_RELEASE_TAG............${LP3D_GIT_TAG}" || :
 [ -n "${LP3D_RELEASE_TITLE}" ] && \
-echo "LP3D_RELEASE_TITLE..........${LP3D_RELEASE_TITLE}" || :
+echo "LP3D_RELEASE_TITLE..........${LP3D_RELEASE_TITLE}" || \
+echo "LP3D_RELEASE_TITLE..........ERROR: NOT SPECIFIED"
 [ -n "${LP3D_RELEASE_BODY}" ] && \
-echo "LP3D_RELEASE_BODY....${LP3D_RELEASE_BODY}" || :
+echo "LP3D_RELEASE_BODY...........${LP3D_RELEASE_BODY}" || \
+echo "LP3D_RELEASE_BODY...........ERROR: NOT SPECIFIED"
 echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
+echo "GH_ACTION_BUILD_LOG_URL.....${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
 [ "${LP3D_USE_GPG}" = "false" ] && \
 echo "WARNING - GPG is not available. Sign sha512 hash will be skipped."
