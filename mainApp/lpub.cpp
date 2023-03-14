@@ -2979,6 +2979,27 @@ void Gui::viewLog()
     }
 }
 
+void Gui::viewStandardOutput(const QString filePath, const QString title)
+{
+    if (filePath.isEmpty())
+        return;
+
+    if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl("file:///"+filePath, QUrl::TolerantMode));
+        else
+#endif
+            openWith(Preferences::logFilePath);
+    } else {
+        displayParmsFile(filePath);
+        const QString _title = tr("%1%2 output").arg(VER_PRODUCTNAME_STR).arg(title.isEmpty() ? "" : " "+title);
+        const QString _status = tr("View %1").arg(title);
+        parmsWindow->setWindowTitle(tr(_title.toLatin1(),_status.toLatin1()));
+        parmsWindow->show();
+    }
+}
+
 void Gui::preferences()
 {
     if (Preferences::getPreferences()) {

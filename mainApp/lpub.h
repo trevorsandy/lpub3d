@@ -1234,6 +1234,7 @@ public slots:
   void togglePreviewWidget(bool);
   void updatePreview();
   void enableVisualBuildModification();
+  void viewStandardOutput(const QString filePath, const QString title = "");
 
   bool VisualEditorRotateTransform()
   {
