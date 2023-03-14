@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: January 27, 2023
+# Last Update: January 31, 2023
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -413,6 +413,16 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dNext" ]]; then 
 elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s/'# LPub3D'/'# LPub3D - Dev, CI, and Test'/g -i $file; echo "  -file $file updated.";
 else echo "  -ERROR - file $file NOT updated.";
 fi
+SED_OPTIONS=("-re" "s,v(([0-9]+\.)*[0-9]+)\.svg\?label=revision,${LOCAL_TAG}\.svg\?label=revision," \
+             "-re" "s,continuous \"Revisions since v(([0-9]+\.)*[0-9]+)\",continuous \"Revisions since ${LOCAL_TAG}\"," \
+             "-e" "s,projects\/1 \"Last edited.*\",projects/1 \"Last edited $(date +%d-%m-%Y)\"," \
+             "-i")
+sed "${SED_OPTIONS[@]}" $file && echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
+
+sed -re "s,v(([0-9]+\.)*[0-9]+),${LOCAL_TAG},g" -i $file \
+&& echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
+sed -e  "s,projects\/1 \"Last edited.*\",projects/1 \"Last edited $(date +%d-%m-%Y)\"," -i $file \
+&& echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
 
 if [[ -n "$RELEASE_COMMIT" && -n "$MAX_RN_LN_DEL" && -n "$MIN_RN_LN_DEL" ]]; then
   echo "$((COMMAND_COUNT += 1))-Truncate RELEASE_NOTES.html, remove lines ${MIN_RN_LN_DEL} to ${MAX_RN_LN_DEL}."
