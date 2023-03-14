@@ -2445,7 +2445,7 @@ void Gui::editPliControlFile()
 {
     QFileInfo fileInfo(Preferences::pliControlFile);
     if (!fileInfo.exists()) {
-        emit messageSig(LOG_ERROR, QString("PLI control file does not exist."));
+        emit messageSig(LOG_ERROR, QString("PLI control parts file does not exist."));
     } else {
         if (Preferences::useSystemEditor) {
 #ifndef Q_OS_MACOS
@@ -2455,9 +2455,9 @@ void Gui::editPliControlFile()
 #endif
                 openWith(Preferences::pliControlFile);
         } else {
-            displayParmsFile(Preferences::pliControlFile);
-            parmsWindow->setWindowTitle(tr("PLI Control","Edit/add PLI control part entries"));
-            parmsWindow->show();
+            emit displayModelFileSig(nullptr, Preferences::pliControlFile);
+            editModeWindow->setWindowTitle(tr("PLI Control Parts","Edit/add PLI control part entries"));
+            editModeWindow->show();
         }
     }
 }
@@ -5674,9 +5674,9 @@ void Gui::createActions()
     lpub->actions.insert(editBLCodesAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Bricklink Codes Reference"), editBLCodesAct));
     connect(editBLCodesAct, SIGNAL(triggered()), this, SLOT(editBLCodes()));
 
-    QAction *editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("PLI Parts Control File"), this);
+    QAction *editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("PLI Control Parts File"), this);
     editPliControlFileAct->setObjectName("editPliControlFileAct.1");
-    editPliControlFileAct->setStatusTip(tr("Edit PLI parts control file"));
+    editPliControlFileAct->setStatusTip(tr("Edit the PLI control parts file in the detached command editor"));
     lpub->actions.insert(editPliControlFileAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.PLI Parts Control File"), editPliControlFileAct));
     connect(editPliControlFileAct, SIGNAL(triggered()), this, SLOT(editPliControlFile()));
 

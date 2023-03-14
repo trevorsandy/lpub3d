@@ -982,6 +982,7 @@ bool EditWindow::setValidPartLine()
     bool colorOk = false;
     bool isSubstitute = false;
     bool isSubstituteAlt = false;
+    bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
 
     toolsToolBar->setEnabled(false);
     if (isReadOnly) {
@@ -991,10 +992,14 @@ bool EditWindow::setValidPartLine()
     } else {
         editColorAct->setText(tr("Edit Color"));
         editPartAct->setText(tr("Edit Part"));
-        substitutePartAct->setText(tr("Substitute Part"));
+        if (isPliControlFile)
+            substitutePartAct->setVisible(false);
+        else
+            substitutePartAct->setText(tr("Substitute Part"));
     }
 
-    copyFullPathToClipboardAct->setEnabled(false);
+    if (!isPliControlFile)
+        copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
 
     if (selection.startsWith("1 ")) {
@@ -1100,28 +1105,31 @@ bool EditWindow::setValidPartLine()
         editPartAct->setEnabled(true);
 
         const QString actionText = tr("Substitute  %1...").arg(elidedPartType);
-        if (isSubstitute || isSubstituteAlt) {
-            removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
-            removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
-            removeSubstitutePartAct->setEnabled(stepSet || modelFileEdit());
 
-            removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
-            removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
-            removeMenu->addAction(removeSubstitutePartAct);
+        if (!isPliControlFile) {
+            if (isSubstitute || isSubstituteAlt) {
+                removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
+                removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
+                removeSubstitutePartAct->setEnabled(stepSet || modelFileEdit());
 
-            substitutePartAct->setText(tr("Change %1").arg(actionText));
-            substitutePartAct->setMenu(removeMenu);
-            subPartKey.append(QString("|%1").arg(sUpdate));
-        } else {
-            if (removeMenu) {
-                delete removeMenu;
-                removeMenu = nullptr;
+                removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
+                removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
+                removeMenu->addAction(removeSubstitutePartAct);
+
+                substitutePartAct->setText(tr("Change %1").arg(actionText));
+                substitutePartAct->setMenu(removeMenu);
+                subPartKey.append(QString("|%1").arg(sUpdate));
+            } else {
+                if (removeMenu) {
+                    delete removeMenu;
+                    removeMenu = nullptr;
+                }
+                substitutePartAct->setText(actionText);
+                subPartKey.append(QString("|%1").arg(sSubstitute));
             }
-            substitutePartAct->setText(actionText);
-            subPartKey.append(QString("|%1").arg(sSubstitute));
+            substitutePartAct->setData(subPartKey);
+            substitutePartAct->setEnabled(stepSet || modelFileEdit());
         }
-        substitutePartAct->setData(subPartKey);
-        substitutePartAct->setEnabled(stepSet || modelFileEdit());
 
         if (numOpenWithPrograms)
             openWithToolbarAct->setEnabled(true);
@@ -1135,6 +1143,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
     QMenu *menu = _textEdit->createStandardContextMenu();
 
     if (!fileName.isEmpty()) {
+        bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
         if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
@@ -1175,7 +1184,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
         if (setValidPartLine()) {
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
-            toolsMenu->addAction(substitutePartAct);
+            if (!isPliControlFile)
+                toolsMenu->addAction(substitutePartAct);
             if (modelFileEdit())
                 toolsMenu->addAction(previewLineAct);
         }
@@ -1447,8 +1457,17 @@ void EditWindow::mpdComboChanged(int index)
         _curSubFile = newSubFile;
         QString findText = QString("0 FILE %1").arg(_curSubFile);
         _textEdit->moveCursor(QTextCursor::Start);
+        pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
         if (!_textEdit->find(findText))
             statusBar()->showMessage(tr("Did not find submodel '%1'").arg(findText));
+        else {
+            QTextCursor cursor = _textEdit->textCursor();
+            int lineNumber = cursor.blockNumber();
+            _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
+            for (int i = 0; i < lineNumber; i++)
+              _textEdit->moveCursor(QTextCursor::Down/*QTextCursor::EndOfLine*/,QTextCursor::MoveAnchor/*QTextCursor::KeepAnchor*/);
+            pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
+        }
     }
 }
 
@@ -2302,11 +2321,18 @@ void EditWindow::displayFile(
 #endif
 
   if (fileName.isEmpty()) {
+
     _textEdit->document()->clear();
 
   } else if (modelFileEdit()) { // Detached Editor
 
-    if (!ldrawFile && !QFileInfo(_fileName).exists()) {
+    if (fileName == Preferences::pliControlFile) {
+        redrawAct->setVisible(false);
+        updateAct->setVisible(false);
+        substitutePartAct->setVisible(false);
+    }
+
+    if (!ldrawFile && !QFileInfo(fileName).exists()) {
       _textEdit->document()->setModified(false);
       connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
               this,                  SLOT(  contentsChange(int,int,int)));
