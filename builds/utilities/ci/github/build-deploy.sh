@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 30, 2023
+# Last Update February 02, 2023
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -140,8 +140,9 @@ if [ -f upload.sh -a -r upload.sh ]; then
        export LP3D_VERSION="${LP3D_GIT_TAG:1}"
     fi
     sed -i    "s/      RELEASE_TITLE=\"Release build.*\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
-    LP3D_RELEASE_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions.\n"
-    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/g" "upload.sh"
+    LP3D_RELEASE_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
+    LP3D_RELEASE_BODY="${LP3D_RELEASE_BODY}\n\nGitHub Actions build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+    sed -i    "s,  RELEASE_BODY=\"GitHub Actions.*\",  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"," "upload.sh"
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
@@ -155,8 +156,9 @@ if [ -f upload.sh -a -r upload.sh ]; then
     sed -i    "s/      RELEASE_NAME=\"continuous\"/      RELEASE_NAME=\"${LP3D_RELEASE_NAME}\"/" "upload.sh"
     LP3D_RELEASE_TITLE="Continuous ${LP3D_TITLE} ${LP3D_VER_BUILD} (${LP3D_VERSION}-r${LP3D_VER_REVISION})"
     sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
-    LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG}\nGitHub Actions build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/g" "upload.sh"
+    LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG//;/,}"
+    LP3D_RELEASE_BODY="${LP3D_RELEASE_BODY}\n\nGitHub Actions build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+    sed -i    "s;  RELEASE_BODY=\"GitHub Actions.*\";  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\";" "upload.sh"
   fi
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
