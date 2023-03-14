@@ -2618,7 +2618,6 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 {
 	if (!LineTypeIndexes.size())
 		return;
-
 #ifdef QT_DEBUG_MODE
 	const QString PartSourceNames[] =
 	{
@@ -2639,20 +2638,21 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 	bool SelectionChanged   = false;
 	int SelectedPiecesFound = 0;
 
-	for (lcPiece* Piece : mPieces) {
-
-		if (Piece->IsVisible(mCurrentStep)) {
-
-			if (LineTypeIndexes.size()){
-
+	for (lcPiece* Piece : mPieces)
+	{
+		if (Piece->IsVisible(mCurrentStep))
+		{
+			if (LineTypeIndexes.size())
+			{
 				if (SelectedPiecesFound == LineTypeIndexes.size())
 					break;
 
-				for (int i = 0; i < LineTypeIndexes.size(); ++i) {
-
+				for (int i = 0; i < LineTypeIndexes.size(); ++i)
+				{
 					int LineTypeIndex = Piece->GetLineTypeIndex();
 
-					if (LineTypeIndexes.at(i) == LineTypeIndex) {
+					if (LineTypeIndexes.at(i) == LineTypeIndex)
+					{
 						SelectedPiecesFound++;
 						if (!SelectionChanged)
 							SelectionChanged = true;
@@ -2671,9 +2671,11 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 #endif
 					}
 				}
-			} else {
-
-				if (Piece->IsSelected()){
+			}
+			else
+			{
+				if (Piece->IsSelected())
+				{
 					Piece->SetSelected(false);
 					Modified         = true;
 					if (!SelectionChanged)

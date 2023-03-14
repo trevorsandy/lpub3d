@@ -1,4 +1,4 @@
-LPub3D 2.4.6.50.3161 (14 03 2023 15:33:14)
+LPub3D 2.4.6.51.3162 (14 03 2023 15:34:50)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,6 +25,7 @@ Revisions:
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
 - Fix - Unexpected PLI BEGIN and PLI END parse errors #678
+- Fix - Visual editor parts highlight when parts selected in command editor #682
 
 --------------------------------------------------------------------------------------------------
 

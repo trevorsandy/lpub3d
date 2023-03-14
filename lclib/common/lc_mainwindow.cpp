@@ -2432,12 +2432,14 @@ void lcMainWindow::RemoveRecentFile(int FileIndex)
 }
 
 /*** LPub3D Mod - Selected Parts ***/
-void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes){
-	if (GetImageType() != Options::PLI) {
-
+void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes)
+{
+	if (GetImageType() != Options::PLI)
+	{
 		lcModel* ActiveModel = GetActiveModel();
 
-		if (ActiveModel) {
+		if (ActiveModel)
+		{
 			ActiveModel->SetSelectedPieces(LineTypeIndexes);
 		}
 	}
@@ -2495,12 +2497,13 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	bool BuildModType = GetImageType() != Options::PLI;
 
 	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + static_cast<int>(Tool)];
-	if (Action && Action->isChecked()) {
-
-		if (ActiveModel) {
+	if (Action && Action->isChecked())
+	{
+		if (ActiveModel)
+		{
 			/*** LPub3D Mod - Select whole model if Rotate Tool selected and not build modification ***/
-			if (Tool == lcTool::Rotate && !BuildModEnabled) {
-
+			if (Tool == lcTool::Rotate && !BuildModEnabled)
+			{
 				for (lcPiece* Piece : ActiveModel->GetPieces())
 					if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
 						Piece->SetSelected(true);
@@ -2511,18 +2514,19 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 				lcObject* ThrowAway;
 				ActiveModel->GetSelectionInformation(&Flags, Selection, &ThrowAway);
 			/*** LPub3D Mod end ***/
-
-			} else
-
+			}
+			else
 			/*** LPub3D Mod - Selected Parts ***/
-			if (SelectionType && BuildModTool && BuildModType) {
-
+			if (SelectionType && BuildModTool && BuildModType)
+			{
 				QVector<TypeLine> LineTypeIndexes;
 
 				int Objects = Selection.GetSize();
-				if (Objects > 0) {
+				if (Objects > 0)
+				{
 					QString Message;
-					if (Preferences::debugLogging) {
+					if (Preferences::debugLogging)
+					{
 						Message = tr("%1 Viewer %2 selected in model [%3]")
 								.arg(Objects)
 								.arg(Objects == 1 ? "object" : "objects")
@@ -2534,8 +2538,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 					{
 						lcObject *SelectedItem = Selection[0];
 
-						if (SelectedItem && SelectedItem->IsPiece()) {
-
+						if (SelectedItem && SelectedItem->IsPiece())
+						{
 							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 							LineTypeIndexes.append(typeLine);
 
@@ -2548,14 +2552,15 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 					}
 					else
 					{
-						for (lcObject *SelectedItem : Selection) {
-
-							if (SelectedItem->IsPiece()) {
-
+						for (lcObject *SelectedItem : Selection)
+						{
+							if (SelectedItem->IsPiece())
+							{
 								TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 								LineTypeIndexes.append(typeLine);
 
-								if (Preferences::debugLogging) {
+								if (Preferences::debugLogging)
+								{
 									Message = tr("Selected Object: %1 (ID: %2), LineTypeIndex: %3")
 												 .arg(((lcPiece*)SelectedItem)->GetName())
 												 .arg(((lcPiece*)SelectedItem)->GetID())

@@ -798,6 +798,30 @@ void Gui::initiaizeVisualEditor()
     connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
             this,        SLOT(  SetActiveModel(const QString&,bool)));
 
+    connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
+            gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+
+    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+            this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepCommand()),
+            this,        SLOT(  SetRotStepCommand()));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
+            this,        SLOT(  SetRotStepAngleX(float,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
+            this,        SLOT(  SetRotStepAngleY(float,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
+            this,        SLOT(  SetRotStepAngleZ(float,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepType(QString&,bool)),
+            this,        SLOT(  SetRotStepType(QString&,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
+            this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
+
     enable3DActions(false);
 
     gMainWindow->installEventFilter(gui);
@@ -807,58 +831,6 @@ void Gui::initiaizeVisualEditor()
 
 void Gui::enable3DActions(bool enable)
 {
-    if (enable) {
-        connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
-                gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
-
-        connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-                this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
-
-        connect(gMainWindow, SIGNAL(SetRotStepCommand()),
-                this,        SLOT(  SetRotStepCommand()));
-
-        connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
-                this,        SLOT(  SetRotStepAngleX(float,bool)));
-
-        connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
-                this,        SLOT(  SetRotStepAngleY(float,bool)));
-
-        connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
-                this,        SLOT(  SetRotStepAngleZ(float,bool)));
-
-        connect(gMainWindow, SIGNAL(SetRotStepType(QString&,bool)),
-                this,        SLOT(  SetRotStepType(QString&,bool)));
-
-        connect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
-                this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
-
-    } else {
-
-        disconnect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
-                   gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
-
-        disconnect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-                   this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
-
-        disconnect(gMainWindow, SIGNAL(SetRotStepCommand()),
-                   this,        SLOT(  SetRotStepCommand()));
-
-        disconnect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
-                   this,        SLOT(  SetRotStepAngleX(float,bool)));
-
-        disconnect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
-                   this,        SLOT(  SetRotStepAngleY(float,bool)));
-
-        disconnect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
-                   this,        SLOT(  SetRotStepAngleZ(float,bool)));
-
-        disconnect(gMainWindow, SIGNAL(SetRotStepType(QString&,bool)),
-                   this,        SLOT(  SetRotStepType(QString&,bool)));
-
-        disconnect(gMainWindow, SIGNAL(SetRotStepAngles(QVector<float>&,bool)),
-                   this,        SLOT(  SetRotStepAngles(QVector<float>&,bool)));
-    }
-
     if (enable) {
         enableVisualBuildModification();
         enableVisualBuildModActions();

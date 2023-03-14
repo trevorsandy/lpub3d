@@ -1546,8 +1546,8 @@ int Gui::drawPage(
                  }
                  if (insertData.type == InsertData::InsertBom) {
                      // nothing to display in 3D Window
-                     if (! exporting())
-                         emit clearViewerWindowSig();
+                     //if (! exporting())
+                     //    emit clearViewerWindowSig();
                  }
                  if (insertData.type == InsertData::InsertText ||
                      insertData.type == InsertData::InsertRichText) {

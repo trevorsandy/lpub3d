@@ -958,7 +958,7 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
         }
 #ifdef QT_DEBUG_MODE
         else
-            emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %1, model: %2")
+            emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %2, model: %3")
                                   .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
 #endif
     }
