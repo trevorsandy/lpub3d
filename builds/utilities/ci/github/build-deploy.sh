@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 27, 2023
+# Last Update January 30, 2023
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -69,7 +69,8 @@ SignHashAndPublishToGitHub() {
 declare -r p=Publish
 export CI="${CI:-true}"
 export GITHUB="${GITHUB:-true}" # GITHUB_ACTIONS
-export UPLOADTOOL_BODY="${LP3D_COMMIT_MSG}"
+
+LP3D_COMMIT_MSG_ORIG="${LP3D_COMMIT_MSG}"
 export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
 
 
@@ -127,23 +128,20 @@ fi
 # Update release label
 if [ -f upload.sh -a -r upload.sh ]; then
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
-    LP3D_RELEASE_LABEL="LPub3D ${LP3D_RELEASE_DATE}"
+    LP3D_RELEASE_TITLE="LPub3D ${LP3D_RELEASE_DATE}"
     if [ "$TRAVIS" = "true" ]; then
-      export LP3D_GIT_TAG=$TRAVIS_TAG
+      export LP3D_GIT_TAG="$TRAVIS_TAG"
     elif [ "$APPVEYOR" = "True" ]; then
-      export LP3D_GIT_TAG=$APPVEYOR_REPO_TAG_NAME
+      export LP3D_GIT_TAG="$APPVEYOR_REPO_TAG_NAME"
     fi
     if [ -n "$LP3D_VERSION" ]; then
        export LP3D_VERSION="$LP3D_VERSION"
     else
-       export LP3D_VERSION=${LP3D_GIT_TAG:1}
+       export LP3D_VERSION="${LP3D_GIT_TAG:1}"
     fi
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i "" "s/      RELEASE_TITLE=\"Release build.*/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/g" "upload.sh"
-    else
-      sed -i    "s/      RELEASE_TITLE=\"Release build.*/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
-    fi
-    export UPLOADTOOL_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
+    sed -i    "s/      RELEASE_TITLE=\"Release build.*\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
+    LP3D_RELEASE_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions.\n"
+    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/g" "upload.sh"
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
@@ -153,14 +151,13 @@ if [ -f upload.sh -a -r upload.sh ]; then
       *)
         LP3D_TITLE="DevOps Build" ;;
     esac
-    LP3D_RELEASE_LABEL="Continuous ${LP3D_TITLE} ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i "" "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
-    else
-      sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
-    fi
+    LP3D_RELEASE_NAME="continuous-${LP3D_VERSION}-r${LP3D_VER_REVISION}"
+    sed -i    "s/      RELEASE_NAME=\"continuous\"/      RELEASE_NAME=\"${LP3D_RELEASE_NAME}\"/" "upload.sh"
+    LP3D_RELEASE_TITLE="Continuous ${LP3D_TITLE} ${LP3D_VER_BUILD} (${LP3D_VERSION}-r${LP3D_VER_REVISION})"
+    sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
+    LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG}\nGitHub Actions build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/g" "upload.sh"
   fi
-  export UPLOADTOOL_SUFFIX="${LP3D_VERSION}-r${LP3D_VER_REVISION}"
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
 fi
@@ -255,10 +252,10 @@ echo "LP3D_PROJECT_NAME...........${LP3D_PROJECT_NAME}"
 echo "LP3D_VERSION................${LP3D_VERSION}" || :
 [ "${LP3D_DEPLOY_PKG}" = "yes" ] && \
 echo "LP3D_RELEASE_TAG............${LP3D_GIT_TAG}" || :
-[ -n "${LP3D_RELEASE_LABEL}" ] && \
-echo "LP3D_RELEASE_LABEL..........${LP3D_RELEASE_LABEL}" || :
-[ -n "${LP3D_RELEASE_DESCRIPTION}" ] && \
-echo "LP3D_RELEASE_DESCRIPTION....${LP3D_RELEASE_DESCRIPTION}" || :
+[ -n "${LP3D_RELEASE_TITLE}" ] && \
+echo "LP3D_RELEASE_TITLE..........${LP3D_RELEASE_TITLE}" || :
+[ -n "${LP3D_RELEASE_BODY}" ] && \
+echo "LP3D_RELEASE_BODY....${LP3D_RELEASE_BODY}" || :
 echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
 
 [ "${LP3D_USE_GPG}" = "false" ] && \
