@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 26, 2022
+rem  Last Update: March 12, 2023
 rem  Copyright (C) 2018 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -13,6 +13,7 @@ rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 rem Construct the staged files path
 
 SET PKG_CHECK_PATH=%ABS_WD%\builds\check
+SET PKG_CHECK_FILE=%PKG_CHECK_PATH%\build_checks.mpd
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
 SET PKG_CONFIG_DIR=builds\windows\%CONFIGURATION%
@@ -42,7 +43,6 @@ IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
 
 SET PKG_CHECKS=7
 rem Check 1 of 7
-SET PKG_CHECK_FILE=%PKG_CHECK_PATH%\build_checks.mpd
 SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --liblego --preferred-renderer native
 SET PKG_CHECK_NATIVE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 2 of 7
