@@ -128,7 +128,6 @@ fi
 # Update release label
 if [ -f upload.sh -a -r upload.sh ]; then
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
-    LP3D_RELEASE_TITLE="LPub3D ${LP3D_RELEASE_DATE}"
     if [ "$TRAVIS" = "true" ]; then
       export LP3D_GIT_TAG="$TRAVIS_TAG"
     elif [ "$APPVEYOR" = "True" ]; then
@@ -139,21 +138,20 @@ if [ -f upload.sh -a -r upload.sh ]; then
     else
        export LP3D_VERSION="${LP3D_GIT_TAG:1}"
     fi
+    LP3D_RELEASE_TITLE="LPub3D ${LP3D_RELEASE_DATE}"
     sed -i    "s/      RELEASE_TITLE=\"Release build.*\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
     LP3D_RELEASE_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
     sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/" "upload.sh"
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
-        LP3D_TITLE="Build" ;;
+        LP3D_BUILD_TYPE="Build" ;;
       "project-lpub3dnext")
-        LP3D_TITLE="Next Build" ;;
+        LP3D_BUILD_TYPE="Next Build" ;;
       *)
-        LP3D_TITLE="DevOps Build" ;;
+        LP3D_BUILD_TYPE="DevOps Build" ;;
     esac
-    LP3D_RELEASE_NAME="continuous-${LP3D_VERSION}-r${LP3D_VER_REVISION}"
-    sed -i    "s/      RELEASE_NAME=\"continuous\"/      RELEASE_NAME=\"${LP3D_RELEASE_NAME}\"/" "upload.sh"
-    LP3D_RELEASE_TITLE="Continuous ${LP3D_TITLE} ${LP3D_VER_BUILD} (${LP3D_VERSION}-r${LP3D_VER_REVISION})"
+    LP3D_RELEASE_TITLE="Continuous ${LP3D_BUILD_TYPE} ${LP3D_VER_BUILD} (${LP3D_VERSION}-r${LP3D_VER_REVISION})"
     sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_TITLE}\"/" "upload.sh"
     LP3D_RELEASE_BODY="${LP3D_COMMIT_MSG_ORIG}"
     sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*\"/  RELEASE_BODY=\"${LP3D_RELEASE_BODY}\"/" "upload.sh"
@@ -252,7 +250,8 @@ echo "LP3D_PROJECT_NAME...........${LP3D_PROJECT_NAME}"
 echo "LP3D_VERSION................${LP3D_VERSION}" || \
 echo "LP3D_VERSION................ERROR: NOT SPECIFIED"
 [ "${LP3D_DEPLOY_PKG}" = "yes" ] && \
-echo "LP3D_RELEASE_TAG............${LP3D_GIT_TAG}" || :
+echo "LP3D_RELEASE_TAG............${LP3D_GIT_TAG}" || \
+echo "LP3D_RELEASE_TAG............continuous"
 [ -n "${LP3D_RELEASE_TITLE}" ] && \
 echo "LP3D_RELEASE_TITLE..........${LP3D_RELEASE_TITLE}" || \
 echo "LP3D_RELEASE_TITLE..........ERROR: NOT SPECIFIED"
