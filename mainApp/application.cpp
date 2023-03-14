@@ -986,6 +986,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 
     Preferences::themePreferences();
     Preferences::lpub3dUpdatePreferences();
+    Preferences::lgeoPreferences();
     Preferences::rendererPreferences();
     Preferences::fadestepPreferences();
     Preferences::highlightstepPreferences();

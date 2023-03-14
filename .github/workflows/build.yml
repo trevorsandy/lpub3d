@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Jan 14, 2023
+# Last Update: March 11, 2023
 # Copyright (C) 2021 - 2023 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -58,7 +58,7 @@ jobs:
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
       - name: Diagnostics
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.BUILD }}-logs
@@ -98,7 +98,7 @@ jobs:
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
       - name: Diagnostics
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: macos-logs
@@ -175,7 +175,7 @@ jobs:
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
           if-no-files-found: ignore
       - name: Diagnostics
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: windows-logs
@@ -219,7 +219,7 @@ jobs:
           GPG_SIGN_KEY_BASE64: ${{ secrets.GPG_SIGN_KEY_BASE64 }}
           SFDEPLOY_ED25519_BASE64: ${{ secrets.SFDEPLOY_ED25519_BASE64 }}
       - name: Diagnostics
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v3
         with:
           name: publish-logs

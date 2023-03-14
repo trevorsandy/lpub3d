@@ -18,6 +18,7 @@ SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
 SET PKG_CONFIG_DIR=builds\windows\%CONFIGURATION%
 SET PKG_RUNLOG_DIR=%PKG_CONFIG_DIR%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
 SET PKG_TARGET_DIR=%PKG_CONFIG_DIR%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
+SET PKG_POV_CONF_DIR=%PKG_TARGET_DIR%\3rdParty\lpub3d_trace_cui-3.8\config
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 SET PKG_RUNLOG=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
 SET PKG_DUMP_FILE=%TEMP%\%PACKAGE%.dmp
@@ -27,6 +28,14 @@ IF /I "%PKG_PLATFORM%"=="x86" (
   IF /I "%PKG_PLATFORM%"=="x86_64" (
     SET PKG_TARGET_PDB=mainApp\64bit_%CONFIGURATION%\%PACKAGE%.pdb
   )
+)
+IF NOT EXIST "%PKG_TARGET_PDB%" (
+  SET PKG_TARGET_PDB=%PKG_TARGET_DIR%\%PACKAGE%.pdb
+)
+IF "%CONFIGURATION%"=="release" (
+  SET PKG_INI_CONF=%PKG_TARGET_DIR%\config\LPub3D Software\LPub3D.ini
+) ELSE (
+  SET PKG_INI_CONF=%PKG_TARGET_DIR%\config\LPub3D Software Maint\LPub3Dd.ini
 )
 IF NOT "%INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
 IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
@@ -92,6 +101,9 @@ ECHO   PKG_TARGET................[%PKG_TARGET%]
 ECHO   PKG_TARGET_PDB............[%PKG_TARGET_PDB%]
 ECHO   PKG_DUMP_FILE.............[%PKG_DUMP_FILE%]
 ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
+IF NOT [%ARCHIVE_ASSETS%]==[] (
+    ECHO   ARCHIVE_CHECK_ASSETS......[YES]
+)
 
 CALL :SET_LDRAW_LIBS
 CALL :SET_PKG_ZIP_UTILITY
@@ -236,6 +248,9 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
   FOR /f "tokens=* delims=" %%i IN (%TEMP%\$\%PKG_CHECKS_PASS_IN%) DO SET "PKG_CHECKS_PASS=!PKG_CHECKS_PASS!%%i"
   SET "PKG_CHECKS_PASS=!PKG_CHECKS_PASS!,%2"
 >%PKG_UPDATE_CHECKS_PASS% !PKG_CHECKS_PASS!
+  IF NOT [%ARCHIVE_ASSETS%]==[] (
+    CALL :ARCHIVE_CHECK_ASSETS %PKG_CHECK%
+  )
 ) ELSE (
   CALL :ELAPSED_CHECK_TIME
   ECHO -%1 FAILED, ELAPSED TIME !LP3D_ELAPSED_CHECK_TIME!
@@ -268,6 +283,20 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
     COPY /V /Y "%PKG_LOG_FILE%" "%PKG_CHECK_PATH%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_LOG_FILE% was not found.
+  )
+  IF %PKG_CHECK% EQU 5 (
+    IF EXIST "%PKG_POV_CONF_DIR%\povray.conf" (
+      ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.conf to run assets....
+      COPY /V /Y "%PKG_POV_CONF_DIR%\povray.conf" "%PKG_CHECK_PATH%" /A | findstr /i /v /r /c:"copied\>"
+    ) ELSE (
+      ECHO  -WARNING - %PKG_POV_CONF_DIR%\povray.conf was not found.
+    )
+    IF EXIST "%PKG_POV_CONF_DIR%\povray.ini" (
+      ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.ini to run assets....
+      COPY /V /Y "%PKG_POV_CONF_DIR%\povray.ini" "%PKG_CHECK_PATH%" /A | findstr /i /v /r /c:"copied\>"
+    ) ELSE (
+      ECHO  -WARNING - %PKG_POV_CONF_DIR%\povray.ini was not found.
+    )
   )
   CALL :ARCHIVE_CHECK_ASSETS %PKG_CHECK%
   TYPE "%PKG_LOG_FILE%"
@@ -302,7 +331,7 @@ SET PKG_CHECK_ASSETS=Check_%1_%PKG_PLATFORM%_Assets.zip
 IF %PKG_ZIP_UTILITY% == 1 (
   ECHO  -Archiving CHECK %1 assets to %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS%
   IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% >NUL 2>&1 )
-  7z.exe a -tzip %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS% %PKG_CHECK_PATH%\ | findstr /i /r /c:"^Creating\>" /c:"^Everything\>"
+  7z.exe a -tzip %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS% %PKG_CHECK_PATH%\ | findstr /i /r /c:"^Everything\>"
 )
 EXIT /b
 
@@ -313,7 +342,7 @@ IF [%SKIP_CLEANUP_CHECK_FOLDERS%] NEQ [] (
   EXIT /b
 )
 ECHO   Build checks cleanup...
-IF EXIST %PKG_RUNLOG% (
+IF EXIST "%PKG_RUNLOG%" (
   ECHO.
   ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log'...
   IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
@@ -321,6 +350,15 @@ IF EXIST %PKG_RUNLOG% (
 ) ELSE (
   ECHO.
   ECHO -[WARNING] Could not find %PKG_RUNLOG%.
+)
+IF EXIST "%PKG_INI_CONF%" (
+  ECHO.
+  ECHO   Copying %PKG_DISTRO_DIR%_Config.ini to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Config.ini'...
+  IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
+  COPY /V /Y "%PKG_INI_CONF%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Config.ini" /A | findstr /i /v /r /c:"copied\>"
+) ELSE (
+  ECHO.
+  ECHO -[WARNING] Could not find %PKG_INI_CONF%.
 )
 RMDIR /S /Q %PKG_TARGET_DIR%\cache
 RMDIR /S /Q %PKG_TARGET_DIR%\logs
@@ -335,6 +373,10 @@ DEL /Q %PKG_CHECK_PATH%\*.out >NUL 2>&1
 DEL /Q %PKG_CHECK_PATH%\*.pdf >NUL 2>&1
 DEL /Q /S %PKG_CHECK_PATH%\std* >NUL 2>&1
 DEL /Q /S %PKG_CHECK_PATH%\*.dmp >NUL 2>&1
+DEL /Q /S %PKG_CHECK_PATH%\*.exe >NUL 2>&1
+DEL /Q /S %PKG_CHECK_PATH%\*.pdb >NUL 2>&1
+DEL /Q /S %PKG_CHECK_PATH%\*.ini >NUL 2>&1
+DEL /Q /S %PKG_CHECK_PATH%\*.conf >NUL 2>&1
 RMDIR /Q /S %PKG_CHECK_PATH%\LPub3D >NUL 2>&1
 RMDIR /Q /S %PKG_CHECK_PATH%\TENTE\LPub3D >NUL 2>&1
 RMDIR /Q /S %PKG_CHECK_PATH%\VEXIQ\LPub3D >NUL 2>&1

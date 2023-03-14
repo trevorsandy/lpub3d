@@ -3166,7 +3166,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     qRegisterMetaType<TypeLine>("TypeLine");
     qRegisterMetaType<WT_Type>("WT_Type");
 
-    Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
     Preferences::keyboardShortcutPreferences();

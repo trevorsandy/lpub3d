@@ -3256,6 +3256,9 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName()));
     if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
+        QString povsysdir  = QString("%1/3rdParty/%2").arg(lpub3dPath, VER_POVRAY_STR);
+        QString povuserdir = QString("AppData/Local/%1 Software/%1/3rdParty/%2").arg(VER_PRODUCTNAME_STR, VER_POVRAY_STR);
+
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
         while (!input.atEnd())
@@ -3283,23 +3286,25 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
                     }
                 }
             } else {
-                QString locations = QString("You can use %HOME%, %INSTALLDIR% and the working directory (e.g. %1) as the origin to define permitted paths:")
-                                            .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
-                QString homedir = QString("%HOME% is hard-coded to the %1 environment variable (%2).")
+                QString locationsComment = QString("You can use %HOME%, %INSTALLDIR% and the working directory "
+                                                   "(e.g. %1) as the origin to define permitted paths:")
+                                                   .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
+                QString homedirComment = QString("%HOME% is hard-coded to the %1 environment variable (%2).")
 #if defined Q_OS_WIN
-                                          .arg("%USERPROFILE%")
+                                                 .arg("%USERPROFILE%")
 #else
-                                          .arg("$USER")
+                                                 .arg("$USER")
 #endif
-                                          .arg(QDir::toNativeSeparators(QDir::homePath()));
-                QString workingdir = QString("The working directory (e.g. %1) is where %2-Trace is called from.")
-                                             .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel")).arg(VER_PRODUCTNAME_STR);
+                                                 .arg(QDir::toNativeSeparators(QDir::homePath()));
+                QString workingdirComment = QString("The working directory (e.g. %1) is where %2-Trace is called from.")
+                                                    .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel")).arg(VER_PRODUCTNAME_STR);
 
                 // set application 3rd party renderers path
-                line.replace(QString("__USEFUL_LOCATIONS_COMMENT__"),locations);
-                line.replace(QString("__HOMEDIR_COMMENT__"),homedir);
-                line.replace(QString("__WORKINGDIR_COMMENT__"),workingdir);
-                line.replace(QString("__POVSYSDIR__"), QDir::toNativeSeparators(QString("%1/3rdParty/%2").arg(lpub3dPath, VER_POVRAY_STR)));
+                line.replace(QString("__USEFUL_LOCATIONS_COMMENT__"),locationsComment);
+                line.replace(QString("__HOMEDIR_COMMENT__"),homedirComment);
+                line.replace(QString("__WORKINGDIR_COMMENT__"),workingdirComment);
+                line.replace(QString("__POVSYSDIR__"),QDir::toNativeSeparators(povsysdir));
+                line.replace(QString("__POVUSERDIR__"),QDir::toNativeSeparators(povuserdir));
                 // set lgeo paths as required
                 if (lgeoPath != "")
                 {

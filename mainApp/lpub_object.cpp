@@ -747,15 +747,8 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
 
   rendererChanged = renderer != Preferences::preferredRenderer;
 
-  if (rendererChanged) {
-    Preferences::preferredRenderer = renderer;
-    Render::setRenderer(Preferences::preferredRenderer);
-    Preferences::preferredRendererPreferences(true/*global*/);
-    Preferences::updatePOVRayConfigFiles();
-  }
-
   if (rendererChanged || renderFlagChanged) {
-    message = QString("Renderer preference changed from %1 to %2%3.")
+    message = QString("Renderer preference will change from %1 to %2%3.")
                       .arg(rendererNames[Preferences::preferredRenderer])
                       .arg(rendererNames[renderer])
                       .arg(renderer == RENDERER_POVRAY ? tr(" (POV file generator is %1)")
@@ -765,6 +758,13 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
                                                                               tr(" (Single Call)") :
                                                                               QString() : QString());
     emit lpub->messageSig(LOG_INFO,message);
+  }
+
+  if (rendererChanged) {
+    Preferences::preferredRenderer = renderer;
+    Render::setRenderer(Preferences::preferredRenderer);
+    Preferences::preferredRendererPreferences(true/*global*/);
+    Preferences::updatePOVRayConfigFiles();
   }
 
   return rendererChanged;

@@ -8,9 +8,10 @@ rem  Copyright (C) 2017 - 2023 by Trevor SANDY
 
 rem  To Run:
 rem  1. Launch command prompt at root folder or this script folder.
-rem  2. Set skip cleanup if desired: SET CLEANUP_CHECK_FOLDERS=1, unset to enable
+rem  2. Set skip cleanup if desired: SET SKIP_CLEANUP_CHECK_FOLDERS=1, unset to enable
 rem  3. Set debug configuration as appropriate: SET CONFIGURATION=Debug
 rem  4. RunBuildCheck.bat x86 | builds\windows\RunBuildCheck.bat x86
+rem  5. Run with log: builds\windows\RunBuildCheck.bat x86 > ..\build_check_log.txt 2>&1
 
 CALL :ELAPSED_BUILD_TIME Start
 
@@ -59,7 +60,9 @@ IF NOT [%2]==[] (
     IF NOT "%2"=="-official" (
       IF NOT "%2"=="-unofficial" (
         IF NOT "%2"=="-tente" (
-          IF NOT "%2"=="-vexiq" GOTO :CONFIGURATION_ERROR
+          IF NOT "%2"=="-aca" (
+            IF NOT "%2"=="-vexiq" GOTO :CONFIGURATION_ERROR
+          )
         )
       )
     )
@@ -83,8 +86,14 @@ IF /I "%1"=="x86_64" (
   SET PLATFORM=x86_64
 )
 
+IF /I "%2"=="-aca" (
+  SET ARCHIVE_ASSETS=1
+)
+
 IF NOT [%2]==[] (
-  SET UPDATE_LDRAW_LIBS=%2
+  IF NOT "%2"=="-aca" (
+    SET UPDATE_LDRAW_LIBS=%2
+  )
 )
 
 IF [%CONFIGURATION%] == [] (
@@ -419,32 +428,6 @@ SET DIST_DIR=%CD%
 POPD
 EXIT /b
 
-:ELAPSED_BUILD_TIME
-IF [%1] EQU [] (SET start=%build_start%) ELSE (
-  IF "%1"=="Start" (
-    SET build_start=%time%
-    EXIT /b
-  ) ELSE (
-    SET start=%1
-  )
-)
-SET end=%time%
-SET options="tokens=1-4 delims=:.,"
-FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
-FOR /f %options% %%a IN ("%end%") DO SET end_h=%%a&SET /a end_m=100%%b %% 100&SET /a end_s=100%%c %% 100&SET /a end_ms=100%%d %% 100
-
-SET /a hours=%end_h%-%start_h%
-SET /a mins=%end_m%-%start_m%
-SET /a secs=%end_s%-%start_s%
-SET /a ms=%end_ms%-%start_ms%
-IF %ms% lss 0 SET /a secs = %secs% - 1 & SET /a ms = 100%ms%
-IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
-IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
-IF %hours% lss 0 SET /a hours = 24%hours%
-IF 1%ms% lss 100 SET ms=0%ms%
-SET LP3D_ELAPSED_BUILD_TIME=%hours%:%mins%:%secs%.%ms%
-EXIT /b
-
 :PLATFORM_ERROR
 ECHO.
 CALL :USAGE
@@ -484,6 +467,7 @@ ECHO  -help........1..Useage flag         [Default=Off] Display useage.
 ECHO  x86..........1..Platform flag       [Default=Off] Check 32bit platform.
 ECHO  x86_64.......1..Platform flag       [Default=On ] Check 64bit platform.
 ECHO  -all.........1..Configuraiton flag  [Default=On ] Check both 32bit and 64bit platforms
+ECHO  -aca.........2..Project flag        [Default=Off] Archive build check assets
 ECHO  -uld.........2..Project flag        [Default=Off] Force update LDraw libraries
 ECHO  -unofficial..2..Project flag        [Default=Off] Force update Unofficial LDraw library
 ECHO  -official....2..Project flag        [Default=Off] Force update Official LDraw library
@@ -496,6 +480,32 @@ ECHO Flags are case sensitive, use lowere case.
 ECHO.
 ECHO If no flag is supplied, 64bit platform, is checked by default.
 ECHO ----------------------------------------------------------------
+EXIT /b
+
+:ELAPSED_BUILD_TIME
+IF [%1] EQU [] (SET start=%build_start%) ELSE (
+  IF "%1"=="Start" (
+    SET build_start=%time%
+    EXIT /b
+  ) ELSE (
+    SET start=%1
+  )
+)
+SET end=%time%
+SET options="tokens=1-4 delims=:.,"
+FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
+FOR /f %options% %%a IN ("%end%") DO SET end_h=%%a&SET /a end_m=100%%b %% 100&SET /a end_s=100%%c %% 100&SET /a end_ms=100%%d %% 100
+
+SET /a hours=%end_h%-%start_h%
+SET /a mins=%end_m%-%start_m%
+SET /a secs=%end_s%-%start_s%
+SET /a ms=%end_ms%-%start_ms%
+IF %ms% lss 0 SET /a secs = %secs% - 1 & SET /a ms = 100%ms%
+IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
+IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
+IF %hours% lss 0 SET /a hours = 24%hours%
+IF 1%ms% lss 100 SET ms=0%ms%
+SET LP3D_ELAPSED_BUILD_TIME=%hours%:%mins%:%secs%.%ms%
 EXIT /b
 
 :END
