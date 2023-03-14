@@ -1070,7 +1070,9 @@ void Updater::showErrorMessage (QString error)
       box.setInformativeText (text);
       box.exec();
     } else {
-      emit lpub->messageSig(LOG_ERROR,error);
+      LogType logType = error.startsWith(QLatin1String("Error connecting to update server")) ? LOG_WARNING : LOG_ERROR;
+      bool showMessage = logType == LOG_WARNING;
+      emit lpub->messageSig(logType,error,showMessage);
     }
 }
     // Mod End
