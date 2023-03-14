@@ -1,4 +1,4 @@
-LPub3D 2.4.6.70.3181 (14 03 2023 16:06:13)
+LPub3D 2.4.6.71.3182 (14 03 2023 16:07:54)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
+- Change - Load model with absolute path FILE name #686
 - Change - Persisting fade previous steps and highlight current step settings #683
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676

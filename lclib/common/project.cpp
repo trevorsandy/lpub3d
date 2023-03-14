@@ -480,7 +480,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 	if (mIsPreview)
 	{
-		if (FileName.isEmpty())
+		if (!FileName.isEmpty())
 			IsLPubModel = lpub->ldrawFile.isSubmodel(QFileInfo(FileName).fileName()) || lpub->ldrawFile.isUnofficialPart(QFileInfo(FileName).fileName());
 	} else {
 		parent = gMainWindow;
@@ -529,7 +529,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 					QFileInfo OutFileInfo(FileName);
 					const QString RenderType = OutFileInfo.completeBaseName().replace(".ldr", QString());
 					const QString RenderName = QString("%1%2_%3_%4")
-							.arg(IsPli ? QString() : QString("%1_").arg(PieceName))
+							.arg(IsPli ? QString() : QString("%1_").arg(QFileInfo(PieceName).fileName()))
 							.arg(IsPli ? PieceName : QString::number(lpub->ldrawFile.getSubmodelIndex(PieceName)))
 							.arg(Keys.at(BM_STEP_LINE_KEY))	// ColourNumber when IsPLI
 							.arg(Keys.at(BM_STEP_NUM_KEY));

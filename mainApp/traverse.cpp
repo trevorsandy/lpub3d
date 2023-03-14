@@ -5654,16 +5654,17 @@ void Gui::writeToTmp(const QString &fileName,
 {
   QMutexLocker writeLocker(&writeMutex);
 
-  QString filePath = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
-  QFileInfo fileInfo(filePath);
+  QFileInfo fileInfo(fileName);
+  QString filePath = QDir::toNativeSeparators(QString("%1/%2/%3").arg(QDir::currentPath(), Paths::tmpDir, fileInfo.fileName()));
+  fileInfo.setFile(filePath);
   if(!fileInfo.dir().exists()) {
      fileInfo.dir().mkpath(".");
     }
   QFile file(filePath);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-      QMessageBox::critical(nullptr,QMessageBox::tr("%1 Write To Temp").arg(VER_PRODUCTNAME_STR),
-                           QMessageBox::tr("Failed to open %1 for writing: %2")
-                           .arg(filePath) .arg(file.errorString()));
+      emit gui->messageSig(LOG_ERROR, QString("Failed to open %1 for writing:<br>%2")
+                                          .arg(filePath)
+                                          .arg(file.errorString()));
       return;
     } else {
 
