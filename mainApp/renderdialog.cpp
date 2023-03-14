@@ -245,16 +245,16 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        double scale = mCsiKeyList.at(K_MODELSCALE).toDouble();
+        double renderPercentage = mCsiKeyList.at(K_MODELSCALE).toDouble();
         BlenderRenderDialogGui *blenderRenderDialogGui =
                 new BlenderRenderDialogGui();
         blenderRenderDialogGui->getRenderSettings(
                     mWidth,
                     mHeight,
-                    scale,
+                    renderPercentage,
                     false /*document model*/);
 
-        mCsiKeyList[K_MODELSCALE] = QString::number(scale);
+        mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
         bool blenderInstalled = !Preferences::blenderVersion.isEmpty();
         ui->RenderButton->setEnabled(blenderInstalled);
         if (!blenderInstalled)

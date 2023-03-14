@@ -8751,7 +8751,7 @@ void POVRayRenderDialogGui::textChanged(const QString &value)
  * Blender renderer
  *
  **********************************************************************/
-qreal   BlenderRenderDialogGui::mScale           = 0.0;
+qreal   BlenderRenderDialogGui::mRenderPercentage= 0.0;
 bool    BlenderRenderDialogGui::mDialogCancelled = false;
 bool    BlenderRenderDialogGui::mDocumentRender  = false;
 QString BlenderRenderDialogGui::blenderVersion;
@@ -8914,7 +8914,7 @@ BlenderRenderDialogGui::~BlenderRenderDialogGui()
 void BlenderRenderDialogGui::getRenderSettings(
         int    &width,
         int    &height,
-        double &scale,
+        double &renderPercentage,
         bool docRender)
 {
 #ifndef QT_NO_PROCESS
@@ -8923,7 +8923,7 @@ void BlenderRenderDialogGui::getRenderSettings(
 
     mWidth  = width;
     mHeight = height;
-    mScale  = scale; // overridden to .02 at loadSettings()
+    mRenderPercentage = renderPercentage;
     mDocumentRender = docRender;
 
     mDialogCancelled = false;
@@ -9107,10 +9107,10 @@ void BlenderRenderDialogGui::getRenderSettings(
     setMinimumSize(200,400);
 
     if (dialog->exec() == QDialog::Accepted) {
-        if (settingsModified(width, height, scale))
+        if (settingsModified(width, height, renderPercentage))
             saveSettings();
     } else if (!mDialogCancelled) {
-        if (settingsModified(width, height, scale))
+        if (settingsModified(width, height, renderPercentage))
             if (promptAccept())
                 saveSettings();
     }
@@ -9159,8 +9159,6 @@ void BlenderRenderDialogGui::initLDrawImport()
     lineEditList.clear();
     comboBoxList.clear();
 
-    mScale = defaultSettings[LBL_IMAGE_SCALE].value.toDouble();
-
     settingsSubform = new QFormLayout(blenderSettingsBox);
 
     int comboBoxItemsIndex = 0;
@@ -9207,16 +9205,13 @@ void BlenderRenderDialogGui::initLDrawImport()
                 QObject::connect(defaultColourEditAction, SIGNAL(triggered(bool)),
                                  this,                    SLOT  (colorButtonClicked(bool)));
             } else {
-                if (i == LBL_IMAGE_SCALE) {
-                    lineEdit->setText(QString::number(mScale));
-                    lineEdit->setValidator(new QDoubleValidator(0.01,1.0,2));
-                } else {
-                    lineEdit->setText(blenderSettings[i].value);
-                    if (i == LBL_RENDER_PERCENTAGE)
-                        lineEdit->setValidator(new QIntValidator(1, 1000));
-                    else
-                        lineEdit->setValidator(new QDoubleValidator(0.01,100.0,2));
-                }
+                lineEdit->setText(blenderSettings[i].value);
+                if (i == LBL_IMAGE_SCALE)
+                    lineEdit->setValidator(new QDoubleValidator(0.01,10.0,2));
+                else if (i == LBL_RENDER_PERCENTAGE)
+                    lineEdit->setValidator(new QIntValidator(1,1000));
+                else
+                    lineEdit->setValidator(new QDoubleValidator(0.01,100.0,2));
             }
             lineEdit->setToolTip(blenderSettings[i].tooltip);
             lineEditList << lineEdit;
@@ -9297,8 +9292,6 @@ void BlenderRenderDialogGui::initLDrawImportMM()
 
     int comboBoxItemsIndex = 0;
 
-    mScale = defaultSettingsMM[LBL_IMPORT_SCALE].value.toDouble();
-
     for(int i = 0; i < numSettingsMM(); i++) {
         QLabel *label = new QLabel(blenderSettingsBox);
         if (i == LBL_CROP_IMAGE_MM)
@@ -9333,18 +9326,15 @@ void BlenderRenderDialogGui::initLDrawImportMM()
                         this,    SLOT  (sizeChanged(const QString &)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             } else {
-                if (i == LBL_IMPORT_SCALE) {
-                    lineEdit->setText(QString::number(mScale));
-                    lineEdit->setValidator(new QDoubleValidator(0.01,1.0,2));
-                } else {
-                    lineEdit->setText(blenderSettingsMM[i].value);
-                    if (i == LBL_RENDER_PERCENTAGE)
-                        lineEdit->setValidator(new QIntValidator(1, 1000));
-                    else if (i == LBL_GAP_SCALE || i == LBL_MERGE_DISTANCE)
-                        lineEdit->setValidator(new QDoubleValidator(0.001,100.0,3));
-                    else
-                        lineEdit->setValidator(new QIntValidator(1, RENDER_IMAGE_MAX_SIZE));
-                }
+                lineEdit->setText(blenderSettingsMM[i].value);
+                if (i == LBL_IMPORT_SCALE)
+                    lineEdit->setValidator(new QDoubleValidator(0.01,10.0,2));
+                else if (i == LBL_RENDER_PERCENTAGE_MM)
+                    lineEdit->setValidator(new QIntValidator(1,1000));
+                else if (i == LBL_GAP_SCALE || i == LBL_MERGE_DISTANCE)
+                    lineEdit->setValidator(new QDoubleValidator(0.001,100.0,3));
+                else
+                    lineEdit->setValidator(new QIntValidator(1, RENDER_IMAGE_MAX_SIZE));
             }
             lineEdit->setToolTip(blenderSettingsMM[i].tooltip);
             lineEditList << lineEdit;
@@ -9396,17 +9386,21 @@ void BlenderRenderDialogGui::enableImportModule()
 
     Preferences::setBlenderImportModule(preferredImportModule);
 
-    getRenderSettings(mWidth,mHeight,mScale,mDocumentRender);
+    getRenderSettings(mWidth,mHeight,mRenderPercentage,mDocumentRender);
 }
 
-bool BlenderRenderDialogGui::settingsModified(int &width, int &height, double &scale)
+bool BlenderRenderDialogGui::settingsModified(int &width, int &height, double &renderPercentage)
 {
     if  (mDialogCancelled)
         return false;
 
     bool ok, modified = false;
-    qreal _width = 0.0, _height = 0.0, _scale = 0.0, _value = 0.0;
+    qreal _width = 0.0, _height = 0.0, _renderPercentage = 0.0, _value = 0.0, _oldValue = 0.0;
     QString oldValue;
+
+    auto itemChanged = [] (qreal oldValue, qreal newValue) {
+        return newValue > oldValue || newValue < oldValue;
+    };
 
     if (blenderImportMMActBox->isChecked()) {
         // settings
@@ -9424,45 +9418,41 @@ bool BlenderRenderDialogGui::settingsModified(int &width, int &height, double &s
             }
             // lineedits
             else if (i < LBL_CHOSEN_LOGO) {
-                qreal oldValue = 0.0;
-                auto itemChanged = [&oldValue] (qreal newValue) {
-                    return newValue > oldValue || newValue < oldValue;
-                };
                 for(int j = 0; j < lineEditList.size(); j++) {
                     if (j == RESOLUTION_WIDTH_EDIT) {
-                        oldValue = width;
+                        _oldValue = width;
                         _width  = lineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             width = int(_width);
                             blenderSettingsMM[i].value = QString::number(width);
                             if (!modified)
-                                modified = itemChanged(_width);
+                                modified = itemChanged(_oldValue, _width);
                         }
                     } else if (j == RESOLUTION_HEIGHT_EDIT) {
-                        oldValue = height;
+                        _oldValue = height;
                         _height = lineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             height = int(_height);
                             blenderSettingsMM[i].value = QString::number(height);
                             if (!modified)
-                                modified = itemChanged(_height);
+                                modified = itemChanged(_oldValue, _height);
                         }
-                    } else if (j == IMPORT_SCALE_EDIT) {
-                        oldValue = scale;
-                        _scale = lineEditList[j]->text().toDouble(&ok);
+                    } else if (j == LBL_RENDER_PERCENTAGE_MM) {
+                        _oldValue = renderPercentage;
+                        _renderPercentage = lineEditList[j]->text().toInt(&ok);
                         if (ok) {
-                            scale = _scale;
-                            blenderSettingsMM[i].value = QString::number(scale);
+                            renderPercentage = double(_renderPercentage / 100);
+                            blenderSettingsMM[i].value = QString::number(_renderPercentage);
                             if (!modified)
-                                modified = itemChanged(_scale);
+                                modified = itemChanged(_oldValue, renderPercentage);
                         }
                     } else {
-                        oldValue = blenderSettingsMM[i].value.toDouble();
+                        _oldValue = blenderSettingsMM[i].value.toDouble();
                         _value = lineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             blenderSettingsMM[i].value = QString::number(_value);
                             if (!modified)
-                                modified = itemChanged(_value);
+                                modified = itemChanged(_oldValue, _value);
                         }
                     }
                     if (i < LBL_STARTING_STEP_FRAME)
@@ -9497,46 +9487,42 @@ bool BlenderRenderDialogGui::settingsModified(int &width, int &height, double &s
             }
             // lineedits
             else if (i < LBL_COLOUR_SCHEME) {
-                qreal oldValue = 0.0;
-                auto itemChanged = [&oldValue] (qreal newValue) {
-                    return newValue > oldValue || newValue < oldValue;
-                };
                 for(int j = 0; j < lineEditList.size(); j++) {
                     if (j == IMAGE_WIDTH_EDIT) {
-                        oldValue = width;
+                        _oldValue = width;
                         _width  = lineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             width = int(_width);
                             blenderSettings[i].value = QString::number(width);
                             if (!modified)
-                                modified = itemChanged(_width);
+                                modified = itemChanged(_oldValue, _width);
                         }
                     } else if (j == IMAGE_HEIGHT_EDIT) {
-                        oldValue = height;
+                        _oldValue = height;
                         _height = lineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             height = int(_height);
                             blenderSettings[i].value = QString::number(height);
                             if (!modified)
-                                modified = itemChanged(_height);
+                                modified = itemChanged(_oldValue, _height);
                         }
-                    } else if (j == IMAGE_SCALE_EDIT) {
-                        oldValue = scale;
-                        _scale = lineEditList[j]->text().toDouble(&ok);
+                    } else if (j == LBL_RENDER_PERCENTAGE) {
+                        _oldValue = renderPercentage;
+                        _renderPercentage = lineEditList[j]->text().toInt(&ok);
                         if (ok) {
-                            scale = _scale;
-                            blenderSettings[i].value = QString::number(scale);
+                            renderPercentage = double(_renderPercentage / 100);
+                            blenderSettings[i].value = QString::number(_renderPercentage);
                             if (!modified)
-                                modified = itemChanged(_scale);
+                                modified = itemChanged(_oldValue, renderPercentage);
                         }
                     } else {
-                        oldValue = blenderSettings[i].value.toDouble();
+                        _oldValue = blenderSettings[i].value.toDouble();
                         _value = j == DEFAULT_COLOUR_EDIT ? lineEditList[j]->property("ColourID").toDouble(&ok)
                                                           : lineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             blenderSettings[i].value = QString::number(j == DEFAULT_COLOUR_EDIT ? int(_value) : _value);
                             if (!modified)
-                                modified = itemChanged(_value);
+                                modified = itemChanged(_oldValue, _value);
                         }
                     }
                     if (i < LBL_RENDER_PERCENTAGE)
@@ -9600,8 +9586,8 @@ void BlenderRenderDialogGui::resetSettings()
                         lineEditList[j]->setText(QString::number(mWidth));
                     else if (j == IMAGE_HEIGHT_EDIT)
                         lineEditList[j]->setText(QString::number(mHeight));
-                    else if (j == IMAGE_SCALE_EDIT)
-                        lineEditList[j]->setText(QString::number(mScale));
+                    else if (j == RENDER_PERCENTAGE_EDIT)
+                        lineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else if (j == DEFAULT_COLOUR_EDIT)
                         setDefaultColor(blenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
                     else
@@ -9645,8 +9631,8 @@ void BlenderRenderDialogGui::resetSettings()
                         lineEditList[j]->setText(QString::number(mWidth));
                     else if (j == RESOLUTION_HEIGHT_EDIT)
                         lineEditList[j]->setText(QString::number(mHeight));
-                    else if (j == IMPORT_SCALE_EDIT)
-                        lineEditList[j]->setText(QString::number(mScale));
+                    else if (j == RENDER_PERCENTAGE_EDIT_MM)
+                        lineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else
                         lineEditList[j]->setText(blenderSettingsMM[i].value);
                     if (i < LBL_STARTING_STEP_FRAME)
@@ -9681,6 +9667,7 @@ void BlenderRenderDialogGui::loadSettings() {
                 defaultSettings[i].tooltip
             };
         }
+        blenderSettings[LBL_RENDER_PERCENTAGE].value = QString::number(mRenderPercentage * 100);
         blenderSettings[LBL_DEFAULT_COLOUR].value = QString::number(gDefaultColor);
     }
 
@@ -9693,6 +9680,7 @@ void BlenderRenderDialogGui::loadSettings() {
                 defaultSettingsMM[i].tooltip
             };
         }
+        blenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(mRenderPercentage * 100);
     }
 
     // paths

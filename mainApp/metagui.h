@@ -2310,7 +2310,7 @@ public:
 
   void getRenderSettings(int &width,
                          int &height,
-                         double &scale,
+                         double &renderPercentage,
                          bool docRender);
 
   static void loadSettings();
@@ -2326,7 +2326,7 @@ public:
   static bool overwriteFile(const QString &file);
 
 protected:
-  bool settingsModified(int &width, int &height, double &scale);
+  bool settingsModified(int &width, int &height, double &renderPercentage);
   void initLDrawImport();
   void initLDrawImportMM();
 
@@ -2659,7 +2659,7 @@ private:
   static ComboOptItems comboOptItems [];
   static ComboOptItems comboOptItemsMM [];
 
-  static qreal   mScale;
+  static qreal   mRenderPercentage;
   static bool    mDialogCancelled;
   static bool    mDocumentRender;
   static QString blenderVersion;
