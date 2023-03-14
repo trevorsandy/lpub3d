@@ -69,8 +69,7 @@ SignHashAndPublishToGitHub() {
 declare -r p=Publish
 export CI="${CI:-true}"
 export GITHUB="${GITHUB:-true}" # GITHUB_ACTIONS
-
-LP3D_COMMIT_MSG_ORIG="${LP3D_COMMIT_MSG}"
+export UPLOADTOOL_BODY="${LP3D_COMMIT_MSG}"
 export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
 
 
@@ -144,12 +143,7 @@ if [ -f upload.sh -a -r upload.sh ]; then
     else
       sed -i    "s/      RELEASE_TITLE=\"Release build.*/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
     fi
-    LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-    else
-      sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-    fi
+    export UPLOADTOOL_BODY="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
@@ -165,13 +159,8 @@ if [ -f upload.sh -a -r upload.sh ]; then
     else
       sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
     fi
-    LP3D_RELEASE_DESCRIPTION="${LP3D_COMMIT_MSG_ORIG}"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-    else
-      sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-    fi
   fi
+  export UPLOADTOOL_SUFFIX="${LP3D_VERSION}-r${LP3D_VER_REVISION}"
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
 fi
