@@ -6111,34 +6111,26 @@ void Preferences::setInitPreferredRenderer()
 // source reset calls
 void Preferences::resetFadeSteps()
 {
-    if (enableFadeSteps      != initEnableFadeSteps)
-        enableFadeSteps       = initEnableFadeSteps;
-    if (fadeStepsUseColour   != initFadeStepsUseColour)
-        fadeStepsUseColour    = initFadeStepsUseColour;
-    if (fadeStepsOpacity     != initFadeStepsOpacity)
-        fadeStepsOpacity      = initFadeStepsOpacity;
-    if (validFadeStepsColour != initValidFadeStepsColour)
-        validFadeStepsColour  = initValidFadeStepsColour;
+    enableFadeSteps       = initEnableFadeSteps;
+    fadeStepsUseColour    = initFadeStepsUseColour;
+    fadeStepsOpacity      = initFadeStepsOpacity;
+    validFadeStepsColour  = initValidFadeStepsColour;
 
     fadestepPreferences(true/*persist*/);
 }
 
 void Preferences::resetHighlightStep()
 {
-    if (enableHighlightStep    != initEnableHighlightStep)
-        enableHighlightStep     = initEnableHighlightStep;
-    if (highlightStepLineWidth != initHighlightStepLineWidth)
-        highlightStepLineWidth  = initHighlightStepLineWidth;
-    if (highlightStepColour    != initHighlightStepColour)
-        highlightStepColour     = initHighlightStepColour;
+    enableHighlightStep     = initEnableHighlightStep;
+    highlightStepLineWidth  = initHighlightStepLineWidth;
+    highlightStepColour     = initHighlightStepColour;
 
     highlightstepPreferences(true/*persist*/);
 }
 
 void Preferences::resetPreferredRenderer()
 {
-    if (preferredRenderer != initPreferredRenderer)
-        preferredRenderer = initPreferredRenderer;
+    preferredRenderer = initPreferredRenderer;
 
     preferredRendererPreferences(true/*persist*/);
 }

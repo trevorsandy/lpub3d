@@ -80,25 +80,25 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox(tr("Fade Previous Steps"));
+  box->setToolTip(tr("Enable fade previous steps"));
   layout->addWidget(box);
   fadeStepsChild = new FadeStepsGui(fadeStepsMeta,box);
-  fadeStepsChild->setToolTip(tr("Enable fade previous steps"));
   data->children.append(fadeStepsChild);
   connect (fadeStepsChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   connect (fadeStepsChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox(tr("Fade Previous Steps Setup"));
   box->setWhatsThis(lpubWT(WT_SETUP_FADE_STEPS_SETUP,box->title()));
+  box->setToolTip(tr("Setup fade steps. Check to enable fade previous steps locally."));
   layout->addWidget(box);
   fadeStepsSetupChild = new CheckBoxGui(tr("Setup Fade Previous Steps"),&fadeStepsMeta->setup,box);
-  fadeStepsSetupChild->setToolTip(tr("Setup fade steps. Check to enable fade previous steps locally."));
   data->children.append(fadeStepsSetupChild);
   connect (fadeStepsSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox("Final Model Step");
+  box->setToolTip(tr("Automatically, append an un-faded final step to the top level model file."));
   layout->addWidget(box);
   finalModelEnabledChild = new FinalModelEnabledGui(tr("Enable Final Model Step"),&lpubMeta->finalModelEnabled,box);
-  finalModelEnabledChild->setToolTip(tr("Automatically, append an un-faded final step to the top level model file."));
   data->children.append(finalModelEnabledChild);
   connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
@@ -116,14 +116,16 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
 
 void GlobalFadeStepDialog::enableControls(bool b)
 {
-    fadeStepsSetupChild->setEnabled(!b);
-    finalModelEnabledChild->setEnabled(b);
+  if (b)
+    fadeStepsSetupChild->getCheckBox()->setChecked(!b);
+  fadeStepsSetupChild->getCheckBox()->setEnabled(!b);
+  finalModelEnabledChild->getCheckBox()->setEnabled(b);
 }
 
 void GlobalFadeStepDialog::reloadDisplayPage(bool b)
 {
-    if (!data->reloadFile)
-        data->reloadFile = b;
+  if (!data->reloadFile)
+    data->reloadFile = b;
 }
 
 void GlobalFadeStepDialog::getFadeStepGlobals(
@@ -164,4 +166,3 @@ void GlobalFadeStepDialog::cancel()
 {
   QDialog::reject();
 }
-

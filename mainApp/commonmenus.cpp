@@ -2158,7 +2158,7 @@ void CommonMenus::setWhatsThis()
         // WT_SETUP_FADE_STEPS_SETUP
         {
             QObject::tr(
-            "  Turn on of off the capability to define fade previous\n"
+            "  Turn on or off the capability to define fade previous\n"
             "  steps locally (versus globally). This is to say, you\n"
             "  can apply fade previous steps from the step where\n"
             "  the LPub meta command is defined to enable this \n"
@@ -2177,7 +2177,7 @@ void CommonMenus::setWhatsThis()
         // WT_SETUP_HIGHLIGHT_STEP_SETUP
         {
             QObject::tr(
-            "  Turn on of off the capability to define highlight\n"
+            "  Turn on or off the capability to define highlight\n"
             "  current step locally (versus globally). This is to\n"
             "  say, you can apply highlight current step from the\n"
             "  step where the LPub meta command is defined to enable\n"

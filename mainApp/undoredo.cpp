@@ -287,7 +287,8 @@ bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
     if (found || line.contains(endRx))
       break;
   }
-  topOfStep.setModelIndex(ldrawFile.getSubmodelIndex(topOfStep.modelName));
+  if (topOfStep.modelIndex == BM_INVALID_INDEX)
+    topOfStep.setModelIndex(ldrawFile.getSubmodelIndex(topOfStep.modelName));
   return found;
 }
 

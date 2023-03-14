@@ -3464,22 +3464,26 @@ Gui::~Gui()
 
 void Gui::closeEvent(QCloseEvent *event)
 {
-  Preferences::resetFadeSteps();
-  Preferences::resetHighlightStep();
-  Preferences::resetPreferredRenderer();
+  if (maybeSave())
+  {
+    emit requestEndThreadNowSig();
 
-  emit requestEndThreadNowSig();
+    if (parmsWindow->isVisible()) {
+        parmsWindow->close();
+    }
 
-  if (parmsWindow->isVisible())
-    parmsWindow->close();
+    Preferences::resetFadeSteps();
+    Preferences::resetHighlightStep();
+    Preferences::resetPreferredRenderer();
 
-  if (maybeSave() && saveBuildModification()) {
     event->accept();
-  } else {
+
+    writeSettings();
+  }
+  else
+  {
     event->ignore();
   }
-
-  writeSettings();
 }
 
 void Gui::workerJobResult(int value){

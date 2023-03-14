@@ -727,7 +727,8 @@ private slots:
 
 public slots:
   void colorChange(bool clicked);
-  void valueChanged(int state);
+  void valueChanged(bool clicked);
+  void lineWidthChanged(int value);
 };
 
 /***********************************************************************

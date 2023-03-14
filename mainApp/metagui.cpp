@@ -2304,8 +2304,8 @@ HighlightStepGui::HighlightStepGui(
   highlightCheck->setChecked(_meta->enable.value());
   highlightCheck->setToolTip(tr("Turn on global highlight current step."));
 
-  connect(highlightCheck,SIGNAL(stateChanged(int)),
-          this,          SLOT( valueChanged(int)));
+  connect(highlightCheck,SIGNAL(clicked(bool)),
+          this,          SLOT( valueChanged(bool)));
 
   grid->addWidget(highlightCheck,0,0,1,2);
 
@@ -2342,7 +2342,7 @@ HighlightStepGui::HighlightStepGui(
     lineWidthSpin->setValue(data);
 
     connect(lineWidthSpin,SIGNAL(valueChanged(int)),
-            this,         SLOT(  valueChanged(int)));
+            this,         SLOT(  lineWidthChanged(int)));
 
     grid->addWidget(lineWidthSpin,2,1);
 
@@ -2402,27 +2402,22 @@ void HighlightStepGui::colorChange(bool clicked)
   }
 }
 
-void HighlightStepGui::valueChanged(int state)
+void HighlightStepGui::valueChanged(bool clicked)
 {
-  auto isChecked = [&state] ()
-  {
-    return state == Qt::Unchecked ? false : state == Qt::Checked ? true : false;
-  };
+  colorButton->setEnabled(clicked);
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+    lineWidthSpin->setEnabled(clicked);
+  highlightModified = meta->enable.value() != clicked;
+  if (!modified)
+    modified = highlightModified;
+  meta->enable.setValue(clicked);
+}
 
-  bool checked;
-  if (sender() == highlightCheck) {
-    checked = isChecked();
-    colorButton->setEnabled(checked);
-    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-      lineWidthSpin->setEnabled(checked);
-    highlightModified = meta->enable.value() != checked;
-    if (!modified)
-      modified = highlightModified;
-    meta->enable.setValue(checked);
-  } else if (sender() == lineWidthSpin) {
-    meta->lineWidth.setValue(state);
-    modified = lineWidthModified = state != data;
-  }
+
+void HighlightStepGui::lineWidthChanged(int value)
+{
+  meta->lineWidth.setValue(value);
+  modified = lineWidthModified = value != data;
 }
 
 void HighlightStepGui::apply(

@@ -84,6 +84,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox(tr("Highlight Current Step"));
+  box->setToolTip(tr("Enable highlight current step"));
   layout->addWidget(box);
   highlightStepChild = new HighlightStepGui(highlightStepMeta,box);
   data->children.append(highlightStepChild);
@@ -92,18 +93,17 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
 
   box = new QGroupBox(tr("Highlight Current Step Setup"));
   box->setWhatsThis(lpubWT(WT_SETUP_HIGHLIGHT_STEP_SETUP,box->title()));
+  box->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
   layout->addWidget(box);
   highlightStepSetupChild = new CheckBoxGui(tr("Setup Highlight Current Step"),&highlightStepMeta->setup,box);
-  highlightStepSetupChild->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
   data->children.append(highlightStepSetupChild);
   connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox(tr("Final Model Step"));
+  box->setToolTip(tr("Automatically, append an un-faded and/or un-highlighted final step "
+                     "to the top level model file. This step will not be saved."));
   layout->addWidget(box);
-
   finalModelEnabledChild = new FinalModelEnabledGui(tr("Enable Final Model Step"),&lpubMeta->finalModelEnabled,box);
-  finalModelEnabledChild->setToolTip(tr("Automatically, append an un-faded and/or un-highlighted final step "
-                                        "to the top level model file. This step will not be saved."));
   data->children.append(finalModelEnabledChild);
   connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
@@ -121,14 +121,16 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
 
 void GlobalHighlightStepDialog::enableControls(bool b)
 {
-    highlightStepSetupChild->setEnabled(!b);
-    finalModelEnabledChild->setEnabled(b);
+  if (b)
+    highlightStepSetupChild->getCheckBox()->setChecked(!b);
+  highlightStepSetupChild->getCheckBox()->setEnabled(!b);
+  finalModelEnabledChild->getCheckBox()->setEnabled(b);
 }
 
 void GlobalHighlightStepDialog::reloadDisplayPage(bool b)
 {
-    if (!data->reloadFile)
-        data->reloadFile = b;
+  if (!data->reloadFile)
+    data->reloadFile = b;
 }
 
 void GlobalHighlightStepDialog::getHighlightStepGlobals(
@@ -169,4 +171,3 @@ void GlobalHighlightStepDialog::cancel()
 {
   QDialog::reject();
 }
-
