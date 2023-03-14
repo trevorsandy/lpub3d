@@ -125,25 +125,35 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     } else if (mRenderType == BLENDER_RENDER) {
 
-        setWindowTitle(tr("Blender %1").arg(mImportOnly ? tr("Import") : tr("Render")));
+        setWindowTitle(tr("Blender %1").arg(mImportOnly ? tr("LDraw Import") : tr("Image Render")));
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
 
         bool blenderInstalled = !Preferences::blenderVersion.isEmpty();
 
-        ui->RenderButton->setEnabled(blenderInstalled);
+        ui->RenderButton->setEnabled(blenderInstalled && haveKeys);
 
         ui->RenderButton->setToolTip(blenderInstalled
                                         ? tr("Render LDraw model")
                                         : tr("Blender not configured. Click 'Settings' to configure."));
 
+        const QString importModule = Preferences::blenderImportModule == QLatin1String("TN")
+                                         ? tr("LDraw Import TN")
+                                         : Preferences::blenderImportModule == QLatin1String("MM")
+                                         ? tr("LDraw Import MM")
+                                         : "";
+
         if (mImportOnly) {
             if (haveKeys) {
-                bool displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
-                labelMessage = tr("Import and open %1 in Blender")
+                QString mn;
+                const bool displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
+                if (displayModel)
+                    mn = currentStep->topOfStep().modelName;
+                labelMessage = tr("Open <b>%1</b> in Blender using %2")
                                   .arg(displayModel
-                                       ? currentStep->topOfStep().modelName
-                                       : tr(" step %1").arg(currentStep->stepNumber.number));
+                                       ? mn.replace(mn.indexOf(mn.at(0)),1,mn.at(0).toUpper())
+                                       : tr(" STEP %1").arg(currentStep->stepNumber.number))
+                                   .arg(importModule);
             }
 
             ui->RenderButton->setText(tr("Open in Blender"));
@@ -163,9 +173,9 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         }
 
         bool useConfigSize = false;
-        if (QFileInfo(Preferences::blenderRenderConfigFile).exists())
+        if (QFileInfo(Preferences::blenderLDrawConfigFile).exists())
         {
-            QSettings Settings(Preferences::blenderRenderConfigFile, QSettings::IniFormat);
+            QSettings Settings(Preferences::blenderLDrawConfigFile, QSettings::IniFormat);
             if (Settings.value(QString("%1/cropImage").arg(IMPORTLDRAW), QString()).toBool())
             {
                 useConfigSize = true;
@@ -444,7 +454,6 @@ void RenderDialog::on_RenderButton_clicked()
             emit gui->messageSig(LOG_ERROR, message);
             CloseProcess();
         }
-
     } else if (mRenderType == BLENDER_RENDER) {
 
         QString const option = mImportOnly ? tr("import") : tr("render");
@@ -456,7 +465,7 @@ void RenderDialog::on_RenderButton_clicked()
         mBlendProgValue = 0;
         mBlendProgMax   = 0;
 
-        if (! QFileInfo(Preferences::blenderRenderConfigFile).exists())
+        if (! QFileInfo(Preferences::blenderLDrawConfigFile).exists())
             BlenderRenderDialogGui::saveSettings();
 
         QString defaultBlendFile = QString("%1/Blender/config/%2")
@@ -476,9 +485,11 @@ void RenderDialog::on_RenderButton_clicked()
                                 .arg(qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100))
                                 .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"))
                                 .arg(QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\"))
-                                .arg(QDir::toNativeSeparators(Preferences::blenderRenderConfigFile).replace("\\","\\\\")));
+                                .arg(QDir::toNativeSeparators(Preferences::blenderLDrawConfigFile).replace("\\","\\\\")));
+        if (Preferences::blenderImportModule == QLatin1String("MM"))
+            pythonExpression.append(", use_ldraw_import_mm=True");
         if (searchCustomDir)
-            pythonExpression.append(", search_additional_paths=True");
+            pythonExpression.append(", search_additional_paths=True");    
         if (mImportOnly) {
             pythonExpression.append(", import_only=True");
 
@@ -517,6 +528,8 @@ void RenderDialog::on_RenderButton_clicked()
 #else
             emit gui->messageSig(LOG_INFO, message);
 #endif
+            if (mImportOnly)
+                scriptCommand.append(QString(" > %1").arg(GetLogFileName(true/*stdOut*/)));
 
             script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
             if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -568,6 +581,12 @@ void RenderDialog::on_RenderButton_clicked()
 
         mProcess->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
 
+        message = tr("Blender process output: %1").arg(GetLogFileName(true/*stdOut*/));
+#ifdef QT_DEBUG_MODE
+        qDebug() << qPrintable(message);
+#else
+        emit gui->messageSig(LOG_INFO, message);
+#endif
         if (mImportOnly) {
 #ifdef Q_OS_WIN
             mProcess->startDetached(shellProgram, QStringList() << "/C" << script.fileName());

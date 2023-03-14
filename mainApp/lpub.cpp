@@ -6834,7 +6834,7 @@ void Gui::createMenus()
     editorMenu->addSeparator();
     if (Preferences::blenderInstalled)
         editorMenu->addAction(getAct("editBlenderParametersAct.1"));
-    if (Preferences::blenderInstalled && !Preferences::blenderRenderConfigFile.isEmpty())
+    if (Preferences::blenderInstalled && !Preferences::blenderLDrawConfigFile.isEmpty())
         editorMenu->addAction(getAct("editBlenderPreferencesAct.1"));
     editorMenu->addAction(getAct("editNativePOVIniAct.1"));
     editorMenu->addAction(getAct("editLdgliteIniAct.1"));
@@ -7131,7 +7131,7 @@ void Gui::createToolBars()
 #endif
     if (!Preferences::blenderExe.isEmpty())
         editParamsToolBar->addAction(getAct("editBlenderParametersAct.1"));
-    if (Preferences::blenderInstalled && !Preferences::blenderRenderConfigFile.isEmpty())
+    if (Preferences::blenderInstalled && !Preferences::blenderLDrawConfigFile.isEmpty())
         editParamsToolBar->addAction(getAct("editBlenderPreferencesAct.1"));
     editParamsToolBar->addAction(getAct("editNativePOVIniAct.1"));
     editParamsToolBar->addAction(getAct("editLdgliteIniAct.1"));

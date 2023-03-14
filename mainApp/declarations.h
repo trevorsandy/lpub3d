@@ -708,8 +708,8 @@ enum ThemeColorType {
 #define FINDREPLACEWINDOW                      "FindReplaceWindow"
 #define UPDATES                                "Updates"
 #define LOGGING                                "Logging"
-#define IMPORTLDRAW                            "importldraw"
-#define IMPORTDEFAULT                          "DEFAULT"
+#define IMPORTLDRAW                            "ImportLDraw"
+#define IMPORTLDRAWMM                          "ImportLDrawMM"
 #define THEMECOLORS                            "ThemeColors"
 #define KEYBOARDSHORTCUTS                      "KeyboardShortcuts"
 #define TABLAYOUTS                             "TabLayouts"
@@ -759,6 +759,7 @@ enum ThemeColorType {
 #define DEFAULT_SUBMODEL_CAMERA_LATITUDE        23
 #define DEFAULT_SUBMODEL_CAMERA_LONGITUDE      -45
 
+#define DEFAULT_BLENDER_IMPORT_MODULE           "TN"
 
 #define DEFAULT_SUBMODEL_COLOR_01               "#FFFFFF"
 #define DEFAULT_SUBMODEL_COLOR_02               "#FFFFCC"

@@ -2318,7 +2318,7 @@ public:
 
   static int numPaths(bool = false);
   static int numSettings(bool = false);
-  static int numComboOptItems();
+  static int numSettingsMM(bool = false);
   static int getBlenderAddon(const QString &);
   static bool extractBlenderAddon(const QString &);
   static void loadDefaultParameters(QByteArray& Buffer, int Which);
@@ -2327,6 +2327,8 @@ public:
 
 protected:
   bool settingsModified(int &width, int &height, double &scale);
+  void initLDrawImport();
+  void initLDrawImportMM();
 
 public slots:
   void resetSettings();
@@ -2334,6 +2336,7 @@ public slots:
   void configureBlender();
   void updateLDrawAddon();
   void showPathsGroup();
+  void enableImportModule();
   void sizeChanged(const QString &);
   bool promptAccept();
   void setDefaultColor(int value) const;
@@ -2347,6 +2350,7 @@ public slots:
   void writeStdOut();
   bool promptCancel();
   void showResult();
+  void getStandardOutput();
   QString readStdErr(bool &hasError) const;
   void statusUpdate(bool ok = false, const QString &message = QString());
 
@@ -2354,7 +2358,9 @@ private:
   QFormLayout *blenderForm;
   QWidget     *blenderContent;
   QGridLayout *blenderVersionGridLayout;
+  QGridLayout *blenderPathsLayout;
   QGridLayout *blenderExeGridLayout;
+  QFormLayout *settingsSubform;
 
   QGroupBox   *blenderPathsBox;
   QGroupBox   *blenderAddonModulesBox;
@@ -2365,6 +2371,7 @@ private:
   QLineEdit   *blenderAddonVersionEdit;
   QCheckBox   *blenderRenderActBox;
   QCheckBox   *blenderImportActBox;
+  QCheckBox   *blenderImportMMActBox;
 
   QDialog      *dialog;
   QProgressBar *progressBar;
@@ -2372,7 +2379,7 @@ private:
   QTimer       updateTimer;
   QStringList  stdOutList;
   QString      versionText;
-  int          lineCount;
+  bool         versionFound;
 
   enum BlenderRenPathType
   {
@@ -2380,9 +2387,10 @@ private:
     LBL_BLENDFILE_PATH,                     //  1 QLineEdit/QPushButton
     LBL_ENVIRONMENT_PATH,                   //  2 QLineEdit/QPushButton
     LBL_LDCONFIG_PATH,                      //  3 QLineEdit/QPushButton
-    LBL_LDRAW_DIRECTORY,                    //  4 QLineEdit/QPushButton
-    LBL_LSYNTH_DIRECTORY,                   //  5 QLineEdit/QPushButton
-    LBL_STUDLOGO_DIRECTORY,                 //  6 QLineEdit/QPushButton
+    LBL_LDRAW_PATH,                         //  4 QLineEdit/QPushButton
+    LBL_LSYNTH_PATH,                        //  5 QLineEdit/QPushButton
+    LBL_STUD_LOGO_PATH,                     //  6 QLineEdit/QPushButton
+    LBL_STUDIO_LDRAW_PATH,                  //  7 QLineEdit/QPushButton
 
     NUM_BLENDER_PATHS
   };
@@ -2423,6 +2431,7 @@ private:
     LBL_IMAGE_WIDTH,                        // 30/4 QLineEdit
     LBL_IMAGE_HEIGHT,                       // 31/5 QLineEdit
     LBL_IMAGE_SCALE,                        // 32/6 QLineEdit
+    LBL_RENDER_PERCENTAGE,                  // 33/7 QLineEdit
 
     LBL_COLOUR_SCHEME,                      // 33/0 QComboBox
     LBL_FLEX_PARTS_SOURCE,                  // 34/1 QComboBox
@@ -2437,50 +2446,170 @@ private:
 
   enum BlenderRenControlType
   {                                                  // Index
-    BLENDER_PATH_EDIT,                               // 0
-    ADD_ENVIRONMENT_BOX     = BLENDER_PATH_EDIT,     // 0
-    BEVEL_WIDTH_EDIT        = BLENDER_PATH_EDIT,     // 0
-    COLOUR_SCHEME_COMBO     = BLENDER_PATH_EDIT,     // 0
-    ADD_GAPS_BOX,                                    // 1
-    CAMERA_BORDER_PERCENT_EDIT = ADD_GAPS_BOX,       // 1
-    FLEX_PARTS_SOURCE_COMBO = ADD_GAPS_BOX,          // 1
-    DEFAULT_SETTINGS        = ADD_GAPS_BOX,          // 1
-    BEVEL_EDGES_BOX,                                 // 2
-    DEFAULT_COLOUR_EDIT     = BEVEL_EDGES_BOX,       // 2
-    LOGO_STUD_VERSION_COMBO = BEVEL_EDGES_BOX,       // 2
-    BLENDFILE_TRUSTED_BOX,                           // 3
-    GAPS_SIZE_EDIT          = BLENDFILE_TRUSTED_BOX, // 3
-    LOOK_COMBO              = BLENDFILE_TRUSTED_BOX, // 3
-    CROP_IMAGE_BOX,                                  // 4
-    IMAGE_SCALE_EDIT        = CROP_IMAGE_BOX,        // 4
-    POSITION_OBJECT_COMBO   = CROP_IMAGE_BOX,        // 4
-    IMAGE_WIDTH_EDIT        = CROP_IMAGE_BOX,        // 4
-    CURVED_WALLS_BOX,                                // 5
-    RESOLUTION_COMBO        = CURVED_WALLS_BOX,      // 5
-    IMAGE_HEIGHT_EDIT       = CURVED_WALLS_BOX,      // 5
-    FLATTEN_HIERARCHY_BOX,                           // 6
-    RESOLVE_NORMALS_COMBO   = FLATTEN_HIERARCHY_BOX, // 6
-    LINE_EDIT_ITEMS         = FLATTEN_HIERARCHY_BOX, // 6
-    COMBO_BOX_ITEMS         = FLATTEN_HIERARCHY_BOX, // 6
-    IMPORT_CAMERAS_BOX,                              // 7
-    IMPORT_LIGHTS_BOX,                               // 8
-    INSTANCE_STUDS_BOX,                              // 9
-    KEEP_ASPECT_RATIO_BOX,                           //10
-    LINK_PARTS_BOX,                                  //11
-    NUMBER_NODES_BOX,                                //12
-    OVERWRITE_IMAGE_BOX,                             //13
-    OVERWRITE_MATERIALS_BOX,                         //14
-    OVERWRITE_MESHES_BOX,                            //15
-    POSITION_CAMERA_BOX,                             //16
-    REMOVE_DOUBLES_BOX,                              //17
-    RENDER_WINDOW_BOX,                               //18
-    USE_ARCHIVE_LIBS_BOX,                            //19
-    SEARCH_ADDL_PATHS_BOX,                           //20
-    SMOOTH_SHADING_BOX,                              //21
-    TRANSPARENT_BACKGROUND_BOX,                      //22
-    UNOFFICIAL_PARTS_BOX,                            //23
-    USE_LOGO_STUDS_BOX,                              //24
-    VERBOSE_BOX                                      //25
+    BLENDER_PATH_EDIT,                               // 00
+    ADD_ENVIRONMENT_BOX     = BLENDER_PATH_EDIT,     // 00
+    BEVEL_WIDTH_EDIT        = BLENDER_PATH_EDIT,     // 00
+    COLOUR_SCHEME_COMBO     = BLENDER_PATH_EDIT,     // 00
+    ADD_GAPS_BOX,                                    // 01
+    CAMERA_BORDER_PERCENT_EDIT = ADD_GAPS_BOX,       // 01
+    FLEX_PARTS_SOURCE_COMBO = ADD_GAPS_BOX,          // 01
+    DEFAULT_SETTINGS        = ADD_GAPS_BOX,          // 01
+    BEVEL_EDGES_BOX,                                 // 02
+    DEFAULT_COLOUR_EDIT     = BEVEL_EDGES_BOX,       // 02
+    LOGO_STUD_VERSION_COMBO = BEVEL_EDGES_BOX,       // 02
+    BLENDFILE_TRUSTED_BOX,                           // 03
+    GAPS_SIZE_EDIT          = BLENDFILE_TRUSTED_BOX, // 03
+    LOOK_COMBO              = BLENDFILE_TRUSTED_BOX, // 03
+    CROP_IMAGE_BOX,                                  // 04
+    IMAGE_WIDTH_EDIT        = CROP_IMAGE_BOX,        // 04
+    POSITION_OBJECT_COMBO   = CROP_IMAGE_BOX,        // 04
+    CURVED_WALLS_BOX,                                // 05
+    IMAGE_HEIGHT_EDIT       = CURVED_WALLS_BOX,      // 05
+    RESOLUTION_COMBO        = CURVED_WALLS_BOX,      // 05
+    FLATTEN_HIERARCHY_BOX,                           // 06
+    IMAGE_SCALE_EDIT        = FLATTEN_HIERARCHY_BOX, // 06
+    RESOLVE_NORMALS_COMBO   = FLATTEN_HIERARCHY_BOX, // 06
+    COMBO_BOX_ITEMS         = FLATTEN_HIERARCHY_BOX, // 06
+    IMPORT_CAMERAS_BOX,                              // 07
+    RENDER_PERCENTAGE_EDIT  = IMPORT_CAMERAS_BOX,    // 07
+    LINE_EDIT_ITEMS         = IMPORT_CAMERAS_BOX,    // 07
+    IMPORT_LIGHTS_BOX,                               // 08
+    INSTANCE_STUDS_BOX,                              // 09
+    KEEP_ASPECT_RATIO_BOX,                           // 10
+    LINK_PARTS_BOX,                                  // 11
+    NUMBER_NODES_BOX,                                // 12
+    OVERWRITE_IMAGE_BOX,                             // 13
+    OVERWRITE_MATERIALS_BOX,                         // 14
+    OVERWRITE_MESHES_BOX,                            // 15
+    POSITION_CAMERA_BOX,                             // 16
+    REMOVE_DOUBLES_BOX,                              // 17
+    RENDER_WINDOW_BOX,                               // 18
+    USE_ARCHIVE_LIBS_BOX,                            // 19
+    SEARCH_ADDL_PATHS_BOX,                           // 20
+    SMOOTH_SHADING_BOX,                              // 21
+    TRANSPARENT_BACKGROUND_BOX,                      // 22
+    UNOFFICIAL_PARTS_BOX,                            // 23
+    USE_LOGO_STUDS_BOX,                              // 24
+    VERBOSE_BOX                                      // 25
+  };
+
+  enum BlenderRenLabelTypeMM
+  {
+    LBL_ADD_ENVIRONMENT_MM,                  // 00 QCheckBox
+    LBL_BLEND_FILE_TRUSTED_MM,               // 01 QCheckBox
+    LBL_CROP_IMAGE_MM,                       // 02 QCheckBox
+    LBL_DISPLAY_LOGO,                        // 03 QCheckBox
+    LBL_IMPORT_CAMERAS_MM,                   // 04 QCheckBox
+    LBL_IMPORT_EDGES,                        // 05 QCheckBox
+    LBL_IMPORT_LIGHTS_MM,                    // 06 QCheckBox
+    LBL_KEEP_ASPECT_RATIO_MM,                // 07 QCheckBox
+    LBL_MAKE_GAPS,                           // 08 QCheckBox
+    LBL_META_BFC,                            // 09 QCheckBox
+    LBL_META_CLEAR,                          // 10 QCheckBox
+    LBL_META_GROUP,                          // 11 QCheckBox
+    LBL_META_PAUSE,                          // 12 QCheckBox
+    LBL_META_PRINT_WRITE,                    // 13 QCheckBox
+    LBL_META_SAVE,                           // 14 QCheckBox
+    LBL_META_STEP,                           // 15 QCheckBox
+    LBL_META_STEP_GROUPS,                    // 16 QCheckBox
+    LBL_NO_STUDS,                            // 17 QCheckBox
+    LBL_OVERWRITE_IMAGE_MM,                  // 18 QCheckBox
+    LBL_PARENT_TO_EMPTY,                     // 19 QCheckBox
+    LBL_PREFER_STUDIO,                       // 10 QCheckBox
+    LBL_PREFER_UNOFFICIAL,                   // 21 QCheckBox
+    LBL_PRESERVE_HIERARCHY,                  // 22 QCheckBox
+    LBL_PROFILE,                             // 23 QCheckBox
+    LBL_RECALCULATE_NORMALS,                 // 24 QCheckBox
+    LBL_REMOVE_DOUBLES_MM,                   // 25 QCheckBox
+    LBL_RENDER_WINDOW_MM,                    // 26 QCheckBox
+    LBL_SEARCH_ADDL_PATHS_MM,                // 27 QCheckBox
+    LBL_SETEND_FRAME,                        // 28 QCheckBox
+    LBL_SET_TIMELINE_MARKERS,                // 29 QCheckBox
+    LBL_SHADE_SMOOTH,                        // 20 QCheckBox
+    LBL_TRANSPARENT_BACKGROUND_MM,           // 31 QCheckBox
+    LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS, // 32 QCheckBox
+    LBL_TREAT_SHORTCUT_AS_MODEL,             // 33 QCheckBox
+    LBL_TRIANGULATE,                         // 34 QCheckBox
+    LBL_USE_ARCHIVE_LIBRARY_MM,              // 35 QCheckBox
+    LBL_USE_FREESTYLE_EDGES,                 // 36 QCheckBox
+    LBL_VERBOSE_MM,                          // 37 QLineEdit
+
+    LBL_FRAMES_PER_STEP,                     // 38/00 QLineEdit
+    LBL_GAP_SCALE,                           // 39/01 QLineEdit
+    LBL_IMPORT_SCALE,                        // 30/02 QLineEdit
+    LBL_MERGE_DISTANCE,                      // 41/03 QLineEdit
+    LBL_RENDER_PERCENTAGE_MM,                // 42/04 QLineEdit
+    LBL_RESOLUTION_WIDTH,                    // 43/05 QLineEdit
+    LBL_RESOLUTION_HEIGHT,                   // 44/06 QLineEdit
+    LBL_STARTING_STEP_FRAME,                 // 45/07 QLineEdit
+
+    LBL_CHOSEN_LOGO,                         // 46/00 QComboBox
+    LBL_COLOUR_SCHEME_MM,                    // 47/01 QComboBox
+    LBL_GAP_SCALE_STRATEGY,                  // 48/02 QComboBox
+    LBL_GAP_TARGET,                          // 49/03 QComboBox
+    LBL_RESOLUTION_MM,                       // 40/04 QComboBox
+    LBL_SMOOTH_TYPE,                         // 51/05 QComboBox
+
+    NUM_SETTINGS_MM
+  };
+
+  enum BlenderRenControlTypeMM
+  {                                                          // Index
+      BLENDER_PATH_EDIT_MM,                                  // 00
+      ADD_ENVIRONMENT_BOX_MM     = BLENDER_PATH_EDIT_MM,     // 00
+      FRAMES_PER_STEP_EDIT       = BLENDER_PATH_EDIT_MM,     // 00
+      CHOSEN_LOGO_COMBO          = BLENDER_PATH_EDIT_MM,     // 00
+      BLEND_FILE_TRUSTED_BOX_MM,                             // 01
+      GAP_SCALE_EDIT             = BLEND_FILE_TRUSTED_BOX_MM,// 01
+      COLOUR_SCHEME_COMBO_MM     = BLEND_FILE_TRUSTED_BOX_MM,// 01
+      CROP_IMAGE_BOX_MM,                                     // 02
+      IMPORT_SCALE_EDIT          = CROP_IMAGE_BOX_MM,        // 02
+      GAP_SCALE_STRATEGY_COMBO   = CROP_IMAGE_BOX_MM,        // 02
+      DISPLAY_LOGO_BOX,                                      // 03
+      MERGE_DISTANCE_EDIT        = DISPLAY_LOGO_BOX,         // 03
+      GAP_TARGET_COMBO           = DISPLAY_LOGO_BOX,         // 03
+      IMPORT_CAMERAS_BOX_MM,                                 // 04
+      RENDER_PERCENTAGE_EDIT_MM  = IMPORT_CAMERAS_BOX_MM,    // 04
+      RESOLUTION_COMBO_MM        = IMPORT_CAMERAS_BOX_MM,    // 04
+      IMPORT_EDGES_BOX,                                      // 05
+      RESOLUTION_WIDTH_EDIT      = IMPORT_EDGES_BOX,         // 05
+      SMOOTH_TYPE_COMBO          = IMPORT_EDGES_BOX,         // 05
+      COMBO_BOX_ITEMS_MM         = IMPORT_EDGES_BOX,         // 05
+      IMPORT_LIGHTS_BOX_MM,                                  // 06
+      RESOLUTION_HEIGHT_EDIT    = IMPORT_LIGHTS_BOX_MM,     // 06
+      KEEP_ASPECT_RATIO_BOX_MM,                              // 07
+      STARTING_STEP_FRAME_EDIT   = KEEP_ASPECT_RATIO_BOX_MM, // 07
+      LINE_EDIT_ITEMS_MM         = KEEP_ASPECT_RATIO_BOX_MM, // 07
+      MAKE_GAPS_BOX,                                         // 08
+      META_BFC_BOX,                                          // 09
+      META_CLEAR_BOX,                                        // 10
+      META_GROUP_BOX,                                        // 11
+      META_PAUSE_BOX,                                        // 12
+      META_PRINT_WRITE_BOX,                                  // 13
+      META_SAVE_BOX,                                         // 14
+      META_STEP_BOX,                                         // 15
+      META_STEP_GROUPS_BOX,                                  // 16
+      NO_STUDS_BOX,                                          // 17
+      OVERWRITE_IMAGE_BOX_MM,                                // 18
+      PARENT_TO_EMPTY_BOX,                                   // 19
+      PREFER_STUDIO_BOX,                                     // 20
+      PREFER_UNOFFICIAL_BOX,                                 // 21
+      PRESERVE_HIERARCHY_BOX,                                // 22
+      PROFILE_BOX,                                           // 23
+      RECALCULATE_NORMALS_BOX,                               // 24
+      REMOVE_DOUBLES_BOX_MM,                                 // 25
+      RENDER_WINDOW_BOX_MM,                                  // 26
+      SEARCH_ADDL_PATHS_MM_BOX,                              // 27
+      SETEND_FRAME_BOX,                                      // 28
+      SET_TIMELINE_MARKERS_BOX,                              // 29
+      SHADE_SMOOTH_BOX,                                      // 30
+      TRANSPARENT_BACKGROUND_BOX_MM,                         // 31
+      TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,               // 32
+      TREAT_SHORTCUT_AS_MODEL_BOX,                           // 33
+      TRIANGULATE_BOX,                                       // 34
+      USE_ARCHIVE_LIBRARY_BOX_MM,                            // 35
+      USE_FREESTYLE_EDGES_BOX,                               // 36
+      VERBOSE_BOX_MM                                         // 37
   };
 
   enum BlenderRenBrickType
@@ -2506,42 +2635,52 @@ private:
       QString tooltip;
   };
 
+  struct BlenderPaths
+  {
+      QString key;
+      QString key_mm;
+      QString value;
+      QString label;
+      QString tooltip;
+  };
+
   struct ComboOptItems
   {
       QString data;
       QString items;
   };
 
+  static BlenderPaths blenderPaths [];
+  static BlenderPaths defaultPaths [];
   static BlenderSettings blenderSettings [];
+  static BlenderSettings blenderSettingsMM [];
   static BlenderSettings defaultSettings [];
-  static BlenderSettings blenderPaths [];
-  static BlenderSettings defaultPaths [];
+  static BlenderSettings defaultSettingsMM [];
   static ComboOptItems comboOptItems [];
+  static ComboOptItems comboOptItemsMM [];
 
-  static bool    dialogCancelled;
-  static bool    documentRender;
+  static qreal   mScale;
+  static bool    mDialogCancelled;
+  static bool    mDocumentRender;
   static QString blenderVersion;
   static QString blenderAddonVersion;
-  static QString searchDirectoriesKey;
-  static QString parameterFileKey;
 
   QAction     *defaultColourEditAction;
   QPushButton *blenderAddonUpdateButton;
+  QPushButton *blenderAddonStdOutButton;
   QPushButton *pathsGroupButton;
 
-  QList<QLabel *> settingLabelList;
-  QList<QLineEdit   *> sizeLineEditList;
   QList<QLineEdit   *> pathLineEditList;
   QList<QPushButton *> pathBrowseButtonList;
-  QList<QCheckBox *> checkBoxList;
-  QList<QLineEdit *> lineEditList;
-  QList<QComboBox *> comboBoxList;
+  QList<QLabel      *> settingLabelList;
+  QList<QCheckBox   *> checkBoxList;
+  QList<QLineEdit   *> lineEditList;
+  QList<QComboBox   *> comboBoxList;
 
   bool mBlenderConfigured;
   bool mBlenderAddonUpdate;
   int mWidth;
   int mHeight;
-  qreal mScale;
 };
 
 extern class BlenderRenderDialogGui *blenderRenderDialog;

@@ -138,6 +138,8 @@ class Preferences
     static void setSceneGuideColorPreference(QString);
     static void setBlenderExePathPreference(QString);
     static void setBlenderVersionPreference(QString);
+    static void setBlenderLDrawConfigPreference(QString);
+    static void setBlenderImportModule(QString);
 
     static void setInitFadeSteps();
     static void setInitHighlightStep();
@@ -244,8 +246,9 @@ class Preferences
     static QString ldrawColourPartsFile;
 
     static QString blenderVersion;
-    static QString blenderRenderConfigFile;
-    static QString blenderDocumentConfigFile;
+    static QString blenderLDrawConfigFile;
+    static QString blenderPreferencesFile;
+    static QString blenderImportModule;
     static QString blenderExe;
 
     static QString blCodesFile;

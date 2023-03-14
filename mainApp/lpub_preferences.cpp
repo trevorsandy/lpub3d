@@ -326,8 +326,9 @@ QString Preferences::systemEditor;
 QString Preferences::currentLibrarySave         = EMPTY_STRING_DEFAULT;
 
 QString Preferences::blenderVersion;
-QString Preferences::blenderRenderConfigFile;
-QString Preferences::blenderDocumentConfigFile;
+QString Preferences::blenderLDrawConfigFile;
+QString Preferences::blenderPreferencesFile;
+QString Preferences::blenderImportModule        = DEFAULT_BLENDER_IMPORT_MODULE;
 QString Preferences::blenderExe;
 
 QStringList Preferences::ldSearchDirs;
@@ -2742,38 +2743,38 @@ void Preferences::rendererPreferences()
     updatePOVRayConfFile(SkipExisting);
     updatePOVRayIniFile(SkipExisting);
 
-    // Blender config files
+    // Blender config file path
     QString const blenderConfigDir = QString("%1/Blender/config").arg(lpub3d3rdPartyConfigDir);
 
-    // Individual render config file
-    QString const blenderRenderConfigFileKey("BlenderConfigFile");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey))) {
-        blenderRenderConfigFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE);
-        if (QFileInfo(blenderRenderConfigFile).exists())
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey),QVariant(blenderRenderConfigFile));
+    // Blender LDraw config file
+    QString const blenderLDrawConfigFileKey("BlenderLDrawConfigFile");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey))) {
+        blenderLDrawConfigFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE);
+        if (QFileInfo(blenderLDrawConfigFile).exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey),QVariant(blenderLDrawConfigFile));
         else
-            blenderRenderConfigFile.clear();
+            blenderLDrawConfigFile.clear();
     } else {
-        blenderRenderConfigFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey)).toString();
-        if (!QFileInfo(blenderRenderConfigFile).exists()) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey));
-            blenderRenderConfigFile.clear();
+        blenderLDrawConfigFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey)).toString();
+        if (!QFileInfo(blenderLDrawConfigFile).exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey));
+            blenderLDrawConfigFile.clear();
         }
     }
 
     // Document render config file
-    QString const blenderDocumentConfigFileKey("BlenderConfigFile");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey))) {
-        blenderDocumentConfigFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE);
-        if (QFileInfo(blenderDocumentConfigFile).exists())
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey),QVariant(blenderDocumentConfigFile));
+    QString const blenderPreferencesFileKey("BlenderPreferencesFile");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey))) {
+        blenderPreferencesFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE);
+        if (QFileInfo(blenderPreferencesFile).exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey),QVariant(blenderPreferencesFile));
         else
-            blenderDocumentConfigFile.clear();
+            blenderPreferencesFile.clear();
     } else {
-        blenderDocumentConfigFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey)).toString();
-        if (!QFileInfo(blenderDocumentConfigFile).exists()) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey));
-            blenderDocumentConfigFile.clear();
+        blenderPreferencesFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey)).toString();
+        if (!QFileInfo(blenderPreferencesFile).exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey));
+            blenderPreferencesFile.clear();
         }
     }
 
@@ -2800,7 +2801,7 @@ void Preferences::rendererPreferences()
 
     // Blender version
     QString const blenderVersionKey("BlenderVersion");
-    if (blenderInstalled && !blenderRenderConfigFile.isEmpty()){
+    if (blenderInstalled && !blenderLDrawConfigFile.isEmpty()) {
         if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
             blenderVersion = Settings.value(QString("%1/%2").arg(SETTINGS,blenderVersionKey)).toString();
             logInfo() << QString("Blender version: %1").arg(blenderVersion);
@@ -2810,6 +2811,19 @@ void Preferences::rendererPreferences()
     } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
         blenderVersion.clear();
+    }
+
+    // Blender import module
+    QString const blenderImportModuleKey("BlenderImportModule");
+    if (blenderInstalled && !blenderLDrawConfigFile.isEmpty()) {
+        if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey)))
+            blenderImportModule = Settings.value(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey)).toString();
+        else
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey),QVariant(blenderImportModule));
+        logInfo() << QString("Blender import module: %1").arg(blenderImportModule);
+    } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey))) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
+        blenderImportModule.clear();
     }
 
     // Populate POVRay Library paths
@@ -4327,25 +4341,49 @@ void Preferences::setSceneGuideColorPreference(QString s)
 void Preferences::setBlenderExePathPreference(QString s)
 {
   QSettings Settings;
-  blenderExe = s;
-  QVariant uValue(s);
+  blenderInstalled = true;
+  if (!QFileInfo(s).exists())
+      blenderInstalled = false;
+  else
+      blenderExe = QDir::toNativeSeparators(s);
   QString const blenderExeKey("BlenderExeFile");
   if (blenderExe.isEmpty())
       Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
   else
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderExeKey),uValue);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderExeKey),QVariant(s));
 }
 
 void Preferences::setBlenderVersionPreference(QString s)
 {
     QSettings Settings;
     blenderVersion = s;
-    QVariant uValue(s);
     QString const blenderVersionKey("BlenderVersion");
-    if (blenderVersion.isEmpty())
+    if (s.isEmpty())
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderVersionKey));
     else
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),uValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),QVariant(s));
+}
+
+void Preferences::setBlenderLDrawConfigPreference(QString s)
+{
+    QSettings Settings;
+    blenderLDrawConfigFile = QDir::toNativeSeparators(s);
+    QString const blenderLDrawConfigKey("BlenderLDrawConfigFile");
+    if (s.isEmpty())
+        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey));
+    else
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey),QVariant(s));
+}
+
+void Preferences::setBlenderImportModule(QString s)
+{
+    QSettings Settings;
+    blenderImportModule = s;
+    QString const blenderImportModuleKey("BlenderImportModule");
+    if (s.isEmpty())
+        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
+    else
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey),QVariant(s));
 }
 
 void Preferences::removeBuildModFormatPreference(bool i)
