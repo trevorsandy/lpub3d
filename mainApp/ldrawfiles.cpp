@@ -359,9 +359,9 @@ void LDrawFile::insert(const QString &mcFileName,
   if (includeFile) {
       _includeFileList << fileName;
   } else {
-      _subFileOrder << fileName;
+      _subFileOrder << mcFileName;
       if (unofficialPart == UNOFFICIAL_SUBMODEL)
-          _subFileOrderNoUnoff << fileName;
+          _subFileOrderNoUnoff << mcFileName;
       if (unofficialPart > UNOFFICIAL_UNKNOWN)
           _hasUnofficialParts = true;
   }
@@ -389,7 +389,7 @@ int LDrawFile::loadedLines()
 {
   int lines = 0;
   for (int i = 0; i < _subFileOrder.size(); i++) {
-    QString subFileName = _subFileOrder[i];
+    QString subFileName = _subFileOrder.at(i).toLower();
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
 
     if (f != _subFiles.end() && ! f.value()._generated) {
@@ -405,7 +405,7 @@ int LDrawFile::loadedSteps()
 {
   int steps = 0;
   for (int i = 0; i < _subFileOrder.size(); i++) {
-    QString subFileName = _subFileOrder[i];
+    QString subFileName = _subFileOrder.at(i).toLower();
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
 
     if (f != _subFiles.end() && ! f.value()._generated) {
@@ -484,7 +484,7 @@ bool LDrawFile::isIncludeFile(const QString &name)
 QString LDrawFile::topLevelFile()
 {
   if (_subFileOrder.size()) {
-    return _subFileOrder[0];
+    return _subFileOrder.at(0).toLower();
   } else {
     return _emptyString;
   }
@@ -493,7 +493,7 @@ QString LDrawFile::topLevelFile()
 int LDrawFile::fileOrderIndex(const QString &file)
 {
   for (int i = 0; i < _subFileOrder.size(); i++) {
-    if (_subFileOrder[i].toLower() == file.toLower()) {
+    if (_subFileOrder.at(i).toLower() == file.toLower()) {
       return i;
     }
   }
@@ -538,7 +538,7 @@ bool LDrawFile::contains(const QString &file, bool searchAll)
 {
   if (searchAll)
       for (int i = 0; i < _subFileOrder.size(); i++) {
-        if (_subFileOrder[i].toLower() == file.toLower()) {
+        if (_subFileOrder.at(i).toLower() == file.toLower()) {
           return true;
         }
       }
@@ -708,7 +708,7 @@ QStringList LDrawFile::getSubModels()
 {
     QStringList subModel;
     for (int i = 0; i < _subFileOrder.size(); i++) {
-      QString modelName = _subFileOrder[i].toLower();
+      QString modelName = _subFileOrder.at(i).toLower();
       QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(modelName);
       if (it->_unofficialPart == UNOFFICIAL_SUBMODEL && !it->_generated) {
           subModel << modelName;
@@ -730,7 +730,7 @@ QStringList LDrawFile::getSubFilePaths()
 {
   QStringList subFilesPaths;
   for (int i = 0; i < _subFileOrder.size(); i++) {
-    QString filePath = getSubFilePath(_subFileOrder.at(i));
+    QString filePath = getSubFilePath(_subFileOrder.at(i).toLower());
     if (!filePath.isEmpty())
         subFilesPaths << filePath;
   }
@@ -891,7 +891,7 @@ QStringList LDrawFile::includeFileList() {
 QString LDrawFile::getSubmodelName(int submodelIndx)
 {
     if (submodelIndx > BM_INVALID_INDEX && submodelIndx < _subFileOrder.size())
-        return _subFileOrder.at(submodelIndx);
+        return _subFileOrder.at(submodelIndx).toLower();
     return QString();
 }
 
@@ -1837,7 +1837,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     hdrAuthorNotFound = true;
                     hdrFILENotFound   = false; /* we are at the beginning of an LDraw submodel */
                     modelHeaderFinished = false;
-                    subfileName = _fileRegExp[SOF_RX].cap(1).toLower();
+                    subfileName = _fileRegExp[SOF_RX].cap(1);
                 } else/*sosf*/ {
 
                     hdrNameNotFound = sosf = false;
@@ -2971,7 +2971,7 @@ void LDrawFile::countInstances(
 void LDrawFile::countInstances()
 {
   for (int i = 0; i < _subFileOrder.size(); i++) {
-    QString fileName = _subFileOrder[i].toLower();
+    QString fileName = _subFileOrder.at(i).toLower();
     QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(fileName);
     it->_instances = 0;
     it->_mirrorInstances = 0;

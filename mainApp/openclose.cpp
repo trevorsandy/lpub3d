@@ -736,7 +736,11 @@ bool Gui::saveFile(const QString &fileName)
   setCurrentFile(fileName);
   undoStack->setClean();
   if (rc) {
-    statusBar()->showMessage(tr("File %1 saved").arg(QFileInfo(fileName).fileName()), 2000);
+    int lines = lpub->ldrawFile.savedLines();
+    const QString message = tr("File %1 saved (%2 lines)")
+                                .arg(QFileInfo(fileName).fileName()).arg(lines);
+    emit lpub->messageSig(LOG_INFO, message);
+    statusBar()->showMessage(message, 2000);
   }
   return rc;
 }
@@ -1075,7 +1079,7 @@ void Gui::writeGeneratedColorPartsToTemp() {
   emit lpub->messageSig(LOG_INFO_STATUS, tr("Writing generated color parts to tmp folder..."));
   int count = 0;
   for (int i = 0; i < lpub->ldrawFile._subFileOrder.size(); i++) {
-    QString fileName = lpub->ldrawFile._subFileOrder[i];
+    QString fileName = lpub->ldrawFile._subFileOrder[i].toLower();
     if (LDrawColourParts::isLDrawColourPart(fileName)) {
       count++;
       lpub->ldrawFile.normalizeHeader(fileName);
