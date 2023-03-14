@@ -8866,7 +8866,7 @@ void BlenderRenderDialogGui::getRenderSettings(
 
     dialog->setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS,dialog->windowTitle()));
 
-    mBlenderConfigured = !Preferences::blenderExe.isEmpty() && !Preferences::blenderRenderConfigFile.isEmpty();
+    mBlenderConfigured = Preferences::blenderInstalled && !Preferences::blenderRenderConfigFile.isEmpty();
 
     loadSettings();
 
@@ -9367,7 +9367,7 @@ void BlenderRenderDialogGui::saveSettings()
     Settings.beginGroup(IMPORTLDRAW);
 
 //    label = "Parameter File Path";
-    value = QDir::toNativeSeparators(QString("%1/%2").arg(QFileInfo(blenderConfigFile).absolutePath()).arg(VER_BLENDER_PARAMS_FILE));
+    value = QDir::toNativeSeparators(QString("%1/%2").arg(QFileInfo(blenderConfigFile).absolutePath()).arg(VER_BLENDER_LDRAW_PARAMS_FILE));
     Settings.setValue(parameterFileKey, QVariant(value));
     if (!QFileInfo(value).exists())
         exportParameterFile();
@@ -10396,7 +10396,7 @@ void BlenderRenderDialogGui::loadDefaultParameters(QByteArray& Buffer, int Which
 bool BlenderRenderDialogGui::exportParameterFile(){
 
     QString const blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
-    QString parameterFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_PARAMS_FILE);
+    QString parameterFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
     QFile file(parameterFile);
 
     if (!overwriteFile(file.fileName()))

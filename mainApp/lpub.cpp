@@ -2732,12 +2732,27 @@ void Gui::editLdviewIni()
 void Gui::editBlenderParameters()
 {
     QString const blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
-    QFileInfo fileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_PARAMS_FILE));
-    if (!fileInfo.exists()) {
+
+    QString blenderConfigFile, titleLabel;
+    bool blenderParameters = sender() == getAct("editBlenderParametersAct.1");
+    bool blenderPreferences = sender() == getAct("editBlenderPreferencesAct.1");
+    if (blenderParameters) {
+        titleLabel = tr("LDraw Parameters");
+        blenderConfigFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
+    } else if (blenderPreferences) {
+        titleLabel = tr("Import and Render Preferences");
+        blenderConfigFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE);
+    }
+
+    QFileInfo fileInfo(blenderConfigFile);
+    if (blenderParameters && !fileInfo.exists()) {
         if (!BlenderRenderDialogGui::exportParameterFile()) {
             emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
+    } else if (blenderPreferences && !fileInfo.exists()) {
+        emit messageSig(LOG_ERROR, QString("File %1 was not found.").arg(fileInfo.absoluteFilePath()));
+        return;
     }
 
     if (Preferences::useSystemEditor) {
@@ -2749,8 +2764,9 @@ void Gui::editBlenderParameters()
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
-        parmsWindow->setWindowTitle(tr("Part Blender LDraw Parameters reference",
-                                       "Edit/add Part Blender LDraw Parameters reference"));
+        parmsWindow->setWindowTitle(tr("Blender %1",
+                                       "Edit/add Blender %1 settings")
+                                    .arg(titleLabel));
         parmsWindow->show();
     }
 }
@@ -5614,6 +5630,12 @@ void Gui::createActions()
     lpub->actions.insert(editLdviewPovIniAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDView POV File Generation Configuration File"), editLdviewPovIniAct));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
+    QAction *editBlenderPreferencesAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Blender Render Preferences"), this);
+    editBlenderPreferencesAct->setObjectName("editBlenderPreferencesAct.1");
+    editBlenderPreferencesAct->setStatusTip(tr("Add/Edit Blender LDraw import and image render preferences"));
+    lpub->actions.insert(editBlenderPreferencesAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Blender Render Preferences"), editBlenderPreferencesAct));
+    connect(editBlenderPreferencesAct, SIGNAL(triggered()), this, SLOT(editBlenderParameters()));
+
     QAction *editBlenderParametersAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Blender LDraw Parameters"), this);
     editBlenderParametersAct->setObjectName("editBlenderParametersAct.1");
     editBlenderParametersAct->setStatusTip(tr("Add/Edit LDraw Blender LDraw LGEO colours, sloped bricks and lighted bricks, reference"));
@@ -6404,6 +6426,7 @@ void Gui::enableActions()
   getAct("editLdviewIniAct.1")->setEnabled(true);
   getAct("editLdviewPovIniAct.1")->setEnabled(true);
   getAct("editBlenderParametersAct.1")->setEnabled(true);
+  getAct("editBlenderPreferencesAct.1")->setEnabled(true);
   getAct("editPovrayIniAct.1")->setEnabled(true);
   getAct("editPovrayConfAct.1")->setEnabled(true);
   getAct("editAnnotationStyleAct.1")->setEnabled(true);
@@ -6784,14 +6807,16 @@ void Gui::createMenus()
     editorMenu->addAction(getAct("editLD2RBColorsXRefAct.1"));
     editorMenu->addAction(getAct("editLD2RBCodesXRefAct.1"));
     editorMenu->addSeparator();
+    if (Preferences::blenderInstalled)
+        editorMenu->addAction(getAct("editBlenderParametersAct.1"));
+    if (Preferences::blenderInstalled && !Preferences::blenderRenderConfigFile.isEmpty())
+        editorMenu->addAction(getAct("editBlenderPreferencesAct.1"));
     editorMenu->addAction(getAct("editNativePOVIniAct.1"));
     editorMenu->addAction(getAct("editLdgliteIniAct.1"));
     editorMenu->addAction(getAct("editLdviewIniAct.1"));
     editorMenu->addAction(getAct("editLdviewPovIniAct.1"));
     editorMenu->addAction(getAct("editPovrayIniAct.1"));
     editorMenu->addAction(getAct("editPovrayConfAct.1"));
-    if (!Preferences::blenderExe.isEmpty())
-        editorMenu->addAction(getAct("editBlenderParametersAct.1"));
     editorMenu->addSeparator();
     editorMenu->addAction(getAct("openParameterFileFolderAct.1"));
     editorMenu->addSeparator();
@@ -7079,14 +7104,16 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(getAct("editLPub3DIniFileAct.1"));
     editParamsToolBar->addSeparator();
 #endif
+    if (!Preferences::blenderExe.isEmpty())
+        editParamsToolBar->addAction(getAct("editBlenderParametersAct.1"));
+    if (Preferences::blenderInstalled && !Preferences::blenderRenderConfigFile.isEmpty())
+        editParamsToolBar->addAction(getAct("editBlenderPreferencesAct.1"));
     editParamsToolBar->addAction(getAct("editNativePOVIniAct.1"));
     editParamsToolBar->addAction(getAct("editLdgliteIniAct.1"));
     editParamsToolBar->addAction(getAct("editLdviewIniAct.1"));
     editParamsToolBar->addAction(getAct("editLdviewPovIniAct.1"));
     editParamsToolBar->addAction(getAct("editPovrayIniAct.1"));
     editParamsToolBar->addAction(getAct("editPovrayConfAct.1"));
-    if (!Preferences::blenderExe.isEmpty())
-        editParamsToolBar->addAction(getAct("editBlenderParametersAct.1"));
     editParamsToolBar->addSeparator();
     editParamsToolBar->addAction(getAct("generateCustomColourPartsAct.1"));
     editParamsToolBar->addSeparator();
