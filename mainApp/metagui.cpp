@@ -6167,7 +6167,7 @@ PliPartElementGui::PliPartElementGui(
   }
 
   //PLIAnnotation
-  gbPliPartElement = new QGroupBox("Display Part Element Annotation",parent);
+  gbPliPartElement = new QGroupBox(tr("Display Part Element Annotation"),parent);
   gbPliPartElement->setCheckable(true);
   gbPliPartElement->setChecked(meta->display.value());
   gbPliPartElement->setLayout(hLayout);
@@ -6177,20 +6177,20 @@ PliPartElementGui::PliPartElementGui(
   connect(gbPliPartElement,SIGNAL(toggled(bool)),
           this,            SLOT(  gbToggled(bool)));
 
-  bricklinkElementsButton = new QRadioButton("BrickLink",gbPliPartElement);
-  bricklinkElementsButton->setToolTip("Use BrickLink element identification");
+  bricklinkElementsButton = new QRadioButton(tr("BrickLink"),gbPliPartElement);
+  bricklinkElementsButton->setToolTip(tr("Use BrickLink element identification"));
   connect(bricklinkElementsButton,SIGNAL(clicked(bool)),
           this,                   SLOT(  bricklinkElements(bool)));
   hLayout->addWidget(bricklinkElementsButton);
 
-  legoElementsButton = new QRadioButton("LEGO",gbPliPartElement);
-  legoElementsButton->setToolTip("Use LEGO element identification");
+  legoElementsButton = new QRadioButton(tr("LEGO"),gbPliPartElement);
+  legoElementsButton->setToolTip(tr("Use LEGO element identification"));
   connect(legoElementsButton,SIGNAL(clicked(bool)),
           this,              SLOT(  legoElements(bool)));
   hLayout->addWidget(legoElementsButton);
 
-  localLegoElementsCheck = new QCheckBox("Local",gbPliPartElement);
-  localLegoElementsCheck->setToolTip("Use local LEGO Elements file. Default uses BrickLink's LEGO Elements");
+  localLegoElementsCheck = new QCheckBox(tr("User Defined"),gbPliPartElement);
+  localLegoElementsCheck->setToolTip(tr("Use user-defined part element id file legoelements.lst."));
   connect(localLegoElementsCheck,SIGNAL(clicked(bool)),
           this,                  SLOT(  localLegoElements(bool)));
   hLayout->addWidget(localLegoElementsCheck);
@@ -6302,7 +6302,7 @@ PliAnnotationGui::PliAnnotationGui(
   }
 
   //PLI Annotation Source
-  gbPLIAnnotationSource = new QGroupBox(tr("Display %1 Annotation From Source").arg(bom ? "Bill Of Materials (BOM)" : "Part List (PLI)" ),parent);
+  gbPLIAnnotationSource = new QGroupBox(tr("Display %1 Annotation From Source").arg(bom ? tr("Bill Of Materials (BOM)") : tr("Part List (PLI)") ),parent);
   gbPLIAnnotationSource->setWhatsThis(lpubWT(WT_GUI_PART_ANNOTATIONS_SOURCE, gbPLIAnnotationSource->title()));
   gbPLIAnnotationSource->setCheckable(true);
   gbPLIAnnotationSource->setChecked(meta->display.value());
@@ -6315,9 +6315,9 @@ PliAnnotationGui::PliAnnotationGui(
 
   bool titleAndFreeForm = meta->titleAndFreeformAnnotation.value();
 
-  titleAnnotationCheck = new QCheckBox("Title",gbPLIAnnotationSource);
+  titleAnnotationCheck = new QCheckBox(tr("Title"),gbPLIAnnotationSource);
   titleAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->titleAnnotation.value());
-  titleAnnotationCheck->setToolTip("Extended background style shape annotations - user configurable");
+  titleAnnotationCheck->setToolTip(tr("Extended background style shape annotations - user configurable"));
   connect(titleAnnotationCheck,SIGNAL(clicked(bool)),
           this,                 SLOT(  titleAnnotation(bool)));
   connect(titleAnnotationCheck,SIGNAL(clicked()),
@@ -6326,9 +6326,9 @@ PliAnnotationGui::PliAnnotationGui(
           this,                 SLOT(  enableExtendedStyle()));
   hLayout->addWidget(titleAnnotationCheck);
 
-  freeformAnnotationCheck = new QCheckBox("Free Form",gbPLIAnnotationSource);
+  freeformAnnotationCheck = new QCheckBox(tr("Free Form"),gbPLIAnnotationSource);
   freeformAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->freeformAnnotation.value());
-  freeformAnnotationCheck->setToolTip("Extended background style shape annotations - user configurable");
+  freeformAnnotationCheck->setToolTip(tr("Extended background style shape annotations - user configurable"));
   connect(freeformAnnotationCheck,SIGNAL(clicked(bool)),
           this,                    SLOT(  freeformAnnotation(bool)));
   connect(freeformAnnotationCheck,SIGNAL(clicked()),
@@ -6337,9 +6337,9 @@ PliAnnotationGui::PliAnnotationGui(
           this,                    SLOT(  enableExtendedStyle()));
   hLayout->addWidget(freeformAnnotationCheck);
 
-  fixedAnnotationsCheck = new QCheckBox("Fixed",gbPLIAnnotationSource);
+  fixedAnnotationsCheck = new QCheckBox(tr("Fixed"),gbPLIAnnotationSource);
   fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
-  fixedAnnotationsCheck->setToolTip("Fixed background style shape annotations - axle, beam, cable, connector, hose and panel.");
+  fixedAnnotationsCheck->setToolTip(tr("Fixed background style shape annotations - axle, beam, cable, connector, hose and panel."));
   connect(fixedAnnotationsCheck,SIGNAL(clicked(bool)),
           this,                 SLOT(  fixedAnnotations(bool)));
   connect(fixedAnnotationsCheck,SIGNAL(clicked()),
@@ -6351,7 +6351,7 @@ PliAnnotationGui::PliAnnotationGui(
   WT_Type wtType = bom ? WT_GUI_PART_ANNOTATIONS_TYPE_BOM : WT_GUI_PART_ANNOTATIONS_TYPE_PLI;
 
   // PLI Annotation Display Options
-  gbPLIAnnotationType = new QGroupBox("Display Annotation Type",parent);
+  gbPLIAnnotationType = new QGroupBox(tr("Display Annotation Type"),parent);
   gbPLIAnnotationType->setWhatsThis(lpubWT(wtType, gbPLIAnnotationType->title()));
   QGridLayout *sgrid = new QGridLayout();
   gbPLIAnnotationType->setLayout(sgrid);
@@ -6362,65 +6362,65 @@ PliAnnotationGui::PliAnnotationGui(
   connect(gbPLIAnnotationType,SIGNAL(toggled(bool)),
           this,                SLOT(gbStyleToggled(bool)));
 
-  axleStyleCheck = new QCheckBox("Axles",gbPLIAnnotationType);
+  axleStyleCheck = new QCheckBox(tr("Axles"),gbPLIAnnotationType);
   axleStyleCheck->setChecked(meta->axleStyle.value());
   axleStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
-  axleStyleCheck->setToolTip("Fixed Axle annotation on circle background");
+  axleStyleCheck->setToolTip(tr("Fixed Axle annotation on circle background"));
   connect(axleStyleCheck,SIGNAL(clicked(bool)),
           this,          SLOT(  axleStyle(bool)));
   sgrid->addWidget(axleStyleCheck,0,0);
 
-  beamStyleCheck = new QCheckBox("Beams",gbPLIAnnotationType);
+  beamStyleCheck = new QCheckBox(tr("Beams"),gbPLIAnnotationType);
   beamStyleCheck->setChecked(meta->beamStyle.value());
   beamStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
-  beamStyleCheck->setToolTip("Fixed Beam annotation on square background");
+  beamStyleCheck->setToolTip(tr("Fixed Beam annotation on square background"));
   connect(beamStyleCheck,SIGNAL(clicked(bool)),
           this,          SLOT(  beamStyle(bool)));
   sgrid->addWidget(beamStyleCheck,0,1);
 
-  cableStyleCheck = new QCheckBox("Cables",gbPLIAnnotationType);
+  cableStyleCheck = new QCheckBox(tr("Cables"),gbPLIAnnotationType);
   cableStyleCheck->setChecked(meta->cableStyle.value());
   cableStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
-  cableStyleCheck->setToolTip("Fixed Cable annotation on square background");
+  cableStyleCheck->setToolTip(tr("Fixed Cable annotation on square background"));
   connect(cableStyleCheck,SIGNAL(clicked(bool)),
           this,           SLOT(  cableStyle(bool)));
   sgrid->addWidget(cableStyleCheck,0,2);
 
-  connectorStyleCheck = new QCheckBox("Connectors",gbPLIAnnotationType);
+  connectorStyleCheck = new QCheckBox(tr("Connectors"),gbPLIAnnotationType);
   connectorStyleCheck->setChecked(meta->connectorStyle.value());
   connectorStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
-  connectorStyleCheck->setToolTip("Fixed Connector annotation on square background");
+  connectorStyleCheck->setToolTip(tr("Fixed Connector annotation on square background"));
   connect(connectorStyleCheck,SIGNAL(clicked(bool)),
           this,               SLOT(  connectorStyle(bool)));
   sgrid->addWidget(connectorStyleCheck,0,3);
 
-  elementStyleCheck = new QCheckBox("Elements",gbPLIAnnotationType);
+  elementStyleCheck = new QCheckBox(tr("Elements"),gbPLIAnnotationType);
   elementStyleCheck->setChecked(meta->elementStyle.value());
-  elementStyleCheck->setToolTip("Fixed Part Element ID annotation on rectanglular background");
+  elementStyleCheck->setToolTip(tr("Fixed Part Element ID annotation on rectanglular background"));
   elementStyleCheck->setVisible(bom);
   connect(elementStyleCheck,SIGNAL(clicked(bool)),
           this,              SLOT(  elementStyle(bool)));
   sgrid->addWidget(elementStyleCheck,1,0);
 
-  hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationType);
+  hoseStyleCheck = new QCheckBox(tr("Hoses"),gbPLIAnnotationType);
   hoseStyleCheck->setChecked(meta->hoseStyle.value());
   hoseStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
-  hoseStyleCheck->setToolTip("Fixed Hose annotation on square background");
+  hoseStyleCheck->setToolTip(tr("Fixed Hose annotation on square background"));
   connect(hoseStyleCheck,SIGNAL(clicked(bool)),
           this,          SLOT(  hoseStyle(bool)));
   sgrid->addWidget(hoseStyleCheck,1,bom ? 1 : 0);
 
-  panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationType);
+  panelStyleCheck = new QCheckBox(tr("Panels"),gbPLIAnnotationType);
   panelStyleCheck->setChecked(meta->panelStyle.value());
   panelStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
-  panelStyleCheck->setToolTip("Fixed Panel annotation on circle background");
+  panelStyleCheck->setToolTip(tr("Fixed Panel annotation on circle background"));
   connect(panelStyleCheck,SIGNAL(clicked(bool)),
           this,           SLOT(  panelStyle(bool)));
   sgrid->addWidget(panelStyleCheck,1,bom ? 2 : 1);
 
-  extendedStyleCheck = new QCheckBox("Extended",gbPLIAnnotationType);
+  extendedStyleCheck = new QCheckBox(tr("Extended"),gbPLIAnnotationType);
   extendedStyleCheck->setChecked(meta->extendedStyle.value());
-  extendedStyleCheck->setToolTip("Title or Freeform annotation on rectanglular background");
+  extendedStyleCheck->setToolTip(tr("Title or Freeform annotation on rectanglular background"));
   connect(extendedStyleCheck,SIGNAL(clicked(bool)),
           this,              SLOT(  extendedStyle(bool)));
   sgrid->addWidget(extendedStyleCheck,1,bom ? 3 : 2);
@@ -6694,7 +6694,7 @@ CsiAnnotationGui::CsiAnnotationGui(
   QString fixedMessage;
   if (!fixedAnnotations)
       fixedMessage =
-              QString("Display Part List (PLI) Annotations 'Fixed Annotations' must be enabled to set this fixed annotaiton display");
+              tr("Display Part List (PLI) Annotations 'Fixed Annotations' must be enabled to set this fixed annotaiton display");
 
   QGridLayout *grid = new QGridLayout(parent);
 
@@ -6712,7 +6712,7 @@ CsiAnnotationGui::CsiAnnotationGui(
     }
 
   // CSI Annotation Display Options
-  gbCSIAnnotationType = new QGroupBox("Display Assembly (CSI) Part Annotation",parent);
+    gbCSIAnnotationType = new QGroupBox(tr("Display Assembly (CSI) Part Annotation"),parent);
   gbCSIAnnotationType->setWhatsThis(lpubWT(WT_GUI_ASSEM_ANNOTATION_TYPE, gbCSIAnnotationType->title()));
   gbCSIAnnotationType->setCheckable(true);
   gbCSIAnnotationType->setChecked(meta->display.value());
@@ -6722,57 +6722,57 @@ CsiAnnotationGui::CsiAnnotationGui(
   connect(gbCSIAnnotationType,SIGNAL(toggled(bool)),
           this,                  SLOT(  gbToggled(bool)));
 
-  axleDisplayCheck = new QCheckBox("Axles",gbCSIAnnotationType);
+  axleDisplayCheck = new QCheckBox(tr("Axles"),gbCSIAnnotationType);
   axleDisplayCheck->setChecked(meta->axleDisplay.value());
   axleDisplayCheck->setEnabled(fixedAnnotations);
-  axleDisplayCheck->setToolTip(fixedAnnotations ? "Display Axle annotation" : fixedMessage);
+  axleDisplayCheck->setToolTip(fixedAnnotations ? tr("Display Axle annotation") : fixedMessage);
   connect(axleDisplayCheck,SIGNAL(clicked(bool)),
           this,            SLOT(  axleDisplay(bool)));
   sgrid->addWidget(axleDisplayCheck,0,0);
 
-  beamDisplayCheck = new QCheckBox("Beams",gbCSIAnnotationType);
+  beamDisplayCheck = new QCheckBox(tr("Beams"),gbCSIAnnotationType);
   beamDisplayCheck->setChecked(meta->beamDisplay.value());
   beamDisplayCheck->setEnabled(fixedAnnotations);
-  beamDisplayCheck->setToolTip(fixedAnnotations ? "Display Beam annotation" : fixedMessage);
+  beamDisplayCheck->setToolTip(fixedAnnotations ? tr("Display Beam annotation") : fixedMessage);
   connect(beamDisplayCheck,SIGNAL(clicked(bool)),
           this,            SLOT(  beamDisplay(bool)));
   sgrid->addWidget(beamDisplayCheck,0,1);
 
-  cableDisplayCheck = new QCheckBox("Cables",gbCSIAnnotationType);
+  cableDisplayCheck = new QCheckBox(tr("Cables"),gbCSIAnnotationType);
   cableDisplayCheck->setChecked(meta->cableDisplay.value());
   cableDisplayCheck->setEnabled(fixedAnnotations);
-  cableDisplayCheck->setToolTip(fixedAnnotations ? "Display Cable annotation" : fixedMessage);
+  cableDisplayCheck->setToolTip(fixedAnnotations ? tr("Display Cable annotation") : fixedMessage);
   connect(cableDisplayCheck,SIGNAL(clicked(bool)),
           this,             SLOT(  cableDisplay(bool)));
   sgrid->addWidget(cableDisplayCheck,0,2);
 
-  connectorDisplayCheck = new QCheckBox("Connectors",gbCSIAnnotationType);
+  connectorDisplayCheck = new QCheckBox(tr("Connectors"),gbCSIAnnotationType);
   connectorDisplayCheck->setChecked(meta->connectorDisplay.value());
   connectorDisplayCheck->setEnabled(fixedAnnotations);
-  connectorDisplayCheck->setToolTip(fixedAnnotations ? "Display Connector annotation" : fixedMessage);
+  connectorDisplayCheck->setToolTip(fixedAnnotations ? tr("Display Connector annotation") : fixedMessage);
   connect(connectorDisplayCheck,SIGNAL(clicked(bool)),
           this,                 SLOT(  connectorDisplay(bool)));
   sgrid->addWidget(connectorDisplayCheck,0,3);
 
-  hoseDisplayCheck = new QCheckBox("Hoses",gbCSIAnnotationType);
+  hoseDisplayCheck = new QCheckBox(tr("Hoses"),gbCSIAnnotationType);
   hoseDisplayCheck->setChecked(meta->hoseDisplay.value());
   hoseDisplayCheck->setEnabled(fixedAnnotations);
-  hoseDisplayCheck->setToolTip(fixedAnnotations ? "Display Hose annotation" : fixedMessage);
+  hoseDisplayCheck->setToolTip(fixedAnnotations ? tr("Display Hose annotation") : fixedMessage);
   connect(hoseDisplayCheck,SIGNAL(clicked(bool)),
           this,            SLOT(  hoseDisplay(bool)));
   sgrid->addWidget(hoseDisplayCheck,1,0);
 
-  panelDisplayCheck = new QCheckBox("Panels",gbCSIAnnotationType);
+  panelDisplayCheck = new QCheckBox(tr("Panels"),gbCSIAnnotationType);
   panelDisplayCheck->setChecked(meta->panelDisplay.value());
   panelDisplayCheck->setEnabled(fixedAnnotations);
-  panelDisplayCheck->setToolTip(fixedAnnotations ? "Display Panel annotation" : fixedMessage);
+  panelDisplayCheck->setToolTip(fixedAnnotations ? tr("Display Panel annotation") : fixedMessage);
   connect(panelDisplayCheck,SIGNAL(clicked(bool)),
           this,             SLOT(  panelDisplay(bool)));
   sgrid->addWidget(panelDisplayCheck,1,1);
 
-  extendedDisplayCheck = new QCheckBox("Extended",gbCSIAnnotationType);
+  extendedDisplayCheck = new QCheckBox(tr("Extended"),gbCSIAnnotationType);
   extendedDisplayCheck->setChecked(meta->extendedDisplay.value());
-  extendedDisplayCheck->setToolTip("Display Title or Freeform annotation");
+  extendedDisplayCheck->setToolTip(tr("Display Title or Freeform annotation"));
   connect(extendedDisplayCheck,SIGNAL(clicked(bool)),
           this,                SLOT(  extendedDisplay(bool)));
   sgrid->addWidget(extendedDisplayCheck,1,2);
@@ -6787,7 +6787,7 @@ CsiAnnotationGui::CsiAnnotationGui(
   grid->addWidget(gbPlacement);
 
   placementButton = new QPushButton(placementButtonText,gbPlacement);
-  placementButton->setToolTip("Set annotation placement relative to CSI part");
+  placementButton->setToolTip(tr("Set annotation placement relative to CSI part"));
   connect(placementButton,SIGNAL(clicked(   bool)),
           this,           SLOT(  placementChanged(bool)));
   gLayout->addWidget(placementButton);
@@ -6932,7 +6932,7 @@ PageOrientationGui::PageOrientationGui(
   }
 
   /* page orientation */
-  portraitRadio = new QRadioButton("Portrait",parent);
+  portraitRadio = new QRadioButton(tr("Portrait"),parent);
   portraitRadio->setChecked(meta->value() == Portrait);
   connect(portraitRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  orientationChange(bool)));
@@ -6941,7 +6941,7 @@ PageOrientationGui::PageOrientationGui(
   else
     grid->addWidget(portraitRadio,1,0);
 
-  landscapeRadio    = new QRadioButton("Landscape",parent);
+  landscapeRadio    = new QRadioButton(tr("Landscape"),parent);
   landscapeRadio->setChecked(meta->value() == Landscape);
   connect(landscapeRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  orientationChange(bool)));
