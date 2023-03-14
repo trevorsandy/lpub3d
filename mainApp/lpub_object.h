@@ -137,7 +137,10 @@ public:
   static void loadBanner(const int &type);
 
   /// Download management calls
-  void downloadFile(QString URL, QString, bool promptRedirect = false);
+  void downloadFile(QString URL,
+                    QString,
+                    bool promptRedirect = false,
+                    bool showProgress = true);
   void startRequest(QUrl url);
   QByteArray getDownloadedFile() const
   {
@@ -257,6 +260,7 @@ signals:
 
 protected:
   /// Download management members
+  bool                   mShowProgress = true;
   QNetworkAccessManager* mHttpManager = nullptr;
   QNetworkReply*         mHttpReply = nullptr;
   QByteArray             mByteArray;

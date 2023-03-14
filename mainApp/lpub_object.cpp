@@ -1495,16 +1495,20 @@ void LPub::removeLPubFormatting(int option)
  *
  ***************************************************************************/
 
-void LPub::downloadFile(QString URL, QString title, bool promptRedirect)
+void LPub::downloadFile(QString URL, QString title, bool promptRedirect, bool showProgress)
 {
     mTitle = title;
+    mShowProgress = showProgress;
     mPromptRedirect = promptRedirect;
-    mProgressDialog = new QProgressDialog(nullptr);
-    connect(mProgressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
 
-    mProgressDialog->setWindowTitle(tr("Downloading"));
-    mProgressDialog->setLabelText(tr("Downloading %1").arg(mTitle));
-    mProgressDialog->show();
+    if (mShowProgress) {
+        mProgressDialog = new QProgressDialog(nullptr);
+        connect(mProgressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
+
+        mProgressDialog->setWindowTitle(tr("Downloading"));
+        mProgressDialog->setLabelText(tr("Downloading %1").arg(mTitle));
+        mProgressDialog->show();
+    }
 
     mHttpManager   = new QNetworkAccessManager(this);
 
@@ -1522,9 +1526,10 @@ void LPub::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
 {
     if (mHttpRequestAborted)
         return;
-
-    mProgressDialog->setMaximum(int(totalBytes));
-    mProgressDialog->setValue(int(bytesRead));
+    if (mShowProgress) {
+        mProgressDialog->setMaximum(int(totalBytes));
+        mProgressDialog->setValue(int(bytesRead));
+    }
 }
 
 void LPub::startRequest(QUrl url)
@@ -1555,18 +1560,22 @@ void LPub::httpDownloadFinished()
         mByteArray.clear();
         mHttpReply->deleteLater();
         mHttpReply = nullptr;
-        mProgressDialog->close();
+        if (mShowProgress)
+            mProgressDialog->close();
         return;
     }
 
     QString message;
+    QString const messageTitle = tr("%1 Download").arg(VER_PRODUCTNAME_STR);
     QVariant redirectionTarget = mHttpReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (mHttpReply->error()) {
         mByteArray.clear();
-        message = tr("%1 Download failed: %2.")
-                          .arg(mTitle).arg(mHttpReply->errorString());
+        message = tr("%1 download failed: %2.")
+                     .arg(mTitle).arg(mHttpReply->errorString());
+        if (message.endsWith("not found."))
+            message.append(tr("<br>Your internet connection may be interrupted."));
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QLatin1String(VER_PRODUCTNAME_STR),message);
+            QMessageBox::warning(nullptr, messageTitle, message);
         } else {
             logError() << message;
         }
@@ -1576,7 +1585,7 @@ void LPub::httpDownloadFinished()
         QUrl newUrl = mUrl.resolved(redirectionTarget.toUrl());
         bool proceedToRedirect = true;
         if (mPromptRedirect && Preferences::modeGUI) {
-            proceedToRedirect = QMessageBox::question(nullptr, tr("HTTP"),
+            proceedToRedirect = QMessageBox::question(nullptr, messageTitle,
                                               tr("Download redirect to %1 ?").arg(newUrl.toString()),
                                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
         } else {
@@ -1593,7 +1602,8 @@ void LPub::httpDownloadFinished()
         mByteArray = mHttpReply->readAll();
     }
 
-    mProgressDialog->close();
+    if (mShowProgress)
+        mProgressDialog->close();
 
     mHttpReply->deleteLater();
     mHttpReply = nullptr;
