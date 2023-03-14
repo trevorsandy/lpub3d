@@ -262,6 +262,7 @@ class LDrawFile {
     int                         _buildModPrevStepIndex;
     bool                        _mpd;
     static bool                 _helperPartsNotInArchive;
+    static int                  _savedLines;
     static int                  _emptyInt;
     static QList<QRegExp>       _fileRegExp;
 
@@ -329,6 +330,10 @@ class LDrawFile {
     static bool                 _loadBuildMods;
     static bool                 _loadUnofficialParts;
     static bool                 _hasUnofficialParts;
+
+    int savedLines() {
+      return _savedLines;
+    }
 
     int getUniquePartCount() {
       return _uniquePartCount;

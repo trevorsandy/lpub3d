@@ -165,6 +165,7 @@ QString LDrawFile::_author         = VER_PRODUCTNAME_STR;
 QString LDrawFile::_category       = "";
 int     LDrawFile::_emptyInt;
 int     LDrawFile::_partCount      = 0;
+int     LDrawFile::_savedLines     = 0;
 int     LDrawFile::_uniquePartCount= 0;
 bool    LDrawFile::_currFileIsUTF8 = false;
 bool    LDrawFile::_loadAborted    = false;
@@ -1654,7 +1655,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         // load LDCad groups
         if (!ldcadGroupsLoaded) {
-            if (smLine.contains(_fileRegExp[LDG_RX])){
+            if (smLine.contains(_fileRegExp[LDG_RX])) {
                 insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
                 insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
             } else if (smLine.contains("0 STEP") || smLine.contains("0 ROTSTEP")) {
@@ -1688,15 +1689,16 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         if ((sof || !hdrFILENotFound) && !modelHeaderFinished) {
             if (sof) {
+                hdrFILENotFound = false;        /* we have an LDraw submodel */
                 descriptionLine = lineIndx + 1; /* next line should be description */
+                if (!externalFile)
+                    modelHeaderFinished = false;/* set model header flag */
                 // One time populate top level file name
                 if (topFileNotFound) {
                     _file = _fileRegExp[SOF_RX].cap(1).replace("." + QFileInfo(_fileRegExp[SOF_RX].cap(1)).suffix(),"");
                     topFileNotFound = false;
-                    hdrFILENotFound = false;        /* we have an LDraw submodel */
                 }
-            } else
-            if (!sof) {
+            } else {
                 if (hdrDescNotFound && lineIndx == descriptionLine) {
                     if (smLine.contains(_fileRegExp[DES_RX]) && ! isHeader(smLine)) {
                         _description = QString(smLine).remove(0, 2);
@@ -1837,7 +1839,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     modelHeaderFinished = false;
                     subfileName = _fileRegExp[SOF_RX].cap(1).toLower();
                 } else/*sosf*/ {
-                    unofficialPart  = UNOFFICIAL_UNKNOWN;
+
                     hdrNameNotFound = sosf = false;
                     partHeaderFinished = false;
                     subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
@@ -1846,6 +1848,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (! alreadyLoaded) {
                     emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading MPD subfile '%1'...").arg(subfileName));
                 }
+                unofficialPart = UNOFFICIAL_UNKNOWN;
             } else if (eof || eosf) {
                 /* - at the end of submodel file or inline part
                 */
@@ -2514,6 +2517,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
 bool LDrawFile::saveFile(const QString &fileName)
 {
+    _savedLines = 0;
     QApplication::setOverrideCursor(Qt::WaitCursor);
     bool rc;
     if (isIncludeFile(fileName)) {
@@ -3240,19 +3244,23 @@ bool LDrawFile::saveModelFile(const QString &fileName)
     Gui::suspendFileDisplay = true;
     gui->deleteFinalModelStep();
 
-    bool unofficialPart, addFILEMeta;
+    bool newLineIinserted = false;
 
     QTextStream out(&file);
     out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
 
     for (int i = 0; i < _subFileOrder.size(); i++) {
 
-        QString subFileName = _subFileOrder[i];
-        QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
+        bool addFILEMeta = false;
+        bool omitNOFIlEMeta = false;
+        bool isModelHeader = true;
+        bool isLDCadContent = false;
+
+        QString subFileName = _subFileOrder.at(i);
+        QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName.toLower());
 
         if (f != _subFiles.end() && ! f.value()._generated) {
 
-            unofficialPart = f.value()._unofficialPart > UNOFFICIAL_SUBMODEL;
             addFILEMeta    = _mpd && !f.value()._includeFile;
 
             if (!f.value()._subFilePath.isEmpty()) {
@@ -3279,32 +3287,87 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                 out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
             }
 
-            if (addFILEMeta)
-              out << "0 FILE " << subFileName << lpub_endl;
+            if (addFILEMeta) {
+                out << "0 FILE " << subFileName << lpub_endl;
+                _savedLines++;
+            }
 
             for (int j = 0; j < f.value()._contents.size(); j++) {
 
+                _savedLines++;
+
+                bool insertNewLineBefore = false;
+                bool insertNewLineAfter = false;
+
                 QString line = f.value()._contents[j];
+
+                if (isModelHeader && line[0] == '0') {
+                    if (!isLDCadContent)
+                        isLDCadContent = line.contains(_fileRegExp[LDC_RX]);
+                } else if (line[0] != '0') {
+                    isModelHeader = false;
+                    if (isLDCadContent) {
+                        QStringList tokens;
+                        split(line,tokens);
+                        if (tokens.size() == 15 && contains(tokens.at(14)) && _subFileOrder.size() > i)
+                            omitNOFIlEMeta = tokens.at(14).toLower() == _subFileOrder.at(i+1).toLower();
+                    }
+                }
+
+                if (!newLineIinserted) {
+                    if (isLDCadContent) {
+                        QRegExp newLineBeforeRx("^\\s*0\\s+\\/\\/\\s*(Segments| Segment |Start cap |End cap |Fixed color segments)[^\n]*",Qt::CaseSensitive);
+                        insertNewLineBefore = line.contains(newLineBeforeRx) && (j ? !f.value()._contents.at(j-1).startsWith("0 //Segments",Qt::CaseSensitive) : true);
+                        if (!insertNewLineBefore) {
+                            QRegExp newLineAfterRx("^\\s*0\\s+\\/\\/\\s*( The path is approx | License: )[^\n]*",Qt::CaseSensitive);
+                            insertNewLineAfter  = line.startsWith("0 BFC ");
+                            insertNewLineAfter |= line.contains(newLineAfterRx);
+                        }
+                        _savedLines = insertNewLineBefore || insertNewLineAfter ? _savedLines++ : _savedLines;
+                    } else if (line.startsWith("0 !LICENSE ") && f.value()._contents.size() > j) {
+                        insertNewLineAfter |= f.value()._contents.at(j+1).startsWith("0 !LDCAD GENERATED ",Qt::CaseSensitive);
+                        _savedLines++;
+                    }
 /*
-                // this condition block adds a space after the folowing headers
-                if (unofficialPart                      &&
-                    (line.startsWith("0 !LICENSE ")     ||
-                     line.startsWith("0 BFC ")          ||
-                     line.startsWith("0 !HISTORY "))    &&
-                    (f.value()._contents.size() > (j+1) &&
-                     f.value()._contents[j+1] != "0"    &&
-                     f.value()._contents[j+1] != ""))
+                    // this condition block adds a space after the folowing headers
+                    else
+                    if (f.value()._unofficialPart > UNOFFICIAL_SUBMODEL &&
+                       (line.startsWith("0 !LICENSE ")                  ||
+                        line.startsWith("0 BFC ")                       ||
+                        line.startsWith("0 !HISTORY "))                 &&
+                       (f.value()._contents.size() > (j+1)              &&
+                        f.value()._contents[j+1] != "0"                 &&
+                        f.value()._contents[j+1] != ""))
+                    {
+                        insertNewLineAfter = true;
+                    }
+//*/
+                }
+
+                if (insertNewLineBefore)
+                {
+                    out << lpub_endl;
+                    out << line << lpub_endl;
+                }
+                else if (insertNewLineAfter)
                 {
                     out << line << lpub_endl;
                     out << lpub_endl;
                 }
                 else
-//*/
                     out << line << lpub_endl;
+
+                newLineIinserted = insertNewLineBefore || insertNewLineAfter;
             }
 
-            if (addFILEMeta)
-                out << "0 NOFILE" << lpub_endl;
+            if (addFILEMeta) {
+                if (!omitNOFIlEMeta) {
+                    out << "0 NOFILE" << lpub_endl;
+                    _savedLines++;
+                }
+                out << lpub_endl;
+                _savedLines++;
+            }
         }
     }
 
@@ -3343,6 +3406,7 @@ bool LDrawFile::saveIncludeFile(const QString &fileName){
 
         for (int j = 0; j < f.value()._contents.size(); j++) {
           out << f.value()._contents[j] << lpub_endl;
+          _savedLines++;
         }
 
         file.close();
@@ -5305,6 +5369,7 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
         << QRegExp("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$",Qt::CaseSensitive) //INC_RX
         << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseSensitive) //DES_RX
         << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) //LDG_RX
+        << QRegExp("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*") // LDC_RX
         ;
   }
 
