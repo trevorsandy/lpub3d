@@ -2514,102 +2514,105 @@ private:
     LBL_META_STEP_GROUPS,                    // 16 QCheckBox
     LBL_NO_STUDS,                            // 17 QCheckBox
     LBL_OVERWRITE_IMAGE_MM,                  // 18 QCheckBox
-    LBL_PARENT_TO_EMPTY,                     // 19 QCheckBox
-    LBL_PREFER_STUDIO,                       // 10 QCheckBox
-    LBL_PREFER_UNOFFICIAL,                   // 21 QCheckBox
-    LBL_PRESERVE_HIERARCHY,                  // 22 QCheckBox
-    LBL_PROFILE,                             // 23 QCheckBox
-    LBL_RECALCULATE_NORMALS,                 // 24 QCheckBox
-    LBL_REMOVE_DOUBLES_MM,                   // 25 QCheckBox
-    LBL_RENDER_WINDOW_MM,                    // 26 QCheckBox
-    LBL_SEARCH_ADDL_PATHS_MM,                // 27 QCheckBox
-    LBL_SETEND_FRAME,                        // 28 QCheckBox
-    LBL_SET_TIMELINE_MARKERS,                // 29 QCheckBox
-    LBL_SHADE_SMOOTH,                        // 20 QCheckBox
-    LBL_TRANSPARENT_BACKGROUND_MM,           // 31 QCheckBox
-    LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS, // 32 QCheckBox
-    LBL_TREAT_SHORTCUT_AS_MODEL,             // 33 QCheckBox
-    LBL_TRIANGULATE,                         // 34 QCheckBox
-    LBL_USE_ARCHIVE_LIBRARY_MM,              // 35 QCheckBox
-    LBL_USE_FREESTYLE_EDGES,                 // 36 QCheckBox
-    LBL_VERBOSE_MM,                          // 37 QLineEdit
+    LBL_POSITION_CAMERA_MM,                  // 19 QCheckBox
+    LBL_PARENT_TO_EMPTY,                     // 20 QCheckBox
+    LBL_PREFER_STUDIO,                       // 21 QCheckBox
+    LBL_PREFER_UNOFFICIAL,                   // 22 QCheckBox
+    LBL_PRESERVE_HIERARCHY,                  // 23 QCheckBox
+    LBL_PROFILE,                             // 24 QCheckBox
+    LBL_RECALCULATE_NORMALS,                 // 25 QCheckBox
+    LBL_REMOVE_DOUBLES_MM,                   // 26 QCheckBox
+    LBL_RENDER_WINDOW_MM,                    // 27 QCheckBox
+    LBL_SEARCH_ADDL_PATHS_MM,                // 28 QCheckBox
+    LBL_SETEND_FRAME,                        // 29 QCheckBox
+    LBL_SET_TIMELINE_MARKERS,                // 30 QCheckBox
+    LBL_SHADE_SMOOTH,                        // 31 QCheckBox
+    LBL_TRANSPARENT_BACKGROUND_MM,           // 32 QCheckBox
+    LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS, // 33 QCheckBox
+    LBL_TREAT_SHORTCUT_AS_MODEL,             // 34 QCheckBox
+    LBL_TRIANGULATE,                         // 35 QCheckBox
+    LBL_USE_ARCHIVE_LIBRARY_MM,              // 36 QCheckBox
+    LBL_USE_FREESTYLE_EDGES,                 // 37 QCheckBox
+    LBL_VERBOSE_MM,                          // 38 QLineEdit
 
-    LBL_FRAMES_PER_STEP,                     // 38/00 QLineEdit
-    LBL_GAP_SCALE,                           // 39/01 QLineEdit
-    LBL_IMPORT_SCALE,                        // 30/02 QLineEdit
-    LBL_MERGE_DISTANCE,                      // 41/03 QLineEdit
-    LBL_RENDER_PERCENTAGE_MM,                // 42/04 QLineEdit
-    LBL_RESOLUTION_WIDTH,                    // 43/05 QLineEdit
-    LBL_RESOLUTION_HEIGHT,                   // 44/06 QLineEdit
-    LBL_STARTING_STEP_FRAME,                 // 45/07 QLineEdit
+    LBL_CAMERA_BORDER_PERCENT_MM,            // 39/00 QLineEdit
+    LBL_FRAMES_PER_STEP,                     // 40/00 QLineEdit
+    LBL_GAP_SCALE,                           // 41/01 QLineEdit
+    LBL_IMPORT_SCALE,                        // 42/02 QLineEdit
+    LBL_MERGE_DISTANCE,                      // 43/03 QLineEdit
+    LBL_RENDER_PERCENTAGE_MM,                // 44/04 QLineEdit
+    LBL_RESOLUTION_WIDTH,                    // 45/05 QLineEdit
+    LBL_RESOLUTION_HEIGHT,                   // 46/06 QLineEdit
+    LBL_STARTING_STEP_FRAME,                 // 47/07 QLineEdit
 
-    LBL_CHOSEN_LOGO,                         // 46/00 QComboBox
-    LBL_COLOUR_SCHEME_MM,                    // 47/01 QComboBox
-    LBL_GAP_SCALE_STRATEGY,                  // 48/02 QComboBox
-    LBL_GAP_TARGET,                          // 49/03 QComboBox
-    LBL_RESOLUTION_MM,                       // 40/04 QComboBox
-    LBL_SMOOTH_TYPE,                         // 51/05 QComboBox
+    LBL_CHOSEN_LOGO,                         // 48/00 QComboBox
+    LBL_COLOUR_SCHEME_MM,                    // 49/01 QComboBox
+    LBL_GAP_SCALE_STRATEGY,                  // 50/02 QComboBox
+    LBL_GAP_TARGET,                          // 51/03 QComboBox
+    LBL_RESOLUTION_MM,                       // 52/04 QComboBox
+    LBL_SMOOTH_TYPE,                         // 53/05 QComboBox
 
     NUM_SETTINGS_MM
   };
 
   enum BlenderRenControlTypeMM
-  {                                                          // Index
-      BLENDER_PATH_EDIT_MM,                                  // 00
-      ADD_ENVIRONMENT_BOX_MM     = BLENDER_PATH_EDIT_MM,     // 00
-      FRAMES_PER_STEP_EDIT       = BLENDER_PATH_EDIT_MM,     // 00
-      CHOSEN_LOGO_COMBO          = BLENDER_PATH_EDIT_MM,     // 00
-      BLEND_FILE_TRUSTED_BOX_MM,                             // 01
-      GAP_SCALE_EDIT             = BLEND_FILE_TRUSTED_BOX_MM,// 01
-      COLOUR_SCHEME_COMBO_MM     = BLEND_FILE_TRUSTED_BOX_MM,// 01
-      CROP_IMAGE_BOX_MM,                                     // 02
-      IMPORT_SCALE_EDIT          = CROP_IMAGE_BOX_MM,        // 02
-      GAP_SCALE_STRATEGY_COMBO   = CROP_IMAGE_BOX_MM,        // 02
-      DISPLAY_LOGO_BOX,                                      // 03
-      MERGE_DISTANCE_EDIT        = DISPLAY_LOGO_BOX,         // 03
-      GAP_TARGET_COMBO           = DISPLAY_LOGO_BOX,         // 03
-      IMPORT_CAMERAS_BOX_MM,                                 // 04
-      RENDER_PERCENTAGE_EDIT_MM  = IMPORT_CAMERAS_BOX_MM,    // 04
-      RESOLUTION_COMBO_MM        = IMPORT_CAMERAS_BOX_MM,    // 04
-      IMPORT_EDGES_BOX,                                      // 05
-      RESOLUTION_WIDTH_EDIT      = IMPORT_EDGES_BOX,         // 05
-      SMOOTH_TYPE_COMBO          = IMPORT_EDGES_BOX,         // 05
-      COMBO_BOX_ITEMS_MM         = IMPORT_EDGES_BOX,         // 05
-      IMPORT_LIGHTS_BOX_MM,                                  // 06
-      RESOLUTION_HEIGHT_EDIT    = IMPORT_LIGHTS_BOX_MM,     // 06
-      KEEP_ASPECT_RATIO_BOX_MM,                              // 07
-      STARTING_STEP_FRAME_EDIT   = KEEP_ASPECT_RATIO_BOX_MM, // 07
-      LINE_EDIT_ITEMS_MM         = KEEP_ASPECT_RATIO_BOX_MM, // 07
-      MAKE_GAPS_BOX,                                         // 08
-      META_BFC_BOX,                                          // 09
-      META_CLEAR_BOX,                                        // 10
-      META_GROUP_BOX,                                        // 11
-      META_PAUSE_BOX,                                        // 12
-      META_PRINT_WRITE_BOX,                                  // 13
-      META_SAVE_BOX,                                         // 14
-      META_STEP_BOX,                                         // 15
-      META_STEP_GROUPS_BOX,                                  // 16
-      NO_STUDS_BOX,                                          // 17
-      OVERWRITE_IMAGE_BOX_MM,                                // 18
-      PARENT_TO_EMPTY_BOX,                                   // 19
-      PREFER_STUDIO_BOX,                                     // 20
-      PREFER_UNOFFICIAL_BOX,                                 // 21
-      PRESERVE_HIERARCHY_BOX,                                // 22
-      PROFILE_BOX,                                           // 23
-      RECALCULATE_NORMALS_BOX,                               // 24
-      REMOVE_DOUBLES_BOX_MM,                                 // 25
-      RENDER_WINDOW_BOX_MM,                                  // 26
-      SEARCH_ADDL_PATHS_MM_BOX,                              // 27
-      SETEND_FRAME_BOX,                                      // 28
-      SET_TIMELINE_MARKERS_BOX,                              // 29
-      SHADE_SMOOTH_BOX,                                      // 30
-      TRANSPARENT_BACKGROUND_BOX_MM,                         // 31
-      TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,               // 32
-      TREAT_SHORTCUT_AS_MODEL_BOX,                           // 33
-      TRIANGULATE_BOX,                                       // 34
-      USE_ARCHIVE_LIBRARY_BOX_MM,                            // 35
-      USE_FREESTYLE_EDGES_BOX,                               // 36
-      VERBOSE_BOX_MM                                         // 37
+  {                                                             // Index
+      BLENDER_PATH_EDIT_MM,                                     // 00
+      ADD_ENVIRONMENT_BOX_MM        = BLENDER_PATH_EDIT_MM,     // 00
+      CAMERA_BORDER_PERCENT_EDIT_MM = BLENDER_PATH_EDIT_MM,     // 00
+      CHOSEN_LOGO_COMBO             = BLENDER_PATH_EDIT_MM,     // 00
+      BLEND_FILE_TRUSTED_BOX_MM,                                // 01
+      FRAMES_PER_STEP_EDIT          = BLEND_FILE_TRUSTED_BOX_MM,// 01
+      COLOUR_SCHEME_COMBO_MM        = BLEND_FILE_TRUSTED_BOX_MM,// 01
+      CROP_IMAGE_BOX_MM,                                        // 02
+      GAP_SCALE_EDIT                = CROP_IMAGE_BOX_MM,        // 02
+      GAP_SCALE_STRATEGY_COMBO      = CROP_IMAGE_BOX_MM,        // 02
+      DISPLAY_LOGO_BOX,                                         // 03
+      IMPORT_SCALE_EDIT             = DISPLAY_LOGO_BOX,         // 03
+      GAP_TARGET_COMBO              = DISPLAY_LOGO_BOX,         // 03
+      IMPORT_CAMERAS_BOX_MM,                                    // 04
+      MERGE_DISTANCE_EDIT           = IMPORT_CAMERAS_BOX_MM,    // 04
+      RESOLUTION_COMBO_MM           = IMPORT_CAMERAS_BOX_MM,    // 04
+      IMPORT_EDGES_BOX,                                         // 05
+      RENDER_PERCENTAGE_EDIT_MM     = IMPORT_EDGES_BOX,         // 05
+      SMOOTH_TYPE_COMBO             = IMPORT_EDGES_BOX,         // 05
+      COMBO_BOX_ITEMS_MM            = IMPORT_EDGES_BOX,         // 05
+      IMPORT_LIGHTS_BOX_MM,                                     // 06
+      RESOLUTION_WIDTH_EDIT         = IMPORT_LIGHTS_BOX_MM,     // 06
+      KEEP_ASPECT_RATIO_BOX_MM,                                 // 07
+      RESOLUTION_HEIGHT_EDIT        = KEEP_ASPECT_RATIO_BOX_MM, // 07
+      MAKE_GAPS_BOX,                                            // 08
+      STARTING_STEP_FRAME_EDIT      = MAKE_GAPS_BOX,            // 08
+      LINE_EDIT_ITEMS_MM            = MAKE_GAPS_BOX,            // 08
+      META_BFC_BOX,                                             // 09
+      META_CLEAR_BOX,                                           // 10
+      META_GROUP_BOX,                                           // 11
+      META_PAUSE_BOX,                                           // 12
+      META_PRINT_WRITE_BOX,                                     // 13
+      META_SAVE_BOX,                                            // 14
+      META_STEP_BOX,                                            // 15
+      META_STEP_GROUPS_BOX,                                     // 16
+      NO_STUDS_BOX,                                             // 17
+      OVERWRITE_IMAGE_BOX_MM,                                   // 18
+      PARENT_TO_EMPTY_BOX,                                      // 19
+      PREFER_STUDIO_BOX,                                        // 20
+      PREFER_UNOFFICIAL_BOX,                                    // 21
+      PRESERVE_HIERARCHY_BOX,                                   // 22
+      PROFILE_BOX,                                              // 23
+      RECALCULATE_NORMALS_BOX,                                  // 24
+      REMOVE_DOUBLES_BOX_MM,                                    // 25
+      RENDER_WINDOW_BOX_MM,                                     // 26
+      SEARCH_ADDL_PATHS_MM_BOX,                                 // 27
+      SETEND_FRAME_BOX,                                         // 28
+      SET_TIMELINE_MARKERS_BOX,                                 // 29
+      SHADE_SMOOTH_BOX,                                         // 30
+      TRANSPARENT_BACKGROUND_BOX_MM,                            // 31
+      TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,                  // 32
+      TREAT_SHORTCUT_AS_MODEL_BOX,                              // 33
+      TRIANGULATE_BOX,                                          // 34
+      USE_ARCHIVE_LIBRARY_BOX_MM,                               // 35
+      USE_FREESTYLE_EDGES_BOX,                                  // 36
+      VERBOSE_BOX_MM                                            // 37
   };
 
   enum BlenderRenBrickType
