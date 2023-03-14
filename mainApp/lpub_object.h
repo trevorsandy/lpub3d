@@ -64,7 +64,9 @@ public:
 
   /// Process viewer key to return model, line number and step number
   static QStringList getViewerStepKeys(bool = true, bool = false, const QString & = "");
+  static bool extractStepKey(Where &, int &, const QString & = "");
 
+  /// Process specified path and return absolute path
   static QString getFilePath(const QString &fileName);
 
   /// Stud sytle and automated edge color setting calls
@@ -111,7 +113,6 @@ public:
   bool setHighlightStepFromCommand();
 
   /// Current step management calls
-  static bool extractStepKey(Where &, int &, const QString & = "");
   bool setCurrentStep(const QString & = "");
   void setCurrentStep(Step *, Where &, int, int = BM_SINGLE_STEP);
   void setCurrentStep(Step *);

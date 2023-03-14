@@ -5086,3 +5086,14 @@ float MetaDefaults::getSubmodelCameraLongitude()
 {
     return (float)Preferences::submodelCameraLongitude;
 }
+
+QString MetaDefaults::getDefaultCSIKeys()
+{
+    QString const keys = QString("0_1280_%1_%2_1_%3_%4_%5_0_0_0_0_0_0_REL")
+                                 .arg(double(resolution()))
+                                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                                 .arg(double(getCameraFOV()))
+                                 .arg(double(getAssemblyCameraLatitude()))
+                                 .arg(double(getAssemblyCameraLongitude()));
+    return keys;
+}

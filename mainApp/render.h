@@ -61,7 +61,7 @@ public:
   static int             executeLDViewProcess(QStringList &, Options::Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getRenderImageFile(int);
-  static QString const   getRenderModelFile(int);
+  static QString const   getRenderModelFile(int, bool = true);
   static float           getPovrayRenderCameraDistance(const QString &cdKeys);
   static void            showLdvExportSettings(int mode);
   static void            showLdvLDrawPreferences(int mode);

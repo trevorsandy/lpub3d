@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>908</width>
+    <width>882</width>
     <height>631</height>
    </rect>
   </property>
@@ -18,106 +18,202 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QGroupBox" name="SettingsGrpBox">
-       <property name="title">
-        <string/>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+    <widget class="QGroupBox" name="SettingsGroupBox">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QVBoxLayout" name="settingsGroupLayout">
+      <item>
+       <layout class="QHBoxLayout" name="inputLayout">
         <item>
-         <layout class="QHBoxLayout" name="outputLayout">
-          <item>
-           <widget class="QLabel" name="outputLabel">
-            <property name="text">
-             <string>Rendered Image:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="OutputEdit"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="OutputBrowseButton">
-            <property name="toolTip">
-             <string>Browse and select output file</string>
-            </property>
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="OutputLine">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="RenderSettingsButton">
-            <property name="text">
-             <string>Settings...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QLabel" name="InputLabel">
+          <property name="minimumSize">
+           <size>
+            <width>55</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Input File:</string>
+          </property>
+         </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="renderLayout">
-          <item>
-           <widget class="QProgressBar" name="RenderProgress">
-            <property name="maximum">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="TimeLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="RenderButton">
-            <property name="text">
-             <string>Render</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="ProgressLine">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="StandardOutButton">
-            <property name="toolTip">
-             <string>View render process standard output</string>
-            </property>
-            <property name="text">
-             <string>Output...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QLineEdit" name="InputEdit">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>LDraw file to be imported to Blender</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="InputBrowseButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Browse and select LDraw input file</string>
+          </property>
+          <property name="text">
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="InputLine">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="InputGenerateCheck">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Generate LDraw input file from current model or step</string>
+          </property>
+          <property name="text">
+           <string>Generate Model</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
-      </widget>
-     </item>
-    </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="outputLayout">
+        <item>
+         <widget class="QLabel" name="OutputLabel">
+          <property name="minimumSize">
+           <size>
+            <width>55</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Image File:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="OutputEdit">
+          <property name="toolTip">
+           <string>Output image rendered from Blender</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="OutputBrowseButton">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Browse and select output file</string>
+          </property>
+          <property name="text">
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="OutputLine">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="RenderSettingsButton">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Settings...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="renderLayout">
+        <item>
+         <widget class="QProgressBar" name="RenderProgress">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="RenderLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="RenderButton">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Render</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="RenderLine">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="RenderOutputButton">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>View render process standard output</string>
+          </property>
+          <property name="text">
+           <string>Output...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="preview">
@@ -138,9 +234,14 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>InputEdit</tabstop>
+  <tabstop>InputBrowseButton</tabstop>
+  <tabstop>InputGenerateCheck</tabstop>
   <tabstop>OutputEdit</tabstop>
   <tabstop>OutputBrowseButton</tabstop>
   <tabstop>RenderSettingsButton</tabstop>
+  <tabstop>RenderButton</tabstop>
+  <tabstop>RenderOutputButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

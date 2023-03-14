@@ -53,10 +53,13 @@ private slots:
     void reject();
     void on_RenderSettingsButton_clicked();
     void on_RenderButton_clicked();
+    void on_InputBrowseButton_clicked();
     void on_OutputBrowseButton_clicked();
-    void on_StandardOutButton_clicked();
-    void resetOutputEdit();
+    void on_RenderOutputButton_clicked();
+    void on_InputGenerateCheck_toggled();
+    void resetEdit();
     void enableReset(QString const &);
+    void validateInput();
     void Update();
 
 protected slots:
@@ -81,6 +84,7 @@ protected:
 //    QProcess* mProcess;
     RenderProcess* mProcess;
 #endif
+    QAction   *resetInputAct;
     QAction   *resetOutputAct;
 
     void* mOutputBuffer;
@@ -90,11 +94,13 @@ protected:
     QImage mImage;
     QString mViewerStepKey;
     QString mModelFile;
+    QString mImportModule;
 
     QStringList mCsiKeyList;
     QStringList mCsiKeyListData;
     QStringList mStdOutList;
 
+    bool mHaveKeys;
     bool mTransBackground;
     QVector<int> mBlenderVersion;
     int mWidth;

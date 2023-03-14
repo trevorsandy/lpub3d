@@ -1089,6 +1089,7 @@ public:
   }
 
   void writeSmiContent(QStringList *content, const QString &fileName);
+  QStringList getModelFileContent(QStringList *content, const QString &fileName);
   bool installRenderer(const int which);
 
   QString topLevelFile();

@@ -3963,7 +3963,7 @@ const QString Render::getRenderImageFile(int renderType)
 
 }
 
-const QString Render::getRenderModelFile(int renderType) {
+const QString Render::getRenderModelFile(int renderType, bool saveCurrentModel) {
 
     QString modelFile;
     QString filePath = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator();
@@ -3976,7 +3976,8 @@ const QString Render::getRenderModelFile(int renderType) {
 
         modelFile = QDir::toNativeSeparators(filePath + "csi_blender.ldr");
 
-        gui->saveCurrent3DViewerModel(modelFile);
+        if (saveCurrentModel)
+            gui->saveCurrent3DViewerModel(modelFile);
     }
     return modelFile;
 }

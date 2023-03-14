@@ -62,30 +62,52 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     mWidth      = RENDER_DEFAULT_WIDTH;
     mHeight     = RENDER_DEFAULT_HEIGHT;
 
+    mHaveKeys   = false;
+
     mViewerStepKey = lpub->viewerStepKey;
 
     ui->OutputEdit->setText(Render::getRenderImageFile(renderType));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
-    ui->StandardOutButton->setEnabled(false);
+    ui->RenderOutputButton->setEnabled(false);
 
     mCsiKeyList = QString(lpub->ldrawFile.getViewerConfigKey(mViewerStepKey).split(";").last()).split("_");
 
-    QString labelMessage = tr("Nothing to Render");
-
     Step *currentStep = lpub->currentStep;
 
-    bool haveKeys = true;
+    bool showInput = mRenderType == BLENDER_RENDER || mRenderType == POVRAY_RENDER;
+
+    ui->InputLabel->setVisible(showInput);
+    ui->InputEdit->setVisible(showInput);
+    ui->InputLine->setVisible(showInput);
+    ui->InputBrowseButton->setVisible(showInput);
+    ui->InputGenerateCheck->setVisible(showInput);
 
     // If the render dialog is launched from a blank/bom page, disable the controls
-    if (!currentStep || mCsiKeyList.isEmpty() || (mCsiKeyList.size() == 1 && mCsiKeyList.at(0) == "")) {
-        haveKeys = false;
+    if (mCsiKeyList.isEmpty() || (mCsiKeyList.size() == 1 && mCsiKeyList.at(0) == "")) {
         mCsiKeyList.clear();
         ui->OutputEdit->clear();
         ui->OutputEdit->setEnabled(false);
         ui->RenderSettingsButton->setEnabled(false);
         ui->RenderButton->setEnabled(false);
         ui->OutputBrowseButton->setEnabled(false);
+        ui->InputEdit->clear();
+    } else {
+        mHaveKeys = true;
     }
+
+    QString mn;
+    if (mHaveKeys && currentStep) {
+        bool const displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
+        mn = tr("STEP %1").arg(currentStep->stepNumber.number);
+        if (displayModel) {
+            mn = currentStep->topOfStep().modelName;
+            mn = mn.replace(mn.indexOf(mn.at(0)),1,mn.at(0).toUpper());
+        }
+    }
+
+    QString labelMessage = tr("Render image%1").arg(mn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mn));
+
+    ui->RenderLabel->setText(labelMessage);
 
     resetOutputAct = ui->OutputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     resetOutputAct->setText(tr("Reset"));
@@ -93,25 +115,35 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     connect(ui->OutputEdit, SIGNAL(textEdited(  QString const &)),
             this,           SLOT(  enableReset( QString const &)));
     connect(resetOutputAct, SIGNAL(triggered()),
-            this,           SLOT(  resetOutputEdit()));
+            this,           SLOT(  resetEdit()));
+
+    if (showInput) {
+        ui->InputGenerateCheck->setToolTip(tr("Generate LDraw input file (csi_blender.ldr)%1")
+                                               .arg(tr(" from %1").arg(mn)));
+        ui->InputEdit->setText(Render::getRenderModelFile(mRenderType, false/*save current model*/));
+        ui->InputEdit->setEnabled(false);
+        ui->InputBrowseButton->setEnabled(false);
+        resetInputAct = ui->InputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+        resetInputAct->setText(tr("Reset"));
+        resetInputAct->setEnabled(false);
+        connect(ui->InputEdit,  SIGNAL(textEdited(  QString const &)),
+                this,           SLOT(  enableReset( QString const &)));
+        connect(resetInputAct,  SIGNAL(triggered()),
+                this,           SLOT(  resetEdit()));
+
+        connect(ui->InputEdit,  SIGNAL(editingFinished()),
+                this,           SLOT(validateInput()));
+    }
 
     if (mRenderType == POVRAY_RENDER) {
 
+        setWindowTitle(tr("POV-Ray Image Render"));
+
         setWhatsThis(lpubWT(WT_DIALOG_POVRAY_RENDER,windowTitle()));
 
-        setWindowTitle(tr("POV-Ray Render"));
-
-        if (haveKeys) {
-            bool displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
-            labelMessage = tr("Preparing POV file for %1...")
-                              .arg(displayModel
-                                   ? currentStep->topOfStep().modelName
-                                   : tr(" step %1").arg(currentStep->stepNumber.number));
-        }
-
-        ui->TimeLabel->setText(labelMessage);
-
         ui->RenderSettingsButton->setToolTip(tr("POV-Ray render settings"));
+
+        ui->RenderButton->setEnabled(mHaveKeys);
 
         ui->RenderButton->setToolTip(tr("Render LDraw model"));
 
@@ -131,43 +163,38 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         bool blenderInstalled = !Preferences::blenderVersion.isEmpty();
 
-        ui->RenderButton->setEnabled(blenderInstalled && haveKeys);
+        ui->RenderButton->setEnabled(blenderInstalled && mHaveKeys);
 
         ui->RenderButton->setToolTip(blenderInstalled
                                         ? tr("Render LDraw model")
                                         : tr("Blender not configured. Click 'Settings' to configure."));
 
-        const QString importModule = Preferences::blenderImportModule == QLatin1String("TN")
-                                         ? tr("LDraw Import TN")
-                                         : Preferences::blenderImportModule == QLatin1String("MM")
-                                         ? tr("LDraw Import MM")
-                                         : "";
+        mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
+                      ? tr("LDraw Import TN")
+                      : Preferences::blenderImportModule == QLatin1String("MM")
+                      ? tr("LDraw Import MM")
+                      : "";
 
         if (mImportOnly) {
-            if (haveKeys) {
-                QString mn;
-                const bool displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
-                if (displayModel)
-                    mn = currentStep->topOfStep().modelName;
-                labelMessage = tr("Open <b>%1</b> in Blender using %2")
-                                  .arg(displayModel
-                                       ? mn.replace(mn.indexOf(mn.at(0)),1,mn.at(0).toUpper())
-                                       : tr(" STEP %1").arg(currentStep->stepNumber.number))
-                                   .arg(importModule);
-            }
+            labelMessage = tr("Open%1 in Blender using %2")
+                               .arg(mn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mn)).arg(mImportModule);
+
+            ui->InputLabel->setMinimumWidth(0);
+            ui->InputBrowseButton->setMinimumWidth(0);
+            ui->InputGenerateCheck->setMinimumWidth(0);
 
             ui->RenderButton->setText(tr("Open in Blender"));
             ui->RenderButton->setToolTip(tr("Import and open LDraw model in Blender"));
             ui->RenderSettingsButton->setToolTip(tr("Blender import settings"));
-            ui->TimeLabel->setText(labelMessage);
+            ui->RenderLabel->setText(labelMessage);
 
-            ui->outputLabel->hide();
+            ui->OutputLabel->hide();
             ui->OutputEdit->hide();
             ui->RenderProgress->hide();
             ui->OutputBrowseButton->hide();
-            ui->StandardOutButton->hide();
+            ui->RenderOutputButton->hide();
             ui->OutputLine->hide();
-            ui->ProgressLine->hide();
+            ui->RenderLine->hide();
         } else {
             ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
         }
@@ -237,6 +264,29 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
 void RenderDialog::on_RenderButton_clicked()
 {
+    std::function<QStringList()> getFileContent;
+    getFileContent = [&] ()
+    {
+        QStringList contents, fileContents;
+        QFile file(mModelFile);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            emit gui->messageSig(LOG_ERROR, QString("Cannot read external file %1<br>%2")
+                                                .arg(mModelFile)
+                                                .arg(file.errorString()));
+            return fileContents;
+        }
+
+        QTextStream in(&file);
+        while ( ! in.atEnd()) {
+            QString sLine = in.readLine(0);
+            contents << sLine.trimmed();
+        }
+        file.close();
+
+        fileContents = gui->getModelFileContent(&contents, QFileInfo(mModelFile).fileName());
+
+        return fileContents;
+    };
 
 #ifndef QT_NO_PROCESS
     if (mProcess)
@@ -245,7 +295,7 @@ void RenderDialog::on_RenderButton_clicked()
         return;
     }
 
-    ui->StandardOutButton->setEnabled(false);
+    ui->RenderOutputButton->setEnabled(false);
     mPreviewWidth  = ui->preview->width();
     mPreviewHeight = ui->preview->height();
 
@@ -255,25 +305,42 @@ void RenderDialog::on_RenderButton_clicked()
 
     mRenderTime.start();
 
-    QApplication::processEvents();
-
-    mModelFile = Render::getRenderModelFile(mRenderType);
-
     QString message;
 
     if (mRenderType == POVRAY_RENDER) {
 
         lpub->getAct("povrayRenderAct.4")->setEnabled(false);
 
-        ui->TimeLabel->setText(tr("Generating POV-Ray scene file..."));
+        ui->RenderLabel->setText(tr("Generating POV-Ray scene file..."));
+
         QApplication::processEvents();
 
+        mModelFile = Render::getRenderModelFile(mRenderType);
+
+        QString errorEncountered;
         QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerStepKey);
         if (csiParts.isEmpty())
         {
-            emit gui->messageSig(LOG_ERROR,tr("Did not receive CSI parts for %1.").arg(mViewerStepKey));
-            lpub->getAct("povrayRenderAct.4")->setEnabled(true);
-            return;
+            if (!ui->InputGenerateCheck->isChecked() && QFileInfo(mModelFile).exists()) {
+                csiParts = getFileContent();
+                if (csiParts.isEmpty())
+                    errorEncountered = tr("Could not get LDraw content for %1.").arg(mModelFile);
+            } else {
+                Where here;
+                int stepNumber = 0;
+                QString model;
+                if (lpub->extractStepKey(here, stepNumber))
+                    model = tr(" for %1%2")
+                               .arg(here.modelName)
+                               .arg(stepNumber ? QString(" STEP %1").arg(stepNumber) : "");
+                errorEncountered = tr("Could not find LDraw content%1.").arg(model);
+            }
+
+            if (!errorEncountered.isEmpty()) {
+                emit gui->messageSig(LOG_ERROR, errorEncountered);
+                lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+                return;
+            }
         }
 
         // Camera angle keys
@@ -454,13 +521,17 @@ void RenderDialog::on_RenderButton_clicked()
             emit gui->messageSig(LOG_ERROR, message);
             CloseProcess();
         }
+
     } else if (mRenderType == BLENDER_RENDER) {
 
         QString const option = mImportOnly ? tr("import") : tr("render");
 
-        ui->TimeLabel->setText(tr("Saving Blender %1 model...").arg(option));
+        ui->RenderLabel->setText(tr("Saving Blender %1 model...").arg(option));
 
         QApplication::processEvents();
+
+        if (ui->InputGenerateCheck->isChecked())
+            mModelFile = Render::getRenderModelFile(mRenderType);
 
         mBlendProgValue = 0;
         mBlendProgMax   = 0;
@@ -472,6 +543,7 @@ void RenderDialog::on_RenderButton_clicked()
                 .arg(Preferences::lpub3d3rdPartyConfigDir)
                 .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
+        int renderPercentage = mHaveKeys ? qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100) : 100;
 
         QString message;
         QStringList Arguments;
@@ -482,7 +554,7 @@ void RenderDialog::on_RenderButton_clicked()
                                         "render_percentage=%3, model_file=r'%4', "
                                         "image_file=r'%5', preferences_file=r'%6'")
                                 .arg(mWidth).arg(mHeight)
-                                .arg(qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100))
+                                .arg(renderPercentage)
                                 .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"))
                                 .arg(QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\"))
                                 .arg(QDir::toNativeSeparators(Preferences::blenderLDrawConfigFile).replace("\\","\\\\")));
@@ -614,7 +686,7 @@ void RenderDialog::on_RenderButton_clicked()
         {
             ui->RenderButton->setText(tr("Cancel"));
             ui->RenderProgress->setValue(ui->RenderProgress->minimum());
-            ui->TimeLabel->setText(tr("Loading LDraw model... %1")
+            ui->RenderLabel->setText(tr("Loading LDraw model... %1")
                                       .arg(gui->elapsedTime(mRenderTime.elapsed())));
             QApplication::processEvents();
             emit gui->messageSig(LOG_INFO, tr("Blender render process [%1] running...").arg(mProcess->processId()));
@@ -750,7 +822,7 @@ void RenderDialog::WriteStdOut()
             Out << Line;
         file.close();
         if (mStdOutList.size())
-            ui->StandardOutButton->setEnabled(true);
+            ui->RenderOutputButton->setEnabled(true);
     }
     else
     {
@@ -847,7 +919,7 @@ void RenderDialog::ShowResult()
     {
         emit gui->messageSig(LOG_NOTICE, tr("Render failed. See %1 for details.")
                                             .arg(GetLogFileName(false/*stdOut*/)));
-        ui->TimeLabel->setText(tr("Image generation failed."));
+        ui->RenderLabel->setText(tr("Image generation failed."));
         ui->RenderProgress->setRange(0,1);
         ui->RenderProgress->setValue(0);
         QMessageBoxResizable box;
@@ -930,8 +1002,8 @@ void RenderDialog::ShowResult()
     QString imageType = mRenderType == BLENDER_RENDER ? QLatin1String("Blender") : QLatin1String("POV-Ray");
 
     if (!Success) {
-        ui->TimeLabel->setStyleSheet("QLabel { color : red; }");
-        ui->TimeLabel->setText(tr("Image render failed."));
+        ui->RenderLabel->setStyleSheet("QLabel { color : red; }");
+        ui->RenderLabel->setText(tr("Image render failed."));
     }
 
     WriteStdOut();
@@ -969,7 +1041,7 @@ void RenderDialog::UpdateElapsedTime()
         QString const renderType = mBlenderVersion[0] == 3
                 ? QLatin1String("Samples")
                 : QLatin1String("Tiles");
-        ui->TimeLabel->setText(tr("%1: %2/%3, %4")
+        ui->RenderLabel->setText(tr("%1: %2/%3, %4")
                                   .arg(renderType)
                                   .arg(mBlendProgValue)
                                   .arg(mBlendProgMax)
@@ -1023,9 +1095,9 @@ bool RenderDialog::PromptCancel()
             CloseProcess();
             if (mStdOutList.size()){
                 WriteStdOut();
-                ui->StandardOutButton->setEnabled(true);
+                ui->RenderOutputButton->setEnabled(true);
             }
-            ui->TimeLabel->setText(tr("Tiles: %1/%2, Render Cancelled.")
+            ui->RenderLabel->setText(tr("Tiles: %1/%2, Render Cancelled.")
                                       .arg(mBlendProgValue)
                                       .arg(mBlendProgMax));
         }
@@ -1043,21 +1115,50 @@ void RenderDialog::reject()
         QDialog::reject();
 }
 
+void RenderDialog::on_InputBrowseButton_clicked()
+{
+    mModelFile = QFileDialog::getSaveFileName(this, tr("Select LDraw Input File"), ui->InputEdit->text(), tr("Supported LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+
+    if (!QFileInfo(mModelFile).exists())
+        ui->InputEdit->setText(QDir::toNativeSeparators(mModelFile));
+}
+
 void RenderDialog::on_OutputBrowseButton_clicked()
 {
-    QString Result = QFileDialog::getSaveFileName(this, tr("Select Output File"), ui->OutputEdit->text(), tr("Supported Image Files (*.bmp *.png *.jpg);;BMP Files (*.bmp);;PNG Files (*.png);;JPEG Files (*.jpg);;All Files (*.*)"));
+    QString Result = QFileDialog::getSaveFileName(this, tr("Select Image Output File"), ui->OutputEdit->text(), tr("Supported Image Files (*.bmp *.png *.jpg);;BMP Files (*.bmp);;PNG Files (*.png);;JPEG Files (*.jpg);;All Files (*.*)"));
 
-    if (!Result.isEmpty())
+    if (!Result.isEmpty()) {
         ui->OutputEdit->setText(QDir::toNativeSeparators(Result));
+        validateInput();
+    }
+}
+
+void RenderDialog::on_InputGenerateCheck_toggled()
+{
+    bool const generageModelFile = ui->InputGenerateCheck->isChecked();
+    ui->InputEdit->setEnabled(!generageModelFile);
+    ui->InputBrowseButton->setEnabled(!generageModelFile);
+    if (generageModelFile) {
+        mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
+        ui->InputEdit->setText(mModelFile);
+    } else {
+        ui->InputEdit->clear();
+        ui->InputEdit->setPlaceholderText(tr("Enter LDraw file"));
+    }
 }
 
 void RenderDialog::enableReset(const QString &displayText)
 {
+  mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
+
   if (sender() == ui->OutputEdit)
-    resetOutputAct->setEnabled(displayText != Render::getRenderImageFile(mRenderType));
+        resetOutputAct->setEnabled(QDir::toNativeSeparators(displayText.toLower()) != mModelFile.toLower());
+
+  if (sender() == ui->InputEdit)
+    resetInputAct->setEnabled(QDir::toNativeSeparators(displayText.toLower()) != mModelFile.toLower());
 }
 
-void RenderDialog::resetOutputEdit()
+void RenderDialog::resetEdit()
 {
     if (sender() == resetOutputAct) {
         resetOutputAct->setEnabled(false);
@@ -1065,13 +1166,55 @@ void RenderDialog::resetOutputEdit()
         ui->OutputEdit->setText(Render::getRenderImageFile(mRenderType));
         ui->RenderProgress->setRange(0,1);
         ui->RenderProgress->setValue(0);
-        ui->TimeLabel->setText(QString());
-        ui->StandardOutButton->setEnabled(false);
+        ui->RenderLabel->setText(QString());
+        ui->RenderOutputButton->setEnabled(false);
         if (mRenderType == BLENDER_RENDER ) {
             ui->preview->hide();
             adjustSize();
             setMinimumWidth(int(ui->preview->geometry().width()/*mWidth*/));
         }
+    }
+
+    if (sender() == resetInputAct) {
+        mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
+        ui->InputEdit->setText(mModelFile);
+        ui->InputEdit->setEnabled(false);
+        ui->InputGenerateCheck->setChecked(true);
+        ui->InputBrowseButton->setEnabled(false);
+    }
+}
+
+void RenderDialog::validateInput()
+{
+    mModelFile = QDir::toNativeSeparators(ui->InputEdit->text());
+    QFileInfo fileInfo(mModelFile);
+
+    if (!fileInfo.exists()) {
+        mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
+        emit gui->messageSig(LOG_WARNING, tr("Input file %1 was not found. Using default.").arg(mModelFile), true/*show message*/);
+        ui->InputEdit->setText(mModelFile);
+        ui->InputEdit->setEnabled(false);
+        ui->InputGenerateCheck->setChecked(true);
+        ui->InputBrowseButton->setEnabled(false);
+    } else {
+        QString mn = fileInfo.fileName(), labelMessage;
+        mn = mn.replace(mn.indexOf(mn.at(0)),1,mn.at(0).toUpper());
+        if (mImportOnly)
+            labelMessage = tr("Open%1 in Blender using %2")
+                               .arg(mn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mn)).arg(mImportModule);
+        else
+            labelMessage = tr("Render image%1").arg(mn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mn));
+        ui->RenderLabel->setText(labelMessage);
+    }
+
+    if (!mHaveKeys) {
+        mCsiKeyList = MetaDefaults::getDefaultCSIKeys().split("_");
+        mHaveKeys = true;
+        ui->OutputEdit->clear();
+        ui->OutputEdit->setEnabled(true);
+        ui->RenderSettingsButton->setEnabled(true);
+        ui->RenderButton->setEnabled(true);
+        ui->OutputBrowseButton->setEnabled(true);
     }
 }
 
@@ -1091,7 +1234,7 @@ RenderProcess::~RenderProcess(){
     }
 }
 
-void RenderDialog::on_StandardOutButton_clicked()
+void RenderDialog::on_RenderOutputButton_clicked()
 {
     QString renderType = mRenderType == POVRAY_RENDER ? QLatin1String("POV-Ray") : QLatin1String("Blender");
     QFileInfo fileInfo(GetLogFileName(true/*stdOut*/));

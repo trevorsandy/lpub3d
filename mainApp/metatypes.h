@@ -879,6 +879,7 @@ public:
   static float getSubmodelCameraLatitude();
   static QString getPreferredRenderer();
   static QString getPreferredUnits();
+  static QString getDefaultCSIKeys();
 };
 
 // testing and diagnostics only

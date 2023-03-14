@@ -858,14 +858,14 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
       }
 
       stepNumber = 0;
-      if (lpub->page.modelDisplayOnlyStep) {
+      if (lpub->page.modelDisplayOnlyStep || lpub->page.subModel.viewerSubmodel) {
           stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
       } else {
           stepNumber = keyArgs[2].toInt(&ok[1]);
       }
       if (!ok[1]) {
-          emit lpub->messageSig(LOG_NOTICE,tr("Step number is not an integer [%1]").arg(keyArgs[2]));
-          return false;
+          emit lpub->messageSig(LOG_WARNING,tr("Step number is not an integer [%1]. Using 0").arg(keyArgs[2]), true);
+          stepNumber = 0;
       }
 
 //      if (Preferences::debugLogging) {
