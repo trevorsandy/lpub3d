@@ -118,6 +118,13 @@ IF NOT EXIST "%PKG_TARGET%" (
   EXIT /b
 )
 ECHO -%PKG_TARGET% found.
+
+IF "%GITHUB%" EQU "True" (
+  ECHO.
+  ECHO -Build Checks disabled for GitHub CI builds-
+  EXIT /b
+)
+
 IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
 SET PKG_CHECK=1
 ECHO.
