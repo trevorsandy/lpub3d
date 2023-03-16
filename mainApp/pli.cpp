@@ -2684,10 +2684,8 @@ int Pli::partSizeLDViewSCall() {
                         // create a DAT files to feed the renderer
                         part.setFileName(ldrName);
                         if ( ! part.open(QIODevice::WriteOnly)) {
-                            QMessageBox::critical(nullptr,QObject::tr(VER_PRODUCTNAME_STR),
-                                                  QObject::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
-                                                  .arg(ldrName)
-                                                  .arg(part.errorString()));
+                            emit gui->messageSig(LOG_ERROR,QObject::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
+                                                                       .arg(ldrName).arg(part.errorString()));
                             return -1;
                         }
 
@@ -4299,8 +4297,8 @@ void AnnotateTextItem::scaleDownFont() {
       scaleDownFont();
     }
 
-    emit gui->messageSig(LOG_INFO,QMessageBox::tr("PLI annotation font size was adjusted from %1 to %2.")
-                                                  .arg(saveFontSizeF).arg(font.pointSizeF()));
+    emit gui->messageSig(LOG_INFO,QObject::tr("PLI annotation font size was adjusted from %1 to %2.")
+                                              .arg(saveFontSizeF).arg(font.pointSizeF()));
   }
 }
 

@@ -306,14 +306,15 @@ void Downloader::finished()
  */
 void Downloader::openDownload()
 {
-    if (!m_fileName.isEmpty())
-        // LPub3D Mod
+    // LPub3D Mod
+    QString message;
+    if (!m_fileName.isEmpty()) {
         if (m_portableDistro) {
             // Automatically extract portable distribution
             QEventLoop  *wait   = new QEventLoop();
             QString newarchive  = m_downloadDir.filePath (m_fileName);
             QString destination = QDir::toNativeSeparators(tr("%1").arg(m_extractPath));
-            QString message     = tr("Extracting %1. Please wait...")
+            message             = tr("Extracting %1. Please wait...")
                                      .arg(QFileInfo(newarchive).fileName());
             emit lpub->messageSig(LOG_STATUS,message);
 
@@ -380,13 +381,11 @@ void Downloader::openDownload()
             QDesktopServices::openUrl (QUrl::fromLocalFile (m_downloadDir.filePath (
                                                                 m_fileName)));
         }
-        // Mod End
-    else {
-        QMessageBox::critical (this,
-                               tr ("Error"),
-                               tr ("Cannot find downloaded update!"),
-                               QMessageBox::Close);
+    } else {
+        message = tr ("Cannot find downloaded update!");
+        emit lpub->messageSig(LOG_ERROR,message);
     }
+    // Mod End
 }
 
 /**

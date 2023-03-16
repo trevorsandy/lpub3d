@@ -540,8 +540,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 																		 .arg(RenderName));
 					QFile file(OutfileName);
 					if ( ! file.open(QFile::WriteOnly | QFile::Text))
-						QMessageBox::critical(parent, tr("Error"), tr("Cannot open Visual Editor file %1 for writing: %2")
-											  .arg(OutfileName) .arg(file.errorString()));
+						emit lpub->messageSig(LOG_ERROR,tr("Cannot open Visual Editor file %1 for writing: %2")
+														   .arg(OutfileName) .arg(file.errorString()));
 					QTextStream out(&file);
 					for (int i = 0; i < Content.size(); i++) {
 						QString line = Content[i];
@@ -561,7 +561,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		if (!File.open(QIODevice::ReadOnly))
 		{
 			if (ShowErrors)
-				QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
+				emit lpub->messageSig(LOG_ERROR,tr("Error opening model file '%1':<br>%2")
+												   .arg(FileName,File.errorString()));
 			return false;
 		}
 
@@ -585,7 +586,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			{
 				if (ShowErrors)
 /*** LPub3D Mod - viewer step key ***/
-					QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for step key '%1'.").arg(StepKey));
+					emit lpub->messageSig(LOG_ERROR,tr("Did not receive file name for step key '%1'.").arg(StepKey));
 /*** LPub3D Mod end ***/
 				return false;
 			}
@@ -602,7 +603,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		if (Content.isEmpty())
 		{
 			if (ShowErrors)
-				QMessageBox::critical(parent, tr("Error"), tr("Did not receive content for %1.").arg(FileName));
+				emit lpub->messageSig(LOG_ERROR,tr("Did not receive content for %1.").arg(FileName));
 			return false;
 		}
 
@@ -614,7 +615,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	else
 	{
 		if (ShowErrors)
-			QMessageBox::critical(parent, tr("Error"), tr("Error accessing model data - no valid input"));
+			emit lpub->messageSig(LOG_ERROR,tr("Error accessing model data - no valid input"));
 	}
 
 	mModels.DeleteAll();

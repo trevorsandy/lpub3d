@@ -3069,11 +3069,8 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
             // open file for read
             QFile file(fileName);
             if (!file.open(QFile::ReadOnly | QFile::Text)) {
-                QMessageBox::critical(nullptr,
-                                      QMessageBox::tr("Detached LDraw Editor"),
-                                      QMessageBox::tr("Cannot read editor display file %1:\n%2.")
-                                      .arg(file.fileName())
-                                      .arg(file.errorString()));
+                emit gui->messageSig(LOG_ERROR,QString("Cannot read editor display file %1:\n%2.")
+                                                       .arg(file.fileName()).arg(file.errorString()));
                 return 1;
             }
 
