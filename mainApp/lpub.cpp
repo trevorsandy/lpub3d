@@ -2651,7 +2651,7 @@ void Gui::editLPub3DIniFile()
     fileExt = "ini";
     if (Preferences::portableDistribution)
         lpubConfigFile = QString("%1/config/%2/%3.%4")
-                                 .arg(Preferences::lpub3dPath)
+                                 .arg(Preferences::lpubDataPath)
                                  .arg(companyName)
                                  .arg(Preferences::lpub3dAppName).arg(fileExt);
 #elif defined Q_OS_MACOS
