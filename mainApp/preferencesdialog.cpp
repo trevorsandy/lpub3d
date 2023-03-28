@@ -457,17 +457,28 @@ void PreferencesDialog::setPreferences()
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
-  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
+  QString fadeColorName;
   if(fadeColor.isValid() ) {
+      fadeColorName = fadeColor.name(QColor::HexRgb).toUpper();
       ui.fadeStepsColourLabel->setAutoFillBackground(true);
       QString styleSheet =
-              QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
               .arg(fadeColor.red())
               .arg(fadeColor.green())
               .arg(fadeColor.blue());
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+      ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
   }
+
+  int fadeColorIndex = ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour);
+  if (fadeColorIndex == -1) {
+      if (!fadeColorName.isEmpty()) {
+          ui.fadeStepsColoursCombo->addItem(fadeColorName);
+          fadeColorIndex = ui.fadeStepsColoursCombo->findText(fadeColorName);
+      }
+  }
+  ui.fadeStepsColoursCombo->setCurrentIndex(fadeColorIndex);
 
   ui.highlightStepGrpBox->setChecked(            Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
@@ -483,6 +494,7 @@ void PreferencesDialog::setPreferences()
             .arg(highlightColour.green())
             .arg(highlightColour.blue());
     ui.highlightStepColorLabel->setStyleSheet(styleSheet);
+    ui.highlightStepColorLabel->setToolTip(tr("Hex RGB Value %1").arg(highlightColour.name(QColor::HexRgb).toUpper()));
   }
 
   // search directories
@@ -532,22 +544,27 @@ void PreferencesDialog::setPreferences()
   sceneBackgroundColorStr = Preferences::sceneBackgroundColor;
   colorPix.fill(QColor(sceneBackgroundColorStr));
   ui.sceneBackgroundColorButton->setIcon(colorPix);
+  ui.sceneBackgroundColorButton->setToolTip(tr("Set scene background color (%1)").arg(sceneBackgroundColorStr.toUpper()));
 
   sceneGridColorStr = Preferences::sceneGridColor;
   colorPix.fill(QColor(sceneGridColorStr));
   ui.sceneGridColorButton->setIcon(colorPix);
+  ui.sceneGridColorButton->setToolTip(tr("Set scene grid lines color (%1)").arg(sceneGridColorStr.toUpper()));
 
   sceneRulerTickColorStr = Preferences::sceneRulerTickColor;
   colorPix.fill(QColor(sceneRulerTickColorStr));
   ui.sceneRulerTickColorButton->setIcon(colorPix);
+  ui.sceneRulerTickColorButton->setToolTip(tr("Set ruler tick mark color (%1)").arg(sceneRulerTickColorStr.toUpper()));
 
   sceneRulerTrackingColorStr = Preferences::sceneRulerTrackingColor;
   colorPix.fill(QColor(sceneRulerTrackingColorStr));
   ui.sceneRulerTrackingColorButton->setIcon(colorPix);
+  ui.sceneRulerTrackingColorButton->setToolTip(tr("Set ruler tracking indicator color (%1)").arg(sceneRulerTrackingColorStr.toUpper()));
 
   sceneGuideColorStr = Preferences::sceneGuideColor;
   colorPix.fill(QColor(sceneGuideColorStr));
   ui.sceneGuideColorButton->setIcon(colorPix);
+  ui.sceneGuideColorButton->setToolTip(tr("Set scene guides line color (%1)").arg(sceneGuideColorStr.toUpper()));
 
   /* [Experimental] LDView Image Matting */
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
@@ -792,6 +809,10 @@ void PreferencesDialog::sceneColorButtonClicked()
 
     pix.fill(newColor);
     ((QToolButton*)button)->setIcon(pix);
+    QStringList toolTipList = ((QToolButton*)button)->toolTip().split(" ");
+    if (toolTipList.size())
+        toolTipList.replace(toolTipList.size() - 1, QString("(%1)").arg(newColor.name().toUpper()));
+    ((QToolButton*)button)->setToolTip(toolTipList.join(" "));
 }
 
 void PreferencesDialog::on_ldrawLibPathEdit_editingFinished()
@@ -1028,6 +1049,7 @@ void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QStri
           .arg(newFadeColor.green())
           .arg(newFadeColor.blue());
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+      ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(newFadeColor.name(QColor::HexRgb).toUpper()));
     }
 }
 
@@ -1035,6 +1057,7 @@ void PreferencesDialog::on_highlightStepBtn_clicked()
 {
   QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
   if(highlightColour.isValid()) {
+    QString highlightColourName = highlightColour.name().toUpper();
     ui.highlightStepColorLabel->setAutoFillBackground(true);
     QString styleSheet =
         QString("QLabel { background-color: rgb(%1, %2, %3); }")
@@ -1042,6 +1065,7 @@ void PreferencesDialog::on_highlightStepBtn_clicked()
         .arg(highlightColour.green())
         .arg(highlightColour.blue());
     ui.highlightStepColorLabel->setStyleSheet(styleSheet);
+    ui.highlightStepColorLabel->setToolTip(tr("Hex RGB Value %1").arg(highlightColourName));
   }
 }
 
@@ -2644,6 +2668,7 @@ void ThemeColorsDialog::toggleDefaultsTab()
                          .arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
             label->setAutoFillBackground(true);
             label->setStyleSheet(styleSheet);
+            label->setToolTip(tr("Hex RGB Value %1 Alpha %2").arg(color.name(QColor::HexRgb).toUpper()).arg(color.alpha()));
             gridLayout->addWidget(label,i,1);
 
             // default color hex (readOnly
