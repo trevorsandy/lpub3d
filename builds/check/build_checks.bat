@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 15, 2023
+rem  Last Update: March 16, 2023
 rem  Copyright (C) 2018 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -24,10 +24,10 @@ SET PKG_RUNLOG_FILE=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
 SET PKG_CHECK_FILE=%PKG_CHECK_DIR%\build_checks.mpd
 SET PKG_DUMP_FILE=%TEMP%\%PACKAGE%.dmp
 IF /I "%PKG_PLATFORM%"=="x86" (
-  SET PKG_PDB_FILE=mainApp\32bit_%CONFIGURATION%\%PACKAGE%.pdb
+  SET PKG_PDB_FILE=%ABS_WD%\mainApp\32bit_%CONFIGURATION%\%PACKAGE%.pdb
 ) ELSE (
   IF /I "%PKG_PLATFORM%"=="x86_64" (
-    SET PKG_PDB_FILE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%.pdb
+    SET PKG_PDB_FILE=%ABS_WD%\mainApp\64bit_%CONFIGURATION%\%PACKAGE%.pdb
   )
 )
 IF NOT EXIST "%PKG_PDB_FILE%" (
@@ -223,7 +223,7 @@ IF EXIST "%TEMP%\$\%bcc%" DEL /Q "%TEMP%\$\%bcc%"
 IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
 
 :PKG_START_COMMAND_AND_TIMER
->%t% @ECHO OFF ^&SETLOCAL
+>%t% @ECHO OFF
 >>%t% CALL %PKG_COMMAND% ^> %PKG_LOG_FILE% 2^>^&1
 IF NOT EXIST "%TEMP%\$\%bcc%" (
   ECHO.
@@ -232,12 +232,11 @@ IF NOT EXIST "%TEMP%\$\%bcc%" (
 )
 START /b "%PKG_DESCRIPTION%" CMD /c %TEMP%\$\%bcc%
 WAITFOR TwoSecondDelay /T 2 >NUL 2>&1
-IF EXIST "%PKG_LOG_FILE%" TYPE "%PKG_LOG_FILE%" && ECHO.
 CALL :PKG_CHECK_TIMER
 SETLOCAL ENABLEDELAYEDEXPANSION
 FOR %%R IN (%PKG_LOG_FILE%) DO (
   IF %%~zR LSS 1 SET EMPTY_LOG=True
-  IF [!EMPTY_LOG!] NEQ [] ECHO -ERROR - %PKG_DESCRIPTION% output log is empty && ECHO.
+  IF [!EMPTY_LOG!] NEQ [] ECHO  -ERROR - %PKG_DESCRIPTION% output log is empty
   CALL :GET_PKG_CHECK_RESULT !EMPTY_LOG!
   ECHO.
 )
