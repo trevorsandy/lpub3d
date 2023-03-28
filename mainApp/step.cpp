@@ -2223,33 +2223,107 @@ void Step::placeit(
   rotateIcon.loc[y]   = origins[rotateIcon.tbl[y]];
 
   switch (y) {
-    case XX:
-      if ( ! shared) {
-          pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-          if(placeSubModel){
-            subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
-          }
+  case XX:
+     if ( ! shared) {
+        pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+        if(placeSubModel) {
+           subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
         }
-      if(placeRotateIcon) {
-          rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-      }
-      stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
-      break;
-    case YY:
-      if ( ! shared) {
-          pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-          if(placeSubModel) {
-            subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
-          }
+     }
+     //if(placeRotateIcon) { // replaced with Justify outside placement below
+     //    rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+     //}
+     //stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+     break;
+  case YY:
+     if ( ! shared) {
+        pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+        if(placeSubModel) {
+           subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
         }
-      if(placeRotateIcon){
-          rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-      }
-      stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
-      break;
-    default:
-      break;
-    }
+     }
+     //if(placeRotateIcon) { // replaced with Justify outside placement below
+     //    rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+     //}
+     //stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+     break;
+  default:
+     break;
+  }
+
+  /* Justify outside placement: Start */
+  if ( shared) {
+     switch (pli.placement.value().relativeTo) {
+     case CsiType:
+        csiPlacement.justifyRelative(&pli);
+        break;
+     case SubModelType:
+        subModel.justifyRelative(&pli);
+        break;
+     case StepNumberType:
+        stepNumber.justifyRelative(&pli);
+        break;
+     case RotateIconType:
+        rotateIcon.justifyRelative(&pli);
+        break;
+     default:
+        break;
+     }
+     if(placeSubModel) {
+        switch (subModel.placement.value().relativeTo) {
+        case CsiType:
+           csiPlacement.justifyRelative(&subModel);
+           break;
+        case PartsListType:
+           pli.justifyRelative(&subModel);
+           break;
+        case StepNumberType:
+           stepNumber.justifyRelative(&subModel);
+           break;
+        case RotateIconType:
+           break;
+        default:
+           break;
+        }
+     }
+  }
+
+  if(placeRotateIcon) {
+     switch (rotateIcon.placement.value().relativeTo) {
+     case CsiType:
+        csiPlacement.justifyRelative(&rotateIcon);
+        break;
+     case PartsListType:
+        pli.justifyRelative(&rotateIcon);
+        break;
+     case SubModelType:
+        subModel.justifyRelative(&rotateIcon);
+        break;
+     case StepNumberType:
+        stepNumber.justifyRelative(&rotateIcon);
+        break;
+     default:
+        break;
+     }
+  }
+
+  switch (stepNumber.placement.value().relativeTo) {
+  case CsiType:
+     csiPlacement.justifyRelative(&stepNumber);
+     break;
+  case PartsListType:
+     pli.justifyRelative(&stepNumber);
+     break;
+  case SubModelType:
+     subModel.justifyRelative(&stepNumber);
+     break;
+  case RotateIconType:
+     rotateIcon.justifyRelative(&stepNumber);
+     break;
+  default:
+     break;
+  }
+  /* Justify outside placement: End */
 
   /* place the callouts that are relative to step components */
 
@@ -2505,7 +2579,7 @@ void Step::placeInside()
     }
 
   if (subModel.placement.value().preposition == Inside) {
-      switch (pli.placement.value().relativeTo) {
+      switch (subModel.placement.value().relativeTo) {
         case CsiType:
           csiPlacement.placeRelative(&subModel);
           break;
@@ -2525,7 +2599,7 @@ void Step::placeInside()
     }
 
   if (stepNumber.placement.value().preposition == Inside) {
-      switch (pli.placement.value().relativeTo) {
+      switch (stepNumber.placement.value().relativeTo) {
         case CsiType:
           csiPlacement.placeRelative(&stepNumber);
           break;
@@ -2546,7 +2620,7 @@ void Step::placeInside()
     }
 
   if (rotateIcon.placement.value().preposition == Inside) {
-      switch (pli.placement.value().relativeTo) {
+      switch (rotateIcon.placement.value().relativeTo) {
         case CsiType:
           csiPlacement.placeRelative(&rotateIcon);
           break;

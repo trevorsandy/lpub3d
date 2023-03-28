@@ -257,6 +257,14 @@ class Placement {
       int   them_size[2],
       int   lmargin[2]);
 
+    void justifyRelative(
+      Placement *them);
+
+    void justifyRelative(
+      Placement *them,
+      int   them_size[2],
+      int   lmargin[2]);
+
     void justifyX(
       int origin,
       int height);
@@ -264,7 +272,7 @@ class Placement {
     void justifyY(
       int origin,
       int height);
-      
+
     void calcOffsets(
       PlacementData &placementData,
       float offsets[2],

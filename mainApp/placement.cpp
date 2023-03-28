@@ -37,26 +37,26 @@
 
 // for debugging tables
 QString tblNames[] = {
-    "TblCo0 - 0 C0",   // Callout relative to StepNumber
-    "TblSn0 - 5 S0",   // StepNumber relative to CSI
-    "TblCo1 - 2 C1",   // Callout relative to RotateIcon
-    "TblRi0 - 3 R0",   // RotateIcon relative to CSI
-    "TblCo2 - 4 C2",   // Callout relative to Submodel
-    "TblSm0 - 1 M0",   // Submodel relative to CSI
-    "TblCo3 - 6 C3",   // Callout relative to PLI
-    "TblPli0 - 7 P0",  // Pli relative to CSI
-    "TblCo4 - 8 C4",   // Callout relative to CSI
-    "TblCsi - 9 A ",   // CSI
-    "TblCo5 - 10 C5",  // Callout relative to CSI
-    "TblPli1 - 11 P1", // Pli relative to CSI
-    "TblCo6 - 12 C6",  // Callout relative to PLI
-    "TblSm1 - 13 M1",  // Submodel relative to CSI
-    "TblCo7 - 14 C7",  // Callout relative to Submodel
-    "TblRi1 - 15 R1",  // RotateIcon relative to CSI
-    "TblCo8 - 16 C8",  // Callout relative to RotateIcon
-    "TblSn1 - 17 S1",  // StepNumber relative to CSI
-    "TblCo9 - 18 C9",  // Callout relative to StepNumber
-    "NumPlaces - 19"   //
+    "TblCo0  - 0 C0",   // Callout relative to StepNumber
+    "TblSn0  - 5 S0",   // StepNumber relative to CSI
+    "TblCo1  - 2 C1",   // Callout relative to RotateIcon
+    "TblRi0  - 3 R0",   // RotateIcon relative to CSI
+    "TblCo2  - 4 C2",   // Callout relative to Submodel
+    "TblSm0  - 1 M0",   // Submodel relative to CSI
+    "TblCo3  - 6 C3",   // Callout relative to PLI
+    "TblPli0 - 7 P0",   // Pli relative to CSI
+    "TblCo4  - 8 C4",   // Callout relative to CSI
+    "TblCsi  - 9 A ",   // CSI
+    "TblCo5  - 10 C5",  // Callout relative to CSI
+    "TblPli1 - 11 P1",  // Pli relative to CSI
+    "TblCo6  - 12 C6",  // Callout relative to PLI
+    "TblSm1  - 13 M1",  // Submodel relative to CSI
+    "TblCo7  - 14 C7",  // Callout relative to Submodel
+    "TblRi1  - 15 R1",  // RotateIcon relative to CSI
+    "TblCo8  - 16 C8",  // Callout relative to RotateIcon
+    "TblSn1  - 17 S1",  // StepNumber relative to CSI
+    "TblCo9  - 18 C9",  // Callout relative to StepNumber
+    "NumPlaces - 19"
 };
 
 void PlacementNum::sizeit()
@@ -527,8 +527,8 @@ void Placement::placeRelative(
   them->loc[YY] += int(size[YY] * them->placement.value().offsets[YY]);
 }
 
-void Placement::placeRelativeBounding(
-  Placement *them)
+void Placement::justifyRelative(
+    Placement *them)
 {
   int lmargin[2] = { them->margin.valuePixels(XX), them->margin.valuePixels(YY) };
   int margin2[2] = { margin.valuePixels(XX), margin.valuePixels(YY) };
@@ -537,15 +537,77 @@ void Placement::placeRelativeBounding(
     lmargin[i] = margin2[i] > lmargin[i] ? margin2[i] : lmargin[i];
   }
 
-  int bias[2];
+  justifyRelative(them,them->size,lmargin);
+}
 
-  bias[XX] = them->loc[XX] - them->boundingLoc[XX];
-  bias[YY] = them->loc[YY] - them->boundingLoc[YY];
+void Placement::justifyRelative(
+    Placement *them,
+    int   them_size[2],
+    int   lmargin[2])
+{
+  PlacementData placementData = them->placement.value();
 
-  placeRelative(them, them->boundingSize, lmargin);
-
-  them->loc[XX] += bias[XX];
-  them->loc[YY] += bias[YY];
+  if (placementData.preposition == Outside) {
+    switch (placementData.placement) {
+    case TopLeft:
+    case Left:
+    case BottomLeft:
+      them->loc[XX] = loc[XX] - (them_size[XX] + lmargin[XX]);
+      break;
+    case TopRight:
+    case Right:
+    case BottomRight:
+      them->loc[XX] = loc[XX] + size[XX] + lmargin[XX];
+      break;
+    case Top:
+    case Bottom:
+      them->loc[XX] = loc[XX];
+      switch (placementData.justification) {
+      case Center:
+          them->loc[XX] += (size[XX] - them_size[XX])/2;
+          break;
+      case Right:
+          them->loc[XX] += size[XX] - them_size[XX];
+          break;
+      default:
+          break;
+      }
+      break;
+    case Center:
+      them->loc[XX] = loc[XX];
+      break;
+    default:
+      break;
+    }
+    switch (placementData.placement) {
+    case TopLeft:
+    case Top:
+    case TopRight:
+      them->loc[YY] = loc[YY] - (them_size[YY] + lmargin[YY]);
+      break;
+    case BottomLeft:
+    case Bottom:
+    case BottomRight:
+      them->loc[YY] = loc[YY] + size[YY] + lmargin[YY];
+      break;
+    case Left:
+    case Right:
+      them->loc[YY] = loc[YY];
+      switch(placementData.justification) {
+      case Center:
+          them->loc[YY] += (size[YY] - them_size[YY])/2;
+          break;
+      case Bottom:
+          them->loc[YY] += size[YY] - them_size[YY];
+          break;
+      default:
+          break;
+      }
+      break;
+    default:
+      break;
+    }
+  }
 }
 
 void Placement::justifyX(
@@ -598,6 +660,27 @@ void Placement::justifyY(
     default:
     break;
   }
+}
+
+void Placement::placeRelativeBounding(
+    Placement *them)
+{
+  int lmargin[2] = { them->margin.valuePixels(XX), them->margin.valuePixels(YY) };
+  int margin2[2] = { margin.valuePixels(XX), margin.valuePixels(YY) };
+
+  for (int i = 0; i < 2; i++) {
+    lmargin[i] = margin2[i] > lmargin[i] ? margin2[i] : lmargin[i];
+  }
+
+  int bias[2];
+
+  bias[XX] = them->loc[XX] - them->boundingLoc[XX];
+  bias[YY] = them->loc[YY] - them->boundingLoc[YY];
+
+  placeRelative(them, them->boundingSize, lmargin);
+
+  them->loc[XX] += bias[XX];
+  them->loc[YY] += bias[YY];
 }
 
 void Placement::calcOffsets(

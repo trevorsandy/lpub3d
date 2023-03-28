@@ -1,4 +1,4 @@
-LPub3D 2.4.6.84.3195 (28 03 2023 18:28:30)
+LPub3D 2.4.6.85.3196 (28 03 2023 18:28:51)
 
 Features, enhancements, fixes and changes
 ------------
@@ -22,6 +22,8 @@ Revisions:
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on insert BOM without a preceding STEP command #670
 - Fix - Crash when 'Treat as Part' is activated #672
+- Fix - Fade previous steps project global setup disabled on initial load #688
+- Fix - Justify outside placement #690
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
 - Fix - Persistent data directory installation folder message #687
