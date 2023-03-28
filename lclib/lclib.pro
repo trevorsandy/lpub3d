@@ -58,8 +58,9 @@ win32-msvc* {
 }
 
 # The ABI version.
-VER_MAJ = 21
-VER_MIN = 6
+# REMINDER: Update LC_LIB = LC233 in mainApp.pro on version change
+VER_MAJ = 23
+VER_MIN = 3
 VER_PAT = 0
 VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build

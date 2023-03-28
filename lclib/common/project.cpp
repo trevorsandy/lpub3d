@@ -1722,9 +1722,7 @@ bool Project::ExportCOLLADA(const QString& FileName)
 	return true;
 }
 
-/*** LPub3D Mod - export ***/
-bool Project::ExportCSV()
-/*** LPub3D Mod end ***/
+bool Project::ExportCSV(const QString& FileName)
 {
 	lcPartsList PartsList;
 
@@ -1733,18 +1731,20 @@ bool Project::ExportCSV()
 
 	if (PartsList.empty())
 	{
-/*** LPub3D Mod - set console mode export ***/
+/*** LPub3D Mod - set Visual Editor label ***/
 		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
-
+/*** LPub3D Mod end ***/
 		return false;
 	}
 
-
+/*** LPub3D Mod - set console mode export ***/
 	QString SaveFileName;
 	if (Preferences::modeGUI)
 	{
-		const QString FileName = lpub->Options ? lpub->Options->OutputFileName : QString();
-		SaveFileName = GetExportFileName(FileName, "csv", tr("Export CSV"), tr("CSV File (*.csv);;All Files (*.*)"));
+		QString GetFileName;
+		if (FileName.isEmpty())
+			GetFileName = lpub->Options ? lpub->Options->OutputFileName : QString();
+		SaveFileName = GetExportFileName(GetFileName, "csv", tr("Export CSV"), tr("CSV File (*.csv);;All Files (*.*)"));
 	}
 	else
 	{
@@ -1765,9 +1765,7 @@ bool Project::ExportCSV()
 /*** LPub3D Mod - set Visual Editor label ***/
 		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - export ***/
 		return false;
-/*** LPub3D Mod end ***/
 	}
 
 	CSVFile.WriteLine("Part Name,Color,Quantity,Part ID,Color Code\n");
@@ -1778,13 +1776,15 @@ bool Project::ExportCSV()
 
 		for (const auto& ColorIt : PartIt.second)
 		{
-			sprintf(Line, "\"%s\",\"%s\",%d,%s,%d\n", Info->m_strDescription, gColorList[ColorIt.first].Name, ColorIt.second, Info->mFileName, gColorList[ColorIt.first].Code);
+			std::string Description = Info->m_strDescription;
+			Description.erase(std::remove(Description.begin(), Description.end(), ','), Description.end());
+
+			sprintf(Line, "\"%s\",\"%s\",%d,%s,%d\n", Description.c_str(), gColorList[ColorIt.first].Name, ColorIt.second, Info->mFileName, gColorList[ColorIt.first].Code);
 			CSVFile.WriteLine(Line);
 		}
 	}
-/*** LPub3D Mod - export ***/
+
 	return true;
-/*** LPub3D Mod end ***/
 }
 
 lcInstructions* Project::GetInstructions()

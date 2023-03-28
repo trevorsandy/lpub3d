@@ -294,18 +294,16 @@ void lcViewWidget::wheelEvent(QWheelEvent* WheelEvent)
 			WheelEvent->accept();
 			return;
 
-		case Qt::ScrollEnd:
-			mView->EndPanGesture(true);
+		case Qt::ScrollUpdate:
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+		case Qt::ScrollMomentum:
+#endif
+			mView->UpdatePanGesture(WheelEvent->pixelDelta().x(), -WheelEvent->pixelDelta().y());
 			WheelEvent->accept();
 			return;
 
-	/* Workround to avoid using Qt::ScrollMomentum as it was introduced in Qt 5.12
-	   For WheelEvent->Phase(), the 'default' case below should only trigger on
-	   Qt::ScrollUpdate and Qt::ScrollMomentum.
-		case Qt::ScrollUpdate:
-		case Qt::ScrollMomentum: */
-		default:
-			mView->UpdatePanGesture(WheelEvent->pixelDelta().x(), -WheelEvent->pixelDelta().y());
+		case Qt::ScrollEnd:
+			mView->EndPanGesture(true);
 			WheelEvent->accept();
 			return;
 		}

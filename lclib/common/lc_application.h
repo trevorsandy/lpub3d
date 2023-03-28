@@ -168,26 +168,27 @@ public:
 
 struct lcCommandLineOptions
 {
-	bool ParseOK;
-	bool Exit;
-	bool SaveImage;
-	bool SaveWavefront;
-	bool Save3DS;
-	bool SaveCOLLADA;
-	bool SaveHTML;
-	bool SetCameraAngles;
-	bool SetCameraPosition;
+	bool ParseOK = true;
+	bool Exit = false;
+	bool SaveImage = false;
+	bool SaveWavefront = false;
+	bool Save3DS = false;
+	bool SaveCOLLADA = false;
+	bool SaveCSV = false;
+	bool SaveHTML = false;
+	bool SetCameraAngles = false;
+	bool SetCameraPosition = false;
+	bool Orthographic = false;
+	bool SetFoV = false;
+	bool SetZPlanes = false;
+	bool SetFadeStepsColor = false;
+	bool SetHighlightColor = false;
+	bool FadeSteps = false;
+	bool ImageHighlight = false;
+	bool AutomateEdgeColor = false;
 /*** LPub3D Mod - DrawConditionalLines ***/
-	bool DrawConditionalLines;
+	bool DrawConditionalLines = false;
 /*** LPub3D Mod end ***/
-	bool Orthographic;
-	bool SetFoV;
-	bool SetZPlanes;
-	bool SetFadeStepsColor;
-	bool SetHighlightColor;
-	bool FadeSteps;
-	bool ImageHighlight;
-	bool AutomateEdgeColor;
 	int ImageWidth;
 	int ImageHeight;
 	int AASamples;
@@ -216,6 +217,7 @@ struct lcCommandLineOptions
 	QString SaveWavefrontName;
 	QString Save3DSName;
 	QString SaveCOLLADAName;
+	QString SaveCSVName;
 	QString SaveHTMLName;
 	QList<QPair<QString, bool>> LibraryPaths;
 	QString StdOut;
@@ -237,7 +239,7 @@ class lcApplication : public QObject
 
 public:
 /*** LPub3D Mod - initialization - move arguments to LP3D Application ***/
-	lcApplication(const lcCommandLineOptions *Options);
+	lcApplication(const lcCommandLineOptions &Options);
 /*** LPub3D Mod end ***/
 	~lcApplication();
 

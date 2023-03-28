@@ -89,9 +89,9 @@ void lcPreferences::LoadDefaults()
 	mControlPointColor = lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_COLOR);
 	mControlPointFocusedColor = lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR);
 
-/*** LPub3D Mod - Build mod object selected colour ***/	
+/*** LPub3D Mod - Build mod object selected colour ***/
 	mBMObjectSelectedColor = lcGetProfileUInt(LC_PROFILE_BM_OBJECT_SELECTED_COLOR);
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Zoom extents ***/
 	mZoomExtents = lcGetProfileInt(LC_PROFILE_ZOOM_EXTENTS);
@@ -191,10 +191,10 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileUInt(LC_PROFILE_CONTROL_POINT_COLOR, mControlPointColor);
 	lcSetProfileUInt(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR, mControlPointFocusedColor);
 
-/*** LPub3D Mod - Build mod object selected colour ***/	
+/*** LPub3D Mod - Build mod object selected colour ***/
 	lcSetProfileUInt(LC_PROFILE_BM_OBJECT_SELECTED_COLOR, mBMObjectSelectedColor);
 /*** LPub3D Mod - ***/
-	
+
 /*** LPub3D Mod - Zoom extents ***/
 	lcSetProfileInt(LC_PROFILE_ZOOM_EXTENTS, mZoomExtents);
 /*** LPub3D Mod - ***/
@@ -302,8 +302,8 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 }
 
 /*** LPub3D Mod - Relocate Argc and Argv ***/
-lcApplication::lcApplication(const lcCommandLineOptions *Options)
-	:mOptions(*Options)
+lcApplication::lcApplication(const lcCommandLineOptions &Options)
+	:mOptions(Options)
 /*** LPub3D Mod end ***/
 {
 /*** LPub3D Mod - disable leoCAD application vars ***/
@@ -321,8 +321,8 @@ lcApplication::lcApplication(const lcCommandLineOptions *Options)
 	mPreferences.LoadDefaults();
 
 /*** LPub3D Mod - global options ***/
-	mPreferences.mShadingMode = Options->ShadingMode;
-	mPreferences.mDrawConditionalLines = Options->DrawConditionalLines;
+	mPreferences.mShadingMode = mOptions.ShadingMode;
+	mPreferences.mDrawConditionalLines = mOptions.DrawConditionalLines;
 /*** LPub3D Mod end ***/
 }
 
@@ -568,12 +568,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.SaveWavefront = false;
 	Options.Save3DS = false;
 	Options.SaveCOLLADA = false;
+	Options.SaveCSV = false;
 	Options.SaveHTML = false;
 	Options.SetCameraAngles = false;
 	Options.SetCameraPosition = false;
-/*** LPub3D Mod - DrawConditionalLines ***/
-	Options.DrawConditionalLines = Preferences.mDrawConditionalLines;
-/*** LPub3D Mod end ***/
 	Options.Orthographic = false;
 	Options.SetFoV = false;
 	Options.SetZPlanes = false;
@@ -581,6 +579,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.SetHighlightColor = false;
 	Options.FadeSteps = Preferences.mFadeSteps;
 	Options.ImageHighlight = Preferences.mHighlightNewParts;
+	Options.AutomateEdgeColor = Preferences.mAutomateEdgeColor;
+/*** LPub3D Mod - DrawConditionalLines ***/
+	Options.DrawConditionalLines = Preferences.mDrawConditionalLines;
+/*** LPub3D Mod end ***/
 	Options.ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	Options.ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
 	Options.ShadingMode = Preferences.mShadingMode;
@@ -604,10 +606,9 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.DarkEdgeColor = Preferences.mDarkEdgeColor;
 	Options.PartEdgeContrast = Preferences.mPartEdgeContrast;
 	Options.PartColorValueLDIndex = Preferences.mPartColorValueLDIndex;
-	Options.AutomateEdgeColor = Preferences.mAutomateEdgeColor;
 
 /*** LPub3D Mod - process command line ***/
-	QStringList Arguments = Application::instance()->arguments();
+	QStringList Arguments = QCoreApplication::arguments();
 /*** LPub3D Mod end ***/
 
 	if (Arguments.isEmpty())
@@ -1014,6 +1015,11 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			Options.SaveCOLLADA = true;
 			ParseString(Options.SaveCOLLADAName, false);
 		}
+		else if (Option == QLatin1String("-csv") || Option == QLatin1String("--export-csv"))
+		{
+			Options.SaveCSV = true;
+			ParseString(Options.SaveCSVName, false);
+		}
 		else if (Option == QLatin1String("-html") || Option == QLatin1String("--export-html"))
 		{
 			Options.SaveHTML = true;
@@ -1070,6 +1076,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			Options.StdOut += tr("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
 			Options.StdOut += tr("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
 			Options.StdOut += tr("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+			Options.StdOut += tr("  -csv, --export-csv <outfile.csv>: Export the list of parts used in csv format.\n");
 			Options.StdOut += tr("  -html, --export-html <folder>: Create an HTML page for the model.\n");
 			Options.StdOut += tr("  -v, --version: Output version information and exit.\n");
 			Options.StdOut += tr("  -?, --help: Display this help message and exit.\n");
@@ -1123,7 +1130,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			Options.StdErr += tr("--camera-position is ignored when --camera-angles is set.\n");
 	}
 
-	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
+	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveCSV || Options.SaveHTML);
 
 	if (SaveAndExit && Options.ProjectName.isEmpty())
 	{
@@ -1140,7 +1147,7 @@ int lcApplication::Process3DViewerCommandLine()
 	QTextStream StdErr(stderr, QIODevice::WriteOnly);
 	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 
-	const bool SaveAndExit = (mOptions.SaveImage || mOptions.SaveWavefront || mOptions.Save3DS || mOptions.SaveCOLLADA || mOptions.SaveHTML);
+	const bool SaveAndExit = (mOptions.SaveImage || mOptions.SaveWavefront || mOptions.Save3DS || mOptions.SaveCOLLADA || mOptions.SaveCSV || mOptions.SaveHTML);
 
 	if (!SaveAndExit)
 		return 0;
@@ -1359,6 +1366,31 @@ int lcApplication::Process3DViewerCommandLine()
 			}
 
 			if (mProject->ExportCOLLADA(FileName))
+				StdOut << tr("Saved '%1'.\n").arg(FileName);
+		}
+
+		if (mOptions.SaveCSV)
+		{
+			QString FileName;
+
+			if (!mOptions.SaveCSVName.isEmpty())
+				FileName = mOptions.SaveCSVName;
+			else
+				FileName = mOptions.ProjectName;
+
+			QString Extension = QFileInfo(FileName).suffix().toLower();
+
+			if (Extension.isEmpty())
+			{
+				FileName += ".csv";
+			}
+			else if (Extension != "csv")
+			{
+				FileName = FileName.left(FileName.length() - Extension.length() - 1);
+				FileName += ".csv";
+			}
+
+			if (mProject->ExportCSV(FileName))
 				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 

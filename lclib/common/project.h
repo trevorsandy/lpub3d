@@ -185,8 +185,8 @@ public:
 	bool ExportBrickLink();
 /*** LPub3D Mod end ***/
 	bool ExportCOLLADA(const QString& FileName);
+	bool ExportCSV(const QString& FileName);
 /*** LPub3D Mod - export ***/
-	bool ExportCSV();
 	bool ExportHTML(const lcHTMLExportOptions& Options);
 /*** LPub3D Mod end ***/
 	bool ExportPOVRay(const QString& FileName);

@@ -270,9 +270,7 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-#ifdef Q_OS_WIN
   Preferences::setDistribution();
-#endif
   m_instance = this;
 }
 
@@ -1084,7 +1082,7 @@ int Application::initialize(lcCommandLineOptions &Options)
     }
 
     // initialize Visual Editor application
-    gApplication = new lcApplication(&Options);
+    gApplication = new lcApplication(Options);
 
     // Set global Visual Editor shared OpenGL context
     if (!lcContext::InitializeRenderer())
@@ -1211,7 +1209,7 @@ void Application::shutdown()
 
 static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options)
 {
-    QCoreApplication CoreApp(argc, argv);
+    QCoreApplication Initialize(argc, argv);
 
     Preferences::setDistribution();
 
@@ -1240,7 +1238,7 @@ static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions
 int main(int argc, char** argv)
 {
     QCoreApplication::setOrganizationDomain(QLatin1String(VER_COMPANYDOMAIN_STR));
-    QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
+    QCoreApplication::setOrganizationName(  QLatin1String(VER_COMPANYNAME_STR));
     QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 
     lcCommandLineOptions Options;

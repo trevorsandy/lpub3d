@@ -2624,6 +2624,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 		mActions[LC_PIECE_SHOW_EARLIER]->setEnabled(Flags & LC_SEL_PIECE); // FIXME: disable if current step is 1
 		mActions[LC_PIECE_SHOW_LATER]->setEnabled(Flags & LC_SEL_PIECE);
 		mActions[LC_TIMELINE_MOVE_SELECTION]->setEnabled(Flags & LC_SEL_PIECE);
+		mActions[LC_TIMELINE_MOVE_SELECTION_BEFORE]->setEnabled(Flags & LC_SEL_PIECE);
+		mActions[LC_TIMELINE_MOVE_SELECTION_AFTER]->setEnabled(Flags & LC_SEL_PIECE);
 
 		mActions[LC_PIECE_EDIT_END_SUBMODEL]->setEnabled(GetCurrentTabModel() != ActiveModel);
 	}
@@ -3313,7 +3315,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_FILE_EXPORT_CSV:
-		lcGetActiveProject()->ExportCSV();
+		lcGetActiveProject()->ExportCSV(QString());
 		break;
 
 	case LC_FILE_EXPORT_POVRAY:
@@ -4174,6 +4176,14 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_TIMELINE_MOVE_SELECTION:
 		mTimelineWidget->MoveSelection();
+		break;
+
+	case LC_TIMELINE_MOVE_SELECTION_BEFORE:
+		mTimelineWidget->MoveSelectionBefore();
+		break;
+
+	case LC_TIMELINE_MOVE_SELECTION_AFTER:
+		mTimelineWidget->MoveSelectionAfter();
 		break;
 
 	case LC_TIMELINE_SET_CURRENT:

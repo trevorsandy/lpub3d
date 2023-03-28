@@ -3752,7 +3752,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
     if (Options->ExportMode == EXPORT_CSV)
     {
-        Exported = lcGetActiveProject()->ExportCSV();
+        Exported = lcGetActiveProject()->ExportCSV(Options->ExportFileName);
         if (Exported) {
             emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed.").arg(mode).arg(mode));
         } else {
