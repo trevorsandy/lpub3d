@@ -188,11 +188,11 @@ echo "6. download LDraw archive libraries to SOURCES/..."
 # we pull in the library archives here because the lpub3d.spec file copies them
 # to the extras location. This config thus supports both Suse OBS and Travis CI build procs.
 [ ! -f lpub3dldrawunf.zip ] && \
-curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip || :
+curl $curlopts https://library.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip || :
 [ -d ../lpub3d_linux_3rdparty ] && \
 (cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/lpub3dldrawunf.zip lpub3dldrawunf.zip) || :
 [ ! -f complete.zip ] && \
-curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip || :
+curl -O $curlopts https://library.ldraw.org/library/updates/complete.zip || :
 [ -d ../lpub3d_linux_3rdparty ] && \
 (cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/complete.zip complete.zip) || :
 [ ! -f tenteparts.zip ] && \

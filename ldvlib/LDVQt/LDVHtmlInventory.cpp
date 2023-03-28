@@ -1171,13 +1171,13 @@ void LDVHtmlInventory::writePartCell(
 		{
 			if (partCount.getModel()->isOfficial()) {
 				fprintf(file, "			<td%s>"
-							  "<a href=\"http://www.ldraw.org/cgi-bin/ptscan.cgi?q=%s\">",
+							  "<a href=\"https://library.ldraw.org/cgi-bin/ptscan.cgi?q=%s\">",
 						className.c_str(), partCount.getFilename());
 
 				viewOnString = lsUtf8("PLViewOnLDrawPartTracker");
 			} else {
 				fprintf(file, "			<td%s>"
-							  "<a href=\"http://www.ldraw.org/cgi-bin/ptdetail.cgi?f=parts/%s\">",
+							  "<a href=\"https://library.ldraw.org/cgi-bin/ptdetail.cgi?f=parts/%s\">",
 						className.c_str(), partCount.getFilename());
 
 				viewOnString = lsUtf8("PLViewOnLDrawUnOffPartTracker");
@@ -1488,7 +1488,7 @@ void LDVHtmlInventory::writeTableFooter(FILE *file)
 					lsUtf8("PLVLookupSite"));
 			break;
 		case LookUp::PTracker:
-			fprintf(file, "%s<a href=\"https://http://www.ldraw.org/\"> LDraw.org</a>.\n",
+			fprintf(file, "%s<a href=\"https://https://library.ldraw.org/\"> LDraw.org</a>.\n",
 					lsUtf8("PLVLookupSite"));
 			break;
 		default:

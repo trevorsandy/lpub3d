@@ -103,9 +103,9 @@ fi
 dist_path="${LP3D_3RD_PARTY_PATH}"
 ldraw_path="${dist_path}/ldraw"
 [ ! -f "${dist_path}/lpub3dldrawunf.zip" ] && \
-wget -q http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${dist_path}/lpub3dldrawunf.zip || :
+wget -q https://library.ldraw.org/library/unofficial/ldrawunf.zip -O ${dist_path}/lpub3dldrawunf.zip || :
 [ ! -f "${dist_path}/complete.zip" ] && \
-wget -q http://www.ldraw.org/library/updates/complete.zip -O ${dist_path}/complete.zip || :
+wget -q https://library.ldraw.org/library/updates/complete.zip -O ${dist_path}/complete.zip || :
 [ ! -f "${dist_path}/tenteparts.zip" ] && \
 wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${dist_path}/tenteparts.zip || :
 [ ! -f "${dist_path}/vexiqparts.zip" ] && \

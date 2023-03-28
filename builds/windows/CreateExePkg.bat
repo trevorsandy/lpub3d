@@ -1356,7 +1356,7 @@ EXIT /b
 
 :GET_OFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/updates/%OfficialCONTENT%
+SET WebNAME=https://library.ldraw.org/library/updates/%OfficialCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...
@@ -1398,7 +1398,7 @@ EXIT /b
 
 :GET_UNOFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%
+SET WebNAME=https://library.ldraw.org/library/unofficial/%UnofficialCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...

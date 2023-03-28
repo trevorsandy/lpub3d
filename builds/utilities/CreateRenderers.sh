@@ -729,7 +729,7 @@ if [ "$OBS" != "true" ]; then
     Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "complete.zip" ]; then
       Info "Downloading complete.zip..." && \
-      curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip
+      curl $curlopts https://library.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip
     else
       ldrawlib=$(echo $PWD/complete.zip)
       Info "Linking complete.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} complete.zip)
@@ -739,7 +739,7 @@ if [ "$OBS" != "true" ]; then
     Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}."
     if [ ! -f "lpub3dldrawunf.zip" ]; then
       Info "Downloading lpub3dldrawunf.zip..." && \
-      curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip
+      curl $curlopts https://library.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip
     else
       ldrawlib=$(echo $PWD/lpub3dldrawunf.zip)
       Info "Linking lpub3dldrawunf.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} lpub3dldrawunf.zip)

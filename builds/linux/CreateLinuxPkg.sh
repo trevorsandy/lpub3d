@@ -137,9 +137,9 @@ fi
 Info && Info "Checking LDraw archive libraries..."
 [[ ! -L "$/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
 [ ! -f "/dist/lpub3dldrawunf.zip" ] && \
-wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O /dist/lpub3dldrawunf.zip || :
+wget https://library.ldraw.org/library/unofficial/ldrawunf.zip -O /dist/lpub3dldrawunf.zip || :
 [ ! -f "/dist/complete.zip" ] && \
-wget http://www.ldraw.org/library/updates/complete.zip -O /dist/complete.zip || :
+wget https://library.ldraw.org/library/updates/complete.zip -O /dist/complete.zip || :
 [ ! -f "/dist/tenteparts.zip" ] && \
 wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O /dist/tenteparts.zip || :
 [ ! -f "/dist/vexiqparts.zip" ] && \

@@ -201,7 +201,7 @@ then
     cp -f "${DIST_DIR}/complete.zip" "mainApp/extras/complete.zip"
   else
     echo "-  download ldraw official library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
+    curl $curlopts https://library.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
   fi
 else
   echo "-  ldraw official library exist. skipping download"
@@ -214,7 +214,7 @@ then
     cp -f "${DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras/lpub3dldrawunf.zip"
   else
     echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
+    curl $curlopts https://library.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
   fi
 else
   echo "-  ldraw unofficial library exist. skipping download"

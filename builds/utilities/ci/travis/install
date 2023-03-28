@@ -112,9 +112,9 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
        mkdir -p "${LP3D_DIST_DIR_PATH}"
     fi
-    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
+    wget https://library.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
     if [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ]; then
-       wget http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_PATH}/complete.zip
+       wget https://library.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_PATH}/complete.zip
     fi
     if [ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ]; then
        wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/tenteparts.zip
@@ -134,8 +134,8 @@ if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     echo "Force linking to 'keg-only' instance of Qt..."
     brew link --force qt5
     echo "Downloading archive libraries..."
-    wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras
-    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
+    wget https://library.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras
+    wget https://library.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
     wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip
     wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras/vexiqparts.zip
     if [ ! -d ${HOME}/Library/ldraw ]; then

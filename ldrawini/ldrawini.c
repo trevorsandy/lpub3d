@@ -1,5 +1,5 @@
 /* LDrawIni.c  Routines for finding LDrawDir and SearchDirs
-Read more on http://www.ldraw.org
+Read more on https://library.ldraw.org
 
 If you make any changes to this file, please contact me, and I'll probably
 adopt the changes for the benefit of other users.

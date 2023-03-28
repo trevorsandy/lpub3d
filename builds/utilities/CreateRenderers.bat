@@ -303,7 +303,7 @@ SET ARCHIVE_FILE_DIR=%LDRAW_DIR%
 SET ARCHIVE_FILE=complete.zip
 SET VALID_SDIR=parts
 SET WebCONTENT="%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
-SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
+SET WebNAME=https://library.ldraw.org/library/updates/complete.zip
 IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
