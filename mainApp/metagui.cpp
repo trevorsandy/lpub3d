@@ -2177,8 +2177,18 @@ FadeStepsGui::FadeStepsGui(
   colorCombo->addItems(LDrawColor::names());
   int colorIndex = colorCombo->findText(meta->color.value().color);
   if (colorIndex == -1) {
+      emit gui->messageSig(LOG_WARNING, tr("Unable to load colour %1").arg(meta->color.value().color), true);
+      c = QColor(LDrawColor::color("Black"));
+      if (c.isValid()) {
+          cn = c.name(QColor::HexRgb).toUpper();
+          QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }").
+          arg(c.red()).arg(c.green()).arg(c.blue());
+          colorExample->setAutoFillBackground(true);
+          colorExample->setStyleSheet(styleSheet);
+          colorExample->setToolTip(tr("Hex RGB Value %1").arg(cn));
+      }
       if (!cn.isEmpty()) {
-          colorCombo->addItem(cn);
           colorIndex = colorCombo->findText(cn);
       }
   }

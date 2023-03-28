@@ -470,9 +470,19 @@ void PreferencesDialog::setPreferences()
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
       ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
   }
-
   int fadeColorIndex = ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour);
   if (fadeColorIndex == -1) {
+      emit gui->messageSig(LOG_WARNING, tr("Unable to load colour %1").arg(Preferences::validFadeStepsColour), true);
+      fadeColor = QColor(LDrawColor::color("Black"));
+      if (fadeColor.isValid()) {
+          fadeColorName = fadeColor.name(QColor::HexRgb).toUpper();
+          QString styleSheet =
+              QString("QLabel { background-color: rgb(%1, %2, %3); }").
+              arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
+          ui.fadeStepsColourLabel->setAutoFillBackground(true);
+          ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+          ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
+      }
       if (!fadeColorName.isEmpty()) {
           ui.fadeStepsColoursCombo->addItem(fadeColorName);
           fadeColorIndex = ui.fadeStepsColoursCombo->findText(fadeColorName);
