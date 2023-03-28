@@ -4421,7 +4421,6 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
   QRegExp rx("^(0x|#)([\\da-fA-F]+)$");
-  _value[pushed].useColor = false;
   if (argv.size() - index >= 1) {
     QColor parsedColor = QColor();
     if (argv[index].contains(rx))
@@ -4436,8 +4435,11 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
           rc = OkRc;
         }
     }
+
     if (argv.size() - index == 3 && argv[index + 1] == "USE") {
       _value[pushed].useColor = argv[index + 2] == "TRUE";
+    } else {
+      _value[pushed].useColor = rc == OkRc;
     }
     if (rc == OkRc)
       _here[pushed] = here;
@@ -4445,7 +4447,7 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected color (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected LDraw_colour_name | (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   }
 
@@ -4507,17 +4509,22 @@ void FadeStepsMeta::setPreferences(bool reset)
          gui->clearCSICache();
      }
    }
+
+   QString const message = QObject::tr("Fade previous steps %1 %2%3.")
+                               .arg(reset
+                                        ? QObject::tr("reset to") : enable.global
+                                              ? QObject::tr("save as") : Preferences::enableFadeSteps != enable.value()
+                                                    ? QObject::tr("changed to") : QObject::tr("is"))
+                               .arg(Preferences::enableFadeSteps
+                                        ? QObject::tr("ON") : QObject::tr("OFF"))
+                               .arg(Preferences::enableFadeSteps
+                                        ? QObject::tr(" Opacity %1%2")
+                                              .arg(Preferences::fadeStepsOpacity)
+                                              .arg(Preferences::enableFadeSteps && Preferences::fadeStepsUseColour && !Preferences::validFadeStepsColour.isEmpty()
+                                                       ? QObject::tr(" Use Fade Color %1").arg(Preferences::validFadeStepsColour) : "")
+                                        : "");
    if (displayPreference)
-     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Fade previous steps %1 %2%3.")
-                                                   .arg(reset ? "reset to" : enable.global ? "save as" : "changed to")
-                                                   .arg(Preferences::enableFadeSteps ? "ON" : "OFF")
-                                                   .arg(Preferences::enableFadeSteps ? QString(" Opacity %1%2")
-                                                                                               .arg(Preferences::fadeStepsOpacity)
-                                                                                               .arg(Preferences::enableFadeSteps &&
-                                                                                                    Preferences::fadeStepsUseColour &&
-                                                                                                    Preferences::validFadeStepsColour.isEmpty() ? QString() :
-                                                                                                                                                  QString(" Fade Color %1").arg(Preferences::validFadeStepsColour)) : QString())
-                                                   );
+     emit gui->messageSig(LOG_INFO, message);
 }
 
 void FadeStepsMeta::init(

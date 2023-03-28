@@ -345,7 +345,7 @@ bool lcApplication::UseLPubFadeColour()
 
 QString lcApplication::LPubFadeColour()
 {
-	return LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
+	return LDrawColor::code(Preferences::validFadeStepsColour);
 }
 /*** LPub3D Mod end ***/
 

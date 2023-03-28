@@ -245,7 +245,7 @@ void CsiAnnotationItem::addGraphicsItems(
     QString toolTip = tr("CSI Part Annotation %1 %2 (%3) \"%4\" - right-click to modify")
                          .arg(_part->type)
                          .arg(LDrawColor::name(_part->color))
-                         .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
+                         .arg(_part->color)
                          .arg(_part->description);
 
     setText(textString,fontString,toolTip);

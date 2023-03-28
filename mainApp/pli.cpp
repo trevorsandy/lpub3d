@@ -949,7 +949,7 @@ int Pli::createPartImage(
     int rc = 0;
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = lcGetPreferences().mViewPieceIcons;
-    fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
+    fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep /*&& !gui->suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
@@ -2401,7 +2401,7 @@ int Pli::partSizeLDViewSCall() {
 
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = lcGetPreferences().mViewPieceIcons;
-    fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
+    fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep /*&& !gui->suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
@@ -3170,7 +3170,7 @@ QString PGraphicsPixmapItem::pliToolTip(
   QString toolTip =
           QObject::tr("%1 (%2) %3 \"%4\" - right-click to modify")
                       .arg(LDrawColor::name(color))
-                      .arg(LDrawColor::ldColorCode(LDrawColor::name(color)))
+                      .arg(color)
                       .arg(type)
                       .arg(QString("%1%2")
                       .arg(part->description)
@@ -4202,7 +4202,7 @@ AnnotateTextItem::AnnotateTextItem(
                        .arg(_pli->pliMeta.partElements.legoElements.value() ? tr("LEGO") : tr("BrickLink"))
                        .arg(_part->type)
                        .arg(LDrawColor::name(_part->color))
-                       .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
+                       .arg(_part->color)
                        .arg(_part->description);
   } else {
       border     = _part->styleMeta.border;
@@ -4216,7 +4216,7 @@ AnnotateTextItem::AnnotateTextItem(
                       .arg(_pli->bom ? tr("BOM") : tr("PLI"))
                       .arg(_part->type)
                       .arg(LDrawColor::name(_part->color))
-                      .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
+                      .arg(_part->color)
                       .arg(_part->description);
   }
 

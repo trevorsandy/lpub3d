@@ -121,17 +121,33 @@ QString LDrawColor::value(const QString& code)
 }
 
 /*
- * This function provides the translate from LDraw color hex value to
- * color code and returns the code if it exist.
- * If there is no color code, 0 (black) is returned.
+ * This function provides the translate from LDraw name or
+ * LDraw color value to LDraw color code.
+ * If there is no translation, -1 is returned.
  */
-int LDrawColor::code(const QString &value){
-//    logTrace() << QString("RECEIVED Color VALUE [%1] for CODE").arg(value);
-    if (value2code.contains(value)) {
-//      logTrace() << QString("RETURNED Color CODE %1 for Color VALUE [%2]").arg(QString(value2code[value])).arg(value);
-      return value2code[value];
+QString LDrawColor::code(const QString& name)
+{
+    QString key(name.toLower());
+    bool isHexRGB = key.contains(QRegExp("\\s*(0x|#)([\\da-fA-F]+)\\s*$"));
+    qDebug() << qUtf8Printable(QString("RECEIVED Color %1 [%2] for LDrawColor::code").arg(isHexRGB ? "VALUE" : "NAME").arg(key));
+    if (ldname2ldcolor.contains(key)) {
+      qDebug() << qUtf8Printable(QString("RETURNED Color CODE [%1] for NAME [%2]").arg(ldname2ldcolor[key]).arg(key));
+      return ldname2ldcolor[key];
+    } else if (value2code.contains(key)) {
+      qDebug() << qUtf8Printable(QString("RETURNED Color CODE [%1] for VALUE [%2]").arg(value2code.value(key)).arg(key));
+      return QString::number(value2code.value(key));
     }
-    return 0;
+
+    if (isHexRGB) {
+      QColor color(key);
+      if (color.isValid()) {
+        qWarning() << qUtf8Printable(QString("WARNING - Could not resolve CODE for valid HEX VALUE [%1] - RETURNED [-2]").arg(name));
+        return QLatin1String("-2");
+      }
+    }
+
+    qWarning() << qUtf8Printable(QString("WARNING - Could not resolve CODE for %1 [%2] - RETURNED [-1]").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
+    return QLatin1String("-1");
 }
 
 /*
@@ -174,16 +190,6 @@ QStringList LDrawColor::names()
     return colorNames;
 }
 
-/* This function provides the translate from LDraw name to LDraw color code
- * If there is no translation, -1 is returned.
- */
-QString LDrawColor::ldColorCode(const QString& name)
-{
-    QString key(name.toLower());
-    if (ldname2ldcolor.contains(key))
-      return ldname2ldcolor[key];
-    return "-1";
-}
 /*
  * This function performs a lookup of the provided LDraw color code
  * and returns true if found or false if not found

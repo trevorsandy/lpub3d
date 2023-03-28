@@ -5842,13 +5842,12 @@ void Gui::writeToTmp()
   QList<QFuture<void>> writeToTmpFutures;
   QElapsedTimer writeToTmpTimer;
   writeToTmpTimer.start();
-
   int writtenFiles = 0;
   int subFileCount = lpub->ldrawFile._subFileOrder.size();
   bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
 
-  QString fadeColor = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeSteps.color.value().color);
+  QString fadeColor = LDrawColor::code(Preferences::validFadeStepsColour);
 
   QString message;
   QString fileName;
@@ -6158,7 +6157,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
 
   QStringList configuredContents, subfileColourList;
-  bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
+  bool doFadeStep = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
@@ -6271,15 +6270,15 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
 QStringList Gui::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current/*topOfStep*/) {
 
   QStringList configuredCsiParts, stepColourList;
-  bool doFadeStep  = Preferences::enableFadeSteps;
-  bool doHighlightStep = Preferences::enableHighlightStep && !suppressColourMeta();
+  bool doFadeStep = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
+  bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
   bool doHighlightFirstStep = Preferences::highlightFirstStep;
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
 
   if (csiParts.size() > 0 && (doHighlightFirstStep ? true : stepNum > 1)) {
 
-      QString fadeColour  = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeSteps.color.value().color);
+      QString fadeColour  = LDrawColor::code(Preferences::validFadeStepsColour);
 
       // retrieve the previous step position
       int prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber,stepNum);
@@ -6393,11 +6392,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                       }
                       if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
                           argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
-                          // generate fade color entry
+                          // generate highlight color entry
                           QString colourCode = argv[1];
                           if (!colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
                             stepColourList << createColourEntry(colourCode, HIGHLIGHT_PART);
-                          // set fade color code
+                          // set highlight color code
                           argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(colourCode);
                       }
                       if (type_1_line) {
@@ -6499,7 +6498,7 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
   bool fadePartType          = partType == FADE_PART;
 
   QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
-  QString _fadeColour        = LDrawColor::ldColorCode(lpub->page.meta.LPub.fadeSteps.color.value().color);
+  QString _fadeColour        = LDrawColor::code(Preferences::validFadeStepsColour);
   QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString _mainColourValue   = LDrawColor::value(colourCode);
   QString _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : Preferences::highlightStepColour;

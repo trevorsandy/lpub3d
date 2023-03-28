@@ -72,10 +72,7 @@ class LDrawColor {
      * This function provides all the color names.
      */
     static QStringList names();
-    /* This function provides the translate from LDraw name to LDraw color code
-     * If there is no translation, -1 is returned.
-     */
-    static QString ldColorCode(const QString& name);
+
     /*
      * This function provides the translate from LDraw color code to
      * alpha value and returns the color alpha value if it exist.
@@ -88,12 +85,13 @@ class LDrawColor {
      * If there is no color value, #FFFF80 (material main_colour) - is returned.
      */
     static QString value(const QString& code);
+
     /*
-     * This function provides the translate from LDraw color hex value to
-     * color code and returns the code if it exist.
-     * If there is no color code, 0 (black) is returned.
+     * This function provides the translate from LDraw name or
+     * LDraw color value to LDraw color code.
+     * If there is no translation, -1 is returned.
      */
-    static int code(const QString& value);
+    static QString code(const QString& value);
     /*
      * This function provides the translate from LDraw color code to
      * color edge value and returns the color edge value if it exist.
