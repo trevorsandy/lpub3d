@@ -771,6 +771,7 @@ void Gui::closeFile()
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
   Preferences::unsetBuildModifications();
+  LDrawColor::removeUserDefinedColors();
   //Visual Editor
   if (Preferences::modeGUI) {
       enableVisualBuildModification();

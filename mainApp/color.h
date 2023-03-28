@@ -37,13 +37,19 @@
 
 class LDrawColor {
   private:
+    static int index;
+    static QStringList         nonnative;
     static QHash<QString, int> color2alpha;
-    static QHash<QString, int> value2code;
+    static QMultiHash<QString, int> value2code;
     static QHash<QString, QColor>  name2QColor;
     static QHash<QString, QString> color2value;
     static QHash<QString, QString> color2edge;
     static QHash<QString, QString> color2name;
     static QHash<QString, QString> ldname2ldcolor;
+    /*
+     * This function adds a QColor object to LDrawColor
+     */
+    static void AddColor(const QColor& color, const QString& name, const QString& code, const QString& edge, bool native = true);
   public:
 
     /*
@@ -51,23 +57,35 @@ class LDrawColor {
      */
     LDrawColor()
     {}
+
     /*
      * This function extracts colours loaded by the Visual Editor  to
      * extract the color codes, color names, and color values and puts
      * them in the xlate (name to color translate) hash table.
      */
     static void LDrawColorInit();
+
     /*
-     * This function provides the translate from LDraw color names and codes
-     * to QColor.
+     * This function removes user defined QColor objects and attributes
+     * from LDrawColor
      */
-    static QColor color(const QString& nickname);
+    static void removeUserDefinedColors();
+
     /*
-     * This function provides the translate from QColor or LDraw code to
-     * LDraw color name and returns the LDraw color name value if it exist.
+     * This function provides the translate from LDraw color name, LDraw code or
+     * LDraw color value (hex RGB) to LDraw QColor object.
+     */
+    static QColor color(const QString& argument);
+
+    /*
+     * This function provides the translate from QColor name (hex RGB) or LDraw code
+     * to LDraw color name and returns the LDraw color name value if it exist.
+     * If there is no LDraw color name but the QColor is valid, the QColor name (hex RGB)
+     * is returned.
      * If there is no translation, an empty string is returned.
      */
-    static QString name(const QString& code);
+    static QString name(const QString& codeorvalue);
+
     /*
      * This function provides all the color names.
      */
@@ -79,6 +97,7 @@ class LDrawColor {
      * If there is no color alpha value, 255 (fully opaque) is returned.
      */
     static int alpha(const QString& code);
+
     /*
      * This function provides the translate from LDraw color code to
      * color value and returns the color value if it exist.
@@ -92,17 +111,19 @@ class LDrawColor {
      * If there is no translation, -1 is returned.
      */
     static QString code(const QString& value);
+
     /*
      * This function provides the translate from LDraw color code to
      * color edge value and returns the color edge value if it exist.
      * If there is no color edge value, 333333 (default edge color) is returned.
      */
     static QString edge(const QString& code);
+
     /*
      * This function performs a lookup of the provided LDraw color code
      * and returns true if found or false if not found
      */
-    static bool colorExist(const QString& code);
+    static bool exist(const QString& code);
 };
 
 #endif

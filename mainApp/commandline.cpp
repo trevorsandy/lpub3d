@@ -468,7 +468,7 @@ int LPub::processCommandLine()
       message = tr("Fade Previous Steps set to ON.");
       emit messageSig(LOG_INFO,message);
       if (fadeStepsColour.isEmpty()) {
-          if (Preferences::fadeStepsUseColour){
+          if (Preferences::fadeStepsUseColour) {
               Preferences::fadeStepsUseColour = false;
               message = tr("Use Global Fade Color set to OFF.");
               emit messageSig(LOG_INFO,message);
@@ -501,11 +501,13 @@ int LPub::processCommandLine()
       QColor ParsedColor = LDrawColor::color(fadeStepsColour);
       if (ParsedColor.isValid() &&
           fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower()) {
+          bool isHexRGB = fadeStepsColour.contains(QRegExp("\\s*(0x|#)([\\da-fA-F]+)\\s*$"));
+          QString const validColourName = isHexRGB ? LDrawColor::name(fadeStepsColour) : fadeStepsColour;
           message = tr("Fade Steps Color preference changed from %1 to %2.")
               .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
-              .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
+              .arg(QString(validColourName).replace("_"," "));
           emit messageSig(LOG_INFO,message);
-          Preferences::validFadeStepsColour = LDrawColor::name(fadeStepsColour);
+          Preferences::validFadeStepsColour = validColourName;
       }
   }
 

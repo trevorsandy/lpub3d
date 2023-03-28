@@ -117,13 +117,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubNumberFormat;
     highlightingRules.append(rule);
 
-    // LPub3D Hex Number Format
-    LPubHexNumberFormat.setForeground(br15);
-    LPubHexNumberFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegularExpression(QStringLiteral("#(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"));
-    rule.format = LPubHexNumberFormat;
-    highlightingRules.append(rule);
-
     // LPub3D Font Number Format
     LPubFontNumberFormat.setForeground(br14);
     LPubFontNumberFormat.setFontWeight(QFont::Normal);
@@ -896,6 +889,13 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     LDrawMultiLineCommentStartExpression = QRegularExpression(QStringLiteral("0\\s{1}\\/\\*[^\n]*"));
     LDrawMultiLineCommentEndExpression = QRegularExpression(QStringLiteral("0\\s{1}\\*\\/[^\n]*"));
+
+    // LPub3D Hex Number Format
+    LPubHexNumberFormat.setForeground(br15);
+    LPubHexNumberFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("(0x|#)([\\dA-F]+)"), QRegularExpression::CaseInsensitiveOption);
+    rule.format = LPubHexNumberFormat;
+    highlightingRules.append(rule);
 
     /* Line format only - no rules */
 

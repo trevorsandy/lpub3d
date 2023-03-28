@@ -134,7 +134,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.changeLogGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_CHANGE_LOG, ui.changeLogGrpBox->title()));
   ui.defaultsGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_DEFAULTS, ui.defaultsGrpBox->title()));
   ui.editorGrpBox->setWhatsThis(lpubWT(              WT_CONTROL_LPUB3D_PREFERENCES_EDITOR, tr("Editor")));
-  ui.fadeStepGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEP, ui.fadeStepGrpBox->title()));
+  ui.fadeStepGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEPS, ui.fadeStepGrpBox->title()));
   ui.generalSettingsGrpBox->setWhatsThis(lpubWT(     WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS, tr("General Settings")));
   ui.highlightStepGrpBox->setWhatsThis(lpubWT(       WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP, ui.highlightStepGrpBox->title()));
   ui.imageMatteGrpBox->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE, ui.imageMatteGrpBox->title()));

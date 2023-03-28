@@ -4420,20 +4420,20 @@ void EnableMeta::metaKeywords(QStringList &out, QString preamble)
 Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
-  QRegExp rx("^(0x|#)([\\da-fA-F]+)$");
+  QRegExp hexRx("^(0x|#)([\\da-fA-F]+)$");
   if (argv.size() - index >= 1) {
     QColor parsedColor = QColor();
-    if (argv[index].contains(rx))
-        parsedColor = QColor(argv[index]);
+    if (argv[index].contains(hexRx))
+      parsedColor = QColor(QString("#%1").arg(hexRx.cap(2)));
     if (parsedColor.isValid()) {
       _value[pushed].color = argv[index];
       rc = OkRc;
     } else {
-        parsedColor = LDrawColor::color(argv[index]);
-        if (parsedColor.isValid()) {
-          _value[pushed].color = argv[index];
-          rc = OkRc;
-        }
+      parsedColor = LDrawColor::color(argv[index]);
+      if (parsedColor.isValid()) {
+        _value[pushed].color = argv[index];
+        rc = OkRc;
+      }
     }
 
     if (argv.size() - index == 3 && argv[index + 1] == "USE") {
@@ -4525,6 +4525,8 @@ void FadeStepsMeta::setPreferences(bool reset)
                                         : "");
    if (displayPreference)
      emit gui->messageSig(LOG_INFO, message);
+
+   //qDebug() << qUtf8Printable("DEBUG: "+message);
 }
 
 void FadeStepsMeta::init(
@@ -4569,13 +4571,20 @@ void HighlightStepMeta::setPreferences(bool reset)
          gui->clearCSICache();
      }
    }
+
+   QString const message = QObject::tr("Highlight current step %1 %2%3.")
+                               .arg(reset
+                                        ? QObject::tr("reset to") : enable.global
+                                              ? QObject::tr("save as") : Preferences::enableHighlightStep != enable.value()
+                                                    ? QObject::tr("changed to") : QObject::tr("is"))
+                               .arg(Preferences::enableFadeSteps
+                                     ? QObject::tr("ON") : QObject::tr("OFF"))
+                               .arg(Preferences::enableHighlightStep && !Preferences::highlightStepColour.isEmpty()
+                                     ? QObject::tr(" Highlight Color %1").arg(Preferences::highlightStepColour) : "");
    if (displayPreference)
-     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Highlight current step %1 %2%3.")
-                                                   .arg(reset ? "reset to" : enable.global ? "save as" : "changed to")
-                                                   .arg(Preferences::enableHighlightStep ? "ON" : "OFF")
-                                                   .arg(Preferences::enableHighlightStep &&
-                                                        Preferences::highlightStepColour.isEmpty() ? QString() :
-                                                                                                     QString(" Highlight Color %1").arg(Preferences::highlightStepColour)));
+     emit gui->messageSig(LOG_INFO, message);
+
+   //qDebug() << qUtf8Printable("DEBUG: "+message);
 }
 
 void HighlightStepMeta::init(

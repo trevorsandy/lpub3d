@@ -143,8 +143,7 @@ void GlobalFadeStepDialog::accept()
 
   bool noFileDisplay = false;
 
-  MetaGui *child;
-  Q_FOREACH (child,data->children) {
+  for (MetaGui *child : data->children) {
     child->apply(data->topLevelFile);
     noFileDisplay |= child->modified;
   }
