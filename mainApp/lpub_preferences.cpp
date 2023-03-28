@@ -6087,12 +6087,12 @@ bool Preferences::getPreferences()
 
             if (enableFadeStepsChanged) {
                 initEnableFadeSteps = dialog->enableFadeSteps();
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),enableFadeSteps);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),initEnableFadeSteps);
             }
 
             if (enableHighlightStepChanged) {
                 initEnableHighlightStep = dialog->enableHighlightStep();
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep"),enableHighlightStep);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep"),initEnableHighlightStep);
             }
 
             suspendFileDisplay = restartApplication || reloadFile || reloadPage;

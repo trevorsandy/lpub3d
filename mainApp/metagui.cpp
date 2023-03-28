@@ -2259,7 +2259,7 @@ void FadeStepsGui::valueChanged(int state)
 {
   auto isChecked = [&state] ()
   {
-    return state == Qt::Unchecked ? false : state == Qt::Checked ? true : false;
+      return state > Qt::Unchecked ? true : false;
   };
 
   bool checked;
