@@ -127,8 +127,7 @@ public:
                     bool useTop     =  true,
                     int  append     =  1,
                     bool local      =  true,
-                    bool checkLocal =  true,
-                    int  onPageType =  ContentPage);
+                    bool useLocal   =  true);
 
   bool setPointerPlacement(
                     PlacementMeta       *,
@@ -136,12 +135,6 @@ public:
                     const PlacementType relativeType,
                     QString             title);
 
-  void setPlacement(PlacementMeta       *,
-                    const PlacementType parentType,
-                    const PlacementType relativeType,
-                    QString             title,
-                    bool                onPageType);
-
   void changePlacement( PlacementType parentType,
                         PlacementType placedType,
                         QString title,
@@ -151,21 +144,7 @@ public:
                         bool useTop = true,
                         int  append = 1,
                         bool local = true,
-                        bool checkLocal = true,
-                        int  onPageType = ContentPage);
-
-  void changePlacement( PlacementType parentType,
-                        bool          pliPerStep,
-                        PlacementType placedType,
-                        QString title,
-                        const Where &top,
-                        const Where &bottom,
-                        PlacementMeta *,
-                        bool useTop = true,
-                        int  append = 1,
-                        bool local = true,
-                        bool checkLocal = true,
-                        int  onPageType = ContentPage);
+                        bool checkLocal = true);
 
   void changePlacementOffset(
                         Where defaultconst,

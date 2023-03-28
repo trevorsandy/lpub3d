@@ -327,12 +327,12 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
   Where topOfSteps    = page->topOfSteps();
   Where bottomOfSteps = page->bottomOfSteps();
 
-  int  onPageType = ContentPage;
+  PageTypeEnc pageType = ContentPage;
   if (page->coverPage) {
     if (page->frontCover)
-      onPageType = FrontCoverPage;
+      pageType = FrontCoverPage;
     else if(page->backCover)
-      onPageType = BackCoverPage;
+      pageType = BackCoverPage;
   }
 
   QAction *selectedAction     = menu.exec(event->screenPos());
@@ -361,21 +361,23 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
                 << "\nOTHER DATA -                  "
                 << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
                 << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                << " \nOnPageType:                  " << (onPageType == 0 ? " \nContent Page" :
-                                                          onPageType == 1 ? " \nFront Cover Page" :
-                                                                            " \nBack Cover Page")  << " (" << onPageType << ")"
+                << " \nPageType:                    " << (pageType == ContentPage
+                                                               ? " \nContent Page"
+                                                               : pageType == FrontCoverPage
+                                                                     ? " \nFront Cover Page"
+                                                                     : pageType == BackCoverPage
+                                                                           ? " \nBack Cover Page"
+                                                                           : " \nDefault Page")
+                                                      << " (" << pageType << ")"
                 ;
 #endif
+    placement.setPageType(pageType);
     changePlacement(parentRelativeType,
                     relativeType,
                     QObject::tr("Move %1").arg(name),
                     topOfSteps,
                     bottomOfSteps,
-                   &placement,
-                    true,                 //default
-                    1,                    //default
-                    true,true,            //default
-                    onPageType);
+                   &placement);
 
   } else if (selectedAction == scaleAction) {
     changeFloatSpin(QObject::tr("Scale %1").arg(name),

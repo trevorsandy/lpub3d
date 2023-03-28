@@ -181,17 +181,17 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
   //temporary until I figure a way to hide dependent attributes w/o crashing
   //TODO redesign attribute placement relativeTo scheme to allow hide w/o crash
-  int  onPageType = ContentPage;
+  PageTypeEnc  pageType = ContentPage;
   QAction *displayTextAction    = nullptr;
   if (page->coverPage) {
       if (page->frontCover) {
-          onPageType = FrontCoverPage;
+          pageType = FrontCoverPage;
           if (relativeType == PageModelNameType || relativeType == PagePublishDescType) {
               displayTextAction = lpub->getAct("displayTextAction.1");
               commonMenus.addAction(displayTextAction,menu);
           }
       } else if(page->backCover) {
-          onPageType = BackCoverPage;
+          pageType = BackCoverPage;
           switch(relativeType)
           {
               case PageTitleType:
@@ -241,11 +241,17 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                 << "\nOTHER DATA -                  "
                 << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
                 << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                << " \nOnPageType:                  " << (onPageType == 0 ? " \nContent Page" :
-                                                          onPageType == 1 ? " \nFront Cover Page" :
-                                                                            " \nBack Cover Page")  << " (" << onPageType << ")"
+                << " \nPageType:                    " << (pageType == ContentPage
+                                                            ? " \nContent Page"
+                                                            : pageType == FrontCoverPage
+                                                                  ? " \nFront Cover Page"
+                                                                  : pageType == BackCoverPage
+                                                                        ? " \nBack Cover Page"
+                                                                        : " \nDefault Page")
+                                                      << " (" << pageType << ")"
                                                    ;
 #endif
+      placement.setPageType(pageType);
       changePlacement(parentRelativeType,
                       relativeType,
                       tr("Move %1").arg(name),
@@ -253,10 +259,9 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                       bottomOfSteps,
                      &placement,
                       useTop,
-                      1,                        //append     - default
-                      true,                     //local      - default Possible TODO change to multiStep ? false : true (see StepNumber)
-                      true,                     //checkLocal - default
-                      onPageType);
+                      1,     //append     - default
+                      true); //local      - default Possible TODO change to multiStep ? false : true (see StepNumber)
+
 
   } else if (selectedAction == marginAction) {
 #ifdef QT_DEBUG_MODE
@@ -300,7 +305,14 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
       logInfo() << "\nCHANGE DISPLAY (TEXT) - "
                 << "\nPAGE- "
                 << " \nRelativeType:  " << RelNames[relativeType]       << " (" << relativeType << ")"
-                << " \nOnPageType:    " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
+                << " \nOnPageType:    " << (pageType == ContentPage
+                                                ? "Content Page"
+                                                : pageType == FrontCoverPage
+                                                      ? "Front Cover Page"
+                                                      : pageType == BackCoverPage
+                                                            ? "Back Cover Page"
+                                                            : "Default Page")
+                                        << " (" << pageType << ")"
                 << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
                           ;
 #endif

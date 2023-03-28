@@ -39,7 +39,7 @@ public:
   bool          positionChanged;
   PlacementType parentRelativeType;
   QPointF       position;
-  int           onPageType;
+  PageTypeEnc   pageType;
   bool          pagePlaced;
   bool          textPlacement;
   bool          textChanged;
@@ -50,7 +50,7 @@ public:
   }
   TextItem(
     InsertMeta meta,
-    int onPageType,
+    PageTypeEnc pageType,
     bool placement,
     QGraphicsItem *parent);
 

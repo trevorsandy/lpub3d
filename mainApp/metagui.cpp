@@ -3979,7 +3979,7 @@ void PlacementGui::placementChanged(bool clicked)
   Q_UNUSED(clicked);
   PlacementData _data = meta->value();
   bool ok = PlacementDialog
-       ::getPlacement(SingleStepType,PartsListType,_data,title,ContentPage);
+       ::getPlacement(SingleStepType,PartsListType,_data,title);
   if (ok) {
       meta->setValue(_data);
       modified = _data.placement     != data.placement     ||
@@ -5652,9 +5652,7 @@ void ShowSubModelGui::placementChanged(bool clicked)
 {
   Q_UNUSED(clicked);
   PlacementData placementData = meta->placement.value();
-  bool ok;
-  ok = PlacementDialog
-       ::getPlacement(SingleStepType,SubModelType,placementData,"Submodel Placement",ContentPage);
+  bool ok = PlacementDialog::getPlacement(SingleStepType,SubModelType,placementData,tr("Submodel Placement"));
   if (ok) {
       meta->placement.setValue(placementData);
       modified = placementModified = true;
@@ -6883,9 +6881,7 @@ void CsiAnnotationGui::placementChanged(bool clicked)
 {
   Q_UNUSED(clicked);
   PlacementData placementData = meta->placement.value();
-  bool ok;
-  ok = PlacementDialog
-       ::getPlacement(SingleStepType,CsiAnnotationType,placementData,"Annotation Placement",ContentPage);
+  bool ok = PlacementDialog::getPlacement(SingleStepType,CsiAnnotationType,placementData,tr("Annotation Placement"));
   if (ok) {
       meta->placement.setValue(placementData);
       modified = placementModified = true;

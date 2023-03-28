@@ -1046,14 +1046,14 @@ void Step::appendCsiAnnotation(
 
 const int stepNumberPlace[NumPlacements][2] =
 {
-  { TblSn0, TblSn0 },  // Top_Left
-  { TblCsi, TblSn0 },  // Top
-  { TblSn1, TblSn0 },  // Top_Right
-  { TblSn1, TblCsi },  // Right
-  { TblSn1, TblSn1 },  // BOTTOM_RIGHT
-  { TblCsi, TblSn1 },  // BOTTOM
-  { TblSn0, TblSn1 },  // BOTTOM_LEFT
-  { TblSn0, TblCsi },  // LEFT
+  { TblSn0, TblSn0 }, // 0 TopLeft
+  { TblCsi, TblSn0 }, // 1 Top
+  { TblSn1, TblSn0 }, // 2 TopRight
+  { TblSn1, TblCsi }, // 3 Righ
+  { TblSn1, TblSn1 }, // 4 BottomRigh
+  { TblCsi, TblSn1 }, // 5 Bottom
+  { TblSn0, TblSn1 }, // 6 BottomLeft
+  { TblSn0, TblCsi }, // 7 Left
   { TblCsi, TblCsi },
 };
 
@@ -1064,14 +1064,14 @@ const int stepNumberPlace[NumPlacements][2] =
 
 const int pliPlace[NumPlacements][2] =
 {
-  { TblPli0, TblPli0 }, // Top_Left
-  { TblCsi,  TblPli0 }, // Top
-  { TblPli1, TblPli0 }, // Top_Right
-  { TblPli1, TblCsi  }, // Right
-  { TblPli1, TblPli1 }, // BOTTOM_RIGHT
-  { TblCsi,  TblPli1 }, // BOTTOM
-  { TblPli0, TblPli1 }, // BOTTOM_LEFT
-  { TblPli0, TblCsi  }, // LEFT
+  { TblPli0, TblPli0 }, // 0 TopLeft
+  { TblCsi,  TblPli0 }, // 1 Top
+  { TblPli1, TblPli0 }, // 2 TopRight
+  { TblPli1, TblCsi  }, // 3 Righ
+  { TblPli1, TblPli1 }, // 4 BottomRigh
+  { TblCsi,  TblPli1 }, // 5 Bottom
+  { TblPli0, TblPli1 }, // 6 BottomLeft
+  { TblPli0, TblCsi  }, // 7 Left
   { TblCsi,  TblCsi },
 };
 
@@ -1082,14 +1082,14 @@ const int pliPlace[NumPlacements][2] =
 
 const int subModelPlace[NumPlacements][2] =
 {
-  { TblSm0, TblSm0 }, // Top_Left
-  { TblCsi, TblSm0 }, // Top
-  { TblSm1, TblSm0 }, // Top_Right
-  { TblSm1, TblCsi }, // Right
-  { TblSm1, TblSm1 }, // BOTTOM_RIGHT
-  { TblCsi, TblSm1 }, // BOTTOM
-  { TblSm0, TblSm1 }, // BOTTOM_LEFT
-  { TblSm0, TblCsi }, // LEFT
+  { TblSm0, TblSm0 }, // 0 TopLeft
+  { TblCsi, TblSm0 }, // 1 Top
+  { TblSm1, TblSm0 }, // 2 TopRight
+  { TblSm1, TblCsi }, // 3 Righ
+  { TblSm1, TblSm1 }, // 4 BottomRigh
+  { TblCsi, TblSm1 }, // 5 Bottom
+  { TblSm0, TblSm1 }, // 6 BottomLeft
+  { TblSm0, TblCsi }, // 7 Left
   { TblCsi, TblCsi },
 };
 
@@ -1100,14 +1100,14 @@ const int subModelPlace[NumPlacements][2] =
 
 const int rotateIconPlace[NumPlacements][2] =
 {
-  { TblRi0, TblRi0 },  // Top_Left
-  { TblCsi, TblRi0 },  // Top
-  { TblRi1, TblRi0 },  // Top_Right
-  { TblRi1, TblCsi },  // Right
-  { TblRi1, TblRi1 },  // BOTTOM_RIGHT
-  { TblCsi, TblRi1 },  // BOTTOM
-  { TblRi0, TblRi1 },  // BOTTOM_LEFT
-  { TblRi0, TblCsi },  // LEFT
+  { TblRi0, TblRi0 },  // 0 TopLeft
+  { TblCsi, TblRi0 },  // 1 Top
+  { TblRi1, TblRi0 },  // 2 TopRight
+  { TblRi1, TblCsi },  // 3 Righ
+  { TblRi1, TblRi1 },  // 4 BottomRigh
+  { TblCsi, TblRi1 },  // 5 Bottom
+  { TblRi0, TblRi1 },  // 6 BottomLeft
+  { TblRi0, TblCsi },  // 7 Left
   { TblCsi, TblCsi },
 };
 
@@ -1118,14 +1118,14 @@ const int rotateIconPlace[NumPlacements][2] =
 
 const int coPlace[NumPlacements][2] =
 {
-  { TblCo4, TblCo4 }, // Top_Left
-  { TblCsi, TblCo4 }, // Top
-  { TblCo5, TblCo4 }, // Top_Right
-  { TblCo5, TblCsi }, // Right
-  { TblCo5, TblCo5 }, // BOTTOM_RIGHT
-  { TblCsi, TblCo5 }, // BOTTOM
-  { TblCo4, TblCo5 }, // BOTTOM_LEFT
-  { TblCo4, TblCsi }, // LEFT
+  { TblCo4, TblCo4 }, // 0 TopLeft
+  { TblCsi, TblCo4 }, // 1 Top
+  { TblCo5, TblCo4 }, // 2 TopRight
+  { TblCo5, TblCsi }, // 3 Righ
+  { TblCo5, TblCo5 }, // 4 BottomRigh
+  { TblCsi, TblCo5 }, // 5 Bottom
+  { TblCo4, TblCo5 }, // 6 BottomLeft
+  { TblCo4, TblCsi }, // 7 Left
   { TblCsi, TblCsi },
 };
 
@@ -1136,14 +1136,14 @@ const int coPlace[NumPlacements][2] =
 
 const int relativePlace[NumPlacements][2] =
 {
-  { -1, -1 },
-  {  0, -1 },
-  {  1, -1 },
-  {  1,  0 },
-  {  1,  1 },
-  {  0,  1 },
-  { -1,  1 },
-  { -1,  0 },
+  { -1, -1 }, // 0 TopLeft
+  {  0, -1 }, // 1 Top
+  {  1, -1 }, // 2 TopRight
+  {  1,  0 }, // 3 Righ
+  {  1,  1 }, // 4 BottomRigh
+  {  0,  1 }, // 5 Bottom
+  { -1,  1 }, // 6 BottomLeft
+  { -1,  0 }, // 7 Left
   {  0,  0 },
 };
 

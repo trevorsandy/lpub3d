@@ -1854,13 +1854,17 @@ int Gui::drawPage(
                           steps->groupStepNumber.number    = opts.groupStepNumber;
                           steps->groupStepNumber.sizeit();
 
+                          // set PLI relativeOf step number
+                          if (steps->groupStepNumber.placement.value().relativeTo == PartsListType)
+                            steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(StepNumberType);
+#ifdef QT_DEBUG_MODE
                           emit messageSig(LOG_DEBUG, "Add Step group step number for multi-step page " + opts.current.modelName);
-
+#endif
                           // if PLI and Submodel Preview are relative to StepNumber or PLI relative to CSI (default)
                           placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
                           if (previewNotPerStep &&
                              ((steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType &&
-                              placementData.relativeTo == StepNumberType) || placementData.relativeTo == CsiType))
+                               placementData.relativeTo == StepNumberType) || placementData.relativeTo == CsiType))
                           {
                               // Redirect Pli relative to SubModel Preview
                               steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,SubModelType);
@@ -1922,20 +1926,24 @@ int Gui::drawPage(
                       steps->groupStepNumber.number     = 0;
                       steps->groupStepNumber.stepNumber = nullptr;
 
-                      // check the pli placement to be sure it's relative to CsiType
-                      if (steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo != CsiType) {
+                      // check the pli placement to be sure it's relative to CsiType or, if ok, StepNumberType
+                      bool stepNumRelativeToPli = steps->groupStepMeta.LPub.multiStep.stepNum.placement.value().relativeTo == PartsListType;
+                      PlacementType pliRelativeTo = steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo;
+
+                      if (pliRelativeTo != CsiType || (stepNumRelativeToPli && pliRelativeTo == StepNumberType)) {
                           PlacementData placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
-                          QString message = QString("Invalid PLI placement. "
-                                                    "Step group PLI per STEP set to TRUE but PLI placement is "
-                                                    + placementNames[  placementData.placement] + " "
-                                                    + relativeNames [  placementData.relativeTo] + " "
-                                                    + prepositionNames[placementData.preposition] + "<br>"
-                                                    "It should be relative to "
-                                                    + relativeNames [CsiType] + ".<br>"
-                                                    "A valid placeemnt is MULTI_STEP PLI PLACEMENT "
-                                                    + placementNames[TopLeft] + " "
-                                                    + relativeNames [CsiType] + " "
-                                                    + prepositionNames[Outside] + "<br>");
+                          QString message = tr("Invalid PLI placement.<br>"
+                                               "Step group PLI per STEP set to TRUE but PLI placement is %1 %2 %3.<br>"
+                                               "The PLI should be relative to %4.<br>"
+                                               "A valid placement is MULTI_STEP PLI PLACEMENT %5 %6 %7.")
+                                                .arg(placementNames[  placementData.placement])
+                                                .arg(relativeNames [  placementData.relativeTo])
+                                                .arg(prepositionNames[placementData.preposition]).arg(tr("%1%2")
+                                                         .arg(relativeNames [CsiType]).arg(stepNumRelativeToPli ? "" : tr(" or %1")
+                                                                                            .arg(relativeNames [StepNumberType])))
+                                                .arg(placementNames[  TopLeft])
+                                                .arg(relativeNames [  CsiType])
+                                                .arg(prepositionNames[Outside]);
                           parseError(message, opts.current,Preferences::ParseErrors,false,true/*overide*/);
                       }
                   }
@@ -2416,6 +2424,7 @@ int Gui::drawPage(
                                   }
 
                                   steps->meta.LPub.subModel.instance.setValue(instances);
+
                                   step->subModel.setSubModel(opts.current.modelName,steps->meta);
 
                                   step->subModel.displayInstanceCount = displayInstanceCount;

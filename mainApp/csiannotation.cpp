@@ -128,7 +128,7 @@ CsiAnnotation::CsiAnnotation(
 
 bool CsiAnnotation::setPlacement()
 {
-    QString placement, justification, preposition, relativeTo;
+    QString placement, justification, preposition;
     if (caMeta.icon.value().placements.size() == 2) {
         placement   = placementNames[PlacementEnc(caMeta.icon.value().placements.at(0).toInt())];
         preposition = prepositionNames[PrepositionEnc(caMeta.icon.value().placements.at(1).toInt())];
@@ -578,7 +578,7 @@ void CsiAnnotationItem::contextMenuEvent(
               metaLine,
               metaLine,
              &placement,
-             &icon,true,1,0,false);
+             &icon,true,1,false);
    } else if (selectedAction == hideAction) {
               CsiAnnotationIconData caid = icon.value();
               caid.hidden = true;

@@ -1244,11 +1244,36 @@ public:
   {
     _value[pushed] = value;
   }
+  void setValue(PlacementType value)
+  {
+    if (!_value[pushed].relativeOf.contains(value))
+      _value[pushed].relativeOf.append(value);
+  }
   void setValue(RectPlacement  placement, PlacementType relativeTo);
   void setValue(int loc[2])
   {
     _value[pushed].offsets[0] = loc[0];
     _value[pushed].offsets[1] = loc[1];
+  }
+  void setPartsListPerStep(bool b)
+  {
+    _value[pushed].partsListPerStep = b;
+  }
+  void setPageType(PageTypeEnc v)
+  {
+    _value[pushed].pageType = v;
+  }
+  void setStepNumberShown(bool b)
+  {
+    _value[pushed].stepNumberShown = b;
+  }
+  void setRotateIconShown(bool b)
+  {
+    _value[pushed].rotateIconShown = b;
+  }
+  void setSubModelShown(bool b)
+  {
+    _value[pushed].subModelShown = b;
   }
   PlacementMeta();
   PlacementMeta(const PlacementMeta &rhs) : LeafMeta(rhs)

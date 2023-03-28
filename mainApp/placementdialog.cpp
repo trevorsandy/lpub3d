@@ -202,11 +202,9 @@ bool PlacementDialog::getPlacement(
   PlacementType  placedType,
   PlacementData &goods,
   QString        title,
-  int            onPageType,
-  bool           pliPerStep,
   QWidget       *parent)
 {
-  PlacementDialog *dialog = new PlacementDialog(parentType,placedType,goods,title,onPageType,pliPerStep,parent);
+  PlacementDialog *dialog = new PlacementDialog(parentType,placedType,goods,title,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
@@ -230,8 +228,6 @@ PlacementDialog::PlacementDialog(
   PlacementType  placedType,
   PlacementData &_goods,
   QString        title,
-  int            onPageType,
-  bool           pliPerStep,
   QWidget       *parent)
 {
   setWindowTitle(tr("%1 %2 Dialogue").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
@@ -255,172 +251,225 @@ PlacementDialog::PlacementDialog(
 
   QList<int> oks;
 
+  PageTypeEnc pageType  = goods->pageType;
+  bool partsListPerStep = goods->partsListPerStep;
+
 #ifdef QT_DEBUG_MODE
   logTrace() << " \nPLACEMENT DIALOG "
              << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
              << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
-             << " \nOnPageType: " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
+             << " \nPageType:   " << (pageType == ContentPage
+                                          ? "Content Page"
+                                          : pageType == FrontCoverPage
+                                                ? "Front Cover Page"
+                                                : pageType == BackCoverPage
+                                                      ? "Back Cover Page"
+                                                      : "Default Page")
+                                  << " (" << pageType << ")"
                 ;
 #endif
 
   switch (parentType) {
-  case StepGroupType:                                //parent type [Multi-step page]
+  case StepGroupType:  //parent type
       switch (placedType) {
-      case StepType:                 //placed type
+      case StepType:   //placed type
           oks << Page << Rng;
           break;
-      case PageURLType:               //placed type
+      case PageURLType:
           oks << Page << Pn << Ph << Pf;
           break;
-      case PageEmailType:             //placed type
+      case PageEmailType:
           oks << Page << Pn << Ph << Pf             << Urlt;
           break;
-      case PageAuthorType:            //placed type
+      case PageAuthorType:
           oks << Page << Pn << Ph << Pf       << Et << Urlt;
           break;
-      case PageCopyrightType:         //placed type
+      case PageCopyrightType:
           oks << Page << Pn << Ph << Pf << At << Et << Urlt;
           break;
-      case PageNumberType:            //placed type
-          if (pliPerStep) {
+      case PageNumberType:
+          if (partsListPerStep) {
               oks << Page << Ph << Pf;
           } else {
-              oks << Page << Ph << Pf << Pli << Sm << Sn;
+              oks << Page << Ph << Pf << Pli;
+              if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+                  oks << Sn;
+              if (goods->subModelShown)
+                  oks << Sm;
           }
           break;
-      case PartsListType:             //placed type
-          if (pliPerStep) {
-              oks << Csi  << Sm << Sn /*<< Stp*/;
+      case PartsListType:
+          if (partsListPerStep) {
+              oks << Csi;
+              /*<< Stp*/
           } else {
-              oks << Page << Sm << Sn << Ph << Pf << Ms;
+              oks << Page << Ph << Pf << Ms;
           }
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case StepNumberType:            //placed type
-          if (pliPerStep) {
-              oks << Csi << Pli << Sm /*<< Stp*/;
+      case StepNumberType:
+          if (partsListPerStep) {
+              oks << Csi << Pli /*<< Stp*/;
           } else {
-              oks << Page << Pli  << Sm << Ph << Pf << Ms;
+              oks << Page << Pli  << Ph << Pf << Ms;
           }
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case SubModelType:              //placed type
-          if (pliPerStep) {
-              oks << Csi << Pli << Sn /*<< Stp*/;
+      case SubModelType:
+          if (partsListPerStep) {
+              oks << Csi << Pli /*<< Stp*/;
           } else {
-              oks << Page << Pli << Sn << Ph << Pf << Ms;
+              oks << Page << Pli << Ph << Pf << Ms;
           }
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
-      case CalloutType:               //placed type
-          oks << Page << Csi << Pli << Sn /*<< Stp*/;
+      case CalloutType:
+          oks << Page << Csi << Pli /*<< Stp*/;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
-      case SubmodelInstanceCountType: //placed type
+      case SubmodelInstanceCountType:
           oks << Page << Ph << Pf << Pn;
           break;
-      case PagePointerType:           //placed type
+      case PagePointerType:
           oks << Page << Csi << Ph << Pf;
           break;
-      case RotateIconType:            //placed type
+      case RotateIconType:
           oks << Csi << Pli << Sn /*<< Stp*/;
           break;
-      case TextType:                  //placed type
+      case TextType:
           oks << Page << Ph << Pf/* << Stp  << Csi*/;
           break;
       case CsiAnnotationType:
           oks << Cp;
           break;
-      default:                        //placed type
+      default:
           oks << Page << Pn /*<< Stp*/;
           break;
       }
       break;
   case CalloutType:                                  //parent type
       switch (placedType) {
-      case PartsListType:             //placed type
-          oks << Csi << Sm;
+      case PartsListType:
+          oks << Csi;
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case StepNumberType:            //placed type
-          oks << Csi  << Pli << Sm;
+      case StepNumberType:
+          oks << Csi  << Pli;
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case CalloutType:               //placed type
-          oks << Csi  << Pli << Sn << Callout << Sm;
+      case CalloutType:
+          oks << Csi  << Pli << Callout;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case SubmodelInstanceCountType: //placed type
+      case SubmodelInstanceCountType:
           oks << Page << Ph << Pf << Pn;
           break;
-      case PagePointerType:           //placed type
+      case PagePointerType:
           oks << Page << Csi << Ph << Pf;
           break;
-      case SubModelType:             //placed type
-      case RotateIconType:           //placed type
-          oks << Csi << Pli << Sn;
+      case SubModelType:
+      case RotateIconType:
+          oks << Csi << Pli;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
       case CsiAnnotationType:
           oks << Cp;
           break;
       default:
-          oks << Csi << Pli << Sn;
+          oks << Csi << Pli;
+          if (goods->stepNumberShown)
+              oks << Sn;
           break;
       }
       break;
   case StepType:                                     //parent type
       switch (placedType) {
-      case PartsListType:             //placed type
-          oks << Page << Csi << Sn << Sm << Ph << Pf;
+      case PartsListType:
+          oks << Page << Csi << Ph << Pf;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case StepNumberType:            //placed type
-          oks << Page << Csi << Pli << Sm << Ph << Pf;
+      case StepNumberType:
+          oks << Page << Csi << Pli << Ph << Pf;
+          if (goods->subModelShown)
+              oks << Sm;
           break;
-      case CalloutType:               //placed type
-          oks << Page << Csi << Sn << Pli;
+      case CalloutType:
+          oks << Page << Csi << Pli;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
-      case SubmodelInstanceCountType: //placed type
-          oks << Page << Csi << Pli << Pn << Sn;
+      case SubmodelInstanceCountType:
+          oks << Page << Csi << Pli << Pn;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
-      case PagePointerType:           //placed type
+      case PagePointerType:
           oks << Page << Csi << Ph << Pf;
           break;
-      case SubModelType:              //placed type
-          oks << Page << Csi << Pli << Sn << Ph << Pf;
+      case SubModelType:
+          oks << Page << Csi << Pli << Ph << Pf;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
-      case RotateIconType:           //placed type
-          oks << Csi << Pli << Sn;
+      case RotateIconType:
+          oks << Csi << Pli;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
       case CsiAnnotationType:
           oks << Cp;
           break;
-      default:                        //placed type
-          oks << Page << Csi << Pli << Sn;
+      default:
+          oks << Page << Csi << Pli;
+          if (goods->stepNumberShown && !goods->relativeOf.contains(StepNumberType))
+              oks << Sn;
           break;
       }
       break;
   case SingleStepType:                               //parent type [Single-step page]
       switch (placedType) {
-      case PageURLType:                  //placed type
-          if (onPageType == BackCoverPage) {
+      case PageURLType:
+          if (pageType == BackCoverPage) {
               oks << Page                                       << Ct;
           } else
               oks << Page << Pn << Ph << Pf;
           break;
-      case PageEmailType:                //placed type
-          if (onPageType == BackCoverPage) {
+      case PageEmailType:
+          if (pageType == BackCoverPage) {
               oks << Page                               << Urlt;
           } else
               oks << Page << Pn << Ph << Pf             << Urlt;
           break;
-      case PageAuthorType:               //placed type
-          if (onPageType == FrontCoverPage) {
+      case PageAuthorType:
+          if (pageType == FrontCoverPage) {
               oks << Page                                        << Tt;
-          } else if (onPageType == BackCoverPage) {
+          } else if (pageType == BackCoverPage) {
               oks << Page                                        << Tt;
           } else
               oks << Page << Pn << Ph << Pf       << Et << Urlt;
           break;
-      case PageCopyrightType:            //placed type
-          if (onPageType == BackCoverPage) {
+      case PageCopyrightType:
+          if (pageType == BackCoverPage) {
               oks << Page                   << At;
           } else
               oks << Page << Pn << Ph << Pf << At << Et << Urlt;
           break;
-      default:                           //placed type
+      default:
           oks << relativeToOks[placedType];
           break;
       }
@@ -439,8 +488,8 @@ PlacementDialog::PlacementDialog(
 //                     << "\n     Index:" << i
 //                     << "\n MatchType:" << RelNames[i];
 
-      Q_FOREACH (int ok, oks){
-          if (ok == i){
+      Q_FOREACH (int ok, oks) {
+          if (ok == i) {
               // logDebug() << "MATCH: Ok:" << ok << "Type:" << RelNames[i];
               combo->addItem(relativeNames[i]);
               if (i == goods->relativeTo) {
@@ -459,23 +508,23 @@ PlacementDialog::PlacementDialog(
   horizontalLine->setFrameShadow(QFrame::Sunken);
   outsideGrid->addWidget(horizontalLine,6,0,1,5);
 
-  for (int y = 0; y < 5; y++) {
-    for (int x = 0; x < 5; x++) {
+  for (int R = 0; R < 5; R++) {
+    for (int C = 0; C < 5; C++) {
       QPushButton *button;
-      button = new QPushButton(labels[y][x],parent);
-      buttons[y][x] = button;
+      button = new QPushButton(labels[R][C],parent);
+      buttons[R][C] = button;
 
-      if (y == 0 || y == 4) {
-        outsideGrid->addWidget(button,y+1,x);
-      } else if (x == 0 || x == 4) {
-        outsideGrid->addWidget(button,y+1,x);
+      if (R == 0 || R == 4) {
+          outsideGrid->addWidget(button,R+1,C);
+      } else if (C == 0 || C == 4) {
+          outsideGrid->addWidget(button,R+1,C);
       } else {
-        insideGrid->addWidget(button,y-1+1,x-1);
+          insideGrid->addWidget(button,R-1+1,C-1);
       }
 
-      switch (y) {
+      switch (R) {
         case 0:
-          switch (x) {
+          switch (C) {
             case 0:
               connect(button,SIGNAL(clicked()),this,SLOT(topLeftO()));
             break;
@@ -494,7 +543,7 @@ PlacementDialog::PlacementDialog(
           }
         break;
         case 1:
-          switch (x) {
+          switch (C) {
             case 0:
               connect(button,SIGNAL(clicked()),this,SLOT(lefttop()));
             break;
@@ -513,7 +562,7 @@ PlacementDialog::PlacementDialog(
           }
         break;
         case 2:
-          switch (x) {
+          switch (C) {
             case 0:
               connect(button,SIGNAL(clicked()),this,SLOT(leftcenter()));
             break;
@@ -532,7 +581,7 @@ PlacementDialog::PlacementDialog(
           }
         break;
         case 3:
-          switch (x) {
+          switch (C) {
             case 0:
               connect(button,SIGNAL(clicked()),this,SLOT(leftbottom()));
             break;
@@ -551,7 +600,7 @@ PlacementDialog::PlacementDialog(
           }
         break;
         case 4:
-          switch (x) {
+          switch (C) {
             case 0:
               connect(button,SIGNAL(clicked()),this,SLOT(bottomLeftO()));
             break;
@@ -611,31 +660,31 @@ void PlacementDialog::relativeToChanged(int /* unused */)
 
 void PlacementDialog::setEnabled(int okPrepositions)
 {
-  for (int y = 0; y < 5; y++) {
-    for (int x = 0; x < 5; x++) {
-      buttons[y][x]->setEnabled(false);
+  for (int R = 0; R < 5; R++) {
+    for (int C = 0; C < 5; C++) {
+      buttons[R][C]->setEnabled(false);
     }
   }
-  for (int y = 0; y < 5; y++) {
-    for (int x = 0; x < 5; x++) {
-      if (y == 0 || y == 4 || x == 0 || x == 4) {
+  for (int R = 0; R < 5; R++) {
+    for (int C = 0; C < 5; C++) {
+      if (R == 0 || R == 4 || C == 0 || C == 4) {
         if (okPrepositions & OutsideOk) {
-          buttons[y][x]->setEnabled(true);
+            buttons[R][C]->setEnabled(true);
         }
       } else {
         if (okPrepositions & InsideOk) {
-          buttons[y][x]->setEnabled(true);
+            buttons[R][C]->setEnabled(true);
         }
       }
     }
   }
 }
 
-int insideDecode[NumPlacements][2] = 
+int insideDecode[NumPlacements][2] =
 {
-  { 1, 1 }, { 1, 2 }, { 1, 3 },
-  { 2, 3 }, { 3, 3,}, { 3, 2 },
-  { 3, 1 }, { 2, 1 }, { 2, 2 }
+/*0 TopLeft   */{ 1, 1 },/*1 Top        */{ 1, 2 },/*2 TopRight*/{ 1, 3 },
+/*3 Right     */{ 2, 3 },/*4 BottomRight*/{ 3, 3,},/*5 Bottom  */{ 3, 2 },
+/*6 BottomLeft*/{ 3, 1 },/*7 Left       */{ 2, 1 },/*8 Center  */{ 2, 2 }
 };
 
 void PlacementDialog::highlightPlacement(

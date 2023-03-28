@@ -242,9 +242,8 @@ void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
   if (selectedAction == nullptr) {
     return;
   } else if (selectedAction == placementAction) {
-
+    placement.setPartsListPerStep(page->meta.LPub.multiStep.pli.perStep.value());
     changePlacement(parentRelativeType,
-                    page->meta.LPub.multiStep.pli.perStep.value(),
                     StepNumberType,
                     tr("Move %1").arg(name),
                     topOfSteps,

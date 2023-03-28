@@ -1750,9 +1750,9 @@ void SubModelBackgroundItem::contextMenuEvent(
                          bottom,
                          &subModel->subModelMeta.constrain);
     } else if (selectedAction == placementAction) {
+        subModel->placement.setPartsListPerStep(subModel->perStep);
         if (subModel->perStep) {
             changePlacement(parentRelativeType,
-                            subModel->perStep,
                             SubModelType,
                             QObject::tr("%1 Placement").arg(name),
                             top,
@@ -1760,7 +1760,6 @@ void SubModelBackgroundItem::contextMenuEvent(
                             &subModel->placement);
         } else {
             changePlacement(parentRelativeType,
-                            subModel->perStep,
                             SubModelType,
                             QObject::tr("%1 Placement").arg(name),
                             top,

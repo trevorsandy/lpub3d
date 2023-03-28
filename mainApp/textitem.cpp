@@ -30,11 +30,11 @@
 #include "pairdialog.h"
 
 TextItem::TextItem(InsertMeta meta,
-  int onPageType,
+  PageTypeEnc pageType,
   bool placement,
   QGraphicsItem *parent)
     : meta(meta),
-      onPageType( onPageType),
+      pageType( pageType),
       pagePlaced( false),
       textPlacement(placement),
       textChanged(false),
@@ -236,14 +236,14 @@ void TextItem::contextMenuEvent(
       placement.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
                                    .arg(richText ? "RICH_TEXT" : "TEXT");
       PlacementData placementData = placement.value();
+      placementData.pageType = pageType;
       bool ok;
       ok = PlacementDialog
            ::getPlacement(
                   parentRelativeType,
                   relativeType,
                   placementData,
-                  tr("%1 Placement").arg(name),
-                  onPageType);
+                  tr("%1 Placement").arg(name));
       if (ok) {
         placement.setValue(placementData);
         QString line = gui->readLine(meta.here());

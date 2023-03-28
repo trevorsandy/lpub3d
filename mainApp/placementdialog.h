@@ -55,16 +55,16 @@ class QComboBox;
 class QDialogButtonBox;
 
 /*
- *   T/L|T:L T:C T:R|T/R
- *   ---+-----------+--
- *   L:T|T/L  T  T/R|R:T
- *   L:C|L    C    R|R:C
- *   L:B|B/L  B  B/R|R:B
- *   ---+-----------+---
- *   B/L|B:L B:C B:R|B/R
- *
- *   TL,T-L=Top Left
- *   BL,B-L=Bottom Left
+ *   Button Coordinates
+ *   T/L( 0)(0,0) | T:L( 1)(0,1) T:C( 2)(0,2) T:R( 3)(0,3) | T/R( 4)(0,4)
+ *   -------------+--------------------------------------+------------
+ *   L:T( 5)(1,0) | T/L( 6)(1,1) T  ( 7)(1,2) T/R( 8)(1,3) | R:T( 9)(1,4)
+ *                |                                        |
+ *   L:C(10)(2,0) | L  (11)(2,1) C  (12)(2,2) R  (13)(2,3) | R:C(14)(2,4)
+ *                |                                        |
+ *   L:B(15)(3,0) | B/L(16)(3,1) B  (17)(3,2) B/R(18)(3,3) | R:B(19)(3,4)
+ *   -------------+----------------------------------------+------------
+ *   B/L(20)(4,0) | B:L(21)(4,1) B:C(22)(4,2) B:R(23)(4,3) | R/B(24)(4,4)
  */
 
 class PlacementDialog : public QDialog
@@ -127,8 +127,6 @@ public:
     PlacementType   placedType,
     PlacementData  &goods,
     QString         title,
-    int             onPageType,
-    bool            pliPerStep,
     QWidget        *parent);
  ~PlacementDialog();
 
@@ -137,8 +135,6 @@ public:
     PlacementType   placedType,
     PlacementData  &goods,  // the type in here provides default value
     QString         title,
-    int             onPageType = ContentPage,
-    bool            pliPerStep = false,
     QWidget        *parent = nullptr);
 
   static QString placementTypeName(int placementType);

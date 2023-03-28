@@ -1407,8 +1407,7 @@ void MetaItem::changeCsiAnnotationPlacement(
   bool                   useTop,
   int                    append,
   bool                   local,
-  bool                   useLocal,
-  int                    onPageType)
+  bool                   useLocal)
 {
   Q_UNUSED(bottomOf)
   Q_UNUSED(useTop)
@@ -1417,10 +1416,7 @@ void MetaItem::changeCsiAnnotationPlacement(
   Q_UNUSED(useLocal)
 
   PlacementData placementData = placement->value();
-  bool ok;
-  ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,onPageType);
-
+  bool ok = PlacementDialog::getPlacement(parentType,relativeType,placementData,title);
   if (ok) {
     CsiAnnotationIconData caiData = icon->value();
     bool hasJustification = (placementData.justification != Center &&
@@ -1448,42 +1444,12 @@ void MetaItem::changePlacement(
   bool           useTop,
   int            append,
   bool           local,
-  bool           useLocal,
-  int            onPageType)
+  bool           useLocal)
 {
   PlacementData placementData = placement->value();
-  bool ok;
-  ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,onPageType);
-
+  bool ok = PlacementDialog::getPlacement(parentType,relativeType,placementData,title);
   if (ok) {
     placement->setValue(placementData);
-    setMeta(topOfSteps,bottomOfSteps,placement,useTop,append,local,useLocal);
-  }
-}
-
-void MetaItem::changePlacement(
-  PlacementType  parentType,
-  bool           pliPerStep,
-  PlacementType  relativeType,
-  QString        title,
-  const Where   &topOfSteps,
-  const Where   &bottomOfSteps,
-  PlacementMeta *placement,
-  bool           useTop,
-  int            append,
-  bool           local,
-  bool           useLocal,
-  int            onPageType)
-{
-  PlacementData placementData = placement->value();
-  bool ok;
-  ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,onPageType,pliPerStep);
-
-  if (ok) {
-    placement->setValue(placementData);
-
     setMeta(topOfSteps,bottomOfSteps,placement,useTop,append,local,useLocal);
   }
 }
@@ -2920,9 +2886,10 @@ void MetaItem::updateText(
         placementMeta.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
                 .arg(_isRichText ? "RICH_TEXT" : "TEXT");
         PlacementData placementData = placementMeta.value();
+        placementData.pageType = DefaultPage;
 
         placementOk = PlacementDialog
-                ::getPlacement(PlacementType(_parentRelaiveType),TextType,placementData,QMessageBox::tr("Placement"),DefaultPage);
+                ::getPlacement(PlacementType(_parentRelaiveType),TextType,placementData,QMessageBox::tr("Placement"));
 
         if (placementOk) {
             if (hasOffset) {

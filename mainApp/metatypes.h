@@ -321,6 +321,12 @@ public:
   PlacementType  relativeTo;
   PrepositionEnc preposition;
   RectPlacement  rectPlacement;
+  QVector<PlacementType>relativeOf;
+  PageTypeEnc    pageType;
+  bool           partsListPerStep;
+  bool           subModelShown;
+  bool           rotateIconShown;
+  bool           stepNumberShown;
 
   float offsets[2];
   PlacementData()
@@ -332,6 +338,11 @@ public:
     rectPlacement = TopLeftOutsideCorner;
     offsets[0] = 0;
     offsets[1] = 0;
+    pageType   = ContentPage;
+    partsListPerStep = false;
+    subModelShown   = false;
+    rotateIconShown = false;
+    stepNumberShown = false;
   }
 };
 

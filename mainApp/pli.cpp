@@ -3469,9 +3469,17 @@ void PliBackgroundItem::contextMenuEvent(
                              bottom,
                              &pli->pliMeta.constrain);
         } else if (selectedAction == placementAction) {
+            if (pli->step->showStepNumber) {
+                pli->placement.setStepNumberShown(true);
+                if (pli->step->stepNumber.placement.value().relativeTo == PartsListType)
+                  pli->placement.setValue(StepNumberType);
+            }
+            pli->placement.setSubModelShown(pli->step->placeSubModel);
+            pli->placement.setRotateIconShown(pli->step->placeRotateIcon);
+            pli->placement.setPartsListPerStep(pli->perStep);
             if (pli->bom) {
+                pli->pliMeta.placement.setPartsListPerStep(pli->perStep);
                 changePlacement(parentRelativeType,
-                                pli->perStep,
                                 PartsListType,
                                 QObject::tr("%1 Placement").arg(name),
                                 top,
@@ -3479,7 +3487,6 @@ void PliBackgroundItem::contextMenuEvent(
                                 &pli->pliMeta.placement,true,1,0,false);
             } else if (pli->perStep) {
                 changePlacement(parentRelativeType,
-                                pli->perStep,
                                 PartsListType,
                                 QObject::tr("%1 Placement").arg(name),
                                 top,
@@ -3487,7 +3494,6 @@ void PliBackgroundItem::contextMenuEvent(
                                 &pli->placement);
             } else {
                 changePlacement(parentRelativeType,
-                                pli->perStep,
                                 PartsListType,
                                 QObject::tr("%1 Placement").arg(name),
                                 top,
