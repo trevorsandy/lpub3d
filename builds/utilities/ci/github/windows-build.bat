@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Jun 05, 2022
+rem  Last Update: March 15, 2023
 rem  Copyright (C) 2021 - 2023 by Trevor SANDY
 rem --
 rem --
@@ -175,7 +175,7 @@ SET genHash=%gen_hash% ECHO
 >>%genHash% else
 >>%genHash%   echo "  -$sha512 found."
 >>%genHash%   # generate package hash files
->>%genHash%   LP3D_WIN_ASSETS=$^(find . -type f^)
+>>%genHash%   LP3D_WIN_ASSETS=$^(find . -type f -not -path "./*_Assets.zip*"^)
 >>%genHash%   for LP3D_WIN_ASSET in ${LP3D_WIN_ASSETS}; do
 >>%genHash%     LP3D_WIN_ASSET_EXT=".${LP3D_WIN_ASSET##*.}"
 >>%genHash%     case "${LP3D_WIN_ASSET_EXT}" in

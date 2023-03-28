@@ -3,15 +3,16 @@
 Title Perform a stand-alone build check
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 26, 2022
+rem  Last Update: March 15, 2023
 rem  Copyright (C) 2017 - 2023 by Trevor SANDY
 
 rem  To Run:
 rem  1. Launch command prompt at root folder or this script folder.
-rem  2. Set skip cleanup if desired: SET SKIP_CLEANUP_CHECK_FOLDERS=1, unset to enable
-rem  3. Set debug configuration as appropriate: SET CONFIGURATION=Debug
-rem  4. RunBuildCheck.bat x86 | builds\windows\RunBuildCheck.bat x86
-rem  5. Run with log: builds\windows\RunBuildCheck.bat x86 > ..\build_check_log.txt 2>&1
+rem  2. Set skip cleanup if desired: SET SKIP_CLEANUP_PKG_CHECK_FOLDERS=1, unset to enable
+rem  3. Set archive check assets by appending the command argument -aca
+rem  4. Set debug configuration as appropriate: SET CONFIGURATION=Debug
+rem  5. RunBuildCheck.bat x86 | builds\windows\RunBuildCheck.bat x86
+rem  6. Run with log: builds\windows\RunBuildCheck.bat x86 -aca > ..\build_check_log.txt 2>&1
 
 CALL :ELAPSED_BUILD_TIME Start
 
@@ -102,8 +103,8 @@ IF [%CONFIGURATION%] == [] (
 SET LP3D_DOWNLOADS_PATH=builds\windows\%CONFIGURATION%\Downloads
 
 rem set application version variables
-SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
-CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
+SET "_PRO_FILE_PWD_=%ABS_WD%\mainApp"
+CALL builds\utilities\update-config-files.bat "%_PRO_FILE_PWD_%" NoFileUpdates
 
 rem Check if build all platforms
 IF /I "%PLATFORM%"=="-all" (

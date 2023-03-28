@@ -1,4 +1,5 @@
 * text=auto !eol
+*.bat   text eol=crlf
 /LPub3DHold.pro -text
 /LPub3DPlatformSpecific.pri -text
 lc_lib/common/camera.cpp -text

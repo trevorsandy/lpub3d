@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Oct 12, 2022
+rem  Last Update: March 15, 2023
 rem  Copyright (C) 2015 - 2023 by Trevor SANDY
 rem --
 rem --
@@ -83,44 +83,7 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 
 CD /D "%LP3D_BUILDS_DIR%"
 
-SET LP3D_FILE="%LP3D_MAIN_APP%\docs\RELEASE_NOTES.html"
-ECHO  update RELEASE_NOTES.html build version [%LP3D_FILE%]
-SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%
-SET "Replacement=      ^<h4^>^<a id="LPub3D_0"^>^</a^>LPub3D %LP3D_BUILD_VERSION%^</h4^>"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement:^=%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
-
-SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
-ECHO  update README.txt build version [%LP3D_FILE%]
-SET /a LineToReplace=%LINE_README_TXT%
-SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
-
-SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
-ECHO  update README.md version        [%LP3D_FILE%]
-SET /a LineToReplace=%LINE_README_MD_VER%
-SET "Replacement=[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited %LP3D_LAST_EDIT%""
-(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
-  SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-    SETLOCAL ENABLEDELAYEDEXPANSION
-    ECHO(!Line!
-    ENDLOCAL
-))>"%LP3D_FILE%.new"
-MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+IF [%2] EQU [] CALL :UPDATE_CONFIG_FILES
 
 IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
   ECHO   LP3D_BUILD_TYPE................[Continuous]
@@ -164,6 +127,47 @@ IF EXIST "%LP3D_VER_INFO_FILE%" (
   ECHO   FILE version.info..............[ERROR - file %LP3D_VER_INFO_FILE% not found]
 )
 GOTO :END
+
+: UPDATE_CONFIG_FILES
+SET LP3D_FILE="%LP3D_MAIN_APP%\docs\RELEASE_NOTES.html"
+ECHO  update RELEASE_NOTES.html build version [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%
+SET "Replacement=      ^<h4^>^<a id="LPub3D_0"^>^</a^>LPub3D %LP3D_BUILD_VERSION%^</h4^>"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement:^=%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+
+SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
+ECHO  update README.txt build version [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_README_TXT%
+SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+
+SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
+ECHO  update README.md version        [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_README_MD_VER%
+SET "Replacement=[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited %LP3D_LAST_EDIT%""
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
+EXIT /b
 
 :FIXUP_PWD
 SET TEMP=%CD%
