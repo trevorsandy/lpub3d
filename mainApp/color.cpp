@@ -20,8 +20,7 @@
 #include "lc_global.h"
 #include "lc_colors.h"
 
-int                LDrawColor::index = -1;
-QStringList        LDrawColor::nonnative;
+QStringList        LDrawColor::userdefinedcolors;
 QHash<QString,int> LDrawColor::color2alpha;
 QMultiHash<QString,int> LDrawColor::value2code;
 QHash<QString, QColor>  LDrawColor::name2QColor;
@@ -38,7 +37,6 @@ QHash<QString, QString> LDrawColor::ldname2ldcolor;
 void LDrawColor::LDrawColorInit()
 {
   //qDebug() << qUtf8Printable(QString("LOAD LDraw Colors in LDrawColor::LDrawColorInit"));
-  index = -1;
   value2code.clear();
   color2alpha.clear();
   color2value.clear();
@@ -46,6 +44,7 @@ void LDrawColor::LDrawColorInit()
   color2name.clear();
   name2QColor.clear();
   ldname2ldcolor.clear();
+  userdefinedcolors.clear();
 
   for (lcColor& gColor : gColorList)
   {
@@ -66,22 +65,21 @@ void LDrawColor::LDrawColorInit()
  */
 void LDrawColor::AddColor(const QColor& color, const QString& name, const QString& code, const QString& edge, bool native)
 {
-  value2code. insert(color.name(QColor::HexRgb).toLower(),code.toInt()); // color code  from value (lower)
-  color2alpha.insert(code,color.alpha());                               // color alpha from code
-  color2value.insert(code,color.name(QColor::HexRgb).toUpper());        // color value from code
-  color2edge. insert(code,edge.toUpper());                               // color edge from code
-  color2name. insert(code,name);                                         // color name from code - e.g. Dark_Nougat
-  color2name. insert(color.name(QColor::HexRgb).toLower(),name);         // color name from value (lower)
-  name2QColor.insert(code,color);                                       // QColor from code
-  name2QColor.insert(name.toLower(),color);                             // QColor from name (lower) - e.g. dark_nougat
-  ldname2ldcolor.insert(name.toLower(),code);                           // color code from name (lower)
-  index++;
+  ldname2ldcolor.insert(name.toLower(),code);                           // color  code   from name (lower)
+  value2code. insert(color.name(QColor::HexRgb).toLower(),code.toInt());// color  code   from value (lower)
+  color2value.insert(code,color.name(QColor::HexRgb).toUpper());        // color  value  from code
+  color2edge. insert(code,edge.toUpper());                              // color  edge   from code
+  color2alpha.insert(code,color.alpha());                               // color  alpha  from code
+  color2name. insert(code,name);                                        // color  name   from code  (safe name e.g. Dark_Nougat)
+  color2name. insert(color.name(QColor::HexRgb).toLower(),name);        // color  name   from value (lower)
+  name2QColor.insert(code,color);                                       // QColor object from code
+  name2QColor.insert(name.toLower(),color);                             // QColor object from name (lower) - e.g. dark_nougat
   const QString message = QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5 QCOLOR_NAME %6").arg(name).arg(code).arg(color.name().toUpper()).arg(edge.toUpper()).arg(color.alpha()).arg(color.name());
   if (!native) {
-    nonnative.append(name.toLower());
-    qInfo() << qUtf8Printable(QString("%1. ADD %2").arg(index, 3, 10, QChar(' ')).arg(message));
+    userdefinedcolors.append(name.toLower());
+    qInfo() << qUtf8Printable(QString("%1. ADD %2").arg(ldname2ldcolor.size(), 3, 10, QChar(' ')).arg(message));
   }
-  //qDebug() << qUtf8Printable(QString("%1. %2").arg(index, 3, 10, QChar(' ')).arg(message));
+  //qDebug() << qUtf8Printable(QString("%1. %2").arg(ldname2ldcolor.size(), 3, 10, QChar(' ')).arg(message));
 
 }
 
@@ -91,7 +89,7 @@ void LDrawColor::AddColor(const QColor& color, const QString& name, const QStrin
  */
 void LDrawColor::removeUserDefinedColors()
 {
-  for (const QString &name : nonnative) {
+  for (const QString &name : userdefinedcolors) {
 
     QColor color(name2QColor[name]);
     QString const hexname = color.name(QColor::HexRgb).toLower();
@@ -181,9 +179,8 @@ void LDrawColor::removeUserDefinedColors()
       } else
         i++;
     }
-    ok[9] = nonnative.removeAll(name) > 0;
+    ok[9] = userdefinedcolors.removeAll(name) > 0;
     if (ok[9] && ok[8] && ok[7] && ok[6] && ok[5] && ok[4] && ok[3] && ok[2] && ok[1] && ok[0]) {
-      index--;
       qInfo() << qUtf8Printable(QString("REMOVED 0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5 QCOLOR_NAME %6").arg(name.toUpper()).arg(code).arg(color.name().toUpper()).arg(edge.toUpper()).arg(color.alpha()).arg(color.name()));
     }
   }
@@ -200,23 +197,25 @@ QColor LDrawColor::color(const QString& argument)
   QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
   bool isHexRGB = key.contains(hexRx);
   bool isCode = false;
-  int code = key.toInt(&isCode);
+  int code = -1;
   QColor color;
 
   if (name2QColor.contains(key)) {
     color = name2QColor[key];
+    code = key.toInt(&isCode);
+    Q_UNUSED(code)
   } else if (isHexRGB) {
     color = QColor(QString("#%1").arg(hexRx.cap(2)));
   }
 
   if (color.isValid()) {
-
-    Q_UNUSED(code)
     //qDebug() << qUtf8Printable(QString("RETURNED Color OBJECT   [%1] ALPHA [%2] for %3 [%4]").arg(color.name(QColor::HexRgb).toUpper()).arg(color.alpha()).arg(isHexRGB ? QString("HEX(%1) VALUE").arg(hexRx.cap(1)) : isCode ? "CODE" : "NAME").arg(argument));
-  } else {
-    qWarning() << qUtf8Printable(QString("WARNING - Could not resolve Color OBJECT for %1 [%2] ").arg(isHexRGB ? "VALUE" : isCode ? "CODE" : "NAME").arg(argument));
-    color = QColor(Qt::black);
+    return color;
   }
+
+  qWarning() << qUtf8Printable(QString("WARNING - Could not resolve Color OBJECT for %1 [%2] ").arg(isHexRGB ? "VALUE" : isCode ? "CODE" : "NAME").arg(argument));
+
+  color = QColor(Qt::black);
 
   return color;
 }

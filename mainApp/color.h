@@ -37,8 +37,7 @@
 
 class LDrawColor {
   private:
-    static int index;
-    static QStringList         nonnative;
+    static QStringList         userdefinedcolors;
     static QHash<QString, int> color2alpha;
     static QMultiHash<QString, int> value2code;
     static QHash<QString, QColor>  name2QColor;
@@ -46,6 +45,7 @@ class LDrawColor {
     static QHash<QString, QString> color2edge;
     static QHash<QString, QString> color2name;
     static QHash<QString, QString> ldname2ldcolor;
+
     /*
      * This function adds a QColor object to LDrawColor
      */
