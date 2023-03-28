@@ -255,7 +255,7 @@ fi
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
 Info "$((LP3D_CMD_COUNT += 1)). update RELEASE_NOTES   - build version         [$FILE]" || :
-LineToReplace=20
+LineToReplace=21
 StringToReplace="      <h4><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h4>"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
