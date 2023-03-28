@@ -265,8 +265,7 @@ void Gui::updateOpenWithActions()
           openWithActList[i]->setText(text);
           openWithActList[i]->setData(programData); // includes arguments
           openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(tr("Open current file with %2")
-                                              .arg(fileInfo.fileName()));
+          openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
           openWithActList[i]->setVisible(true);
           i++;
           if (Preferences::debugLogging) {
@@ -296,8 +295,7 @@ void Gui::updateOpenWithActions()
           openWithActList[i]->setText(text);
           openWithActList[i]->setData(programData);
           openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(tr("Open current file with %2")
-                                              .arg(fileInfo.fileName()));
+          openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
           openWithActList[i]->setVisible(true);
           programEntries.append(QString("%1|%2").arg(programName).arg(programData));
           numPrograms = programEntries.size();
@@ -345,7 +343,7 @@ void Gui::openWithProgramAndArgs(QString &program, QStringList &arguments)
         program = list.first();
     } else {
         QStringList values;
-        Q_FOREACH (QString item, list) {
+        for (QString &item : list) {
             if (inside) {                                                 // If 's' is inside quotes ...
                 values.append(item);                                      // ... get the whole string
             } else {                                                      // If 's' is outside quotes ...
@@ -488,7 +486,7 @@ void Gui::enableWatcher()
       QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
-        for (QString filePath : filePaths) {
+        for (QString &filePath : filePaths) {
           watcher.addPath(filePath);
         }
       }
@@ -504,7 +502,7 @@ void Gui::disableWatcher()
       QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
-        for (QString filePath : filePaths) {
+        for (QString &filePath : filePaths) {
           watcher.removePath(filePath);
         }
       }

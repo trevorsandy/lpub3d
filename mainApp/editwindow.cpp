@@ -277,7 +277,7 @@ void EditWindow::previewLine()
         }
     }
 
-    emit lpub->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
+    emit lpub->messageSig(LOG_ERROR, tr("Part preview for %1 failed.").arg(partType));
 }
 
 #ifdef QT_DEBUG_MODE
@@ -304,7 +304,7 @@ void EditWindow::updateOpenWithActions()
 
         numOpenWithPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
-        emit lpub->messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numOpenWithPrograms));
+        emit lpub->messageSig(LOG_DEBUG, tr("1. Number of Programs: %1").arg(numOpenWithPrograms));
 
         QString programData, programName, programPath;
 
@@ -320,7 +320,7 @@ void EditWindow::updateOpenWithActions()
                 QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
                 QPixmap iconPixmap = fileIcon.pixmap(16,16);
                 if (!iconPixmap.save(iconFile))
-                    emit lpub->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+                    emit lpub->messageSig(LOG_INFO,tr("Could not save program file icon: %1").arg(iconFile));
                 return fileIcon;
             }
             return QIcon(iconFile);
@@ -342,8 +342,7 @@ void EditWindow::updateOpenWithActions()
                 openWithActList[i]->setText(text);
                 openWithActList[i]->setData(programData); // includes arguments
                 openWithActList[i]->setIcon(getProgramIcon());
-                openWithActList[i]->setStatusTip(QString("Open current file with %2")
-                                                 .arg(fileInfo.fileName()));
+                openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
                 openWithActList[i]->setVisible(true);
                 i++;
             } else {
@@ -370,15 +369,14 @@ void EditWindow::updateOpenWithActions()
             openWithActList[i]->setText(text);
             openWithActList[i]->setData(programData); // includes arguments
             openWithActList[i]->setIcon(getProgramIcon());
-            openWithActList[i]->setStatusTip(QString("Open current file with %2")
-                                                     .arg(fileInfo.fileName()));
+            openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
             openWithActList[i]->setVisible(true);
             programEntries.append(QString("%1|%2").arg(programName).arg(programData));
             numOpenWithPrograms = programEntries.size();
           }
         }
 
-        emit lpub->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numOpenWithPrograms));
+        emit lpub->messageSig(LOG_DEBUG, tr("2. Number of Programs: %1").arg(numOpenWithPrograms));
 
         // hide empty program actions - redundant
         for (int j = numOpenWithPrograms; j < Preferences::maxOpenWithPrograms; j++) {
@@ -397,7 +395,7 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
         program = list.first();
     } else {
         QStringList values;
-        Q_FOREACH (QString item, list) {
+        for (QString &item : list) {
             if (inside) {                                                 // If 's' is inside quotes ...
                 values.append(item);                                      // ... get the whole string
             } else {                                                      // If 's' is outside quotes ...
@@ -430,8 +428,8 @@ void EditWindow::openWith()
             }
 #else
             else {
-                emit lpub->messageSig(LOG_ERROR, QString("No program specified. Cannot launch %1.")
-                                                         .arg(QFileInfo(fileName).fileName()));
+                emit lpub->messageSig(LOG_ERROR, tr("No program specified. Cannot launch %1.")
+                                                    .arg(QFileInfo(fileName).fileName()));
             }
 #endif
         } else {
@@ -440,10 +438,10 @@ void EditWindow::openWith()
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, arguments, workingDirectory, &pid);
-        emit lpub->messageSig(LOG_INFO, QString("Launched %1 with pid=%2 %3%4...")
-                              .arg(QFileInfo(fileName).fileName()).arg(pid)
-                              .arg(QFileInfo(program).fileName())
-                              .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+        emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
+                                           .arg(QFileInfo(fileName).fileName()).arg(pid)
+                                           .arg(QFileInfo(program).fileName())
+                                           .arg(arguments.size() ? QString(" %1").arg(arguments.join(" ")) : ""));
     }
 }
 
@@ -976,7 +974,7 @@ bool EditWindow::setValidPartLine()
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
     QStringList list;
-    QString partType, titleType = "part";
+    QString partType, titleType = QLatin1String("part");
     int validCode = -1;
     int colorCode = LDRAW_MATERIAL_COLOUR;
     bool colorOk = false;
@@ -1167,7 +1165,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
             if (numOpenWithPrograms) {
                 for (int i = 0; i < numOpenWithPrograms; i++) {
                     QFileInfo fileInfo(programEntries.at(i).split("|").last());
-                    openWithActList[i]->setStatusTip(QString("Open %1 with %2")
+                    openWithActList[i]->setStatusTip(tr("Open %1 with %2")
                                                      .arg(QFileInfo(fileName).fileName())
                                                      .arg(fileInfo.fileName()));
                     openWithMenu->addAction(openWithActList.at(i));
@@ -1420,14 +1418,14 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
                     emit undoAct->triggered();
                 return false;
             } else {
-                emit lpub->messageSig(LOG_ERROR, QString("Failed to retrieve part [%1], color %2 (%3)...")
-                                                         .arg(type).arg(colorName).arg(colorCode));
+                emit lpub->messageSig(LOG_ERROR, tr("Failed to retrieve part [%1], color %2 (%3)...")
+                                                    .arg(type).arg(colorName).arg(colorCode));
                 return false;
             }
         }
     } // step
 
-    emit lpub->messageSig(LOG_ERROR, QString("Failed to get current Step for selected line."));
+    emit lpub->messageSig(LOG_ERROR, tr("Failed to get current Step for selected line."));
     return false;
 }
 
@@ -1518,7 +1516,7 @@ void EditWindow::openFolderSelect(const QString& absoluteFilePath)
 
         if (!ok) {
             QErrorMessage *m = new QErrorMessage(this);
-            m->showMessage(QString("%1\n%2").arg("Failed to open folder!").arg(path));
+            m->showMessage(tr("Failed to open folder!\n%1").arg(path));
         }
     };
 
@@ -1583,7 +1581,7 @@ void EditWindow::openFolderSelect(const QString& absoluteFilePath)
         QProcess::ExitStatus status = proc.exitStatus();
         if (status != 0) {  // look for error
             QErrorMessage *m = new QErrorMessage(this);
-            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!").arg(path));
+            m->showMessage(tr("Failed to open working folder!\n%1").arg(path));
         }
     }
     else {
@@ -1620,7 +1618,7 @@ void EditWindow::updateClipboard()
         }
 
         if (data.isEmpty()) {
-            emit lpub->messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
+            emit lpub->messageSig(LOG_ERROR, tr("Copy to clipboard - Sender: %1, No data detected")
                                                .arg(sender()->metaObject()->className()));
             return;
         }
@@ -1643,7 +1641,7 @@ void EditWindow::updateClipboard()
                                 efn.right(3) : efn)
                            .arg(fullPath ? "full path" : "name");
 
-        emit lpub->messageSig(LOG_INFO_STATUS, QString("%1 copied to clipboard.").arg(_fileName));
+        emit lpub->messageSig(LOG_INFO_STATUS, tr("%1 copied to clipboard.").arg(_fileName));
     }
 }
 #endif
@@ -2726,13 +2724,13 @@ void EditWindow::preferences()
         if (editorFont != Preferences::editorFont) {
             fontChanged |= true;
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"EditorFont"),Preferences::editorFont);
-            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text font changed to %1").arg(Preferences::editorFont));
+            emit lpub->messageSig(LOG_INFO,tr("LDraw editor text font changed to %1").arg(Preferences::editorFont));
         }
         Preferences::editorFontSize       = editorFontSizeCombo->currentText().toInt();
         if (editorFontSize != Preferences::editorFontSize) {
             fontChanged |= true;
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"EditorFontSize"),Preferences::editorFontSize);
-            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text font size changed to %1").arg(Preferences::editorFontSize));
+            emit lpub->messageSig(LOG_INFO,tr("LDraw editor text font size changed to %1").arg(Preferences::editorFontSize));
         }
         Preferences::editorDecoration     = editorDecorationCombo->currentIndex();
         if (editorDecoration != Preferences::editorDecoration) {
@@ -2748,7 +2746,7 @@ void EditWindow::preferences()
                 highlighter->rehighlight();
             }
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
-            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE_DECORATION ? "Simple" : "Standard"));
+            emit lpub->messageSig(LOG_INFO,tr("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE_DECORATION ? "Simple" : "Standard"));
         }
         Preferences::editorBufferedPaging = editorBufferedPagingGrpBox->isChecked();
         if (editorBufferedPaging != Preferences::editorBufferedPaging) {
@@ -2758,27 +2756,27 @@ void EditWindow::preferences()
         Preferences::editorLinesPerPage   = editorLinesPerPageSpin->text().toInt();
         if (editorLinesPerPage != Preferences::editorLinesPerPage) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"),Preferences::editorLinesPerPage);
-            emit lpub->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
+            emit lpub->messageSig(LOG_INFO,tr("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
         }
 
         if (! modelFileEdit()) {
             Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
             if (editorHighlightLines != Preferences::editorHighlightLines) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
-                emit lpub->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
+                emit lpub->messageSig(LOG_INFO,tr("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
             }
 
             Preferences::editorLoadSelectionStep   = editorLoadSelectionStepBox->isChecked();
             if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
-                emit lpub->messageSig(LOG_INFO,QString("Load selection step in Visual Editor changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
+                emit lpub->messageSig(LOG_INFO,tr("Load selection step in Visual Editor changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
             }
         } // ! modelFileEdit()
         else {
             Preferences::editorPreviewOnDoubleClick = editorPreviewOnDoubleClickBox->isChecked();
             if (editorPreviewOnDoubleClick != Preferences::editorPreviewOnDoubleClick) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorPreviewOnDoubleClick"),Preferences::editorPreviewOnDoubleClick);
-                emit lpub->messageSig(LOG_INFO,QString("Launch floating preview part double click changed from %1 to %2").arg(editorPreviewOnDoubleClick).arg(Preferences::editorPreviewOnDoubleClick));
+                emit lpub->messageSig(LOG_INFO,tr("Launch floating preview part double click changed from %1 to %2").arg(editorPreviewOnDoubleClick).arg(Preferences::editorPreviewOnDoubleClick));
             }
         } // modelFileEdit()
 
@@ -2786,7 +2784,7 @@ void EditWindow::preferences()
             _textEdit->setEditorFont();
 
         if (!change.isEmpty())
-            showMessage(QString("%1 editor %2 change").arg(VER_PRODUCTNAME_STR).arg(change));
+            showMessage(tr("%1 editor %2 change").arg(VER_PRODUCTNAME_STR).arg(change));
     }
 }
 
@@ -2802,7 +2800,7 @@ void  EditWindow::verticalScrollValueChanged(int value)
         return;
 
     if (value > (verticalScrollBar->maximum() * 0.90 /*trigger load at 90% page scroll*/)) {
-        emit lpub->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...")
+        emit lpub->messageSig(LOG_INFO_STATUS,tr("Loading buffered page %1 lines...")
                                    .arg(Preferences::editorLinesPerPage));
 
         loadPagedContent();
@@ -2844,7 +2842,7 @@ void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) 
                 _textEdit->appendPlainText(block);
             }
 #ifdef QT_DEBUG_MODE
-        emit lpub->messageSig(LOG_DEBUG,QString("Load content block %1, lines %2 - %3")
+        emit lpub->messageSig(LOG_DEBUG,tr("Load content block %1, lines %2 - %3")
                                    .arg(i)
                                    .arg(blockLineCount)
                                    .arg(lpub->elapsedTime(t.elapsed())));
@@ -2861,7 +2859,7 @@ void EditWindow::loadPagedContent()
 
    QElapsedTimer t; t.start();
 #ifdef QT_DEBUG_MODE
-   emit lpub->messageSig(LOG_DEBUG,QString("Load paged content %1 lines - start...")
+   emit lpub->messageSig(LOG_DEBUG,tr("Load paged content %1 lines - start...")
                               .arg(_pageContent.size()));
 #endif
 
@@ -2873,7 +2871,7 @@ void EditWindow::loadPagedContent()
    int pageLineCount  = page.count("\n") + (initialLoad ? 2 : 1);
 
 #ifdef QT_DEBUG_MODE
-   emit lpub->messageSig(LOG_DEBUG,QString("Load page line count %1 - %2")
+   emit lpub->messageSig(LOG_DEBUG,tr("Load page line count %1 - %2")
                               .arg(pageLineCount)
                               .arg(lpub->elapsedTime(t.elapsed())));
 #endif
@@ -2887,7 +2885,7 @@ void EditWindow::loadPagedContent()
    if (initialLoad) {
        _textEdit->setPlainText(page);
 #ifdef QT_DEBUG_MODE
-   emit lpub->messageSig(LOG_DEBUG,QString("Load page set %1 plain text lines - %2")
+   emit lpub->messageSig(LOG_DEBUG,tr("Load page set %1 plain text lines - %2")
                               .arg(pageLineCount)
                               .arg(lpub->elapsedTime(t.elapsed())));
 #endif
@@ -2903,7 +2901,7 @@ void EditWindow::loadPagedContent()
 
    _contentLoaded = maxPageIndx >= _pageContent.size() - 1;
 
-   emit lpub->messageSig(LOG_TRACE,QString("Load page of %1 lines from %2 to %3, content lines %4, final page: %5 - %6")
+   emit lpub->messageSig(LOG_TRACE,tr("Load page of %1 lines from %2 to %3, content lines %4, final page: %5 - %6")
                               .arg(pageLineCount)
                               .arg(_pageIndx + 1)
                               .arg(maxPageIndx + 1)

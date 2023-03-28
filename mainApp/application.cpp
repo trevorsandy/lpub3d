@@ -239,7 +239,7 @@
 
           if (gConsoleMode)
           {
-              fprintf(stdout, "%ls\n",message);
+              fprintf(stdout, "%ls\n", message);
               fflush(stdout);
           }
           else
@@ -583,7 +583,7 @@ void Application::setTheme(bool appStarted)
 void Application::splashMsg(const QString &message)
 {
   Preferences::setMessageLogging(true/*useLogLevel*/);
-  logInfo() << message;
+  logInfo() << qUtf8Printable(message);
   Preferences::setMessageLogging();
   if (m_console_mode)
       return;
@@ -649,14 +649,14 @@ int Application::initialize(lcCommandLineOptions &Options)
                     RedirectIOToConsole();
                 }
 #else
-                fprintf(stdout, "+cr/++console-redirect is only supported on Windows.\n");
+                fprintf(stdout, "%s\n", qUtf8Printable(tr("+cr/++console-redirect is only supported on Windows.\n")));
 #endif
             }
             if (!header_printed) {
                 header_printed = true;
-                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
                 fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s\n",args.toLatin1().constData());
+                fprintf(stdout, "%s", qUtf8Printable(tr("%1\n").arg(args)));
                 fflush(stdout);
             }
 
@@ -683,7 +683,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 #ifdef Q_OS_WIN
                 if (! consoleRedirectTreated) {
                     consoleRedirectTreated = true;
-                    Q_FOREACH(const QString &argument, arguments()) {
+                    for (const QString &argument : arguments()) {
                         if (argument == QLatin1String("-ncr") ||
                             argument == QLatin1String("--no-console-redirect")) {
                             consoleRedirect = false;
@@ -694,9 +694,9 @@ int Application::initialize(lcCommandLineOptions &Options)
                         RedirectIOToConsole();
                 }
 #endif
-                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
                 fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s\n",args.toLatin1().constData());
+                fprintf(stdout, "%s", qUtf8Printable(tr("%1\n").arg(args)));
                 fflush(stdout);
             }
 
@@ -706,16 +706,16 @@ int Application::initialize(lcCommandLineOptions &Options)
             // Version output
             if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
             {
-              m_console_mode = true;
-              m_print_output = true;
-              fprintf(stdout, "\n%s, %s %s, Revision %s, Commit %s, SHA %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_COMMIT_STR,VER_GIT_SHA_STR);
-              fprintf(stdout, "Compiled on " __DATE__ "\n");
-              fflush(stdout);
-              if (ArgIdx == NumArgsIdx) {
+                m_console_mode = true;
+                m_print_output = true;
+                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1, %2 %3, Revision %4, Commit %5, SHA %6\n").arg(VER_PRODUCTNAME_STR).arg(VER_BUILD_TYPE_STR).arg(VER_PRODUCTVERSION_STR).arg(VER_REVISION_STR).arg(VER_COMMIT_STR).arg(VER_GIT_SHA_STR)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled on %1\n").arg(__DATE__)));
+                fflush(stdout);
+                if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                  return  ReleaseConsole();
+                    return  ReleaseConsole();
 #else
-                  return EXIT_SUCCESS;
+                    return EXIT_SUCCESS;
 #endif
               }
             }
@@ -723,16 +723,16 @@ int Application::initialize(lcCommandLineOptions &Options)
             // Visual Editor (LeoCAD) version output
             if (Param == QLatin1String("-ve") || Param == QLatin1String("--visual-editor-version"))
             {
-              m_console_mode = true;
-              m_print_output = true;
-              fprintf(stdout, "Visual Editor - by LeoCAD, Version %s, SHA %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
-              fprintf(stdout, "Compiled " __DATE__ "\n");
-              fflush(stdout);
-              if (ArgIdx == NumArgsIdx) {
+                m_console_mode = true;
+                m_print_output = true;
+                fprintf(stdout, "%s", qUtf8Printable(tr("Visual Editor - by LeoCAD, Version %1, SHA %2\n").arg(LC_VERSION_TEXT).arg(LC_VERSION_SHA)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Compiled %1\n").arg(__DATE__)));
+                fflush(stdout);
+                if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                  return  ReleaseConsole();
+                    return  ReleaseConsole();
 #else
-                  return EXIT_SUCCESS;
+                    return EXIT_SUCCESS;
 #endif
               }
             }
@@ -742,89 +742,89 @@ int Application::initialize(lcCommandLineOptions &Options)
             {
                 m_console_mode = true;
                 m_print_output = true;
-                fprintf(stdout, "Usage: %s [options] [LDraw file]\n",qApp->applicationName().toLatin1().constData());
-                fprintf(stdout, "  [LDraw file]:\n");
-                fprintf(stdout, "  Use absolute file path and file name with .ldr, .mpd or .dat extension.\n");
-                fprintf(stdout, "  [options]:\n");
-                fprintf(stdout, "  Options preceded by '+/++' are only applicable to GUI mode. They have no effect in Console mode.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("Usage: %1 [options] [LDraw file]\n").arg(qApp->applicationName())));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  [LDraw file]:\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  Use absolute file path and file name with .ldr, .mpd or .dat extension.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  [options]:\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  Options preceded by '+/++' are only applicable to GUI mode. They have no effect in Console mode.\n")));
                 fprintf(stdout, "\n");
-                fprintf(stdout, "[%s commands]\n",qApp->applicationName().toLatin1().constData());
+                fprintf(stdout, "%s", qUtf8Printable(tr("[%1 commands]\n").arg(qApp->applicationName())));
 #ifdef Q_OS_WIN
-                fprintf(stdout, "  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n")));
 #endif
-                fprintf(stdout, "  +ll, ++liblego: Load the LDraw LEGO archive parts library in GUI mode.\n");
-                fprintf(stdout, "  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n");
-                fprintf(stdout, "  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n");
-                fprintf(stdout, "  -aec, --automate-edge-color: Enable automatically adjusted edge colors.\n");
-                fprintf(stdout, "  -bec, --black-edge-color <#AARRGGBB>: High contrast edge color for black parts.\n");
-                fprintf(stdout, "  -cc, --color-contrast <decimal>: Color contrast value between 0.0 and 1.0.\n");
-                fprintf(stdout, "  -ccf, --color-config-file <file>: Full path for alternate LDConfig colour file.\n");
-                fprintf(stdout, "  -dec, --dark-edge-color <#AARRGGBB>: High contrast edge color for dark color parts.\n");
-                fprintf(stdout, "  -ec, --edge-color <#AARRGGBB>: High contrast edge color.\n");
-                fprintf(stdout, "  -emc, --export-meta-commands <file>: Export LPub meta commands to specified file.\n");
-                fprintf(stdout, "  -fc, --fade-steps-color <LDraw_colour_name>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %s\n",LEGO_FADE_COLOUR_DEFAULT);
-                fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade color - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
-                fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
-                fprintf(stdout, "  -hc, --highlight-step-color <#AARRGGBB>: Set the step highlight color. Color code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
-                fprintf(stdout, "  -hs, --highlight-step: Turn on highlight current step. Default is off.\n");
-                fprintf(stdout, "  -hw, --highlight-line-width: Set the width of the highlighted edge lines - Enabled for LDGlite renderer only. Default is 1.0f.\n");
-//              fprintf(stdout, "  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n");
-                fprintf(stdout, "  -ldv, --light-dark-value <decimal>: Light/Dark color value between 0.0 and 1.0.\n");
-                fprintf(stdout, "  -ll, --liblego: Load the LDraw LEGO archive parts library in command console mode.\n");
-                fprintf(stdout, "  -lt, --libtente: Load the LDraw TENTE archive parts library in command console mode.\n");
-                fprintf(stdout, "  -lv, --libvexiq: Load the LDraw VEXIQ archive parts library in command console mode.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("  +ll, ++liblego: Load the LDraw LEGO archive parts library in GUI mode.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -aec, --automate-edge-color: Enable automatically adjusted edge colors.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -bec, --black-edge-color <#AARRGGBB>: High contrast edge color for black parts.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -cc, --color-contrast <decimal>: Color contrast value between 0.0 and 1.0.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ccf, --color-config-file <file>: Full path for alternate LDConfig colour file.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -dec, --dark-edge-color <#AARRGGBB>: High contrast edge color for dark color parts.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ec, --edge-color <#AARRGGBB>: High contrast edge color.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -emc, --export-meta-commands <file>: Export LPub meta commands to specified file.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -fc, --fade-steps-color <LDraw_colour_name>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %1\n").arg(LEGO_FADE_COLOUR_DEFAULT)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade color - if opacity not 100 percent. Default is %1 percent\n").arg(FADE_OPACITY_DEFAULT)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -hc, --highlight-step-color <#AARRGGBB>: Set the step highlight color. Color code optional. Format is #RRGGBB. Default is %1.\n").arg(HIGHLIGHT_COLOUR_DEFAULT)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -hs, --highlight-step: Turn on highlight current step. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -hw, --highlight-line-width: Set the width of the highlighted edge lines - Enabled for LDGlite renderer only. Default is 1.0f.\n")));
+//              fprintf(stdout, "%s", qUtf8Printable(tr("  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ldv, --light-dark-value <decimal>: Light/Dark color value between 0.0 and 1.0.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ll, --liblego: Load the LDraw LEGO archive parts library in command console mode.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -lt, --libtente: Load the LDraw TENTE archive parts library in command console mode.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -lv, --libvexiq: Load the LDraw VEXIQ archive parts library in command console mode.\n")));
 #ifdef Q_OS_WIN
-                fprintf(stdout, "..-ncr, --no-console-redirect: Do not automatically redirect output and errors to console. Useful when running headless. Default is off.\n");
-#else
-                fprintf(stdout, "  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful to prevent double (stdout and QSLog) output. Default is off.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("..-ncr, --no-console-redirect: Do not automatically redirect output and errors to console. Useful when running headless. Default is off.\n")));
 #endif
-                fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg, bmp, stl, 3ds, pov, csv, bl-xml, dae, htmlparts, htmlsteps, or obj. Used with process-export. Default is pdf.\n");
-                fprintf(stdout, "  -od, --export-directory <path>: Designate the export option save folder using absolute path. Used with export-option. Default is model file folder\n");
-                fprintf(stdout, "  -of, --output-file/--pdf-output-file <path>: Designate the document save file using absolute path.\n");
-                fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl, povray, or povray-ldv. Default is native.\n ");
-                fprintf(stdout, "  -pe, --process-export: Export instruction document, images, files, or objects. Used with export-option. Default is pdf document.\n");
-                fprintf(stdout, "  -pf, --process-file: Process ldraw model file and generate images in png format.\n");
-                fprintf(stdout, "  -pr, --projection <p,perspective|o,orthographic>: Set camera projection.\n");
-                fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
-                fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
-                fprintf(stdout, "  -scc, --stud-cylinder-color <#AARRGGBB>: High contrast stud cylinder color.\n");
-                fprintf(stdout, "  -ss, --stud-style <id>: Set the stud style 0=Plain, 1=Thin Lines Logo, 2=Outline Logo, 3=Sharp Top Logo, 4=Rounded Top Logo, 5=Flattened Logo, 6=High Contrast, 7=High Contrast with Logo.\n");
-                fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
-                fprintf(stdout, "  -x, --clear-cache: Reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful to prevent double (stdout and QSLog) output. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -o, --export-option <option>: Set output format pdf, png, jpeg, bmp, stl, 3ds, pov, csv, bl-xml, dae, htmlparts, htmlsteps, or obj. Used with process-export. Default is pdf.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -od, --export-directory <path>: Designate the export option save folder using absolute path. Used with export-option. Default is model file folder\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -of, --output-file/--pdf-output-file <path>: Designate the document save file using absolute path.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl, povray, or povray-ldv. Default is native.\n ")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -pe, --process-export: Export instruction document, images, files, or objects. Used with export-option. Default is pdf document.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -pf, --process-file: Process ldraw model file and generate images in png format.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -pr, --projection <p,perspective|o,orthographic>: Set camera projection.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -scc, --stud-cylinder-color <#AARRGGBB>: High contrast stud cylinder color.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ss, --stud-style <id>: Set the stud style 0=Plain, 1=Thin Lines Logo, 2=Outline Logo, 3=Sharp Top Logo, 4=Rounded Top Logo, 5=Flattened Logo, 6=High Contrast, 7=High Contrast with Logo.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -v, --version: Output LPub3D version information and exit.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -x, --clear-cache: Reset the LDraw file and image caches. Used with export-option change. Default is off.\n")));
                 fprintf(stdout, "\n");
-                fprintf(stdout, "[Visual Editor commands]\n");
-                fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
-                fprintf(stdout, "..-cl, --draw-conditional-lines: Enable draw conditional lines.\n");
-                fprintf(stdout, "  -f, --from <step>: Set the first step to save pictures.\n");
-                fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
-                fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
-                fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
-                fprintf(stdout, "  -t, --to <step>: Set the last step to save pictures.\n");
-                fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
-                fprintf(stdout, "  -ve, --visual-editor-version: Output Visual Editor - by LeoCAD version information and exit.\n");
-                fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
-                fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
-                fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
-                fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
-                fprintf(stdout, "  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
-                fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
-                fprintf(stdout, "  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n");
-                fprintf(stdout, "  --camera-position-ldraw <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector using LDraw coordinates.\n");
-                fprintf(stdout, "  --fov <degrees>: Set the vertical field of view used to render images (< 180).\n");
-                fprintf(stdout, "  --zplanes <near> <far>: Set the near and far clipping planes used to render images (1 <= <near> < <far>).\n");
-                fprintf(stdout, "  --fade-steps: Render parts from prior steps faded.\n");
-                fprintf(stdout, "  --no-fade-steps: Do not render parts from prior steps faded.\n");
-                fprintf(stdout, "  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n");
-                fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
-                fprintf(stdout, "  --no-highlight: Do not highlight parts in the steps they appear.\n");
-                fprintf(stdout, "  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n");
-                fprintf(stdout, "  --line-width <width>: Set the width of the edge lines.\n");
-                fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
-                fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("[Visual Editor commands]\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -c, --camera <camera>: Set the active camera.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("..-cl, --draw-conditional-lines: Enable draw conditional lines.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -f, --from <step>: Set the first step to save pictures.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -h, --height <height>: Set the picture height.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -s, --submodel <submodel>: Set the active submodel.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -t, --to <step>: Set the last step to save pictures.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -w, --width <width>: Set the picture width.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ve, --visual-editor-version: Output Visual Editor - by LeoCAD version information and exit.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -csv, --export-csv <outfile.csv>: Export the list of parts used in csv format.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -html, --export-html <folder>: Create an HTML page for the model.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --camera-position-ldraw <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector using LDraw coordinates.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --fov <degrees>: Set the vertical field of view used to render images (< 180).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --zplanes <near> <far>: Set the near and far clipping planes used to render images (1 <= <near> < <far>).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --fade-steps: Render parts from prior steps faded.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --no-fade-steps: Do not render parts from prior steps faded.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --highlight: Highlight parts in the steps they appear.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --no-highlight: Do not highlight parts in the steps they appear.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --line-width <width>: Set the width of the edge lines.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n")));
                 fprintf(stdout, "\n");
-                fprintf(stdout, "[Help]\n");
-                fprintf(stdout, "  -?, --help: Display this help message and exit.\n");
-                fprintf(stdout, "  -ap, --app-paths: Display application data, cache and configuration paths.\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("[Help]\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -?, --help: Display this help message and exit.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ap, --app-paths: Display application data, cache and configuration paths.\n")));
                 fprintf(stdout, "\n");
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
@@ -874,6 +874,7 @@ int Application::initialize(lcCommandLineOptions &Options)
     // initialize the logger
     Preferences::loggingPreferences();
 
+    // Do not log to standard output (fprint) - usually disabled on Windows and enabled on Unix when logging is enabled
     Preferences::setSuppressFPrintPreference(suppressFPrint);
 
     Preferences::printInfo(tr("Initializing application %1...").arg(VER_PRODUCTNAME_STR));
@@ -892,7 +893,7 @@ int Application::initialize(lcCommandLineOptions &Options)
         cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
         cwd.cdUp();                   // Applications/  (app bundle installation folder)
     }
-    Preferences::printInfo(tr("macOS Base Directory.........(%1)").arg(cwd.dirName()));
+    Preferences::printInfo(tr("macOS Base Directory.........(%1)").arg(QDir::toNativeSeparators(cwd.dirName())));
     if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
     {
         Preferences::printInfo(tr("macOS Info.plist update......(%1)").arg(Preferences::lpub3dAppName));
@@ -912,32 +913,36 @@ int Application::initialize(lcCommandLineOptions &Options)
     }
 #endif
 #endif // NOT Q_OS_WIN
-    Preferences::printInfo(tr("%1 App Data Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubDataPath));
+    Preferences::printInfo(tr("%1 Application Data Path.(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpubDataPath)));
 #ifdef Q_OS_MAC
-    Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
+    Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dPath)));
 #else // Q_OS_LINUX and Q_OS_WIN
-    Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dPath));
-    Preferences::printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::logFilePath));
+    Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dPath)));
+    Preferences::printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::logFilePath)));
 #endif
 #ifdef Q_OS_WIN
-    Preferences::printInfo(tr("%1 Data Location.........(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::dataLocation));
+    Preferences::printInfo(tr("%1 Parameters Location...(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::dataLocation)));
 #else // Q_OS_LINUX and Q_OS_MAC
-    Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath));
+    Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(QDir::toNativeSeparators(Preferences::lpub3dExtrasResourcePath)));
 #if defined Q_OS_LINUX
     QDir rendererDir(QString("%1/../../%2/%3").arg(Preferences::lpub3dPath)
                      .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix+"/opt")
                      .arg(Preferences::lpub3dAppName));
-    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2/3rdParty)").arg(VER_PRODUCTNAME_STR).arg(rendererDir.absolutePath()));
+    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(QString("%1/3rdParty").arg(rendererDir.absolutePath()))));
 #endif // Q_OS_LINUX
-    Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpubConfigPath));
-    Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dCachePath));
-#endif //  Q_OS_WIN, Q_OS_LINUX and Q_OS_MAC
+#endif //  Q_OS_WIN or Q_OS_LINUX and Q_OS_MAC
+    Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpubConfigPath)));
+    Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dCachePath)));
     Preferences::printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));
-    Preferences::printInfo(tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
+    Preferences::printInfo(tr("%1 Logging Level.........(%2 (%3), Levels: [%4])").arg(VER_PRODUCTNAME_STR).arg(Preferences::loggingLevel)
                                                                   .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
                                                                   .arg(QString(VER_LOGGING_LEVELS_STR).toLower()));
     Preferences::printInfo(tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled")));
-    Preferences::printInfo(tr("Log to Standard Output.......(%1)").arg(Preferences::suppressFPrint ? tr("Enabled") : tr("Disabled")));
+    Preferences::printInfo(tr("Log To Standard Output.......(%1)").arg(Preferences::suppressFPrint ? tr("Disabled") : tr("Enabled")));
+#ifdef Q_OS_WIN
+    if (consoleRedirectTreated)
+        Preferences::printInfo(tr("Redirect Output To Console...(%1)").arg(consoleRedirect ? tr("Enabled") : tr("Disabled")));
+#endif
 #ifndef QT_NO_SSL
     Preferences::printInfo(tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
                                                                   .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
@@ -947,6 +952,9 @@ int Application::initialize(lcCommandLineOptions &Options)
 #else
     Preferences::printInfo(tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)"));
 #endif // QT_NO_SSL
+#ifdef Q_OS_WIN
+    Preferences::printInfo(tr("Application Distribution.....(%1)").arg(Preferences::portableDistribution ? "Portable" : "Installed"));
+#endif
     Preferences::printInfo("-----------------------------");
 
     // splash
@@ -1067,7 +1075,7 @@ int Application::initialize(lcCommandLineOptions &Options)
     if (modeGUI())
         setTheme(false/*appStarted*/);
 
-    emit splashMsgSig("20% - OpenGL context initialization...");
+    emit splashMsgSig(tr("20% - OpenGL context initialization..."));
 
     if (!Options.StdErr.isEmpty())
     {
@@ -1076,7 +1084,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 
     if (!Options.ParseOK)
     {
-        const QString message = QObject::tr("Parse command line options failed. (return code 1)");
+        const QString message = tr("Parse command line options failed. (return code 1)");
         Preferences::printInfo(message,true);
         throw InitException(qPrintable(message));
     }
@@ -1088,12 +1096,12 @@ int Application::initialize(lcCommandLineOptions &Options)
     if (!lcContext::InitializeRenderer())
     {
         gApplication->Shutdown();
-        const QString message = QObject::tr("Error creating shared OpenGL context. (return code 1)");
+        const QString message = tr("Error creating shared OpenGL context. (return code 1)");
         Preferences::printInfo(message,true);
         throw InitException(qPrintable(message));
     }
 
-    emit splashMsgSig(QString("25% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
+    emit splashMsgSig(tr("25% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
     // initialize LPub object
     lpub = new LPub();
@@ -1104,7 +1112,7 @@ int Application::initialize(lcCommandLineOptions &Options)
     // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
     gui->getRequireds();
 
-    emit splashMsgSig("30% - Visual Editor loading...");
+    emit splashMsgSig(tr("30% - Visual Editor loading..."));
 
     Preferences::viewerPreferences();
 
@@ -1112,7 +1120,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 
     if (gApplication->Initialize(LibraryPaths, gui) == lcStartupMode::Error) {
         gApplication->Shutdown();
-        const QString message = QObject::tr("Unable to initialize Visual Editor. (return code 1)");
+        const QString message = tr("Unable to initialize Visual Editor. (return code 1)");
         Preferences::printInfo(message,true);
         throw InitException(qPrintable(message));
     } else {
@@ -1158,6 +1166,7 @@ void Application::mainApp()
 
 int Application::run()
 {
+    QString ExecMessage;
     int ExecReturn = EXIT_FAILURE;
     try
     {
@@ -1174,14 +1183,22 @@ int Application::run()
     }
     catch(const std::exception& ex)
     {
-      emit lpub->messageSig(LOG_ERROR, tr("Run: Exception %2 has been thrown.").arg(ex.what()));
+      ExecMessage = tr("%1 Run: Exception %2 has been thrown.").arg(VER_PRODUCTNAME_STR).arg(ex.what());
     }
     catch(...)
     {
-      emit lpub->messageSig(LOG_ERROR, tr("Run: An unhandled exception has been thrown."));
+      ExecMessage = tr("%1 Run: An unhandled exception has been thrown.").arg(VER_PRODUCTNAME_STR);
     }
 
-    emit lpub->messageSig(LOG_INFO, QString("Run: Application terminated with return code %1.").arg(ExecReturn));
+    ExecMessage = QString("%1 Run: Application terminated with return code %2.")
+                          .arg(QString("%1%2").arg(ExecMessage.isEmpty() ? QString() : QString("%1\n\n").arg(ExecMessage)).arg(VER_PRODUCTNAME_STR))
+                          .arg(ExecReturn);
+
+    if (Preferences::loggingEnabled) {
+      emit lpub->messageSig(ExecReturn ? LOG_ERROR : LOG_INFO, ExecMessage);
+    } else {
+      Preferences::printInfo(ExecMessage, ExecReturn);
+    }
 
     if (!m_print_output)
     {
@@ -1264,12 +1281,12 @@ int main(int argc, char** argv)
     }
     catch(const InitException &ex)
     {
-        fprintf(stderr, "Could not initialize %s. Exception: %s.", VER_PRODUCTNAME_STR, ex.what());
+        fprintf(stderr, "%s\n", qUtf8Printable(QObject::tr("Could not initialize %1. Exception: %2.").arg(VER_PRODUCTNAME_STR).arg(ex.what())));
         rc = EXIT_FAILURE;
     }
     catch(...)
     {
-        fprintf(stderr, "A fatal %s error ocurred.", VER_PRODUCTNAME_STR);
+        fprintf(stderr, "%s\n", qUtf8Printable(QObject::tr("A fatal %1 error ocurred.").arg(VER_PRODUCTNAME_STR)));
         rc = EXIT_FAILURE;
     }
 

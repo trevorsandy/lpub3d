@@ -2650,22 +2650,25 @@ void Gui::editLPub3DIniFile()
 #if defined Q_OS_WIN
     fileExt = "ini";
     if (Preferences::portableDistribution)
-        lpubConfigFile = QString("%1/config/%2/%3.%4")
-                                 .arg(Preferences::lpubDataPath)
+        lpubConfigFile = QString("%1/%2/%3.%4")
+                                 .arg(Preferences::lpubConfigPath)
                                  .arg(companyName)
-                                 .arg(Preferences::lpub3dAppName).arg(fileExt);
+                                 .arg(Preferences::lpub3dAppName)
+                                 .arg(fileExt);
 #elif defined Q_OS_MACOS
     fileExt = "plist";
     lpubConfigFile = QString("%1/com.%2.%3.%4")
                              .arg(Preferences::lpubConfigPath)
                              .arg(companyName.replace(" ","-"))
-                             .arg(QString(Preferences::lpub3dAppName).replace(".app","")).arg(fileExt);
+                             .arg(QString(Preferences::lpub3dAppName).replace(".app",""))
+                             .arg(fileExt);
 #elif defined Q_OS_LINUX
     fileExt = "conf";
     lpubConfigFile = QString("%1/%2/%3.%4")
                              .arg(Preferences::lpubConfigPath)
                              .arg(companyName)
-                             .arg(Preferences::lpub3dAppName).arg(fileExt);
+                             .arg(Preferences::lpub3dAppName)
+                             .arg(fileExt);
 #endif
 
     if (Preferences::useSystemEditor) {
@@ -3056,7 +3059,7 @@ void Gui::preferences()
 
 Gui::Gui() : pageMutex(QMutex::Recursive)
 {
-    emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
+    emit Application::instance()->splashMsgSig(tr("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     // classes
     qRegisterMetaType<BackgroundData>("BackgroundData");
@@ -3519,7 +3522,7 @@ void Gui::getRequireds(){
 void Gui::initialize()
 {
 
-  emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
+  emit Application::instance()->splashMsgSig(tr("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
   connect(this, SIGNAL(loadFileSig(QString)),
           this, SLOT(  loadFile(QString)));
@@ -3546,7 +3549,7 @@ void Gui::initialize()
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
 //      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
-  emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
+  emit Application::instance()->splashMsgSig(tr("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 
   if (Preferences::modeGUI) {
       commonMenus.setWhatsThis();
@@ -3573,7 +3576,7 @@ void Gui::initialize()
       toggleLCStatusBar(true);
   }
 
-  emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
+  emit Application::instance()->splashMsgSig(tr("95% - LDraw colors loading..."));
 
   LDrawColor::LDrawColorInit();
 

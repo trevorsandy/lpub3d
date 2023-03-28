@@ -504,7 +504,7 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 	if (Preferences::archivePartsOnLaunch) {
 		partWorker.processLDSearchDirParts();
 	} else {
-		emit Application::instance()->splashMsgSig("70% - Skip parts archive per application preference...");
+		emit Application::instance()->splashMsgSig(tr("70% - Skip parts archive per application preference..."));
 
 		// time delay to display archive message
 		QTime dt = QTime::currentTime().addSecs(3);
@@ -513,7 +513,7 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 
 	}
 
-	emit Application::instance()->splashMsgSig("75% - Archive libraries loading...");
+	emit Application::instance()->splashMsgSig(tr("75% - Archive libraries loading..."));
 /*** LPub3D Mod end ***/
 
 	if (mLibrary == nullptr)

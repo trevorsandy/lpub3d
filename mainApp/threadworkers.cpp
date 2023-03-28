@@ -71,10 +71,10 @@ void PartWorker::ldsearchDirPreferences(){
   setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
 
   if (!_resetSearchDirSettings && !Preferences::lpub3dLoaded) {
-      emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
-    } else {
-      emit gui->messageSig(LOG_INFO,"Reset search directories...");
-    }
+    emit Application::instance()->splashMsgSig(tr("50% - Search directory preferences loading..."));
+  } else {
+    emit gui->messageSig(LOG_INFO,tr("Reset search directories..."));
+  }
 
   QSettings Settings;
   QString const LdrawiniFilePathKey("LDrawIniFile");
@@ -210,10 +210,10 @@ void PartWorker::ldsearchDirPreferences(){
 bool PartWorker::loadLDrawSearchDirs(){
 
   if (!_resetSearchDirSettings) {
-      emit Application::instance()->splashMsgSig("60% - Search directories loading...");
-    } else {
-      emit gui->messageSig(LOG_INFO,"Reset - search directories loading...");
-    }
+    emit Application::instance()->splashMsgSig(tr("60% - Search directories loading..."));
+  } else {
+    emit gui->messageSig(LOG_INFO,tr("Reset - search directories loading..."));
+  }
 
   setDoFadeStep(Preferences::enableFadeSteps);
   StringList  ldrawSearchDirs;
@@ -386,13 +386,13 @@ bool PartWorker::loadLDrawSearchDirs(){
    and there are more than 0 search directories in Preferences::ldgliteSearchDirs.
 */
 void PartWorker::populateLdgLiteSearchDirs() {
-    if (Preferences::preferredRenderer == RENDERER_LDGLITE && !Preferences::ldSearchDirs.isEmpty()){
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE && !Preferences::ldSearchDirs.isEmpty()) {
 
-        emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
+        emit Application::instance()->splashMsgSig(tr("85% - LDGlite Search directories loading..."));
 //#ifdef QT_DEBUG_MODE
 //        logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
 //#endif
-        emit gui->messageSig(LOG_INFO, QString("LDGlite Search Directories..."));
+        emit gui->messageSig(LOG_INFO, tr("LDGlite Search Directories..."));
 
         // Define excluded directories
         QStringList ldgliteExcludedDirs = _excludedSearchDirs;
