@@ -175,7 +175,7 @@ class Preferences
     static QString lpub3dLibFile;
     static QString lgeoPath;
     static QString lpubDataPath;
-    static QString lpubConfigPath;
+    static QString lpub3dConfigPath;
     static QString lpubExtrasPath;
     static QString ldgliteExe;
     static QString ldviewExe;

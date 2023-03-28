@@ -299,7 +299,7 @@ QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyAppExeDir    = DOT_PATH_DEFAULT;
 QString Preferences::lpub3dLDVConfigDir         = DOT_PATH_DEFAULT;
 QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
-QString Preferences::lpubConfigPath             = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dConfigPath           = DOT_PATH_DEFAULT;
 QString Preferences::lpubExtrasPath             = DOT_PATH_DEFAULT;
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
@@ -708,7 +708,7 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
     }
 }
 
-void Preferences::setDistribution(){
+void Preferences::setDistribution() {
 #ifdef Q_OS_WIN
     // Windows portable distribution
     if ((portableDistribution = QDir(QString("%1/extras").arg(QCoreApplication::applicationDirPath())).exists())) {
@@ -717,25 +717,29 @@ void Preferences::setDistribution(){
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                              QCoreApplication::applicationDirPath().contains("Program Files (x86)");
         QStringList const dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-        lpubDataPath = programFolder ? dataPathList.first() : QCoreApplication::applicationDirPath();
-        QDir configDir(QString("%1/config").arg(lpubDataPath));
+        lpubDataPath = QDir::toNativeSeparators(programFolder ? dataPathList.first() : QCoreApplication::applicationDirPath());
+        lpub3dConfigPath = QDir::toNativeSeparators(QString("%1/config").arg(lpubDataPath));
+
+        QDir configDir(lpub3dConfigPath);
         if(!configDir.exists())
             configDir.mkpath(".");
 
         // Init settings
         QSettings::setDefaultFormat(QSettings::IniFormat);
-        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, lpub3dConfigPath);
 
         // Settings
         QString settingsPath, result;
         bool usingSettings = false;
         QSettings Settings;
         if (Settings.contains(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY))) {
-            settingsPath = Settings.value(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY)).toString();
-            if ((usingSettings = ! settingsPath.isEmpty() &&
+            settingsPath = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY)).toString());
+            if ((usingSettings = !settingsPath.isEmpty() && settingsPath != lpubDataPath &&
                                  !(settingsPath.contains("Program Files") ||
-                                   settingsPath.contains("Program Files (x86)"))))
-                lpubDataPath = settingsPath;
+                                   settingsPath.contains("Program Files (x86)")))) {
+                lpubDataPath = QDir::toNativeSeparators(settingsPath);
+                lpub3dConfigPath = QDir::toNativeSeparators(QString("%1/config").arg(lpubDataPath));
+            }
         }
 
         // Program folder and not using settings
@@ -762,8 +766,7 @@ void Preferences::setDistribution(){
 
                 QString header  = "<b> " + QMessageBox::tr ("%1 writable data installation folder.").arg(VER_PRODUCTNAME_STR) + "</b>";
                 QString body = QMessageBox::tr ("Would you like to create a writable folder outside the Windows Program Files / (x86) folder ?<br><br>"
-                                               "If you choose No, the data folder will automatically be created in<br>%1.")
-                                               .arg(QDir::toNativeSeparators(lpubDataPath));
+                                                "If you choose No, the data folder will automatically be created in<br>%1.").arg(lpubDataPath);
                 QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) "
                                                  "distribution of %1 installed under the Windows Program Files/(x86) folder.<br><br>"
                                                  "Updatable data will not be able to be written unless you modify the "
@@ -772,7 +775,7 @@ void Preferences::setDistribution(){
                                                  "%1 data folder outside the Program Files/(x86) folder.<br><br>"
                                                  "Choose Yes to continue and select a writable folder outside Program Files/(x86).<br><br>"
                                                  "If you choose No, the data folder will automatically be created in<br>%2.")
-                                                 .arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(lpubDataPath));
+                                                 .arg(VER_PRODUCTNAME_STR).arg(lpubDataPath);
                 box.setText (header);
                 box.setInformativeText (body);
                 box.setDetailedText(detail);
@@ -782,30 +785,33 @@ void Preferences::setDistribution(){
                 if (box.exec() == QMessageBox::Yes) {   // capture user's choice for user data folder
                     QDir cwd(lpubDataPath);             // LPub3D
                     const QString title = QFileDialog::tr("%1 Select %2 Data Directory")
-                                              .arg(VER_PRODUCTNAME_STR).arg(cwd.dirName());
+                                                          .arg(VER_PRODUCTNAME_STR).arg(cwd.dirName());
                     cwd.cdUp();                         // LPub3D Software
                     result = QFileDialog::getExistingDirectory(nullptr,
                                                                title,
                                                                cwd.absolutePath(),
                                                                QFileDialog::ShowDirsOnly |
                                                                QFileDialog::DontResolveSymlinks);
-                    if (! result.isEmpty())
-                        lpubDataPath = result;
+                    if (! result.isEmpty()) {
+                        lpubDataPath = QDir::toNativeSeparators(result);
+                        lpub3dConfigPath = QDir::toNativeSeparators(QString("%1/config").arg(lpubDataPath));
+                    }
 
                 } // choice
 
             } // modeGUI
 
             if (result.isEmpty()) {
-                result = QObject::tr("The %1 data folder will automatically be created in\n%2\n")
-                                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(lpubDataPath)));
+                result = QObject::tr("The %s data folder will automatically be created in\n%s\n")
+                                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR).arg(lpubDataPath));
                 qInfo() << qUtf8Printable(result);
             }
 
         } // programFolder and !usingSettings
 
         // Update configDir
-        if (QDir::toNativeSeparators(configDir.absolutePath()) != QDir::toNativeSeparators(lpubDataPath)) {
+        if (QDir::toNativeSeparators(configDir.absolutePath()) != QDir::toNativeSeparators(lpub3dConfigPath)) {
+
             QFile configFile(Settings.fileName());
             if (configFile.exists()) {
                 if (!configFile.remove()) {
@@ -813,20 +819,21 @@ void Preferences::setDistribution(){
                     qWarning() << qUtf8Printable(result);
                 }
             }
-            configDir.setPath(QString("%1/config").arg(lpubDataPath));
+
+            configDir.setPath(lpub3dConfigPath);
             if(!configDir.exists())
                 configDir.mkpath(".");
-            QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
+
+            QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, lpub3dConfigPath);
+
             QSettings UpdatedSettings;
-            UpdatedSettings.setValue(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY), QDir::toNativeSeparators(lpubDataPath));
+            UpdatedSettings.setValue(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY), lpubDataPath);
 
         } else if (!lpubDataPath.isEmpty()) {
 
-            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY), QDir::toNativeSeparators(lpubDataPath));
+            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY), lpubDataPath);
 
         } // configDir
-
-        lpubConfigPath = configDir.absolutePath();
     }
 #endif
 }
@@ -1405,7 +1412,7 @@ void Preferences::lpubPreferences()
 
     // Default configuration path
     QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
-    lpubConfigPath = configPathList.first();
+    lpub3dConfigPath = configPathList.first();
 
 #ifdef Q_OS_WIN
     QSettings Settings;
@@ -1418,9 +1425,9 @@ void Preferences::lpubPreferences()
 
     if (portableDistribution) { // we have a portable distribution
 
-        lpub3dCachePath = QString("%1/cache").arg(lpubDataPath);
+        lpub3dCachePath = QDir::toNativeSeparators(QString("%1/cache").arg(lpubDataPath));
 
-        lpubConfigPath = QFileInfo(Settings.fileName()).absoluteFilePath();
+        lpub3dConfigPath = QDir::toNativeSeparators(QString("%1/config").arg(lpubDataPath));
 
     } // distribution type
 
@@ -1433,8 +1440,8 @@ void Preferences::lpubPreferences()
     const int cacheIndex = lpub3dCachePath.indexOf("/.cache/");
     QString cachePrefixReplace = cacheIndex > -1 ? lpub3dCachePath.left(cacheIndex) : QString();
 
-    const int configIndex = lpubConfigPath.indexOf("/.config");
-    QString configPrefixReplace = configIndex > -1 ? lpubConfigPath.left(configIndex) : QString();
+    const int configIndex = lpub3dConfigPath.indexOf("/.config");
+    QString configPrefixReplace = configIndex > -1 ? lpub3dConfigPath.left(configIndex) : QString();
 
     QString dataPrefixNew, cachePrefixNew, configPrefixNew;
 #if defined(LP3D_SNAP)
@@ -1480,10 +1487,10 @@ void Preferences::lpubPreferences()
         lpub3dCachePath = lpub3dCachePath.replace(cachePrefixReplace, cachePrefixNew);
 
      if (! configPrefixNew.isEmpty() && ! configPrefixReplace.isEmpty())
-        lpubConfigPath = lpubConfigPath.replace(configPrefixReplace, configPrefixNew);
+        lpub3dConfigPath = lpub3dConfigPath.replace(configPrefixReplace, configPrefixNew);
 
 #if defined (LP3D_FLATPACK) || defined(LP3D_SNAP)
-     QDir configDir(lpubConfigPath);
+     QDir configDir(lpub3dConfigPath);
      if(! QDir(configDir).exists())
          configDir.mkpath(".");
      QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, configDir.absolutePath());

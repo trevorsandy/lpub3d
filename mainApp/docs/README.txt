@@ -1,4 +1,4 @@
-LPub3D 2.4.6.92.3203 (28 03 2023 18:31:22)
+LPub3D 2.4.6.93.3204 (28 03 2023 18:31:44)
 
 Features, enhancements, fixes and changes
 ------------
@@ -31,6 +31,7 @@ Revisions:
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
+- Fix - Settings are not saved #692
 - Fix - Sub models are deleted #684
 - Fix - Unexpected PLI BEGIN and PLI END parse errors #678
 - Fix - Visual editor parts highlight when parts selected in command editor #682

@@ -2651,21 +2651,21 @@ void Gui::editLPub3DIniFile()
     fileExt = "ini";
     if (Preferences::portableDistribution)
         lpubConfigFile = QString("%1/%2/%3.%4")
-                                 .arg(Preferences::lpubConfigPath)
+                                 .arg(Preferences::lpub3dConfigPath)
                                  .arg(companyName)
                                  .arg(Preferences::lpub3dAppName)
                                  .arg(fileExt);
 #elif defined Q_OS_MACOS
     fileExt = "plist";
     lpubConfigFile = QString("%1/com.%2.%3.%4")
-                             .arg(Preferences::lpubConfigPath)
+                             .arg(Preferences::lpub3dConfigPath)
                              .arg(companyName.replace(" ","-"))
                              .arg(QString(Preferences::lpub3dAppName).replace(".app",""))
                              .arg(fileExt);
 #elif defined Q_OS_LINUX
     fileExt = "conf";
     lpubConfigFile = QString("%1/%2/%3.%4")
-                             .arg(Preferences::lpubConfigPath)
+                             .arg(Preferences::lpub3dConfigPath)
                              .arg(companyName)
                              .arg(Preferences::lpub3dAppName)
                              .arg(fileExt);
