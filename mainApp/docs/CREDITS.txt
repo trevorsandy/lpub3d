@@ -41,6 +41,14 @@ POV-Ray 3.8 commit 74b3ebe
 https://github.com/POV-Ray/povray
 Persistence of Vision Raytracer Pty. Ltd.
 
+ImportLDraw - A Blender™ plug-in for importing LDraw™ file format models and parts. commit ed7eeb7
+https://github.com/TobyLobster/ImportLDraw
+Toby Nelson <tobymnelson@gmail.com>
+
+LDraw Handler for Blender 2.82+ and 3.0+ commit e926354
+https://github.com/cuddlyogre/ExportLDraw
+Matthew Morrison [cuddlyogre]<cuddlyogre@gmail.com>
+
 Qt-History-LineEdit c6c6992
 https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
 Mattia Basaglia <mattia.basaglia@gmail.com>
