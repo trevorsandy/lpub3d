@@ -2818,6 +2818,8 @@ int Pli::resizePli(
     ConstrainData &constrainData)
 {
 
+  // preserve LOCAL (pushed) flag
+  bool pushed = placement.pushed;
   switch (parentRelativeType) {
     case StepGroupType:
       placement = meta->LPub.multiStep.pli.placement;
@@ -2829,6 +2831,8 @@ int Pli::resizePli(
       placement = meta->LPub.pli.placement;
       break;
     }
+  // preserve LOCAL (pushed) flag
+  placement.pushed = pushed;
 
   // Fill the part list image using constraint
   //   Constrain Height
