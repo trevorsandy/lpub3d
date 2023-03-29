@@ -4845,9 +4845,12 @@ void Gui::drawPage(
   } else {
 
     int modelStackCount = opts.modelStack.size();
+    int savePartsAdded  = opts.flags.partsAdded;
 
     auto countPage = [&] (int modelStackCount)
     {
+      // Clear parts added so we dont count again in countPage;
+      opts.flags.partsAdded = 0;
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
 #ifdef QT_DEBUG_MODE
@@ -4917,7 +4920,7 @@ void Gui::drawPage(
                                QString() : opts.modelStack.last().modelName);
 
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Stack Submodel Page entry No. %1 for LineNumber %2, ModelName %3")
+      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page entry (Model Stack Count %1) for LineNumber %2, ModelName %3")
                           .arg(opts.modelStack.size(), 2, 10, QChar('0'))
                           .arg(opts.current.lineNumber, 3, 10, QChar('0'))
                           .arg(opts.current.modelName));
@@ -4946,6 +4949,9 @@ void Gui::drawPage(
 
       // set flags and increment the parent model lineNumber by 1 if the line is the child submodel
       if (opts.current.lineNumber < lpub->ldrawFile.size(opts.current.modelName)) {
+        // set partsAdded count to saved parts added count;
+        opts.flags.partsAdded = savePartsAdded;
+
         QString line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).trimmed();
         QStringList token;
         split(line,token);
@@ -4955,10 +4961,14 @@ void Gui::drawPage(
 
           if (lpub->ldrawFile.isSubmodel(type)) {
             Where walk = opts.current;
-            Rc rc = lpub->mi.scanBackward(walk,StepMask|StepGroupMask|CalloutMask);
+            Rc rc = lpub->mi.scanBackward(walk, StepGroupMask|CalloutMask);
             opts.flags.stepGroup = (rc == StepGroupBeginRc || rc == StepGroupDividerRc);
-            opts.flags.callout   = (rc == CalloutDividerRc || rc == CalloutBeginRc);
-            opts.flags.partsAdded++;
+            opts.flags.callout   = (rc == CalloutBeginRc || rc == CalloutDividerRc);
+            // do not increment partsAdded (enable add new page) if we are in a step group or a callout
+            if (opts.flags.stepGroup || opts.flags.callout)
+              opts.flags.partsAdded = 0;
+            else if (!opts.flags.partsAdded)
+              opts.flags.partsAdded++;
             opts.current++;
 
 #ifdef QT_DEBUG_MODE
