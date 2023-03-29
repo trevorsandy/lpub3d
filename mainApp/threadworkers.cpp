@@ -16,7 +16,6 @@
 #include <QString>
 
 #include "threadworkers.h"
-#include "ldrawini.h"
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
@@ -680,19 +679,19 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
 //#endif
                   QDir customFileDirPath;
                   if (libType == "g"){ // generated part
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
+                     customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir)));
                   } else if (fileDir.isEmpty()){
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                      customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir)));
                   } else if (fileDir == "s"){
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
+                      customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir)));
                   } else if (fileDir == "p"){
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
+                      customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir)));
                   } else if (fileDir == "8"){
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir));
+                      customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir)));
                   } else if (fileDir == "48"){
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir));
+                      customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir)));
                   } else {
-                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                      customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir)));
                   }
                   bool entryExists = false;
                   QString customFileName = fileName.replace(".dat", "-" + nameMod + ".dat");
@@ -754,7 +753,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
               customPartsDirs << customDir.absolutePath();
       }
       // Remove Duplicates
-      customPartsDirs = customPartsDirs.toSet().toList();
+      customPartsDirs.removeDuplicates();
 
       if (_customParts > 0 && customPartsDirs.size() > 0) {
           // transfer to ldSearchDirs
@@ -932,17 +931,17 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 //#endif
                             QDir customFileDirPath;
                             if (fileDir.isEmpty()){
-                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                               customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir)));
                             } else  if (fileDir == "s"){
-                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
+                                customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir)));
                             } else  if (fileDir == "p"){
-                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
+                                customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir)));
                             } else  if (fileDir == "8"){
-                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir));
+                                customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir)));
                             } else if (fileDir == "48"){
-                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir));
+                                customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir)));
                             } else {
-                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                                customFileDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir)));
                             }
                             bool entryExists = false;
                             QString customFileName = fileName.replace(".dat", "-" + nameMod + ".dat");
@@ -1059,19 +1058,19 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
             switch (cp.value()._partType)
             {
             case LD_PARTS:
-                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                customPartDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir)));
                 break;
             case LD_SUB_PARTS:
-                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
+                customPartDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir)));
                 break;
             case LD_PRIMITIVES:
-                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
+                customPartDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir)));
                 break;
             case LD_PRIMITIVES_8:
-                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir));
+                customPartDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir)));
                 break;
             case LD_PRIMITIVES_48:
-                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir));
+                customPartDirPath.setPath(QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir)));
                 break;
             }
             QString customFile = cp.value()._fileNameStr;
@@ -1164,7 +1163,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
             }
 
             // add the custom part color list to the header of the custom part contents
-            customPartColourList.toSet().toList(); // remove dupes
+            customPartColourList.removeDuplicates(); // remove dupes
 
             int insertionPoint = 0; // skip the first line (title)
             QStringList words;
@@ -1189,7 +1188,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
 
             // insert color entries after header
             if (!customPartColourList.isEmpty()) {
-                customPartColourList.toSet().toList();  // remove dupes
+                customPartColourList.removeDuplicates();  // remove dupes
                 customPartContent.insert(insertionPoint,"0 // LPub3D part custom colours");
                 for (int i = 0; i < customPartColourList.size(); i++) {
                     insertionPoint++;
