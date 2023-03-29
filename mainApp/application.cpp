@@ -626,7 +626,6 @@ int Application::initialize(lcCommandLineOptions &Options)
                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), rev ? QString(" r%1").arg(VER_REVISION_STR) : "", QString::fromLatin1(VER_COMPILED_FOR));
 #endif
 
-    args = QString("Arguments:");
     for (int i = 1; i < arguments().size(); i++)
         args.append(" " + arguments().at(i));
 
@@ -656,7 +655,7 @@ int Application::initialize(lcCommandLineOptions &Options)
                 header_printed = true;
                 fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
                 fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s", qUtf8Printable(tr("%1\n").arg(args)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(args)));
                 fflush(stdout);
             }
 
@@ -696,7 +695,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 #endif
                 fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
                 fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s", qUtf8Printable(tr("%1\n").arg(args)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(args)));
                 fflush(stdout);
             }
 

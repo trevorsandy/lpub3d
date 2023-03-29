@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: January 27, 2023
+# Last Update: March 28, 2023
 #
 # Purpose:
 # This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -321,6 +321,14 @@ do
                 git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
                 GIT_TAG="$(git tag -l -n $VER_TAG)" && \
                 [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
+		    else
+                cd $HOME_DIR/$FROM_REPO_NAME
+				rm -f *.log
+                if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]
+				then
+					echo && echo "   -Checkout master branch in $FROM_REPO_NAME repository"
+					git checkout master &>> $LOG
+				fi
             fi
         fi
         if [[ $STOP_AT_COMMIT_COUNT > 0 ]]

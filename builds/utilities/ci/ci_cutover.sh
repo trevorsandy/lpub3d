@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: January 31, 2023
+# Last Update: March 28, 2023
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -414,15 +414,11 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s
 else echo "  -ERROR - file $file NOT updated.";
 fi
 SED_OPTIONS=("-re" "s,v(([0-9]+\.)*[0-9]+)\.svg\?label=revision,${LOCAL_TAG}\.svg\?label=revision," \
+             "-re" "s,v(([0-9]+\.)*[0-9]+)\&logo=data,${LOCAL_TAG}\&logo=data," \
              "-re" "s,continuous \"Revisions since v(([0-9]+\.)*[0-9]+)\",continuous \"Revisions since ${LOCAL_TAG}\"," \
              "-e" "s,projects\/1 \"Last edited.*\",projects/1 \"Last edited $(date +%d-%m-%Y)\"," \
              "-i")
 sed "${SED_OPTIONS[@]}" $file && echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
-
-sed -re "s,v(([0-9]+\.)*[0-9]+),${LOCAL_TAG},g" -i $file \
-&& echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
-sed -e  "s,projects\/1 \"Last edited.*\",projects/1 \"Last edited $(date +%d-%m-%Y)\"," -i $file \
-&& echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
 
 if [[ -n "$RELEASE_COMMIT" && -n "$MAX_RN_LN_DEL" && -n "$MIN_RN_LN_DEL" ]]; then
   echo "$((COMMAND_COUNT += 1))-Truncate RELEASE_NOTES.html, remove lines ${MIN_RN_LN_DEL} to ${MAX_RN_LN_DEL}."
@@ -474,10 +470,20 @@ done
 
 echo "$((COMMAND_COUNT += 1))-Change other line endings from CRLF to LF"
 dos2unix -k builds/utilities/hooks/* &>> $LOG
-dos2unix -k builds/utilities/create-dmg &>> $LOG
+dos2unix -k builds/utilities/json/* &>> $LOG
 dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
+dos2unix -k builds/utilities/ci/github/* &>> $LOG
+dos2unix -k builds/utilities/ci/secure/* &>> $LOG
 dos2unix -k builds/utilities/ci/travis/* &>> $LOG
+dos2unix -k builds/utilities/ci/ci_cutover.sh &>> $LOG
+dos2unix -k builds/utilities/ci/next_cutover.sh &>> $LOG
+dos2unix -k builds/utilities/ci/sfdeploy.sh &>> $LOG
 dos2unix -k builds/utilities/mesa/* &>> $LOG
+dos2unix -k builds/utilities/create-dmg &>> $LOG
+dos2unix -k builds/utilities/CreateRenderers.sh &>> $LOG
+dos2unix -k builds/utilities/README.md &>> $LOG
+dos2unix -k builds/utilities/update-config-files.sh &>> $LOG
+dos2unix -k builds/utilities/version.info &>> $LOG
 dos2unix -k builds/utilities/set-ldrawdir.command &>> $LOG
 dos2unix -k builds/linux/docker-compose/* &>> $LOG
 dos2unix -k builds/linux/docker-compose/dockerfiles/* &>> $LOG
@@ -487,6 +493,9 @@ dos2unix -k builds/linux/obs/alldeps/debian/* &>> $LOG
 dos2unix -k builds/linux/obs/debian/* &>> $LOG
 dos2unix -k builds/linux/obs/debian/source/* &>> $LOG
 dos2unix -k builds/macx/* &>> $LOG
+dos2unix -k mainApp/docs/* &>> $LOG
+dos2unix -k mainApp/extras/* &>> $LOG
+dos2unix -k gitversion.pri &>> $LOG
 
 echo "$((COMMAND_COUNT += 1))-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/* &>> $LOG
