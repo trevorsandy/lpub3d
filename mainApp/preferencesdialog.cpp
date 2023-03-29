@@ -457,37 +457,31 @@ void PreferencesDialog::setPreferences()
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
-  QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
-  QString fadeColorName;
-  if(fadeColor.isValid() ) {
-      fadeColorName = fadeColor.name(QColor::HexRgb).toUpper();
-      ui.fadeStepsColourLabel->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-              .arg(fadeColor.red())
-              .arg(fadeColor.green())
-              .arg(fadeColor.blue());
-      ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
-      ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
+  QString fadeColorName = Preferences::validFadeStepsColour;
+  QColor fadeColor = LDrawColor::color(fadeColorName);
+  if (!fadeColor.isValid()) {
+      emit gui->messageSig(LOG_WARNING, tr("Invalid colour %1 loading Black")
+                                            .arg(Preferences::validFadeStepsColour), true);
+      fadeColorName = QLatin1String("Black");
+      fadeColor = QColor(Qt::black);
   }
-  int fadeColorIndex = ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour);
+  int fadeColorIndex = ui.fadeStepsColoursCombo->findText(fadeColorName);
   if (fadeColorIndex == -1) {
-      emit gui->messageSig(LOG_WARNING, tr("Unable to load colour %1").arg(Preferences::validFadeStepsColour), true);
-      fadeColor = QColor(LDrawColor::color("Black"));
+      fadeColor = LDrawColor::color(fadeColorName);
       if (fadeColor.isValid()) {
-          fadeColorName = fadeColor.name(QColor::HexRgb).toUpper();
-          QString styleSheet =
-              QString("QLabel { background-color: rgb(%1, %2, %3); }").
-              arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
-          ui.fadeStepsColourLabel->setAutoFillBackground(true);
-          ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
-          ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
-      }
-      if (!fadeColorName.isEmpty()) {
           ui.fadeStepsColoursCombo->addItem(fadeColorName);
           fadeColorIndex = ui.fadeStepsColoursCombo->findText(fadeColorName);
       }
   }
+  if (fadeColor.isValid()) {
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }").
+          arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
+      ui.fadeStepsColourLabel->setAutoFillBackground(true);
+      ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+      ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
+  }
+
   ui.fadeStepsColoursCombo->setCurrentIndex(fadeColorIndex);
 
   ui.highlightStepGrpBox->setChecked(            Preferences::enableHighlightStep);

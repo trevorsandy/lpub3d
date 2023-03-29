@@ -2159,13 +2159,30 @@ FadeStepsGui::FadeStepsGui(
   colorExample = new QLabel(parent);
   colorExample->setFixedSize(50,20);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  QColor c = QColor(LDrawColor::color(meta->color.value().color));
-  QString cn;
+
+  colorCombo = new QComboBox(parent);
+  colorCombo->addItems(LDrawColor::names());
+
+  QString cn = meta->color.value().color;
+  QColor c = LDrawColor::color(cn);
+  if (!c.isValid()) {
+      emit gui->messageSig(LOG_WARNING, tr("Invalid colour %1 loading Black")
+                                            .arg(meta->color.value().color), true);
+      cn = QLatin1String("Black");
+      c = QColor(Qt::black);
+  }
+  int colorIndex = colorCombo->findText(cn);
+  if (colorIndex == -1) {
+      c = LDrawColor::color(cn);
+      if (c.isValid()) {
+          colorCombo->addItem(cn);
+          colorIndex = colorCombo->findText(cn);
+      }
+  }
   if (c.isValid()) {
-      cn = c.name(QColor::HexRgb).toUpper();
       QString styleSheet =
-        QString("QLabel { background-color: rgb(%1, %2, %3); }").
-        arg(c.red()).arg(c.green()).arg(c.blue());
+          QString("QLabel { background-color: rgb(%1, %2, %3); }").
+          arg(c.red()).arg(c.green()).arg(c.blue());
       colorExample->setAutoFillBackground(true);
       colorExample->setStyleSheet(styleSheet);
       colorExample->setToolTip(tr("Hex RGB Value %1").arg(cn));
@@ -2173,32 +2190,13 @@ FadeStepsGui::FadeStepsGui(
 
   grid->addWidget(colorExample,1,0);
 
-  colorCombo = new QComboBox(parent);
-  colorCombo->addItems(LDrawColor::names());
-  int colorIndex = colorCombo->findText(meta->color.value().color);
-  if (colorIndex == -1) {
-      emit gui->messageSig(LOG_WARNING, tr("Unable to load colour %1").arg(meta->color.value().color), true);
-      c = QColor(LDrawColor::color("Black"));
-      if (c.isValid()) {
-          cn = c.name(QColor::HexRgb).toUpper();
-          QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }").
-          arg(c.red()).arg(c.green()).arg(c.blue());
-          colorExample->setAutoFillBackground(true);
-          colorExample->setStyleSheet(styleSheet);
-          colorExample->setToolTip(tr("Hex RGB Value %1").arg(cn));
-      }
-      if (!cn.isEmpty()) {
-          colorIndex = colorCombo->findText(cn);
-      }
-  }
   colorCombo->setCurrentIndex(colorIndex);
   colorCombo->setDisabled(true);
 
+  grid->addWidget(colorCombo,1,1);
+
   connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
                  this, SLOT(colorChange(        QString const &)));
-
-  grid->addWidget(colorCombo,1,1);
 
   // use color row
 
