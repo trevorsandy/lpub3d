@@ -2672,27 +2672,33 @@ int Gui::drawPage(
                           // Load the top model into the visual editor on cover page
                           if (coverPage && Preferences::modeGUI && !exportingObjects()) {
                               if (curMeta.LPub.coverPageViewEnabled.value()) {
+                                  bool frontCover = lpub->page.frontCover;
+                                  int stepNum = frontCover ? 0 : opts.stepNum;
+
                                   if (step == nullptr) {
                                       if (range == nullptr) {
                                           range = newRange(steps,opts.calledOut);
                                       }
                                       step = new Step(topOfStep,
                                                       range,
-                                                      0     /* stepNum */,
+                                                      stepNum,
                                                       curMeta,
                                                       false /* calledOut */,
                                                       false /* multiStep */);
                                   }
 
                                   if (step) {
-                                      emit messageSig(LOG_INFO, QString("Set cover page model display for %1...")
-                                                      .arg(topOfStep.modelName));
+                                      const QString cover = frontCover ? tr("front cover") : tr("back cover");
+                                      emit messageSig(LOG_INFO, QString("Set preview model display at %1 for %2, step number %3...")
+                                                                        .arg(cover).arg(topOfStep.modelName).arg(stepNum));
                                       step->setBottomOfStep(opts.current);
                                       step->modelDisplayOnlyStep = true;
                                       step->subModel.viewerSubmodel = true;
+                                      steps->meta.LPub.subModel.showStepNum.setValue(stepNum);
                                       step->subModel.setSubModel(topOfStep.modelName,steps->meta);
                                       if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0) {
-                                          emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page model (%1) display (%2.ldr).").arg(topOfStep.modelName).arg(SUBMODEL_IMAGE_BASENAME));
+                                          emit gui->messageSig(LOG_ERROR, tr("Failed to set preview model display at %1 for %2, stepNum %3 (%4.ldr).")
+                                                                              .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(SUBMODEL_IMAGE_BASENAME));
                                       } else {
                                           // set the current step - enable access from other parts of the application - e.g. Renderer
                                           lpub->setCurrentStep(step);
