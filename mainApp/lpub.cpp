@@ -887,7 +887,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   if(resetCache)
       resetModelCache();
 
-  emit messageSig(LOG_STATUS,tr("Start %1").arg(message));
+  emit messageSig(LOG_STATUS,tr("Starting %1").arg(message));
 
   if (processOption == EXPORT_ALL_PAGES) {
 
