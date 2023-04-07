@@ -628,6 +628,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 
     for (int i = 1; i < arguments().size(); i++)
         args.append(" " + arguments().at(i));
+    QString const dispAargs = args.isEmpty() ? QObject::tr("No arguments specified") : args.trimmed();
 
     for (int ArgIdx = 1; ArgIdx < arguments().size(); ArgIdx++)
     {
@@ -655,7 +656,7 @@ int Application::initialize(lcCommandLineOptions &Options)
                 header_printed = true;
                 fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
                 fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(args)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(dispAargs)));
                 fflush(stdout);
             }
 
@@ -695,7 +696,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 #endif
                 fprintf(stdout, "%s", qUtf8Printable(tr("\n%1\n").arg(hdr)));
                 fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(args)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Arguments: %1\n").arg(dispAargs)));
                 fflush(stdout);
             }
 
@@ -882,7 +883,7 @@ int Application::initialize(lcCommandLineOptions &Options)
     Preferences::printInfo("-----------------------------");
     Preferences::printInfo(hdr);
     Preferences::printInfo("=============================");
-    Preferences::printInfo(tr("Arguments....................(%1)").arg(args));
+    Preferences::printInfo(tr("Arguments....................(%1)").arg(dispAargs));
 #ifndef Q_OS_WIN
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MAC           // for macOS
