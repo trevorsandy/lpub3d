@@ -772,7 +772,9 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			return false;
 		};
 
-		if (Option[0] != '-')
+/*** LPub3D Mod - process command line ***/
+		if (Option[0] != '-' && Option[0] != '+')
+/*** LPub3D Mod end ***/
 		{
 			if (QFileInfo(Option).isReadable())
 				Options.ProjectName = Option;

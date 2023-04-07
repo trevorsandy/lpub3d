@@ -647,10 +647,11 @@ int Application::initialize(lcCommandLineOptions &Options)
         // Items in this condition execute in GUI mode - first item executes in command console mode also)
         if (Param[0] != '-')
         {
-            bool EmptyFileString = m_commandline_file.isEmpty();
-            bool ArgFileExists   = QFileInfo(Param).exists();
-            if (EmptyFileString && ArgFileExists && !m_console_mode)
-                m_commandline_file = Param;
+
+            if (Param[0] != '+') {
+                if (m_commandline_file.isEmpty() && QFileInfo(Param).isReadable() && !m_console_mode)
+                    m_commandline_file = Param;
+            }
 
             if (Param == QLatin1String("+cr") || Param == QLatin1String("++console-redirect"))
             {
