@@ -1741,8 +1741,6 @@ private:
     PageNumberItem      *pageNumber,
     Placement           &plPage);
 
-  QString getFilePath(const QString &fileName) const;
-
   int addCoverPageAttributes(
     Page                *page,
     PageBackgroundItem  *pageBg,

@@ -2248,8 +2248,9 @@ void Step::placeit(
   }
 
   /* Justify outside top and bottom placement - see ticket #690
-   * Apply relative justify to 'y' when the page allocation is Vertical. */
-  if (parent->allocType() == Vertical) {
+   * Apply relative justify to 'y' when the page is a single range - has no divider. */
+  Page *page = dynamic_cast<Page *>(grandparent());
+  if (page && page->list.size() == 1) {
     if (shared) {
       switch (pli.placement.value().relativeTo) {
       case CsiType:

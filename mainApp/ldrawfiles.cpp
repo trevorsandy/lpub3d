@@ -1747,7 +1747,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 // Check for include file
                 if (smLine.contains(_fileRegExp[INC_RX])) {
                     const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
-                    loadIncludeFile(filePath);
+                    if (!filePath.isEmpty())
+                        loadIncludeFile(filePath);
                 }
 
                 // Check meta commands
@@ -2277,7 +2278,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     // Check for include file
                     if (smLine.contains(_fileRegExp[INC_RX])) {
                         const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
-                        loadIncludeFile(filePath);
+                        if (!filePath.isEmpty())
+                            loadIncludeFile(filePath);
                     }
 
                     // Check meta commands

@@ -1059,7 +1059,7 @@ QString LPub::getFilePath(const QString &fileName)
         message.append(QString("<br>Replace '...\\Google Drive\\' absolute path with mapped path 'G:\\My Drive\\'."
                                "<br>Use your specified drive letter (versus 'G:\\') accordingly."));
 
-    emit lpub->messageSig(LOG_ERROR,message);
+    emit lpub->messageSig(LOG_WARNING,message);
 
     return QString();
 }

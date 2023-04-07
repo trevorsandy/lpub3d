@@ -490,7 +490,7 @@ int Gui::addGraphicsPageItems(
               {
                 if (!insert.picName.isEmpty()) {
 
-                  fileInfo.setFile(getFilePath(insert.picName));
+                  fileInfo.setFile(LPub::getFilePath(insert.picName));
 
                   if (fileInfo.exists()) {
 
@@ -2598,7 +2598,7 @@ int Gui::addCoverPageAttributes(
       // DocumentLogo (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayDocumentLogoFront) {
           if (!page->meta.LPub.page.documentLogoFront.file.value().isEmpty()) {
-              fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoFront.file.value()));
+              fileInfo.setFile(LPub::getFilePath(page->meta.LPub.page.documentLogoFront.file.value()));
               if (fileInfo.exists()) {
                 qreal picScale = double(page->meta.LPub.page.documentLogoFront.picScale.value());
                 QPixmap qpixmap;
@@ -2638,7 +2638,7 @@ int Gui::addCoverPageAttributes(
       // CoverImage (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayCoverImage) {
           if (!page->meta.LPub.page.coverImage.file.value().isEmpty()) {
-              fileInfo.setFile(getFilePath(page->meta.LPub.page.coverImage.file.value()));
+              fileInfo.setFile(LPub::getFilePath(page->meta.LPub.page.coverImage.file.value()));
               if (fileInfo.exists()) {
                   qreal picScale   = double(page->meta.LPub.page.coverImage.picScale.value());
                   QPixmap qpixmap;
@@ -2905,7 +2905,7 @@ int Gui::addCoverPageAttributes(
       QFileInfo fileInfo;
       if (displayDocumentLogoBack) {
           if (!page->meta.LPub.page.documentLogoBack.file.value().isEmpty()) {
-              fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoBack.file.value()));
+              fileInfo.setFile(LPub::getFilePath(page->meta.LPub.page.documentLogoBack.file.value()));
               if (fileInfo.exists()) {
                   qreal picScale = double(page->meta.LPub.page.documentLogoBack.picScale.value());
                   QPixmap qpixmap;
@@ -2945,7 +2945,7 @@ int Gui::addCoverPageAttributes(
       // PlugImage (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayPlugImageBack) {
           if (!page->meta.LPub.page.documentLogoBack.file.value().isEmpty()) {
-              fileInfo.setFile(getFilePath(page->meta.LPub.page.plugImage.file.value()));
+              fileInfo.setFile(LPub::getFilePath(page->meta.LPub.page.plugImage.file.value()));
               if (fileInfo.exists()) {
                   qreal picScale   = double(page->meta.LPub.page.plugImage.picScale.value());
                   QPixmap qpixmap;
@@ -2983,9 +2983,4 @@ int Gui::addCoverPageAttributes(
       }
   }
   return 0;
-}
-
-QString Gui::getFilePath(const QString &fileName) const
-{
-    return LPub::getFilePath(fileName);
 }
