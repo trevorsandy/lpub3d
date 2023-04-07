@@ -250,7 +250,7 @@ class Placement {
 
     void placeRelative(
       Placement *placement,
-      int        margin[]);
+      int        margin[2]);
       
     void placeRelative(
       Placement *them,
@@ -258,12 +258,14 @@ class Placement {
       int   lmargin[2]);
 
     void justifyRelative(
-      Placement *them);
+        Placement *them,
+        Dim which);
 
     void justifyRelative(
-      Placement *them,
-      int   them_size[2],
-      int   lmargin[2]);
+        Placement *them,
+        int   them_size,
+        int   lmargin,
+        Dim   which);
 
     void justifyX(
       int origin,

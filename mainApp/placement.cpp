@@ -527,78 +527,109 @@ void Placement::placeRelative(
   them->loc[YY] += int(size[YY] * them->placement.value().offsets[YY]);
 }
 
-void Placement::justifyRelative(
-    Placement *them)
+void Placement::justifyRelative(Placement *them,
+    Dim which)
 {
-  int lmargin[2] = { them->margin.valuePixels(XX), them->margin.valuePixels(YY) };
-  int margin2[2] = { margin.valuePixels(XX), margin.valuePixels(YY) };
+  int lmargin = them->margin.valuePixels(which);
+  int margin2 = margin.valuePixels(which);
+  int size = them->size[which];
 
-  for (int i = 0; i < 2; i++) {
-    lmargin[i] = margin2[i] > lmargin[i] ? margin2[i] : lmargin[i];
+  lmargin = margin2 > lmargin ? margin2 : lmargin;
+
+  justifyRelative(them,size,lmargin,which);
+
+  them->boundingLoc[which] = them->loc[which];
+
+  int top, bottom, height;
+
+  // calculate changes in our size due to neighbours
+  // if neighbour is left or top, calculate bounding top left
+  // corner
+
+  top = them->loc[which];
+  height = boundingLoc[which] - top;
+  if (height > 0) {
+    boundingLoc[which]  -= height;
+    boundingSize[which] += height;
   }
 
-  justifyRelative(them,them->size,lmargin);
+  bottom = top + them->size[which];
+  height = bottom - (boundingLoc[which] + boundingSize[which]);
+  if (height > 0) {
+    boundingSize[which] += height;
+  }
 }
 
-void Placement::justifyRelative(
-    Placement *them,
-    int   them_size[2],
-    int   lmargin[2])
+void Placement::justifyRelative(Placement *them,
+    int   them_size,
+    int   lmargin,
+    Dim which)
 {
   PlacementData placementData = them->placement.value();
 
+  them->relativeToLoc[which]  = loc[which];
+  them->relativeToSize[which] = size[which];
+
   if (placementData.preposition == Outside) {
-    switch (placementData.placement) {
-    case TopLeft:
-    case Left:
-    case BottomLeft:
-      them->loc[XX] = loc[XX] - (them_size[XX] + lmargin[XX]);
-      break;
-    case TopRight:
-    case Right:
-    case BottomRight:
-      them->loc[XX] = loc[XX] + size[XX] + lmargin[XX];
-      break;
-    case Top:
-    case Bottom:
-      them->loc[XX] = loc[XX];
-      switch (placementData.justification) {
-      case Center:
-          them->loc[XX] += (size[XX] - them_size[XX])/2;
+    switch (which) {
+    case XX:
+      switch (placementData.placement) {
+      case TopLeft:
+      case Left:
+      case BottomLeft:
+          them->loc[which] = loc[which] - (them_size + lmargin);
           break;
+      case TopRight:
       case Right:
-          them->loc[XX] += size[XX] - them_size[XX];
+      case BottomRight:
+          them->loc[which] = loc[which] + size[which] + lmargin;
+          break;
+      case Top:
+      case Bottom:
+          them->loc[which] = loc[which];
+          switch (placementData.justification) {
+          case Center:
+          them->loc[which] += (size[which] - them_size) / 2;
+          break;
+          case Right:
+          them->loc[which] += size[which] - them_size;
+          break;
+          default:
+          break;
+          }
+          break;
+      case Center:
+          them->loc[which] = loc[which];
           break;
       default:
           break;
       }
       break;
-    case Center:
-      them->loc[XX] = loc[XX];
-      break;
-    default:
-      break;
-    }
-    switch (placementData.placement) {
-    case TopLeft:
-    case Top:
-    case TopRight:
-      them->loc[YY] = loc[YY] - (them_size[YY] + lmargin[YY]);
-      break;
-    case BottomLeft:
-    case Bottom:
-    case BottomRight:
-      them->loc[YY] = loc[YY] + size[YY] + lmargin[YY];
-      break;
-    case Left:
-    case Right:
-      them->loc[YY] = loc[YY];
-      switch(placementData.justification) {
-      case Center:
-          them->loc[YY] += (size[YY] - them_size[YY])/2;
+    case YY:
+      switch (placementData.placement) {
+      case TopLeft:
+      case Top:
+      case TopRight:
+          them->loc[which] = loc[which] - (them_size + lmargin);
           break;
+      case BottomLeft:
       case Bottom:
-          them->loc[YY] += size[YY] - them_size[YY];
+      case BottomRight:
+          them->loc[which] = loc[which] + size[which] + lmargin;
+          break;
+      case Left:
+      case Right:
+          them->loc[which] = loc[which];
+          switch(placementData.justification) {
+          case Center:
+          them->loc[which] += (size[which] - them_size) / 2;
+          break;
+          case Bottom:
+          them->loc[which] += size[which] - them_size;
+          break;
+          default:
+          break;
+          }
           break;
       default:
           break;
@@ -608,6 +639,8 @@ void Placement::justifyRelative(
       break;
     }
   }
+
+  them->loc[which] += int(size[which] * them->placement.value().offsets[which]);
 }
 
 void Placement::justifyX(

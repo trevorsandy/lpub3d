@@ -2146,16 +2146,16 @@ int Step::maxMargin(int &top, int &bot, int y)
 void Step::placeit(
     int rows[],
     int margins[],
-    int y,
+    int _y,
     bool shared)
 {
   /*********************************/
   /* record the origin of each row */
   /*********************************/
-
   int origin         = 0;
   int space          = 0;
   int marginAccum    = 0;
+  Dim y = static_cast<Dim>(_y);
   bool centerJustify = justifyStep.value().type == JustifyCenter ||
                        justifyStep.value().type == JustifyCenterVertical;
   int spacing        = centerJustify ? justifyStep.spacingValuePixels() / 2 : 0.0f;
@@ -2223,33 +2223,110 @@ void Step::placeit(
   rotateIcon.loc[y]   = origins[rotateIcon.tbl[y]];
 
   switch (y) {
-    case XX:
-      if ( ! shared) {
-          pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-          if(placeSubModel){
-            subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
-          }
+  case XX:
+     if (! shared) {
+        pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+        if(placeSubModel) {
+           subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
         }
-      if(placeRotateIcon) {
-          rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+     }
+     if(placeRotateIcon) {
+        rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+     }
+     stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+     break;
+  case YY:
+     if (! shared) {
+        pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+        if(placeSubModel) {
+           subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
+        }
+     }
+     if(placeRotateIcon) {
+        rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+     }
+     stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+     break;
+  default:
+     break;
+  }
+
+  /* Justify outside top and bottom placement - see ticket #690
+   * Apply relative justify to 'y' when the page allocation is Vertical. */
+  if (parent->allocType() == Vertical) {
+    if (shared) {
+      switch (pli.placement.value().relativeTo) {
+      case CsiType:
+          csiPlacement.justifyRelative(&pli,y);
+          break;
+      case SubModelType:
+          subModel.justifyRelative(&pli,y);
+          break;
+      case StepNumberType:
+          stepNumber.justifyRelative(&pli,y);
+          break;
+      case RotateIconType:
+          rotateIcon.justifyRelative(&pli,y);
+          break;
+      default:
+          break;
       }
-      stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+      if(placeSubModel) {
+          switch (subModel.placement.value().relativeTo) {
+          case CsiType:
+            csiPlacement.justifyRelative(&subModel,y);
+            break;
+          case PartsListType:
+            pli.justifyRelative(&subModel,y);
+            break;
+          case StepNumberType:
+            stepNumber.justifyRelative(&subModel,y);
+            break;
+          case RotateIconType:
+            break;
+          default:
+            break;
+          }
+      }
+    }
+
+    if(placeRotateIcon) {
+      switch (rotateIcon.placement.value().relativeTo) {
+      case CsiType:
+          csiPlacement.justifyRelative(&rotateIcon,y);
+          break;
+      case PartsListType:
+          pli.justifyRelative(&rotateIcon,y);
+          break;
+      case SubModelType:
+          subModel.justifyRelative(&rotateIcon,y);
+          break;
+      case StepNumberType:
+          stepNumber.justifyRelative(&rotateIcon,y);
+          break;
+      default:
+          break;
+      }
+    }
+
+    switch (stepNumber.placement.value().relativeTo) {
+    case CsiType:
+      csiPlacement.justifyRelative(&stepNumber,y);
       break;
-    case YY:
-      if ( ! shared) {
-          pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-          if(placeSubModel) {
-            subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
-          }
-        }
-      if(placeRotateIcon){
-          rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-      }
-      stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+    case PartsListType:
+      pli.justifyRelative(&stepNumber,y);
+      break;
+    case SubModelType:
+      subModel.justifyRelative(&stepNumber,y);
+      break;
+    case RotateIconType:
+      rotateIcon.justifyRelative(&stepNumber,y);
       break;
     default:
       break;
     }
+  }
+  /* apply relative justify - end */
 
   /* place the callouts that are relative to step components */
 
