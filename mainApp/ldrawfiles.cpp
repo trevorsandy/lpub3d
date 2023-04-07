@@ -3041,6 +3041,8 @@ void LDrawFile::countParts(const QString &fileName) {
             bool uniqueCount = false)
     {
         if (!_loadedParts.contains(statusEntry)) {
+            LogType logType = LOG_NOTICE;
+
             if (uniqueCount)
                 _uniquePartCount++;
             else
@@ -3052,7 +3054,11 @@ void LDrawFile::countParts(const QString &fileName) {
                 message = statusMessage.arg(type).arg(VER_PRODUCTNAME_STR);
             else
                 message = statusMessage.arg(type);
-            emit gui->messageSig(LOG_NOTICE, message);
+
+            if (message.contains(QLatin1String("is not excluded, inlined, a submodel or an external file")))
+                logType = LOG_WARNING;
+
+            emit gui->messageSig(logType, message);
         }
         if (uniqueCount)
             _loadedParts.append(statusEntry);
@@ -3203,8 +3209,7 @@ void LDrawFile::countParts(const QString &fileName) {
                                 }
                             }*/
                         } else {
-                            const QString message = QObject::tr("Part [%1] is not excluded, inlined, a submodel or an "
-                                                                "external file and was not found in the %2 library archives.");
+                            const QString message = QObject::tr("Part [%1] is not excluded, inlined, a submodel or an external file and was not found in the %2 library archives.");
                             statusEntry = QObject::tr("%1|%2|Part not found!").arg(MISSING_LOAD_MSG).arg(type);
                             setStatusEntry(statusEntry, type, message);
                         }
