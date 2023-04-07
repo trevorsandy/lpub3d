@@ -196,6 +196,7 @@
   static WCHAR gApplicationPath[MAX_PATH];
   static WCHAR gMinidumpPath[_MAX_PATH];
   static BOOL  gConsoleMode = false;
+  static BOOL  gPortableDist = false;
 
   LONG WINAPI Application::lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
   {
@@ -253,6 +254,16 @@
 
   void Application::lcSehInit()
   {
+      if (gPortableDist)
+      {
+          if (GetThisPath(gApplicationPath, MAX_PATH))
+          {
+              lstrcpy(gMinidumpPath, gApplicationPath);
+
+              lstrcat(gMinidumpPath, TEXT("\\" VER_PRODUCTNAME_STR ".dmp"));
+          }
+      }
+      else
       if (GetTempPath(sizeof(gMinidumpPath) / sizeof(gMinidumpPath[0]), gMinidumpPath))
       {
           lstrcat(gMinidumpPath, TEXT(VER_PRODUCTNAME_STR ".dmp"));
@@ -1269,6 +1280,8 @@ int main(int argc, char** argv)
 //#endif
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+#elif defined Q_OS_WIN
+    gPortableDist = Preferences::portableDistribution;
 #endif
 
     Application app(argc, argv);
