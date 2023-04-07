@@ -125,6 +125,7 @@ class Preferences
     static void setShowSaveOnRedrawPreference(bool);
     static void setShowSaveOnUpdatePreference(bool);
     static void setSuppressFPrintPreference(bool);
+    static void setCyclePageDisplay(bool);
 
     static void setCustomSceneBackgroundColorPreference(bool = true);
     static void setCustomSceneGridColorPreference(bool = true);

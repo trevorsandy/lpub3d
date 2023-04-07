@@ -4230,6 +4230,17 @@ void Preferences::setShowSaveOnUpdatePreference(bool b)
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
 }
 
+void Preferences::setCyclePageDisplay(bool b)
+{
+  QSettings Settings;
+  cycleEachPage = b;
+  /*
+  QVariant uValue(b);
+  QString const cyclePageDisplayKey("CycleEachPage");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,cyclePageDisplayKey),uValue);
+  */
+}
+
 void Preferences::setSnapToGridPreference(bool b)
 {
   QSettings Settings;

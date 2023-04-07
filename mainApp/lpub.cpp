@@ -394,34 +394,27 @@ void Gui::displayPage()
 
 void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/)
 {
-  PageDirection operation = FILE_DEFAULT;
-
-  if (!silent || fileReload) {
-    // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
-    bool cycleEachPage = Preferences::cycleEachPage || fileReload;
-    if (!cycleEachPage && displayPageNum > 1)
-        cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, tr("Cycle each page on model file reload ?"), nullptr);
-    operation = PageDirection(cycleEachPage);
-  }
-
   int move = 0;
   int goToPageNum = inputPageNum;
+  QElapsedTimer t;
 
   auto setDirection = [&] (int &move)
   {
     move = goToPageNum - displayPageNum;
-    if (move > 1)
-      pageDirection = PAGE_JUMP_FORWARD;
-    else if (move == 1)
+    if (move == 1)
       pageDirection = PAGE_NEXT;
-    else if (move < -1)
-      pageDirection = PAGE_JUMP_BACKWARD;
+    else if (move > 1)
+      pageDirection = PAGE_JUMP_FORWARD;
     else if (move == -1)
       pageDirection = PAGE_PREVIOUS;
+    else if (move < -1)
+      pageDirection = PAGE_JUMP_BACKWARD;
   };
 
   auto cycleDisplay = [&] ()
   {
+    if (Preferences::modeGUI && ! exporting())
+      enableNavigationActions(false);
     setContinuousPage(displayPageNum);
     if (pageDirection < PAGE_BACKWARD)
       while (displayPageNum < goToPageNum) {
@@ -442,28 +435,76 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
     cancelContinuousPage();
   };
 
+  bool saveCycleEachPage = Preferences::cycleEachPage;
+  PageDirection operation = FILE_DEFAULT;
+
+  if (!silent || fileReload) {
+    // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
+    int cycleEachPage = Preferences::cycleEachPage || fileReload;
+    if (!cycleEachPage && (displayPageNum > 1 + pa || inputPageNum > 1 + pa)) {
+      const QString directionName[] = {
+        tr("Next"),
+        tr("Jump Forward"),
+        tr("Previous"),
+        tr("Jump Backward")
+      };
+      setDirection(move);
+      const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
+                                 .arg(QString::number(move))
+                                 .arg(directionName[pageDirection-1].toLower())
+                                 .arg(fileReload ? tr("reload") : tr("load"));
+      cycleEachPage = LocalDialog::getLocal(tr("%1 Page %2")
+                                               .arg(VER_PRODUCTNAME_STR)
+                                               .arg(directionName[pageDirection-1]), message, nullptr);
+    }
+    if (cycleEachPage) {
+      Preferences::setCyclePageDisplay(cycleEachPage);
+      if (Preferences::buildModEnabled)
+        cycleEachPage = PAGE_JUMP_FORWARD;
+    }
+    operation = PageDirection(cycleEachPage);
+  }
+
+  t.start();
   if (operation == FILE_RELOAD) {
     int savePage = displayPageNum;
     if (openFile(curFile)) {
       goToPageNum = pa ? savePage + pa : savePage;
       displayPageNum = 1 + pa;
-      setDirection(move);
+      if (!move)
+        setDirection(move);
       if (move > 1) {
         cycleDisplay();
+        enableActions();
       } else {
         displayPageNum = goToPageNum;
         displayPage();
       }
-      enableActions();
     }
   } else {
-    setDirection(move);
+    if (!move)
+      setDirection(move);
     if (move > 1 && Preferences::cycleEachPage) {
       cycleDisplay();
     } else {
       displayPageNum = goToPageNum;
       displayPage();
     }
+  }
+
+  Preferences::setCyclePageDisplay(saveCycleEachPage);
+  pageProcessRunning = PROC_NONE;
+
+  if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
+    enableEditActions();
+    if (!ContinuousPage()) {
+      enableNavigationActions(true);
+      emit gui->messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
+                                              .arg(displayPageNum)
+                                              .arg(tr("loaded"))
+                                              .arg(gui->elapsedTime(t.elapsed())));
+    }
+    QApplication::restoreOverrideCursor();
   }
 }
 
@@ -520,10 +561,10 @@ void Gui::nextPage()
     int inputPageNum = rx.cap(1).toInt(&ok);
     if (ok && (inputPageNum != displayPageNum)) { // numbers are different so jump to page
       countPages();
-      if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
+      if (inputPageNum <= maxPages) {
         if (!saveBuildModification())
           return;
-        cyclePageDisplay(inputPageNum);
+        cyclePageDisplay(inputPageNum, !Preferences::buildModEnabled);
         return;
       } else {
         statusBarMsg("Page number entered is higher than total pages");
@@ -1149,7 +1190,7 @@ void Gui::lastPage()
     countPages();
     if (!saveBuildModification())
       return;
-    cyclePageDisplay(maxPages);
+    cyclePageDisplay(maxPages, !Preferences::buildModEnabled);
   }
 }
 
@@ -1165,7 +1206,7 @@ void Gui::setPage()
       if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
         if (!saveBuildModification())
           return;
-        cyclePageDisplay(inputPageNum);
+        cyclePageDisplay(inputPageNum, !Preferences::buildModEnabled);
         return;
       } else {
         statusBarMsg("Page number entered is higher than total pages");
@@ -1183,7 +1224,7 @@ void Gui::setGoToPage(int index)
   if (goToPageNum <= maxPages && goToPageNum != displayPageNum) {
     if (!saveBuildModification())
       return;
-    cyclePageDisplay(goToPageNum);
+    cyclePageDisplay(goToPageNum, !Preferences::buildModEnabled);
   }
 
   QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
@@ -1599,12 +1640,14 @@ void Gui::mpdComboChanged(int index)
 
     if (!callDisplayFile) {
       const int modelPageNum = lpub->ldrawFile.getModelStartPageNumber(newSubFile);
-      countPages();
+      bool cycleSilent = !Preferences::buildModEnabled;
+      if (cycleSilent)
+        countPages();
       if (modelPageNum && displayPageNum != modelPageNum) {
         if (!saveBuildModification())
           return;
         messageSig(LOG_INFO, tr( "Select subModel: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
-        cyclePageDisplay(modelPageNum);
+        cyclePageDisplay(modelPageNum, cycleSilent);
       } else {
         callDisplayFile = true;
       }
