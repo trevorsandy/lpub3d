@@ -50,9 +50,9 @@ class LdrawFilesLoad : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LdrawFilesLoad(const QStringList &loadItems, QWidget *parent = nullptr);
+    explicit LdrawFilesLoad(const QStringList &loadItems, bool menuAction, QWidget *parent = nullptr);
     ~LdrawFilesLoad();
-    static int showLoadMessages(const QStringList &stringList);
+    static int showLoadMessages(const QStringList &stringList,bool menuAction);
 private slots:
     void getButton(QAbstractButton *button);
     void keyPressEvent(QKeyEvent * event);

@@ -5131,6 +5131,7 @@ void Gui::pagesCounted()
 int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 {
     Rc rc = OkRc;
+    QStringList contents;
     QString filePath = meta.LPub.include.value();
     QFileInfo fileInfo(filePath);
     QString fileName = fileInfo.fileName();
@@ -5175,14 +5176,34 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
         return prc;
     };
 
-    if (!includeFileFound) {
-        includeFileFound = lpub->ldrawFile.isIncludeFile(fileName);
-    }
+    auto updateMpdCombo = [&] ()
+    {
+        QString const includeFile = QString("%1 - Include File").arg(fileName);
+        int includeIndex = mpdCombo->findText(includeFile);
+
+        if (includeIndex == -1) {
+            int comboIndex = mpdCombo->count() - 1;
+            if (lpub->ldrawFile.includeFileList().size() == 1) {
+                mpdCombo->addSeparator();
+                comboIndex++;
+            }
+            mpdCombo->addItem(includeFile, fileName);
+            comboIndex++;
+            bool dark = Preferences::displayTheme == THEME_DARK;
+            mpdCombo->setItemData(comboIndex, QBrush(dark ? Qt::cyan : Qt::blue), Qt::TextColorRole);
+            return true;
+        }
+        return false;
+    };
+
+    includeFileFound = lpub->ldrawFile.isIncludeFile(fileName);
 
     if (includeFileFound) {
+        updateMpdCombo();
         int numLines = lpub->ldrawFile.size(fileName);
         for (; lineNumber < numLines; lineNumber++) {
             rc = processLine();
+            // one line at a time so break at valid line
             if (rc != InvalidLineRc)
                 break;
         }
@@ -5190,58 +5211,58 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             lineNumber++;
         else
             rc = EndOfIncludeFileRc;
-    } else if (!filePath.isEmpty()) {
-        QFile file(filePath);
-        if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            emit messageSig(LOG_ERROR, QString("Cannot read include file %1<br>%2")
-                            .arg(filePath)
-                            .arg(file.errorString()));
-            meta.LPub.include.setValue(QString());
-            return static_cast<int>(IncludeFileErrorRc);
-        }
-
-        emit messageSig(LOG_TRACE, QString("Loading include file '%1'...").arg(filePath));
-
-        QTextStream in(&file);
-        in.setCodec(lpub->ldrawFile._currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
-
-        /* Read it in to put into subFiles in order of appearance */
-        QStringList contents;
-        while ( ! in.atEnd()) {
-            QString line = in.readLine(0);
-            if (!line.isEmpty())
-                contents << line.trimmed();
-        }
-        file.close();
-
-        disableWatcher();
-        QDateTime datetime = fileInfo.lastModified();
-        lpub->ldrawFile.insert(fileName,
-                               contents,
-                               datetime,
-                               UNOFFICIAL_OTHER,
-                               true/*generated*/,
-                               true/*includeFile*/,
-                               fileInfo.absoluteFilePath(),
-                               QFileInfo(fileName).completeBaseName());
-
-        int comboIndex = mpdCombo->count() - 1;
-        if (lpub->ldrawFile.includeFileList().size() == 1) {
-            mpdCombo->addSeparator();
-            comboIndex++;
-        }
-        mpdCombo->addItem(QString("%1 - Include File").arg(fileName),fileName);
-        comboIndex++;
-        bool dark = Preferences::displayTheme == THEME_DARK;
-        mpdCombo->setItemData(comboIndex, QBrush(dark ? Qt::cyan : Qt::blue), Qt::TextColorRole);
-        enableWatcher();
-
-        emit messageSig(LOG_TRACE, QString("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
-
-        rc = Rc(include(meta,lineNumber,includeFileFound));
     } else {
-        rc = IncludeFileErrorRc;
-        meta.LPub.include.setValue(QString());
+        if (fileInfo.isReadable()) {
+            QFile file(filePath);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                emit messageSig(LOG_ERROR, QString("Cannot read include file %1<br>%2")
+                                .arg(filePath)
+                                .arg(file.errorString()));
+                meta.LPub.include.setValue(QString());
+                return static_cast<int>(IncludeFileErrorRc);
+            }
+
+            emit messageSig(LOG_TRACE, QString("Loading include file '%1'...").arg(filePath));
+
+            QTextStream in(&file);
+            in.setCodec(lpub->ldrawFile._currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+
+            /* Read it in to put into subFiles in order of appearance */
+            while ( ! in.atEnd()) {
+                QString line = in.readLine(0);
+                if (!line.isEmpty()) {
+                    rc = processLine();
+                    if (rc != InvalidLineRc)
+                        contents << line.trimmed();
+                }
+            }
+            file.close();
+
+            if (contents.size()) {
+                disableWatcher();
+                QDateTime datetime = fileInfo.lastModified();
+                lpub->ldrawFile.insert(fileInfo.fileName(),
+                                       contents,
+                                       datetime,
+                                       UNOFFICIAL_OTHER,
+                                       true/*generated*/,
+                                       true/*includeFile*/,
+                                       fileInfo.absoluteFilePath(),
+                                       fileInfo.completeBaseName());
+                enableWatcher();
+            }
+
+            updateMpdCombo();
+
+            emit messageSig(LOG_TRACE, QString("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
+
+            rc = EndOfIncludeFileRc;
+
+        } else {
+            meta.LPub.include.setValue(QString());
+
+            rc = IncludeFileErrorRc;
+        }
     }
     return static_cast<int>(rc);
 }

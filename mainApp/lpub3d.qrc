@@ -169,6 +169,7 @@
         <file alias="left.png">resources/left.png</file>
         <file alias="lineattributes.png">resources/lineattributes.png</file>
         <file alias="linewrap16.png">resources/linewrap16.png</file>
+        <file alias="loadstatus.png">resources/loadstatus.png</file>
         <file alias="lookat.png">resources/lookat.png</file>
         <file alias="lookat16.png">resources/lookat16.png</file>
         <file alias="lpub3d.png">resources/lpub3d.png</file>

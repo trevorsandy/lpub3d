@@ -117,15 +117,19 @@ enum TraverseRc { HitNothing,
                   HitRangeError,
                   HitAbortProcess
 };
-enum LoadMsgType { MISSING_LOAD_MSG,
-                   PRIMITIVE_LOAD_MSG,
-                   SUBPART_LOAD_MSG,
-                   INLINE_PART_LOAD_MSG,
-                   INLINE_SUBPART_LOAD_MSG,
-                   INLINE_PRIMITIVE_LOAD_MSG,
+enum LoadMsgType { VALID_LOAD_MSG,
                    MPD_SUBMODEL_LOAD_MSG,
                    LDR_SUBMODEL_LOAD_MSG,
-                   VALID_LOAD_MSG,
+                   MISSING_PART_LOAD_MSG,
+                   EMPTY_SUBMODEL_LOAD_MSG,
+                   INCLUDE_FILE_LOAD_MSG,
+                   INLINE_PART_LOAD_MSG,
+                   INLINE_PRIMITIVE_LOAD_MSG,
+                   INLINE_SUBPART_LOAD_MSG,
+                   /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
+                   PRIMITIVE_LOAD_MSG,
+                   SUBPART_LOAD_MSG,
+                   */
                    ALL_LOAD_MSG
 };
 enum ActionModuleType { NO_ACTION,                 //  0

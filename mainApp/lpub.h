@@ -1833,6 +1833,7 @@ private slots:
     void editBLCodes();
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
+    void viewLoadStatus();
 
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();

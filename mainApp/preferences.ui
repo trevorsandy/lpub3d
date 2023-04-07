@@ -253,7 +253,7 @@
             <item>
              <widget class="QLabel" name="label_20">
               <property name="text">
-               <string>Show Load Messages</string>
+               <string>Show Load Status</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

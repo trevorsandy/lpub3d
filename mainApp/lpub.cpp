@@ -3011,6 +3011,11 @@ void Gui::editBLCodes()
     }
 }
 
+void Gui::viewLoadStatus()
+{
+    lpub->ldrawFile.loadStatus(true/*menuAction*/);
+}
+
 void Gui::viewLog()
 {
     if (Preferences::useSystemEditor) {
@@ -4983,6 +4988,14 @@ void Gui::createActions()
     lpub->actions.insert(exportBricklinkAct->objectName(), Action(QStringLiteral("File.Export As.Bricklink XML Part List"), exportBricklinkAct));
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
 
+    QAction *viewLoadStatusAct = new QAction(QIcon(":/resources/loadstatus.png"),tr("View Load Status..."), this);
+    viewLoadStatusAct->setObjectName("viewLoadStatusAct.1");
+    viewLoadStatusAct->setShortcut(QStringLiteral("Ctrl+Shift+V"));
+    viewLoadStatusAct->setStatusTip(tr("Display the current model file load status"));
+    viewLoadStatusAct->setEnabled(false);
+    lpub->actions.insert(viewLoadStatusAct->objectName(), Action(QStringLiteral("File.View Load Status"), viewLoadStatusAct));
+    connect(viewLoadStatusAct, SIGNAL(triggered()), this, SLOT(viewLoadStatus()));
+
     QAction *exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setObjectName("exitAct.1");
     exitAct->setShortcut(QStringLiteral("Ctrl+Q"));
@@ -6469,6 +6482,7 @@ void Gui::enableActions()
   getAct("exportPngAct.1")->setEnabled(true);
   getAct("exportJpgAct.1")->setEnabled(true);
   getAct("exportBmpAct.1")->setEnabled(true);
+  getAct("viewLoadStatusAct.1")->setEnabled(true);
   getAct("pageSetupAct.1")->setEnabled(true);
   getAct("assemSetupAct.1")->setEnabled(true);
   getAct("pliSetupAct.1")->setEnabled(true);
@@ -6571,6 +6585,7 @@ void Gui::disableActions()
   getAct("exportPngAct.1")->setEnabled(false);
   getAct("exportJpgAct.1")->setEnabled(false);
   getAct("exportBmpAct.1")->setEnabled(false);
+  getAct("viewLoadStatusAct.1")->setEnabled(false);
   getAct("pageSetupAct.1")->setEnabled(false);
   getAct("assemSetupAct.1")->setEnabled(false);
   getAct("pliSetupAct.1")->setEnabled(false);
@@ -6735,6 +6750,8 @@ void Gui::createMenus()
     fileMenu->addAction(getAct("printToFileAct.1"));
     fileMenu->addAction(getAct("exportAsPdfPreviewAct.1"));
     fileMenu->addAction(getAct("exportAsPdfAct.1"));
+    fileMenu->addSeparator();
+    fileMenu->addAction(getAct("viewLoadStatusAct.1"));
 #ifndef QT_NO_CLIPBOARD
     fileMenu->addSeparator();
     fileMenu->addAction(getAct("copyFilePathToClipboardAct.1"));

@@ -53,7 +53,7 @@ QVariant LdrawFilesLoadModel::headerData(int section, Qt::Orientation orientatio
     return QVariant();
 }
 
-LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
+LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, bool menuAction, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LdrawFilesLoadDialog),
     lm(new LdrawFilesLoadModel(this))
@@ -73,11 +73,13 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
         ui->messagesLabel->setStyleSheet("QLabel { color: red; }");
     ui->messagesLabel->adjustSize();
 
-    QColor errorColor = QColor(Qt::red);
-    QBrush errorBrush (errorColor);
+    QStandardItem *rootNode = lm->invisibleRootItem();
 
     QColor warningColor = QColor(Qt::darkYellow);
     QBrush warningBrush (warningColor);
+
+    QColor errorColor = QColor(Qt::red);
+    QBrush errorBrush (errorColor);
 
     bool ok;
 
@@ -86,8 +88,8 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
         int count = 0;
         for (const QString &part : _loadedParts)
         {
-            int mt = QString(part[0]).toInt(&ok);
-            if (ok && static_cast<LoadMsgType>(mt) == lmt)
+            LoadMsgType mt = static_cast<LoadMsgType>(part.leftRef(part.indexOf('|')).toInt(&ok));
+            if (ok && mt == lmt)
                 count++;
         }
         return count;
@@ -103,12 +105,12 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     {
         for (const QString &part : _loadedParts)
         {
-            int mt = QString(part[0]).toInt(&ok);
-            if (ok && static_cast<LoadMsgType>(mt) == lmt) {
+            LoadMsgType mt = static_cast<LoadMsgType>(part.leftRef(part.indexOf('|')).toInt(&ok));
+            if (ok && mt == lmt) {
                 QStringList columns = part.split("|");
                 QList<QStandardItem *>childRow = prepareRow(columns.at(1),columns.at(2));
                 switch (lmt) {
-                    case MISSING_LOAD_MSG:
+                    case MISSING_PART_LOAD_MSG:
                     {
                         QStandardItem *part = childRow.at(0);
                         part->setForeground(errorBrush);
@@ -116,8 +118,12 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
                         desc->setForeground(errorBrush);
                     }
                     break;
-                    case SUBPART_LOAD_MSG:
+                    case EMPTY_SUBMODEL_LOAD_MSG:
+                    case INCLUDE_FILE_LOAD_MSG:
+                    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
                     case PRIMITIVE_LOAD_MSG:
+                    case SUBPART_LOAD_MSG:
+                    */
                     {
                         QStandardItem *part = childRow.at(0);
                         part->setForeground(warningBrush);
@@ -133,67 +139,100 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
         }
     };
 
-    QStandardItem *rootNode = lm->invisibleRootItem();
-    int count = getCount(MISSING_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>missingRow = prepareRow(tr("Error - Missing Parts - %1").arg(count),"");
-        QStandardItem *header = missingRow.at(0);
-        header->setForeground(errorBrush);
-        rootNode->appendRow(missingRow);
-        setChildItems(MISSING_LOAD_MSG, missingRow);
-        ui->buttonBox->addButton(QDialogButtonBox::Discard);
-        connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),SLOT(getButton(QAbstractButton*)));
-    }
+    auto setRow = [&] (LoadMsgType msgType, QString const &description)
+    {
+        switch (msgType)
+        {
+        case VALID_LOAD_MSG:
+        case MPD_SUBMODEL_LOAD_MSG:
+        case LDR_SUBMODEL_LOAD_MSG:
+        case INLINE_PART_LOAD_MSG:
+        case INLINE_SUBPART_LOAD_MSG:
+        case INLINE_PRIMITIVE_LOAD_MSG:
+        {
+            QList<QStandardItem *>validRow = prepareRow(description,"");
+            rootNode->appendRow(validRow);
+            setChildItems(msgType, validRow);
+        }
+            break;
+        case EMPTY_SUBMODEL_LOAD_MSG:
+        case INCLUDE_FILE_LOAD_MSG:
+        /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
+        case PRIMITIVE_LOAD_MSG:
+        case SUBPART_LOAD_MSG:
+        */
+        {
+            QList<QStandardItem *>warningRow = prepareRow(description,"");
+            QStandardItem *header = warningRow.at(0);
+            header->setForeground(warningBrush);
+            rootNode->appendRow(warningRow);
+            setChildItems(msgType, warningRow);
+        }
+            break;
+        case MISSING_PART_LOAD_MSG:
+        {
+            QList<QStandardItem *>errorRow = prepareRow(description,"");
+            QStandardItem *header = errorRow.at(0);
+            header->setForeground(errorBrush);
+            rootNode->appendRow(errorRow);
+            setChildItems(msgType, errorRow);
+            if (!menuAction) {
+                ui->buttonBox->addButton(QDialogButtonBox::Discard);
+                connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),SLOT(getButton(QAbstractButton*)));
+            }
+        }
+            break;
+        case ALL_LOAD_MSG:
+            break;
+        }
+    };
+
+
+    int count = getCount(MISSING_PART_LOAD_MSG);
+    if (count)
+        setRow(MISSING_PART_LOAD_MSG,tr("Error - Missing Parts - %1").arg(count));
+
     count = getCount(VALID_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("Validated Parts - %1").arg(count),"");
-        rootNode->appendRow(validRow);
-        setChildItems(VALID_LOAD_MSG, validRow);
-    }
+    if (count)
+        setRow(VALID_LOAD_MSG, tr("Validated Parts - %1").arg(count));
+
     count = getCount(MPD_SUBMODEL_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("MPD Submodels - %1").arg(count),"");
-        rootNode->appendRow(validRow);
-        setChildItems(MPD_SUBMODEL_LOAD_MSG, validRow);
-    }
+    if (count)
+        setRow(MPD_SUBMODEL_LOAD_MSG, tr("MPD Submodels - %1").arg(count));
+
     count = getCount(LDR_SUBMODEL_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("LDR Submodels - %1").arg(count),"");
-        rootNode->appendRow(validRow);
-        setChildItems(LDR_SUBMODEL_LOAD_MSG, validRow);
-    }
+    if (count)
+        setRow(LDR_SUBMODEL_LOAD_MSG, tr("LDR Submodels - %1").arg(count));
+
     count = getCount(INLINE_SUBPART_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("Subparts - %1").arg(count),"");
-        rootNode->appendRow(validRow);
-        setChildItems(INLINE_SUBPART_LOAD_MSG, validRow);
-    }
+    if (count)
+        setRow(INLINE_SUBPART_LOAD_MSG, tr("Subparts - %1").arg(count));
+
     count = getCount(INLINE_PRIMITIVE_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>validRow = prepareRow(tr("Primitives - %1").arg(count),"");
-        rootNode->appendRow(validRow);
-        setChildItems(INLINE_PRIMITIVE_LOAD_MSG, validRow);
-    }
+    if (count)
+        setRow(INLINE_PRIMITIVE_LOAD_MSG, tr("Primitives - %1").arg(count));
+
+    count = getCount(EMPTY_SUBMODEL_LOAD_MSG);
+    if (count)
+        setRow(EMPTY_SUBMODEL_LOAD_MSG,tr("Warning - Empty Submodels - %1").arg(count));
+
+    count = getCount(INCLUDE_FILE_LOAD_MSG);
+    if (count)
+        setRow(INCLUDE_FILE_LOAD_MSG,tr("Warning - Include File - %1").arg(count));
+
     // These should never trigger because to do so means official primitives or subparts have been loaded
+    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
     count = getCount(PRIMITIVE_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>primitiveRow = prepareRow(tr("Warning - Primitives - %1").arg(count),"");
-        QStandardItem *header = primitiveRow.at(0);
-        header->setForeground(warningBrush);
-        rootNode->appendRow(primitiveRow);
-        setChildItems(PRIMITIVE_LOAD_MSG, primitiveRow);
-    }
+    if (count)
+        setRow(PRIMITIVE_LOAD_MSG, tr("Warning - Primitives - %1").arg(count));
+
     count = getCount(SUBPART_LOAD_MSG);
-    if (count) {
-        QList<QStandardItem *>subpartRow = prepareRow(tr("Warning - Subparts - %1").arg(count),"");
-        QStandardItem *header = subpartRow.at(0);
-        header->setForeground(warningBrush);
-        rootNode->appendRow(subpartRow);
-        setChildItems(SUBPART_LOAD_MSG, subpartRow);
-    }
+    if (count)
+        setRow(SUBPART_LOAD_MSG, tr("Warning - Subparts - %1").arg(count));
+    */
 
     ui->messagesView->setModel(lm);
-    ui->messagesView->expandAll();
+    //ui->messagesView->expandAll();
     ui->messagesView->setSortingEnabled(true);
     ui->messagesView->sortByColumn(0, Qt::AscendingOrder);
     ui->messagesView->setSelectionMode( QAbstractItemView::MultiSelection );
@@ -208,6 +247,8 @@ LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
 
     setMinimumSize(100, 100);
+
+    adjustSize();
 
     setModal(true);
 }
@@ -272,8 +313,8 @@ void LdrawFilesLoad::keyPressEvent(QKeyEvent * event)
         QDialog::keyPressEvent(event);
 }
 
-int LdrawFilesLoad::showLoadMessages(const QStringList &stringList)
+int LdrawFilesLoad::showLoadMessages(const QStringList &stringList, bool menuAction)
 {
-  LdrawFilesLoad *filesLoadDialog = new LdrawFilesLoad(stringList);
+  LdrawFilesLoad *filesLoadDialog = new LdrawFilesLoad(stringList, menuAction);
   return filesLoadDialog->exec();
 }

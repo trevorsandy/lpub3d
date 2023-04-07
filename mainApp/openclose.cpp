@@ -792,6 +792,7 @@ void Gui::closeFile()
   SetSubmodelIconsLoaded(submodelIconsLoaded);
   if (!curFile.isEmpty())
       emit lpub->messageSig(LOG_DEBUG, tr("File closed - %1.").arg(curFile));
+  getAct("viewLoadStatusAct.1")->setEnabled(false);
   ReloadVisualEditor();
 }
 
@@ -874,6 +875,7 @@ bool Gui::openFile(const QString &fileName)
   displayPageNum = 1 + pa;
   prevDisplayPageNum = displayPageNum;
   Paths::mkDirs();
+  getAct("viewLoadStatusAct.1")->setEnabled(true);
   getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
   getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(fileInfo.fileName()));
   if (lpub->ldrawFile.getHelperPartsNotInArchive()) {

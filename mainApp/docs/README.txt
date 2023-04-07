@@ -1,4 +1,4 @@
-LPub3D 2.4.6.128.3239 (07 04 2023 06:11:07)
+LPub3D 2.4.6.129.3240 (07 04 2023 06:11:29)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add view load status dialogue menu action #698
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
 - Change - Fade previous steps colour value #689

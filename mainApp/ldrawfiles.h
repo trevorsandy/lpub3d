@@ -39,7 +39,6 @@
 
 #include "excludedparts.h"
 #include "stickerparts.h"
-#include "QsLog.h"
 
 extern QList<QRegExp> LDrawHeaderRegExp;
 extern QList<QRegExp> LDrawUnofficialPartRegExp;
@@ -263,7 +262,7 @@ class LDrawFile {
     bool                        _mpd;
     static bool                 _helperPartsNotInArchive;
     static int                  _savedLines;
-    static int                  _emptyInt;
+    static qint64               _elapsed;
     static QList<QRegExp>       _fileRegExp;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
@@ -323,6 +322,7 @@ class LDrawFile {
     static QString              _name;
     static QString              _author;
     static QString              _category;
+    static QString              _modelFile;
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
     static int                  _uniquePartCount;
@@ -464,6 +464,12 @@ class LDrawFile {
                   bool     firstStep,
                   bool     isMirrored,
                   bool     callout = false);
+    void loadStatusEntry(const int messageType,
+                         const QString &statusEntry,
+                         const QString &type,
+                         const QString &statusMessage = "",
+                         bool uniqueCount = false);
+    int loadStatus(bool menuAction = false);
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
 
