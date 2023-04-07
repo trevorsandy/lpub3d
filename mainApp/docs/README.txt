@@ -1,4 +1,4 @@
-LPub3D 2.4.6.103.3214 (07 04 2023 06:02:00)
+LPub3D 2.4.6.104.3215 (07 04 2023 06:02:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,6 +25,7 @@ Revisions:
 - Fix - Fade previous steps project global setup disabled on initial load #688
 - Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
+- Fix - Crash when exporting images with Native renderer #695
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
 - Fix - Parts List Instance placement dialog #685

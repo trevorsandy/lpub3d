@@ -1382,25 +1382,25 @@ void Gui::exportAsPdf()
 
 void Gui::exportAs(const QString &_suffix)
 {
-  const QString suffix = _suffix;
+  QString suffix = QString(_suffix).replace(".","").toUpper();
   QString directoryName = m_saveDirectoryName.isEmpty() ? QDir::currentPath() : m_saveDirectoryName;
 
   QString type;
-  if (suffix == ".png" ||
-      suffix == ".jpg" ||
-      suffix == ".bmp") {
-      type  = "images";
+  if (suffix == "PNG" ||
+      suffix == "JPG" ||
+      suffix == "BMP") {
+      type    = tr("page image");
   }
   else
-  if (suffix == ".stl" ||
-      suffix == ".3ds" ||
-      suffix == ".obj") {
-      type  = "objects";
+  if (suffix == "STL" ||
+      suffix == "3DS" ||
+      suffix == "OBJ") {
+      type    = tr("object");
   }
   else {
-      // .dae
-      // .pov
-      type  = "files";
+      // DAE
+      // POV
+      type    = tr("file");
   }
 
   // store current display page number
@@ -1446,28 +1446,6 @@ void Gui::exportAs(const QString &_suffix)
       dpiInfo += QString("_%1x").arg(exportPixelRatio);
   }
 
-  // set the file name
-  QString baseName = fileInfo.completeBaseName();
-  baseName += dpiInfo;
-
-  if (Preferences::modeGUI && m_saveDirectoryName.isEmpty()) {
-      directoryName = QFileDialog::getExistingDirectory(
-            this,
-            tr("Save %1 %2 to folder").arg(suffix).arg(type),
-            QDir::currentPath(),
-            QFileDialog::ShowDirsOnly);
-      if (directoryName == "") {
-          // release Visual Editor
-          emit setExportingSig(false);
-          restoreCurrentPage();
-          return;
-      }
-      m_saveDirectoryName = directoryName;
-  } else
-    if (!m_saveDirectoryName.isEmpty()) {
-      directoryName = m_saveDirectoryName;
-  }
-
   LGraphicsScene scene;
   LGraphicsView view(&scene);
 
@@ -1476,6 +1454,8 @@ void Gui::exportAs(const QString &_suffix)
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
+  QStringList pageRanges;
+  QList<int> printPages;
 
   // initialize page sizes
   displayPageNum = 0;
@@ -1484,8 +1464,60 @@ void Gui::exportAs(const QString &_suffix)
   clearPage(&view,&scene);
   displayPageNum = prevDisplayPageNum;
 
+  if (processOption != EXPORT_PAGE_RANGE) {
+
+      if(processOption == EXPORT_ALL_PAGES) {
+          _displayPageNum = 1 + pa;
+          _maxPages = maxPages;
+      }
+      if (processOption == EXPORT_CURRENT_PAGE) {
+          _displayPageNum = displayPageNum;
+          _maxPages       = displayPageNum;
+      }
+
+  } else {
+
+      pageRanges = pageRangeText.split(",");
+      for (QString const &ranges : pageRanges) {
+          if (ranges.contains("-")) {
+              QStringList range = ranges.split("-");
+              int minPage = range[0].toInt();
+              int maxPage = range[1].toInt();
+              for(int i = minPage; i <= maxPage; i++) {
+                  printPages.append(i);
+              }
+          } else {
+              printPages.append(ranges.toInt());
+          }
+      }
+
+      std::sort(printPages.begin(),printPages.end(),lessThan);
+  }
+
+  // set the file name
+  QString baseName = fileInfo.completeBaseName();
+  baseName += dpiInfo;
+
+  if (Preferences::modeGUI && m_saveDirectoryName.isEmpty()) {
+      directoryName = QFileDialog::getExistingDirectory(
+          this,
+          tr("Save %1 %2 to folder").arg(suffix).arg(type),
+          QDir::currentPath(),
+          QFileDialog::ShowDirsOnly);
+      if (directoryName == "") {
+          // release Visual Editor
+          emit setExportingSig(false);
+          restoreCurrentPage();
+          return;
+      }
+      m_saveDirectoryName = directoryName;
+  } else
+  if (!m_saveDirectoryName.isEmpty()) {
+      directoryName = m_saveDirectoryName;
+  }
+
   // Support transparency for formats that can handle it, but use white for those that can't.
-  bool fillPng = suffix.compare(".png", Qt::CaseInsensitive) == 0;
+  bool fillPng = suffix.compare("png", Qt::CaseInsensitive) == 0;
 
   // calculate device pixel ratio
   qreal dpr = exportPixelRatio;
@@ -1498,16 +1530,6 @@ void Gui::exportAs(const QString &_suffix)
   m_progressDialog->setLabelText(tr("Exporting instructions to %1 %2.").arg(suffix).arg(type));
 
   if (processOption != EXPORT_PAGE_RANGE){
-
-      if(processOption == EXPORT_ALL_PAGES){
-          _displayPageNum = 1 + pa;
-          _maxPages = maxPages;
-        }
-
-      if (processOption == EXPORT_CURRENT_PAGE){
-          _displayPageNum = displayPageNum;
-          _maxPages       = displayPageNum;
-        }
 
       m_progressDialog->setRange(_displayPageNum,_maxPages);
 
@@ -1541,16 +1563,17 @@ void Gui::exportAs(const QString &_suffix)
               adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
               bool  ls = getPageOrientation() == Landscape;
-              logNotice() << tr("Exporting %9 %6 %3 of %4, size(in pixels) W %1 x H %2, orientation %5, DPI %7, pixel ratio %8")
-                             .arg(adjPageWidthPx)
-                             .arg(adjPageHeightPx)
-                             .arg(displayPageNum)
-                             .arg(_maxPages)
-                             .arg(ls ? "Landscape" : "Portrait")
-                             .arg(type)
-                             .arg(int(resolution()))
-                             .arg(dpr)
-                             .arg(suffix);
+              QString const message = tr("Exporting %1 %2 %3 of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8, pixel ratio %9")
+                                         .arg(suffix)
+                                         .arg(type)
+                                         .arg(displayPageNum)
+                                         .arg(_maxPages)
+                                         .arg(adjPageWidthPx)
+                                         .arg(adjPageHeightPx)
+                                         .arg(ls ? "Landscape" : "Portrait")
+                                         .arg(int(resolution()))
+                                         .arg(dpr);
+              logNotice() << message;
 
               // paint to the image the scene we view
               QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
@@ -1591,30 +1614,24 @@ void Gui::exportAs(const QString &_suffix)
               // save the image to the selected directory
               // internationalization of "_page_"?
               QString pn = QString::number(displayPageNum);
-              image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+              QString const imageFile = QDir::toNativeSeparators(directoryName + QDir::separator() + baseName + "_page_" + pn + "." + suffix.toLower());
+              QImageWriter Writer(imageFile);
+              if (Writer.format().isEmpty())
+                  Writer.setFormat(qPrintable(suffix));
+              if (!Writer.write(image)) {
+                  QString const message = QObject::tr("Failed to export %1 %2 file:<br>[%3].<br>Reason: %4.")
+                                              .arg(suffix)
+                                              .arg(type)
+                                              .arg(imageFile)
+                                              .arg(Writer.errorString());
+                  emit gui->messageSig(LOG_WARNING,message,true);
+              }
               painter.end();
           }
       }
       m_progressDialog->setValue(_maxPages);
 
     } else {
-
-      QStringList pageRanges = pageRangeText.split(",");
-      QList<int> printPages;
-      Q_FOREACH (QString ranges,pageRanges){
-          if (ranges.contains("-")){
-              QStringList range = ranges.split("-");
-              int minPage = range[0].toInt();
-              int maxPage = range[1].toInt();
-              for(int i = minPage; i <= maxPage; i++){
-                  printPages.append(i);
-                }
-            } else {
-              printPages.append(ranges.toInt());
-            }
-        }
-
-      std::sort(printPages.begin(),printPages.end(),lessThan);
 
       m_progressDialog->setRange(1,printPages.count());
 
@@ -1653,16 +1670,17 @@ void Gui::exportAs(const QString &_suffix)
               adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
               bool  ls = getPageOrientation() == Landscape;
-              logNotice() << tr("Exporting %9 %6 %3 of range %4, size(in pixels) W %1 x H %2, orientation %5, DPI %7, pixel ratio %8")
-                                .arg(adjPageWidthPx)
-                                .arg(adjPageHeightPx)
-                                .arg(displayPageNum)
-                                .arg(pageRanges.join(" "))
-                                .arg(ls ? tr("Landscape") : tr("Portrait"))
-                                .arg(type)
-                                .arg(int(resolution()))
-                                .arg(dpr)
-                                .arg(suffix);
+              QString const message = tr("Exporting %1 %2 %3 of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8, pixel ratio %9")
+                                          .arg(suffix)
+                                          .arg(type)
+                                          .arg(displayPageNum)
+                                          .arg(_maxPages)
+                                          .arg(adjPageWidthPx)
+                                          .arg(adjPageHeightPx)
+                                          .arg(ls ? "Landscape" : "Portrait")
+                                          .arg(int(resolution()))
+                                          .arg(dpr);
+              logNotice() << message;
 
               // paint to the image the scene we view
               QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
@@ -1702,7 +1720,18 @@ void Gui::exportAs(const QString &_suffix)
               // save the image to the selected directory
               // internationalization of "_page_"?
               QString pn = QString::number(displayPageNum);
-              image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+              QString const imageFile = QDir::toNativeSeparators(directoryName + QDir::separator() + baseName + "_page_" + pn + "." + suffix.toLower());
+              QImageWriter Writer(imageFile);
+              if (Writer.format().isEmpty())
+                  Writer.setFormat(qPrintable(suffix));
+              if (!Writer.write(image)) {
+                  QString const message = QObject::tr("Failed to export %1 %2 file:<br>[%3].<br>Reason: %4.")
+                                              .arg(suffix)
+                                              .arg(type)
+                                              .arg(imageFile)
+                                              .arg(Writer.errorString());
+                  emit gui->messageSig(LOG_WARNING,message,true);
+              }
               painter.end();
           }
       }

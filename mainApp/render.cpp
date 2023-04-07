@@ -3469,14 +3469,15 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
             if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
             {
-                emit gui->messageSig(LOG_ERROR,QObject::tr("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
-                                     .arg(ImageType)
-                                     .arg(O->ExportMode == EXPORT_NONE ?
-                                              QObject::tr("image") :
-                                              QObject::tr("%1 object")
-                                              .arg(nativeExportNames[O->ExportMode]))
-                                     .arg(O->OutputFileName)
-                                     .arg(Writer.errorString()));
+                QString const message = QObject::tr("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
+                                            .arg(ImageType)
+                                            .arg(O->ExportMode == EXPORT_NONE ?
+                                                     QObject::tr("image") :
+                                                     QObject::tr("%1 object")
+                                                         .arg(nativeExportNames[O->ExportMode]))
+                                            .arg(O->OutputFileName)
+                                            .arg(Writer.errorString());
+                emit gui->messageSig(LOG_ERROR,message);
                 rc = false;
             }
             else
@@ -3494,7 +3495,12 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                                                        "Unable to bind render framebuffer.").arg(ImageType).arg(rc));
         }
 
-        if (O->ExportMode != EXPORT_NONE)
+        bool DoNativeExport = O->ExportMode != EXPORT_NONE &&
+                              O->ExportMode != EXPORT_PDF  &&
+                              O->ExportMode != EXPORT_PNG  &&
+                              O->ExportMode != EXPORT_JPG  &&
+                              O->ExportMode != EXPORT_BMP;
+        if (DoNativeExport)
         {
             if (!NativeExport(O))
             {
@@ -3600,7 +3606,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                                       .arg(ImageType)
                                       .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message.arg(QLatin1String("\r\n")));
+      qDebug() << qUtf8Printable(message.arg(QLatin1String("\r\n")));
 #else
       emit gui->messageSig(LOG_INFO, message.arg(QLatin1String("\r\n")));
 #endif
