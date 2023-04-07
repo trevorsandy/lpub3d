@@ -2303,7 +2303,7 @@ void Preferences::fadestepPreferences(bool persist)
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")) || persist) {
         if (! persist)
-            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS);
+            ldrawColourPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS));
         QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
         if (! ldrawColorFileInfo.exists()) {
             ldrawColourPartsFile.clear();
@@ -2312,10 +2312,10 @@ void Preferences::fadestepPreferences(bool persist)
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
         }
     } else {
-        ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
+        ldrawColourPartsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString());
         QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
         if (! ldrawColorFileInfo.exists()) {
-            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts);
+            ldrawColourPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts));
             ldrawColorFileInfo.setFile(ldrawColourPartsFile);
             if (! ldrawColorFileInfo.exists()) {
                ldrawColourPartsFile.clear();
@@ -2366,7 +2366,7 @@ void Preferences::highlightstepPreferences(bool persist)
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")) || persist) {
         if (! persist)
-            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS);
+            ldrawColourPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS));
         QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
         if (! ldrawColorFileInfo.exists()) {
             ldrawColourPartsFile.clear();
@@ -2375,10 +2375,10 @@ void Preferences::highlightstepPreferences(bool persist)
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
         }
     } else {
-        ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
+        ldrawColourPartsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString());
         QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
         if (! ldrawColorFileInfo.exists()) {
-            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts);
+            ldrawColourPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts));
             ldrawColorFileInfo.setFile(ldrawColourPartsFile);
             if (! ldrawColorFileInfo.exists()) {
                ldrawColourPartsFile.clear();
@@ -2804,13 +2804,13 @@ void Preferences::rendererPreferences()
     // Blender LDraw config file
     QString const blenderLDrawConfigFileKey("BlenderLDrawConfigFile");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey))) {
-        blenderLDrawConfigFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE);
+        blenderLDrawConfigFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE));
         if (QFileInfo(blenderLDrawConfigFile).exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey),QVariant(blenderLDrawConfigFile));
         else
             blenderLDrawConfigFile.clear();
     } else {
-        blenderLDrawConfigFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey)).toString();
+        blenderLDrawConfigFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey)).toString());
         if (!QFileInfo(blenderLDrawConfigFile).exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey));
             blenderLDrawConfigFile.clear();
@@ -2820,13 +2820,13 @@ void Preferences::rendererPreferences()
     // Document render config file
     QString const blenderPreferencesFileKey("BlenderPreferencesFile");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey))) {
-        blenderPreferencesFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE);
+        blenderPreferencesFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE));
         if (QFileInfo(blenderPreferencesFile).exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey),QVariant(blenderPreferencesFile));
         else
             blenderPreferencesFile.clear();
     } else {
-        blenderPreferencesFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey)).toString();
+        blenderPreferencesFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey)).toString());
         if (!QFileInfo(blenderPreferencesFile).exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey));
             blenderPreferencesFile.clear();
@@ -4525,27 +4525,27 @@ void Preferences::annotationPreferences()
     QString const ld2rbColorsXRefKey(    "LD2RBColorsXRefFile");
     QString const ld2rbCodesXRefKey(     "LD2RBCodesXRefFile");
 
-    titleAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_TITLE_ANNOTATIONS_FILE);
+    titleAnnotationsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_TITLE_ANNOTATIONS_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)))
-        titleAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)).toString();
+        titleAnnotationsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)).toString());
     annInfo.setFile(titleAnnotationsFile);
     if (! annInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,titleAnnotationKey));
         annOk[A_01] = false;
     }
 
-    freeformAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_FREEFOM_ANNOTATIONS_FILE);
+    freeformAnnotationsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_FREEFOM_ANNOTATIONS_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey)))
-        freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey)).toString();
+        freeformAnnotationsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey)).toString());
     annInfo.setFile(freeformAnnotationsFile);
     if (! annInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey));
         annOk[A_02] = false;
     }
 
-    annotationStyleFile = QString("%1/extras/%2").arg(lpubDataPath,VER_ANNOTATION_STYLE_FILE);
+    annotationStyleFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_ANNOTATION_STYLE_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,annotationStyleKey)))
-        annotationStyleFile = Settings.value(QString("%1/%2").arg(SETTINGS,annotationStyleKey)).toString();
+        annotationStyleFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,annotationStyleKey)).toString());
     annInfo.setFile(annotationStyleFile);
     if (! annInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,annotationStyleKey));
@@ -4553,7 +4553,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_04] = Settings.contains(QString("%1/%2").arg(SETTINGS,blCodesKey)))) {
-        blCodesFile = Settings.value(QString("%1/%2").arg(SETTINGS,blCodesKey)).toString();
+        blCodesFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blCodesKey)).toString());
         annInfo.setFile(blCodesFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,blCodesKey));
@@ -4562,7 +4562,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_05] = Settings.contains(QString("%1/%2").arg(SETTINGS,legoElementsKey)))) {
-        legoElementsFile = Settings.value(QString("%1/%2").arg(SETTINGS,legoElementsKey)).toString();
+        legoElementsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,legoElementsKey)).toString());
         annInfo.setFile(legoElementsFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,legoElementsKey));
@@ -4571,7 +4571,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_06] = Settings.contains(QString("%1/%2").arg(SETTINGS,blColorsKey)))) {
-        blColorsFile = Settings.value(QString("%1/%2").arg(SETTINGS,blColorsKey)).toString();
+        blColorsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blColorsKey)).toString());
         annInfo.setFile(blColorsFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,blColorsKey));
@@ -4580,7 +4580,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_07] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey)))) {
-        ld2blColorsXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey)).toString();
+        ld2blColorsXRefFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey)).toString());
         annInfo.setFile(ld2blColorsXRefFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey));
@@ -4589,7 +4589,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_08] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey)))) {
-        ld2blCodesXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey)).toString();
+        ld2blCodesXRefFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey)).toString());
         annInfo.setFile(ld2blCodesXRefFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey));
@@ -4598,7 +4598,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_09] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey)))) {
-        ld2rbColorsXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey)).toString();
+        ld2rbColorsXRefFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey)).toString());
         annInfo.setFile(ld2rbColorsXRefFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey));
@@ -4607,7 +4607,7 @@ void Preferences::annotationPreferences()
     }
 
     if ((annOk[A_10] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey)))) {
-        ld2rbCodesXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey)).toString();
+        ld2rbCodesXRefFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey)).toString());
         annInfo.setFile(ld2rbCodesXRefFile);
         if (! annInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey));
@@ -4622,7 +4622,7 @@ void Preferences::annotationPreferences()
 
     // Set Preference empty if file not found to trigger internal load or skip
     if (! annOk[A_04]) {
-        blCodesFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCODES_FILE);
+        blCodesFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCODES_FILE));
         annInfo.setFile(blCodesFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,blCodesKey),blCodesFile);
@@ -4631,7 +4631,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_05]) {
-        legoElementsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE);
+        legoElementsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE));
         annInfo.setFile(legoElementsFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,legoElementsKey),legoElementsFile);
@@ -4640,7 +4640,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_06]) {
-        blColorsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCOLORS_FILE);
+        blColorsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCOLORS_FILE));
         annInfo.setFile(blColorsFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,blColorsKey),blColorsFile);
@@ -4649,7 +4649,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_07]) {
-        ld2blColorsXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCOLORSXREF_FILE);
+        ld2blColorsXRefFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCOLORSXREF_FILE));
         annInfo.setFile(ld2blColorsXRefFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey),ld2blColorsXRefFile);
@@ -4658,7 +4658,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_08]) {
-        ld2blCodesXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE);
+        ld2blCodesXRefFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE));
         annInfo.setFile(ld2blCodesXRefFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey),ld2blCodesXRefFile);
@@ -4667,7 +4667,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_09]) {
-        ld2rbColorsXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE);
+        ld2rbColorsXRefFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE));
         annInfo.setFile(ld2rbColorsXRefFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey),ld2rbColorsXRefFile);
@@ -4676,7 +4676,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_10]) {
-        ld2rbCodesXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE);
+        ld2rbCodesXRefFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE));
         annInfo.setFile(ld2rbCodesXRefFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey),ld2rbCodesXRefFile);
@@ -4688,7 +4688,7 @@ void Preferences::annotationPreferences()
         return;
 
     if (! annOk[A_01]) {
-        titleAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,validTitleAnnotations);
+        titleAnnotationsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validTitleAnnotations));
         annInfo.setFile(titleAnnotationsFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,titleAnnotationKey),titleAnnotationsFile);
@@ -4697,7 +4697,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_02]) {
-        freeformAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,validFreeFormAnnotations);
+        freeformAnnotationsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validFreeFormAnnotations));
         annInfo.setFile(freeformAnnotationsFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey),freeformAnnotationsFile);
@@ -4706,7 +4706,7 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_03]) {
-        annotationStyleFile = QString("%1/extras/%2").arg(lpubDataPath,validAnnotationStyles);
+        annotationStyleFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validAnnotationStyles));
         annInfo.setFile(annotationStyleFile);
         if (annInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,annotationStyleKey),annotationStyleFile);
@@ -4727,36 +4727,36 @@ void Preferences::pliPreferences()
     QString const stickerPartsKey(      "StickerPartsFile");
     QString const pliControlKey(        "PliControlFile");
 
-    pliSubstitutePartsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_PLI_SUBSTITUTE_PARTS_FILE);
+    pliSubstitutePartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_PLI_SUBSTITUTE_PARTS_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey)))
-        pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey)).toString();
+        pliSubstitutePartsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey)).toString());
     pliInfo.setFile(pliSubstitutePartsFile);
     if (! pliInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey));
         pliOk[P_SUB] = false;
     }
 
-    excludedPartsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_EXCLUDED_PARTS_FILE);
+    excludedPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_EXCLUDED_PARTS_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,excludedPartsKey)))
-        excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,excludedPartsKey)).toString();
+        excludedPartsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,excludedPartsKey)).toString());
     pliInfo.setFile(excludedPartsFile);
     if (! pliInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,excludedPartsKey));
         pliOk[P_EXC] = false;
     }
 
-    stickerPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_STICKER_PARTS_FILE);
+    stickerPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_STICKER_PARTS_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,stickerPartsKey)))
-        stickerPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,stickerPartsKey)).toString();
+        stickerPartsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,stickerPartsKey)).toString());
     pliInfo.setFile(stickerPartsFile);
     if (! pliInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,stickerPartsKey));
         pliOk[P_STK] = false;
     }
 
-    pliControlFile = QString("%1/extras/%2").arg(lpubDataPath,VER_PLI_CONTROL_FILE);
+    pliControlFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_PLI_CONTROL_FILE));
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,pliControlKey)))
-        pliControlFile = Settings.value(QString("%1/%2").arg(SETTINGS,pliControlKey)).toString();
+        pliControlFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,pliControlKey)).toString());
     pliInfo.setFile(pliControlFile);
     if (! pliInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,pliControlKey));
@@ -4768,7 +4768,7 @@ void Preferences::pliPreferences()
 
     // Set Preference empty if file not found to trigger internal load or skip
     if (! pliOk[P_SUB]) {
-        pliSubstitutePartsFile = QString("%1/extras/%2").arg(lpubDataPath,validPliSubstituteParts);
+        pliSubstitutePartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validPliSubstituteParts));
         pliInfo.setFile(pliSubstitutePartsFile);
         if (pliInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey),pliSubstitutePartsFile);
@@ -4777,7 +4777,7 @@ void Preferences::pliPreferences()
     }
 
     if (! pliOk[P_EXC]) {
-        excludedPartsFile = QString("%1/extras/%2").arg(lpubDataPath,validExcludedPliParts);
+        excludedPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validExcludedPliParts));
         pliInfo.setFile(excludedPartsFile);
         if (pliInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,excludedPartsKey),excludedPartsFile);
@@ -4786,7 +4786,7 @@ void Preferences::pliPreferences()
     }
 
     if (! pliOk[P_STK]) {
-        stickerPartsFile = QString("%1/extras/%2").arg(lpubDataPath,validStickerPliParts);
+        stickerPartsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validStickerPliParts));
         pliInfo.setFile(stickerPartsFile);
         if (pliInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,stickerPartsKey),stickerPartsFile);
@@ -4795,7 +4795,7 @@ void Preferences::pliPreferences()
     }
 
     if (! pliOk[P_CTL]) {
-        pliControlFile = QString("%1/extras/%2").arg(lpubDataPath,validPliControl);
+        pliControlFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,validPliControl));
         pliInfo.setFile(pliControlFile);
         if (pliInfo.exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,pliControlKey),pliControlFile);
