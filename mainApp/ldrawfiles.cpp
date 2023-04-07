@@ -5100,10 +5100,11 @@ bool LDrawFile::getViewerStepHasBuildModAction(const QString &stepKey)
   }
 }
 
-void LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool value)
+bool LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool value)
 {
+  bool rc = false;
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
-  if (i != _viewerSteps.end()) {
+  if ((rc = i != _viewerSteps.end())) {
     i.value()._hasBuildModAction = value;
 #ifdef QT_DEBUG_MODE
     int viewType = i.value()._viewType;
@@ -5122,16 +5123,16 @@ void LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
 #ifdef QT_DEBUG_MODE
   else if (!stepKey.isEmpty()) {
     const QStringList Keys = stepKey.split(";");
-    const QString warnMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
-                                         .arg(Keys.at(BM_STEP_MODEL_KEY))
-                                         .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
-                                         .arg(Keys.at(BM_STEP_LINE_KEY))
-                                         .arg(Keys.at(BM_STEP_NUM_KEY))
-                                         .arg(stepKey);
-    emit gui->messageSig(LOG_WARNING, warnMessage);
-    //qDebug() << qPrintable(QString("WARNING: %1").arg(warnMessage));
+    const QString noticeMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
+                                           .arg(Keys.at(BM_STEP_MODEL_KEY))
+                                           .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
+                                           .arg(Keys.at(BM_STEP_LINE_KEY))
+                                           .arg(Keys.at(BM_STEP_NUM_KEY))
+                                           .arg(stepKey);
+    emit gui->messageSig(LOG_NOTICE, noticeMessage);
   }
 #endif
+  return rc;
 }
 
 

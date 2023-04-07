@@ -2067,8 +2067,8 @@ int Gui::drawPage(
                                     .arg(buildMod.key),opts.current,Preferences::BuildModErrors);
               } else {
                   const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                  parseError(tr("DrawPage %1 BuildMod for key '%2' not found.")
-                             .arg(action).arg(buildMod.key),
+                  parseError(tr("DrawPage BuildMod key '%1' for %2 action was not found.")
+                             .arg(buildMod.key).arg(action),
                              opts.current,Preferences::BuildModErrors);
               }
               buildModActionStep = true;
@@ -2085,9 +2085,14 @@ int Gui::drawPage(
 #endif
                       // set BuildMod step has action in current step
                       const QString buildModStepKey = getViewerStepKey(getBuildModStepIndex(buildMod.key));
-                      lpub->ldrawFile.setViewerStepHasBuildModAction(buildModStepKey, true);
+
                       // set BuildMod action for current step
-                      setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                      if (lpub->ldrawFile.setViewerStepHasBuildModAction(buildModStepKey, true))
+                          setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                      else
+                          parseError(tr("DrawPage could not set BuildMod %1 action for key '%2'.")
+                                        .arg(rc == BuildModApplyRc ? tr("Apply") : tr("Remove")).arg(buildMod.key),
+                                        opts.current,Preferences::BuildModErrors);
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
                       // Check if CsiAnnotation and process them if any
@@ -5525,8 +5530,8 @@ int Gui::setBuildModForNextStep(
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 } else {
                     const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                    gui->parseErrorSig(QString("Next Step %1 BuildMod for key '%2' not found.")
-                                               .arg(action).arg(buildMod.key),
+                    gui->parseErrorSig(QString("Next Step BuildMod key '%1' for %2 action was not found.")
+                                               .arg(buildMod.key).arg(action),
                                                walk,Preferences::ParseErrors,false,false);
                 }
                 if ((Rc)buildMod.action != rc) {

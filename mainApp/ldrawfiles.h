@@ -576,7 +576,7 @@ class LDrawFile {
     bool        viewerStepContentExist(const QString &stepKey);
     bool        viewerStepModified(const QString &stepKey, bool reset = false);
     bool        deleteViewerStep(const QString &stepKey);
-    void        setViewerStepHasBuildModAction(const QString &stepKey, bool value);
+    bool        setViewerStepHasBuildModAction(const QString &stepKey, bool value);
     void        setViewerStepModified(const QString &stepKey);
     void        clearViewerSteps();
 

@@ -2596,8 +2596,8 @@ int CountPageWorker::countPage(
                                                       .arg(buildMod.key), opts.current,Preferences::BuildModErrors,false,false,QMessageBox::Icon::Information);
                       } else {
                           const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                          emit gui->parseErrorSig(tr("CountPage %1 BuildMod for key '%2' not found")
-                                                  .arg(action).arg(buildMod.key),
+                          emit gui->parseErrorSig(tr("CountPage BuildMod key '%1' for %2 action was not found.")
+                                                  .arg(buildMod.key).arg(action),
                                                   opts.current,Preferences::BuildModErrors,false,false);
                       }
                       if ((Rc)buildMod.action != rc) {
@@ -2613,9 +2613,10 @@ int CountPageWorker::countPage(
                                                         .arg(topOfStep.lineNumber)
                                                         .arg(opts.stepNumber)
                                                         .arg(lpub->mi.viewerStepKeySuffix(topOfStep, nullptr, true/*step check*/));
-                          lpub->ldrawFile.setViewerStepHasBuildModAction(viewerStepKey, true);
-                          // set BuildMod action for current step
-                          ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
+
+                          // set BuildMod action for step if exists
+                          if (lpub->ldrawFile.setViewerStepHasBuildModAction(viewerStepKey, true))
+                              ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       }
                       buildMod.state = BM_NONE;
                   } // opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM
