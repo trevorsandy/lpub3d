@@ -381,10 +381,9 @@ void Gui::displayPage()
           restorePreviousPage();
         } else {
           Gui::setAbortProcess(false);
-          current  = Where(lpub->ldrawFile.topLevelFile(),0,0);
-          buildModJumpForward = false;
-          maxPages = 1 + pa;
-          pagesCounted();
+          closeModelFile();
+          if (waitingSpinner->isSpinning())
+            waitingSpinner->stop();
         }
       }
     } else if (!exporting()) {

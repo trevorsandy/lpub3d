@@ -2537,6 +2537,7 @@ void EditWindow::deleteSelection() {
 void EditWindow::clearWindow() {
   _textEdit->document()->clear();
   _textEdit->document()->setModified(false);
+  clearEditorHighlightLines();
   fileName.clear();
 }
 
