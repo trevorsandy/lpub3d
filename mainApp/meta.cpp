@@ -4875,19 +4875,20 @@ void PartIgnMeta::init(BranchMeta *parent, QString name)
 
 Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
 {
-  if (index + 4 == argv.size()) {
+  if (argv.size() >= index+3 ) {
       bool ok[3];
       argv[index+0].toFloat(&ok[0]);
       argv[index+1].toFloat(&ok[1]);
       argv[index+2].toFloat(&ok[2]);
       ok[0] &= ok[1] & ok[2];
-      QRegExp rx("^(ABS|REL|ADD)$");
-      if (ok[0] && argv[index+3].contains(rx)) {
+      if (ok[0]) {
           _value.rots[0] = argv[index+0].toDouble();
           _value.rots[1] = argv[index+1].toDouble();
           _value.rots[2] = argv[index+2].toDouble();
-          _value.type    = argv[index+3];
-          _value.populated = !(_value.rots[0] == 0.0 && _value.rots[1] == 0.0 && _value.rots[2] == 0.0);
+          QRegExp rx("^(ABS|REL|ADD)$");
+          if (argv.size() == index+4 && argv[index+3].contains(rx))
+             _value.type   = argv[index+3];
+          _value.populated = !(_value.rots[0] == 0 && _value.rots[1] == 0 && _value.rots[2] == 0);
           _here[0] = here;
           _here[1] = here;
           return index == 1 ? RotStepRc : OkRc;
@@ -4897,6 +4898,7 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       _value.rots[0] = 0;
       _value.rots[1] = 0;
       _value.rots[2] = 0;
+      _value.end = true;
       _value.populated = false;
       _here[0] = here;
       _here[1] = here;

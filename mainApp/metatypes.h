@@ -395,9 +395,11 @@ class RotStepData
 public:
   double  rots[3];
   QString type;
+  bool    end;
   bool    populated;
   RotStepData()
   {
+    end        = false;
     populated  = false;
     type       = QString();
     rots[0]    = 0;
@@ -406,6 +408,7 @@ public:
   }
   RotStepData & operator=(const RotStepData &rhs)
   {
+    end       = rhs.end;
     populated = rhs.populated;
     type      = rhs.type;
     rots[0]   = rhs.rots[0];

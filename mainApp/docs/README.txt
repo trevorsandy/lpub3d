@@ -1,4 +1,4 @@
-LPub3D 2.4.6.104.3215 (07 04 2023 06:02:22)
+LPub3D 2.4.6.105.3216 (07 04 2023 06:02:43)
 
 Features, enhancements, fixes and changes
 ------------
@@ -32,6 +32,7 @@ Revisions:
 - Fix - Persistent data directory installation folder message #687
 - Fix - Placement regression #694
 - Fix - Refresh step assembly image menu action missing #675
+- Fix - ROTSTEP END in step group is broken #696
 - Fix - Segfault after running --help or --version from console #668
 - Fix - Segfault if selection in command editor and also on cover page #669
 - Fix - Settings are not saved #692

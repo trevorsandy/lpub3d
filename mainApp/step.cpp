@@ -259,8 +259,14 @@ int Step::createCsi(
                               csiStepMeta.cameraAngles.value(1));
 
   // set RotStep meta
-  if (!rotStepMeta.isPopulated())
+  if (meta.rotStep.isEnd()) {
+      meta.rotStep.clear();
+      rotStepMeta.clear();
+  } else
+  if (!rotStepMeta.isPopulated()) {
       rotStepMeta = meta.rotStep;
+  }
+
 
   QString nameSuffix      = lpub->mi.viewerStepKeySuffix(top, this);
   QString csi_Name        = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
