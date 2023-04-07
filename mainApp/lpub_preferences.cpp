@@ -2836,7 +2836,7 @@ void Preferences::rendererPreferences()
     // Blender executable
     QString const blenderExeKey("BlenderExeFile");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderExeKey))) {
-        logNotice() << qUtf8Printable(QObject::tr("Blender: %1not installed").arg(blenderExe.isEmpty() ? "" : QString("%1 ").arg(blenderExe)));
+        logNotice() << qUtf8Printable(QObject::tr("Blender: %1not configured").arg(blenderExe.isEmpty() ? "" : QString("%1 ").arg(blenderExe)));
         blenderExe.clear();
     } else {
         blenderExe = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderExeKey)).toString());
@@ -2844,10 +2844,11 @@ void Preferences::rendererPreferences()
             blenderInstalled = true;
             logInfo() << qUtf8Printable(QObject::tr("Blender: Using %1").arg(blenderExe));
             QFileInfo blendFileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE));
-            if ((defaultBlendFile = blendFileInfo.exists()))
+            if ((defaultBlendFile = blendFileInfo.exists())) {
                 logInfo() << qUtf8Printable(QObject::tr("Blendfile (default): %1").arg(blendFileInfo.absoluteFilePath()));
-            else
+            } else {
                 logNotice() << qUtf8Printable(QObject::tr("Default blendfile does not exist: %1").arg(blendFileInfo.absoluteFilePath()));
+            }
         } else {
             Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
             blenderExe.clear();
