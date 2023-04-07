@@ -528,7 +528,8 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps) {
       if (result != QLatin1String("GLOBAL")) {
-        emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS set to ENABLED command must have GLOBAL qualifier."));
+        emit lpub->messageSig(LOG_WARNING,tr("Top level FADE_STEPS set to ENABLED command must have GLOBAL qualifier.<br>"
+                                             "Command will be IGNORED."),true/*Show Dialog*/);
         Preferences::enableFadeSteps = false;
       } else if (!Preferences::finalModelEnabled) {
         result.clear();
@@ -551,13 +552,14 @@ bool LPub::setFadeStepsFromCommand()
   fadeRx.setPattern("FADE_STEPS SETUP\\s*(GLOBAL)?\\s*TRUE");
   setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (setupFadeSteps && result != QLatin1String("GLOBAL")) {
-    emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS SETUP command must have GLOBAL qualifier."));
+    emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS SETUP command must have GLOBAL qualifier.<br>"
+                                       "Command will be IGNORED."),true/*Show Dialog*/);
     setupFadeSteps = false;
   }
   if (setupFadeSteps) {
     if (Preferences::enableFadeSteps) {
-      emit lpub->messageSig(LOG_WARNING,tr("Enable fade previous steps setup local encountered but global fade previous steps is enabled.<br>"
-                                           "Fade previous steps setup local will be ignored."),true/*Show Dialog*/);
+      emit lpub->messageSig(LOG_WARNING,tr("Command FADE_STEPS SETUP %1 encountered but<br>FADE_STEPS %1 is ENABLED.<br><br>"
+                                           "Command FADE_STEPS SETUP %1 will be IGNORED.").arg(result),true/*Show Dialog*/);
       setupFadeSteps = false;
     }
   }
@@ -618,7 +620,8 @@ bool LPub::setHighlightStepFromCommand()
     Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (Preferences::enableHighlightStep) {
       if (result != QLatin1String("GLOBAL")) {
-        emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP ENABLED command must have GLOBAL qualifier."));
+        emit lpub->messageSig(LOG_WARNING,tr("Top level HIGHLIGHT_STEP ENABLED command must have GLOBAL qualifier.<br>"
+                                             "Command will be IGNORED."),true/*Show Dialog*/);
         Preferences::enableHighlightStep = false;
       } else if (!Preferences::finalModelEnabled) {
         result.clear();
@@ -629,7 +632,7 @@ bool LPub::setHighlightStepFromCommand()
           emit lpub->messageSig(LOG_INFO,tr("Display Final Model is Enabled"));
         }
         if (result != QLatin1String("GLOBAL")) {
-          emit lpub->messageSig(LOG_NOTICE,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."));
+          emit lpub->messageSig(LOG_WARNING,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."));
         }
       }
     }
@@ -641,13 +644,14 @@ bool LPub::setHighlightStepFromCommand()
   highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
   setupHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
   if (setupHighlightStep && result != QLatin1String("GLOBAL")) {
-    emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP SETUP command must have GLOBAL qualifier."));
+    emit lpub->messageSig(LOG_WARNING,tr("Top level HIGHLIGHT_STEP SETUP command must have GLOBAL qualifier.<br>"
+                                         "Command will be IGNORED."),true/*Show Dialog*/);
     setupHighlightStep = false;
   }
   if (setupHighlightStep) {
     if (Preferences::enableHighlightStep) {
-      emit lpub->messageSig(LOG_WARNING,tr("Enable highlight current step setup local encountered but global highlight current step is enabled.<br>"
-                                           "Highlight current step setup local will be ignored."),true/*Show Dialog*/);
+      emit lpub->messageSig(LOG_WARNING,tr("Command HIGHLIGHT_STEP SETUP %1 encountered but<br>HIGHLIGHT_STEP %1 is ENABLED.<br><br>"
+                                           "Command HIGHLIGHT_STEP SETUP %1 will be IGNORED.").arg(result),true/*Show Dialog*/);
       setupHighlightStep = false;
     }
   }
