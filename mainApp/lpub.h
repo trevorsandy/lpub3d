@@ -503,6 +503,9 @@ public:
 
   static bool     buildModJumpForward;  // parse build mods in countPage call - special case for jump forward
 
+  static bool      m_fadeStepsSetup;    // enable fade previous steps locally
+  static bool      m_highlightStepSetup;// enable highlight current step locally
+
   static int       m_exportMode;        // export mode
   static int       m_saveExportMode;    // saved export mode used when exporting BOM
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
@@ -1369,12 +1372,17 @@ public slots:
   /* Fade color processing */
   static QString createColourEntry(
     const QString &colourCode,
-    const PartType partType);
+    const PartType partType,
+    const QString &highlightStepColour = "",
+    const QString &fadeStepsColour = "",
+    const bool fadeStepsUseColour = false,
+    const int fadeStepsOpacity = 100);
 
   static bool colourEntryExist(
     const QStringList &colourEntries,
     const QString &code,
-    const PartType partType);
+    const PartType partType,
+    const bool fadeStepsUseColour = false);
 
   static bool isLDrawColourPart(const QString &fileName)
   {
@@ -1480,7 +1488,7 @@ public slots:
   void deleteBuildModificationAction();
 
   void clearPLICache();
- void clearBOMCache();
+  void clearBOMCache();
   void clearCSICache();
   void clearSMICache(const QString &key = QString());
   void clearTempCache();
@@ -1644,9 +1652,6 @@ private:
   QString                buildModificationKey;   // populated at buildMod change and cleared at buildMod create
   QStringList            programEntries;      // list of 'open with' programs populated on startup
 
-  bool                   mSetupFadeSteps;
-  bool                   mSetupHighlightStep;
-
   int                    m_workerJobResult;
 
   int                    numPrograms;
@@ -1770,11 +1775,6 @@ private:
     const QStringList &,
     const QString &,
     const PartType partType);         // fade and or highlight all parts in subfile
-
-  static QStringList configureModelStep(
-    const QStringList &csiParts,
-    const int         &stepNum,
-    Where             &current);      // fade and or highlight parts in a step that are not current
 
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);

@@ -167,6 +167,11 @@ class Step : public AbstractRangeElement
            QPixmap            *pixmap,
            Meta               &meta);
 
+    QStringList configureModelStep(
+        const QStringList &csiParts,
+        const int         &stepNum,
+        Where             &current);
+
     int  sizeit(int  rows[],
                 int  cols[],
                 int  rowsMargin[][2],

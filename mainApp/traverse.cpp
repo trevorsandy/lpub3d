@@ -1184,10 +1184,11 @@ int Gui::drawPage(
               if ((rc == EnableFadeStepsCalloutAssemRc ? curMeta.LPub.callout.csi.fadeSteps.enable.value() :
                    rc == EnableFadeStepsGroupAssemRc ? curMeta.LPub.multiStep.csi.fadeSteps.enable.value() :
                    rc == EnableFadeStepsAssemRc ? curMeta.LPub.assem.fadeSteps.enable.value() :
-                         curMeta.LPub.fadeSteps.enable.value()) && !mSetupFadeSteps) {
-                      parseError(tr("Fade previous steps command ignored. %1 must be set to TRUE.")
-                                    .arg(curMeta.LPub.fadeSteps.enable.value() ? "FADE_STEPS ENABLED" :
-                                                                                "FADE_STEPS SETUP (in the first step of the main model)"),opts.current);
+                         curMeta.LPub.fadeSteps.enable.value()) && !m_fadeStepsSetup) {
+                      parseError(tr("Fade previous steps command IGNORED. %1 must be set to TRUE.")
+                                    .arg(curMeta.LPub.fadeSteps.enable.value()
+                                         ? tr("FADE_STEPS ENABLED")
+                                         : tr("FADE_STEPS SETUP GLOBAL (in the header of the top model)")),opts.current);
               } else if (rc == EnableFadeStepsCalloutAssemRc) {
                   curMeta.LPub.callout.csi.fadeSteps.setPreferences();
                   if (step)
@@ -1215,10 +1216,11 @@ int Gui::drawPage(
               if ((rc == EnableHighlightStepCalloutAssemRc ? curMeta.LPub.callout.csi.highlightStep.enable.value() :
                    rc == EnableHighlightStepGroupAssemRc ? curMeta.LPub.multiStep.csi.highlightStep.enable.value() :
                    rc == EnableHighlightStepAssemRc ? curMeta.LPub.assem.highlightStep.enable.value() :
-                         curMeta.LPub.highlightStep.enable.value()) && !mSetupHighlightStep) {
-                  parseError(tr("Highlight current step command ignored. %1 must be set to TRUE.")
-                                .arg(curMeta.LPub.highlightStep.enable.value() ? "HIGHLIGHT_STEP ENABLED" :
-                                                                                 "HIGHLIGHT_STEP SETUP (in the first STEP of the main model)"),opts.current);
+                         curMeta.LPub.highlightStep.enable.value()) && !m_highlightStepSetup) {
+                  parseError(tr("Highlight current step command IGNORED. %1 must be set to TRUE.")
+                                .arg(curMeta.LPub.highlightStep.enable.value()
+                                     ? "HIGHLIGHT_STEP ENABLED"
+                                     : "HIGHLIGHT_STEP SETUP GLOBAL (in the header of the top model)"),opts.current);
               } else if (rc == EnableHighlightStepCalloutAssemRc) {
                   curMeta.LPub.callout.csi.highlightStep.setPreferences();
                   if (step)
@@ -2301,9 +2303,10 @@ int Gui::drawPage(
                   if (buildModActionMeta.action())
                       step->buildModActionMeta = buildModActionMeta;
 
+                  configuredCsiParts = step->configureModelStep(opts.csiParts, opts.stepNum, topOfStep);
                   returnValue = static_cast<TraverseRc>(step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                        configuredCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
+                        configuredCsiParts,
                         opts.lineTypeIndexes,
                         &step->csiPixmap,
                         steps->meta));
@@ -2379,9 +2382,10 @@ int Gui::drawPage(
                           if (buildModActionMeta.action())
                               step->buildModActionMeta = buildModActionMeta;
 
+                          configuredCsiParts = step->configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep);
                           returnValue = static_cast<TraverseRc>(step->createCsi(
                                       opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                                      configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
+                                      configuredCsiParts,
                                       opts.lineTypeIndexes,
                                       &step->csiPixmap,
                                       steps->meta));
@@ -6272,7 +6276,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   if (!subfileColourList.isEmpty()){
       WriteToTmpMutex.lock();
 
-      subfileColourList.toSet().toList();  // remove dupes
+      subfileColourList.removeDuplicates();  // remove dupes
       configuredContents.prepend("0");
       for (int i = 0; i < subfileColourList.size(); ++i)
           configuredContents.prepend(subfileColourList.at(i));
@@ -6285,221 +6289,19 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   return configuredContents;
 }
 
-/*
- * Process csiParts list - fade previous step-parts and or highlight current step-parts.
- * To get the previous content position, take the previous cisFile file size.
- * The csiFile entries are only parts with not formatting or meta commands so it is
- * well suited to provide the delta between steps.
- */
-QStringList Gui::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current/*topOfStep*/) {
-
-  QStringList configuredCsiParts, stepColourList;
-  bool doFadeStep = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
-  bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
-  bool doHighlightFirstStep = Preferences::highlightFirstStep;
-  bool FadeMetaAdded = false;
-  bool SilhouetteMetaAdded = false;
-
-  if (csiParts.size() > 0 && (doHighlightFirstStep ? true : stepNum > 1)) {
-
-      QString fadeColour  = LDrawColor::code(Preferences::validFadeStepsColour);
-
-      // retrieve the previous step position
-      int prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber,stepNum);
-      if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
-          prevStepPosition = Gui::savePrevStepPosition;
-
-//#ifdef QT_DEBUG_MODE
-//      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
-//                      .arg(stepNum)
-//                      .arg(prevStepPosition)
-//                      .arg(csiParts.size())
-//                      .arg(lpub->ldrawFile.size(current.modelName))
-//                      .arg(current.modelName));
-//#endif
-
-      QStringList argv;
-
-      int type_1_5_line_count = 0;
-
-      for (int index = 0; index < csiParts.size(); index++) {
-
-          bool type_1_line = false;
-          bool type_1_5_line = false;
-          bool is_helper_part = false;
-          bool is_colour_part = false;
-          bool is_submodel_file = false;
-
-          int updatePosition = index + 1;
-
-          QString csiLine = csiParts[index];
-          split(csiLine, argv);
-
-          // determine line type
-          if (argv.size() && argv[0].size() == 1 &&
-              argv[0] >= "1" && argv[0] <= "5") {
-              type_1_5_line = true;
-              type_1_5_line_count++;
-              if (argv.size() == 15 && argv[0] == "1") {
-                  type_1_line = true;
-                  is_helper_part = ExcludedParts::isExcludedHelperPart(argv[argv.size()-1]);
-              }
-          }
-
-          if (!is_helper_part) {
-              // process parts naming
-              QString fileNameStr, extension;
-              if (type_1_line) {
-                  // set part name and extension
-                  fileNameStr = QString(argv[argv.size()-1]).toLower();
-                  extension = QFileInfo(fileNameStr).suffix();
-
-                  // check if is color part
-                  is_colour_part = LDrawColourParts::isLDrawColourPart(fileNameStr);
-
-                  // check if is submodel
-                  is_submodel_file = lpub->ldrawFile.isSubmodel(fileNameStr);
-
-                  //if (is_colour_part)
-                  //    emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
-              }
-
-              // write fade step entries
-              if ((doHighlightFirstStep ? stepNum > 1 : true) && doFadeStep && (updatePosition <= prevStepPosition)) {
-                  if (type_1_5_line) {
-                      // Insert opening fade meta
-                      if (!FadeMetaAdded && Preferences::enableFadeSteps){
-                         configuredCsiParts.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
-                         FadeMetaAdded = true;
-                      }
-                      if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
-                          argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
-                          // generate fade color entry
-                          QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
-                          if (!colourEntryExist(stepColourList,argv[1], FADE_PART))
-                            stepColourList << createColourEntry(colourCode, FADE_PART);
-                          // set fade color code
-                          argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(colourCode);
-                      }
-                      if (type_1_line) {
-                          // process static color part naming
-                          if (is_colour_part) {
-                              if (extension.isEmpty()) {
-                                fileNameStr = fileNameStr.append(QString("%1.dat").arg(FADE_SFX));
-                              } else {
-                                fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                              }
-                          }
-                          // process subfiles naming
-                          if (is_submodel_file) {
-                              if (extension.isEmpty()) {
-                                fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
-                              } else {
-                                fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                              }
-                          }
-                          // assign fade part name
-                          argv[argv.size()-1] = fileNameStr;
-                      }
-                  }
-              }
-
-              // write highlight entries
-              if (doHighlightStep && (updatePosition > prevStepPosition)) {
-                  if (type_1_5_line) {
-                      // Insert opening silhouette meta
-                      if (!SilhouetteMetaAdded && Preferences::enableHighlightStep){
-                         configuredCsiParts.append(QString("0 !SILHOUETTE %1 %2")
-                                                           .arg(Preferences::highlightStepLineWidth)
-                                                           .arg(Preferences::highlightStepColour));
-                         SilhouetteMetaAdded = true;
-                      }
-                      if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
-                          argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
-                          // generate highlight color entry
-                          QString colourCode = argv[1];
-                          if (!colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
-                            stepColourList << createColourEntry(colourCode, HIGHLIGHT_PART);
-                          // set highlight color code
-                          argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(colourCode);
-                      }
-                      if (type_1_line) {
-                          // process static color part naming
-                          if (is_colour_part) {
-                              if (extension.isEmpty()) {
-                                fileNameStr = fileNameStr.append(QString("%1.dat").arg(HIGHLIGHT_SFX));
-                              } else {
-                                fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                              }
-                          }
-                          // process subfiles naming
-                          if (is_submodel_file) {
-                              if (extension.isEmpty()) {
-                                fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
-                              } else {
-                                fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                              }
-                          }
-                          // assign fade part name
-                          argv[argv.size()-1] = fileNameStr;
-                      }
-                  }
-              }
-          }
-
-          if (isGhost(csiLine))
-              argv.prepend(GHOST_META);
-
-          // previous step parts
-          csiLine = argv.join(" ");
-
-          // current step parts
-          configuredCsiParts  << csiLine;
-
-          // Insert closing fade meta
-          if (updatePosition == prevStepPosition) {
-              if (FadeMetaAdded)
-                  configuredCsiParts.append(QString("0 !FADE"));
-          }
-
-          // Insert closing silhouette meta
-          if (index+1 == csiParts.size()) {
-              if (SilhouetteMetaAdded)
-                  configuredCsiParts.append(QString("0 !SILHOUETTE"));
-          }
-      }
-
-      // save the current step position
-      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
-
-  } else {
-
-      // save the current step position
-      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
-      return csiParts;
-
-  }
-
-  // add the fade color list to the header of the CsiParts list
-  if (!stepColourList.isEmpty()) {
-      stepColourList.toSet().toList();  // remove dupes
-      configuredCsiParts.prepend("0");
-
-      for (int i = 0; i < stepColourList.size(); ++i)
-          configuredCsiParts.prepend(stepColourList.at(i));
-
-      configuredCsiParts.prepend(QString("0 // %1 step custom colours").arg(VER_PRODUCTNAME_STR));
-      configuredCsiParts.prepend("0");
-  }
-
-  return configuredCsiParts;
-}
-
-bool Gui::colourEntryExist(const QStringList &colourEntries, const QString &code, const PartType partType)
+bool Gui::colourEntryExist(
+    const QStringList &colourEntries,
+    const QString &code,
+    const PartType partType,
+    const bool fadeStepsUseColour)
 {
+    bool _fadeStepsUseColour     = Preferences::fadeStepsUseColour;
     bool fadePartType = partType == FADE_PART;
 
-    if (Preferences::fadeStepsUseColour && fadePartType && colourEntries.size() > 0)
+    if (Gui::m_fadeStepsSetup)
+      _fadeStepsUseColour = fadeStepsUseColour;
+
+    if (_fadeStepsUseColour && fadePartType && colourEntries.size() > 0)
         return true;
 
     QStringList colourComponents;
@@ -6515,19 +6317,37 @@ bool Gui::colourEntryExist(const QStringList &colourEntries, const QString &code
     return false;
 }
 
-QString Gui::createColourEntry(const QString &colourCode, const PartType partType)
+QString Gui::createColourEntry(
+    const QString &colourCode,
+    const PartType partType,
+    const QString &highlightStepColour,
+    const QString &fadeStepsColour,
+    const bool fadeStepsUseColour,
+    const int fadeStepsOpacity)
 {
   // Fade Steps Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
 
-  bool fadePartType          = partType == FADE_PART;
+  QString _fadeStepsColour     = Preferences::validFadeStepsColour;
+  QString _highlightStepColour = Preferences::highlightStepColour;
+  int _fadeStepsOpacity        = Preferences::fadeStepsOpacity;
+  bool _fadeStepsUseColour     = Preferences::fadeStepsUseColour;
+  bool fadePartType            = partType == FADE_PART;
+  if (Gui::m_fadeStepsSetup) {
+    _fadeStepsColour     = fadeStepsColour;
+    _fadeStepsOpacity    = fadeStepsOpacity;
+    _fadeStepsUseColour  = fadeStepsUseColour;
+  }
+  if (Gui::m_highlightStepSetup) {
+    _highlightStepColour = highlightStepColour;
+  }
 
   QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
-  QString _fadeColour        = LDrawColor::code(Preferences::validFadeStepsColour);
-  QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
+  QString _fadeColour        = LDrawColor::code(_fadeStepsColour);
+  QString _colourCode        = _colourPrefix + (fadePartType ? _fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString _mainColourValue   = LDrawColor::value(colourCode);
-  QString _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : Preferences::highlightStepColour;
+  QString _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : _highlightStepColour;
   QString _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
-  int _fadeAlphaValue        = ((LDrawColor::alpha(colourCode) * (100 - Preferences::fadeStepsOpacity)) + (100 - 1)) / 100;
+  int _fadeAlphaValue        = ((LDrawColor::alpha(colourCode) * (100 - _fadeStepsOpacity)) + (100 - 1)) / 100;
   int _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")

@@ -142,7 +142,10 @@ bool         Gui::m_exportingObjects;     // indicate exporting non-image object
 bool         Gui::m_contPageProcessing;   // indicate continuous page processing underway
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
 bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage()
-bool         Gui::m_abort;                 // set to true when response to critcal error is abort
+bool         Gui::m_abort;                // set to true when response to critcal error is abort
+
+bool         Gui::m_fadeStepsSetup;       // enable fade previous steps locally
+bool         Gui::m_highlightStepSetup;   // enable highlight current step locally
 
 int          Gui::m_exportMode;           // export Mode
 int          Gui::m_saveExportMode;       // saved export mode used when exporting BOM
@@ -3750,8 +3753,8 @@ void Gui::reloadModelFileAfterColorFileGen() {
                                   .arg(Preferences::validLDrawLibrary).arg(entries);
         box.setText (message);
 
-        bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
-        bool enableHighlightSttep = mSetupHighlightStep || Preferences::enableHighlightStep;
+        bool enableFadeSteps = m_fadeStepsSetup || Preferences::enableFadeSteps;
+        bool enableHighlightSttep = m_highlightStepSetup || Preferences::enableHighlightStep;
 
         if (enableFadeSteps || enableHighlightSttep) {
             QString body = QMessageBox::tr ("The color file list and current model must be reloaded.<br>Do you want to continue ?");

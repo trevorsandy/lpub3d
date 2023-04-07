@@ -782,8 +782,8 @@ void Gui::closeFile()
   Preferences::preferredRendererPreferences();
   Preferences::fadestepPreferences();
   Preferences::highlightstepPreferences();
-  mSetupFadeSteps = false;
-  mSetupHighlightStep = false;
+  m_fadeStepsSetup = false;
+  m_highlightStepSetup = false;
   if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
       LDrawColourParts::clearGeneratedColorParts();
       partWorkerLDSearchDirs.removeCustomDirs();
@@ -904,10 +904,10 @@ bool Gui::openFile(const QString &fileName)
           loadLDSearchDirParts(false/*Process*/, true/*OnDemand*/, false/*Update*/);
       }
   }
-  mSetupFadeSteps = lpub->setFadeStepsFromCommand();
-  mSetupHighlightStep = lpub->setHighlightStepFromCommand();
-  bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
-  bool enableHighlightStep = mSetupHighlightStep || Preferences::enableHighlightStep;
+  m_fadeStepsSetup = lpub->setFadeStepsFromCommand();
+  m_highlightStepSetup = lpub->setHighlightStepFromCommand();
+  bool enableFadeSteps = m_fadeStepsSetup || Preferences::enableFadeSteps;
+  bool enableHighlightStep = m_highlightStepSetup || Preferences::enableHighlightStep;
   if (enableFadeSteps || enableHighlightStep) {
     ldrawColorPartsLoad();
     writeGeneratedColorPartsToTemp();
