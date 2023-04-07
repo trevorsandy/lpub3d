@@ -857,7 +857,7 @@ bool Gui::openFile(const QString &fileName)
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
   QFileInfo fileInfo(fileName);
-  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading file '%1'...").arg(fileInfo.absoluteFilePath()));
+  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading file '%1'...").arg(fileInfo.fileName()));
   setPageLineEdit->setText(tr("Loading..."));
   setGoToPageCombo->addItem(tr("Loading..."));
   mpdCombo->addItem(tr("Loading..."));
