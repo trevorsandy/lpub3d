@@ -3314,12 +3314,12 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::finishedCountingPages);
 
     // LPub - Object connection is Qt::AutoConnection so it will trigger without an active event loop
-    connect(lpub,           SIGNAL(messageSig( LogType,const QString &,bool)),
-            this,           SLOT(statusMessage(LogType,const QString &,bool)));
+    connect(lpub,           SIGNAL(messageSig( LogType,const QString &,int)),
+            this,           SLOT(statusMessage(LogType,const QString &,int)));
 
     // Gui - MainWindow
-    connect(this,           SIGNAL(messageSig( LogType,const QString &,bool)),
-            this,           SLOT(statusMessage(LogType,const QString &,bool)),
+    connect(this,           SIGNAL(messageSig( LogType,const QString &,int)),
+            this,           SLOT(statusMessage(LogType,const QString &,int)),
             Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
     connect(this,           SIGNAL(setExportingSig(bool)),
@@ -7510,7 +7510,7 @@ void Gui::parseError(const QString &message,
     Preferences::setMessageLogging();
 }
 
-void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgBox/*false*/) {
+void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBox/*0=false*/) {
     /* logTypes
      * LOG_STATUS:   - same as INFO but writes to log file also
      * LOG_INFO:
@@ -7613,10 +7613,10 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, bool msgB
             logWarning() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
-            if (ContinuousPage() || exporting()) {
+            if (ContinuousPage() || exporting() || msgBox == 0/*false*/) {
                 Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
-            } else if (((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) && !abortInProgress) {
+            } else if (((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) && msgBox != 2 && !abortInProgress) {
                 QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
             }
         }

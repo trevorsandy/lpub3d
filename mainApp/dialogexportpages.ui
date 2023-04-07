@@ -357,7 +357,7 @@
       <item>
        <widget class="QCheckBox" name="displayPageProcessingErrorsChk">
         <property name="text">
-         <string>Display page processing errors</string>
+         <string>Display page processing warnings and errors</string>
         </property>
        </widget>
       </item>

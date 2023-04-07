@@ -1806,7 +1806,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (! alreadyLoaded) {
                     if (contents.isEmpty()) {
                         emit gui->messageSig(LOG_WARNING, QObject::tr("MPD %1 '%2' is empty and was not loaded.")
-                                                                      .arg(fileType()).arg(subfileName));
+                                                                      .arg(fileType()).arg(subfileName), 2/*no msgBox*/);
                     } else {
                         insert(subfileName,
                                contents,
@@ -1894,7 +1894,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         } else {
             if (contents.isEmpty()) {
                 emit gui->messageSig(LOG_WARNING, QObject::tr("MPD %1 '%2' is empty and was not loaded.")
-                                                              .arg(fileType()).arg(subfileName));
+                                                              .arg(fileType()).arg(subfileName), 2/*no msgBox*/);
             } else {
                 insert(subfileName,
                        contents,
@@ -3052,6 +3052,7 @@ void LDrawFile::countParts(const QString &fileName) {
     {
         if (!_loadedParts.contains(statusEntry)) {
             LogType logType = LOG_NOTICE;
+            int showMessage = 0;
 
             if (uniqueCount)
                 _uniquePartCount++;
@@ -3065,10 +3066,12 @@ void LDrawFile::countParts(const QString &fileName) {
             else
                 message = statusMessage.arg(type);
 
-            if (message.contains(QLatin1String("is not excluded, inlined, a submodel or an external file")))
+            if (message.contains(QLatin1String("is not excluded, inlined, a submodel or an external file"))) {
                 logType = LOG_WARNING;
+                showMessage = 2/*no msgBox*/;
+            }
 
-            emit gui->messageSig(logType, message);
+            emit gui->messageSig(logType, message, showMessage);
         }
         if (uniqueCount)
             _loadedParts.append(statusEntry);

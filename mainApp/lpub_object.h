@@ -254,7 +254,7 @@ private slots:
   void ddfSpinEnabled(bool);
 
 signals:
-  void messageSig(LogType, const QString &, bool = false);
+  void messageSig(LogType, const QString &, int = 0);
   void loadFileSig(QString, bool);
   void consoleCommandSig(int, int*);
   void checkForUpdatesFinished();

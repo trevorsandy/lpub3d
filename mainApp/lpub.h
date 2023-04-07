@@ -1363,7 +1363,7 @@ public slots:
                   int icon = 3/*Critical*/);
 
   void statusBarMsg(QString msg);
-  void statusMessage(LogType logType, const QString &statusMessage, bool msgBox = false);
+  void statusMessage(LogType logType, const QString &statusMessage, int msgBox = 0);
   void showExportedFile();
   void showLine(const Where &here, int type = LINE_HIGHLIGHT);
   void openDropFile(QString &fileName);
@@ -1580,7 +1580,7 @@ signals:
   void progressPermResetSig();
   void progressPermStatusRemoveSig();
 
-  void messageSig(LogType logType, const QString &message, bool msgBox = false);
+  void messageSig(LogType logType, const QString &message, int msgBox = 0);
 
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
