@@ -5108,14 +5108,20 @@ bool Preferences::getPreferences()
                 lpub->partWorkerLDSearchDirs().populateLdgLiteSearchDirs();
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Renderer preference changed from %1 to %2%3")
-                            .arg(preferredRendererCompare)
-                            .arg(preferredRenderer)
-                            .arg(preferredRenderer == RENDERER_POVRAY ? QMessageBox::tr(" (POV file generator is %1)")
-                                                                                             .arg(useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
-                                 preferredRenderer == RENDERER_LDVIEW ? enableLDViewSingleCall ?
-                                                                                     enableLDViewSnaphsotList ? QMessageBox::tr(" (Single Call using Export File List)") :
-                                                                                                                             QMessageBox::tr(" (Single Call)") :
-                                                                                                                             QString() : QString()));
+                            .arg(rendererNames[preferredRendererCompare])
+                            .arg(rendererNames[preferredRenderer])
+                            .arg(preferredRenderer == RENDERER_POVRAY
+                                                         ? QMessageBox::tr(" (POV file generator is %1)")
+                                                                           .arg(useNativePovGenerator
+                                                                                  ? RENDERER_NATIVE
+                                                                                  : RENDERER_LDVIEW)
+                                                         : preferredRenderer == RENDERER_LDVIEW
+                                                               ? enableLDViewSingleCall
+                                                                     ? enableLDViewSnaphsotList
+                                                                           ? QMessageBox::tr(" (Single Call using Export File List)")
+                                                                           : QMessageBox::tr(" (Single Call)")
+                                                                     : QString()
+                                                               : QString()));
         }
 
         if (enableLDViewSingleCall != dialog->enableLDViewSingleCall()) {
