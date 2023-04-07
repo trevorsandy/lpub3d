@@ -1965,7 +1965,7 @@ void Gui::enableVisualBuildModification()
             gMainWindow->SetTransformType(lcTransformType::RelativeTranslation);
     } else {
         RotateText = tr("Rotate ROTSTEP");
-        RotateStatusTip = tr("Rotate selected model for ROTSTEP command - Shift+L");
+        RotateStatusTip = tr("Select model to enable axes for %1 ROTSTEP command - Shift+L").arg(VER_PRODUCTNAME_STR);
         RelTranslateStatusTip = tr("Relative translation mode is disabled when build modifications are disabled");
         AbsTranslateStatusTip = tr("Absolute translation mode is disabled when build modifications are disabled");
         RotateIcon.addFile(":/resources/rotaterotstep.png");
@@ -2424,15 +2424,15 @@ void Gui::SetRotStepCommand()
                                                                QLatin1String("Item");
             const QString question = tr("Apply command ROTSTEP %1 %2 %3 %4 to %5 %6 ?<br><br>"
                                         "Current command is <i>ROTSTEP %7 %8 %9 %10</i>")
-                                        .arg(QString::number(double(mRotStepAngleX),'g',2),
-                                             QString::number(double(mRotStepAngleY),'g',2),
-                                             QString::number(double(mRotStepAngleZ),'g',2))
+                                        .arg(QString::number(double(mRotStepAngleX),'f',0),
+                                             QString::number(double(mRotStepAngleY),'f',0),
+                                             QString::number(double(mRotStepAngleZ),'f',0))
                                         .arg(mRotStepType)
                                         .arg(type)
                                         .arg(QString::number(currentStep->stepNumber.number))
-                                        .arg(QString::number(double(rotStepData.rots[0]),'g',2),
-                                             QString::number(double(rotStepData.rots[1]),'g',2),
-                                             QString::number(double(rotStepData.rots[2]),'g',2))
+                                        .arg(QString::number(double(rotStepData.rots[0]),'f',0),
+                                             QString::number(double(rotStepData.rots[1]),'f',0),
+                                             QString::number(double(rotStepData.rots[2]),'f',0))
                                         .arg(rotStepData.type);
             if (QMessageBox::question(this, tr("%1 Rotate Step Command").arg(VER_PRODUCTNAME_STR), question,
                                       QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
@@ -2447,15 +2447,23 @@ void Gui::SetRotStepCommand()
         mStepRotation[1] = mRotStepAngleY;
         mStepRotation[2] = mRotStepAngleZ;
 
+        RotStepData saveRotStepData = rotStepData;
+
         rotStepData.type    = mRotStepType;
         rotStepData.rots[0] = double(mStepRotation[0]);
         rotStepData.rots[1] = double(mStepRotation[1]);
         rotStepData.rots[2] = double(mStepRotation[2]);
+
         currentStep->rotStepMeta.setValue(rotStepData);
 
         QString metaString = currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
+
+        currentStep->rotStepMeta.setValue(saveRotStepData);
+
         Where top = currentStep->rotStepMeta.here();
+
         bool newCommand = top == Where() || top < currentStep->topOfStep();
+
         if (newCommand) {
             top = currentStep->topOfStep();
             QString line = gui->readLine(top);

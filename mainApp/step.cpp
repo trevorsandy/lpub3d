@@ -177,8 +177,6 @@ Step::Step(
 
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
 
-  rotStepMeta               = _meta.rotStep;
-
   rotateIcon.placement      = rotateIconMeta.placement;
   rotateIcon.margin         = rotateIconMeta.margin;
   rotateIcon.setSize(         rotateIconMeta.size,
@@ -243,8 +241,6 @@ int Step::createCsi(
   bool csiExist         = false;
   bool nativeRenderer   = Preferences::preferredRenderer == RENDERER_NATIVE;
   int  nType            = static_cast<int>(NTypeDefault);
-  bool  customViewpoint = csiStepMeta.cameraAngles.customViewpoint();
-  bool  noCA            = !customViewpoint && rotStepMeta.value().type.toUpper() == QLatin1String("ABS");
   float cameraFoV       = csiStepMeta.cameraFoV.value();
   float modelScale      = csiStepMeta.modelScale.value();
   float camDistance     = csiStepMeta.cameraDistance.value();
@@ -252,21 +248,15 @@ int Step::createCsi(
   if (nativeRenderer)
     nType = calledOut ? static_cast<int>(NTypeCalledOut) : multiStep ? static_cast<int>(NTypeMultiStep) : static_cast<int>(NTypeDefault);
 
+  rotStepMeta = meta.rotStep;
+
   // set camera angles
+  bool  customViewpoint = csiStepMeta.cameraAngles.customViewpoint();
+  bool  noCA            = !customViewpoint && rotStepMeta.value().type.toUpper() == QLatin1String("ABS");
   FloatPairMeta cameraAngles;
   if (!noCA)
       cameraAngles.setValues( csiStepMeta.cameraAngles.value(0),
                               csiStepMeta.cameraAngles.value(1));
-
-  // set RotStep meta
-  if (meta.rotStep.isEnd()) {
-      meta.rotStep.clear();
-      rotStepMeta.clear();
-  } else
-  if (!rotStepMeta.isPopulated()) {
-      rotStepMeta = meta.rotStep;
-  }
-
 
   QString nameSuffix      = lpub->mi.viewerStepKeySuffix(top, this);
   QString csi_Name        = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
@@ -290,7 +280,7 @@ int Step::createCsi(
         }
     }
 
-  // Define csi file paths
+  // define csi file paths
   QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
   QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?

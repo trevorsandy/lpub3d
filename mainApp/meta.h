@@ -2643,17 +2643,12 @@ public:
   {
     return _value;
   }
-  bool isEnd()
-  {
-    return _value.end;
-  }
   bool isPopulated()
   {
     return _value.populated;
   }
   void clear()
   {
-    _value.end = false;
     _value.populated = false;
     _value.type.clear();
     _value.rots[0] = 0;
@@ -2663,7 +2658,6 @@ public:
   RotStepMeta()
   {
     _value.type.clear();
-    _value.end = false;
     _value.populated = false;
   }
   RotStepMeta(const RotStepMeta &rhs) : LeafMeta(rhs)
@@ -2672,13 +2666,6 @@ public:
   }
   void setValue(RotStepData &rhs)
   {
-    _value.end       = rhs.end ||
-                      (rhs.rots[0] == 0 &&
-                       rhs.rots[1] == 0 &&
-                       rhs.rots[2] == 0 &&
-                      (rhs.rots[0] != 0 ||
-                       rhs.rots[1] != 0 ||
-                       rhs.rots[2] != 0));
     _value.populated = rhs.rots[0] != 0 ||
                        rhs.rots[1] != 0 ||
                        rhs.rots[2] != 0 ||

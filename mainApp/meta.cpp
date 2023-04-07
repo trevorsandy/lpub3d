@@ -4877,14 +4877,13 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() >= index+3 ) {
       bool ok[3];
-      argv[index+0].toFloat(&ok[0]);
-      argv[index+1].toFloat(&ok[1]);
-      argv[index+2].toFloat(&ok[2]);
-      ok[0] &= ok[1] & ok[2];
-      if (ok[0]) {
-          _value.rots[0] = argv[index+0].toDouble();
-          _value.rots[1] = argv[index+1].toDouble();
-          _value.rots[2] = argv[index+2].toDouble();
+      double rotX = argv[index+0].toDouble(&ok[0]);
+      double rotY = argv[index+1].toDouble(&ok[1]);
+      double rotZ = argv[index+2].toDouble(&ok[2]);
+      if (ok[0] && ok[1] && ok[2]) {
+          _value.rots[0] = rotX;
+          _value.rots[1] = rotY;
+          _value.rots[2] = rotZ;
           QRegExp rx("^(ABS|REL|ADD)$");
           if (argv.size() == index+4 && argv[index+3].contains(rx))
              _value.type   = argv[index+3];
@@ -4898,7 +4897,6 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       _value.rots[0] = 0;
       _value.rots[1] = 0;
       _value.rots[2] = 0;
-      _value.end = true;
       _value.populated = false;
       _here[0] = here;
       _here[1] = here;
