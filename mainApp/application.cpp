@@ -1194,7 +1194,7 @@ int Application::run()
                           .arg(ExecReturn);
 
     if (Preferences::loggingEnabled) {
-      emit lpub->messageSig(ExecReturn ? LOG_ERROR : LOG_INFO, ExecMessage);
+      emit lpub->messageSig(ExecReturn ? LOG_FATAL : LOG_INFO, ExecMessage);
     } else {
       Preferences::printInfo(ExecMessage, ExecReturn);
     }
