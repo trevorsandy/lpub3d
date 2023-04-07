@@ -3471,9 +3471,12 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             {
                 QString const message = QObject::tr("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
                                             .arg(ImageType)
-                                            .arg(O->ExportMode == EXPORT_NONE ?
-                                                     QObject::tr("image") :
-                                                     QObject::tr("%1 object")
+                                            .arg((O->ExportMode == EXPORT_PDF ||
+                                                  O->ExportMode == EXPORT_PNG ||
+                                                  O->ExportMode == EXPORT_JPG ||
+                                                  O->ExportMode == EXPORT_BMP)
+                                                     ? QObject::tr("image")
+                                                     : QObject::tr("%1 object")
                                                          .arg(nativeExportNames[O->ExportMode]))
                                             .arg(O->OutputFileName)
                                             .arg(Writer.errorString());
