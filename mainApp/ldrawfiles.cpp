@@ -1799,19 +1799,24 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
          */
         if (sof || eof || sosf || eosf) {
             /* - if at end of file marker
-             * - insert items if subfileName not empty
+             * - insert items if subfileName and contents are not empty
              * - after insert, clear contents
              */
             if (! subfileName.isEmpty()) {
                 if (! alreadyLoaded) {
-                    insert(subfileName,
-                           contents,
-                           datetime,
-                           unofficialPart,
-                           false/*generated*/,
-                           false/*includeFile*/,
-                           externalFile ? fileInfo.absoluteFilePath() : "",
-                           _description);
+                    if (contents.isEmpty()) {
+                        emit gui->messageSig(LOG_WARNING, QObject::tr("MPD %1 '%2' is empty and was not loaded.")
+                                                                      .arg(fileType()).arg(subfileName));
+                    } else {
+                        insert(subfileName,
+                               contents,
+                               datetime,
+                               unofficialPart,
+                               false/*generated*/,
+                               false/*includeFile*/,
+                               externalFile ? fileInfo.absoluteFilePath() : "",
+                               _description);
+                    }
                     if (contents.size()) {
                         if ((headerMissing = MissingHeader(missingHeaders())))
                             normalizeHeader(subfileName, headerMissing);
@@ -1883,18 +1888,23 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     } // iterate stagedContents
 
     // at end of file - NOFILE tag not specified
-    if ( ! subfileName.isEmpty() && ! contents.isEmpty()) {
+    if ( ! subfileName.isEmpty()) {
         if (LDrawFile::contains(subfileName)) {
             emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded").arg(fileType()).arg(subfileName));
         } else {
-            insert(subfileName,
-                   contents,
-                   datetime,
-                   unofficialPart,
-                   false/*generated*/,
-                   false/*includeFile*/,
-                   externalFile ? fileInfo.absoluteFilePath() : "",
-                   _description);
+            if (contents.isEmpty()) {
+                emit gui->messageSig(LOG_WARNING, QObject::tr("MPD %1 '%2' is empty and was not loaded.")
+                                                              .arg(fileType()).arg(subfileName));
+            } else {
+                insert(subfileName,
+                       contents,
+                       datetime,
+                       unofficialPart,
+                       false/*generated*/,
+                       false/*includeFile*/,
+                       externalFile ? fileInfo.absoluteFilePath() : "",
+                       _description);
+            }
             if (contents.size()) {
                 if ((headerMissing = MissingHeader(missingHeaders())))
                     normalizeHeader(subfileName, headerMissing);
