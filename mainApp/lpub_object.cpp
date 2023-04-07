@@ -1279,7 +1279,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
 #endif
     doc.prepend(tr("---------------------------------------------------------------------------------"));
     doc.prepend(QString());
-    doc.prepend(tr("  Copyright © 2022 by %1").arg(VER_PUBLISHER_STR));
+    doc.prepend(tr("  Copyright © 2023 by %1").arg(VER_PUBLISHER_STR));
     doc.prepend(tr("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
     doc.prepend(tr("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
     doc.prepend(tr("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
