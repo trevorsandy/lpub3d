@@ -3730,7 +3730,7 @@ void AnnotateTextItem::contextMenuEvent(
                        true,1,true,false);  // no picture
   } else if (selectedAction == borderAction) {
       bool corners = style.value() == circle;
-      changeBorder(QObject::tr("%1 Border"),
+      changeBorder(QObject::tr("%1 Border").arg(name),
                    top,
                    bottom,
                    &border,
