@@ -2816,12 +2816,12 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 
 			if (ActiveModel)
 			{
-				bool IsCustomCamera = ActiveModel->GetCameras().FindIndex(Camera) != -1;
-
-				if (!IsCustomCamera && !Camera->IsSimple())
+				if (!Camera->IsSimple())
 				{
-					Camera = new lcCamera(true);
-					ActiveView->SetCamera(Camera, false);
+					if (ActiveModel->GetCameras().FindIndex(Camera) == -1) {
+						Camera = new lcCamera(true);
+						ActiveView->SetCamera(Camera, false);
+					}
 				}
 
 				lcTool Tool = GetTool();

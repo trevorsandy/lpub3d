@@ -1927,8 +1927,7 @@ void Gui::enableVisualBuildModification()
     else if (sender() == EnableRotstepRotateAct)
         buildModEnabled &= !EnableRotstepRotateAct->isChecked();
 
-    if (buildModEnabled) {
-        buildModEnabled && !curFile.isEmpty();
+    if (buildModEnabled && !curFile.isEmpty()) {
         using namespace Options;
         switch (lcGetActiveProject()->GetImageType())
         {
@@ -1941,7 +1940,8 @@ void Gui::enableVisualBuildModification()
         }
     }
 
-    gMainWindow->UpdateDefaultCameraProperties();
+    if(!ContinuousPage())
+        gMainWindow->UpdateDefaultCameraProperties();
 
     EnableBuildModAct->setEnabled(Preferences::buildModEnabled);
     EnableBuildModAct->setChecked(buildModEnabled);
