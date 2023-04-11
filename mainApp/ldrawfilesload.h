@@ -61,6 +61,7 @@ private slots:
     void enableActions();
     void ungroupItems();
     void groupItems();
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     int countItems(const LoadMsgType lmt, const QString item = QString());
     void copy() const;
 private:
@@ -69,8 +70,11 @@ private:
     void populate(bool groupItems = true);
 
     enum StatusEnc {MSG_TYPE, ITEM, DESC};
+
     Ui::LdrawFilesLoadDialog *ui;
-    LdrawFilesLoadModel *lm;
+    LdrawFilesLoadModel      *lm;
+    QItemSelectionModel      *sm;
+    QStandardItem            *rn;
 
     bool dl;
     bool const isAction;
@@ -100,8 +104,6 @@ private:
     int ppc;
     int spc;
     */
-
-    QStandardItem *rootNode;
 
     QColor includeColor;
     QBrush includeBrush;

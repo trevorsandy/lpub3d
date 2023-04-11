@@ -77,7 +77,7 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
 
     setWhatsThis(lpubWT(WT_DIALOG_LDRAW_FILES_LOAD,windowTitle()));
 
-    rootNode = lm->invisibleRootItem();
+    rn = lm->invisibleRootItem();
 
     includeColor = QColor(0,153,255);
     includeBrush.setColor(includeColor);
@@ -104,17 +104,18 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     spc  = countItems(SUBPART_LOAD_MSG);
     */
 
-    summary();
-
-    populate();
-
     ui->messagesView->setModel(lm);
     ui->messagesView->setSortingEnabled(true);
     ui->messagesView->sortByColumn(0, Qt::AscendingOrder);
     ui->messagesView->setSelectionMode( QAbstractItemView::MultiSelection );
     ui->messagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->messagesView->adjustSize();
     ui->messagesView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->messagesView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->messagesView->adjustSize();
+
+    summary();
+
+    populate();
 
     createActions();
 
@@ -129,6 +130,8 @@ LdrawFilesLoad::~LdrawFilesLoad()
 {
     delete ui;
     delete lm;
+    delete sm;
+    delete rn;
 }
 
 void LdrawFilesLoad::createActions()
@@ -183,6 +186,10 @@ void LdrawFilesLoad::createActions()
     connect(groupAct, SIGNAL(triggered()), this, SLOT(groupItems()));
     connect(groupAct, SIGNAL(triggered()), this, SLOT(enableActions()));
 
+    sm = ui->messagesView->selectionModel();
+    connect(sm,  SIGNAL(selectionChanged(const QItemSelection &,const QItemSelection &)),
+            this,  SLOT(selectionChanged(const QItemSelection &,const QItemSelection &)));
+
     if (!isAction && mpc) {
         ui->buttonBox->addButton(QDialogButtonBox::Discard);
         connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),SLOT(getButton(QAbstractButton*)));
@@ -217,6 +224,7 @@ void LdrawFilesLoad::enableActions()
         ungroupAct->setEnabled(true);
         groupAct->setEnabled(false);
     } else {
+        copyAct->setEnabled(false);
         selAllAct->setEnabled(true);
         deselectAct->setEnabled(false);
         expandAct->setEnabled(true);
@@ -228,10 +236,10 @@ void LdrawFilesLoad::enableActions()
 
 void LdrawFilesLoad::ungroupItems()
 {
-    rootNode->removeRows(0, rootNode->rowCount());
+    rn->removeRows(0, rn->rowCount());
     populate(false);
     ui->messagesView->sortByColumn(0, Qt::AscendingOrder);
-    for (int i = MSG_TYPE; i < rootNode->rowCount(); i++) {
+    for (int i = MSG_TYPE; i < rn->rowCount(); i++) {
         LoadMsgType msgType = static_cast<LoadMsgType>(lm->item(i, MSG_TYPE)->data().toInt());
         if (msgType == VALID_LOAD_MSG || msgType == MPD_SUBMODEL_LOAD_MSG) {
             QModelIndex current = lm->item(i, MSG_TYPE)->index();
@@ -242,16 +250,21 @@ void LdrawFilesLoad::ungroupItems()
 
 void LdrawFilesLoad::groupItems()
 {
-    rootNode->removeRows(0, rootNode->rowCount());
+    rn->removeRows(0, rn->rowCount());
     populate();
     ui->messagesView->sortByColumn(0, Qt::AscendingOrder);
-    for (int i = MSG_TYPE; i < rootNode->rowCount(); i++) {
+    for (int i = MSG_TYPE; i < rn->rowCount(); i++) {
         LoadMsgType msgType = static_cast<LoadMsgType>(lm->item(i, MSG_TYPE)->data().toInt());
         if (msgType == VALID_LOAD_MSG || msgType == MPD_SUBMODEL_LOAD_MSG) {
             QModelIndex current = lm->item(i, MSG_TYPE)->index();
             ui->messagesView->expand(current);
         }
     }
+}
+
+void LdrawFilesLoad::selectionChanged(const QItemSelection &selected, const QItemSelection &)
+{
+    copyAct->setEnabled(selected.indexes().size());
 }
 
 void LdrawFilesLoad::getButton(QAbstractButton *button)
@@ -263,22 +276,21 @@ void LdrawFilesLoad::getButton(QAbstractButton *button)
 
 void LdrawFilesLoad::copy() const
 {
-    QItemSelectionModel * selection = ui->messagesView->selectionModel();
-    QModelIndexList indexes = selection->selectedIndexes();
+    QModelIndexList selection = sm->selectedIndexes();
 
-    if(indexes.size() < 1) {
+    if(!selection.size()) {
         QMessageBox::information(nullptr, tr("No Selection"), tr("Nothing selected. Make a selection before copying."));
         return;
     }
 
-    lpub_sort(indexes.begin(), indexes.end());
+    lpub_sort(selection.begin(), selection.end());
 
     // You need a pair of indexes to find the row changes
-    QModelIndex previous = indexes.first();
-    indexes.removeFirst();
+    QModelIndex previous = selection.first();
+    selection.removeFirst();
     QString selected_text;
     QModelIndex current;
-    Q_FOREACH(current, indexes)
+    Q_FOREACH(current, selection)
     {
         QVariant data = lm->data(previous);
         QString text = data.toString();
@@ -333,45 +345,59 @@ void LdrawFilesLoad::summary() const
     int upc    = uniquePartCount;
     bool delta = partCount != vpc;
 
-    QString const messages = loadedItems.size() ?
-        QObject::tr("Loaded LDraw %1 model file: <b>%2</b>.<br>%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21<br>")
-            /* 01 */.arg(isMpd ? "<b>MPD</b>" : "<b>LDR</b>",
-            /* 02 */     modelFile,
-            /* 03 */     delta ? QObject::tr("<br>Parts count:            <b>%1</b>").arg(partCount) : "",
-            /* 04 */     mpc   ? QObject::tr("<span style=\"color:red\">"
-                                             "<br>Missing parts:          <b>%1</b></span>").arg(mpc) : "",
-            /* 05 */     esmc  ? QObject::tr("<span style=\"color:#8B8000\">"
-                                             "<br>Empty submodels:        <b>%1</b></span>").arg(esmc) : "",
-            /* 06 */     bifc  ? QObject::tr("<span style=\"color:#8B8000\">"
-                                             "<br>Include file issues:    <b>%2</b></span>").arg(bifc)  : "",
-            /* 07 */     vpc   ? QObject::tr("<br>Total validated parts:  <b>%1</b>").arg(vpc)  : "",
-            /* 08 */     upc   ? QObject::tr("<br>Unique validated parts: <b>%1</b>").arg(upc)  : "",
-            /* 09 */     msmc  ? QObject::tr("<br>Submodels:              <b>%1</b>").arg(msmc) : "",
-            /* 10 */     lsmc  ? QObject::tr("<br>Subfiles:               <b>%1</b>").arg(lsmc) : "",
-            /* 11 */     ifc   ? QObject::tr("<br>Include files:          <b>%1</b>").arg(ifc)  : "",
-            /* 12 */     ipc   ? QObject::tr("<br>Inline parts:           <b>%1</b>").arg(ipc)  : "",
-            /* 13 */     igpc  ? QObject::tr("<br>Inline generated parts: <b>%1</b>").arg(igpc) : "",
-            /* 14 */     ippc  ? QObject::tr("<br>Inline primitives:      <b>%1</b>").arg(ippc) : "",
-            /* 15 */     ispc  ? QObject::tr("<br>Inline subparts:        <b>%1</b>").arg(ispc) : "",
-            // Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
-            //           ppc   ? QObject::tr("<br>Primitive parts:        <b>%1</b>").arg(ppc)  : "",
-            //           spc   ? QObject::tr("<br>Subparts:               <b>%1</b>").arg(spc)  : "",
-            /* 16 */     ls    ? QObject::tr("<br>Loaded steps:           <b>%1</b>").arg(ls)   : "",
-            /* 17 */             QObject::tr("<br>Loaded subfiles:        <b>%1</b>").arg(subFileCount),
-            /* 18 */             QObject::tr("<br>Loaded lines:           <b>%1</b>").arg(loadedLines),
-            /* 19 */     QString("<br>%1").arg(elapsedTime),
-            /* 20 */     mpc   ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
-                                             "If %5 custom %1, be sure %6 location is captured in the LDraw search directory list.<br>"
-                                             "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
-                                             .arg(mpc > 1 ? QObject::tr("parts") : QObject::tr("part"),          /* 01 */
-                                                  mpc > 1 ? QObject::tr("were")  : QObject::tr("was"),           /* 02 */
-                                                  VER_LPUB3D_UNOFFICIAL_ARCHIVE,                                 /* 03 */
-                                                  VER_LDRAW_OFFICIAL_ARCHIVE,                                    /* 04 */
-                                                  mpc > 1 ? QObject::tr("these are") : QObject::tr("this is a"), /* 05 */
-                                                  mpc > 1 ? QObject::tr("their")     : QObject::tr("its")) : "", /* 06 */
-            /* 21 */     esmc   ? QObject::tr("<br><br>Empty %1 found. These submodels were not added to the model repository")
-                                             .arg(esmc > 1 ? QObject::tr("submodels") : QObject::tr("submodel")) : "")
-        : tr("No loaded items received.");
+    QString messages  = tr("No loaded items received.");
+    if (loadedItems.size())
+        messages = QObject::tr("Loaded LDraw <b>%1</b> model file: <b>%2</b>.<br>").arg(isMpd ? QString("MPD") : QString("LDR"), modelFile);
+    if (delta)
+        messages.append(QObject::tr("<br> - Parts count: <b>%1</b>").arg(partCount));
+    if (mpc)
+        messages.append(QObject::tr("%1<br> - Missing parts:        <b>%2</b></span>").arg("<span style=\"color:#FF0000\">").arg(mpc));
+    if (esmc)
+        messages.append(QObject::tr("%1<br> - Empty submodels:      <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(esmc));
+    if (bifc)
+        messages.append(QObject::tr("%1<br> - Include file issues:  <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(bifc));
+    if (vpc)
+        messages.append(QObject::tr("<br> - Total validated parts:  <b>%1</b>").arg(vpc));
+    if (upc)
+        messages.append(QObject::tr("<br> - Unique validated parts: <b>%1</b>").arg(upc));
+    if (msmc)
+        messages.append(QObject::tr("<br> - Submodels:              <b>%1</b>").arg(msmc));
+    if (lsmc)
+        messages.append(QObject::tr("<br> - Subfiles:               <b>%1</b>").arg(lsmc));
+    if (ifc)
+        messages.append(QObject::tr("<br> - Include files:          <b>%1</b>").arg(ifc));
+    if (ipc)
+        messages.append(QObject::tr("<br> - Inline parts:           <b>%1</b>").arg(ipc));
+    if (igpc)
+        messages.append(QObject::tr("<br> - Inline generated parts: <b>%1</b>").arg(igpc));
+    if (ippc)
+        messages.append(QObject::tr("<br> - Inline primitives:      <b>%1</b>").arg(ippc));
+    if (ispc)
+        messages.append(QObject::tr("<br> - Inline subparts:        <b>%1</b>").arg(ispc));
+    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
+    if (ppc)
+        messages.append(QObject::tr("<br> - Primitive parts:        <b>%1</b>").arg(ppc));
+    if (spc)
+        messages.append(QObject::tr("<br> - Subparts:               <b>%1</b>").arg(spc)); */
+    if (ls)
+        messages.append(QObject::tr("<br> - Loaded steps:           <b>%1</b>").arg(ls));
+    QString const insertStr = QObject::tr("<br> - Loaded subfiles:  <b>%1</b>"
+                                          "<br> - Loaded lines:     <b>%2</b>"
+                                          "<br> - %3").arg(subFileCount).arg(loadedLines).arg(elapsedTime);
+    messages.append(insertStr);
+    QString const partsStr  = tr("%1").arg(mpc > 1 ? QObject::tr("Some parts") : QObject::tr("A part"));
+    QString const wereStr   = tr("%1").arg(mpc > 1 ? QObject::tr("were")       : QObject::tr("was"));
+    QString const theseStr  = tr("%1").arg(mpc > 1 ? QObject::tr("these are")  : QObject::tr("this is"));
+    QString const theirStr  = tr("%1").arg(mpc > 1 ? QObject::tr("their")      : QObject::tr("its"));
+    if (mpc)
+        messages.append(QObject::tr("<br><br>%1 %2 not found. The following locations were searched;<br>"
+                                    "model file, LDraw search paths, %3 and %4 library archives.<br>"
+                                    "If %5 custom %1, be sure %6 location is in the LDraw search directory list.<br>"
+                                    "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
+                                    .arg(partsStr,wereStr,VER_LPUB3D_UNOFFICIAL_ARCHIVE,VER_LDRAW_OFFICIAL_ARCHIVE,theseStr,theirStr));
+    QString const subModStr = tr("%1").arg(esmc > 1 ? QObject::tr("submodels") : QObject::tr("submodel"));
+    if (esmc)
+        messages.append(QObject::tr("<br><br>Empty %1 found. These submodels were not added to the model repository").arg(subModStr));
 
     ui->messagesLabel->setText(messages);
     if (loadedItems.isEmpty())
@@ -396,6 +422,7 @@ void LdrawFilesLoad::populate(bool groupItems)
             LoadMsgType mt = static_cast<LoadMsgType>(loadedItem.leftRef(loadedItem.indexOf('|')).toInt(&ok));
             if (ok && mt == lmt) {
                 QStringList columns = loadedItem.split("|");
+                QString const toolTip = columns[DESC];
                 if (group) {
                     if (columns.at(ITEM) != item) {
                         item = columns.at(ITEM);
@@ -406,6 +433,7 @@ void LdrawFilesLoad::populate(bool groupItems)
                     }
                 }
                 QList<QStandardItem *>childRow = prepareRow(columns.at(ITEM),columns.at(DESC));
+                childRow[ITEM]->setToolTip(toolTip);
                 switch (lmt) {
                     case INCLUDE_FILE_LOAD_MSG:
                     {
@@ -459,7 +487,7 @@ void LdrawFilesLoad::populate(bool groupItems)
             QList<QStandardItem *>validRow = prepareRow(item,"");
             QStandardItem *rowItem = validRow.at(0);
             rowItem->setData(msgType);
-            rootNode->appendRow(validRow);
+            rn->appendRow(validRow);
             bool group = groupItems && (msgType == VALID_LOAD_MSG || msgType == MPD_SUBMODEL_LOAD_MSG);
             setChildItems(msgType, validRow, group);
         }
@@ -470,7 +498,7 @@ void LdrawFilesLoad::populate(bool groupItems)
             QStandardItem *rowItem = includeRow.at(0);
             rowItem->setData(msgType);
             rowItem->setForeground(includeBrush);
-            rootNode->appendRow(includeRow);
+            rn->appendRow(includeRow);
             setChildItems(msgType, includeRow);
         }
             break;
@@ -485,7 +513,7 @@ void LdrawFilesLoad::populate(bool groupItems)
             QStandardItem *rowItem = warningRow.at(0);
             rowItem->setData(msgType);
             rowItem->setForeground(warningBrush);
-            rootNode->appendRow(warningRow);
+            rn->appendRow(warningRow);
             setChildItems(msgType, warningRow);
         }
             break;
@@ -495,7 +523,7 @@ void LdrawFilesLoad::populate(bool groupItems)
             QStandardItem *rowItem = errorRow.at(0);
             rowItem->setData(msgType);
             rowItem->setForeground(errorBrush);
-            rootNode->appendRow(errorRow);
+            rn->appendRow(errorRow);
             setChildItems(msgType, errorRow);
         }
             break;
