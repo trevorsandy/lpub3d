@@ -689,6 +689,8 @@ enum ThemeColorType {
 
 #define THEME_DARK                             "Dark"    // Dark Theme
 
+#define THEME_SYSTEM                           "System"  // System Theme
+
 #define Z_VALUE_DEFAULT                            0.0
 #define GRABBER_ZVALUE_DEFAULT                     100.0
 #define POINTER_ZVALUE_DEFAULT                    -1.0

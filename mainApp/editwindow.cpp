@@ -3430,7 +3430,7 @@ void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         bottom = top + height;
 
         if (block.isVisible() && bottom >= event->rect().top()) {
-            painter.setPen(palette.windowText().color());
+            painter.setPen(palette.color(QPalette::Text));
 
             bool selected = (
                                 (selStart < block.position() + block.length() && selEnd > block.position())
@@ -3439,7 +3439,7 @@ void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 
             if (selected) {
                 painter.save();
-                painter.setPen(palette.highlight().color());
+                painter.setPen(palette.color(QPalette::Highlight));
             }
 
             const QString number = QString::number(blockNumber + 1);

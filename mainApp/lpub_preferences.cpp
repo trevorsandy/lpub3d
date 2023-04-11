@@ -434,6 +434,7 @@ bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
 bool    Preferences::inlineNativeContent        = true;
+bool    Preferences::useSystemTheme             = true;
 
 bool    Preferences::ldgliteInstalled           = false;
 bool    Preferences::ldviewInstalled            = false;
@@ -3637,11 +3638,27 @@ void Preferences::themePreferences()
 
     QString const displayThemeKey("DisplayTheme");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
-        displayTheme = THEME_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
     } else {
         displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
     }
+
+#ifdef Q_OS_WIN
+    QString const useSystemThemeKey("UseSystemTheme");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useSystemThemeKey))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemThemeKey),useSystemTheme);
+    } else {
+        useSystemTheme = Settings.value(QString("%1/%2").arg(SETTINGS,useSystemThemeKey)).toBool();
+    }
+
+    if (useSystemTheme) {
+        if (Application::instance()->windowsLightTheme())
+            displayTheme = THEME_DEFAULT;
+        else
+            displayTheme = THEME_DARK;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+    }
+#endif
 
     for (int i = 0; i < THEME_NUM_COLORS; i++) {
         const QString themeKey(defaultThemeColors[i].key);
@@ -5507,10 +5524,31 @@ bool Preferences::getPreferences()
 
         bool darkTheme = displayTheme == THEME_DARK;
         bool displayThemeChanged = false;
-        if ((displayThemeChanged = displayTheme != dialog->displayTheme())){
+        bool useSystemThemeChanged = false;
+        if ((displayThemeChanged = displayTheme != dialog->displayTheme())) {
+#ifdef Q_OS_WIN            
+            if (dialog->displayTheme() == THEME_SYSTEM) {
+                useSystemThemeChanged = useSystemTheme == false;
+                useSystemTheme = true;
+                if (Application::instance()->windowsLightTheme())
+                    displayTheme = THEME_DEFAULT;
+                else
+                    displayTheme = THEME_DARK;
+            } else {
+                useSystemThemeChanged = useSystemTheme == true;
+                useSystemTheme = false;
+                displayTheme = dialog->displayTheme();
+            }
+#else            
             displayTheme = dialog->displayTheme();
+#endif
             darkTheme  = displayTheme == THEME_DARK;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
+
+            if (useSystemThemeChanged) {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseSystemTheme"),useSystemTheme);
+                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Use System Theme is %1.").arg(useSystemTheme ? "ON" : "OFF"));
+            }
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Display Theme changed from %1 to %2.")
                                   .arg(darkTheme ? "Dark Theme" : "Default Theme")

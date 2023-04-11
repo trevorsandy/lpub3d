@@ -90,6 +90,9 @@ public:
     /// Windows dmp file generation
     static void lcSehInit();
     static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers);
+
+    /// Detect Windows Light/Dark Theme
+    BOOL windowsLightTheme();
 #endif
 
     /// Initialize the splash screen

@@ -360,6 +360,7 @@ class Preferences
     static bool    povrayAutoCrop;
     static bool    isAppImagePayload;
     static bool    modeGUI;
+    static bool    useSystemTheme;
 
     static bool    sceneRuler;
     static int     sceneRulerTracking;
