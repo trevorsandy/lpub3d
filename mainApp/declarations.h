@@ -111,7 +111,7 @@ enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayR
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, ALWAYS_SHOW, SHOW_MESSAGE, SHOW_WARNING, SHOW_ERROR };
 enum MissingHeader { NoneMissing, NameMissing, AuthorMissing, BothMissing };
-enum LDrawFileRegExp { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, INC_RX, DES_RX, LDG_RX, LDC_RX };
+enum LDrawFileRegExp { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, INC_RX, DES_RX, LDG_RX, LDC_RX, EOH_RX };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum RemoveObjectsRC { RemovedPieceRC, RemovedCameraRC, RemovedLightRC };
