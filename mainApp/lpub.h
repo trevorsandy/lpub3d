@@ -676,9 +676,9 @@ public:
     lpub->ldrawFile.clearPrevStepPositions();
   }
 
-  QString getSubmodelName(int index)
+  QString getSubmodelName(int index, bool lower = true)
   {
-      return lpub->ldrawFile.getSubmodelName(index);
+      return lpub->ldrawFile.getSubmodelName(index, lower);
   }
 
   int getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx)

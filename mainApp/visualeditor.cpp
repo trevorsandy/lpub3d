@@ -4677,7 +4677,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
     if (newLine) {
         emit messageSig(LOG_TRACE, tr("New viewer part modelName [%1]")
-                                      .arg(getSubmodelName(modelIndex)));
+                                      .arg(getSubmodelName(modelIndex,false)));
         return false;
 
     } else if (currentModel) {
@@ -4767,7 +4767,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                                                 .arg(fromSource, QString::number(source)));
 #endif
         if (indexes.size()) {
-            modelName  = getSubmodelName(indexes.at(0).modelIndex);
+            modelName  = getSubmodelName(indexes.at(0).modelIndex,false);
             modelIndex = indexes.at(0).modelIndex;
         } else if (!lpub->viewerStepKey.isEmpty()) {
             modelName  = currentStep->topOfStep().modelName;

@@ -946,7 +946,7 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 #ifdef QT_DEBUG_MODE
             emit lpub->messageSig(LOG_DEBUG,tr("Loaded step for line %1 model: %2, page: %3, step: %4, line scope: %5-%6")
                                   .arg(here.lineIndex)
-                                  .arg(lpub->ldrawFile.getSubmodelName(here.modelIndex))
+                                  .arg(lpub->ldrawFile.getSubmodelName(here.modelIndex,false))
                                   .arg(lpub->page.meta.LPub.page.number.number)
                                   .arg(lpub->currentStep->stepNumber.number)
                                   .arg(top.lineNumber + 1/*adjust for 0-start index*/)
@@ -957,13 +957,13 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 #ifdef QT_DEBUG_MODE
         else
             emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %2, model: %3")
-                                  .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
+                                  .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex,false)));
 #endif
     }
 #ifdef QT_DEBUG_MODE
     else
         emit lpub->messageSig(LOG_DEBUG,tr("Failed to get Viewer Step Key for line: %1, model: %2")
-                              .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
+                              .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex,false)));
 #endif
     return INVALID_CURRENT_STEP;
 }

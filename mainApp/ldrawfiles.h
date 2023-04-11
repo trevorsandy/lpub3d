@@ -590,7 +590,7 @@ class LDrawFile {
 
     /* Line index functions */
 
-    static QString getSubmodelName(int submodelIndx);
+    static QString getSubmodelName(int submodelIndx, bool lower = true);
     static int     getSubmodelIndex(const QString &fileName);
 
     int         getLineTypeIndex(int submodelIndx, int relativeTypeIndx);

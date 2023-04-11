@@ -399,7 +399,6 @@ int LDrawFile::loadedLines()
   for (int i = 0; i < _subFileOrder.size(); i++) {
     QString subFileName = _subFileOrder.at(i).toLower();
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
-
     if (f != _subFiles.end() && ! f.value()._generated) {
       lines += f.value()._contents.size();
     }
@@ -713,19 +712,20 @@ void LDrawFile::setSubFilePath(
 
 QStringList LDrawFile::getSubModels()
 {
-    QStringList subModel;
+    QStringList subModelList;
     for (int i = 0; i < _subFileOrder.size(); i++) {
       QString modelName = _subFileOrder.at(i).toLower();
       QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(modelName);
       if (it->_unofficialPart == UNOFFICIAL_SUBMODEL && !it->_generated) {
-          subModel << modelName;
+          subModelList << _subFileOrder.at(i);
       }
     }
-    return subModel;
+    return subModelList;
 }
 
-QString LDrawFile::getSubFilePath(const QString &fileName)
+QString LDrawFile::getSubFilePath(const QString &mcFileName)
 {
+  QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
   if (f != _subFiles.end()) {
     return f.value()._subFilePath;
@@ -737,7 +737,7 @@ QStringList LDrawFile::getSubFilePaths()
 {
   QStringList subFilesPaths;
   for (int i = 0; i < _subFileOrder.size(); i++) {
-    QString filePath = getSubFilePath(_subFileOrder.at(i).toLower());
+    QString filePath = getSubFilePath(_subFileOrder.at(i));
     if (!filePath.isEmpty())
         subFilesPaths << filePath;
   }
@@ -895,10 +895,14 @@ QStringList LDrawFile::includeFileList() {
   return _includeFileList;
 }
 
-QString LDrawFile::getSubmodelName(int submodelIndx)
+QString LDrawFile::getSubmodelName(int submodelIndx, bool lower)
 {
-    if (submodelIndx > BM_INVALID_INDEX && submodelIndx < _subFileOrder.size())
-        return _subFileOrder.at(submodelIndx).toLower();
+    if (submodelIndx > BM_INVALID_INDEX && submodelIndx < _subFileOrder.size()) {
+        if (lower)
+            return _subFileOrder.at(submodelIndx).toLower();
+        else
+            return _subFileOrder.at(submodelIndx);
+    }
     return QString();
 }
 
@@ -931,7 +935,7 @@ QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
 
     auto getIndexes = [this, &parsedIndexes] (const int index, QVector<int> &indexes)
     {
-        const QString mcFileName = getSubmodelName(index).toLower();
+        const QString &mcFileName = getSubmodelName(index);
         QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(mcFileName);
         if (it != _subFiles.end()) {
             if (it.value()._unofficialPart == UNOFFICIAL_SUBMODEL && !it.value()._generated) {
@@ -958,7 +962,7 @@ QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
 // The Line Type Index is the position of the type 1 line in the parsed subfile written to temp
 // This function returns the position (Relative Type Index) of the type 1 line in the subfile content
 int LDrawFile::getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx) {
-    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx));
     if (f != _subFiles.end() && f.value()._lineTypeIndexes.size() > lineTypeIndx) {
         return f.value()._lineTypeIndexes.at(lineTypeIndx);
     }
@@ -969,7 +973,7 @@ int LDrawFile::getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx) {
 // This function inserts the Relative Type Index at the position (Line Type Index)
 // of the type 1 line in the parsed subfile written to temp
 void LDrawFile::setLineTypeRelativeIndex(int submodelIndx, int relativeTypeIndx) {
-    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx));
     if (f != _subFiles.end()) {
         f.value()._lineTypeIndexes.append(relativeTypeIndx);
     }
@@ -977,7 +981,7 @@ void LDrawFile::setLineTypeRelativeIndex(int submodelIndx, int relativeTypeIndx)
 
 // This function sets the Line Type Indexes vector
 void LDrawFile::setLineTypeRelativeIndexes(int submodelIndx, QVector<int> &relativeTypeIndxes) {
-    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx));
     if (f != _subFiles.end()) {
         f.value()._lineTypeIndexes = relativeTypeIndxes;
     }
@@ -985,7 +989,7 @@ void LDrawFile::setLineTypeRelativeIndexes(int submodelIndx, QVector<int> &relat
 
 // This function returns the submodel Line Type Index
 int LDrawFile::getLineTypeIndex(int submodelIndx, int relativeTypeIndx) {
-    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx));
     if (f != _subFiles.end() && f.value()._lineTypeIndexes.size()) {
         for (int i = 0; i < f.value()._lineTypeIndexes.size(); ++i)
             if (f.value()._lineTypeIndexes.at(i) == relativeTypeIndx)
@@ -997,7 +1001,7 @@ int LDrawFile::getLineTypeIndex(int submodelIndx, int relativeTypeIndx) {
 // This function returns a pointer to the submodel Line Type Index vector
 QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx){
 
-    QString fileName = getSubmodelName(submodelIndx).toLower();
+    QString fileName = getSubmodelName(submodelIndx);
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
     if (f != _subFiles.end() && f.value()._lineTypeIndexes.size()) {
         return &f.value()._lineTypeIndexes;
@@ -1007,7 +1011,7 @@ QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx){
 
 // This function returns the number of indexes (type 1 parts) specified for the specified submodel
 int LDrawFile::getLineTypeRelativeIndexCount(int submodelIndx) {
-    QString fileName = getSubmodelName(submodelIndx).toLower();
+    QString fileName = getSubmodelName(submodelIndx);
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
     if (f != _subFiles.end())
         return f.value()._lineTypeIndexes.size();
@@ -3073,10 +3077,10 @@ void LDrawFile::countInstances()
     {
       const QVector<int> &key = _buildModStepIndexes.at(i);
       emit gui->messageSig(LOG_DEBUG, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                           .arg(i, 3, 10, QChar('0'))         // index
-                           .arg(key.at(0), 3, 10, QChar('0')) // modelIndex
-                           .arg(key.at(1), 3, 10, QChar('0')) // lineNumber
-                           .arg(getSubmodelName(key.at(0)))); // modelName
+                           .arg(i, 3, 10, QChar('0'))               // index
+                           .arg(key.at(0), 3, 10, QChar('0'))       // modelIndex
+                           .arg(key.at(1), 3, 10, QChar('0'))       // lineNumber
+                           .arg(getSubmodelName(key.at(0),false))); // modelName
     }
     emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
                          .arg(gui->elapsedTime(timer.elapsed())));
@@ -4121,7 +4125,7 @@ void LDrawFile::setBuildModSubmodelStack(const QString &buildModKey, const QStri
             int submodelIndex = getSubmodelIndex(modelFile);
             if (!i.value()._modSubmodelStack.contains(submodelIndex)) {
                 i.value()._modSubmodelStack << submodelIndex;
-                setModified(modelFile, true);
+                setModified(modelFile.toLower(), true);
             }
         }
 #ifdef QT_DEBUG_MODE
@@ -4405,7 +4409,7 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
                                               .arg(stepIndex)
                                               .arg(modelIndex)
                                               .arg(lineNumber)
-                                              .arg(getSubmodelName(modelIndex)));
+                                              .arg(getSubmodelName(modelIndex,false)));
 #ifdef QT_DEBUG_MODE
     else
         emit gui->messageSig(logType, QString("%1 StepIndex: %2, ModelIndex: %3, LineNumber %4, ModelName: %5")
@@ -4413,7 +4417,7 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
                                               .arg(stepIndex)
                                               .arg(modelIndex)
                                               .arg(lineNumber)
-                                              .arg(getSubmodelName(modelIndex)));
+                                              .arg(getSubmodelName(modelIndex,false)));
 #endif
 
     return stepIndex;
@@ -4443,7 +4447,7 @@ int LDrawFile::getBuildModStepLineNumber(int stepIndex, bool bottom)
         message = QString("Get BuildMod %1 LineNumber: %2, StepIndex: %3, ModelName: %4")
                           .arg(bottom ? "BottomOfStep," : "TopOfStep,")
                           .arg(lineNumber).arg(stepIndex)
-                          .arg(getSubmodelName(_buildModStepIndexes.at(bottom ? stepIndex + 1 : stepIndex).at(BM_MODEL_NAME)));
+                          .arg(getSubmodelName(_buildModStepIndexes.at(bottom ? stepIndex + 1 : stepIndex).at(BM_MODEL_NAME),false));
 #endif
     } else {
         logType = LOG_ERROR;
@@ -4484,7 +4488,7 @@ bool LDrawFile::getBuildModStepIndexWhere(const int stepIndex, QString &modelNam
     if (stepIndex > BM_INVALID_INDEX && stepIndex < _buildModStepIndexes.size()) {
         modelIndex = _buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME);
         lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
-        modelName  = getSubmodelName(modelIndex);
+        modelName  = getSubmodelName(modelIndex,false);
         validIndex = ! modelName.isEmpty() && lineNumber > 0;
     } else {
         logType = LOG_ERROR;
@@ -4574,7 +4578,7 @@ int LDrawFile::getBuildModNextStepIndex()
                 lineNumber    = topOfStep.at(BM_LINE_NUMBER);
             }
 
-            QString modelName = getSubmodelName(topOfStep.at(BM_MODEL_NAME));
+            QString modelName = getSubmodelName(topOfStep.at(BM_MODEL_NAME),false);
             QString insert    = firstIndex ? "First" : "Next";
             validIndex        = !modelName.isEmpty() && lineNumber > BM_BEGIN_LINE_NUM;
 
@@ -4740,7 +4744,7 @@ QString LDrawFile::getViewerStepKey(const int stepIndex)
 
 QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
 {
-    Where here(getSubmodelName(modelIndex),modelIndex,lineNumber);
+    Where here(getSubmodelName(modelIndex,false),modelIndex,lineNumber);
     int stepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
 
     return getViewerStepKey(stepIndex);
@@ -4748,11 +4752,11 @@ QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNum
 
 QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int topModelIndex, const int topLineNumber, const int bottomModelIndex, const int bottomLineNumber)
 {
-    Where here(getSubmodelName(modelIndex), modelIndex, lineNumber);
+    Where here(getSubmodelName(modelIndex,false), modelIndex, lineNumber);
     int stepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
-    here = Where(getSubmodelName(topModelIndex), topModelIndex, topLineNumber);
+    here = Where(getSubmodelName(topModelIndex,false), topModelIndex, topLineNumber);
     int topStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
-    here = Where(getSubmodelName(bottomModelIndex), bottomModelIndex, bottomLineNumber);
+    here = Where(getSubmodelName(bottomModelIndex,false), bottomModelIndex, bottomLineNumber);
     int bottomStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
 
     if (stepIndex >= topStepIndex && stepIndex <= bottomStepIndex)
@@ -4990,7 +4994,7 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
                   .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                   .arg(stepKey)
                   .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
-                                                  QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
+                                                  QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt(),false)))
                   .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
                                                   QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
                   .arg(keys.at(BM_STEP_NUM_KEY))
@@ -5243,7 +5247,7 @@ bool LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
                                          .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                                          .arg(stepKey)
                                          .arg(i.value()._stepKey.modIndex)
-                                         .arg(getSubmodelName(i.value()._stepKey.modIndex))
+                                         .arg(getSubmodelName(i.value()._stepKey.modIndex,false))
                                          .arg(i.value()._stepKey.lineNum)
                                          .arg(i.value()._stepKey.stepNum)
                                          .arg(value ? "Yes" : "No");
@@ -5256,7 +5260,7 @@ bool LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
     const QStringList Keys = stepKey.split(";");
     const QString noticeMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
                                            .arg(Keys.at(BM_STEP_MODEL_KEY))
-                                           .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
+                                           .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt(),false))
                                            .arg(Keys.at(BM_STEP_LINE_KEY))
                                            .arg(Keys.at(BM_STEP_NUM_KEY))
                                            .arg(stepKey);
@@ -5283,7 +5287,7 @@ bool LDrawFile::viewerStepModified(const QString &stepKey, bool reset)
                     .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                     .arg(stepKey)
                     .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
-                                                    QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
+                                                    QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt(),false)))
                     .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
                                                     QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
                     .arg(keys.at(BM_STEP_NUM_KEY))
@@ -5308,7 +5312,7 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
                     .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                     .arg(stepKey)
                     .arg(i.value()._stepKey.modIndex)
-                    .arg(getSubmodelName(i.value()._stepKey.modIndex))
+                    .arg(getSubmodelName(i.value()._stepKey.modIndex,false))
                     .arg(i.value()._stepKey.lineNum)
                     .arg(i.value()._stepKey.stepNum);
     emit gui->messageSig(LOG_DEBUG, debugMessage);
@@ -5320,7 +5324,7 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
     const QString warnMessage =
             QString("Cannot modify, ViewerStep  Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
                     .arg(Keys.at(BM_STEP_MODEL_KEY))
-                    .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
+                    .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt(),false))
                     .arg(Keys.at(BM_STEP_LINE_KEY))
                     .arg(Keys.at(BM_STEP_NUM_KEY))
                     .arg(stepKey);

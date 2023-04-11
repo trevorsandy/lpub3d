@@ -1576,7 +1576,7 @@ void Gui::displayFile(
                 }
             }
 
-            ldrawFile->setModified(modelName, false);
+            ldrawFile->setModified(modelName.toLower(), false);
         }
     } // ! exporting
 }
