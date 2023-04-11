@@ -1644,8 +1644,15 @@ void CommonMenus::setWhatsThis()
             "  document.\n\n"
             "  To specify settings for a specific\n"
             "  instruction document, use the global settings\n"
-            "  at Instruction, Build Instruction Setup\n")
+            "  at Instruction, Build Instruction Setup.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_DARK_THEME_COLORS
         {
@@ -1653,8 +1660,15 @@ void CommonMenus::setWhatsThis()
             "  Configure the %1 dark theme colors using the\n"
             "  color picker dialog.\n\n"
             "  Use the reset button accompanying each color\n"
-            "  setting to restore the default color properties.\n")
+            "  setting to restore the default color properties.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_DARK_THEME_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_DEFAULT_THEME_COLORS
         {
@@ -1662,8 +1676,15 @@ void CommonMenus::setWhatsThis()
             "  Configure the %1 default theme colors using the\n"
             "  color picker dialog.\n\n"
             "  Use the reset button accompanying each color\n"
-            "  setting to restore the default color properties.\n")
+            "  setting to restore the default color properties.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_DEFAULT_THEME_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_GENERAL
         {
@@ -1671,8 +1692,15 @@ void CommonMenus::setWhatsThis()
             "  Configure %1 LDraw library path, alternative LDConfig\n"
             "  model file load, model step fade and highlight options,\n"
             "  part list instance (PLI) setings, and default options\n"
-            "  for units, camara angles and dialog messages.\n")
+            "  for units, camara angles and dialog messages.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_GENERAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUTS
         {
@@ -1682,8 +1710,15 @@ void CommonMenus::setWhatsThis()
             "  in the view table grouped by their parent dialog\n"
             "  menu and action category.\n\n"
             "  You can also export, import and reset your keyboard\n"
-            "  shortcuts from this dialog.\n")
+            "  shortcuts from this dialog.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_LDGLITE
         {
@@ -1698,8 +1733,15 @@ void CommonMenus::setWhatsThis()
             "  from its INI configuration file using the application\n"
             "  menu action at Configuration, Edit Parameter Files...\n\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_LDGLITE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_LDVIEW
         {
@@ -1714,8 +1756,15 @@ void CommonMenus::setWhatsThis()
             "  from its INI configuration file using the application\n"
             "  menu action at Configuration, Edit Parameter Files...\n\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_LDVIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_MESSAGES
         {
@@ -1723,8 +1772,15 @@ void CommonMenus::setWhatsThis()
             "  Configure and edit %1 message categories.\n"
             "  Messages are generaged at various pints of\n"
             "  parsing the LDraw model file as the editor\n"
-            "  transitions from page to page.\n")
+            "  transitions from page to page.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_MESSAGES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_NATIVE
         {
@@ -1741,16 +1797,30 @@ void CommonMenus::setWhatsThis()
             "  You can configure additional Native renderer settings\n"
             "  from the 3DViewer application menu action Preferences.\n\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_NATIVE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_OTHER
         {
             QObject::tr(
             "  Configure %1 application update settings and\n"
             "  view the current list of LDraw part and submodel\n"
-            "  search directories.\n")
+            "  search directories.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_OTHER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_POVRAY
         {
@@ -1773,16 +1843,30 @@ void CommonMenus::setWhatsThis()
             "  from its INI configuration file using the application\n"
             "  menu action at Configuration, Edit Parameter Files...\n\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_POVRAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_PUBLISHING
         {
             QObject::tr(
             "  Configure and edit %1 instruction document settings.\n"
             "  Set continuous page settings, page attribute display,\n"
-            "  and page attribute values.\n")
+            "  and page attribute values.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_PUBLISHING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_RENDERERS
         {
@@ -1804,8 +1888,15 @@ void CommonMenus::setWhatsThis()
             "  The Renderers tab also present the preferred renderer,\n"
             "  projection and render process timeout settings.\n"
             "  Additonally, LSynth options for configurable parts are\n"
-            "  configurable from this location.\n")
+            "  configurable from this location.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_RENDERERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES
         {
@@ -1813,8 +1904,15 @@ void CommonMenus::setWhatsThis()
             "  View current %1 LDraw content search directories.\n"
             "  This dialog is read only. You can edit the search\n"
             "  directories from the Configuration menu using\n"
-            "  the LDraw Search Directories action.\n")
+            "  the LDraw Search Directories action.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_THEME_AND_LOGGING
         {
@@ -1828,8 +1926,15 @@ void CommonMenus::setWhatsThis()
             "    log attributes and the individual logging level as\n"
             "    desired.\n\n"
             "  Logging can be helpful in troubleshooting unexptected\n"
-            "  application behaviour.\n")
+            "  application behaviour.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_THEME_AND_LOGGING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_THEME_COLORS
         {
@@ -1840,8 +1945,15 @@ void CommonMenus::setWhatsThis()
             "  hexadecimal color code for each default\n"
             "  color.\n\n"
             "  Use the Reset button to reset all the theme\n"
-            "  colors to their default setting.\n")
+            "  colors to their default setting.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_THEME_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LPUB3D_PREFERENCES_UPDATES
         {
@@ -1849,8 +1961,15 @@ void CommonMenus::setWhatsThis()
             "  Configure and edit %1 application update settings.\n\n"
             "  Set check for update and application change log\n"
             "  preferences\n\n"
-            "  View %1 release change details.\n")
+            "  View %1 release change details.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LPUB3D_PREFERENCES_UPDATES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES
         {
@@ -1863,8 +1982,15 @@ void CommonMenus::setWhatsThis()
             "  effect on rendered images when the preferred renderer.\n"
             "  is set to Native.\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_CATEGORIES
         {
@@ -1872,14 +1998,28 @@ void CommonMenus::setWhatsThis()
             "  Configure and edit 3D viewer part categories used"
             "  in the parts lookup dialog.\n\n"
             "  You can also export, import and reset part categories\n"
-            "  from this dialog.\n")
+            "  from this dialog.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_CATEGORIES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_COLORS
         {
             QObject::tr(
             "  Configure and reset the 3D viewer default\n"
             "  backgroud, displayed objects, interface, base\n"
-            "  grid and view sphere colors.\n")
+            "  grid and view sphere colors.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_GENERAL
         {
@@ -1887,20 +2027,41 @@ void CommonMenus::setWhatsThis()
             "  Configure the 3D viewer mouse sensitivity, timeline,\n"
             "  icons, page redraw prompt and official parts settings.\n\n"
             "  Additionally, you can view paths, theme and author\n"
-            "  settings shared with %1.\n")
+            "  settings shared with %1.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_GENERAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS
         {
             QObject::tr(
             "  Configure keyboard shortcuts.\n"
-            "  This tab should not be visible.\n")
+            "  This tab should not be visible.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_MOUSE
         {
             QObject::tr(
             "  Configure mouse shortcuts.\n"
-            "  This tab should not be visible.\n")
+            "  This tab should not be visible.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_MOUSE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_RENDERING
         {
@@ -1909,20 +2070,41 @@ void CommonMenus::setWhatsThis()
             "  Renderer settings affect both the 3D viewer and\n"
             "  the %1 Native renderer.\n\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_RENDERING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_USER_INTERFACE
         {
             QObject::tr(
             "  Configure the 3D viewer user interface, base grid\n"
-            "  model view and part preview settings.\n")
+            "  model view and part preview settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_USER_INTERFACE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_VISUAL_PREFERENCES_VIEWS
         {
             QObject::tr(
             "  Configure the 3D viewer default user interface and\n"
-            "  color settings.\n")
+            "  color settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_VISUAL_PREFERENCES_VIEWS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES
         {
@@ -1935,7 +2117,14 @@ void CommonMenus::setWhatsThis()
             "  - Reset: This resets all the General preferences to\n"
             "    their default values. As with all other preference\n"
             "    changes, you must hit OK or Apply for the reset\n"
-            "    values to go into effect.\n")
+            "    values to go into effect.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES_GENERAL
         {
@@ -1954,7 +2143,14 @@ void CommonMenus::setWhatsThis()
             "    values to go into effect.\n\n"
             "  Note it is possible to configure settings that violate\n"
             "  the parameters needed to successfully render %1\n"
-            "  images. Use caution when setting unfamiliar preferences.\n")
+            "  images. Use caution when setting unfamiliar preferences.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_GENERAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES_GEOMETRY
         {
@@ -1964,7 +2160,14 @@ void CommonMenus::setWhatsThis()
             "  - Reset: This resets all the General preferences to\n"
             "    their default values. As with all other preference\n"
             "    changes, you must hit OK or Apply for the reset\n"
-            "    values to go into effect.\n")
+            "    values to go into effect.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_GEOMETRY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES_EFFECTS
         {
@@ -1974,7 +2177,14 @@ void CommonMenus::setWhatsThis()
             "  - Reset: This resets all the General preferences to\n"
             "    their default values. As with all other preference\n"
             "    changes, you must hit OK or Apply for the reset\n"
-            "    values to go into effect.\n")
+            "    values to go into effect.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_EFFECTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES_PRIMITIVES
         {
@@ -1985,7 +2195,14 @@ void CommonMenus::setWhatsThis()
             "  - Reset: This resets all the General preferences to\n"
             "    their default values. As with all other preference\n"
             "    changes, you must hit OK or Apply for the reset\n"
-            "    values to go into effect.\n")
+            "    values to go into effect.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_PRIMITIVES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES_UPDATES
         {
@@ -1995,7 +2212,14 @@ void CommonMenus::setWhatsThis()
             "  - Reset: This resets all the General preferences to\n"
             "    their default values. As with all other preference\n"
             "    changes, you must hit OK or Apply for the reset\n"
-            "    values to go into effect.\n")
+            "    values to go into effect.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_UPDATES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_LDVIEW_PREFERENCES_PREFERENCES_SET
         {
@@ -2011,8 +2235,15 @@ void CommonMenus::setWhatsThis()
             "  Use caution when creating new preference sets which\n"
             "  is to say you should possess sufficient understanding\n"
             "  of this functionality and how it is used by %1 before\n"
-            "  changing this configuration.\n")
+            "  changing this configuration.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_PREFERENCES_SET")
+#else
+                 ""
+#endif
+                )
         },
         //*************************************
         //*  GLOBAL SETUP ENTRIES
@@ -2024,28 +2255,56 @@ void CommonMenus::setWhatsThis()
             "  assembly / Current Step Instance (CSI)\n"
             "  settings.\n\n"
             "  You can configure your assembly content\n"
-            "  and display.\n")
+            "  and display.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_ASSEM_CONTENTS
         {
             QObject::tr(
             "  Configure your instruction document assembly\n"
             "  sizing,\n"
-            "  assembly orientation and step number properties.\n")
+            "  assembly orientation and step number properties.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_CONTENTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_ASSEM_DISPLAY
         {
             QObject::tr(
             "  Configure your instruction document assembly\n"
             "  step number display, part annotation display,\n"
-            "  and stud style and automate edge color settings.\n")
+            "  and stud style and automate edge color settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_DISPLAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_ASSEM_DISPLAY_STEP
         {
             QObject::tr(
             "  The following configuration setup is available for\n"
             "  assembly step:\n"
-            "  - Step Number: turn or off the step number display.\n")
+            "  - Step Number: turn or off the step number display.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_DISPLAY_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_ASSEM_ANNOTATION
         {
@@ -2057,13 +2316,27 @@ void CommonMenus::setWhatsThis()
             "  - CSI Part Annotation Placement: change CSI part\n"
             "    annotation placement.\n"
             "    You can also drag part annotations from their\n"
-            "    placed location to your desired location.\n")
+            "    placed location to your desired location.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_ANNOTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT
         {
             QObject::tr(
             "  Configure and edit the callout settings\n"
-            "  for your instructions document.\n")
+            "  for your instructions document.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_ASSEMBLY
         {
@@ -2071,21 +2344,42 @@ void CommonMenus::setWhatsThis()
             "  Configure your instruction document callout\n"
             "  assembly image, assembly orientation, assembly\n"
             "  margins and assembly stud style and automated\n"
-            "  edge colors settings.\n")
+            "  edge colors settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_ASSEMBLY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_BACKGROUND_BORDER
         {
             QObject::tr(
             "  Configure your instruction document callout\n"
             "  background, border, margins, and divider\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_BACKGROUND_BORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_CALLOUT
         {
             QObject::tr(
             "  Configure your instruction document callout\n"
             "  parts list, step justification, submodel preview,\n"
-            "  step number and times used settings.\n")
+            "  step number and times used settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_CALLOUT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_CALLOUT_PARTS_LIST
         {
@@ -2099,8 +2393,15 @@ void CommonMenus::setWhatsThis()
             "    L/R(Left/Right) width and T/B(Top/Bottom) height.\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.\n")
+            "    Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_CALLOUT_PARTS_LIST")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_CALLOUT_SUBMODEL_PREVIEW
         {
@@ -2110,7 +2411,14 @@ void CommonMenus::setWhatsThis()
             "  - Show Submodel Preview At First Step: turn on or off\n"
             "    displaying the called out submodel at the first\n"
             "    step in the callout. This option is only available\n"
-            "    for unassembled callouts.\n")
+            "    for unassembled callouts.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_CALLOUT_SUBMODEL_PREVIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_CALLOUT_POINTERS
         {
@@ -2119,7 +2427,14 @@ void CommonMenus::setWhatsThis()
             "  pointers:\n"
             "  ° Configure the pointer border.\n"
             "  ° Configure the pointer line.\n"
-            "  ° Configure the pointer tip.\n")
+            "  ° Configure the pointer tip.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_CALLOUT_POINTERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_CONTENTS
         {
@@ -2128,7 +2443,14 @@ void CommonMenus::setWhatsThis()
             "  the callout Content dialog:\n"
             "  - Configure the callout properties.\n\n"
             "  - Configure the callout assembly properties.\n"
-            "  - Configure the callout pointers.\n")
+            "  - Configure the callout pointers.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_CONTENTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_DIVIDER_POINTERS
         {
@@ -2137,7 +2459,14 @@ void CommonMenus::setWhatsThis()
             "  divider pointers:\n"
             "  ° Configure the pointer border.\n"
             "  ° Configure the pointer line.\n"
-            "  ° Configure the pointer tip.\n")
+            "  ° Configure the pointer tip.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_DIVIDER_POINTERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_CALLOUT_POINTERS
         {
@@ -2145,7 +2474,14 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available in\n"
             "  the callout Pointers dialog:\n"
             "  ° Configure the Callout Pointer properties.\n"
-            "  ° Configure the Divider Pointer properties.\n")
+            "  ° Configure the Divider Pointer properties.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_CALLOUT_POINTERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_FADE_STEPS
         {
@@ -2153,7 +2489,14 @@ void CommonMenus::setWhatsThis()
             "  Configure and edit your instructions document\n"
             "  fade previous steps settings.\n\n"
             "  You can configure your fade previous steps display,\n"
-            "  setup and final model step settings.\n")
+            "  setup and final model step settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_FADE_STEPS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_FADE_STEPS_SETUP
         {
@@ -2164,7 +2507,14 @@ void CommonMenus::setWhatsThis()
             "  the LPub meta command is defined to enable this \n"
             "  feature to the step where it is defined to disable it.\n\n"
             "  This setting is disabled if Enable Fade Previous Steps\n"
-            "  is checked.\n")
+            "  is checked.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_FADE_STEPS_SETUP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_HIGHLIGHT_STEP
         {
@@ -2172,7 +2522,14 @@ void CommonMenus::setWhatsThis()
             "  Configure and edit your instructions document\n"
             "  highlight current step settings.\n\n"
             "  You can configure your highlight current step\n"
-            "  display, setup and final model step settings.\n")
+            "  display, setup and final model step settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_HIGHLIGHT_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_HIGHLIGHT_STEP_SETUP
         {
@@ -2184,13 +2541,27 @@ void CommonMenus::setWhatsThis()
             "  this feature to the step where it is defined to disable\n"
             "  it.\n\n"
             "  This setting is disabled if Enable Highlight Current\n"
-            "  Step is checked.\n")
+            "  Step is checked.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_HIGHLIGHT_STEP_SETUP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP
         {
             QObject::tr(
             "  Configure and edit the step group (multi step page)\n"
-            "  settings for your instructions document.\n")
+            "  settings for your instructions document.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_ADJUST_STEP
         {
@@ -2199,7 +2570,14 @@ void CommonMenus::setWhatsThis()
             "  step group callout and rotate icon:\n"
             "  - Adjust Step Row Or Column: turn on or off adjust\n"
             "    step row or column when callout or rotate icon\n"
-            "    is dragged.\n")
+            "    is dragged.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_ADJUST_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_ASSEMBLY
         {
@@ -2207,27 +2585,55 @@ void CommonMenus::setWhatsThis()
             "  Configure your instruction document step group\n"
             "  assembly image, assembly orientation, assembly\n"
             "  margins and assembly stud style and automated\n"
-            "  edge colors settings.\n")
+            "  edge colors settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_ASSEMBLY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_CONTENTS
         {
             QObject::tr(
             "  Configure your instruction document step group\n"
             "  margins, step justification, callout and rotate\n"
-            "  icon adjustment and step number settings.\n")
+            "  icon adjustment and step number settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_CONTENTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_DIVIDER
         {
             QObject::tr(
             "  Configure your instruction document step group\n"
             "  divider, and divider pointer line and tip\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_DIVIDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_DISPLAY
         {
             QObject::tr(
             "  Configure your instruction document step group\n"
-            "  parts list and submodel preview settings.\n")
+            "  parts list and submodel preview settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_DISPLAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_DISPLAY_PARTS_LIST
         {
@@ -2248,8 +2654,15 @@ void CommonMenus::setWhatsThis()
             "    L/R(Left/Right) width and T/B(Top/Bottom) height.\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.\n")
+            "    Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_DISPLAY_PARTS_LIST")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_MULTI_STEP_DISPLAY_SUBMODEL_PREVIEW
         {
@@ -2258,7 +2671,14 @@ void CommonMenus::setWhatsThis()
             "  step group submodel preview:\n"
             "  - Show Submodel Preview At First Step: turn on or off\n"
             "    displaying the current submodel at the first\n"
-            "    step in the step group.\n")
+            "    step in the step group.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_DISPLAY_SUBMODEL_PREVIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE
         {
@@ -2271,7 +2691,14 @@ void CommonMenus::setWhatsThis()
             "  Most settings will be automatically extracted from\n"
             "  the open model file or setting defined in Preferences.\n\n"
             "  Regardless, you can change pre-populated settings with\n"
-            "  this dialog.\n")
+            "  this dialog.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_AUTHOR_EMAIL
         {
@@ -2282,22 +2709,43 @@ void CommonMenus::setWhatsThis()
             "  - Section (Email Address): select the back cover,\n"
             "    page header, or page footer to place the email address.\n\n"
             "  - Content: enter or update the document author and\n"
-            "    email address.\n")
+            "    email address.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_AUTHOR_EMAIL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_LPUB3D_LOGO
         {
             QObject::tr(
             "  Enable and configure the %1 logo image.\n"
             "  - Section: only the back cover %1 logo is configurable\n\n"
-            "  Enable and configure the %1 logo border.\n")
+            "  Enable and configure the %1 logo border.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_LPUB3D_LOGO")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_COVER_IMAGE
         {
             QObject::tr(
             "  Enable and configure the front cover image.\n"
             "  - Section: only the front cover image is configurable\n\n"
-            "  Enable and configure the front cover image border.\n")
+            "  Enable and configure the front cover image border.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_COVER_IMAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_DESCRIPTION
         {
@@ -2305,7 +2753,14 @@ void CommonMenus::setWhatsThis()
             "  Enable and configure the model description.\n"
             "  - Section: only the front cover model description\n"
             "    is configurable.\n\n"
-            "  - Content: enter or update the model description.\n")
+            "  - Content: enter or update the model description.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_DESCRIPTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_DOCUMENT_LOGO
         {
@@ -2313,7 +2768,14 @@ void CommonMenus::setWhatsThis()
             "  Enable and configure the document logo image.\n"
             "  - Section: select the front cover, back cover,\n"
             "    to place the document\n\n"
-            "  Enable and configure the document logo border.\n")
+            "  Enable and configure the document logo border.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_DOCUMENT_LOGO")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_LEGO_DISCLAIMER
         {
@@ -2321,7 +2783,14 @@ void CommonMenus::setWhatsThis()
             "  Enable and configure the LEGO disclaimer.\n"
             "  - Section: only the back cover LEGO disclaimer\n"
             "    is configurable.\n\n"
-            "  - Content: enter or update the LEGO disclaimer.\n")
+            "  - Content: enter or update the LEGO disclaimer.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_LEGO_DISCLAIMER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_MODEL_PARTS_ID
         {
@@ -2330,7 +2799,14 @@ void CommonMenus::setWhatsThis()
             "  - Section: only the front cover model id and\n"
             "    parts count is configurable.\n\n"
             "  - Content: enter or update the document\n"
-            "    model id and parts count.\n")
+            "    model id and parts count.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_MODEL_PARTS_ID")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_LPUB3D_PLUG
         {
@@ -2338,14 +2814,29 @@ void CommonMenus::setWhatsThis()
             "  Enable and configure the %1 plug.\n"
             "  - Section: only the back cover %1 plug\n"
             "    is configurable.\n\n"
-            "  - Content: The %1 plug is not editable.\n").arg(QLatin1String(VER_PRODUCTNAME_STR))
+            "  - Content: The %1 plug is not editable.%2\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_LPUB3D_PLUG")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_TITLE
         {
             QObject::tr(
             "  Enable and configure the document title.\n"
             "  - Section: select the front or back cover page.\n\n"
-            "  - Content: enter or update the document title.\n")
+            "  - Content: enter or update the document title.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_TITLE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_PUBLISH_DESCRIPTION
         {
@@ -2354,7 +2845,14 @@ void CommonMenus::setWhatsThis()
             "  - Section: select the front cover page,\n"
             "    to place the publisher description.\n\n"
             "  - Content: enter or update the document\n"
-            "    publisher description.\n")
+            "    publisher description.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_PUBLISH_DESCRIPTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_WEBSITE_URL_COPYRIGHT
         {
@@ -2366,7 +2864,14 @@ void CommonMenus::setWhatsThis()
             "    page header, or page footer to place the document\n"
             "    copyright.\n\n"
             "  - Content: enter or update the document website URL\n"
-            "    and document copyright.\n")
+            "    and document copyright.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_WEBSITE_URL_COPYRIGHT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_VIEW
         {
@@ -2378,21 +2883,42 @@ void CommonMenus::setWhatsThis()
             "  ° Enable and configure the page border.\n\n"
             "  ° Configure the page margins.\n\n"
             "  ° Configure the page header height.\n\n"
-            "  ° Configure the page footer height.\n")
+            "  ° Configure the page footer height.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_VIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_DISCLAIMER
         {
             QObject::tr(
             "  Configure your instruction document disclaimer"
-            "  and display the %1 logo and 'plug' statement.\n")
+            "  and display the %1 logo and 'plug' statement.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_DISCLAIMER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_MODEL
         {
             QObject::tr(
             "  Configure your instruction document page title,\n"
             "  cover image, description, model id, parts and\n"
-            "  submodel level color.\n")
+            "  submodel level color.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_MODEL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_NUMBER_TEXT
         {
@@ -2400,14 +2926,28 @@ void CommonMenus::setWhatsThis()
             "  Enable and configure the page number display,\n"
             "  look, and placement.\n\n"
             "  Enable and configure default plain and\n"
-            "  rich text placement.\n")
+            "  rich text placement.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_NUMBER_TEXT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_NUMBER_DISPLAY
         {
             QObject::tr(
             "  The following configuration setup is available for\n"
             "  page number display:\n"
-            "  - Display Page Number: turn or off the page number display.\n")
+            "  - Display Page Number: turn or off the page number display.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_NUMBER_DISPLAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_NUMBER_PLACEMENT
         {
@@ -2417,7 +2957,14 @@ void CommonMenus::setWhatsThis()
             "  - Alternate Corners: place the page number on alternate\n"
             "    corners - like books.\n"
             "  - Page Number Always in Same Place: page number placed\n"
-            "    at fixed position.\n")
+            "    at fixed position.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_NUMBER_PLACEMENT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_TEXT_PLACEMENT
         {
@@ -2427,34 +2974,68 @@ void CommonMenus::setWhatsThis()
             "  - Enable Text Placement: turn or off display\n"
             "    placement dialog when inserting text.\n\n"
             "  - Text Placement: set default text placement\n"
-            "    using the placement dialog.\n")
+            "    using the placement dialog.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_TEXT_PLACEMENT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PAGE_PUBLISH
         {
             QObject::tr(
             "  Configure your instruction document\n"
             "  author, email address, Universal Resource Locator (URL)\n"
-            "  publisher description, copyright, and image logo.\n")
+            "  publisher description, copyright, and image logo.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PAGE_PUBLISH")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_BOM
         {
             QObject::tr(
             "  Configure and edit the Bill Of Material (BOM)\n"
-            "  settings for your instructions document.\n"
-            )
+            "  settings for your instructions document.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_BOM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_PLI
         {
             QObject::tr(
             "  Configure and edit the Part List Instance (PLI)\n"
-            "  settings for your instructions document.\n")
+            "  settings for your instructions document.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_PLI")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_BACKGROUND_BORDER
         {
             QObject::tr(
             "  Configure your instruction document part list\n"
             "  display, placement, background, border, margins\n"
-            "  and size constrain settings.\n")
+            "  and size constrain settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_BACKGROUND_BORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_BACKGROUND_BORDER_PARTS_LIST
         {
@@ -2462,7 +3043,14 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available for\n"
             "  part list:\n"
             "  - Show Parts List: turn or off the parts list display.\n\n"
-            "  - Parts List Placement: change the parts list placement.\n")
+            "  - Parts List Placement: change the parts list placement.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_BACKGROUND_BORDER_PARTS_LIST")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_CONTENTS
         {
@@ -2470,14 +3058,28 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available in\n"
             "  the Part List Content dialog:\n"
             "  - Configure the Part properties.\n\n"
-            "  - Configure part Sorting properties.\n")
+            "  - Configure part Sorting properties.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_CONTENTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_PARTS
         {
             QObject::tr(
             "  Configure your instruction document part images\n"
             "  default part orientaion, part groups, and part\n"
-            "  count settings.\n")
+            "  count settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_PARTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_PARTS_ORIENTATION
         {
@@ -2485,14 +3087,21 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available for\n"
             "  part orientation.\n"
             "  - Configure the camera field of view.\n\n%1"
-            "  - Configure the camera angles or viewpoint.\n")
-            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native") ?
-            QObject::tr("\n"
+            "  - Configure the camera angles or viewpoint.%2\n")
+            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native")
+			? QObject::tr("\n"
             "  - Configure the camera near plane.\n\n"
-            "  - Configure the camera far z plane.\n") :
-            QObject::tr("\n"
+            "  - Configure the camera far z plane.\n")
+            : QObject::tr("\n"
             "  - Camera near and far z planes are disabled\n"
             "    when the preferred renderer is not Native.\n"))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_PARTS_ORIENTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_PARTS_MOVABLE_GROUPS_BOM
         {
@@ -2502,7 +3111,14 @@ void CommonMenus::setWhatsThis()
             "  items to your desired position.\n\n"
             "  The following configuration setup are available for\n"
             "  Bill of Material (BOM) part groups:\n"
-            "  - Movable Part Groups: turn or off movable property.\n")
+            "  - Movable Part Groups: turn or off movable property.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_PARTS_MOVABLE_GROUPS_BOM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_PARTS_MOVABLE_GROUPS_PLI
         {
@@ -2512,14 +3128,28 @@ void CommonMenus::setWhatsThis()
             "  desired position.\n\n"
             "  The following configuration setup is available for\n"
             "  Part List Instance (PLI) part groups:\n"
-            "  - Movable Part Groups: turn or off movable property.\n")
+            "  - Movable Part Groups: turn or off movable property.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_PARTS_MOVABLE_GROUPS_PLI")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_MORE_OPTIONS
         {
             QObject::tr(
             "  Configure your instruction document part sort\n"
             "  order, sort direction, stud style, edge color\n"
-            "  automation and submodel display settings.\n")
+            "  automation and submodel display settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_MORE_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_MORE_OPTIONS_SHOW_SUBMODELS
         {
@@ -2527,7 +3157,14 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup is available for\n"
             "  submodels:\n"
             "  - Show in Parts List: show submodel in the parts\n"
-            "    list instance (PLI).\n")
+            "    list instance (PLI).%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_MORE_OPTIONS_SHOW_SUBMODELS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION
         {
@@ -2535,14 +3172,28 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available for\n"
             "  part list annotations:\n"
             "  - Configure the Annotation Options properties.\n\n"
-            "  - Configure the Annotation Styles properties.\n")
+            "  - Configure the Annotation Styles properties.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION_OPTIONS
         {
             QObject::tr(
             "  Configure your instruction document part annotation\n"
             "  display, enable annotation types and annotation text\n"
-            "  format settings.\n")
+            "  format settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION_OPTIONS_WITH_TEXT_FORMAT
         {
@@ -2555,14 +3206,28 @@ void CommonMenus::setWhatsThis()
             "    annotation for axles, beams, cables, connectors,\n"
             "    hoses, panels or custom annotations.\n\n"
             "  - Default Text Format: configure the default\n"
-            "    annotation text font color and margins.\n")
+            "    annotation text font color and margins.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION_OPTIONS_WITH_TEXT_FORMAT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION_STYLE_PLI
         {
             QObject::tr(
             "  Configure your instruction document part list instance\n"
             "  part annotation display, enable annotation types,\n"
-            "  and annotation text format settings.\n")
+            "  and annotation text format settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION_STYLE_PLI")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION_STYLE_BOM
         {
@@ -2570,7 +3235,14 @@ void CommonMenus::setWhatsThis()
             "  Configure your instruction document bill of materials\n"
             "  part annotation display, annotation types,\n"
             "  element identifiers and annotation text format\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION_STYLE_BOM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION_STYLE_SELECT_BOM
         {
@@ -2589,7 +3261,14 @@ void CommonMenus::setWhatsThis()
             "  - Rectangle: rectangular sytle used by extended\n"
             "    title and/or free form part annotations.\n\n"
             "  - Element: rectangular sytle used by element\n"
-            "    identifiers.\n")
+            "    identifiers.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION_STYLE_SELECT_BOM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PART_ANNOTATION_STYLE_SELECT_PLI
         {
@@ -2606,7 +3285,14 @@ void CommonMenus::setWhatsThis()
             "    connectors, and hoses.\n\n"
             "  - Circle: circle style used by axles and panels.\n\n"
             "  - Rectangle: rectangular sytle used by extended\n"
-            "    title and/or free form part annotations.\n")
+            "    title and/or free form part annotations.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_ANNOTATION_STYLE_SELECT_PLI")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PROJECT
         {
@@ -2616,7 +3302,14 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available in\n"
             "  the project global setup:\n"
             "  - Render options\n"
-            "  - Parse options\n")
+            "  - Parse options%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PROJECT_RENDERER_OPTIONS
         {
@@ -2625,7 +3318,14 @@ void CommonMenus::setWhatsThis()
             "  for your instructions document.\n\n"
             "  Edit your instruction document preferred\n"
             "  renderer, resolution, stud style and viewer\n"
-            "  behaviour on cover page settings.\n")
+            "  behaviour on cover page settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT_RENDERER_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PROJECT_PARSE_OPTIONS
         {
@@ -2635,7 +3335,14 @@ void CommonMenus::setWhatsThis()
             "  Edit your instruction document build modifications,\n"
             "  buffer exchange, submodel instances behaviour, step\n"
             "  number, unofficial parts behaviour and start numbers\n"
-            "  behaviour.\n")
+            "  behaviour.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT_PARSE_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PROJECT_PARSE_BUFFER_EXCHANGE
         {
@@ -2648,7 +3355,14 @@ void CommonMenus::setWhatsThis()
             "    Typically, a step with a NOSTEP command is not parsed.\n"
             "    However, bufexchg commands are not properly parsed if\n"
             "    the bufexchg command shares a step with the nostep\n"
-            "    command and the step is not parsed.\n")
+            "    command and the step is not parsed.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT_PARSE_BUFFER_EXCHANGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_PROJECT_START_NUMBERS
         {
@@ -2666,13 +3380,27 @@ void CommonMenus::setWhatsThis()
             "  large model instruction documents. You can use this\n"
             "  feature to split the instruction document into more\n"
             "  than one book - starting each book at it's\n"
-            "  corresponding step and/or page number.\n")
+            "  corresponding step and/or page number.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT_START_NUMBERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL
         {
             QObject::tr(
             "  Configure and edit the submodel preview\n"
-            "  settings for your instructions document.\n")
+            "  settings for your instructions document.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL_SUBMODEL
         {
@@ -2680,19 +3408,40 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available in\n"
             "  the Submodel dialog:\n"
             "  - Configure the Preview properties.\n"
-            "  - Configure the Settings properties.\n")
+            "  - Configure the Settings properties.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL_SUBMODEL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL_PREVIEW
         {
             QObject::tr(
             "  Configure your instruction document submodel\n"
-            "  preview options.\n")
+            "  preview options.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL_PREVIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL_BACKGROUND
         {
             QObject::tr(
             "  Configure your instruction document submodel\n"
-            "  background, border and margins settings.\n")
+            "  background, border and margins settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL_BACKGROUND")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL_CONTENTS
         {
@@ -2700,21 +3449,42 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available in\n"
             "  the Contents dialog:\n"
             "  - Configure the Image properties.\n"
-            "  - Configure the More properties.\n")
+            "  - Configure the More properties.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL_CONTENTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL_IMAGE
         {
             QObject::tr(
             "  Configure your instruction document submodel\n"
             "  image, submodel constrain, submodel orientation,\n"
-            "  submodel and default step rotation settings.\n")
+            "  submodel and default step rotation settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL_IMAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SUBMODEL_INSTANCE_COUNT
         {
             QObject::tr(
             "  Configure your instruction document submodel\n"
             "  instance count and stud style and automate\n"
-            "  edge color settings.\n")
+            "  edge color settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SUBMODEL_INSTANCE_COUNT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SHARED_IMAGE_SIZING
         {
@@ -2722,7 +3492,14 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available\n"
             "  for image sizing:\n"
             "  - Configure the image scale.\n\n"
-            "  - Configure the image margins.\n")
+            "  - Configure the image margins.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SHARED_IMAGE_SIZING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SHARED_MODEL_ORIENTATION
         {
@@ -2730,14 +3507,21 @@ void CommonMenus::setWhatsThis()
             "  The following configuration setup are available for\n"
             "  assembly orientation:\n"
             "  - Configure the camera field of view.\n%1"
-            "  - Configure the camera angles or viewpoint.\n")
-            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native") ?
-            QObject::tr("\n"
+            "  - Configure the camera angles or viewpoint.%2\n")
+            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native")
+            ? QObject::tr("\n"
             "  - Configure the camera near z plane.\n\n"
-            "  - Configure the camera far z plane.\n") :
-            QObject::tr("\n"
+            "  - Configure the camera far z plane.\n")
+            : QObject::tr("\n"
             "  - Camera near and far z planes are disabled\n\n"
             "    when the preferred renderer is not Native.\n"))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SHARED_IMAGE_SIZING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SHARED_POINTERS
         {
@@ -2746,12 +3530,26 @@ void CommonMenus::setWhatsThis()
             "  pointers:\n"
             "  - Configure the pointer border.\n"
             "  - Configure the pointer line.\n"
-            "  - Configure the pointer tip.\n")
+            "  - Configure the pointer tip.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SHARED_POINTERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_SETUP_SHARED_SUBMODEL_LEVEL_COLORS
         {
             QObject::tr(
-            "  Configure the submodel level background color.\n")
+            "  Configure the submodel level background color.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_SHARED_SUBMODEL_LEVEL_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         //*************************************
         //*  DIALOG ENTRIES
@@ -2761,25 +3559,53 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Select the append page option.\n\n"
             "  Append page options determine where a new page will\n"
-            "  be added to the instruction document.\n")
+            "  be added to the instruction document.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_APPEND_PAGE_OPTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_BACKGROUND
         {
             QObject::tr(
             "  Configure the background type, color,\n"
-            "  image and image fill settings when available.\n")
+            "  image and image fill settings when available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_BACKGROUND")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_BOM_OPTION
         {
             QObject::tr(
             "  Select the Bill of Material option.\n\n"
-            "  Use item toolTip to see additional description.\n")
+            "  Use item toolTip to see additional description.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_BOM_OPTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_BORDER
         {
             QObject::tr(
             "  Configure the border type, line, line width, line color,\n"
-            "  and margin when available.\n")
+            "  and margin when available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_BORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_BUILD_MODIFICATIONS
         {
@@ -2798,13 +3624,27 @@ void CommonMenus::setWhatsThis()
             "  be the remove action.\n\n"
             "  If you are loading a build modification, you\n"
             "  will be able to edit the loaded modification\n"
-            "  in the visual editor.\n")
+            "  in the visual editor.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_BUILD_MODIFICATIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_CAMERA_ANGLES **
         {
             QObject::tr(
             "  Configure camera angle latitude, longitude\n"
-            "  or camera viewpoint settings.\n")
+            "  or camera viewpoint settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_CAMERA_ANGLES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_CAMERA_FOV **
         {
@@ -2813,8 +3653,15 @@ void CommonMenus::setWhatsThis()
             "  far plane settings.\n\n"
             "  Camera near and far plane settings are only enabled\n"
             "  when the preferred renderer is set to Native.\n\n"
-            "  The current preferred renderer is %1\n")
+            "  The current preferred renderer is %1%2\n")
             .arg(MetaDefaults::getPreferredRenderer())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_CAMERA_FOV")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_CAMERA_LAT_LON
         {
@@ -2828,37 +3675,78 @@ void CommonMenus::setWhatsThis()
             "  The Distance dialog is a read-only display of the\n"
             "  calculated camera distance. The calculated distance\n"
             "  uses the distance factor, default position, page width\n"
-            "  image resolution, image scale and LDraw Unit (LDU)."
-            )
+            "  image resolution, image scale and LDraw Unit (LDU).%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_CAMERA_LAT_LON")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_CONSTRAIN
         {
             QObject::tr(
             "  Configure the size of an item using its constraint\n"
-            "  type - area, square, width, height or columns.\n")
+            "  type - area, square, width, height or columns.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_CONSTRAIN")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_EDITOR_PREFERENCES
         {
             QObject::tr(
             "  Configure the meta command editor font, text decoration\n"
-            "  buffered paging and selected item preferences.\n")
+            "  buffered paging and selected item preferences.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_EDITOR_PREFERENCES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_EXPORT_PAGES
         {
             QObject::tr(
             "  Configure the instruction document export options or\n"
-            "  continuous page processing options.\n")
+            "  continuous page processing options.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_EXPORT_PAGES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_DIVIDER
         {
             QObject::tr(
             "  Configure and edit a placed divider width, length,\n"
-            "  type, length value, color and margins.\n")
+            "  type, length value, color and margins.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_DIVIDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_DOUBLE_SPIN **
         {
             QObject::tr(
-            "  Set the value for this item using a decimal number.\n")
+            "  Set the value for this item using a decimal number.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_DOUBLE_SPIN")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_FADE_HIGHLIGHT
         {
@@ -2870,24 +3758,52 @@ void CommonMenus::setWhatsThis()
             "  Fade and highlight step Setup is configured from the\n"
             "  Configuration, Build Instruction Setup menu using\n"
             "  Fade Steps Setup and/or Highlight Step Setup menu\n"
-            "  actions.\n")
+            "  actions.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_FADE_HIGHLIGHT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_FIND_REPLACE
         {
             QObject::tr(
             "  Find and replace text in the currently loaded\n"
-            "  LDraw model file.\n")
+            "  LDraw model file.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_FIND_REPLACE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_FLOAT **
         {
             QObject::tr(
-            "  Set the value for this item using a decimal number.\n")
+            "  Set the value for this item using a decimal number.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_FLOAT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_FLOAT_PAIR **
         {
             QObject::tr(
             "  Set the value pair for this item using decimal\n"
-            "  numbers.\n")
+            "  numbers.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_FLOAT_PAIR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_GRADIENT
         {
@@ -2895,13 +3811,27 @@ void CommonMenus::setWhatsThis()
             "  Configure background gradient color, type and spread\n"
             "  method settings.\n\n"
             "  Alternatively, you can chose from the three pre-defined\n"
-            "  default gradient configurations.\n")
+            "  default gradient configurations.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_GRADIENT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_LDRAW_COLOR
         {
             QObject::tr(
             "  Set or change the LDraw color for the currently\n"
-            "  selected item.\n")
+            "  selected item.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LDRAW_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_LDRAW_FILES_LOAD
         {
@@ -2909,37 +3839,50 @@ void CommonMenus::setWhatsThis()
             "  View the file load status for the currently loaded\n"
             "  LDraw model file.\n\n"
             "  - Total validated parts: the total number of parts\n"
-            "    validated during the model file load.\n\n"
+            "    validated during the model file load.\n"
             "  - Unique validated parts: the number of unique parts\n"
-            "    validated during the file load.\n\n"
-            "  - Submodels: number of loaded MPD submodels.\n\n"
-            "  - Submodels: number of loaded LDR submodels.\n\n"
+            "    validated during the file load.\n"
+            "  - Submodels: number of loaded MPD submodels.\n"
+            "  - Subfiles: number of loaded LDR subfiles.\n"
             "  - Inline parts: parts defined in the loaded model file.\n"
-            "    These are usually unofficial parts.\n\n"
+            "    These are usually unofficial parts.\n"
+            "  - Inline generated parts: LDCad generated parts defined\n"
+            "    in the loaded model file.\n"
             "  - Inline primitives: primitives defined in the loaded\n"
-            "    model file.\n\n"
+            "    model file.\n"
             "  - Inline subparts: sublevel parts defined in the loaded\n"
-            "    model file.\n\n"
+            "    model file.\n"
+            "  - Include files: LPub meta commands include file.\n"
+            "    model file.\n"
             "  - Loaded steps: number of steps detected in the loaded\n"
-            "    model file.\n\n"
+            "    model file.\n"
             "  - Loaded subfiles: submodels, inline parts and primitives\n"
-            "    defined in the loaded model file.\n\n"
+            "    defined in the loaded model file.\n"
             "  - Loaded lines: number of lines loaded into the model\n"
-            "    repository.\n\n"
+            "    repository.\n"
             "  - Error - Missing Parts: parts encountered during the\n"
             "    file load that were not found in the official or\n"
             "    unofficial LDraw archive library, the currently\n"
             "    specified LDraw disc library or any of the specified\n"
             "  - Warning - Empty Submodels: empty submodels detected.\n"
             "    These submodels are not added to the model repository\n"
-            "    so they will not be visible in %1.\n\n"
+            "    so they will not be visible in %1.\n"
+            "  - Warning - Include file issues: include file anomalies\n"
+            "    such as including part (type 1 - 5) lines.\n"
             "  - Elapsed time: the time taken to load the model file.\n\n"
             "  Part list view: list of loaded items as described above.\n"
             "  Items are grouped with a header description and number\n"
             "  of items detected. Item rows present the item name such\n"
-               "as a part id or submodel name and description.\n\n"
-            "  description (if not missing).\n")
+            "  as a part id or submodel name and description.\n"
+            "  description (if not missing).%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LDRAW_FILES_LOAD")
+#else
+                 ""
+#endif
+                )
             /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
             "  - Warning - Primitive Parts: primitive part encountered\n"
             "    primitive parts are not normally defined at top level.\n\n"
@@ -2965,14 +3908,28 @@ void CommonMenus::setWhatsThis()
             "  Parts On Launch menu action.\n\n"
             "  Alternatively, you can interctively update the\n"
             "  unofficial archive library from the Configuration menu\n"
-            "  using the Archive Unofficial Parts menu action.\n")
+            "  using the Archive Unofficial Parts menu action.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LDRAW_SEARCH_DIRECTORIES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_LDVIEW_HTML_PART_LIST_EXPORT
         {
             QObject::tr(
             "  Configure html export display, part reference, and\n"
-            "  column order settings.\n")
+            "  column order settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LDVIEW_HTML_PART_LIST_EXPORT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_LDVIEW_POV_EXPORT_OPTIONS
         {
@@ -2985,7 +3942,14 @@ void CommonMenus::setWhatsThis()
             "  - Reset: This resets all the POV file generation\n"
             "    preferences to their default values. As with all other\n"
             "    preference changes, you must hit OK or Apply for the\n"
-            "    reset values to go into effect.\n")
+            "    reset values to go into effect.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LDVIEW_POV_EXPORT_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_LOCAL **
         {
@@ -2993,13 +3957,27 @@ void CommonMenus::setWhatsThis()
             "  Select local or global scope for currently selected\n"
             "  meta command.\n\n"
             "  Selecting yes will constrain the current meta command\n"
-            "  to the current step.\n")
+            "  to the current step.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LOCAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_LOOK_AT_TARGET_AND_STEP_ROTATION
         {
             QObject::tr(
             "  Configure the default 'look at' target\n"
-            "  position and step rotation angles.\n")
+            "  position and step rotation angles.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_LOOK_AT_TARGET_AND_STEP_ROTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_META_COMMANDS
         {
@@ -3013,42 +3991,91 @@ void CommonMenus::setWhatsThis()
             "  You can insert/autocomplete snippets using\n"
             "  Ctrl+Space to select the desired command or to\n"
             "  automatically insert the command after typing\n"
-            "  the 'trigger.'\n")
+            "  the 'trigger.'%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_META_COMMANDS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_PAGE_ORIENTATION
         {
             QObject::tr(
             "  Configure page orientation choosing between\n"
-            "  landscape and portrait.\n")
+            "  landscape and portrait.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_PAGE_ORIENTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_PAGE_SIZE
         {
             QObject::tr(
-            "  Configure page width and height size settings.\n")
+            "  Configure page width and height size settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_PAGE_SIZE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_PLACEMENT
         {
             QObject::tr(
-            "  Configure the desired placement setting for this item.\n")
+            "  Configure the desired placement setting for this item.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_PLACEMENT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_PLI_ANNOTATION
         {
             QObject::tr(
             "  Configure dispaly annotation, annotation source and\n"
-            "  annotation types to display.\n")
+            "  annotation types to display.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_PLI_ANNOTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_PART_SORT_ORDER
         {
             QObject::tr(
             "  Configure the part sort order and direction\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_PART_SORT_ORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_POINTER_ATTRIB
         {
             QObject::tr(
             "  Configure the pointer border, line and\n"
-            "  optionally pointer tip if available.\n")
+            "  optionally pointer tip if available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_POINTER_ATTRIB")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_PREFERRED_RENDERER
         {
@@ -3056,8 +4083,15 @@ void CommonMenus::setWhatsThis()
             "  Configure the default preferred step image\n"
             "  renderer.\n"
             "  %1 has 4 built-in step image renderers. They\n"
-            "  are Native, LDGLite, LDView and POV-Ray.\n")
+            "  are Native, LDGLite, LDView and POV-Ray.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_PREFERRED_RENDERER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_BLENDER_RENDER
         {
@@ -3072,7 +4106,14 @@ void CommonMenus::setWhatsThis()
             "  - Output: process output is not available for\n"
             "    the Blender render process.\n\n"
             "  If you reset the rendered image, the default settings\n"
-            "  (except image width and height), will also be reset.\n")
+            "  (except image width and height), will also be reset.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_BLENDER_RENDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_BLENDER_RENDER_SETTINGS
         {
@@ -3080,7 +4121,14 @@ void CommonMenus::setWhatsThis()
             "  Configure the Blender single image render\n"
             "  settings.\n"
             "  Use the individual setting's tooltip to see\n"
-            "  setting description.\n")
+            "  setting description.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_BLENDER_RENDER_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_POVRAY_RENDER
         {
@@ -3094,7 +4142,14 @@ void CommonMenus::setWhatsThis()
             "  - Settings: launch the POV-Ray settings dialog.\n"
             "  - Output: view the render process standard output log.\n\n"
             "  If you reset the rendered image, the default settings\n"
-            "  (except image width and height), will also be reset.\n")
+            "  (except image width and height), will also be reset.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_POVRAY_RENDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_POVRAY_RENDER_SETTINGS
         {
@@ -3102,14 +4157,28 @@ void CommonMenus::setWhatsThis()
             "  Configure the POV-Ray single image render\n"
             "  settings.\n\n"
             "  Use the individual setting's tooltip to see\n"
-            "  setting description.\n")
+            "  setting description.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_POVRAY_RENDER_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_ROTATE_ICON_SIZE
         {
             QObject::tr(
             "  Configure the rotate icon width and height\n"
-            "  in %1.\n")
+            "  in %1.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_ROTATE_ICON_SIZE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_STEP_ROTATION
         {
@@ -3119,21 +4188,42 @@ void CommonMenus::setWhatsThis()
             "  the individual rotation angles for the different\n"
             "  axes in degree (-360 to 360).\n\n"
             "  Set the step transformation using one of the three\n"
-            "  options - relative, absolute or additive.\n")
+            "  options - relative, absolute or additive.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_STEP_ROTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_SIZE_AND_ORIENTATION
         {
             QObject::tr(
             "  Configure the page size and orientation settings.\n\n"
             "  Page size settings use standard page sizes or\n"
-            "  page height and width values.\n")
+            "  page height and width values.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_SIZE_AND_ORIENTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_SUBMODEL_LEVEL_COLORS
         {
             QObject::tr(
             "  Configure the submodel level page background color.\n\n"
             "  These colors help differentiate the current submode\n"
-            "  level being edited.\n")
+            "  level being edited.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_SUBMODEL_LEVEL_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_SUBSTITUTE_PART
         {
@@ -3141,7 +4231,14 @@ void CommonMenus::setWhatsThis()
             "  Configure substitute part attributes\n"
             "  current part, primary part substitution\n"
             "  arguments, and extended part substitution\n"
-            "  arguments.\n")
+            "  arguments.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_SUBSTITUTE_PART")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_TEXT_EDIT
         {
@@ -3149,7 +4246,14 @@ void CommonMenus::setWhatsThis()
             "  Create and edit instruction document text entries.\n"
             "  - Plain text: plain text format.\n"
             "  - Rich text: hyper text markup language (html)\n"
-            "    text format.\n")
+            "    text format.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_TEXT_EDIT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_UNITS
         {
@@ -3158,8 +4262,15 @@ void CommonMenus::setWhatsThis()
             "  number in %1.\n\n"
             "  Dot unit options are dots per inch (DPI) or\n"
             "  dots per centimetre (DPC)\n\n"
-            "  Dot units are defined in Project Global Setup.\n")
+            "  Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_UNITS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_VISUAL_CATEGORY_EDIT
         {
@@ -3174,7 +4285,14 @@ void CommonMenus::setWhatsThis()
             "    When specifying multiple keyowrds, each keyword\n"
             "    entry must be delimited by ' | ', do observe the\n"
             "    single space padding so and example would be\n"
-            "    ^%Door | ^%Window.\n")
+            "    ^%Door | ^%Window.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_VISUAL_CATEGORY_EDIT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_DIALOG_VISUAL_CATEGORY_NEW
         {
@@ -3189,7 +4307,14 @@ void CommonMenus::setWhatsThis()
             "    When specifying multiple keyowrds, each keyword\n"
             "    entry must be delimited by ' | ', do observe the\n"
             "    single space padding so and example would be\n"
-            "    ^%Door | ^%Window.\n")
+            "    ^%Door | ^%Window.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_DIALOG_VISUAL_CATEGORY_NEW")
+#else
+                 ""
+#endif
+                )
         },
         //*************************************
         //*  CONTROL ENTRIES
@@ -3204,7 +4329,14 @@ void CommonMenus::setWhatsThis()
             "  - Ok: accept all changes in the currnt session.\n\n"
             "  - Cancel: discard all changes in the current session.\n\n"
             "  Edited commands are saved to an external file which is\n"
-            "  loaded at application startup.\n")
+            "  loaded at application startup.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_COMMANDS_EDIT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_COMMANDS_FILTER
         {
@@ -3224,12 +4356,26 @@ void CommonMenus::setWhatsThis()
             "  - Wildcard: present entries that satisfy the pattern\n"
             "    created with the wildcard symbol '*'.\n\n"
             "  Click the filter icon to expose the filer actions menu\n"
-            "  which allow you to change the default filter actions.\n")
+            "  which allow you to change the default filter actions.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_COMMANDS_FILTER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_COMMANDS_RESET
         {
             QObject::tr(
-            "  Return to the default meta command description.\n")
+            "  Return to the default meta command description.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_COMMANDS_RESET")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_COMMANDS_UPDATE
         {
@@ -3237,21 +4383,42 @@ void CommonMenus::setWhatsThis()
             "  Use this button to enable the editor.\n"
             "  Your changes are automatically saved to the current\n"
             "  session and permanently saved when you accept your\n"
-            "  changes by clicking the OK button.\n")
+            "  changes by clicking the OK button.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_COMMANDS_UPDATE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_COMMANDS_VIEW
         {
             QObject::tr(
             "  This table view presents all %1 meta commands.\n\n"
             "  The description of a selected meta command is\n"
-            "  displayed in the editor dialog.\n")
+            "  displayed in the editor dialog.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_COMMANDS_VIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_ALTERNATE_LDCONFIG
         {
             QObject::tr(
             "  You can define custom LDraw colors in an LDConfig file\n"
-            "  and enter the path to that file here.\n")
+            "  and enter the path to that file here.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_ALTERNATE_LDCONFIG")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_APPLY_CAMERA_ANGLES
         {
@@ -3267,9 +4434,16 @@ void CommonMenus::setWhatsThis()
             "    renderer.\n\n"
             "  - Renderer: camera angles applied by the the current\n"
             "    preferred renderer %2. This is to say the angles\n"
-            "    are supplied to the renderer along with the parts.\n")
+            "    are supplied to the renderer along with the parts.%3\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR),
                  MetaDefaults::getPreferredRenderer())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_APPLY_CAMERA_ANGLES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_ATTRIBUTES
         {
@@ -3318,8 +4492,15 @@ void CommonMenus::setWhatsThis()
             "    you can automatically create front and back cover\n"
             "    pages by enabling this item.\n\n"
             "  - Generage PDF Table of Contents: this option is not\n"
-            "    currently enabled in %1.\n")
+            "    currently enabled in %1.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_ATTRIBUTES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_CAMERA_DEFAULTS
         {
@@ -3352,7 +4533,14 @@ void CommonMenus::setWhatsThis()
             "  your desired default 'Zoom' for Native rendered items\n"
             "  and items displayed in the 3D viewer.\n\n"
             "  Use the reset button (...) to restore the camera\n"
-            "  defaults.\n")
+            "  defaults.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_CAMERA_DEFAULTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_CHANGE_LOG
         {
@@ -3372,15 +4560,29 @@ void CommonMenus::setWhatsThis()
             "    download the latest online change log.\n\n"
             "  With an appropriate GitHub account, you can contribute\n"
             "  or ask questions relating to changes displayed in the\n"
-            "  change log.\n")
+            "  change log.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_CHANGE_LOG")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_DEFAULTS
         {
             QObject::tr(
             "  Configure %1 units, camera angles and LDraw file\n"
-            "  parse message defaults.\n")
+            "  parse message defaults.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_DEFAULTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_EDITOR
         {
@@ -3390,7 +4592,14 @@ void CommonMenus::setWhatsThis()
             "  - Default URL: set the universal resource locator (URL).\n"
             "  - Default Email: set the desired email address.\n\n"
             "  These attributes are part of the instruction document\n"
-            "  page attributes.\n")
+            "  page attributes.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_EDITOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEPS
         {
@@ -3415,8 +4624,15 @@ void CommonMenus::setWhatsThis()
             "    global fade color list is loaded from the LDraw\n"
             "    parts LDConfig file.\n\n"
             "  - Fade Percent: set the fade opacity percent where 0\n"
-            "    is fully opaque and 100 is fully transparent.\n")
+            "    is fully opaque and 100 is fully transparent.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEPS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS
         {
@@ -3439,8 +4655,15 @@ void CommonMenus::setWhatsThis()
             "    * On Message: display dialog when either a warning or\n"
             "      an error condition is encountered.\n\n"
             "    * Always: display dialog each time an LDraw file is\n"
-            "      loaded.\n")
+            "      loaded.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_GENERAL_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP
         {
@@ -3452,17 +4675,32 @@ void CommonMenus::setWhatsThis()
             "    first step in the in the instruction document.\n\n"
             "  - Highlight Color: use the dropdown list\n"
             "    select your desired highlight color using the Color\n"
-            "    picker.\n%2")
+            "    picker.%2%3\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
-            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("LDGLite") ?
-            QObject::tr("\n"
+            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("LDGLite")
+            ? QObject::tr("\n"
             "  - Highlight line width: set the highlight line width\n"
-            "    using an integer number.\n") : QString())
+            "    using an integer number.\n")
+            : "")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_HIGHLIGHT_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE
         {
             QObject::tr(
-            "  This feature is not curently available.\n")
+            "  This feature is not curently available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_IMAGE_MATTE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT
         {
@@ -3476,7 +4714,14 @@ void CommonMenus::setWhatsThis()
             "  - Remove: You can remove an assigned custom shortcut using\n"
             "    the Remove button.\n\n"
             "  - Use the Reset button in the key sequence dialog to\n"
-            "    restore the default menu action keyboard shortuct.\n")
+            "    restore the default menu action keyboard shortuct.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT_TABLE
         {
@@ -3497,8 +4742,15 @@ void CommonMenus::setWhatsThis()
             "  Your shortcut changes are accepted when you click the\n"
             "  Ok button, conversely, clicking the Cancel button will\n"
             "  discard any custom keyboard shortcuts created during\n"
-            "  session.\n")
+            "  session.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_KEYBOARD_SHORTCUT_TABLE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE
         {
@@ -3508,8 +4760,15 @@ void CommonMenus::setWhatsThis()
             "  with %1 and is automatically installed.\n\n"
             "  By default LDGLite and automatically configured\n"
             "  at application startup using the %1 default\n"
-            "  options.\n")
+            "  options.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE_INSTALL
         {
@@ -3518,8 +4777,15 @@ void CommonMenus::setWhatsThis()
             "  removed. %1 will display this dialog to download and\n"
             "  install the LDGLite renderer.\n\n"
             "  Use the Install button to initiate the download and\n"
-            "  installation.")
+            "  installation.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LDGLITE_INSTALL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDRAW_LIB_PATH
         {
@@ -3535,8 +4801,15 @@ void CommonMenus::setWhatsThis()
             "  edit dialog.\n\n"
             "  %1 will attempt to validate the specified LDraw parts\n"
             "  library returning a 'Suspicious LDraw Directory message\n"
-            "  when the library path is deemed to be invalid.\n")
+            "  when the library path is deemed to be invalid.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LDRAW_LIB_PATH")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW
         {
@@ -3554,7 +4827,14 @@ void CommonMenus::setWhatsThis()
             "    these options are ignored for submodel preview images.\n"
             "    Additionally, when there is less than 2 image files\n"
             "    for a page's parts list or step group, these options\n"
-            "    are ignored.\n")
+            "    are ignored.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_INSTALL
         {
@@ -3563,14 +4843,28 @@ void CommonMenus::setWhatsThis()
             "  removed. %1 will display this dialog to download and\n"
             "  install the LDView renderer.\n\n"
             "  Use the Install button to initiate the download and\n"
-            "  installation.\n")
+            "  installation.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_INSTALL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_SETTINGS
         {
             QObject::tr(
             "  Configure LDView renderer general, gemometry, effects,\n"
-            "  primitives, updates and preference set settings.\n")
+            "  primitives, updates and preference set settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LDVIEW_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LOGGING
         {
@@ -3582,8 +4876,15 @@ void CommonMenus::setWhatsThis()
             "    wish to see for log entry lines.\n"
             "  - Logging Level: set the logging level.\n"
             "  - Individual Log Level Messages: you can select your\n"
-            "    desired log level messages.\n")
+            "    desired log level messages.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LOGGING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL
         {
@@ -3602,8 +4903,15 @@ void CommonMenus::setWhatsThis()
             "  will write DEBUG, NOTICE, ERROR, and FATAL messages to\n"
             "  the log file.\n\n"
             "  When this setting is configured. Individual Log\n"
-            "  Level Messages settings are disabled.\n")
+            "  Level Messages settings are disabled.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL_MESSAGES
         {
@@ -3611,7 +4919,14 @@ void CommonMenus::setWhatsThis()
             "  You can configure your selection of individual log\n"
             "  level messages that will be written to the log file.\n\n"
             "  Select the log message(s) you wish to be written to\n"
-            "  the log file.\n")
+            "  the log file.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL_MESSAGES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LOG_LINE_ATTRIBUTES
         {
@@ -3627,12 +4942,26 @@ void CommonMenus::setWhatsThis()
             "  - Function: show the function where the log entry was\n"
             "    triggered.\n\n"
             "  - All attributes: show logging level, timestamp, line\n"
-            "    number, class name, and function\n")
+            "    number, class name, and function.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LOG_LINE_ATTRIBUTES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH
         {
             QObject::tr(
-            "  You can configure the log file path and file name.\n")
+            "  You can configure the log file path and file name.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PRINT_STANDARD_OUT
         {
@@ -3642,13 +4971,27 @@ void CommonMenus::setWhatsThis()
             "  To prevent double log entries, This setting is\n"
             "  usually enabled on Windows and disabled on Unix\n"
             "  when logging is enabled or when executing in\n"
-            "  console mode.\n")
+            "  console mode.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_PRINT_STANDARD_OUT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES
         {
             QObject::tr(
             "  Error, warning and information messages are displayed\n"
-            "  here.\n")
+            "  here.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PAGE_PROCESSING_CONTINUOUS
         {
@@ -3663,8 +5006,15 @@ void CommonMenus::setWhatsThis()
             "    offers the option to turn off displaying it.\n"
             "    When display is turned off, you can use this setting\n"
             "    to reset (restore) the continuous page processing and\n"
-            "    export dialog display.\n")
+            "    export dialog display.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_PAGE_PROCESSING_CONTINUOUS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PARSE_ERROR
         {
@@ -3683,8 +5033,15 @@ void CommonMenus::setWhatsThis()
             "  You can clear individual message categories or clear\n"
             "  all message categories with a single action.\n"
             "  The 'Clear' button is enabled when there are messages\n"
-            "  to be cleared.\n")
+            "  to be cleared.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_PARSE_ERROR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PLI_CONTROL
         {
@@ -3697,7 +5054,14 @@ void CommonMenus::setWhatsThis()
             "  Bill Of Material instances.\n\n"
             "  You can add and edit entries in the PLI control file\n"
             "  from the Configuration menu then Edit Parameter\n"
-            "  Files... menu and the PLI Parts Control File action.\n")
+            "  Files... menu and the PLI Parts Control File action.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_PLI_CONTROL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY
         {
@@ -3726,8 +5090,15 @@ void CommonMenus::setWhatsThis()
             "  from its INI configuration file using the application\n"
             "  menu action at Configuration, Edit Parameter Files...\n\n"
             "  Note that some settings will be overridden by LPub\n"
-            "  meta commands in your loaded model file.\n")
+            "  meta commands in your loaded model file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_POVRAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_INSTALL
         {
@@ -3736,8 +5107,15 @@ void CommonMenus::setWhatsThis()
             "  removed. %1 will display this dialog to download and\n"
             "  install the POV-Ray renderer.\n\n"
             "  Use the Install button to initiate the download and\n"
-            "  installation.\n")
+            "  installation.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_INSTALL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LDVIEW_POV_GENERATION
         {
@@ -3750,8 +5128,15 @@ void CommonMenus::setWhatsThis()
             "    instance.\n\n"
             "  - LDView: %1 will pass the POV generation parameters to\n"
             "    the third party LDView instance. The LDView renderer\n"
-            "    will then generate the POV file.\n")
+            "    will then generate the POV file.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LDVIEW_POV_GENERATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LGEO
         {
@@ -3767,7 +5152,14 @@ void CommonMenus::setWhatsThis()
             "    label is displayed when the STL library from\n"
             "    Damien Roux (Darats) is present.\n\n"
             "  - Path: when the LGEO part library is detected,\n"
-            "    the library path is provided.\n")
+            "    the library path is provided.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_LGEO")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_NATIVE_POV_GENERATION
         {
@@ -3782,7 +5174,14 @@ void CommonMenus::setWhatsThis()
             "  Configure or reset the LDView renderer settings for\n"
             "  POV file generation.\n Settings are grouped into\n"
             "  general, gemometry, effects, primitives,\n"
-            "  updates and preference set.\n")
+            "  updates and preference set.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_POVRAY_NATIVE_POV_GENERATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_DESCRIPTION
         {
@@ -3797,7 +5196,14 @@ void CommonMenus::setWhatsThis()
             "    Updates make here will, of course, override the\n"
             "    automatically configured value.\n\n"
             "  This attribute is part of the instruction document\n"
-            "  page attributes.\n")
+            "  page attributes.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_DESCRIPTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_LOGO
         {
@@ -3806,7 +5212,14 @@ void CommonMenus::setWhatsThis()
             "  - Default Document Logo: set the instruction document\n"
             "    logo.\n\n"
             "  This attribute is  part of the instruction document\n"
-            "  page attributes.\n")
+            "  page attributes.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_PUBLISH_LOGO")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_AND_PROJECTION
         {
@@ -3836,8 +5249,15 @@ void CommonMenus::setWhatsThis()
             "  - Timeout: set the time in minutes before a render\n"
             "    process will terminate if the process has not been\n"
             "    completed by the renderer\n"
-            "    The default value is 6 minutes.\n")
+            "    The default value is 6 minutes.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_AND_PROJECTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS
         {
@@ -3851,13 +5271,27 @@ void CommonMenus::setWhatsThis()
             "    add library path to LDraw Content Search Directories\n"
             "    if not already included in search paths.\n\n"
             "    This option is enabled only whe Archive LSynth Parts\n"
-            "    is enabled.\n")
+            "    is enabled.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_MESSAGE
         {
             QObject::tr(
             "  Renderer error, warning and information messages\n"
-            "  are displayed here.\n")
+            "  are displayed here.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_MESSAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_RENDERING
         {
@@ -3901,13 +5335,27 @@ void CommonMenus::setWhatsThis()
             "    colors based on the following configured settings:\n"
             "    * Contrast: the amount of contrast.\n\n"
             "    * Saturation: the amount of edge color tint\n"
-            "      or shade.\n")
+            "      or shade.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_RENDERING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES
         {
             QObject::tr(
-            "  View %1 LDraw content search directories.\n")
+            "  View %1 LDraw content search directories.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_SEARCH_DIRECTORIES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_THEME_SCENE_COLORS
         {
@@ -3922,23 +5370,48 @@ void CommonMenus::setWhatsThis()
             "  - Grid: set or change the scene grid color using the\n"
             "    color picker.\n\n"
             "  - Tracking: set or change the scene tracking bar color\n"
-            "    using the color picker.\n")
+            "    using the color picker.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_THEME_SCENE_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_THEME_SELECT_AND_COLORS
         {
             QObject::tr(
-            "  You can select the %1 theme from Default and Dark\n\n"
-            "  Additionally, you can set and reset theme colors\n"
-            "  using the Theme Colors... button.\n")
+            "  You can select the %1 theme from Default, Dark and,\n"
+            "  on Windows, System. Selecting System will set the %1\n"
+            "  theme to the operating system color palette when\n"
+            "  %1 starts. To override this behaviour, change the\n"
+            "  theme setting.\n\n"
+            "  Additionally, you can set and reset individual theme\n"
+            "  colors using the Theme Colors... button.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_THEME_SELECT_AND_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_UNITS
         {
             QObject::tr(
             "  Select %1 default unit measurement from centimeters\n"
-            "  or inches.\n")
+            "  or inches.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_UNITS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_UPDATES
         {
@@ -3959,8 +5432,15 @@ void CommonMenus::setWhatsThis()
             "  - Show Redirects: show the download URL redirect accept\n"
             "    message prompt when redirected.\n\n"
             "  - Check For Updates...: interactively trigger an update\n"
-            "    check.\n")
+            "    check.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_UPDATES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LPUB3D_PREFERENCES_VIEWPOINT_AND_PROJECTION
         {
@@ -4005,23 +5485,44 @@ void CommonMenus::setWhatsThis()
             "      when camera projection mode is orthographic.\n"
             "    * Always: always apply zoom extents.\n\n"
             "  Settings configured here will be overridden by meta\n"
-            "  commands with the same settings in loaded LDraw file.\n")
+            "  commands with the same settings in loaded LDraw file.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_VIEWPOINT_AND_PROJECTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_APPLICATION
         {
             QObject::tr(
             "  View the 3D viewer renderer color theme.\n"
             "  This setting is read only and is configured from the\n"
-            "  %1 theme selection.\n")
+            "  %1 theme selection.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_APPLICATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_AUTHOR
         {
             QObject::tr(
             "  View the %1 default author.\n"
             "  This setting is read only and is configured from the\n"
-            "  %1 publish author setting.\n")
+            "  %1 publish author setting.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_AUTHOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_BACKGROUND_COLOR
         {
@@ -4030,7 +5531,14 @@ void CommonMenus::setWhatsThis()
             "  the color picker.\n\n"
             "  You can select between a solid color or color gradient.\n"
             "  For color gradient, you can configure the top and\n"
-            "  bottom colors.\n")
+            "  bottom colors.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_BACKGROUND_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID
         {
@@ -4041,7 +5549,14 @@ void CommonMenus::setWhatsThis()
             "  - Draw Lines Every n Studs: toggle on or off drawing\n"
             "    grid lines evey n studs, by default n is 5 studs.\n"
             "  - Draw Origin Lines: draw X and Y axis guidelines that\n"
-            "    intersect at the selected part or assembly origin.\n")
+            "    intersect at the selected part or assembly origin.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID_COLOR
         {
@@ -4049,7 +5564,14 @@ void CommonMenus::setWhatsThis()
             "  Configure the 3D viewer base grid line and stud color\n"
             "  using the color picker.\n"
             "  - Lines: grid line color.\n"
-            "  - Studs: drawn studs color.\n")
+            "  - Studs: drawn studs color.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_BASE_GRID_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_CATEGORY
         {
@@ -4067,7 +5589,14 @@ void CommonMenus::setWhatsThis()
             "  - Export: export the entire list of part categories to\n"
             "    an external file.\n\n"
             "  - Reset: reload all part categories and their default\n"
-            "    definitions.\n")
+            "    definitions.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_CATEGORY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_CATEGORY_EDIT
         {
@@ -4078,7 +5607,14 @@ void CommonMenus::setWhatsThis()
             "  - Delete: remove the selected part category.\n"
             "    Edited and removed part categories can b restored\n"
             "    using the Reset button in the Parts Library\n"
-            "    Categories dialog.\n")
+            "    Categories dialog.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_CATEGORY_EDIT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_GENERAL_SETTINGS
         {
@@ -4099,8 +5635,15 @@ void CommonMenus::setWhatsThis()
             "    Keep in mind custom parts, or any unofficial part,\n"
             "    exposed to %1 using LDraw Search Directories, will\n"
             "    ultimately be added to the LDraw unofficial parts\n"
-            "    archive library.\n")
+            "    archive library.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_GENERAL_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_INTERFACE
         {
@@ -4113,7 +5656,14 @@ void CommonMenus::setWhatsThis()
             "    ° Top Left\n"
             "    ° Top Rightn\n"
             "    ° Bottom Left\n"
-            "    ° Bottom Right\n")
+            "    ° Bottom Right%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_INTERFACE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_INTERFACE_COLOR
         {
@@ -4126,28 +5676,63 @@ void CommonMenus::setWhatsThis()
             "  - Marquee Fill: selection area fill.\n"
             "  - Active View: active 3D viewwer viewport border.\n"
             "  - Inactive View: inactive 3D viewwer viewport border.\n"
-            "  - Camera Name: custom camera label.\n")
+            "  - Camera Name: custom camera label.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_INTERFACE_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS_TABLE
         {
             QObject::tr(
-            "  This setting is not available.\n")
+            "  This setting is not available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_KEYBOARD_SHORTCUTS_TABLE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_MOUSE
         {
             QObject::tr(
             "  Set the 3D viewer mouse sensitivity when performing\n"
-            "  tasks such as dragging and item selection.\n")
+            "  tasks such as dragging and item selection.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_MOUSE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS
         {
             QObject::tr(
-            "  This setting is not available.\n")
+            "  This setting is not available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS_TABLE
         {
             QObject::tr(
-            "  This setting is not available.\n")
+            "  This setting is not available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_MOUSE_SHORTCUTS_TABLE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_OBJECTS_COLOR
         {
@@ -4162,7 +5747,14 @@ void CommonMenus::setWhatsThis()
             "    control point color.\n"
             "  - Build Mod Selected: selected item when Build\n"
             "    Modifications is enabled color.\n"
-            "  - Light: drawn light color.\n")
+            "  - Light: drawn light color.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_OBJECTS_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_PART_PREVIEW
         {
@@ -4192,7 +5784,14 @@ void CommonMenus::setWhatsThis()
             "    ° Tob Left\n"
             "    ° Bottom Right\n"
             "    ° Bottom Left\n\n"
-            "  - Axis Icon: toggle on or off the XYZ axis icon display.\n")
+            "  - Axis Icon: toggle on or off the XYZ axis icon display.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_PART_PREVIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_PATHS
         {
@@ -4211,13 +5810,27 @@ void CommonMenus::setWhatsThis()
             "    %1 POV-Ray renderer.\n"
             "  - LGEO Library: when the LEGO Geometrical Equivalent\n"
             "    Objects (LGEO) library is available, the library path\n"
-            "    is specified here.\n")
+            "    is specified here.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_PATHS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_SHORTCUT
         {
             QObject::tr(
-            "  This setting is not available.\n")
+            "  This setting is not available.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_SHORTCUT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_TIMELINE
         {
@@ -4231,7 +5844,14 @@ void CommonMenus::setWhatsThis()
             "    color.\n\n"
             "    By default, timeline icons is set to Show Timeline\n"
             "    Color Icons. This setting allows you to set\n"
-            "    Show Timeline Piece Icons.\n")
+            "    Show Timeline Piece Icons.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_TIMELINE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE
         {
@@ -4246,7 +5866,14 @@ void CommonMenus::setWhatsThis()
             "    ° Top Right\n"
             "    ° Tob Left\n"
             "    ° Bottom Right\n"
-            "    ° Bottom Left\n")
+            "    ° Bottom Left%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE_COLOR
         {
@@ -4255,7 +5882,14 @@ void CommonMenus::setWhatsThis()
             "  using the color picker.\n\n"
             "  - Color: view sphere background color.\n"
             "  - Text Color: view plane text color.\n"
-            "  - Highlight Color: view plane hover highlight color.\n")
+            "  - Highlight Color: view plane hover highlight color.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_VISUAL_PREFERENCES_VIEW_SPHERE_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_ANTIALIASING
         {
@@ -4276,7 +5910,14 @@ void CommonMenus::setWhatsThis()
             "    to be drawn using antialiasing. This does not effect\n"
             "    wireframe mode. Line antialiasing can significantly\n"
             "    improve the visual quality of lines, but it can also\n"
-            "    significantly impact the frame rate.\n")
+            "    significantly impact the frame rate.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_ANTIALIASING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_COLORS
         {
@@ -4293,7 +5934,14 @@ void CommonMenus::setWhatsThis()
             "  - Transparent: Enabling this option causes\n"
             "    default-colored items to be transparent.\n\n"
             "  - Random colors: Enabling this option causes the colors\n"
-            "    used in the model to be randomized.\n")
+            "    used in the model to be randomized.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_INI_FILE
         {
@@ -4301,7 +5949,14 @@ void CommonMenus::setWhatsThis()
             "  View the LDView INI configuration file and preference\n"
             "  set specified for the current function. Functions\n"
             "  include, step image rendering, POV file generation\n"
-            "  and HTML parts list export.\n")
+            "  and HTML parts list export.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_INI_FILE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_MISC
         {
@@ -4327,7 +5982,14 @@ void CommonMenus::setWhatsThis()
             "    this to High will result in the best performance.\n"
             "    However, if you load a large model that uses more\n"
             "    memory than you have available, setting this to\n"
-            "    Medium or Low may improve performance.\n")
+            "    Medium or Low may improve performance.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_MISC")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SAVE_DIRECTORIES
         {
@@ -4345,7 +6007,14 @@ void CommonMenus::setWhatsThis()
             "  - Renderings: LDView rendered images.\n"
             "  - Part Lists: HTML generated part list.\n"
             "  - POV Exports: POV file generation used by the POV-Ray\n"
-            "    renderer.\n")
+            "    renderer.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SAVE_DIRECTORIES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_MODEL
         {
@@ -4362,7 +6031,14 @@ void CommonMenus::setWhatsThis()
             "    bounding boxes. A bounding box is the minimum\n"
             "    axis-aligned box that can completely contain the part.\n"
             "    Geometry that isn't detected as being inside a part is\n"
-            "    drawn normally.\n")
+            "    drawn normally.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_MODEL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_WIREFRAME
         {
@@ -4383,7 +6059,14 @@ void CommonMenus::setWhatsThis()
             "    themselves aren't actually drawn.\n\n"
             "  - Thickness: This option is only available if wireframe\n"
             "    drawing is enabled. It adjusts the thickness of the\n"
-            "    lines used to draw the model in wireframe mode.\n")
+            "    lines used to draw the model in wireframe mode.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_WIREFRAME")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_BFC
         {
@@ -4405,7 +6088,14 @@ void CommonMenus::setWhatsThis()
             "  - Blue neutral faces: This option is only available\n"
             "    while BFC is enabled. Enabling it causes the faces of\n"
             "    non BFC certified polygons to be drawn in blue. This\n"
-            "    is mainly useful for part authors.\n")
+            "    is mainly useful for part authors.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_BFC")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_EDGE_LINES
         {
@@ -4448,7 +6138,14 @@ void CommonMenus::setWhatsThis()
             "    that color instead of black or dark gray.\n\n"
             "  - Thickness: This option is only available if edge lines\n"
             "    are enabled. It adjusts the thickness of the lines\n"
-            "    used to draw the edges around parts.\n")
+            "    used to draw the edges around parts.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_EDGE_LINES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_LIGHTING
         {
@@ -4492,7 +6189,14 @@ void CommonMenus::setWhatsThis()
             " - Hide LIGHT.DAT geometry: Selecting this causes LDView\n"
             "   to not display the geometry from LIGHT.DAT parts.\n"
             "   Since the geometry is a small set of 3D coordinate\n"
-            "   axes, you often don't want to see it.\n")
+            "   axes, you often don't want to see it.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_LIGHTING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_STEREO
         {
@@ -4519,7 +6223,14 @@ void CommonMenus::setWhatsThis()
             "   in no stereoscopic effect at all.) A large value will\n"
             "   result in a pronounced stereoscopic effect, as if you\n"
             "   were looking at a small object from a very short\n"
-            "   distance.\n")
+            "   distance.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_STEREO")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_WIREFRAME_CUTAWAY
         {
@@ -4539,7 +6250,14 @@ void CommonMenus::setWhatsThis()
             "   of the wireframe cutaway.\n\n"
             " - Thickness: This option is only available if wireframe\n"
             "   cutaway is enabled. The slider controls the thickness\n"
-            "   of the lines in the wireframe cutaway.\n")
+            "   of the lines in the wireframe cutaway.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_WIREFRAME_CUTAWAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_TRANSPARENCY
         {
@@ -4554,7 +6272,14 @@ void CommonMenus::setWhatsThis()
             "   transparent shapes to be drawn using a stipple\n"
             "   (checkerboard) pattern.\n"
             "   This option is mutually exclusive with the sort\n"
-            "   transparent polygons option.\n")
+            "   transparent polygons option.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_TRANSPARENCY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_MISC
         {
@@ -4567,7 +6292,14 @@ void CommonMenus::setWhatsThis()
             "   surfaces to be shaded as curved surfaces instead of\n"
             "   as facets.\n"
             "   This option is mutually exclusive with the flat\n"
-            "   shading option.\n")
+            "   shading option.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_EFFECTS_MISC")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_SUBSTITUTION
         {
@@ -4589,7 +6321,14 @@ void CommonMenus::setWhatsThis()
             "   Setting it too high can lead to huge slow-downs.\n"
             "   The default setting of 2 is fine for most models.\n"
             "   Note: Setting this to the minimum value will result\n"
-            "   in incorrect rendering of n-16 primitives.\n")
+            "   in incorrect rendering of n-16 primitives.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_SUBSTITUTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_TEXTURES
         {
@@ -4630,7 +6369,14 @@ void CommonMenus::setWhatsThis()
             "   are both enabled, and anisotropic filtering is selected\n"
             "   as the filtering type. It adjusts the anisotropic\n"
             "   filtering level. Higher numbers produce higher quality\n"
-            "   filtering.\n")
+            "   filtering.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_TEXTURES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_MISC
         {
@@ -4668,7 +6414,14 @@ void CommonMenus::setWhatsThis()
             "   primitives, because they approximate circular features\n"
             "   with 48-sided features. Since not all primitives have\n"
             "   hi-res versions, enabling this can create gaps between\n"
-            "   the standard resolution primitives and the hi-res ones.\n")
+            "   the standard resolution primitives and the hi-res ones.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_MISC")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_PROXY
         {
@@ -4694,7 +6447,14 @@ void CommonMenus::setWhatsThis()
             "    configuration is selected above.\n\n"
             "  - Port: Set this to the port of your HTTP proxy server.\n"
             "    This can only be entered if Manual proxy configuration\n"
-            "    is selected above.\n")
+            "    is selected above.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_PROXY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART
         {
@@ -4721,7 +6481,14 @@ void CommonMenus::setWhatsThis()
             "    Tracker. Since unofficial parts can update on the\n"
             "    Parts Tracker, LDView will check for updates with the\n"
             "    specified frequency when it encounters unofficial parts\n"
-            "    in a model. This number must be greater than zero.\n")
+            "    in a model. This number must be greater than zero.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET
         {
@@ -4744,39 +6511,88 @@ void CommonMenus::setWhatsThis()
             "  - Delete: This deletes the currently selected preference\n"
             "    set.\n\n"
             "  - New: This creates a new preference set that will\n"
-            "    initially contain all the current settings.\n")
+            "    initially contain all the current settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_COLUMN_ORDER
         {
             QObject::tr(
-            "  Configure LDView HTML part list column order settings.\n")
+            "  Configure LDView HTML part list column order settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_COLUMN_ORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_DISPLAY_OPTIONS
         {
             QObject::tr(
             "  Configure LDView HTML part list display options\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_DISPLAY_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_PART_REFERENCE
         {
             QObject::tr(
             "  Configure LDView HTML part list part reference\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_HTML_PART_LIST_EXPORT_PART_REFERENCE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_CHROME_MATERIAL
         {
             QObject::tr(
-            "  Configure LDView POV export chrome material settings.\n")
+            "  Configure LDView POV export chrome material settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_CHROME_MATERIAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_GENERAL
         {
             QObject::tr(
-            "  Configure LDView POV export general settings.\n")
+            "  Configure LDView POV export general settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_GENERAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_GEOMETRY
         {
             QObject::tr(
-            "  Configure LDView POV export geometry settings.\n")
+            "  Configure LDView POV export geometry settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_GEOMETRY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_INI_FILE
         {
@@ -4784,32 +6600,74 @@ void CommonMenus::setWhatsThis()
             "  View the LDView INI configuration file and preference\n"
             "  set specified for POV export. The INI file for POV\n"
             "  generation is ldvExport.ini, the preference set for POV\n"
-            "  generation is POV-Ray Render.\n")
+            "  generation is POV-Ray Render.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_INI_FILE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_LIGHTING
         {
             QObject::tr(
-            "  Configure LDView POV export lighting settings.\n")
+            "  Configure LDView POV export lighting settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_LIGHTING")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_MATERIAL
         {
             QObject::tr(
-            "  Configure LDView POV export material settings.\n")
+            "  Configure LDView POV export material settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_MATERIAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POV_GEOMETRY
         {
             QObject::tr(
-            "  Configure LDView POV export POV geometry settings.\n")
+            "  Configure LDView POV export POV geometry settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POV_GEOMETRY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POVRAY_LIGHTS
         {
             QObject::tr(
-            "  Configure LDView POV export POVRay lights settings.\n")
+            "  Configure LDView POV export POVRay lights settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_POVRAY_LIGHTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_RUBBER_MATERIAL
         {
             QObject::tr(
-            "  Configure LDView POV export rubber material settings.\n")
+            "  Configure LDView POV export rubber material settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_RUBBER_MATERIAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_SCROLL_AREA
         {
@@ -4818,20 +6676,41 @@ void CommonMenus::setWhatsThis()
             "  pov geometry, lighting, pov lights, material\n"
             "  properties, transparent material properties,\n"
             "  rubber material properties, and chrome material\n"
-            "  properties settings.\n")
+            "  properties settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_SCROLL_AREA")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_TRANSPARENT_MATERIAL
         {
             QObject::tr(
             "  Configure LDView POV export transparent material\n"
-            "  settings.\n")
+            "  settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_POV_EXPORT_OPTIONS_TRANSPARENT_MATERIAL")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_LOOK_AT_TARGET
         {
             QObject::tr(
             "  Configure the default target position.\n"
             "  - Target: using integers set the the 'Look At'\n"
-            "    position using the x-axes, y-axes and z-axes.\n")
+            "    position using the x-axes, y-axes and z-axes.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LOOK_AT_TARGET")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SNIPPETS_ADD
         {
@@ -4840,7 +6719,14 @@ void CommonMenus::setWhatsThis()
             "  When the Add button is clicked, a new snippet line\n"
             "  entry is created in the snippets table and the\n"
             "  snippet editor is enabled allowing you to edit\n"
-            "  the commands that will make up this snippet.\n")
+            "  the commands that will make up this snippet.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SNIPPETS_ADD")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SNIPPETS_EDIT
         {
@@ -4863,7 +6749,14 @@ void CommonMenus::setWhatsThis()
             "  - Ok: accept all changes in the currnt session.\n\n"
             "  - Cancel: discard all changes in the current session.\n\n"
             "  User defined snippets are saved to an external file\n"
-            "  which are loaded at application startup.\n")
+            "  which are loaded at application startup.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SNIPPETS_EDIT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SNIPPETS_LIST
         {
@@ -4881,7 +6774,14 @@ void CommonMenus::setWhatsThis()
             "  snippet trigger and description in this table.\n\n"
             "  - Trigger: a short name that uniquely identifies\n"
             "    the user-defined snippet.\n\n"
-            "  - Description: a concise description of the snippet.\n")
+            "  - Description: a concise description of the snippet.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SNIPPETS_LIST")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SNIPPETS_REMOVE
         {
@@ -4889,14 +6789,28 @@ void CommonMenus::setWhatsThis()
             "  Remove the selected user-defined command snippet.\n\n"
             "  The remove button is disabled when a built-in command\n"
             "  snippet is selected. You cannot remove built-in\n"
-            "  snippets.\n")
+            "  snippets.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SNIPPETS_REMOVE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SUBSTITUTE_CURRENT_PART
         {
             QObject::tr(
             "  This dialogue displays the current part\n"
             "  and its title description. These dialogues\n"
-            "  are read-only.\n")
+            "  are read-only.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SUBSTITUTE_CURRENT_PART")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SUBSTITUTE_PRIMARY_ARGUMENTS
         {
@@ -4917,7 +6831,14 @@ void CommonMenus::setWhatsThis()
             "    name and part title description.\n\n"
             "    This option is useful when you wish to show\n"
             "    a custom representation of the part in the\n"
-            "    part list.\n")
+            "    part list.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SUBSTITUTE_PRIMARY_ARGUMENTS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_CONTROL_SUBSTITUTE_EXTENDED_ARGUMENTS
         {
@@ -4938,7 +6859,14 @@ void CommonMenus::setWhatsThis()
             "    These are the individual rotation angles for\n"
             "    the different axes in degrees (-360 to 360).\n"
             "  - Transform: set the step transformation using\n"
-            "    options - relative, absolute or additive.\n")
+            "    options - relative, absolute or additive.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_SUBSTITUTE_EXTENDED_ARGUMENTS")
+#else
+                 ""
+#endif
+                )
         },
         //*************************************
         //*  METAGUI ENTRIES
@@ -4957,8 +6885,15 @@ void CommonMenus::setWhatsThis()
             "    Dot unit options are dots per inch (DPI) or\n"
             "    dots per centimetre (DPC)\n"
             "  - Orientation: set the page orientation to\n"
-            "    portrait or landscape.\n")
+            "    portrait or landscape.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_SIZE_AND_ORIENTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_BACKGROUND
         {
@@ -4976,7 +6911,14 @@ void CommonMenus::setWhatsThis()
             "  - Browse: set or select the image path if background\n"
             "    image option selected.\n\n"
             "  - Image Fill: select stretch or tile of the front\n"
-            "    cover image.\n")
+            "    cover image.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_BACKGROUND")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_BACKGROUND_NO_IMAGE
         {
@@ -4989,7 +6931,14 @@ void CommonMenus::setWhatsThis()
             "    ° Gradient\n"
             "    ° Submodel Level Color.\n\n"
             "  - Change: select the background color from the\n"
-            "    color picker if Solid Color option selected.\n")
+            "    color picker if Solid Color option selected.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_BACKGROUND_NO_IMAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_BORDER
         {
@@ -5002,8 +6951,15 @@ void CommonMenus::setWhatsThis()
             "  - Margins: set the border margins width and height.\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.\n")
+            "    Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_BORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CAMERA_ANGLES
         {
@@ -5036,7 +6992,14 @@ void CommonMenus::setWhatsThis()
             "    Precision is one decimal place.\n\n"
             "    Selecting a Camera Viewpoint other that Default\n"
             "    will disable the individual Latitude and Longitude\n"
-            "    camera angle dialogues.\n")
+            "    camera angle dialogues.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CAMERA_ANGLES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CAMERA_DEFAULT_DISTANCE_FACTOR
         {
@@ -5056,26 +7019,43 @@ void CommonMenus::setWhatsThis()
             "    This setting is ignored when the preferred renderer is\n"
             "    not Native. The current renderer is %1.\n\n"
             "    Camera distance factor value range is 1.0 to 100.0\n\n"
-            "    Precision is two decimal places.\n")
+            "    Precision is two decimal places.%2\n")
             .arg(MetaDefaults::getPreferredRenderer())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CAMERA_DEFAULT_DISTANCE_FACTOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CAMERA_FIELD_OF_VIEW
         {
             QObject::tr(
             "  Configure the camera field of view:\n"
             "  - Camera FOV: set the camera field of view in degrees.\n"
-            "    %1%2")
-            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native") ? QObject::tr("\n"
+            "    %1%2%3\n")
+            .arg(MetaDefaults::getPreferredRenderer() == QLatin1String("Native")
+            ? QObject::tr("\n"
             "  ° Configure the camera near plane.\n\n"
-            "  ° Configure the camera far z plane.\n") : QObject::tr("\n"
+            "  ° Configure the camera far z plane.\n")
+            : QObject::tr("\n"
             "  ° Camera near and far z planes are disabled\n"
-            "    when the preferred renderer is not Native.\n"), QObject::tr("\n"
+            "    when the preferred renderer is not Native.\n")
+            , QObject::tr("\n"
             "    The field of view value range is determined by the\n"
             "    current preferred renderer which is %1.\n"
             "    The current FOV range is %2 to %3\n")
             .arg(MetaDefaults::getPreferredRenderer())
             .arg(MetaDefaults::getFOVMinRange())
             .arg(MetaDefaults::getFOVMaxRange()))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CAMERA_FIELD_OF_VIEW")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CAMERA_NEAR_PLANE
         {
@@ -5085,8 +7065,15 @@ void CommonMenus::setWhatsThis()
             "    using a decimal number.\n\n"
             "    The near Z plane dialog is only enabled for the\n"
             "    Native preferred renderer. The current renderer\n"
-            "    is %1.\n")
+            "    is %1.%2\n")
             .arg(MetaDefaults::getPreferredRenderer())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CAMERA_NEAR_PLANE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CAMERA_FAR_PLANE
         {
@@ -5096,8 +7083,15 @@ void CommonMenus::setWhatsThis()
             "    using a decimal number.\n\n"
             "    The far Z plane dialog is only enabled for the\n"
             "    Native preferred renderer. The current renderer\n"
-            "    is %1.\n")
+            "    is %1.%2\n")
             .arg(MetaDefaults::getPreferredRenderer())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CAMERA_FAR_PLANE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_IMAGE_SCALE
         {
@@ -5109,7 +7103,14 @@ void CommonMenus::setWhatsThis()
             "    The mininimum allowed spin box value is -10000.0\n"
             "    and the maximum is 10000.0.\n"
             "    Spin box values are incremented by 1 step unit.\n"
-            "    Precision is two decimal places\n")
+            "    Precision is two decimal places%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_IMAGE_SCALE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_UNITS_MARGIN
         {
@@ -5119,20 +7120,41 @@ void CommonMenus::setWhatsThis()
             "  - T/B(Top/Bottom): set the margin height.\n\n"
             "  Enter margin values using a decimal number\n"
             "  in %1.\n"
-            "  Dot units are defined in Project Global Setup.\n")
+            "  Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_UNITS_MARGIN")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_HEADER_HEIGHT
         {
             QObject::tr(
             "  Configure the page header height using the\n"
-            "  specified dot units.\n")
+            "  specified dot units.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_HEADER_HEIGHT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_FOOTER_HEIGHT
         {
             QObject::tr(
             "  Configure the page footer height using the\n"
-            "  specified dot units.\n")
+            "  specified dot units.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_FOOTER_HEIGHT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_POINTER_BORDER
         {
@@ -5143,8 +7165,15 @@ void CommonMenus::setWhatsThis()
             "  - Color: set the pointer border line color\n"
             "    using the color picker.\n"
             "  Enter Width using a decimal number in %1.\n"
-            "  Dot units are defined in Project Global Setup.\n")
+            "  Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_POINTER_BORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_POINTER_LINE
         {
@@ -5157,8 +7186,15 @@ void CommonMenus::setWhatsThis()
             "  - Tip Visibility: set checked to show the\n"
             "    pointer tip.\n\n"
             "  Enter Width using a decimal number in %1.\n"
-            "  Dot units are defined in Project Global Setup.\n")
+            "  Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_POINTER_LINE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_POINTER_TIP
         {
@@ -5168,8 +7204,15 @@ void CommonMenus::setWhatsThis()
             "  - Tip Height: set the visible tip height.\n\n"
             "  Enter Width and Height using a decimal number\n"
             "  in %1.\n"
-            "  Dot units are defined in Project Global Setup.\n")
+            "  Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_POINTER_TIP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PAGE_ATTRIBUTE_TEXT
         {
@@ -5189,8 +7232,15 @@ void CommonMenus::setWhatsThis()
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
             "    Dot units are defined in Project Global Setup.\n\n"
-            "  - Content: enter or update the text.\n")
+            "  - Content: enter or update the text.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PAGE_ATTRIBUTE_TEXT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PAGE_ATTRIBUTE_IMAGE
         {
@@ -5212,8 +7262,15 @@ void CommonMenus::setWhatsThis()
             "  - Browse: set or select the image path.\n\n"
             "  - Scale: check to enable and configure scaling the image.\n\n"
             "  - Image Fill: select aspect (resize on image aspect ratio),\n"
-            "    stretch or tile the image across the page background.\n")
+            "    stretch or tile the image across the page background.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PAGE_ATTRIBUTE_IMAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_SUBMODEL_LEVEL_COLORS
         {
@@ -5224,12 +7281,26 @@ void CommonMenus::setWhatsThis()
             "  There are four default submodel levels, each with\n"
             "  its own default colour.\n"
             "  - Change: select the desired color using the\n"
-            "    color picker.\n")
+            "    color picker.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_SUBMODEL_LEVEL_COLORS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CHECK_BOX
         {
             QObject::tr(
-            "  Check to enable property and uncheck to disable.\n")
+            "  Check to enable property and uncheck to disable.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CHECK_BOX")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_UNITS
         {
@@ -5239,8 +7310,15 @@ void CommonMenus::setWhatsThis()
             "  - Unit Value 1: set the second unit value.\n\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.\n")
+            "    Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_UNITS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_NUMBER
         {
@@ -5251,15 +7329,29 @@ void CommonMenus::setWhatsThis()
             "  - Margins: set the number margin area width/height.\n\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.\n")
+            "    Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_NUMBER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_BOOL_RADIO_BUTTON
         {
             QObject::tr(
             "  Select between the pair of option alternatives.\n"
             "  The selected option is set to true while the\n"
-            "  unselected option is false.\n")
+            "  unselected option is false.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_BOOL_RADIO_BUTTON")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PAGE_SIZE
         {
@@ -5275,7 +7367,14 @@ void CommonMenus::setWhatsThis()
             "    are determined by the resolution units specified\n"
             "    in Project Global Setup.\n"
             "    Dot unit options are dots per inch (DPI) or\n"
-            "    dots per centimetre (DPC)\n")
+            "    dots per centimetre (DPC).%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PAGE_SIZE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PAGE_ORIENTATION
         {
@@ -5286,7 +7385,14 @@ void CommonMenus::setWhatsThis()
             "  - Portrait: set the page orientation to\n"
             "    portrait.\n\n"
             "  - Landscape: set the page orientation to\n"
-            "    landscape.\n")
+            "    landscape.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PAGE_ORIENTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CONSTRAIN
         {
@@ -5302,7 +7408,14 @@ void CommonMenus::setWhatsThis()
             "  - Width: Apply constraint on specified width.\n\n"
             "  - Height: Apply constraint on specified height.\n\n"
             "  - Columns: Apply constraint on specified number\n"
-            "    of comumns.\n")
+            "    of comumns.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CONSTRAIN")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_DOUBLE_SPIN
         {
@@ -5317,7 +7430,14 @@ void CommonMenus::setWhatsThis()
             "  - Decimal Places: the precision of the double spinbox\n"
             "    in decimal format.\n\n"
             "  - Value: the current double precision floating point\n"
-            "    number accepted as input.\n")
+            "    number accepted as input.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_DOUBLE_SPIN")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_SPIN
         {
@@ -5328,14 +7448,28 @@ void CommonMenus::setWhatsThis()
             "    accepted as input.\n\n"
             "  - SingleStep: the step by which the integer value is\n"
             "    increased and decreased.\n\n"
-            "  - Value: the current integer number accepted as input.\n")
+            "  - Value: the current integer number accepted as input.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_SPIN")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_FLOATS
         {
             QObject::tr(
             "  Configure a pair of floating point (decimal) numbers\n"
             "  with double precision.\n\n"
-            "  Three decimal places (e.g. 1.012) is a good example.\n")
+            "  Three decimal places (e.g. 1.012) is a good example.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_FLOATS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_SORT
         {
@@ -5344,7 +7478,14 @@ void CommonMenus::setWhatsThis()
             "  - Use PliSortOrderGui.\n\n"
             "  - Sort Attributes: part size, colorcategory.\n\n"
             "  - Direction: direction are ascending - from small\n"
-            "    to large\n")
+            "    to large.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_SORT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_SORT_ORDER
         {
@@ -5357,7 +7498,14 @@ void CommonMenus::setWhatsThis()
             "    and tertiary (third) precedence in which the\n"
             "    attributes will be sorted.\n\n"
             "  - Direction: direction are ascending - from small\n"
-            "    to large and descending from large to small.\n")
+            "    to large and descending from large to small.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_SORT_ORDER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR
         {
@@ -5382,8 +7530,15 @@ void CommonMenus::setWhatsThis()
             "  High Contrast styles enable part edge and\n"
             "  stud cylinder color settings.\n\n"
             "  Automate edge color settings allow %1 to\n"
-            "  automatically adjust part edge colors.\n")
+            "  automatically adjust part edge colors.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_HIGH_CONTRAST_COLOR_SETTINGS
         {
@@ -5401,7 +7556,14 @@ void CommonMenus::setWhatsThis()
             "  - Black Parts Edge Color: the applied color for\n"
             "    black parts.\n\n"
             "  - Dark Parts Edge Color: the applied edge color for\n"
-            "    dark parts.\n")
+            "    dark parts.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_HIGH_CONTRAST_COLOR_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_AUTOMATE_EDGE_COLOR_SETTINGS
         {
@@ -5411,8 +7573,15 @@ void CommonMenus::setWhatsThis()
             "  on the following configured settings:\n"
             "  - Contrast: the amount of contrast.\n\n"
             "  - Saturation: the amount of edge color tint\n"
-            "    or shade.\n")
+            "    or shade.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_AUTOMATE_EDGE_COLOR_SETTINGS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_ANNOTATION_OPTIONS
         {
@@ -5423,7 +7592,14 @@ void CommonMenus::setWhatsThis()
             "    Fixed annotations.\n\n"
             "  - Enable Annotation Type: enable or disable\n"
             "    annotation for axles, beams, cables, connectors,\n"
-            "    hoses, panels or custom annotations.\n")
+            "    hoses, panels or custom annotations.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_ANNOTATION_OPTIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_ANNOTATIONS_STYLES
         {
@@ -5436,7 +7612,14 @@ void CommonMenus::setWhatsThis()
             "  - Border: edit the annotation border attributes\n\n"
             "  - Annotation Text Format: edit the annotation text\n"
             "    attributes\n\n"
-            "  - Size: edit the annotation size attributes\n")
+            "  - Size: edit the annotation size attributes.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_ANNOTATIONS_STYLES")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_ANNOTATIONS_SOURCE
         {
@@ -5457,7 +7640,14 @@ void CommonMenus::setWhatsThis()
             "    circle styles cannot be modified from the LDraw\n"
             "    file editor or main window, it is possible to change\n"
             "    the fixed size properties in the 'Styles' section of\n"
-            "    this dialog.\n")
+            "    this dialog.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_ANNOTATIONS_SOURCE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_ANNOTATIONS_TYPE_BOM
         {
@@ -5478,7 +7668,14 @@ void CommonMenus::setWhatsThis()
             "  Available user configurable annotation types for\n"
             "  bill of materials (BOM) parts are:\n"
             "  - Extended: title and/or free form part annotations\n"
-            "    on rectangular background.\n")
+            "    on rectangular background.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_ANNOTATIONS_TYPE_BOM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_ANNOTATIONS_TYPE_PLI
         {
@@ -5497,7 +7694,14 @@ void CommonMenus::setWhatsThis()
             "  Available user configurable annotation types for\n"
             "  part list instance (PLI) parts are:\n"
             "  - Extended: title and/or free form part annotations\n"
-            "    on rectangular background.\n")
+            "    on rectangular background.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_ANNOTATIONS_TYPE_PLI")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PART_ELEMENTS_BOM
         {
@@ -5528,8 +7732,15 @@ void CommonMenus::setWhatsThis()
             "    the legoelements.lst file.\n\n"
             "  As with the other %1 configuration files, you can\n"
             "  edit the local instance of these files to update\n"
-            "  add or remove part elements.\n")
+            "  add or remove part elements.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PART_ELEMENTS_BOM")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_BUILD_MODIFICATIONS
         {
@@ -5547,7 +7758,14 @@ void CommonMenus::setWhatsThis()
             "  Build modification commands can include any number or\n"
             "  configuration of existing or additional parts desired\n"
             "  to demonstrate the editor's build instruction intent.\n\n"
-            "  Check the box to enable this feature or uncheck to disable.\n")
+            "  Check the box to enable this feature or uncheck to disable.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_BUILD_MODIFICATIONS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CONTINUOUS_STEP_NUMBERS
         {
@@ -5561,7 +7779,14 @@ void CommonMenus::setWhatsThis()
             "  the parent submodel is conontinued after the callout\n"
             "  or submodel steps are completed.\n\n"
             "  Check the box to enable this feature or uncheck to\n"
-            "  disable.\n")
+            "  disable.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CONTINUOUS_STEP_NUMBERS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_CONSOLIDATE_SUBMODEL_INSTANCE_COUNT
         {
@@ -5583,7 +7808,14 @@ void CommonMenus::setWhatsThis()
             "    occurrence in the parent model. This is the default\n"
             "    behaviour.\n\n"
             "  - At Step: display count at step page of first\n"
-            "    occurrence in the respective step.\n")
+            "    occurrence in the respective step.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_CONSOLIDATE_SUBMODEL_INSTANCE_COUNT")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_MODEL_VIEW_ON_COVER_PAGE
         {
@@ -5595,7 +7827,14 @@ void CommonMenus::setWhatsThis()
             "  window is currently displaying a front or back cover\n\n"
             "  page.\n\n"
             "  Check the box to enable this feature or uncheck to\n"
-            "  disable.\n")
+            "  disable.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_MODEL_VIEW_ON_COVER_PAGE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_LOAD_UNOFFICIAL_PART_IN_EDITOR
         {
@@ -5609,7 +7848,14 @@ void CommonMenus::setWhatsThis()
             "  parts in you model file and would like to view and or\n"
             "  edit the part's content.\n\n"
             "  Check the box to enable this feature or uncheck to\n"
-            "  disable.\n")
+            "  disable.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_LOAD_UNOFFICIAL_PART_IN_EDITOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_PREFERRED_RENDERER
         {
@@ -5645,8 +7891,15 @@ void CommonMenus::setWhatsThis()
             "    from LDView source and performs POV file generation\n"
             "    among some other features.\n\n"
             "  - LDView: POV file generation is submitted to the %1\n"
-            "    packaged instance of LDView just as normal image files.\n")
+            "    packaged instance of LDView just as normal image files.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_PREFERRED_RENDERER")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_DOCUMENT_RESOLUTION
         {
@@ -5661,7 +7914,14 @@ void CommonMenus::setWhatsThis()
             "  Use the dot resulution unit value dialog to set the\n"
             "  number of units. The default for Dots Per Inch is 150\n"
             "  which automatically changes to 381 when the units\n"
-            "  drop-down is switched to Dots Per Centimetre.\n")
+            "  drop-down is switched to Dots Per Centimetre.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_DOCUMENT_RESOLUTION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_ASSEM_ANNOTATION_TYPE
         {
@@ -5680,7 +7940,14 @@ void CommonMenus::setWhatsThis()
             "  Available user configurable annotation types for\n"
             "  current step instance (CSI) parts are:\n"
             "  - Extended: title and/or free form part annotations\n"
-            "    on rectangular background.\n")
+            "    on rectangular background.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_ASSEM_ANNOTATION_TYPE")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_FADE_PREVIOUS_STEPS
         {
@@ -5703,7 +7970,14 @@ void CommonMenus::setWhatsThis()
             "    assigned part color faded to the specified opacity.\n\n"
             "  - Fade Opacity: sets the fade color opaqueness\n"
             "    between 0 and 100 percent where 0 is fully\n"
-            "    transparent and 100 is fully opaque.\n")
+            "    transparent and 100 is fully opaque.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_FADE_PREVIOUS_STEPS")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_HIGHLIGHT_CURRENT_STEP
         {
@@ -5719,7 +7993,14 @@ void CommonMenus::setWhatsThis()
             "    The mininimum allowed spin box value is 0\n"
             "    and the maximum is 10.\n"
             "    Spin box values are incremented by 1 step\n"
-            "    unit.\n")
+            "    unit.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_HIGHLIGHT_CURRENT_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_FINAL_FADE_HIGHLIGHT_MODEL_STEP
         {
@@ -5740,8 +8021,15 @@ void CommonMenus::setWhatsThis()
             "  this behaviour - you can remove the auto-generated\n"
             "  comment lines and replace 0 !LPUB INSERT MODEL with:\n\n"
             "  0 !LPUB INSERT DISPLAY_MODEL\n\n"
-            "  Check the box to enable this feature or uncheck to disable.\n")
+            "  Check the box to enable this feature or uncheck to disable.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_FINAL_FADE_HIGHLIGHT_MODEL_STEP")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_SEPARATOR
         {
@@ -5765,8 +8053,15 @@ void CommonMenus::setWhatsThis()
             "    Enter width, length and margin values using\n"
             "    a decimal number in %1.\n"
             "    Dot units are defined in Project Global Setup.\n"
-            "    Precision is four decimal places.\n")
+            "    Precision is four decimal places.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_SEPARATOR")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_STEP_JUSTIFICATION
         {
@@ -5786,8 +8081,15 @@ void CommonMenus::setWhatsThis()
             "    Enter spacing value using a decimal number\n"
             "    in %1.\n"
             "    Dot units are defined in Project Global Setup.\n"
-            "    Precision is four decimal places.\n")
+            "    Precision is four decimal places.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_STEP_JUSTIFICATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_STEP_ROTATION
         {
@@ -5816,7 +8118,14 @@ void CommonMenus::setWhatsThis()
             "      For example if this command is executed four times\n"
             "      on a front view, and the model is rotated\n"
             "      90° clockwise on the y-axle then you will see the\n"
-            "      model from each of the four sides.\n")
+            "      model from each of the four sides.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_STEP_ROTATION")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_SUBMODEL_PREVIEW_DISPLAY
         {
@@ -5847,7 +8156,14 @@ void CommonMenus::setWhatsThis()
             "  The submodel preview default placement can be set\n"
             "  using the following setting:\n"
             "  - Submodel Placement: change the default submodel\n"
-            "    placement using the placement dialog.\n")
+            "    placement using the placement dialog.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_SUBMODEL_PREVIEW_DISPLAY")
+#else
+                 ""
+#endif
+                )
         },
         // WT_GUI_ROTATE_ICON_SIZE
         {
@@ -5855,8 +8171,15 @@ void CommonMenus::setWhatsThis()
             "  Configure rotate icon size.\n"
             "  - Width: set the rotate icon  width in %1.\n\n"
             "  - Height: set the rotate icon hieght in %1.\n\n"
-            "    Dot units are defined in Project Global Setup.\n")
+            "    Dot units are defined in Project Global Setup.%2\n")
             .arg(MetaDefaults::getPreferredUnits())
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_ROTATE_ICON_SIZE")
+#else
+                 ""
+#endif
+                )
         }
         // WT_NUM_ENTRIES
     };
