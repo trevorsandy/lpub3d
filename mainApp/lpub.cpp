@@ -7478,14 +7478,11 @@ void Gui::parseError(const QString &message,
 
     QString parseMessage = tr("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
 
-    if (icon == static_cast<int>(LOG_FATAL))
-        parseMessage.append(tr("<br>- %1 will restart.").arg(VER_PRODUCTNAME_STR));
-
     int abortProcess = false;
 
     bool abortInProgress = Gui::abortProcess();
 
-    bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
+    bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;    
 
     if (guiEnabled && !abortInProgress) {
         if ((!exporting() && !ContinuousPage()) || ((exporting() || ContinuousPage()) && Preferences::displayPageProcessingErrors)) {
@@ -7558,15 +7555,23 @@ void Gui::parseError(const QString &message,
         }
         break;
     case static_cast<int>(LOG_FATAL):
-        if (Preferences::loggingEnabled)
-            logError() << qPrintable(parseMessage.replace("<br>"," "));
-        Gui::setAbortProcess(true);
-        emit setExportingSig(false);
-        emit setContinuousPageSig(false);
-        if (guiEnabled) {
-            QApplication::restoreOverrideCursor();
-            displayPageNum = prevDisplayPageNum;
-            emit restartApplicationSig(false,false);
+        {
+            if (Preferences::loggingEnabled)
+                logError() << qPrintable(QString(parseMessage).replace("<br>"," "));
+
+            Preferences::setMessageLogging();
+            Gui::setAbortProcess(true);
+            emit setExportingSig(false);
+            emit setContinuousPageSig(false);
+
+            if (guiEnabled) {
+                QApplication::restoreOverrideCursor();
+                if (QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),parseMessage.append(tr("<br><br>Restart %1 ? ").arg(VER_PRODUCTNAME_STR)),
+                                          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+                    displayPageNum = 1;
+                    restartApplicationSig(false, false);
+                }
+            }
         }
     }
 
@@ -7708,17 +7713,20 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
     } else
     if (logType == LOG_FATAL) {
 
-        message.append(tr("<br>- %1 will terminate.").arg(VER_PRODUCTNAME_STR));
-
         if (Preferences::loggingEnabled)
             logFatal() << qPrintable(QString(message).replace("<br>"," "));
 
+        Preferences::setMessageLogging();
+        Gui::setAbortProcess(true);
+        emit setExportingSig(false);
+        emit setContinuousPageSig(false);
+
         if (guiEnabled) {
-            if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
-                Gui::messageList << QString("<FONT COLOR='#FF0000'>FATAL</FONT>: %1<br>").arg(message);
-                statusBarMsg(QString(message).replace("<br>"," ").prepend("FATAL: "));
-            } else {
-                QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message);
+            QApplication::restoreOverrideCursor();
+            if (QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message.append(tr("<br><br>Restart %1 ? ").arg(VER_PRODUCTNAME_STR)),
+                                      QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+                displayPageNum = 1;
+                restartApplication(false, false);
             }
         }
     } else
@@ -7727,10 +7735,11 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
         bool const errorEncountered = msgBox;
 
         if (Preferences::loggingEnabled) {
-            if (errorEncountered)
+            if (errorEncountered) {
                 logError() << qPrintable(message.replace("<br>"," "));
-            else
+            } else {
                 logWarning() << qPrintable(message.replace("<br>"," "));
+            }
         }
 
         if (guiEnabled && !abortInProgress) {
@@ -7785,15 +7794,6 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
                     pagesCounted();
                 }
             }
-        }
-    } else if (logType == LOG_FATAL) {
-        Gui::setAbortProcess(true);
-        emit setExportingSig(false);
-        emit setContinuousPageSig(false);
-        if (guiEnabled) {
-            QApplication::restoreOverrideCursor();
-            displayPageNum = prevDisplayPageNum;
-            emit restartApplicationSig(false,false);
         }
     }
 }
