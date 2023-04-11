@@ -807,6 +807,8 @@ void Gui::exportAsPdf()
 {
   // init drawPage flags
   DrawPageFlags dpFlags;
+  QElapsedTimer exportTimer;
+  displayPageTimer.start();
 
   // store current display page number
   prevDisplayPageNum = displayPageNum;
@@ -840,7 +842,7 @@ void Gui::exportAsPdf()
             QDir::currentPath() + QDir::separator() + baseName,
             tr("PDF File (*.pdf)"));
 
-      if (fileName == "") {
+      if (fileName.isEmpty()) {
           // release Visual Editor
           emit setExportingSig(false);
           restoreCurrentPage(false);
@@ -868,7 +870,7 @@ void Gui::exportAsPdf()
   box.setStandardButtons (QMessageBox::Retry | QMessageBox::Abort);
   box.setDefaultButton   (QMessageBox::Retry);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Export pdf"));
+  box.setWindowTitle(tr ("%1 Export pdf").arg(VER_PRODUCTNAME_STR));
 
   // check if file open by another program
   QFile printFile(fileName);
@@ -891,13 +893,15 @@ void Gui::exportAsPdf()
           release = true;
       }
       if (release) {
-          emit messageSig(LOG_STATUS, tr("Cannot open file. %1").arg(text));
+          emit messageSig(LOG_INFO_STATUS, tr("Cannot open file. %1").arg(text));
           // release Visual Editor
           emit setExportingSig(false);
           restoreCurrentPage(false);
           return;
       }
   }
+
+  exportTimer.start();
 
   // determine size of output pages, in pixels
   float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
@@ -932,10 +936,18 @@ void Gui::exportAsPdf()
   int _displayPageNum = 0;
   int _maxPages       = 0;
 
+  QString message = tr("instructions to pdf...");
+
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle("Export pdf");
-  if (Preferences::modeGUI)
+  m_progressDialog->setLabelText(tr("Exporting %1").arg(message));
+  if (Preferences::modeGUI) {
+      m_progressDialog->setBtnToCancel();
       m_progressDialog->show();
+      QApplication::setOverrideCursor(Qt::ArrowCursor);
+      QCoreApplication::processEvents();
+  }
+  emit messageSig(LOG_INFO_STATUS,tr("Starting export %1").arg(message));
 
   // reset page indicators
   _displayPageNum = 0;
@@ -950,8 +962,6 @@ void Gui::exportAsPdf()
   };
   QMap<int, PdfPage> pages;
 
-  m_progressDialog->setLabelText(tr("Exporting instructions to pdf..."));
-
   if (processOption != EXPORT_PAGE_RANGE) {
 
       if(processOption == EXPORT_ALL_PAGES){
@@ -964,7 +974,14 @@ void Gui::exportAsPdf()
           _maxPages       = displayPageNum;
         }
 
-      m_progressDialog->setRange(_displayPageNum,_maxPages);
+      message = tr("Export %1 pages to pdf").arg(_maxPages);
+      emit messageSig(LOG_INFO_STATUS,message);
+
+      if (Preferences::modeGUI) {
+          m_progressDialog->setLabelText(message);
+          m_progressDialog->setRange(_displayPageNum,_maxPages);
+          QCoreApplication::processEvents();
+      }
 
       // set displayPageNum so we can send the correct index to retrieve page size data
       displayPageNum = _displayPageNum;
@@ -984,20 +1001,30 @@ void Gui::exportAsPdf()
           if (! exporting()) {
               if (exportPdfElements)
                   painter.end();
-              if (Preferences::modeGUI)
-                  m_progressDialog->hide();
-              emit messageSig(LOG_STATUS,tr("Export to pdf terminated before completion."));
+              message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
+                            .arg(displayPageNum - 1).arg(_maxPages).arg(gui->elapsedTime(exportTimer.elapsed()));
+              emit messageSig(LOG_INFO_STATUS,message);
+              if (Preferences::modeGUI) {
+                  QApplication::restoreOverrideCursor();
+                  m_progressDialog->setBtnToClose();
+                  m_progressDialog->setLabelText(message, true/*alert*/);
+              }
               emit setExportingSig(false);
               restoreCurrentPage();
               return;
-            }
+          }
 
-          m_progressDialog->setLabelText(tr("%1 %2 of %3...")
-                                            .arg(messageIntro)
-                                            .arg(displayPageNum)
-                                            .arg(_maxPages));
-          m_progressDialog->setValue(displayPageNum);
-          QApplication::processEvents();
+          message = tr("%1 %2 of %3...")
+                        .arg(messageIntro)
+                        .arg(displayPageNum)
+                        .arg(_maxPages);
+          emit messageSig(LOG_INFO_STATUS,message);
+
+          if (Preferences::modeGUI) {
+              m_progressDialog->setLabelText(message);
+              m_progressDialog->setValue(displayPageNum);
+              QApplication::processEvents();
+          }
 
           // get size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
@@ -1005,15 +1032,17 @@ void Gui::exportAsPdf()
           adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << tr("                  %8 %3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
-                        .arg(adjPageWidthPx)
-                        .arg(adjPageHeightPx)
-                        .arg(displayPageNum)
-                        .arg(_maxPages)
-                        .arg(ls ? tr("Landscape") : tr("Portrait"))
-                        .arg(int(resolution()))
-                        .arg(dpr)
-                        .arg(messageIntro);
+
+          message = tr("                  %8 %3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
+                       .arg(adjPageWidthPx)
+                       .arg(adjPageHeightPx)
+                       .arg(displayPageNum)
+                       .arg(_maxPages)
+                       .arg(ls ? tr("Landscape") : tr("Portrait"))
+                       .arg(int(resolution()))
+                       .arg(dpr)
+                       .arg(messageIntro);
+          emit messageSig(LOG_NOTICE,message);
 
           // initiialize the image
           QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
@@ -1088,7 +1117,8 @@ void Gui::exportAsPdf()
           }
       } // end of step 1. generate page pixmaps
 
-      m_progressDialog->setValue(_maxPages);
+      if (Preferences::modeGUI)
+          m_progressDialog->setValue(_maxPages);
 
       if (exportPdfElements) {
           // wrap up paint to pdfWriter
@@ -1097,25 +1127,35 @@ void Gui::exportAsPdf()
           // step 2. paint generated page pixmaps to the pdfWriter
           painter.begin(&pdfWriter);
 
-          m_progressDialog->setRange(1,pages.count());
+          if (Preferences::modeGUI)
+              m_progressDialog->setRange(1,pages.count());
 
           int page;
           Q_FOREACH (page, pages.keys()) {
-              m_progressDialog->setLabelText(tr("Step 2. Exporting pdf document page %1 of %2")
-                                               .arg(page)
-                                               .arg(pages.count()));
-              m_progressDialog->setValue(page);
-              QApplication::processEvents();
+
+              message = tr("Step 2. Exporting pdf document page %1 of %2").arg(page).arg(pages.count());
+              emit messageSig(LOG_INFO_STATUS,message);
+
+              if (Preferences::modeGUI) {
+                  m_progressDialog->setLabelText(message);
+                  m_progressDialog->setValue(page);
+                  QApplication::processEvents();
+              }
 
               if (! exporting()) {
-                      painter.end();
-                  if (Preferences::modeGUI)
-                      m_progressDialog->hide();
-                  emit messageSig(LOG_STATUS,tr("Export to pdf terminated before completion."));
+                  painter.end();
+                  message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
+                                .arg(page).arg(pages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
+                  emit messageSig(LOG_INFO_STATUS,message);
+                  if (Preferences::modeGUI) {
+                      QApplication::restoreOverrideCursor();
+                      m_progressDialog->setBtnToClose();
+                      m_progressDialog->setLabelText(message, true/*alert*/);
+                  }
                   emit setExportingSig(false);
                   restoreCurrentPage();
                   return;
-                }
+              }
 
               // render this page's image to the pdfWriter
               painter.drawImage(QRect(0,0,
@@ -1130,7 +1170,8 @@ void Gui::exportAsPdf()
               }
           }
 
-          m_progressDialog->setValue(pages.count());
+          if (Preferences::modeGUI)
+              m_progressDialog->setValue(pages.count());
 
           // wrap up paint to pdfWriter
           pages.clear();
@@ -1156,7 +1197,14 @@ void Gui::exportAsPdf()
 
       std::sort(printPages.begin(),printPages.end(),lessThan);
 
-      m_progressDialog->setRange(1,printPages.count());
+      message = tr("Export %1 pages to pdf").arg(printPages.count());
+      emit messageSig(LOG_INFO_STATUS,message);
+
+      if (Preferences::modeGUI) {
+          m_progressDialog->setLabelText(message);
+          m_progressDialog->setRange(1,printPages.count());
+          QCoreApplication::processEvents();
+      }
 
       int _pageCount = 0;
 
@@ -1180,24 +1228,34 @@ void Gui::exportAsPdf()
           if (! exporting()) {
               if (exportPdfElements)
                   painter.end();
-              if (Preferences::modeGUI)
-                  m_progressDialog->hide();
-              emit messageSig(LOG_STATUS,tr("Export to pdf terminated before completion."));
+              message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
+                            .arg(_pageCount).arg(printPages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
+              emit messageSig(LOG_INFO_STATUS,message);
+              if (Preferences::modeGUI) {
+                  QApplication::restoreOverrideCursor();
+                  m_progressDialog->setBtnToClose();
+                  m_progressDialog->setLabelText(message, true/*alert*/);
+              }
               emit setExportingSig(false);
               restoreCurrentPage();
               return;
-            }
+          }
 
           displayPageNum = printPage;
 
-          m_progressDialog->setLabelText(tr("%1 %2 (%3 of %4) from the range of %5...")
-                                            .arg(messageIntro)
-                                            .arg(displayPageNum)
-                                            .arg(_pageCount)
-                                            .arg(printPages.count())
-                                            .arg(pageRanges.join(" ")));
-          m_progressDialog->setValue(_pageCount);
-          QApplication::processEvents();
+          message = tr("%1 %2 (%3 of %4) from the range of %5...")
+                       .arg(messageIntro)
+                       .arg(displayPageNum)
+                       .arg(_pageCount)
+                       .arg(printPages.count())
+                       .arg(pageRanges.join(" "));
+          emit messageSig(LOG_INFO_STATUS,message);
+
+          if (Preferences::modeGUI) {
+              m_progressDialog->setLabelText(message);
+              m_progressDialog->setValue(_pageCount);
+              QApplication::processEvents();
+          }
 
           // get size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
@@ -1205,16 +1263,17 @@ void Gui::exportAsPdf()
           adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << tr("%1 %2 (%3 of %4) from the range of %5, size(in pixels) W %6 x H %7, orientation %8, DPI %9")
-                            .arg(messageIntro)                    //1
-                            .arg(displayPageNum)                  //2
-                            .arg(_pageCount)                      //3
-                            .arg(printPages.count())              //4
-                            .arg(pageRanges.join(" "))            //5
-                            .arg(adjPageWidthPx)                  //6
-                            .arg(adjPageHeightPx)                 //7
-                            .arg(ls ? "Landscape" : "Portrait")   //8
-                            .arg(int(resolution()));              //9
+          message = tr("%1 %2 (%3 of %4) from the range of %5, size(in pixels) W %6 x H %7, orientation %8, DPI %9")
+                       .arg(messageIntro)                    //1
+                       .arg(displayPageNum)                  //2
+                       .arg(_pageCount)                      //3
+                       .arg(printPages.count())              //4
+                       .arg(pageRanges.join(" "))            //5
+                       .arg(adjPageWidthPx)                  //6
+                       .arg(adjPageHeightPx)                 //7
+                       .arg(ls ? "Landscape" : "Portrait")   //8
+                       .arg(int(resolution()));              //9
+          emit messageSig(LOG_NOTICE,message);
 
           // initiialize the image
           QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
@@ -1282,7 +1341,8 @@ void Gui::exportAsPdf()
           }
       } // end of step 1. generate page pixmaps
 
-      m_progressDialog->setValue(printPages.count());
+      if (Preferences::modeGUI)
+          m_progressDialog->setValue(printPages.count());
 
       if (exportPdfElements) {
           // wrap up paint to pdfWriter
@@ -1291,21 +1351,31 @@ void Gui::exportAsPdf()
           // step 2. paint generated page pixmaps to the pdfWriter
           painter.begin(&pdfWriter);
 
-          m_progressDialog->setRange(1,pages.count());
+          if (Preferences::modeGUI)
+              m_progressDialog->setRange(1,pages.count());
 
           int page;
           Q_FOREACH (page, pages.keys()) {
-              m_progressDialog->setLabelText(tr("Step 2. Exporting pdf document page %1 of %2")
-                                                .arg(page)
-                                                .arg(pages.count()));
-              m_progressDialog->setValue(page);
-              QApplication::processEvents();
+
+              message = tr("Step 2. Exporting pdf document page %1 of %2").arg(page).arg(pages.count());
+              emit messageSig(LOG_INFO_STATUS,message);
+
+              if (Preferences::modeGUI) {
+                  m_progressDialog->setLabelText(message);
+                  m_progressDialog->setValue(page);
+                  QApplication::processEvents();
+              }
 
               if (! exporting()) {
                   painter.end();
-                  if (Preferences::modeGUI)
-                      m_progressDialog->hide();
-                  emit messageSig(LOG_STATUS,tr("Export to pdf terminated before completion."));
+                  message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
+                                .arg(page).arg(pages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
+                  emit messageSig(LOG_INFO_STATUS,message);
+                  if (Preferences::modeGUI) {
+                      QApplication::restoreOverrideCursor();
+                      m_progressDialog->setBtnToClose();
+                      m_progressDialog->setLabelText(message, true/*alert*/);
+                  }
                   emit setExportingSig(false);
                   restoreCurrentPage();
                   return;
@@ -1324,7 +1394,8 @@ void Gui::exportAsPdf()
               }
           }
 
-          m_progressDialog->setValue(pages.count());
+          if (Preferences::modeGUI)
+              m_progressDialog->setValue(pages.count());
 
           // wrap up paint to pdfWriter
           pages.clear();
@@ -1333,8 +1404,10 @@ void Gui::exportAsPdf()
   }
 
   // hide progress bar
-  if (Preferences::modeGUI)
+  if (Preferences::modeGUI) {
+      QApplication::restoreOverrideCursor();
       m_progressDialog->hide();
+  }
 
   // release Visual Editor
   emit setExportingSig(false);
@@ -1343,41 +1416,62 @@ void Gui::exportAsPdf()
   restoreCurrentPage();
 
   //display completion message
-  QPixmap _icon = QPixmap(":/icons/lpub96.png");
-  box.setWindowIcon(QIcon());
-  box.setIconPixmap (_icon);
-  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-  box.setDefaultButton   (QMessageBox::Yes);
+  if (Preferences::modeGUI) {
 
-  QString title = "<b>" + tr ("Export to pdf completed.") + "</b>";
-  QString text = tr ("Your instruction document has finished exporting.<br><br>%1"
-                     "Do you want to open this document ?<br><br>%2")
-                     .arg(messageList.size() ? tr("<br>There were errors or wanings:<br>%1<br><br>")
-                                                  .arg(messageList.join(" ")) : "")
-                     .arg(QDir::toNativeSeparators(fileName));
+      message = tr("Your document export completed. %1").arg(gui->elapsedTime(exportTimer.elapsed()));
 
-  box.setText (title);
-  box.setInformativeText (text);
+      emit messageSig(LOG_INFO_STATUS,message);
 
-  if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
-      const QString CommandPath = fileName;
-#ifdef Q_OS_WIN
-      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
-#else
-      QProcess *Process = new QProcess(this);
-      Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
-      QStringList arguments = QStringList() << CommandPath;
-      Process->start(UNIX_SHELL, arguments);
-      Process->waitForFinished();
-      if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
-          QErrorMessage *m = new QErrorMessage(this);
-          m->showMessage(tr("Failed to launch PDF document.\n%1\n%2")
-                            .arg(CommandPath).arg(QString(Process->readAllStandardError())));
+      if (messageList.size()) {
+          int errorSet = 0;
+          int warnSet  = 0;
+          QRegExp errorRx(">ERROR<");
+          QRegExp fatalRx(">FATAL<");
+          QRegExp warnRx(">WARNING<");
+          for (const QString &item : messageList)
+              if (item.contains(errorRx) || item.contains(fatalRx))
+                  errorSet++;
+              else if (! warnSet && item.contains(warnRx))
+                  warnSet++;
+          message.append(tr("<br><br>There %1 %2%3 :<br>%4")
+                            .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                            .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
+                            .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
+                            .arg(messageList.join(" ")));
       }
+
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (_icon);
+      box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+      box.setDefaultButton   (QMessageBox::Yes);
+
+      QString title = "<b>" + tr ("Export to pdf completed.") + "</b>";
+      QString text = tr ("%1<br><br>Do you want to open this document ?<br><br>%2").arg(message).arg(QDir::toNativeSeparators(fileName));
+
+      box.setText (title);
+      box.setInformativeText (text);
+
+      if (box.exec() == QMessageBox::Yes) {
+          const QString CommandPath = fileName;
+#ifdef Q_OS_WIN
+          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+          QProcess *Process = new QProcess(this);
+          Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
+          QStringList arguments = QStringList() << CommandPath;
+          Process->start(UNIX_SHELL, arguments);
+          Process->waitForFinished();
+          if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
+              QErrorMessage *m = new QErrorMessage(this);
+              m->showMessage(tr("Failed to launch PDF document.\n%1\n%2")
+                                .arg(CommandPath).arg(QString(Process->readAllStandardError())));
+          }
 #endif
-    } else {
-      emit messageSig(LOG_STATUS, tr("Export to pdf completed!"));
-    }
+      }
+  } else {
+      emit messageSig(LOG_INFO_STATUS, tr("Export to pdf completed! %1").arg(gui->elapsedTime(exportTimer.elapsed())));
+  }
 }
 
 void Gui::exportAs(const QString &_suffix)
