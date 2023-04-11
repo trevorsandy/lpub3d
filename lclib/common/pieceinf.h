@@ -158,7 +158,7 @@ public:
 		return (m_strDescription[0] == '~');
 	}
 
-/*** LPub3D Mod 137 - part type check ***/
+/*** LPub3D Mod - part type check ***/
 	bool IsPartType () const
 	{
 		return (m_iPartType != 0);

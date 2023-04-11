@@ -19,6 +19,8 @@
 #ifndef NAME_H
 #define NAME_H
 
+#include "QString"
+
 class Gui;
 extern Gui *gui;
 
@@ -59,7 +61,6 @@ struct LineHighlight {
         line(_line), action(_action) {}
 };
 
-class QString;
 class QAction;
 struct Action {
     QString id;
@@ -67,6 +68,37 @@ struct Action {
     Action() : action(nullptr) {}
     Action(const QString &_id, QAction *_action) :
         id(_id), action(_action) {}
+};
+
+struct LoadStatus {
+    bool const isMpd;
+    int const loadedLines;
+    int const loadedSteps;
+    int const subFileCount;
+    int const partCount;
+    int const uniquePartCount;
+    QString const &modelFile;
+    QString const &elapsedTime;
+    QStringList const &loadedItems;
+    LoadStatus(bool const _isMpd,
+               int const _loadedLines,
+               int const _loadedSteps,
+               int const _subFileCount,
+               int const _partCount,
+               int const _uniquePartCount,
+               QString const &_modelFile,
+               QString const &_elapsedTime,
+               QStringList const &_loadedItems)
+        : isMpd(_isMpd)
+        , loadedLines(_loadedLines)
+        , loadedSteps(_loadedSteps)
+        , subFileCount(_subFileCount)
+        , partCount(_partCount)
+        , uniquePartCount(_uniquePartCount)
+        , modelFile(_modelFile)
+        , elapsedTime(_elapsedTime)
+        , loadedItems(_loadedItems)
+    {}
 };
 
 enum RemoveLPubFormatType { RLPF_NONE = -1, RLPF_DOCUMENT, RLPF_SUBMODEL, RLPF_PAGE, RLPF_STEP, RLPF_CALLOUT, RLPF_BOM };
@@ -77,7 +109,7 @@ enum CamFlag { DefFoV, DefZNear, DefZFar };
 enum NativeRenderType { NATIVE_VIEW, NATIVE_IMAGE, NATIVE_EXPORT };
 enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum DividerType { StepDivider, RangeDivider, NoDivider };
-enum ShowLoadMsgType { NEVER_SHOW, SHOW_ERROR, SHOW_WARNING, SHOW_MESSAGE, ALWAYS_SHOW };
+enum ShowLoadMsgType { NEVER_SHOW, ALWAYS_SHOW, SHOW_MESSAGE, SHOW_WARNING, SHOW_ERROR };
 enum MissingHeader { NoneMissing, NameMissing, AuthorMissing, BothMissing };
 enum LDrawFileRegExp { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, INC_RX, DES_RX, LDG_RX, LDC_RX };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
@@ -118,18 +150,20 @@ enum TraverseRc { HitNothing,
                   HitAbortProcess
 };
 enum LoadMsgType { VALID_LOAD_MSG,
-                   MPD_SUBMODEL_LOAD_MSG,
-                   LDR_SUBMODEL_LOAD_MSG,
-                   MISSING_PART_LOAD_MSG,
-                   EMPTY_SUBMODEL_LOAD_MSG,
-                   INCLUDE_FILE_LOAD_MSG,
                    INLINE_PART_LOAD_MSG,
+                   INLINE_GENERATED_PART_LOAD_MSG,
                    INLINE_PRIMITIVE_LOAD_MSG,
                    INLINE_SUBPART_LOAD_MSG,
+                   MISSING_PART_LOAD_MSG,
                    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
                    PRIMITIVE_LOAD_MSG,
                    SUBPART_LOAD_MSG,
                    */
+                   MPD_SUBMODEL_LOAD_MSG,
+                   LDR_SUBFILE_LOAD_MSG,
+                   INCLUDE_FILE_LOAD_MSG,
+                   EMPTY_SUBMODEL_LOAD_MSG,
+                   BAD_INCLUDE_LOAD_MSG,
                    ALL_LOAD_MSG
 };
 enum ActionModuleType { NO_ACTION,                 //  0
@@ -247,6 +281,7 @@ enum LDrawUnofficialFileType {
     UNOFFICIAL_UNKNOWN,
     UNOFFICIAL_SUBMODEL = UNOFFICIAL_UNKNOWN,
     UNOFFICIAL_PART,
+    UNOFFICIAL_GENERATED_PART,
     UNOFFICIAL_SUBPART,
     UNOFFICIAL_PRIMITIVE,
     UNOFFICIAL_SHORTCUT,
@@ -726,6 +761,7 @@ enum ThemeColorType {
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
 #define VIEW_IMPORT_TOOLBAR_KEY                 "ViewImportToolbar"
 #define VIEW_EXPORT_TOOLBAR_KEY                 "ViewExportToolbar"
+#define VIEW_LOAD_STATUS_TOOLBAR_KEY            "LoadStatusToolbar"
 #define VIEW_CACHE_TOOLBAR_KEY                  "ViewCacheToolbar"
 #define VIEW_SETUP_TOOLBAR_KEY                  "ViewSetupToolbar"
 #define VIEW_EDIT_TOOLBAR_KEY                   "ViewEditToolbar"

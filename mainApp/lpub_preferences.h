@@ -103,6 +103,7 @@ class Preferences
     static void removeBuildModFormatPreference(bool);
     static void removeChildSubmodelFormatPreference(bool);
     static void useSystemEditorPreference(bool);
+    static void recountPartsPreference(bool);
     static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
@@ -387,6 +388,7 @@ class Preferences
     static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
     static bool    useSystemEditor;
+    static bool    recountParts;
     static bool    removeBuildModFormat;
     static bool    removeChildSubmodelFormat;
     static bool    editorBufferedPaging;

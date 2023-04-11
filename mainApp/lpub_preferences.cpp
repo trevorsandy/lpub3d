@@ -524,6 +524,7 @@ bool    Preferences::customSceneGuideColor      = false;
 
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
+bool    Preferences::recountParts               = false;
 bool    Preferences::removeBuildModFormat       = false;
 bool    Preferences::removeChildSubmodelFormat  = false;
 bool    Preferences::editorBufferedPaging       = false;
@@ -3994,6 +3995,13 @@ void Preferences::userInterfacePreferences()
       useSystemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,useSystemEditorKey)).toBool();
   }
 
+  QString const recountPartsKey("RecountParts");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,recountPartsKey))) {
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,recountPartsKey),recountParts);
+  } else {
+      recountParts = Settings.value(QString("%1/%2").arg(SETTINGS,recountPartsKey)).toBool();
+  }
+
   QString const removeBuildModFormatKey("RemoveBuildModFormat");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,removeBuildModFormatKey))) {
       removeBuildModFormat = false;
@@ -4494,6 +4502,15 @@ void Preferences::useSystemEditorPreference(bool i)
   QVariant uValue(i);
   QString const useSystemEditorKey("UseSystemEditor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemEditorKey),uValue);
+}
+
+void Preferences::recountPartsPreference(bool i)
+{
+  QSettings Settings;
+  recountParts = i;
+  QVariant uValue(i);
+  QString const recountPartsKey("RecountParts");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,recountPartsKey),uValue);
 }
 
 bool Preferences::isBlender28OrLater()

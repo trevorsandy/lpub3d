@@ -78,9 +78,11 @@
         <file alias="clearcsicache.png">resources/clearcsicache.png</file>
         <file alias="clearcustompartcache.png">resources/clearcustompartcache.png</file>
         <file alias="clearplicache.png">resources/clearplicache.png</file>
+        <file alias="clearselection.png">resources/clearselection.png</file>
         <file alias="clearsmicache.png">resources/clearsmicache.png</file>
         <file alias="cleartempcache.png">resources/cleartempcache.png</file>
         <file alias="closemodelfile.png">resources/closemodelfile.png</file>
+        <file alias="collapseselection.png">resources/collapseselection.png</file>
         <file alias="command16.png">resources/command16.png</file>
         <file alias="command32.png">resources/command32.png</file>
         <file alias="contentspage.png">resources/contentspage.png</file>
@@ -131,6 +133,7 @@
         <file alias="emailproblempackage.png">resources/emailproblempackage.png</file>
         <file alias="enablegroupmove.png">resources/enablegroupmove.png</file>
         <file alias="exit.png">resources/exit.png</file>
+        <file alias="expandselection.png">resources/expandselection.png</file>
         <file alias="exportas.png">resources/exportas.png</file>
         <file alias="exportbmp.png">resources/exportbmp.png</file>
         <file alias="exportjpeg.png">resources/exportjpeg.png</file>
@@ -151,6 +154,7 @@
         <file alias="generatecolourparts.png">resources/generatecolourparts.png</file>
         <file alias="gotoline.png">resources/gotoline.png</file>
         <file alias="gplv3.png">resources/gplv3.png</file>
+        <file alias="groupitems.png">resources/groupitems.png</file>
         <file alias="hidepartannotation.png">resources/hidepartannotation.png</file>
         <file alias="highlightstep.png">resources/highlightstep.png</file>
         <file alias="highlightstepsetup.png">resources/highlightstepsetup.png</file>
@@ -286,6 +290,7 @@
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="underline.png">resources/underline.png</file>
+        <file alias="ungroupitems.png">resources/ungroupitems.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>
         <file alias="unrotate.png">resources/unrotate.png</file>
         <file alias="update.png">resources/update.png</file>

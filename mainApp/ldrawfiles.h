@@ -286,7 +286,7 @@ class LDrawFile {
     int  descriptionLine;
     int  buildModLevel;
 
-    void loadIncludeFile(const QString &mcFileName);
+    bool loadIncludeFile(const QString &mcFileName);
     void processMetaCommand(const QStringList &tokens);
   
   protected:
@@ -307,7 +307,7 @@ class LDrawFile {
       _buildModRendered.clear();
       _includeFileList.clear();
       _buildModList.clear();
-      _loadedParts.clear();
+      _loadedItems.clear();
     }
 
     static QStringList          _subFileOrder;
@@ -316,7 +316,7 @@ class LDrawFile {
     static QStringList          _buildModList;
     static QList<HiarchLevel*>  _currentLevels;
     static QList<HiarchLevel*>  _allLevels;
-    static QStringList          _loadedParts;
+    static QStringList          _loadedItems;
     static QString              _file;
     static QString              _description;
     static QString              _name;
@@ -326,6 +326,7 @@ class LDrawFile {
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
     static int                  _uniquePartCount;
+    static int                  _loadIssues;
     static bool                 _loadAborted;
     static bool                 _loadBuildMods;
     static bool                 _loadUnofficialParts;
@@ -457,6 +458,7 @@ class LDrawFile {
             bool           countPage = false);
     void addCustomColorParts(const QString &mcFileName, bool autoAdd = false);
     int instances(const QString &fileName, bool mirrored);
+    void recountParts();
     void countParts(const QString &fileName);
     void countInstances();
     void countInstances(

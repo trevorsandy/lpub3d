@@ -269,7 +269,7 @@ public:
     FindPageOptions(
             int             &_pageNum,
             Where           &_current,
-            PageSizeData      &_pageSize,
+            PageSizeData    &_pageSize,
             FindPageFlags   &_flags,
             QList<SubmodelStack> &_modelStack,
 
@@ -299,7 +299,7 @@ public:
     {  }
     int            &pageNum;
     Where          &current;
-    PageSizeData     &pageSize;
+    PageSizeData   &pageSize;
     FindPageFlags  &flags;
     QList<SubmodelStack> &modelStack;
     bool            pageDisplayed;

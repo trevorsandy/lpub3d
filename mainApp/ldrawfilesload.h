@@ -32,6 +32,8 @@
 #include <QItemSelection>
 #include <QMenu>
 
+#include "declarations.h"
+
 namespace Ui {
 class LdrawFilesLoadDialog;
 }
@@ -50,18 +52,71 @@ class LdrawFilesLoad : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LdrawFilesLoad(const QStringList &loadItems, bool menuAction, QWidget *parent = nullptr);
+    explicit LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QWidget *parent = nullptr);
     ~LdrawFilesLoad();
-    static int showLoadMessages(const QStringList &stringList,bool menuAction);
+    static QDialog::DialogCode showLoadStatus(const LoadStatus &loadStatus, bool menuAction);
+    bool discardLoad() { return dl; }
 private slots:
     void getButton(QAbstractButton *button);
-    void keyPressEvent(QKeyEvent * event);
-    void copy();
+    void enableActions();
+    void ungroupItems();
+    void groupItems();
+    int countItems(const LoadMsgType lmt, const QString item = QString());
+    void copy() const;
 private:
+    void createActions();
+    void summary() const;
+    void populate(bool groupItems = true);
+
+    enum StatusEnc {MSG_TYPE, ITEM, DESC};
     Ui::LdrawFilesLoadDialog *ui;
     LdrawFilesLoadModel *lm;
-    QMenu *contextMenu;
+
+    bool dl;
+    bool const isAction;
+    bool const isMpd;
+    int const loadedLines;
+    int const loadedSteps;
+    int const subFileCount;
+    int const partCount;
+    int const uniquePartCount;
+
+    QString const &modelFile;
+    QString const &elapsedTime;
+    QStringList const &loadedItems;
+
+    int mpc;
+    int vpc;
+    int msmc;
+    int lsmc;
+    int ipc;
+    int igpc;
+    int ispc;
+    int ippc;
+    int esmc;
+    int bifc;
+    int ifc;
+    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
+    int ppc;
+    int spc;
+    */
+
+    QStandardItem *rootNode;
+
+    QColor includeColor;
+    QBrush includeBrush;
+    QColor warningColor;
+    QBrush warningBrush;
+    QColor errorColor;
+    QBrush errorBrush;
+
+    QAction *selAllAct;
     QAction *copyAct;
+    QAction *deselectAct;
+    QAction *expandAct;
+    QAction *collapseAct;
+    QAction *groupAct;
+    QAction *ungroupAct;
 };
 
 #endif // LDRAWFILESLOAD_H

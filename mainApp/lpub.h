@@ -1470,6 +1470,7 @@ public slots:
   void groupActionTriggered();
   void useImageSize();
   void useSystemEditor();
+  void recountParts();
   void autoCenterSelection();
   void resetViewerImage(bool=false);
 
@@ -1833,7 +1834,7 @@ private slots:
     void editBLCodes();
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
-    void viewLoadStatus();
+    void loadStatus();
 
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();
@@ -1943,6 +1944,7 @@ private slots:
 
     void importToolBarVisibilityChanged(bool);
     void exportToolBarVisibilityChanged(bool);
+    void loadStatusToolBarVisibilityChanged(bool);
     void cacheToolBarVisibilityChanged(bool);
     void setupToolBarVisibilityChanged(bool);
     void editToolBarVisibilityChanged(bool);

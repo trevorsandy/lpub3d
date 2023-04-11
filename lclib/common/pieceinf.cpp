@@ -32,6 +32,9 @@ PieceInfo::PieceInfo()
 /*** LPub3D Mod end ***/
 	mFileName[0] = 0;
 	m_strDescription[0] = 0;
+/*** LPub3D Mod - part type check ***/
+	m_iPartType = 0;
+/*** LPub3D Mod end ***/
 }
 
 PieceInfo::~PieceInfo()
@@ -155,7 +158,7 @@ void PieceInfo::CreateProject(Project* Project, const char* PieceName)
 		}
 		mModel = nullptr;
 	}
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 }
 
 /*** LPub3D Mod - project piece ***/
@@ -382,21 +385,21 @@ void PieceInfo::AddRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, i
 /*** LPub3D Mod end ***/
 {
 	if (mMesh || IsPlaceholder())
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - true fade ***/
 		Scene->AddMesh(mMesh, WorldMatrix, ColorIndex, RenderMeshState, LPubFade);
 /*** LPub3D Mod end ***/
 
 	if (IsModel())
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - true fade ***/
 		mModel->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive, LPubFade);
-/*** LPub3D Mod end ***/		
+/*** LPub3D Mod end ***/
 	else if (IsProject())
 	{
 		const lcModel* const Model = mProject->GetMainModel();
 		if (Model)
-/*** LPub3D Mod - true fade ***/		
+/*** LPub3D Mod - true fade ***/
 			Model->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive, LPubFade);
-/*** LPub3D Mod end ***/			
+/*** LPub3D Mod end ***/
 	}
 }
 

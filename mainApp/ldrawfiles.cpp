@@ -160,7 +160,7 @@ QStringList LDrawFile::_subFileOrder;
 QStringList LDrawFile::_subFileOrderNoUnoff;
 QStringList LDrawFile::_includeFileList;
 QStringList LDrawFile::_buildModList;
-QStringList LDrawFile::_loadedParts;
+QStringList LDrawFile::_loadedItems;
 QString LDrawFile::_file           = "";
 QString LDrawFile::_description    = PUBLISH_DESCRIPTION_DEFAULT;
 QString LDrawFile::_name           = "";
@@ -170,6 +170,7 @@ QString LDrawFile::_modelFile      = "";
 int     LDrawFile::_partCount      = 0;
 int     LDrawFile::_savedLines     = 0;
 int     LDrawFile::_uniquePartCount= 0;
+int     LDrawFile::_loadIssues     = 0;
 qint64  LDrawFile::_elapsed        = 0;
 bool    LDrawFile::_currFileIsUTF8 = false;
 bool    LDrawFile::_loadAborted    = false;
@@ -281,7 +282,7 @@ void LDrawFile::empty()
   _buildModRendered.clear();
   _buildModList.clear();
   _includeFileList.clear();
-  _loadedParts.clear();
+  _loadedItems.clear();
   _name.clear();
   _author.clear();
   _file.clear();
@@ -292,6 +293,7 @@ void LDrawFile::empty()
   _loadBuildMods         = false;
   _loadUnofficialParts   = true;
   _hasUnofficialParts    = false;
+  _loadIssues            =  0;
   _elapsed               =  0;
   _partCount             =  0;
   _uniquePartCount       =  0;
@@ -1295,6 +1297,8 @@ int LDrawFile::loadFile(const QString &fileName)
 
     topLevelModel = true;
 
+    _modelFile = fileInfo.fileName();
+
     QFuture<void> loadFuture = QtConcurrent::run([this, fileInfo, type]() {
         if (type == MPD_FILE)
             loadMPDFile(fileInfo.absoluteFilePath());
@@ -1310,11 +1314,12 @@ int LDrawFile::loadFile(const QString &fileName)
 
     buildModLevel = 0 /*false*/;
 
-    QFuture<void> countPartsFuture = QtConcurrent::run([this](){countParts(topLevelFile()); });
+    QFuture<void> countPartsFuture = QtConcurrent::run([this](){ countParts(topLevelFile()); });
     countPartsFuture.waitForFinished();
 
+    _loadedItems.sort(Qt::CaseInsensitive);
+
     _elapsed = t.elapsed();
-    _modelFile = fileInfo.fileName();
 
     const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique %3 %4. Total %5 %6. %7")
                                             .arg(type == MPD_FILE ? "MPD" : "LDR")
@@ -1340,115 +1345,54 @@ int LDrawFile::loadFile(const QString &fileName)
 
 int LDrawFile::loadStatus(bool menuAction)
 {
-    auto getCount = [] (const LoadMsgType lmt)
-    {
-        if (lmt == ALL_LOAD_MSG)
-            return _loadedParts.size();
-
-        bool ok;
-        int count = 0;
-
-        for (const QString &part : _loadedParts)
-        {
-            int mt = QString(part[0]).toInt(&ok);
-            if (ok && static_cast<LoadMsgType>(mt) == lmt)
-                count++;
-        }
-
-        return count;
-    };
-
-    int mpc = getCount(MISSING_PART_LOAD_MSG);
-    int esm = getCount(EMPTY_SUBMODEL_LOAD_MSG);
-    int inf = getCount(INCLUDE_FILE_LOAD_MSG);
-    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
-    int ppc = getCount(PRIMITIVE_LOAD_MSG);
-    int spc = getCount(SUBPART_LOAD_MSG);
-    */
-
     bool showLoadStatus = false;
-    if (!menuAction)
+    if (!menuAction) {
+        ShowLoadMsgType loadIssues = static_cast<ShowLoadMsgType>(_loadIssues);
         switch (Preferences::ldrawFilesLoadMsgs)
         {
         case NEVER_SHOW:
             break;
-        case SHOW_ERROR:
-            showLoadStatus = mpc;
-            break;
-        case SHOW_WARNING:
-            showLoadStatus = esm || inf /*|| ppc || spc*/;
-            break;
-        case SHOW_MESSAGE:
-            showLoadStatus = mpc || esm /*|| ppc || spc*/;
-            break;
         case ALWAYS_SHOW:
             showLoadStatus = true;
             break;
+        case SHOW_ERROR:
+            showLoadStatus = loadIssues == SHOW_ERROR;
+            break;
+        case SHOW_WARNING:
+            showLoadStatus = loadIssues == SHOW_WARNING;
+            break;
+        case SHOW_MESSAGE:
+            showLoadStatus = loadIssues > SHOW_MESSAGE;
+            break;
         }
+    } else if (Preferences::recountParts) {
+        emit lpub->messageSig(LOG_STATUS, QObject::tr("Recounting LDraw parts..."));
+        QFuture<void> recountPartsFuture = QtConcurrent::run([this](){ recountParts(); });
+        recountPartsFuture.waitForFinished();
+    }
 
     if (showLoadStatus || menuAction) {
-        int vpc  = getCount(VALID_LOAD_MSG);
-        int msmc = getCount(MPD_SUBMODEL_LOAD_MSG);
-        int lsmc = getCount(LDR_SUBMODEL_LOAD_MSG);
-        int ipc  = getCount(INLINE_PART_LOAD_MSG);
-        int ippc = getCount(INLINE_PRIMITIVE_LOAD_MSG);
-        int ispc = getCount(INLINE_SUBPART_LOAD_MSG);
-        int ls   = loadedSteps();
-        int apc  = _partCount;
-        int upc  = _uniquePartCount;
-        bool delta = apc != vpc;
+        QString const elapsedTime(gui->elapsedTime(_elapsed));
 
-        _loadedParts << QObject::tr("Loaded LDraw %1 model file <b>%2</b>.%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20<br>")
-                            /* 01 */ .arg(isMpd() ? "<b>MPD</b>" : "<b>LDR</b>")
-                            /* 02 */ .arg(_modelFile)
-                            /* 03 */ .arg(delta ? QObject::tr("<br>Parts count:            <b>%1</b>").arg(apc) : "")
-                            /* 04 */ .arg(mpc   ? QObject::tr("<span style=\"color:red\">"
-                                                           "<br>Missing parts:             <b>%1</b></span>").arg(mpc) : "")
-                            /* 05 */ .arg(esm   ? QObject::tr("<span style=\"color:#8B8000\">"
-                                                           "<br>Empty submodels:           <b>%1</b></span>").arg(esm) : "")
-                            /* 06 */ .arg(inf   ? QObject::tr("<span style=\"color:#8B8000\">"
-                                                           "<br>Include file:              <b>%1</b></span>").arg(inf) : "")
-                            /* 07 */ .arg(vpc   ? QObject::tr("<br>Total validated parts:  <b>%1</b>").arg(vpc)  : "")
-                            /* 08 */ .arg(upc   ? QObject::tr("<br>Unique validated parts: <b>%1</b>").arg(upc)  : "")
-                            /* 09 */ .arg(msmc  ? QObject::tr("<br>Submodels:              <b>%1</b>").arg(msmc) : "")
-                            /* 10 */ .arg(lsmc  ? QObject::tr("<br>Submodels:              <b>%1</b>").arg(lsmc) : "")
-                            /* 11 */ .arg(ipc   ? QObject::tr("<br>Inline parts:           <b>%1</b>").arg(ipc)  : "")
-                            /* 12 */ .arg(ippc  ? QObject::tr("<br>Inline primitives:      <b>%1</b>").arg(ippc) : "")
-                            /* 13 */ .arg(ispc  ? QObject::tr("<br>Inline subparts:        <b>%1</b>").arg(ispc) : "")
-                            /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
-                                     .arg(ppc   ? QObject::tr("<br>Primitive parts:        <b>%1</b>").arg(ppc)  : "")
-                                     .arg(spc   ? QObject::tr("<br>Subparts:               <b>%1</b>").arg(spc)  : "")
-                            */
-                            /* 14 */ .arg(ls    ? QObject::tr("<br>Loaded steps:           <b>%1</b>").arg(loadedSteps()) : "")
-                            /* 15 */ .arg(        QObject::tr("<br>Loaded subfiles:        <b>%1</b>").arg(_subFileOrder.size()))
-                            /* 16 */ .arg(        QObject::tr("<br>Loaded lines:           <b>%1</b>").arg(loadedLines()))
-                            /* 17 */ .arg(QString("<br>%1").arg(gui->elapsedTime(_elapsed)))
-                            /* 18 */ .arg(mpc   ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
-                                                              "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
-                                                              "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
-                                                   .arg(mpc > 1 ? QObject::tr("parts") : QObject::tr("part"))          /* 01 */
-                                                   .arg(mpc > 1 ? QObject::tr("were") :  QObject::tr("was"))           /* 02 */
-                                                   .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)                                 /* 03 */
-                                                   .arg(VER_LDRAW_OFFICIAL_ARCHIVE)                                    /* 04 */
-                                                   .arg(mpc > 1 ? QObject::tr("these are") : QObject::tr("this is a")) /* 05 */
-                                                   .arg(mpc > 1 ? QObject::tr("their") :     QObject::tr("its")) : "") /* 07 */
-                            /* 19 */ .arg(esm   ? QObject::tr("<br><br>Empty %1 found. These submodels were not added to the model repository")
-                                                   .arg(esm > 1 ? QObject::tr("submodels") : QObject::tr("submodel")) : "")
-                            /* 20 */ .arg(inf   ? QObject::tr("<br><br>Include file %1 detected.")
-                                                   .arg(inf > 1 ? QObject::tr("warnings") : QObject::tr("warning")) : "");
+        LoadStatus loadStatus(
+            isMpd(),
+            loadedLines(),
+            loadedSteps(),
+            subFileOrderSize(),
+            _partCount,
+            _uniquePartCount,
+            _modelFile,
+            elapsedTime,
+            _loadedItems);
 
-        int response = LdrawFilesLoad::showLoadMessages(_loadedParts, menuAction);
+        QDialog::DialogCode response = LdrawFilesLoad::showLoadStatus(loadStatus, menuAction);
 
-        if (!menuAction) {
-            if (response == QDialog::Rejected) {
-                if (mpc || inf /*|| ppc || spc*/) {
-                    empty();
-                    _loadAborted = true;
-                    return 1;
-                }
-            } // load message rejected
+        if (response == QDialog::Rejected) {
+            empty();
+            _loadAborted = true;
+             return 1;
         }
-    } // show load message
+    }
     else
     {
         return 2;
@@ -1457,22 +1401,25 @@ int LDrawFile::loadStatus(bool menuAction)
     return 0;
 }
 
-void LDrawFile::loadIncludeFile(const QString &mcFileName)
+bool LDrawFile::loadIncludeFile(const QString &mcFileName)
 {
+    QFileInfo fileInfo(mcFileName);
+
     QFile file(mcFileName);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        emit lpub->messageSig(LOG_ERROR, QObject::tr("Cannot read include file %1<br>%2")
-                                                     .arg(mcFileName)
-                                                     .arg(file.errorString()));
-        return;
+        const QString message = QObject::tr("Cannot read include file %1.<br>%2").arg(mcFileName).arg(file.errorString());
+        const QString statusEntry = QObject::tr("%1|%2|%3.")
+                                        .arg(BAD_INCLUDE_LOAD_MSG).arg(fileInfo.fileName()).arg(QString(message).replace("<br>",". "));
+        loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
+        return false;
     }
-
-    QFileInfo fileInfo(mcFileName);
 
     emit lpub->messageSig(LOG_TRACE, QObject::tr("Loading include file '%1'...").arg(mcFileName));
 
     QTextStream in(&file);
     in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+
+    QRegExp subRx("^0\\s+!?(?:LPUB)*\\s?(PLI BEGIN SUB|PART BEGIN IGN|PLI END|PART END)[^\n]*");
 
     auto isValidLine = [&] (const int lineNumber, const QString &smLine) {
         if (smLine.isEmpty())
@@ -1485,25 +1432,23 @@ void LDrawFile::loadIncludeFile(const QString &mcFileName)
         case '4':
         case '5':
             {
-                const QString line = QObject::tr("No. %1 - [%2]").arg(lineNumber).arg(smLine);
                 const QString message = QObject::tr("Invalid include file '%1' line %2.<br>"
-                                                    "Part lines (type 1 to 5) are ignored in include file.")
-                                                    .arg(fileInfo.fileName()).arg(line);
-                const QString statusEntry = QObject::tr("%1|%2|Invalid include file line %3 (type 1 - 5).")
-                                                        .arg(INCLUDE_FILE_LOAD_MSG).arg(fileInfo.fileName()).arg(line);
-                loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
+                                                    "Type 1 to 5 lines are ignored in include file.")
+                                                    .arg(fileInfo.fileName()).arg(lineNumber);
+                const QString statusEntry = QObject::tr("%1|%2|Invalid include file line %3 (type 1 - 5 ignored).")
+                                                        .arg(BAD_INCLUDE_LOAD_MSG).arg(fileInfo.fileName()).arg(lineNumber);
+                loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
             }
             return false;
         case '0':
-            if (smLine.contains(QLatin1String("PLI BEGIN SUB")))
+            if (smLine.contains(subRx))
             {
-                const QString line = QObject::tr("No. %1 - [%2]").arg(lineNumber).arg(smLine);
                 const QString message = QObject::tr("Invalid include file '%1' line %2.<br>"
-                                                    "Substitute part meta commands are not supported in include file.")
-                                            .arg(fileInfo.fileName()).arg(line);
-                const QString statusEntry = QObject::tr("%1|%2|Invalid include file line %3 (Substitute part).")
-                                                .arg(INCLUDE_FILE_LOAD_MSG).arg(fileInfo.fileName()).arg(line);
-                loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
+                                                    "Substitute meta commands are ignored in include file.")
+                                            .arg(fileInfo.fileName()).arg(lineNumber);
+                const QString statusEntry = QObject::tr("%1|%2|Invalid include file line %3 (Substitutes ignored).")
+                                                .arg(BAD_INCLUDE_LOAD_MSG).arg(fileInfo.fileName()).arg(lineNumber);
+                loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
                 return false;
             }
             return true;
@@ -1538,6 +1483,8 @@ void LDrawFile::loadIncludeFile(const QString &mcFileName)
                fileInfo.absoluteFilePath(),
                fileInfo.completeBaseName());
     }
+
+    return true;
 }
 
 void LDrawFile::processMetaCommand(const QStringList &tokens)
@@ -1641,8 +1588,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         return;
     }
 
-    int subfileIndx;
-    bool alreadyLoaded;
+    int subfileIndx          = -1;
+    int lineIndx             = -1;
+    bool alreadyLoaded       = false;
     bool subfileFound        = false;
     bool partHeaderFinished  = false;
     bool stagedSubfilesFound = externalFile;
@@ -1711,7 +1659,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
     QDateTime datetime = QFileInfo(fileName).lastModified();
 
-    for (int lineIndx = 0; lineIndx < lineCount; lineIndx++) {
+    for (lineIndx = 0; lineIndx < lineCount; lineIndx++) {
 
         smLine = stagedContents.at(lineIndx).trimmed();
 
@@ -1816,15 +1764,20 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
                 // Check for include file
                 if (smLine.contains(_fileRegExp[INC_RX])) {
-                    const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
-                    if (!filePath.isEmpty()) {
-                        loadIncludeFile(filePath);
+                    const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
+                    QFileInfo inclFileInfo(inclFilePath);
+                    if (inclFileInfo.isReadable()) {
+                        if (loadIncludeFile(inclFilePath)) {
+                            const QString statusEntry = QObject::tr("%1|%2|MPD Include file %2 (file: %3, line: %4)")
+                                              .arg(INCLUDE_FILE_LOAD_MSG).arg(inclFileInfo.fileName()).arg(subfileName).arg(lineIndx + 1);
+                            loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), QObject::tr("Subfile [%1] is a MPD Include file"));
+                        }
                     } else {
-                        QFileInfo fileInfo(filePath);
-                        const QString message = QObject::tr("MPD include file '%1' was not found.").arg(filePath);
-                        const QString statusEntry = QObject::tr("%1|%2|MPD include file '%2' was not found.")
-                                                                .arg(INCLUDE_FILE_LOAD_MSG).arg(fileInfo.fileName());
-                        loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
+                        const QString message = QObject::tr("MPD Include file '%1' was not found (file: %2, line: %3).")
+                                                            .arg(inclFilePath).arg(fileInfo.fileName()).arg(lineIndx + 1);
+                        const QString statusEntry = QObject::tr("%1|%2|MPD Include file '%2' was not found (subfile: %3, line: %4).")
+                                                                .arg(BAD_INCLUDE_LOAD_MSG).arg(inclFileInfo.fileName()).arg(subfileName).arg(lineIndx + 1);
+                        loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), message);
                     }
                 }
 
@@ -1882,10 +1835,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             if (! subfileName.isEmpty()) {
                 if (! alreadyLoaded) {
                     if (contents.isEmpty()) {
-                        const QString message = QObject::tr("MPD %1 '%2' is empty and was not loaded.")
-                                                            .arg(fileType()).arg(subfileName);
-                        const QString statusEntry = QObject::tr("%1|%2|MPD %3 is empty and was not loaded.")
-                                                                .arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName).arg(fileType());
+                        const QString message = QObject::tr("MPD %1 '%2' is empty and was not loaded (file: %3, line: %4).")
+                                                            .arg(fileType()).arg(subfileName).arg(fileInfo.fileName()).arg(lineIndx + 1);
+                        const QString statusEntry = QObject::tr("%1|%2|%3").arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName).arg(message);
                         loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
                     } else {
                         insert(subfileName,
@@ -1973,10 +1925,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded").arg(fileType()).arg(subfileName));
         } else {
             if (contents.isEmpty()) {
-                const QString message = QObject::tr("MPD %1 '%2' is empty and was not loaded.")
-                                                    .arg(fileType()).arg(subfileName);
-                const QString statusEntry = QObject::tr("%1|%2|MPD %3 is empty and was not loaded.")
-                                                        .arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName).arg(fileType());
+                const QString message = QObject::tr("MPD %1 '%2' is empty and was not loaded (file: %3, line: %4).")
+                                                    .arg(fileType()).arg(subfileName).arg(fileInfo.fileName()).arg(lineIndx + 1);
+                const QString statusEntry = QObject::tr("%1|%2|%3").arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName).arg(message);
                 loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
             } else {
                 insert(subfileName,
@@ -2157,8 +2108,9 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             return;
         }
 
-        int subfileIndx;
-        bool alreadyLoaded;
+        int subfileIndx          = -1;
+        int lineIndx             = -1;
+        bool alreadyLoaded       = false;
         bool subfileFound        = false;
         bool partHeaderFinished  = false;
         bool sosf = false;
@@ -2238,7 +2190,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
         /* read it a second time to find submodels and check for completeness*/
 
-        for (int lineIndx = 0; lineIndx < lineCount; lineIndx++) {
+        for (lineIndx = 0; lineIndx < lineCount; lineIndx++) {
 
             smLine = stagedContents.at(lineIndx).trimmed();
 
@@ -2370,15 +2322,20 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
                     // Check for include file
                     if (smLine.contains(_fileRegExp[INC_RX])) {
-                        const QString filePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
-                        if (!filePath.isEmpty()) {
-                            loadIncludeFile(filePath);
+                        const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].cap(1));
+                        QFileInfo inclFileInfo(inclFilePath);
+                        if (inclFileInfo.isReadable()) {
+                            if (loadIncludeFile(inclFilePath)) {
+                                const QString statusEntry = QObject::tr("%1|%2|LDR Include file %2 (file: %3, line: %4)")
+                                                                .arg(INCLUDE_FILE_LOAD_MSG).arg(inclFileInfo.fileName()).arg(subfileName).arg(lineIndx + 1);
+                                loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), QObject::tr("Subfile [%1] is a LDR Include file"));
+                            }
                         } else {
-                            QFileInfo fileInfo(filePath);
-                            const QString message = QObject::tr("LDR include file '%1' was not found.").arg(filePath);
-                            const QString statusEntry = QObject::tr("%1|%2|MPD include file '%2' was not found.")
-                                                                    .arg(INCLUDE_FILE_LOAD_MSG).arg(fileInfo.fileName());
-                            loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, fileInfo.fileName(), message);
+                            const QString message = QObject::tr("LDR Include file '%1' was not found (file: %2, line: %3).")
+                                                        .arg(inclFilePath).arg(fileInfo.fileName()).arg(lineIndx + 1);
+                            const QString statusEntry = QObject::tr("%1|%2|LDR Include file '%2' was not found (subfile: %3, line: %4).")
+                                                            .arg(BAD_INCLUDE_LOAD_MSG).arg(inclFileInfo.fileName()).arg(subfileName).arg(lineIndx + 1);
+                            loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), message);
                         }
                     }
 
@@ -2489,15 +2446,20 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             if (LDrawFile::contains(subfileName)) {
                 emit gui->messageSig(LOG_TRACE, QObject::tr("LDR %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
             } else {
-                insert(subfileName,
-                       contents,
-                       datetime,
-                       unofficialPart,
-                       false/*generated*/,
-                       false/*includeFile*/,
-                       externalFile ? fileInfo.absoluteFilePath() : "",
-                       _description);
-                if (contents.size()) {
+                if (contents.isEmpty()) {
+                    const QString message = QObject::tr("LDR %1 '%2' is empty and was not loaded (file: %3, line: %4).")
+                                                        .arg(fileType()).arg(subfileName).arg(fileInfo.fileName()).arg(lineIndx + 1);
+                    const QString statusEntry = QObject::tr("%1|%2|%3").arg(EMPTY_SUBMODEL_LOAD_MSG).arg(subfileName).arg(message);
+                    loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
+                } else {
+                    insert(subfileName,
+                           contents,
+                           datetime,
+                           unofficialPart,
+                           false/*generated*/,
+                           false/*includeFile*/,
+                           externalFile ? fileInfo.absoluteFilePath() : "",
+                           _description);
                     if ((headerMissing = MissingHeader(missingHeaders())))
                         normalizeHeader(subfileName, headerMissing);
                     emit gui->messageSig(LOG_NOTICE, QObject::tr("LDR  %1 '%2' with %3 lines loaded.")
@@ -2567,6 +2529,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                         }
                     }
                     externalSubfile = !subfileFound;
+                    Q_UNUSED(externalSubfile)
                 }
 
                 if (!subfileFound) {
@@ -3131,26 +3094,39 @@ void LDrawFile::loadStatusEntry(const int messageType,
                                 bool uniqueCount)
 {
   LoadMsgType msgType = static_cast<LoadMsgType>(messageType);
-  if (!_loadedParts.contains(statusEntry)) {
+
+  bool alreadyLoaded = false;
+  if (msgType < MPD_SUBMODEL_LOAD_MSG) {
+    for (QString const &item : _loadedItems) {
+      if ((alreadyLoaded = item.split("|").at(1) == type))
+        break;
+    }
+  }
+  if (!alreadyLoaded) {
     LogType logType = LOG_NOTICE;
     int showMessage = 0;
 
     if (msgType == MISSING_PART_LOAD_MSG   ||
         msgType == EMPTY_SUBMODEL_LOAD_MSG ||
-        msgType == INCLUDE_FILE_LOAD_MSG)
+        msgType == BAD_INCLUDE_LOAD_MSG) {
       logType = LOG_WARNING;
+      if (msgType == MISSING_PART_LOAD_MSG)
+        _loadIssues = static_cast<int>(SHOW_ERROR);
+      else if (_loadIssues < static_cast<int>(SHOW_ERROR))
+        _loadIssues = static_cast<int>(SHOW_WARNING);
+    }
 
     if (uniqueCount)
       _uniquePartCount++;
     else
-      _loadedParts.append(statusEntry);
+      _loadedItems.append(statusEntry);
     QString message;
     if (statusMessage.endsWith(" validated."))
       message = statusMessage.arg(_uniquePartCount).arg(type);
     else if (statusMessage.endsWith(" archives."))
       message = statusMessage.arg(type).arg(VER_PRODUCTNAME_STR);
     else if (msgType != EMPTY_SUBMODEL_LOAD_MSG &&
-             msgType != INCLUDE_FILE_LOAD_MSG)
+             msgType != BAD_INCLUDE_LOAD_MSG)
       message = statusMessage.arg(type);
     else
       message = statusMessage;
@@ -3158,7 +3134,7 @@ void LDrawFile::loadStatusEntry(const int messageType,
     emit gui->messageSig(logType, message, showMessage);
   }
   if (uniqueCount)
-    _loadedParts.append(statusEntry);
+    _loadedItems.append(statusEntry);
 }
 
 void LDrawFile::countParts(const QString &fileName) {
@@ -3167,10 +3143,16 @@ void LDrawFile::countParts(const QString &fileName) {
 
     int topModelIndx  = top.modelIndex;
 
+    QString const title = QObject::tr("%1 parts for %2...")
+                                      .arg(_loadedItems.size()
+                                               ? QObject::tr("Recounting")
+                                               : QObject::tr("Counting")).arg(top.modelName);
+
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, size(top.modelName));
-    emit gui->progressPermMessageSig("Counting parts for " + top.modelName + "...");
+    emit gui->progressPermMessageSig(title);
 
+    LDrawUnofficialFileType subFileType;
     std::function<void(Where&)> countModelParts;
     countModelParts = [&] (Where& top)
     {
@@ -3181,9 +3163,6 @@ void LDrawFile::countParts(const QString &fileName) {
         int lines = content.size();
 
         if (content.size()) {
-
-            // initialize model parts count
-            int modelPartCount = 0;
 
             // initialize valid line
             bool lineIncluded  = true;
@@ -3245,14 +3224,14 @@ void LDrawFile::countParts(const QString &fileName) {
                 bool partIncluded = !ExcludedParts::isExcludedPart(type);
 
                 if (countThisLine && lineIncluded && partIncluded) {
-                    QString statusEntry;
+                    QString statusEntry,statusDesc;
                     if (contains(type)) {
                         QString description = QFileInfo(type).baseName();
-                        LDrawUnofficialFileType subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
+                        subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
-                            LoadMsgType msgType = _mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBMODEL_LOAD_MSG;
-                            statusEntry = QObject::tr("%1|%2|Submodel: %3 with %4 lines")
-                                                      .arg(msgType).arg(type).arg(description).arg(size(type));
+                            LoadMsgType msgType = _mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBFILE_LOAD_MSG;
+                            statusEntry = QObject::tr("%1|%2|Submodel: %3 with %4 lines (file: %5, line: %6)")
+                                                      .arg(msgType).arg(type).arg(description).arg(size(type)).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(msgType, statusEntry, type, QObject::tr("Model [%1] is a SUBMODEL"));
                             Where top(type, getSubmodelIndex(type), 0);
                             countModelParts(top);
@@ -3271,26 +3250,31 @@ void LDrawFile::countParts(const QString &fileName) {
                             switch(subFileType) {
                             case UNOFFICIAL_PART:
                             case UNOFFICIAL_SHORTCUT:
-                                _partCount++;modelPartCount++;
-                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(INLINE_PART_LOAD_MSG).arg(type).arg(description);
-                                loadStatusEntry(INLINE_PART_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an INLINE PART."));
-                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(VALID_LOAD_MSG).arg(type).arg(description);
+                            case UNOFFICIAL_GENERATED_PART:
+                                _partCount++;
+                                statusDesc  = QObject::tr("Unofficial Inline%1 - %2 (file: %3, line: %4)")
+                                                          .arg(subFileType == UNOFFICIAL_GENERATED_PART ? QObject::tr(" LDCAD Generated") : "")
+                                                          .arg(description).arg(top.modelName).arg(top.lineNumber);
+                                statusEntry = QObject::tr("%1|%2|%3")
+                                                          .arg(subFileType == UNOFFICIAL_GENERATED_PART ? INLINE_GENERATED_PART_LOAD_MSG : INLINE_PART_LOAD_MSG).arg(type).arg(statusDesc);
+                                loadStatusEntry(INLINE_PART_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an LDCAD Generated INLINE PART."));
+                                statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(statusDesc);
                                 loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [Inline %2] validated."),true/*unique count*/);
                                 break;
                             case UNOFFICIAL_SUBPART:
-                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(description);
-                                loadStatusEntry(INLINE_SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a INLINE SUBPART"));
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3 (file: %4, line: %5)")
+                                                          .arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
+                                loadStatusEntry(INLINE_SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE SUBPART"));
                                 break;
                             /* Add these primitives into the load status dialogue because they are loaded in the LDrawFile.subfiles */
                             case UNOFFICIAL_PRIMITIVE:
-                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3").arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(description);
-                                loadStatusEntry(INLINE_PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a INLINE PRIMITIVE"));
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3 (file: %4, line: %5)")
+                                                          .arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
+                                loadStatusEntry(INLINE_PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE PRIMITIVE"));
                                 break;
                             default:
                                 break;
                             }
-                            Where top(type, getSubmodelIndex(type), 0);
-                            countModelParts(top);
                         }
                     } else {
                         QString partFile = type.toUpper();
@@ -3298,8 +3282,9 @@ void LDrawFile::countParts(const QString &fileName) {
                             partFile.replace("S\\","S/");
                         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
                         if (pieceInfo && pieceInfo->IsPartType()) {
-                            _partCount++;modelPartCount++;;
-                            statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription);
+                            _partCount++;
+                            statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
+                                                      .arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [%2] validated."),true/*unique count*/);
                         } else
                         if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
@@ -3309,17 +3294,20 @@ void LDrawFile::countParts(const QString &fileName) {
                             if (Primitive) {
                                 const QString description = Primitive->mName;
                                 if (Primitive->mSubFile) {
-                                    statusEntry = QObject::tr("%1|%2|%3").arg(SUBPART_LOAD_MSG).arg(type).arg(description);
+                                    statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
+                                                              .arg(SUBPART_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                     loadStatusEntry(SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a SUBPART"));
                                 } else {
-                                    statusEntry = QObject::tr("%1|%2|%3").arg(PRIMITIVE_LOAD_MSG).arg(type).arg(description);
+                                    statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
+                                                              .arg(PRIMITIVE_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                     loadStatusEntry(PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a PRIMITIVE"));
                                 }
                             }*/
                         } else {
                             const QString message = QObject::tr("Part [%1] is not excluded, inlined, a submodel or "
                                                                 "an external file and was not found in the %2 library archives.");
-                            statusEntry = QObject::tr("%1|%2|Part not found!").arg(MISSING_PART_LOAD_MSG).arg(type);
+                            statusEntry = QObject::tr("%1|%2|Part not found! (file: %3, line: %4)")
+                                                      .arg(MISSING_PART_LOAD_MSG).arg(type).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(MISSING_PART_LOAD_MSG, statusEntry, type, message);
                         }
                     }  // check archive
@@ -3330,15 +3318,45 @@ void LDrawFile::countParts(const QString &fileName) {
 
     countModelParts(top);
 
-    emit gui->messageSig(LOG_STATUS, QString("%1 total %2 and %3 unique %4 counted for %5")
-                                             .arg(_partCount)
-                                             .arg(_partCount == 1 ? QObject::tr("part") : QObject::tr("parts"))
-                                             .arg(_uniquePartCount)
-                                             .arg(_uniquePartCount == 1 ? QObject::tr("part") : QObject::tr("parts"))
-                                             .arg(top.modelName));
     emit gui->progressPermSetValueSig(size(top.modelName));
     emit gui->progressPermMessageSig(QString());
     emit gui->progressPermStatusRemoveSig();
+}
+
+void LDrawFile::recountParts()
+{
+    if (!_loadedItems.size())
+        return;
+
+    QElapsedTimer t; t.start();
+
+    int loadedItems = _loadedItems.size();
+    for (int i = loadedItems - 1; i >= 0; i--) {
+        QString const &item = _loadedItems.at(i);
+        LoadMsgType mt = static_cast<LoadMsgType>(item.leftRef(item.indexOf('|')).toInt());
+        if (mt <  MPD_SUBMODEL_LOAD_MSG)
+            _loadedItems.removeAt(i);
+    }
+
+    int save_loadIssues = _loadIssues;
+    _loadIssues = 0;
+    _partCount  = 0;
+    _uniquePartCount = 0;
+
+    countParts(topLevelFile());
+
+    if (_loadIssues < static_cast<int>(SHOW_ERROR))
+        _loadIssues = save_loadIssues;
+
+    const QString recountMessage = QObject::tr("Recount LDraw parts for %1 model file '%2'. Unique %3 %4. Total %5 %6. %7")
+                                    .arg(isMpd() ? "MPD" : "LDR")
+                                    .arg(_modelFile)
+                                    .arg(_uniquePartCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
+                                    .arg(_uniquePartCount)
+                                    .arg(_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
+                                    .arg(_partCount)
+                                    .arg(gui->elapsedTime(t.elapsed()));
+    emit gui->messageSig(LOG_INFO_STATUS, recountMessage);
 }
 
 bool LDrawFile::saveModelFile(const QString &fileName)
@@ -3439,7 +3457,8 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                             insertNewLineAfter  = line.startsWith("0 BFC ");
                             insertNewLineAfter |= line.contains(newLineAfterRx);
                         }
-                        _savedLines = insertNewLineBefore || insertNewLineAfter ? _savedLines++ : _savedLines;
+                        if (insertNewLineBefore || insertNewLineAfter)
+                            _savedLines++;
                     } else if (line.startsWith("0 !LICENSE ") && f.value()._contents.size() > j) {
                         insertNewLineAfter |= f.value()._contents.at(j+1).startsWith("0 !LDCAD GENERATED ",Qt::CaseSensitive);
                         _savedLines++;
@@ -5601,6 +5620,9 @@ bool isSubstitute(QString &line, QString &lineOut){
 
 int getUnofficialFileType(QString &line)
 {
+  if (line.contains(QRegExp("^0\\s+!?(LDCAD GENERATED)[^\n]*"))) {
+    return UNOFFICIAL_GENERATED_PART;
+  }
   int size = LDrawUnofficialPartRegExp.size();
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawUnofficialPartRegExp[i])) {

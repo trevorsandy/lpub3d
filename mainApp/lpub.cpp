@@ -2459,6 +2459,12 @@ void Gui::useSystemEditor()
                                                                                                Preferences::systemEditor : "detached LDraw Editor"));
 }
 
+void Gui::recountParts()
+{
+   bool recountParts = getAct("recountPartsAct.1")->isChecked();
+   Preferences::recountPartsPreference(recountParts);
+}
+
 /*********************************************
  *
  * Parameter edit section
@@ -3011,7 +3017,7 @@ void Gui::editBLCodes()
     }
 }
 
-void Gui::viewLoadStatus()
+void Gui::loadStatus()
 {
     lpub->ldrawFile.loadStatus(true/*menuAction*/);
 }
@@ -4988,13 +4994,21 @@ void Gui::createActions()
     lpub->actions.insert(exportBricklinkAct->objectName(), Action(QStringLiteral("File.Export As.Bricklink XML Part List"), exportBricklinkAct));
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
 
-    QAction *viewLoadStatusAct = new QAction(QIcon(":/resources/loadstatus.png"),tr("View Load Status..."), this);
-    viewLoadStatusAct->setObjectName("viewLoadStatusAct.1");
-    viewLoadStatusAct->setShortcut(QStringLiteral("Ctrl+Shift+V"));
-    viewLoadStatusAct->setStatusTip(tr("Display the current model file load status"));
-    viewLoadStatusAct->setEnabled(false);
-    lpub->actions.insert(viewLoadStatusAct->objectName(), Action(QStringLiteral("File.View Load Status"), viewLoadStatusAct));
-    connect(viewLoadStatusAct, SIGNAL(triggered()), this, SLOT(viewLoadStatus()));
+    QAction *loadStatusAct = new QAction(QIcon(":/resources/loadstatus.png"),tr("View Load Status..."), this);
+    loadStatusAct->setObjectName("loadStatusAct.1");
+    loadStatusAct->setShortcut(QStringLiteral("Ctrl+Shift+V"));
+    loadStatusAct->setStatusTip(tr("Display the current model file load status"));
+    loadStatusAct->setEnabled(false);
+    lpub->actions.insert(loadStatusAct->objectName(), Action(QStringLiteral("File.View Load Status"), loadStatusAct));
+    connect(loadStatusAct, SIGNAL(triggered()), this, SLOT(loadStatus()));
+
+    QAction *recountPartsAct = new QAction(tr("Recount LDraw Parts"),this);
+    recountPartsAct->setObjectName("recountPartsAct.1");
+    recountPartsAct->setStatusTip(tr("Enable recount LDraw parts on view load status"));
+    recountPartsAct->setCheckable(true);
+    recountPartsAct->setChecked(Preferences::recountParts);
+    lpub->actions.insert(recountPartsAct->objectName(), Action(QStringLiteral("File.Recount LDraw Parts"), recountPartsAct));
+    connect(recountPartsAct, SIGNAL(triggered()), this, SLOT(recountParts()));
 
     QAction *exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setObjectName("exitAct.1");
@@ -5629,7 +5643,7 @@ void Gui::createActions()
 
     QAction *useSystemEditorAct = new QAction(tr("Use System Editor"),this);
     useSystemEditorAct->setObjectName("useSystemEditorAct.1");
-    useSystemEditorAct->setStatusTip(tr("Open parameter file with %1")
+    useSystemEditorAct->setStatusTip(tr("Enable open parameter files with %1")
                                      .arg(Preferences::systemEditor.isEmpty() ? "the system editor" :
                                                                                 Preferences::systemEditor));
     useSystemEditorAct->setCheckable(true);
@@ -6482,7 +6496,8 @@ void Gui::enableActions()
   getAct("exportPngAct.1")->setEnabled(true);
   getAct("exportJpgAct.1")->setEnabled(true);
   getAct("exportBmpAct.1")->setEnabled(true);
-  getAct("viewLoadStatusAct.1")->setEnabled(true);
+  getAct("loadStatusAct.1")->setEnabled(true);
+  getAct("recountPartsAct.1")->setEnabled(true);
   getAct("pageSetupAct.1")->setEnabled(true);
   getAct("assemSetupAct.1")->setEnabled(true);
   getAct("pliSetupAct.1")->setEnabled(true);
@@ -6566,6 +6581,7 @@ void Gui::enableActions()
   getMenu("setupMenu")->setEnabled(true);
   getMenu("cacheMenu")->setEnabled(true);
   getMenu("exportMenu")->setEnabled(true);
+  getMenu("loadStatusMenu")->setEnabled(true);
   openWithMenu->setEnabled(numPrograms);
 
   //Visual Editor
@@ -6585,7 +6601,8 @@ void Gui::disableActions()
   getAct("exportPngAct.1")->setEnabled(false);
   getAct("exportJpgAct.1")->setEnabled(false);
   getAct("exportBmpAct.1")->setEnabled(false);
-  getAct("viewLoadStatusAct.1")->setEnabled(false);
+  getAct("loadStatusAct.1")->setEnabled(false);
+  getAct("recountPartsAct.1")->setEnabled(false);
   getAct("pageSetupAct.1")->setEnabled(false);
   getAct("assemSetupAct.1")->setEnabled(false);
   getAct("pliSetupAct.1")->setEnabled(false);
@@ -6641,6 +6658,7 @@ void Gui::disableActions()
   getMenu("setupMenu")->setEnabled(false);
   getMenu("cacheMenu")->setEnabled(false);
   getMenu("exportMenu")->setEnabled(false);
+  getMenu("loadStatusMenu")->setEnabled(false);
   openWithMenu->setEnabled(false);
 
   // Visual Editor
@@ -6751,7 +6769,17 @@ void Gui::createMenus()
     fileMenu->addAction(getAct("exportAsPdfPreviewAct.1"));
     fileMenu->addAction(getAct("exportAsPdfAct.1"));
     fileMenu->addSeparator();
-    fileMenu->addAction(getAct("viewLoadStatusAct.1"));
+
+    QMenu *loadStatusMenu = fileMenu->addMenu(tr("Load Status..."));
+    loadStatusMenu->setObjectName("loadStatusMenu");
+    menus.insert(loadStatusMenu->objectName(), loadStatusMenu);
+    loadStatusMenu->setIcon(QIcon(":/resources/loadstatus.png"));
+    loadStatusMenu->setStatusTip(tr("Display the current model file load status and optionally recount parts"));
+    loadStatusMenu->addAction(getAct("loadStatusAct.1"));
+    loadStatusMenu->addAction(getAct("recountPartsAct.1"));
+    loadStatusMenu->addSeparator();
+    loadStatusMenu->setDisabled(true);
+
 #ifndef QT_NO_CLIPBOARD
     fileMenu->addSeparator();
     fileMenu->addAction(getAct("copyFilePathToClipboardAct.1"));
@@ -7079,6 +7107,19 @@ void Gui::createToolBars()
     connect (exportToolBar, SIGNAL (visibilityChanged(bool)),
                       this, SLOT (exportToolBarVisibilityChanged(bool)));
 
+    QToolBar *loadStatusToolBar = addToolBar(tr("Load Status Toolbar"));
+    loadStatusToolBar->setObjectName("loadStatusToolBar");
+    toolbars.insert(loadStatusToolBar->objectName(), loadStatusToolBar);
+    loadStatusToolBar->addAction(getAct("loadStatusAct.1"));
+    loadStatusToolBar->addAction(getAct("recountPartsAct.1"));
+    visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS, VIEW_LOAD_STATUS_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS, VIEW_LOAD_STATUS_TOOLBAR_KEY)).toBool();
+    getMenu("loadStatusMenu")->addAction(loadStatusToolBar->toggleViewAction());
+    loadStatusToolBar->setVisible(visible);
+    connect (loadStatusToolBar, SIGNAL (visibilityChanged(bool)),
+                      this, SLOT (loadStatusToolBarVisibilityChanged(bool)));
+
     QToolBar *undoredoToolBar = addToolBar(tr("UndoRedo Toolbar"));
     undoredoToolBar->setObjectName("undoredoToolBar");
     toolbars.insert(undoredoToolBar->objectName(), undoredoToolBar);
@@ -7301,6 +7342,12 @@ void Gui::exportToolBarVisibilityChanged(bool visible)
 {
     QSettings Settings;
     Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_EXPORT_TOOLBAR_KEY),visible);
+}
+
+void Gui::loadStatusToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_LOAD_STATUS_TOOLBAR_KEY),visible);
 }
 
 void Gui::cacheToolBarVisibilityChanged(bool visible)
