@@ -904,8 +904,7 @@ QString LDrawFile::getSubmodelName(int submodelIndx)
 
 int LDrawFile::getSubmodelIndex(const QString &mcFileName)
 {
-    const QString fileName = mcFileName.toLower();
-    return _subFileOrder.indexOf(fileName);
+    return _subFileOrder.indexOf(QRegExp(mcFileName,Qt::CaseInsensitive));
 }
 
 /* marshall subFile 'child' indexes */
