@@ -452,8 +452,10 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
         tr("Jump Backward")
       };
       setDirection(move);
+      // On page update, (move = 0), subtract first page from displayPageNum.
+      int pages = move ? qAbs(move) : displayPageNum - (1 + pa);
       const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
-                                 .arg(QString::number(move))
+                                 .arg(pages)
                                  .arg(directionName[pageDirection-1].toLower())
                                  .arg(fileReload ? tr("reload") : tr("load"));
       cycleEachPage = LocalDialog::getLocal(tr("%1 Page %2")

@@ -1,4 +1,4 @@
-LPub3D 2.4.6.135.3246 (11 04 2023 03:34:43)
+LPub3D 2.4.6.136.3247 (11 04 2023 03:35:04)
 
 Features, enhancements, fixes and changes
 ------------
@@ -42,6 +42,7 @@ Revisions:
 - Fix - Sub models are deleted #684
 - Fix - Unexpected PLI BEGIN and PLI END parse errors #678
 - Fix - Visual editor parts highlight when parts selected in command editor #682
+- Fix - Wrong message in dialog box #701
 
 --------------------------------------------------------------------------------------------------
 
