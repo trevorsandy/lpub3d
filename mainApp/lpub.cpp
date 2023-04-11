@@ -371,7 +371,7 @@ void Gui::displayPage()
   if (macroNesting == 0) {
     pageProcessRunning = PROC_DISPLAY_PAGE;
     emit messageSig(LOG_STATUS, "Display page...");
-    timer.start();
+    displayPageTimer.start();
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     setAbortProcess(false);
@@ -1724,6 +1724,7 @@ void Gui::reloadCurrentPage(bool prompt) {
             return;
     }
 
+    QElapsedTimer timer;
     timer.start();
 
     // displayPage();
@@ -1752,6 +1753,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
             return;
     }
 
+    QElapsedTimer timer;
     timer.start();
 
     //reload current model
@@ -1793,6 +1795,7 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
 void Gui::resetModelCache(QString file, bool commandLine)
 {
     if (Gui::resetCache && !file.isEmpty()) {
+        QElapsedTimer timer;
         if (commandLine)
             timer.start();
 
@@ -1842,6 +1845,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
             return;
     }
 
+    QElapsedTimer timer;
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
@@ -1887,6 +1891,7 @@ void Gui::clearAllCaches()
 
     bool showMsg = sender() == getAct("clearAllCachesAct.1");
 
+    QElapsedTimer timer;
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
@@ -3784,6 +3789,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 if (!_continue)
                     return;
 
+                QElapsedTimer timer;
                 timer.start();
 
                 clearPLICache();
@@ -4316,6 +4322,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       if (!_continue)
           return;
 
+      QElapsedTimer timer;
       timer.start();
 
       clearPLICache();

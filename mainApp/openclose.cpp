@@ -63,6 +63,7 @@ void Gui::open()
       modelDir,
       tr("LDraw Files (*.dat *.ldr *.mpd);;All Files (*.*)"));
 
+    QElapsedTimer timer;
     timer.start();
 
     QFileInfo fileInfo(fileName);
@@ -86,6 +87,7 @@ void Gui::open()
 void Gui::openDropFile(QString &fileName){
 
   if (maybeSave() && saveBuildModification()) {
+      QElapsedTimer timer;
       timer.start();
       QFileInfo fileInfo(fileName);
       QString extension = fileInfo.suffix().toLower();
@@ -407,6 +409,7 @@ void Gui::openRecentFile()
 {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
+    QElapsedTimer timer;
     timer.start();
     QString fileName = action->data().toString();
     QFileInfo fileInfo(fileName);
@@ -449,6 +452,7 @@ bool Gui::loadFile(const QString &file, bool console)
     QString fileName = file;
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
+        QElapsedTimer timer;
         timer.start();
         if (!openFile(fileName)) {
             emit fileLoadedSig(false);

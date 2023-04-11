@@ -5093,7 +5093,7 @@ void Gui::pagesCounted()
                                        .arg(fileInfo.fileName())
                                        .arg(maxPages)
                                        .arg(lpub->ldrawFile.getPartCount())
-                                       .arg(elapsedTime(timer.elapsed())));
+                                       .arg(elapsedTime(displayPageTimer.elapsed())));
                 if (!maxPages && !lpub->ldrawFile.getPartCount()) {
                     emit messageSig(LOG_ERROR,tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
@@ -5106,7 +5106,7 @@ void Gui::pagesCounted()
             emit messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
                             .arg(exporting() && displayPageNum < maxPages ? displayPageNum + 1 : displayPageNum)
                             .arg(exporting() ? tr("exported") : tr("loaded"))
-                            .arg(gui->elapsedTime(timer.elapsed())));
+                            .arg(gui->elapsedTime(displayPageTimer.elapsed())));
         }
 
         if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
