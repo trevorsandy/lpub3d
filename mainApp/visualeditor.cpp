@@ -3652,18 +3652,18 @@ void Gui::ReloadVisualEditor(){
              beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
 
              if (BuildModPieces) {
-
+                 Meta meta;
                  // Delete old BUILD_MOD END meta command
                  Where endMod = Where(ModelName, SaveModEndLineNum);
                  QString modLine = readLine(endMod);
-                 Rc rc = lpub->page.meta.parse(modLine, endMod);
+                 Rc rc = meta.parse(modLine, endMod);
                  if (rc == BuildModEndRc)
                      deleteLine(endMod);
 
                  // Delete old BUILD_MOD content from bottom up including END_MOD meta command
                  endMod = Where(ModelName, SaveModActionLineNum);
                  modLine = readLine(endMod);
-                 rc = lpub->page.meta.parse(modLine, endMod);
+                 rc = meta.parse(modLine, endMod);
                  if (rc == BuildModEndModRc)
                      for (modHere = endMod; modHere >= SaveModBeginLineNum; --modHere)
                          deleteLine(modHere);
@@ -3871,12 +3871,14 @@ void Gui::applyBuildModification()
 
         Where top                 = topOfStep;
 
+        Meta meta;
+
         QString line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
-        Rc rc = lpub->page.meta.parse(line,top);
+        Rc rc = meta.parse(line,top);
         if (rc == StepGroupEndRc)
             top++;
         line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
-        rc = lpub->page.meta.parse(line,top);
+        rc = meta.parse(line,top);
         if (rc == StepGroupBeginRc)
             top++;
 
@@ -3917,8 +3919,9 @@ void Gui::removeBuildModification()
      if (buildModKeys.size())
          buildModKey = buildModKeys.first();
 
-     if (buildModKey.isEmpty())
+     if (buildModKey.isEmpty()) {
          return;
+     }
 
     emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove' action..."));
 
@@ -3999,12 +4002,14 @@ void Gui::removeBuildModification()
 
         Where top          = topOfStep;
 
+        Meta meta;
+
         QString line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
-        Rc rc = lpub->page.meta.parse(line,top);
+        Rc rc = meta.parse(line,top);
         if (rc == StepGroupEndRc)
             top++;
         line = lpub->ldrawFile.readLine(top.modelName, top.lineNumber + 1);
-        rc = lpub->page.meta.parse(line,top);
+        rc = meta.parse(line,top);
         if (rc == StepGroupBeginRc)
             top++;
 
@@ -4260,14 +4265,17 @@ bool Gui::setBuildModificationKey(Rc key)
 
         buildModificationKey.clear();
 
-        if (key = OkRc)
+        if (key == OkRc)
             action = BuildModBeginRc;
 
         Rc rc;
+
+        Meta meta;
+
         Where walk = currentStep->topOfStep();
 
         QString line = readLine(walk);
-        rc =  lpub->page.meta.parse(line,walk,false);
+        rc =  meta.parse(line,walk,false);
         if (rc == StepRc || rc == RotStepRc)
             walk++;   // Advance past STEP meta
 
@@ -4277,26 +4285,26 @@ bool Gui::setBuildModificationKey(Rc key)
               walk.lineNumber++) {
             line = readLine(walk);
             Where here(walk.modelName,walk.lineNumber);
-            rc =  lpub->page.meta.parse(line,here,false);
+            rc =  meta.parse(line,here,false);
 
             switch (rc) {
             case BuildModBeginRc:
                 if (action == BuildModBeginRc) {
-                    buildModificationKey = lpub->page.meta.LPub.buildMod.key();
+                    buildModificationKey = meta.LPub.buildMod.key();
                     return true;
                 }
                 break;
 
             case BuildModApplyRc:
                 if (key == BuildModApplyRc) {
-                    buildModificationKey = lpub->page.meta.LPub.buildMod.key();
+                    buildModificationKey = meta.LPub.buildMod.key();
                     return true;
                 }
                 break;
 
             case BuildModRemoveRc:
                 if (action == BuildModRemoveRc) {
-                    buildModificationKey = lpub->page.meta.LPub.buildMod.key();
+                    buildModificationKey = meta.LPub.buildMod.key();
                     return true;
                 }
                 break;
@@ -4460,6 +4468,7 @@ void Gui::deleteBuildModification()
 
         // delete existing APPLY/REMOVE (action) commands, starting from the bottom of the step
         Rc rc;
+        Meta meta;
         QString modKey, modLine;
         Where here, topOfStep, bottomOfStep;
         QMap<int/*stepIndex*/, int/*ActionRc*/> actionsMap = getBuildModActions(buildModKey);
@@ -4475,11 +4484,11 @@ void Gui::deleteBuildModification()
                     for (Where walk = bottomOfStep; walk > topOfStep.lineNumber; --walk) {
                         here = walk;
                         modLine = readLine(here);
-                        rc = lpub->page.meta.parse(modLine, here);
+                        rc = meta.parse(modLine, here);
                         switch (rc) {
                         case BuildModApplyRc:
                         case BuildModRemoveRc:
-                            modKey = lpub->page.meta.LPub.buildMod.key().toLower();
+                            modKey = meta.LPub.buildMod.key().toLower();
                             if (modKey == buildModKey.toLower())
                                 deleteLine(here);
                             break;
@@ -4494,14 +4503,14 @@ void Gui::deleteBuildModification()
         // delete existing BUILD_MOD commands from bottom up, starting at END
         here = Where(modelName, modEndLineNum);
         modLine = readLine(here);
-        rc = lpub->page.meta.parse(modLine, here);
+        rc = meta.parse(modLine, here);
         if (rc == BuildModEndRc)
             deleteLine(here);
 
         // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
         here = Where(modelName, modActionLineNum);
         modLine = readLine(here);
-        rc = lpub->page.meta.parse(modLine, here);
+        rc = meta.parse(modLine, here);
         if (rc == BuildModEndModRc)
             for (Where walk = here; walk >= modBeginLineNum; --walk)
                 deleteLine(walk);

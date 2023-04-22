@@ -4185,6 +4185,8 @@ int Gui::getBOMParts(
 
   QStringList bfxParts;
 
+  Meta meta;
+
   skipHeader(current);
 
   QHash<QString, QStringList> bfx;
@@ -4269,7 +4271,7 @@ int Gui::getBOMParts(
                           line = substituteToken.join(" ");
                         }
 
-                      QString newLine = Pli::partLine(line,current,lpub->page.meta);
+                      QString newLine = Pli::partLine(line,current,meta);
 
                       bomParts << newLine;
                     }
@@ -4283,7 +4285,7 @@ int Gui::getBOMParts(
             }
           break;
         case '0':
-          rc = lpub->page.meta.parse(line,current);
+          rc = meta.parse(line,current);
 
           /* substitute part/parts with this */
 
@@ -4301,9 +4303,9 @@ int Gui::getBOMParts(
                   ! buildModIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
-                                            .arg(lpub->page.meta.LPub.pli.begin.sub.value().color)
-                                            .arg(lpub->page.meta.LPub.pli.begin.sub.value().part);
-                  bomParts << Pli::partLine(addPart,current,lpub->page.meta);
+                                            .arg(meta.LPub.pli.begin.sub.value().color)
+                                            .arg(meta.LPub.pli.begin.sub.value().part);
+                  bomParts << Pli::partLine(addPart,current,meta);
                   pliIgnore = true;
                 }
               break;
@@ -4314,7 +4316,7 @@ int Gui::getBOMParts(
 
             case PliEndRc:
               pliIgnore = false;
-              lpub->page.meta.LPub.pli.begin.sub.clearAttributes();
+              meta.LPub.pli.begin.sub.clearAttributes();
               break;
 
             case PartBeginIgnRc:
@@ -4344,9 +4346,9 @@ int Gui::getBOMParts(
               break;
 
             case BomPartGroupRc:
-              lpub->page.meta.LPub.bom.pliPartGroup.setWhere(current);
-              lpub->page.meta.LPub.bom.pliPartGroup.setBomPart(true);
-              bomPartGroups.append(lpub->page.meta.LPub.bom.pliPartGroup);
+              meta.LPub.bom.pliPartGroup.setWhere(current);
+              meta.LPub.bom.pliPartGroup.setBomPart(true);
+              bomPartGroups.append(meta.LPub.bom.pliPartGroup);
               break;
 
               // Any of the metas that can change pliParts needs
@@ -4393,7 +4395,7 @@ int Gui::getBOMParts(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              bomParts << Pli::partLine(line,current,lpub->page.meta);
+              bomParts << Pli::partLine(line,current,meta);
               break;
 
               /* remove a group or all instances of a part type */
@@ -4404,11 +4406,11 @@ int Gui::getBOMParts(
                   QStringList newBOMParts;
                   QVector<int> dummy;
                   if (rc == RemoveGroupRc) {
-                      remove_group(bomParts,dummy,lpub->page.meta.LPub.remove.group.value(),newBOMParts,dummy,&lpub->page.meta);
+                      remove_group(bomParts,dummy,meta.LPub.remove.group.value(),newBOMParts,dummy,&meta);
                   } else if (rc == RemovePartTypeRc) {
-                      remove_parttype(bomParts,dummy,lpub->page.meta.LPub.remove.parttype.value(),newBOMParts,dummy);
+                      remove_parttype(bomParts,dummy,meta.LPub.remove.parttype.value(),newBOMParts,dummy);
                   } else {
-                      remove_partname(bomParts,dummy,lpub->page.meta.LPub.remove.partname.value(),newBOMParts,dummy);
+                      remove_partname(bomParts,dummy,meta.LPub.remove.partname.value(),newBOMParts,dummy);
                   }
                   bomParts = newBOMParts;
               }
@@ -4449,6 +4451,7 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
   boms                = 0;
   bomOccurrence       = 0;
   Rc rc;
+  Meta meta;
 
   for ( ; current.lineNumber < numLines;
         current.lineNumber++) {
@@ -4469,11 +4472,11 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
           }
           case '0':
           {
-              rc = lpub->page.meta.parse(line,current);
+              rc = meta.parse(line,current);
               switch (rc) {
                   case InsertRc:
                   {
-                      InsertData insertData = lpub->page.meta.LPub.insert.value();
+                      InsertData insertData = meta.LPub.insert.value();
                       if (insertData.type == InsertData::InsertBom){
 
                           QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
@@ -4495,9 +4498,9 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
       Where here = topOfPages[displayPageNum-1];
       for (++here; here.lineNumber < lpub->ldrawFile.size(here.modelName); here++) {
           QString line = readLine(here);
-          rc = lpub->page.meta.parse(line,here);
+          rc = meta.parse(line,here);
           if (rc == InsertRc) {
-              InsertData insertData = lpub->page.meta.LPub.insert.value();
+              InsertData insertData = meta.LPub.insert.value();
               if (insertData.type == InsertData::InsertBom) {
                   QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
                   bomOccurrence   = bom_Occurrence[bomID];
@@ -4510,7 +4513,7 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
   return 0;
 }
 
-bool Gui::generateBOMPartsFile(const QString &bomFileName){
+bool Gui::generateBOMPartsFile(const QString &bomFileName) {
     QString addLine;
     Where current(lpub->ldrawFile.topLevelFile(),0);
     QFuture<void> future = QtConcurrent::run([this, current]() {
@@ -5328,6 +5331,8 @@ int Gui::setBuildModForNextStep(
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
 
+    Meta                    meta;
+
     BuildModFlags           buildMod;
     QMap<int, QString>      buildModKeys;
     QMap<int, QVector<int>> buildModAttributes;
@@ -5423,7 +5428,7 @@ int Gui::setBuildModForNextStep(
                     }
                 }
             case '0':
-                rc = lpub->page.meta.parse(line,walk);
+                rc = meta.parse(line,walk);
                 switch (rc) {
                 case BuildModBeginRc:
                 case BuildModApplyRc:
@@ -5534,7 +5539,7 @@ int Gui::setBuildModForNextStep(
 
     TraverseRc returnValue = HitNothing;
     QString line = readLine(walk);
-    Rc rc = lpub->page.meta.parse(line, walk, false);
+    Rc rc = meta.parse(line, walk, false);
     if (rc == StepRc || rc == RotStepRc)
         walk++;   // Advance past STEP meta
 
@@ -5548,7 +5553,7 @@ int Gui::setBuildModForNextStep(
        switch (line.toLatin1()[0]) {
        case '0':
 
-            rc =  lpub->page.meta.parse(line,walk,false);
+            rc =  meta.parse(line,walk,false);
 
             switch (rc) {
 
@@ -5556,7 +5561,7 @@ int Gui::setBuildModForNextStep(
             case BuildModApplyRc:
             case BuildModRemoveRc:
                 buildModStepIndex = getBuildModStepIndex(topOfStep);
-                buildMod.key = lpub->page.meta.LPub.buildMod.key();
+                buildMod.key = meta.LPub.buildMod.key();
                 if (buildModContains(buildMod.key)) {
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 } else {
@@ -5576,9 +5581,9 @@ int Gui::setBuildModForNextStep(
                 if (buildMod.state == BM_BEGIN)
                     emit gui->parseErrorSig(QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
                                                     "Multiple build modifications per STEP are not allowed.")
-                                                    .arg(lpub->page.meta.LPub.buildMod.key()).arg(buildMod.key),
+                                                    .arg(meta.LPub.buildMod.key()).arg(buildMod.key),
                                                     walk,Preferences::BuildModErrors,false,false);
-                buildMod.key   = lpub->page.meta.LPub.buildMod.key();
+                buildMod.key   = meta.LPub.buildMod.key();
                 buildMod.level = getLevel(buildMod.key, BM_BEGIN);
                 buildModKeys.insert(buildMod.level, buildMod.key);
                 insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, walk);
