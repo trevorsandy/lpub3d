@@ -449,6 +449,7 @@ class LDrawFile {
     QString description(const QString &mcFileName);
     int isUnofficialPart(const QString &name);
     bool isIncludeFile(const QString &fileName);
+    bool isDisplayModel(const QString &fileName);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
     int fileOrderIndex(const QString &file);

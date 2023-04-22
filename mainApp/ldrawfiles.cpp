@@ -520,14 +520,14 @@ int LDrawFile::isUnofficialPart(const QString &name)
   return UNOFFICIAL_UNKNOWN;
 }
 
-bool LDrawFile::isIncludeFile(const QString &name)
+bool LDrawFile::isIncludeFile(const QString &mcFileName)
 {
-  QString fileName = name.toLower();
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (i != _subFiles.end()) {
-    return i.value()._includeFile;
-  }
-  return false;
+  return _includeFileList.contains(mcFileName,Qt::CaseInsensitive);
+}
+
+bool LDrawFile::isDisplayModel(const QString &mcFileName)
+{
+  return _displayModelList.contains(mcFileName,Qt::CaseInsensitive);
 }
 
 /* return the name of the top level file */
@@ -2042,9 +2042,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         emit gui->messageSig(LOG_DEBUG, QString("%1 unresolved staged %2 specified.")
                                                 .arg(stagedSubfiles.size()).arg(stagedSubfiles.size() == 1 ? "subfile" : "subfiles"));
 #endif
-        QString projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
-        QString fileDesc;
-        QString subfile;
+        QString const projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
+        QString subfile, fileDesc;
         for (const QString &stagedFile : stagedSubfiles) {
             if (stagedFile.count("|")) {
                 QStringList elements = stagedFile.split("|");
@@ -2617,9 +2616,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             emit gui->messageSig(LOG_DEBUG, QString("%1 unresolved staged %2 specified.")
                                                     .arg(stagedSubfiles.size()).arg(stagedSubfiles.size() == 1 ? "subfile" : "subfiles"));
 #endif
-            QString projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
-            QString fileDesc;
-            QString subfile;
+            QString const projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
+            QString subfile, fileDesc;
             for (const QString &stagedFile : stagedSubfiles) {
                 if (stagedFile.count("|")) {
                     QStringList elements = stagedFile.split("|");
@@ -3335,6 +3333,10 @@ void LDrawFile::countParts(const QString &fileName) {
 
                 // meta command parse
                 if (tokens.size() > 1 && tokens[0] == "0") {
+                    if (displayModel)
+                        displayModel = !line.contains(_fileRegExp[LDS_RX]); // LDraw Step
+                    else
+                        displayModel =  line.contains(_fileRegExp[DMS_RX]); // Display Model
                     if (tokens[1] == "!LPUB" || tokens[1] == "LPUB") {
                         // build modification - starts at BEGIN command and ends at END_MOD action
                         if (tokens.size() >= 4 &&
@@ -3374,6 +3376,9 @@ void LDrawFile::countParts(const QString &fileName) {
                 if (countThisLine && lineIncluded && partIncluded) {
                     QString statusEntry,statusDesc;
                     if (contains(type)) {
+                        if (isDisplayModel(type)) {
+                            continue;
+                        }
                         QString description = QFileInfo(type).baseName();
                         subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
@@ -3400,7 +3405,8 @@ void LDrawFile::countParts(const QString &fileName) {
                             case UNOFFICIAL_PART:
                             case UNOFFICIAL_SHORTCUT:
                             case UNOFFICIAL_GENERATED_PART:
-                                _partCount++;
+                                if (!displayModel)
+                                    _partCount++;
                                 inMissingItems = isMissingItem(type);
                                 statusDesc  = QObject::tr("Unofficial Inline%1 - %2 (file: %3, line: %4)")
                                                           .arg(subFileType == UNOFFICIAL_GENERATED_PART ? QObject::tr(" LDCAD Generated") : "")
@@ -3436,7 +3442,8 @@ void LDrawFile::countParts(const QString &fileName) {
                             partFile.replace("S\\","S/");
                         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
                         if (pieceInfo && pieceInfo->IsPartType()) {
-                            _partCount++;
+                            if (!displayModel)
+                                _partCount++;
                             statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
                                                       .arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [%2] validated."),true/*unique count*/);
@@ -3470,6 +3477,8 @@ void LDrawFile::countParts(const QString &fileName) {
             } // process submodel content
         } // content size
     };
+
+    displayModel = false;
 
     countModelParts(top);
 
