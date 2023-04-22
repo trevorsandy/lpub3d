@@ -1880,3 +1880,15 @@ void LPub::saveVisualEditorTransformSettings()
     mRelativeTransform = gMainWindow->GetRelativeTransform();
     mSeparateTransform = gMainWindow->GetSeparateTransform();
 }
+
+void LPub::raiseVisualEditDockWindow()
+{
+    gui->RaiseVisualEditDockWindow();
+}
+
+void LPub::raisePreviewDockWindow()
+{
+    gui->RaisePreviewDockWindow();
+}
+
+

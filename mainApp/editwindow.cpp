@@ -245,6 +245,7 @@ void EditWindow::previewLine()
 
     if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && !modelFileEdit()) {
         gMainWindow->PreviewPiece(partType, colorCode, false);
+        lpub->raisePreviewDockWindow();
         return;
     } else {
         lcPreview *Preview = new lcPreview();
@@ -980,6 +981,7 @@ bool EditWindow::setValidPartLine()
     bool colorOk = false;
     bool isSubstitute = false;
     bool isSubstituteAlt = false;
+    bool isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
 
     toolsToolBar->setEnabled(false);
@@ -991,7 +993,9 @@ bool EditWindow::setValidPartLine()
         editColorAct->setText(tr("Edit Color"));
         editPartAct->setText(tr("Edit Part"));
         if (isPliControlFile)
-            substitutePartAct->setVisible(false);
+            substitutePartAct->setEnabled(false);
+        else if (isDisplayType)
+            substitutePartAct->setEnabled(false);
         else
             substitutePartAct->setText(tr("Substitute Part"));
     }
@@ -1104,7 +1108,7 @@ bool EditWindow::setValidPartLine()
 
         const QString actionText = tr("Substitute  %1...").arg(elidedPartType);
 
-        if (!isPliControlFile) {
+        if (!isPliControlFile && !isDisplayType) {
             if (isSubstitute || isSubstituteAlt) {
                 removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
                 removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
@@ -1131,7 +1135,7 @@ bool EditWindow::setValidPartLine()
 
         if (numOpenWithPrograms)
             openWithToolbarAct->setEnabled(true);
-    }
+    } // !isReadOnly
 
     return true;
 }
@@ -1142,6 +1146,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
 
     if (!fileName.isEmpty()) {
         bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
+        bool isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
         if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
@@ -1182,7 +1187,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
         if (setValidPartLine()) {
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
-            if (!isPliControlFile)
+            if (!isPliControlFile && !isDisplayType)
                 toolsMenu->addAction(substitutePartAct);
             if (modelFileEdit())
                 toolsMenu->addAction(previewLineAct);
@@ -2293,6 +2298,8 @@ void EditWindow::displayFile(
 {
   if (!Preferences::modeGUI)
       return;
+
+  disableActions();
 
   reloaded        = _fileName == fileName;
   fileName        = _fileName;

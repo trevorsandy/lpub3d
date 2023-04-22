@@ -243,6 +243,10 @@ public slots:
   void updaterCancelled();
   void updateChangelog(const QString &);
 
+  /// Raise visual editor windows
+  void raiseVisualEditDockWindow();
+  void raisePreviewDockWindow();
+
   /// Visual Editor viewpoint latitude longitude
 private slots:
   void latReset(bool);
