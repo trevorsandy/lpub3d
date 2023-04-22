@@ -4991,13 +4991,14 @@ void Gui::drawPage(
 
   } else {
 
-    int modelStackCount = opts.modelStack.size();
-    int savePartsAdded  = opts.flags.partsAdded;
+    int modelStackCount  = opts.modelStack.size();
+    int savePartsAdded   = opts.flags.partsAdded;
 
     auto countPage = [&] (int modelStackCount)
     {
-      // Clear parts added so we dont count again in countPage;
-      opts.flags.partsAdded = 0;
+      // if the next line is the end of a step, preserve the parts added flag, otherwise clear so we don't count again in countPage
+      if (!lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).contains(LDrawFile::_fileRegExp[LDS_RX]))
+        opts.flags.partsAdded = 0;
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
 #ifdef QT_DEBUG_MODE
@@ -5116,8 +5117,8 @@ void Gui::drawPage(
               opts.flags.partsAdded = 0;
             else if (!opts.flags.partsAdded)
               opts.flags.partsAdded++;
+            // increment to the next line
             opts.current++;
-
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Page entry ADJUSTED, PART ADDED for LineNumber %1, ModelName %2, Line [%3]")
                                  .arg(opts.current.lineNumber, 3, 10, QChar('0'))

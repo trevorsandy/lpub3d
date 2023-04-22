@@ -2279,14 +2279,14 @@ int CountPageWorker::countPage(
         opts.current.lineNumber < opts.flags.numLines && ! Gui::abortProcess();
         opts.current.lineNumber++) {
 
-      //* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
+//* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
 #ifdef QT_DEBUG_MODE
       int optsPageNum = opts.pageNum;
       int saveDisplayPageNum = gui->saveDisplayPageNum;
       Q_UNUSED(optsPageNum)
       Q_UNUSED(saveDisplayPageNum)
 #endif
-      //*/
+//*/
 
       // if reading include file, return to current line, do not advance
 

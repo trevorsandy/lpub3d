@@ -279,7 +279,6 @@ class LDrawFile {
     static bool                 _helperPartsNotInArchive;
     static int                  _savedLines;
     static qint64               _elapsed;
-    static QList<QRegExp>       _fileRegExp;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
 
@@ -353,6 +352,7 @@ class LDrawFile {
     static bool                 _loadBuildMods;
     static bool                 _loadUnofficialParts;
     static bool                 _hasUnofficialParts;
+    static QList<QRegExp>       _fileRegExp;
 
     int savedLines() {
       return _savedLines;
