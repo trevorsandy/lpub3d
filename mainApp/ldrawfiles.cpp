@@ -1787,7 +1787,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             if (helperPartsNotFound) {
                 if (ExcludedParts::isExcludedHelperPart(subFile)) {
                     helperPartsNotFound = false;
-                    _helperPartsNotInArchive = ! pieceInfo;
+                    if (! pieceInfo && ! stagedSubfiles.contains(subFile) && ! contains(subFile))
+                      _helperPartsNotInArchive = true;
                 }
             }
         }
@@ -2400,7 +2401,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if (helperPartsNotFound) {
                     if (ExcludedParts::isExcludedHelperPart(subFile)) {
                         helperPartsNotFound = false;
-                        _helperPartsNotInArchive = ! pieceInfo;
+                        if (! pieceInfo && ! stagedSubfiles.contains(subFile) && ! contains(subFile))
+                            _helperPartsNotInArchive = true;
                     }
                 }
             }
