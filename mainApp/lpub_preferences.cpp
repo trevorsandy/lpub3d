@@ -6146,7 +6146,7 @@ bool Preferences::getPreferences()
 
         if (StudStyleChanged)
         {
-            lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true);
+            lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true, true/*<placeholder>*/);
             reloadFile = !restartApplication;
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Stud style changed from '%1' to '%2'.")

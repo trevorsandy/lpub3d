@@ -796,8 +796,8 @@ int Application::initialize(lcCommandLineOptions &Options)
                 fprintf(stdout, "%s", qUtf8Printable(tr("  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -aec, --automate-edge-color: Enable automatically adjusted edge colors.\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  -bec, --black-edge-color <#AARRGGBB>: High contrast edge color for black parts.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -cc, --color-contrast <decimal>: Color contrast value between 0.0 and 1.0.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -bec, --black-edge-color <#AARRGGBB>: High contrast edge color for black parts.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -ccf, --color-config-file <file>: Full path for alternate LDConfig colour file.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -dec, --dark-edge-color <#AARRGGBB>: High contrast edge color for dark color parts.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -ec, --edge-color <#AARRGGBB>: High contrast edge color.\n")));
@@ -817,6 +817,10 @@ int Application::initialize(lcCommandLineOptions &Options)
                 fprintf(stdout, "%s", qUtf8Printable(tr("..-ncr, --no-console-redirect: Do not automatically redirect output and errors to console. Useful when running headless. Default is off.\n")));
 #endif
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful to prevent double (stdout and QSLog) output. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -nbec, --disable-black-edge-color: Disable high contrast edge color for black parts.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ndec, --disable-dark-edge-color: Disable high contrast edge color for dark color parts.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -nec, --disable-edge-color: Disable high contrast edge color.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -nscc, --disable-stud-cylinder-color: Disable high contrast stud cylinder color.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -o, --export-option <option>: Set output format pdf, png, jpeg, bmp, stl, 3ds, pov, csv, bl-xml, dae, htmlparts, htmlsteps, or obj. Used with process-export. Default is pdf.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -od, --export-directory <path>: Designate the export option save folder using absolute path. Used with export-option. Default is model file folder\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -of, --output-file/--pdf-output-file <path>: Designate the document save file using absolute path.\n")));

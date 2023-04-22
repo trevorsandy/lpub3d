@@ -209,7 +209,7 @@ void LPub::SetStudStyle(const NativeOptions* Options, bool value)
         Preferences.mBlackEdgeColor        = BlackEdgeColor;
         Preferences.mDarkEdgeColor         = DarkEdgeColor;
 
-        lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), value);
+        lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), value, true/*<placeholder>*/);
 
         lcGetPiecesLibrary()->LoadColors();
     }

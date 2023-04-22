@@ -381,9 +381,9 @@ int LPub::processCommandLine()
                 colourConfigFile = QString();
             }
         }
-    }
-    else
-      InvalidParse(tr("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
+      }
+      else
+        InvalidParse(tr("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
   }
 
   auto restoreRendererAndLibrary = [&] ()
