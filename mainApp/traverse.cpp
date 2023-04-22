@@ -1348,13 +1348,13 @@ int Gui::drawPage(
               /* do not put subsequent parts into PLI */
             case PliBeginIgnRc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed",opts.current);
+                  parseError(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current);
                 }
               pliIgnore = true;
               break;
             case PliEndRc:
               if ( ! pliIgnore) {
-                  parseError("PLI END with no PLI BEGIN",opts.current);
+                  parseError(tr("PLI END with no PLI BEGIN"),opts.current);
                 }
               pliIgnore = false;
               curMeta.LPub.pli.begin.sub.clearAttributes();
@@ -1362,7 +1362,7 @@ int Gui::drawPage(
 
             case AssemAnnotationIconRc:
               if (assemAnnotation) {
-                  parseError("Nested ASSEM ANNOTATION ICON not allowed",opts.current);
+                  parseError(tr("Nested ASSEM ANNOTATION ICON not allowed"),opts.current);
               } else {
                   if (step && ! exportingObjects())
                       step->appendCsiAnnotation(opts.current,curMeta.LPub.assem.annotation/*,view*/);
@@ -1374,7 +1374,7 @@ int Gui::drawPage(
             case PartBeginIgnRc:
             case MLCadSkipBeginRc:
               if (partIgnore) {
-                  parseError("Nested BEGIN/ENDS not allowed",opts.current);
+                  parseError(tr("Nested BEGIN/ENDS not allowed"),opts.current);
                 }
               partIgnore = true;
               break;
@@ -1382,21 +1382,21 @@ int Gui::drawPage(
             case PartEndRc:
             case MLCadSkipEndRc:
               if (! partIgnore) {
-                  parseError("Ignore ending with no ignore begin",opts.current);
+                  parseError(tr("Ignore ending with no ignore begin"),opts.current);
                 }
               partIgnore = false;
               break;
 
             case SynthBeginRc:
               if (synthBegin) {
-                  parseError("Nested LSynth BEGIN/ENDS not allowed",opts.current);
+                  parseError(tr("Nested LSynth BEGIN/ENDS not allowed"),opts.current);
                 }
               synthBegin = true;
               break;
 
             case SynthEndRc:
               if ( ! synthBegin) {
-                  parseError("LSynth ignore ending with no ignore begin",opts.current);
+                  parseError(tr("LSynth ignore ending with no ignore begin"),opts.current);
                 }
               synthBegin = false;
               break;
@@ -1512,12 +1512,12 @@ int Gui::drawPage(
                   lpub->page.backCover  = true;
                   lpub->page.frontCover = false;
                   lpub->mi.scanBackwardNoParts(top, StepMask);
-                  message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
+                  message = tr("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
                 } else if (line.contains(rx) && rx.cap(1) == "FRONT") {
                   lpub->page.frontCover = true;
                   lpub->page.backCover  = false;
                   lpub->mi.scanForwardNoParts(top, StepMask);
-                  message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
+                  message = tr("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                 }
 
                 if (stepContains(top,partTypeLineRx)) {
