@@ -3897,14 +3897,14 @@ int MetaItem::nestCallouts(
             callout = true;
           } else if (argv.size() == 4 && argv[2] == "CALLOUT"
                                       && argv[3] == "END") {
-          callout = false;
-          } else if (argv.size() >= 3 && argv[3] == "MULTI_STEP") {
+            callout = false;
+          } else if (argv.size() >= 3 && argv[2] == "MULTI_STEP") {
             deleteMeta(walk);
             --numLines;
             --walk;
           }
         }
-      } else if ( ! callout && ! partIgnore) {
+      } else if (! callout && ! partIgnore) {
 
         // We've got a part added
 
