@@ -67,6 +67,8 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     subFileCount(loadStatus.subFileCount),
     partCount(loadStatus.partCount),
     uniquePartCount(loadStatus.uniquePartCount),
+    helperPartCount(loadStatus.helperPartCount),
+    displayModelPartCount(loadStatus.displayModelPartCount),
     modelFile(loadStatus.modelFile),
     elapsedTime(loadStatus.elapsedTime),
     loadedItems(loadStatus.loadedItems)
@@ -99,6 +101,7 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     esmc = countItems(EMPTY_SUBMODEL_LOAD_MSG);
     bifc = countItems(BAD_INCLUDE_LOAD_MSG);
     ifc  = countItems(INCLUDE_FILE_LOAD_MSG);
+    hpc  = helperPartCount;
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
     ppc  = countItems(PRIMITIVE_LOAD_MSG);
     spc  = countItems(SUBPART_LOAD_MSG);
@@ -343,23 +346,28 @@ void LdrawFilesLoad::summary() const
 {
     int ls     = loadedSteps;
     int upc    = uniquePartCount;
+    int dmpc   = displayModelPartCount;
     bool delta = partCount != vpc;
 
     QString messages  = tr("No loaded items received.");
     if (loadedItems.size())
-        messages = QObject::tr("Loaded LDraw <b>%1</b> model file: <b>%2</b>.<br>").arg(isMpd ? QString("MPD") : QString("LDR"), modelFile);
-    if (delta)
-        messages.append(QObject::tr("<br> - Parts count: <b>%1</b>").arg(partCount));
+        messages = QObject::tr("Loaded LDraw <b>%1</b> model file:  <b>%2</b>.<br>").arg(isMpd ? QString("MPD") : QString("LDR"), modelFile);
     if (mpc)
         messages.append(QObject::tr("%1<br> - Missing parts:        <b>%2</b></span>").arg("<span style=\"color:#FF0000\">").arg(mpc));
     if (esmc)
         messages.append(QObject::tr("%1<br> - Empty submodels:      <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(esmc));
     if (bifc)
         messages.append(QObject::tr("%1<br> - Include file issues:  <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(bifc));
+    if (delta)
+        messages.append(QObject::tr("<br> - Model parts:            <b>%1</b>").arg(partCount));
     if (vpc)
-        messages.append(QObject::tr("<br> - Total validated parts:  <b>%1</b>").arg(vpc));
+        messages.append(QObject::tr("<br> - %1 parts:               <b>%2</b>").arg(delta ? QObject::tr("Validated") : QObject::tr("Model")).arg(vpc));
     if (upc)
-        messages.append(QObject::tr("<br> - Unique validated parts: <b>%1</b>").arg(upc));
+        messages.append(QObject::tr("<br> - Unique parts:           <b>%1</b>").arg(upc));
+    if (dmpc)
+        messages.append(QObject::tr("<br> - Display parts:          <b>%1</b>").arg(dmpc));
+    if (hpc)
+        messages.append(QObject::tr("<br> - Helper parts:           <b>%1</b>").arg(hpc));
     if (msmc)
         messages.append(QObject::tr("<br> - Submodels:              <b>%1</b>").arg(msmc));
     if (lsmc)
@@ -381,23 +389,30 @@ void LdrawFilesLoad::summary() const
         messages.append(QObject::tr("<br> - Subparts:               <b>%1</b>").arg(spc)); */
     if (ls)
         messages.append(QObject::tr("<br> - Loaded steps:           <b>%1</b>").arg(ls));
-    QString const insertStr = QObject::tr("<br> - Loaded subfiles:  <b>%1</b>"
-                                          "<br> - Loaded lines:     <b>%2</b>"
-                                          "<br> - %3").arg(subFileCount).arg(loadedLines).arg(elapsedTime);
-    messages.append(insertStr);
-    QString const partsStr  = tr("%1").arg(mpc > 1 ? QObject::tr("Some parts") : QObject::tr("A part"));
-    QString const wereStr   = tr("%1").arg(mpc > 1 ? QObject::tr("were")       : QObject::tr("was"));
-    QString const theseStr  = tr("%1").arg(mpc > 1 ? QObject::tr("these are")  : QObject::tr("this is"));
-    QString const theirStr  = tr("%1").arg(mpc > 1 ? QObject::tr("their")      : QObject::tr("its"));
-    if (mpc)
+
+    QString suffix =    QObject::tr("<br> - Loaded lines:           <b>%1</b>"
+                                    "<br> - %2").arg(loadedLines).arg(elapsedTime);
+
+    if (subFileCount != (isMpd ? msmc : lsmc))
+        suffix.prepend( QObject::tr("<br> - Loaded subfiles:        <b>%1</b>").arg(subFileCount));
+
+    messages.append(suffix);
+
+    if (mpc) {
+        QString const partsStr  = tr("%1").arg(mpc > 1 ? QObject::tr("Some parts") : QObject::tr("A part"));
+        QString const wereStr   = tr("%1").arg(mpc > 1 ? QObject::tr("were")       : QObject::tr("was"));
+        QString const theseStr  = tr("%1").arg(mpc > 1 ? QObject::tr("these are")  : QObject::tr("this is"));
+        QString const theirStr  = tr("%1").arg(mpc > 1 ? QObject::tr("their")      : QObject::tr("its"));
         messages.append(QObject::tr("<br><br>%1 %2 not found. The following locations were searched;<br>"
                                     "model file, LDraw search paths, %3 and %4 library archives.<br>"
                                     "If %5 custom %1, be sure %6 location is in the LDraw search directory list.<br>"
                                     "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
                                     .arg(partsStr,wereStr,VER_LPUB3D_UNOFFICIAL_ARCHIVE,VER_LDRAW_OFFICIAL_ARCHIVE,theseStr,theirStr));
-    QString const subModStr = tr("%1").arg(esmc > 1 ? QObject::tr("submodels") : QObject::tr("submodel"));
-    if (esmc)
+    }
+    if (esmc) {
+        QString const subModStr = tr("%1").arg(esmc > 1 ? QObject::tr("submodels") : QObject::tr("submodel"));
         messages.append(QObject::tr("<br><br>Empty %1 found. These submodels were not added to the model repository").arg(subModStr));
+    }
 
     ui->messagesLabel->setText(messages);
     if (loadedItems.isEmpty())
@@ -483,6 +498,7 @@ void LdrawFilesLoad::populate(bool groupItems)
         case INLINE_PRIMITIVE_LOAD_MSG:
         case MPD_SUBMODEL_LOAD_MSG:
         case LDR_SUBFILE_LOAD_MSG:
+        case HELPER_PART_LOAD_MSG:
         {
             QList<QStandardItem *>validRow = prepareRow(item,"");
             QStandardItem *rowItem = validRow.at(0);
@@ -537,6 +553,9 @@ void LdrawFilesLoad::populate(bool groupItems)
 
     if (vpc)
         setRow(VALID_LOAD_MSG,            tr("Validated Parts (%1)").arg(vpc));
+
+    if (hpc)
+        setRow(HELPER_PART_LOAD_MSG,      tr("Helper Parts (%1)").arg(hpc));
 
     if (msmc)
         setRow(MPD_SUBMODEL_LOAD_MSG,     tr("Submodels (%1)").arg(msmc));

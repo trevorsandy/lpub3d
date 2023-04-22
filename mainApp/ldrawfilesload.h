@@ -84,6 +84,8 @@ private:
     int const subFileCount;
     int const partCount;
     int const uniquePartCount;
+    int const helperPartCount;
+    int const displayModelPartCount;
 
     QString const &modelFile;
     QString const &elapsedTime;
@@ -93,6 +95,7 @@ private:
     int vpc;
     int msmc;
     int lsmc;
+    int hpc;
     int ipc;
     int igpc;
     int ispc;

@@ -169,8 +169,10 @@ QString LDrawFile::_author         = VER_PRODUCTNAME_STR;
 QString LDrawFile::_category       = "";
 QString LDrawFile::_modelFile      = "";
 int     LDrawFile::_partCount      = 0;
+int     LDrawFile::_displayModelPartCount = 0;
 int     LDrawFile::_savedLines     = 0;
 int     LDrawFile::_uniquePartCount= 0;
+int     LDrawFile::_helperPartCount= 0;
 int     LDrawFile::_loadIssues     = 0;
 qint64  LDrawFile::_elapsed        = 0;
 bool    LDrawFile::_currFileIsUTF8 = false;
@@ -330,7 +332,9 @@ void LDrawFile::empty()
   _loadIssues            =  0;
   _elapsed               =  0;
   _partCount             =  0;
+  _displayModelPartCount =  0;
   _uniquePartCount       =  0;
+  _helperPartCount       =  0;
   _buildModNextStepIndex = -1;
   _buildModPrevStepIndex =  0;
 }
@@ -1386,7 +1390,7 @@ int LDrawFile::loadFile(const QString &fileName)
 
     _elapsed = t.elapsed();
 
-    const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique %3 %4. Total %5 %6. %7")
+    const QString loadMessage = QObject::tr("Loaded LDraw %1 model file '%2'. Unique %3 %4. Model Total %5 %6. %7")
                                             .arg(type == MPD_FILE ? "MPD" : "LDR")
                                             .arg(_modelFile)
                                             .arg(_uniquePartCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
@@ -1445,8 +1449,10 @@ int LDrawFile::loadStatus(bool menuAction)
             loadedLines(),
             loadedSteps(),
             subFileOrderSize(),
-            _partCount,
-            _uniquePartCount,
+            getPartCount(),
+            getUniquePartCount(),
+            getHelperPartCount(),
+            getDisplayModelPartCount(),
             _modelFile,
             elapsedTime,
             _loadedItems);
@@ -1749,12 +1755,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             }
         }
 
-        // indicate submodel in display model step
-        if (!displayModel)
-            displayModel =  smLine.contains(_fileRegExp[DMS_RX]);
-
         split(smLine,tokens);
 
+        // indicate submodel in display model step
+        if (!displayModel && tokens.size() > 1 && tokens[0] == "0") {
+            displayModel = smLine.contains(_fileRegExp[DMS_RX]);
+        }
         // type and substitute check
         if ((subfileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
             modelHeaderFinished = partHeaderFinished = true;
@@ -2324,12 +2330,12 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 }
             }
 
-            // indicate submodel in display model step
-            if (!displayModel)
-                displayModel =  smLine.contains(_fileRegExp[DMS_RX]);
-
             split(smLine,tokens);
 
+            // indicate submodel in display model step
+            if (!displayModel && tokens.size() > 1 && tokens[0] == "0") {
+                displayModel = smLine.contains(_fileRegExp[DMS_RX]);
+            }
             // type and substitute check
             if ((subfileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
                 topHeaderFinished = partHeaderFinished = true;
@@ -3302,7 +3308,6 @@ void LDrawFile::countParts(const QString &fileName) {
     std::function<void(Where&)> countModelParts;
     countModelParts = [&] (Where& top)
     {
-
         QStringList content = contents(top.modelName);
 
         // get content size
@@ -3310,11 +3315,17 @@ void LDrawFile::countParts(const QString &fileName) {
 
         if (content.size()) {
 
-            // initialize valid line
-            bool lineIncluded  = true;
-
             // skip the header
             gui->skipHeader(top);
+
+            QString description = QFileInfo(top.modelName).baseName();
+            LoadMsgType msgType = _mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBFILE_LOAD_MSG;
+            QString statusEntry = QObject::tr("%1|%2|Submodel: %3 with %4 lines (file: %5, line: %6)")
+                                              .arg(msgType).arg(top.modelName).arg(description).arg(size(top.modelName)).arg(top.modelName).arg(top.lineNumber);
+            loadStatusEntry(msgType, statusEntry, top.modelName, QObject::tr("Model [%1] is a SUBMODEL"));
+
+            // initialize valid line
+            bool lineIncluded  = true;
 
             // process submodel content...
             for (; top.lineNumber < lines; top.lineNumber++) {
@@ -3366,26 +3377,18 @@ void LDrawFile::countParts(const QString &fileName) {
 
                 QString type;
                 bool countThisLine = true;
+                bool helperPart    = true/*allow helper part*/;
+
                 if ((countThisLine = tokens.size() == 15 && tokens[0] == "1"))
                     type = tokens[14];
                 else if (isSubstitute(line, type))
                     countThisLine = !type.isEmpty();
 
-                bool partIncluded = !ExcludedParts::isExcludedPart(type);
+                if (countThisLine && lineIncluded && !ExcludedParts::isExcludedPart(type, helperPart)) {
 
-                if (countThisLine && lineIncluded && partIncluded) {
-                    QString statusEntry,statusDesc;
                     if (contains(type)) {
-                        if (isDisplayModel(type)) {
-                            continue;
-                        }
-                        QString description = QFileInfo(type).baseName();
                         subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
-                            LoadMsgType msgType = _mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBFILE_LOAD_MSG;
-                            statusEntry = QObject::tr("%1|%2|Submodel: %3 with %4 lines (file: %5, line: %6)")
-                                                      .arg(msgType).arg(type).arg(description).arg(size(type)).arg(top.modelName).arg(top.lineNumber);
-                            loadStatusEntry(msgType, statusEntry, type, QObject::tr("Model [%1] is a SUBMODEL"));
                             Where top(type, getSubmodelIndex(type), 0);
                             countModelParts(top);
                         } else {
@@ -3400,20 +3403,39 @@ void LDrawFile::countParts(const QString &fileName) {
                                 lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
                                 description = Primitive->mName;
                             }
+                            QString statusDesc;
                             bool inMissingItems = false;
                             switch(subFileType) {
                             case UNOFFICIAL_PART:
                             case UNOFFICIAL_SHORTCUT:
                             case UNOFFICIAL_GENERATED_PART:
-                                if (!displayModel)
+                                if (helperPart || displayModel) {
+                                    if (helperPart)
+                                        _helperPartCount++;
+                                    _displayModelPartCount++;
+                                } else {
                                     _partCount++;
+                                }
                                 inMissingItems = isMissingItem(type);
                                 statusDesc  = QObject::tr("Unofficial Inline%1 - %2 (file: %3, line: %4)")
-                                                          .arg(subFileType == UNOFFICIAL_GENERATED_PART ? QObject::tr(" LDCAD Generated") : "")
+                                                          .arg(subFileType == UNOFFICIAL_GENERATED_PART
+                                                          ? QObject::tr(" LDCad generated")
+                                                          : helperPart
+                                                                ? QObject::tr(" helper")
+                                                                : "")
                                                           .arg(description).arg(top.modelName).arg(top.lineNumber);
                                 statusEntry = QObject::tr("%1|%2|%3")
-                                                          .arg(subFileType == UNOFFICIAL_GENERATED_PART ? INLINE_GENERATED_PART_LOAD_MSG : INLINE_PART_LOAD_MSG).arg(type).arg(statusDesc);
-                                loadStatusEntry(INLINE_PART_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an LDCAD Generated INLINE PART."));
+                                                          .arg(subFileType == UNOFFICIAL_GENERATED_PART
+                                                          ? INLINE_GENERATED_PART_LOAD_MSG
+                                                          : helperPart
+                                                                 ? HELPER_PART_LOAD_MSG
+                                                                 : INLINE_PART_LOAD_MSG)
+                                                          .arg(type).arg(statusDesc);
+                                loadStatusEntry(INLINE_PART_LOAD_MSG, statusEntry, type, subFileType == UNOFFICIAL_GENERATED_PART
+                                                                                             ? QObject::tr("Part %1 is an LDCad Generated INLINE PART.")
+                                                                                             : helperPart
+                                                                                                   ? QObject::tr("Part %1 is a Helper INLINE PART.")
+                                                                                                   : QObject::tr("Part %1 is an INLINE PART."));
                                 statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(statusDesc);
                                 loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [Inline %2] validated."),true/*unique count*/);
                                 break;
@@ -3442,8 +3464,19 @@ void LDrawFile::countParts(const QString &fileName) {
                             partFile.replace("S\\","S/");
                         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
                         if (pieceInfo && pieceInfo->IsPartType()) {
-                            if (!displayModel)
+                            if (helperPart || displayModel) {
+                                if (helperPart) {
+                                    statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
+                                                      .arg(HELPER_PART_LOAD_MSG)
+                                                      .arg(type).arg(pieceInfo->m_strDescription)
+                                                      .arg(top.modelName).arg(top.lineNumber);
+                                    loadStatusEntry(HELPER_PART_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is a Helper PART."));
+                                    _helperPartCount++;
+                                }
+                                _displayModelPartCount++;
+                            } else {
                                 _partCount++;
+                            }
                             statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
                                                       .arg(VALID_LOAD_MSG).arg(type).arg(pieceInfo->m_strDescription).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [%2] validated."),true/*unique count*/);
@@ -3498,7 +3531,7 @@ void LDrawFile::recountParts()
     for (int i = loadedItems - 1; i >= 0; i--) {
         QString const &item = _loadedItems.at(i);
         LoadMsgType mt = static_cast<LoadMsgType>(item.leftRef(item.indexOf('|')).toInt());
-        if (mt <  MPD_SUBMODEL_LOAD_MSG)
+        if (mt <= MISSING_PART_LOAD_MSG)
             _loadedItems.removeAt(i);
     }
 
@@ -3506,6 +3539,8 @@ void LDrawFile::recountParts()
     _loadIssues = 0;
     _partCount  = 0;
     _uniquePartCount = 0;
+    _helperPartCount = 0;
+    _displayModelPartCount = 0;
 
     countParts(topLevelFile());
 

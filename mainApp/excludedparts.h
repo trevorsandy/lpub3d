@@ -31,16 +31,16 @@ class ExcludedParts
         Part(const QString _id, const Type _type) :
             id(_id), type(_type) {}
     };
-    static bool result;
     static QList<Part> excludedParts;
   public:
     ExcludedParts();
     static void loadExcludedParts(QByteArray &Buffer);
     static bool exportExcludedParts();
     static bool overwriteFile(const QString &file);
-    static const bool &isExcludedPart(QString part);
-    static const bool &isExcludedHelperPart(QString part);
-    static const bool &lineHasExcludedPart(const QString &line);
+    static bool isExcludedPart(const QString &part);
+    static bool isExcludedPart(const QString &part, bool &helperPart);
+    static bool isExcludedHelperPart(const QString &part);
+    static bool lineHasExcludedPart(const QString &line);
 };
 
 #endif // EXCLUDEDPARTS_H

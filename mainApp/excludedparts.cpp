@@ -25,7 +25,6 @@
 #include "lpub_qtcompat.h"
 #include "QsLog.h"
 
-bool ExcludedParts::result;
 QList<ExcludedParts::Part> ExcludedParts::excludedParts;
 
 ExcludedParts::ExcludedParts()
@@ -98,44 +97,53 @@ ExcludedParts::ExcludedParts()
     }
 }
 
-const bool &ExcludedParts::isExcludedPart(QString part)
+bool ExcludedParts::isExcludedPart(const QString &part, bool &helperPart)
 {
-    result = false;
+    bool allowHelperPart = helperPart;
+    helperPart = false;
     for (Part &excludedPart : excludedParts) {
         if (excludedPart.id.toLower() == part.toLower().trimmed()) {
-            result = true;
-            return result;
+            if (allowHelperPart)
+                if ((helperPart = excludedPart.type == EP_HELPER))
+                    return false;
+            return true;
         }
     }
-    return result;
+    return false;
 }
 
-const bool &ExcludedParts::isExcludedHelperPart(QString part)
+bool ExcludedParts::isExcludedPart(const QString &part)
 {
-    result = false;
     for (Part &excludedPart : excludedParts) {
         if (excludedPart.id.toLower() == part.toLower().trimmed()) {
-            result = excludedPart.type == EP_HELPER;
-            return result;
+            return true;
         }
     }
-    return result;
+    return false;
 }
 
-const bool &ExcludedParts::lineHasExcludedPart(const QString &line)
+bool ExcludedParts::isExcludedHelperPart(const QString &part)
 {
-    result = false;
+    for (Part &excludedPart : excludedParts) {
+        if (excludedPart.id.toLower() == part.toLower().trimmed()) {
+            return excludedPart.type == EP_HELPER;
+        }
+    }
+    return false;
+}
 
+bool ExcludedParts::lineHasExcludedPart(const QString &line)
+{
     QRegExp typeRx("^([1-5]) ");
     if (!line.contains(typeRx))
-        return result;
+        return false;
 
     QString part;
     QString type = typeRx.cap(1);
     QStringList le = line.split(" ", SkipEmptyParts);
-    int i = 0;
 
     // treat parts with spaces in the name
+    int i = 0;
     if (le.size() >= 15 && type == "1")
         i = 14;
     else if (le.size() >= 14 && type.contains(QRegExp("4|5")))
@@ -145,12 +153,12 @@ const bool &ExcludedParts::lineHasExcludedPart(const QString &line)
     else if (le.size() >= 8 && type == "2")
         i = 7;
     else
-        return result;
-    for (i; i < le.size(); i++)
-        part += (le[i]+" ");
+        return false;
 
-    result = isExcludedPart(part.replace(QRegExp("[\"']"),""));
-    return result;
+    for (; i < le.size(); i++)
+        part += (le.at(i)+" ");
+
+    return isExcludedPart(part.replace(QRegExp("[\"']"),""));
 }
 
 void ExcludedParts::loadExcludedParts(QByteArray &Buffer)

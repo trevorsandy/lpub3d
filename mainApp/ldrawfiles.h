@@ -47,59 +47,6 @@ extern QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
 extern QList<QRegExp> LDrawUnofficialOtherRegExp;
 extern const QString  LDrawUnofficialType[];
 
-class LDrawSubFile {
-  public:
-    QStringList  _contents;
-    QStringList  _smiContents;
-    QString      _subFilePath;
-    QString      _description;
-    bool         _modified;
-    QDateTime    _datetime;
-    QStringList  _renderedKeys;
-    QStringList  _mirrorRenderedKeys;
-    QVector<int> _lineTypeIndexes;
-    QVector<int> _prevStepPosition;
-    QVector<int> _subFileIndexes;
-    int          _numSteps;
-    int          _buildMods;
-    bool         _beenCounted;
-    int          _instances;
-    int          _mirrorInstances;
-    bool         _rendered;
-    bool         _mirrorRendered;
-    bool         _changedSinceLastWrite;
-    bool         _generated;
-    bool         _includeFile;
-    bool         _displayModel;
-    int          _startPageNumber;
-    int          _unofficialPart;
-
-    LDrawSubFile()
-    {
-      _unofficialPart = 0;
-      _prevStepPosition = { 0,0,0 };
-    }
-    LDrawSubFile(
-            const QStringList &contents,
-            QDateTime         &datetime,
-            int                unofficialPart,
-            bool               displayModel = false,
-            bool               generated = false,
-            bool               includeFile = false,
-            const QString     &subFilePath = QString(),
-            const QString     &description = QString());
-    ~LDrawSubFile()
-    {
-      _contents.clear();
-      _smiContents.clear();
-      _lineTypeIndexes.clear();
-      _subFileIndexes.clear();
-      _prevStepPosition.clear();
-      _renderedKeys.clear();
-      _mirrorRenderedKeys.clear();
-    }
-};
-
 class CfgSubFile {
   public:
     QStringList  _contents;
@@ -260,6 +207,59 @@ class MissingItem {
     ~MissingItem() { };
 };
 
+class LDrawSubFile {
+public:
+    QStringList  _contents;
+    QStringList  _smiContents;
+    QString      _subFilePath;
+    QString      _description;
+    bool         _modified;
+    QDateTime    _datetime;
+    QStringList  _renderedKeys;
+    QStringList  _mirrorRenderedKeys;
+    QVector<int> _lineTypeIndexes;
+    QVector<int> _prevStepPosition;
+    QVector<int> _subFileIndexes;
+    int          _numSteps;
+    int          _buildMods;
+    bool         _beenCounted;
+    int          _instances;
+    int          _mirrorInstances;
+    bool         _rendered;
+    bool         _mirrorRendered;
+    bool         _changedSinceLastWrite;
+    bool         _generated;
+    bool         _includeFile;
+    bool         _displayModel;
+    int          _startPageNumber;
+    int          _unofficialPart;
+
+    LDrawSubFile()
+    {
+      _unofficialPart = 0;
+      _prevStepPosition = { 0,0,0 };
+    }
+    LDrawSubFile(
+        const QStringList &contents,
+        QDateTime         &datetime,
+        int                unofficialPart,
+        bool               displayModel = false,
+        bool               generated = false,
+        bool               includeFile = false,
+        const QString     &subFilePath = QString(),
+        const QString     &description = QString());
+    ~LDrawSubFile()
+    {
+      _contents.clear();
+      _smiContents.clear();
+      _lineTypeIndexes.clear();
+      _subFileIndexes.clear();
+      _prevStepPosition.clear();
+      _renderedKeys.clear();
+      _mirrorRenderedKeys.clear();
+    }
+};
+
 class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
@@ -345,6 +345,8 @@ class LDrawFile {
     static QString              _modelFile;
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
+    static int                  _displayModelPartCount;
+    static int                  _helperPartCount;
     static int                  _uniquePartCount;
     static int                  _loadIssues;
     static bool                 _loadAborted;
@@ -360,8 +362,16 @@ class LDrawFile {
       return _uniquePartCount;
     }
 
-    int getPartCount(){
+    int getHelperPartCount() {
+      return _helperPartCount;
+    }
+
+    int getPartCount() {
       return _partCount;
+    }
+
+    int getDisplayModelPartCount() {
+      return _displayModelPartCount;
     }
 
     void setLoadBuildMods(bool b) {

@@ -77,6 +77,8 @@ struct LoadStatus {
     int const subFileCount;
     int const partCount;
     int const uniquePartCount;
+    int const helperPartCount;
+    int const displayModelPartCount;
     QString const &modelFile;
     QString const &elapsedTime;
     QStringList const &loadedItems;
@@ -86,6 +88,8 @@ struct LoadStatus {
                int const _subFileCount,
                int const _partCount,
                int const _uniquePartCount,
+               int const _helperPartCount,
+               int const _displayModelPartCount,
                QString const &_modelFile,
                QString const &_elapsedTime,
                QStringList const &_loadedItems)
@@ -95,6 +99,8 @@ struct LoadStatus {
         , subFileCount(_subFileCount)
         , partCount(_partCount)
         , uniquePartCount(_uniquePartCount)
+        , helperPartCount(_helperPartCount)
+        , displayModelPartCount(_displayModelPartCount)
         , modelFile(_modelFile)
         , elapsedTime(_elapsedTime)
         , loadedItems(_loadedItems)
@@ -157,16 +163,17 @@ enum LoadMsgType { VALID_LOAD_MSG,
                    INLINE_GENERATED_PART_LOAD_MSG,
                    INLINE_PRIMITIVE_LOAD_MSG,
                    INLINE_SUBPART_LOAD_MSG,
+                   MPD_SUBMODEL_LOAD_MSG,
+                   LDR_SUBFILE_LOAD_MSG,
+                   HELPER_PART_LOAD_MSG,
                    MISSING_PART_LOAD_MSG,
                    /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
                    PRIMITIVE_LOAD_MSG,
                    SUBPART_LOAD_MSG,
                    */
-                   MPD_SUBMODEL_LOAD_MSG,
-                   LDR_SUBFILE_LOAD_MSG,
-                   INCLUDE_FILE_LOAD_MSG,
                    EMPTY_SUBMODEL_LOAD_MSG,
                    BAD_INCLUDE_LOAD_MSG,
+                   INCLUDE_FILE_LOAD_MSG,
                    ALL_LOAD_MSG
 };
 enum ActionModuleType { NO_ACTION,                 //  0
