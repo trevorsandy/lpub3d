@@ -4249,6 +4249,7 @@ int Gui::getBOMParts(
   bool bfxLoad      = false;
   bool partsAdded   = false;
   bool excludedPart = false;
+  bool displayModel = false;
 
   bool buildModIgnore = false;
 
@@ -4270,7 +4271,8 @@ int Gui::getBOMParts(
 
       // scan through the rest of the model counting pages
       // if we've already hit the display page, then do as little as possible
-
+      QStringList token,addToken;
+      QString type;
       QString line = lpub->ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
 
       if (line.startsWith("0 GHOST ")) {
@@ -4279,16 +4281,21 @@ int Gui::getBOMParts(
 
       switch (line.toLatin1()[0]) {
         case '1':
-          /* check if part is in excludedPart.lst*/
-          excludedPart = ExcludedParts::lineHasExcludedPart(line);
 
-          if ( ! excludedPart && ! partIgnore && ! pliIgnore && ! buildModIgnore && ! synthBegin) {
-
-              QStringList token,addToken;
+          if (! displayModel && ! partIgnore && ! pliIgnore && ! buildModIgnore && ! synthBegin) {
 
               split(line,token);
 
-              QString    type = token[token.size()-1];
+              type = token[token.size()-1];
+
+              /* check if part is in excludedPart.lst*/
+              excludedPart = ExcludedParts::isExcludedPart(type);
+
+          } else {
+              break;
+          }
+
+          if ( ! excludedPart) {
 
               if (token[1] == LDRAW_MAIN_MATERIAL_COLOUR) {
                   split(addLine,addToken);
@@ -4319,7 +4326,7 @@ int Gui::getBOMParts(
 
               if ( ! removed) {
 
-                  if (lpub->ldrawFile.isSubmodel(type)) {
+                  if (lpub->ldrawFile.isSubmodel(type) && !lpub->ldrawFile.isDisplayModel(type)) {
 
                       Where current2(type,0);
 
@@ -4367,8 +4374,9 @@ int Gui::getBOMParts(
             case PliBeginSub6Rc:
             case PliBeginSub7Rc:
             case PliBeginSub8Rc:
-              if (! pliIgnore &&
-                  ! partIgnore &&
+              if (! displayModel   &&
+                  ! pliIgnore      &&
+                  ! partIgnore     &&
                   ! buildModIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
@@ -4377,6 +4385,11 @@ int Gui::getBOMParts(
                   bomParts << Pli::partLine(addPart,current,meta);
                   pliIgnore = true;
                 }
+              break;
+
+            case InsertFinalModelRc:
+            case InsertDisplayModelRc:
+              displayModel = true;
               break;
 
             case PliBeginIgnRc:
@@ -4464,14 +4477,15 @@ int Gui::getBOMParts(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              bomParts << Pli::partLine(line,current,meta);
+              if (! displayModel)
+                  bomParts << Pli::partLine(line,current,meta);
               break;
 
               /* remove a group or all instances of a part type */
             case RemoveGroupRc:
             case RemovePartTypeRc:
             case RemovePartNameRc:
-              if (! buildModIgnore) {
+              if (! displayModel && ! buildModIgnore) {
                   QStringList newBOMParts;
                   QVector<int> dummy;
                   if (rc == RemoveGroupRc) {
@@ -4485,8 +4499,9 @@ int Gui::getBOMParts(
               }
               break;
 
+            case EndOfFileRc:
+            case RotStepRc:
             case StepRc:
-
               if (partsAdded) {
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
@@ -4496,6 +4511,7 @@ int Gui::getBOMParts(
                     }
                 }
               partsAdded = false;
+              displayModel = false;
               break;
 
             default:
