@@ -2468,7 +2468,8 @@ int CountPageWorker::countPage(
         case '3':
         case '4':
         case '5':
-          if (! buildMod.ignore && opts.flags.addCountPage) {
+          // if opts.displayModel, we have a custom display
+          if (! opts.displayModel && ! buildMod.ignore && opts.flags.addCountPage) {
               ++opts.flags.partsAdded;
             } // ! BuildModIgnore, for each line
             break;

@@ -70,6 +70,7 @@ class LDrawSubFile {
     bool         _changedSinceLastWrite;
     bool         _generated;
     bool         _includeFile;
+    bool         _displayModel;
     int          _startPageNumber;
     int          _unofficialPart;
 
@@ -82,6 +83,7 @@ class LDrawSubFile {
             const QStringList &contents,
             QDateTime         &datetime,
             int                unofficialPart,
+            bool               displayModel = false,
             bool               generated = false,
             bool               includeFile = false,
             const QString     &subFilePath = QString(),
@@ -294,6 +296,7 @@ class LDrawFile {
     bool metaStartStepNumNotFound;
     bool helperPartsNotFound;
     bool topLevelModel;
+    bool displayModel;
     bool topHeaderFinished;
     bool ldcadGroupsLoaded;
     int  unofficialPart;
@@ -319,6 +322,7 @@ class LDrawFile {
       _buildModSteps.clear();
       _buildModStepIndexes.clear();
       _buildModRendered.clear();
+      _displayModelList.clear();
       _includeFileList.clear();
       _buildModList.clear();
       _missingItems.clear();
@@ -326,8 +330,9 @@ class LDrawFile {
     }
 
     static QStringList          _subFileOrder;
-    static QStringList          _subFileOrderNoUnoff;
     static QStringList          _includeFileList;
+    static QStringList          _subFileOrderNoUnoff;
+    static QStringList          _displayModelList;
     static QStringList          _buildModList;
     static QList<HiarchLevel*>  _currentLevels;
     static QList<HiarchLevel*>  _allLevels;
@@ -378,6 +383,7 @@ class LDrawFile {
                       int            unofficialPart,
                       bool           generated = false,
                       bool           includeFile = false,
+                      bool           displayModel = false,
                       const QString &subFilePath = QString(),
                       const QString &description = QString());
 
@@ -393,6 +399,7 @@ class LDrawFile {
     QString getSubFilePath(const QString &fileName);
     void normalizeHeader(const QString &fileName,
                          int missing = 0);
+    void setDisplayModel(const QString &mcFileName);
     void setSubFilePath(const QString &mcFileName,
                      const QString &subFilePath);
     void setContents(const QString     &fileName, 
@@ -415,8 +422,9 @@ class LDrawFile {
                      const QString &fileName = QString(),
                            bool externalFile = false);
     int subFileOrderSize();
-    QStringList subFileOrder();
-    QStringList includeFileList();
+    QStringList& subFileOrder();
+    QStringList& includeFileList();
+    QStringList& displayModelList();
     QVector<int> getSubmodelIndexes(const QString &fileName);
     
     QString readLine(const QString &fileName, int lineNumber);

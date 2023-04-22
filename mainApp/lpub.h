@@ -660,6 +660,7 @@ public:
                            csiParts,
                            date,
                            UNOFFICIAL_SUBMODEL,
+                           false /*displayModel*/,
                            true  /*generated*/,
                            false /*includeFile*/,
                            QString(),

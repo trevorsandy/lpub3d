@@ -3383,7 +3383,8 @@ int Gui::findPage(
         case '3':
         case '4':
         case '5':
-          if (! buildMod.ignore) {
+          // if opts.displayModel, we have a custom display
+          if (! opts.displayModel && ! buildMod.ignore) {
               ++opts.flags.partsAdded;
               CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
             } // ! BuildModIgnore, for each
@@ -5321,6 +5322,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
                                        contents,
                                        datetime,
                                        UNOFFICIAL_OTHER,
+                                       false/*displayModel*/,
                                        true/*generated*/,
                                        true/*includeFile*/,
                                        fileInfo.absoluteFilePath(),
