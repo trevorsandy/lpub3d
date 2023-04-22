@@ -3361,8 +3361,8 @@ void LDrawFile::countParts(const QString &fileName) {
                             }*/
                         } else {
                             const QString message = QObject::tr("Part [%1] was not found!");
-                            statusEntry = QObject::tr("%1|%2|Part not found! (file: %3, line: %4)")
-                                                      .arg(MISSING_PART_LOAD_MSG).arg(type).arg(top.modelName).arg(top.lineNumber);
+                            statusEntry = QObject::tr("%1|%2|Part not found! [%3] (file: %4, line: %5)")
+                                                      .arg(MISSING_PART_LOAD_MSG).arg(type).arg(line).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(MISSING_PART_LOAD_MSG, statusEntry, type, message);
                         }
                     }  // check archive
