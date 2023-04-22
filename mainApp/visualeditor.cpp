@@ -1920,7 +1920,15 @@ void Gui::enableVisualBuildModification()
     if (!lpub->currentStep || !Preferences::modeGUI || exporting())
         return;
 
-    bool buildModEnabled = Preferences::buildModEnabled;
+#ifdef QT_DEBUG_MODE
+    LDrawFile *ldrawFile = &lpub->ldrawFile;
+    Step *currentStep = lpub->currentStep;
+    Q_UNUSED(ldrawFile)
+    Q_UNUSED(currentStep)
+#endif
+
+    bool displayStep = lpub->currentStep->displayStep != DT_DEFAULT;
+    bool buildModEnabled = Preferences::buildModEnabled && !displayStep;
 
     if (sender() == EnableBuildModAct)
         buildModEnabled &= EnableBuildModAct->isChecked();
@@ -1943,7 +1951,8 @@ void Gui::enableVisualBuildModification()
     if(!ContinuousPage())
         gMainWindow->UpdateDefaultCameraProperties();
 
-    EnableBuildModAct->setEnabled(Preferences::buildModEnabled);
+    EnableBuildModAct->setVisible(!displayStep);
+    EnableBuildModAct->setEnabled(Preferences::buildModEnabled && !displayStep);
     EnableBuildModAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
 
@@ -1995,6 +2004,10 @@ void Gui::enableVisualBuildModActions()
 
     if (!currentStep || !Preferences::buildModEnabled || !Preferences::modeGUI || exporting())
         return;
+
+    if (currentStep)
+        if (currentStep->displayStep != DT_DEFAULT)
+            return;
 
 #ifdef QT_DEBUG_MODE
     LDrawFile *ldrawFile = &lpub->ldrawFile;
