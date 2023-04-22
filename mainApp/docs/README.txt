@@ -1,4 +1,4 @@
-LPub3D 2.4.6.155.3266 (22 04 2023 03:41:53)
+LPub3D 2.4.6.156.3267 (22 04 2023 03:42:15)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add view load status dialogue menu action #698
+- Enhancement - Insert display model - enable part and submodel lines #704
 - Enhancement - On startup, set theme based on Windows system theme #700
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
