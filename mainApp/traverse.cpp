@@ -2393,7 +2393,9 @@ int Gui::drawPage(
                           step->lightList = lightList;
 
                           PlacementType relativeType = SingleStepType;
-                          if (pliPerStep) { // Pli per Step
+
+                          // Pli per Step
+                          if (pliPerStep) {
                               if (multiStep) {
                                   relativeType = StepGroupType;
                               } else if (opts.calledOut) {
@@ -2409,43 +2411,44 @@ int Gui::drawPage(
                               emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
 
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-
-                              if (step->placeSubModel) { // Place SubModel at Step 1
-                                  emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
-
-                                  // get the number of submodel instances in the model file
-                                  instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                                  if (steps->meta.LPub.subModel.showInstanceCount.value())
-                                     displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
-                                  // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
-                                  // the updated countInstances routine's configuration is CountAtModel - this is the default options set
-                                  // and configurable in Project globals
-                                  if (displayInstanceCount) {
-                                      // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
-                                      if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
-                                          instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
-                                      else
-                                      if (countInstances == CountAtStep)
-                                          instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
-                                      else
-                                      if (countInstances > CountFalse && countInstances < CountAtStep)
-                                          instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
-                                  }
-
-                                  steps->meta.LPub.subModel.instance.setValue(instances);
-
-                                  step->subModel.setSubModel(opts.current.modelName,steps->meta);
-
-                                  step->subModel.displayInstanceCount = displayInstanceCount;
-
-                                  if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                      emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                              } // Place SubModel
-                              else
-                              {
-                                  step->subModel.clear();
-                              }
                           } // Pli per Step
+
+                          // Place submodel
+                          if (step->placeSubModel) { // Place SubModel at Step 1
+                              emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+
+                              // get the number of submodel instances in the model file
+                              instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                              if (steps->meta.LPub.subModel.showInstanceCount.value())
+                                  displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
+                              // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
+                              // the updated countInstances routine's configuration is CountAtModel - this is the default options set
+                              // and configurable in Project globals
+                              if (displayInstanceCount) {
+                                  // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
+                                  if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
+                                      instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
+                                  else
+                                  if (countInstances == CountAtStep)
+                                      instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
+                                  else
+                                  if (countInstances > CountFalse && countInstances < CountAtStep)
+                                      instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                              }
+
+                              steps->meta.LPub.subModel.instance.setValue(instances);
+
+                              step->subModel.setSubModel(opts.current.modelName,steps->meta);
+
+                              step->subModel.displayInstanceCount = displayInstanceCount;
+
+                              if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                  emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                          }
+                          else
+                          {
+                              step->subModel.clear();
+                          } // Place SubModel
 
                           switch (dividerType) {
                           // for range divider, we set the dividerType for the last STEP of the previous RANGE.
