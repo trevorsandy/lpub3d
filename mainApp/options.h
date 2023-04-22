@@ -107,6 +107,10 @@ public:
        TransBackground   (true),
        CustomViewpoint   (false),
        IsReset           (false),
+       StudCylinderColorEnabled(true),
+       PartEdgeColorEnabled    (true),
+       BlackEdgeColorEnabled   (true),
+       DarkEdgeColorEnabled    (true),
        StudCylinderColor (0),
        PartEdgeColor     (0),
        BlackEdgeColor    (0),
@@ -154,6 +158,10 @@ public:
   bool TransBackground;
   bool CustomViewpoint;
   bool IsReset;
+  bool StudCylinderColorEnabled;
+  bool PartEdgeColorEnabled;
+  bool BlackEdgeColorEnabled;
+  bool DarkEdgeColorEnabled;
   quint32 StudCylinderColor;
   quint32 PartEdgeColor;
   quint32 BlackEdgeColor;

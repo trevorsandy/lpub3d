@@ -82,15 +82,22 @@ int LPub::processCommandLine()
   mFileLoadFail                 = false;
 
   quint32 ColorValue            = 0;
+
+   int    StudStyle             = GetStudStyle();
+  bool    AutomateEdgeColor     = GetAutomateEdgeColor();
+  float   PartEdgeContrast      = GetPartEdgeContrast();
+  float   PartColorValueLDIndex = GetPartColorLightDarkIndex();
+
   quint32 StudCylinderColor     = GetStudCylinderColor();
   quint32 PartEdgeColor         = GetPartEdgeColor();
   quint32 BlackEdgeColor        = GetBlackEdgeColor();
   quint32 DarkEdgeColor         = GetDarkEdgeColor();
-  float   PartEdgeContrast      = GetPartEdgeContrast();
-  float   PartColorValueLDIndex = GetPartColorLightDarkIndex();
-  bool    AutomateEdgeColor     = GetAutomateEdgeColor();
+  bool    StudCylinderColorEnabled = GetStudCylinderColorEnabled();;
+  bool    PartEdgeColorEnabled  = GetPartEdgeColorEnabled();
+  bool    BlackEdgeColorEnabled = GetBlackEdgeColorEnabled();
+  bool    DarkEdgeColorEnabled  = GetDarkEdgeColorEnabled();
+  int     HighContrastStudStyle = static_cast<int>(lcStudStyle::HighContrast);
 
-   int StudStyle             = GetStudStyle();
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
    int highlightLineWidth    = HIGHLIGHT_LINE_WIDTH_DEFAULT;
   bool processExport         = false;
@@ -99,19 +106,23 @@ int LPub::processCommandLine()
   bool highlightStep         = false;
 // bool imageMatting          = false;
   bool resetSearchDirs       = false;
-  bool coloursChanged        = false;
+  bool StudStyleColourChanged= false;
+  bool AutoEdgeColorChanged  = false;
+  bool ColourConfigChanged   = false;
   bool rendererChanged       = false;
-  bool studStyleChanged      = false;
-  bool autoEdgeColorChanged  = false;
+  bool StudStyleChanged      = false;
   QString pageRange, exportOption, colourConfigFile,
           preferredRenderer, projection, message,
           fadeStepsColour, highlightStepColour,
           metaCommandsFile;
+  QString const StudStyleMessage = tr("High contrast stud style is required for the");
+  QString const AutomateEdgeColourMessage = tr("Automate edge color is required for the");
 
   // Parse parameters
   QStringList Arguments = Application::instance()->arguments();
 
   bool ParseOK = true;
+
   const int NumArguments = Arguments.size();
   
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
@@ -128,8 +139,10 @@ int LPub::processCommandLine()
       }
 
       bool IsExcluded = false;
-      for (int i = 0; i < excludedCommands.size(); i++) {
-          if (Param.startsWith(excludedCommands.at(i))) {
+      for (int i = 0; i < excludedCommands.size(); i++)
+      {
+          if (Param.startsWith(excludedCommands.at(i)))
+          {
               IsExcluded = true;
               break;
           }
@@ -138,7 +151,7 @@ int LPub::processCommandLine()
       if (IsExcluded)
           continue;
 
-      auto InvalidParse = [this, &Param, &Arguments, &ArgIdx, &ParseOK] (const QString& Text, bool Pair)
+      auto InvalidParse = [this, &Param, &Arguments, &ArgIdx, &ParseOK] (const QString& Text, bool Pair, bool SetParse = true)
       {
           QString message = Text.isEmpty() ? tr("Invalid value specified") : Text;
           if (Pair)
@@ -146,7 +159,7 @@ int LPub::processCommandLine()
           else
               emit messageSig(LOG_ERROR, message.append(tr(" '%1' option.").arg(Param)));
 
-          ParseOK = false;
+          ParseOK = SetParse ? false : true;
       };
 
       auto ParseString = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
@@ -267,71 +280,149 @@ int LPub::processCommandLine()
       if (Param == QLatin1String("-ss") || Param == QLatin1String("--stud-style"))
       {
         int Value;
-        if (!ParseInteger(Value, 0, 7))
+        if (!ParseInteger(Value, static_cast<int>(lcStudStyle::Plain), HighContrastStudStyle))
             InvalidParse(tr("Invalid value specified, valid values range from 0 to 7 for the"), true);
-        else if ((studStyleChanged = Value != StudStyle))
+        else if ((StudStyleChanged = Value != StudStyle))
             StudStyle = Value;
       }
-      else if (Param == QLatin1String("-scc") || Param == QLatin1String("--stud-cylinder-color"))
+      else
+      if (Param == QLatin1String("-nscc") || Param == QLatin1String("--disable-stud-cylinder-color"))
+      {
+        if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+            InvalidParse(StudStyleMessage, true, false);
+        else if (StudCylinderColorEnabled) {
+            StudStyleChanged = true;
+            StudCylinderColorEnabled = false;
+        }
+      }
+      else
+      if (Param == QLatin1String("-scc") || Param == QLatin1String("--stud-cylinder-color"))
       {
           if (ParseColor32(ColorValue))
           {
-              if (StudStyle < 6)
-                  InvalidParse(tr("High contrast stud style is required for the"), true);
-              else if ((coloursChanged = ColorValue != StudCylinderColor))
+              if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+                  InvalidParse(StudStyleMessage, true, false);
+              else if (ColorValue != StudCylinderColor) {
+                  StudStyleChanged = true;
                   StudCylinderColor = ColorValue;
+              }
           }
       }
-      else if (Param == QLatin1String("-ec") || Param == QLatin1String("--edge-color"))
+      else
+      if (Param == QLatin1String("-nec") || Param == QLatin1String("--disable-edge-color"))
+      {
+          if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+              InvalidParse(StudStyleMessage, true, false);
+          else if (PartEdgeColorEnabled)
+          {
+              StudStyleColourChanged = true;
+              PartEdgeColorEnabled = false;
+          }
+      }
+      else
+      if (Param == QLatin1String("-ec") || Param == QLatin1String("--edge-color"))
       {
           if (ParseColor32(PartEdgeColor))
           {
-              if (StudStyle < 6)
-                  InvalidParse(tr("High contrast stud style is required for the"), true);
-              else if ((coloursChanged = ColorValue != PartEdgeColor))
+              if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+                  InvalidParse(StudStyleMessage, true, false);
+              else if (ColorValue != PartEdgeColor)
+              {
+                  StudStyleColourChanged = true;
                   PartEdgeColor = ColorValue;
+              }
           }
       }
-      else if (Param == QLatin1String("-bec") || Param == QLatin1String("--black-edge-color"))
+      else
+      if (Param == QLatin1String("-nbec") || Param == QLatin1String("--disable-black-edge-color"))
+      {
+          if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+              InvalidParse(StudStyleMessage, true, false);
+          else if (BlackEdgeColorEnabled)
+          {
+              StudStyleColourChanged = true;
+              BlackEdgeColorEnabled = false;
+          }
+      }
+      else
+      if (Param == QLatin1String("-bec") || Param == QLatin1String("--black-edge-color"))
       {
           if (ParseColor32(BlackEdgeColor))
           {
-              if (StudStyle < 6)
-                  InvalidParse(tr("High contrast stud style is required for the"), true);
-              else if ((coloursChanged = ColorValue != BlackEdgeColor))
+              if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+                  InvalidParse(StudStyleMessage, true, false);
+              else if (ColorValue != BlackEdgeColor)
+              {
+                  StudStyleColourChanged = true;
                   BlackEdgeColor = ColorValue;
+              }
           }
       }
-      else if (Param == QLatin1String("-dec") || Param == QLatin1String("--dark-edge-color"))
+      else
+      if (Param == QLatin1String("-ndec") || Param == QLatin1String("--disable-dark-edge-color"))
+      {
+          if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+              InvalidParse(StudStyleMessage, true, false);
+          else if (DarkEdgeColorEnabled)
+          {
+              StudStyleColourChanged = true;
+              DarkEdgeColorEnabled = false;
+          }
+      }
+      else
+      if (Param == QLatin1String("-dec") || Param == QLatin1String("--dark-edge-color"))
       {
           if (ParseColor32(DarkEdgeColor))
           {
-              if (StudStyle < 6)
-                  InvalidParse(tr("High contrast stud style is required for the"), true);
-              else if ((coloursChanged = ColorValue != DarkEdgeColor))
+              if (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))
+                  InvalidParse(StudStyleMessage, true, false);
+              else if (ColorValue != DarkEdgeColor)
+              {
+                  StudStyleColourChanged = true;
                   DarkEdgeColor = ColorValue;
+              }
           }
       }
       else
       if (Param == QLatin1String("-aec") || Param == QLatin1String("--automate-edge-color"))
       {
           if (!AutomateEdgeColor)
-              autoEdgeColorChanged = true;
-          AutomateEdgeColor = true;
+          {
+              AutoEdgeColorChanged = true;
+              AutomateEdgeColor = true;
+          }
       }
       else
       if (Param == QLatin1String("-cc") || Param == QLatin1String("--color-contrast"))
       {
-          if (ParseFloat(PartEdgeContrast, 0.0f, 1.0f))
-              if (!AutomateEdgeColor)
-                  InvalidParse(tr("Automate edge color is required for the"), true);
+          float EdgeContrast = 0;
+          if (ParseFloat(EdgeContrast, 0.0f, 1.0f))
+          {
+              if (!AutomateEdgeColor && !Arguments.contains("-aec") && !Arguments.contains("--automate-edge-color"))
+                  InvalidParse(AutomateEdgeColourMessage, true, false);
+              else if (EdgeContrast != PartEdgeContrast)
+              {
+                  AutoEdgeColorChanged = true;
+                  PartEdgeContrast = EdgeContrast;
+              }
+          }
       }
       else
       if (Param == QLatin1String("-ldv") || Param == QLatin1String("--light-dark-value"))
       {
+          float ColorValueLDIndex = 0;
           if (ParseFloat(PartColorValueLDIndex, 0.0f, 1.0f))
-              if (!AutomateEdgeColor)
-                  InvalidParse(tr("Automate edge color is required for the"), true);
+          {
+              if ((!AutomateEdgeColor && !Arguments.contains("-aec") && !Arguments.contains("--automate-edge-color")) ||
+                  (StudStyle < HighContrastStudStyle && !Arguments.contains("-ss") && !Arguments.contains("--stud-style"))) {
+                  InvalidParse(tr("Automate edge color or High contrast stud style is required for the"), true, false);
+              }
+              else if (ColorValueLDIndex != PartColorValueLDIndex)
+              {
+                  AutoEdgeColorChanged = true;
+                  PartColorValueLDIndex = ColorValueLDIndex;
+              }
+          }
       }
       else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
@@ -365,15 +456,19 @@ int LPub::processCommandLine()
       {
         if (!ParseInteger(highlightLineWidth, 1, 10))
             InvalidParse(tr("Invalid value specified, valid values range from 1 to 10 for the"), true);
+        else if (Preferences::preferredRenderer != RENDERER_LDGLITE && (!Arguments.contains("-p") || !Arguments.contains("--preferred-renderer")))
+            InvalidParse(tr("Renderer LDGlite is required for the"), true, false);
       }
       else
       if (Param == QLatin1String("-ccf") || Param == QLatin1String("--color-config-file"))
       {
         if (ParseString(colourConfigFile, true))
         {
+            colourConfigFile = QDir::toNativeSeparators(colourConfigFile);
             if (QFileInfo(colourConfigFile).exists())
             {
-                coloursChanged = true;
+                if (QDir::toNativeSeparators(Preferences::altLDConfigPath.toLower()) != colourConfigFile.toLower())
+                    ColourConfigChanged = true;
             }
             else
             {
@@ -383,12 +478,13 @@ int LPub::processCommandLine()
         }
       }
       else
-        InvalidParse(tr("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
+        InvalidParse(tr("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false, false);
   }
 
   auto restoreRendererAndLibrary = [&] ()
   {
-      if (rendererChanged) {
+      if (rendererChanged)
+      {
           Preferences::preferredRenderer        = Gui::savedRendererData.renderer;
           Preferences::enableLDViewSingleCall   = Gui::savedRendererData.useLDVSingleCall ;
           Preferences::enableLDViewSnaphsotList = Gui::savedRendererData.useLDVSnapShotList;
@@ -397,7 +493,8 @@ int LPub::processCommandLine()
           Preferences::preferredRendererPreferences(true/*global*/);
       }
 
-      if (! Preferences::currentLibrarySave.isEmpty()) {
+      if (! Preferences::currentLibrarySave.isEmpty())
+      {
           QSettings Settings;
           // set library directly in setings
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),Preferences::currentLibrarySave);
@@ -414,8 +511,7 @@ int LPub::processCommandLine()
   {
       emit messageSig(LOG_ERROR,tr("Parse command line failed: %1.").arg(Arguments.join(" ")));
 
-      disconnect(gui,  SIGNAL(fileLoadedSig(bool)),
-                 this, SLOT(  fileLoaded(bool)));
+      disconnect(gui,  SIGNAL(fileLoadedSig(bool)), this, SLOT(  fileLoaded(bool)));
 
       restoreRendererAndLibrary();
 
@@ -424,14 +520,16 @@ int LPub::processCommandLine()
 
   int result = 0;
 
-  if (!metaCommandsFile.isEmpty()) {
+  if (!metaCommandsFile.isEmpty())
+  {
       QString ignored;
       loadCommandCollection();
       if (!exportMetaCommands(metaCommandsFile, ignored))
           result = 1;
   }
 
-  if (! preferredRenderer.isEmpty()) {
+  if (! preferredRenderer.isEmpty())
+  {
      Gui::savedRendererData.renderer           = Preferences::preferredRenderer;
      Gui::savedRendererData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
      Gui::savedRendererData.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
@@ -440,7 +538,8 @@ int LPub::processCommandLine()
      rendererChanged = setPreferredRendererFromCommand(preferredRenderer);
   }
 
-  if (projection.toLower() == "p" || projection.toLower() == "perspective") {
+  if (projection.toLower() == "p" || projection.toLower() == "perspective")
+  {
       bool applyCARenderer = Preferences::preferredRenderer == RENDERER_LDVIEW;
       message = tr("Camera projection set to Perspective.%1")
                    .arg(applyCARenderer ?
@@ -448,7 +547,9 @@ int LPub::processCommandLine()
       emit messageSig(LOG_INFO,message);
       Preferences::applyCALocally = !applyCARenderer;
       Preferences::perspectiveProjection = true;
-  } else if (projection.toLower() == "o" || projection.toLower() == "orthographic") {
+  }
+  else if (projection.toLower() == "o" || projection.toLower() == "orthographic")
+  {
       message = tr("Camera projection set to Orthographic");
       emit messageSig(LOG_INFO,message);
       Preferences::perspectiveProjection = false;
@@ -463,12 +564,15 @@ int LPub::processCommandLine()
   if (Preferences::snapToGrid)
       Preferences::setSnapToGridPreference(false);
 
-  if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
+  if (fadeSteps && fadeSteps != Preferences::enableFadeSteps)
+  {
       Preferences::enableFadeSteps = fadeSteps;
       message = tr("Fade Previous Steps set to ON.");
       emit messageSig(LOG_INFO,message);
-      if (fadeStepsColour.isEmpty()) {
-          if (Preferences::fadeStepsUseColour) {
+      if (fadeStepsColour.isEmpty())
+      {
+          if (Preferences::fadeStepsUseColour)
+          {
               Preferences::fadeStepsUseColour = false;
               message = tr("Use Global Fade Color set to OFF.");
               emit messageSig(LOG_INFO,message);
@@ -476,7 +580,8 @@ int LPub::processCommandLine()
       }
   }
 
-  if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) && Preferences::enableFadeSteps) {
+  if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) && Preferences::enableFadeSteps)
+  {
       message = tr("Fade Steps Transparency changed from %1 to %2 percent.")
           .arg(Preferences::fadeStepsOpacity)
           .arg(fadeStepsOpacity);
@@ -484,13 +589,16 @@ int LPub::processCommandLine()
       Preferences::fadeStepsOpacity = fadeStepsOpacity;
   }
 
-  if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps) {
-      if (!Preferences::fadeStepsUseColour) {
+  if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps)
+  {
+      if (!Preferences::fadeStepsUseColour)
+      {
           Preferences::fadeStepsUseColour = true;
           message = tr("Use Global Fade Color set to ON.");
           emit messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
-          if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
+          if (fadeStepsOpacity != Preferences::fadeStepsOpacity )
+          {
               message = tr("Fade Steps Transparency changed from %1 to %2 percent.")
                   .arg(Preferences::fadeStepsOpacity)
                   .arg(fadeStepsOpacity);
@@ -500,7 +608,8 @@ int LPub::processCommandLine()
       }
       QColor ParsedColor = LDrawColor::color(fadeStepsColour);
       if (ParsedColor.isValid() &&
-          fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower()) {
+          fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower())
+      {
           bool isHexRGB = fadeStepsColour.contains(QRegExp("\\s*(0x|#)([\\da-fA-F]+)\\s*$"));
           QString const validColourName = isHexRGB ? LDrawColor::name(fadeStepsColour) : fadeStepsColour;
           message = tr("Fade Steps Color preference changed from %1 to %2.")
@@ -534,7 +643,8 @@ int LPub::processCommandLine()
 //        }
 //    }
 
-  if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
+  if (highlightStep && highlightStep != Preferences::enableHighlightStep)
+  {
       Preferences::enableHighlightStep = highlightStep;
       message = tr("Highlight Current Step set to ON.");
       emit messageSig(LOG_INFO,message);
@@ -543,7 +653,8 @@ int LPub::processCommandLine()
   QColor ParsedColor = LDrawColor::color(fadeStepsColour);
   if (ParsedColor.isValid() &&
       highlightStepColour.toLower() != Preferences::highlightStepColour.toLower() &&
-      Preferences::enableHighlightStep) {
+      Preferences::enableHighlightStep)
+  {
       message = tr("Highlight Step Color preference changed from %1 to %2.")
           .arg(Preferences::highlightStepColour)
           .arg(highlightStepColour);
@@ -551,7 +662,8 @@ int LPub::processCommandLine()
       Preferences::highlightStepColour = highlightStepColour;
   }
 
-  if ((highlightLineWidth != Preferences::highlightStepLineWidth ) && Preferences::enableHighlightStep) {
+  if ((highlightLineWidth != Preferences::highlightStepLineWidth ) && Preferences::enableHighlightStep)
+  {
       message = tr("Highlight Line Width preference changed from %1 to %2.")
           .arg(Preferences::highlightStepLineWidth)
           .arg(highlightLineWidth);
@@ -559,52 +671,74 @@ int LPub::processCommandLine()
       Preferences::highlightStepLineWidth = highlightLineWidth;
   }
 
-  if (resetSearchDirs) {
+  if (resetSearchDirs)
+  {
       message = tr("Reset search directories requested..");
       emit messageSig(LOG_INFO,message);
 
       // set fade step setting
-      if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
+      if (fadeSteps && fadeSteps != Preferences::enableFadeSteps)
           Preferences::enableFadeSteps = fadeSteps;
-      }
       // set highlight step setting
-      if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
+      if (highlightStep && highlightStep != Preferences::enableHighlightStep)
           Preferences::enableHighlightStep = highlightStep;
-      }
       gui->partWorkerLDSearchDirs.resetSearchDirSettings();
   }
 
   if (!colourConfigFile.isEmpty())
       Preferences::altLDConfigPath = colourConfigFile;
 
-  if (studStyleChanged || autoEdgeColorChanged) {
+  if (StudStyleChanged || StudStyleColourChanged || AutoEdgeColorChanged || ColourConfigChanged)
+  {
       NativeOptions* viewerOptions = new NativeOptions;
-      if (studStyleChanged) {
-          viewerOptions->StudStyle         = StudStyle;
-          viewerOptions->LightDarkIndex    = PartColorValueLDIndex;
-          viewerOptions->StudCylinderColor = StudCylinderColor;
-          viewerOptions->PartEdgeColor     = PartEdgeColor;
-          viewerOptions->BlackEdgeColor    = BlackEdgeColor;
-          viewerOptions->DarkEdgeColor     = DarkEdgeColor;
-          SetStudStyle(viewerOptions, false);
-      } else if (autoEdgeColorChanged) {
-          if (AutomateEdgeColor && StudStyle > 5) {
+      if (StudStyleChanged || StudStyleColourChanged)
+      {
+          viewerOptions->StudStyle                = StudStyle;
+          viewerOptions->StudCylinderColorEnabled = StudCylinderColorEnabled;
+          viewerOptions->StudCylinderColor        = StudCylinderColor;
+          viewerOptions->PartEdgeColorEnabled     = PartEdgeColorEnabled;
+          viewerOptions->PartEdgeColor            = PartEdgeColor;
+          viewerOptions->BlackEdgeColorEnabled    = BlackEdgeColorEnabled;
+          viewerOptions->BlackEdgeColor           = BlackEdgeColor;
+          viewerOptions->DarkEdgeColorEnabled     = DarkEdgeColorEnabled;
+          viewerOptions->DarkEdgeColor            = DarkEdgeColor;
+          viewerOptions->LightDarkIndex           = PartColorValueLDIndex;
+          if (StudStyleChanged)
+              SetStudStyle(viewerOptions, false/*reload*/, true/*change*/);
+          else if (StudStyleColourChanged)
+          {
+              lcPreferences& Preferences = lcGetPreferences();
+              Preferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+              Preferences.mPartEdgeColorEnabled  = PartEdgeColorEnabled;
+              Preferences.mPartEdgeColor         = PartEdgeColor;
+              Preferences.mBlackEdgeColorEnabled = BlackEdgeColorEnabled;
+              Preferences.mBlackEdgeColor        = BlackEdgeColor;
+              Preferences.mDarkEdgeColorEnabled  = DarkEdgeColorEnabled;
+              Preferences.mDarkEdgeColor         = DarkEdgeColor;
+              lcGetPiecesLibrary()->LoadColors();
+          }
+      }
+      else if (AutoEdgeColorChanged)
+      {
+          if (AutomateEdgeColor && StudStyle >= HighContrastStudStyle)
+          {
               message = tr("High contrast stud and edge color settings are ignored when -aec or --automate-edge-color is set.");
               emit messageSig(LOG_NOTICE,message);
           }
-          viewerOptions->AutoEdgeColor     = AutomateEdgeColor;
-          viewerOptions->EdgeContrast      = PartEdgeContrast;
-          viewerOptions->EdgeSaturation    = PartColorValueLDIndex;
-          SetAutomateEdgeColor(viewerOptions);
+          viewerOptions->AutoEdgeColor  = AutomateEdgeColor;
+          viewerOptions->LightDarkIndex = PartColorValueLDIndex;
+          viewerOptions->EdgeContrast   = PartEdgeContrast;
+          viewerOptions->EdgeSaturation = PartColorValueLDIndex;
+          SetAutomateEdgeColor(viewerOptions, true/*change*/);
       }
-  } else if (coloursChanged) {
-      lcGetPiecesLibrary()->LoadColors();
+      else if (ColourConfigChanged)
+          lcGetPiecesLibrary()->LoadColors();
   }
 
-  if (!commandlineFile.isEmpty() ) {
-
-      if (QFileInfo(commandlineFile).isFile()) {
-
+  if (!commandlineFile.isEmpty() )
+  {
+      if (QFileInfo(commandlineFile).isFile())
+      {
           QElapsedTimer commandTimer;
           commandTimer.start();
 
@@ -624,11 +758,15 @@ int LPub::processCommandLine()
           };
 
           int waited = 0;
-          while (!LPub::mFileLoaded) {
-              if (waited < Preferences::fileLoadWaitTime/*5 minutes*/) {
+          while (!LPub::mFileLoaded)
+          {
+              if (waited < Preferences::fileLoadWaitTime/*5 minutes*/)
+              {
                   waited += 100;
                   wait(100);
-              } else {
+              }
+              else
+              {
                   message = tr("File '%1' load exceeded the allotted time of %2 minutes. %3")
                                .arg(QFileInfo(commandlineFile).fileName())
                                .arg(Preferences::fileLoadWaitTime/60000)
@@ -643,7 +781,8 @@ int LPub::processCommandLine()
 
               int mode = PAGE_PROCESS;
 
-              if (processExport) {
+              if (processExport)
+              {
                   if (exportOption == QLatin1String("pdf"))
                      mode = EXPORT_PDF;
                   else
@@ -685,20 +824,20 @@ int LPub::processCommandLine()
                   else
                      mode = EXPORT_PDF;
               }
-
               emit consoleCommandSig(mode, &result);
-
-          } else {
+          }
+          else
+          {
               result = 1;
           }
-
           emit messageSig(LOG_INFO,tr("Model file '%1' process %2 (result code %3). %4.")
                           .arg(QFileInfo(commandlineFile).fileName())
                           .arg(result ? tr("failed") : tr("succeeded"))
                           .arg(result)
                           .arg(LPub::elapsedTime(commandTimer.elapsed())));
-
-      } else {
+      }
+      else
+      {
           emit messageSig(LOG_ERROR,tr("Specified model file is not valid: %1.").arg(commandlineFile));
           result = 1;
       }

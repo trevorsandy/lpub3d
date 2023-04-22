@@ -119,12 +119,12 @@ int LPub::GetStudStyle()
         return lcGetProfileInt(LC_PROFILE_STUD_STYLE);
 }
 
-bool LPub::GetAutomateEdgeColor()
+bool LPub::GetStudCylinderColorEnabled()
 {
     if (gApplication)
-        return lcGetPreferences().mAutomateEdgeColor;
+        return lcGetPreferences().mStudCylinderColorEnabled;
     else
-        return lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+        return lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR_ENABLED);
 }
 
 quint32 LPub::GetStudCylinderColor()
@@ -135,12 +135,36 @@ quint32 LPub::GetStudCylinderColor()
         return lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
 }
 
+bool LPub::GetPartEdgeColorEnabled()
+{
+    if (gApplication)
+        return lcGetPreferences().mPartEdgeColorEnabled;
+    else
+        return lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR_ENABLED);
+}
+
 quint32 LPub::GetPartEdgeColor()
 {
     if (gApplication)
         return lcGetPreferences().mPartEdgeColor;
     else
         return lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
+}
+
+bool LPub::GetBlackEdgeColorEnabled()
+{
+    if (gApplication)
+        return lcGetPreferences().mBlackEdgeColorEnabled;
+    else
+        return lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR_ENABLED);
+}
+
+bool LPub::GetDarkEdgeColorEnabled()
+{
+    if (gApplication)
+        return lcGetPreferences().mDarkEdgeColorEnabled;
+    else
+        return lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR_ENABLED);
 }
 
 quint32 LPub::GetBlackEdgeColor()
@@ -159,6 +183,14 @@ quint32 LPub::GetDarkEdgeColor()
         return lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
 }
 
+bool LPub::GetAutomateEdgeColor()
+{
+    if (gApplication)
+        return lcGetPreferences().mAutomateEdgeColor;
+    else
+        return lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+}
+
 float LPub::GetPartEdgeContrast()
 {
     if (gApplication)
@@ -175,68 +207,88 @@ float LPub::GetPartColorLightDarkIndex()
         return lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 }
 
-void LPub::SetStudStyle(const NativeOptions* Options, bool value)
+void LPub::SetStudStyle(const NativeOptions* Options, bool Reload, bool Changed)
 {
-    float  PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
-    quint32 StudCylinderColor    = lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
-    quint32 PartEdgeColor        = lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
-    quint32 BlackEdgeColor       = lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
-    quint32 DarkEdgeColor        = lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
-    int StudStyle                = lcGetProfileInt(LC_PROFILE_STUD_STYLE);
-
-    if (Options) {
-        PartColorValueLDIndex = Options->LightDarkIndex;
-        StudCylinderColor     = Options->StudCylinderColor;
-        PartEdgeColor         = Options->PartEdgeColor;
-        BlackEdgeColor        = Options->BlackEdgeColor;
-        DarkEdgeColor         = Options->DarkEdgeColor;
-        StudStyle             = Options->StudStyle;
-    }
-
     lcPreferences& Preferences = lcGetPreferences();
 
-    bool Change = GetStudStyle()                      != StudStyle;
-         Change |= Preferences.mPartColorValueLDIndex != PartColorValueLDIndex;
-         Change |= Preferences.mStudCylinderColor     != StudCylinderColor;
-         Change |= Preferences.mPartEdgeColor         != PartEdgeColor;
-         Change |= Preferences.mBlackEdgeColor        != BlackEdgeColor;
-         Change |= Preferences.mDarkEdgeColor         != DarkEdgeColor;
+    if (!Changed) {
+        int StudStyle                 = lcGetProfileInt(  LC_PROFILE_STUD_STYLE);
+        float  PartColorValueLDIndex  = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
+        quint32 StudCylinderColor     = lcGetProfileInt(  LC_PROFILE_STUD_CYLINDER_COLOR);
+        quint32 PartEdgeColor         = lcGetProfileInt(  LC_PROFILE_PART_EDGE_COLOR);
+        quint32 BlackEdgeColor        = lcGetProfileInt(  LC_PROFILE_BLACK_EDGE_COLOR);
+        quint32 DarkEdgeColor         = lcGetProfileInt(  LC_PROFILE_DARK_EDGE_COLOR);
+        bool StudCylinderColorEnabled = lcGetProfileInt(  LC_PROFILE_STUD_CYLINDER_COLOR_ENABLED);
+        bool PartEdgeColorEnabled     = lcGetProfileInt(  LC_PROFILE_PART_EDGE_COLOR_ENABLED);
+        bool BlackEdgeColorEnabled    = lcGetProfileInt(  LC_PROFILE_BLACK_EDGE_COLOR_ENABLED);
+        bool DarkEdgeColorEnabled     = lcGetProfileInt(  LC_PROFILE_DARK_EDGE_COLOR_ENABLED);
 
-    if (Change) {
-        Preferences.mPartColorValueLDIndex = PartColorValueLDIndex;
-        Preferences.mStudCylinderColor     = StudCylinderColor;
-        Preferences.mPartEdgeColor         = PartEdgeColor;
-        Preferences.mBlackEdgeColor        = BlackEdgeColor;
-        Preferences.mDarkEdgeColor         = DarkEdgeColor;
+        if (Options) {
+            PartColorValueLDIndex    = Options->LightDarkIndex;
+            StudCylinderColorEnabled = Options->StudCylinderColorEnabled;
+            StudCylinderColor        = Options->StudCylinderColor;
+            PartEdgeColorEnabled     = Options->PartEdgeColorEnabled;
+            PartEdgeColor            = Options->PartEdgeColor;
+            BlackEdgeColorEnabled    = Options->BlackEdgeColorEnabled;
+            BlackEdgeColor           = Options->BlackEdgeColor;
+            DarkEdgeColorEnabled     = Options->DarkEdgeColorEnabled;
+            DarkEdgeColor            = Options->DarkEdgeColor;
+            StudStyle                = Options->StudStyle;
+        }
 
-        lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), value, true/*<placeholder>*/);
+        Changed  = GetStudStyle()                        != StudStyle;
+        Changed |= Preferences.mPartColorValueLDIndex    != PartColorValueLDIndex;
+        Changed |= Preferences.mStudCylinderColor        != StudCylinderColor;
+        Changed |= Preferences.mPartEdgeColor            != PartEdgeColor;
+        Changed |= Preferences.mBlackEdgeColor           != BlackEdgeColor;
+        Changed |= Preferences.mDarkEdgeColor            != DarkEdgeColor;
+        Changed |= Preferences.mStudCylinderColorEnabled != StudCylinderColorEnabled;
+        Changed |= Preferences.mPartEdgeColorEnabled     != PartEdgeColorEnabled;
+        Changed |= Preferences.mBlackEdgeColorEnabled    != BlackEdgeColorEnabled;
+        Changed |= Preferences.mDarkEdgeColorEnabled     != DarkEdgeColorEnabled;
+    }
+
+    if (Changed && Options) {
+        Preferences.mPartColorValueLDIndex    = Options->LightDarkIndex;
+        Preferences.mStudCylinderColorEnabled = Options->StudCylinderColorEnabled;
+        Preferences.mStudCylinderColor        = Options->StudCylinderColor;
+        Preferences.mPartEdgeColorEnabled     = Options->PartEdgeColorEnabled;
+        Preferences.mPartEdgeColor            = Options->PartEdgeColor;
+        Preferences.mBlackEdgeColorEnabled    = Options->BlackEdgeColorEnabled;
+        Preferences.mBlackEdgeColor           = Options->BlackEdgeColor;
+        Preferences.mDarkEdgeColorEnabled     = Options->DarkEdgeColorEnabled;
+        Preferences.mDarkEdgeColor            = Options->DarkEdgeColor;
+
+        lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(Options->StudStyle), Reload, Options->StudCylinderColorEnabled);
 
         lcGetPiecesLibrary()->LoadColors();
     }
 }
 
-void LPub::SetAutomateEdgeColor(const NativeOptions* Options)
+void LPub::SetAutomateEdgeColor(const NativeOptions* Options, bool Changed)
 {
-    bool  AutomateEdgeColor     = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
-    float PartEdgeContrast      = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
-    float PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
-
-    if (Options) {
-        AutomateEdgeColor     = Options->AutoEdgeColor;
-        PartEdgeContrast      = Options->EdgeContrast;
-        PartColorValueLDIndex = Options->EdgeSaturation;
-    }
-
     lcPreferences& Preferences = lcGetPreferences();
 
-    bool Changed  = Preferences.mAutomateEdgeColor     != AutomateEdgeColor;
-         Changed |= Preferences.mPartEdgeContrast      != PartEdgeContrast;
-         Changed |= Preferences.mPartColorValueLDIndex != PartColorValueLDIndex;
+    if (!Changed) {
+        bool  AutomateEdgeColor     = lcGetProfileInt(  LC_PROFILE_AUTOMATE_EDGE_COLOR);
+        float PartEdgeContrast      = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
+        float PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 
-    if (Changed) {
-        Preferences.mAutomateEdgeColor     = AutomateEdgeColor;
-        Preferences.mPartEdgeContrast      = PartEdgeContrast;
-        Preferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+        if (Options) {
+            AutomateEdgeColor     = Options->AutoEdgeColor;
+            PartEdgeContrast      = Options->EdgeContrast;
+            PartColorValueLDIndex = Options->LightDarkIndex;
+        }
+
+        Changed  = Preferences.mAutomateEdgeColor     != AutomateEdgeColor;
+        Changed |= Preferences.mPartEdgeContrast      != PartEdgeContrast;
+        Changed |= Preferences.mPartColorValueLDIndex != PartColorValueLDIndex;
+    }
+
+    if (Changed && Options) {
+        Preferences.mAutomateEdgeColor     = Options->AutoEdgeColor;
+        Preferences.mPartEdgeContrast      = Options->EdgeContrast;
+        Preferences.mPartColorValueLDIndex = Options->LightDarkIndex;
 
         lcGetPiecesLibrary()->LoadColors();
     }

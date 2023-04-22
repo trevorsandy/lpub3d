@@ -5018,10 +5018,12 @@ bool Preferences::getPreferences()
     const QString sceneGuideColorCompare         = sceneGuideColor;
 
     lcLibRenderOptions Options;
-    int CurrentAASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
+    int CurrentAASamples         = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
     lcStudStyle CurrentStudStyle = lcGetPiecesLibrary()->GetStudStyle();
 
-    Options.Preferences = gApplication->mPreferences;
+    lcPreferences& Preferences = lcGetPreferences();
+
+    Options.Preferences = Preferences;
     Options.KeyboardShortcuts = keyboardShortcuts;
 
     Options.AASamples = CurrentAASamples;
@@ -5031,10 +5033,10 @@ bool Preferences::getPreferences()
     Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
     Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
 
-    Options.Preferences.mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
+    Options.Preferences.mNativeViewpoint  = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
     Options.Preferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 
-    Options.Preferences.mLPubTrueFade = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
+    Options.Preferences.mLPubTrueFade         = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
     Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
 
     Options.KeyboardShortcutsModified = false;
@@ -5072,6 +5074,11 @@ bool Preferences::getPreferences()
         bool ldrawPathChanged     = false;
         bool PerspectiveProjectionChanged = false;
 
+        QString const Perspective = QMessageBox::tr("Perspective");
+        QString const Orthographic = QMessageBox::tr("Orthographic");
+        QString const On = QMessageBox::tr("ON");
+        QString const Off = QMessageBox::tr("OFF");
+
         QSettings Settings;
 
         // library paths
@@ -5089,13 +5096,11 @@ bool Preferences::getPreferences()
             updateLDViewConfigFiles = true;            //set flag to true
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("LDraw Library path changed from %1 to %2")
-                            .arg(ldrawPathCompare)
-                            .arg(ldrawLibPath));
+                                  .arg(ldrawPathCompare).arg(ldrawLibPath));
             if (validLDrawLibrary != validLDrawLibraryChange) {
                 libraryChangeRestart = true;
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("LDraw parts library changed from %1 to %2")
-                                      .arg(validLDrawLibrary)
-                                      .arg(validLDrawLibraryChange));
+                                      .arg(validLDrawLibrary).arg(validLDrawLibraryChange));
                 box.setText (QMessageBox::tr("%1 will restart to properly load the %2 parts library.")
                                              .arg(VER_PRODUCTNAME_STR).arg(validLDrawLibraryChange));
                 box.exec();
@@ -5111,7 +5116,7 @@ bool Preferences::getPreferences()
         if ((reloadFile = altLDConfigPath != dialog->altLDConfigPath()))
         {
             libraryChangeRestart = true;
-            altLDConfigPath = dialog->altLDConfigPath();
+            altLDConfigPath = QDir::toNativeSeparators(dialog->altLDConfigPath());
             if (altLDConfigPath.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"AltLDConfigPath"));
             } else {
@@ -5124,7 +5129,7 @@ bool Preferences::getPreferences()
         }
 
         if (pliControlFile != dialog->pliControlFile()) {
-            pliControlFile = dialog->pliControlFile();
+            pliControlFile = QDir::toNativeSeparators(dialog->pliControlFile());
             if (pliControlFile.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControlFile"));
             } else {
@@ -5146,20 +5151,20 @@ bool Preferences::getPreferences()
                 lpub->partWorkerLDSearchDirs().populateLdgLiteSearchDirs();
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Renderer preference changed from %1 to %2%3")
-                            .arg(rendererNames[preferredRendererCompare])
-                            .arg(rendererNames[preferredRenderer])
-                            .arg(preferredRenderer == RENDERER_POVRAY
-                                                         ? QMessageBox::tr(" (POV file generator is %1)")
-                                                                           .arg(useNativePovGenerator
-                                                                                  ? RENDERER_NATIVE
-                                                                                  : RENDERER_LDVIEW)
-                                                         : preferredRenderer == RENDERER_LDVIEW
-                                                               ? enableLDViewSingleCall
-                                                                     ? enableLDViewSnaphsotList
-                                                                           ? QMessageBox::tr(" (Single Call using Export File List)")
-                                                                           : QMessageBox::tr(" (Single Call)")
-                                                                     : QString()
-                                                               : QString()));
+                                  .arg(rendererNames[preferredRendererCompare])
+                                  .arg(rendererNames[preferredRenderer])
+                                  .arg(preferredRenderer == RENDERER_POVRAY
+                                                               ? QMessageBox::tr(" (POV file generator is %1)")
+                                                                                 .arg(useNativePovGenerator
+                                                                                        ? RENDERER_NATIVE
+                                                                                        : RENDERER_LDVIEW)
+                                                               : preferredRenderer == RENDERER_LDVIEW
+                                                                     ? enableLDViewSingleCall
+                                                                           ? enableLDViewSnaphsotList
+                                                                                 ? QMessageBox::tr(" (Single Call using Export File List)")
+                                                                                 : QMessageBox::tr(" (Single Call)")
+                                                                           : QString()
+                                                                     : QString()));
         }
 
         if (enableLDViewSingleCall != dialog->enableLDViewSingleCall()) {
@@ -5167,10 +5172,10 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),enableLDViewSingleCall);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Enable LDView Single Call is %1")
-                                  .arg(enableLDViewSingleCall ? "ON" : "OFF"));
+                                  .arg(enableLDViewSingleCall ? On : Off));
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Enable LDView Snapshots List is %1")
-                                  .arg(enableLDViewSnaphsotList ? "ON" : "OFF"));
+                                  .arg(enableLDViewSnaphsotList ? On : Off));
         }
 
         if (enableLDViewSnaphsotList != dialog->enableLDViewSnaphsotList()) {
@@ -5179,7 +5184,7 @@ bool Preferences::getPreferences()
         }
 
         if (lgeoPath != dialog->lgeoPath()) {
-            lgeoPath = dialog->lgeoPath();
+            lgeoPath = QDir::toNativeSeparators(dialog->lgeoPath());
             if(lgeoPath.isEmpty()) {
                 Settings.remove(QString("%1/%2").arg(POVRAY,"LGEOPath"));
             } else {
@@ -5193,8 +5198,7 @@ bool Preferences::getPreferences()
 
             if (!ldrawPathChanged)
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("LGEO path preference changed from %1 to %2")
-                                .arg(lgeoPathCompare)
-                                .arg(lgeoPath));
+                                      .arg(lgeoPathCompare).arg(lgeoPath));
         }
 
         if (useNativePovGenerator != dialog->useNativePovGenerator())
@@ -5203,8 +5207,8 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseNativePovGenerator"),useNativePovGenerator);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("POV file generation renderer changed from %1 to %2")
-                                             .arg(povFileGeneratorCompare ? RENDERER_NATIVE : RENDERER_LDVIEW)
-                                             .arg(useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW));
+                                  .arg(povFileGeneratorCompare ? RENDERER_NATIVE : RENDERER_LDVIEW)
+                                  .arg(useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW));
         }
 
         if (povrayDisplay != dialog->povrayDisplay())
@@ -5219,10 +5223,10 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovrayRenderQuality"),povrayRenderQuality);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Povray Render Quality changed from %1 to %2")
-                            .arg(povrayRenderQualityCompare == 0 ? "High" :
-                                 povrayRenderQualityCompare == 1 ? "Medium" : "Low")
-                            .arg(povrayRenderQuality == 0 ? "High" :
-                                 povrayRenderQuality == 1 ? "Medium" : "Low"));
+                                  .arg(povrayRenderQualityCompare == 0 ? "High" :
+                                       povrayRenderQualityCompare == 1 ? "Medium" : "Low")
+                                  .arg(povrayRenderQuality == 0 ? "High" :
+                                       povrayRenderQuality == 1 ? "Medium" : "Low"));
 
             reloadFile |= preferredRenderer == RENDERER_POVRAY;
         }
@@ -5233,7 +5237,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovrayAutoCrop"),povrayAutoCrop);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Povray AutoCrop is %1")
-                                  .arg(povrayAutoCrop ? "ON" : "OFF"));
+                                  .arg(povrayAutoCrop ? On : Off));
         }
 
         if (rendererTimeout != dialog->rendererTimeout()) {
@@ -5246,14 +5250,17 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"),pageDisplayPause);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Continuous process page display pause changed from %1 to %2")
-                            .arg(highlightStepLineWidthCompare)
-                            .arg(pageDisplayPause));
+                                  .arg(highlightStepLineWidthCompare)
+                                  .arg(pageDisplayPause));
         }
 
         if (!dialog->documentLogoFile().isEmpty()) {
-            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"),dialog->documentLogoFile());
-            if (documentLogoFile.isEmpty()) {
-                documentLogoFile = dialog->documentLogoFile();
+            if (QFileInfo(dialog->documentLogoFile()).isReadable()) {
+                QString const file = QDir::toNativeSeparators(dialog->documentLogoFile());
+                Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"),file);
+                if (documentLogoFile.isEmpty()) {
+                    documentLogoFile = file;
+                }
             }
         }
 
@@ -5291,7 +5298,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowLineParseErrors"),lineParseErrors);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show Parse Errors is %1")
-                                  .arg(lineParseErrors? "ON" : "OFF"));
+                                  .arg(lineParseErrors? On : Off));
         }
 
         if (showInsertErrors != dialog->showInsertErrors())
@@ -5300,7 +5307,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowInsertErrors"),showInsertErrors);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show Insert Errors is %1")
-                                  .arg(showInsertErrors    ? "ON" : "OFF"));
+                                  .arg(showInsertErrors    ? On : Off));
         }
 
         if (showBuildModErrors != dialog->showBuildModErrors())
@@ -5327,7 +5334,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowAnnotationErrors"),showAnnotationErrors);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show Parse Errors is %1")
-                                  .arg(showAnnotationErrors? "ON" : "OFF"));
+                                  .arg(showAnnotationErrors? On : Off));
         }
 
         if (showSaveOnRedraw != dialog->showSaveOnRedraw())
@@ -5352,8 +5359,7 @@ bool Preferences::getPreferences()
 
             if (dialog->enableFadeSteps())
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Steps Transparency changed from %1 to %2 percent")
-                                .arg(fadeStepsOpacityCompare)
-                                .arg(fadeStepsOpacity));
+                                      .arg(fadeStepsOpacityCompare).arg(fadeStepsOpacity));
         }
 
         bool fadeStepsUseColourChanged = false;
@@ -5364,7 +5370,8 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),fadeStepsUseColour);
 
             if (dialog->enableFadeSteps())
-                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Use Global Fade Color is %1").arg(fadeStepsUseColour ? "ON" : "OFF"));
+                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Use Global Fade Color is %1")
+                                      .arg(fadeStepsUseColour ? On : Off));
         }
 
         bool fadeStepsColourChanged = false;
@@ -5389,8 +5396,7 @@ bool Preferences::getPreferences()
 
             if (dialog->enableHighlightStep())
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Step Color preference changed from %1 to %2")
-                                .arg(highlightStepColourCompare)
-                                .arg(highlightStepColour));
+                                      .arg(highlightStepColourCompare).arg(highlightStepColour));
         }
 
         bool highlightStepLineWidthChanged = false;
@@ -5403,8 +5409,7 @@ bool Preferences::getPreferences()
 
             if (dialog->enableHighlightStep())
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Step line width changed from %1 to %2")
-                                .arg(highlightStepLineWidthCompare)
-                                .arg(highlightStepLineWidth));
+                                      .arg(highlightStepLineWidthCompare).arg(highlightStepLineWidth));
         }
 
         if ((reloadFile |= highlightFirstStep != dialog->highlightFirstStep()))
@@ -5413,7 +5418,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"),highlightFirstStep);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight First Step is %1")
-                                  .arg(highlightFirstStep ? "ON" : "OFF"));
+                                  .arg(highlightFirstStep ? On : Off));
         }
 
         if ((reloadFile |= enableImageMatting != dialog->enableImageMatting()))
@@ -5424,7 +5429,7 @@ bool Preferences::getPreferences()
                 updateLDViewIniFile(UpdateExisting);       // strip AutoCrop [disabled]
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Enable image matting is %1")
-                                  .arg(enableImageMatting ? "ON" : "OFF"));
+                                  .arg(enableImageMatting ? On : Off));
         }
 
         if ((reloadFile |= preferCentimeters != dialog->centimeters()))
@@ -5433,8 +5438,8 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
             defaultResolutionType(preferCentimeters);
 
-            emit lpub->messageSig(LOG_INFO,QString("Default units changed to %1")
-                                  .arg(preferCentimeters? "Centimetres" : "Inches"));
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Default units changed to %1")
+                                  .arg(preferCentimeters? QMessageBox::tr("Centimetres") : QMessageBox::tr("Inches")));
         }
 
         bool addLSynthSearchDirChanged = false;
@@ -5444,7 +5449,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"AddLSynthSearchDir"),addLSynthSearchDir);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Add LSynth Search Directory is %1")
-                                  .arg(addLSynthSearchDir? "ON" : "OFF"));
+                                  .arg(addLSynthSearchDir? On : Off));
         }
 
         bool archiveLSynthPartsChanged = false;
@@ -5454,7 +5459,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ArchiveLSynthParts"),archiveLSynthParts);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Archive LSynth Parts is %1")
-                                  .arg(archiveLSynthParts? "ON" : "OFF"));
+                                  .arg(archiveLSynthParts? On : Off));
         }
 
         if ((addLSynthSearchDirChanged || archiveLSynthPartsChanged) && archiveLSynthParts)
@@ -5466,7 +5471,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),applyCALocally);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Apply camera angles locally is %1")
-                                  .arg(applyCALocally ? "ON" : "OFF"));
+                                  .arg(applyCALocally ? On : Off));
         }
 
         if (enableDownloader != dialog->enableDownloader()) {
@@ -5479,7 +5484,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowDownloadRedirects"),showDownloadRedirects);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show download redirects is %1")
-                                  .arg(showDownloadRedirects? "ON" : "OFF"));
+                                  .arg(showDownloadRedirects? On : Off));
         }
 
         if (showUpdateNotifications != dialog->showUpdateNotifications()) {
@@ -5502,7 +5507,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),displayAllAttributes);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Display Attributes is %1")
-                                  .arg(displayAllAttributes? "ON" : "OFF"));
+                                  .arg(displayAllAttributes? On : Off));
         }
 
         if ((reloadFile |= generateCoverPages != dialog->generateCoverPages())) {
@@ -5510,7 +5515,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"),generateCoverPages);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Generate Cover Pages preference is %1")
-                                  .arg(generateCoverPages ? "ON" : "OFF"));
+                                  .arg(generateCoverPages ? On : Off));
         }
 
         if (printDocumentTOC != dialog->printDocumentTOC()) {
@@ -5523,7 +5528,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),doNotShowPageProcessDlg);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show continuous page process options dialog is %1.")
-                                  .arg(doNotShowPageProcessDlg ? "ON" : "OFF"));
+                                  .arg(doNotShowPageProcessDlg ? On : Off));
         }
 
         bool darkTheme = displayTheme == THEME_DARK;
@@ -5551,12 +5556,12 @@ bool Preferences::getPreferences()
 
             if (useSystemThemeChanged) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseSystemTheme"),useSystemTheme);
-                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Use System Theme is %1.").arg(useSystemTheme ? "ON" : "OFF"));
+                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Use System Theme is %1.").arg(useSystemTheme ? On : Off));
             }
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Display Theme changed from %1 to %2.")
-                                  .arg(darkTheme ? "Dark Theme" : "Default Theme")
-                                  .arg(darkTheme ? "Default Theme" : "Dark Theme"));
+                                  .arg(darkTheme ? QMessageBox::tr("Dark Theme")    : QMessageBox::tr("Default Theme"))
+                                  .arg(darkTheme ? QMessageBox::tr("Default Theme") : QMessageBox::tr("Dark Theme")));
         }
 
         bool displayThemeColorsChanged = false;
@@ -5575,9 +5580,9 @@ bool Preferences::getPreferences()
                 ++i;
             }
 
-            emit lpub->messageSig(LOG_INFO,QString("Display theme colors have changed"));
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Display theme colors have changed"));
             if (textDecorationColorChanged)
-                emit lpub->messageSig(LOG_INFO,QString("Text Decoration color have changed"));
+                emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Text Decoration color have changed"));
         }
 
         bool sceneBackgroundColorChanged = false;
@@ -5827,12 +5832,8 @@ bool Preferences::getPreferences()
             perspectiveProjection = dialog->perspectiveProjection();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),perspectiveProjection);
 
-            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1); /*0,1 refers to is Orthographic*/
-
-            gApplication->mPreferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
-
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Projection set to %1")
-                                  .arg(perspectiveProjection ? "Perspective" : "Orthographic"));
+                                  .arg(perspectiveProjection ? Perspective : Orthographic));
         }
 
         if (saveOnRedraw != dialog->saveOnRedraw())
@@ -5841,7 +5842,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SaveOnRedraw"),saveOnRedraw);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Save On Redraw is %1")
-                                  .arg(saveOnRedraw? "ON" : "OFF"));
+                                  .arg(saveOnRedraw? On : Off));
         }
 
         if (saveOnUpdate != dialog->saveOnUpdate())
@@ -5850,7 +5851,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SaveOnUpdate"),saveOnUpdate);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Save On Update is %1")
-                                  .arg(saveOnUpdate? "ON" : "OFF"));
+                                  .arg(saveOnUpdate? On : Off));
         }
 
         if (loadLastOpenedFile != dialog->loadLastOpenedFile())
@@ -5859,7 +5860,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastOpenedFile"),loadLastOpenedFile);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Load Last Opened File is %1")
-                                  .arg(loadLastOpenedFile ? "ON" : "OFF"));
+                                  .arg(loadLastOpenedFile ? On : Off));
         }
 
         if (extendedSubfileSearch != dialog->extendedSubfileSearch())
@@ -5868,7 +5869,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExtendedSubfileSearch"),extendedSubfileSearch);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended Subfile Search is %1")
-                                  .arg(extendedSubfileSearch ? "ON" : "OFF"));
+                                  .arg(extendedSubfileSearch ? On : Off));
         }
 
         if (ldrawFilesLoadMsgs != dialog->ldrawFilesLoadMsgs())
@@ -5876,12 +5877,12 @@ bool Preferences::getPreferences()
             ldrawFilesLoadMsgs = dialog->ldrawFilesLoadMsgs();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawFilesLoadMsgs"),ldrawFilesLoadMsgs);
 
-            emit lpub->messageSig(LOG_INFO,QString("LDraw file load status dialogue set to %1").arg(
-                ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
-                ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
-                ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
-                ldrawFilesLoadMsgs == SHOW_MESSAGE ? "Show Message" :
-                "Always Show"));
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("LDraw file load status dialogue set to %1").arg(
+                                  ldrawFilesLoadMsgs == NEVER_SHOW   ? QMessageBox::tr("Never Show")   :
+                                  ldrawFilesLoadMsgs == SHOW_ERROR   ? QMessageBox::tr("Show Error")   :
+                                  ldrawFilesLoadMsgs == SHOW_WARNING ? QMessageBox::tr("Show Warning") :
+                                  ldrawFilesLoadMsgs == SHOW_MESSAGE ? QMessageBox::tr("Show Message") :
+                                                                       QMessageBox::tr("Always Show")));
         }
 
         if (inlineNativeContent != dialog->inlineNativeContent())
@@ -5890,7 +5891,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"InlineNativeContent"),inlineNativeContent);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Inline Native Render Content is %1")
-                                  .arg(inlineNativeContent? "ON" : "OFF"));
+                                  .arg(inlineNativeContent? On : Off));
         }
 
         // Shortcuts
@@ -5929,76 +5930,42 @@ bool Preferences::getPreferences()
         bool StudStyleChanged = false;
         if ((StudStyleChanged = CurrentStudStyle != Options.StudStyle))
             lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
+        StudStyleChanged |= Options.Preferences.mStudCylinderColorEnabled   != Preferences.mStudCylinderColorEnabled;
+        StudStyleChanged |= Options.Preferences.mStudCylinderColor          != Preferences.mStudCylinderColor;
+
+        bool StudStyleColorChanged = false;
+        StudStyleColorChanged  = Options.Preferences.mPartEdgeColorEnabled  != Preferences.mPartEdgeColorEnabled;
+        StudStyleColorChanged |= Options.Preferences.mPartEdgeColor         != Preferences.mPartEdgeColor;
+        StudStyleColorChanged |= Options.Preferences.mBlackEdgeColorEnabled != Preferences.mBlackEdgeColorEnabled;
+        StudStyleColorChanged |= Options.Preferences.mBlackEdgeColor        != Preferences.mBlackEdgeColor;
+        StudStyleColorChanged |= Options.Preferences.mDarkEdgeColorEnabled  != Preferences.mDarkEdgeColorEnabled;
+        StudStyleColorChanged |= Options.Preferences.mDarkEdgeColor         != Preferences.mDarkEdgeColor;
 
         bool AutomateEdgeColorChanged = false;
-        if ((AutomateEdgeColorChanged = Options.Preferences.mAutomateEdgeColor != gApplication->mPreferences.mAutomateEdgeColor))
-            lcSetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR, Options.Preferences.mAutomateEdgeColor);
+        AutomateEdgeColorChanged = Options.Preferences.mAutomateEdgeColor != Preferences.mAutomateEdgeColor;
+        AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeContrast != Preferences.mPartEdgeContrast;
+        AutomateEdgeColorChanged |= Options.Preferences.mPartColorValueLDIndex != Preferences.mPartColorValueLDIndex;
 
-        if ((AutomateEdgeColorChanged |= Options.Preferences.mStudCylinderColor != gApplication->mPreferences.mStudCylinderColor))
-            lcSetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR, Options.Preferences.mStudCylinderColor);
+        bool DefaultCameraChanged = Options.Preferences.mDDF != Preferences.mDDF;
+        DefaultCameraChanged |= Options.Preferences.mCDP     != Preferences.mCDP;
+        DefaultCameraChanged |= Options.Preferences.mCFoV    != Preferences.mCFoV;
+        DefaultCameraChanged |= Options.Preferences.mCNear   != Preferences.mCNear;
+        DefaultCameraChanged |= Options.Preferences.mCFar    != Preferences.mCFar;
 
-        if ((AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeColor != gApplication->mPreferences.mPartEdgeColor))
-            lcSetProfileInt(LC_PROFILE_PART_EDGE_COLOR, Options.Preferences.mPartEdgeColor);
-
-        if ((AutomateEdgeColorChanged |= Options.Preferences.mBlackEdgeColor != gApplication->mPreferences.mBlackEdgeColor))
-            lcSetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR, Options.Preferences.mBlackEdgeColor);
-
-        if ((AutomateEdgeColorChanged |= Options.Preferences.mDarkEdgeColor != gApplication->mPreferences.mDarkEdgeColor))
-            lcSetProfileInt(LC_PROFILE_DARK_EDGE_COLOR, Options.Preferences.mDarkEdgeColor);
-
-        if ((AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeContrast != gApplication->mPreferences.mPartEdgeContrast))
-            lcSetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST, Options.Preferences.mPartEdgeContrast);
-        ;
-        if ((AutomateEdgeColorChanged |= Options.Preferences.mPartColorValueLDIndex != gApplication->mPreferences.mPartColorValueLDIndex))
-            lcSetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX, Options.Preferences.mPartColorValueLDIndex);;
-
-        bool drawEdgeLinesChanged = false;
-        if ((drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != gApplication->mPreferences.mDrawEdgeLines))
-            lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, Options.Preferences.mDrawEdgeLines);
-
-        bool shadingModeChanged = false;
-        if ((shadingModeChanged = Options.Preferences.mShadingMode != gApplication->mPreferences.mShadingMode))
-            lcSetProfileInt(LC_PROFILE_SHADING_MODE, static_cast<int>(Options.Preferences.mShadingMode));
-
-        bool lineWidthChanged = false;
-        if ((Options.Preferences.mLineWidth != gApplication->mPreferences.mLineWidth))
-            lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, Options.Preferences.mLineWidth);
-
-        bool NativeViewpointChanged = false;
-        if ((NativeViewpointChanged = Options.Preferences.mNativeViewpoint != gApplication->mPreferences.mNativeViewpoint))
-            lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, Options.Preferences.mNativeViewpoint);
+        bool drawEdgeLinesChanged   = Options.Preferences.mDrawEdgeLines   != Preferences.mDrawEdgeLines;
+        bool shadingModeChanged     = Options.Preferences.mShadingMode     != Preferences.mShadingMode;
+        bool lineWidthChanged       = Options.Preferences.mLineWidth       != Preferences.mLineWidth;
+        bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != Preferences.mNativeViewpoint;
+        bool LPubTrueFadeChanged    = Options.Preferences.mLPubTrueFade    != Preferences.mLPubTrueFade;
+        bool DrawCondlLinesChanged  = Options.Preferences.mDrawConditionalLines != Preferences.mDrawConditionalLines;
 
         bool NativeProjectionChanged = false;
-        if (!PerspectiveProjectionChanged) {
-            if ((NativeProjectionChanged = Options.Preferences.mNativeProjection != gApplication->mPreferences.mNativeProjection))
-                lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Options.Preferences.mNativeProjection);
-        }
+        if (!PerspectiveProjectionChanged)
+            NativeProjectionChanged = Options.Preferences.mNativeProjection != Preferences.mNativeProjection;
 
-        bool LPubTrueFadeChanged = false;
-        if ((LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != gApplication->mPreferences.mLPubTrueFade))
-            lcSetProfileInt(LC_PROFILE_LPUB_TRUE_FADE, Options.Preferences.mLPubTrueFade);
+        Preferences = Options.Preferences;
 
-        bool DrawConditionalLinesChanged = false;
-        if ((DrawConditionalLinesChanged = Options.Preferences.mDrawConditionalLines != gApplication->mPreferences.mDrawConditionalLines))
-            lcSetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES, Options.Preferences.mDrawConditionalLines);
-
-        bool DefaultCameraChanged = false;
-        if ((Options.Preferences.mDDF != gApplication->mPreferences.mDDF))
-             lcSetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR, Options.Preferences.mDDF);
-
-        if ((DefaultCameraChanged |= Options.Preferences.mCDP != gApplication->mPreferences.mCDP))
-            lcSetProfileFloat(LC_PROFILE_CAMERA_DEFAULT_POSITION, Options.Preferences.mCDP);
-
-        if ((DefaultCameraChanged |= Options.Preferences.mCFoV != gApplication->mPreferences.mCFoV))
-             lcSetProfileFloat(LC_PROFILE_CAMERA_FOV, Options.Preferences.mCFoV);
-
-        if ((DefaultCameraChanged |= Options.Preferences.mCNear != gApplication->mPreferences.mCNear))
-             lcSetProfileFloat(LC_PROFILE_CAMERA_NEAR_PLANE, Options.Preferences.mCNear);
-
-        if ((DefaultCameraChanged |= Options.Preferences.mCFar != gApplication->mPreferences.mCFar))
-             lcSetProfileFloat(LC_PROFILE_CAMERA_FAR_PLANE, Options.Preferences.mCFar);
-
-        gApplication->mPreferences = Options.Preferences;
+        Preferences.SaveDefaults();
 
         box.setIcon (QMessageBox::Question);
         box.setDefaultButton   (QMessageBox::Ok);
@@ -6017,12 +5984,12 @@ bool Preferences::getPreferences()
         }
         if ((LPubTrueFadeChanged  ||
              DefaultCameraChanged ||
-             DrawConditionalLinesChanged) && !restartApplication && !reloadFile)
+             DrawCondlLinesChanged) && !restartApplication && !reloadFile)
             reloadPage = true;
 
         if ((LPubTrueFadeChanged  ||
              DefaultCameraChanged ||
-             DrawConditionalLinesChanged) && !restartApplication && !reloadFile)
+             DrawCondlLinesChanged) && !restartApplication && !reloadFile)
             reloadPage = true;
 
         if (preferredRenderer == RENDERER_NATIVE && !restartApplication)
@@ -6036,81 +6003,80 @@ bool Preferences::getPreferences()
                 reloadFile = true;
 
                 QString oldShadingMode, newShadingMode;
-                switch (int(Options.Preferences.mShadingMode))
+                switch (static_cast<int>(Options.Preferences.mShadingMode))
                 {
                 case int(lcShadingMode::Flat):
-                    newShadingMode = "flat";
+                    newShadingMode = QMessageBox::tr("flat");
                     break;
                 case int(lcShadingMode::DefaultLights):
-                    newShadingMode = "default lights";
+                    newShadingMode = QMessageBox::tr("default lights");
                     break;
                 case int(lcShadingMode::Full):
-                    newShadingMode = "full";
+                    newShadingMode = QMessageBox::tr("full");
                     break;
                 case int(lcShadingMode::Wireframe):
-                    newShadingMode = "wire frame";
+                    newShadingMode = QMessageBox::tr("wire frame");
                     break;
                 default:
-                    newShadingMode = "unknown";
+                    newShadingMode = QMessageBox::tr("unknown");
                 }
 
                 switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
                 {
                 case int(lcShadingMode::Flat):
-                    oldShadingMode = "flat";
+                    oldShadingMode = QMessageBox::tr("flat");
                     break;
                 case int(lcShadingMode::DefaultLights):
-                    oldShadingMode = "default lights";
+                    oldShadingMode = QMessageBox::tr("default lights");
                     break;
                 case int(lcShadingMode::Full):
-                    oldShadingMode = "full";
+                    oldShadingMode = QMessageBox::tr("full");
                     break;
                 case int(lcShadingMode::Wireframe):
-                    oldShadingMode = "wire frame";
+                    oldShadingMode = QMessageBox::tr("wire frame");
                     break;
                 default:
-                    oldShadingMode = "unknown";
+                    oldShadingMode = QMessageBox::tr("unknown");
                 }
 
                 if (shadingModeChanged)
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Shading mode changed from %1 to %2.")
-                                          .arg(oldShadingMode)
-                                          .arg(newShadingMode));
+                                          .arg(oldShadingMode).arg(newShadingMode));
                 if (lineWidthChanged)
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Edge line width changed from %1 to %2.")
                                           .arg(double(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH)))
                                           .arg(double(Options.Preferences.mLineWidth)));
                 if (drawEdgeLinesChanged)
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Draw edge lines is %1.")
-                                          .arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF"));
+                                          .arg(Options.Preferences.mDrawEdgeLines ? On : Off));
 
                 if (NativeViewpointChanged) {
                     QString Viewpoint;
-                    switch (lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT))
+                    switch (Options.Preferences.mNativeViewpoint)
                     {
                     case 0:
-                        Viewpoint = "Front";
+                        Viewpoint = QMessageBox::tr("Front");
                         break;
                     case 1:
-                        Viewpoint = "Back";
+                        Viewpoint = QMessageBox::tr("Back");
                         break;
                     case 2:
-                        Viewpoint = "Top";
+                        Viewpoint = QMessageBox::tr("Top");
                         break;
                     case 3:
-                        Viewpoint = "Bottom";
+                        Viewpoint = QMessageBox::tr("Bottom");
                         break;
                     case 4:
-                        Viewpoint = "Left";
+                        Viewpoint = QMessageBox::tr("Left");
                         break;
                     case 5:
-                        Viewpoint = "Right";
+                        Viewpoint = QMessageBox::tr("Right");
                         break;
                     case 6:
-                        Viewpoint = "Home";
+                        Viewpoint = QMessageBox::tr("Home");
                         break;
                     default:
-                        Viewpoint = "Front";
+                        Viewpoint = QMessageBox::tr("Front");
                     }
 
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Native Viewport changed to '%1'.")
@@ -6120,17 +6086,17 @@ bool Preferences::getPreferences()
                 if (NativeProjectionChanged) {
                     QVariant uValue(true);
                     QString Projection;
-                    switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
+                    switch (Options.Preferences.mNativeProjection)
                     {
                     case 0:
-                        Projection = "Perscpective";
+                        Projection = Perspective;
                         break;
                     case 1:
-                        Projection = "Ortographic";
+                        Projection = Orthographic;
                         uValue = false;
                         break;
                     default:
-                        Projection = "Perscpective";
+                        Projection = Perspective;
                         break;
                     }
 
@@ -6146,19 +6112,30 @@ bool Preferences::getPreferences()
 
         if (StudStyleChanged)
         {
-            lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true, true/*<placeholder>*/);
             reloadFile = !restartApplication;
 
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Stud style changed from '%1' to '%2'.")
+            lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, reloadFile, Options.Preferences.mStudCylinderColorEnabled);
+
+            QString const cylinderColor = Options.StudStyle >= lcStudStyle::HighContrast
+                                              ? Options.Preferences.mStudCylinderColorEnabled
+                                                    ? QMessageBox::tr(" (Stud cylinder color enabled)")
+                                                    : QMessageBox::tr(" (Stud cylinder color disabled)")
+                                              : "";
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Stud style changed from '%1' to '%2'%3.")
                                   .arg(studStyleNames[static_cast<int>(CurrentStudStyle)])
-                                  .arg(studStyleNames[static_cast<int>(Options.StudStyle)]));
+                                  .arg(studStyleNames[static_cast<int>(Options.StudStyle)])
+                                  .arg(cylinderColor));
         }
-        else if (AutomateEdgeColorChanged)
+        else if (AutomateEdgeColorChanged || StudStyleColorChanged)
         {
             lcGetPiecesLibrary()->LoadColors();
             reloadPage = !restartApplication && !reloadFile;
-
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Automate edge color changed"));
+            QString const message = AutomateEdgeColorChanged
+                                        ? StudStyleColorChanged
+                                              ? QMessageBox::tr("Automate edge color and stud style color options changed")
+                                              : QMessageBox::tr("Automate edge color changed")
+                                        : QMessageBox::tr("Stud style color changed");
+            emit lpub->messageSig(LOG_INFO, message);
         }
 
         if (shadingModeChanged)
@@ -6191,9 +6168,9 @@ bool Preferences::getPreferences()
             suspendFileDisplay = restartApplication || reloadFile || reloadPage;
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Previous Steps is %1.")
-                                  .arg(dialog->enableFadeSteps() ? "ON" : "OFF"));
+                                  .arg(dialog->enableFadeSteps() ? On : Off));
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Current Step is %1.")
-                                  .arg(dialog->enableHighlightStep() ? "ON" : "OFF"));
+                                  .arg(dialog->enableHighlightStep() ? On : Off));
 
             if (dialog->enableFadeSteps() && !LDrawColourParts::ldrawColorPartsIsLoaded()) {
                 QString result;
@@ -6235,9 +6212,8 @@ bool Preferences::getPreferences()
                 sceneRulerTickColorChanged  ||
                 sceneGuideColorChanged;
 
-        if (displayThemeColorsChanged || setSceneTheme) {
+        if (displayThemeColorsChanged || setSceneTheme)
             loadTheme = displayThemeChanged || displayThemeColorsChanged;
-        }
 
         emit lpub->messageSig(LOG_INFO_STATUS,QMessageBox::tr("Preferences updated. %1")
                               .arg(lpub->elapsedTime(timer.elapsed())));

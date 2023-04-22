@@ -78,9 +78,13 @@ public:
   quint32 GetPartEdgeColor();
   quint32 GetBlackEdgeColor();
   quint32 GetDarkEdgeColor();
+  bool    GetStudCylinderColorEnabled();
+  bool    GetPartEdgeColorEnabled();
+  bool    GetBlackEdgeColorEnabled();
+  bool    GetDarkEdgeColorEnabled();
 
-  void    SetStudStyle(const NativeOptions*, bool);
-  void    SetAutomateEdgeColor(const NativeOptions*);
+  void    SetStudStyle(const NativeOptions*, bool, bool = false);
+  void    SetAutomateEdgeColor(const NativeOptions*, bool = false);
   void    SetShadingMode(lcShadingMode);
 
   /// Load text preferences and command management dialogs
