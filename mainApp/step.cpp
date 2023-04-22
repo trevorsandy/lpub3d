@@ -2689,7 +2689,7 @@ void Step::addGraphicsItems(
   }
 
   // Step Number
-  if (stepNumber.number > 0 && ! onlyChild() && showStepNumber) {
+  if (showStepNumber && ! onlyChild() && stepNumber.number) {
       StepNumberItem *sn;
       if (calledOut) {
           sn = new StepNumberItem(this,

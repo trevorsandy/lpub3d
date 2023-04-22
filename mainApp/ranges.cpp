@@ -242,7 +242,7 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
       if (range && range->list.size() == 1) {
         if (range->list[0]->relativeType == StepType) {
           Step *step = dynamic_cast<Step *>(range->list[0]);
-          step->stepNumber.number = -1;
+          step->stepNumber.number = 0;
         }
       }
     }
@@ -415,7 +415,7 @@ void Steps::sizeitFreeform(
       if (range && range->list.size() == 1) {
         if (range->list[0]->relativeType == StepType) {
           Step *step = dynamic_cast<Step *>(range->list[0]);
-          step->stepNumber.number = -1;
+          step->stepNumber.number = 0;
         }
       }
     }

@@ -675,7 +675,9 @@ int Gui::addGraphicsPageItems(
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
 
-                  if (!step->onlyChild())
+                  bool showStepNumber = step->showStepNumber && (! step->onlyChild() || step->modelDisplayOnlyStep);
+
+                  if (showStepNumber)
                       page->stepNumber = step->stepNumber.number;
 
                   // populate page pixmaps - when using LDView Single Call
@@ -691,7 +693,7 @@ int Gui::addGraphicsPageItems(
 
                   // if show step number
 
-                  if (! step->onlyChild() && step->showStepNumber) {
+                  if (showStepNumber) {
 
                       // add the step number
 
@@ -880,7 +882,7 @@ int Gui::addGraphicsPageItems(
 
                   // allocate QGraphicsTextItem for step number
 
-                  if ((! step->onlyChild() && step->showStepNumber) || ! step->displayModelOnlyStep()) {
+                  if (showStepNumber) {
                       StepNumberItem *stepNumber =
                           new StepNumberItem(step,
                                              page->relativeType,

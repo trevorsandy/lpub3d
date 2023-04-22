@@ -125,10 +125,6 @@ class Step : public AbstractRangeElement
       callout->parentStep = this;
     }
 
-    bool displayModelOnlyStep(){
-      return ! modelDisplayOnlyStep;
-    }
-
     Step  *nextStep();
     Range *range();
     Page  *page();

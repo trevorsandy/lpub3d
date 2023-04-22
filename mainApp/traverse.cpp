@@ -2379,6 +2379,9 @@ int Gui::drawPage(
 
                           emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
 
+                          if (opts.displayModel)
+                              step->showStepNumber = curMeta.LPub.assem.showStepNumber.value();
+
                           step->updateViewer = opts.updateViewer;
 
                           if (buildModMeta.action())
