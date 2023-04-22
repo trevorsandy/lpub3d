@@ -7,6 +7,7 @@
         <file alias="action_color_picker_16.png">resources/action_color_picker_16.png</file>
         <file alias="action_delete.png">resources/action_delete.png</file>
         <file alias="action_delete_16.png">resources/action_delete_16.png</file>
+        <file alias="action_edit_cancel.png">resources/action_edit_cancel.png</file>
         <file alias="action_insert.png">resources/action_insert.png</file>
         <file alias="action_insert_16.png">resources/action_insert_16.png</file>
         <file alias="action_light.png">resources/action_light.png</file>

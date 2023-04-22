@@ -20,8 +20,10 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 	Layout->setContentsMargins(5, 5, 5, 5);
 
 	Layout->addWidget(new QLabel(tr("Find:")), 0, 0);
-
 	lcQColorPicker* FindColorPicker = new lcQColorPicker(this, true);
+/*** LPub3D Mod - colour picker status ***/
+	FindColorPicker->setStatusTip(tr("Find pieces that match selected color"));
+/*** LPub3D Mod end ***/
 	Layout->addWidget(FindColorPicker, 0, 1);
 
 	mFindPartComboBox = new QComboBox(this);
@@ -38,6 +40,13 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 	FindAllButton ->setAutoRaise(true);
 	FindAllButton ->setDefaultAction(gMainWindow->mActions[LC_EDIT_FIND_ALL]);
 	Layout->addWidget(FindAllButton, 0, 4);
+
+/*** LPub3D Mod - add cancel button *** /
+	QToolButton* FindCancelButton = new QToolButton(this);
+	FindCancelButton ->setAutoRaise(true);
+	FindCancelButton ->setDefaultAction(gMainWindow->mActions[LC_EDIT_CANCEL]);
+	Layout->addWidget(FindCancelButton, 0, 5);
+/ *** LPub3D Mod end ***/
 
 	connect(FindColorPicker, &lcQColorPicker::colorChanged, this, &lcFindReplaceWidget::FindColorIndexChanged);
 	connect(mFindPartComboBox->lineEdit(), &QLineEdit::returnPressed, gMainWindow->mActions[LC_EDIT_FIND_NEXT], &QAction::trigger);

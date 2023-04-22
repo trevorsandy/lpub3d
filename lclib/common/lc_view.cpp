@@ -323,6 +323,12 @@ void lcView::ShowContextMenu() const
 
 	Popup->addSeparator();
 
+	Popup->addAction(Actions[LC_EDIT_FIND]);
+	Popup->addAction(Actions[LC_EDIT_FIND_NEXT]);
+	Popup->addAction(Actions[LC_EDIT_FIND_PREVIOUS]);
+
+	Popup->addSeparator();
+
 	Popup->addAction(Actions[LC_PIECE_PAINT_SELECTED]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);

@@ -121,6 +121,18 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_PIECE_DELETE]->setObjectName("PiectDeleteAct.4");
     lpub->actions.insert("PiectDeleteAct.4", Action(QStringLiteral("3DViewer.Delete"), gMainWindow->mActions[LC_PIECE_DELETE]));
 
+    gMainWindow->mActions[LC_EDIT_FIND]->setObjectName("EditFindAct.4");
+    lpub->actions.insert("EditFindAct.4", Action(QStringLiteral("3DViewer.Find"), gMainWindow->mActions[LC_EDIT_FIND]));
+
+    gMainWindow->mActions[LC_EDIT_FIND_NEXT]->setObjectName("EditFindNextAct.4");
+    lpub->actions.insert("EditFindNextAct.4", Action(QStringLiteral("3DViewer.Find Next"), gMainWindow->mActions[LC_EDIT_FIND_NEXT]));
+
+    gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]->setObjectName("EditFindPreviousAct.4");
+    lpub->actions.insert("EditFindPreviousAct.4", Action(QStringLiteral("3DViewer.Find Previous"), gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]));
+
+    gMainWindow->mActions[LC_EDIT_CANCEL]->setObjectName("EditCancelAct.4");
+    lpub->actions.insert("EditCancelAct.4", Action(QStringLiteral("3DViewer.Cancel"), gMainWindow->mActions[LC_EDIT_CANCEL]));
+
     gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]->setObjectName("PaintSelectedAct.4");
     lpub->actions.insert("PaintSelectedAct.4", Action(QStringLiteral("3DViewer.Paint Selected"), gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]));
 
@@ -251,6 +263,8 @@ void Gui::create3DActions()
         ViewpointLatLong       = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude_dark.png");
         ViewpointLatLong16     = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude_dark_16.png");
     }
+
+    gMainWindow->mActions[LC_EDIT_CANCEL]->setIcon(QIcon(":/resources/action_edit_cancel.png"));
 
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
@@ -675,6 +689,11 @@ void Gui::create3DMenus()
      ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_DELETE]);
+     // Submodel Find menus
+     ViewerMenu->addSeparator();
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_NEXT]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]);
      ViewerMenu->addSeparator();
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
@@ -691,6 +710,7 @@ void Gui::create3DMenus()
      // Tools menu
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
@@ -771,6 +791,7 @@ void Gui::create3DToolBars()
 
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
@@ -902,6 +923,10 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_FILE_EXPORT_HTML]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(enable);
+    //Find
+    gMainWindow->mActions[LC_EDIT_FIND]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_FIND_NEXT]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]->setEnabled(enable);
     //Tools
     //mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(enable);
