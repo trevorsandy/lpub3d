@@ -704,37 +704,56 @@ int Step::createCsi(
 QStringList Step::configureModelStep(const QStringList &csiParts, Where &current/*topOfStep*/) {
 
   QStringList configuredCsiParts, stepColourList;
-  bool enableFadeSteps       = (Preferences::enableFadeSteps || csiStepMeta.fadeSteps.enable.value());
-  bool enableHighlightStep   = (Preferences::enableHighlightStep || csiStepMeta.highlightStep.enable.value());
-  bool highlightFirstStep    =  Preferences::highlightFirstStep;
 
-  bool fadeStepsUseColour    = Preferences::fadeStepsUseColour;
-  int fadeStepsOpacity       = Preferences::fadeStepsOpacity;
+  bool enableFadeSteps       = (/* Preferences::enableFadeSteps ||  */csiStepMeta.fadeSteps.enable.value());
+  bool enableHighlightStep   = (/* Preferences::enableHighlightStep ||  */csiStepMeta.highlightStep.enable.value());
+
+  bool highlightFirstStep    = Preferences::highlightFirstStep;
 
   QString fadeColour         = LDrawColor::code(Preferences::validFadeStepsColour);
-  if (Gui::m_fadeStepsSetup) {
+  bool fadeStepsUseColour    = Preferences::fadeStepsUseColour;
+  int fadeStepsOpacity       = Preferences::fadeStepsOpacity;
+  if (Gui::m_fadeStepsSetup || csiStepMeta.fadeSteps.setup.value()) {
       fadeColour             = csiStepMeta.fadeSteps.color.value().color;
       fadeStepsOpacity       = csiStepMeta.fadeSteps.opacity.value();
       fadeStepsUseColour     = csiStepMeta.fadeSteps.color.value().useColor;
   }
+
   QString highlightColour    = Preferences::highlightStepColour;
   int highlightStepLineWidth = Preferences::highlightStepLineWidth;
-  if (Gui::m_highlightStepSetup) {
+  if (Gui::m_highlightStepSetup || csiStepMeta.highlightStep.setup.value()) {
       highlightStepLineWidth = csiStepMeta.highlightStep.lineWidth.value();
       highlightColour        = csiStepMeta.highlightStep.color.value();
   }
 
   bool FadeMetaAdded = false;
+
   bool SilhouetteMetaAdded = false;
 
-  int stepNum = displayStep >= DT_MODEL_DEFAULT ? -1 : stepNumber.number;
+  bool doFadeStep = false;
+
+  bool doSilhouette = false;
+
+  int stepNum = 0;
+
+  if (displayStep) {
+    if ((highlightFirstStep = displayStep == DT_MODEL_CUSTOM))
+      stepNum = stepNumber.number > 1 ? stepNumber.number : static_cast<int>(displayStep);
+    else
+      stepNum = -1;
+  } else {
+    stepNum = stepNumber.number;
+  }
 
   if (csiParts.size() > 0 && (highlightFirstStep ? true : stepNum > 1)) {
 
     // retrieve the previous step position
-    int prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber,stepNum);
-    if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
-      prevStepPosition = Gui::savePrevStepPosition;
+    int prevStepPosition = 0;
+    if (!displayStep) {
+      prevStepPosition = lpub->ldrawFile.getPrevStepPosition(current.modelName,current.lineNumber, stepNum);
+      if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
+        prevStepPosition = Gui::savePrevStepPosition;
+    }
 
 //#ifdef QT_DEBUG_MODE
 //      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
@@ -760,7 +779,61 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       int updatePosition = index + 1;
 
       QString csiLine = csiParts[index];
+
       split(csiLine, argv);
+
+      // parse displayModel step
+      if (displayStep) {
+        if (argv.size() >= 2 && argv[0] == "0") {
+          bool ok;
+          if (enableFadeSteps && (argv[1] == "!FADE" || argv[1] == "FADE")) {
+            if (argv.size() == 2) {
+              doFadeStep = !doFadeStep;
+            } else if (argv.size() >= 3) {
+              doFadeStep = true;
+              if (argv.size() == 3) {
+                int opacity = argv[2].toInt(&ok);
+                if (ok)
+                  fadeStepsOpacity = opacity;
+                else
+                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade opacity value is invalid [%1] ").arg(argv[2]));
+              } else
+              if (argv.size() == 4) {
+                QColor colour(argv[3]);
+                if (colour.isValid())
+                  fadeColour = argv[3];
+                else
+                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
+              }
+            }
+          }
+
+          if (enableHighlightStep && (argv[1] == "!SILHOUETTE" || argv[1] == "SILHOUETTE")) {
+            if (argv.size() == 2) {
+              doSilhouette = !doSilhouette;
+            } else if (argv.size() >= 3) {
+              doSilhouette = true;
+              if (argv.size() == 3) {
+                QColor colour(argv[2]);
+                if (colour.isValid())
+                  highlightColour = argv[2];
+                else
+                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[2]));
+              } else
+              if (argv.size() == 4) {
+                int width = argv[2].toDouble(&ok);
+                if (ok)
+                  highlightStepLineWidth = width;
+                QColor colour(argv[3]);
+                if (colour.isValid())
+                  highlightColour = argv[3];
+                else
+                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[3]));
+              }
+            }
+          }
+        }
+      }
 
       // determine line type
       if (argv.size() && argv[0].size() == 1 && argv[0] >= "1" && argv[0] <= "5") {
@@ -791,10 +864,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         }
 
         // write fade step entries
-        if ((highlightFirstStep ? stepNum > 1 : true) && enableFadeSteps && (updatePosition <= prevStepPosition)) {
+        if ((highlightFirstStep ? stepNum > 1 : true) && enableFadeSteps && (doFadeStep || updatePosition <= prevStepPosition)) {
           if (type_1_5_line) {
             // Insert opening fade meta
-            if (!FadeMetaAdded && enableFadeSteps){
+            if (!displayStep && !FadeMetaAdded && enableFadeSteps){
               configuredCsiParts.insert(index,QString("0 !FADE %1").arg(fadeStepsOpacity));
               FadeMetaAdded = true;
             }
@@ -831,10 +904,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         }
 
         // write highlight entries
-        if (enableHighlightStep && (updatePosition > prevStepPosition)) {
+        if (enableHighlightStep && (doSilhouette || updatePosition > prevStepPosition)) {
           if (type_1_5_line) {
             // Insert opening silhouette meta
-            if (!SilhouetteMetaAdded && enableHighlightStep){
+            if (!displayStep && !SilhouetteMetaAdded && enableHighlightStep){
               configuredCsiParts.append(QString("0 !SILHOUETTE %1 %2")
                                                 .arg(highlightStepLineWidth)
                                                 .arg(highlightColour));
@@ -883,25 +956,30 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       configuredCsiParts  << csiLine;
 
       // Insert closing fade meta
-      if (updatePosition == prevStepPosition) {
-        if (FadeMetaAdded)
-          configuredCsiParts.append(QString("0 !FADE"));
-      }
+      if (!displayStep) {
+        if (updatePosition == prevStepPosition) {
+          if (FadeMetaAdded)
+            configuredCsiParts.append(QString("0 !FADE"));
+        }
 
-      // Insert closing silhouette meta
-      if (index+1 == csiParts.size()) {
-        if (SilhouetteMetaAdded)
-          configuredCsiParts.append(QString("0 !SILHOUETTE"));
+        // Insert closing silhouette meta
+        if (index+1 == csiParts.size()) {
+          if (SilhouetteMetaAdded)
+            configuredCsiParts.append(QString("0 !SILHOUETTE"));
+        }
       }
     }
 
     // save the current step position
-    lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
+    if (!displayStep)
+      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
 
   } else {
 
     // save the current step position
-    lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
+    if (!displayStep)
+      lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
+
     return csiParts;
 
   }
@@ -1706,7 +1784,7 @@ int Step::sizeit(
 
       if ( ! pliPerStep ) {
           sharable = false;
-        } 
+        }
 
       square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
       int size = callout->submodelStack().size();

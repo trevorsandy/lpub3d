@@ -590,8 +590,8 @@ bool LPub::setFadeStepsFromCommand()
 
   result.clear();
   topLevelModel = top;
-  fadeRx.setPattern("FADE_STEPS COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
-  Gui::stepContains(topLevelModel,fadeRx,result,1);
+  fadeRx.setPattern("FADE_STEPS COLOR\\s*(?:GLOBAL)?\\s*(\")?(\\w+)(?(1)\1|)[^\n]*");
+  Gui::stepContains(topLevelModel,fadeRx,result,2);
   if (!result.isEmpty()) {
     QColor ParsedColor = LDrawColor::color(result);
     bool fadeStepsUseColorCompare = Preferences::fadeStepsUseColour;
@@ -667,9 +667,9 @@ bool LPub::setHighlightStepFromCommand()
 
   result.clear();
   topLevelModel = top;
-  highlightRx.setPattern("HIGHLIGHT_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(0x|#)([\\da-fA-F]+)\"");
+  highlightRx.setPattern("HIGHLIGHT_STEP COLOR\\s*(?:GLOBAL)?\\s*(\")?(0x|#)([\\da-fA-F]+)(?(1)\1|)[^\n]*");
   if (Gui::stepContains(topLevelModel,highlightRx,result)) {
-    result = QString("%1%2").arg(highlightRx.cap(1),highlightRx.cap(2));
+    result = QString("%1%2").arg(highlightRx.cap(1),highlightRx.cap(3));
     QColor ParsedColor = QColor(result);
     QString highlightStepColourCompare = Preferences::highlightStepColour;
     Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;

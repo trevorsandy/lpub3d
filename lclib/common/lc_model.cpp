@@ -585,7 +585,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			else if (Token == QLatin1String("!COLOUR"))
 			{
 				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData(), lcGetPiecesLibrary()->GetStudStyle()))
-					emit gui->messageSig(LOG_ERROR,QString("Could not colour meta %1.")
+					emit gui->messageSig(LOG_ERROR,QString("Could not load COLOUR command %1.")
 										 .arg(OriginalLine));
 			}
 /*** LPub3D Mod end ***/
