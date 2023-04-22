@@ -5718,7 +5718,7 @@ int Gui::setBuildModForNextStep(
                 split(line,token);
                 if (token.size() == 15) {
                     const QString modelName = token[token.size() - 1];
-                    if (isSubmodel(modelName)) {
+                    if (isSubmodel(modelName) && !isDisplayModel(modelName)) {
                         Where topOfSubmodel(modelName, getSubmodelIndex(modelName), 0);
                         const TraverseRc nrc = static_cast<TraverseRc>(setBuildModForNextStep(topOfNextStep, topOfSubmodel));
                         if (nrc == HitAbortProcess) {

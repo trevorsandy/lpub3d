@@ -614,6 +614,10 @@ public:
   {
     return lpub->ldrawFile.isSubmodel(modelName);
   }
+  bool isDisplayModel(const QString &modelName)
+  {
+    return lpub->ldrawFile.isDisplayModel(modelName);
+  }
   bool isMpd()
   {
     return lpub->ldrawFile.isMpd();
