@@ -7465,7 +7465,7 @@ void Gui::parseError(const QString &message,
         Preferences::MsgKey msgKey,
         bool option/*false*/,
         bool override/*false*/,
-        int icon/*Critical*/)
+        int icon/*NoIcon*/)
 {
     if (parsedMessages.contains(here))
         return;
@@ -7482,59 +7482,71 @@ void Gui::parseError(const QString &message,
 
     QString parseMessage = tr("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
 
-    int abortProcess = false;
+    int abortProcess = 0;
 
     bool abortInProgress = Gui::abortProcess();
 
-    bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;    
+    bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
+
+    QMessageBox::Icon messageIcon = static_cast<QMessageBox::Icon>(icon);
+
+    bool abort = (messageIcon == QMessageBox::Icon::Critical || messageIcon == QMessageBox::Icon::NoIcon) && msgKey < Preferences::BuildModEditErrors;
 
     if (guiEnabled && !abortInProgress) {
         if ((!exporting() && !ContinuousPage()) || ((exporting() || ContinuousPage()) && Preferences::displayPageProcessingErrors)) {
-            if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
+            if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE)
                 showLine(here, LINE_ERROR);
-            }
-            int criticalMessage = icon == static_cast<int>(QMessageBox::Icon::Critical);
-            Gui::setAbortProcess(criticalMessage);
             bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
             if (okToShowMessage) {
                 Where messageLine = here;
                 messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
                 Preferences::MsgID msgID(msgKey,messageLine.indexToString());
                 abortProcess = Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override, icon) == QMessageBox::Abort;
-                if (criticalMessage)
+                if (abortProcess)
                     Gui::setAbortProcess(abortProcess);
-            }
+            } else
+                Gui::setAbortProcess(abort);
             if (pageProcessRunning == PROC_WRITE_TO_TMP)
                 emit progressPermMessageSig(tr("Writing submodel [Parse Error%1")
                                                .arg(okToShowMessage ? "]...          " : " - see log]... " ));
         } else {
-            const QString status(icon == 2 ? "<FONT COLOR='#FFBF00'>WARNING</FONT>: " : icon == 3 ? "<FONT COLOR='#FF0000'>ERROR</FONT>: " : "");
+            const QString status(messageIcon == QMessageBox::Icon::Warning
+                                     ? "<FONT COLOR='#FFBF00'>WARNING</FONT>: "
+                                     : messageIcon == QMessageBox::Icon::Critical
+                                           ? "<FONT COLOR='#FF0000'>ERROR</FONT>: "
+                                           : "");
             Gui::messageList << QString("%1%2<br>").arg(status).arg(parseMessage);
         }
+    } else if (!guiEnabled) {
+        Gui::setAbortProcess(abort);
     }
 
-    if (!abortProcess && !abortInProgress)
+    if (!abortProcess && !abortInProgress) {
         parsedMessages.append(here);
+        abortProcess = abort;
+        if (messageIcon == QMessageBox::Icon::NoIcon)
+            messageIcon = QMessageBox::Icon::Critical;
+    }
 
     // Set Logging settings
     Preferences::setMessageLogging(true/*useLogLevel*/);
 
-    Preferences::fprintMessage(parseMessage, icon > static_cast<int>(QMessageBox::Icon::Warning) ? true : false/*stdError*/);
+    Preferences::fprintMessage(parseMessage, messageIcon == QMessageBox::Icon::Critical ? true : false/*stdError*/);
 
-    switch (icon) {
-    case static_cast<int>(QMessageBox::Icon::Information):
+    switch (messageIcon) {
+    case QMessageBox::Icon::Information:
         if (Preferences::loggingEnabled)
             logInfo() << qPrintable(parseMessage.replace("<br>"," "));
         break;
-    case static_cast<int>(QMessageBox::Icon::Warning):
+    case QMessageBox::Icon::Warning:
         if (Preferences::loggingEnabled)
             logWarning() << qPrintable(parseMessage.replace("<br>"," "));
         break;
-    case static_cast<int>(QMessageBox::Icon::Question):
+    case QMessageBox::Icon::Question:
         if (Preferences::loggingEnabled)
             logNotice() << qPrintable(parseMessage.replace("<br>"," "));
         break;
-    case static_cast<int>(QMessageBox::Icon::Critical):
+    case QMessageBox::Icon::Critical:
         if (Preferences::loggingEnabled)
             logError() << qPrintable(parseMessage.replace("<br>"," "));
         if (abortProcess) {
@@ -7548,35 +7560,11 @@ void Gui::parseError(const QString &message,
                     while (QTime::currentTime() < waiting)
                         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
                 }
-                if (pageProcessRunning == PROC_NONE) {
-                    Gui::setAbortProcess(false);
-                    current = topOfPages.last();
-                    buildModJumpForward = false;
-                    maxPages = prevMaxPages;
-                    pagesCounted();
-                }
-            }                            // processing a page
-        }
-        break;
-    case static_cast<int>(LOG_FATAL):
-        {
-            if (Preferences::loggingEnabled)
-                logError() << qPrintable(QString(parseMessage).replace("<br>"," "));
-
-            Preferences::setMessageLogging();
-            Gui::setAbortProcess(true);
-            emit setExportingSig(false);
-            emit setContinuousPageSig(false);
-
-            if (guiEnabled) {
-                QApplication::restoreOverrideCursor();
-                if (QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),parseMessage.append(tr("<br><br>Restart %1 ? ").arg(VER_PRODUCTNAME_STR)),
-                                          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-                    displayPageNum = 1;
-                    restartApplicationSig(false, false);
-                }
             }
         }
+        break;
+    default:
+        break;
     }
 
     // Reset Logging to default settings

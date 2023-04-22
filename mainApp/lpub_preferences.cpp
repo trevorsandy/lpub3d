@@ -4204,7 +4204,7 @@ int  Preferences::showMessage(
         const QString &type,
         bool option  /*OkCancel=false*/,
         bool override/*false*/,
-        int icon/*Critical*/)
+        int icon/*NoIcon*/)
 {
     for (const QString &messageNotShown : messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
@@ -4213,19 +4213,23 @@ int  Preferences::showMessage(
     QString msgTitle = title.isEmpty() ? msgKeyTypes[msgID.msgKey][0] : title;
     QString msgType  = type.isEmpty()  ? msgKeyTypes[msgID.msgKey][1] : type;
 
-    bool critical = static_cast<QMessageBox::Icon>(icon) == QMessageBox::Icon::Critical;
+    QMessageBox::Icon messageIcon = static_cast<QMessageBox::Icon>(icon);
+    bool critical = messageIcon == QMessageBox::Icon::Critical;
     bool abort  = critical && msgID.msgKey < MsgKey::BuildModEditErrors;
 
     if (critical)
         LPub::loadBanner(ERROR_ENCOUNTERED);
 
+    if (messageIcon == QMessageBox::NoIcon)
+        messageIcon = QMessageBox::Icon::Critical;
+
     QMessageBoxResizable box;
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(msgTitle));
     box.setText(message);
-    box.setIcon(static_cast<QMessageBox::Icon>(icon));
-    box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : abort ? override ? QMessageBox::Ok : QMessageBox::Abort | QMessageBox::Ignore : QMessageBox::Ok);
-    box.setDefaultButton   (option ? QMessageBox::Cancel : abort ? override ? QMessageBox::Ok : QMessageBox::Ignore : QMessageBox::Ok);
-    if (!override) {
+    box.setIcon(static_cast<QMessageBox::Icon>(messageIcon));
+    box.setStandardButtons(abort ? QMessageBox::Abort : option ? QMessageBox::Ok | QMessageBox::Cancel : override ? QMessageBox::Ok : QMessageBox::Abort | QMessageBox::Ignore);
+    box.setDefaultButton(  abort ? QMessageBox::Abort : option ? QMessageBox::Cancel : override ? QMessageBox::Ok : QMessageBox::Ignore);
+    if (!abort && !override) {
         QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(msgType));
         box.setCheckBox(cb);
         QObject::connect(cb, &QCheckBox::stateChanged, [&message, &msgID](int state) {

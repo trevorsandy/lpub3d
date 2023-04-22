@@ -1365,7 +1365,7 @@ public slots:
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
                   bool option = false,
                   bool override = false,
-                  int icon = 3/*Critical*/);
+                  int icon = 0/*NoIcon*/);
 
   void statusBarMsg(QString msg);
   void statusMessage(LogType logType, const QString &statusMessage, int msgBox = 0);

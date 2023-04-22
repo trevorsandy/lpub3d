@@ -3649,7 +3649,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           if (errorFound) {
               QString const message = QObject::tr("Step with INSERT %1 meta command cannot contain %2. Invalid type at line %3")
                                                   .arg(argv[index]).arg(line).arg(start.lineNumber+1);
-              emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false, true/*override*/);
+              emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false/*option*/, false/*override*/, 3/*critical*/);
               Gui::setAbortProcess(true);
           }
       }
