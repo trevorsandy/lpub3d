@@ -46,7 +46,8 @@
 #endif
 
 static bool exportPdf    = true;
-static bool printPreview = true;
+static bool exportPreview = true;
+static QString exportTime;
 
 // Compare two variants.
 bool lessThan(const int &v1, const int &v2)
@@ -807,8 +808,6 @@ void Gui::exportAsPdf()
 {
   // init drawPage flags
   DrawPageFlags dpFlags;
-  QElapsedTimer exportTimer;
-  displayPageTimer.start();
 
   // store current display page number
   prevDisplayPageNum = displayPageNum;
@@ -901,7 +900,9 @@ void Gui::exportAsPdf()
       }
   }
 
+  QElapsedTimer exportTimer;
   exportTimer.start();
+  displayPageTimer.start();
 
   // determine size of output pages, in pixels
   float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
@@ -1001,8 +1002,8 @@ void Gui::exportAsPdf()
           if (! exporting()) {
               if (exportPdfElements)
                   painter.end();
-              message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
-                            .arg(displayPageNum - 1).arg(_maxPages).arg(gui->elapsedTime(exportTimer.elapsed()));
+              message = tr("Export to pdf terminated before completion. %1 pages of %2 processed%3.")
+                           .arg(displayPageNum - 1).arg(_maxPages).arg(gui->elapsedTime(exportTimer.elapsed()));
               emit messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1070,13 +1071,6 @@ void Gui::exportAsPdf()
               // clear the pixels of the image
               image.fill(Qt::white);
           }
-
-          //* local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
-#ifdef QT_DEBUG_MODE
-          int debugDisplayPageNum = displayPageNum;
-          Q_UNUSED(debugDisplayPageNum)
-#endif
-          //*/
 
           // render this page
           dpFlags.printing = true;
@@ -1412,15 +1406,16 @@ void Gui::exportAsPdf()
   // release Visual Editor
   emit setExportingSig(false);
 
+  // set elapsed time
+  exportTime = gui->elapsedTime(exportTimer.elapsed());
+
   // return to whatever page we were viewing before printing
   restoreCurrentPage();
 
   //display completion message
   if (Preferences::modeGUI) {
 
-      message = tr("Your document export completed. %1").arg(gui->elapsedTime(exportTimer.elapsed()));
-
-      emit messageSig(LOG_INFO_STATUS,message);
+      message = tr("Your document export completed. %1").arg(exportTime);
 
       if (messageList.size()) {
           int errorSet = 0;
@@ -1447,30 +1442,32 @@ void Gui::exportAsPdf()
       box.setDefaultButton   (QMessageBox::Yes);
 
       QString title = "<b>" + tr ("Export to pdf completed.") + "</b>";
-      QString text = tr ("%1<br><br>Do you want to open this document ?<br><br>%2").arg(message).arg(QDir::toNativeSeparators(fileName));
+      QString text = tr ("%1<br><br>Do you want to open this document ?<br><br>%2")
+                         .arg(message).arg(QDir::toNativeSeparators(fileName));
 
       box.setText (title);
       box.setInformativeText (text);
+  }
 
-      if (box.exec() == QMessageBox::Yes) {
-          const QString CommandPath = fileName;
+  if (Preferences::modeGUI && box.exec() == QMessageBox::Yes) {
+      const QString CommandPath = fileName;
 #ifdef Q_OS_WIN
-          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-          QProcess *Process = new QProcess(this);
-          Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
-          QStringList arguments = QStringList() << CommandPath;
-          Process->start(UNIX_SHELL, arguments);
-          Process->waitForFinished();
-          if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
-              QErrorMessage *m = new QErrorMessage(this);
-              m->showMessage(tr("Failed to launch PDF document.\n%1\n%2")
-                                .arg(CommandPath).arg(QString(Process->readAllStandardError())));
-          }
-#endif
+      QProcess *Process = new QProcess(this);
+      Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
+      QStringList arguments = QStringList() << CommandPath;
+      Process->start(UNIX_SHELL, arguments);
+      Process->waitForFinished();
+      if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
+          QErrorMessage *m = new QErrorMessage(this);
+          m->showMessage(tr("Failed to launch PDF document.\n%1\n%2")
+                             .arg(CommandPath).arg(QString(Process->readAllStandardError())));
       }
+#endif
   } else {
-      emit messageSig(LOG_INFO_STATUS, tr("Export to pdf completed! %1").arg(gui->elapsedTime(exportTimer.elapsed())));
+      LogType logType = Preferences::modeGUI ? LOG_INFO_STATUS : LOG_INFO;
+      emit messageSig(logType, tr("Export to pdf completed! %1").arg(exportTime));
   }
 }
 
