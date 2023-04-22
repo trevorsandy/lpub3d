@@ -1,4 +1,4 @@
-LPub3D 2.4.6.177.3288 (22 04 2023 17:09:46)
+LPub3D 2.4.6.178.3289 (22 04 2023 17:10:11)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,6 +34,7 @@ Revisions:
 - Fix - Parts List Instance placement dialog #685
 - Fix - Persistent data directory installation folder message #687
 - Fix - Placement regression #694
+- Fix - PLI windows are misaligned in Multi Step pages #703
 - Fix - Refresh step assembly image menu action missing #675
 - Fix - ROTSTEP END in step group is broken #696
 - Fix - Segfault after running --help or --version from console #668

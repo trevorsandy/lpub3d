@@ -2589,81 +2589,93 @@ void Step::placeit(
      break;
   }
 
-  /* Justify outside top and bottom placement - see ticket #690
-   * Apply relative justify to 'y' when the page is a single range - has no divider. */
+  /* Justify top and bottom outside rectPlacement - see ticket #690
+   * Apply relative justify to 'y' when the page is a single range - no divider. */
   Page *page = dynamic_cast<Page *>(grandparent());
-  if (page && page->list.size() == 1) {
-    if (shared) {
-      switch (pli.placement.value().relativeTo) {
-      case CsiType:
-          csiPlacement.justifyRelative(&pli,y);
-          break;
-      case SubModelType:
-          subModel.justifyRelative(&pli,y);
-          break;
-      case StepNumberType:
-          stepNumber.justifyRelative(&pli,y);
-          break;
-      case RotateIconType:
-          rotateIcon.justifyRelative(&pli,y);
-          break;
-      default:
-          break;
-      }
-      if(placeSubModel) {
-          switch (subModel.placement.value().relativeTo) {
-          case CsiType:
-            csiPlacement.justifyRelative(&subModel,y);
-            break;
-          case PartsListType:
-            pli.justifyRelative(&subModel,y);
-            break;
-          case StepNumberType:
-            stepNumber.justifyRelative(&subModel,y);
-            break;
-          case RotateIconType:
-            break;
-          default:
-            break;
-          }
-      }
-    }
+  if (page && page->list.size() == 1/*single range - no divider*/) {
+     if (shared) {
+        PlacementData& pd = pli.placement.value();
+        if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
+           switch (pli.placement.value().relativeTo) {
+           case CsiType:
+              csiPlacement.justifyRelative(&pli,y);
+              break;
+           case SubModelType:
+              subModel.justifyRelative(&pli,y);
+              break;
+           case StepNumberType:
+              stepNumber.justifyRelative(&pli,y);
+              break;
+           case RotateIconType:
+              rotateIcon.justifyRelative(&pli,y);
+              break;
+           default:
+              break;
+           }
+        }
+        if(placeSubModel) {
+           PlacementData& pd = subModel.placement.value();
+           if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
+              switch (subModel.placement.value().relativeTo) {
+              case CsiType:
+                csiPlacement.justifyRelative(&subModel,y);
+                break;
+              case PartsListType:
+                pli.justifyRelative(&subModel,y);
+                break;
+              case StepNumberType:
+                stepNumber.justifyRelative(&subModel,y);
+                break;
+              case RotateIconType:
+                break;
+              default:
+                break;
+              }
+           }
+        }
+     }
 
-    if(placeRotateIcon) {
-      switch (rotateIcon.placement.value().relativeTo) {
-      case CsiType:
-          csiPlacement.justifyRelative(&rotateIcon,y);
-          break;
-      case PartsListType:
-          pli.justifyRelative(&rotateIcon,y);
-          break;
-      case SubModelType:
-          subModel.justifyRelative(&rotateIcon,y);
-          break;
-      case StepNumberType:
-          stepNumber.justifyRelative(&rotateIcon,y);
-          break;
-      default:
-          break;
-      }
-    }
+     if(placeRotateIcon) {
+        PlacementData& pd = rotateIcon.placement.value();
+        if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
+           switch (rotateIcon.placement.value().relativeTo) {
+           case CsiType:
+              csiPlacement.justifyRelative(&rotateIcon,y);
+              break;
+           case PartsListType:
+              pli.justifyRelative(&rotateIcon,y);
+              break;
+           case SubModelType:
+              subModel.justifyRelative(&rotateIcon,y);
+              break;
+           case StepNumberType:
+              stepNumber.justifyRelative(&rotateIcon,y);
+              break;
+           default:
+              break;
+           }
+        }
+     }
 
-    switch (stepNumber.placement.value().relativeTo) {
-    case CsiType:
-      csiPlacement.justifyRelative(&stepNumber,y);
-      break;
-    case PartsListType:
-      pli.justifyRelative(&stepNumber,y);
-      break;
-    case SubModelType:
-      subModel.justifyRelative(&stepNumber,y);
-      break;
-    case RotateIconType:
-      rotateIcon.justifyRelative(&stepNumber,y);
-      break;
-    default:
-      break;
-    }
+     PlacementData& pd = stepNumber.placement.value();
+     if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
+        switch (stepNumber.placement.value().relativeTo) {
+        case CsiType:
+           csiPlacement.justifyRelative(&stepNumber,y);
+           break;
+        case PartsListType:
+           pli.justifyRelative(&stepNumber,y);
+           break;
+        case SubModelType:
+           subModel.justifyRelative(&stepNumber,y);
+           break;
+        case RotateIconType:
+           rotateIcon.justifyRelative(&stepNumber,y);
+           break;
+        default:
+           break;
+        }
+     }
   }
   /* apply relative justify - end */
 
