@@ -263,10 +263,39 @@ ViewerStep::ViewerStep(const QStringList &stepKey,
     _calledOut = calledOut;
     _viewType  = viewType;
     _hasBuildModAction = false;
-    if (viewType == Options::PLI) // Parts do not have modelIndex or lineNumber
-        _stepKey   = { BM_NONE, 0, stepKey[BM_STEP_NUM_KEY].toInt() };
-    else
-        _stepKey   = { stepKey[BM_STEP_MODEL_KEY].toInt(), stepKey[BM_STEP_LINE_KEY].toInt(), stepKey[BM_STEP_NUM_KEY].toInt() };
+    int modelIndex = -1, lineNum = 0,stepNum = 0;
+    bool ok[3];
+    QString key, errors;
+    if (stepKey.size() == 3) {
+        if (viewType == Options::PLI) {
+            // Parts do not have modelIndex or lineNumber
+            stepNum = stepKey.at(BM_STEP_NUM_KEY).toInt(&ok[0]);
+            if (!ok[0])
+                errors.append(QObject::tr(" step number"));
+        } else {
+            modelIndex = stepKey.at(BM_STEP_MODEL_KEY).toInt(&ok[0]);
+            lineNum    = stepKey.at(BM_STEP_LINE_KEY) .toInt(&ok[1]);
+            stepNum    = stepKey.at(BM_STEP_NUM_KEY)  .toInt(&ok[2]);
+            if (!ok[0])
+                errors.append(QObject::tr(" model index"));
+            if (!ok[1])
+                errors.append(QObject::tr(" line numbr"));
+            if (!ok[2])
+                errors.append(QObject::tr(" step number"));
+        }
+        if (!errors.isEmpty())
+            key = stepKey.join(";");
+    } else {
+        key.append(stepKey.join(";"));
+        errors.append(QObject::tr("missing attributes"));
+    }
+    if (errors.isEmpty()) {
+        _stepKey = { modelIndex, lineNum, stepNum };
+    } else {
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Viewer step has invaid key (%1):%2").arg(key).arg(errors));
+        _stepKey = { -1, 0, 0 };
+    }
+
 }
 
 void LDrawFile::empty()
@@ -5004,21 +5033,38 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
     _viewerSteps.erase(i);
   }
 
-  const QStringList keyList = stepKey.split("_");
-  const QStringList keys = keyList.size() > 1 ? keyList.first().split(";") : stepKey.split(";");
+  QString mStepKey = stepKey;
+
+  // treat parts with '_' in the name - encode
+  QString type;
+  if (viewType == Options::PLI) {
+    type = mStepKey.split(";").first();
+    if (type.count("_"))
+      mStepKey.replace(type, QString(type).replace("_", "@@"));
+  }
+
+  QStringList keyList = mStepKey.split("_"); // get _keySuffix for display submodel
+
+  // treat parts with '_' in the name - decode
+  if (!type.isEmpty()) {
+    mStepKey.replace("@@","_");
+    keyList[0] = type;
+  }
+
+  const QStringList keys = keyList.size() > 1 ? keyList.first().split(";") : mStepKey.split(";");
 
   ViewerStep viewerStep(keys,rotatedViewerContents,rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
 
   viewerStep._keySuffix = keyList.size() > 1 ? QString("_%1").arg(keyList.last()) : QString();
   viewerStep._partCount = rotatedContents.size();
 
-  _viewerSteps.insert(stepKey,viewerStep);
+  _viewerSteps.insert(mStepKey,viewerStep);
 
 #ifdef QT_DEBUG_MODE
   const QString debugMessage =
           QString("Insert %1 ViewerStep Key: '%2' [%3 %4 StepNumber: %5], Type: [%6]")
                   .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
-                  .arg(stepKey)
+                  .arg(mStepKey)
                   .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
                                                   QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt(),false)))
                   .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
