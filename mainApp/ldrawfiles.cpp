@@ -311,6 +311,7 @@ void LDrawFile::empty()
   _buildModRendered.clear();
   _buildModList.clear();
   _includeFileList.clear();
+  _missingItems.clear();
   _loadedItems.clear();
   _name.clear();
   _author.clear();
@@ -1401,6 +1402,7 @@ int LDrawFile::loadStatus(bool menuAction)
         emit lpub->messageSig(LOG_STATUS, QObject::tr("Recounting LDraw parts..."));
         QFuture<void> recountPartsFuture = QtConcurrent::run([this](){ recountParts(); });
         recountPartsFuture.waitForFinished();
+        _loadedItems.sort(Qt::CaseInsensitive);
     }
 
     if (showLoadStatus || menuAction) {
@@ -3168,10 +3170,11 @@ void LDrawFile::loadStatusEntry(const int messageType,
         msgType == EMPTY_SUBMODEL_LOAD_MSG ||
         msgType == BAD_INCLUDE_LOAD_MSG) {
       logType = LOG_WARNING;
-      if (msgType == MISSING_PART_LOAD_MSG)
+      if (msgType == MISSING_PART_LOAD_MSG) {
         _loadIssues = static_cast<int>(SHOW_ERROR);
-      else if (_loadIssues < static_cast<int>(SHOW_ERROR))
+      } else if (_loadIssues < static_cast<int>(SHOW_ERROR)) {
         _loadIssues = static_cast<int>(SHOW_WARNING);
+      }
     }
 
     if (uniqueCount)
@@ -3303,11 +3306,13 @@ void LDrawFile::countParts(const QString &fileName) {
                                 lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
                                 description = Primitive->mName;
                             }
+                            bool inMissingItems = false;
                             switch(subFileType) {
                             case UNOFFICIAL_PART:
                             case UNOFFICIAL_SHORTCUT:
                             case UNOFFICIAL_GENERATED_PART:
                                 _partCount++;
+                                inMissingItems = isMissingItem(type);
                                 statusDesc  = QObject::tr("Unofficial Inline%1 - %2 (file: %3, line: %4)")
                                                           .arg(subFileType == UNOFFICIAL_GENERATED_PART ? QObject::tr(" LDCAD Generated") : "")
                                                           .arg(description).arg(top.modelName).arg(top.lineNumber);
@@ -3318,12 +3323,14 @@ void LDrawFile::countParts(const QString &fileName) {
                                 loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [Inline %2] validated."),true/*unique count*/);
                                 break;
                             case UNOFFICIAL_SUBPART:
+                                inMissingItems = isMissingItem(type);
                                 statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3 (file: %4, line: %5)")
                                                           .arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE SUBPART"));
                                 break;
                             /* Add these primitives into the load status dialogue because they are loaded in the LDrawFile.subfiles */
                             case UNOFFICIAL_PRIMITIVE:
+                                inMissingItems = isMissingItem(type);
                                 statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3 (file: %4, line: %5)")
                                                           .arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE PRIMITIVE"));
@@ -3331,6 +3338,8 @@ void LDrawFile::countParts(const QString &fileName) {
                             default:
                                 break;
                             }
+                            if (inMissingItems)
+                                removeMissingItem(type);
                         }
                     } else {
                         QString partFile = type.toUpper();
@@ -3364,6 +3373,8 @@ void LDrawFile::countParts(const QString &fileName) {
                             statusEntry = QObject::tr("%1|%2|Part not found! [%3] (file: %4, line: %5)")
                                                       .arg(MISSING_PART_LOAD_MSG).arg(type).arg(line).arg(top.modelName).arg(top.lineNumber);
                             loadStatusEntry(MISSING_PART_LOAD_MSG, statusEntry, type, message);
+                            if (!isMissingItem(type))
+                                insertMissingItem(QStringList() << type << statusEntry);
                         }
                     }  // check archive
                 } // countThisLine && lineIncluded && partIncluded
@@ -3603,6 +3614,33 @@ bool LDrawFile::saveIncludeFile(const QString &fileName){
       }
     }
     return true;
+}
+
+void LDrawFile::insertMissingItem(const QStringList &item)
+{
+    QString const type = item.at(0).toLower();
+    QMap<QString, MissingItem>::iterator i = _missingItems.find(type);
+    if (i != _missingItems.end())
+      _missingItems.erase(i);
+    MissingItem missingItem(type, item.at(1));
+    _missingItems.insert(type, missingItem);
+}
+
+bool LDrawFile::isMissingItem(const QString &fileName)
+{
+    QString const type = fileName.toLower();
+    QMap<QString, MissingItem>::iterator i = _missingItems.find(type);
+    if (i != _missingItems.end())
+      return true;
+    return false;
+}
+
+void LDrawFile::removeMissingItem(const QString &fileName)
+{
+    QString const type = fileName.toLower();
+    QMap<QString, MissingItem>::iterator i = _missingItems.find(type);
+    if (i != _missingItems.end())
+        _missingItems.erase(i);
 }
 
 bool LDrawFile::changedSinceLastWrite(const QString &fileName)

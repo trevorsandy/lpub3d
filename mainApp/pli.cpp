@@ -334,6 +334,18 @@ void Pli::setParts(
 
           QString key = QString("%1_%2").arg(baseName).arg(color);
 
+          // extract the substitute original or ldraw type
+          bool isSubstitute       = segments.size() > 2;
+          bool validOriginalType  = isSubstitute && segments.last() != "undefined";
+          QString subOriginalType = validOriginalType ? segments.last() : QString();
+          bool isSubLdrawType     = validOriginalType ? QStringList(subOriginalType.split(":")).last().toInt() : false;
+
+          if (lpub->ldrawFile.isMissingItem(type)) {
+              emit lpub->messageSig(LOG_WARNING, QObject::tr("%1 [%2] was not found! See Load Status for details")
+                                                             .arg(isSubstitute ? QObject::tr("Substitute part") : QObject::tr("Part")).arg(type));
+              continue;
+          }
+
           QString description = titleDescription(type);
 
           QString sortCategory;
@@ -344,12 +356,6 @@ void Pli::setParts(
           styleMeta.margin = pliMeta.annotate.margin;
           styleMeta.font   = pliMeta.annotate.font;
           styleMeta.color  = pliMeta.annotate.color;
-
-          // extract the substitute original or ldraw type
-          bool isSubstitute       = segments.size() > 2;
-          bool validOriginalType  = isSubstitute && segments.last() != "undefined";
-          QString subOriginalType = validOriginalType ? segments.last() : QString();
-          bool isSubLdrawType     = validOriginalType ? QStringList(subOriginalType.split(":")).last().toInt() : false;
 
           // initialize element id
           QString element = QString();

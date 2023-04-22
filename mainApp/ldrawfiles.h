@@ -245,11 +245,25 @@ class BuildMod {
     }
 };
 
+class MissingItem {
+  public:
+    QString type;
+    QString entry;
+    MissingItem() { };
+    MissingItem(
+        const QString &_type,
+        const QString &_entry)
+        : type(_type)
+        , entry(_entry) { };
+    ~MissingItem() { };
+};
+
 class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
     QMap<QString, CfgSubFile>   _configuredSubFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
+    QMap<QString, MissingItem>  _missingItems;
     QMap<QString, BuildMod>     _buildMods;
     QVector<QVector<int>>       _buildModStepIndexes;
     QMap<QString, QStringList>  _buildModRendered;
@@ -307,6 +321,7 @@ class LDrawFile {
       _buildModRendered.clear();
       _includeFileList.clear();
       _buildModList.clear();
+      _missingItems.clear();
       _loadedItems.clear();
     }
 
@@ -473,6 +488,9 @@ class LDrawFile {
                          bool uniqueCount = false);
     int loadStatus(bool menuAction = false);
     bool changedSinceLastWrite(const QString &fileName);
+    bool isMissingItem(const QString &fileName);
+    void removeMissingItem(const QString &fileName);
+    void insertMissingItem(const QStringList &item);
     void tempCacheCleared();
 
     void setSmiContent(const QString &fileName, const QStringList &smiContents);
