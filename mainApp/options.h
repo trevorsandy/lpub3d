@@ -274,6 +274,7 @@ public:
             QList<SubmodelStack> &_modelStack,
 
             bool             _pageDisplayed,
+            bool             _displayModel,
             bool             _updateViewer,
             bool             _isMirrored,
             bool             _printing,
@@ -289,6 +290,7 @@ public:
           modelStack        (_modelStack),
 
           pageDisplayed     (_pageDisplayed),
+          displayModel      (_displayModel),
           updateViewer      (_updateViewer),
           isMirrored        (_isMirrored),
           printing          (_printing),
@@ -303,6 +305,7 @@ public:
     FindPageFlags  &flags;
     QList<SubmodelStack> &modelStack;
     bool            pageDisplayed;
+    bool            displayModel;
     bool            updateViewer;
     bool            isMirrored;
     bool            printing;

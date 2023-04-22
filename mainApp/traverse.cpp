@@ -1476,6 +1476,7 @@ int Gui::drawPage(
                     QString message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5) at line %1");
                     parseError(message, opts.current, Preferences::InsertErrors);
                 } else {                        /*InsertDisplayModelRc*/
+                    curMeta.LPub.assem.showStepNumber.setValue(false);
                     opts.displayModel = true;
                     bool partsAdded = false;
                     lpub->mi.scanForward(top, StepMask, partsAdded);
@@ -3196,21 +3197,29 @@ int Gui::findPage(
                    * Called out sub-models (except those assembled/rotated) are processed in drawPage() */
 
                   bool contains = lpub->ldrawFile.isSubmodel(type);
-                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
                   // if submodel
                   if (contains) {
+
                       // when the display page is not the end of a submodel
                       bool partiallyRendered = false;
+                      bool buildModRendered = false;
 
-                      // check if submodel is in current step build modification
-                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore || getBuildModRendered(buildMod.key, colorType));
+                      bool validCallout = opts.flags.callout && meta.LPub.callout.begin.value() != CalloutBeginMeta::Unassembled;
+
+                      bool validSubmodel = (!opts.displayModel && !opts.flags.callout) || (validCallout) || (opts.displayModel && validCallout);
 
                       // if not callout or assembled/rotated callout
-                      if (! opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
+                      if (validSubmodel) {
 
                           // check if submodel was rendered
-                          bool rendered = lpub->ldrawFile.rendered(type,lpub->ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,opts.flags.countInstances);
+                          bool rendered = lpub->ldrawFile.rendered(type,lpub->ldrawFile.mirrored(token),
+                                                                   opts.current.modelName,
+                                                                   opts.stepNumber,
+                                                                   opts.flags.countInstances);
+
+                          // check if submodel is in current step build modification
+                          buildModRendered = Preferences::buildModEnabled && (buildMod.ignore || getBuildModRendered(buildMod.key, colorType));
 
                           // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -3268,6 +3277,7 @@ int Gui::findPage(
                                               flags2,
                                               meta.submodelStack,
                                               opts.pageDisplayed,
+                                              opts.displayModel,
                                               opts.updateViewer,
                                               opts.isMirrored,
                                               opts.printing,
@@ -3479,7 +3489,8 @@ int Gui::findPage(
                                   opts.printing,
                                   opts.flags.stepGroupBfxStore2,
                                   false /*assembledCallout*/,
-                                  false /*calldeOut*/);
+                                  false /*calldeOut*/,
+                                  opts.displayModel);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("a_find_save_csi_parts");
 #endif
@@ -3539,10 +3550,11 @@ int Gui::findPage(
 
                 } // StepGroup && ! NoStep2 (StepGroupEndRc)
 
-              if (opts.current.modelName == topLevelFile())
-                  opts.pageDisplayed = opts.pageNum > displayPageNum;
+                if (opts.current.modelName == topLevelFile())
+                   opts.pageDisplayed = opts.pageNum > displayPageNum;
 
                 opts.flags.noStep2 = false;
+                opts.displayModel = false;
                 break;
 
                case BuildModApplyRc:
@@ -3562,6 +3574,12 @@ int Gui::findPage(
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
               case BuildModBeginRc:
                 if (!Preferences::buildModEnabled) {
+                    buildMod.ignore = true;
+                    break;
+                }
+                if (opts.displayModel) {
+                    emit gui->parseErrorSig(tr("Build modifications are not supported in display model Step"),
+                                               opts.current,Preferences::BuildModErrors,false,false);
                     buildMod.ignore = true;
                     break;
                 }
@@ -3735,7 +3753,9 @@ int Gui::findPage(
                                         opts.updateViewer,
                                         opts.isMirrored,
                                         opts.printing,
-                                        opts.flags.bfxStore2);
+                                        opts.flags.bfxStore2,
+                                        false,false,
+                                        opts.displayModel);
 #ifdef WRITE_PARTS_DEBUG
                             writeFindPartsFile("b_find_save_csi_parts");
 #endif
@@ -3834,6 +3854,7 @@ int Gui::findPage(
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
               opts.flags.parseNoStep = false;
+              opts.displayModel = false;
               break;
 
             case CalloutBeginRc:
@@ -3859,6 +3880,8 @@ int Gui::findPage(
             case InsertFinalModelRc:
             case InsertDisplayModelRc:
               lastStepPageNum = opts.pageNum;
+              if (rc == InsertDisplayModelRc)
+                  opts.displayModel = true;
               break;
 
             case PartBeginIgnRc:
@@ -3883,6 +3906,11 @@ int Gui::findPage(
 
               /* Buffer exchange */
             case BufferStoreRc:
+              if (opts.displayModel) {
+                  emit gui->parseErrorSig(tr("BUFEXCHG is not supported in display model Step"),
+                                             opts.current,Preferences::BuildModErrors,false,false);
+                  break;
+              }
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                   bfx[meta.bfx.value()] = csiParts;
                   bfxLineTypeIndexes[meta.bfx.value()] = lineTypeIndexes;
@@ -4020,7 +4048,7 @@ int Gui::findPage(
             case BuildModEnableRc:
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
               {
-                  bool enabled = meta.LPub.buildModEnabled.value();
+                  bool enabled = meta.LPub.buildModEnabled.value() && !opts.displayModel;
                   if (Preferences::buildModEnabled != enabled) {
                       Preferences::buildModEnabled  = enabled;
                       enableVisualBuildModification();
@@ -4029,7 +4057,6 @@ int Gui::findPage(
                   }
               }
               break;
-
 
           case FinalModelEnableRc:
             if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
@@ -4134,7 +4161,9 @@ int Gui::findPage(
                       opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,
-                      opts.flags.bfxStore2);
+                      opts.flags.bfxStore2,
+                      false,false,
+                      opts.displayModel);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("b_find_save_csi_parts");
 #endif
@@ -4192,6 +4221,7 @@ int Gui::findPage(
       // Clear parts added so we dont count again in countPage;
       opts.flags.partsAdded = 0;
       opts.flags.parseNoStep = false;
+      opts.displayModel = false;
 
     }  // Last Step in Submodel
 
@@ -4684,6 +4714,7 @@ void Gui::countPages()
                   fpFlags,
                   modelStack,
                   false          /*pageDisplayed*/,
+                  false          /*displayModel*/,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
                   false          /*printing*/,
@@ -4865,6 +4896,7 @@ void Gui::drawPage(
               modelStack,
               dpFlags.updateViewer,
               false        /*pageDisplayed*/,
+              false        /*displayModel*/,
               false        /*mirrored*/,
               dpFlags.printing,
               0            /*stepNumber*/,

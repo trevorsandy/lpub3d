@@ -2323,18 +2323,20 @@ int CountPageWorker::countPage(
 
                   int contains = ldrawFile->isSubmodel(type);
 
-                  CalloutBeginMeta::CalloutMode calloutMode = meta->LPub.callout.begin.value();
-
                   // if submodel
                   if (contains) {
 
                       // check if submodel is in current step build modification
-                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore ||
-                                              ldrawFile->getBuildModRendered(buildMod.key, colorType, true/*countPage*/));
+                      bool buildModRendered = false;
 
                       // if not callout or assembled/rotated callout or parseBuildMods, process the submodel
                       // note that we accept callouts if parseBuildMods is true to parse any specified build mods
-                      if (!opts.flags.callout || opts.flags.parseBuildMods || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
+
+                      bool validCallout = opts.flags.callout && meta->LPub.callout.begin.value() != CalloutBeginMeta::Unassembled;
+
+                      bool validSubmodel = (!opts.displayModel && (!opts.flags.callout || opts.flags.parseBuildMods)) || (validCallout) || (opts.displayModel && validCallout);
+
+                      if (validSubmodel) {
 
                           // check if submodel was rendered
                           bool rendered = ldrawFile->rendered(type,
@@ -2343,6 +2345,9 @@ int CountPageWorker::countPage(
                                                               opts.stepNumber,
                                                               opts.flags.countInstances,
                                                               true /*countPage*/);
+
+                          buildModRendered = Preferences::buildModEnabled && (buildMod.ignore ||
+                                                                              ldrawFile->getBuildModRendered(buildMod.key, colorType, true/*countPage*/));
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -2401,6 +2406,7 @@ int CountPageWorker::countPage(
                                               flags2,
                                               opts.modelStack,
                                               opts.pageDisplayed,
+                                              opts.displayModel,
                                               opts.updateViewer,
                                               opts.isMirrored,
                                               opts.printing,
@@ -2628,11 +2634,20 @@ int CountPageWorker::countPage(
                   buildMod.ignore = true;
                   break;
               }
-              if (buildMod.state == BM_BEGIN)
+              if (opts.displayModel) {
+                  emit gui->parseErrorSig(tr("Build modifications are not supported in display model Step"),
+                                             opts.current,Preferences::BuildModErrors,false,false);
+                  buildMod.ignore = true;
+                  break;
+              }
+              if (buildMod.state == BM_BEGIN) {
                   emit gui->parseErrorSig(QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
                                                   "Multiple build modifications per STEP are not allowed.")
                                                   .arg(meta->LPub.buildMod.key()).arg(buildMod.key),
                                                   opts.current,Preferences::BuildModErrors,false,false);
+                  buildMod.ignore = true;
+                  break;
+              }
               buildMod.key = meta->LPub.buildMod.key();
               buildMod.level = getLevel(buildMod.key, BM_BEGIN);
               buildMod.action = BuildModApplyRc;
@@ -2783,6 +2798,7 @@ int CountPageWorker::countPage(
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
               opts.flags.parseNoStep = false;
+              opts.displayModel = false;
 
               // terminate build modification countPage at end of step
               if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > gui->saveDisplayPageNum) {
@@ -2814,6 +2830,8 @@ int CountPageWorker::countPage(
             case InsertFinalModelRc:
             case InsertDisplayModelRc:
               Gui::lastStepPageNum = opts.pageNum;
+              if (rc == InsertDisplayModelRc)
+                  opts.displayModel = true;
               break;
 
             case PartBeginIgnRc:
