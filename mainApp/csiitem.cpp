@@ -299,7 +299,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     QMenu menu;
     const QString name    = tr("Assembly");
-    QString whatsThis     = QString();
     bool dividerDetected  = false;
     bool offerStepDivider = false;
     bool fullContextMenu  = step->displayStep == DT_DEFAULT;
@@ -462,6 +461,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     commonMenus.addAction(scaleAction,menu,name);
 
     QAction *marginsAction             = lpub->getAct("marginAction.1");
+
+    QString whatsThis;
     switch (parentRelativeType)
     {
       case SingleStepType:
@@ -537,7 +538,16 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
     QAction *noStepAction              = lpub->getAct("noStepAction.1");
-    noStepAction->setText(tr("Do Not Show This %1").arg(fullContextMenu ? tr("Step") : tr("Final Model")));
+    QString display                    = fullContextMenu ? tr("Step") :
+                                         step->displayStep == DT_MODEL_DEFAULT
+                                         ? tr("Display Model")
+                                         : step->displayStep == DT_MODEL_CUSTOM
+                                             ? tr("Custom Model")
+                                             : step->displayStep == DT_MODEL_FINAL
+                                                 ? tr("Final Model")
+                                                 : tr("Page");
+
+    noStepAction->setText(tr("Do Not Show This %1").arg(display));
     commonMenus.addAction(noStepAction,menu);
 
     QAction *previewCsiAction          = lpub->getAct("previewPartAction.1");
@@ -593,12 +603,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 #endif
 
     QAction *viewCSIFileAction         = lpub->getAct("viewCSIFileAction.1");
-    viewCSIFileAction->setText(tr("View Step %1 Assembly File") .arg(step->stepNumber.number));
+    viewCSIFileAction->setText(tr("View %1 Assembly File")
+                                   .arg(step->displayStep >= DT_MODEL_DEFAULT ? display : tr("%1 %2").arg(display).arg(step->stepNumber.number)));
     commonMenus.addAction(viewCSIFileAction,menu);
 
 #ifdef QT_DEBUG_MODE
     QAction *view3DViewerFileAction    = lpub->getAct("view3DViewerFileAction.1");
-    view3DViewerFileAction->setText(tr("View Step %1 Assembly Visual Editor File") .arg(step->stepNumber.number));
+    view3DViewerFileAction->setText(tr("View %1 Assembly Visual Editor File")
+                                        .arg(step->displayStep >= DT_MODEL_DEFAULT ? display : tr("%1 %2").arg(display).arg(step->stepNumber.number)));
     commonMenus.addAction(view3DViewerFileAction,menu);
 #endif
 
