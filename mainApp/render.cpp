@@ -252,9 +252,10 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int imageType, bool displayOnly) {
+int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int imageType, int displayType) {
 
     QStringList tokens;
+    DisplayType modelType = static_cast<DisplayType>(displayType);
     QString baseName = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
     bool isMPD       = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
@@ -302,7 +303,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
     }
 
     // special case where model file is a display model or final step in fade step document
-    if (displayOnly) {
+    if (modelType >= DT_MODEL_DEFAULT) {
         baseName = baseName.append("_Display_Model");
     }
 

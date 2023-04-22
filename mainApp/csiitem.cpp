@@ -302,7 +302,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QString whatsThis     = QString();
     bool dividerDetected  = false;
     bool offerStepDivider = false;
-    bool fullContextMenu  = ! step->modelDisplayOnlyStep;
+    bool fullContextMenu  = step->displayStep == DT_DEFAULT;
     bool allowLocal       = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
     Boundary boundary     = step->boundary();
     Step    *lastStep     = nullptr;

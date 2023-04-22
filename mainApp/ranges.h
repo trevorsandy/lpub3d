@@ -120,19 +120,19 @@ class Page : public Steps {
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
     QMap<Where, SceneObjectData> selectedSceneItems;     // page items whose depth is explicitly defined
+    DisplayType displayPage;
     bool coverPage;
     bool frontCover;
     bool backCover;
-    bool modelDisplayOnlyStep;
     bool displayInstanceCount;
     int  instances;
     int  stepNumber;
     Page()
     {
+      displayPage          = DT_DEFAULT;
       coverPage            = false;
       frontCover           = false;
       backCover            = false;
-      modelDisplayOnlyStep = false;
       displayInstanceCount = false;
       instances            = 1;
       stepNumber           = 0;
@@ -150,10 +150,10 @@ class Page : public Steps {
 
     void freePage()
     {
+      displayPage          = DT_DEFAULT;
       coverPage            = false;
       frontCover           = false;
       backCover            = false;
-      modelDisplayOnlyStep = false;
       displayInstanceCount = false;
       instances            = 1;
       stepNumber           = 0;

@@ -97,7 +97,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     QString mn;
     if (mHaveKeys && currentStep) {
-        bool const displayModel = currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel;
+        bool const displayModel = currentStep->displayStep >= DT_MODEL_DEFAULT || currentStep->subModel.viewerSubmodel;
         mn = tr("STEP %1").arg(currentStep->stepNumber.number);
         if (displayModel) {
             mn = currentStep->topOfStep().modelName;

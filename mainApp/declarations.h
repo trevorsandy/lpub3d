@@ -134,7 +134,14 @@ enum SceneObjectInfo { ObjectId };
 enum CamFlag { DefFoV, DefZNear, DefZFar };
 enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
 
-enum DisplayType { DM_FINAL_MODEL = -1, DM_DISPLAY_MODEL = - 2 };
+enum DisplayType { DT_DEFAULT,
+                   DT_PAGE,
+                   DT_COVER_FRONT,
+                   DT_COVER_BACK,
+                   DT_MODEL_DEFAULT,
+                   DT_MODEL_CUSTOM,
+                   DT_MODEL_FINAL
+};
 
 enum LogType { LOG_STATUS,
                LOG_INFO_STATUS,

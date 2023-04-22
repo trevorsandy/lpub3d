@@ -83,11 +83,11 @@ class Step : public AbstractRangeElement
     JustifyStepMeta       justifyStep;
     BuildModMeta          buildModMeta;
     BuildModMeta          buildModActionMeta;
+    DisplayType           displayStep;
     bool                  showStepNumber;
     int                   submodelLevel;
     bool                  pliPerStep;
     bool                  csiOutOfDate;
-    bool                  modelDisplayOnlyStep;
     bool                  bfxLoadStep;
     bool                  buildModActionStep;
     bool                  fadeSteps;
@@ -111,7 +111,7 @@ class Step : public AbstractRangeElement
     Step(
       Where                 &topOfStep,
       AbstractStepsElement *_parent,
-      int                    num,
+      int                    number,
       Meta                  &_meta,
       bool                   calledOut,
       bool                   multiStep);
@@ -165,7 +165,6 @@ class Step : public AbstractRangeElement
 
     QStringList configureModelStep(
         const QStringList &csiParts,
-        const int         &stepNum,
         Where             &current);
 
     int  sizeit(int  rows[],

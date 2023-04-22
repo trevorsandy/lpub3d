@@ -862,7 +862,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
       }
 
       stepNumber = 0;
-      if (lpub->page.modelDisplayOnlyStep || lpub->page.subModel.viewerSubmodel) {
+      if (lpub->page.displayPage >= DT_MODEL_DEFAULT || lpub->page.subModel.viewerSubmodel) {
           stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
       } else {
           stepNumber = keyArgs[2].toInt(&ok[1]);

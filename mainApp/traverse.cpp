@@ -1469,8 +1469,10 @@ int Gui::drawPage(
                 // Note that LOCAL settings must be placed before INSERT PAGE meta command (Huh ???)
 
                 Where top = opts.current;
+                DisplayType displayType = DT_MODEL_DEFAULT;
                 bool proceed = true;
                 if (rc == InsertFinalModelRc) { /*InsertFinalModelRc*/
+                    displayType = DT_MODEL_FINAL;
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
                     lpub->mi.scanBackwardNoParts(top, StepMask);
                     QString message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5) at line %1");
@@ -1482,6 +1484,7 @@ int Gui::drawPage(
                     lpub->mi.scanForward(top, StepMask, partsAdded);
                     if (partsAdded) {
                         opts.csiParts.clear();
+                        displayType = DT_MODEL_CUSTOM;
                     }
                     saveRotStep = curMeta.rotStep.value();
                 }
@@ -1500,7 +1503,7 @@ int Gui::drawPage(
                                         multiStep);
                         range->append(step);
                     }
-                    step->modelDisplayOnlyStep = true;
+                    step->displayStep = displayType;
                  }
               }
               break;
@@ -1994,7 +1997,7 @@ int Gui::drawPage(
                       timer.start();
                       QString empty("");
 
-                      // renderer parms are added to csiKeys in createCsi()
+                      // renderer parms are added to csiKeys in createCsi call
 
                       if (static_cast<TraverseRc>(renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta)) != HitNothing) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
@@ -2306,13 +2309,13 @@ int Gui::drawPage(
                   if (buildModActionMeta.action())
                       step->buildModActionMeta = buildModActionMeta;
 
-                  configuredCsiParts = step->configureModelStep(opts.csiParts, opts.stepNum, topOfStep);
-                  returnValue = static_cast<TraverseRc>(step->createCsi(
-                        opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                        configuredCsiParts,
-                        opts.lineTypeIndexes,
-                        &step->csiPixmap,
-                        steps->meta));
+                  configuredCsiParts = step->configureModelStep(opts.csiParts, topOfStep);
+
+                  returnValue = static_cast<TraverseRc>(step->createCsi(opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                                                                        configuredCsiParts,
+                                                                        opts.lineTypeIndexes,
+                                                                       &step->csiPixmap,
+                                                                        steps->meta));
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       opts.ldrStepFiles << step->ldrName;
@@ -2373,7 +2376,7 @@ int Gui::drawPage(
                           if (page) {
                               page->inserts              = inserts;
                               page->pagePointers         = pagePointers;
-                              page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
+                              page->displayPage          = step->displayStep;
                               page->selectedSceneItems   = selectedSceneItems;
                           }
 
@@ -2390,13 +2393,13 @@ int Gui::drawPage(
                           if (buildModActionMeta.action())
                               step->buildModActionMeta = buildModActionMeta;
 
-                          configuredCsiParts = step->configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep);
-                          returnValue = static_cast<TraverseRc>(step->createCsi(
-                                      opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                                      configuredCsiParts,
-                                      opts.lineTypeIndexes,
-                                      &step->csiPixmap,
-                                      steps->meta));
+                          configuredCsiParts = step->configureModelStep(opts.csiParts, topOfStep);
+
+                          returnValue = static_cast<TraverseRc>(step->createCsi(opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                                                                                configuredCsiParts,
+                                                                                opts.lineTypeIndexes,
+                                                                               &step->csiPixmap,
+                                                                                steps->meta));
 
                           step->lightList = lightList;
 
@@ -2592,8 +2595,8 @@ int Gui::drawPage(
                                   page->selectedSceneItems   = selectedSceneItems;
 
                                   if (step) {
-                                      page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
-                                      step->lightList = lightList;
+                                      page->displayPage   = step->displayStep;
+                                      step->lightList     = lightList;
                                       step->viewerStepKey = QString("%1;%2;%3%4")
                                               .arg(topOfStep.modelIndex)
                                               .arg(topOfStep.lineNumber)
@@ -2649,7 +2652,7 @@ int Gui::drawPage(
                               timer.start();
                               QString empty("");
 
-                              // LDView renderer parms are added to csiKeys in createCsi()
+                              // LDView renderer parms are added to csiKeys in createCsi call
 
                               // render the partially assembled model
                               returnValue = static_cast<TraverseRc>(renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta));
@@ -2706,7 +2709,7 @@ int Gui::drawPage(
                                       emit messageSig(LOG_INFO, QString("Set preview model display at %1 for %2, step number %3...")
                                                                         .arg(cover).arg(topOfStep.modelName).arg(stepNum));
                                       step->setBottomOfStep(opts.current);
-                                      step->modelDisplayOnlyStep = true;
+                                      step->displayStep = DT_MODEL_DEFAULT;
                                       step->subModel.viewerSubmodel = true;
                                       steps->meta.LPub.subModel.showStepNum.setValue(stepNum);
                                       step->subModel.setSubModel(topOfStep.modelName,steps->meta);

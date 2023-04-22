@@ -100,7 +100,7 @@ public:
   static int            setLDrawHeaderAndFooterMeta(QStringList &lines,
                                      const QString &modelName,
                                      int imageType,
-                                     bool displayOnly = false);
+                                     int displayType = 0);       /*DT_DEFAULT*/
   static int           rotatePartsRD(const QStringList &parts,   // RotateParts #1 - 5 parms - used exclusively by RenderDialog
                                      QString &ldrName,
                                      const QString &rs,

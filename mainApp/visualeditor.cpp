@@ -2295,7 +2295,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         if (!lcGetActiveProject()->Save(modelFile))
             emit messageSig(LOG_ERROR, tr("Failed to save current model to file [%1]").arg(modelFile));
 
-        if (currentStep->modelDisplayOnlyStep || currentStep->subModel.viewerSubmodel)
+        if (currentStep->displayStep >= DT_MODEL_DEFAULT || currentStep->subModel.viewerSubmodel)
         {
             QFile vf(modelFile);
             if (vf.open(QFile::ReadOnly | QFile::Text)) {
@@ -2333,8 +2333,8 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
                                          .arg(modelFile).arg(rf.errorString()));
                 }
             } else {
-                emit messageSig(LOG_ERROR, tr("Cannot read viewer file: [%1]<br>%2.")
-                                .arg(modelFile).arg(vf.errorString()));
+                emit gui->messageSig(LOG_ERROR, tr("Cannot read viewer file: [%1]<br>%2.")
+                                     .arg(modelFile).arg(vf.errorString()));
             }
         }
 

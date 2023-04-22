@@ -78,7 +78,8 @@ PageBackgroundItem::PageBackgroundItem(
 void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  bool fullContextMenu = page->list.size() && ! page->modelDisplayOnlyStep;
+  // Note: we can precise this more if needed with DisplayType
+  bool fullContextMenu = page->list.size() && page->displayPage == DT_DEFAULT;
   QString name = "Page";
 
   // figure out if first step step number is greater than 1

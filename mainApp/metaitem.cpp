@@ -3131,10 +3131,10 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
       return thisLine(here);                                 //reached a valid boundary so return line number
     } else if (rc == InsertFinalModelRc ) {                  //check for inserted final model
       emit lpub->messageSig(LOG_INFO, QObject::tr("Final model detected at line: %1").arg(here.lineNumber));
-      return here.lineNumber /*DM_FINAL_MODEL*/;
+      return here.lineNumber /*DT_FINAL_MODEL*/;
     } else if (rc == InsertDisplayModelRc ) {                //check for inserted display model
       emit lpub->messageSig(LOG_INFO, QObject::tr("Display model detected at line: %1").arg(here.lineNumber));
-      return thisLine(here)  /*DM_DISPLAY_MODEL*/;
+      return thisLine(here)  /*DT_DISPLAY_MODEL*/;
     } else {                                                 //else keep walking back until 1_5 line
       QStringList args;
       split(line,args);
@@ -3295,7 +3295,7 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
     bool hasDispModel = false;
     bool hasBufExLoad = false;
     bool hasBuildModAct = false;
-    if (!(hasDispModel = step ? step->modelDisplayOnlyStep : false)) {
+    if (!(hasDispModel = step ? step->displayStep >= DT_MODEL_DEFAULT : false)) {
         if (stepCheck) {
             here = top;
             hasDispModel = Gui::stepContains(here, dispModelRx);
@@ -3327,7 +3327,7 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
 //                                hasBufExLoad ? " BUFEXCHG RETRIEVE (_bfx)" :
 //                                hasBuildModAct ? " BUILD_MOD ACTION (_bm)" : " STEP_NUMBER"));
 //#endif
-    return hasDispModel ? "_dm" : hasBufExLoad ? "_bfx" : hasBuildModAct ? "_bm" : QString();
+    return hasDispModel ? QString("_dm") : hasBufExLoad ? QString("_bfx") : hasBuildModAct ? QString("_bm") : QString();
 }
 
 void MetaItem::changePreferredRenderer(

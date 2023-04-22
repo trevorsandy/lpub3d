@@ -675,7 +675,7 @@ int Gui::addGraphicsPageItems(
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
 
-                  bool showStepNumber = step->showStepNumber && (! step->onlyChild() || step->modelDisplayOnlyStep);
+                  bool showStepNumber = step->showStepNumber && (! step->onlyChild() || step->displayStep >= DT_MODEL_DEFAULT);
 
                   if (showStepNumber)
                       page->stepNumber = step->stepNumber.number;

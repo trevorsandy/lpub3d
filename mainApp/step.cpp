@@ -57,7 +57,7 @@ Step* gStep;
 Step::Step(
     Where                  &topOfStep,
     AbstractStepsElement  *_parent,
-    int                     num,            // step number as seen by the user
+    int                     number,         // step number as seen by the user
     Meta                  &_meta,           // the current state of the meta-commands
     bool                    calledOut,      // if we're a callout
     bool                    multiStep)
@@ -68,13 +68,13 @@ Step::Step(
   top.modelIndex            =  gui->getSubmodelIndex(topOfStep.modelName);
   parent                    = _parent;
   submodelLevel             = _meta.submodelStack.size();
-  stepNumber.number         =  num;             // record step number
+  stepNumber.number         =  number;       // record step number
   csiItem                   = nullptr;
   adjustOnItemOffset        = false;
 
-  modelDisplayOnlyStep      = false;
   bfxLoadStep               = false;
   buildModActionStep        = false;
+  displayStep               = DT_DEFAULT;
   dividerType               = NoDivider;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
@@ -260,7 +260,7 @@ int Step::createCsi(
 
   QString nameSuffix      = lpub->mi.viewerStepKeySuffix(top, this);
   QString csi_Name        = QString("%1%2-%3").arg(csiName(), nameSuffix, QString::number(Preferences::preferredRenderer));
-  bool    invalidIMStep   = (modelDisplayOnlyStep || stepNumber.number == 1);
+  bool    invalidIMStep   = displayStep != DT_DEFAULT || stepNumber.number == 1;
   bool    useImageSize    = csiStepMeta.imageSize.value(0) > 0;
   lineTypeIndexes         = _lineTypeIndexes;
 
@@ -490,7 +490,7 @@ int Step::createCsi(
               QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
                   QStringList futureParts = rotatedParts;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
-                  renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
+                  renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,displayStep);
                   // consolidate subfiles and parts into single file
                   if (renderer->createNativeModelFile(futureParts,fadeSteps,highlightStep) != 0) {
                       emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
@@ -701,7 +701,7 @@ int Step::createCsi(
  * The csiFile entries are only parts with not formatting or meta commands so it is
  * well suited to provide the delta between steps.
  */
-QStringList Step::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current/*topOfStep*/) {
+QStringList Step::configureModelStep(const QStringList &csiParts, Where &current/*topOfStep*/) {
 
   QStringList configuredCsiParts, stepColourList;
   bool enableFadeSteps       = (Preferences::enableFadeSteps || csiStepMeta.fadeSteps.enable.value());
@@ -726,6 +726,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, const int &ste
 
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
+
+  int stepNum = displayStep >= DT_MODEL_DEFAULT ? -1 : stepNumber.number;
 
   if (csiParts.size() > 0 && (highlightFirstStep ? true : stepNum > 1)) {
 
