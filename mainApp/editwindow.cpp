@@ -192,9 +192,11 @@ QAbstractItemModel *EditWindow::metaCommandModel(QObject *parent)
 #endif
 
     QStandardItemModel *model = new QStandardItemModel(parent);
-
+    QString commandIcon = QStringLiteral(":/resources/command16.png");
+    if (Preferences::displayTheme == THEME_DARK)
+        commandIcon = QStringLiteral(":/resources/command_dark16.png");
     foreach (const QString &keyword, lpub->metaKeywords)
-        model->appendRow(new QStandardItem(QIcon(":/resources/command16.png"), keyword));
+        model->appendRow(new QStandardItem(QIcon(commandIcon), keyword));
 
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
@@ -656,7 +658,15 @@ void EditWindow::createActions()
     lpub->actions.insert(copyFileNameToClipboardAct->objectName(), Action(QStringLiteral("File.File Name To Clipboard"), copyFileNameToClipboardAct));
     connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
-    commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
+    QIcon commandsDialogIcon;
+    if (Preferences::displayTheme == THEME_DARK) {
+        commandsDialogIcon.addFile(":/resources/command_dark32.png");
+        commandsDialogIcon.addFile(":/resources/command_dark16.png");
+    } else {
+        commandsDialogIcon.addFile(":/resources/command32.png");
+        commandsDialogIcon.addFile(":/resources/command16.png");
+    }
+    commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPub Metacommands"), this);
     commandsDialogAct->setObjectName("commandsDialogAct.2");
     commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));

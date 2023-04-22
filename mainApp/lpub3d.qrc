@@ -36,6 +36,7 @@
         <file alias="archivefilesonlaunch.png">resources/archivefilesonlaunch.png</file>
         <file alias="assemblysetup.png">resources/assemblysetup.png</file>
         <file alias="back.png">resources/back.png</file>
+        <file alias="back_dark.png">resources/back_dark.png</file>
         <file alias="background.png">resources/background.png</file>
         <file alias="blendericon.png">resources/blendericon.png</file>
         <file alias="blendericon16.png">resources/blendericon16.png</file>
@@ -45,6 +46,7 @@
         <file alias="border.png">resources/border.png</file>
         <file alias="borderattributes.png">resources/borderattributes.png</file>
         <file alias="bottom.png">resources/bottom.png</file>
+        <file alias="bottom_dark.png">resources/bottom_dark.png</file>
         <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
         <file alias="bricklink32.png">resources/bricklink32.png</file>
         <file alias="bringtofront.png">resources/bringtofront.png</file>
@@ -85,6 +87,8 @@
         <file alias="collapseselection.png">resources/collapseselection.png</file>
         <file alias="command16.png">resources/command16.png</file>
         <file alias="command32.png">resources/command32.png</file>
+        <file alias="command_dark16.png">resources/command_dark16.png</file>
+        <file alias="command_dark32.png">resources/command_dark32.png</file>
         <file alias="contentspage.png">resources/contentspage.png</file>
         <file alias="convertcallout.png">resources/convertcallout.png</file>
         <file alias="convertcallout16.png">resources/convertcallout16.png</file>
@@ -150,6 +154,7 @@
         <file alias="font.png">resources/font.png</file>
         <file alias="fontColour.png">resources/fontColour.png</file>
         <file alias="front.png">resources/front.png</file>
+        <file alias="front_dark.png">resources/front_dark.png</file>
         <file alias="fullscreenview.png">resources/fullscreenview.png</file>
         <file alias="generatecolourparts.png">resources/generatecolourparts.png</file>
         <file alias="gotoline.png">resources/gotoline.png</file>
@@ -171,6 +176,7 @@
         <file alias="italic.png">resources/italic.png</file>
         <file alias="last.png">resources/last.png</file>
         <file alias="left.png">resources/left.png</file>
+        <file alias="left_dark.png">resources/left_dark.png</file>
         <file alias="lineattributes.png">resources/lineattributes.png</file>
         <file alias="linewrap16.png">resources/linewrap16.png</file>
         <file alias="loadstatus.png">resources/loadstatus.png</file>
@@ -250,6 +256,7 @@
         <file alias="resettipattributes.png">resources/resettipattributes.png</file>
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
+        <file alias="right_dark.png">resources/right_dark.png</file>
         <file alias="rotate-icon.png">resources/rotate-icon.png</file>
         <file alias="rotate.png">resources/rotate.png</file>
         <file alias="rotatebuildmod.png">resources/rotatebuildmod.png</file>
@@ -287,6 +294,7 @@
         <file alias="togglepartoutline.png">resources/togglepartoutline.png</file>
         <file alias="tools.png">resources/tools.png</file>
         <file alias="top.png">resources/top.png</file>
+        <file alias="top_dark.png">resources/top_dark.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="underline.png">resources/underline.png</file>
@@ -296,8 +304,12 @@
         <file alias="update.png">resources/update.png</file>
         <file alias="veiw_viewpoint_home.png">resources/veiw_viewpoint_home.png</file>
         <file alias="veiw_viewpoint_home_16.png">resources/veiw_viewpoint_home_16.png</file>
+        <file alias="veiw_viewpoint_home_dark.png">resources/veiw_viewpoint_home_dark.png</file>
+        <file alias="veiw_viewpoint_home_dark_16.png">resources/veiw_viewpoint_home_dark_16.png</file>
         <file alias="veiw_viewpoint_latitude_longitude.png">resources/veiw_viewpoint_latitude_longitude.png</file>
         <file alias="veiw_viewpoint_latitude_longitude_16.png">resources/veiw_viewpoint_latitude_longitude_16.png</file>
+        <file alias="veiw_viewpoint_latitude_longitude_dark.png">resources/veiw_viewpoint_latitude_longitude_dark.png</file>
+        <file alias="veiw_viewpoint_latitude_longitude_dark_16.png">resources/veiw_viewpoint_latitude_longitude_dark_16.png</file>
         <file alias="viewlog.png">resources/viewlog.png</file>
         <file alias="viewzoomextents.png">resources/viewzoomextents.png</file>
         <file alias="viewzoomextents16.png">resources/viewzoomextents16.png</file>

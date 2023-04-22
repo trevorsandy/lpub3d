@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "snippetlistmodel.h"
+#include "application.h"
 
 #include <QFont>
 #include <QIcon>
@@ -42,9 +43,13 @@ QVariant SnippetListModel::data(const QModelIndex &index, int role) const
     if (index.row() < snippets.count()) {
         const Snippet snippet = snippets.at(index.row());
 
+        QString commandIcon = QStringLiteral(":/resources/command16.png");
+        if (Application::instance()->getTheme() == THEME_DARK)
+            commandIcon = QStringLiteral(":/resources/command_dark16.png");
+
         switch (role) {
             case Qt::DecorationRole:
-                return QIcon(":/resources/command16.png");
+                return QIcon(commandIcon);
 
             case Qt::DisplayRole:
                 return QString("%1 %2").arg(snippet.trigger, -15).arg(snippet.description);

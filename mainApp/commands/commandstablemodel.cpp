@@ -21,6 +21,7 @@
 #include <QMessageBox>
 
 #include "commandcollection.h"
+#include "application.h"
 
 CommandsTableModel::CommandsTableModel(CommandCollection *collection, QObject *parent) :
     QAbstractTableModel(parent),
@@ -55,9 +56,13 @@ QVariant CommandsTableModel::data(const QModelIndex &index, int role) const
 
     const Command command = commandCollection->at(index.row());
 
+    QString commandIcon = QStringLiteral(":/resources/command16.png");
+    if (Application::instance()->getTheme() == THEME_DARK)
+        commandIcon = QStringLiteral(":/resources/command_dark16.png");
+
     switch (role) {
         case Qt::DecorationRole:
-            return QIcon(":/resources/command16.png");
+            return QIcon(commandIcon);
 
         case Qt::DisplayRole:
             return command.command;

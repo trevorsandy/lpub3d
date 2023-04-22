@@ -165,9 +165,11 @@ QAbstractItemModel *FindReplace::metaCommandModel(QObject *parent)
 #endif
 
     QStandardItemModel *model = new QStandardItemModel(parent);
-
+    QString commandIcon = QStringLiteral(":/resources/command16.png");
+    if (Preferences::displayTheme == THEME_DARK)
+        commandIcon = QStringLiteral(":/resources/command_dark16.png");
     foreach (const QString &keyword, lpub->metaKeywords)
-        model->appendRow(new QStandardItem(QIcon(":/resources/command16.png"), keyword));
+        model->appendRow(new QStandardItem(QIcon(commandIcon), keyword));
 
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();

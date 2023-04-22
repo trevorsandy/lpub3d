@@ -5938,8 +5938,15 @@ void Gui::createActions()
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
     // End Jaco's code
-
-    QAction *commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands..."), this);
+    QIcon commandsDialogIcon;
+    if (Preferences::displayTheme == THEME_DARK) {
+        commandsDialogIcon.addFile(":/resources/command_dark32.png");
+        commandsDialogIcon.addFile(":/resources/command_dark16.png");
+    } else {
+        commandsDialogIcon.addFile(":/resources/command32.png");
+        commandsDialogIcon.addFile(":/resources/command16.png");
+    }
+    QAction *commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPub Metacommands..."), this);
     commandsDialogAct->setObjectName("commandsDialogAct.1");
     commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));

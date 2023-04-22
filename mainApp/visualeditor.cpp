@@ -229,6 +229,29 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_HELP_ABOUT]->setObjectName("HelpAboutAct.4");
     lpub->actions.insert("HelpAboutAct.4", Action(QStringLiteral("3DViewer.About"), gMainWindow->mActions[LC_HELP_ABOUT]));
 
+    QString Front              = QStringLiteral(":/resources/front.png");
+    QString Back               = QStringLiteral(":/resources/back.png");
+    QString Left               = QStringLiteral(":/resources/right.png");
+    QString Right              = QStringLiteral(":/resources/left.png");
+    QString Top                = QStringLiteral(":/resources/top.png");
+    QString Bottom             = QStringLiteral(":/resources/bottom.png");
+    QString ViewpointHome      = QStringLiteral(":/resources/veiw_viewpoint_home.png");
+    QString ViewpointHome16    = QStringLiteral(":/resources/veiw_viewpoint_home_16.png");
+    QString ViewpointLatLong   = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude.png");
+    QString ViewpointLatLong16 = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude_16.png");
+    if (Preferences::displayTheme == THEME_DARK) {
+        Front                  = QStringLiteral(":/resources/front_dark.png");
+        Back                   = QStringLiteral(":/resources/back_dark.png");
+        Left                   = QStringLiteral(":/resources/right_dark.png");
+        Right                  = QStringLiteral(":/resources/left_dark.png");
+        Top                    = QStringLiteral(":/resources/top_dark.png");
+        Bottom                 = QStringLiteral(":/resources/bottom_dark.png");
+        ViewpointHome          = QStringLiteral(":/resources/veiw_viewpoint_home_dark.png");
+        ViewpointHome16        = QStringLiteral(":/resources/veiw_viewpoint_home_dark_16.png");
+        ViewpointLatLong       = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude_dark.png");
+        ViewpointLatLong16     = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude_dark_16.png");
+    }
+
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
@@ -402,13 +425,13 @@ void Gui::create3DActions()
     connect(ResetViewerImageAct, SIGNAL(triggered()), this, SLOT(resetViewerImage()));
 
     QIcon ViewViewPointHomeIcon;
-    ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home.png");
-    ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home_16.png");
+    ViewViewPointHomeIcon.addFile(ViewpointHome);
+    ViewViewPointHomeIcon.addFile(ViewpointHome16);
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setIcon(ViewViewPointHomeIcon);
 
     QIcon ViewViewPointLatLonIcon;
-    ViewViewPointLatLonIcon.addFile(":/resources/veiw_viewpoint_latitude_longitude.png");
-    ViewViewPointLatLonIcon.addFile(":/resources/veiw_viewpoint_latitude_longitude_16.png");
+    ViewViewPointLatLonIcon.addFile(ViewpointLatLong);
+    ViewViewPointLatLonIcon.addFile(ViewpointLatLong16);
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setIcon(ViewViewPointLatLonIcon);
 
     QIcon EditActionRotstepIcon;
@@ -469,13 +492,13 @@ void Gui::create3DActions()
     ViewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
     lpub->actions.insert(ViewpointGroupAct->objectName(), Action(QStringLiteral("3DViewer.Viewpoints"), ViewpointGroupAct));
 
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setIcon(QIcon(":/resources/front.png"));
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setIcon(QIcon(":/resources/back.png"));
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setIcon(QIcon(":/resources/left.png"));
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setIcon(QIcon(":/resources/right.png"));
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setIcon(QIcon(":/resources/top.png"));
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setIcon(QIcon(":/resources/bottom.png"));
-    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setIcon(QIcon(":/resources/veiw_viewpoint_latitude_longitude.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setIcon(QIcon(Front));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setIcon(QIcon(Back));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setIcon(QIcon(Left));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setIcon(QIcon(Right));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setIcon(QIcon(Top));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setIcon(QIcon(Bottom));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LAT_LON]->setIcon(QIcon(ViewpointLatLong));
 
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_FRONT));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_BACK));
