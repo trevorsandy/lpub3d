@@ -115,7 +115,7 @@ class CfgSubFile {
 class ViewerStep {
   public:
     struct StepKey {
-       int modIndex;
+       int modelIndex;
        int lineNum;
        int stepNum;
     };

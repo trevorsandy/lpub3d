@@ -4753,7 +4753,7 @@ QString LDrawFile::getViewerStepKey(const int stepIndex)
         QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
         while (i != _viewerSteps.constEnd()) {
             bool validType = i->_viewType == Options::CSI || i->_viewType == Options::SMI;
-            if (validType && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber) {
+            if (validType && i->_stepKey.modelIndex == modelIndex && i->_stepKey.lineNum == lineNumber) {
                 if (i->_stepKey.stepNum) {
                     stepKey.chop(1);
                     stepKey.append(QString::number(i->_stepKey.stepNum));
@@ -4887,7 +4887,7 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
                                             i.value()._modAttributes.at(BM_MODEL_LINE_NUM),
                                             i.value()._modAttributes.at(BM_MODEL_STEP_NUM) };
 
-      setModified(getSubmodelName(viewerStepKey.modIndex), true);
+      setModified(getSubmodelName(viewerStepKey.modelIndex), true);
       if (i.value()._modSubmodelStack.size())
         for (const int index : i.value()._modSubmodelStack)
           setModified(getSubmodelName(index), true);
@@ -4898,9 +4898,9 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
 
       QMap<QString, ViewerStep>::iterator si = _viewerSteps.begin();
       while (si != _viewerSteps.end()) {
-        if (viewerStepKey.modIndex == si->_stepKey.modIndex && si->_viewType == Options::CSI) {
+        if (viewerStepKey.modelIndex == si->_stepKey.modelIndex && si->_viewType == Options::CSI) {
           if (viewerStepKey.stepNum <= si->_stepKey.stepNum) {
-            if (modified(getSubmodelName(viewerStepKey.modIndex))) {
+            if (modified(getSubmodelName(viewerStepKey.modelIndex))) {
               si->_modified = true;
               if (QFileInfo(si->_imagePath).exists()) {
                 imageFilePaths.append(si->_imagePath);
@@ -5144,14 +5144,14 @@ QStringList LDrawFile::getPathsFromViewerStepKey(const QString &stepKey)
                                         list.at(BM_STEP_LINE_KEY).toInt(),
                                         list.at(BM_STEP_NUM_KEY).toInt() };
 
-  setModified(getSubmodelName(viewerStepKey.modIndex), true);
+  setModified(getSubmodelName(viewerStepKey.modelIndex), true);
 
   list.clear();
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.begin();
   while (i != _viewerSteps.end()) {
-    if (viewerStepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
+    if (viewerStepKey.modelIndex == i->_stepKey.modelIndex && i->_viewType == Options::CSI) {
       if (viewerStepKey.stepNum <= i->_stepKey.stepNum) {
-        if (modified(getSubmodelName(viewerStepKey.modIndex))) {
+        if (modified(getSubmodelName(viewerStepKey.modelIndex))) {
           i->_modified = true;
           if (QFileInfo(i->_imagePath).exists()) {
             list.append(i->_imagePath);
@@ -5272,8 +5272,8 @@ bool LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
     const QString debugMessage = QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, HasBuildModAction: %7.")
                                          .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                                          .arg(stepKey)
-                                         .arg(i.value()._stepKey.modIndex)
-                                         .arg(getSubmodelName(i.value()._stepKey.modIndex,false))
+                                         .arg(i.value()._stepKey.modelIndex)
+                                         .arg(getSubmodelName(i.value()._stepKey.modelIndex,false))
                                          .arg(i.value()._stepKey.lineNum)
                                          .arg(i.value()._stepKey.stepNum)
                                          .arg(value ? "Yes" : "No");
@@ -5337,8 +5337,8 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
             QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, Modified: [Yes].")
                     .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMI")
                     .arg(stepKey)
-                    .arg(i.value()._stepKey.modIndex)
-                    .arg(getSubmodelName(i.value()._stepKey.modIndex,false))
+                    .arg(i.value()._stepKey.modelIndex)
+                    .arg(getSubmodelName(i.value()._stepKey.modelIndex,false))
                     .arg(i.value()._stepKey.lineNum)
                     .arg(i.value()._stepKey.stepNum);
     emit gui->messageSig(LOG_DEBUG, debugMessage);
