@@ -3623,7 +3623,6 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           for (; start.lineNumber > top.lineNumber; start--) {
               line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
               if (line.contains(errorRx)) {
-                  qDebug() << qPrintable(QString("DEBUG: - errorRx cap(1): %1").arg(errorRx.cap(3)));
                   errorFound = !errorRx.cap(3).contains(QRegExp("0 STEP|0 ROTSTEP"));
                   break;
               }

@@ -275,10 +275,11 @@ bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx, bool displayMode
 {
   bool found = false;
   Where walk = topOfStep;
-  int  numLines = lpub->ldrawFile.size(walk.modelName);
+  LDrawFile &ldrawFile = lpub->ldrawFile;
+  int  numLines = ldrawFile.size(walk.modelName);
   QRegExp endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+NOFILE$|^0\\s+FILE");
   for (; walk < numLines; ++walk) {
-    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+    QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if (displayModel) {
       if (line.contains(lineRx)) {
         // Can consolidate multiple illegal displayModel commands in a single Rx
@@ -294,7 +295,7 @@ bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx, bool displayMode
     }
   }
   if (topOfStep.modelIndex == BM_INVALID_INDEX) {
-    topOfStep.setModelIndex(lpub->ldrawFile.getSubmodelIndex(topOfStep.modelName));
+    topOfStep.setModelIndex(ldrawFile.getSubmodelIndex(topOfStep.modelName));
   }
   return found;
 }
