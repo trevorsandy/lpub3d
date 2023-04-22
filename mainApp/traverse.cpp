@@ -1543,25 +1543,30 @@ int Gui::drawPage(
                 // Note scan forward and back checks here are partially redundant
                 // Similar check (does not start form top of step) performed in parse command.
                 Where top = opts.current;
-                QString message;
+
                 coverPage = true;
                 partsAdded = true;
                 lpub->page.coverPage = true;
+                QString message = tr("%1 command must be preceded by 0 [ROT]STEP before part (type 1 - 5) at line");
+                if (includeFileFound)
+                    message = message.arg(QLatin1String("INCLUDE command containing %1"));
                 QRegExp rx("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
                 if (line.contains(rx) && rx.cap(1) == "BACK") {
                   lpub->page.backCover  = true;
                   lpub->page.frontCover = false;
                   lpub->mi.scanBackwardNoParts(top, StepMask);
-                  message = tr("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
+                  message = message.arg(QLatin1String("INSERT COVER_PAGE BACK"));
                 } else if (line.contains(rx) && rx.cap(1) == "FRONT") {
                   lpub->page.frontCover = true;
                   lpub->page.backCover  = false;
                   lpub->mi.scanForwardNoParts(top, StepMask);
-                  message = tr("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
+                  message = message.arg(QLatin1String("INSERT COVER_PAGE FRONT"));
+                } else {
+                  message = message.arg(QLatin1String("INSERT COVER_PAGE"));
                 }
 
                 if (stepContains(top,partTypeLineRx)) {
-                  parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
+                  parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/, 3/*critical*/);
                 }
               }
               break;
@@ -5340,17 +5345,19 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             if (rc != InvalidLineRc)
                 break;
         }
-        if (lineNumber < numLines)
+        if (lineNumber < numLines) {
             lineNumber++;
-        else
+        } else {
+            includeFileFound = false;
             rc = EndOfIncludeFileRc;
+        }
     } else {
         if (fileInfo.isReadable()) {
             QFile file(filePath);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 emit messageSig(LOG_ERROR, QString("Cannot read include file %1<br>%2")
-                                .arg(filePath)
-                                .arg(file.errorString()));
+                                                   .arg(filePath)
+                                                   .arg(file.errorString()));
                 meta.LPub.include.setValue(QString());
                 return static_cast<int>(IncludeFileErrorRc);
             }
@@ -5362,12 +5369,16 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 
             /* Read it in to put into subFiles in order of appearance */
             while ( ! in.atEnd()) {
-                QString line = in.readLine(0);
-                if (!line.isEmpty()) {
-                    rc = processLine();
-                    if (rc != InvalidLineRc)
-                        contents << line.trimmed();
+                QString smLine = in.readLine(0);
+                if (smLine.isEmpty() || isComment(smLine)) {
+                    contents << smLine.trimmed();
+                    continue;
                 }
+                rc = processLine();
+                if (rc != InvalidLineRc)
+                    contents << smLine.trimmed();
+                else
+                    contents << QObject::tr("0 // %1 (Invalid include file line)").arg(smLine.trimmed());
             }
             file.close();
 

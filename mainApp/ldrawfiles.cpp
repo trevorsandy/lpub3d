@@ -1533,14 +1533,17 @@ bool LDrawFile::loadIncludeFile(const QString &mcFileName)
     while (! in.atEnd()) {
         lineNum++;
         QString smLine = in.readLine(0).trimmed();
-        if (isComment(smLine))
-            continue;
+        if (smLine.isEmpty() || isComment(smLine)) {
+            contents << smLine.trimmed();
+        } else
         if (isValidLine(lineNum, smLine)) {
             split(smLine,tokens);
             if (tokens.size() >= 4) {
                 processMetaCommand(tokens);
                 contents << smLine.trimmed();
             }
+        } else {
+            contents << QObject::tr("0 // %1 (Invalid include file line)").arg(smLine.trimmed());
         }
     }
     file.close();
