@@ -36,6 +36,7 @@
         <file alias="action_zoom_extents.png">resources/action_zoom_extents.png</file>
         <file alias="action_zoom_region.png">resources/action_zoom_region.png</file>
         <file alias="application-vnd.leocad.svg">resources/application-vnd.leocad.svg</file>
+        <file alias="case.png">resources/case.png</file>
         <file alias="cursor_arealight.png">resources/cursor_arealight.png</file>
         <file alias="cursor_camera.png">resources/cursor_camera.png</file>
         <file alias="cursor_color_picker.png">resources/cursor_color_picker.png</file>
@@ -95,6 +96,7 @@
         <file alias="file_print_preview_16.png">resources/file_print_preview_16.png</file>
         <file alias="file_save.png">resources/file_save.png</file>
         <file alias="file_save_16.png">resources/file_save_16.png</file>
+        <file alias="filter.png">resources/filter.png</file>
         <file alias="flexible.png">resources/flexible.png</file>
         <file alias="gear_in.png">resources/gear_in.png</file>
         <file alias="help_homepage.png">resources/help_homepage.png</file>

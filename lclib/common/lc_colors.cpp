@@ -52,13 +52,13 @@ static void lcAdjustStudStyleColors(std::vector<lcColor>& Colors, lcStudStyle St
 		}
 		else
 		{
-			if (Color.Code == 4242)
+			if (Color.Code == LC_STUD_CYLINDER_COLOR_CODE)
 				continue;
-			else if (Color.Code == 0)
+			else if (Preferences.mBlackEdgeColorEnabled && Color.Code == 0)
 				Color.Edge = BlackEdge;
-			else if (ValueLuminescence < LightDarkControl)
+			else if (Preferences.mDarkEdgeColorEnabled && ValueLuminescence < LightDarkControl)
 				Color.Edge = DarkEdge;
-			else
+			else if (Preferences.mPartEdgeColorEnabled)
 				Color.Edge = Edge;
 		}
 	}
@@ -250,7 +250,7 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 
 /*** LPub3D Mod - load color entry ***/
 	bool Found = Update ? true : false;
-	bool FoundMain = Found, FoundEdge = Found, FoundStud = Found, FoundNoColor = Found;;
+	bool FoundMain = Found, FoundEdge = Found, FoundStudCylinder = Found, FoundNoColor = Found;
 /*** LPub3D Mod end ***/
 
 	for (const lcColor& Color : Colors)
@@ -265,8 +265,8 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 				FoundEdge = true;
 				break;
 
-			case 4242:
-				FoundStud = true;
+			case LC_STUD_CYLINDER_COLOR_CODE:
+				FoundStudCylinder = true;
 				break;
 
 			case LC_COLOR_NOCOLOR:
@@ -327,12 +327,12 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 		Colors.push_back(EdgeColor);
 	}
 
-	if (!FoundStud)
+	if (!FoundStudCylinder)
 	{
 		const lcPreferences& Preferences = lcGetPreferences();
 		lcColor StudCylinderColor;
 
-		StudCylinderColor.Code = 4242;
+		StudCylinderColor.Code = LC_STUD_CYLINDER_COLOR_CODE;
 		StudCylinderColor.Translucent = false;
 		StudCylinderColor.Group = LC_NUM_COLORGROUPS;
 		StudCylinderColor.Value = lcVector4FromColor(Preferences.mStudCylinderColor);
