@@ -2570,62 +2570,65 @@ int Gui::drawPage(
                                   instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
                           }
 
-                          Page *page = dynamic_cast<Page *>(steps);
-                          if (page && instances > 1) {
-                              page->instances            = instances;
-                              page->displayInstanceCount = displayInstanceCount;
-                              page->inserts              = inserts;
-                              page->pagePointers         = pagePointers;
-                              page->selectedSceneItems   = selectedSceneItems;
-
-                              if (step) {
-                                  page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
-                                  step->lightList = lightList;
-                                  step->viewerStepKey = QString("%1;%2;%3%4")
-                                          .arg(topOfStep.modelIndex)
-                                          .arg(topOfStep.lineNumber)
-                                          .arg(opts.stepNum)
-                                          .arg(lpub->mi.viewerStepKeySuffix(topOfStep, step));
-                              }
-
-                              if (! steps->meta.LPub.stepPli.perStep.value()) {
-
-                                  QStringList instancesPliParts;
-                                  if (opts.pliParts.size() > 0) {
-                                      for (int index = 0; index < opts.pliParts.size(); index++) {
-                                          QString pliLine = opts.pliParts[index];
-                                          for (int i = 0; i < instances; i++) {
-                                              instancesPliParts << pliLine;
-                                          }
-                                      }
-                                  }
+                          // update the page if submodel instances greater than 1
+                          if (instances > 1) {
+                              Page *page = dynamic_cast<Page *>(steps);
+                              if (page) {
+                                  page->instances            = instances;
+                                  page->displayInstanceCount = displayInstanceCount;
+                                  page->inserts              = inserts;
+                                  page->pagePointers         = pagePointers;
+                                  page->selectedSceneItems   = selectedSceneItems;
 
                                   if (step) {
-                                      // PLI
-                                      step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
-                                      instancesPliParts.clear();
-                                      opts.pliParts.clear();
-                                      opts.pliPartGroups.clear();
-
-                                      emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
-
-                                      step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-
-                                      // SM
-                                      if (step->placeSubModel){
-                                          emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
-
-                                          steps->meta.LPub.subModel.instance.setValue(instances);
-                                          step->subModel.setSubModel(opts.current.modelName,steps->meta);
-
-                                          step->subModel.displayInstanceCount = displayInstanceCount;
-
-                                          if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                              emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                                      }
+                                      page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
+                                      step->lightList = lightList;
+                                      step->viewerStepKey = QString("%1;%2;%3%4")
+                                              .arg(topOfStep.modelIndex)
+                                              .arg(topOfStep.lineNumber)
+                                              .arg(opts.stepNum)
+                                              .arg(lpub->mi.viewerStepKeySuffix(topOfStep, step));
                                   }
-                              } // Not PLI per step
-                          } // Page
+
+                                  if (! steps->meta.LPub.stepPli.perStep.value()) {
+
+                                      QStringList instancesPliParts;
+                                      if (opts.pliParts.size() > 0) {
+                                          for (int index = 0; index < opts.pliParts.size(); index++) {
+                                              QString pliLine = opts.pliParts[index];
+                                              for (int i = 0; i < instances; i++) {
+                                                  instancesPliParts << pliLine;
+                                              }
+                                          }
+                                      }
+
+                                      if (step) {
+                                          // PLI
+                                          step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
+                                          instancesPliParts.clear();
+                                          opts.pliParts.clear();
+                                          opts.pliPartGroups.clear();
+
+                                          emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
+
+                                          step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+
+                                          // SM
+                                          if (step->placeSubModel){
+                                              emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+
+                                              steps->meta.LPub.subModel.instance.setValue(instances);
+                                              step->subModel.setSubModel(opts.current.modelName,steps->meta);
+
+                                              step->subModel.displayInstanceCount = displayInstanceCount;
+
+                                              if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                                  emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                                          }
+                                      }
+                                  } // Not PLI per step
+                              } // Valid page
+                          }  // Submodel instances greater than 1
 
                           emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
 
