@@ -433,7 +433,7 @@ int Gui::drawPage(
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();
 
-  QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
+  QRegExp partTypeLineRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)");
   QStringList configuredCsiParts; // fade and highlight configuration
   QString  line;
   Callout *callout         = nullptr;
@@ -752,6 +752,8 @@ int Gui::drawPage(
       //*/
 
       Meta &curMeta = callout ? callout->meta : steps->meta;
+
+      RotStepData saveRotStep;
 
       QStringList tokens;
 
@@ -1464,21 +1466,23 @@ int Gui::drawPage(
                 // 0 !LPUB ASSEM MODEL_SCALE LOCAL  2.0000
                 // 0 !LPUB INSERT DISPLAY_MODEL
                 // 0 [ROT]STEP
-                // Note that LOCAL settings must be placed before INSERT PAGE meta command
+                // Note that LOCAL settings must be placed before INSERT PAGE meta command (Huh ???)
 
                 Where top = opts.current;
-                QString message;
                 bool proceed = true;
-                if (rc == InsertFinalModelRc) {
+                if (rc == InsertFinalModelRc) { /*InsertFinalModelRc*/
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
                     lpub->mi.scanBackwardNoParts(top, StepMask);
-                    message = QString("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
-                } else { /*InsertDisplayModelRc*/
-                    lpub->mi.scanForwardNoParts(top, StepMask);
-                    message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 [ROT]STEP before part (type 1) at line");
-                }
-                if (stepContains(top,partTypeLineRx)) {
-                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
+                    QString message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5) at line %1");
+                    parseError(message, opts.current, Preferences::InsertErrors);
+                } else {                        /*InsertDisplayModelRc*/
+                    opts.displayModel = true;
+                    bool partsAdded = false;
+                    lpub->mi.scanForward(top, StepMask, partsAdded);
+                    if (partsAdded) {
+                        opts.csiParts.clear();
+                    }
+                    saveRotStep = curMeta.rotStep.value();
                 }
                 if (proceed) {
                     opts.stepNum--;
@@ -1493,15 +1497,17 @@ int Gui::drawPage(
                                         curMeta,
                                         opts.calledOut,
                                         multiStep);
-                        step->modelDisplayOnlyStep = true;
                         range->append(step);
                     }
+                    step->modelDisplayOnlyStep = true;
                  }
               }
               break;
 
             case InsertCoverPageRc:
               {
+                // Note scan forward and back checks here are partially redundant
+                // Similar check (does not start form top of step) performed in parse command.
                 Where top = opts.current;
                 QString message;
                 coverPage = true;
@@ -1528,10 +1534,6 @@ int Gui::drawPage(
 
             case InsertPageRc:
               {
-                if (stepContains(topOfStep,partTypeLineRx))
-                    parseError(QString("INSERT PAGE meta command STEP cannot contain type 1 to 5 line. Invalid type at line %1.").arg(topOfStep.lineNumber+1),
-                               opts.current, Preferences::InsertErrors);
-
                 partsAdded = true;
 
                 // nothing to display in 3D Window
@@ -2329,7 +2331,7 @@ int Gui::drawPage(
                   if (partsAdded) {
 
                       // set step group page meta attributes first step
-                      if (firstGroupStep) {
+                      if (!opts.displayModel && firstGroupStep) {
                           steps->groupStepMeta = curMeta;
                           firstGroupStep = false;
                       }
@@ -2349,14 +2351,16 @@ int Gui::drawPage(
 
                       bool pliPerStep;
 
-                      if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
-                          pliPerStep = true;
-                      } else if (opts.calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
-                          pliPerStep = true;
-                      } else if ( ! multiStep && ! opts.calledOut && steps->meta.LPub.stepPli.perStep.value()) {
-                          pliPerStep = true;
-                      } else {
-                          pliPerStep = false;
+                      if (!opts.displayModel) {
+                          if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
+                              pliPerStep = true;
+                          } else if (opts.calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
+                              pliPerStep = true;
+                          } else if ( ! multiStep && ! opts.calledOut && steps->meta.LPub.stepPli.perStep.value()) {
+                              pliPerStep = true;
+                          } else {
+                              pliPerStep = false;
+                          }
                       }
 
                      /*
@@ -2395,7 +2399,7 @@ int Gui::drawPage(
                           PlacementType relativeType = SingleStepType;
 
                           // Pli per Step
-                          if (pliPerStep) {
+                          if (!opts.displayModel && pliPerStep) {
                               if (multiStep) {
                                   relativeType = StepGroupType;
                               } else if (opts.calledOut) {
@@ -2413,8 +2417,8 @@ int Gui::drawPage(
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                           } // Pli per Step
 
-                          // Place submodel
-                          if (step->placeSubModel) { // Place SubModel at Step 1
+                          // Place SubModel at Step 1
+                          if (!opts.displayModel && step->placeSubModel) {
                               emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                               // get the number of submodel instances in the model file
@@ -2728,16 +2732,25 @@ int Gui::drawPage(
                           if ((returnValue = static_cast<TraverseRc>(addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing))) != HitAbortProcess)
                               returnValue = HitEndOfPage;
 
+                          if (opts.displayModel) {
+                              lpub->meta.rotStep.setValue(saveRotStep);
+                          }
+                          opts.displayModel = false;
+
                           stepPageNum += ! coverPage;
 
                           steps->setBottomOfSteps(opts.current);
 
+
+                          opts.displayModel = false;
+
                           drawPageElapsedTime();
 
-                          if (Gui::abortProcess())
-                              returnValue = HitAbortProcess;
+                          if (Gui::abortProcess()) {
+                              return HitAbortProcess;
+                          }
 
-                          return static_cast<int>(returnValue);
+                          //return static_cast<int>(returnValue);
                       } // STEP - Simple, not mulitStep, not calledOut (draw graphics)
 #ifdef WRITE_PARTS_DEBUG
                       writeDrawPartsFile();
@@ -2748,18 +2761,10 @@ int Gui::drawPage(
 
                       dividerType = NoDivider;
 
-                      // increment continuous step number
-                      if (multiStep && steps->groupStepMeta.LPub.contStepNumbers.value())
-                          steps->groupStepMeta.LPub.contModelStepNum.setValue(
-                                      steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
-
-                      // reset local fade previous steps
                       int local = 1; bool reset = true;
-                      if (curMeta.LPub.callout.csi.fadeSteps.enable.pushed == local)
-                          curMeta.LPub.callout.csi.fadeSteps.setPreferences(reset);
-                      else if (curMeta.LPub.multiStep.csi.fadeSteps.enable.pushed == local)
-                          curMeta.LPub.multiStep.csi.fadeSteps.setPreferences(reset);
-                      else if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
+
+                      // reset local fade previous steps - single step
+                      if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
                           curMeta.LPub.assem.fadeSteps.setPreferences(reset);
                       else if (curMeta.LPub.fadeSteps.enable.pushed == local) {
                           Gui::suspendFileDisplay = true;
@@ -2768,12 +2773,8 @@ int Gui::drawPage(
                           curMeta.LPub.fadeSteps.setPreferences(reset);
                       }
 
-                      // reset local highlight current step
-                      if (curMeta.LPub.callout.csi.highlightStep.enable.pushed == local)
-                          curMeta.LPub.callout.csi.highlightStep.setPreferences(reset);
-                      else if (curMeta.LPub.multiStep.csi.highlightStep.enable.pushed == local)
-                          curMeta.LPub.multiStep.csi.highlightStep.setPreferences(reset);
-                      else if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
+                      // reset local highlight current step - single step
+                      if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
                       else if (curMeta.LPub.highlightStep.enable.pushed == local) {
                           Gui::suspendFileDisplay = true;
@@ -2783,13 +2784,7 @@ int Gui::drawPage(
                       }
 
                       // reset local preferred renderer
-                      if (curMeta.LPub.callout.csi.preferredRenderer.pushed == local) {
-                          curMeta.LPub.callout.csi.preferredRenderer.setPreferences(reset);
-                          curMeta.LPub.callout.csi.resetCameraFoV();
-                      } else if (curMeta.LPub.multiStep.csi.preferredRenderer.pushed == local) {
-                          curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences(reset);
-                          curMeta.LPub.multiStep.csi.resetCameraFoV();
-                      } else if (curMeta.LPub.assem.preferredRenderer.pushed == local) {
+                      if (curMeta.LPub.assem.preferredRenderer.pushed == local) {
                           curMeta.LPub.assem.preferredRenderer.setPreferences(reset);
                           curMeta.LPub.assem.resetCameraFoV();
                       } else if (curMeta.LPub.subModel.preferredRenderer.pushed == local) {
@@ -2801,6 +2796,37 @@ int Gui::drawPage(
                       } else if (curMeta.LPub.bom.preferredRenderer.pushed == local) {
                           curMeta.LPub.bom.preferredRenderer.setPreferences(reset);
                           curMeta.LPub.bom.resetCameraFoV();
+                      }
+
+                      // return for STEP - Simple, not mulitStep, not calledOut (draw graphics)
+                      if ( ! multiStep && ! opts.calledOut) {
+                          return static_cast<int>(returnValue);
+                      }
+
+                      // increment continuous step number
+                      if (multiStep && steps->groupStepMeta.LPub.contStepNumbers.value())
+                          steps->groupStepMeta.LPub.contModelStepNum.setValue(
+                                      steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
+
+                      // reset local fade previous steps
+                      if (curMeta.LPub.callout.csi.fadeSteps.enable.pushed == local)
+                          curMeta.LPub.callout.csi.fadeSteps.setPreferences(reset);
+                      else if (curMeta.LPub.multiStep.csi.fadeSteps.enable.pushed == local)
+                          curMeta.LPub.multiStep.csi.fadeSteps.setPreferences(reset);
+
+                      // reset local highlight current step
+                      if (curMeta.LPub.callout.csi.highlightStep.enable.pushed == local)
+                          curMeta.LPub.callout.csi.highlightStep.setPreferences(reset);
+                      else if (curMeta.LPub.multiStep.csi.highlightStep.enable.pushed == local)
+                          curMeta.LPub.multiStep.csi.highlightStep.setPreferences(reset);
+
+                      // reset local preferred renderer
+                      if (curMeta.LPub.callout.csi.preferredRenderer.pushed == local) {
+                          curMeta.LPub.callout.csi.preferredRenderer.setPreferences(reset);
+                          curMeta.LPub.callout.csi.resetCameraFoV();
+                      } else if (curMeta.LPub.multiStep.csi.preferredRenderer.pushed == local) {
+                          curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences(reset);
+                          curMeta.LPub.multiStep.csi.resetCameraFoV();
                       }
 
                       steps->meta.pop();

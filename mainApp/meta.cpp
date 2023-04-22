@@ -3592,6 +3592,7 @@ void InsertMeta::initPlacement()
 Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
 { 
   InsertData insertData;
+  bool displayModel = false;
   Rc rc = OkRc;
 
   if (argv.size() - index == 1) {
@@ -3600,7 +3601,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       } else if (argv[index] == "MODEL") {
           rc = InsertFinalModelRc;
       } else if (argv[index] == "DISPLAY_MODEL") {
-          rc = InsertDisplayModelRc;
+          displayModel = rc = InsertDisplayModelRc;
       } else if (argv[index] == "COVER_PAGE") {
           rc = InsertCoverPageRc;
       }
@@ -3612,28 +3613,44 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc != OkRc && !Gui::abortProcess()) {
       if (Gui::pageProcessRunning != PROC_NONE) {
+          QString line;
           bool errorFound = false;
           here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
           Where start(here.modelName,here.modelIndex,here.lineNumber);
           Where top(here.modelName,here.modelIndex,0);
           lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
-          QRegExp errorRx("^[1-5]\\s+|\\bBEGIN SUB\\b|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
+          QRegExp errorRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
           for (; start.lineNumber > top.lineNumber; start--) {
-              QString line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
+              line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
               if (line.contains(errorRx)) {
-                  errorFound = !errorRx.cap(1).contains(QRegExp("0 STEP|0 ROTSTEP"));
+                  qDebug() << qPrintable(QString("DEBUG: - errorRx cap(1): %1").arg(errorRx.cap(3)));
+                  errorFound = !errorRx.cap(3).contains(QRegExp("0 STEP|0 ROTSTEP"));
                   break;
               }
           }
+
           if (!errorFound) {
               start = here;
-              if (lpub->ldrawFile.size(here.modelName) > here.lineNumber)
-                  start++; // advance past current line
-              errorRx.setPattern("^[1-5]\\s+|\\bBEGIN SUB\\b");
+              errorRx.setPattern("^[1-5]\\s+|(\\bBEGIN SUB\\b)");
+              if (lpub->ldrawFile.size(here.modelName) > here.lineNumber) {
+                  start++;                                            // advance past current line
+              }
+              if (displayModel) {                                     // check for substitute command
+                  errorFound = Gui::stepContains(start, errorRx, line, 1, displayModel/*allow type 1-5 lines if display model*/);
+              } else {
+                  top = start;
+                  QRegExp dispModRx("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
+                  if (! Gui::stepContains(top,dispModRx)) {           // Check if step contain display model
+                      line = QObject::tr("type 1-5 line");
+                      errorFound = Gui::stepContains(start, errorRx); // check for type 1-5 parts
+                  }
+              }
           }
-          if (errorFound || Gui::stepContains(start, errorRx)) {
-              emit gui->parseErrorSig(QString("INSERT %1 meta command STEP cannot contain type 1 to 5 line. Invalid type at line %2.")
-                                              .arg(argv[index]).arg(start.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
+
+          if (errorFound) {
+              QString const message = QObject::tr("Step with INSERT %1 meta command cannot contain %2. Invalid type at line %3")
+                                                  .arg(argv[index]).arg(line).arg(start.lineNumber+1);
+              emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false, true/*override*/);
               Gui::setAbortProcess(true);
           }
       }

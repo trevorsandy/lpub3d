@@ -253,42 +253,48 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
   }
 }
 
-// special case - used in setting fade step from command meta
-bool Gui::stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp) {
+// special case - return specified capture group in result
+bool Gui::stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp, bool displayModel) {
     bool found = false;
-    if ((found = Gui::stepContains(here,lineRx))){
-        if (capGrp)
-            result = lineRx.cap(capGrp);
-        else
-            result = "true";
-    }
+    if (Gui::stepContains(here,lineRx,displayModel))
+        found = true;
+    if (capGrp)
+        result = lineRx.cap(capGrp).trimmed();
     return found;
 }
 
 // general case string
-bool Gui::stepContains(Where &topOfStep, const QString value)
+bool Gui::stepContains(Where &topOfStep, const QString &value)
 {
     QRegExp lineRx(value, Qt::CaseInsensitive);
     return Gui::stepContains(topOfStep, lineRx);
 }
 
 // general case regex
-bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
+bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx, bool displayModel)
 {
   bool found = false;
   Where walk = topOfStep;
-  LDrawFile &ldrawFile = lpub->ldrawFile;
-  int  numLines = ldrawFile.size(walk.modelName);
-  QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 NOFILE$|^0 FILE");
+  int  numLines = lpub->ldrawFile.size(walk.modelName);
+  QRegExp endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+NOFILE$|^0\\s+FILE");
   for (; walk < numLines; ++walk) {
-    QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
-    if ((found = line.contains(lineRx)))
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+    if (displayModel) {
+      if (line.contains(lineRx)) {
+        // Can consolidate multiple illegal displayModel commands in a single Rx
+        if ((found = lineRx.cap(1).contains("BEGIN SUB"))) {
+          topOfStep = walk;
+        }
+      }
+    } else if ((found = line.contains(lineRx))) {
       topOfStep = walk;
-    if (found || line.contains(endRx))
+    }
+    if (found || line.contains(endRx)) {
       break;
+    }
   }
-  if (topOfStep.modelIndex == BM_INVALID_INDEX)
-    topOfStep.setModelIndex(ldrawFile.getSubmodelIndex(topOfStep.modelName));
+  if (topOfStep.modelIndex == BM_INVALID_INDEX) {
+    topOfStep.setModelIndex(lpub->ldrawFile.getSubmodelIndex(topOfStep.modelName));
+  }
   return found;
 }
-

@@ -351,7 +351,8 @@ public:
             bool                         _printing,
             bool                         _bfxStore2,
             bool                         _assembledCallout = false,
-            bool                         _calledOut        = false)
+            bool                         _calledOut        = false,
+            bool                         _displayModel     = false)
         :
           current                       (_current),
           csiParts                      (_csiParts),
@@ -372,7 +373,8 @@ public:
           printing                      (_printing),
           bfxStore2                     (_bfxStore2),
           assembledCallout              (_assembledCallout),
-          calledOut                     (_calledOut)
+          calledOut                     (_calledOut),
+          displayModel                  (_displayModel)
     {  }
     Where                       &current;
     QStringList                 &csiParts;
@@ -394,6 +396,7 @@ public:
     bool                         bfxStore2;
     bool                         assembledCallout;
     bool                         calledOut;
+    bool                         displayModel;
 };
 
 class PartLineAttributes
