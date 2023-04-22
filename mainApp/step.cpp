@@ -701,9 +701,9 @@ int Step::createCsi(
  * The csiFile entries are only parts with not formatting or meta commands so it is
  * well suited to provide the delta between steps.
  */
-QStringList Step::configureModelStep(const QStringList &csiParts, Where &current/*topOfStep*/) {
-
-  QStringList configuredCsiParts, stepColourList;
+QStringList Step::configureModelStep(const QStringList &csiParts, Where &current/*topOfStep*/)
+{
+  QStringList processedCsiParts, stepColourList;
 
   bool enableFadeSteps       = (/* Preferences::enableFadeSteps ||  */csiStepMeta.fadeSteps.enable.value());
   bool enableHighlightStep   = (/* Preferences::enableHighlightStep ||  */csiStepMeta.highlightStep.enable.value());
@@ -714,16 +714,16 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
   bool fadeStepsUseColour    = Preferences::fadeStepsUseColour;
   int fadeStepsOpacity       = Preferences::fadeStepsOpacity;
   if (Gui::m_fadeStepsSetup || csiStepMeta.fadeSteps.setup.value()) {
-      fadeColour             = csiStepMeta.fadeSteps.color.value().color;
-      fadeStepsOpacity       = csiStepMeta.fadeSteps.opacity.value();
-      fadeStepsUseColour     = csiStepMeta.fadeSteps.color.value().useColor;
+    fadeColour               = LDrawColor::code(csiStepMeta.fadeSteps.color.value().color);
+    fadeStepsOpacity         = csiStepMeta.fadeSteps.opacity.value();
+    fadeStepsUseColour       = csiStepMeta.fadeSteps.color.value().useColor;
   }
 
   QString highlightColour    = Preferences::highlightStepColour;
   int highlightStepLineWidth = Preferences::highlightStepLineWidth;
   if (Gui::m_highlightStepSetup || csiStepMeta.highlightStep.setup.value()) {
-      highlightStepLineWidth = csiStepMeta.highlightStep.lineWidth.value();
-      highlightColour        = csiStepMeta.highlightStep.color.value();
+    highlightStepLineWidth   = csiStepMeta.highlightStep.lineWidth.value();
+    highlightColour          = csiStepMeta.highlightStep.color.value();
   }
 
   bool FadeMetaAdded = false;
@@ -745,7 +745,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
     stepNum = stepNumber.number;
   }
 
-  if (csiParts.size() > 0 && (highlightFirstStep ? true : stepNum > 1)) {
+  std::function<void(const QStringList&)> processCsiParts;
+  processCsiParts = [&](const QStringList &csiParts)
+  {
+    QStringList parts = csiParts;
 
     // retrieve the previous step position
     int prevStepPosition = 0;
@@ -759,7 +762,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 //      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
 //                      .arg(stepNum)
 //                      .arg(prevStepPosition)
-//                      .arg(csiParts.size())
+//                      .arg(parts.size())
 //                      .arg(lpub->ldrawFile.size(current.modelName))
 //                      .arg(current.modelName));
 //#endif
@@ -768,7 +771,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
     int type_1_5_line_count = 0;
 
-    for (int index = 0; index < csiParts.size(); index++) {
+    for (int index = 0; index < parts.size(); index++) {
 
       bool type_1_line = false;
       bool type_1_5_line = false;
@@ -778,7 +781,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
       int updatePosition = index + 1;
 
-      QString csiLine = csiParts[index];
+      QString csiLine = parts[index];
 
       split(csiLine, argv);
 
@@ -786,9 +789,9 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       if (displayStep) {
         if (argv.size() >= 2 && argv[0] == "0") {
           bool ok;
-          if (enableFadeSteps && (argv[1] == "!FADE" || argv[1] == "FADE")) {
+            if (enableFadeSteps && (argv[1] == QStringLiteral("!FADE") || argv[1] == QStringLiteral("FADE"))) {
             if (argv.size() == 2) {
-              doFadeStep = !doFadeStep;
+                doFadeStep = !doFadeStep;
             } else if (argv.size() >= 3) {
               doFadeStep = true;
               if (argv.size() == 3) {
@@ -808,7 +811,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
             }
           }
 
-          if (enableHighlightStep && (argv[1] == "!SILHOUETTE" || argv[1] == "SILHOUETTE")) {
+          if (enableHighlightStep && (argv[1] == QStringLiteral("!SILHOUETTE") || argv[1] == QStringLiteral("SILHOUETTE"))) {
             if (argv.size() == 2) {
               doSilhouette = !doSilhouette;
             } else if (argv.size() >= 3) {
@@ -851,7 +854,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         if (type_1_line) {
           // set part name and extension
           fileNameStr = QString(argv[argv.size()-1]).toLower();
-          extension = QFileInfo(fileNameStr).suffix();
+          extension   = QFileInfo(fileNameStr).suffix();
 
           // check if is color part
           is_colour_part = LDrawColourParts::isLDrawColourPart(fileNameStr);
@@ -859,6 +862,36 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
           // check if is submodel
           is_submodel_file = lpub->ldrawFile.isSubmodel(fileNameStr);
 
+          // process submodel parts if display step
+          if (displayStep && is_submodel_file) {
+            QStringList const &contents = lpub->ldrawFile.contents(fileNameStr);
+            if (contents.size()) {
+              // remove the submodel line from the parts list
+              parts.takeAt(index);
+              int j = index;
+              for (int i = 0; i < contents.size(); i++) {
+                QString const &line = contents.at(i);
+                bool validLine = false;
+                if(line.isEmpty())
+                  continue;
+                if ((validLine = line[0] != "0"))
+                  parts.insert(j, line);
+                else if ((validLine = line.startsWith("0 !FADE")))
+                  parts.insert(j, line);
+                else if ((validLine = line.startsWith("0 !SILHOUETTE")))
+                  parts.insert(j, line);
+                if (validLine) {
+                  // return the previous index to reprocess the current line in csiLine
+                  if (j == index)
+                    index--;
+                  // inserting top-down so increment index to insert after current
+                  j++;
+                }
+              }
+            }
+            // finished processing the subfile so return to previous index
+            continue;
+          }
           //if (is_colour_part)
           //  emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
         }
@@ -867,8 +900,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         if ((highlightFirstStep ? stepNum > 1 : true) && enableFadeSteps && (doFadeStep || updatePosition <= prevStepPosition)) {
           if (type_1_5_line) {
             // Insert opening fade meta
-            if (!displayStep && !FadeMetaAdded && enableFadeSteps){
-              configuredCsiParts.insert(index,QString("0 !FADE %1").arg(fadeStepsOpacity));
+            if (!displayStep && !FadeMetaAdded && enableFadeSteps) {
+              processedCsiParts.insert(index,QString("0 !FADE %1").arg(fadeStepsOpacity));
               FadeMetaAdded = true;
             }
             if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
@@ -890,7 +923,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 }
               }
               // process subfiles naming
-              if (is_submodel_file) {
+              if (!displayStep && is_submodel_file) {
                 if (extension.isEmpty()) {
                   fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
                 } else {
@@ -907,10 +940,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         if (enableHighlightStep && (doSilhouette || updatePosition > prevStepPosition)) {
           if (type_1_5_line) {
             // Insert opening silhouette meta
-            if (!displayStep && !SilhouetteMetaAdded && enableHighlightStep){
-              configuredCsiParts.append(QString("0 !SILHOUETTE %1 %2")
-                                                .arg(highlightStepLineWidth)
-                                                .arg(highlightColour));
+            if (!displayStep && !SilhouetteMetaAdded && enableHighlightStep) {
+              processedCsiParts.append(QString("0 !SILHOUETTE %1 %2").arg(highlightStepLineWidth).arg(highlightColour));
               SilhouetteMetaAdded = true;
             }
             if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
@@ -932,7 +963,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 }
               }
               // process subfiles naming
-              if (is_submodel_file) {
+              if (!displayStep && is_submodel_file) {
                 if (extension.isEmpty()) {
                   fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
                 } else {
@@ -953,19 +984,19 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       csiLine = argv.join(" ");
 
       // current step parts
-      configuredCsiParts  << csiLine;
+      processedCsiParts << csiLine;
 
       // Insert closing fade meta
       if (!displayStep) {
         if (updatePosition == prevStepPosition) {
           if (FadeMetaAdded)
-            configuredCsiParts.append(QString("0 !FADE"));
+            processedCsiParts.append(QStringLiteral("0 !FADE"));
         }
 
         // Insert closing silhouette meta
-        if (index+1 == csiParts.size()) {
+        if (index+1 == parts.size()) {
           if (SilhouetteMetaAdded)
-            configuredCsiParts.append(QString("0 !SILHOUETTE"));
+            processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
         }
       }
     }
@@ -973,6 +1004,12 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
     // save the current step position
     if (!displayStep)
       lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
+  };
+
+  if (csiParts.size() && (enableFadeSteps || enableHighlightStep) && (highlightFirstStep ? true : stepNum > 1)) {
+
+    QFuture<void> processFuture = QtConcurrent::run([&] () { processCsiParts(csiParts); });
+    processFuture.waitForFinished();
 
   } else {
 
@@ -987,16 +1024,16 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
   // add the fade color list to the header of the CsiParts list
   if (!stepColourList.isEmpty()) {
     stepColourList.removeDuplicates();  // remove dupes
-    configuredCsiParts.prepend("0");
+    processedCsiParts.prepend("0");
 
     for (int i = 0; i < stepColourList.size(); ++i)
-       configuredCsiParts.prepend(stepColourList.at(i));
+       processedCsiParts.prepend(stepColourList.at(i));
 
-    configuredCsiParts.prepend(QString("0 // %1 step custom colours").arg(VER_PRODUCTNAME_STR));
-    configuredCsiParts.prepend("0");
+    processedCsiParts.prepend(QString("0 // %1 step custom colours").arg(VER_PRODUCTNAME_STR));
+    processedCsiParts.prepend("0");
   }
 
-  return configuredCsiParts;
+  return processedCsiParts;
 }
 
 
@@ -1007,7 +1044,7 @@ bool Step::loadTheViewer() {
         viewerOptions->ImageHeight = csiPixmap.height();
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with CSI key: %1")
-                                 .arg(viewerStepKey));
+                                                   .arg(viewerStepKey));
             return false;
         }
     }
