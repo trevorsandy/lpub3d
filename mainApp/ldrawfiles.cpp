@@ -3002,6 +3002,8 @@ void LDrawFile::countInstances(
 
       //lpub3d ignore part - so set ignore step
       if (tokens.size() > 1 && tokens[0] == "0") {
+        if (!displayModel)
+          displayModel = line.contains(_fileRegExp[DMS_RX]);
         if (tokens[1] == "!LPUB" || tokens[1] == "LPUB") {
           // pli part meta commands
           if (tokens.size() == 5) {
@@ -3011,7 +3013,7 @@ void LDrawFile::countInstances(
               stepIgnore = true;
             }
             // build modification - commands
-            else if (tokens[2] == "BUILD_MOD") {
+            else if (!displayModel && tokens[2] == "BUILD_MOD") {
               if (tokens[3] == "BEGIN") {
                 if (! Preferences::buildModEnabled) {
                     buildModIgnore = true;
@@ -3070,8 +3072,8 @@ void LDrawFile::countInstances(
                   }
                 } else if (tokens.size() == 4 && tokens[0] == "0" &&
                           (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                          tokens[2] == "CALLOUT" &&
-                          tokens[3] == "END") {
+                           tokens[2] == "CALLOUT" &&
+                           tokens[3] == "END") {
                   callout = false;
                   break;
                 }
@@ -3105,10 +3107,12 @@ void LDrawFile::countInstances(
         // no step
         } else if (tokens.size() == 3 &&
                   (tokens[2] == "NOSTEP" || tokens[2] == "NOFILE")) {
-            noStep = true;
+          noStep = true;
+          displayModel = false;
         // LDraw step or rotstep - so check if parts added
         } else if (tokens.size() >= 2 &&
                   (tokens[1] == "STEP" || tokens[1] == "ROTSTEP")) {
+          displayModel = false;
           if (! noStep) {
             if (partsAdded) {
               // parts added - increment step
@@ -3143,7 +3147,7 @@ void LDrawFile::countInstances(
         } // step or rotstep
       // check if subfile and process
       } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
-        if (! stepIgnore && ! buildModIgnore) {
+        if (! displayModel && ! stepIgnore && ! buildModIgnore) {
           buildModPartCount++;
           if (contains(tokens[14],false/*searchAll*/)) {
             // add contains 'child' index to parent list
@@ -3181,6 +3185,8 @@ void LDrawFile::countInstances(
         ++f->_instances;
       }
     } // callout
+
+    displayModel = false;
   } // subfile end
 
   f->_beenCounted = true;
@@ -5749,8 +5755,8 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
         << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) // LDG_RX - LDCad Group
         << QRegExp("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
         << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|0 ROTATION)[^\n]*")                       // EOH_RX - End of Header
-        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")   // DMS_RX - Display Model Step
-        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP)[^\n]*")           // LDS_RX - LDraw Step
+        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")       // DMS_RX - Display Model Step
+        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*") // LDS_RX - LDraw Step boundry
         ;
   }
 

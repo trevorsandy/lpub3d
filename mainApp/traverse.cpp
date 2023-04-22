@@ -1813,14 +1813,14 @@ int Gui::drawPage(
 
                   // get the default number of submodel instances in the model file
                   instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                  if (countInstances)
+                  if (!opts.displayModel && countInstances)
                      displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
                   // count the instances - use steps->meta (vs. steps->groupStepMeta) to access current submodelStack
                   //
                   // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
                   // the updated countInstances routine's configuration is CountAtModel - this is the default options set
                   // and configurable in Project globals
-                  if (displayInstanceCount) {
+                  if (!opts.displayModel && displayInstanceCount) {
                       // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
                       if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
                           instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
@@ -2564,12 +2564,12 @@ int Gui::drawPage(
 
                           // get the number of submodel instances in the model file
                           int instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                          if (countInstances)
+                          if (!opts.displayModel && countInstances)
                              displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
                           // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
                           // the updated countInstances routine's configuration is CountAtModel - this is the default options set
                           // and configurable in Project globals
-                          if (displayInstanceCount) {
+                          if (!opts.displayModel && displayInstanceCount) {
                               // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
                               if (steps->meta.LPub.page.countInstanceOverride.value())
                                   instances = steps->meta.LPub.page.countInstanceOverride.value();
@@ -2582,7 +2582,7 @@ int Gui::drawPage(
                           }
 
                           // update the page if submodel instances greater than 1
-                          if (instances > 1) {
+                          if (!opts.displayModel && instances > 1) {
                               Page *page = dynamic_cast<Page *>(steps);
                               if (page) {
                                   page->instances            = instances;

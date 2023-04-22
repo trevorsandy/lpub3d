@@ -430,17 +430,20 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   return instanceCount;
 }
 
-int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
+int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName) {
 
-    int   numLines;
-    Where walk(modelName,1);
+  if (lpub->ldrawFile.isDisplayModel(modelName))
+    return 0;
 
-    /* submodelStack tells us where this submodel is referenced in the
-     parent file so we use it to target the correct SUBMODEL*/
+  int   numLines;
+  Where walk(modelName,1);
 
-    SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
-    Where subModel(tos.modelName,0);
-    lpub->ldrawFile.skipHeader(subModel.modelName,subModel.lineNumber);
+  /* submodelStack tells us where this submodel is referenced in the
+   parent file so we use it to target the correct SUBMODEL*/
+
+  SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
+  Where subModel(tos.modelName,0);
+  lpub->ldrawFile.skipHeader(subModel.modelName,subModel.lineNumber);
 
     /* Scan the lines following this line, to see if there is another
    * submodel just like this one that needs to be added as multiplier.
