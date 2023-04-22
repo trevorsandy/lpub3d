@@ -1,4 +1,4 @@
-LPub3D 2.4.6.187.3298 (22 04 2023 17:13:27)
+LPub3D 2.4.6.188.3299 (22 04 2023 17:13:50)
 
 Features, enhancements, fixes and changes
 ------------
@@ -23,6 +23,7 @@ Revisions:
 - Change - Persisting fade previous steps and highlight current step settings #683
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Use default camera setting on viewer switch to camera none #676
+- Fix - Crash on command ASSEM ANNOTATION DISPLAY GLOBAL TRUE #707
 - Fix - Crash on insert BOM without a preceding STEP command #670
 - Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Crash when converting a submodel with NOSTEP to callout #706

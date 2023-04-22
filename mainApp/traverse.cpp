@@ -2019,7 +2019,7 @@ int Gui::drawPage(
                       //steps->setCsiAnnotationMetas();
                       returnValue = static_cast<TraverseRc>(lpub->mi.setCsiAnnotationMetas(steps));
                       suspendFileDisplay = false;
-                      if (returnValue == HitCsiAnnotation)
+                      if (Preferences::buildModEnabled && returnValue == HitCsiAnnotation)
                           return static_cast<int>(returnValue);
                   }
 
@@ -2556,7 +2556,7 @@ int Gui::drawPage(
                               suspendFileDisplay = true;
                               returnValue = static_cast<TraverseRc>(step->setCsiAnnotationMetas(steps->meta));
                               suspendFileDisplay = false;
-                              if (returnValue == HitCsiAnnotation)
+                              if (Preferences::buildModEnabled && returnValue == HitCsiAnnotation)
                                   return static_cast<int>(returnValue);
                           }
 
