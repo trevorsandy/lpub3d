@@ -1955,8 +1955,13 @@ void Gui::exportAs(const QString &_suffix)
 
 void Gui::Print(QPrinter* Printer)
 {
-  bool preview = printPreview;
-  QString mode = exportPdf ? "pdf" : tr("file");
+  QElapsedTimer exportTimer;
+  exportTimer.start();
+  displayPageTimer.start();
+
+  bool preview = exportPreview;
+  QString const mode = exportPdf ? "pdf" : tr("file");
+  QString const action = preview ? tr("Preview") : exportPdf ? tr("Export") : tr("Print");
 
   emit hidePreviewDialogSig();
 
@@ -1976,33 +1981,33 @@ void Gui::Print(QPrinter* Printer)
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&]()
   {
-      displayPageNum = prevDisplayPageNum;
-      if (abortProcess())
-          restorePreviousPage();
-      else
-          displayPage();
+    displayPageNum = prevDisplayPageNum;
+    if (abortProcess())
+      restorePreviousPage();
+    else
+      displayPage();
   };
 
   if (Printer->collateCopies())
-    {
-      DocCopies = 1;
-      PageCopies = Printer->supportsMultipleCopies() ? 1 : Printer->copyCount();
-    }
+  {
+    DocCopies = 1;
+    PageCopies = Printer->supportsMultipleCopies() ? 1 : Printer->copyCount();
+  }
   else
-    {
-      DocCopies = Printer->supportsMultipleCopies() ? 1 : Printer->copyCount();
-      PageCopies = 1;
-    }
+  {
+    DocCopies = Printer->supportsMultipleCopies() ? 1 : Printer->copyCount();
+    PageCopies = 1;
+  }
 
   int FromPage = Printer->fromPage();
   int ToPage = Printer->toPage();
   bool Ascending = true;
 
   if (FromPage == 0 && ToPage == 0)
-    {
-      FromPage = 1 + pa;
-      ToPage = PageCount;
-    }
+  {
+    FromPage = 1 + pa;
+    ToPage = PageCount;
+  }
 
   FromPage = qMax(1, FromPage);
   ToPage = qMin(PageCount, ToPage);
@@ -2013,12 +2018,12 @@ void Gui::Print(QPrinter* Printer)
   }
 
   if (Printer->pageOrder() == QPrinter::LastPageFirst)
-    {
-      int Tmp = FromPage;
-      FromPage = ToPage;
-      ToPage = Tmp;
-      Ascending = false;
-    }
+  {
+    int Tmp = FromPage;
+    FromPage = ToPage;
+    ToPage = Tmp;
+    Ascending = false;
+  }
 
   // send signal to halt Visual Editor
   setExportingSig(true);
@@ -2048,242 +2053,323 @@ void Gui::Print(QPrinter* Printer)
   QPainter Painter(Printer);
 
   // initialize progress bar dialog
-  m_progressDialog->setWindowTitle(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode));  //Hack
-  if (Preferences::modeGUI)
-      m_progressDialog->show();
-  m_progressDialog->setLabelText(preview ? tr("Generating preview %1...").arg(mode) : exportPdf ? tr("Exporting %1...").arg(mode) : tr("Printing %1...").arg(mode));
+  QString message = preview ? tr("Generating preview %1...").arg(mode) : exportPdf ? tr("Exporting %1...").arg(mode) : tr("Printing %1...").arg(mode);
+
+  m_progressDialog->setWindowTitle(QString("%1 %2").arg(action).arg(mode));
+  m_progressDialog->setLabelText(message);
+  if (Preferences::modeGUI) {
+    m_progressDialog->setBtnToCancel();
+    m_progressDialog->show();
+    QApplication::setOverrideCursor(Qt::ArrowCursor);
+    QCoreApplication::processEvents();
+  }
+  emit messageSig(LOG_INFO_STATUS, message);
 
   for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
-    {
-      int Page = FromPage;
+  {
+    int Page = FromPage;
 
-      m_progressDialog->setRange(Page,ToPage);
+    message = tr("%1 page %2 of %3 for document %4...").arg(action).arg(Page).arg(ToPage).arg(DocCopy);
+    emit messageSig(LOG_INFO_STATUS,message);
 
-      if (processOption != EXPORT_PAGE_RANGE){
+    m_progressDialog->setRange(Page,ToPage);
 
-          if (processOption == EXPORT_CURRENT_PAGE){
-              // reset display page from saved page
-              displayPageNum = prevDisplayPageNum;
-              // reset page layout using display page
-              Printer->setPageLayout(getPageLayout());
-              // set range to display page
-              Page   = displayPageNum;
-              ToPage = displayPageNum;
-            }
+    if (Preferences::modeGUI) {
+          m_progressDialog->setLabelText(message);
+          m_progressDialog->setRange(Page,ToPage);
+          QCoreApplication::processEvents();
+    }
 
-          for (displayPageNum = Page; displayPageNum <= ToPage; displayPageNum++)
-            {
-              if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
-                {
-                  if (Preferences::modeGUI)
-                      m_progressDialog->hide();
-                  emit messageSig(LOG_STATUS,tr("Export %1 terminated before completion.")
-                                                .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode)));
-                  if (preview){
-                    m_previewDialog = false;
-                    exportPdf = printPreview = true;
-                  }
-                  restoreCurrentPage();
-                  return;
-                }
+    if (processOption != EXPORT_PAGE_RANGE) {
 
-              m_progressDialog->setLabelText(tr("%3 page %1 of %2...").arg(Page).arg(ToPage)
-                                               .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode)));
-              m_progressDialog->setValue(Page);
-              QApplication::processEvents();
+      if (processOption == EXPORT_CURRENT_PAGE) {
+          // reset display page from saved page
+          displayPageNum = prevDisplayPageNum;
+          // reset page layout using display page
+          Printer->setPageLayout(getPageLayout());
+          // set range to display page
+          Page   = displayPageNum;
+          ToPage = displayPageNum;
+      }
 
-              // determine size of output image, in pixels. dimension are inches * pixels per inch
-              float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
-              getExportPageSize(pageWidthPx, pageHeightPx);
-
-              bool  ls = getPageOrientation() == Landscape;
-              logNotice() << tr("%6 page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
-                                .arg(double(pageWidthPx))
-                                .arg(double(pageHeightPx))
-                                .arg(displayPageNum)
-                                .arg(ToPage)
-                                .arg(ls ? tr("Landscape") : tr("Portrait"))
-                                .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode));
-
-              // set up the view
-              QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
-              QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
-              view.scale(1.0,1.0);
-              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setGeometry(bounding);
-              view.setSceneRect(boundingRect);
-              view.setRenderHints(
-                    QPainter::Antialiasing |
-                    QPainter::TextAntialiasing |
-                    QPainter::SmoothPixmapTransform);
-              view.centerOn(boundingRect.center());
-              clearPage(&view,&scene);
-
-              for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
-                {
-                  if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
-                    {
-                      if (Preferences::modeGUI)
-                          m_progressDialog->hide();
-                      emit messageSig(LOG_STATUS,tr("%1 terminated before completion.")
-                                                    .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode)));
-                      if (preview){
-                        m_previewDialog = false;
-                        exportPdf = printPreview = false;
-                      }
-                      restoreCurrentPage();
-                      return;
-                    }
-
-                  // render this page
-                  dpFlags.printing = true;
-                  drawPage(&view,&scene,dpFlags);
-                  scene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
-                  scene.render(&Painter);
-                  clearPage(&view,&scene);
-
-                  // TODO: export header and footer
-
-                  if (PageCopy < PageCopies - 1){
-                      Printer->newPage();
-                    }
-                }
-
-              if (Page == ToPage)
-                break;
-
-              if (Ascending)
-                Page++;
-              else
-                Page--;
-
-              bool nextPage = true;
-              QPageLayout::Orientation pageOrientation = getPageOrientation(nextPage) == Landscape ? QPageLayout::Landscape : QPageLayout::Portrait;
-              Printer->setPageOrientation(pageOrientation);
-              Printer->newPage();
-            }
-        } else {
-          // page range
-          QStringList pageRanges = pageRangeText.split(",");
-          QList<int> printPages;
-          Q_FOREACH (QString ranges,pageRanges){
-              if (ranges.contains("-")){
-                  QStringList range = ranges.split("-");
-                  int minPage = range[0].toInt();
-                  int maxPage = range[1].toInt();
-                  for(int i = minPage; i <= maxPage; i++){
-                      printPages.append(i);
-                    }
-                } else {
-                  printPages.append(ranges.toInt());
-                }
-            }
-
-          std::sort(printPages.begin(),printPages.end(),lessThan);
-
-          ToPage = printPages.last();
-
-          m_progressDialog->setRange(1,printPages.count());
-
-          int _pageCount = 0;
-
-          Q_FOREACH (int printPage,printPages){
-
-              if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
-                {
-                  if (Preferences::modeGUI)
-                      m_progressDialog->hide();
-                  emit messageSig(LOG_STATUS,tr("%1 terminated before completion.")
-                                                .arg(exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode)));
-                  if (preview){
-                    m_previewDialog = false;
-                    exportPdf = printPreview = false;
-                  }
-                  restoreCurrentPage();
-                  return;
-                }
-
-              displayPageNum = Page = printPage;
-
-              m_progressDialog->setLabelText(tr("%1 page %2 of %3 for range %4 ")
-                                               .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode))
-                                               .arg(Page)
-                                               .arg(printPages.count())
-                                               .arg(pageRanges.join(" ")));
-              m_progressDialog->setValue(_pageCount++);
-              QApplication::processEvents();
-
-              // determine size of output image, in pixels. dimension are inches * pixels per inch
-              float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
-              getExportPageSize(pageWidthPx, pageHeightPx);
-
-              bool  ls = getPageOrientation() == Landscape;
-              logNotice() << tr("%6 page %3 of %4, size(pixels) W %1 x H %2, orientation %5 for range %7")
-                                .arg(double(pageWidthPx))
-                                .arg(double(pageHeightPx))
-                                .arg(Page)
-                                .arg(printPages.count())
-                                .arg(ls ? tr("Landscape") : tr("Portrait"))
-                                .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode))
-                                .arg(pageRanges.join(" "));
-
-              // set up the view
-              QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
-              QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
-              view.scale(1.0,1.0);
-              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setGeometry(bounding);
-              view.setSceneRect(boundingRect);
-              view.setRenderHints(
-                    QPainter::Antialiasing |
-                    QPainter::TextAntialiasing |
-                    QPainter::SmoothPixmapTransform);
-              view.centerOn(boundingRect.center());
-              clearPage(&view,&scene);
-
-              for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
-                {
-                  if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
-                    {
-                      if (Preferences::modeGUI)
-                          m_progressDialog->hide();
-                      emit messageSig(LOG_STATUS,tr("%1 terminated before completion.")
-                                                 .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export %1").arg(mode) : tr("Print %1").arg(mode)));
-                      if (preview){
-                        m_previewDialog = false;
-                        exportPdf = printPreview = false;
-                      }
-                      restoreCurrentPage();
-                      return;
-                    }
-
-                  // render this page
-                  dpFlags.printing = true;
-                  drawPage(&view,&scene,dpFlags);
-                  scene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
-                  scene.render(&Painter);
-                  clearPage(&view,&scene);
-
-                  // TODO: export header and footer
-
-                  if (PageCopy < PageCopies - 1){
-                      Printer->newPage();
-                    }
-                }
-              bool nextPage = true;
-              QPageLayout::Orientation pageOrientation = getPageOrientation(nextPage) == Landscape ? QPageLayout::Landscape : QPageLayout::Portrait;
-              Printer->setPageOrientation(pageOrientation);
-              Printer->newPage();
-            }
+      for (displayPageNum = Page; displayPageNum <= ToPage; displayPageNum++)
+      {
+        if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+        {
+          message = tr("%1 %2 terminated before completion.").arg(action, mode);
+          emit messageSig(LOG_INFO_STATUS,message);
+          if (preview) {
+            m_previewDialog = false;
+            exportPdf = exportPreview = true;
+          }
+          if (Preferences::modeGUI) {
+            QApplication::restoreOverrideCursor();
+            m_progressDialog->setBtnToClose();
+            m_progressDialog->setLabelText(message, true/*alert*/);
+          }
+          emit setExportingSig(false);
+          restoreCurrentPage();
+          return;
         }
+
+        message = tr("%1 %2 page %3 of %4...")
+                     .arg(action)
+                     .arg(mode)
+                     .arg(Page)
+                     .arg(ToPage);
+        emit messageSig(LOG_INFO_STATUS,message);
+        if (Preferences::modeGUI) {
+          m_progressDialog->setLabelText(message);
+          m_progressDialog->setValue(Page);
+          QApplication::processEvents();
+        }
+
+        // determine size of output image, in pixels. dimension are inches * pixels per inch
+        float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
+        getExportPageSize(pageWidthPx, pageHeightPx);
+
+        bool  ls = getPageOrientation() == Landscape;
+        message = tr("%1 %2 page %3 of %4, size(in pixels) W %5 x H %6, orientation %7")
+                     .arg(action)
+                     .arg(mode)
+                     .arg(displayPageNum)
+                     .arg(ToPage)
+                     .arg(double(pageWidthPx))
+                     .arg(double(pageHeightPx))
+                     .arg(ls ? tr("Landscape") : tr("Portrait"));
+        emit messageSig(LOG_NOTICE,message);
+
+        // set up the view
+        QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
+        QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
+        view.scale(1.0,1.0);
+        view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+        view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+        view.setGeometry(bounding);
+        view.setSceneRect(boundingRect);
+        view.setRenderHints(
+              QPainter::Antialiasing |
+              QPainter::TextAntialiasing |
+              QPainter::SmoothPixmapTransform);
+        view.centerOn(boundingRect.center());
+        clearPage(&view,&scene);
+
+        for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
+        {
+          if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+          {
+            message = tr("%1 %2 terminated before completion.").arg(action, mode);
+            emit messageSig(LOG_INFO_STATUS,message);
+            if (preview) {
+              m_previewDialog = false;
+              exportPdf = exportPreview = false;
+            }
+            if (Preferences::modeGUI) {
+              QApplication::restoreOverrideCursor();
+              m_progressDialog->setBtnToClose();
+              m_progressDialog->setLabelText(message, true/*alert*/);
+            }
+            emit setExportingSig(false);
+            restoreCurrentPage();
+            return;
+          }
+
+          if (PageCopies > 1) {
+            message = tr("%1 %2 page copy %3 of %4...").arg(action).arg(mode).arg(PageCopy).arg(PageCopies);
+            emit messageSig(LOG_INFO_STATUS,message);
+
+            if (Preferences::modeGUI) {
+              m_progressDialog->setLabelText(message);
+              // m_progressDialog->setValue(Page);
+              QApplication::processEvents();
+            }
+          }
+
+          // render this page
+          dpFlags.printing = true;
+          drawPage(&view,&scene,dpFlags);
+          scene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
+          scene.render(&Painter);
+          clearPage(&view,&scene);
+
+          // TODO: export header and footer
+
+          if (PageCopy < PageCopies - 1) {
+            Printer->newPage();
+          }
+        }
+
+        if (Page == ToPage)
+          break;
+
+        if (Ascending)
+          Page++;
+        else
+          Page--;
+
+        bool nextPage = true;
+        QPageLayout::Orientation pageOrientation = getPageOrientation(nextPage) == Landscape ? QPageLayout::Landscape : QPageLayout::Portrait;
+        Printer->setPageOrientation(pageOrientation);
+        Printer->newPage();
+      }
+
+      if (Preferences::modeGUI)
+          m_progressDialog->setValue(ToPage);
+
+    } else {
+
+      // page range
+      QStringList pageRanges = pageRangeText.split(",");
+      QList<int> printPages;
+      Q_FOREACH (QString ranges,pageRanges)
+      {
+        if (ranges.contains("-")) {
+          QStringList range = ranges.split("-");
+          int minPage = range[0].toInt();
+          int maxPage = range[1].toInt();
+          for(int i = minPage; i <= maxPage; i++) {
+            printPages.append(i);
+          }
+        } else {
+          printPages.append(ranges.toInt());
+        }
+      }
+
+      std::sort(printPages.begin(),printPages.end(),lessThan);
+
+      ToPage = printPages.last();
+
+      if (Preferences::modeGUI)
+        m_progressDialog->setRange(1,printPages.count());
+
+      int _pageCount = 0;
+
+      Q_FOREACH (int printPage,printPages)
+      {
+
+        if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+        {
+          message = tr("%1 %2 terminated before completion.").arg(action, mode);
+          emit messageSig(LOG_INFO_STATUS,message);
+          if (preview){
+            m_previewDialog = false;
+            exportPdf = exportPreview = false;
+          }
+          if (Preferences::modeGUI) {
+            QApplication::restoreOverrideCursor();
+            m_progressDialog->setBtnToClose();
+            m_progressDialog->setLabelText(message, true/*alert*/);
+          }
+          emit setExportingSig(false);
+          restoreCurrentPage();
+          return;
+        }
+
+        displayPageNum = Page = printPage;
+
+        message = tr("%1 %2 %3 of %4 for range %5 ")
+                     .arg(action)
+                     .arg(mode)
+                     .arg(Page)
+                     .arg(printPages.count())
+                     .arg(pageRanges.join(" "));
+        emit messageSig(LOG_INFO_STATUS,message);
+
+        if (Preferences::modeGUI) {
+          m_progressDialog->setLabelText(message);
+          m_progressDialog->setValue(_pageCount++);
+          QApplication::processEvents();
+        }
+
+        // determine size of output image, in pixels. dimension are inches * pixels per inch
+        float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
+        getExportPageSize(pageWidthPx, pageHeightPx);
+
+        bool  ls = getPageOrientation() == Landscape;
+        message = tr("%1 %2 page %3 of %4, size(pixels) W %5 x H %6, orientation %7 for range %8")
+                     .arg(action)
+                     .arg(mode)
+                     .arg(Page)
+                     .arg(printPages.count())
+                     .arg(double(pageWidthPx))
+                     .arg(double(pageHeightPx))
+                     .arg(ls ? tr("Landscape") : tr("Portrait"))
+                     .arg(pageRanges.join(" "));
+        emit messageSig(LOG_NOTICE,message);
+
+        // set up the view
+        QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
+        QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
+        view.scale(1.0,1.0);
+        view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+        view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+        view.setGeometry(bounding);
+        view.setSceneRect(boundingRect);
+        view.setRenderHints(
+              QPainter::Antialiasing |
+              QPainter::TextAntialiasing |
+              QPainter::SmoothPixmapTransform);
+        view.centerOn(boundingRect.center());
+        clearPage(&view,&scene);
+
+        for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
+          {
+            if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+            {
+              message = tr("%1 %2 terminated before completion.").arg(action, mode);
+              emit messageSig(LOG_INFO_STATUS,message);
+              if (preview) {
+                m_previewDialog = false;
+                exportPdf = exportPreview = false;
+              }
+              if (Preferences::modeGUI) {
+                QApplication::restoreOverrideCursor();
+                m_progressDialog->setBtnToClose();
+                m_progressDialog->setLabelText(message, true/*alert*/);
+              }
+              emit setExportingSig(false);
+              restoreCurrentPage();
+              return;
+            }
+
+            if (PageCopies > 1) {
+              message = tr("%1 %2 page copy %3 of %4...").arg(action).arg(mode).arg(PageCopy).arg(PageCopies);
+              emit messageSig(LOG_INFO_STATUS,message);
+
+              if (Preferences::modeGUI) {
+                m_progressDialog->setLabelText(message);
+                // m_progressDialog->setValue(Page);
+                QApplication::processEvents();
+              }
+            }
+
+            // render this page
+            dpFlags.printing = true;
+            drawPage(&view,&scene,dpFlags);
+            scene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
+            scene.render(&Painter);
+            clearPage(&view,&scene);
+
+            // TODO: export header and footer
+
+            if (PageCopy < PageCopies - 1) {
+              Printer->newPage();
+            }
+          }
+        bool nextPage = true;
+        QPageLayout::Orientation pageOrientation = getPageOrientation(nextPage) == Landscape ? QPageLayout::Landscape : QPageLayout::Portrait;
+        Printer->setPageOrientation(pageOrientation);
+        Printer->newPage();
+      }
+    }
+
+    if (Preferences::modeGUI)
       m_progressDialog->setValue(ToPage);
 
-      if (DocCopy < DocCopies - 1) {
-          Printer->newPage();
-        }
+    if (DocCopy < DocCopies - 1) {
+      Printer->newPage();
     }
+  }
 
   // release Visual Editor
   setExportingSig(false);
@@ -2294,65 +2380,92 @@ void Gui::Print(QPrinter* Printer)
   drawPage(KpageView,KpageScene,dpFlags);
 
   // hide progress bar
-  if (Preferences::modeGUI)
-      m_progressDialog->hide();
-
-  emit messageSig(LOG_STATUS,tr("%1 completed.")
-                                .arg(preview ? tr("Preview %1").arg(mode) : exportPdf ? tr("Export to %1").arg(mode) : tr("Print to %1").arg(mode)));
+  if (Preferences::modeGUI) {
+    QApplication::restoreOverrideCursor();
+    m_progressDialog->hide();
+  }
 
   if (preview){
-      m_previewDialog = false;
-      exportPdf = printPreview = false;
-    }
+    m_previewDialog = false;
+    exportPdf = exportPreview = false;
+  }
+
+  exportTime = gui->elapsedTime(exportTimer.elapsed());
 }
 
-void Gui::showExportedFile(){
+void Gui::showExportedFile()
+{
+  if (exportedFile.isEmpty())
+    return;
 
-  if (! exportedFile.isEmpty() && Preferences::modeGUI ){
+  bool preview = exportPreview;
+  QString const mode = exportPdf ? "pdf" : tr("file");
+  QString const action = preview ? tr("Preview") : exportPdf ? tr("Export") : tr("Print");
 
-      //display completion message
-      QPixmap _icon = QPixmap(":/icons/lpub96.png");
-      QMessageBoxResizable box;
-      box.setWindowIcon(QIcon());
-      box.setIconPixmap (_icon);
-      box.setTextFormat (Qt::RichText);
-      box.setStandardButtons (QMessageBox::Close);
-      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      box.setWindowTitle(tr ("Export Status"));
+  QMessageBoxResizable box;
+  if (Preferences::modeGUI) {
 
-      box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-      box.setDefaultButton   (QMessageBox::Yes);
+    QString message = tr("Your %1 %2 completed. %3").arg(mode,action.toLower(),exportTime);
 
-      QString title = "<b>" + tr ("Document export completed.") + "</b>";
-      QString text = tr ("Your instruction document has finished exporting.\n\n"
-                         "Do you want to open this document ?\n\n%1").arg(exportedFile);
-
-      box.setText (title);
-      box.setInformativeText (text);
-
-      if ((box.exec() == QMessageBox::Yes)) {
-          const QString CommandPath = exportedFile;
-#ifdef Q_OS_WIN
-          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
-#else
-          QProcess *Process = new QProcess(this);
-          Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
-          QStringList arguments = QStringList() << CommandPath;
-          Process->start(UNIX_SHELL, arguments);
-          Process->waitForFinished();
-          if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
-              QErrorMessage *m = new QErrorMessage(this);
-              m->showMessage(tr("Failed to launch exported document.\n%1\n%2")
-                                .arg(CommandPath).arg(QString(Process->readAllStandardError())));
-          }
-#endif
-          return;
-        } else {
-          emit messageSig(LOG_STATUS, tr("Document export completed!"));
-          return;
-
-        }
+    if (messageList.size()) {
+      int errorSet = 0;
+      int warnSet  = 0;
+      QRegExp errorRx(">ERROR<");
+      QRegExp fatalRx(">FATAL<");
+      QRegExp warnRx(">WARNING<");
+      for (const QString &item : messageList)
+        if (item.contains(errorRx) || item.contains(fatalRx))
+            errorSet++;
+        else if (! warnSet && item.contains(warnRx))
+            warnSet++;
+      message.append(tr("<br><br>There %1 %2%3 :<br>%4")
+                         .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                         .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
+                         .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
+                         .arg(messageList.join(" ")));
     }
+
+    //display completion message
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setStandardButtons (QMessageBox::Close);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setWindowTitle(tr ("%1 Status").arg(action));
+
+    box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    QString title = "<b>" + tr ("%1 %2 completed.").arg(action, mode) + "</b>";
+    QString text = tr ("%1<br><br>Do you want to open this document ?<br><br>%2")
+                       .arg(message).arg(QDir::toNativeSeparators(exportedFile));
+
+    box.setText (title);
+    box.setInformativeText (text);
+  }
+
+  if (Preferences::modeGUI && box.exec() == QMessageBox::Yes) {
+    const QString CommandPath = exportedFile;
+#ifdef Q_OS_WIN
+    QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+    QProcess *Process = new QProcess(this);
+    Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
+    QStringList arguments = QStringList() << CommandPath;
+    Process->start(UNIX_SHELL, arguments);
+    Process->waitForFinished();
+    if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
+      QErrorMessage *m = new QErrorMessage(this);
+      m->showMessage(tr("Failed to launch exported document.\n%1\n%2")
+                         .arg(CommandPath).arg(QString(Process->readAllStandardError())));
+    }
+#endif
+  } else {
+    LogType logType = Preferences::modeGUI ? LOG_INFO_STATUS : LOG_INFO;
+    emit messageSig(logType, tr("%1 %2 completed! %3").arg(action, mode, exportTime));
+  }
 }
 
 void Gui::ShowPrintDialog()
@@ -2367,7 +2480,7 @@ void Gui::ShowPrintDialog()
     m_previewDialog = false;
 
     if (PrintDialog.exec() == QDialog::Accepted) {
-        exportPdf = printPreview = false;
+        exportPdf = exportPreview = false;
         Print(&Printer);
     }
 }
@@ -2391,7 +2504,7 @@ void Gui::TogglePrintPreview(ExportMode m)
         return;
     }
 
-    printPreview = true;
+    exportPreview = true;
     exportPdf    = m == EXPORT_PDF;
 
     int PageCount = maxPages;
@@ -2426,8 +2539,8 @@ void Gui::TogglePrintPreview(ExportMode m)
     int rc = Preview.exec();
 
     if (exportPdf) {
-        messageSig(LOG_STATUS, tr("PDF export preview result is %1")
-                                  .arg(rc == 1 ? exportedFile + tr(" exported") : tr("preview only")));  // 0=preview only, 1=export output
+        emit messageSig(LOG_STATUS, tr("PDF export preview result is %1")
+                                       .arg(rc == 1 ? exportedFile + tr(" exported") : tr("preview only")));  // 0=preview only, 1=export output
         if (rc == 1) {
             showExportedFile();
         }
