@@ -6043,21 +6043,25 @@ void Gui::writeToTmp()
 
           bool externalFile = !sourceFilePath.isEmpty();
 
-          fileType = externalFile ? "external" : "";
-          fileType += lpub->ldrawFile.isUnofficialPart(fileName) ? "unofficial part" : "submodel";
+          bool displayModel = lpub->ldrawFile.isDisplayModel(fileName);
 
-          message = QString("Writing %1 '%2' to temp folder...").arg(fileType).arg(fileName);
+          fileType = externalFile ? tr("external ") : " ";
+          fileType += lpub->ldrawFile.isUnofficialPart(fileName)
+                          ? tr("unofficial %1part ").arg(displayModel ? tr("display ") : "")
+                          : tr("%1submodel ").arg(displayModel ? tr("display ") : "");
+
+          message = QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileName);
 
           emit messageSig(LOG_INFO_STATUS, message);
 
           if (Gui::suspendFileDisplay) {
-              message = QString("Writing %1 %2 of %3 files (%4 lines)...")
+              message = QString("Writing %1%2 of %3 files (%4 lines)...")
                       .arg(fileType)
                       .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
                       .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
                       .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
           } else {
-              message = QString("Writing %1 %2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
+              message = QString("Writing %1%2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
           }
 
           if (!ContinuousPage()) {
@@ -6071,7 +6075,7 @@ void Gui::writeToTmp()
                  QFile::remove(destinationPath);
              }
              if(!QFile::copy(sourceFilePath, destinationPath)) {
-                 emit messageSig(LOG_ERROR, QString("Could not write external file '%1' to temp folder...").arg(fileName));
+                 emit messageSig(LOG_ERROR, QString("Could not write %1file '%2' to temp folder...").arg(fileType).arg(fileName));
              }
           } else {
               writeToTmpFutures.append(QtConcurrent::run([this, fileName]() {
@@ -6085,19 +6089,19 @@ void Gui::writeToTmp()
           QString fileNameStr = fileName;
           QString extension = QFileInfo(fileNameStr).suffix().toLower();
 
-          // Write faded version of submodels
+          // Write faded version of submodels - except display model
           if (externalFile && (doFadeStep || doHighlightStep)) {
               fileContent.clear();
               fileContent = getFileContent();
           }
 
-          if (doFadeStep) {
+          if (doFadeStep && !displayModel) {
             if (extension.isEmpty())
               fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
             else
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
 
-            emit messageSig(LOG_INFO_STATUS, QString("Writing %1 '%2' to temp folder...").arg(fileType).arg(fileNameStr));
+            emit messageSig(LOG_INFO_STATUS, QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileNameStr));
 
             writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor, externalFile, fileContent]() {
                 QStringList *modelContent = new QStringList;
@@ -6109,14 +6113,14 @@ void Gui::writeToTmp()
             }));
           }
 
-          // Write highlighted version of submodels
-          if (doHighlightStep) {
+          // Write highlighted version of submodels - except display model
+          if (doHighlightStep&& !displayModel) {
             if (extension.isEmpty())
               fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
             else
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
 
-            emit messageSig(LOG_INFO_STATUS, QString("Writing %1 '%2' to temp folder...").arg(fileType).arg(fileNameStr));
+            emit messageSig(LOG_INFO_STATUS, QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileNameStr));
 
             writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor, externalFile, fileContent]() {
                 QStringList *modelContent = new QStringList;
