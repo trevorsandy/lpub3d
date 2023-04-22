@@ -502,13 +502,8 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
 
   if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
     enableEditActions();
-    if (!ContinuousPage()) {
+    if (!ContinuousPage())
       enableNavigationActions(true);
-      emit gui->messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
-                                              .arg(displayPageNum)
-                                              .arg(tr("loaded"))
-                                              .arg(gui->elapsedTime(t.elapsed())));
-    }
     QApplication::restoreOverrideCursor();
   }
 }
