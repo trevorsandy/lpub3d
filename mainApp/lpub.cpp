@@ -749,7 +749,7 @@ void Gui::setPageContinuousIsRunning(bool b, PageDirection d){
     }
 }
 
-void Gui::setContinuousPageAct(PAction p) {
+void Gui::setContinuousPageAct(PageActType p) {
     if (p == SET_STOP_ACTION) {
         if (pageDirection == PAGE_NEXT) {
             getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
@@ -3166,23 +3166,23 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     qRegisterMetaType<CountInstanceEnc>("CountInstanceEnc");
     qRegisterMetaType<Dim>("Dim");
     qRegisterMetaType<Dimensions>("Dimensions");
-    qRegisterMetaType<DisplayModelType>("DisplayModelType");
+    qRegisterMetaType<DisplayType>("DisplayType");
     qRegisterMetaType<DividerType>("DividerType");
     qRegisterMetaType<ExportMode>("ExportMode");
-    qRegisterMetaType<ExportOption>("ExportOption");
+    qRegisterMetaType<ExportOptionType>("ExportOptionType");
     qRegisterMetaType<FillEnc>("FillEnc");
     qRegisterMetaType<FinalModelEnabledEnc>("FinalModelEnabledEnc");
     qRegisterMetaType<GridStepSize>("GridStepSize");
     qRegisterMetaType<IniFlag>("IniFlag");
     qRegisterMetaType<JustifyStepEnc>("JustifyStepEnc");
-    qRegisterMetaType<LDrawFileRegExp>("LDrawFileRegExp");
+    qRegisterMetaType<LDrawFileRegExpType>("LDrawFileRegExpType");
     qRegisterMetaType<LDrawUnofficialFileType>("LDrawUnofficialFileType");
     qRegisterMetaType<LibType>("LibType");
     qRegisterMetaType<LightType>("LightType");
     qRegisterMetaType<LineHighlightType>("LineHighlightType");
     qRegisterMetaType<LoadMsgType>("LoadMsgType");
     qRegisterMetaType<LogType>("LogType");
-    qRegisterMetaType<MissingHeader>("MissingHeader");
+    qRegisterMetaType<MissingHeaderType>("MissingHeaderType");
     qRegisterMetaType<Preferences::MsgKey>("Preferences::MsgKey");
     qRegisterMetaType<Preferences::MsgID>("Preferences::MsgID");
     qRegisterMetaType<NameKeyAttributes>("NameKeyAttributes");
@@ -3190,7 +3190,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     qRegisterMetaType<NativeRenderType>("NativeRenderType");
     qRegisterMetaType<NativeType>("NativeType");
     qRegisterMetaType<OrientationEnc>("OrientationEnc");
-    qRegisterMetaType<PAction>("PAction");
+    qRegisterMetaType<PageActType>("PageActType");
     qRegisterMetaType<PageDirection>("PageDirection");
     qRegisterMetaType<PageTypeEnc>("PageTypeEnc");
     qRegisterMetaType<PartSource>("PartSource");
@@ -3205,10 +3205,10 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     qRegisterMetaType<RectPlacement>("RectPlacement");
     qRegisterMetaType<RelativeTos>("RelativeTos");
     qRegisterMetaType<RemoveLPubFormatType>("RemoveLPubFormatType");
-    qRegisterMetaType<RemoveObjectsRC>("RemoveObjectsRC");
+    qRegisterMetaType<RemoveObjectsRc>("RemoveObjectsRc");
     qRegisterMetaType<RendererType>("RendererType");
     qRegisterMetaType<RulerTrackingType>("RulerTrackingType");
-    qRegisterMetaType<SaveOnSender>("SaveOnSender");
+    qRegisterMetaType<SaveOnSenderType>("SaveOnSenderType");
     qRegisterMetaType<SceneGuidesPosType>("SceneGuidesPosType");
     qRegisterMetaType<SceneObject>("SceneObject");
     qRegisterMetaType<SceneObjectDirection>("SceneObjectDirection");
@@ -3221,7 +3221,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     qRegisterMetaType<StepLines>("StepLines");
     qRegisterMetaType<StudStyleEnc>("StudStyleEnc");
     qRegisterMetaType<SubAttributes>("SubAttributes");
-    qRegisterMetaType<Theme>("Theme");
+    qRegisterMetaType<ThemeType>("ThemeType");
     qRegisterMetaType<ThemeColorType>("ThemeColorType");
     qRegisterMetaType<TraverseRc>("TraverseRc");
     qRegisterMetaType<TypeLine>("TypeLine");

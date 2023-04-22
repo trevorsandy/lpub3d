@@ -355,7 +355,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 					if (Index == -1)
 					{
 						CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
-/*** LPub3D Mod - LPUB meta modification ***/						
+/*** LPub3D Mod - LPUB meta modification ***/
 						Stream << QLatin1String("0 !LPUB GROUP END\r\n");
 /*** LPub3D Mod end ***/
 					}
@@ -412,7 +412,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 		Piece->SaveLDraw(Stream);
 
 		if (Piece->mPieceInfo->GetSynthInfo())
-/*** LPub3D Mod - LPUB meta modification ***/		
+/*** LPub3D Mod - LPUB meta modification ***/
 			Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
 /*** LPub3D Mod end ***/
 	}
@@ -442,7 +442,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	while (CurrentGroups.GetSize())
 	{
 		CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
-/*** LPub3D Mod - LPUB meta modification ***/		
+/*** LPub3D Mod - LPUB meta modification ***/
 		Stream << QLatin1String("0 !LPUB GROUP END\r\n");
 /*** LPub3D Mod end ***/
 	}
@@ -749,7 +749,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Library->IsPrimitive(CleanId.constData()))
 			{
-				mFileLines.append(OriginalLine); 
+				mFileLines.append(OriginalLine);
 			}
 			else
 			{
@@ -1215,7 +1215,7 @@ void lcModel::Cut()
 /*** LPub3D Mod end ***/
 		gMainWindow->UpdateTimeline(false, false);
 /*** LPub3D Mod - Build Modification ***/
-		int Rc = RemovedPieceRC;
+		int Rc = RemovedPieceRc;
 		bool IsPiece = ((RemoveMask >> Rc) & 1);
 		mModAction = IsPiece;
 		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
@@ -2408,7 +2408,7 @@ void lcModel::DeleteSelectedObjects()
 	{
 		if (!mIsPreview) {
 			gMainWindow->UpdateTimeline(false, false);
-			int Rc = RemovedPieceRC;
+			int Rc = RemovedPieceRc;
 			bool IsPiece = ((RemoveMask >> Rc) & 1);
 			mModAction = IsPiece;
 			gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
@@ -2831,7 +2831,7 @@ quint32 lcModel::RemoveSelectedObjects()
 		{
 /*** LPub3D Mod - Build Modification ***/
 			if(! RemovedPiece)
-				RemovedPiece = (RemoveMask = (1 << RemovedPieceRC));
+				RemovedPiece = (RemoveMask = (1 << RemovedPieceRc));
 /*** LPub3D Mod end ***/
 			mPieces.Remove(Piece);
 			delete Piece;
@@ -2854,7 +2854,7 @@ quint32 lcModel::RemoveSelectedObjects()
 
 /*** LPub3D Mod - Build Modification ***/
 			if(! RemovedCamera)
-				RemovedCamera = RemoveMask |= (1 << RemovedCameraRC) ;
+				RemovedCamera = RemoveMask |= (1 << RemovedCameraRc) ;
 /*** LPub3D Mod end ***/
 			mCameras.RemoveIndex(CameraIdx);
 			delete Camera;
@@ -2874,7 +2874,7 @@ quint32 lcModel::RemoveSelectedObjects()
 		{
 /*** LPub3D Mod - Build Modification ***/
 			if(! RemovedLight)
-				RemovedLight = RemoveMask |= (1 << RemovedLightRC) ;
+				RemovedLight = RemoveMask |= (1 << RemovedLightRc) ;
 /*** LPub3D Mod end ***/
 			mLights.RemoveIndex(LightIdx);
 			delete Light;
@@ -4873,7 +4873,7 @@ void lcModel::ShowArrayDialog()
 		return;
 /*** LPub3D Mod end ***/
 	}
-	
+
 	lcQArrayDialog Dialog(gMainWindow);
 
 	if (Dialog.exec() != QDialog::Accepted)

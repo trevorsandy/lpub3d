@@ -1584,7 +1584,7 @@ void LDrawFile::processMetaCommand(const QStringList &tokens)
 
 void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 {
-    MissingHeader headerMissing = NoneMissing;
+    MissingHeaderType headerMissing = NoneMissing;
 
     std::function<int()> missingHeaders;
     missingHeaders = [this] ()
@@ -1884,7 +1884,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                                _description);
                     }
                     if (contents.size()) {
-                        if ((headerMissing = MissingHeader(missingHeaders())))
+                        if ((headerMissing = MissingHeaderType(missingHeaders())))
                             normalizeHeader(subfileName, headerMissing);
                         emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
                                                                      .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
@@ -1974,7 +1974,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                        _description);
             }
             if (contents.size()) {
-                if ((headerMissing = MissingHeader(missingHeaders())))
+                if ((headerMissing = MissingHeaderType(missingHeaders())))
                     normalizeHeader(subfileName, headerMissing);
                 emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
                                                              .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
@@ -2098,7 +2098,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
 void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bool externalFile)
 {
-    MissingHeader headerMissing = NoneMissing;
+    MissingHeaderType headerMissing = NoneMissing;
 
     std::function<int()> missingHeaders;
     missingHeaders = [this] ()
@@ -2277,7 +2277,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 modelBegin = smLine.contains(_fileRegExp[EOH_RX]);
             // missing header check
             if (subfileFound || modelBegin) {
-                if ((headerMissing = MissingHeader(missingHeaders()))) {
+                if ((headerMissing = MissingHeaderType(missingHeaders()))) {
                     int index = 0;
                     QString const name = QString("0 Name: %1").arg(fileInfo.fileName());
                     sosf = name.contains(_fileRegExp[NAM_RX]); // set _fileRegExp to populate subfileName below
@@ -2446,7 +2446,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                                    externalFile ? fileInfo.absoluteFilePath() : "",
                                    _description);
 
-                            if ((headerMissing = MissingHeader(missingHeaders())))
+                            if ((headerMissing = MissingHeaderType(missingHeaders())))
                                 normalizeHeader(subfileName, headerMissing);
                             emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
                                                                          .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
@@ -2520,7 +2520,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                            false/*includeFile*/,
                            externalFile ? fileInfo.absoluteFilePath() : "",
                            _description);
-                    if ((headerMissing = MissingHeader(missingHeaders())))
+                    if ((headerMissing = MissingHeaderType(missingHeaders())))
                         normalizeHeader(subfileName, headerMissing);
                     emit gui->messageSig(LOG_NOTICE, QObject::tr("LDR  %1 '%2' with %3 lines loaded.")
                                                                  .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));

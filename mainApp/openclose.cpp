@@ -668,7 +668,7 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 {
   QString senderLabel;
   bool proceed = true;
-  SaveOnSender saveSender = SaveOnSender(sender);
+  SaveOnSenderType saveSender = SaveOnSenderType(sender);
   if (saveSender ==  SaveOnRedraw) {
       senderLabel = QLatin1String("redraw");
       proceed = Preferences::showSaveOnRedraw;

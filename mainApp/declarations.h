@@ -105,28 +105,31 @@ enum RemoveLPubFormatType { RLPF_NONE = -1, RLPF_DOCUMENT, RLPF_SUBMODEL, RLPF_P
 enum RendererType { RENDERER_INVALID = -1, RENDERER_NATIVE, RENDERER_LDVIEW, RENDERER_LDGLITE, RENDERER_POVRAY, NUM_RENDERERS };
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
-enum CamFlag { DefFoV, DefZNear, DefZFar };
 enum NativeRenderType { NATIVE_VIEW, NATIVE_IMAGE, NATIVE_EXPORT };
-enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, ALWAYS_SHOW, SHOW_MESSAGE, SHOW_WARNING, SHOW_ERROR };
-enum MissingHeader { NoneMissing, NameMissing, AuthorMissing, BothMissing };
+enum MissingHeaderType { NoneMissing, NameMissing, AuthorMissing, BothMissing };
 enum LDrawFileRegExp { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, INC_RX, DES_RX, LDG_RX, LDC_RX, EOH_RX };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
-enum RemoveObjectsRC { RemovedPieceRC, RemovedCameraRC, RemovedLightRC };
+enum RemoveObjectsRc { RemovedPieceRc, RemovedCameraRc, RemovedLightRc };
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
-enum Theme { ThemeDark, ThemeDefault };
-enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
+enum ThemeType { ThemeDark, ThemeDefault };
+enum SaveOnSenderType { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
-enum DisplayModelType { DM_FINAL_MODEL = -1, DM_DISPLAY_MODEL = - 2 };
 enum ShowLineType { PS_POS, LINE_HIGHLIGHT = PS_POS, PS_LAST_POS, LINE_ERROR = PS_LAST_POS, PS_STEP_NUM };
 enum ProcessType { PROC_NONE, PROC_WRITE_TO_TMP, PROC_FIND_PAGE, PROC_DRAW_PAGE, PROC_DISPLAY_PAGE, PROC_COUNT_PAGE };
 enum Dimensions {Pixels = 0, Inches };
-enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
-enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum SceneObjectInfo { ObjectId };
+enum PageActType { SET_DEFAULT_ACTION, SET_STOP_ACTION };
+enum ExportOptionType { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum RecentFilesType { MAX_RECENT_FILES = 8 };
+
+enum SceneObjectInfo { ObjectId };
+enum CamFlag { DefFoV, DefZNear, DefZFar };
+enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
+
+enum DisplayType { DM_FINAL_MODEL = -1, DM_DISPLAY_MODEL = - 2 };
+
 enum LogType { LOG_STATUS,
                LOG_INFO_STATUS,
                LOG_NOTICE,
