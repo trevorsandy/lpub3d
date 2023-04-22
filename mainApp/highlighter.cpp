@@ -435,6 +435,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bPICTURE\\b"),
         QStringLiteral("\\bPIECE\\b"),
         QStringLiteral("\\bPLACEMENT\\b"),
+        QStringLiteral("\\bPLAIN\\b"),
         QStringLiteral("\\bPLI\\b"),
         QStringLiteral("\\bPLI_ANNOTATION\\b"),
         QStringLiteral("\\bPLI_GRABBER\\b"),

@@ -3391,6 +3391,7 @@ void SceneObjectMeta::metaKeywords(QStringList &out, QString preamble)
 
 StudStyleMeta::StudStyleMeta() : LeafMeta()
 {
+  studStyleMap["NONE"]                    = StylePlain;
   studStyleMap["PLAIN"]                   = StylePlain;
   studStyleMap["THIN_LINE_LOGO"]          = StyleThinLineLogo;
   studStyleMap["OUTLINE_LOGO"]            = StyleOutlineLogo;
@@ -3406,7 +3407,7 @@ StudStyleMeta::StudStyleMeta() : LeafMeta()
 Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
-  QRegExp rx("^(PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
+  QRegExp rx("^(NONE|PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
   if (argv.size() - index == 1) {
     if (!argv[index].contains(rx)) {
       bool ok;
@@ -3466,12 +3467,12 @@ QString StudStyleMeta::format(bool local, bool global)
 
 void StudStyleMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " ( NONE | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )";
+  out << preamble + " ( PLAIN | THIN_LINE_LOGO | OUTLINE_LOGO | SHARP_TOP_LOGO | ROUNDED_TOP_LOGO | FLATTENED_LOGO | HIGH_CONTRAST | HIGH_CONTRAST_WITH_LOGO | <stud style integer 0-7> )";
 }
 
 void StudStyleMeta::metaKeywords(QStringList &out, QString preamble)
 {
-  out << preamble + " NONE THIN_LINE_LOGO OUTLINE_LOGO SHARP_TOP_LOGO ROUNDED_TOP_LOGO FLATTENED_LOGO HIGH_CONTRAST HIGH_CONTRAST_WITH_LOGO";
+  out << preamble + " PLAIN THIN_LINE_LOGO OUTLINE_LOGO SHARP_TOP_LOGO ROUNDED_TOP_LOGO FLATTENED_LOGO HIGH_CONTRAST HIGH_CONTRAST_WITH_LOGO";
 }
 
 /* ------------------ */
