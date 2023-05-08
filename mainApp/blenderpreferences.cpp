@@ -216,6 +216,14 @@ void BlenderPreferences::getRenderSettings(
     double &renderPercentage,
     bool docRender)
 {
+    dialog = new QDialog(this);
+
+    dialog->setLayout(new QVBoxLayout);
+
+    dialog->setWindowTitle(tr("Blender Render Settings"));
+
+    dialog->setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS,dialog->windowTitle()));
+
 #ifndef QT_NO_PROCESS
     process = nullptr;
 #endif
@@ -227,17 +235,12 @@ void BlenderPreferences::getRenderSettings(
 
     mDialogCancelled = false;
 
-    dialog = new QDialog(this);
-
-    dialog->setWindowTitle(tr("Blender Render Settings"));
-
-    dialog->setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS,dialog->windowTitle()));
-
     mBlenderConfigured = Preferences::blenderInstalled && !Preferences::blenderLDrawConfigFile.isEmpty();
 
     loadSettings();
 
     blenderContent = new QWidget(dialog);
+    blenderContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
     blenderForm = new QFormLayout(blenderContent);
 
@@ -381,8 +384,8 @@ void BlenderPreferences::getRenderSettings(
 
     // Scroll area
     QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     scrollArea->setWidget(blenderContent);
-    dialog->setLayout(new QVBoxLayout);
     dialog->layout()->addWidget(scrollArea);
 
     // Button box
@@ -401,9 +404,9 @@ void BlenderPreferences::getRenderSettings(
     buttonBox.addButton(resetButton,QDialogButtonBox::ActionRole);
     QObject::connect(resetButton,SIGNAL(clicked()), this,SLOT(resetSettings()));
 
-    blenderContent->setMinimumWidth(int(1280*.3));
+    dialog->setModal(true);
 
-    setMinimumSize(200,400);
+    dialog->setMinimumSize(200,400);
 
     if (dialog->exec() == QDialog::Accepted) {
         if (settingsModified(width, height, renderPercentage))
