@@ -144,7 +144,12 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 				int Value;
 				if (sscanf(Token, "%x", &Value) != 1)
 					Value = 0;
-
+/*** LPub3D Mod - lpub fade highlight ***/
+				if (strlen(Token) == 9 && Token[9] == '\0') { // is RGBA
+					Color.Edge[3] = (float)(Value & 0xff) / 255.0f;
+					Value >>= 8;
+				}
+/*** LPub3D Mod end ***/
 				Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
 				Value >>= 8;
 				Color.Edge[1] = (float)(Value & 0xff) / 255.0f;

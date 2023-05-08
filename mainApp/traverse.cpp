@@ -6561,14 +6561,14 @@ QString Gui::createColourEntry(
   if (!highlightStepColour.isEmpty() && highlightStepColour != _highlightStepColour)
       _highlightStepColour     = highlightStepColour;
 
+  int const _fadeAlphaValue        = LPUB3D_OPACITY_TO_ALPHA(_fadeStepsOpacity, LDrawColor::alpha(colourCode));
+  int const _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
   QString const _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
   QString const _fadeColour        = _fadeStepsUseColour ? fadeStepsColour.isEmpty() ? LDrawColor::code(Preferences::validFadeStepsColour) : fadeStepsColour : "";
   QString const _colourCode        = _colourPrefix + (fadePartType ? _fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString const _mainColourValue   = LDrawColor::value(colourCode);
-  QString const _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : _highlightStepColour;
+  QString const _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) + QString("%1").arg(_alphaValue,0,16).toUpper() : _highlightStepColour;
   QString const _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
-  int const _fadeAlphaValue        = LPUB3D_OPACITY_TO_ALPHA(_fadeStepsOpacity, LDrawColor::alpha(colourCode));
-  int const _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")
                  .arg(_colourDescription)   // description
