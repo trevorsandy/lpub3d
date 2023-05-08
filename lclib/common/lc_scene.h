@@ -4,7 +4,7 @@
 #include "lc_array.h"
 
 /*** LPub3D Mod - lpub fade highlight ***/
-enum lcFadeArgs
+enum lcLPubFade
 {
 	LC_NO_LPUB_FADE,
 	LC_DISABLE_COLOR_WRITES,
@@ -110,7 +110,7 @@ public:
 protected:
 	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes, bool DrawFaded, bool DrawNonFaded) const;
 /*** LPub3D Mod - lpub fade highlight ***/
-	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcFadeArgs LPubFadeArg = LC_NO_LPUB_FADE) const;
+	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcLPubFade LPubFade = LC_NO_LPUB_FADE) const;
 /*** LPub3D Mod end ***/
 	void DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const;
 

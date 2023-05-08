@@ -324,7 +324,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 }
 
 /*** LPub3D Mod - lpub fade highlight ***/
-void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcFadeArgs LPubFadeArg) const
+void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcLPubFade LPubFade) const
 /*** LPub3D Mod end ***/
 {
 	if (mTranslucentMeshes.IsEmpty())
@@ -344,13 +344,13 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 	}
 
 /*** LPub3D Mod - lpub fade highlight ***/
-	if (LPubFadeArg)
+	if (LPubFade)
 	{
 		// Enable BFC
-	Context->EnableCullFace(true, true);
+		Context->EnableCullFace(true, true);
 
 		// Disable color writes
-		if (LPubFadeArg == LC_DISABLE_COLOR_WRITES){
+		if (LPubFade == LC_DISABLE_COLOR_WRITES){
 			Context->EnableColorBlend(false);
 			Context->EnableColorWrite(false);
 		}
@@ -361,7 +361,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			Context->EnableColorWrite(true);
 		}
 
-		Context->SetDepthWrite(LPubFadeArg == LC_DISABLE_COLOR_WRITES);
+		Context->SetDepthWrite(LPubFade == LC_DISABLE_COLOR_WRITES);
 	}
 	else
 /*** LPub3D Mod end ***/
@@ -401,7 +401,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			ColorIndex = RenderMesh.ColorIndex;
 
 /*** LPub3D Mod - lpub fade highlight ***/
-		if (!LPubFadeArg && DrawFadePrepass && lcIsColorTranslucent(ColorIndex))
+		if (!LPubFade && DrawFadePrepass && lcIsColorTranslucent(ColorIndex))
 			continue;
 /*** LPub3D Mod end ***/
 
@@ -456,9 +456,9 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 	Context->SetPolygonOffset(lcPolygonOffset::None);
 
 /*** LPub3D Mod - lpub fade highlight ***/
-	if (LPubFadeArg)
+	if (LPubFade)
 	{
-	Context->SetDepthWrite(true);
+		Context->SetDepthWrite(true);
 		Context->EnableColorBlend(false);
 
 		// Wrap up, Disable BFC
