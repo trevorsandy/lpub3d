@@ -923,7 +923,7 @@ for buildDir in ldglite ldview povray; do
     displayLogLines=10
     ;;
   ldview)
-    curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
+    curlCommand="https://github.com/trevorsandy/ldview/archive/lpub3d-build.tar.gz"
     checkString="LDView Image Output"
     linesAfter="9"
     buildCommand="BuildLDView"

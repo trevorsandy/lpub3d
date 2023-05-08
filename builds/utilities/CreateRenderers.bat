@@ -218,8 +218,8 @@ IF EXIST "%LP3D_LDVIEW%" (
 )
 SET BUILD_DIR=ldview
 SET VALID_SDIR=OSMesa
-SET ARCHIVE_FILE_DIR=ldview-qmake-build
-SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
+SET ARCHIVE_FILE_DIR=ldview-lpub3d-build
+SET WebNAME=https://github.com/trevorsandy/ldview/archive/lpub3d-build.zip
 CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDVIEW_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDVIEW%" (

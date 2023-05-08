@@ -207,7 +207,7 @@ for buildDir in ldglite ldview povray; do
     curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
     ;;
   ldview)
-    curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
+    curlCommand="https://github.com/trevorsandy/ldview/archive/lpub3d-build.tar.gz"
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"

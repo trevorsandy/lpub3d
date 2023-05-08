@@ -8,7 +8,7 @@ Visual Editor (LeoCAD version 23.03 sha 697e89b specifically adapted for LPub3D)
 https://github.com/trevorsandy/leocad/
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LDView-OSMesa-CUI (LDView - LPub3D Edition 4.5.0 "qmake-build" specifically adapted for LPub3D)
+LDView-OSMesa-CUI (LDView - LPub3D Edition 4.5.0 "lpub3d-build" specifically adapted for LPub3D)
 https://github.com/trevorsandy/ldview
 Trevor Sandy <trevor.sandy@gmail.com>
 
