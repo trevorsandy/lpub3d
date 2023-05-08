@@ -322,11 +322,20 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
 
         if (Options->FadeParts)
         {
+            QColor FC;
             if (Preferences::fadeStepsUseColour)
             {
-                QColor FC = LDrawColor::color(Preferences::validFadeStepsColour);
+                FC = LDrawColor::color(Preferences::validFadeStepsColour);
                 if (FC.isValid())
                     Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());
+            }
+
+            quint32* C = &Preferences.mFadeStepsColor;
+            FC = QColor(LC_RGBA_RED(*C), LC_RGBA_GREEN(*C), LC_RGBA_BLUE(*C), LC_RGBA_ALPHA(*C));
+
+            if (FC.isValid()) {
+                FC.setAlpha(LPUB3D_OPACITY_TO_ALPHA(Preferences::fadeStepsOpacity, 255));
+                Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());
             }
         }
 
@@ -335,6 +344,9 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
             QColor HC = QColor(Preferences::highlightStepColour);
             if (HC.isValid())
                 Preferences.mHighlightNewPartsColor = LC_RGBA(HC.red(), HC.green(), HC.blue(), HC.alpha());
+
+            if (Preferences.mLineWidth != Preferences::highlightStepLineWidth)
+                Preferences.mLineWidth = Preferences::highlightStepLineWidth;
         }
     }
 

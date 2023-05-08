@@ -3134,7 +3134,7 @@ public:
   BoolMeta      setup;
   FadeColorMeta color;
   IntMeta       opacity;
-  void setPreferences(bool = false);
+  void setPreferences(bool reset = false);
   FadeStepsMeta();
   FadeStepsMeta(const FadeStepsMeta &rhs) : BranchMeta(rhs)
   {
@@ -3158,7 +3158,7 @@ public:
   BoolMeta     setup;
   StringMeta   color;
   IntMeta      lineWidth;
-  void setPreferences(bool = false);
+  void setPreferences(bool reset = false);
   HighlightStepMeta();
   HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)
   {

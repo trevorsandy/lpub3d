@@ -592,12 +592,8 @@ int Step::createCsi(
      // rotate parts and create the CSI file for LDView single call and Native renderering
      if (renderer->useLDViewSCall() || nativeRenderer) {
 
-         if (nativeRenderer) {
+         if (nativeRenderer)
             ldrName = csiLdrFile;
-            // update fade and highlight Preferences for rotateParts routine.
-            meta.LPub.fadeSteps.setPreferences();
-            meta.LPub.highlightStep.setPreferences();
-         }
 
          // set rotated parts
          QFuture<int> RenderFuture = QtConcurrent::run([&] () {
@@ -775,7 +771,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       if (prevStepPosition == 0 && Gui::savePrevStepPosition > 0)
         prevStepPosition = Gui::savePrevStepPosition;
     }
-//*
+/*
 #ifdef QT_DEBUG_MODE
     emit lpub->messageSig(LOG_DEBUG, QString("\nConfigure Model Step:"
                                              "\nStepNum....................%1"
@@ -832,10 +828,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       // parse displayModel step
       if (displayStep) {
         if (argv.size() >= 2 && argv[0] == "0") {
-          bool ok;
+          bool ok, update = false;
           if (enableFadeSteps && argv[1] == QStringLiteral("!FADE")) {
             if (argv.size() == 2) {
-                doFadeStep = !doFadeStep;
+              doFadeStep = !doFadeStep;
             } else if (argv.size() >= 3) {
               doFadeStep = true;
               if (argv.size() == 3) {
@@ -859,6 +855,23 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                     fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
                   }
                 }
+              }
+
+              FadeColorData data = csiStepMeta.fadeSteps.color.value();
+              if (fadeColour != LDrawColor::code(data.color) || fadeStepsUseColour != data.useColor) {
+                data.color = fadeColour;
+                data.useColor = fadeStepsUseColour;
+                csiStepMeta.fadeSteps.color.setValue(data);
+                update = true;
+              }
+              if (fadeStepsOpacity != csiStepMeta.fadeSteps.opacity.value()) {
+                csiStepMeta.fadeSteps.opacity.setValue(fadeStepsOpacity);
+                if (!update)
+                  update = true;
+              }
+              if (update) {
+                csiStepMeta.fadeSteps.setPreferences();
+                update = false;
               }
             }
           }
@@ -884,6 +897,18 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   highlightColour = argv[3];
                 else
                   emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[3]));
+              }
+              if (highlightColour != csiStepMeta.highlightStep.color.value()) {
+                update = true;
+                csiStepMeta.highlightStep.color.setValue(highlightColour);
+              }
+              if (highlightStepLineWidth != csiStepMeta.highlightStep.lineWidth.value()) {
+                update = true;
+                csiStepMeta.highlightStep.lineWidth.setValue(highlightStepLineWidth);
+              }
+              if (update) {
+                csiStepMeta.highlightStep.setPreferences();
+                update = false;
               }
             }
           }
