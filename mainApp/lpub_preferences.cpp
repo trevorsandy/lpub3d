@@ -5036,7 +5036,7 @@ bool Preferences::getPreferences()
     Options.Preferences.mNativeViewpoint  = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
     Options.Preferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 
-    Options.Preferences.mLPubTrueFade         = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
+    Options.Preferences.mLPubFadeHighlight         = lcGetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT);
     Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
 
     Options.KeyboardShortcutsModified = false;
@@ -5956,7 +5956,7 @@ bool Preferences::getPreferences()
         bool shadingModeChanged     = Options.Preferences.mShadingMode     != Preferences.mShadingMode;
         bool lineWidthChanged       = Options.Preferences.mLineWidth       != Preferences.mLineWidth;
         bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != Preferences.mNativeViewpoint;
-        bool LPubTrueFadeChanged    = Options.Preferences.mLPubTrueFade    != Preferences.mLPubTrueFade;
+        bool LPubFadeHighlightChanged    = Options.Preferences.mLPubFadeHighlight    != Preferences.mLPubFadeHighlight;
         bool DrawCondlLinesChanged  = Options.Preferences.mDrawConditionalLines != Preferences.mDrawConditionalLines;
 
         bool NativeProjectionChanged = false;
@@ -5982,12 +5982,12 @@ bool Preferences::getPreferences()
                 restartApplication = true;
             }
         }
-        if ((LPubTrueFadeChanged  ||
+        if ((LPubFadeHighlightChanged  ||
              DefaultCameraChanged ||
              DrawCondlLinesChanged) && !restartApplication && !reloadFile)
             reloadPage = true;
 
-        if ((LPubTrueFadeChanged  ||
+        if ((LPubFadeHighlightChanged  ||
              DefaultCameraChanged ||
              DrawCondlLinesChanged) && !restartApplication && !reloadFile)
             reloadPage = true;

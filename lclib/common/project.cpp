@@ -100,10 +100,9 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
-/*** LPub3D Mod - true fade ***/
-	mFadeSteps = Preferences::enableFadeSteps;
-	mHighlightStep = Preferences::enableHighlightStep;
-	mTrueFade = gApplication->mPreferences.mLPubTrueFade;
+/*** LPub3D Mod - lpub fade highlight ***/
+	mLPubFadeParts = false;
+	mLPubHighlightParts = false;
 /*** LPub3D Mod end ***/
 	if (!mIsPreview && gMainWindow)
 		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
@@ -115,7 +114,8 @@ Project::~Project()
 }
 
 /*** LPub3D Mod - Camera Globe and Image Export ***/
-void Project::SetRenderAttributes(const int     Renderer,
+void Project::SetRenderAttributes(
+	const int     Renderer,
 	const int     ImageType,
 	const int     ImageWidth,
 	const int     ImageHeight,
@@ -123,10 +123,10 @@ void Project::SetRenderAttributes(const int     Renderer,
 	const int     PageHeight,
 	const QString FileName,
 	const float   Resolution,
-/*** LPub3D Mod - true fade ***/
-	const bool    TrueFade,
-	const bool    FadeSteps,
-	const bool    HighlightStep)
+/*** LPub3D Mod - lpub fade highlight ***/
+	const bool    LPubFadeHighlight,
+	const bool    FadeParts,
+	const bool    HighlightParts)
 /*** LPub3D Mod end ***/
 {
 	mRenderer      = Renderer;
@@ -138,10 +138,9 @@ void Project::SetRenderAttributes(const int     Renderer,
 	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
 	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
 	mViewerLoaded  = true;
-/*** LPub3D Mod - true fade ***/
-	mTrueFade      =TrueFade;
-	mFadeSteps     =FadeSteps;
-	mHighlightStep =HighlightStep;
+/*** LPub3D Mod - lpub fade highlight ***/
+	mLPubFadeParts      = LPubFadeHighlight ? FadeParts : false;
+	mLPubHighlightParts = LPubFadeHighlight ? HighlightParts : false;
 /*** LPub3D Mod end ***/
 }
 void Project::SetImageSize(

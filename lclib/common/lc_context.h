@@ -168,9 +168,9 @@ public:
 	void EnableDepthTest(bool Enable);
 	void EnableColorWrite(bool Enable);
 	void EnableColorBlend(bool Enable);
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - lpub fade highlight ***/
 	void EnableCullFace(bool Enable, bool LPubFade = false);
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 	void SetLineWidth(float LineWidth);
 
 	void BindTexture2D(const lcTexture* Texture);

@@ -256,6 +256,7 @@ class PreferencesDialog : public QDialog
     void on_LineWidthSlider_valueChanged();
     void on_MeshLODSlider_valueChanged();
     void on_studStyleCombo_currentIndexChanged(int index);
+    void on_LPubFadeHighlight_toggled();
     void on_FadeSteps_toggled();
     void on_HighlightNewParts_toggled();
     void on_AutomateEdgeColor_toggled();

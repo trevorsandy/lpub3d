@@ -1244,6 +1244,7 @@ public slots:
   void updatePreview();
   void enableVisualBuildModification();
   void viewStandardOutput(const QString filePath, const QString title = "");
+  void setupFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep);
 
   bool VisualEditorRotateTransform()
   {

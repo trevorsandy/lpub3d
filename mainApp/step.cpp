@@ -101,54 +101,61 @@ Step::Step(
   plPageFooter.size[YY]       = footerMeta.size.valuePixels(YY);
 
   if (calledOut) {
-      csiPlacement.margin     = _meta.LPub.callout.csi.margin;
-      csiPlacement.placement  = _meta.LPub.callout.csi.placement;
-      pli.margin              = _meta.LPub.callout.pli.margin;
-      pli.placement           = _meta.LPub.callout.pli.placement;
-      rotateIconMeta          = _meta.LPub.callout.rotateIcon;
-      numberPlacemetMeta      = _meta.LPub.callout.stepNum;
-      stepNumber.placement    = _meta.LPub.callout.stepNum.placement;
-      stepNumber.font         = _meta.LPub.callout.stepNum.font.valueFoo();
-      stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
-      stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
-      subModel.margin         = _meta.LPub.callout.subModel.margin;
-      subModel.placement      = _meta.LPub.callout.subModel.placement;
-      pliPerStep              = _meta.LPub.callout.pli.perStep.value();
-      csiStepMeta             = _meta.LPub.callout.csi;
-      justifyStep             = _meta.LPub.callout.justifyStep;
+      csiStepMeta.fadeSteps        = _meta.LPub.callout.csi.fadeSteps;
+      csiStepMeta.highlightStep    = _meta.LPub.callout.csi.highlightStep;
+      csiStepMeta.preferredRenderer= _meta.LPub.callout.csi.preferredRenderer;
+      csiStepMeta.studStyle        = _meta.LPub.callout.csi.studStyle;
+      csiPlacement.margin          = _meta.LPub.callout.csi.margin;
+      csiPlacement.placement       = _meta.LPub.callout.csi.placement;
+      pli.margin                   = _meta.LPub.callout.pli.margin;
+      pli.placement                = _meta.LPub.callout.pli.placement;
+      rotateIconMeta               = _meta.LPub.callout.rotateIcon;
+      numberPlacemetMeta           = _meta.LPub.callout.stepNum;
+      stepNumber.placement         = _meta.LPub.callout.stepNum.placement;
+      stepNumber.font              = _meta.LPub.callout.stepNum.font.valueFoo();
+      stepNumber.color             = _meta.LPub.callout.stepNum.color.value();
+      stepNumber.margin            = _meta.LPub.callout.stepNum.margin;
+      subModel.margin              = _meta.LPub.callout.subModel.margin;
+      subModel.placement           = _meta.LPub.callout.subModel.placement;
+      pliPerStep                   = _meta.LPub.callout.pli.perStep.value();
+      csiStepMeta                  = _meta.LPub.callout.csi;
+      justifyStep                  = _meta.LPub.callout.justifyStep;
     } else if (multiStep) {
-      csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
-      csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
-      pli.margin              = _meta.LPub.multiStep.pli.margin;
-      pli.placement           = _meta.LPub.multiStep.pli.placement;
-      rotateIconMeta          = _meta.LPub.multiStep.rotateIcon;
-      numberPlacemetMeta      = _meta.LPub.multiStep.stepNum;
-      stepNumber.placement    = _meta.LPub.multiStep.stepNum.placement;
-      stepNumber.font         = _meta.LPub.multiStep.stepNum.font.valueFoo();
-      stepNumber.color        = _meta.LPub.multiStep.stepNum.color.value();
-      stepNumber.margin       = _meta.LPub.multiStep.stepNum.margin;
-      subModel.margin         = _meta.LPub.multiStep.subModel.margin;
-      subModel.placement      = _meta.LPub.multiStep.subModel.placement;
-      pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
-      csiStepMeta             = _meta.LPub.multiStep.csi;
-      justifyStep             = _meta.LPub.multiStep.justifyStep;
-      adjustOnItemOffset      = _meta.LPub.multiStep.adjustOnItemOffset.value();
-      stepSize                = _meta.LPub.multiStep.stepSize;
+      csiStepMeta.fadeSteps        = _meta.LPub.multiStep.csi.fadeSteps;
+      csiStepMeta.highlightStep    = _meta.LPub.multiStep.csi.highlightStep;
+      csiStepMeta.preferredRenderer= _meta.LPub.multiStep.csi.preferredRenderer;
+      csiStepMeta.studStyle        = _meta.LPub.multiStep.csi.studStyle;
+      csiPlacement.margin          = _meta.LPub.multiStep.csi.margin;
+      csiPlacement.placement       = _meta.LPub.multiStep.csi.placement;
+      pli.margin                   = _meta.LPub.multiStep.pli.margin;
+      pli.placement                = _meta.LPub.multiStep.pli.placement;
+      rotateIconMeta               = _meta.LPub.multiStep.rotateIcon;
+      numberPlacemetMeta           = _meta.LPub.multiStep.stepNum;
+      stepNumber.placement         = _meta.LPub.multiStep.stepNum.placement;
+      stepNumber.font              = _meta.LPub.multiStep.stepNum.font.valueFoo();
+      stepNumber.color             = _meta.LPub.multiStep.stepNum.color.value();
+      stepNumber.margin            = _meta.LPub.multiStep.stepNum.margin;
+      subModel.margin              = _meta.LPub.multiStep.subModel.margin;
+      subModel.placement           = _meta.LPub.multiStep.subModel.placement;
+      pliPerStep                   = _meta.LPub.multiStep.pli.perStep.value();
+      csiStepMeta                  = _meta.LPub.multiStep.csi;
+      justifyStep                  = _meta.LPub.multiStep.justifyStep;
+      adjustOnItemOffset           = _meta.LPub.multiStep.adjustOnItemOffset.value();
+      stepSize                     = _meta.LPub.multiStep.stepSize;
     } else {
-      csiPlacement.margin     = _meta.LPub.assem.margin;
-      csiPlacement.placement  = _meta.LPub.assem.placement;
-      placement               = _meta.LPub.assem.placement;
-      pli.margin              = _meta.LPub.pli.margin;
-      pli.placement           = _meta.LPub.pli.placement;
-      rotateIconMeta          = _meta.LPub.rotateIcon;
-      stepNumber.placement    = _meta.LPub.stepNumber.placement;
-      stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
-      stepNumber.color        = _meta.LPub.stepNumber.color.value();
-      stepNumber.margin       = _meta.LPub.stepNumber.margin;
-      subModel.margin         = _meta.LPub.subModel.margin;
-      subModel.placement      = _meta.LPub.subModel.placement;
-      pliPerStep              = false;
-
+      csiPlacement.margin          = _meta.LPub.assem.margin;
+      csiPlacement.placement       = _meta.LPub.assem.placement;
+      placement                    = _meta.LPub.assem.placement;
+      pli.margin                   = _meta.LPub.pli.margin;
+      pli.placement                = _meta.LPub.pli.placement;
+      rotateIconMeta               = _meta.LPub.rotateIcon;
+      stepNumber.placement         = _meta.LPub.stepNumber.placement;
+      stepNumber.font              = _meta.LPub.stepNumber.font.valueFoo();
+      stepNumber.color             = _meta.LPub.stepNumber.color.value();
+      stepNumber.margin            = _meta.LPub.stepNumber.margin;
+      subModel.margin              = _meta.LPub.subModel.margin;
+      subModel.placement           = _meta.LPub.subModel.placement;
+      pliPerStep                   = false;
       csiStepMeta.fadeSteps        = _meta.LPub.assem.fadeSteps;
       csiStepMeta.highlightStep    = _meta.LPub.assem.highlightStep;
       csiStepMeta.preferredRenderer= _meta.LPub.assem.preferredRenderer;
@@ -186,8 +193,6 @@ Step::Step(
   placeRotateIcon           = false;
   placeCsiAnnotation        = false;
   updateViewer              = true;    // this is set to false on csiItem mouseReleaseEvent and countPages
-  fadeSteps                 = Preferences::enableFadeSteps;
-  highlightStep             = Preferences::enableHighlightStep;
   gStep = this;
 }
 
@@ -492,7 +497,9 @@ int Step::createCsi(
                   // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
                   renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,displayStep);
                   // consolidate subfiles and parts into single file
-                  if (renderer->createNativeModelFile(futureParts,fadeSteps,highlightStep) != 0) {
+                  bool doFadeSteps = csiStepMeta.fadeSteps.enable.value();
+                  bool doHighlightStep = csiStepMeta.highlightStep.enable.value();
+                  if (renderer->createNativeModelFile(futureParts,doFadeSteps,doHighlightStep) != 0) {
                       emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
                       pngName = QString(":/resources/missingimage.png");
                       futureParts.clear();
@@ -521,6 +528,8 @@ int Step::createCsi(
       StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
       AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &csiStepMeta.autoEdgeColor;
       HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
+      bool lpubFadeHighlight  = (csiStepMeta.fadeSteps.lpubFade.value() && csiStepMeta.fadeSteps.enable.value()) ||
+                                (csiStepMeta.highlightStep.lpubHighlight.value() && csiStepMeta.highlightStep.enable.value());
       viewerOptions                 = new NativeOptions();
       viewerOptions->HighlightNewParts = false; // gui->suppressColourMeta();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
@@ -539,9 +548,9 @@ int Step::createCsi(
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(rotStepMeta.value().rots[0]),float(rotStepMeta.value().rots[1]),float(rotStepMeta.value().rots[2]));
       viewerOptions->RotStepType    = rotStepMeta.value().type;
-      viewerOptions->TrueFade       = csiStepMeta.fadeSteps.truefade.value();
-      viewerOptions->FadeSteps      = csiStepMeta.fadeSteps.enable.value();
-      viewerOptions->HighlightStep  = csiStepMeta.highlightStep.enable.value();
+      viewerOptions->LPubFadeHighlight = lpubFadeHighlight;
+      viewerOptions->FadeParts      = csiStepMeta.fadeSteps.enable.value();
+      viewerOptions->HighlightParts = csiStepMeta.highlightStep.enable.value();
       viewerOptions->AutoEdgeColor  = aecm->enable.value();
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();
@@ -644,7 +653,9 @@ int Step::createCsi(
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey
 
          // set the current step - enable access from other parts of the application - e.g. Renderer
-         lpub->setCurrentStep(this);
+         if (nativeRenderer) {
+             lpub->setCurrentStep(this);
+         }
 
          //QFuture<int> RenderFuture = QtConcurrent::run([this, &addLine, &csiParts, &csiKeys, &meta, nType] () {
          //    int frc = 0;
@@ -708,8 +719,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 {
   QStringList processedCsiParts, stepColourList;
 
-  bool enableFadeSteps       = (/* Preferences::enableFadeSteps ||  */csiStepMeta.fadeSteps.enable.value());
-  bool enableHighlightStep   = (/* Preferences::enableHighlightStep ||  */csiStepMeta.highlightStep.enable.value());
+  bool enableFadeSteps       = csiStepMeta.fadeSteps.enable.value();
+  bool enableHighlightStep   = csiStepMeta.highlightStep.enable.value();
+  bool lpubFadeHighlight     = (csiStepMeta.fadeSteps.lpubFade.value() && enableFadeSteps) ||
+                               (csiStepMeta.highlightStep.lpubHighlight.value() && enableHighlightStep);
 
   bool highlightFirstStep    = Preferences::highlightFirstStep;
 
@@ -1016,7 +1029,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       lpub->ldrawFile.setPrevStepPosition(current.modelName,stepNum,type_1_5_line_count);
   };
 
-  if (csiParts.size() && (enableFadeSteps || enableHighlightStep) && (highlightFirstStep ? true : stepNum > 1)) {
+  if (lpubFadeHighlight                       &&
+      csiParts.size()                         &&
+     (enableFadeSteps || enableHighlightStep) &&
+     (highlightFirstStep ? true : stepNum > 1)) {
 
     QFuture<void> processFuture = QtConcurrent::run([&] () { processCsiParts(csiParts); });
     processFuture.waitForFinished();

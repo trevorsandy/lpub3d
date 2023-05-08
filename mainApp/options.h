@@ -103,9 +103,9 @@ public:
        IsOrtho           (false),
        ZoomExtents       (false),
        AutoEdgeColor     (false),
-       TrueFade          (true),
-       FadeSteps         (false),
-       HighlightStep     (false),
+       LPubFadeHighlight (true),
+       FadeParts         (false),
+       HighlightParts    (false),
        HighlightNewParts (false),    // gui->HighlightNewParts
        TransBackground   (true),
        CustomViewpoint   (false),
@@ -157,9 +157,9 @@ public:
   bool IsOrtho;
   bool ZoomExtents;
   bool AutoEdgeColor;
-  bool TrueFade;
-  bool FadeSteps;
-  bool HighlightStep;
+  bool LPubFadeHighlight;
+  bool FadeParts;
+  bool HighlightParts;
   bool HighlightNewParts;
   bool TransBackground;
   bool CustomViewpoint;

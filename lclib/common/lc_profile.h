@@ -152,8 +152,8 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_VIEWPOINT_ZOOM_EXTENT,
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	LC_PROFILE_LPUB_TRUE_FADE,
+/*** LPub3D Mod - lpub fade highlight ***/
+	LC_PROFILE_LPUB_FADE_HIGHLIGHT,
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - parts load order ***/

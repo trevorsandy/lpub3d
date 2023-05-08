@@ -147,7 +147,7 @@ public:
 		return mPieceModified;
 	}
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	void SetLPubFade(bool Faded)
 	{
 		mLPubFade = Faded;
@@ -164,7 +164,7 @@ public:
 	void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
 	void RemoveKeyFrames() override;
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	void AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade, bool LPubFade = false) const;
 	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
 /*** LPub3D Mod end ***/
@@ -396,7 +396,7 @@ protected:
 /*** LPub3D Mod - Piece modified ***/
 	int mPieceModified;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	int mLPubFade;
 /*** LPub3D Mod end ***/
 	QString mID;

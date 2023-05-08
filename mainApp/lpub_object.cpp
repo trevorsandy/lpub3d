@@ -575,8 +575,23 @@ bool LPub::setFadeStepsFromCommand()
   QString result;
   Where top(ldrawFile.topLevelFile(),0,0);
   Where topLevelModel(top);
-  QRegExp fadeRx = QRegExp("FADE_STEPS ENABLED\\s*(GLOBAL)?\\s*TRUE");
-  if (!Preferences::enableFadeSteps) {
+  QRegExp fadeRx = QRegExp("FADE_STEPS LPUB_FADE\\s*(GLOBAL)?\\s*FALSE");
+  bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
+  bool noLPubFadeHighlight = Gui::stepContains(topLevelModel,fadeRx,result,1);
+  if (noLPubFadeHighlight && result != QLatin1String("GLOBAL")) {
+    emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command must have GLOBAL qualifier.<br>"
+                                         "Command will be IGNORED."),true/*Show Dialog*/);
+    noLPubFadeHighlight = false;
+  }
+
+  if(noLPubFadeHighlight)
+    return false;
+
+  bool setupFadeSteps = !noLPubFadeHighlight && nativeRenderer;
+
+  if (setupFadeSteps && !Preferences::enableFadeSteps) {
+    result.clear();
+    fadeRx.setPattern("FADE_STEPS ENABLED\\s*(GLOBAL)?\\s*TRUE");
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps) {
       if (result != QLatin1String("GLOBAL")) {
@@ -598,14 +613,13 @@ bool LPub::setFadeStepsFromCommand()
     }
   }
 
-  bool setupFadeSteps = false;
   result.clear();
   topLevelModel = top;
   fadeRx.setPattern("FADE_STEPS SETUP\\s*(GLOBAL)?\\s*TRUE");
   setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (setupFadeSteps && result != QLatin1String("GLOBAL")) {
-    emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEPS SETUP command must have GLOBAL qualifier.<br>"
-                                       "Command will be IGNORED."),true/*Show Dialog*/);
+    emit lpub->messageSig(LOG_WARNING,tr("Top level FADE_STEPS SETUP command must have GLOBAL qualifier.<br>"
+                                         "Command will be IGNORED."),true/*Show Dialog*/);
     setupFadeSteps = false;
   }
   if (setupFadeSteps) {
@@ -636,8 +650,8 @@ bool LPub::setFadeStepsFromCommand()
     bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
     if (fadeStepsOpacityChanged)
       emit lpub->messageSig(LOG_INFO,tr("Fade Steps Transparency changed from %1 to %2 percent - Set from meta command")
-                                       .arg(fadeStepsOpacityCompare)
-                                       .arg(Preferences::fadeStepsOpacity));
+                                        .arg(fadeStepsOpacityCompare)
+                                        .arg(Preferences::fadeStepsOpacity));
   }
 
   result.clear();
@@ -650,16 +664,16 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::fadeStepsUseColour = ParsedColor.isValid();
     if (Preferences::fadeStepsUseColour != fadeStepsUseColorCompare)
       emit lpub->messageSig(LOG_INFO,tr("Use Fade Color is %1 - Set from meta command")
-                                       .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
+                                        .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
     QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
       emit lpub->messageSig(LOG_INFO,tr("Fade Steps Color preference changed from %1 to %2 - Set from meta command")
-                                       .arg(fadeStepsColourCompare.replace("_"," "))
-                                       .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
+                                        .arg(fadeStepsColourCompare.replace("_"," "))
+                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
 
-  return setupFadeSteps;
+  return setupFadeSteps || Preferences::enableFadeSteps;
 }
 
 bool LPub::setHighlightStepFromCommand()
@@ -667,8 +681,12 @@ bool LPub::setHighlightStepFromCommand()
   QString result;
   Where top(ldrawFile.topLevelFile(),0,0);
   Where topLevelModel(top);
-  QRegExp highlightRx = QRegExp("HIGHLIGHT_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
-  if (!Preferences::enableHighlightStep) {
+  QRegExp highlightRx;
+  bool setupHighlightStep = true;
+
+  if (setupHighlightStep && !Preferences::enableHighlightStep) {
+    result.clear();
+    highlightRx.setPattern("HIGHLIGHT_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
     Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (Preferences::enableHighlightStep) {
       if (result != QLatin1String("GLOBAL")) {
@@ -690,7 +708,6 @@ bool LPub::setHighlightStepFromCommand()
     }
   }
 
-  bool setupHighlightStep = false;
   result.clear();
   topLevelModel = top;
   highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
@@ -710,7 +727,7 @@ bool LPub::setHighlightStepFromCommand()
 
   if (Preferences::enableHighlightStep != Preferences::initEnableHighlightStep)
     emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Current Step is %1 - Set from meta command.")
-                                            .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
+                                             .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
   if (setupHighlightStep)
      emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Current Step Setup is ENABLED."));
 
@@ -728,11 +745,11 @@ bool LPub::setHighlightStepFromCommand()
     bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
     if (highlightStepColorChanged)
       emit lpub->messageSig(LOG_INFO,tr("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
-                                  .arg(highlightStepColourCompare)
-                                  .arg(Preferences::highlightStepColour));
+                                        .arg(highlightStepColourCompare)
+                                        .arg(Preferences::highlightStepColour));
   }
 
-  return setupHighlightStep;
+  return setupHighlightStep || Preferences::enableHighlightStep;
 }
 
 bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)

@@ -48,7 +48,7 @@ enum class lcPreviewPosition
 {
 	Dockable,
 	Floating,
-	Viewport     // not implemented
+	Viewport	 // not implemented
 };
 /*** LPub3D Mod end ***/
 
@@ -162,8 +162,8 @@ public:
 /*** LPub3D Mod - Timeline part icons ***/
 	bool mViewPieceIcons;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
-	bool mLPubTrueFade;
+/*** LPub3D Mod - lpub fade highlight ***/
+	bool mLPubFadeHighlight;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	bool mBuildModificationEnabled;
@@ -274,11 +274,10 @@ public:
 	void ExportClipboard(const QByteArray& Clipboard);
 
 /*** LPub3D Mod - load color entry ***/
-	bool LPubHighlightStep();
+	bool LPubHighlightParts();
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
-	bool LPubFadeSteps();
-	bool UseLPubTrueFade();
+/*** LPub3D Mod - lpub fade highlight ***/
+	bool LPubFadeParts();
 	bool UseLPubFadeColour();
 	QString LPubFadeColour();
 /*** LPub3D Mod end ***/

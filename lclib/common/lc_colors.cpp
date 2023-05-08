@@ -234,7 +234,7 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 
 		if (LPubColor)
 		{
-			if ((LPubHighlightColor = gApplication->LPubHighlightStep()))
+			if ((LPubHighlightColor = gApplication->LPubHighlightParts()))
 			{
 				char Code[32];
 				lcColor& Color = Colors.front();

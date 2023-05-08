@@ -3,7 +3,7 @@
 #include "lc_mesh.h"
 #include "lc_array.h"
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 enum lcFadeArgs
 {
 	LC_NO_FADE,
@@ -96,7 +96,7 @@ public:
 
 	void Begin(const lcMatrix44& ViewMatrix);
 	void End();
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	void AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State, bool LPubFade = false);
 /*** LPub3D Mod end ***/
 
@@ -110,7 +110,7 @@ public:
 
 protected:
 	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes, bool DrawFaded, bool DrawNonFaded) const;
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcFadeArgs LPubFadeArg = LC_NO_FADE) const;
 /*** LPub3D Mod end ***/
 	void DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const;
@@ -126,7 +126,7 @@ protected:
 	lcVector4 mFadeColor;
 	lcVector4 mHighlightColor;
 	bool mHasFadedParts;
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	bool mHasLPubFadedParts;
 /*** LPub3D Mod end ***/
 	bool mTranslucentFade;

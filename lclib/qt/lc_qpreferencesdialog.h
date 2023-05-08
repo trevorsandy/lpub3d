@@ -86,6 +86,9 @@ public slots:
 	void on_ConditionalLinesCheckBox_toggled();
 	void on_LineWidthSlider_valueChanged();
 	void on_MeshLODSlider_valueChanged();
+/*** LPub3D Mod - lpub fade highlight ***/
+	void on_LPubFadeHighlight_toggled();
+/*** LPub3D Mod end ***/
 	void on_FadeSteps_toggled();
 	void on_HighlightNewParts_toggled();
 	void on_gridStuds_toggled();

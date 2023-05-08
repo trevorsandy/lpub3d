@@ -109,10 +109,10 @@ public:
 		const int PageHeight,
 		const QString FileName,
 		const float Resolution,
-/*** LPub3D Mod - true fade ***/
-		const bool TrueFade,
-		const bool FadeSteps,
-		const bool HighlightStep);
+/*** LPub3D Mod - lpub fade highlight ***/
+		const bool LPubFadeHighlight,
+		const bool FadeParts,
+		const bool HighlightParts);
 /*** LPub3D Mod end ***/
 	void SetImageSize(
 		const int ImageWidth,
@@ -230,10 +230,9 @@ protected:
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
-	bool mTrueFade;
-	bool mFadeSteps;
-	bool mHighlightStep;
+/*** LPub3D Mod - lpub fade highlight ***/
+	bool mLPubFadeParts;
+	bool mLPubHighlightParts;
 	friend class lcApplication;
 /*** LPub3D Mod end ***/
 

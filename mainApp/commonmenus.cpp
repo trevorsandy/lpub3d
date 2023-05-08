@@ -5323,19 +5323,26 @@ void CommonMenus::setWhatsThis()
             "    High Contrast Stud And Edge Color Setttings allow\n"
             "    you to configure part edge and stud cylinder\n"
             "    color settings.\n\n"
-            "  - LPub True Fade: toggle on or off drawing the back\n"
-            "    faces of faded parts.\n\n"
+            "  - LPub Fade and Highlight: toggle on or off rendering\n"
+            "    fade and highlight parts using %1 behaviour.\n"
+            "    When enabled, the back faces of faded parts will\n"
+            "    not be drawn. Also, when enabled, Highlight New\n"
+            "    Parts and Fade Previous Steps are disabled.\n\n"
             "  - Draw Conditional Lines: toggle on or off drawing\n"
             "    conditional lines.\n\n"
-            "  - HTML Export Fade Prefious Steps: toggle on or off\n"
-            "    fade previous steps when exporting HTML steps.\n\n"
-            "  - HTML Export Highlight New Parts: toggle on or off\n"
-            "    highlight current step when exporting HTML steps.\n\n"
+            "  - Fade Parts: toggle on or off fade parts using the\n"
+            "    Visual Editor/Native Renderer fade behaviour.\n\n"
+            "  - Highlight Parts: toggle on or off highlight parts\n"
+            "    using the Visual Editor/Native highlight behavoiur.\n\n"
+            "    When Fade or Highlight Parts is enabled, LPub Fade\n"
+            "    and Highlight is disabled. Also, These settings are\n"
+            "    applied when exporting HTML steps.\n\n"
             "  - Automate Edge Color: automatically adjust part edge\n"
             "    colors based on the following configured settings:\n"
             "    * Contrast: the amount of contrast.\n\n"
             "    * Saturation: the amount of edge color tint\n"
-            "      or shade.%1\n")
+            "      or shade.%2\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_CONTROL_LPUB3D_PREFERENCES_RENDERING")

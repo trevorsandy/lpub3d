@@ -72,7 +72,7 @@ void PreferencesDialog::lcQPreferencesInit()
     ui.AutomateEdgeColor->setChecked(mOptions->Preferences.mAutomateEdgeColor);
     ui.ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
     ui.ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
-    ui.LPubTrueFade->setChecked(mOptions->Preferences.mLPubTrueFade);
+    ui.LPubFadeHighlight->setChecked(mOptions->Preferences.mLPubFadeHighlight);
     ui.ZoomExtentCombo->setCurrentIndex(mOptions->Preferences.mZoomExtents);
 
     LPub::ViewpointsComboSaveIndex = mOptions->Preferences.mNativeViewpoint;
@@ -143,7 +143,7 @@ void PreferencesDialog::lcQPreferencesAccept()
     mOptions->Preferences.mAutomateEdgeColor = ui.AutomateEdgeColor->isChecked();
     mOptions->Preferences.mNativeViewpoint = ui.ViewpointsCombo->currentIndex();
     mOptions->Preferences.mNativeProjection = ui.ProjectionCombo->currentIndex();
-    mOptions->Preferences.mLPubTrueFade = ui.LPubTrueFade->isChecked();
+    mOptions->Preferences.mLPubFadeHighlight = ui.LPubFadeHighlight->isChecked();
     mOptions->Preferences.mZoomExtents = ui.ZoomExtentCombo->currentIndex();
     mOptions->Preferences.mDefaultCameraProperties = ui.defaultCameraProperties->isChecked();
     mOptions->Preferences.mDDF = float(ui.cameraDefaultDistanceFactor->value());
@@ -210,16 +210,31 @@ void PreferencesDialog::AutomateEdgeColor()
     }
 }
 
+void PreferencesDialog::on_LPubFadeHighlight_toggled()
+{
+    if (ui.LPubFadeHighlight->isChecked())
+    {
+        if (ui.FadeSteps->isChecked())
+            ui.FadeSteps->setChecked(false);
+        if (ui.HighlightNewParts->isChecked())
+            ui.HighlightNewParts->setChecked(false);
+    }
+}
+
 void PreferencesDialog::on_FadeSteps_toggled()
 {
     ui.FadeStepsColor->setEnabled(ui.FadeSteps->isChecked());
     ui.ResetFadeStepsButton->setEnabled(ui.FadeSteps->isChecked());
+    if (ui.FadeSteps->isChecked() && ui.LPubFadeHighlight->isChecked())
+        ui.LPubFadeHighlight->setChecked(false);
 }
 
 void PreferencesDialog::on_HighlightNewParts_toggled()
 {
     ui.HighlightNewPartsColor->setEnabled(ui.HighlightNewParts->isChecked());
     ui.ResetHighlightNewPartsButton->setEnabled(ui.HighlightNewParts->isChecked());
+    if (ui.HighlightNewParts->isChecked() && ui.LPubFadeHighlight->isChecked())
+        ui.LPubFadeHighlight->setChecked(false);
 }
 
 void PreferencesDialog::on_AutomateEdgeColor_toggled()

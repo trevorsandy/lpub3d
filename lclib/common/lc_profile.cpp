@@ -203,8 +203,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "ViewpointZoomExtent", 1),                                                  // LC_PROFILE_VIEWPOINT_ZOOM_EXTENT                     /*** LPub3D Mod - View point zoom extent ***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	lcProfileEntry("Settings", "LPubTrueFade", 1),                                                         // LC_PROFILE_LPUB_TRUE_FADE                            /*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	lcProfileEntry("Settings", "LPubFadeHighlight", 1),                                                    // LC_PROFILE_LPUB_FADE_HIGHLIGHT                       /*** LPub3D Mod - lpub fade highlight ***/
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - parts load order ***/

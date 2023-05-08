@@ -593,7 +593,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	}
 	else
 	{
-/*** LPub3D Mod - Selected Parts ***/		
+/*** LPub3D Mod - Selected Parts ***/
 		if (Preferences.mBuildModificationEnabled)
 		{
 			const lcVector4 BMSelectedColor = lcVector4FromColor(Preferences.mBMObjectSelectedColor);
@@ -604,7 +604,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 			const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
 			Context->SetColor(SelectedColor);
 		}
-/*** LPub3D Mod end ***/		
+/*** LPub3D Mod end ***/
 	}
 
 	Context->SetVertexBufferPointer(LineVerts);
@@ -694,7 +694,7 @@ void lcPiece::RemoveKeyFrames()
 	mRotationKeys.ChangeKey(lcMatrix33(mModelWorld), 1, true);
 }
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade, bool LPubFade) const
 /*** LPub3D Mod end ***/
 {
@@ -719,7 +719,7 @@ void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade
 			RenderMeshState = lcRenderMeshState::Faded;
 	}
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	if (!mMesh)
 		mPieceInfo->AddRenderMeshes(Scene, mModelWorld, mColorIndex, RenderMeshState, ParentActive, LPubFade);
 	else
@@ -730,7 +730,7 @@ void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade
 		Scene->AddInterfaceObject(this);
 }
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 void lcPiece::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
 /*** LPub3D Mod end ***/
 {
@@ -746,7 +746,7 @@ void lcPiece::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMat
 	else if (ParentActive)
 		RenderMeshState = IsFocused() ? lcRenderMeshState::Focused : (IsSelected() ? lcRenderMeshState::Selected : lcRenderMeshState::Default);
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	if (!mMesh)
 		mPieceInfo->AddRenderMeshes(Scene, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, ActiveSubmodelInstance == this, LPubFade);
 	else

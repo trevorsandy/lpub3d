@@ -3253,6 +3253,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
+    m_fadeStepsSetup                = Preferences::enableFadeSteps;
+    m_highlightStepSetup            = Preferences::enableHighlightStep;
+
     mBuildModRange    = { 0, 0, -1 };
     mStepRotation     = { 0.0f, 0.0f, 0.0f };
     mRotStepAngleX    = 0.0f;

@@ -508,7 +508,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - Selected Parts ***/
 	int LineTypeIndex = -1;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	mLPubFade = false;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
@@ -589,7 +589,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 										 .arg(OriginalLine));
 			}
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 			else if (Token == QLatin1String("!FADE"))
 			{
 				mLPubFade = !mLPubFade;
@@ -626,7 +626,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				delete Piece;
 				Piece = nullptr;
 				CurrentStep++;
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 				mLPubFade = false;
 /*** LPub3D Mod end ***/
 				mFileLines.append(OriginalLine);
@@ -771,7 +771,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				LineTypeIndex++;
 				Piece->SetLineTypeIndex(LineTypeIndex);
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 				Piece->SetLPubFade(mLPubFade);
 /*** LPub3D Mod end ***/
 				Piece->SetFileLine(mFileLines.size());
@@ -1361,13 +1361,24 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	if (mPieceInfo)
 		mPieceInfo->AddRenderMesh(*Scene);
 
+/*** LPub3D Mod - lpub fade highlight ***/
+	lcPreferences& Preferences = lcGetPreferences();
+/*** LPub3D Mod end ***/
+
 	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->IsVisible(mCurrentStep))
 		{
 			const lcStep StepShow = Piece->GetStepShow();
-/*** LPub3D Mod - true fade ***/
-			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight && StepShow == mCurrentStep, AllowFade && StepShow < mCurrentStep, Piece->GetLPubFade());
+/*** LPub3D Mod - lpub fade highlight ***/
+			bool LPubFade = false;
+			if (Preferences.mLPubFadeHighlight)
+			{
+				AllowHighlight &= StepShow == mCurrentStep;
+				AllowFade      &= StepShow < mCurrentStep;
+				LPubFade        = Piece->GetLPubFade();
+			}
+			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight, AllowFade, LPubFade);
 /*** LPub3D Mod end ***/
 		}
 	}
@@ -1384,13 +1395,13 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	}
 }
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
 /*** LPub3D Mod end ***/
 {
 	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive, LPubFade);
 /*** LPub3D Mod end ***/
 }

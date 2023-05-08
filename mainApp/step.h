@@ -90,8 +90,6 @@ class Step : public AbstractRangeElement
     bool                  csiOutOfDate;
     bool                  bfxLoadStep;
     bool                  buildModActionStep;
-    bool                  fadeSteps;
-    bool                  highlightStep;
     bool                  adjustOnItemOffset;
     bool                  updateViewer;
     QString               ldrName;

@@ -786,8 +786,6 @@ void Gui::closeFile()
   Preferences::preferredRendererPreferences();
   Preferences::fadestepPreferences();
   Preferences::highlightstepPreferences();
-  m_fadeStepsSetup = false;
-  m_highlightStepSetup = false;
   if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
       LDrawColourParts::clearGeneratedColorParts();
       partWorkerLDSearchDirs.removeCustomDirs();
@@ -910,28 +908,9 @@ bool Gui::openFile(const QString &fileName)
           loadLDSearchDirParts(false/*Process*/, true/*OnDemand*/, false/*Update*/);
       }
   }
-  m_fadeStepsSetup = lpub->setFadeStepsFromCommand();
-  m_highlightStepSetup = lpub->setHighlightStepFromCommand();
-  bool enableFadeSteps = m_fadeStepsSetup || Preferences::enableFadeSteps;
-  bool enableHighlightStep = m_highlightStepSetup || Preferences::enableHighlightStep;
-  if (enableFadeSteps || enableHighlightStep) {
-    ldrawColorPartsLoad();
-    writeGeneratedColorPartsToTemp();
-    // archive fade/highlight colour parts
-    partWorkerLDSearchDirs.addCustomDirs();
-    if (enableFadeSteps) {
-      if (Preferences::enableImageMatting)
-        LDVImageMatte::clearMatteCSIImages();
-      emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading fade color parts..."));
-      partWorkerLDSearchDirs.setDoFadeStep(true);
-      processFadeColourParts(false/*overwrite*/, enableFadeSteps);
-    }
-    if (enableHighlightStep) {
-      emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading highlight color parts..."));
-      partWorkerLDSearchDirs.setDoHighlightStep(true);
-      processHighlightColourParts(false/*overwrite*/, enableHighlightStep);
-    }
-  }
+
+  setupFadeOrHighlight(lpub->setFadeStepsFromCommand(), lpub->setHighlightStepFromCommand());
+
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
   emit lpub->messageSig(LOG_INFO, tr("Loading user interface items..."));
@@ -960,6 +939,41 @@ bool Gui::openFile(const QString &fileName)
 
   emit lpub->messageSig(LOG_INFO, tr("Open file '%1' completed.").arg(fileInfo.absoluteFilePath()));
   return true;
+}
+
+void Gui::setupFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep)
+{
+  if (!enableFadeSteps && !enableHighlightStep)
+    return;
+
+  if (!m_fadeStepsSetup || !m_highlightStepSetup) {
+    QString const message = enableFadeSteps && enableHighlightStep
+        ? tr("Setup and load fade and highlight color parts...")
+        : enableFadeSteps
+            ? tr("Setup and load fade color parts...")
+            : tr("Setup and load highlight color parts...");
+    emit lpub->messageSig(LOG_INFO_STATUS, message);
+  }
+
+  if (!m_fadeStepsSetup && !m_highlightStepSetup) {
+    ldrawColorPartsLoad();
+    writeGeneratedColorPartsToTemp();
+    partWorkerLDSearchDirs.addCustomDirs();
+  }
+
+  if (enableFadeSteps && !m_fadeStepsSetup) {
+    if (Preferences::enableImageMatting)
+      LDVImageMatte::clearMatteCSIImages();
+    partWorkerLDSearchDirs.setDoFadeStep(true);
+    processFadeColourParts(false/*overwrite*/, enableFadeSteps);
+    m_fadeStepsSetup = true;
+  }
+
+  if (enableHighlightStep && !m_highlightStepSetup) {
+    partWorkerLDSearchDirs.setDoHighlightStep(true);
+    processHighlightColourParts(false/*overwrite*/, enableHighlightStep);
+    m_highlightStepSetup = true;
+  }
 }
 
 void Gui::updateRecentFileActions()

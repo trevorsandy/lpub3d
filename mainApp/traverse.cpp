@@ -1193,10 +1193,11 @@ int Gui::drawPage(
                  /*rc == EnableFadeStepsAssemRc*/
                         !curMeta.LPub.assem.fadeSteps.enable.global &&
                         !curMeta.LPub.assem.fadeSteps.setup.value())) {
-                  parseError(tr("Fade previous steps command IGNORED.<br>"
-                                "FADE_STEPS SETUP must be set to TRUE."
+                  parseError(tr("Fade previous steps command IGNORED."
+                                "<br>FADE_STEPS SETUP must be set to TRUE."
                                 "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
                                 "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                  break;
               } else if (rc == EnableFadeStepsCalloutAssemRc) {
                   curMeta.LPub.callout.csi.fadeSteps.setPreferences();
                   if (step)
@@ -1213,8 +1214,8 @@ int Gui::drawPage(
               break;
             case EnableFadeStepsRc:
                 if (!curMeta.LPub.fadeSteps.enable.global && !curMeta.LPub.fadeSteps.setup.value()) {
-                    parseError(tr("Fade previous steps command IGNORED.<br>"
-                                  "FADE_STEPS SETUP must be set to TRUE."
+                    parseError(tr("Fade previous steps command IGNORED."
+                                  "<br>FADE_STEPS SETUP must be set to TRUE."
                                   "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
                                   "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                     break;
@@ -1242,10 +1243,11 @@ int Gui::drawPage(
                    /*rc == EnableHighlightStepAssemRc*/
                           !curMeta.LPub.assem.highlightStep.enable.global &&
                           !curMeta.LPub.assem.highlightStep.setup.value())) {
-                    parseError(tr("Highlight current step command IGNORED.<br>"
-                                  "HIGHLIGHT_STEP SETUP TRUE not deteced."
+                    parseError(tr("Highlight current step command IGNORED."
+                                  "<br>HIGHLIGHT_STEP SETUP TRUE not deteced."
                                   "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
                                   "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    break;
                 } else if (rc == EnableHighlightStepCalloutAssemRc) {
                     curMeta.LPub.callout.csi.highlightStep.setPreferences();
                     if (step)
@@ -1262,8 +1264,8 @@ int Gui::drawPage(
               break;
             case EnableHighlightStepRc:
                 if (!curMeta.LPub.highlightStep.enable.global && !curMeta.LPub.highlightStep.setup.value()) {
-                    parseError(tr("Highlight current step command IGNORED.<br>"
-                                  "HIGHLIGHT_STEP SETUP must be set to TRUE."
+                    parseError(tr("Highlight current step command IGNORED."
+                                  "<br>HIGHLIGHT_STEP SETUP must be set to TRUE."
                                   "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
                                   "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                     break;
@@ -1277,6 +1279,48 @@ int Gui::drawPage(
                     Gui::suspendFileDisplay = false;
                 }
               break;
+
+            case LPubFadeCalloutAssemRc:
+            case LPubFadeGroupAssemRc:
+            case LPubFadeAssemRc:
+            case LPubFadeRc:
+            case LPubHighlightCalloutAssemRc:
+            case LPubHighlightGroupAssemRc:
+            case LPubHighlightAssemRc:
+            case LPubHighlightRc:
+                if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+                    if (rc == LPubFadeCalloutAssemRc) {
+                        if (step)
+                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.callout.csi.fadeSteps.lpubFade;
+                    } else if (rc == LPubFadeGroupAssemRc) {
+                        if (step)
+                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.multiStep.csi.fadeSteps.lpubFade;
+                    } else if (rc == LPubFadeAssemRc) {
+                        if (step)
+                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
+                    } else if (rc == LPubFadeRc) {
+                        if (step)
+                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
+                    } else if (rc == LPubHighlightCalloutAssemRc) {
+                        if (step)
+                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.callout.csi.highlightStep.lpubHighlight;
+                    } else if (rc == LPubHighlightGroupAssemRc) {
+                        if (step)
+                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.multiStep.csi.highlightStep.lpubHighlight;
+                    } else if (rc == LPubHighlightAssemRc) {
+                        if (step)
+                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
+                    } else if (rc == LPubHighlightRc) {
+                        if (step)
+                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
+                    }
+                } else {
+                    QString const command = line.contains("LPUB_FADE") ? QLatin1String("LPUB_FADE") : QLatin1String("LPUB_HIGHLIGHT");
+                    parseError(tr("%1 command IGNORED."
+                                  "<br>%1 command requires preferred render RENDERER_NATIVE."
+                                  "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
+                }
+                break;
 
               /* Buffer exchange */
             case BufferStoreRc:

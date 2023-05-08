@@ -265,7 +265,7 @@ public:
 	void PaintSelectedPieces();
 
 	void GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - lpub fade highlight ***/
 	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const;
 /*** LPub3D Mod end ***/
 	QImage GetStepImage(bool Zoom, int Width, int Height, lcStep Step);
@@ -438,7 +438,7 @@ protected:
 /*** LPub3D Mod - Build Modification ***/
 	quint32 RemoveSelectedObjects();
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	bool mLPubFade;
 /*** LPub3D Mod end ***/
 

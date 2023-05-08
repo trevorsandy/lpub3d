@@ -131,8 +131,8 @@ void lcPreferences::LoadDefaults()
 	mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	mLPubTrueFade     = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
+/*** LPub3D Mod - lpub fade highlight ***/
+	mLPubFadeHighlight = lcGetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT);
 /*** LPub3D Mod end ***/
 }
 
@@ -238,8 +238,8 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS, mViewPieceIcons);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	lcSetProfileInt(LC_PROFILE_LPUB_TRUE_FADE, mLPubTrueFade);
+/*** LPub3D Mod - lpub fade highlight ***/
+	lcSetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT, mLPubFadeHighlight);
 /*** LPub3D Mod end ***/
 }
 
@@ -335,30 +335,22 @@ lcApplication::lcApplication(const lcCommandLineOptions &Options)
 }
 
 /*** LPub3D Mod - load color entry ***/
-bool lcApplication::LPubHighlightStep()
+bool lcApplication::LPubHighlightParts()
 {
 	if (mProject)
-		return mProject->mHighlightStep;
+		return mProject->mLPubHighlightParts;
 	else
 		return Preferences::enableHighlightStep;
 }
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 // used by lcScene::Draw
-bool lcApplication::LPubFadeSteps()
+bool lcApplication::LPubFadeParts()
 {
 	if (mProject)
-		return mProject->mFadeSteps;
+		return mProject->mLPubFadeParts;
 	else
 		return Preferences::enableFadeSteps;
-}
-
-bool lcApplication::UseLPubTrueFade()
-{
-	if (mProject)
-		return mProject->mTrueFade;
-	else
-		return mPreferences.mLPubTrueFade;
 }
 
 // used by lcTimeLineWidget::Update
@@ -1610,8 +1602,8 @@ void lcApplication::ShowPreferencesDialog()
 	Options.Preferences.mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	Options.Preferences.mLPubTrueFade = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
+/*** LPub3D Mod - lpub fade highlight ***/
+	Options.Preferences.mLPubFadeHighlight = lcGetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT);
 	Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
@@ -1665,8 +1657,8 @@ void lcApplication::ShowPreferencesDialog()
 	bool ViewPieceIconsChangd = Options.Preferences.mViewPieceIcons != mPreferences.mViewPieceIcons;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	bool LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != mPreferences.mLPubTrueFade;
+/*** LPub3D Mod - lpub fade highlight ***/
+	bool LPubFadeHighlightChanged = Options.Preferences.mLPubFadeHighlight != mPreferences.mLPubFadeHighlight;
 	bool DrawConditionalLinesChanged = Options.Preferences.mDrawConditionalLines != mPreferences.mDrawConditionalLines;
 /*** LPub3D Mod end ***/
 
@@ -1735,7 +1727,7 @@ void lcApplication::ShowPreferencesDialog()
 	}
 
 	if ((ViewPieceIconsChangd ||
-		 LPubTrueFadeChanged  ||
+		 LPubFadeHighlightChanged  ||
 		 DefaultCameraChanged ||
 		 DrawConditionalLinesChanged) && !restartApp && !reloadFile)
 		reloadPage = true;

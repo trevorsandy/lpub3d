@@ -418,8 +418,8 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 	ui->viewColorIconsRadio->setChecked(!preferredIcons);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	ui->LPubTrueFade->setChecked(mOptions->Preferences.mLPubTrueFade);
+/*** LPub3D Mod - lpub fade highlight ***/
+	ui->LPubFadeHighlight->setChecked(mOptions->Preferences.mLPubFadeHighlight);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - set preferences dialog properties ***/
@@ -586,8 +586,8 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - true fade ***/
-	mOptions->Preferences.mLPubTrueFade = ui->LPubTrueFade->isChecked();
+/*** LPub3D Mod - lpub fade highlight ***/
+	mOptions->Preferences.mLPubFadeHighlight = ui->LPubFadeHighlight->isChecked();
 /*** LPub3D Mod end ***/
 
 	QDialog::accept();
@@ -883,11 +883,28 @@ void lcQPreferencesDialog::on_MeshLODSlider_valueChanged()
 	ui->MeshLODLabel->setText(QString::number(static_cast<int>(Value)));
 }
 
+/*** LPub3D Mod - lpub fade highlight ***/
+void lcQPreferencesDialog::on_LPubFadeHighlight_toggled()
+{
+	if (ui->LPubFadeHighlight->isChecked())
+	{
+		if (ui->FadeSteps->isChecked())
+			ui->FadeSteps->setChecked(false);
+		if (ui->HighlightNewParts->isChecked())
+			ui->HighlightNewParts->setChecked(false);
+	}
+}
+/*** LPub3D Mod end ***/
+
 void lcQPreferencesDialog::on_FadeSteps_toggled()
 {
 	ui->FadeStepsColor->setEnabled(ui->FadeSteps->isChecked());
 /*** LPub3D Mod - Reset fade default colours ***/
 	ui->ResetFadeStepsButton->setEnabled(ui->FadeSteps->isChecked());
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	if (ui->FadeSteps->isChecked() && ui->LPubFadeHighlight->isChecked())
+		ui->LPubFadeHighlight->setChecked(false);
 /*** LPub3D Mod end ***/
 }
 
@@ -896,6 +913,10 @@ void lcQPreferencesDialog::on_HighlightNewParts_toggled()
 	ui->HighlightNewPartsColor->setEnabled(ui->HighlightNewParts->isChecked());
 /*** LPub3D Mod - Reset highlight default colours ***/
 	ui->ResetHighlightNewPartsButton->setEnabled(ui->HighlightNewParts->isChecked());
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	if (ui->HighlightNewParts->isChecked() && ui->LPubFadeHighlight->isChecked())
+		ui->LPubFadeHighlight->setChecked(false);
 /*** LPub3D Mod end ***/
 }
 

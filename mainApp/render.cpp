@@ -2797,9 +2797,10 @@ int Native::renderCsi(
   float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   bool  customViewpoint= meta.LPub.assem.cameraAngles.customViewpoint();
-  bool  trueFade       = meta.LPub.assem.fadeSteps.truefade.value();
-  bool  fadeSteps      = meta.LPub.assem.fadeSteps.enable.value();
-  bool  highlightStep  = meta.LPub.assem.fadeSteps.enable.value();
+  bool  fadeParts      = meta.LPub.assem.fadeSteps.enable.value();
+  bool  highlightParts = meta.LPub.assem.highlightStep.enable.value();
+  bool  lpubFade       = meta.LPub.assem.fadeSteps.lpubFade.value();
+  bool  lpubHighlight  = meta.LPub.assem.highlightStep.lpubHighlight.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
   Vector3 position     = Vector3(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
   Vector3 target       = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
@@ -2819,9 +2820,10 @@ int Native::renderCsi(
     cameraZNear        = meta.LPub.callout.csi.cameraZNear.value();
     cameraZFar         = meta.LPub.callout.csi.cameraZFar.value();
     isOrtho            = meta.LPub.callout.csi.isOrtho.value();
-    trueFade           = meta.LPub.callout.csi.fadeSteps.truefade.value();
-    fadeSteps          = meta.LPub.callout.csi.fadeSteps.enable.value();
-    highlightStep      = meta.LPub.callout.csi.fadeSteps.enable.value();
+    fadeParts          = meta.LPub.callout.csi.fadeSteps.enable.value();
+    highlightParts     = meta.LPub.callout.csi.highlightStep.enable.value();
+    lpubFade           = meta.LPub.callout.csi.fadeSteps.lpubFade.value();
+    lpubHighlight      = meta.LPub.callout.csi.highlightStep.lpubHighlight.value();
     cameraName         = meta.LPub.callout.csi.cameraName.value();
     position           = Vector3(meta.LPub.callout.csi.position.x(),meta.LPub.callout.csi.position.y(),meta.LPub.callout.csi.position.z());
     target             = Vector3(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
@@ -2840,9 +2842,10 @@ int Native::renderCsi(
     cameraZNear        = meta.LPub.multiStep.csi.cameraZNear.value();
     cameraZFar         = meta.LPub.multiStep.csi.cameraZFar.value();
     isOrtho            = meta.LPub.multiStep.csi.isOrtho.value();
-    trueFade           = meta.LPub.multiStep.csi.fadeSteps.truefade.value();
-    fadeSteps          = meta.LPub.multiStep.csi.fadeSteps.enable.value();
-    highlightStep      = meta.LPub.multiStep.csi.fadeSteps.enable.value();
+    fadeParts          = meta.LPub.multiStep.csi.fadeSteps.enable.value();
+    highlightParts     = meta.LPub.multiStep.csi.highlightStep.enable.value();
+    lpubFade           = meta.LPub.multiStep.csi.fadeSteps.lpubFade.value();
+    lpubHighlight      = meta.LPub.multiStep.csi.highlightStep.lpubHighlight.value();
     cameraName         = meta.LPub.multiStep.csi.cameraName.value();
     position           = Vector3(meta.LPub.multiStep.csi.position.x(),meta.LPub.multiStep.csi.position.y(),meta.LPub.multiStep.csi.position.z());
     target             = Vector3(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
@@ -2857,6 +2860,14 @@ int Native::renderCsi(
   bool pp              = Preferences::perspectiveProjection;
   bool useImageSize    = meta.LPub.assem.imageSize.value(XX) > 0;
 
+//* debugging only *//
+#ifdef QT_DEBUG_MODE
+  Page *currentPage	   = &lpub->page;
+  Step *currentStep	   = lpub->currentStep;
+  Q_UNUSED(currentStep)
+  Q_UNUSED(currentPage)
+#endif
+//*/
   // Renderer options
   NativeOptions *Options = lpub->currentStep->viewerOptions;
   const QString viewerStepKey = lpub->currentStep->viewerStepKey;
@@ -2887,9 +2898,9 @@ int Native::renderCsi(
     Options->ZFar              = cameraZFar;
     Options->ZNear             = cameraZNear;
     Options->ZoomExtents       = false;
-    Options->TrueFade          = trueFade;
-    Options->FadeSteps         = fadeSteps;
-    Options->HighlightStep     = highlightStep;
+    Options->FadeParts         = fadeParts;
+    Options->HighlightParts    = highlightParts;
+    Options->LPubFadeHighlight = (fadeParts && lpubFade) || (highlightParts && lpubHighlight);
     Options->AutoEdgeColor     = aecm->enable.value();
     Options->EdgeContrast      = aecm->contrast.value();
     Options->EdgeSaturation    = aecm->saturation.value();
@@ -3227,11 +3238,41 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 O->PageHeight,
                 O->ImageFileName,
                 O->Resolution,
-                O->TrueFade,
-                O->FadeSteps,
-                O->HighlightStep);
+                O->LPubFadeHighlight,
+                O->FadeParts,
+                O->HighlightParts);
 
     lcPreferences& Preferences = lcGetPreferences();
+
+    Preferences.mFadeStepsColor = lcGetProfileInt(LC_PROFILE_FADE_STEPS_COLOR);
+    Preferences.mHighlightNewPartsColor = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR);
+    if (O->LPubFadeHighlight)
+    {
+        Preferences.mFadeSteps = lcGetProfileInt(LC_PROFILE_FADE_STEPS);
+        Preferences.mHighlightNewParts = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS);
+    }
+    else
+    {
+        Preferences.mFadeSteps = O->FadeParts;
+        Preferences.mHighlightNewParts = O->HighlightParts;
+        Preferences.mLPubFadeHighlight = O->LPubFadeHighlight;
+        if (O->FadeParts)
+        {
+            if (Preferences::fadeStepsUseColour)
+            {
+                QColor FC = LDrawColor::color(Preferences::validFadeStepsColour);
+                if (FC.isValid())
+                    Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());;
+            }
+        }
+
+        if (O->HighlightParts)
+        {
+            QColor HC = QColor(Preferences::highlightStepColour);
+            if (HC.isValid())
+          Preferences.mHighlightNewPartsColor = LC_RGBA(HC.red(), HC.green(), HC.blue(), HC.alpha());
+        }
+    }
 
     lcCamera* Camera      = nullptr;
 
@@ -3595,12 +3636,12 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3),").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
         if (O->UpVector.isPopulated())
             arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3),").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
-        if (O->FadeSteps) {
-            arguments << QString("FadeSteps: True,");
-            arguments << QString("TrueFade: %1,").arg(O->TrueFade ? "True" : "False");
+        if (O->FadeParts) {
+            arguments << QString("FadeParts: True,");
+            arguments << QString("LPubFadeHighlight: %1,").arg(O->LPubFadeHighlight ? "True" : "False");
         }
-        if (O->HighlightStep)
-            arguments << QString("HighlightStep: True,");
+        if (O->HighlightParts)
+            arguments << QString("HighlightParts: True,");
         if (O->AutoEdgeColor || O->AutoEdgeColor != lpub->GetAutomateEdgeColor())
         {
             arguments << QString("AutomateEdgeColor: True,");

@@ -44,7 +44,7 @@
 
 #include "pagesizes.h"
 
-/* The token map translates known keywords to values 
+/* The token map translates known keywords to values
  * used by LPub to identify things like placement and such
  */
 
@@ -72,13 +72,13 @@ QString LeafMeta::format(
     QString suffix)
 {
   QString result;
-  
+
   if (local) {
       result = "LOCAL ";
     } else if (global) {
       result = "GLOBAL ";
     }
-  
+
   return preamble + result + suffix;
 }
 
@@ -181,7 +181,7 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
   return FailureRc;
 }
 
-/* 
+/*
  * Find out if the match string matches the syntax graph up until this
  * point
  */
@@ -236,7 +236,7 @@ void BranchMeta::pop()
 
 /* ------------------ */
 void RcMeta::init(BranchMeta *parent, const QString name, Rc _rc)
-{ 
+{
   AbstractMeta::init(parent,name);
   rc = _rc;
 }
@@ -293,7 +293,7 @@ Rc IntMeta::parse(QStringList &argv, int index,Where &here)
 QString IntMeta::format(bool local, bool global)
 {
   QString foo = QString("%1").arg(_value[pushed],0,base);
-  
+
   return LeafMeta::format(local,global,foo);
 }
 
@@ -569,7 +569,7 @@ Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
       _here[pushed] = here;
       return OkRc;
     }
-  
+
   if (reportErrors) {
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
     }
@@ -587,7 +587,7 @@ void BoolMeta::doc(QStringList &out, QString preamble)
   out << preamble + " ( TRUE | FALSE )";
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 const QString placementOptions[][3] =
 {
@@ -882,7 +882,7 @@ QString PlacementMeta::format(bool local, bool global)
 //                 ;
 //#endif
   QString foo;
-  
+
   if (_value[pushed].preposition == Inside) {
       switch (_value[pushed].placement) {
         case Top:
@@ -937,7 +937,7 @@ void PlacementMeta::metaKeywords(QStringList &out, QString preamble)
   out << preamble + " TOP BOTTOM LEFT CENTER RIGHT TOP_LEFT TOP_RIGHT BOTTOM_LEFT BOTTOM_RIGHT"
                     " PAGE ASSEM INSIDE OUTSIDE MULTI_STEP STEP_NUMBER PLI SUBMODEL_DISPLAY ROTATE_ICON CALLOUT";
 }
-/* ------------------ */ 
+/* ------------------ */
 
 Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -1067,7 +1067,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
       _here[pushed] = here;
       return rc;
     } else {
-      
+
       if (reportErrors) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed background \"%1\"") .arg(argv.join(" ")));
         }
@@ -1736,10 +1736,10 @@ void PointerAttribMeta::metaKeywords(QStringList &out, QString preamble)
   out << preamble + " LINE BORDER NONE SOLID DASH DOT DASH_DOT DASH_DOT_DOT COLOR WIDTH HIDE_TIP TRUE FALSE ID BASE_TOP BASE_BOTTOM BASE_LEFT BASE_RIGHT TIP HEIGHT";
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 PointerMeta::PointerMeta() : LeafMeta()
-{   
+{
   _value[0].placement = TopLeft;
   _value[0].loc       = 0;      // Location
   _value[0].x1        = 0.5;    // TipX
@@ -2362,7 +2362,7 @@ void PreferredRendererMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " NATIVE LDGLITE LDVIEW SINGLE_CALL SINGLE_CALL_EXPORT_LIST POVRAY LDVIEW_POV_GENERATOR";
 }
-/* ------------------ */ 
+/* ------------------ */
 
 FreeFormMeta::FreeFormMeta() : LeafMeta()
 {
@@ -2413,7 +2413,7 @@ void FreeFormMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " FALSE STEP_NUMBER ASSEM PLI ROTATE_ICON LEFT RIGHT TOP BOTTOM CENTER";
 }
-/* ------------------ */ 
+/* ------------------ */
 
 ConstrainMeta::ConstrainMeta()
 {
@@ -2483,7 +2483,7 @@ void ConstrainMeta::metaKeywords(QStringList &out, QString preamble)
   out << preamble + " AREA SQUARE WIDTH HEIGHT COLS";
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 AllocMeta::AllocMeta() : LeafMeta()
 {
@@ -3565,7 +3565,7 @@ void ColorMeta::metaKeywords(QStringList &out, QString preamble)
   out << preamble;
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 /*
  *  INSERT (
@@ -3591,7 +3591,7 @@ void InsertMeta::initPlacement()
 }
 
 Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
-{ 
+{
   InsertData insertData;
   bool displayModel = false;
   Rc rc = OkRc;
@@ -3856,7 +3856,7 @@ Rc AlignmentMeta::parse(QStringList &argv, int index, Where &here)
 QString AlignmentMeta::format(bool local, bool global)
 {
   QString foo;
-  
+
   switch (_value[pushed]) {
     case Qt::AlignLeft:
       foo = " LEFT";
@@ -3867,7 +3867,7 @@ QString AlignmentMeta::format(bool local, bool global)
     default:
       foo = " RIGHT";
     }
-  
+
   return LeafMeta::format(local,global,foo);
 }
 
@@ -3880,7 +3880,7 @@ void AlignmentMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " LEFT CENTER RIGHT";
 }
-/* ------------------ */ 
+/* ------------------ */
 
 void TextMeta::init(BranchMeta *parent, QString name)
 {
@@ -3941,7 +3941,7 @@ void ArrowHeadMeta::metaKeywords(QStringList &out, QString preamble)
   out << preamble;
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 Rc ArrowEndMeta::parse(QStringList &argv, int index, Where &here)
 {
@@ -3962,7 +3962,7 @@ Rc ArrowEndMeta::parse(QStringList &argv, int index, Where &here)
 QString ArrowEndMeta::format(bool local, bool global)
 {
   QString foo;
-  
+
   if (_value[pushed]) {
       foo = "ROUND";
     } else {
@@ -4060,7 +4060,7 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   placement.init        (this,"PLACEMENT");
   margin.init           (this,"MARGINS");
-  studStyle.init        (this,"STUD_STYLE");  
+  studStyle.init        (this,"STUD_STYLE");
   highContrast.init     (this,"HIGH_CONTRAST");
   autoEdgeColor.init    (this,"AUTOMATE_EDGE_COLOR");
   fadeSteps.init        (this,"FADE_STEPS");
@@ -4091,7 +4091,7 @@ void SettingsMeta::resetCameraFoV()
   cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 CalloutPliMeta::CalloutPliMeta() : BranchMeta()
 {
@@ -4123,7 +4123,7 @@ void ShowSubModelMeta::init(BranchMeta *parent, QString name)
   show.init  (   this,"SHOW");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 StepPliMeta::StepPliMeta() : BranchMeta()
 {
@@ -4145,7 +4145,7 @@ void PliBeginMeta::init(BranchMeta *parent, QString name)
   sub.init   (this, "SUB");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 NumberMeta::NumberMeta() : BranchMeta()
 {
@@ -4432,6 +4432,67 @@ void EnableMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " TRUE FALSE";
 }
+
+/* ------------------ */
+
+Rc LPubFaHiMeta::parse(QStringList &argv, int index, Where &here)
+{
+  Rc rc = FailureRc;
+  QRegExp rx("^(TRUE|FALSE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+    _value[pushed] = argv[index] == "TRUE";
+    _here[pushed] = here;
+    if (argv[1] == "FADE_STEPS") {
+      rc = LPubFadeRc;
+    } else if (argv[1] == "HIGHLIGHT_STEP") {
+      rc = LPubHighlightRc;
+    } else if (argv[1] == "ASSEM") {
+      if (argv[2] == "FADE_STEPS")
+        rc = LPubFadeAssemRc;
+      else if (argv[2] == "HIGHLIGHT_STEP")
+        rc = LPubHighlightAssemRc;
+    } else if (argv[1] == "MULTI_STEP") {
+      if (argv[2] == "ASSEM") {
+        if (argv[3] == "FADE_STEPS")
+          rc = LPubFadeGroupAssemRc;
+        else if (argv[3] == "HIGHLIGHT_STEP")
+          rc = LPubHighlightGroupAssemRc;
+      }
+    } else if (argv[1] == "CALLOUT") {
+      if (argv[2] == "ASSEM") {
+        if (argv[3] == "FADE_STEPS")
+          rc = LPubFadeCalloutAssemRc;
+        else if (argv[3] == "HIGHLIGHT_STEP")
+          rc = LPubHighlightCalloutAssemRc;
+      }
+    }
+  }
+
+  if (rc == FailureRc) {
+    if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  }
+
+  return rc;
+}
+
+QString LPubFaHiMeta::format(bool local, bool global)
+{
+  QString foo (_value[pushed] ? "TRUE" : "FALSE");
+  return LeafMeta::format(local,global,foo);
+}
+
+void LPubFaHiMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " ( TRUE | FALSE )";
+}
+
+void LPubFaHiMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " TRUE FALSE";
+}
+
 /* ------------------ */
 
 Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
@@ -4500,7 +4561,7 @@ FadeStepsMeta::FadeStepsMeta() : BranchMeta()
   fdata.useColor = Preferences::fadeStepsUseColour;
   color.setValue(fdata);
   opacity.setValue(Preferences::fadeStepsOpacity);
-  truefade.setValue(true);
+  lpubFade.setValue(true);
 }
 
 void FadeStepsMeta::setPreferences(bool reset)
@@ -4516,13 +4577,15 @@ void FadeStepsMeta::setPreferences(bool reset)
      fdata.useColor = Preferences::fadeStepsUseColour;
      color.setValue(fdata);
      opacity.setValue(Preferences::fadeStepsOpacity);
-     truefade.setValue(true);
+     lpubFade.setValue(true);
    } else {
      if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
        Preferences::enableFadeSteps    = enable.value();
      Preferences::validFadeStepsColour = fdata.color;
      Preferences::fadeStepsUseColour   = fdata.useColor;
      Preferences::fadeStepsOpacity     = opacity.value();
+     if (Preferences::enableFadeSteps && lpubFade.value())
+       gui->setupFadeOrHighlight(true, Preferences::enableFadeSteps);
      if (enable.global) {
        Preferences::fadestepPreferences(enable.global);
        if (Preferences::enableFadeSteps != enable.value())
@@ -4558,7 +4621,7 @@ void FadeStepsMeta::init(
   setup.init(   this, "SETUP");
   color.init(   this, "COLOR");
   opacity.init( this, "OPACITY");
-  truefade.init(this, "TRUE_FADE");
+  lpubFade.init(this, "LPUB_FADE");
 }
 
 /* ------------------ */
@@ -4570,6 +4633,7 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
   setup.setValue(false);
   color.setValue(Preferences::highlightStepColour);
   lineWidth.setValue(Preferences::highlightStepLineWidth);
+  lpubHighlight.setValue(true);
 }
 
 void HighlightStepMeta::setPreferences(bool reset)
@@ -4582,11 +4646,14 @@ void HighlightStepMeta::setPreferences(bool reset)
      enable.setValue(Preferences::enableHighlightStep);
      color.setValue(Preferences::highlightStepColour);
      lineWidth.setValue(Preferences::highlightStepLineWidth);
+     lpubHighlight.setValue(true);
    } else {
      if ((displayPreference = Preferences::enableHighlightStep != enable.value() || enable.global))
        Preferences::enableHighlightStep  = enable.value();
      Preferences::highlightStepColour    = color.value();
      Preferences::highlightStepLineWidth = lineWidth.value();
+     if (Preferences::enableHighlightStep && lpubHighlight.value())
+       gui->setupFadeOrHighlight(Preferences::enableFadeSteps, true);
      if (enable.global) {
        Preferences::highlightstepPreferences(enable.global);
        if (Preferences::enableHighlightStep != enable.value())
@@ -4614,10 +4681,11 @@ void HighlightStepMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
-  enable.init(   this, "ENABLED");
-  setup.init(    this, "SETUP");
-  color.init(    this, "COLOR");
-  lineWidth.init(this, "LINE_WIDTH");
+  enable.init(       this, "ENABLED");
+  setup.init(        this, "SETUP");
+  color.init(        this, "COLOR");
+  lineWidth.init(    this, "LINE_WIDTH");
+  lpubHighlight.init(this, "LPUB_HIGHLIGHT");
 }
 
 /* ------------------ */
@@ -4642,7 +4710,7 @@ void PartMeta::init(BranchMeta *parent, QString name)
   margin.init(this,"MARGINS");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 Rc SubMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -4799,7 +4867,7 @@ QString SubMeta::format(bool local, bool global)
   QStringList _attributeList = _value.attrs.split(";");
 
   QString foo;
-  
+
   if (_value.type == PliBeginSub1Rc) {
     foo = QString("%1")
             .arg(_value.part);
@@ -4876,7 +4944,7 @@ void SubMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " ABS REL ADD LDRAW_TYPE";
 }
-/* ------------------ */ 
+/* ------------------ */
 
 void PartBeginMeta::init(BranchMeta *parent, QString name)
 {
@@ -4884,7 +4952,7 @@ void PartBeginMeta::init(BranchMeta *parent, QString name)
   ignore.init(this, "IGN",   PartBeginIgnRc);
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 void PartIgnMeta::init(BranchMeta *parent, QString name)
 {
@@ -4893,7 +4961,7 @@ void PartIgnMeta::init(BranchMeta *parent, QString name)
   end  .init(this, "END", PartEndRc);
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -4947,7 +5015,7 @@ void RotStepMeta::metaKeywords(QStringList &out, QString preamble)
   out << preamble + " ABS REL ADD";
 }
 
-/* ------------------ */ 
+/* ------------------ */
 Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (index + 2 == argv.size()) {
@@ -5815,7 +5883,7 @@ void PageMeta::init(BranchMeta *parent, QString name)
   category.init           (this, "MODEL_CATEGORY" );
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 AssemMeta::AssemMeta() : BranchMeta()
 {
@@ -6032,7 +6100,7 @@ void PliMeta::resetCameraFoV()
   cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 BomMeta::BomMeta() : PliMeta()
 {
@@ -6171,7 +6239,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   preferredRenderer .init(this,"PREFERRED_RENDERER");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 Rc CalloutBeginMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -6313,7 +6381,7 @@ void PointerBaseMeta::init(BranchMeta *parent, QString name)
   margin       .init(this, "MARGINS");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 MultiStepMeta::MultiStepMeta() : BranchMeta()
 {
@@ -6375,7 +6443,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   end      .init(this,    "END",    StepGroupEndRc);
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 void ResolutionMeta::init(
     BranchMeta *parent,
@@ -6411,7 +6479,7 @@ QString ResolutionMeta::format(bool local, bool global)
   QString res;
   res = QString("%1 DPI") .arg(double(resolution()),0,'f',0);
   return LeafMeta::format(local,global,res);
-} 
+}
 
 void ResolutionMeta::doc(QStringList &out, QString preamble)
 {
@@ -6665,7 +6733,7 @@ Rc PartNameMeta::parse(QStringList &argv, int index,Where &here)
   return rc;
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 void MLCadMeta::init(BranchMeta *parent, QString name)
 {
@@ -6763,7 +6831,7 @@ Rc LeoCadGroupMeta::parse(QStringList &argv, int index,Where &here)   //
   return rc;
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 void LSynthMeta::init(BranchMeta *parent, QString name)
 {
@@ -6778,7 +6846,7 @@ void LSynthMeta::init(BranchMeta *parent, QString name)
   synthesized.init(this, "SYNTHESIZED");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 Meta::Meta() : BranchMeta()
 {

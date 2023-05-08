@@ -167,6 +167,16 @@ enum Rc {
          EnableHighlightStepAssemRc,
          EnableHighlightStepRc,
 
+         LPubFadeCalloutAssemRc,
+         LPubFadeGroupAssemRc,
+         LPubFadeAssemRc,
+         LPubFadeRc,
+
+         LPubHighlightCalloutAssemRc,
+         LPubHighlightGroupAssemRc,
+         LPubHighlightAssemRc,
+         LPubHighlightRc,
+
          PageOrientationRc,
          PageSizeRc,
 
@@ -2928,8 +2938,8 @@ public:
   }
   EnableMeta ()
   {
-    _value[0] = false;
-    _value[1] = false;
+    _value[0] = true;
+    _value[1] = true;
   }
   EnableMeta(const EnableMeta &rhs) : RcMeta(rhs)
   {
@@ -2937,6 +2947,43 @@ public:
     _value[1] = rhs._value[1];
   }
 //  virtual ~EnableMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
+/*------------------------*/
+
+/*
+ *
+ * This leaf is to catch true fade boolean (TRUE or FALSE) flag
+ *
+ */
+
+class LPubFaHiMeta : public RcMeta {
+  private:
+  bool _value[2];
+  public:
+  bool value()
+  {
+    return _value[pushed];
+  }
+  void setValue(bool value)
+  {
+    _value[pushed] = value;
+  }
+  LPubFaHiMeta ()
+  {
+    _value[0] = false;
+    _value[1] = false;
+  }
+  LPubFaHiMeta(const LPubFaHiMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+  //  virtual ~LPubFaHiMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -3083,8 +3130,8 @@ class FadeStepsMeta : public BranchMeta
 {
 public:
   EnableMeta    enable;
+  LPubFaHiMeta  lpubFade;
   BoolMeta      setup;
-  BoolMeta      truefade;
   FadeColorMeta color;
   IntMeta       opacity;
   void setPreferences(bool = false);
@@ -3106,10 +3153,11 @@ public:
 class HighlightStepMeta : public BranchMeta
 {
 public:
-  EnableMeta enable;
-  BoolMeta   setup;
-  StringMeta color;
-  IntMeta    lineWidth;
+  EnableMeta   enable;
+  LPubFaHiMeta lpubHighlight;
+  BoolMeta     setup;
+  StringMeta   color;
+  IntMeta      lineWidth;
   void setPreferences(bool = false);
   HighlightStepMeta();
   HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)

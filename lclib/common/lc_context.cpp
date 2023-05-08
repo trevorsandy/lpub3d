@@ -713,7 +713,7 @@ void lcContext::EnableColorBlend(bool Enable)
 	mColorBlend = Enable;
 }
 
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 void lcContext::EnableCullFace(bool Enable, bool LPubFade)
 /*** LPub3D Mod end ***/
 {
@@ -721,7 +721,7 @@ void lcContext::EnableCullFace(bool Enable, bool LPubFade)
 		return;
 
 	if (Enable)
-/*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod - lpub fade highlight ***/
 	{
 		if (LPubFade)
 			glCullFace(GL_BACK);
