@@ -482,6 +482,7 @@ HEADERS += \
     archiveparts.h \
     backgrounddialog.h \
     backgrounditem.h \
+    blenderpreferences.h \
     bomoptionsdialog.h \
     borderdialog.h \
     borderedlineitem.h \
@@ -607,6 +608,7 @@ SOURCES += \
     assemglobals.cpp \
     backgrounddialog.cpp \
     backgrounditem.cpp \
+    blenderpreferences.cpp \
     bomoptionsdialog.cpp \
     borderdialog.cpp \
     borderedlineitem.cpp \

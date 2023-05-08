@@ -21,6 +21,7 @@
 #include "lpub.h"
 #include "step.h"
 #include "metagui.h"
+#include "blenderpreferences.h"
 #include "parmswindow.h"
 #include "commonmenus.h"
 
@@ -246,8 +247,8 @@ void RenderDialog::on_RenderSettingsButton_clicked()
     } else if (mRenderType == BLENDER_RENDER) {
 
         double renderPercentage = mCsiKeyList.at(K_MODELSCALE).toDouble();
-        BlenderRenderDialogGui *blenderRenderDialogGui =
-                new BlenderRenderDialogGui();
+        BlenderPreferences *blenderRenderDialogGui =
+                new BlenderPreferences();
         blenderRenderDialogGui->getRenderSettings(
                     mWidth,
                     mHeight,
@@ -537,7 +538,7 @@ void RenderDialog::on_RenderButton_clicked()
         mBlendProgMax   = 0;
 
         if (! QFileInfo(Preferences::blenderLDrawConfigFile).exists())
-            BlenderRenderDialogGui::saveSettings();
+            BlenderPreferences::saveSettings();
 
         QString defaultBlendFile = QString("%1/Blender/config/%2")
                 .arg(Preferences::lpub3d3rdPartyConfigDir)

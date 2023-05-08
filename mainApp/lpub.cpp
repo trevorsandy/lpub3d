@@ -49,6 +49,7 @@
 #include "updatecheck.h"
 #include "step.h"
 #include "texteditdialog.h"
+#include "blenderpreferences.h"
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
 #include <commands/command.h>
@@ -2809,7 +2810,7 @@ void Gui::editBlenderParameters()
 
     QFileInfo fileInfo(blenderConfigFile);
     if (blenderParameters && !fileInfo.exists()) {
-        if (!BlenderRenderDialogGui::exportParameterFile()) {
+        if (!BlenderPreferences::exportParameterFile()) {
             emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
