@@ -566,10 +566,10 @@ void RenderDialog::on_RenderButton_clicked()
         if (mImportOnly) {
             pythonExpression.append(", import_only=True");
 
-            Arguments << QString("--window-geometry");
-            Arguments << QString("200 100 1440 900");
+            Arguments << QLatin1String("--window-geometry");
+            Arguments << QLatin1String("200 100 1440 900");
         } else {
-            Arguments << QString("--background");
+            Arguments << QLatin1String("--background");
             lpub->getAct("blenderRenderAct.4")->setEnabled(false);
         }
 
@@ -589,9 +589,9 @@ void RenderDialog::on_RenderButton_clicked()
         if (QFileInfo(scriptDir).exists()) {
 
 #ifdef Q_OS_WIN
-            scriptName =  "render_ldraw_model.bat";
+            scriptName =  QLatin1String("render_ldraw_model.bat");
 #else
-            scriptName =  "render_ldraw_model.sh";
+            scriptName =  QLatin1String("render_ldraw_model.sh");
 #endif
             scriptCommand = QString("%1 %2").arg(Preferences::blenderExe).arg(Arguments.join(" "));
 
@@ -602,15 +602,15 @@ void RenderDialog::on_RenderButton_clicked()
             emit gui->messageSig(LOG_INFO, message);
 #endif
             if (mImportOnly)
-                scriptCommand.append(QString(" > %1").arg(GetLogFileName(true/*stdOut*/)));
+                scriptCommand.append(QString(" > %1").arg(QDir::toNativeSeparators(GetLogFileName(true/*stdOut*/))));
 
             script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
             if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream stream(&script);
 #ifdef Q_OS_WIN
-                stream << "@ECHO OFF &SETLOCAL" << lpub_endl;
+                stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
 #else
-                stream << "#!/bin/bash" << lpub_endl;
+                stream << QLatin1String("#!/bin/bash") << lpub_endl;
 #endif
                 stream << scriptCommand << lpub_endl;
                 script.close();
@@ -636,9 +636,9 @@ void RenderDialog::on_RenderButton_clicked()
         QThread::sleep(2);
 
 #ifdef Q_OS_WIN
-        shellProgram = "cmd.exe";
+        shellProgram = QLatin1String("cmd.exe");
 #else
-        shellProgram = "/bin/sh";
+        shellProgram = QLatin1String("/bin/sh");
 #endif
 
         mProcess = new RenderProcess(this);

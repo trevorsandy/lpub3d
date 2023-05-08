@@ -1482,9 +1482,9 @@ void BlenderPreferences::configureBlender(bool testBlender)
         // Setup
         enum ProcEnc { PR_OK, PR_FAIL, PR_WAIT, PR_INSTALL, PR_TEST };
         QString const blenderExe = QDir::toNativeSeparators(blenderFile);
-        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
-        QString const blenderSetupDir    = QString("%1/setup").arg(blenderDir);
-        QString const blenderConfigDir   = QString("%1/config").arg(blenderDir);
+        QString const blenderDir = QDir::toNativeSeparators(QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir));
+        QString const blenderSetupDir    = QDir::toNativeSeparators(QString("%1/setup").arg(blenderDir));
+        QString const blenderConfigDir   = QDir::toNativeSeparators(QString("%1/config").arg(blenderDir));
         QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
         QString const blenderTestString  = QLatin1String("###TEST_BLENDER###");
@@ -1533,7 +1533,7 @@ void BlenderPreferences::configureBlender(bool testBlender)
 #endif
             }
 
-            if (! process->waitForStarted()) {
+            if (!process->waitForStarted()) {
                 message = tr("Cannot start Blender %1 process.\n%2")
                               .arg(processAction)
                               .arg(QString(process->readAllStandardError()));
