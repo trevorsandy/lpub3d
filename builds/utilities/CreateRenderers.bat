@@ -71,7 +71,7 @@ IF "%GITHUB%" NEQ "True" (
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
-SET VER_LDVIEW=LDView-4.4
+SET VER_LDVIEW=LDView-4.5
 SET VER_POVRAY=lpub3d_trace_cui-3.8
 SET SYS_DIR=%SystemRoot%cls\System32\System32
 SET ZIP_DIR_64=C:\program files\7-zip

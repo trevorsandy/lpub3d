@@ -43,7 +43,7 @@ INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
         THIRD_PARTY_DIST_DIR_PATH="undefined"
     }
 }
-VER_LDVIEW  = ldview-4.4
+VER_LDVIEW  = ldview-4.5
 
 # Copy LDView headers (Disabled)
 #INCLUDEPATH += ../ldvlib/LDVQt/include

@@ -1,4 +1,4 @@
-LPub3D 2.4.6.190.3301 (22 04 2023 17:14:33)
+LPub3D 2.4.6.191.3302 (08 05 2023 05:54:06)
 
 Features, enhancements, fixes and changes
 ------------
@@ -16,6 +16,7 @@ Revisions:
 - Enhancement - Add view load status dialogue menu action #698
 - Enhancement - Insert display model - enable part and submodel lines #704
 - Enhancement - On startup, set theme based on Windows system theme #700
+- Enhancement - Update LDView renderer to version 4.5 #709
 - Change - Add open parameter file folder to configuration menu actions #681
 - Change - Enable Bill of material progress status #679
 - Change - Fade opacity value inverted #708

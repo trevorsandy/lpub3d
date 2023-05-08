@@ -197,7 +197,7 @@ init:
       }
  - ps: |
       If ($env:LP3D_BUILD_LDVIEW -eq "1") {
-        $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.4"
+        $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.5"
       }
  - ps: |
       If ($env:LP3D_BUILD_POVRAY -eq "1") {

@@ -819,7 +819,7 @@ else
 fi
 # renderer versions
 VER_LDGLITE=ldglite-1.3
-VER_LDVIEW=ldview-4.4
+VER_LDVIEW=ldview-4.5
 VER_POVRAY=lpub3d_trace_cui-3.8
 # renderer paths
 LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU_QMAKE}/ldglite

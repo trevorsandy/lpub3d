@@ -25,7 +25,7 @@ contains(LOAD_LDV_HEADERS,True) {
             }
         }
     }
-    VER_LDVIEW = ldview-4.4
+    VER_LDVIEW = ldview-4.5
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Header soruce path
     isEmpty(LDVHDRDIR):LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )

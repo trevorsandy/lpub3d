@@ -63,7 +63,7 @@ include(../gitversion.pri)
     3RD_DIR_SOURCE = LOCAL_DIR
 }
 
-VER_LDVIEW     = ldview-4.4
+VER_LDVIEW     = ldview-4.5
 VER_LDGLITE    = ldglite-1.3
 VER_POVRAY     = lpub3d_trace_cui-3.8
 DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
@@ -282,7 +282,7 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd11
         LC_LIB = LCd233
-        LDVQT_LIB = LDVQtd44
+        LDVQT_LIB = LDVQtd45
         WPNGIMAGE_LIB = WPngImaged14
         WAITING_SPINNER_LIB = WaitingSpinnerd10
     }
@@ -323,7 +323,7 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP11
         LC_LIB = LC233
-        LDVQT_LIB = LDVQt44
+        LDVQT_LIB = LDVQt45
         WPNGIMAGE_LIB = WPngImage14
         WAITING_SPINNER_LIB = WaitingSpinner10
     }

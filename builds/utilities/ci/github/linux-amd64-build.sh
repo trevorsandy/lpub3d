@@ -136,7 +136,7 @@ echo "${base_path}/vexiqparts.zip exists. Nothing to do."
 
 # Trigger rebuild renderers if specified
 ldglite_path=${base_path}/ldglite-1.3
-ldview_path=${base_path}/ldview-4.4
+ldview_path=${base_path}/ldview-4.5
 povray_path=${base_path}/lpub3d_trace_cui-3.8
 [[ "${LP3D_COMMIT_MSG}" == *"ALL_RENDERERS"* ]] && \
 echo "'Build LDGLite, LDView and POV-Ray' detected." && \

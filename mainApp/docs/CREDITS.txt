@@ -8,7 +8,7 @@ Visual Editor (LeoCAD version 23.03 sha 697e89b specifically adapted for LPub3D)
 https://github.com/trevorsandy/leocad/
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LDView-OSMesa-CUI (LDView - LPub3D Edition 4.4.0 "qmake-build" specifically adapted for LPub3D)
+LDView-OSMesa-CUI (LDView - LPub3D Edition 4.5.0 "qmake-build" specifically adapted for LPub3D)
 https://github.com/trevorsandy/ldview
 Trevor Sandy <trevor.sandy@gmail.com>
 
@@ -32,7 +32,7 @@ LDGlite 1.3.4 commit 492071
 https://github.com/deeice/ldglite
 Don Heyse <dheyse@hotmail.com>
 
-LDView 4.4 commit fb24648
+LDView 4.5 commit bed5daf
 https://github.com/tcobbs/ldview
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
