@@ -1091,31 +1091,27 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       // current step parts
       processedCsiParts << csiLine;
 
-      // insert closing fade meta
-      if (!displayStep) {
+      // insert closing meta commands
+      if (!displayStep && !fadeCommand && !highlightCommand) {
+        // insert closing fade meta
         if (updatePosition == prevStepPosition) {
           if (FadeMetaAdded)
-            AddCloseFadeMeta = true;
+            processedCsiParts.append(QStringLiteral("0 !FADE"));
         }
 
         // insert closing silhouette meta
         if (index+1 == parts.size()) {
           if (SilhouetteMetaAdded)
-            AddCloseSilhouetteMeta = true;
+            processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
         }
       }
-
-      // insert missing closing command for manually entered FADE or SILHOUETTE
-      if (fadeCommand)
-        AddCloseFadeMeta = true;
-      if (highlightCommand)
-        AddCloseSilhouetteMeta = false;
-
-      if (AddCloseFadeMeta)
-        processedCsiParts.append(QStringLiteral("0 !FADE"));
-      if (AddCloseSilhouetteMeta)
-        processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
     }
+
+    // insert missing closing command for manually entered FADE or SILHOUETTE
+    if (fadeCommand)
+      processedCsiParts.append(QStringLiteral("0 !FADE"));
+    if (highlightCommand)
+      processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
 
     // save the current step position
     if (!displayStep)
