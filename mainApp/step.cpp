@@ -742,11 +742,15 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
   bool FadeMetaAdded = false;
 
+  bool AddCloseFadeMeta = false;
+
   bool SilhouetteMetaAdded = false;
 
-  bool doFadeStep = false;
+  bool AddCloseSilhouetteMeta = false;
 
-  bool doSilhouette = false;
+  bool fadeCommand = false;
+
+  bool highlightCommand = false;
 
   int stepNum = 0;
 
@@ -785,25 +789,35 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                                              "\nFadeStepsUseColour.........%9"
                                              "\nFadeColourCode.............%10"
                                              "\nFadeStepsOpacity...........%11"
-                                             "\nEnableHighlightStep........%12"
-                                             "\nHighlightFirstStep.........%13"
-                                             "\nHighlightColour............%14"
-                                             "\nHighlightStepLineWidth.....%15")
-                                             .arg(stepNum)
-                                             .arg(prevStepPosition)
-                                             .arg(parts.size())
-                                             .arg(lpub->ldrawFile.size(current.modelName))
-                                             .arg(current.modelName)
-                                             .arg(lpubFadeHighlight ? "Yes" : "No")
-                                             .arg(displayStep ? "Yes" : "No")
-                                             .arg(enableFadeSteps ? "Yes" : "No")
-                                             .arg(fadeStepsUseColour ? "Yes" : "No")
-                                             .arg(QString("%1 (%2)").arg(fadeColour).arg(LDrawColor::name(fadeColour)))
-                                             .arg(fadeStepsOpacity)
-                                             .arg(enableHighlightStep ? "Yes" : "No")
-                                             .arg(highlightFirstStep ? "Yes" : "No")
-                                             .arg(highlightColour)
-                                             .arg(highlightStepLineWidth));
+                                             "\nFadeStepsGuiSetup..........%12"
+                                             "\nFadeStepsMetaSetup.........%13"
+                                             "\nEnableHighlightStep........%14"
+                                             "\nHighlightFirstStep.........%15"
+                                             "\nHighlightColour............%16"
+                                             "\nHighlightStepLineWidth.....%17"
+                                             "\nHighlightStepGuiSetup......%18"
+                                             "\nHighlightStepMetaSetup.....%19"
+                                             )
+                                             .arg(stepNum)                                                              //01
+                                             .arg(prevStepPosition)                                                     //02
+                                             .arg(parts.size())                                                         //03
+                                             .arg(lpub->ldrawFile.size(current.modelName))                              //04
+                                             .arg(current.modelName)                                                    //05
+                                             .arg(lpubFadeHighlight ? "Yes" : "No")                                     //06
+                                             .arg(displayStep ? "Yes" : "No")                                           //07
+                                             .arg(enableFadeSteps ? "Yes" : "No")                                       //08
+                                             .arg(fadeStepsUseColour ? "Yes" : "No")                                    //09
+                                             .arg(QString("%1 (%2)").arg(fadeColour).arg(LDrawColor::name(fadeColour))) //10
+                                             .arg(fadeStepsOpacity)                                                     //11
+                                             .arg(Gui::m_fadeStepsSetup ? "Yes" : "No")                                 //12
+                                             .arg(csiStepMeta.fadeSteps.setup.value() ? "Yes" : "No")                   //13
+                                             .arg(enableHighlightStep ? "Yes" : "No")                                   //14
+                                             .arg(highlightFirstStep ? "Yes" : "No")                                    //15
+                                             .arg(highlightColour)                                                      //16
+                                             .arg(highlightStepLineWidth)                                               //17
+                                             .arg(Gui::m_highlightStepSetup ? "Yes" : "No")                             //18
+                                             .arg(csiStepMeta.highlightStep.setup.value() ? "Yes" : "No")               //19
+                          );
 #endif
 //*/
 
@@ -825,95 +839,95 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
       split(csiLine, argv);
 
-      // parse displayModel step
-      if (displayStep) {
-        if (argv.size() >= 2 && argv[0] == "0") {
-          bool ok, update = false;
-          if (enableFadeSteps && argv[1] == QStringLiteral("!FADE")) {
-            if (argv.size() == 2) {
-              doFadeStep = !doFadeStep;
-            } else if (argv.size() >= 3) {
-              doFadeStep = true;
-              if (argv.size() == 3) {
-                int opacity = argv[2].toInt(&ok);
-                if (ok)
-                  fadeStepsOpacity = opacity;
-                else
-                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade opacity value is invalid [%1] ").arg(argv[2]));
-              } else
-              if (argv.size() == 4) {
-                QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
-                if (argv[3].contains(hexRx)) {
-                  QColor colour(argv[3]);
-                  if (colour.isValid())
-                    fadeColour = LDrawColor::code(argv[3]);
-                  else
-                    emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
-                } else {
-                  if ((fadeColour = LDrawColor::code(argv[3])) == QLatin1String("-1")) {
-                    emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
-                    fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
-                  }
-                }
-              }
-
-              FadeColorData data = csiStepMeta.fadeSteps.color.value();
-              if (fadeColour != LDrawColor::code(data.color) || fadeStepsUseColour != data.useColor) {
-                data.color = fadeColour;
-                data.useColor = fadeStepsUseColour;
-                csiStepMeta.fadeSteps.color.setValue(data);
-                update = true;
-              }
-              if (fadeStepsOpacity != csiStepMeta.fadeSteps.opacity.value()) {
-                csiStepMeta.fadeSteps.opacity.setValue(fadeStepsOpacity);
-                if (!update)
-                  update = true;
-              }
-              if (update) {
-                csiStepMeta.fadeSteps.setPreferences();
-                update = false;
-              }
-            }
-          }
-
-          if (enableHighlightStep && argv[1] == QStringLiteral("!SILHOUETTE")) {
-            if (argv.size() == 2) {
-              doSilhouette = !doSilhouette;
-            } else if (argv.size() >= 3) {
-              doSilhouette = true;
-              if (argv.size() == 3) {
-                QColor colour(argv[2]);
-                if (colour.isValid())
-                  highlightColour = argv[2];
-                else
-                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[2]));
-              } else
-              if (argv.size() == 4) {
-                int width = argv[2].toDouble(&ok);
-                if (ok)
-                  highlightStepLineWidth = width;
+      // parse step for manually entered FADE or SILHOUETTE commands
+      if (argv.size() >= 2 && argv[0] == "0") {
+        bool ok, update = false;
+        if (enableFadeSteps && argv[1] == QStringLiteral("!FADE")) {
+          FadeMetaAdded = true;
+          if (argv.size() == 2) {
+            fadeCommand = !fadeCommand;
+          } else if (argv.size() >= 3) {
+            fadeCommand = true;
+            if (argv.size() == 3) {
+              int opacity = argv[2].toInt(&ok);
+              if (ok)
+                fadeStepsOpacity = opacity;
+              else
+                emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade opacity value is invalid [%1] ").arg(argv[2]));
+            } else
+            if (argv.size() == 4) {
+              QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
+              if (argv[3].contains(hexRx)) {
                 QColor colour(argv[3]);
                 if (colour.isValid())
-                  highlightColour = argv[3];
+                  fadeColour = LDrawColor::code(argv[3]);
                 else
-                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[3]));
-              }
-              if (highlightColour != csiStepMeta.highlightStep.color.value()) {
-                update = true;
-                csiStepMeta.highlightStep.color.setValue(highlightColour);
-              }
-              if (highlightStepLineWidth != csiStepMeta.highlightStep.lineWidth.value()) {
-                update = true;
-                csiStepMeta.highlightStep.lineWidth.setValue(highlightStepLineWidth);
-              }
-              if (update) {
-                csiStepMeta.highlightStep.setPreferences();
-                update = false;
+                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
+              } else {
+                if ((fadeColour = LDrawColor::code(argv[3])) == QLatin1String("-1")) {
+                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
+                  fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
+                }
               }
             }
+
+            FadeColorData data = csiStepMeta.fadeSteps.color.value();
+            if (fadeColour != LDrawColor::code(data.color) || fadeStepsUseColour != data.useColor) {
+              data.color = fadeColour;
+              data.useColor = fadeStepsUseColour;
+              csiStepMeta.fadeSteps.color.setValue(data);
+              update = true;
+            }
+            if (fadeStepsOpacity != csiStepMeta.fadeSteps.opacity.value()) {
+              csiStepMeta.fadeSteps.opacity.setValue(fadeStepsOpacity);
+              if (!update)
+                update = true;
+            }
+            if (update) {
+              csiStepMeta.fadeSteps.setPreferences();
+              update = false;
+            }
           }
-        }
-      }
+        } // FADE
+
+        if (enableHighlightStep && argv[1] == QStringLiteral("!SILHOUETTE")) {
+          SilhouetteMetaAdded = true;
+          if (argv.size() == 2) {
+            highlightCommand = !highlightCommand;
+          } else if (argv.size() >= 3) {
+            highlightCommand = true;
+            if (argv.size() == 3) {
+              QColor colour(argv[2]);
+              if (colour.isValid())
+                highlightColour = argv[2];
+              else
+                emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[2]));
+            } else
+            if (argv.size() == 4) {
+              int width = argv[2].toDouble(&ok);
+              if (ok)
+                highlightStepLineWidth = width;
+              QColor colour(argv[3]);
+              if (colour.isValid())
+                highlightColour = argv[3];
+              else
+                emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified highlight colour is invalid [%1] ").arg(argv[3]));
+            }
+            if (highlightColour != csiStepMeta.highlightStep.color.value()) {
+              update = true;
+              csiStepMeta.highlightStep.color.setValue(highlightColour);
+            }
+            if (highlightStepLineWidth != csiStepMeta.highlightStep.lineWidth.value()) {
+              update = true;
+              csiStepMeta.highlightStep.lineWidth.setValue(highlightStepLineWidth);
+            }
+            if (update) {
+              csiStepMeta.highlightStep.setPreferences();
+              update = false;
+            }
+          }
+        } // SILHOUETTE
+      } // manually entered FADE or SILHOUETTE commands
 
       // determine line type
       if (argv.size() && argv[0].size() == 1 && argv[0] >= "1" && argv[0] <= "5") {
@@ -969,7 +983,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
             }
             // finished processing the subfile so return to previous index
             continue;
-          }
+          } // display step submodel
             /*
             if (is_colour_part)
               emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
@@ -977,11 +991,11 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         } // type_1_line
 
         // write fade step entries
-        if ((highlightFirstStep ? stepNum > 1 : true) && enableFadeSteps && (doFadeStep || updatePosition <= prevStepPosition)) {
+        if ((highlightFirstStep ? stepNum > 1 : true) && enableFadeSteps && (fadeCommand || updatePosition <= prevStepPosition)) {
           // process type 1 - 5 part lines
           if (type_1_5_line) {
             // Insert opening fade meta
-            if (!displayStep && !FadeMetaAdded && enableFadeSteps) {
+            if (!FadeMetaAdded && enableFadeSteps) {
               processedCsiParts.insert(index,QString("0 !FADE %1").arg(fadeStepsOpacity));
               FadeMetaAdded = true;
             }
@@ -1023,11 +1037,11 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         } // write fade step entries
 
         // write highlight entries
-        if (enableHighlightStep && (doSilhouette || updatePosition > prevStepPosition)) {
+        if (enableHighlightStep && (highlightCommand || updatePosition > prevStepPosition)) {
           // process type 1 - 5 part lines
           if (type_1_5_line) {
             // Insert opening silhouette meta
-            if (!displayStep && !SilhouetteMetaAdded && enableHighlightStep) {
+            if (!SilhouetteMetaAdded && enableHighlightStep) {
               processedCsiParts.append(QString("0 !SILHOUETTE %1 %2").arg(highlightStepLineWidth).arg(highlightColour));
               SilhouetteMetaAdded = true;
             }
@@ -1077,19 +1091,30 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       // current step parts
       processedCsiParts << csiLine;
 
-      // Insert closing fade meta
+      // insert closing fade meta
       if (!displayStep) {
         if (updatePosition == prevStepPosition) {
           if (FadeMetaAdded)
-            processedCsiParts.append(QStringLiteral("0 !FADE"));
+            AddCloseFadeMeta = true;
         }
 
-        // Insert closing silhouette meta
+        // insert closing silhouette meta
         if (index+1 == parts.size()) {
           if (SilhouetteMetaAdded)
-            processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
+            AddCloseSilhouetteMeta = true;
         }
       }
+
+      // insert missing closing command for manually entered FADE or SILHOUETTE
+      if (fadeCommand)
+        AddCloseFadeMeta = true;
+      if (highlightCommand)
+        AddCloseSilhouetteMeta = false;
+
+      if (AddCloseFadeMeta)
+        processedCsiParts.append(QStringLiteral("0 !FADE"));
+      if (AddCloseSilhouetteMeta)
+        processedCsiParts.append(QStringLiteral("0 !SILHOUETTE"));
     }
 
     // save the current step position
