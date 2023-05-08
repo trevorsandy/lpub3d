@@ -1140,49 +1140,52 @@ int Gui::drawPage(
               break;
 
             case PreferredRendererRc:
-              curMeta.LPub.preferredRenderer.setPreferences();
-              curMeta.LPub.resetCamerasFoV();
-              break;
-
             case PreferredRendererAssemRc:
-              curMeta.LPub.assem.preferredRenderer.setPreferences();
-              curMeta.LPub.assem.resetCameraFoV();
-              if (step)
-                  step->csiStepMeta.preferredRenderer = curMeta.LPub.assem.preferredRenderer;
-              break;
-
             case PreferredRendererCalloutAssemRc:
-              curMeta.LPub.callout.csi.preferredRenderer.setPreferences();
-              curMeta.LPub.callout.csi.resetCameraFoV();
-              if (step)
-                  step->csiStepMeta.preferredRenderer = curMeta.LPub.callout.csi.preferredRenderer;
-              break;
-
             case PreferredRendererGroupAssemRc:
-              curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences();
-              curMeta.LPub.multiStep.csi.resetCameraFoV();
-              if (step)
-                  step->csiStepMeta.preferredRenderer = curMeta.LPub.multiStep.csi.preferredRenderer;
-              break;
-
             case PreferredRendererSubModelRc:
-              curMeta.LPub.subModel.preferredRenderer.setPreferences();
-              curMeta.LPub.subModel.resetCameraFoV();
-              break;
-
             case PreferredRendererPliRc:
-              curMeta.LPub.pli.preferredRenderer.setPreferences();
-              curMeta.LPub.pli.resetCameraFoV();
-              break;
-
             case PreferredRendererBomRc:
-              curMeta.LPub.bom.preferredRenderer.setPreferences();
-              curMeta.LPub.bom.resetCameraFoV();
-              break;
+              if (!step)
+                break;
+              if (rc == PreferredRendererRc) {
+                curMeta.LPub.preferredRenderer.setPreferences();
+                curMeta.LPub.resetCamerasFoV();
+                curMeta.LPub.assem.preferredRenderer = curMeta.LPub.preferredRenderer;
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.preferredRenderer;
+              } else if (rc == PreferredRendererAssemRc) {
+                curMeta.LPub.assem.preferredRenderer.setPreferences();
+                curMeta.LPub.assem.resetCameraFoV();
+                curMeta.LPub.preferredRenderer = curMeta.LPub.assem.preferredRenderer;
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.assem.preferredRenderer;
+              } else if (rc == PreferredRendererCalloutAssemRc) {
+                curMeta.LPub.callout.csi.preferredRenderer.setPreferences();
+                curMeta.LPub.callout.csi.resetCameraFoV();
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.callout.csi.preferredRenderer;
+              } else if (rc == PreferredRendererGroupAssemRc) {
+                curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences();
+                curMeta.LPub.multiStep.csi.resetCameraFoV();
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.multiStep.csi.preferredRenderer;
+              } else if (rc == PreferredRendererSubModelRc) {
+                curMeta.LPub.subModel.preferredRenderer.setPreferences();
+                curMeta.LPub.subModel.resetCameraFoV();
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.subModel.preferredRenderer;
+              } else if (rc == PreferredRendererPliRc) {
+                curMeta.LPub.pli.preferredRenderer.setPreferences();
+                curMeta.LPub.pli.resetCameraFoV();
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.pli.preferredRenderer;
+              } else if (rc == PreferredRendererBomRc) {
+                curMeta.LPub.bom.preferredRenderer.setPreferences();
+                curMeta.LPub.bom.resetCameraFoV();
+                step->csiStepMeta.preferredRenderer = curMeta.LPub.bom.preferredRenderer;
+              }
+                break;
 
             case EnableFadeStepsCalloutAssemRc:
             case EnableFadeStepsGroupAssemRc:
             case EnableFadeStepsAssemRc:
+              if (!step)
+                break;
               if (!m_fadeStepsSetup &&
                   (rc == EnableFadeStepsCalloutAssemRc ?
                         !curMeta.LPub.callout.csi.fadeSteps.enable.global &&
@@ -1193,91 +1196,95 @@ int Gui::drawPage(
                  /*rc == EnableFadeStepsAssemRc*/
                         !curMeta.LPub.assem.fadeSteps.enable.global &&
                         !curMeta.LPub.assem.fadeSteps.setup.value())) {
-                  parseError(tr("Fade previous steps command IGNORED."
-                                "<br>FADE_STEPS SETUP must be set to TRUE."
-                                "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
-                                "<br>GLOBAL command must appear in the header of the top model."),opts.current);
-                  break;
-              } else if (rc == EnableFadeStepsCalloutAssemRc) {
-                  curMeta.LPub.callout.csi.fadeSteps.setPreferences();
-                  if (step)
-                      step->csiStepMeta.fadeSteps = curMeta.LPub.callout.csi.fadeSteps;
+                parseError(tr("Fade previous steps command IGNORED."
+                              "<br>FADE_STEPS SETUP must be set to TRUE."
+                              "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
+                              "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                break;
+              }
+              if (rc == EnableFadeStepsCalloutAssemRc) {
+                curMeta.LPub.callout.csi.fadeSteps.setPreferences();
+                step->csiStepMeta.fadeSteps = curMeta.LPub.callout.csi.fadeSteps;
               } else if (rc == EnableFadeStepsGroupAssemRc) {
-                  curMeta.LPub.multiStep.csi.fadeSteps.setPreferences();
-                  if (step)
-                      step->csiStepMeta.fadeSteps = curMeta.LPub.multiStep.csi.fadeSteps;
+                curMeta.LPub.multiStep.csi.fadeSteps.setPreferences();
+                step->csiStepMeta.fadeSteps = curMeta.LPub.multiStep.csi.fadeSteps;
               } else if (rc == EnableFadeStepsAssemRc) {
-                  curMeta.LPub.assem.fadeSteps.setPreferences();
-                  if (step)
-                      step->csiStepMeta.fadeSteps = curMeta.LPub.assem.fadeSteps;
+                curMeta.LPub.assem.fadeSteps.setPreferences();
+                curMeta.LPub.fadeSteps = curMeta.LPub.assem.fadeSteps;
+                step->csiStepMeta.fadeSteps = curMeta.LPub.assem.fadeSteps;
               }
               break;
             case EnableFadeStepsRc:
-                if (!curMeta.LPub.fadeSteps.enable.global && !curMeta.LPub.fadeSteps.setup.value()) {
-                    parseError(tr("Fade previous steps command IGNORED."
-                                  "<br>FADE_STEPS SETUP must be set to TRUE."
-                                  "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
-                    break;
-                }
-                curMeta.LPub.fadeSteps.setPreferences();
-                if (step)
-                    step->csiStepMeta.fadeSteps = curMeta.LPub.fadeSteps;
+              if (!curMeta.LPub.fadeSteps.enable.global && !curMeta.LPub.fadeSteps.setup.value()) {
+                parseError(tr("Fade previous steps command IGNORED."
+                              "<br>FADE_STEPS SETUP must be set to TRUE."
+                              "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
+                              "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                break;
+              }
+              curMeta.LPub.fadeSteps.setPreferences();
+              if (step) {
+                curMeta.LPub.assem.fadeSteps = curMeta.LPub.fadeSteps;
+                step->csiStepMeta.fadeSteps = curMeta.LPub.fadeSteps;
                 if (!opts.displayModel) {
-                    Gui::suspendFileDisplay = true;
-                    insertFinalModelStep();
-                    Gui::suspendFileDisplay = false;
+                  Gui::suspendFileDisplay = true;
+                  insertFinalModelStep();
+                  Gui::suspendFileDisplay = false;
                 }
+              }
               break;
 
             case EnableHighlightStepCalloutAssemRc:
             case EnableHighlightStepGroupAssemRc:
             case EnableHighlightStepAssemRc:
-                if (!m_highlightStepSetup &&
-                    (rc == EnableHighlightStepCalloutAssemRc ?
-                          !curMeta.LPub.callout.csi.highlightStep.enable.global &&
-                          !curMeta.LPub.callout.csi.highlightStep.setup.value() :
-                     rc == EnableHighlightStepGroupAssemRc ?
-                          !curMeta.LPub.multiStep.csi.highlightStep.enable.global &&
-                          !curMeta.LPub.multiStep.csi.highlightStep.setup.value() :
-                   /*rc == EnableHighlightStepAssemRc*/
-                          !curMeta.LPub.assem.highlightStep.enable.global &&
-                          !curMeta.LPub.assem.highlightStep.setup.value())) {
-                    parseError(tr("Highlight current step command IGNORED."
-                                  "<br>HIGHLIGHT_STEP SETUP TRUE not deteced."
-                                  "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
-                    break;
-                } else if (rc == EnableHighlightStepCalloutAssemRc) {
-                    curMeta.LPub.callout.csi.highlightStep.setPreferences();
-                    if (step)
-                        step->csiStepMeta.highlightStep = curMeta.LPub.callout.csi.highlightStep;
-                } else if (rc == EnableHighlightStepGroupAssemRc) {
-                    curMeta.LPub.multiStep.csi.highlightStep.setPreferences();
-                    if (step)
-                        step->csiStepMeta.highlightStep = curMeta.LPub.multiStep.csi.highlightStep;
-                } else if (rc == EnableHighlightStepAssemRc) {
-                    curMeta.LPub.assem.highlightStep.setPreferences();
-                    if (step)
-                        step->csiStepMeta.highlightStep = curMeta.LPub.assem.highlightStep;
-                }
+              if (!step)
+                break;
+              if (!m_highlightStepSetup &&
+                  (rc == EnableHighlightStepCalloutAssemRc ?
+                        !curMeta.LPub.callout.csi.highlightStep.enable.global &&
+                        !curMeta.LPub.callout.csi.highlightStep.setup.value() :
+                   rc == EnableHighlightStepGroupAssemRc ?
+                        !curMeta.LPub.multiStep.csi.highlightStep.enable.global &&
+                        !curMeta.LPub.multiStep.csi.highlightStep.setup.value() :
+                 /*rc == EnableHighlightStepAssemRc*/
+                        !curMeta.LPub.assem.highlightStep.enable.global &&
+                        !curMeta.LPub.assem.highlightStep.setup.value())) {
+                parseError(tr("Highlight current step command IGNORED."
+                              "<br>HIGHLIGHT_STEP SETUP TRUE not deteced."
+                              "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
+                              "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                  break;
+              }
+              if (rc == EnableHighlightStepCalloutAssemRc) {
+                curMeta.LPub.callout.csi.highlightStep.setPreferences();
+                step->csiStepMeta.highlightStep = curMeta.LPub.callout.csi.highlightStep;
+              } else if (rc == EnableHighlightStepGroupAssemRc) {
+                curMeta.LPub.multiStep.csi.highlightStep.setPreferences();
+                step->csiStepMeta.highlightStep = curMeta.LPub.multiStep.csi.highlightStep;
+              } else if (rc == EnableHighlightStepAssemRc) {
+                curMeta.LPub.assem.highlightStep.setPreferences();
+                curMeta.LPub.highlightStep = curMeta.LPub.assem.highlightStep;
+                step->csiStepMeta.highlightStep = curMeta.LPub.assem.highlightStep;
+              }
               break;
             case EnableHighlightStepRc:
-                if (!curMeta.LPub.highlightStep.enable.global && !curMeta.LPub.highlightStep.setup.value()) {
-                    parseError(tr("Highlight current step command IGNORED."
-                                  "<br>HIGHLIGHT_STEP SETUP must be set to TRUE."
-                                  "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
-                    break;
-                }
-                curMeta.LPub.highlightStep.setPreferences();
-                if (step)
-                    step->csiStepMeta.highlightStep = curMeta.LPub.highlightStep;
+              if (!curMeta.LPub.highlightStep.enable.global && !curMeta.LPub.highlightStep.setup.value()) {
+                parseError(tr("Highlight current step command IGNORED."
+                              "<br>HIGHLIGHT_STEP SETUP must be set to TRUE."
+                              "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
+                              "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                break;
+              }
+              curMeta.LPub.highlightStep.setPreferences();
+              if (step) {
+                curMeta.LPub.assem.highlightStep = curMeta.LPub.highlightStep;
+                step->csiStepMeta.highlightStep = curMeta.LPub.highlightStep;
                 if (!opts.displayModel) {
-                    Gui::suspendFileDisplay = true;
-                    insertFinalModelStep();
-                    Gui::suspendFileDisplay = false;
+                  Gui::suspendFileDisplay = true;
+                  insertFinalModelStep();
+                  Gui::suspendFileDisplay = false;
                 }
+              }
               break;
 
             case LPubFadeCalloutAssemRc:
@@ -1288,39 +1295,37 @@ int Gui::drawPage(
             case LPubHighlightGroupAssemRc:
             case LPubHighlightAssemRc:
             case LPubHighlightRc:
-                if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-                    if (rc == LPubFadeCalloutAssemRc) {
-                        if (step)
-                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.callout.csi.fadeSteps.lpubFade;
-                    } else if (rc == LPubFadeGroupAssemRc) {
-                        if (step)
-                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.multiStep.csi.fadeSteps.lpubFade;
-                    } else if (rc == LPubFadeAssemRc) {
-                        if (step)
-                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
-                    } else if (rc == LPubFadeRc) {
-                        if (step)
-                            step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
-                    } else if (rc == LPubHighlightCalloutAssemRc) {
-                        if (step)
-                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.callout.csi.highlightStep.lpubHighlight;
-                    } else if (rc == LPubHighlightGroupAssemRc) {
-                        if (step)
-                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.multiStep.csi.highlightStep.lpubHighlight;
-                    } else if (rc == LPubHighlightAssemRc) {
-                        if (step)
-                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
-                    } else if (rc == LPubHighlightRc) {
-                        if (step)
-                            step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
-                    }
-                } else {
-                    QString const command = line.contains("LPUB_FADE") ? QLatin1String("LPUB_FADE") : QLatin1String("LPUB_HIGHLIGHT");
-                    parseError(tr("%1 command IGNORED."
-                                  "<br>%1 command requires preferred render RENDERER_NATIVE."
-                                  "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
-                }
+              if (!step)
                 break;
+              if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+                if (rc == LPubFadeCalloutAssemRc) {
+                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.callout.csi.fadeSteps.lpubFade;
+                } else if (rc == LPubFadeGroupAssemRc) {
+                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.multiStep.csi.fadeSteps.lpubFade;
+                } else if (rc == LPubFadeAssemRc) {
+                  curMeta.LPub.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
+                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
+                } else if (rc == LPubFadeRc) {
+                  curMeta.LPub.assem.fadeSteps.lpubFade = curMeta.LPub.fadeSteps.lpubFade;
+                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.fadeSteps.lpubFade;
+                } else if (rc == LPubHighlightCalloutAssemRc) {
+                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.callout.csi.highlightStep.lpubHighlight;
+                } else if (rc == LPubHighlightGroupAssemRc) {
+                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.multiStep.csi.highlightStep.lpubHighlight;
+                } else if (rc == LPubHighlightAssemRc) {
+                  curMeta.LPub.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
+                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
+                } else if (rc == LPubHighlightRc) {
+                  curMeta.LPub.assem.highlightStep.lpubHighlight = curMeta.LPub.highlightStep.lpubHighlight;
+                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.highlightStep.lpubHighlight;
+                }
+              } else {
+                QString const command = line.contains("LPUB_FADE") ? QLatin1String("LPUB_FADE") : QLatin1String("LPUB_HIGHLIGHT");
+                parseError(tr("%1 command IGNORED."
+                              "<br>%1 command requires preferred render RENDERER_NATIVE."
+                              "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
+              }
+              break;
 
               /* Buffer exchange */
             case BufferStoreRc:
@@ -2859,16 +2864,18 @@ int Gui::drawPage(
                       // reset local fade previous steps - single step
                       if (curMeta.LPub.fadeSteps.enable.pushed == local)
                           curMeta.LPub.fadeSteps.setPreferences(reset);
-                      else if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
+                      if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
                           curMeta.LPub.assem.fadeSteps.setPreferences(reset);
 
                       // reset local highlight current step - single step
                       if (curMeta.LPub.highlightStep.enable.pushed == local)
                           curMeta.LPub.highlightStep.setPreferences(reset);
-                      else if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
+                      if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
 
                       // reset local preferred renderer
+                      if (curMeta.LPub.preferredRenderer.pushed == local)
+                          curMeta.LPub.preferredRenderer.setPreferences(reset);
                       if (curMeta.LPub.assem.preferredRenderer.pushed == local) {
                           curMeta.LPub.assem.preferredRenderer.setPreferences(reset);
                           curMeta.LPub.assem.resetCameraFoV();
