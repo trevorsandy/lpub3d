@@ -358,7 +358,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 	if (LPubFadeArg)
 	{
 		// Enable BFC
-		Context->EnableCullFace(true, true);
+	Context->EnableCullFace(true, true);
 
 		// Disable color writes
 		if (LPubFadeArg == LC_DISABLE_COLOR_WRITES){
@@ -469,7 +469,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 /*** LPub3D Mod - lpub fade highlight ***/
 	if (LPubFadeArg)
 	{
-		Context->SetDepthWrite(true);
+	Context->SetDepthWrite(true);
 		Context->EnableColorBlend(false);
 
 		// Wrap up, Disable BFC
@@ -498,9 +498,9 @@ void lcScene::Draw(lcContext* Context) const
 	const bool DrawConditional = Preferences.mDrawConditionalLines && Preferences.mLineWidth > 0.0f;
 /*** LPub3D Mod - lpub fade highlight ***/
 // 03/22/2021 8039f5b Draw conditional lines on a separate pass.
-	const bool LPubFadeHighlight = gApplication->LPubFadeParts()  && // turn off during HTML Steps export
-								   Preferences.mLPubFadeHighlight &&
-								   mHasLPubFadedParts             &&
+	const bool LPubFadeHighlight = gApplication->LPubFadeParts()     && // turn off during HTML Steps export
+								   gApplication->LPubFadeHighlight() &&
+								   mHasLPubFadedParts                &&
 								  !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
 

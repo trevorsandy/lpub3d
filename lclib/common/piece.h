@@ -153,9 +153,19 @@ public:
 		mLPubFade = Faded;
 	}
 
-	int GetLPubFade() const
+	bool GetLPubFade() const
 	{
 		return mLPubFade;
+	}
+
+	void SetLPubHighlight(bool Highlighted)
+	{
+		mLPubHighlight = Highlighted;
+	}
+
+	bool GetLPubHighlight() const
+	{
+		return mLPubHighlight;
 	}
 /*** LPub3D Mod end ***/
 
@@ -397,7 +407,8 @@ protected:
 	int mPieceModified;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - lpub fade highlight ***/
-	int mLPubFade;
+	bool mLPubFade;
+	bool mLPubHighlight;
 /*** LPub3D Mod end ***/
 	QString mID;
 

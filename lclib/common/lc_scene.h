@@ -6,7 +6,7 @@
 /*** LPub3D Mod - lpub fade highlight ***/
 enum lcFadeArgs
 {
-	LC_NO_FADE,
+	LC_NO_LPUB_FADE,
 	LC_DISABLE_COLOR_WRITES,
 	LC_ENABLE_COLOR_WRITES,
 	LC_DISABLE_BFC
@@ -111,7 +111,7 @@ public:
 protected:
 	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes, bool DrawFaded, bool DrawNonFaded) const;
 /*** LPub3D Mod - lpub fade highlight ***/
-	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcFadeArgs LPubFadeArg = LC_NO_FADE) const;
+	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcFadeArgs LPubFadeArg = LC_NO_LPUB_FADE) const;
 /*** LPub3D Mod end ***/
 	void DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const;
 
