@@ -2812,7 +2812,7 @@ void Preferences::rendererPreferences()
     // Blender LDraw config file
     QString const blenderLDrawConfigFileKey("BlenderLDrawConfigFile");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey))) {
-        blenderLDrawConfigFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE));
+        blenderLDrawConfigFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_ADDON_CONFIG_FILE));
         if (QFileInfo(blenderLDrawConfigFile).exists())
             Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey),QVariant(blenderLDrawConfigFile));
         else

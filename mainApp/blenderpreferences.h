@@ -366,10 +366,10 @@ private:
 
     enum BlenderAddOnUpdate
     {
-        ADD_ON_FAIL = -1,
-        ADD_ON_DOWNLOAD,
-        ADD_ON_RELOAD,
-        ADD_ON_CANCEL
+        BLENDER_ADDON_FAIL = -1,
+        BLENDER_ADDON_DOWNLOAD,
+        BLENDER_ADDON_RELOAD,
+        BLENDER_ADDON_CANCEL
     };
 
     struct BlenderSettings

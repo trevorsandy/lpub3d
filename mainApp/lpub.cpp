@@ -2803,7 +2803,7 @@ void Gui::editBlenderParameters()
         blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
     } else if (blenderPreferences) {
         titleLabel = tr("Import and Render Preferences");
-        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE);
+        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_ADDON_CONFIG_FILE);
     }
 
     QFileInfo fileInfo(blenderConfigFile);

@@ -1113,7 +1113,7 @@ void BlenderPreferences::saveSettings()
                     : Preferences::blenderPreferencesFile;
     else
         value = Preferences::blenderLDrawConfigFile.isEmpty()
-                    ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE)
+                    ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_ADDON_CONFIG_FILE)
                     : Preferences::blenderLDrawConfigFile;
     Preferences::setBlenderLDrawConfigPreference(value);
 
@@ -1866,7 +1866,7 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
 
     bool const addonExists = QFileInfo(blenderAddonFile).exists() && QFileInfo(blenderAddonFile).size();
 
-    if ((AddOnUpdate == ADD_ON_FAIL && !addonExists) || AddOnUpdate == ADD_ON_CANCEL)
+    if ((AddOnUpdate == BLENDER_ADDON_FAIL && !addonExists) || AddOnUpdate == BLENDER_ADDON_CANCEL)
         return false;
 
     // Extract Blender addon
@@ -1893,35 +1893,51 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 {
     QString const blenderAddonDir    = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
     QString const blenderAddonFile   = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
-    BlenderAddOnUpdate AddOnUpdate   = ADD_ON_DOWNLOAD;
+    BlenderAddOnUpdate AddOnUpdate   = BLENDER_ADDON_DOWNLOAD;
 
-    if (QFileInfo(blenderAddonFile).exists()) {
-        if (Preferences::modeGUI) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            if (_icon.isNull())
-                _icon = QPixmap (":/icons/update.png");
-            QMessageBox box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-            box.setWindowTitle(tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            QString title = tr ("An existing %1 Blender LDraw addon archive file was detected.").arg(VER_PRODUCTNAME_STR);
-            box.setText (title);
-            QString text  = tr ("Do you want to download the latest addon archive file ?");
-            box.setInformativeText (text);
-            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-            box.setDefaultButton   (QMessageBox::Yes);
-            int execReturn = box.exec();
-            if (execReturn == QMessageBox::Cancel) {
-                blenderPreferences->mDialogCancelled = true;
-                blenderPreferences->statusUpdate(true, tr("Cancelled"));
-                return static_cast<int>(ADD_ON_CANCEL);
-            } else if (execReturn == QMessageBox::No) {
+    auto getBlenderAddonVersion = [&] ()
+    {
+        lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
+        QByteArray response_data = lpub->getDownloadedFile();
+        if (!response_data.isEmpty()) {
+            QJsonDocument json = QJsonDocument::fromJson(response_data);
+            return json[0]["tag_name"].toString();
+        }
+        return QString("");
+    };
+
+    if (Preferences::modeGUI) {
+        if (QFileInfo(blenderAddonFile).exists()) {
+            if (getBlenderAddonVersion() == Preferences::blenderAddonVersion) {
                 blenderPreferences->statusUpdate(true, tr("Installing Blender addon..."));
-                AddOnUpdate = ADD_ON_RELOAD;
+                AddOnUpdate = BLENDER_ADDON_RELOAD;
             } else {
-                blenderPreferences->statusUpdate(true, tr("Downloading Blender addon..."));
+                QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                if (_icon.isNull())
+                    _icon = QPixmap (":/icons/update.png");
+                QMessageBox box;
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (_icon);
+                box.setTextFormat (Qt::RichText);
+                box.setWindowTitle(tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR));
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                QString title = tr ("An existing %1 Blender LDraw addon archive file was detected.").arg(VER_PRODUCTNAME_STR);
+                box.setText (title);
+                QString text  = tr ("Do you want to download the latest addon archive file ?");
+                box.setInformativeText (text);
+                box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+                box.setDefaultButton   (QMessageBox::Yes);
+                int execReturn = box.exec();
+                if (execReturn == QMessageBox::Cancel) {
+                    blenderPreferences->mDialogCancelled = true;
+                    blenderPreferences->statusUpdate(true, tr("Cancelled"));
+                    return static_cast<int>(BLENDER_ADDON_CANCEL);
+                } else if (execReturn == QMessageBox::No) {
+                    blenderPreferences->statusUpdate(true, tr("Installing Blender addon..."));
+                    AddOnUpdate = BLENDER_ADDON_RELOAD;
+                } else {
+                    blenderPreferences->statusUpdate(true, tr("Downloading Blender addon..."));
+                }
             }
         }
     }
@@ -1952,8 +1968,8 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     }
 
     // Download Blender addon
-    if (AddOnUpdate == ADD_ON_DOWNLOAD) {
-        lpub->downloadFile(VER_BLENDER_RENDER_ADDONS_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
+    if (AddOnUpdate == BLENDER_ADDON_DOWNLOAD) {
+        lpub->downloadFile(VER_BLENDER_ADDON_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray Buffer = lpub->getDownloadedFile();
         if (!Buffer.isEmpty()) {
             if (QFileInfo(blenderAddonFile).exists()) {
@@ -1969,7 +1985,7 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                                                     .arg(file.errorString()));
                 if (blenderPreferences->progressBar)
                     blenderPreferences->progressBar->close();
-                return static_cast<int>(ADD_ON_FAIL);
+                return static_cast<int>(BLENDER_ADDON_FAIL);
             }
             file.write(Buffer);
             file.close();

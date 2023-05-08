@@ -34,6 +34,7 @@
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
 #define VER_PUBLISHER_STR                   "Trevor SANDY"
 #define VER_GITHUB_USER_STR                 "https://github.com/trevorsandy"
+#define VER_GITHUB_API_STR                  "https://api.github.com/repos/trevorsandy"
 #define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_COMMIT_STR
 #define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues"
 #define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
@@ -173,7 +174,7 @@
 #define VER_BLENDER_DEFAULT_BLEND_FILE      "lpub3d.blend"
 #define VER_BLENDER_ADDON_FILE              "LDrawBlenderRenderAddons.zip"
 #define VER_BLENDER_ADDON_INSTALL_FILE      "install_blender_ldraw_addons.py"
-#define VER_BLENDER_RENDER_CONFIG_FILE      "LDrawRendererPreferences.ini"
+#define VER_BLENDER_ADDON_CONFIG_FILE      "LDrawRendererPreferences.ini"
 #define VER_BLENDER_DOCUMENT_CONFIG_FILE    "PreferredRendererPreferences.ini"
 #define VER_BLENDER_LDRAW_PARAMS_FILE       "BlenderLDrawParameters.lst"
 
@@ -182,7 +183,8 @@
 
 #define VER_HOMEPAGE_GITHUB_STR             "https://trevorsandy.github.io/lpub3d/"
 #define VER_SOURCE_GITHUB_STR               VER_GITHUB_USER_STR "/lpub3d/"
-#define VER_BLENDER_RENDER_STR              VER_GITHUB_USER_STR "/blenderldrawrender/"
+#define VER_BLENDER_ADDON_STR               VER_GITHUB_USER_STR "/blenderldrawrender/"
+#define VER_BLENDER_ADDON_API_STR           VER_GITHUB_API_STR "/blenderldrawrender/"
 
 #define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
 
@@ -203,7 +205,8 @@
 #define VER_REBRICKABLE_KEYS_JSON_URL       VER_HOMEPAGE_GITHUB_STR "assets/resources/rebrickablekeys.json"
 #define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_HOMEPAGE_GITHUB_STR "assets/resources/codes.txt"
 #define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_HOMEPAGE_GITHUB_STR "assets/resources/missingimage.png"
-#define VER_BLENDER_RENDER_ADDONS_URL       VER_BLENDER_RENDER_STR "releases/latest/download/" VER_BLENDER_ADDON_FILE
+#define VER_BLENDER_ADDON_URL               VER_BLENDER_ADDON_STR   "releases/latest/download/" VER_BLENDER_ADDON_FILE
+#define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
