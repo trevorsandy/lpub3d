@@ -261,7 +261,7 @@ void SubstitutePartDialog::initialize()
        ui->ldrawTitleLbl->setText(Pli::titleDescription(mLdrawType));
     }
 
-    QColor partColor(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue);
+    QColor partColor = lcQColorFromVector4(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].Value);
     if(partColor.isValid() ) {
       ui->colorLbl->setAutoFillBackground(true);
       QString styleSheet =
@@ -631,7 +631,7 @@ void SubstitutePartDialog::browseType(bool clicked)
 void SubstitutePartDialog::browseColor(bool clicked)
 {
   Q_UNUSED(clicked);
-  QString colorName = QColor(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue).name();
+  QColor colorName = lcQColorFromVector4(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].Value).name();
   int newColorIndex = ~0U;
   QColor newColor = LDrawColorDialog::getLDrawColor(mAttributes.at(sColorCode).toInt(),newColorIndex,this);
   QString newColorName = newColor.name();

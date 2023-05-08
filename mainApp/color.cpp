@@ -49,14 +49,14 @@ void LDrawColor::LDrawColorInit()
 
   for (lcColor& gColor : gColorList)
   {
-    lcColor* nativeColor = &gColor;
-    if (nativeColor->Code == quint32(LC_COLOR_NOCOLOR))
-      continue;
-    QColor color(nativeColor->CValue);
-    color.setAlpha(nativeColor->Alpha);
-    QString const edge = QColor(nativeColor->EValue).name(QColor::HexRgb);
-    QString const name = nativeColor->SafeName;
-    QString const code = QString::number(nativeColor->Code);
+    if (gColor.Code == quint32(LC_COLOR_NOCOLOR))
+        continue;
+    QColor color = lcQColorFromVector4(gColor.Value);
+    QColor edgecolor = lcQColorFromVector4(gColor.Edge);
+    QString const edge = edgecolor.name(edgecolor.alpha() != 255 ? QColor::HexArgb : QColor::HexRgb);
+    QString const name = gColor.SafeName;
+    QString const code = QString::number(gColor.Code);
+
     AddColor(color, name, code, edge);
   }
 }
@@ -66,28 +66,25 @@ void LDrawColor::LDrawColorInit()
  */
 void LDrawColor::AddColor(const QColor& color, const QString& name, const QString& code, const QString& edge, bool native)
 {
-  ldname2ldcolor.insert(name.toLower(),code);                           // color  code   from name (lower)
-  value2code. insert(color.name(QColor::HexRgb).toLower(),code.toInt());// color  code   from value (lower)
-  color2value.insert(code,color.name(QColor::HexRgb).toUpper());        // color  value  from code
-  color2edge. insert(code,edge.toUpper());                              // color  edge   from code
-  color2alpha.insert(code,color.alpha());                               // color  alpha  from code
-  color2name. insert(code,name);                                        // color  name   from code  (safe name e.g. Dark_Nougat)
-  color2name. insert(color.name(QColor::HexRgb).toLower(),name);        // color  name   from value (lower)
-  name2QColor.insert(code,color);                                       // QColor object from code
-  name2QColor.insert(name.toLower(),color);                             // QColor object from name (lower) - e.g. dark_nougat
+  QColor::NameFormat format = QColor::HexRgb;
+  ldname2ldcolor.insert(name.toLower(),code);                   // color  code   from name (lower)
+  value2code. insert(color.name(format).toLower(),code.toInt());// color  code   from value (lower)
+  color2value.insert(code,color.name(format).toUpper());        // color  value  from code
+  color2edge. insert(code,edge.toUpper());                      // color  edge   from code
+  color2alpha.insert(code,color.alpha());                       // color  alpha  from code
+  color2name. insert(code,name);                                // color  name   from code  (safe name e.g. Dark_Nougat)
+  color2name. insert(color.name(format).toLower(),name);        // color  name   from value (lower)
+  name2QColor.insert(code,color);                               // QColor object from code
+  name2QColor.insert(name.toLower(),color);                     // QColor object from name (lower) - e.g. dark_nougat
+
   QString const message = QObject::tr("%1. ADD 0 !COLOUR %2 CODE %3 VALUE %4 EDGE %5 ALPHA %6 QCOLOR_NAME %7")
-                                      .arg(ldname2ldcolor.size(), 3, 10, QChar(' ')).arg(name).arg(code).arg(color.name().toUpper())
-                                      .arg(edge.toUpper()).arg(color.alpha()).arg(color.name());
+                              .arg(ldname2ldcolor.size(), 3, 10, QChar(' ')).arg(name).arg(code).arg(color.name().toUpper())
+                              .arg(edge.toUpper()).arg(color.alpha()).arg(color.name());
+  //qDebug() << qUtf8Printable(message);
   if (!native) {
     userdefinedcolors.append(name.toLower());
     emit lpub->messageSig(LOG_INFO, message);
-#ifdef QT_DEBUG_MODE
-  } else {
-    ;
-    //qDebug() << qUtf8Printable(message);
-#endif
   }
-
 }
 
 /*

@@ -94,11 +94,6 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 		Color.Edge[1] = FLT_MAX;
 		Color.Edge[2] = FLT_MAX;
 		Color.Edge[3] = 1.0f;
-/*** LPub3D Mod - use Visual Editor colors ***/
-		Color.CValue = ~0U;
-		Color.EValue = ~0U;
-		Color.Alpha = 255;
-/*** LPub3D Mod end ***/
 
 		GetToken(Ptr, Token);
 		strncpy(Color.Name, Token, sizeof(Color.Name));
@@ -133,9 +128,7 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 				int Value;
 				if (sscanf(Token, "%x", &Value) != 1)
 					Value = 0;
-/*** LPub3D Mod - use Visual Editor colors ***/
-				Color.CValue = Value;
-/*** LPub3D Mod end ***/
+
 				Color.Value[2] = (float)(Value & 0xff) / 255.0f;
 				Value >>= 8;
 				Color.Value[1] = (float)(Value & 0xff) / 255.0f;
@@ -151,9 +144,6 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 				int Value;
 				if (sscanf(Token, "%x", &Value) != 1)
 					Value = 0;
-/*** LPub3D Mod - use Visual Editor colors ***/
-				Color.EValue = Value;
-/*** LPub3D Mod end ***/
 
 				Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
 				Value >>= 8;
@@ -168,9 +158,7 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 				Color.Value[3] = (float)(Value & 0xff) / 255.0f;
 				if (Value != 255)
 					Color.Translucent = true;
-/*** LPub3D Mod - use Visual Editor colors ***/
-				Color.Alpha = Value;
-/*** LPub3D Mod end ***/
+
 				if (Value == 128)
 					Color.Group = LC_COLORGROUP_TRANSLUCENT;
 				else if (Value != 0)
@@ -290,11 +278,6 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 		MainColor.Edge[1] = 0.2f;
 		MainColor.Edge[2] = 0.2f;
 		MainColor.Edge[3] = 1.0f;
-/*** LPub3D Mod - use Visual Editor colors ***/
-		MainColor.CValue = lcColorFromVector3(lcVector3(MainColor.Value));
-		MainColor.EValue = lcColorFromVector3(lcVector3(MainColor.Edge));
-		MainColor.Alpha = 255;
-/*** LPub3D Mod end ***/
 		strcpy(MainColor.Name, "Main Color");
 		strcpy(MainColor.SafeName, "Main_Color");
 
@@ -316,11 +299,6 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 		EdgeColor.Edge[1] = 0.2f;
 		EdgeColor.Edge[2] = 0.2f;
 		EdgeColor.Edge[3] = 1.0f;
-/*** LPub3D Mod - use Visual Editor colors ***/
-		EdgeColor.CValue = lcColorFromVector3(lcVector3(EdgeColor.Value));
-		EdgeColor.EValue = lcColorFromVector3(lcVector3(EdgeColor.Edge));
-		EdgeColor.Alpha = 255;
-/*** LPub3D Mod end ***/
 		strcpy(EdgeColor.Name, "Edge Color");
 		strcpy(EdgeColor.SafeName, "Edge_Color");
 
@@ -337,11 +315,6 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 		StudCylinderColor.Group = LC_NUM_COLORGROUPS;
 		StudCylinderColor.Value = lcVector4FromColor(Preferences.mStudCylinderColor);
 		StudCylinderColor.Edge = lcVector4FromColor(Preferences.mPartEdgeColor);
-/*** LPub3D Mod - use Visual Editor colors ***/
-		StudCylinderColor.CValue = lcColorFromVector3(lcVector3(StudCylinderColor.Value));
-		StudCylinderColor.EValue = lcColorFromVector3(lcVector3(StudCylinderColor.Edge));
-		StudCylinderColor.Alpha = 255;
-/*** LPub3D Mod end ***/
 		strcpy(StudCylinderColor.Name, "Stud Cylinder Color");
 		strcpy(StudCylinderColor.SafeName, "Stud_Cylinder_Color");
 
@@ -363,11 +336,6 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 		NoColor.Edge[1] = 0.2f;
 		NoColor.Edge[2] = 0.2f;
 		NoColor.Edge[3] = 1.0f;
-/*** LPub3D Mod - use Visual Editor colors ***/
-		NoColor.CValue = lcColorFromVector3(lcVector3(NoColor.Value));
-		NoColor.EValue = lcColorFromVector3(lcVector3(NoColor.Edge));
-		NoColor.Alpha = 255;
-/*** LPub3D Mod end ***/
 		strcpy(NoColor.Name, "No Color");
 		strcpy(NoColor.SafeName, "No_Color");
 

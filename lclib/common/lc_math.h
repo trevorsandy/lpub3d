@@ -717,6 +717,13 @@ inline lcVector4 lcVector4FromColor(quint32 Color)
 	return v;
 }
 
+/*** LPub3D Mod - use Visual Editor colors ***/
+inline QColor lcQColorFromVector4(const lcVector4& Color)
+{
+	return QColor::fromRgb(roundf(Color[0] * 255), roundf(Color[1] * 255), roundf(Color[2] * 255), roundf(Color[3] * 255));
+}
+/*** LPub3D Mod end ***/
+
 inline quint32 lcColorFromVector3(const lcVector3& Color)
 {
 	return LC_RGB(roundf(Color[0] * 255), roundf(Color[1] * 255), roundf(Color[2] * 255));

@@ -1233,7 +1233,7 @@ void EditWindow::editLineItem()
         int colorCode = elements.first().toInt();
         int newColorIndex = -1;
         items = elements.at(1).split(" ", SkipEmptyParts);
-        QColor qcolor(gColorList[lcGetColorIndex(colorCode)].CValue);
+        QColor qcolor = lcQColorFromVector4(gColorList[lcGetColorIndex(colorCode)].Value);
         QColor newColor = LDrawColorDialog::getLDrawColor(colorCode, newColorIndex, this);
         if (newColor.isValid() && qcolor != newColor) {
             if (elements.size() == 3)  // selection is a substitute meta command
