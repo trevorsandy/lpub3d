@@ -1143,6 +1143,16 @@ bool lcMeshLoader::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform
 		{
 			char* Token = Line;
 
+/*** LPub3D Mod - lpub fade highlight ***/
+			// process archive parts LPub3D colour codes
+			if (strstr(Token, "!COLOUR") != nullptr)
+			{
+				if (!lcLoadColorEntry(Line, Library->GetStudStyle()))
+					logError() << qPrintable(QString("Could not load colour meta %1.").arg(Line));
+				continue;
+			}
+/*** LPub3D Mod end ***/			
+
 			while (*Token && *Token <= 32)
 				Token++;
 
