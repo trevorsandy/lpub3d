@@ -25,7 +25,8 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveParts::Archive(const QString &zipArchive,
+bool ArchiveParts::Archive(
+    const QString &zipArchive,
     const QDir &dir,
     QString &result,
     int &resultSeverity,
@@ -36,9 +37,9 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
   // Check if part directory exist
   if (!dir.exists()) {
-      result = QString("Archive directory does not exist: %1").arg(dir.absolutePath());
+      result = tr("Archive directory does not exist: %1").arg(dir.absolutePath());
       return false;
-    }
+  }
 
   // We get the list of part directory files and folders recursively
   QStringList dirFileList;
@@ -46,14 +47,14 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
   // Check if file list is empty
   if (dirFileList.isEmpty()) {
-      result = QString("Directory is empty and will be ignored: %1").arg(dir.absolutePath());
+      result = tr("Directory is empty and will be ignored: %1").arg(dir.absolutePath());
       resultSeverity = 2; // Warning
       return false;
   }
 
   // Create an array of part file QFileInfo objects
   QFileInfoList filesToArchive;
-  Q_FOREACH (QString fileName, dirFileList) filesToArchive << QFileInfo(fileName);
+  Q_FOREACH (QString const &fileName, dirFileList) filesToArchive << QFileInfo(fileName);
 
   // Confirm archive exist or create new instance
   QFileInfo zipFileInfo(zipArchive);
@@ -61,12 +62,12 @@ bool ArchiveParts::Archive(const QString &zipArchive,
   if (!zipFileInfo.exists()) {
       if (Preferences::usingDefaultLibrary) {
           if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation).arg(zipFileInfo.fileName()),zipFileInfo.absoluteFilePath())) {
-              emit gui->messageSig(LOG_ERROR, QString("Archive %1 not found and could not copy new instance.").arg(zipFileInfo.fileName()));
+              emit gui->messageSig(LOG_ERROR, tr("Archive %1 not found and could not copy new instance.").arg(zipFileInfo.fileName()));
           } else {
-              emit gui->messageSig(LOG_INFO, QString("Archive %1 not found. New instance will be created.").arg(zipFileInfo.fileName()));
+              emit gui->messageSig(LOG_INFO, tr("Archive %1 not found. New instance will be created.").arg(zipFileInfo.fileName()));
           }
       } else {
-          emit gui->messageSig(LOG_INFO, QString("Archive %1 not found. New instance created.").arg(zipFileInfo.fileName()));
+          emit gui->messageSig(LOG_INFO, tr("Archive %1 not found. New instance created.").arg(zipFileInfo.fileName()));
       }
   }
 
@@ -78,24 +79,30 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
   if (zipFileInfo.exists()){
       if (!zip.open(QuaZip::mdAdd)) {
-          result = QString("Could not open archive to add content: %1").arg(zip.getZipError());
+          result = tr("Could not open archive to add content. Return code %1.<br>"
+                      "Archive file %2 may be open in another program.")
+                       .arg(zip.getZipError()).arg(QFileInfo(zipArchive).fileName());
           return false;
         }
 
       // Check if filesToArchive are not in excluded location
       QStringList validDirFiles;
-      QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
-      Q_FOREACH (QString dirFile, dirFileList) {
+        QStringList excludedPaths = QStringList()
+                                    << QLatin1String("unofficial/parts")
+                                    << QLatin1String("unofficial/p")
+                                    << QLatin1String("parts")
+                                    << QLatin1String("p");
+      Q_FOREACH (QString const &dirFile, dirFileList) {
           QString fileDir(QDir::toNativeSeparators(QFileInfo(dirFile).absolutePath()));
           bool isExcludedPath = false;
-          Q_FOREACH (QString excludedPath, excludedPaths) {
+          Q_FOREACH (QString const &excludedPath, excludedPaths) {
               QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
               if ((isExcludedPath = (fileDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                   break;
               }
           }
           if (isExcludedPath) {
-              emit gui->messageSig(LOG_NOTICE, QString("Specified path [%1] is excluded from archive").arg(fileDir));
+              emit gui->messageSig(LOG_NOTICE, tr("Specified path [%1] is excluded from archive").arg(fileDir));
               continue;
           }
           validDirFiles << dirFile;
@@ -103,7 +110,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
       // Check if validated file list is not empty
       if (validDirFiles.isEmpty()) {
-          result = QString("All specified paths were excluded from archive - nothing to do");
+          result = tr("All specified paths were excluded from archive - nothing to do");
           return false;
       }
 
@@ -113,14 +120,14 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       QStringList zipFileList;
       GetExistingArchiveFileList(zipFileList, validDirFiles, zipArchive);
 
-      emit gui->messageSig(LOG_DEBUG, QString("Get Existing Archive File List %1").arg(gui->elapsedTime(t.elapsed())));
+      emit gui->messageSig(LOG_DEBUG, tr("Get Existing Archive File List %1").arg(gui->elapsedTime(t.elapsed())));
 
       //Create an array of archive file QFileInfo objects
-      Q_FOREACH (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+      Q_FOREACH (QString const &zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
 
   } else {
       if (!zip.open(QuaZip::mdCreate)) {
-          result = QString("Could not create archive: %1").arg(zip.getZipError());
+          result = tr("Could not create archive. Return code %1.").arg(zip.getZipError());
           return false;
       }
   }
@@ -131,7 +138,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
   int archivedPartCount   = 0;
 
   char c;
-  Q_FOREACH (QFileInfo fileInfo, filesToArchive) {
+  Q_FOREACH (QFileInfo const &fileInfo, filesToArchive) {
 
       //qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
       if (!fileInfo.isFile())
@@ -140,10 +147,10 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       bool alreadyArchived = false;
       QString partStatus = "Archiving";
 
-      Q_FOREACH (QFileInfo zipFileInfo, zipFiles) {
+      Q_FOREACH (QFileInfo const &zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
-              bool okToOverwrite = (zipFileInfo.fileName().contains(QString("%1.dat").arg(FADE_SFX)) ||
-                                    zipFileInfo.fileName().contains(QString("%1.dat").arg(HIGHLIGHT_SFX)));
+              bool okToOverwrite = (zipFileInfo.fileName().endsWith(QString("%1.dat").arg(FADE_SFX),Qt::CaseInsensitive) ||
+                                    zipFileInfo.fileName().endsWith(QString("%1.dat").arg(HIGHLIGHT_SFX),Qt::CaseInsensitive));
               if (overwriteCustomPart && okToOverwrite) {
                   partStatus = "Overwriting archive";
                   //qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
@@ -191,7 +198,9 @@ bool ArchiveParts::Archive(const QString &zipArchive,
           fileNameWithCompletePath = fileNameWithRelativePath;
           //qDebug() << "fileNameWithCompletePath (ROOT TEXTURE/PART/PRIMITIVE) " << fileNameWithCompletePath;
         } else {
-          QString subfolder = fileInfo.suffix().toLower() == "png" ? "parts/textures" : "parts";
+          QString const subfolder = fileInfo.suffix().toLower() == QLatin1String("png")
+                                        ? QLatin1String("parts/textures")
+                                        : QLatin1String("parts");
           fileNameWithCompletePath = QString("%1/%2").arg(subfolder).arg(fileNameWithRelativePath);
           //qDebug() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
@@ -204,26 +213,26 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       inFile.setFileName(fileInfo.filePath());
 
       if (!inFile.open(QIODevice::ReadOnly)) {
-          result = QString("inFile open error: %1").arg(inFile.errorString().toLocal8Bit().constData());
+          result = tr("inFile open error: %1").arg(inFile.errorString().toLocal8Bit().constData());
           return false;
       }
 
       if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
-          result = QString("outFile open error: %1").arg(outFile.getZipError());
+          result = tr("outFile open error. Return code %1.").arg(outFile.getZipError());
           return false;
         }
 
       while (inFile.getChar(&c) && outFile.putChar(c));
 
       if (outFile.getZipError() != UNZ_OK) {
-          result = QString("outFile error: %1").arg(outFile.getZipError());
+          result = tr("outFile error. Return code %1.").arg(outFile.getZipError());
           return false;
         }
 
       outFile.close();
 
       if (outFile.getZipError() != UNZ_OK) {
-          result = QString("outFile close error: %1").arg(outFile.getZipError());
+          result = tr("outFile close error. Return code %1.").arg(outFile.getZipError());
           return false;
         }
 
@@ -236,7 +245,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
   zip.close();
 
   if (zip.getZipError() != 0) {
-      result = QString("Archive error: %1").arg(zip.getZipError());
+      result = QString("Archive error. Return code %1.").arg(zip.getZipError());
       return false;
     }
 
@@ -246,16 +255,19 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
 /* Confirm specified files exist in the archive */
 bool ArchiveParts::GetExistingArchiveFileList(
-            QStringList &zipDirFileList,
-            QStringList &validDirFiles,
-            const QString &zipArchive) {
-
+    QStringList &zipDirFileList,
+    QStringList &validDirFiles,
+    const QString &zipArchive)
+{
   QuaZip zip(zipArchive);
 
   if (! zip.open(QuaZip::mdUnzip)) {
-      emit gui->messageSig(LOG_ERROR, QString("Archive open error: %1 @ %2").arg(zip.getZipError()).arg(zipArchive));
+      QString const error = tr("Could not open archive to add content. Return code %1.<br>"
+                               "Archive file %2 may be open in another program.")
+                                .arg(zip.getZipError()).arg(QFileInfo(zipArchive).fileName());
+      emit gui->messageSig(LOG_ERROR, error);
       return false;
-    }
+  }
 
   zip.setFileNameCodec("IBM866");
 
@@ -265,68 +277,75 @@ bool ArchiveParts::GetExistingArchiveFileList(
   };
   QString EntryPointPaths[num_entryPoints] =
   {
-      "/parts", "/p", "/parts/s", "/parts/textures", "/p/8", "/p/48", "/parts/b", "/parts/s/b"
+    QLatin1String("/parts"),
+    QLatin1String("/p"),
+    QLatin1String("/parts/s"),
+    QLatin1String("/parts/textures"),
+    QLatin1String("/p/8"),
+    QLatin1String("/p/48"),
+    QLatin1String("/parts/b"),
+    QLatin1String("/parts/s/b")
   };
 
   QStringList entryList[num_entryPoints];
 
-  Q_FOREACH (QString dirFile, validDirFiles) {
+  Q_FOREACH (QString const &dirFile, validDirFiles) {
 
-     QFileInfo zipFile(dirFile);
-     QString fileName = zipFile.fileName();
-     QString dirName  = zipFile.dir().dirName();
-     bool texture     = zipFile.suffix().toLower() == "png";
+    QFileInfo zipFile(dirFile);
+    QString const fileName = zipFile.fileName();
+    QString dirName  = zipFile.dir().dirName();
+    bool texture     = zipFile.suffix().toLower() == "png";
 
-     EntryPoint ep = parts;
-     if (dirName == "parts") {
-          ep = parts;
-     } else
-       if (dirName == "p") {
-          ep = p;
-     } else
-       if (dirName == "s") {
-          ep = s;
-     } else
-       if (dirName == "textures"){
-          ep = t;
-     } else
-       if (dirName == "8") {
-          ep = p8;
-     } else
-       if (dirName == "48") {
-          ep = p48;
-     } else
-       if (dirName == "b") {
-           zipFile.dir().cdUp();
-           dirName = zipFile.dir().dirName();
-           if (dirName == "parts")
-               ep = partsb;
-           else
-           if (dirName == "s")
-               ep = sb;
-     } else {
-          ep = texture ? t : parts;
-     }
+    EntryPoint ep = parts;
+    if (dirName == QLatin1String("parts"))
+      ep = parts;
+    else
+    if (dirName == QLatin1String("p"))
+      ep = p;
+    else
+    if (dirName == QLatin1String("s"))
+        ep = s;
+    else
+    if (dirName == QLatin1String("textures"))
+      ep = t;
+    else
+    if (dirName == QLatin1String("8"))
+      ep = p8;
+    else
+    if (dirName == QLatin1String("48"))
+      ep = p48;
+    else
+    if (dirName == QLatin1String("b")) {
+      zipFile.dir().cdUp();
+      dirName = zipFile.dir().dirName();
+      if (dirName == QLatin1String("parts"))
+        ep = partsb;
+      else
+      if (dirName == QLatin1String("s"))
+        ep = sb;
+    }
+    else
+      ep = texture ? t : parts;
 
-     QuaZipDir zipDir(&zip,EntryPointPaths[ep]);
+    QuaZipDir zipDir(&zip,EntryPointPaths[ep]);
 
-     if (zipDir.exists()) {
-         //emit gui->messageSig(LOG_DEBUG, QString("Archive path for [%1] is [%2]").arg(zipFile).arg(zipDir.path()));
-         if (entryList[ep].isEmpty())
-             entryList[ep] = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Files, QDir::SortByMask);
-         if (entryList[ep].contains(fileName))
-             zipDirFileList << dirFile;
-     } else {
-         emit gui->messageSig(LOG_ERROR, QString("Archive entry point not found: %1").arg(EntryPointPaths[ep]));
-     }
+    if (zipDir.exists()) {
+      //emit gui->messageSig(LOG_DEBUG, QString("Archive path for [%1] is [%2]").arg(zipFile).arg(zipDir.path()));
+      if (entryList[ep].isEmpty())
+        entryList[ep] = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Files, QDir::SortByMask);
+      if (entryList[ep].contains(fileName))
+        zipDirFileList << dirFile;
+    } else {
+      emit gui->messageSig(LOG_WARNING, tr("Archive entry point not found: %1").arg(EntryPointPaths[ep]));
+    }
   }
 
   zip.close();
 
   if (zip.getZipError() != UNZ_OK) {
-      emit gui->messageSig(LOG_ERROR, QString("Archive close error: %1").arg(zip.getZipError()));
-      return false;
-    }
+    emit gui->messageSig(LOG_ERROR, tr("Archive close errorReturn code %1.").arg(zip.getZipError()));
+    return false;
+  }
 
   return true;
 }
@@ -336,36 +355,40 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
   QStringList filters = QStringList() << "*";
   QStringList entryList = dir.entryList(filters, QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
-  QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
+  QStringList excludedPaths = QStringList()
+                              << QLatin1String("unofficial/parts")
+                              << QLatin1String("unofficial/p")
+                              << QLatin1String("parts")
+                              << QLatin1String("p");
 
-  Q_FOREACH (QString file, entryList) {
-      QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
-      bool isExcludedPath = false;
-      Q_FOREACH (QString excludedPath, excludedPaths) {
-          QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
-          if ((isExcludedPath = (filePath.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
-              break;
-          }
+  Q_FOREACH (QString const &file, entryList) {
+    QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
+    bool isExcludedPath = false;
+    Q_FOREACH (QString const &excludedPath, excludedPaths) {
+      QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
+      if ((isExcludedPath = (filePath.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
+        break;
       }
-      if (isExcludedPath) {
-          emit gui->messageSig(LOG_NOTICE, QString("Specified path [%1] is excluded from archive.").arg(filePath));
-          return;
-      }
-
-      QFileInfo finfo(filePath);
-      if (finfo.isSymLink()) {
-        emit gui->messageSig(LOG_NOTICE, QString("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath()));
-        continue;
-      }
-
-      if (finfo.isDir()) {
-          //emit gui->messageSig(LOG_INFO, "FILE INFO DIR PATH: " << finfo.fileName());
-          QDir subDir(finfo.filePath());
-          RecurseAddDir(subDir, list);
-       } else if (finfo.suffix().toLower() == "dat" ||
-                  finfo.suffix().toLower() == "ldr" ||
-                  finfo.suffix().toLower() == "png") {
-          list << finfo.filePath();
-       }
     }
+    if (isExcludedPath) {
+      emit gui->messageSig(LOG_NOTICE, tr("Specified path [%1] is excluded from archive.").arg(filePath));
+      return;
+    }
+
+    QFileInfo finfo(filePath);
+    if (finfo.isSymLink()) {
+      emit gui->messageSig(LOG_NOTICE, tr("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath()));
+      continue;
+    }
+
+    if (finfo.isDir()) {
+      //emit gui->messageSig(LOG_INFO, "FILE INFO DIR PATH: " << finfo.fileName());
+      QDir subDir(finfo.filePath());
+      RecurseAddDir(subDir, list);
+    } else if (finfo.suffix().toLower() == "dat" ||
+               finfo.suffix().toLower() == "ldr" ||
+               finfo.suffix().toLower() == "png") {
+      list << finfo.filePath();
+    }
+  }
 }
