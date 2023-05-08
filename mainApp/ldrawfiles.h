@@ -278,6 +278,7 @@ class LDrawFile {
     bool                        _mpd;
     static bool                 _helperPartsNotInArchive;
     static bool                 _lpubFadeHighlight;
+    static bool                 _buildModDetected;
     static int                  _savedLines;
     static qint64               _elapsed;
 
@@ -522,6 +523,9 @@ class LDrawFile {
 
     /* Build Modification functions */
 
+    bool buildModDetected() {
+      return _buildModDetected;
+    }
     void insertBuildMod(const QString      &buildModKey,
                         const QVector<int> &modAttributes,
                         int                 stepIndex);

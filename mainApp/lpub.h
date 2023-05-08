@@ -1118,7 +1118,12 @@ public:
   void initialize();
   void initiaizeVisualEditor();
 
-  void displayFile(LDrawFile *ldrawFile, const Where &here, bool editModelFile = false, bool displayStartPage = false);
+  void displayFile(
+      LDrawFile *ldrawFile,
+      const Where &here,
+      bool editModelFile = false,
+      bool displayStartPage = false,
+      bool cycleSilent = false);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &duration);
 

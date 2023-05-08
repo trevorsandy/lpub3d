@@ -179,6 +179,7 @@ bool    LDrawFile::_lpubFadeHighlight = false;
 bool    LDrawFile::_currFileIsUTF8 = false;
 bool    LDrawFile::_loadAborted    = false;
 bool    LDrawFile::_loadBuildMods  = false;
+bool    LDrawFile::_buildModDetected = false;
 bool    LDrawFile::_loadUnofficialParts = true;
 bool    LDrawFile::_hasUnofficialParts = false;
 bool    LDrawFile::_helperPartsNotInArchive = false;
@@ -328,6 +329,7 @@ void LDrawFile::empty()
   _mpd                   = false;
   _loadAborted           = false;
   _loadBuildMods         = false;
+  _buildModDetected      = false;
   _loadUnofficialParts   = true;
   _hasUnofficialParts    = false;
   _lpubFadeHighlight     = false;
@@ -3390,6 +3392,7 @@ void LDrawFile::countParts(const QString &fileName) {
                             if (tokens[2] == "BUILD_MOD") {
                                 if (tokens[3] == "BEGIN") {
                                     buildModLevel = getLevel(tokens[4], BM_BEGIN);
+                                    _buildModDetected = true;
                                 } else if (tokens[3] == "END_MOD") {
                                     buildModLevel = getLevel(QString(), BM_END);
                                 }

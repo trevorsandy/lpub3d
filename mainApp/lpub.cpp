@@ -1484,10 +1484,11 @@ bool  Gui::compareVersionStr (const QString& first, const QString& second)
 }
 
 void Gui::displayFile(
-          LDrawFile *ldrawFile,
-    const Where     &here,
-          bool       editModelFile   /*false*/,
-          bool       displayStartPage/*false*/)
+    LDrawFile   *ldrawFile,
+    const Where &here,
+    bool         editModelFile   /*false*/,
+    bool         displayStartPage/*false*/,
+    bool         cycleSilent     /*false*/)
 {
     if (! exporting()) {
 #ifdef QT_DEBUG_MODE
@@ -1551,7 +1552,7 @@ void Gui::displayFile(
                    countPages();
                    inputPageNum = ldrawFile->getModelStartPageNumber(modelName);
                }
-               if (inputPageNum && displayPageNum != inputPageNum)
+               if (!cycleSilent && inputPageNum && displayPageNum != inputPageNum)
                    cyclePageDisplay(inputPageNum);
             }
 
@@ -1638,9 +1639,10 @@ void Gui::mpdComboChanged(int index)
 
     bool callDisplayFile = isIncludeFile;
 
+    bool cycleSilent = !Preferences::buildModEnabled || !lpub->ldrawFile.buildModDetected();
+
     if (!callDisplayFile) {
       const int modelPageNum = lpub->ldrawFile.getModelStartPageNumber(newSubFile);
-      bool cycleSilent = !Preferences::buildModEnabled;
       if (cycleSilent)
         countPages();
       if (modelPageNum && displayPageNum != modelPageNum) {
@@ -1656,7 +1658,12 @@ void Gui::mpdComboChanged(int index)
     if (callDisplayFile) {
       messageSig(LOG_INFO, tr( "Selected %1: %2")
                               .arg(isIncludeFile ? QLatin1String("includeFile") : QLatin1String("subModel")).arg(newSubFile));
-      displayFile(&lpub->ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
+      displayFile(
+          &lpub->ldrawFile,
+          Where(newSubFile, 0),
+          false/*editModelFile*/,
+          true/*displayStartPage*/,
+          cycleSilent);
       emit showLineSig(0, LINE_HIGHLIGHT);
       if (isIncludeFile) {  // Combo will not be set to include toolTip, so set here
           mpdCombo->setToolTip(tr("Include file: %1").arg(newSubFile));
