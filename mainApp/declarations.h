@@ -21,6 +21,8 @@
 
 #include "QString"
 
+#define LPUB3D_OPACITY_TO_ALPHA(o,a)(((o * a) + (100 - 1)) / 100)
+
 class Gui;
 extern Gui *gui;
 

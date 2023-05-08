@@ -6567,7 +6567,7 @@ QString Gui::createColourEntry(
   QString const _mainColourValue   = LDrawColor::value(colourCode);
   QString const _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : _highlightStepColour;
   QString const _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
-  int const _fadeAlphaValue        = ((LDrawColor::alpha(colourCode) * (100 - (100 - _fadeStepsOpacity))) + (100 - 1)) / 100;
+  int const _fadeAlphaValue        = LPUB3D_OPACITY_TO_ALPHA(_fadeStepsOpacity, LDrawColor::alpha(colourCode));
   int const _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")
