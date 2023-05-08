@@ -2145,14 +2145,52 @@ FadeStepsGui::FadeStepsGui(
 
   // enable fade step row
 
-  fadeCheck = new QCheckBox(tr("Enable fade previous steps"), parent);
+  fadeCheck = new QCheckBox(tr("Enable Fade Previous Steps"), parent);
   fadeCheck->setChecked(_meta->enable.value());
-  fadeCheck->setToolTip(tr("Turn on global fade previous steps."));
+  fadeCheck->setToolTip(tr("Turn on global fade previous steps or step parts."));
 
   connect(fadeCheck,SIGNAL(stateChanged(int)),
                 this, SLOT(valueChanged(int)));
 
   grid->addWidget(fadeCheck,0,0,1,2);
+
+  // LPub fade row
+  bool obligatory = Preferences::preferredRenderer != RENDERER_NATIVE;
+  QString const toolTip = obligatory
+                              ? tr("LPub fade is obligatory when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE])
+                              : tr("LPub fade is optional when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE]);
+
+  lpubFadeCheck = new QCheckBox(tr("Use LPub Fade Previous Steps"), parent);
+  lpubFadeCheck->setChecked(_meta->lpubFade.value() || obligatory);
+  lpubFadeCheck->setEnabled(!obligatory);
+  lpubFadeCheck->setToolTip(toolTip);
+
+  connect(lpubFadeCheck,SIGNAL(stateChanged(int)),
+          this, SLOT(valueChanged(int)));
+
+  grid->addWidget(lpubFadeCheck,1,0,1,2);
+
+  // fade setup row
+
+  setupCheck = new QCheckBox(tr("Setup LPub Fade Previous Steps"), parent);
+  setupCheck->setChecked(_meta->setup.value());
+  setupCheck->setToolTip(tr("Setup LPub fade steps. Check to use LPub fade previous steps or step parts locally."));
+
+  connect(setupCheck,SIGNAL(stateChanged(int)),
+          this, SLOT(valueChanged(int)));
+
+  grid->addWidget(setupCheck,2,0,1,2);
+
+  // use color row
+
+  useColorCheck = new QCheckBox(tr("Use Fade Color"), parent);
+  useColorCheck->setToolTip(tr("Use specified fade color (versus part colour)"));
+  useColorCheck->setChecked(meta->color.value().useColor);
+
+  connect(useColorCheck,SIGNAL(stateChanged(int)),
+          this, SLOT(valueChanged(int)));
+
+  grid->addWidget(useColorCheck,3,0,1,2);
 
   // color button row
 
@@ -2193,31 +2231,20 @@ FadeStepsGui::FadeStepsGui(
       colorExample->setToolTip(tr("Hex ARGB %1").arg(c.name(QColor::HexArgb).toUpper()));
   }
 
-  grid->addWidget(colorExample,1,0);
+  grid->addWidget(colorExample,4,0);
 
   colorCombo->setCurrentIndex(colorIndex);
   colorCombo->setDisabled(true);
 
-  grid->addWidget(colorCombo,1,1);
+  grid->addWidget(colorCombo,4,1);
 
   connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
                  this, SLOT(colorChange(        QString const &)));
 
-  // use color row
-
-  useColorCheck = new QCheckBox(tr("Use Fade Color"), parent);
-  useColorCheck->setToolTip(tr("Use specified fade color (versus part colour"));
-  useColorCheck->setChecked(meta->color.value().useColor);
-
-  connect(useColorCheck,SIGNAL(stateChanged(int)),
-                    this, SLOT(valueChanged(int)));
-
-  grid->addWidget(useColorCheck,2,0,1,2);
-
   // fade opacity row
 
   QLabel *fadeOpacityLabel = new QLabel(tr("Fade Percent"));
-  grid->addWidget(fadeOpacityLabel,3,0);
+  grid->addWidget(fadeOpacityLabel,5,0);
 
   fadeOpacitySlider = new QSlider(Qt::Horizontal, parent);
   fadeOpacitySlider->setToolTip(tr("Set the percent of fade, 0 is fully opaque, 100 is fully transparent."));
@@ -2231,10 +2258,12 @@ FadeStepsGui::FadeStepsGui(
   connect(fadeOpacitySlider,SIGNAL(valueChanged(int)),
                          this,SLOT(valueChanged(int)));
 
-  grid->addWidget(fadeOpacitySlider,3,1);
+  grid->addWidget(fadeOpacitySlider,5,1);
 
   emit fadeCheck->stateChanged(fadeCheck->isChecked());
 
+  setupModified = false;
+  lpubFadeModified = false;
   colorModified = false;
   fadeModified = false;
   useColorModified = false;
@@ -2271,14 +2300,11 @@ void FadeStepsGui::colorChange(QString const &colorName)
 
 void FadeStepsGui::valueChanged(int state)
 {
-  auto isChecked = [&state] ()
-  {
-      return state > Qt::Unchecked ? true : false;
-  };
-
-  bool checked;
+  bool const checked = state > Qt::Unchecked ? true : false;
   if (sender() == fadeCheck) {
-    checked = isChecked();
+    if (checked)
+      setupCheck->setChecked(!checked);
+    setupCheck->setEnabled(!checked);
     useColorCheck->setEnabled(checked);
     fadeOpacitySlider->setEnabled(checked);
     colorCombo->setEnabled(checked);
@@ -2286,8 +2312,17 @@ void FadeStepsGui::valueChanged(int state)
     if (!modified)
       modified = fadeModified;
     meta->enable.setValue(checked);
+  } else if (sender() == setupCheck) {
+    setupModified = meta->setup.value() != checked;
+    if (!modified)
+      modified = setupModified;
+    meta->setup.setValue(checked);
+  } else if (sender() == lpubFadeCheck) {
+    lpubFadeModified = meta->lpubFade.value() != checked;
+    if (!modified)
+      modified = lpubFadeModified;
+    meta->lpubFade.setValue(checked);
   } else if (sender() == useColorCheck) {
-    checked = isChecked();
     FadeColorData data = meta->color.value();
     useColorModified = data.useColor != checked && !checked;
     data.useColor = checked;
@@ -2327,6 +2362,10 @@ void FadeStepsGui::apply(
     MetaItem mi;
     if (fadeModified)
       mi.setGlobalMeta(topLevelFile,&meta->enable);
+    if (setupModified)
+      mi.setGlobalMeta(topLevelFile,&meta->setup);
+    if (lpubFadeModified)
+      mi.setGlobalMeta(topLevelFile,&meta->lpubFade);
     if (colorModified || useColorModified)
       mi.setGlobalMeta(topLevelFile,&meta->color);
     if (opacityModified)
@@ -2366,7 +2405,35 @@ HighlightStepGui::HighlightStepGui(
   connect(highlightCheck,SIGNAL(clicked(bool)),
           this,          SLOT( valueChanged(bool)));
 
-  grid->addWidget(highlightCheck,0,0,1,2);
+  grid->addWidget(highlightCheck,0,0,1,3);
+
+  // LPub fade row
+
+  bool obligatory = Preferences::preferredRenderer != RENDERER_NATIVE;
+  QString const toolTip = obligatory
+                              ? tr("LPub highlight is obligatory when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE])
+                              : tr("LPub highlight is optional when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE]);
+
+  lpubHighlightCheck = new QCheckBox(tr("Use LPub Highlight Current Step"), parent);
+  lpubHighlightCheck->setChecked(_meta->lpubHighlight.value() || obligatory);
+  lpubHighlightCheck->setEnabled(!obligatory);
+  lpubHighlightCheck->setToolTip(toolTip);
+
+  connect(lpubHighlightCheck,SIGNAL(stateChanged(int)),
+          this, SLOT(valueChanged(int)));
+
+  grid->addWidget(lpubHighlightCheck,1,0,1,3);
+
+  // fade setup row
+
+  setupCheck = new QCheckBox(tr("Setup LPub Highlight Current Step"), parent);
+  setupCheck->setChecked(_meta->setup.value());
+  setupCheck->setToolTip(tr("Setup LPub highlight step. Check to use LPub highlight current step or step parts locally."));
+
+  connect(setupCheck,SIGNAL(stateChanged(int)),
+          this, SLOT(valueChanged(int)));
+
+  grid->addWidget(setupCheck,2,0,1,3);
 
   // colour button row
 
@@ -2383,7 +2450,7 @@ HighlightStepGui::HighlightStepGui(
     colorExample->setToolTip(tr("Hex ARGB %1").arg(c.name(QColor::HexArgb).toUpper()));
   }
 
-  grid->addWidget(colorExample,1,0);
+  grid->addWidget(colorExample,3,0);
 
   colorButton = new QPushButton(parent);
   colorButton->setText(tr("Highlight Color..."));
@@ -2391,13 +2458,13 @@ HighlightStepGui::HighlightStepGui(
   connect(colorButton,SIGNAL(clicked(bool)),
                  this, SLOT(colorChange(bool)));
 
-  grid->addWidget(colorButton,1,1);
+  grid->addWidget(colorButton,3,1,1,2);
 
   // optional line width row
 
   if (Preferences::preferredRenderer == RENDERER_LDGLITE) {
     QLabel *lineWidthLabel = new QLabel(tr("Line Width"));
-    grid->addWidget(lineWidthLabel,2,0);
+    grid->addWidget(lineWidthLabel,4,0);
 
     lineWidthSpin = new QSpinBox(parent);
     lineWidthSpin->setRange(0,10);
@@ -2406,7 +2473,7 @@ HighlightStepGui::HighlightStepGui(
     connect(lineWidthSpin,SIGNAL(valueChanged(int)),
             this,         SLOT(  lineWidthChanged(int)));
 
-    grid->addWidget(lineWidthSpin,2,1);
+    grid->addWidget(lineWidthSpin,4,1);
 
     button = new QPushButton(parent);
     button->setIcon(QIcon(":/resources/resetaction.png"));
@@ -2418,7 +2485,7 @@ HighlightStepGui::HighlightStepGui(
             this,          SLOT(  enableReset( int)));
     connect(button,        SIGNAL(clicked(     bool)),
             this,          SLOT(  spinReset(   bool)));
-    grid->addWidget(button,2,2);
+    grid->addWidget(button,4,2);
   }
 
   if (parent) {
@@ -2429,6 +2496,8 @@ HighlightStepGui::HighlightStepGui(
 
   emit highlightCheck->stateChanged(highlightCheck->isChecked());
 
+  setupModified = false;
+  lpubHighlightModified = false;
   colorModified = false;
   highlightModified = false;
   lineWidthModified = false;
@@ -2469,15 +2538,30 @@ void HighlightStepGui::colorChange(bool clicked)
   }
 }
 
-void HighlightStepGui::valueChanged(bool clicked)
+void HighlightStepGui::valueChanged(bool checked)
 {
-  colorButton->setEnabled(clicked);
-  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-    lineWidthSpin->setEnabled(clicked);
-  highlightModified = meta->enable.value() != clicked;
-  if (!modified)
-    modified = highlightModified;
-  meta->enable.setValue(clicked);
+  if (sender() == highlightCheck) {
+    if (checked)
+      setupCheck->setChecked(!checked);
+    setupCheck->setEnabled(!checked);
+    colorButton->setEnabled(checked);
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+      lineWidthSpin->setEnabled(checked);
+    highlightModified = meta->enable.value() != checked;
+    if (!modified)
+      modified = highlightModified;
+    meta->enable.setValue(checked);
+  } else if (sender() == setupCheck) {
+    setupModified = meta->setup.value() != checked;
+    if (!modified)
+      modified = setupModified;
+    meta->setup.setValue(checked);
+  } else if (sender() == lpubHighlightCheck) {
+    lpubHighlightModified = meta->lpubHighlight.value() != checked;
+    if (!modified)
+      modified = lpubHighlightModified;
+    meta->lpubHighlight.setValue(checked);
+  }
 }
 
 
@@ -2494,6 +2578,10 @@ void HighlightStepGui::apply(
     MetaItem mi;
     if (highlightModified)
       mi.setGlobalMeta(topLevelFile,&meta->enable);
+    if (setupModified)
+      mi.setGlobalMeta(topLevelFile,&meta->setup);
+    if (lpubHighlightModified)
+      mi.setGlobalMeta(topLevelFile,&meta->lpubHighlight);
     if (colorModified)
       mi.setGlobalMeta(topLevelFile,&meta->color);
     if (lineWidthModified)

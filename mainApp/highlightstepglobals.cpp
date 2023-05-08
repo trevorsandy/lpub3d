@@ -74,8 +74,6 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
 
   setWindowTitle(tr("Highlight Step Globals Setup"));
 
-  setWhatsThis(lpubWT(WT_NUM_ENTRIES,windowTitle()));
-
   setWhatsThis(lpubWT(WT_SETUP_HIGHLIGHT_STEP,windowTitle()));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
@@ -88,16 +86,10 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   layout->addWidget(box);
   highlightStepChild = new HighlightStepGui(highlightStepMeta,box);
   data->children.append(highlightStepChild);
-  connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
-  connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-
-  box = new QGroupBox(tr("Highlight Current Step Setup"));
-  box->setWhatsThis(lpubWT(WT_SETUP_HIGHLIGHT_STEP_SETUP,box->title()));
-  box->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
-  layout->addWidget(box);
-  highlightStepSetupChild = new CheckBoxGui(tr("Setup Highlight Current Step"),&highlightStepMeta->setup,box);
-  data->children.append(highlightStepSetupChild);
-  connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (highlightStepChild->getHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
+  connect (highlightStepChild->getHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (highlightStepChild->getSetupCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (highlightStepChild->getLPubHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox(tr("Final Model Step"));
   box->setToolTip(tr("Automatically, append an un-faded and/or un-highlighted final step "
@@ -107,7 +99,8 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   data->children.append(finalModelEnabledChild);
   connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
-  emit highlightStepChild->getCheckBox()->clicked(highlightStepChild->getCheckBox()->isChecked());
+  // enable final model dialog
+  emit highlightStepChild->getHighlightCheckBox()->clicked(highlightStepChild->getHighlightCheckBox()->isChecked());
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
@@ -121,9 +114,6 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
 
 void GlobalHighlightStepDialog::enableControls(bool b)
 {
-  if (b)
-    highlightStepSetupChild->getCheckBox()->setChecked(!b);
-  highlightStepSetupChild->getCheckBox()->setEnabled(!b);
   finalModelEnabledChild->getCheckBox()->setEnabled(b);
 }
 

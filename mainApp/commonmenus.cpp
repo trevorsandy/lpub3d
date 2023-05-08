@@ -2487,30 +2487,12 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Configure and edit your instructions document\n"
-            "  fade previous steps settings.\n\n"
-            "  You can configure your fade previous steps display,\n"
-            "  setup and final model step settings.%1\n")
+            "  fade previous steps or step parts settings.\n\n"
+            "  You can configure your fade previous steps or step\n"
+            "  parts display, setup and final model step settings.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_SETUP_FADE_STEPS")
-#else
-                 ""
-#endif
-                )
-        },
-        // WT_SETUP_FADE_STEPS_SETUP
-        {
-            QObject::tr(
-            "  Turn on or off the capability to define fade previous\n"
-            "  steps locally (versus globally). This is to say, you\n"
-            "  can apply fade previous steps from the step where\n"
-            "  the LPub meta command is defined to enable this \n"
-            "  feature to the step where it is defined to disable it.\n\n"
-            "  This setting is disabled if Enable Fade Previous Steps\n"
-            "  is checked.%1\n")
-            .arg(
-#ifdef QT_DEBUG_MODE
-                 QLatin1String("\n\n  WT_SETUP_FADE_STEPS_SETUP")
 #else
                  ""
 #endif
@@ -2520,31 +2502,13 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Configure and edit your instructions document\n"
-            "  highlight current step settings.\n\n"
+            "  highlight current step or step parts settings.\n\n"
             "  You can configure your highlight current step\n"
-            "  display, setup and final model step settings.%1\n")
+            "  or step parts display, setup and final model\n"
+            "  step settings.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_SETUP_HIGHLIGHT_STEP")
-#else
-                 ""
-#endif
-                )
-        },
-        // WT_SETUP_HIGHLIGHT_STEP_SETUP
-        {
-            QObject::tr(
-            "  Turn on or off the capability to define highlight\n"
-            "  current step locally (versus globally). This is to\n"
-            "  say, you can apply highlight current step from the\n"
-            "  step where the LPub meta command is defined to enable\n"
-            "  this feature to the step where it is defined to disable\n"
-            "  it.\n\n"
-            "  This setting is disabled if Enable Highlight Current\n"
-            "  Step is checked.%1\n")
-            .arg(
-#ifdef QT_DEBUG_MODE
-                 QLatin1String("\n\n  WT_SETUP_HIGHLIGHT_STEP_SETUP")
 #else
                  ""
 #endif
@@ -7962,9 +7926,31 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_FADE_PREVIOUS_STEPS
         {
             QObject::tr(
-            "  Turn on or off fade previous steps globally.\n\n"
-            "  You can configure fade previous steps with the\n"
-            "  following options:\n"
+            "  Turn on or off fade previous steps or step parts globally.\n\n"
+            "  You can fade step parts locally using the !FADE command.\n"
+            "  You can configure fade previous steps or step parts with\n"
+            "  the following options:\n"
+            "  - Use LPub Fade Steps: this option will generate faded\n"
+            "    submodels and modify part lines color value before\n"
+            "    submitting them to the renderer. When not using the\n"
+            "    Native renderer, this option is obligatory.\n"
+            "    When unchecked, %1 will use the Native renderer fade\n"
+            "    behaviour. Parts and submodels are not manipulated, so\n"
+            "    when unchecked, step navigation is more performant.\n\n"
+            "  - Setup LPub Fade Steps: Turn on or off the capability\n"
+            "    to define fade previous steps or step parts locally\n"
+            "    (versus globally). This is to say, you can apply fade\n"
+            "    previous steps from the step where the LPub meta command\n"
+            "    is placed to enable this feature to the step where it\n"
+            "    is placed to disable it.\n"
+            "    For display model steps, this command is automatically\n"
+            "    disabled at the end of the step.\n"
+            "    This option requires Use LPub Fade Steps and is\n"
+            "    disabled if Enable Fade Steps is checked.\n\n"
+            "  - Use Fade Color: all faded parts are assigned the color\n"
+            "    specified for fade color as described above.\n"
+            "    When not checked, faded parts will display their\n"
+            "    assigned part color faded to the specified opacity.\n\n"
             "  - Fade Color: set the fade color using the LDraw\n"
             "    colors drop-down control.\n"
             "    Fade color selection defaults to standard LDraw colors.\n"
@@ -7974,16 +7960,13 @@ void CommonMenus::setWhatsThis()
             "    color safe name (spaces replaced with '_') versus a\n"
             "    hex [A]RGB value as there are multiple LDraw colours\n"
             "    that use the same hex [A]RGB value.\n\n"
-            "  - Use Fade Color: all faded parts are assigned the color\n"
-            "    specified for fade color as described above.\n"
-            "    When not checked, faded parts will display their\n"
-            "    assigned part color faded to the specified opacity.\n\n"
             "  - Fade Percent: sets the fade color transparency\n"
             "    between 0 and 100 percent where 0 is fully\n"
             "    transparent and 100 is fully opaque.\n"
             "    This value is translated to the fade color\n"
             "    opacity and alpha channel - for example, 60% fade\n"
-            "    is 40% opacity, 102/255 alpha channel and 66 hex.%1\n")
+            "    is 40% opacity, 102/255 alpha channel and 66 hex.%2\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_FADE_PREVIOUS_STEPS")
@@ -7995,9 +7978,30 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_HIGHLIGHT_CURRENT_STEP
         {
             QObject::tr(
-            "  Turn on or off highlight current step globally.\n\n"
-            "  You can configure highlight current step with the\n"
-            "  following options:\n"
+            "  Turn on or off highlight current step or step parts\n"
+            "  globally.\n\n"
+            "  You can highlight step parts locally using the\n"
+            "  !SILHOUETTE command.\n"
+            "  You can configure highlight current step or step parts\n"
+            "  with the following options:\n"
+            "  - Use LPub Highlight Step: this option will generate\n"
+            "    highlighted submodels and modify part lines color\n"
+            "    value before submitting them to the renderer. When\n"
+            "    not using the Native renderer, this option is\n"
+            "    obligatory. When unchecked, %1 will use the Native\n"
+            "    renderer highlight behaviour. Parts and submodels\n"
+            "    are not manipulated, so when unchecked, step\n"
+            "    navigation is more performant.\n\n"
+            "  - Setup LPub Highlight Step: Turn on or off the\n"
+            "    capability to define highlight current step or step\n"
+            "    parts locally (versus globally). This is to say, you\n"
+            "    can apply highlight step from the step where the LPub\n"
+            "    meta command is placed to enable this feature to the\n"
+            "    step where it is placed to disable it.\n"
+            "    For display model steps, this command is automatically\n"
+            "    disabled at the end of the step.\n"
+            "    This option requires Use LPub Highlight Step and is\n"
+            "    disabled if Enable Highlight Step is checked.\n\n"
             "  - Highlight Color: set the highlight color using\n"
             "    the color picker.\n"
             "    Any color can be selected for the highlight color.\n\n"
@@ -8006,7 +8010,8 @@ void CommonMenus::setWhatsThis()
             "    The mininimum allowed spin box value is 0\n"
             "    and the maximum is 10.\n"
             "    Spin box values are incremented by 1 step\n"
-            "    unit.%1\n")
+            "    unit.%2\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_HIGHLIGHT_CURRENT_STEP")

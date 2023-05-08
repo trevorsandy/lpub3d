@@ -661,7 +661,9 @@ public:
     QGroupBox  *parent = nullptr);
   ~FadeStepsGui() {}
 
-  QCheckBox *getCheckBox() { return fadeCheck; }
+  QCheckBox *getFadeCheckBox() { return fadeCheck; }
+  QCheckBox *getSetupCheckBox() { return setupCheck; }
+  QCheckBox *getLPubFadeCheckBox() { return lpubFadeCheck; }
 
   virtual void apply(QString &modelName);
 
@@ -669,6 +671,8 @@ private:
   FadeStepsMeta  *meta;
 
   QCheckBox   *fadeCheck;
+  QCheckBox   *setupCheck;
+  QCheckBox   *lpubFadeCheck;
   QCheckBox   *useColorCheck;
   QSlider     *fadeOpacitySlider;
   QLabel      *colorExample;
@@ -676,6 +680,8 @@ private:
 
   bool colorModified;
   bool fadeModified;
+  bool setupModified;
+  bool lpubFadeModified;
   bool useColorModified;
   bool opacityModified;
 
@@ -701,14 +707,18 @@ public:
     QGroupBox  *parent = nullptr);
   ~HighlightStepGui() {}
 
-  virtual void apply(QString &modelName);
+  QCheckBox *getHighlightCheckBox() { return highlightCheck; }
+  QCheckBox *getSetupCheckBox() { return setupCheck; }
+  QCheckBox *getLPubHighlightCheckBox() { return lpubHighlightCheck; }
 
-  QCheckBox *getCheckBox() { return highlightCheck; }
+  virtual void apply(QString &modelName);
 
 private:
   HighlightStepMeta  *meta;
 
   QCheckBox   *highlightCheck;
+  QCheckBox   *setupCheck;
+  QCheckBox   *lpubHighlightCheck;
   QLabel      *colorExample;
   QPushButton *colorButton;
   QSpinBox    *lineWidthSpin;
@@ -718,6 +728,8 @@ private:
 
   bool colorModified;
   bool highlightModified;
+  bool setupModified;
+  bool lpubHighlightModified;
   bool lineWidthModified;
   int  data;
 
@@ -727,7 +739,7 @@ private slots:
 
 public slots:
   void colorChange(bool clicked);
-  void valueChanged(bool clicked);
+  void valueChanged(bool checked);
   void lineWidthChanged(int value);
 };
 

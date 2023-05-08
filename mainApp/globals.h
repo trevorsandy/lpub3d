@@ -337,7 +337,6 @@ class GlobalFadeStepDialog : public QDialog
 private:
   GlobalFadeStepPrivate *data;
   FadeStepsGui          *fadeStepsChild;
-  CheckBoxGui           *fadeStepsSetupChild;
   FinalModelEnabledGui  *finalModelEnabledChild;
 
 public:
@@ -365,7 +364,6 @@ class GlobalHighlightStepDialog : public QDialog
 private:
   GlobalHighlightStepPrivate *data;
   HighlightStepGui           *highlightStepChild;
-  CheckBoxGui                *highlightStepSetupChild;
   FinalModelEnabledGui       *finalModelEnabledChild;
 
 public:
