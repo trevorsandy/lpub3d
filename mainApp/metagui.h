@@ -2228,12 +2228,13 @@ private:
  *
  **********************************************************************/
 
-class POVRayRenderDialogGui : public QObject
+class POVRayRenderDialogGui : public QWidget
 {
   Q_OBJECT
 public:
-  POVRayRenderDialogGui(){}
-  ~POVRayRenderDialogGui(){}
+  explicit POVRayRenderDialogGui(QWidget *parent = nullptr)
+      : QWidget(parent) {}
+  ~POVRayRenderDialogGui() {}
 
   void getRenderSettings(QStringList &csiKeyList,
                          int       &width,

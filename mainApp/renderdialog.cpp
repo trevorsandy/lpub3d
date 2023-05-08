@@ -236,7 +236,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
     if (mRenderType == POVRAY_RENDER) {
 
         POVRayRenderDialogGui *povrayRenderDialogGui =
-                new POVRayRenderDialogGui();
+            new POVRayRenderDialogGui(this);
         povrayRenderDialogGui->getRenderSettings(
                     mCsiKeyList,
                     mWidth,
@@ -248,7 +248,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
         double renderPercentage = mCsiKeyList.at(K_MODELSCALE).toDouble();
         BlenderPreferences *blenderRenderDialogGui =
-                new BlenderPreferences();
+            new BlenderPreferences(this);
         blenderRenderDialogGui->getRenderSettings(
                     mWidth,
                     mHeight,
