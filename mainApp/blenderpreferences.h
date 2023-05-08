@@ -61,7 +61,7 @@ public:
     static int numPaths(bool = false);
     static int numSettings(bool = false);
     static int numSettingsMM(bool = false);
-    static int getBlenderAddon(const QString &);
+    static bool getBlenderAddon(const QString &);
     static bool extractBlenderAddon(const QString &);
     static void loadDefaultParameters(QByteArray& Buffer, int Which);
     static bool exportParameterFile();
@@ -72,13 +72,13 @@ protected:
     QString readStdErr(bool &hasError) const;
     void initLDrawImport();
     void initLDrawImportMM();
-    void clear();
+    void clearLists();
 
 public slots:
     void resetSettings();
     void browseBlender(bool);
-    void configureBlender(bool = false);
-    void updateLDrawAddon();
+    void configureBlenderAddon(bool = false);
+    void updateBlenderAddon();
     void showPathsGroup();
     void enableImportModule();
     void sizeChanged(const QString &);
@@ -95,12 +95,12 @@ public slots:
     bool promptCancel();
     void showResult();
     void getStandardOutput();
-    void statusUpdate(bool ok = false, const QString &message = QString());
+    void statusUpdate(bool addon, bool error = true, const QString &message = QString());
 
 private:
     QFormLayout *blenderForm;
     QWidget     *blenderContent;
-    QGridLayout *blenderVersionGridLayout;
+    QGridLayout *blenderAddonGridLayout;
     QGridLayout *blenderPathsLayout;
     QGridLayout *blenderExeGridLayout;
     QFormLayout *settingsSubform;
@@ -124,7 +124,7 @@ private:
     QTimer       updateTimer;
     QStringList  stdOutList;
     QString      versionText;
-    bool         versionFound;
+    bool         blenderVersionFound;
 
     enum BlenderRenPathType
     {
@@ -365,14 +365,6 @@ private:
         PARAMS_CUSTOM_COLOURS,
         PARAMS_SLOPED_BRICKS,
         PARAMS_LIGHTED_BRICKS
-    };
-
-    enum BlenderAddOnUpdate
-    {
-        BLENDER_ADDON_FAIL = -1,
-        BLENDER_ADDON_DOWNLOAD,
-        BLENDER_ADDON_RELOAD,
-        BLENDER_ADDON_CANCEL
     };
 
     struct BlenderSettings

@@ -2858,7 +2858,6 @@ void Preferences::rendererPreferences()
                     blenderInstalled = true;
                     if (items.size() > 1) {
                         blenderAddonVersion = items.last();
-
                     }
                     logInfo() << qUtf8Printable(QObject::tr("Blender version: %1%2").arg(blenderVersion).arg(blenderAddonVersion));
                 }
@@ -2886,8 +2885,9 @@ void Preferences::rendererPreferences()
         else
             Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey),QVariant(blenderImportModule));
         logInfo() << qUtf8Printable(QObject::tr("Blender import module: %1").arg(blenderImportModule));
-    } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey))) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
+    } else {
+        if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey)))
+            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
         blenderImportModule.clear();
     }
 
@@ -4472,7 +4472,7 @@ void Preferences::setBlenderExePathPreference(QString s)
   if (blenderExe.isEmpty())
       Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
   else
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderExeKey),QVariant(s));
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderExeKey),QVariant(blenderExe));
 }
 
 void Preferences::setBlenderVersionPreference(QString s)
@@ -4505,7 +4505,7 @@ void Preferences::setBlenderLDrawConfigPreference(QString s)
         setBlenderImportModule(s);
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey));
     } else
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey),QVariant(s));
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey),QVariant(blenderLDrawConfigFile));
 }
 
 void Preferences::setBlenderImportModule(QString s)
