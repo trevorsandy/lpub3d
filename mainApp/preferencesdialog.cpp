@@ -2265,6 +2265,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
     {
         for (int i = begin; i < end; i++) {
             mThemeColors[i] = Preferences::themeColors[i];
+            QString const defaultColorName = Preferences::defaultThemeColors[i].color;
             // description label
             QLabel *label = new QLabel(Preferences::defaultThemeColors[i].label, container);
             gridLayout->addWidget(label,i,0);
@@ -2272,11 +2273,19 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             // color button
             QToolButton *colorButton = new QToolButton(container);
             QPixmap pix(12, 12);
-            pix.fill(getColor(i, mThemeColors[i]));
+            QColor color = getColor(i, mThemeColors[i]);
+            QString colorName;
+            if (color.isValid()) {
+                colorName = color.name(QColor::HexArgb).toUpper();
+            } else {
+                colorName = tr("Invalid - %1").arg(mThemeColors[i]);
+                color = QColor(Qt::black);
+            }
+            pix.fill(color);
             colorButton->setIcon(pix);
             colorButton->setProperty("index", i);
             colorButton->setProperty("color", mThemeColors[i]);
-            colorButton->setToolTip(tr("Edit Color"));
+            colorButton->setToolTip(tr("Edit Color %1").arg(colorName));
             gridLayout->addWidget(colorButton,i,1);
             connect(colorButton, SIGNAL(clicked()), this, SLOT(setThemeColor()));
             colorButtonList << colorButton;
@@ -2285,13 +2294,22 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             QToolButton *resetButton = new QToolButton(container);
             resetButton->setText(tr("..."));
             resetButton->setProperty("index", i);
-            QString toolTipText = QString(tr("Reset"));
-            if (mThemeColors[i] == Preferences::defaultThemeColors[i].color) {
+            QString toolTipText = tr("Reset to %1").arg(colorName);
+            if (mThemeColors[i].toLower() == defaultColorName.toLower()) {
                 resetButton->setEnabled(false);
             } else {
                 // prepare color icon
                 QImage image(16, 16, QImage::Format_RGB888);
-                image.fill(getColor(i, Preferences::defaultThemeColors[i].color));
+                color = getColor(i, defaultColorName);
+                QString colorName;
+                if (color.isValid()) {
+                    colorName = color.name(QColor::HexArgb).toUpper();
+                    toolTipText = tr("Reset to %1").arg(colorName);
+                } else {
+                    colorName = tr("Invalid - %1").arg(defaultColorName);
+                    color = QColor(Qt::black);
+                }
+                image.fill(color);
                 QPainter painter(&image);
                 painter.setPen(Qt::darkGray);
                 painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
@@ -2302,7 +2320,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                 image.save(&buffer, "PNG");
                 buffer.close();
                 const char*  format = "<table><tr><td>Reset To %1</td><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%2\"/></td></tr></table>";
-                toolTipText = QString(format).arg(Preferences::defaultThemeColors[i].color.toUpper(), QString(buffer.data().toBase64()));
+                toolTipText = QString(format).arg(colorName, QString(buffer.data().toBase64()));
             }
             resetButton->setToolTip(toolTipText);
             gridLayout->addWidget(resetButton,i,2);
@@ -2514,12 +2532,16 @@ void ThemeColorsDialog::resetThemeColors()
                           tr("Reset all Theme colors to defaults.<br>Are you sure ?"),
                           QMessageBox::Yes|QMessageBox::No)) {
         for (int i = 0; i < THEME_NUM_COLORS; i++) {
-            if (mThemeColors[i] == Preferences::defaultThemeColors[i].color)
+            QString const defaultColorName = Preferences::defaultThemeColors[i].color;
+            if (mThemeColors[i].toLower() == defaultColorName.toLower())
                 continue;
             else
-                mThemeColors[i] = Preferences::defaultThemeColors[i].color;
+                mThemeColors[i] = defaultColorName;
+            QColor color = getColor(i, mThemeColors[i]);
+            if (!color.isValid())
+                color = QColor(Qt::black);
             QPixmap pix(12, 12);
-            pix.fill(getColor(i, mThemeColors[i]));
+            pix.fill(color);
             colorButtonList[i]->setIcon(pix);
         }
     }
@@ -2535,15 +2557,28 @@ void ThemeColorsDialog::resetThemeColor()
     mThemeColors[index] = Preferences::themeColors[index];
 
     QPixmap pix(12, 12);
-    pix.fill(getColor(index, (mThemeColors[index])));
+    QColor color = getColor(index, mThemeColors[index]);
+    if (!color.isValid())
+       color = QColor(Qt::black);
+    pix.fill(color);
     colorButtonList[index]->setIcon(pix);
 
-    if (mThemeColors[index] == Preferences::defaultThemeColors[index].color) {
+    QString const defaultColorName = Preferences::defaultThemeColors[index].color;
+
+    if (mThemeColors[index].toLower() == defaultColorName.toLower()) {
         resetButtonList[index]->setToolTip(tr("Reset"));
         resetButtonList[index]->setEnabled(false);
     } else {
         QImage image(16, 16, QImage::Format_RGB888);
-        image.fill(getColor(index, Preferences::defaultThemeColors[index].color));
+        color = getColor(index, defaultColorName);
+        QString colorName;
+        if (color.isValid()) {
+            colorName = color.name(QColor::HexArgb).toUpper();
+        } else {
+            colorName = tr("Invalid - %1").arg(defaultColorName);
+            color = QColor(Qt::black);
+        }
+        image.fill(color);
         QPainter painter(&image);
         painter.setPen(Qt::darkGray);
         painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
@@ -2554,7 +2589,7 @@ void ThemeColorsDialog::resetThemeColor()
         image.save(&buffer, "PNG");
         buffer.close();
         const char* format = "<table><tr><td>Reset To %1 </td><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%2\"/></td></tr></table>";
-        QString text = QString(format).arg(Preferences::defaultThemeColors[index].color.toUpper(), QString(buffer.data().toBase64()));
+        QString text = QString(format).arg(colorName, QString(buffer.data().toBase64()));
         resetButtonList[index]->setToolTip(text);
         resetButtonList[index]->setEnabled(true);
     }
@@ -2597,7 +2632,7 @@ void ThemeColorsDialog::setThemeColor()
     image.save(&buffer, "PNG");
     buffer.close();
     const char* format = "<table><tr><td>Reset To %1</td><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%2\"/></td></tr></table>";
-    QString text = QString(format).arg(mThemeColors[index].toUpper(), QString(buffer.data().toBase64()));
+    QString text = QString(format).arg(newColor.name(QColor::HexArgb).toUpper(), QString(buffer.data().toBase64()));
     resetButtonList[index]->setToolTip(text);
     resetButtonList[index]->setEnabled(true);
 }
@@ -2658,6 +2693,10 @@ void ThemeColorsDialog::toggleDefaultsTab()
             readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
         readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
         for (int i = THEME_DEFAULT_SCENE_BACKGROUND_COLOR; i < THEME_NUM_COLORS; i++) {
+            QColor color = getColor(i, Preferences::defaultThemeColors[i].color);
+            QString const colorName = color.isValid()
+                                          ? color.name(QColor::HexArgb).toUpper()
+                                          : Preferences::defaultThemeColors[i].color.toUpper();
             QString labelText = Preferences::defaultThemeColors[i].label;
             if (i < THEME_DARK_SCENE_BACKGROUND_COLOR)
                 labelText.prepend("Default ");
@@ -2671,22 +2710,22 @@ void ThemeColorsDialog::toggleDefaultsTab()
             label = new QLabel(container);
             label->setFixedWidth(16);
             label->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-            QColor color = getColor(i, Preferences::defaultThemeColors[i].color);
             QString styleSheet =
-                    QString("QLabel { background-color: %1; }")
-                    .arg(!color.isValid() ? "transparent" :
-                         QString("rgba(%1, %2, %3, %4)")
-                         .arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
+                QString("QLabel { background-color: %1; }")
+                    .arg(color.isValid()
+                             ? QString("rgba(%1, %2, %3, %4)")
+                                   .arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha())
+                             : QLatin1String("transparent"));
             label->setAutoFillBackground(true);
             label->setStyleSheet(styleSheet);
-            label->setToolTip(tr("Hex RGB Value %1 Alpha %2").arg(color.name(QColor::HexRgb).toUpper()).arg(color.alpha()));
+            label->setToolTip(tr("Hex ARGB %1").arg(colorName));
             gridLayout->addWidget(label,i,1);
 
             // default color hex (readOnly
             QLineEdit *readOnlyColor = new QLineEdit(container);
             readOnlyColor->setPalette(readOnlyPalette);
             readOnlyColor->setReadOnly(true);
-            readOnlyColor->setText(Preferences::defaultThemeColors[i].color.toUpper());
+            readOnlyColor->setText(colorName);
             gridLayout->addWidget(readOnlyColor,i,2);
         }
 
