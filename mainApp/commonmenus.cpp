@@ -4611,7 +4611,7 @@ void CommonMenus::setWhatsThis()
             "    Meta commands using LDraw colors will display the LDraw\n"
             "    color safe name (spaces replaced with '_') versus a\n"
             "    hex [A]RGB value as there are multiple LDraw colours\n"
-            "    that use the same hex RGB value.\n\n"
+            "    that use the same hex [A]RGB value.\n\n"
             "    You can also manually enter any color using the\n"
             "    (#|0x)([AA]RRGGBB) hex [A]RGB value syntax.\n"
             "    When this option is enabled, use the dropdown list\n"
@@ -4622,8 +4622,12 @@ void CommonMenus::setWhatsThis()
             "    When the LDraw LEGO parts library is in use, the\n"
             "    global fade color list is loaded from the LDraw\n"
             "    parts LDConfig file.\n\n"
-            "  - Fade Percent: set the fade opacity percent where 0\n"
-            "    is fully opaque and 100 is fully transparent.%2\n")
+            "  - Fade Percent: sets the fade color transparency\n"
+            "    between 0 and 100 percent where 0 is fully\n"
+            "    transparent and 100 is fully opaque.\n"
+            "    This value is translated to the fade color\n"
+            "    opacity and alpha channel - for example, 60% fade\n"
+            "    is 40% opacity, 102/255 alpha channel and 66 hex.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
@@ -7969,14 +7973,17 @@ void CommonMenus::setWhatsThis()
             "    Meta commands using LDraw colors will display the LDraw\n"
             "    color safe name (spaces replaced with '_') versus a\n"
             "    hex [A]RGB value as there are multiple LDraw colours\n"
-            "    that use the same hex RGB value.\n\n"
+            "    that use the same hex [A]RGB value.\n\n"
             "  - Use Fade Color: all faded parts are assigned the color\n"
             "    specified for fade color as described above.\n"
             "    When not checked, faded parts will display their\n"
             "    assigned part color faded to the specified opacity.\n\n"
-            "  - Fade Opacity: sets the fade color opaqueness\n"
+            "  - Fade Percent: sets the fade color transparency\n"
             "    between 0 and 100 percent where 0 is fully\n"
-            "    transparent and 100 is fully opaque.%1\n")
+            "    transparent and 100 is fully opaque.\n"
+            "    This value is translated to the fade color\n"
+            "    opacity and alpha channel - for example, 60% fade\n"
+            "    is 40% opacity, 102/255 alpha channel and 66 hex.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_FADE_PREVIOUS_STEPS")

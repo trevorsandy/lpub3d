@@ -203,6 +203,7 @@ class PreferencesDialog : public QDialog
     void on_browsePublishLogo_clicked();
     void on_checkForUpdates_btn_clicked();
     void on_highlightStepBtn_clicked();
+    void on_fadeStepsOpacitySlider_valueChanged(int);
     void on_ldrawLibPathEdit_editingFinished();
 
     void on_altLDConfigGrpBox_clicked(bool checked);

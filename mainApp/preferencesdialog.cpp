@@ -477,12 +477,21 @@ void PreferencesDialog::setPreferences()
       }
   }
   if (fadeColor.isValid()) {
+      int trans = ui.fadeStepsOpacitySlider->value();
+      int opacity = 100-trans;
+      int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
+      fadeColor.setAlpha(alpha);
       QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }").
-          arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
+          QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+              .arg(fadeColor.red())
+              .arg(fadeColor.green())
+              .arg(fadeColor.blue())
+              .arg(fadeColor.alpha());
       ui.fadeStepsColourLabel->setAutoFillBackground(true);
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
-      ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(fadeColorName));
+      ui.fadeStepsColourLabel->setToolTip(tr("Hex ARGB %1").arg(fadeColor.name(QColor::HexArgb).toUpper()));
+      ui.fadeStepsOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
+                                               .arg(trans).arg(opacity).arg(alpha));
   }
 
   ui.fadeStepsColoursCombo->setCurrentIndex(fadeColorIndex);
@@ -494,14 +503,15 @@ void PreferencesDialog::setPreferences()
 
   QColor highlightColour = QColor(               Preferences::highlightStepColour);
   if(highlightColour.isValid() ) {
-    ui.highlightStepColorLabel->setAutoFillBackground(true);
     QString styleSheet =
-        QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
             .arg(highlightColour.red())
             .arg(highlightColour.green())
-            .arg(highlightColour.blue());
+            .arg(highlightColour.blue())
+            .arg(highlightColour.alpha());
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
     ui.highlightStepColorLabel->setStyleSheet(styleSheet);
-    ui.highlightStepColorLabel->setToolTip(tr("Hex RGB Value %1").arg(highlightColour.name(QColor::HexRgb).toUpper()));
+    ui.highlightStepColorLabel->setToolTip(tr("Hex ARGB %1").arg(highlightColour.name(QColor::HexArgb).toUpper()));
   }
 
   // search directories
@@ -1053,30 +1063,59 @@ void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QStri
 {
   QColor newFadeColor = LDrawColor::color(colorName);
   if(newFadeColor.isValid() ) {
-      ui.fadeStepsColourLabel->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-          .arg(newFadeColor.red())
-          .arg(newFadeColor.green())
-          .arg(newFadeColor.blue());
-      ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
-      ui.fadeStepsColourLabel->setToolTip(tr("Hex RGB Value %1").arg(newFadeColor.name(QColor::HexRgb).toUpper()));
-    }
+    int trans = ui.fadeStepsOpacitySlider->value();
+    int opacity = 100-trans;
+    int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
+    newFadeColor.setAlpha(alpha);
+    QString styleSheet =
+        QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+            .arg(newFadeColor.red())
+            .arg(newFadeColor.green())
+            .arg(newFadeColor.blue())
+            .arg(newFadeColor.alpha());
+    ui.fadeStepsColourLabel->setAutoFillBackground(true);
+    ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+    ui.fadeStepsColourLabel->setToolTip(tr("Hex ARGB %1").arg(newFadeColor.name(QColor::HexArgb).toUpper()));
+    ui.fadeStepsOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
+                                              .arg(trans).arg(opacity).arg(alpha));
+  }
+}
+
+void PreferencesDialog::on_fadeStepsOpacitySlider_valueChanged(int trans)
+{
+  QColor newFadeColor = ui.fadeStepsColourLabel->palette().window().color();
+  if(newFadeColor.isValid() ) {
+    int opacity = 100-trans;
+    int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
+    newFadeColor.setAlpha(alpha);
+    QString styleSheet =
+        QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+            .arg(newFadeColor.red())
+            .arg(newFadeColor.green())
+            .arg(newFadeColor.blue())
+            .arg(newFadeColor.alpha());
+    ui.fadeStepsColourLabel->setAutoFillBackground(true);
+    ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+    ui.fadeStepsColourLabel->setToolTip(tr("Hex ARGB %1").arg(newFadeColor.name(QColor::HexArgb).toUpper()));
+    ui.fadeStepsOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
+                                              .arg(trans).arg(opacity).arg(alpha));
+  }
 }
 
 void PreferencesDialog::on_highlightStepBtn_clicked()
 {
-  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
+  QColorDialog::ColorDialogOptions options = QColorDialog::ShowAlphaChannel;
+  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().window().color(), this, tr("Highlight Colour"), options);
   if(highlightColour.isValid()) {
-    QString highlightColourName = highlightColour.name().toUpper();
-    ui.highlightStepColorLabel->setAutoFillBackground(true);
     QString styleSheet =
-        QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
         .arg(highlightColour.red())
         .arg(highlightColour.green())
-        .arg(highlightColour.blue());
+        .arg(highlightColour.blue())
+        .arg(highlightColour.alpha());
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
     ui.highlightStepColorLabel->setStyleSheet(styleSheet);
-    ui.highlightStepColorLabel->setToolTip(tr("Hex RGB Value %1").arg(highlightColourName));
+    ui.highlightStepColorLabel->setToolTip(tr("Hex ARGB %1").arg(highlightColour.name(QColor::HexArgb).toUpper()));
   }
 }
 
@@ -1611,7 +1650,7 @@ void PreferencesDialog::messageManagement()
 
 QString const PreferencesDialog::moduleVersion()
 {
-   return ui.moduleVersion_Combo->currentText();
+  return ui.moduleVersion_Combo->currentText();
 }
 
 QString const PreferencesDialog::ldrawLibPath()
@@ -1637,10 +1676,10 @@ QString const PreferencesDialog::pliControlFile()
 
 QString const PreferencesDialog::lgeoPath()
 {
-    if (Preferences::povRayInstalled && ui.lgeoGrpBox->isChecked()){
-        return ui.lgeoPath->displayText();
-    }
-    return "";
+  if (Preferences::povRayInstalled && ui.lgeoGrpBox->isChecked()){
+    return ui.lgeoPath->displayText();
+  }
+  return "";
 }
 
 QString const PreferencesDialog::ldviewExe()
@@ -1661,10 +1700,10 @@ QString const PreferencesDialog::ldgliteExe()
 
 QString const PreferencesDialog::povrayExe()
 {
-    if (Preferences::povRayInstalled) {
-        return ui.povrayPath->displayText();
-    }
-    return "";
+  if (Preferences::povRayInstalled) {
+    return ui.povrayPath->displayText();
+  }
+  return "";
 }
 
 int PreferencesDialog::preferredRenderer()
@@ -1677,85 +1716,85 @@ int PreferencesDialog::preferredRenderer()
 
 bool PreferencesDialog::useNativePovGenerator()
 {
-    return ui.povGenNativeRadio->isChecked();
+  return ui.povGenNativeRadio->isChecked();
 }
 
 bool PreferencesDialog::autoUpdateChangeLog()
 {
-    return ui.autoUpdateChangeLogBox->isChecked();
+  return ui.autoUpdateChangeLogBox->isChecked();
 }
 
 bool PreferencesDialog::perspectiveProjection()
 {
-   return ui.projectionCombo->currentIndex() == 0 ? true : false;
+  return ui.projectionCombo->currentIndex() == 0 ? true : false;
 }
 
 bool PreferencesDialog::saveOnRedraw()
 {
-       return ui.saveOnRedrawChkBox->isChecked();
+  return ui.saveOnRedrawChkBox->isChecked();
 }
 
 bool PreferencesDialog::saveOnUpdate()
 {
-       return ui.saveOnUpdateChkBox->isChecked();
+  return ui.saveOnUpdateChkBox->isChecked();
 }
 
 bool PreferencesDialog::povrayDisplay()
 {
-    return ui.povrayDisplay_Chk->isChecked();
+  return ui.povrayDisplay_Chk->isChecked();
 }
 
 int PreferencesDialog::povrayRenderQuality()
 {
-    return ui.povrayRenderQualityCombo->currentIndex();
+  return ui.povrayRenderQualityCombo->currentIndex();
 }
 
 bool PreferencesDialog::povrayAutoCrop()
 {
-    return ui.povrayAutoCropBox->isChecked();
+  return ui.povrayAutoCropBox->isChecked();
 }
 
 bool PreferencesDialog::loadLastOpenedFile()
 {
-    return ui.loadLastOpenedFileCheck->isChecked();
+  return ui.loadLastOpenedFileCheck->isChecked();
 }
 
 bool PreferencesDialog::extendedSubfileSearch()
 {
-    return ui.extendedSubfileSearchCheck->isChecked();
+  return ui.extendedSubfileSearchCheck->isChecked();
 }
 
 int PreferencesDialog::ldrawFilesLoadMsgs()
 {
-    return ui.ldrawFilesLoadMsgsCombo->currentIndex();
+  return ui.ldrawFilesLoadMsgsCombo->currentIndex();
 }
 
 QString const PreferencesDialog::fadeStepsColour()
 {
-    return ui.fadeStepsColoursCombo->currentText();
+  return ui.fadeStepsColoursCombo->currentText();
 }
 
 bool PreferencesDialog::showSaveOnRedraw()
 {
- return showSaveOnRedrawFlag;
+  return showSaveOnRedrawFlag;
 }
 
 bool PreferencesDialog::showSaveOnUpdate()
 {
- return showSaveOnUpdateFlag;
+  return showSaveOnUpdateFlag;
 }
 
 QString const PreferencesDialog::highlightStepColour()
 {
-    return ui.highlightStepColorLabel->palette().background().color().name();
+  return ui.highlightStepColorLabel->palette().window().color().name(QColor::HexArgb).toUpper();
 }
 
 QString const PreferencesDialog::documentLogoFile()
 {
-    if (ui.publishLogoGrpBox->isChecked()){
-        return ui.publishLogoPath->displayText();
-    }
-    return QString();
+  if (ui.publishLogoGrpBox->isChecked()){
+    return ui.publishLogoPath->displayText();
+  }
+  return QString();
 }
 
 int PreferencesDialog::fadeStepsOpacity()
@@ -1770,12 +1809,12 @@ int PreferencesDialog::highlightStepLineWidth()
 
 bool PreferencesDialog::highlightFirstStep()
 {
-       return ui.highlightFirstStepBox->isChecked();
+  return ui.highlightFirstStepBox->isChecked();
 }
 
 bool PreferencesDialog::enableImageMatting()
 {
-       return ui.imageMattingChk->isChecked();
+  return ui.imageMattingChk->isChecked();
 }
 
 bool PreferencesDialog::centimeters()
@@ -1805,7 +1844,7 @@ bool PreferencesDialog::enableDocumentLogo()
 
 bool PreferencesDialog::fadeStepsUseColour()
 {
-    return ui.fadeStepsUseColourGrpBox->isChecked();
+  return ui.fadeStepsUseColourGrpBox->isChecked();
 }
 
 bool PreferencesDialog::enableLDViewSingleCall()
@@ -1815,7 +1854,7 @@ bool PreferencesDialog::enableLDViewSingleCall()
 
 bool PreferencesDialog::enableLDViewSnaphsotList()
 {
-       return ui.ldviewSnaphsotsList_Chk->isChecked();
+  return ui.ldviewSnaphsotsList_Chk->isChecked();
 }
 
 bool  PreferencesDialog::displayAllAttributes()

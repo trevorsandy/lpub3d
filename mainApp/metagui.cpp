@@ -779,7 +779,7 @@ NumberGui::NumberGui(
       arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setAutoFillBackground(true);
   colorExample->setStyleSheet(styleSheet);
-  colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+  colorExample->setToolTip(tr("Hex RGB %1").arg(c.name(QColor::HexRgb).toUpper()));
   grid->addWidget(colorExample,1,1);
 
   colorButton = new QPushButton(tr("Change"));
@@ -885,7 +885,7 @@ void NumberGui::browseColor(bool clicked)
           QString("QLabel { background-color: rgb(%1, %2, %3); }")
           .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
       colorExample->setStyleSheet(styleSheet);
-      colorExample->setToolTip(tr("Hex RGB Value %1").arg(newColor.name(QColor::HexRgb).toUpper()));
+      colorExample->setToolTip(tr("Hex RGB %1").arg(newColor.name(QColor::HexRgb).toUpper()));
       meta->color.setValue(newColor.name());
       modified = colorModified = true;
     }
@@ -1421,7 +1421,7 @@ PageAttributeTextGui::PageAttributeTextGui(
       arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setAutoFillBackground(true);
   colorExample->setStyleSheet(styleSheet);
-  colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+  colorExample->setToolTip(tr("Hex RGB %1").arg(c.name(QColor::HexRgb).toUpper()));
   grid->addWidget(colorExample,2,1);
 
   colorButton = new QPushButton(tr("Change"));
@@ -1537,7 +1537,7 @@ void PageAttributeTextGui::browseColor(bool clicked)
           QString("QLabel { background-color: rgb(%1, %2, %3); }")
           .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
       colorExample->setStyleSheet(styleSheet);
-      colorExample->setToolTip(tr("Hex RGB Value %1").arg(newColor.name(QColor::HexRgb).toUpper()));
+      colorExample->setToolTip(tr("Hex RGB %1").arg(newColor.name(QColor::HexRgb).toUpper()));
       meta->textColor.setValue(newColor.name());
       modified = colorModified = true;
     }
@@ -2156,6 +2156,10 @@ FadeStepsGui::FadeStepsGui(
 
   // color button row
 
+  int trans = Preferences::fadeStepsOpacity;
+  int opacity = 100-trans;
+  int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
+
   colorExample = new QLabel(parent);
   colorExample->setFixedSize(50,20);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
@@ -2180,12 +2184,13 @@ FadeStepsGui::FadeStepsGui(
       }
   }
   if (c.isValid()) {
+      c.setAlpha(alpha);
       QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }").
-          arg(c.red()).arg(c.green()).arg(c.blue());
+          QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+          .arg(c.red()).arg(c.green()).arg(c.blue()).arg(c.alpha());
       colorExample->setAutoFillBackground(true);
       colorExample->setStyleSheet(styleSheet);
-      colorExample->setToolTip(tr("Hex RGB Value %1").arg(cn));
+      colorExample->setToolTip(tr("Hex ARGB %1").arg(c.name(QColor::HexArgb).toUpper()));
   }
 
   grid->addWidget(colorExample,1,0);
@@ -2211,15 +2216,17 @@ FadeStepsGui::FadeStepsGui(
 
   // fade opacity row
 
-  QLabel *fadeOpacityLabel = new QLabel(tr("Fade Opacity"));
+  QLabel *fadeOpacityLabel = new QLabel(tr("Fade Percent"));
   grid->addWidget(fadeOpacityLabel,3,0);
 
   fadeOpacitySlider = new QSlider(Qt::Horizontal, parent);
-  fadeOpacitySlider->setToolTip(tr("Set the fade color opaqueness beteen 0 and 100."));
+  fadeOpacitySlider->setToolTip(tr("Set the percent of fade, 0 is fully opaque, 100 is fully transparent."));
   fadeOpacitySlider->setRange(0,100);
   fadeOpacitySlider->setTickInterval(5);
   fadeOpacitySlider->setTickPosition(QSlider::TicksAbove);
   fadeOpacitySlider->setValue(_meta->opacity.value());
+  fadeOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
+                                    .arg(trans).arg(opacity).arg(alpha));
 
   connect(fadeOpacitySlider,SIGNAL(valueChanged(int)),
                          this,SLOT(valueChanged(int)));
@@ -2236,15 +2243,24 @@ FadeStepsGui::FadeStepsGui(
 
 void FadeStepsGui::colorChange(QString const &colorName)
 {
-  QColor oldFadeColour = colorExample->palette().background().color();
+  QColor oldFadeColour = colorExample->palette().window().color();
   QColor fadeColor = LDrawColor::color(colorName);
   if (fadeColor.isValid()) {
-    colorExample->setAutoFillBackground(true);
+    int trans = fadeOpacitySlider->value();
+    int opacity = 100-trans;
+    int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
+    fadeColor.setAlpha(alpha);
     QString styleSheet =
-      QString("QLabel { background-color: rgb(%1, %2, %3); }")
-              .arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
+      QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+              .arg(fadeColor.red())
+              .arg(fadeColor.green())
+              .arg(fadeColor.blue())
+              .arg(fadeColor.alpha());
+    colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(fadeColor.name(QColor::HexRgb).toUpper()));
+    colorExample->setToolTip(tr("Hex ARGB %1").arg(fadeColor.name(QColor::HexArgb).toUpper()));
+    fadeOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
+                                     .arg(trans).arg(opacity).arg(alpha));
     FadeColorData data = meta->color.value();
     data.color = colorName;
     data.useColor = true;
@@ -2279,6 +2295,24 @@ void FadeStepsGui::valueChanged(int state)
       modified = useColorModified;
     meta->color.setValue(data);
   } else if (sender() == fadeOpacitySlider) {
+    QColor fadeColor = colorExample->palette().window().color();
+    if (fadeColor.isValid()) {
+      int trans = state;
+      int opacity = 100-trans;
+      int alpha = LPUB3D_OPACITY_TO_ALPHA(opacity, 255);
+      fadeColor.setAlpha(alpha);
+      QString styleSheet =
+          QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+              .arg(fadeColor.red())
+              .arg(fadeColor.green())
+              .arg(fadeColor.blue())
+              .arg(fadeColor.alpha());
+      colorExample->setAutoFillBackground(true);
+      colorExample->setStyleSheet(styleSheet);
+      colorExample->setToolTip(tr("Hex ARGB %1").arg(fadeColor.name(QColor::HexArgb).toUpper()));
+      fadeOpacitySlider->setToolTip(tr("Fade Transparency %1%, Opacity %2%, Color Alpha %3/255")
+                                        .arg(trans).arg(opacity).arg(alpha));
+    }
     opacityModified = meta->opacity.value() != state;
     if (!modified)
       modified = opacityModified;
@@ -2339,14 +2373,14 @@ HighlightStepGui::HighlightStepGui(
   colorExample = new QLabel(parent);
   colorExample->setFixedSize(50,20);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorExample->setAutoFillBackground(true);
   QColor c = QColor(_meta->color.value());
   if (c.isValid()) {
     QString styleSheet =
-      QString("QLabel { background-color: rgb(%1, %2, %3); }").
-      arg(c.red()).arg(c.green()).arg(c.blue());
+      QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+      .arg(c.red()).arg(c.green()).arg(c.blue()).arg(c.alpha());
+    colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+    colorExample->setToolTip(tr("Hex ARGB %1").arg(c.name(QColor::HexArgb).toUpper()));
   }
 
   grid->addWidget(colorExample,1,0);
@@ -2417,16 +2451,20 @@ void HighlightStepGui::spinReset(bool)
 void HighlightStepGui::colorChange(bool clicked)
 {
   Q_UNUSED(clicked);
-  QColor oldHighlightColour = colorExample->palette().background().color();
-  QColor highlightColour = QColorDialog::getColor(oldHighlightColour, this);
+  QColorDialog::ColorDialogOptions options = QColorDialog::ShowAlphaChannel;
+  QColor oldHighlightColour = colorExample->palette().window().color();
+  QColor highlightColour = QColorDialog::getColor(oldHighlightColour, this, tr("Highlight Colour"), options);
   if (highlightColour.isValid()) {
-    colorExample->setAutoFillBackground(true);
     QString styleSheet =
-      QString("QLabel { background-color: rgb(%1, %2, %3); }")
-              .arg(highlightColour.red()).arg(highlightColour.green()).arg(highlightColour.blue());
+      QString("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+              .arg(highlightColour.red())
+              .arg(highlightColour.green())
+              .arg(highlightColour.blue())
+              .arg(highlightColour.alpha());
+    colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(highlightColour.name(QColor::HexRgb).toUpper()));
-    meta->color.setValue(highlightColour.name());
+    colorExample->setToolTip(tr("Hex ARGB %1").arg(highlightColour.name(QColor::HexArgb).toUpper()));
+    meta->color.setValue(highlightColour.name(QColor::HexArgb).toUpper());
     modified = colorModified = oldHighlightColour != highlightColour;
   }
 }
@@ -3203,7 +3241,7 @@ BackgroundGui::BackgroundGui(
            .arg(c.red()).arg(c.green()).arg(c.blue()));
   colorExample->setAutoFillBackground(true);
   colorExample->setStyleSheet(styleSheet);
-  colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+  colorExample->setToolTip(tr("Hex RGB %1").arg(c.name(QColor::HexRgb).toUpper()));
   grid->addWidget(colorExample,0,2);
 
   /* Image */
@@ -3481,7 +3519,7 @@ void BackgroundGui::browseColor(bool)
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(newColor.name(QColor::HexRgb).toUpper()));
+    colorExample->setToolTip(tr("Hex RGB %1").arg(newColor.name(QColor::HexRgb).toUpper()));
     meta->setValue(background);
     modified = true;
   }
@@ -3637,7 +3675,7 @@ BorderGui::BorderGui(
       arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setAutoFillBackground(true);
   colorExample->setStyleSheet(styleSheet);
-  colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+  colorExample->setToolTip(tr("Hex RGB %1").arg(c.name(QColor::HexRgb).toUpper()));
   grid->addWidget(colorExample,2,1);
 
   colorButton = new QPushButton(tr("Change"),parent);
@@ -3884,7 +3922,7 @@ void BorderGui::browseColor(bool)
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(newColor.name(QColor::HexRgb).toUpper()));
+    colorExample->setToolTip(tr("Hex RGB %1").arg(newColor.name(QColor::HexRgb).toUpper()));
     modified = _border.color != border.color;
   }
 }
@@ -4109,7 +4147,7 @@ void PlacementGui::apply(QString &topLevelFile)
                                    .arg(c.red()).arg(c.green()).arg(c.blue()));
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(StyleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+    colorExample->setToolTip(tr("Hex RGB %1").arg(c.name(QColor::HexRgb).toUpper()));
     grid->addWidget(colorExample,1,1);
 
     colorButton = new QPushButton(tr("Change"),parent);
@@ -4326,7 +4364,7 @@ void PointerAttribGui::browseColor(bool)
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    colorExample->setToolTip(tr("Hex RGB Value %1").arg(newColor.name(QColor::HexRgb).toUpper()));
+    colorExample->setToolTip(tr("Hex RGB %1").arg(newColor.name(QColor::HexRgb).toUpper()));
   }
 }
 
@@ -4446,7 +4484,7 @@ SepGui::SepGui(
       QString("QLabel { background-color: rgb(%1, %2, %3); }").
       arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setStyleSheet(styleSheet);
-  colorExample->setToolTip(tr("Hex RGB Value %1").arg(c.name(QColor::HexRgb).toUpper()));
+  colorExample->setToolTip(tr("Hex RGB %1").arg(c.name(QColor::HexRgb).toUpper()));
   grid->addWidget(colorExample,2,1);
 
   button = new QPushButton("Change",parent);
@@ -4582,7 +4620,7 @@ void SepGui::browseColor(
           QString("QLabel { background-color: rgb(%1, %2, %3); }")
           .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
       colorExample->setStyleSheet(styleSheet);
-      colorExample->setToolTip(tr("Hex RGB Value %1").arg(newColor.name(QColor::HexRgb).toUpper()));
+      colorExample->setToolTip(tr("Hex RGB %1").arg(newColor.name(QColor::HexRgb).toUpper()));
       _data.color = newColor.name();
       meta->setValue(_data);
       modified = _data.color != data.color;
