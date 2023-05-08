@@ -35,6 +35,9 @@
 #include <QProgressBar>
 #include <QProcess>
 #include <QTimer>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include <JlCompress.h>
 
@@ -1483,11 +1486,13 @@ void BlenderPreferences::configureBlender(bool testBlender)
         enum ProcEnc { PR_OK, PR_FAIL, PR_WAIT, PR_INSTALL, PR_TEST };
         QString const blenderExe = QDir::toNativeSeparators(blenderFile);
         QString const blenderDir = QDir::toNativeSeparators(QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir));
+        QString const blenderAddonDir    = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
         QString const blenderSetupDir    = QDir::toNativeSeparators(QString("%1/setup").arg(blenderDir));
         QString const blenderConfigDir   = QDir::toNativeSeparators(QString("%1/config").arg(blenderDir));
         QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
         QString const blenderTestString  = QLatin1String("###TEST_BLENDER###");
+        QString const allowModifyExternalPython = "yes";
         QByteArray addonPathsAndModuleNames;
         QString message, shellProgram;
         QStringList arguments;
@@ -1504,12 +1509,15 @@ void BlenderPreferences::configureBlender(bool testBlender)
 
             process = new QProcess();
 
-            QStringList systemEnvironment = QProcess::systemEnvironment();
-            systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
-
             QString processAction = tr("addon install");
             if (action == PR_INSTALL) {
                 connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()));
+
+                QStringList systemEnvironment = QProcess::systemEnvironment();
+                systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
+                systemEnvironment.prepend("ADDONS_TO_LOAD=" + addonPathsAndModuleNames);
+                systemEnvironment.prepend("ALLOW_MODIFY_EXTERNAL_PYTHON=" + allowModifyExternalPython);
+                process->setEnvironment(systemEnvironment);
             } 
             else
             {
@@ -1517,7 +1525,7 @@ void BlenderPreferences::configureBlender(bool testBlender)
                 disconnect(&updateTimer, SIGNAL(timeout()), this, SLOT(update()));
             }
 
-            process->setEnvironment(systemEnvironment);
+
 
             process->setWorkingDirectory(blenderDir);
 
@@ -1767,7 +1775,61 @@ void BlenderPreferences::configureBlender(bool testBlender)
         message = tr("Blender Addon Install Arguments: %1 %2").arg(blenderExe).arg(arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
 
-        versionFound = false;
+        if (!testBlender)
+            versionFound = false;
+
+        // Check if there are addon folders in /addons
+        if (QDir(blenderAddonDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
+            //A. Create a QJsonObject
+            QJsonObject jsonObj;
+            //B. Create jsonArray
+            QJsonArray jsonArray;
+            // 1. get list of addons
+            QStringList addonDirs = QDir(blenderAddonDir).entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+            // 2. search each addon folder for addon file __init__.py
+            Q_FOREACH (QString const &addon, addonDirs) {
+                // First, check if there are files in the addon
+                QDir dir(QString("%1/%2").arg(blenderAddonDir).arg(addon));
+                dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+                QFileInfoList list = dir.entryInfoList();
+                for (int i = 0; i < list.size(); i++) {
+                    // Second, read the file to get the module name
+                    if (list.at(i).fileName() == QLatin1String("__init__.py")) {
+                        QFile file(QFileInfo(list.at(i)).absoluteFilePath());
+                        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+                            emit gui->messageSig(LOG_ERROR, tr("Cannot read addon file %1<br>%2")
+                                                               .arg(list.at(i).fileName())
+                                                               .arg(file.errorString()));
+                            break;
+                        } else {
+                            // Third, append the path and module list to addonPathsAndModuleNamesList
+                            bool foundModule = false;
+                            QTextStream in(&file);
+                            while ( ! in.atEnd()) {
+                                if (QString(in.readLine(0)).startsWith("bl_info")) {
+                                    foundModule = true;
+                                    break;
+                                }
+                            }
+                            file.close();
+                            if (foundModule) {
+                                //C. Create Item of Json Object content (object of object)
+                                QJsonObject jsonItemObj;
+                                jsonItemObj["load_dir"] = QDir::toNativeSeparators(dir.absolutePath());
+                                jsonItemObj["module_name"] = dir.dirName();
+                                //D. Add jsonItemObj to jsonArray
+                                jsonArray.append(jsonItemObj);
+                            }
+                        }
+                    }
+                }
+            }
+            //E. Add jsonArray to jsonObj and give it an object Name
+            jsonObj["addons"] = jsonArray;
+            //F. Create a QByteArray and fill it with QJsonDocument (json compact format)
+            addonPathsAndModuleNames = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+            qDebug() << "Rendered json byteArray text: " << lpub_endl<< addonPathsAndModuleNames << lpub_endl;
+        }
 
         result = processCommand(PR_INSTALL);
 
@@ -1795,7 +1857,8 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
         dir.mkdir(blenderDir);
 
     // Get Blender addon
-    QString const blenderAddonFile = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
+    QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
+
 
     BlenderAddOnUpdate AddOnUpdate = static_cast<BlenderAddOnUpdate>(getBlenderAddon(blenderDir));
 
@@ -1826,8 +1889,8 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
 
 int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 {
-    QString const blenderAddonDir    = QString("%1/addons").arg(blenderDir);
-    QString const blenderAddonFile   = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
+    QString const blenderAddonDir    = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
+    QString const blenderAddonFile   = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
     BlenderAddOnUpdate AddOnUpdate   = ADD_ON_DOWNLOAD;
 
     if (QFileInfo(blenderAddonFile).exists()) {
