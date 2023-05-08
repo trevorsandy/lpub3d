@@ -278,6 +278,7 @@ public:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
 	bool LPubFadeSteps();
+	bool UseLPubTrueFade();
 	bool UseLPubFadeColour();
 	QString LPubFadeColour();
 /*** LPub3D Mod end ***/

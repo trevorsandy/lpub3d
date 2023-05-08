@@ -4500,6 +4500,7 @@ FadeStepsMeta::FadeStepsMeta() : BranchMeta()
   fdata.useColor = Preferences::fadeStepsUseColour;
   color.setValue(fdata);
   opacity.setValue(Preferences::fadeStepsOpacity);
+  truefade.setValue(true);
 }
 
 void FadeStepsMeta::setPreferences(bool reset)
@@ -4509,11 +4510,13 @@ void FadeStepsMeta::setPreferences(bool reset)
    if (reset) {
      Preferences::fadestepPreferences();
      displayPreference = Preferences::enableFadeSteps != enable.value();
+     setup.setValue(false);
      enable.setValue(Preferences::enableFadeSteps);
      fdata.color = Preferences::validFadeStepsColour;
      fdata.useColor = Preferences::fadeStepsUseColour;
      color.setValue(fdata);
      opacity.setValue(Preferences::fadeStepsOpacity);
+     truefade.setValue(true);
    } else {
      if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
        Preferences::enableFadeSteps    = enable.value();
@@ -4551,10 +4554,11 @@ void FadeStepsMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
-  enable.init( this, "ENABLED");
-  setup.init(  this, "SETUP");
-  color.init(  this, "COLOR");
-  opacity.init(this, "OPACITY");
+  enable.init(  this, "ENABLED");
+  setup.init(   this, "SETUP");
+  color.init(   this, "COLOR");
+  opacity.init( this, "OPACITY");
+  truefade.init(this, "TRUE_FADE");
 }
 
 /* ------------------ */
@@ -4574,6 +4578,7 @@ void HighlightStepMeta::setPreferences(bool reset)
    if (reset) {
      Preferences::highlightstepPreferences();
      displayPreference = Preferences::enableHighlightStep != enable.value();
+     setup.setValue(false);
      enable.setValue(Preferences::enableHighlightStep);
      color.setValue(Preferences::highlightStepColour);
      lineWidth.setValue(Preferences::highlightStepLineWidth);

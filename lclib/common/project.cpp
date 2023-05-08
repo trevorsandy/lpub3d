@@ -41,8 +41,11 @@ lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 	StepImagesHeight = lcGetProfileInt(LC_PROFILE_HTML_IMAGE_HEIGHT);
 	PartsListStep = (HTMLOptions & LC_HTML_LISTSTEP) != 0;
 	PartsListEnd = (HTMLOptions & LC_HTML_LISTEND) != 0;
-/*** LPub3D Mod - Fade Previous Steps ***/
-	FadeSteps = gApplication->mPreferences.mFadeSteps;
+/*** LPub3D Mod - HTML Highlight New Parts ***/
+	HtmlHighlightNewParts = gApplication->mPreferences.mHighlightNewParts;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - HTML Fade Previous Steps ***/
+	HtmlFadeSteps = gApplication->mPreferences.mFadeSteps;
 /*** LPub3D Mod end ***/
 }
 
@@ -67,8 +70,11 @@ void lcHTMLExportOptions::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_HTML_OPTIONS, HTMLOptions);
 	lcSetProfileInt(LC_PROFILE_HTML_IMAGE_WIDTH, StepImagesWidth);
 	lcSetProfileInt(LC_PROFILE_HTML_IMAGE_HEIGHT, StepImagesHeight);
-/*** LPub3D Mod - Fade Previous Steps ***/
-	gApplication->mPreferences.mFadeSteps = FadeSteps;
+/*** LPub3D Mod - HTML Highlight New Parts ***/
+	gApplication->mPreferences.mHighlightNewParts = HtmlHighlightNewParts;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - HTML Fade Previous Steps ***/
+	gApplication->mPreferences.mFadeSteps = HtmlFadeSteps;
 /*** LPub3D Mod end ***/
 }
 
@@ -94,7 +100,11 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
-
+/*** LPub3D Mod - true fade ***/
+	mFadeSteps = Preferences::enableFadeSteps;
+	mHighlightStep = Preferences::enableHighlightStep;
+	mTrueFade = gApplication->mPreferences.mLPubTrueFade;
+/*** LPub3D Mod end ***/
 	if (!mIsPreview && gMainWindow)
 		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
 }
@@ -105,15 +115,19 @@ Project::~Project()
 }
 
 /*** LPub3D Mod - Camera Globe and Image Export ***/
-void Project::SetRenderAttributes(
-	const int     Renderer,
+void Project::SetRenderAttributes(const int     Renderer,
 	const int     ImageType,
 	const int     ImageWidth,
 	const int     ImageHeight,
 	const int     PageWidth,
 	const int     PageHeight,
 	const QString FileName,
-	const float   Resolution)
+	const float   Resolution,
+/*** LPub3D Mod - true fade ***/
+	const bool    TrueFade,
+	const bool    FadeSteps,
+	const bool    HighlightStep)
+/*** LPub3D Mod end ***/
 {
 	mRenderer      = Renderer;
 	mImageType     = ImageType;
@@ -124,6 +138,11 @@ void Project::SetRenderAttributes(
 	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
 	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
 	mViewerLoaded  = true;
+/*** LPub3D Mod - true fade ***/
+	mTrueFade      =TrueFade;
+	mFadeSteps     =FadeSteps;
+	mHighlightStep =HighlightStep;
+/*** LPub3D Mod end ***/
 }
 void Project::SetImageSize(
 	const int ImageWidth,

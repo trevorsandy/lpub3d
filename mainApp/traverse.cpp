@@ -1183,25 +1183,20 @@ int Gui::drawPage(
             case EnableFadeStepsCalloutAssemRc:
             case EnableFadeStepsGroupAssemRc:
             case EnableFadeStepsAssemRc:
-              if ((rc == EnableFadeStepsCalloutAssemRc ?
-                         curMeta.LPub.callout.csi.fadeSteps.enable.value() &&
-                        !curMeta.LPub.callout.csi.fadeSteps.setup.value() &&
-                        !m_fadeStepsSetup :
+              if (!m_fadeStepsSetup &&
+                  (rc == EnableFadeStepsCalloutAssemRc ?
+                        !curMeta.LPub.callout.csi.fadeSteps.enable.global &&
+                        !curMeta.LPub.callout.csi.fadeSteps.setup.value() :
                    rc == EnableFadeStepsGroupAssemRc ?
-                         curMeta.LPub.multiStep.csi.fadeSteps.enable.value() &&
-                        !curMeta.LPub.multiStep.csi.fadeSteps.setup.value() &&
-                        !m_fadeStepsSetup :
-                   rc == EnableFadeStepsAssemRc ?
-                         curMeta.LPub.assem.fadeSteps.enable.value() &&
-                        !curMeta.LPub.assem.fadeSteps.setup.value() &&
-                        !m_fadeStepsSetup :
-                        // EnableFadeStepsRc
-                         curMeta.LPub.fadeSteps.enable.value() &&
-                        !curMeta.LPub.fadeSteps.setup.value() &&
-                        !m_fadeStepsSetup )) {
+                        !curMeta.LPub.multiStep.csi.fadeSteps.enable.global &&
+                        !curMeta.LPub.multiStep.csi.fadeSteps.setup.value() :
+                 /*rc == EnableFadeStepsAssemRc*/
+                        !curMeta.LPub.assem.fadeSteps.enable.global &&
+                        !curMeta.LPub.assem.fadeSteps.setup.value())) {
                   parseError(tr("Fade previous steps command IGNORED.<br>"
-                                "FADE_STEPS ENABLED or FADE_STEPS SETUP must be set to TRUE."
-                                "<br>GLOBAL commands must appear in the header of the top model."),opts.current);
+                                "FADE_STEPS SETUP must be set to TRUE."
+                                "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
+                                "<br>GLOBAL command must appear in the header of the top model."),opts.current);
               } else if (rc == EnableFadeStepsCalloutAssemRc) {
                   curMeta.LPub.callout.csi.fadeSteps.setPreferences();
                   if (step)
@@ -1217,6 +1212,13 @@ int Gui::drawPage(
               }
               break;
             case EnableFadeStepsRc:
+                if (!curMeta.LPub.fadeSteps.enable.global && !curMeta.LPub.fadeSteps.setup.value()) {
+                    parseError(tr("Fade previous steps command IGNORED.<br>"
+                                  "FADE_STEPS SETUP must be set to TRUE."
+                                  "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
+                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    break;
+                }
                 curMeta.LPub.fadeSteps.setPreferences();
                 if (step)
                     step->csiStepMeta.fadeSteps = curMeta.LPub.fadeSteps;
@@ -1230,25 +1232,20 @@ int Gui::drawPage(
             case EnableHighlightStepCalloutAssemRc:
             case EnableHighlightStepGroupAssemRc:
             case EnableHighlightStepAssemRc:
-                if ((rc == EnableHighlightStepCalloutAssemRc ?
-                           curMeta.LPub.callout.csi.highlightStep.enable.value() &&
-                          !curMeta.LPub.callout.csi.highlightStep.setup.value() &&
-                          !m_highlightStepSetup :
+                if (!m_highlightStepSetup &&
+                    (rc == EnableHighlightStepCalloutAssemRc ?
+                          !curMeta.LPub.callout.csi.highlightStep.enable.global &&
+                          !curMeta.LPub.callout.csi.highlightStep.setup.value() :
                      rc == EnableHighlightStepGroupAssemRc ?
-                           curMeta.LPub.multiStep.csi.highlightStep.enable.value() &&
-                          !curMeta.LPub.multiStep.csi.highlightStep.setup.value() &&
-                          !m_highlightStepSetup :
-                     rc == EnableHighlightStepAssemRc ?
-                           curMeta.LPub.assem.highlightStep.enable.value() &&
-                          !curMeta.LPub.assem.highlightStep.setup.value() &&
-                          !m_highlightStepSetup :
-                          // EnableHighlightStepRc
-                           curMeta.LPub.highlightStep.enable.value() &&
-                          !curMeta.LPub.highlightStep.setup.value() &&
-                          !m_highlightStepSetup )) {
+                          !curMeta.LPub.multiStep.csi.highlightStep.enable.global &&
+                          !curMeta.LPub.multiStep.csi.highlightStep.setup.value() :
+                   /*rc == EnableHighlightStepAssemRc*/
+                          !curMeta.LPub.assem.highlightStep.enable.global &&
+                          !curMeta.LPub.assem.highlightStep.setup.value())) {
                     parseError(tr("Highlight current step command IGNORED.<br>"
-                                  "HIGHLIGHT_STEP ENABLED or HIGHLIGHT_STEP SETUP must be set to TRUE."
-                                  "<br>GLOBAL commands must appear in the header of the top model."),opts.current);
+                                  "HIGHLIGHT_STEP SETUP TRUE not deteced."
+                                  "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
+                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                 } else if (rc == EnableHighlightStepCalloutAssemRc) {
                     curMeta.LPub.callout.csi.highlightStep.setPreferences();
                     if (step)
@@ -1264,6 +1261,13 @@ int Gui::drawPage(
                 }
               break;
             case EnableHighlightStepRc:
+                if (!curMeta.LPub.highlightStep.enable.global && !curMeta.LPub.highlightStep.setup.value()) {
+                    parseError(tr("Highlight current step command IGNORED.<br>"
+                                  "HIGHLIGHT_STEP SETUP must be set to TRUE."
+                                  "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
+                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    break;
+                }
                 curMeta.LPub.highlightStep.setPreferences();
                 if (step)
                     step->csiStepMeta.highlightStep = curMeta.LPub.highlightStep;
@@ -2784,14 +2788,10 @@ int Gui::drawPage(
                           if (opts.displayModel) {
                               lpub->meta.rotStep.setValue(saveRotStep);
                           }
-                          opts.displayModel = false;
 
                           stepPageNum += ! coverPage;
 
                           steps->setBottomOfSteps(opts.current);
-
-
-                          opts.displayModel = false;
 
                           drawPageElapsedTime();
 
@@ -2813,24 +2813,16 @@ int Gui::drawPage(
                       int local = 1; bool reset = true;
 
                       // reset local fade previous steps - single step
-                      if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
-                          curMeta.LPub.assem.fadeSteps.setPreferences(reset);
-                      else if (curMeta.LPub.fadeSteps.enable.pushed == local) {
-                          Gui::suspendFileDisplay = true;
-                          deleteFinalModelStep();
-                          Gui::suspendFileDisplay = false;
+                      if (curMeta.LPub.fadeSteps.enable.pushed == local)
                           curMeta.LPub.fadeSteps.setPreferences(reset);
-                      }
+                      else if (curMeta.LPub.assem.fadeSteps.enable.pushed == local)
+                          curMeta.LPub.assem.fadeSteps.setPreferences(reset);
 
                       // reset local highlight current step - single step
-                      if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
-                          curMeta.LPub.assem.highlightStep.setPreferences(reset);
-                      else if (curMeta.LPub.highlightStep.enable.pushed == local) {
-                          Gui::suspendFileDisplay = true;
-                          deleteFinalModelStep();
-                          Gui::suspendFileDisplay = false;
+                      if (curMeta.LPub.highlightStep.enable.pushed == local)
                           curMeta.LPub.highlightStep.setPreferences(reset);
-                      }
+                      else if (curMeta.LPub.assem.highlightStep.enable.pushed == local)
+                          curMeta.LPub.assem.highlightStep.setPreferences(reset);
 
                       // reset local preferred renderer
                       if (curMeta.LPub.assem.preferredRenderer.pushed == local) {
@@ -2883,6 +2875,7 @@ int Gui::drawPage(
                       opts.stepNum  += partsAdded;
                       opts.bfxStore2 = bfxStore1;
                       topOfStep      = opts.current;  // set next step
+                      opts.displayModel = false;
                       partsAdded     = false;
                       coverPage      = false;
                       rotateIcon     = false;
@@ -6474,15 +6467,16 @@ bool Gui::colourEntryExist(
     bool _fadeStepsUseColour     = Preferences::fadeStepsUseColour;
     bool fadePartType = partType == FADE_PART;
 
-    if (Gui::m_fadeStepsSetup)
-      _fadeStepsUseColour = fadeStepsUseColour;
+    if (fadeStepsUseColour != _fadeStepsUseColour)
+      _fadeStepsUseColour   = fadeStepsUseColour;
 
     if (_fadeStepsUseColour && fadePartType && colourEntries.size() > 0)
         return true;
 
+    QString const colourPrefix = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+    QString const colourCode   = QString("%1%2").arg(colourPrefix).arg(code);
+
     QStringList colourComponents;
-    QString colourPrefix = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
-    QString colourCode   = QString("%1%2").arg(colourPrefix).arg(code);
     for (int i = 0; i < colourEntries.size(); ++i){
         QString colourLine = colourEntries[i];
         split(colourLine,colourComponents);
@@ -6490,6 +6484,7 @@ bool Gui::colourEntryExist(
             return true;
         }
     }
+
     return false;
 }
 
@@ -6503,28 +6498,26 @@ QString Gui::createColourEntry(
 {
   // Fade Steps Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
 
-  QString _fadeStepsColour     = Preferences::validFadeStepsColour;
   QString _highlightStepColour = Preferences::highlightStepColour;
   int _fadeStepsOpacity        = Preferences::fadeStepsOpacity;
   bool _fadeStepsUseColour     = Preferences::fadeStepsUseColour;
   bool fadePartType            = partType == FADE_PART;
-  if (Gui::m_fadeStepsSetup) {
-    _fadeStepsColour     = fadeStepsColour;
-    _fadeStepsOpacity    = fadeStepsOpacity;
-    _fadeStepsUseColour  = fadeStepsUseColour;
-  }
-  if (Gui::m_highlightStepSetup) {
-    _highlightStepColour = highlightStepColour;
-  }
 
-  QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
-  QString _fadeColour        = LDrawColor::code(_fadeStepsColour);
-  QString _colourCode        = _colourPrefix + (fadePartType ? _fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
-  QString _mainColourValue   = LDrawColor::value(colourCode);
-  QString _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : _highlightStepColour;
-  QString _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
-  int _fadeAlphaValue        = ((LDrawColor::alpha(colourCode) * (100 - (100 - _fadeStepsOpacity))) + (100 - 1)) / 100;
-  int _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
+  if (fadeStepsUseColour      != _fadeStepsUseColour)
+      _fadeStepsUseColour      = fadeStepsUseColour;
+  if (fadeStepsOpacity        != _fadeStepsOpacity)
+      _fadeStepsOpacity        = fadeStepsOpacity;
+  if (!highlightStepColour.isEmpty() && highlightStepColour != _highlightStepColour)
+      _highlightStepColour     = highlightStepColour;
+
+  QString const _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
+  QString const _fadeColour        = _fadeStepsUseColour ? fadeStepsColour.isEmpty() ? LDrawColor::code(Preferences::validFadeStepsColour) : fadeStepsColour : "";
+  QString const _colourCode        = _colourPrefix + (fadePartType ? _fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
+  QString const _mainColourValue   = LDrawColor::value(colourCode);
+  QString const _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : _highlightStepColour;
+  QString const _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
+  int const _fadeAlphaValue        = ((LDrawColor::alpha(colourCode) * (100 - (100 - _fadeStepsOpacity))) + (100 - 1)) / 100;
+  int const _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")
                  .arg(_colourDescription)   // description

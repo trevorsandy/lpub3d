@@ -2797,6 +2797,9 @@ int Native::renderCsi(
   float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   bool  customViewpoint= meta.LPub.assem.cameraAngles.customViewpoint();
+  bool  trueFade       = meta.LPub.assem.fadeSteps.truefade.value();
+  bool  fadeSteps      = meta.LPub.assem.fadeSteps.enable.value();
+  bool  highlightStep  = meta.LPub.assem.fadeSteps.enable.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
   Vector3 position     = Vector3(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
   Vector3 target       = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
@@ -2816,6 +2819,9 @@ int Native::renderCsi(
     cameraZNear        = meta.LPub.callout.csi.cameraZNear.value();
     cameraZFar         = meta.LPub.callout.csi.cameraZFar.value();
     isOrtho            = meta.LPub.callout.csi.isOrtho.value();
+    trueFade           = meta.LPub.callout.csi.fadeSteps.truefade.value();
+    fadeSteps          = meta.LPub.callout.csi.fadeSteps.enable.value();
+    highlightStep      = meta.LPub.callout.csi.fadeSteps.enable.value();
     cameraName         = meta.LPub.callout.csi.cameraName.value();
     position           = Vector3(meta.LPub.callout.csi.position.x(),meta.LPub.callout.csi.position.y(),meta.LPub.callout.csi.position.z());
     target             = Vector3(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
@@ -2834,6 +2840,9 @@ int Native::renderCsi(
     cameraZNear        = meta.LPub.multiStep.csi.cameraZNear.value();
     cameraZFar         = meta.LPub.multiStep.csi.cameraZFar.value();
     isOrtho            = meta.LPub.multiStep.csi.isOrtho.value();
+    trueFade           = meta.LPub.multiStep.csi.fadeSteps.truefade.value();
+    fadeSteps          = meta.LPub.multiStep.csi.fadeSteps.enable.value();
+    highlightStep      = meta.LPub.multiStep.csi.fadeSteps.enable.value();
     cameraName         = meta.LPub.multiStep.csi.cameraName.value();
     position           = Vector3(meta.LPub.multiStep.csi.position.x(),meta.LPub.multiStep.csi.position.y(),meta.LPub.multiStep.csi.position.z());
     target             = Vector3(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
@@ -2878,6 +2887,9 @@ int Native::renderCsi(
     Options->ZFar              = cameraZFar;
     Options->ZNear             = cameraZNear;
     Options->ZoomExtents       = false;
+    Options->TrueFade          = trueFade;
+    Options->FadeSteps         = fadeSteps;
+    Options->HighlightStep     = highlightStep;
     Options->AutoEdgeColor     = aecm->enable.value();
     Options->EdgeContrast      = aecm->contrast.value();
     Options->EdgeSaturation    = aecm->saturation.value();
@@ -3214,7 +3226,10 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 O->PageWidth,
                 O->PageHeight,
                 O->ImageFileName,
-                O->Resolution);
+                O->Resolution,
+                O->TrueFade,
+                O->FadeSteps,
+                O->HighlightStep);
 
     lcPreferences& Preferences = lcGetPreferences();
 
@@ -3575,53 +3590,62 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         arguments << QString("CameraLatitude: %1,").arg(double(O->Latitude));
         arguments << QString("CameraLongitude: %1,").arg(double(O->Longitude));
         arguments << QString("ZoomExtents: %1,").arg(ZoomExtents ? "True" : "False");
-        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
+        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3),").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
         if (O->Position.isPopulated())
-            arguments << QString(", CameraPosition: X(%1) Y(%2) Z(%3),").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
+            arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3),").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
         if (O->UpVector.isPopulated())
-            arguments << QString(", CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
+            arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3),").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
+        if (O->FadeSteps) {
+            arguments << QString("FadeSteps: True,");
+            arguments << QString("TrueFade: %1,").arg(O->TrueFade ? "True" : "False");
+        }
+        if (O->HighlightStep)
+            arguments << QString("HighlightStep: True,");
         if (O->AutoEdgeColor || O->AutoEdgeColor != lpub->GetAutomateEdgeColor())
         {
-            arguments << QString(", AutomateEdgeColor: True");
+            arguments << QString("AutomateEdgeColor: True,");
         if (O->EdgeContrast != Preferences.mPartEdgeContrast)
-            arguments << QString(", EdgeContrast: %1").arg(O->EdgeContrast);
+            arguments << QString("EdgeContrast: %1,").arg(O->EdgeContrast);
         if (O->EdgeSaturation != Preferences.mPartColorValueLDIndex)
-            arguments << QString(", Saturation: %1").arg(O->EdgeSaturation);
+            arguments << QString("Saturation: %1,").arg(O->EdgeSaturation);
         }
         bool IsHighContrastStudStyle = O->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
         bool StudStyleChanged = (O->StudStyle != lpub->GetStudStyle() ||
                                 (IsHighContrastStudStyle && O->StudCylinderColorEnabled != lpub->GetStudCylinderColorEnabled()));
         if (O->StudStyle || StudStyleChanged)
-            arguments << QString(", StudStyle: %1").arg(studStyleNames[O->StudStyle]);
+            arguments << QString("StudStyle: %1,").arg(studStyleNames[O->StudStyle]);
         if (IsHighContrastStudStyle)
         {
             if (O->LightDarkIndex != Preferences.mPartColorValueLDIndex)
-               arguments << QString(", LightDarkIndex: %1").arg(O->LightDarkIndex);
+               arguments << QString("LightDarkIndex: %1,").arg(O->LightDarkIndex);
             if (!O->StudCylinderColorEnabled)
-               arguments << QString(", StudCylinderColorEnabled: False");
+               arguments << QString("StudCylinderColorEnabled: False,");
             if (O->StudCylinderColor != Preferences.mStudCylinderColor)
-                arguments << QString(", StudCylinderColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->StudCylinderColor)).arg(LC_RGBA_GREEN(O->StudCylinderColor)).arg(LC_RGBA_BLUE(O->StudCylinderColor)).arg(LC_RGBA_ALPHA(O->StudCylinderColor));
+                arguments << QString("StudCylinderColor: %1,%2,%3,%4,").arg(LC_RGBA_RED(O->StudCylinderColor)).arg(LC_RGBA_GREEN(O->StudCylinderColor)).arg(LC_RGBA_BLUE(O->StudCylinderColor)).arg(LC_RGBA_ALPHA(O->StudCylinderColor));
             if (!O->PartEdgeColorEnabled)
-                arguments << QString(", PartEdgeColorEnabled: False");
+                arguments << QString("PartEdgeColorEnabled: False,");
             if (O->PartEdgeColor != Preferences.mPartEdgeColor)
-                arguments << QString(", PartEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->PartEdgeColor)).arg(LC_RGBA_GREEN(O->PartEdgeColor)).arg(LC_RGBA_BLUE(O->PartEdgeColor)).arg(LC_RGBA_ALPHA(O->PartEdgeColor));
+                arguments << QString("PartEdgeColor: %1,%2,%3,%4,").arg(LC_RGBA_RED(O->PartEdgeColor)).arg(LC_RGBA_GREEN(O->PartEdgeColor)).arg(LC_RGBA_BLUE(O->PartEdgeColor)).arg(LC_RGBA_ALPHA(O->PartEdgeColor));
             if (!O->BlackEdgeColorEnabled)
-                arguments << QString(", BlackEdgeColorEnabled: False");
+                arguments << QString("BlackEdgeColorEnabled: False,");
             if (O->BlackEdgeColor != Preferences.mBlackEdgeColor)
-                arguments << QString(", BlackEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->BlackEdgeColor)).arg(LC_RGBA_GREEN(O->BlackEdgeColor)).arg(LC_RGBA_BLUE(O->BlackEdgeColor)).arg(LC_RGBA_ALPHA(O->BlackEdgeColor));
+                arguments << QString("BlackEdgeColor: %1,%2,%3,%4,").arg(LC_RGBA_RED(O->BlackEdgeColor)).arg(LC_RGBA_GREEN(O->BlackEdgeColor)).arg(LC_RGBA_BLUE(O->BlackEdgeColor)).arg(LC_RGBA_ALPHA(O->BlackEdgeColor));
             if (!O->DarkEdgeColorEnabled)
-                arguments << QString(", DarkEdgeColorEnabled: False");
+                arguments << QString("DarkEdgeColorEnabled: False,");
             if (O->DarkEdgeColor != Preferences.mDarkEdgeColor)
-                arguments << QString(", DarkEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->DarkEdgeColor)).arg(LC_RGBA_GREEN(O->DarkEdgeColor)).arg(LC_RGBA_BLUE(O->DarkEdgeColor)).arg(LC_RGBA_ALPHA(O->DarkEdgeColor));
+                arguments << QString("DarkEdgeColor: %1,%2,%3,%4,").arg(LC_RGBA_RED(O->DarkEdgeColor)).arg(LC_RGBA_GREEN(O->DarkEdgeColor)).arg(LC_RGBA_BLUE(O->DarkEdgeColor)).arg(LC_RGBA_ALPHA(O->DarkEdgeColor));
         }
         removeEmptyStrings(arguments);
+
+        if (arguments.last().endsWith(","))
+            arguments.last().chop(1);
 
         QString message = QObject::tr("%1 %2 Arguments: %3%4")
                                       .arg(RenderImage ? QObject::tr("Native Renderer") : QObject::tr("Visual Editor"))
                                       .arg(ImageType)
                                       .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
-      qDebug() << qUtf8Printable(message.arg(QLatin1String("\r\n")));
+      qDebug() << qUtf8Printable(message.arg(QLatin1String(".\r\n")));
 #else
       emit gui->messageSig(LOG_INFO, message.arg(QLatin1String("\r\n")));
 #endif

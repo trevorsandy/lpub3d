@@ -28,13 +28,13 @@ lcQHTMLDialog::lcQHTMLDialog(QWidget* Parent, lcHTMLExportOptions* Options)
 	ui->indexPage->setChecked(mOptions->SinglePage);
 	ui->stepWidth->setText(QString::number(mOptions->StepImagesWidth));
 	ui->stepHeight->setText(QString::number(mOptions->StepImagesHeight));
-/*** LPub3D Mod - Highlight New Parts ***/
-	ui->highlightNewParts->setChecked(mOptions->HighlightNewParts);
+/*** LPub3D Mod - HTML Highlight New Parts ***/
+	ui->highlightNewParts->setChecked(mOptions->HtmlHighlightNewParts);
 /*** LPub3D Mod end ***/
 	ui->partsAfterEachStep->setChecked(mOptions->PartsListStep);
 	ui->partsAtTheEnd->setChecked(mOptions->PartsListEnd);
-/*** LPub3D Mod - Fade Previous Steps ***/
-	ui->FadeSteps->setChecked(mOptions->FadeSteps);
+/*** LPub3D Mod - HTML Fade Previous Steps ***/
+	ui->FadeSteps->setChecked(mOptions->HtmlFadeSteps);
 /*** LPub3D Mod end ***/
 }
 
@@ -63,13 +63,13 @@ void lcQHTMLDialog::accept()
 	mOptions->IndexPage = ui->indexPage->isChecked();
 	mOptions->StepImagesWidth = ui->stepWidth->text().toInt();
 	mOptions->StepImagesHeight = ui->stepHeight->text().toInt();
-/*** LPub3D Mod - Highlight New Parts ***/
-	mOptions->HighlightNewParts = ui->highlightNewParts->isChecked();
+/*** LPub3D Mod - HTML Highlight New Parts ***/
+	mOptions->HtmlHighlightNewParts = ui->highlightNewParts->isChecked();
 /*** LPub3D Mod end ***/
 	mOptions->PartsListStep = ui->partsAfterEachStep->isChecked();
 	mOptions->PartsListEnd = ui->partsAtTheEnd->isChecked();
-/*** LPub3D Mod - Fade Previous Steps ***/
-	mOptions->FadeSteps = ui->FadeSteps->isChecked();
+/*** LPub3D Mod - HTML Fade Previous Steps ***/
+	mOptions->HtmlFadeSteps = ui->FadeSteps->isChecked();
 /*** LPub3D Mod end ***/
 
 	QDialog::accept();

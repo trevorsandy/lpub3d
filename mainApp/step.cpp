@@ -539,6 +539,9 @@ int Step::createCsi(
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(rotStepMeta.value().rots[0]),float(rotStepMeta.value().rots[1]),float(rotStepMeta.value().rots[2]));
       viewerOptions->RotStepType    = rotStepMeta.value().type;
+      viewerOptions->TrueFade       = csiStepMeta.fadeSteps.truefade.value();
+      viewerOptions->FadeSteps      = csiStepMeta.fadeSteps.enable.value();
+      viewerOptions->HighlightStep  = csiStepMeta.highlightStep.enable.value();
       viewerOptions->AutoEdgeColor  = aecm->enable.value();
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();
@@ -789,7 +792,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
       if (displayStep) {
         if (argv.size() >= 2 && argv[0] == "0") {
           bool ok;
-            if (enableFadeSteps && (argv[1] == QStringLiteral("!FADE") || argv[1] == QStringLiteral("FADE"))) {
+            if (enableFadeSteps && argv[1] == QStringLiteral("!FADE")) {
             if (argv.size() == 2) {
                 doFadeStep = !doFadeStep;
             } else if (argv.size() >= 3) {
@@ -802,16 +805,24 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade opacity value is invalid [%1] ").arg(argv[2]));
               } else
               if (argv.size() == 4) {
-                QColor colour(argv[3]);
-                if (colour.isValid())
-                  fadeColour = argv[3];
-                else
-                  emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
+                QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
+                if (argv[3].contains(hexRx)) {
+                  QColor colour(argv[3]);
+                  if (colour.isValid())
+                    fadeColour = LDrawColor::code(argv[3]);
+                  else
+                    emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
+                } else {
+                  if ((fadeColour = LDrawColor::code(argv[3])) == QLatin1String("-1")) {
+                    emit lpub->messageSig(LOG_WARNING, QObject::tr("Specified fade colour is invalid [%1] ").arg(argv[3]));
+                    fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
+                  }
+                }
               }
             }
           }
 
-          if (enableHighlightStep && (argv[1] == QStringLiteral("!SILHOUETTE") || argv[1] == QStringLiteral("SILHOUETTE"))) {
+          if (enableHighlightStep && argv[1] == QStringLiteral("!SILHOUETTE")) {
             if (argv.size() == 2) {
               doSilhouette = !doSilhouette;
             } else if (argv.size() >= 3) {
@@ -909,7 +920,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
               // generate fade color entry
               QString colourCode = fadeStepsUseColour ? fadeColour : argv[1];
               if (!Gui::colourEntryExist(stepColourList,argv[1], FADE_PART, fadeStepsUseColour))
-                stepColourList << Gui::createColourEntry(colourCode, FADE_PART, "", fadeColour, fadeStepsUseColour, fadeStepsOpacity);
+                stepColourList << Gui::createColourEntry(colourCode, FADE_PART, ""/*highlightColour*/, fadeColour, fadeStepsUseColour, fadeStepsOpacity);
               // set fade color code
               argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(colourCode);
             }
@@ -944,12 +955,11 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
               processedCsiParts.append(QString("0 !SILHOUETTE %1 %2").arg(highlightStepLineWidth).arg(highlightColour));
               SilhouetteMetaAdded = true;
             }
-            if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
-              argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
+            if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR && argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
               // generate highlight color entry
               QString colourCode = argv[1];
               if (!Gui::colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
-                stepColourList << Gui::createColourEntry(colourCode, HIGHLIGHT_PART, highlightColour, "");
+                stepColourList << Gui::createColourEntry(colourCode, HIGHLIGHT_PART, highlightColour, ""/*fadeColour*/);
               // set highlight color code
               argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(colourCode);
             }

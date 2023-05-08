@@ -826,6 +826,8 @@ public:
   }
   BoolMeta ()
   {
+    _value[0] = false;
+    _value[1] = false;
   }
   BoolMeta(const BoolMeta &rhs) : RcMeta(rhs)
   {
@@ -3082,6 +3084,7 @@ class FadeStepsMeta : public BranchMeta
 public:
   EnableMeta    enable;
   BoolMeta      setup;
+  BoolMeta      truefade;
   FadeColorMeta color;
   IntMeta       opacity;
   void setPreferences(bool = false);

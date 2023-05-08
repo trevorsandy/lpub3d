@@ -337,20 +337,37 @@ lcApplication::lcApplication(const lcCommandLineOptions &Options)
 /*** LPub3D Mod - load color entry ***/
 bool lcApplication::LPubHighlightStep()
 {
-	return Preferences::enableHighlightStep;
+	if (mProject)
+		return mProject->mHighlightStep;
+	else
+		return Preferences::enableHighlightStep;
 }
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
+// used by lcScene::Draw
 bool lcApplication::LPubFadeSteps()
 {
-	return Preferences::enableFadeSteps;
+	if (mProject)
+		return mProject->mFadeSteps;
+	else
+		return Preferences::enableFadeSteps;
 }
 
+bool lcApplication::UseLPubTrueFade()
+{
+	if (mProject)
+		return mProject->mTrueFade;
+	else
+		return mPreferences.mLPubTrueFade;
+}
+
+// used by lcTimeLineWidget::Update
 bool lcApplication::UseLPubFadeColour()
 {
 	return Preferences::fadeStepsUseColour;
 }
 
+// used by lcTimeLineWidget::Update
 QString lcApplication::LPubFadeColour()
 {
 	return LDrawColor::code(Preferences::validFadeStepsColour);

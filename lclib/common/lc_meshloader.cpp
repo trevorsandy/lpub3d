@@ -5,9 +5,6 @@
 #include "lc_library.h"
 #include "lc_application.h"
 #include "lc_texture.h"
-/*** LPub3D Mod - true fade ***/
-#include "QsLog.h"
-/*** LPub3D Mod ***/
 
 static void lcCheckTexCoordsWrap(const lcVector4& Plane2, const lcVector3 (&Positions)[3], lcVector2 (&TexCoords)[3])
 {
@@ -1145,15 +1142,6 @@ bool lcMeshLoader::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform
 		if (LineType == 0)
 		{
 			char* Token = Line;
-
-/*** LPub3D Mod - true fade ***/
-			if (strstr(Token, "!COLOUR") != nullptr)
-			{
-				if (!lcLoadColorEntry(Line, Library->GetStudStyle()))
-					logError() << qPrintable(QString("Could not load colour meta %1.").arg(Line));
-				continue;
-			}
-/*** LPub3D Mod end ***/
 
 			while (*Token && *Token <= 32)
 				Token++;

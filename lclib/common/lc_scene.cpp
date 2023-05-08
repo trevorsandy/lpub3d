@@ -7,15 +7,6 @@
 #include "lc_application.h"
 #include "object.h"
 
-/*** LPub3D Mod - true fade ***/
-enum lcFadeArgs {
-	LC_NO_FADE,
-	LC_DISABLE_COLOR_WRITES,
-	LC_ENABLE_COLOR_WRITES,
-	LC_DISABLE_BFC
-};
-/*** LPub3D Mod end ***/
-
 lcScene::lcScene()
 	: mRenderMeshes(0, 1024), mOpaqueMeshes(0, 1024), mTranslucentMeshes(0, 1024), mInterfaceObjects(0, 1024)
 {
@@ -180,7 +171,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 	const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
 	const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
 /*** LPub3D Mod - Build mod object selected colour ***/
-	const lcVector4 BMSelectedColor = lcVector4FromColor(Preferences.mBMObjectSelectedColor);	
+	const lcVector4 BMSelectedColor = lcVector4FromColor(Preferences.mBMObjectSelectedColor);
 /*** LPub3D Mod end ***/
 
 	for (const int MeshIndex : mOpaqueMeshes)
@@ -344,7 +335,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 }
 
 /*** LPub3D Mod - true fade ***/
-void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, int LPubFade) const
+void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcFadeArgs LPubFadeArg) const
 /*** LPub3D Mod end ***/
 {
 	if (mTranslucentMeshes.IsEmpty())
@@ -364,13 +355,13 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 	}
 
 /*** LPub3D Mod - true fade ***/
-	if (LPubFade)
+	if (LPubFadeArg)
 	{
 		// Enable BFC
 		Context->EnableCullFace(true, true);
 
 		// Disable color writes
-		if (LPubFade == LC_DISABLE_COLOR_WRITES){
+		if (LPubFadeArg == LC_DISABLE_COLOR_WRITES){
 			Context->EnableColorBlend(false);
 			Context->EnableColorWrite(false);
 		}
@@ -381,7 +372,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			Context->EnableColorWrite(true);
 		}
 
-		Context->SetDepthWrite(LPubFade == LC_DISABLE_COLOR_WRITES);
+		Context->SetDepthWrite(LPubFadeArg == LC_DISABLE_COLOR_WRITES);
 	}
 	else
 /*** LPub3D Mod end ***/
@@ -421,7 +412,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			ColorIndex = RenderMesh.ColorIndex;
 
 /*** LPub3D Mod - true fade ***/
-		if (!LPubFade && DrawFadePrepass && lcIsColorTranslucent(ColorIndex))
+		if (!LPubFadeArg && DrawFadePrepass && lcIsColorTranslucent(ColorIndex))
 			continue;
 /*** LPub3D Mod end ***/
 
@@ -476,7 +467,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 	Context->SetPolygonOffset(lcPolygonOffset::None);
 
 /*** LPub3D Mod - true fade ***/
-	if (LPubFade)
+	if (LPubFadeArg)
 	{
 		Context->SetDepthWrite(true);
 		Context->EnableColorBlend(false);
@@ -507,10 +498,10 @@ void lcScene::Draw(lcContext* Context) const
 	const bool DrawConditional = Preferences.mDrawConditionalLines && Preferences.mLineWidth > 0.0f;
 /*** LPub3D Mod - true fade ***/
 // 03/22/2021 8039f5b Draw conditional lines on a separate pass.
-	const bool LPubTrueFade = gApplication->LPubFadeSteps() && // to turn off during HTML Steps export
-							  Preferences.mLPubTrueFade &&
-							  mHasLPubFadedParts &&
-							  !mTranslucentMeshes.IsEmpty();
+	const bool LPubTrueFade = gApplication->LPubFadeSteps()   && // turn off during HTML Steps export
+							  gApplication->UseLPubTrueFade() &&
+							  mHasLPubFadedParts              &&
+							 !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
 
 //	lcShadingMode ShadingMode = Preferences.mShadingMode;

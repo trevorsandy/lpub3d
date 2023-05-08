@@ -715,6 +715,7 @@ void lcContext::EnableColorBlend(bool Enable)
 
 /*** LPub3D Mod - true fade ***/
 void lcContext::EnableCullFace(bool Enable, bool LPubFade)
+/*** LPub3D Mod end ***/
 {
 	if (Enable == mCullFace)
 		return;

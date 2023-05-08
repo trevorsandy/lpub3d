@@ -551,6 +551,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bTOP_LEFT\\b"),
         QStringLiteral("\\bTOP_RIGHT\\b"),
         QStringLiteral("\\bTRANSPARENT\\b"),
+        QStringLiteral("\\bTRUE_FADE\\b"),
         QStringLiteral("\\bTYPE\\b"),
         QStringLiteral("\\bUSE\\b"),
         QStringLiteral("\\bUSE_FREE_FORM\\b"),

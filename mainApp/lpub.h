@@ -1380,14 +1380,14 @@ public slots:
     const PartType partType,
     const QString &highlightStepColour = "",
     const QString &fadeStepsColour = "",
-    const bool fadeStepsUseColour = false,
-    const int fadeStepsOpacity = 100);
+    const bool fadeStepsUseColour = Preferences::fadeStepsUseColour,
+    const int fadeStepsOpacity = Preferences::fadeStepsOpacity);
 
   static bool colourEntryExist(
     const QStringList &colourEntries,
     const QString &code,
     const PartType partType,
-    const bool fadeStepsUseColour = false);
+    const bool fadeStepsUseColour = Preferences::fadeStepsUseColour);
 
   static bool isLDrawColourPart(const QString &fileName)
   {

@@ -29,11 +29,11 @@ public:
 	int StepImagesHeight;
 	bool PartsListStep;
 	bool PartsListEnd;
-/*** LPub3D Mod - Highlight New Parts ***/
-	bool HighlightNewParts;
+/*** LPub3D Mod - HTML Highlight New Parts ***/
+	bool HtmlHighlightNewParts;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - Fade Previous Steps ***/
-	bool FadeSteps;
+/*** LPub3D Mod - HTML Fade Previous Steps ***/
+	bool HtmlFadeSteps;
 /*** LPub3D Mod end ***/
 };
 
@@ -108,7 +108,12 @@ public:
 		const int PageWidth,
 		const int PageHeight,
 		const QString FileName,
-		const float Resolution);
+		const float Resolution,
+/*** LPub3D Mod - true fade ***/
+		const bool TrueFade,
+		const bool FadeSteps,
+		const bool HighlightStep);
+/*** LPub3D Mod end ***/
 	void SetImageSize(
 		const int ImageWidth,
 		const int ImageHeight);
@@ -225,6 +230,13 @@ protected:
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	bool mTrueFade;
+	bool mFadeSteps;
+	bool mHighlightStep;
+	friend class lcApplication;
+/*** LPub3D Mod end ***/
+
 };
 
 inline lcModel* lcGetActiveModel()

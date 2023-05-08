@@ -585,15 +585,14 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			else if (Token == QLatin1String("!COLOUR"))
 			{
 				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData(), lcGetPiecesLibrary()->GetStudStyle()))
-					emit gui->messageSig(LOG_ERROR,QString("Could not load COLOUR command %1.")
+					emit gui->messageSig(LOG_WARNING,QString("Could not load COLOUR command %1.")
 										 .arg(OriginalLine));
 			}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
 			else if (Token == QLatin1String("!FADE"))
 			{
-				QString FadeColor = LineStream.readAll().trimmed();
-				mLPubFade = FadeColor.isEmpty() ? false : true;
+				mLPubFade = !mLPubFade;
 			}
 /*** LPub3D Mod end ***/
 			else if (Token == QLatin1String("FILE"))
@@ -627,6 +626,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				delete Piece;
 				Piece = nullptr;
 				CurrentStep++;
+/*** LPub3D Mod - true fade ***/
+				mLPubFade = false;
+/*** LPub3D Mod end ***/
 				mFileLines.append(OriginalLine);
 				continue;
 			}
