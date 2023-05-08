@@ -7800,6 +7800,10 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
     }
 }
 
+/******************************
+ * LDraw Search Directory Dialog
+ */
+
 void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 {
   QPalette readOnlyPalette = QApplication::palette();
@@ -7842,10 +7846,10 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   lineEditIniFile->setReadOnly(true);
   gridLayout->addWidget(lineEditIniFile,0,0,1,2);
 
-  textEditSearchDirs = new QTextEdit(dialog);
+  textEditSearchDirs = new TextEditSearchDirs(dialog);
   textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
-  textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
-  textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
+  textEditSearchDirs->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+  //textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   gridLayout->addWidget(textEditSearchDirs,1,0,2,1);
 
   gridLayout->addWidget(groupBoxActions, 1,1,2,1);
@@ -7854,6 +7858,11 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   pushButtonAddDirectory->setToolTip(tr("Add LDraw search directory"));
   pushButtonAddDirectory->setIcon(QIcon(QIcon(":/resources/adddirectory.png")));
   actionsLayout->addWidget(pushButtonAddDirectory);
+
+  pushButtonOpenFolder = new QPushButton(dialog);
+  pushButtonOpenFolder->setToolTip(tr("Open the selected LDraw search directory"));
+  pushButtonOpenFolder->setIcon(QIcon(QIcon(":/resources/openworkingfolder.png")));
+  actionsLayout->addWidget(pushButtonOpenFolder);
 
   pushButtonMoveUp = new QPushButton(dialog);
   pushButtonMoveUp->setToolTip(tr("Move selected directory up"));
@@ -7893,7 +7902,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   if (Preferences::ldSearchDirs.size() > 0) {
       Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
-        textEditSearchDirs->append(searchDir);
+        textEditSearchDirs->appendPlainText(searchDir);
   }
 
   const QString ldrawPath = Preferences::ldrawLibPath;
@@ -7908,6 +7917,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   connect(pushButtonMoveUp, SIGNAL(clicked()),this, SLOT(buttonClicked()));
   connect(pushButtonMoveDown, SIGNAL(clicked()),this, SLOT(buttonClicked()));
   connect(pushButtonAddDirectory, SIGNAL(clicked()),this, SLOT(buttonClicked()));
+  connect(pushButtonOpenFolder, SIGNAL(clicked()),this, SLOT(buttonClicked()));
 
   QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                              Qt::Horizontal, dialog);
@@ -8010,7 +8020,7 @@ void LDrawSearchDirDialog::buttonClicked()
       textEditSearchDirs->clear();
 
       Q_FOREACH (const QString &searchDir, Preferences::ldSearchDirs)
-        textEditSearchDirs->append(searchDir);
+        textEditSearchDirs->appendPlainText(searchDir);
 
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
@@ -8033,7 +8043,16 @@ void LDrawSearchDirDialog::buttonClicked()
       }
     }
     if (!result.isEmpty())
-      textEditSearchDirs->append(QDir::toNativeSeparators(result));
+      textEditSearchDirs->appendPlainText(QDir::toNativeSeparators(result));
+  } else if (sender() == pushButtonOpenFolder) {
+    QTextCursor cursor = textEditSearchDirs->textCursor();
+    cursor.select(QTextCursor::LineUnderCursor);
+    QTextDocumentFragment selection = cursor.selection();
+    if (selection.isEmpty())
+      return;
+    QDir folder(selection.toPlainText());
+    if (folder.isReadable())
+      gui->openFolderSelect(QDir::toNativeSeparators(QString("%1/a").arg(folder.absolutePath())));
   } else {
     int origPosition = 0, numChars = 0;
     QTextCursor cursor = textEditSearchDirs->textCursor();
@@ -8072,6 +8091,146 @@ void LDrawSearchDirDialog::buttonClicked()
     textEditSearchDirs->setTextCursor(cursor);
   }
 }
+
+TextEditSearchDirs::TextEditSearchDirs(QWidget *parent) : QPlainTextEdit(parent)
+{
+  lineNumberArea = new EditLineNumberArea(this);
+
+  QPalette lineNumberPalette = lineNumberArea->palette();
+  lineNumberPalette.setCurrentColorGroup(QPalette::Active);
+  lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
+  if (Preferences::displayTheme == THEME_DARK) {
+    lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
+    lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
+  } else {
+    lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
+    lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
+  }
+  lineNumberArea->setPalette(lineNumberPalette);
+
+  connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
+  connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
+  connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+
+  updateLineNumberAreaWidth(0);
+  highlightCurrentLine();
+}
+
+int TextEditSearchDirs::lineNumberAreaWidth()
+{
+  int digits = 1;
+  int max = qMax(1, blockCount());
+  while (max >= 10) {
+    max /= 10;
+    ++digits;
+  }
+
+  QFont font = lineNumberArea->font();
+  const QFontMetrics linefmt(font);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+  int space = 10 + linefmt.horizontalAdvance(QLatin1Char('9')) * digits;
+#else
+  int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
+#endif
+
+  return space;
+}
+
+void TextEditSearchDirs::updateLineNumberAreaWidth(int /* newBlockCount */)
+{
+  setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+}
+
+void TextEditSearchDirs::updateLineNumberArea(const QRect &rect, int dy)
+{
+  if (dy)
+    lineNumberArea->scroll(0, dy);
+  else
+    lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+
+  if (rect.contains(viewport()->rect()))
+    updateLineNumberAreaWidth(0);
+}
+
+void TextEditSearchDirs::resizeEvent(QResizeEvent *e)
+{
+  QPlainTextEdit::resizeEvent(e);
+
+  QRect cr = contentsRect();
+  lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void TextEditSearchDirs::highlightCurrentLine()
+{
+  QList<QTextEdit::ExtraSelection> extraSelections;
+
+  if (!isReadOnly()) {
+    QTextEdit::ExtraSelection selection;
+
+    QColor lineColor;
+    if (Preferences::displayTheme == THEME_DARK)
+        lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
+    else
+        lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
+
+    selection.format.setBackground(lineColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selection.cursor = textCursor();
+    selection.cursor.clearSelection();
+    extraSelections.append(selection);
+  }
+
+  setExtraSelections(extraSelections);
+}
+
+void TextEditSearchDirs::lineNumberAreaPaintEvent(QPaintEvent *event)
+{
+  QPainter painter(lineNumberArea);
+
+  int selStart = textCursor().selectionStart();
+  int selEnd = textCursor().selectionEnd();
+
+  QPalette palette = lineNumberArea->palette();
+
+  painter.fillRect(event->rect(), palette.color(QPalette::Background));
+
+  QTextBlock block = firstVisibleBlock();
+  int blockNumber = block.blockNumber();
+  qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
+  qreal bottom = top;
+
+  while (block.isValid() && top <= event->rect().bottom()) {
+    top = bottom;
+
+    const qreal height = blockBoundingRect(block).height();
+    bottom = top + height;
+
+    if (block.isVisible() && bottom >= event->rect().top()) {
+      painter.setPen(palette.color(QPalette::Text));
+
+      bool selected = (
+          (selStart < block.position() + block.length() && selEnd > block.position())
+          || (selStart == selEnd && selStart == block.position())
+          );
+
+      if (selected) {
+        painter.save();
+        painter.setPen(palette.color(QPalette::Highlight));
+      }
+
+      const QString number = QString::number(blockNumber + 1);
+      painter.drawText(0, top, lineNumberArea->width() - 4, height, Qt::AlignRight, number);
+
+      if (selected)
+        painter.restore();
+    }
+
+    block = block.next();
+    ++blockNumber;
+  }
+}
+/*******************************/
 
 ActionAttributes sgCommands[NUM_GRID_SIZES] =
 {

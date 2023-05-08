@@ -2086,28 +2086,79 @@ private:
   friend class DialogExportPages;
 };
 
+/******************************
+ * LDraw Search Directory Dialog
+ */
+
+class EditLineNumberArea;
+class TextEditSearchDirs;
 class LDrawSearchDirDialog : public QObject
 {
-    Q_OBJECT
-public:
-    LDrawSearchDirDialog(){}
-    virtual ~LDrawSearchDirDialog(){}
+  Q_OBJECT
+  public:
+  LDrawSearchDirDialog(){}
+  virtual ~LDrawSearchDirDialog(){}
 
-    void getLDrawSearchDirDialog();
-public slots:
-    void buttonSetState();
-    void buttonClicked();
+  void getLDrawSearchDirDialog();
+  public slots:
+  void buttonSetState();
+  void buttonClicked();
+
+  private:
+  QDialog            *dialog;
+  QLineEdit          *lineEditIniFile;
+  TextEditSearchDirs *textEditSearchDirs;
+  QPushButton        *pushButtonReset;
+  QPushButton        *pushButtonMoveUp;
+  QPushButton        *pushButtonMoveDown;
+  QPushButton        *pushButtonOpenFolder;
+  QPushButton        *pushButtonAddDirectory;
+  QStringList         excludedSearchDirs;
+};
+
+class TextEditSearchDirs : public QPlainTextEdit
+{
+  Q_OBJECT
+public:
+  TextEditSearchDirs(QWidget *parent = 0);
+  void lineNumberAreaPaintEvent(QPaintEvent *event);
+  int lineNumberAreaWidth();
+
+protected:
+  void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+
+private slots:
+  void updateLineNumberAreaWidth(int newBlockCount);
+  void highlightCurrentLine();
+  void updateLineNumberArea(const QRect &, int);
+
+  private:
+  QWidget *lineNumberArea;
+};
+
+class EditLineNumberArea : public QWidget
+{
+public:
+  EditLineNumberArea(TextEditSearchDirs *editor) : QWidget(editor) {
+    searchDirEditor = editor;
+  }
+
+  QSize sizeHint() const Q_DECL_OVERRIDE {
+    return QSize(searchDirEditor->lineNumberAreaWidth(), 0);
+  }
+
+protected:
+  void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE {
+    searchDirEditor->lineNumberAreaPaintEvent(event);
+  }
 
 private:
-    QDialog     *dialog;
-    QLineEdit   *lineEditIniFile;
-    QTextEdit   *textEditSearchDirs;
-    QPushButton *pushButtonReset;
-    QPushButton *pushButtonMoveUp;
-    QPushButton *pushButtonMoveDown;
-    QPushButton *pushButtonAddDirectory;
-    QStringList excludedSearchDirs;
+  TextEditSearchDirs *searchDirEditor;
 };
+
+/******************************
+ * Meta Commands File Dialog
+ */
 
 class MetaCommandsFileDialog : public QFileDialog
 {
@@ -2126,6 +2177,8 @@ public:
                                            QString *selectedFilter = nullptr,
                                            Options options = Options());
 };
+
+/*******************************/
 
 extern const bool showMsgBox;
 extern QHash<SceneObject, QString> soMap;
