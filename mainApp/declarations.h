@@ -836,6 +836,8 @@ enum ThemeColorType {
 #define DEFAULT_SUBMODEL_CAMERA_LATITUDE        23
 #define DEFAULT_SUBMODEL_CAMERA_LONGITUDE      -45
 
+#define DEFAULT_LOG_LEVEL                       true
+
 #define DEFAULT_BLENDER_IMPORT_MODULE           "TN"
 
 #define DEFAULT_SUBMODEL_COLOR_01               "#FFFFFF"

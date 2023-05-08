@@ -7543,7 +7543,7 @@ void Gui::parseError(const QString &message,
     }
 
     // Set Logging settings
-    Preferences::setMessageLogging(true/*useLogLevel*/);
+    Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
 
     Preferences::fprintMessage(parseMessage, messageIcon == QMessageBox::Icon::Critical ? true : false/*stdError*/);
 
@@ -7604,7 +7604,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
 
     bool guiEnabled = Preferences::modeGUI && Preferences::lpub3dLoaded;
 
-    Preferences::setMessageLogging(true/*useLogLevel*/);
+    Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
 
     Preferences::fprintMessage(message, logType > LOG_WARNING ? true : false/*stdError*/);
 

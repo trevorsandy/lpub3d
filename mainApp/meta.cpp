@@ -7227,8 +7227,11 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
   cleanedKeywords.sort();
   out << cleanedKeywords;
 
-  logInfo() << QString("Meta command keywords generated. %1")
-                       .arg(LPub::elapsedTime(timer.elapsed()));
+  QString const message = QObject::tr("Meta command keywords generated. %1")
+                              .arg(LPub::elapsedTime(timer.elapsed()));
+  Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
+  logInfo() << message;
+  Preferences::setMessageLogging();
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {

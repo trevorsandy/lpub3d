@@ -621,7 +621,7 @@ void Application::setTheme(bool appStarted)
 
 void Application::splashMsg(const QString &message)
 {
-  Preferences::setMessageLogging(true/*useLogLevel*/);
+  Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
   logInfo() << qUtf8Printable(message);
   Preferences::setMessageLogging();
   if (m_console_mode)

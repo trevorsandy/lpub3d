@@ -871,7 +871,7 @@ void Preferences::fprintMessage(const QString &message, bool stdError)
 void Preferences::printInfo(const QString &info, bool isError)
 {
     if (loggingEnabled) {
-        Preferences::setMessageLogging(true/*useLogLevel*/);
+        Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
         if (isError) {
             logError() << qUtf8Printable(info);
         } else {
@@ -2243,6 +2243,7 @@ void Preferences::lpub3dUpdatePreferences(){
 
 void Preferences::lgeoPreferences()
 {
+    Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
     logInfo() << qUtf8Printable(QObject::tr("LGEO library status..."));
     QSettings Settings;
     QString const lgeoDirKey("LGEOPath");
@@ -2266,6 +2267,7 @@ void Preferences::lgeoPreferences()
         logInfo() << qUtf8Printable(QObject::tr("LGEO library path  : Not found"));
         lgeoPath.clear();
     }
+    Preferences::setMessageLogging();
 }
 
 void Preferences::fadestepPreferences(bool persist)
@@ -2504,6 +2506,8 @@ void Preferences::rendererPreferences()
     QSettings Settings;
 
     /* Set 3rdParty application locations */
+
+    Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
 
     logInfo() << qUtf8Printable(QObject::tr("Image renderers..."));
 #ifdef Q_OS_WIN
@@ -2838,7 +2842,7 @@ void Preferences::rendererPreferences()
     // Blender executable
     QString const blenderExeKey("BlenderExeFile");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderExeKey))) {
-        logNotice() << qUtf8Printable(QObject::tr("Blender: %1not configured").arg(blenderExe.isEmpty() ? "" : QString("%1 ").arg(blenderExe)));
+        logInfo() << qUtf8Printable(QObject::tr("Blender: %1not configured").arg(blenderExe.isEmpty() ? "" : QString("%1 ").arg(blenderExe)));
         blenderExe.clear();
     } else {
         blenderExe = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderExeKey)).toString());
@@ -2984,6 +2988,7 @@ void Preferences::rendererPreferences()
     } else {
         submodelCameraLongitude = Settings.value(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLongitude")).toInt();
     }
+    Preferences::setMessageLogging();
 }
 
 void Preferences::setLDGLiteIniParams()
