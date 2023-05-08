@@ -7815,7 +7815,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   dialog = new QDialog(nullptr);
 
-  dialog->setWindowTitle(tr("Search Directories"));
+  dialog->setWindowTitle(tr("LDraw Search Directories"));
 
   dialog->setWhatsThis(lpubWT(WT_DIALOG_LDRAW_SEARCH_DIRECTORIES,dialog->windowTitle()));
 
@@ -7847,9 +7847,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   gridLayout->addWidget(lineEditIniFile,0,0,1,2);
 
   textEditSearchDirs = new TextEditSearchDirs(dialog);
-  textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
-  textEditSearchDirs->setLineWrapMode(QPlainTextEdit::WidgetWidth);
-  //textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
+  textEditSearchDirs->setLineWrapMode(QPlainTextEdit::NoWrap);
   gridLayout->addWidget(textEditSearchDirs,1,0,2,1);
 
   gridLayout->addWidget(groupBoxActions, 1,1,2,1);
@@ -7901,7 +7899,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   }
 
   if (Preferences::ldSearchDirs.size() > 0) {
-      Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
+      Q_FOREACH (const QString &searchDir, Preferences::ldSearchDirs)
         textEditSearchDirs->appendPlainText(searchDir);
   }
 
@@ -7927,7 +7925,11 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
   connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
 
+  textEditSearchDirs->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
+
   dialog->setMinimumWidth(500);
+
+  dialog->setSizeGripEnabled(true);
 
   if (dialog->exec() == QDialog::Accepted) {
 
@@ -7952,7 +7954,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
           validDirs << dir;
         } else {
           match = false;
-          Q_FOREACH (QString excludedDir, excludedSearchDirs) {
+          Q_FOREACH (const QString &excludedDir, excludedSearchDirs) {
             if (dir.toLower() == excludedDir.toLower()) {
               invalidDirs << dir;
               match = true;
@@ -7973,8 +7975,8 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
       Preferences::ldSearchDirs = validDirs;
 
       if (!invalidDirs.isEmpty()) {
-        const QString message("The search directory list contains excluded or invalid paths which will not be saved.");
-        QMessageBox::warning(dialog, tr("Search Directories"), tr("%1<br>%2").arg(message).arg(invalidDirs.join("<br>")));
+        const QString message = tr("The search directory list contains excluded or invalid paths which will not be saved.");
+        QMessageBox::warning(dialog, tr("Search Directories"), QString("%1<br>%2").arg(message).arg(invalidDirs.join("<br>")));
         emit gui->messageSig(LOG_INFO, message);
         Q_FOREACH (const QString &dir, invalidDirs) {
           emit gui->messageSig(LOG_INFO, QString("    - %1").arg(dir));
@@ -7982,7 +7984,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
       }
 
       if (!validDirs.isEmpty()) {
-        emit gui->messageSig(LOG_INFO, QString("Updated LDraw Directories:"));
+        emit gui->messageSig(LOG_INFO, tr("Updated LDraw Directories:"));
         Q_FOREACH (const QString &dir, validDirs) {
           emit gui->messageSig(LOG_INFO,QString("    - %1").arg(dir));
         }
@@ -8014,7 +8016,7 @@ void LDrawSearchDirDialog::buttonClicked()
     box.setDefaultButton   (QMessageBox::Yes);
     box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
     box.setText (tr("This action will reset your search directory settings to the %1 default.\n"
-                    "Are you sure you want to continue? ").arg(VER_PRODUCTNAME_STR));
+                    "Are you sure you want to continue ? ").arg(VER_PRODUCTNAME_STR));
     if (box.exec() == QMessageBox::Yes) {
       gui->partWorkerLDSearchDirs.resetSearchDirSettings();
       textEditSearchDirs->clear();
@@ -8030,8 +8032,8 @@ void LDrawSearchDirDialog::buttonClicked()
     }
   } else if (sender() == pushButtonAddDirectory) {
     const QString ldrawPath = Preferences::ldrawLibPath;
-    QString result = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(dialog, tr("Select Parts Directory"), QString("%1/%2").arg(ldrawPath).arg("unofficial")));
-    Q_FOREACH (QString excludedDir, excludedSearchDirs) {
+    const QString result = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(dialog, tr("Select Parts Directory"), QString("%1/%2").arg(ldrawPath).arg("unofficial")));
+    Q_FOREACH (const QString &excludedDir, excludedSearchDirs) {
       if (result.toLower() == excludedDir.toLower()) {
           box.setIcon (QMessageBox::Warning);
           box.setWindowTitle(tr ("Invalid Search Directory"));
@@ -8053,6 +8055,8 @@ void LDrawSearchDirDialog::buttonClicked()
     QDir folder(selection.toPlainText());
     if (folder.isReadable())
       gui->openFolderSelect(QDir::toNativeSeparators(QString("%1/a").arg(folder.absolutePath())));
+    else
+      emit gui->messageSig(LOG_WARNING, tr("Selected folder is not readable<br>%1").arg(folder.absolutePath()), true/*msgBox*/);
   } else {
     int origPosition = 0, numChars = 0;
     QTextCursor cursor = textEditSearchDirs->textCursor();
@@ -8092,10 +8096,10 @@ void LDrawSearchDirDialog::buttonClicked()
   }
 }
 
-TextEditSearchDirs::TextEditSearchDirs(QWidget *parent) : QPlainTextEdit(parent)
+TextEditSearchDirs::TextEditSearchDirs(QWidget *parent) :
+    QPlainTextEdit(parent),
+    lineNumberArea(new EditLineNumberArea(this))
 {
-  lineNumberArea = new EditLineNumberArea(this);
-
   QPalette lineNumberPalette = lineNumberArea->palette();
   lineNumberPalette.setCurrentColorGroup(QPalette::Active);
   lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));

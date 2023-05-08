@@ -3894,11 +3894,10 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Configure %1 LDraw content search directories.\n\n"
-            "  You can edit, add, reset and position search directory\n"
-            "  entries using this dialog.\n\n"
+            "  You can edit, add, open, position and reset\n"
+            "  search directory entries using this dialog.\n\n"
             "  These directories are searched for LDraw part and\n"
-            "  model files during file load and when when rendering\n"
-            "  images.\n\n"
+            "  model files during file load and image rendering.\n\n"
             "  Directories enterend here are shared with the current\n"
             "  %1 preferred renderer.\n\n"
             "  For the native renderer and 3D viewer, parts in these\n"

@@ -2092,12 +2092,12 @@ private:
 
 class EditLineNumberArea;
 class TextEditSearchDirs;
-class LDrawSearchDirDialog : public QObject
+class LDrawSearchDirDialog : public QWidget
 {
   Q_OBJECT
   public:
-  LDrawSearchDirDialog(){}
-  virtual ~LDrawSearchDirDialog(){}
+  explicit LDrawSearchDirDialog(QWidget *parent = nullptr) : QWidget(parent) {}
+  virtual ~LDrawSearchDirDialog() {}
 
   void getLDrawSearchDirDialog();
   public slots:
@@ -2120,12 +2120,12 @@ class TextEditSearchDirs : public QPlainTextEdit
 {
   Q_OBJECT
 public:
-  TextEditSearchDirs(QWidget *parent = 0);
+  explicit TextEditSearchDirs(QWidget *parent = nullptr);
   void lineNumberAreaPaintEvent(QPaintEvent *event);
   int lineNumberAreaWidth();
 
 protected:
-  void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+  void resizeEvent(QResizeEvent *event) override;
 
 private slots:
   void updateLineNumberAreaWidth(int newBlockCount);
