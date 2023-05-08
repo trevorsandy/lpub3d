@@ -792,16 +792,20 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         const QString modelName = tr("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
         QString csiFilePath = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
         QStringList Keys    = LPub::getViewerStepKeys(true/*get Name*/, false/*PLI*/, step->viewerStepKey);
-        QString csiFile     = QString("%1/viewer_csi_%2.ldr")
-                                      .arg(QFileInfo(csiFilePath).absolutePath())
-                                      .arg(QString("%1_%2_%3")
-                                                   .arg(Keys.at(0))    // Name
-                                                   .arg(Keys.at(1))    // Line Number
-                                                   .arg(Keys.at(2)));  // Step Number
-        gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
-        gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
-        gui->getEditModeWindow()->setReadOnly(true);
-        gui->getEditModeWindow()->show();
+        if (Keys.size() > 2) {
+            const QString Name  = Keys.at(BM_STEP_MODEL_KEY);
+            QString csiFile     = QString("%1/viewer_csi_%2.ldr")
+                                          .arg(QFileInfo(csiFilePath).absolutePath())
+                                          .arg(QString("%1_%2_%3_%4")
+                                                       .arg(Name)
+                                                       .arg(QString::number(lpub->ldrawFile.getSubmodelIndex(Name)))
+                                                       .arg(Keys.at(BM_STEP_LINE_KEY))
+                                                       .arg(Keys.at(BM_STEP_NUM_KEY)));
+            gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
+            gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
+            gui->getEditModeWindow()->setReadOnly(true);
+            gui->getEditModeWindow()->show();
+        }
     }
 #endif
 }
