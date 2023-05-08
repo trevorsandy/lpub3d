@@ -1371,16 +1371,17 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	{
 		if (Piece->IsVisible(mCurrentStep))
 		{
-			const lcStep StepShow = Piece->GetStepShow();
-/*** LPub3D Mod - lpub fade highlight ***/
-			bool LPubFade = false;
-			if (gApplication->LPubFadeHighlight())
-				LPubFade        = Piece->GetLPubFade();
-			if (false /*For future use - Visual Editor Edit Mode*/)
+/*** LPub3D Mod - export ***/
+			if (lcGetActiveProject()->IsExportingHTML())
 			{
+				const lcStep StepShow = Piece->GetStepShow();
 				AllowHighlight &= StepShow == mCurrentStep;
 				AllowFade      &= StepShow < mCurrentStep;
 			}
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+			bool LPubFade  = gApplication->LPubFadeHighlight();
+				 LPubFade &= Piece->GetLPubFade();
 			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight, AllowFade, LPubFade);
 /*** LPub3D Mod end ***/
 		}

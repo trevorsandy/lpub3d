@@ -100,10 +100,8 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
-/*** LPub3D Mod - lpub fade highlight ***/
-	mLPubFadeParts = false;
-	mLPubHighlightParts = false;
-	mLPubFadeHighlight = gApplication->mPreferences.mLPubFadeHighlight;
+/*** LPub3D Mod - export ***/
+	mExportingHTML = false;
 /*** LPub3D Mod end ***/
 	if (!mIsPreview && gMainWindow)
 		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
@@ -1807,8 +1805,10 @@ lcInstructions* Project::GetInstructions()
 
 /*** LPub3D Mod - export ***/
 bool Project::ExportHTML(const lcHTMLExportOptions& Options)
-/*** LPub3D Mod end ***/
 {
+	mExportingHTML = true;
+/*** LPub3D Mod end ***/
+
 	QDir Dir(Options.PathName);
 	Dir.mkpath(QLatin1String("."));
 
@@ -2042,6 +2042,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 	}
 
 /*** LPub3D Mod - export ***/
+	mExportingHTML = false;
+
 	return true;
 /*** LPub3D Mod end ***/
 }

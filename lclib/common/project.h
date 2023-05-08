@@ -99,6 +99,12 @@ public:
 		mTimelineTopItem  = TimelineTitle;
 	}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - export ***/
+	bool IsExportingHTML() const
+	{
+		return mExportingHTML;
+	}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	void SetRenderAttributes(
 		const int Renderer,
@@ -221,6 +227,9 @@ protected:
 	int mRenderer;
 	float mResolution;
 	bool mViewerLoaded;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - export ***/
+	bool mExportingHTML;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;

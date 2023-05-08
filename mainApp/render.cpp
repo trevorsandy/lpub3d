@@ -3769,7 +3769,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
                 lcQHTMLDialog Dialog(gui, &HTMLOptions);
 
                 if (Dialog.exec() == QDialog::Accepted)
-                    emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export completed.").arg(mode));
+                    emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("%1 export configuration completed.").arg(mode));
                 else {
                     emit gui->messageSig(LOG_NOTICE, QObject::tr("%1 export cancelled!").arg(mode));
                     return !Exported;
@@ -3790,6 +3790,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
         }
 
         Exported = lpub->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);
+
         if (!Exported) {
             emit gui->messageSig(LOG_ERROR, QObject::tr("Could not open Loader for ViewerStepKey: '%1', Export: %2, FileName: '%3', [Use File]")
                                                         .arg(Options->ViewerStepKey)

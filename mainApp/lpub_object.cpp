@@ -306,6 +306,7 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
 
     lcPreferences& Preferences = lcGetPreferences();
 
+    Preferences.mLPubFadeHighlight = Options->LPubFadeHighlight;
     Preferences.mFadeStepsColor = lcGetProfileInt(LC_PROFILE_FADE_STEPS_COLOR);
     Preferences.mHighlightNewPartsColor = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR);
 
@@ -318,7 +319,6 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
     {
         Preferences.mFadeSteps = Options->FadeParts;
         Preferences.mHighlightNewParts = Options->HighlightParts;
-        Preferences.mLPubFadeHighlight = Options->LPubFadeHighlight;
 
         if (Options->FadeParts)
         {
@@ -326,7 +326,7 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
             {
                 QColor FC = LDrawColor::color(Preferences::validFadeStepsColour);
                 if (FC.isValid())
-                    Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());;
+                    Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());
             }
         }
 
