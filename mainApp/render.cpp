@@ -3580,7 +3580,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             arguments << QString(", CameraPosition: X(%1) Y(%2) Z(%3),").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
         if (O->UpVector.isPopulated())
             arguments << QString(", CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
-        if (O->AutoEdgeColor)
+        if (O->AutoEdgeColor || O->AutoEdgeColor != lpub->GetAutomateEdgeColor())
         {
             arguments << QString(", AutomateEdgeColor: True");
         if (O->EdgeContrast != Preferences.mPartEdgeContrast)
@@ -3588,18 +3588,29 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         if (O->EdgeSaturation != Preferences.mPartColorValueLDIndex)
             arguments << QString(", Saturation: %1").arg(O->EdgeSaturation);
         }
-        if (O->StudStyle)
+        bool IsHighContrastStudStyle = O->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
+        bool StudStyleChanged = (O->StudStyle != lpub->GetStudStyle() ||
+                                (IsHighContrastStudStyle && O->StudCylinderColorEnabled != lpub->GetStudCylinderColorEnabled()));
+        if (O->StudStyle || StudStyleChanged)
             arguments << QString(", StudStyle: %1").arg(studStyleNames[O->StudStyle]);
-        if (O->StudStyle > 5)
+        if (IsHighContrastStudStyle)
         {
             if (O->LightDarkIndex != Preferences.mPartColorValueLDIndex)
                arguments << QString(", LightDarkIndex: %1").arg(O->LightDarkIndex);
+            if (!O->StudCylinderColorEnabled)
+               arguments << QString(", StudCylinderColorEnabled: False");
             if (O->StudCylinderColor != Preferences.mStudCylinderColor)
                 arguments << QString(", StudCylinderColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->StudCylinderColor)).arg(LC_RGBA_GREEN(O->StudCylinderColor)).arg(LC_RGBA_BLUE(O->StudCylinderColor)).arg(LC_RGBA_ALPHA(O->StudCylinderColor));
+            if (!O->PartEdgeColorEnabled)
+                arguments << QString(", PartEdgeColorEnabled: False");
             if (O->PartEdgeColor != Preferences.mPartEdgeColor)
                 arguments << QString(", PartEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->PartEdgeColor)).arg(LC_RGBA_GREEN(O->PartEdgeColor)).arg(LC_RGBA_BLUE(O->PartEdgeColor)).arg(LC_RGBA_ALPHA(O->PartEdgeColor));
+            if (!O->BlackEdgeColorEnabled)
+                arguments << QString(", BlackEdgeColorEnabled: False");
             if (O->BlackEdgeColor != Preferences.mBlackEdgeColor)
                 arguments << QString(", BlackEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->BlackEdgeColor)).arg(LC_RGBA_GREEN(O->BlackEdgeColor)).arg(LC_RGBA_BLUE(O->BlackEdgeColor)).arg(LC_RGBA_ALPHA(O->BlackEdgeColor));
+            if (!O->DarkEdgeColorEnabled)
+                arguments << QString(", DarkEdgeColorEnabled: False");
             if (O->DarkEdgeColor != Preferences.mDarkEdgeColor)
                 arguments << QString(", DarkEdgeColor: %1,%2,%3,%4").arg(LC_RGBA_RED(O->DarkEdgeColor)).arg(LC_RGBA_GREEN(O->DarkEdgeColor)).arg(LC_RGBA_BLUE(O->DarkEdgeColor)).arg(LC_RGBA_ALPHA(O->DarkEdgeColor));
         }
@@ -3628,11 +3639,14 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
 
-    if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
+    bool IsHighContrastStudStyle = Options->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
+    bool StudStyleChanged = (Options->StudStyle != lpub->GetStudStyle() ||
+                            (IsHighContrastStudStyle && Options->StudCylinderColorEnabled != lpub->GetStudCylinderColorEnabled()));
+    if(StudStyleChanged)
         lpub->SetStudStyle(Options, true/*reload*/);
 
     if(Options->AutoEdgeColor != lpub->GetAutomateEdgeColor()) {
-        if (Options->AutoEdgeColor && lpub->GetStudStyle() > 5)
+        if (Options->AutoEdgeColor && IsHighContrastStudStyle)
             emit gui->messageSig(LOG_NOTICE,QObject::tr("High contrast stud and edge color settings are ignored when automate edge color is enabled."));
         lpub->SetAutomateEdgeColor(Options);
     }
@@ -3673,11 +3687,14 @@ bool Render::LoadViewer(const NativeOptions *Options) {
 
     gui->clearVisualEditUndoRedoText();
 
-    if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
+    bool IsHighContrastStudStyle = Options->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
+    bool StudStyleChanged = (Options->StudStyle != lpub->GetStudStyle() ||
+                            (IsHighContrastStudStyle && Options->StudCylinderColorEnabled != lpub->GetStudCylinderColorEnabled()));
+    if(StudStyleChanged)
         lpub->SetStudStyle(Options, true/*reload*/);
 
     if(Options->AutoEdgeColor != lpub->GetAutomateEdgeColor()) {
-        if (Options->AutoEdgeColor && lpub->GetStudStyle() > 5) {
+        if (Options->AutoEdgeColor && IsHighContrastStudStyle) {
             QString message = QObject::tr("High contrast stud and edge color settings are ignored when automate edge color is enabled.");
             if (Preferences::getShowMessagePreference(Preferences::ParseErrors)) {
                 Where file(QFileInfo(lpub->ldrawFile.getViewerStepFilePath(Options->ViewerStepKey)).fileName());
@@ -3736,11 +3753,14 @@ bool Render::NativeExport(const NativeOptions *Options) {
             }
         }
 
-        if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
+        bool IsHighContrastStudStyle = Options->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
+        bool StudStyleChanged = (Options->StudStyle != lpub->GetStudStyle() ||
+                                (IsHighContrastStudStyle && Options->StudCylinderColorEnabled != lpub->GetStudCylinderColorEnabled()));
+        if(StudStyleChanged)
             lpub->SetStudStyle(Options, true/*reload*/);
 
         if(Options->AutoEdgeColor != lpub->GetAutomateEdgeColor()) {
-            if (Options->AutoEdgeColor && lpub->GetStudStyle() > 5)
+            if (Options->AutoEdgeColor && IsHighContrastStudStyle)
                 emit gui->messageSig(LOG_NOTICE,QObject::tr("High contrast stud and edge color settings are ignored when automate edge color is enabled."));
             lpub->SetAutomateEdgeColor(Options);
         }
