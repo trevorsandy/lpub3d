@@ -239,7 +239,7 @@ bool PartWorker::loadLDrawSearchDirs(){
             foundUnofficialRootDir = ldrawSearchDir.toLower() == unofficialRootDir.toLower();
 
           bool excludeSearchDir = false;
-          Q_FOREACH (QString excludedDir, _excludedSearchDirs){
+          Q_FOREACH (QString const &excludedDir, _excludedSearchDirs){
               if ((excludeSearchDir =
                    ldrawSearchDir.toLower().contains(excludedDir.toLower()))) {
                   break;
@@ -725,7 +725,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
                       colourPartList << fileString;
                       emit gui->messageSig(LOG_NOTICE, tr("01 SUBMIT COLOUR PART INFO: %1 Line: %2").arg(fileString.replace(":::", " ")).arg(i));
                   } else {
-                      emit gui->messageSig(LOG_NOTICE, tr("01 COLOUR PART EXIST - IGNORING:").arg(fileString.replace(":::", " ")));
+                      emit gui->messageSig(LOG_NOTICE, tr("01 COLOUR PART EXIST - IGNORING: %1").arg(fileString.replace(":::", " ")));
                   }
               }
           }
@@ -894,7 +894,9 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 
         QuaZip zip(unOffLib ? unofficialLib : officialLib);
         if (!zip.open(QuaZip::mdUnzip)) {
-            emit gui->messageSig(LOG_ERROR, tr("Failed to open archive: %1 @ %2").arg(zip.getZipError()).arg(unOffLib ? unofficialLib : officialLib));
+            emit gui->messageSig(LOG_ERROR, tr("Could not open archive to add content. Return code %1.<br>"
+                                               "Archive file %2 may be open in another program.")
+                                               .arg(zip.getZipError()).arg(QFileInfo(unOffLib ? unofficialLib : officialLib).fileName()));
             return false;
         }
 
@@ -966,9 +968,9 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                             // add chile part entry to list
                             if (!entryExists) {
                                 childrenColourParts << childFileString;
-                                emit gui->messageSig(LOG_NOTICE, tr("03 SUBMIT CHILD COLOUR PART INFO:").arg(childFileString.replace(":::", " ")));
+                                emit gui->messageSig(LOG_NOTICE, tr("03 SUBMIT CHILD COLOUR PART INFO: %1").arg(childFileString.replace(":::", " ")));
                             } else {
-                                emit gui->messageSig(LOG_NOTICE, tr("03 CHILD COLOUR PART EXIST - IGNORING:").arg(childFileString.replace(":::", " ")));
+                                emit gui->messageSig(LOG_NOTICE, tr("03 CHILD COLOUR PART EXIST - IGNORING: %1").arg(childFileString.replace(":::", " ")));
                             }
                         }
                     }
@@ -996,13 +998,13 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 
             } else if (libPartFile.fileName().toLower() == libPartName && partAlreadyInList(libPartName)) {
                 partFound = true;
-                emit gui->messageSig(LOG_TRACE, tr("Part already in list:").arg(libPartName));
+                emit gui->messageSig(LOG_TRACE, tr("Part already in list: %1").arg(libPartName));
                 break;
             }
         }
 
         if (!partFound) {
-            QString lib = Preferences::usingDefaultLibrary ? "Unofficial" : "Custom Parts";
+            QString const lib = Preferences::usingDefaultLibrary ? QLatin1String("Unofficial") : QLatin1String("Custom Parts");
             fileStatus = tr("Part file %1 not found in %2. Be sure the %3 fadeStepColorParts.lst file is up to date.")
                              .arg(cpPartEntry.replace(":::", " "))
                              .arg(unOffLib ? tr("%1 Library").arg(lib) : QLatin1String("Official Library"))
@@ -1013,7 +1015,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         zip.close();
 
         if (zip.getZipError() != UNZ_OK) {
-            emit gui->messageSig(LOG_ERROR, tr("zip close error: %1").arg(zip.getZipError()));
+            emit gui->messageSig(LOG_ERROR, tr("zip close error. Return code %1.").arg(zip.getZipError()));
             return false;
         }
     }
@@ -1023,9 +1025,9 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     if (childrenColourParts.size() > 0)
         processColourParts(childrenColourParts, partType);
 
-    QString message = tr("%1 Color %2 content processed.")
-        .arg(partsProcessed)
-        .arg(partsProcessed > 1 ? "parts" : "part");
+    QString const message = tr("%1 Color %2 content processed.")
+                                .arg(partsProcessed)
+                                .arg(partsProcessed > 1 ? tr("parts") : tr("part"));
     emit gui->messageSig(LOG_INFO,message);
 
     return true;
@@ -1131,23 +1133,11 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
                     tokens[0] >= "1" && tokens[0] <= "5")     &&
                     (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR) &&
                     (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
-                    //QString oldColour(tokens[1]);          //logging only: show color lines
-                    QString colourCode;
-                    // Insert color code for fade part
-                    if (partType == FADE_PART){
-                        // generate custom color entry - if fadeStepsUseColour, set color to material color (16), without prefix
-                        colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
-                        // add color line to local list - if fadeStepsUseColour, no need to create entry
-                        if (!Preferences::fadeStepsUseColour && !gui->colourEntryExist(customPartColourList,colourCode,partType))
-                            customPartColourList << gui->createColourEntry(colourCode,partType);
-                        // set custom color - if fadeStepsUseColour, do not add custom color prefix
-                        tokens[1] = Preferences::fadeStepsUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
-                        //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
-                    }
-                    // Insert color code for silhouette part
-                    if (partType == HIGHLIGHT_PART){
-                        // generate custom color entry - always
-                        colourCode = tokens[1];
+                    // QString oldColour(tokens[1]);          // logging only: show color lines
+                    // Insert color code for fade or silhouette part
+                    if (partType == FADE_PART || partType == HIGHLIGHT_PART){
+                        // generate custom color entry
+                        QString const colourCode = tokens[1];
                         // add color line to local list - always request to create entry
                         if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
                             customPartColourList << gui->createColourEntry(colourCode,partType);
@@ -1204,7 +1194,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
                 customPartContent.insert(++insertionPoint,"0");
             }
 
-            //logTrace() << "04 SAVE CUSTGOM COLOUR PART: " << customPartFile;
+            //emit gui->messageSig(LOG_TRACE,tr("04 SAVE CUSTGOM COLOUR PART: %1").arg(customPartFile));
             if(saveCustomFile(customPartFile, customPartContent))
                 _customParts++;
 
@@ -1237,7 +1227,7 @@ bool PartWorker::saveCustomFile(
             out << customPartContent[i] << lpub_endl;
         }
         file.close();
-        emit gui->messageSig(LOG_NOTICE,tr("05 WRITE CUSTOM PART TO DISC:").arg(fileName));
+        emit gui->messageSig(LOG_NOTICE,tr("05 WRITE CUSTOM PART TO DISC: %1").arg(fileName));
         return true;
     }
 }

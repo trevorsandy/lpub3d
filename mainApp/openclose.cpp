@@ -965,7 +965,7 @@ void Gui::setupFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep)
     if (Preferences::enableImageMatting)
       LDVImageMatte::clearMatteCSIImages();
     partWorkerLDSearchDirs.setDoFadeStep(true);
-    processFadeColourParts(false/*overwrite*/, enableFadeSteps);
+    processFadeColourParts(true/*overwrite*/, enableFadeSteps);
     m_fadeStepsSetup = true;
   }
 
