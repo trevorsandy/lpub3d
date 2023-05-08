@@ -5275,14 +5275,15 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
     QFileInfo fileInfo(filePath);
     QString fileName = fileInfo.fileName();
 
-    auto processLine =
-            [this,
-             &meta,
-             &fileName,
-             &lineNumber] () {
+    auto processLine = [&] ()
+    {
         Rc prc = InvalidLineRc;
         Where here(fileName,lineNumber);
         QString line = readLine(here);
+
+        if (line.isEmpty())
+           return prc;
+
         switch (line.toLatin1()[0]) {
         case '1':
         case '2':
@@ -5338,16 +5339,18 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
     includeFileFound = lpub->ldrawFile.isIncludeFile(fileName);
 
     if (includeFileFound) {
-        updateMpdCombo();
         int numLines = lpub->ldrawFile.size(fileName);
-        for (; lineNumber < numLines; lineNumber++) {
-            rc = processLine();
-            // one line at a time so break at valid line
-            if (rc != InvalidLineRc)
-                break;
-        }
         if (lineNumber < numLines) {
-            lineNumber++;
+            // update MpdCombo at first line
+            if (!lineNumber)
+                updateMpdCombo();
+            // process one line at a time so break at valid line
+            for (;lineNumber < numLines;) {
+                rc = processLine();
+                lineNumber++;
+                if (rc != InvalidLineRc)
+                    break;
+            }
         } else {
             includeFileFound = false;
             rc = EndOfIncludeFileRc;
