@@ -71,11 +71,12 @@ protected:
     QString readStdErr(bool &hasError) const;
     void initLDrawImport();
     void initLDrawImportMM();
+    void clear();
 
 public slots:
     void resetSettings();
     void browseBlender(bool);
-    void configureBlender();
+    void configureBlender(bool = false);
     void updateLDrawAddon();
     void showPathsGroup();
     void enableImportModule();

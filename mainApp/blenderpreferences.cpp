@@ -207,7 +207,18 @@ BlenderPreferences::BlenderPreferences(QWidget *parent)
 
 BlenderPreferences::~BlenderPreferences()
 {
+    clear();
     blenderPreferences = nullptr;
+}
+
+void BlenderPreferences::clear()
+{
+    pathLineEditList.clear();
+    pathBrowseButtonList.clear();
+    settingLabelList.clear();
+    checkBoxList.clear();
+    lineEditList.clear();
+    comboBoxList.clear();
 }
 
 void BlenderPreferences::getRenderSettings(
@@ -237,6 +248,8 @@ void BlenderPreferences::getRenderSettings(
 
     mBlenderConfigured = Preferences::blenderInstalled && !Preferences::blenderLDrawConfigFile.isEmpty();
 
+    clear();
+
     loadSettings();
 
     blenderContent = new QWidget(dialog);
@@ -263,11 +276,13 @@ void BlenderPreferences::getRenderSettings(
 
     QLineEdit *pathLineEdit = new QLineEdit(blenderContent);
     pathLineEdit->setText(blenderPaths[i].value);
+    pathLineEdit->setObjectName(blenderPaths[i].key);
     pathLineEdit->setToolTip(blenderPaths[i].tooltip);
     pathLineEditList << pathLineEdit;
     blenderExeGridLayout->addWidget(pathLineEdit,1,1);
 
     QPushButton *pathBrowseButton = new QPushButton(tr("Browse..."), blenderContent);
+    pathBrowseButton->setObjectName(blenderPaths[i].key);
     pathBrowseButtonList << pathBrowseButton;
     blenderExeGridLayout->addWidget(pathBrowseButton,1,2);
 
@@ -1435,13 +1450,13 @@ void BlenderPreferences::updateLDrawAddon()
 
     mBlenderAddonUpdate = mBlenderConfigured;            // was true
 
-    configureBlender();
+    configureBlender(sender() == pathBrowseButtonList[LBL_BLENDER_PATH]);
 
     QObject::connect(pathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()), this,
                      SLOT(configureBlender()));
 }
 
-void BlenderPreferences::configureBlender()
+void BlenderPreferences::configureBlender(bool testBlender)
 {
     progressBar = nullptr;
 
@@ -1465,18 +1480,19 @@ void BlenderPreferences::configureBlender()
 
     if (QFileInfo(blenderFile).exists()) {
         // Setup
-        enum ProcEnc { PR_OK, PR_FAIL, PR_WAIT, PR_INSTALL };
+        enum ProcEnc { PR_OK, PR_FAIL, PR_WAIT, PR_INSTALL, PR_TEST };
         QString const blenderExe = QDir::toNativeSeparators(blenderFile);
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
         QString const blenderSetupDir    = QString("%1/setup").arg(blenderDir);
         QString const blenderConfigDir   = QString("%1/config").arg(blenderDir);
         QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
-        QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
+        QString const blenderTestString  = QLatin1String("###TEST_BLENDER###");
         QByteArray addonPathsAndModuleNames;
-        QString message;
+        QString message, shellProgram;
         QStringList arguments;
         ProcEnc result = PR_OK;
+        QFile script;
 
         bool newBlenderExe = blenderExeCompare != blenderExe.toLower();
 
@@ -1495,6 +1511,11 @@ void BlenderPreferences::configureBlender()
             if (action == PR_INSTALL) {
                 connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()));
             } 
+            else
+            {
+                processAction = tr("test");
+                disconnect(&updateTimer, SIGNAL(timeout()), this, SLOT(update()));
+            }
 
             process->setEnvironment(systemEnvironment);
 
@@ -1502,7 +1523,15 @@ void BlenderPreferences::configureBlender()
 
             process->setStandardErrorFile(QString("%1/stderr-blender-addon-install").arg(blenderDir));
 
-            process->start(blenderExe, arguments);
+            if (action == PR_INSTALL) {
+                process->start(blenderExe, arguments);
+            } else {
+#ifdef Q_OS_WIN
+                process->start(shellProgram, QStringList() << "/C" << script.fileName());
+#else
+                process->start(shellProgram, QStringList() << script.fileName());
+#endif
+            }
 
             if (! process->waitForStarted()) {
                 message = tr("Cannot start Blender %1 process.\n%2")
@@ -1519,6 +1548,35 @@ void BlenderPreferences::configureBlender()
                     return PR_FAIL;
                 } else {
                     message = tr("Blender %1 process [%2] running...").arg(processAction).arg(process->processId());
+                }
+            }
+
+            if (action == PR_TEST) {
+                while (process && process->state() != QProcess::NotRunning) {
+                    QTime waiting = QTime::currentTime().addMSecs(500);
+                    while (QTime::currentTime() < waiting)
+                        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                }
+                connect(&updateTimer, SIGNAL(timeout()), this, SLOT(update()));
+                QString const stdOut = QString(process->readAllStandardOutput());
+                if (!stdOut.contains(blenderTestString)) {
+                    message =  tr("A simple check to test if the selected file is Blender failed."
+                                  "Please create an LPub3D GitHub ticket if you are sure the file is Blender 2.8 or newer."
+                                  "The ticket should contain the full path to the Blender executable.");
+                    return PR_FAIL;
+                } else {
+                    // Get Blender Version
+                    QStringList items = stdOut.split('\n',Qt::SkipEmptyParts).last().split(" ");
+                    if (items.count() > 6 && items.at(0) == QLatin1String("Blender")) {
+                        items.takeLast();
+                        blenderVersion.clear();
+                        for (int i = 1; i < items.size(); i++)
+                            blenderVersion.append(items.at(i)+" ");
+                        blenderVersion = blenderVersion.trimmed().append(")");
+                        blenderVersionEdit->setText(blenderVersion);
+                        versionFound = true;
+                        //emit gui->messageSig(LOG_DEBUG, tr("Blender version: %1").arg(blenderVersion));
+                    }
                 }
             }
 
@@ -1562,6 +1620,82 @@ void BlenderPreferences::configureBlender()
         progressBar->setMaximum(0);
         progressBar->setMinimum(0);
         progressBar->setValue(1);
+
+        // Test Blender executable
+        testBlender |= sender() == pathLineEditList[LBL_BLENDER_PATH];
+        if (testBlender) {
+            arguments << QString("--factory-startup");
+            arguments << QString("-b");
+            arguments << QString("--python-expr");
+            arguments << QString("\"import sys;print('%1');sys.stdout.flush();sys.exit()\"").arg(blenderTestString);
+
+            QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+            QString const scriptDir = configPathList.first();
+
+            bool error = false;
+
+            if (QFileInfo(scriptDir).exists()) {
+                QString scriptName, scriptCommand;
+
+#ifdef Q_OS_WIN
+                scriptName =  QLatin1String("blender_test.bat");
+#else
+                scriptName =  QLatin1String("blender_test.sh");
+#endif
+                scriptCommand = QString("%1 %2").arg(blenderExe).arg(arguments.join(" "));
+
+                message = tr("Blender Test Command: %1").arg(scriptCommand);
+#ifdef QT_DEBUG_MODE
+                qDebug() << qPrintable(message);
+#else
+                emit gui->messageSig(LOG_INFO, message);
+#endif
+                script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
+                if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    QTextStream stream(&script);
+#ifdef Q_OS_WIN
+                    stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
+#else
+                    stream << QLatin1String("#!/bin/bash") << lpub_endl;
+#endif
+                    stream << scriptCommand << lpub_endl;
+                    script.close();
+                    message = tr("Blender Test Script: %2").arg(QDir::toNativeSeparators(script.fileName()));
+#ifdef QT_DEBUG_MODE
+                    qDebug() << qPrintable(message);
+#else
+                    emit gui->messageSig(LOG_INFO, message);
+#endif
+                } else {
+                    message = tr("Cannot write Blender render script file [%1] %2.")
+                                  .arg(script.fileName())
+                                  .arg(script.errorString());
+                    error = true;
+                }
+            } else {
+                message = tr("Cannot create Blender render script temp path.");
+                error = true;
+            }
+
+            if (error) {
+                emit gui->messageSig(LOG_ERROR, message);
+                statusUpdate();
+                return;
+            }
+
+            QThread::sleep(1);
+
+#ifdef Q_OS_WIN
+            shellProgram = QLatin1String("cmd.exe");
+#else
+            shellProgram = QLatin1String("/bin/sh");
+#endif
+            if (processCommand(PR_TEST) == PR_FAIL) {
+                emit gui->messageSig(LOG_ERROR, message);
+                statusUpdate();
+                return;
+            }
+        } // Test Blender
 
         QString const preferredImportModule =
             blenderImportActBox->isChecked()
