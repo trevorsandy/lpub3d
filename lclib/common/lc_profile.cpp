@@ -204,7 +204,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - lpub fade highlight ***/
-	lcProfileEntry("Settings", "LPubFadeHighlight", 1),                                                    // LC_PROFILE_LPUB_FADE_HIGHLIGHT                       /*** LPub3D Mod - lpub fade highlight ***/
+	lcProfileEntry("Settings", "LPubFadeHighlight", 0),                                                    // LC_PROFILE_LPUB_FADE_HIGHLIGHT                       /*** LPub3D Mod - lpub fade highlight ***/
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - parts load order ***/

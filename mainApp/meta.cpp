@@ -4586,7 +4586,7 @@ FadeStepsMeta::FadeStepsMeta() : BranchMeta()
   fdata.useColor = Preferences::fadeStepsUseColour;
   color.setValue(fdata);
   opacity.setValue(Preferences::fadeStepsOpacity);
-  lpubFade.setValue(true);
+  lpubFade.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
 }
 
 void FadeStepsMeta::setPreferences(bool reset)
@@ -4602,7 +4602,7 @@ void FadeStepsMeta::setPreferences(bool reset)
      fdata.useColor = Preferences::fadeStepsUseColour;
      color.setValue(fdata);
      opacity.setValue(Preferences::fadeStepsOpacity);
-     lpubFade.setValue(true);
+     lpubFade.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
    } else {
      if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
        Preferences::enableFadeSteps    = enable.value();
@@ -4658,7 +4658,7 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
   setup.setValue(false);
   color.setValue(Preferences::highlightStepColour);
   lineWidth.setValue(Preferences::highlightStepLineWidth);
-  lpubHighlight.setValue(true);
+  lpubHighlight.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
 }
 
 void HighlightStepMeta::setPreferences(bool reset)
@@ -4671,7 +4671,7 @@ void HighlightStepMeta::setPreferences(bool reset)
      enable.setValue(Preferences::enableHighlightStep);
      color.setValue(Preferences::highlightStepColour);
      lineWidth.setValue(Preferences::highlightStepLineWidth);
-     lpubHighlight.setValue(true);
+     lpubHighlight.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
    } else {
      if ((displayPreference = Preferences::enableHighlightStep != enable.value() || enable.global))
        Preferences::enableHighlightStep  = enable.value();
