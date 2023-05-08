@@ -813,7 +813,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
                     return PR_FAIL;
                 } else {
                     // Get Blender Version
-                    QStringList items = stdOut.split('\n',Qt::SkipEmptyParts).last().split(" ");
+                    QStringList items = stdOut.split('\n',SkipEmptyParts).last().split(" ");
                     if (items.count() > 6 && items.at(0) == QLatin1String("Blender")) {
                         items.takeLast();
                         blenderVersion.clear();
