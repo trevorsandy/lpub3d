@@ -3595,18 +3595,15 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3),").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
         if (O->UpVector.isPopulated())
             arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3),").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
-        if (O->FadeParts) {
-            arguments << QString("FadeParts: True,");
-            arguments << QString("LPubFadeHighlight: %1,").arg(O->LPubFadeHighlight ? "True" : "False");
-        }
-        if (O->HighlightParts)
-            arguments << QString("HighlightParts: True,");
+        arguments << QString("LPubFadeHighlight: %1,").arg(O->LPubFadeHighlight ? "True" : "False");
+        arguments << QString("FadeParts: %1,").arg(O->FadeParts ? "True" : "False");
+        arguments << QString("HighlightParts: %1,").arg(O->HighlightParts ? "True" : "False");
         if (O->AutoEdgeColor || O->AutoEdgeColor != lpub->GetAutomateEdgeColor())
         {
             arguments << QString("AutomateEdgeColor: True,");
-        if (O->EdgeContrast != Preferences.mPartEdgeContrast)
-            arguments << QString("EdgeContrast: %1,").arg(O->EdgeContrast);
-        if (O->EdgeSaturation != Preferences.mPartColorValueLDIndex)
+            if (O->EdgeContrast != Preferences.mPartEdgeContrast)
+                arguments << QString("EdgeContrast: %1,").arg(O->EdgeContrast);
+            if (O->EdgeSaturation != Preferences.mPartColorValueLDIndex)
             arguments << QString("Saturation: %1,").arg(O->EdgeSaturation);
         }
         bool IsHighContrastStudStyle = O->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
