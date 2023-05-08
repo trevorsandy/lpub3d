@@ -70,11 +70,10 @@ FilterLineEdit::FilterLineEdit(CommandCollection *collection, QWidget *parent)
     : QLineEdit(parent)
     , m_commandsCollection(collection)
     , m_patternGroup(new QActionGroup(this))
-{  
-    m_menu = new QMenu(this);
-    m_useCompleterAction = m_menu->addAction(tr("Auto-complete"));
+{
+    m_useCompleterAction = addAction(QIcon(":/resources/filter.png"), QLineEdit::TrailingPosition);
     m_useCompleterAction->setData(QString("command").toLatin1());
-    setPlaceholderText(tr("Command filter"));
+    setPlaceholderText(tr("Filter commands"));
     initialize();
 }
 
@@ -83,55 +82,54 @@ FilterLineEdit::FilterLineEdit(SnippetCollection *collection, QWidget *parent)
     , m_snippetsCollection(collection)
     , m_patternGroup(new QActionGroup(this))
 {
-    m_menu = new QMenu(this);
-    m_useCompleterAction = m_menu->addAction(tr("Auto-complete"));
+    m_useCompleterAction = addAction(QIcon(":/resources/filter.png"), QLineEdit::TrailingPosition);
     m_useCompleterAction->setData(QString("snippet").toLatin1());
-    setPlaceholderText(tr("Snippet filter"));
+    setPlaceholderText(tr("Filter snippets"));
     initialize();
 }
 
 void FilterLineEdit::initialize()
 {
-    setClearButtonEnabled(true);
-
-    connect(this, &QLineEdit::textChanged, this, &FilterLineEdit::filterChanged);
+    connect(this, &QLineEdit::textChanged, this, &::FilterLineEdit::filterTextChanged);
 
     m_useCompleterAction->setCheckable(true);
     m_useCompleterAction->setChecked(false);
     connect(m_useCompleterAction, &QAction::toggled, this, &FilterLineEdit::completerChanged);
+    connect(m_useCompleterAction, &QAction::triggered, this, &FilterLineEdit::filterTriggered);
     completerChanged();
 
-    m_menu->addSeparator();
-    m_caseSensitivityAction = m_menu->addAction(tr("Case Sensitive"));
+    QMenu *menu = new QMenu(this);
+
+    m_caseSensitivityAction = menu->addAction(tr("Match Case"));
     m_caseSensitivityAction->setCheckable(true);
     connect(m_caseSensitivityAction, &QAction::toggled, this, &FilterLineEdit::filterChanged);
 
-    m_menu->addSeparator();
+    menu->addSeparator();
     m_patternGroup->setExclusive(true);
-    QAction *patternAction = m_menu->addAction("Fixed String");
+    QAction *patternAction = menu->addAction("Fixed String");
     patternAction->setData(QVariant(int(QRegExp::FixedString)));
     patternAction->setCheckable(true);
     patternAction->setChecked(true);
     m_patternGroup->addAction(patternAction);
-    patternAction = m_menu->addAction("Regular Expression");
+    patternAction = menu->addAction("Regular Expression");
     patternAction->setCheckable(true);
     patternAction->setData(QVariant(int(QRegExp::RegExp2)));
     m_patternGroup->addAction(patternAction);
-    patternAction = m_menu->addAction("Wildcard");
+    patternAction = menu->addAction("Wildcard");
     patternAction->setCheckable(true);
     patternAction->setData(QVariant(int(QRegExp::Wildcard)));
     m_patternGroup->addAction(patternAction);
     connect(m_patternGroup, &QActionGroup::triggered, this, &FilterLineEdit::filterChanged);
 
-    const QIcon icon = QIcon(QPixmap(":/resources/filter.png"));
     QToolButton *optionsButton = new QToolButton;
 #ifndef QT_NO_CURSOR
     optionsButton->setCursor(Qt::ArrowCursor);
 #endif
     optionsButton->setFocusPolicy(Qt::NoFocus);
     optionsButton->setStyleSheet("* { border: none; }");
-    optionsButton->setIcon(icon);
-    optionsButton->setMenu(m_menu);
+    optionsButton->setIcon(QIcon(":/resources/gear_in.png"));
+    optionsButton->setToolTip(tr("Filter Options..."));
+    optionsButton->setMenu(menu);
     optionsButton->setPopupMode(QToolButton::InstantPopup);
 
     QWidgetAction *optionsAction = new QWidgetAction(this);
@@ -171,6 +169,25 @@ void FilterLineEdit::completerChanged()
     completer->setWrapAround(false);
 
     setCompleter(completer);
+}
+
+void FilterLineEdit::filterTextChanged(const QString& Text)
+{
+    if (m_useCompleterAction) {
+        if (Text.isEmpty()) {
+            m_useCompleterAction->setIcon(QIcon(":/resources/filter.png"));
+            m_useCompleterAction->setToolTip("");
+        } else {
+            m_useCompleterAction->setIcon(QIcon(":/resources/resetaction.png"));
+            m_useCompleterAction->setToolTip(tr("Reset"));
+        }
+    }
+    emit filterChanged();
+}
+
+void FilterLineEdit::filterTriggered()
+{
+    clear();
 }
 
 Qt::CaseSensitivity FilterLineEdit::caseSensitivity() const

@@ -86,10 +86,11 @@ signals:
 
 private slots:
     void completerChanged();
+    void filterTriggered();
+    void filterTextChanged(const QString&);
 
 private:
     void initialize();
-    QMenu *m_menu;
     CommandCollection *m_commandsCollection;
     SnippetCollection *m_snippetsCollection;
     QAction *m_caseSensitivityAction;
