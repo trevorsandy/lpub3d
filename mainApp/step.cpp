@@ -549,8 +549,8 @@ int Step::createCsi(
       viewerOptions->RotStep        = Vector3(float(rotStepMeta.value().rots[0]),float(rotStepMeta.value().rots[1]),float(rotStepMeta.value().rots[2]));
       viewerOptions->RotStepType    = rotStepMeta.value().type;
       viewerOptions->LPubFadeHighlight = lpubFadeHighlight;
-      viewerOptions->FadeParts      = csiStepMeta.fadeSteps.enable.value();
-      viewerOptions->HighlightParts = csiStepMeta.highlightStep.enable.value();
+      viewerOptions->FadeParts      = csiStepMeta.fadeSteps.enable.value() || Preferences::enableFadeSteps;
+      viewerOptions->HighlightParts = csiStepMeta.highlightStep.enable.value() || Preferences::enableHighlightStep;
       viewerOptions->AutoEdgeColor  = aecm->enable.value();
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();

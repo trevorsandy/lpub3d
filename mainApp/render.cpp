@@ -2890,8 +2890,8 @@ int Native::renderCsi(
     Options->ZFar              = cameraZFar;
     Options->ZNear             = cameraZNear;
     Options->ZoomExtents       = false;
-    Options->FadeParts         = fadeParts;
-    Options->HighlightParts    = highlightParts;
+    Options->FadeParts         = fadeParts || Preferences::enableFadeSteps;
+    Options->HighlightParts    = highlightParts || Preferences::enableHighlightStep;
     Options->LPubFadeHighlight = (fadeParts && lpubFade) || (highlightParts && lpubHighlight);
     Options->AutoEdgeColor     = aecm->enable.value();
     Options->EdgeContrast      = aecm->contrast.value();
@@ -3604,7 +3604,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             if (O->EdgeContrast != Preferences.mPartEdgeContrast)
                 arguments << QString("EdgeContrast: %1,").arg(O->EdgeContrast);
             if (O->EdgeSaturation != Preferences.mPartColorValueLDIndex)
-            arguments << QString("Saturation: %1,").arg(O->EdgeSaturation);
+                arguments << QString("Saturation: %1,").arg(O->EdgeSaturation);
         }
         bool IsHighContrastStudStyle = O->StudStyle >= static_cast<int>(lcStudStyle::HighContrast);
         bool StudStyleChanged = (O->StudStyle != lpub->GetStudStyle() ||
@@ -3614,9 +3614,9 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         if (IsHighContrastStudStyle)
         {
             if (O->LightDarkIndex != Preferences.mPartColorValueLDIndex)
-               arguments << QString("LightDarkIndex: %1,").arg(O->LightDarkIndex);
+                arguments << QString("LightDarkIndex: %1,").arg(O->LightDarkIndex);
             if (!O->StudCylinderColorEnabled)
-               arguments << QString("StudCylinderColorEnabled: False,");
+                arguments << QString("StudCylinderColorEnabled: False,");
             if (O->StudCylinderColor != Preferences.mStudCylinderColor)
                 arguments << QString("StudCylinderColor: %1,%2,%3,%4,").arg(LC_RGBA_RED(O->StudCylinderColor)).arg(LC_RGBA_GREEN(O->StudCylinderColor)).arg(LC_RGBA_BLUE(O->StudCylinderColor)).arg(LC_RGBA_ALPHA(O->StudCylinderColor));
             if (!O->PartEdgeColorEnabled)
