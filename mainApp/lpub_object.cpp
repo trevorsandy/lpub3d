@@ -304,6 +304,40 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
 
     Project* Loader = nullptr;
 
+    lcPreferences& Preferences = lcGetPreferences();
+
+    Preferences.mFadeStepsColor = lcGetProfileInt(LC_PROFILE_FADE_STEPS_COLOR);
+    Preferences.mHighlightNewPartsColor = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR);
+
+    if (Options->LPubFadeHighlight)
+    {
+        Preferences.mFadeSteps = lcGetProfileInt(LC_PROFILE_FADE_STEPS);
+        Preferences.mHighlightNewParts = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS);
+    }
+    else
+    {
+        Preferences.mFadeSteps = Options->FadeParts;
+        Preferences.mHighlightNewParts = Options->HighlightParts;
+        Preferences.mLPubFadeHighlight = Options->LPubFadeHighlight;
+
+        if (Options->FadeParts)
+        {
+            if (Preferences::fadeStepsUseColour)
+            {
+                QColor FC = LDrawColor::color(Preferences::validFadeStepsColour);
+                if (FC.isValid())
+                    Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());;
+            }
+        }
+
+        if (Options->HighlightParts)
+        {
+            QColor HC = QColor(Preferences::highlightStepColour);
+            if (HC.isValid())
+                Preferences.mHighlightNewPartsColor = LC_RGBA(HC.red(), HC.green(), HC.blue(), HC.alpha());
+        }
+    }
+
     if (Type != NATIVE_VIEW) // NATIVE_IMAGE or NATIVE_EXPORT
     {
         if (Type == NATIVE_IMAGE)
@@ -1710,6 +1744,13 @@ QString LPub::elapsedTime(const qint64 &duration) {
                                 .arg(milliseconds,3,10,QLatin1Char('0'))
                                 .arg(seconds > 1 ? tr("seconds") : tr("second")));
 
+}
+
+bool LPub::CurrentStepIsDisplayModel()
+{
+    if (currentStep)
+        return currentStep->displayStep;
+    return false;
 }
 
 void LPub::SetShadingMode(lcShadingMode ShadingMode)

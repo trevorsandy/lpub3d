@@ -510,6 +510,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - lpub fade highlight ***/
 	mLPubFade = false;
+	mLPubHighlight = false;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
 	bool IsUnofficialPart = mIsPreview && mProperties.mUnoffPartColorCode != LDRAW_MATERIAL_COLOUR;
@@ -592,7 +593,15 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - lpub fade highlight ***/
 			else if (Token == QLatin1String("!FADE"))
 			{
-				mLPubFade = !mLPubFade;
+				if (gApplication->LPubFadeHighlight())
+					mLPubFade = !mLPubFade;
+			}
+			else if (Token == QLatin1String("!SILHOUETTE"))
+			{
+				if (gApplication->LPubFadeHighlight())
+				{
+					mLPubHighlight = !mLPubHighlight;
+				}
 			}
 /*** LPub3D Mod end ***/
 			else if (Token == QLatin1String("FILE"))
@@ -626,9 +635,6 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				delete Piece;
 				Piece = nullptr;
 				CurrentStep++;
-/*** LPub3D Mod - lpub fade highlight ***/
-				mLPubFade = false;
-/*** LPub3D Mod end ***/
 				mFileLines.append(OriginalLine);
 				continue;
 			}
@@ -1361,10 +1367,6 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	if (mPieceInfo)
 		mPieceInfo->AddRenderMesh(*Scene);
 
-/*** LPub3D Mod - lpub fade highlight ***/
-	lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod end ***/
-
 	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->IsVisible(mCurrentStep))
@@ -1372,11 +1374,12 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 			const lcStep StepShow = Piece->GetStepShow();
 /*** LPub3D Mod - lpub fade highlight ***/
 			bool LPubFade = false;
-			if (Preferences.mLPubFadeHighlight)
+			if (gApplication->LPubFadeHighlight())
+				LPubFade        = Piece->GetLPubFade();
+			if (false /*For future use - Visual Editor Edit Mode*/)
 			{
 				AllowHighlight &= StepShow == mCurrentStep;
 				AllowFade      &= StepShow < mCurrentStep;
-				LPubFade        = Piece->GetLPubFade();
 			}
 			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight, AllowFade, LPubFade);
 /*** LPub3D Mod end ***/

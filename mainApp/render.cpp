@@ -2860,14 +2860,6 @@ int Native::renderCsi(
   bool pp              = Preferences::perspectiveProjection;
   bool useImageSize    = meta.LPub.assem.imageSize.value(XX) > 0;
 
-//* debugging only *//
-#ifdef QT_DEBUG_MODE
-  Page *currentPage	   = &lpub->page;
-  Step *currentStep	   = lpub->currentStep;
-  Q_UNUSED(currentStep)
-  Q_UNUSED(currentPage)
-#endif
-//*/
   // Renderer options
   NativeOptions *Options = lpub->currentStep->viewerOptions;
   const QString viewerStepKey = lpub->currentStep->viewerStepKey;
@@ -3237,42 +3229,9 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 O->PageWidth,
                 O->PageHeight,
                 O->ImageFileName,
-                O->Resolution,
-                O->LPubFadeHighlight,
-                O->FadeParts,
-                O->HighlightParts);
+                O->Resolution);
 
     lcPreferences& Preferences = lcGetPreferences();
-
-    Preferences.mFadeStepsColor = lcGetProfileInt(LC_PROFILE_FADE_STEPS_COLOR);
-    Preferences.mHighlightNewPartsColor = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR);
-    if (O->LPubFadeHighlight)
-    {
-        Preferences.mFadeSteps = lcGetProfileInt(LC_PROFILE_FADE_STEPS);
-        Preferences.mHighlightNewParts = lcGetProfileInt(LC_PROFILE_HIGHLIGHT_NEW_PARTS);
-    }
-    else
-    {
-        Preferences.mFadeSteps = O->FadeParts;
-        Preferences.mHighlightNewParts = O->HighlightParts;
-        Preferences.mLPubFadeHighlight = O->LPubFadeHighlight;
-        if (O->FadeParts)
-        {
-            if (Preferences::fadeStepsUseColour)
-            {
-                QColor FC = LDrawColor::color(Preferences::validFadeStepsColour);
-                if (FC.isValid())
-                    Preferences.mFadeStepsColor = LC_RGBA(FC.red(), FC.green(), FC.blue(), FC.alpha());;
-            }
-        }
-
-        if (O->HighlightParts)
-        {
-            QColor HC = QColor(Preferences::highlightStepColour);
-            if (HC.isValid())
-          Preferences.mHighlightNewPartsColor = LC_RGBA(HC.red(), HC.green(), HC.blue(), HC.alpha());
-        }
-    }
 
     lcCamera* Camera      = nullptr;
 

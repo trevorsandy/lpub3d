@@ -103,6 +103,7 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 /*** LPub3D Mod - lpub fade highlight ***/
 	mLPubFadeParts = false;
 	mLPubHighlightParts = false;
+	mLPubFadeHighlight = gApplication->mPreferences.mLPubFadeHighlight;
 /*** LPub3D Mod end ***/
 	if (!mIsPreview && gMainWindow)
 		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
@@ -122,12 +123,7 @@ void Project::SetRenderAttributes(
 	const int     PageWidth,
 	const int     PageHeight,
 	const QString FileName,
-	const float   Resolution,
-/*** LPub3D Mod - lpub fade highlight ***/
-	const bool    LPubFadeHighlight,
-	const bool    FadeParts,
-	const bool    HighlightParts)
-/*** LPub3D Mod end ***/
+	const float   Resolution)
 {
 	mRenderer      = Renderer;
 	mImageType     = ImageType;
@@ -138,10 +134,6 @@ void Project::SetRenderAttributes(
 	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
 	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
 	mViewerLoaded  = true;
-/*** LPub3D Mod - lpub fade highlight ***/
-	mLPubFadeParts      = LPubFadeHighlight ? FadeParts : false;
-	mLPubHighlightParts = LPubFadeHighlight ? HighlightParts : false;
-/*** LPub3D Mod end ***/
 }
 void Project::SetImageSize(
 	const int ImageWidth,

@@ -440,6 +440,7 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - lpub fade highlight ***/
 	bool mLPubFade;
+	bool mLPubHighlight;
 /*** LPub3D Mod end ***/
 
 	void SelectGroup(lcGroup* TopGroup, bool Select);

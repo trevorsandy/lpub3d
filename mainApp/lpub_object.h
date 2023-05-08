@@ -121,6 +121,9 @@ public:
   void setCurrentStep(Step *, Where &, int, int = BM_SINGLE_STEP);
   void setCurrentStep(Step *);
 
+  /// determine if current step is display step
+  bool CurrentStepIsDisplayModel();
+
   /// Visual Editor restart and reload calls
   void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
   void reloadCurrentPage(bool savePrompt = false);
@@ -208,7 +211,7 @@ public:
   static bool       m_setReleaseNotesAsText;
   static QString    m_releaseNotesContent;
 
-/// Visual Editor viewpoint latitude longitude
+  /// Visual Editor viewpoint latitude longitude
   static int        ViewpointsComboSaveIndex;
 
   /// Text editor dialog
