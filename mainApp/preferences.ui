@@ -946,7 +946,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="NativeTab">
           <attribute name="title">
@@ -2343,6 +2343,20 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="BlenderTab">
+          <attribute name="title">
+           <string>Blender</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <widget class="QGroupBox" name="blenderGrpBox">
+             <property name="title">
+              <string>Blender LDraw Addon Is Installed</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
        <item>
@@ -3379,7 +3393,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabUpdates">
           <attribute name="title">
@@ -3780,6 +3794,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>applyCARendererRadio</tabstop>
   <tabstop>optionsButton</tabstop>
   <tabstop>preferredRenderer</tabstop>
+  <tabstop>projectionCombo</tabstop>
   <tabstop>rendererTimeout</tabstop>
   <tabstop>antiAliasing</tabstop>
   <tabstop>antiAliasingSamples</tabstop>
@@ -3789,6 +3804,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>MeshLODSlider</tabstop>
   <tabstop>ShadingMode</tabstop>
   <tabstop>studStyleCombo</tabstop>
+  <tabstop>HighContrastButton</tabstop>
   <tabstop>LPubFadeHighlight</tabstop>
   <tabstop>ConditionalLinesCheckBox</tabstop>
   <tabstop>FadeSteps</tabstop>
@@ -3797,7 +3813,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>HighlightNewParts</tabstop>
   <tabstop>HighlightNewPartsColor</tabstop>
   <tabstop>ResetHighlightNewPartsButton</tabstop>
-  <tabstop>HighContrastButton</tabstop>
   <tabstop>AutomateEdgeColor</tabstop>
   <tabstop>AutomateEdgeColorButton</tabstop>
   <tabstop>ViewpointsCombo</tabstop>
@@ -3869,10 +3884,17 @@ p, li { white-space: pre-wrap; }
   <tabstop>includeAllLogAttribBox</tabstop>
   <tabstop>logLevelGrpBox</tabstop>
   <tabstop>logLevelCombo</tabstop>
+  <tabstop>suppressFPrintBox</tabstop>
   <tabstop>logLevelsGrpBox</tabstop>
   <tabstop>fatalLevelBox</tabstop>
   <tabstop>errorLevelBox</tabstop>
   <tabstop>statusLevelBox</tabstop>
+  <tabstop>warningLevelBox</tabstop>
+  <tabstop>allLogLevelsBox</tabstop>
+  <tabstop>infoLevelBox</tabstop>
+  <tabstop>noticeLevelBox</tabstop>
+  <tabstop>traceLevelBox</tabstop>
+  <tabstop>debugLevelBox</tabstop>
   <tabstop>commandList</tabstop>
   <tabstop>KeyboardFilterEdit</tabstop>
   <tabstop>shortcutsImport</tabstop>
@@ -3881,9 +3903,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>shortcutEdit</tabstop>
   <tabstop>shortcutAssign</tabstop>
   <tabstop>shortcutRemove</tabstop>
+  <tabstop>othersTabWidget</tabstop>
   <tabstop>lineEditIniFile</tabstop>
   <tabstop>textEditSearchDirs</tabstop>
-  <tabstop>othersTabWidget</tabstop>
   <tabstop>checkUpdateFrequency_Combo</tabstop>
   <tabstop>moduleVersion_Combo</tabstop>
   <tabstop>showAllNotificstions_Chk</tabstop>
@@ -3894,6 +3916,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>autoUpdateChangeLogBox</tabstop>
   <tabstop>updateChangeLogBtn</tabstop>
   <tabstop>changeLog_txbr</tabstop>
+  <tabstop>renderersTabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

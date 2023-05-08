@@ -34,6 +34,7 @@
 #include "application.h"
 #include "updatecheck.h"
 #include "commonmenus.h"
+#include "blenderpreferences.h"
 
 #include <LDVQt/LDVWidget.h>
 
@@ -393,6 +394,8 @@ void PreferencesDialog::setPreferences()
   setRenderers();
 
   // end preferred renderer
+
+  setBlenderAddonPreferences();
 
   ui.fadeStepsUseColourGrpBox->setTitle(            fadeStepsColorTitle);
   ui.pliControlEdit->setText(                    Preferences::pliControlFile);
@@ -760,6 +763,48 @@ void PreferencesDialog::installRenderer()
     }
 }
 
+void PreferencesDialog::setBlenderAddonPreferences()
+{
+    ui.blenderGrpBox->setTitle(tr("Blender Render Settings"));
+    blenderAddonPreferences =
+        new BlenderPreferences(
+            RENDER_DEFAULT_WIDTH,
+            RENDER_DEFAULT_HEIGHT,
+            1.0,
+            false,
+            ui.blenderGrpBox);
+
+    QDialogButtonBox *buttonBox;
+    buttonBox = new QDialogButtonBox(this);
+    QPushButton *applyBtn = new QPushButton(tr("Apply"));
+    buttonBox->addButton(applyBtn,QDialogButtonBox::ActionRole);
+    connect(applyBtn,SIGNAL(clicked()),this,SLOT(applyBlenderAddonPreferences()));
+
+    blenderAddonPathsBtn = new QPushButton(tr("Show Paths"));
+    buttonBox->addButton(blenderAddonPathsBtn,QDialogButtonBox::ActionRole);
+    connect(blenderAddonPathsBtn,SIGNAL(clicked()),this,SLOT(showBlenderAddonPaths()));
+
+    QPushButton *resetBtn = new QPushButton(tr("Reset"));
+    buttonBox->addButton(resetBtn,QDialogButtonBox::ActionRole);
+    QObject::connect(resetBtn,SIGNAL(clicked()),blenderAddonPreferences,SLOT(resetSettings()));
+
+    ui.blenderGrpBox->layout()->addWidget(buttonBox);
+}
+
+void PreferencesDialog::applyBlenderAddonPreferences()
+{
+    blenderAddonPreferences->apply(QDialog::Accepted);
+}
+
+void PreferencesDialog::showBlenderAddonPaths()
+{
+    if(blenderAddonPathsBtn->text().startsWith("Hide"))
+        blenderAddonPathsBtn->setText(tr("Show Paths"));
+    else
+        blenderAddonPathsBtn->setText(tr("Hide Paths"));
+    blenderAddonPreferences->showPathsGroup();
+}
+
 void PreferencesDialog::sceneColorButtonClicked()
 {
     QObject *button = sender();
@@ -771,31 +816,31 @@ void PreferencesDialog::sceneColorButtonClicked()
     {
         oldColor = QColor(sceneBackgroundColorStr);
         title = tr("Select Scene Background Color");
-        dialogOptions = nullptr;
+        dialogOptions = QColorDialog::ShowAlphaChannel;
     }
     else if (button == ui.sceneGridColorButton)
     {
         oldColor = QColor(sceneGridColorStr);
         title = tr("Select Scene Grid Color");
-        dialogOptions = nullptr;
+        dialogOptions = QColorDialog::ShowAlphaChannel;
     }
     else if (button == ui.sceneRulerTickColorButton)
     {
         oldColor = QColor(sceneRulerTickColorStr);
         title = tr("Select Scene Ruler Tick Color");
-        dialogOptions = nullptr;
+        dialogOptions = QColorDialog::ShowAlphaChannel;
     }
     else if (button == ui.sceneRulerTrackingColorButton)
     {
         oldColor = QColor(sceneRulerTrackingColorStr);
         title = tr("Select Ruler Tracking Color");
-        dialogOptions = nullptr;
+        dialogOptions = QColorDialog::ShowAlphaChannel;
     }
     else if (button == ui.sceneGuideColorButton)
     {
         oldColor = QColor(sceneGuideColorStr);
         title = tr("Select Scene Guide Color");
-        dialogOptions = nullptr;
+        dialogOptions = QColorDialog::ShowAlphaChannel;
     }
     else
         return;

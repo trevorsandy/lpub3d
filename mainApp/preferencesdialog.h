@@ -75,6 +75,7 @@ namespace Ui{
 class PreferencesDialog;
 }
 
+class BlenderPreferences;
 class ThemeColorsDialog;
 class PreferencesDialog : public QDialog
 {
@@ -277,6 +278,9 @@ class PreferencesDialog : public QDialog
     void shortcutEditReset();
     void enableShortcutEditReset(const QString &displayText);
 
+    void applyBlenderAddonPreferences();
+    void showBlenderAddonPaths();
+
     bool maybeSave();
     void closeEvent(QCloseEvent *event) override;
 
@@ -291,6 +295,11 @@ private:
     bool LoadKeyboardShortcuts(QTextStream& Stream);
     bool isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut);
     bool isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut, QString &Result, bool Loading);
+
+    void setBlenderAddonPreferences();
+
+    QPushButton *blenderAddonPathsBtn;
+    BlenderPreferences *blenderAddonPreferences;
 
     QDialog     *messageDialog;
     QToolButton *parseErrorTBtn;
