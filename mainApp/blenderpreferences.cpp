@@ -1464,16 +1464,65 @@ void BlenderPreferences::configureBlender()
 
     if (QFileInfo(blenderFile).exists()) {
         // Setup
+        enum ProcEnc { PR_OK, PR_FAIL, PR_WAIT, PR_INSTALL };
         QString const blenderExe = QDir::toNativeSeparators(blenderFile);
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+        QString const blenderSetupDir    = QString("%1/setup").arg(blenderDir);
         QString const blenderConfigDir   = QString("%1/config").arg(blenderDir);
+        QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
         QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
+        QByteArray addonPathsAndModuleNames;
+        QString message;
+        QStringList arguments;
+        ProcEnc result = PR_OK;
 
         bool newBlenderExe = blenderExeCompare != blenderExe.toLower();
 
         if (mBlenderConfigured && !mBlenderAddonUpdate && !newBlenderExe)
             return;
+
+        // Process command
+        auto processCommand = [&] (ProcEnc action) {
+
+            process = new QProcess();
+
+            QStringList systemEnvironment = QProcess::systemEnvironment();
+            systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
+
+            QString processAction = tr("addon install");
+            if (action == PR_INSTALL) {
+                connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()));
+            } 
+
+            process->setEnvironment(systemEnvironment);
+
+            process->setWorkingDirectory(blenderDir);
+
+            process->setStandardErrorFile(QString("%1/stderr-blender-addon-install").arg(blenderDir));
+
+            process->start(blenderExe, arguments);
+
+            if (! process->waitForStarted()) {
+                message = tr("Cannot start Blender %1 process.\n%2")
+                              .arg(processAction)
+                              .arg(QString(process->readAllStandardError()));
+                delete process; // Close process
+                process = nullptr;
+                return PR_WAIT;
+            } else {
+                if (process->exitStatus() != QProcess::NormalExit || process->exitCode() != 0) {
+                    message = tr("Failed to execute Blender %1.\n%2")
+                                 .arg(processAction)
+                                 .arg(QString(process->readAllStandardError()));
+                    return PR_FAIL;
+                } else {
+                    message = tr("Blender %1 process [%2] running...").arg(processAction).arg(process->processId());
+                }
+            }
+
+            return PR_OK;
+        };
 
         if (!blenderImportMMActBox->isChecked() && !blenderImportActBox->isChecked()) {
 
@@ -1549,6 +1598,8 @@ void BlenderPreferences::configureBlender()
             }
             return;
         }
+
+        // Main installation script
         if (!QFileInfo(blenderInstallFile).exists()) {
             gui->messageSig(LOG_ERROR, tr("Could not find addon install file: %1").arg(blenderInstallFile));
             statusUpdate();
@@ -1564,7 +1615,8 @@ void BlenderPreferences::configureBlender()
         saveSettings();
 
         // Install Blender addon
-        QStringList arguments;
+
+        arguments.clear();
         arguments << QString("--background");
         arguments << QString("--python");
         arguments << blenderInstallFile;
@@ -1580,47 +1632,150 @@ void BlenderPreferences::configureBlender()
         else if (!blenderRenderActBox->isChecked())
             arguments << QString("--disable_ldraw_render");
 
-        QString message = tr("Blender Addon Arguments: %1 %2").arg(blenderExe).arg(arguments.join(" "));
+        message = tr("Blender Addon Install Arguments: %1 %2").arg(blenderExe).arg(arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
 
         versionFound = false;
 
-        process = new QProcess();
+        result = processCommand(PR_INSTALL);
 
-        connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()));
-
-        QStringList systemEnvironment = QProcess::systemEnvironment();
-        systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
-
-        process->setEnvironment(systemEnvironment);
-
-        process->setWorkingDirectory(blenderDir);
-
-        process->setStandardErrorFile(QString("%1/stderr-blender-addon-install").arg(blenderDir));
-
-        process->start(blenderExe, arguments);
-
-        if (! process->waitForStarted()) {
-            message = tr("Cannot start Blender addon install process.\n%1")
-                          .arg(QString(process->readAllStandardError()));
+        if (result == PR_WAIT) {
             emit gui->messageSig(LOG_ERROR, message);
             statusUpdate();
-            // Close process
-            delete process;
-            process = nullptr;
-            return;
         } else {
-            if (process->exitStatus() != QProcess::NormalExit || process->exitCode() != 0) {
-                emit gui->messageSig(LOG_ERROR, tr("Failed to install Blender addon.\n%1")
-                                                    .arg(QString(process->readAllStandardError())));
+            if (result == PR_FAIL) {
+                emit gui->messageSig(LOG_ERROR, message);
             } else {
+                emit gui->messageSig(LOG_INFO, message);
                 statusUpdate(true, tr("Installing Blender addon..."));
-                emit gui->messageSig(LOG_INFO, tr("Addon install process [%1] running...").arg(process->processId()));
             }
         }
+
     } else {
         emit gui->messageSig(LOG_ERROR, tr("Blender executable not found at [%1]").arg(blenderFile), true);
     }
+}
+
+bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
+{
+    QDir dir(blenderDir);
+    if (!dir.exists())
+        dir.mkdir(blenderDir);
+
+    // Get Blender addon
+    QString const blenderAddonFile = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
+
+    BlenderAddOnUpdate AddOnUpdate = static_cast<BlenderAddOnUpdate>(getBlenderAddon(blenderDir));
+
+    bool const addonExists = QFileInfo(blenderAddonFile).exists() && QFileInfo(blenderAddonFile).size();
+
+    if ((AddOnUpdate == ADD_ON_FAIL && !addonExists) || AddOnUpdate == ADD_ON_CANCEL)
+        return false;
+
+    // Extract Blender addon
+    if (addonExists) {
+        QStringList result = JlCompress::extractDir(blenderAddonFile, blenderDir);
+        if (result.isEmpty()){
+            emit gui->messageSig(LOG_ERROR, tr("Failed to extract %1 to %2")
+                                                .arg(blenderAddonFile).arg(blenderDir));
+            return false;
+        } else {
+            emit gui->messageSig(LOG_INFO, tr("%1 items archive extracted to %2")
+                                               .arg(result.size()).arg(blenderDir));
+        }
+    } else {
+        emit gui->messageSig(LOG_ERROR, tr("Blender addon archive %1 was not found")
+                                            .arg(blenderAddonFile));
+        return false;
+    }
+
+    return true;
+}
+
+int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
+{
+    QString const blenderAddonDir    = QString("%1/addons").arg(blenderDir);
+    QString const blenderAddonFile   = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
+    BlenderAddOnUpdate AddOnUpdate   = ADD_ON_DOWNLOAD;
+
+    if (QFileInfo(blenderAddonFile).exists()) {
+        if (Preferences::modeGUI) {
+            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+            if (_icon.isNull())
+                _icon = QPixmap (":/icons/update.png");
+            QMessageBox box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+            box.setWindowTitle(tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR));
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+            QString title = tr ("An existing %1 Blender LDraw addon archive file was detected.").arg(VER_PRODUCTNAME_STR);
+            box.setText (title);
+            QString text  = tr ("Do you want to download the latest addon archive file ?");
+            box.setInformativeText (text);
+            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+            box.setDefaultButton   (QMessageBox::Yes);
+            int execReturn = box.exec();
+            if (execReturn == QMessageBox::Cancel) {
+                blenderPreferences->mDialogCancelled = true;
+                blenderPreferences->statusUpdate(true, tr("Cancelled"));
+                return static_cast<int>(ADD_ON_CANCEL);
+            } else if (execReturn == QMessageBox::No) {
+                blenderPreferences->statusUpdate(true, tr("Installing Blender addon..."));
+                AddOnUpdate = ADD_ON_RELOAD;
+            } else {
+                blenderPreferences->statusUpdate(true, tr("Downloading Blender addon..."));
+            }
+        }
+    }
+
+    if (blenderPreferences->progressBar) {
+        blenderPreferences->blenderExeGridLayout->replaceWidget(blenderPreferences->blenderVersionEdit, blenderPreferences->progressBar);
+        blenderPreferences->progressBar->show();
+    }
+
+    // Remove old addon archive if exist
+    if (QFileInfo(blenderAddonDir).exists()) {
+        QDir dir(blenderAddonDir);
+        dir.setNameFilters(QStringList() << "*.*");
+        dir.setFilter(QDir::Files);
+
+        for (const QString &dirFile : dir.entryList()) {
+            dir.remove(dirFile);
+            emit gui->messageSig(LOG_INFO, tr("Removed Blender addon item: [%1]").arg(dirFile));
+        }
+
+        if (!dir.rmdir("."))
+            emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender folder: %1")
+                                                 .arg(blenderAddonDir));
+    }
+
+    // Download Blender addon
+    if (AddOnUpdate == ADD_ON_DOWNLOAD) {
+        lpub->downloadFile(VER_BLENDER_RENDER_ADDONS_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
+        QByteArray Buffer = lpub->getDownloadedFile();
+        if (!Buffer.isEmpty()) {
+            if (QFileInfo(blenderAddonFile).exists()) {
+                QDir dir(blenderDir);
+                if (!dir.remove(blenderAddonFile))
+                    emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender archive: %1")
+                                                         .arg(blenderAddonFile));
+            }
+            QFile file(blenderAddonFile);
+            if (! file.open(QIODevice::WriteOnly)) {
+                emit gui->messageSig(LOG_ERROR, tr("Failed to open Blender file: %1:<br>%2")
+                                                    .arg(blenderAddonFile)
+                                                    .arg(file.errorString()));
+                if (blenderPreferences->progressBar)
+                    blenderPreferences->progressBar->close();
+                return static_cast<int>(ADD_ON_FAIL);
+            }
+            file.write(Buffer);
+            file.close();
+        }
+    }
+
+    return static_cast<int>(AddOnUpdate);
 }
 
 void BlenderPreferences::getStandardOutput()
@@ -1864,128 +2019,6 @@ void BlenderPreferences::showResult()
     process = nullptr;
 
     emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
-}
-
-int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
-{
-    QString const blenderAddonDir    = QString("%1/addons").arg(blenderDir);
-    QString const blenderAddonFile   = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
-    BlenderAddOnUpdate AddOnUpdate   = ADD_ON_DOWNLOAD;
-
-    if (QFileInfo(blenderAddonFile).exists()) {
-        if (Preferences::modeGUI) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            if (_icon.isNull())
-                _icon = QPixmap (":/icons/update.png");
-            QMessageBox box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-            box.setWindowTitle(tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            QString title = tr ("An existing %1 Blender LDraw addon archive file was detected.").arg(VER_PRODUCTNAME_STR);
-            box.setText (title);
-            QString text  = tr ("Do you want to download the latest addon archive file ?");
-            box.setInformativeText (text);
-            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-            box.setDefaultButton   (QMessageBox::Yes);
-            int execReturn = box.exec();
-            if (execReturn == QMessageBox::Cancel) {
-                blenderPreferences->mDialogCancelled = true;
-                blenderPreferences->statusUpdate(true, tr("Cancelled"));
-                return static_cast<int>(ADD_ON_CANCEL);
-            } else if (execReturn == QMessageBox::No) {
-                blenderPreferences->statusUpdate(true, tr("Installing Blender addon..."));
-                AddOnUpdate = ADD_ON_RELOAD;
-            } else {
-                blenderPreferences->statusUpdate(true, tr("Downloading Blender addon..."));
-            }
-        }
-    }
-
-    if (blenderPreferences->progressBar) {
-        blenderPreferences->blenderExeGridLayout->replaceWidget(blenderPreferences->blenderVersionEdit, blenderPreferences->progressBar);
-        blenderPreferences->progressBar->show();
-    }
-
-    // Remove old addon archive if exist
-    if (QFileInfo(blenderAddonDir).exists()) {
-        QDir dir(blenderAddonDir);
-        dir.setNameFilters(QStringList() << "*.*");
-        dir.setFilter(QDir::Files);
-
-        for (const QString &dirFile : dir.entryList()) {
-            dir.remove(dirFile);
-            emit gui->messageSig(LOG_INFO, tr("Removed Blender addon item: [%1]").arg(dirFile));
-        }
-
-        if (!dir.rmdir("."))
-            emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender folder: %1")
-                                                 .arg(blenderAddonDir));
-    }
-
-    // Download Blender addon
-    if (AddOnUpdate == ADD_ON_DOWNLOAD) {
-        lpub->downloadFile(VER_BLENDER_RENDER_ADDONS_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
-        QByteArray Buffer = lpub->getDownloadedFile();
-        if (!Buffer.isEmpty()) {
-            if (QFileInfo(blenderAddonFile).exists()) {
-                QDir dir(blenderDir);
-                if (!dir.remove(blenderAddonFile))
-                    emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender archive: %1")
-                                                         .arg(blenderAddonFile));
-            }
-            QFile file(blenderAddonFile);
-            if (! file.open(QIODevice::WriteOnly)) {
-                emit gui->messageSig(LOG_ERROR, tr("Failed to open Blender file: %1:<br>%2")
-                                                    .arg(blenderAddonFile)
-                                                    .arg(file.errorString()));
-                if (blenderPreferences->progressBar)
-                    blenderPreferences->progressBar->close();
-                return static_cast<int>(ADD_ON_FAIL);
-            }
-            file.write(Buffer);
-            file.close();
-        }
-    }
-
-    return static_cast<int>(AddOnUpdate);
-}
-
-bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
-{
-    QDir dir(blenderDir);
-    if (!dir.exists())
-        dir.mkdir(blenderDir);
-
-    // Get Blender addon
-    QString const blenderAddonFile = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
-
-    BlenderAddOnUpdate AddOnUpdate = static_cast<BlenderAddOnUpdate>(getBlenderAddon(blenderDir));
-
-    bool const addonExists = QFileInfo(blenderAddonFile).exists() && QFileInfo(blenderAddonFile).size();
-
-    if ((AddOnUpdate == ADD_ON_FAIL && !addonExists) || AddOnUpdate == ADD_ON_CANCEL)
-        return false;
-
-    // Extract Blender addon
-    if (addonExists) {
-        QStringList result = JlCompress::extractDir(blenderAddonFile, blenderDir);
-        if (result.isEmpty()){
-            emit gui->messageSig(LOG_ERROR, tr("Failed to extract %1 to %2")
-                                                .arg(blenderAddonFile).arg(blenderDir));
-            return false;
-        } else {
-            emit gui->messageSig(LOG_INFO, tr("%1 items archive extracted to %2")
-                                               .arg(result.size()).arg(blenderDir));
-        }
-    } else {
-        emit gui->messageSig(LOG_ERROR, tr("Blender addon archive %1 was not found")
-                                            .arg(blenderAddonFile));
-        return false;
-    }
-
-    return true;
 }
 
 void BlenderPreferences::loadDefaultParameters(QByteArray& Buffer, int Which)
