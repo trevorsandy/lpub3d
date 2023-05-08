@@ -162,11 +162,11 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
 
-        bool blenderInstalled = !Preferences::blenderVersion.isEmpty();
+        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
 
-        ui->RenderButton->setEnabled(blenderInstalled && mHaveKeys);
+        ui->RenderButton->setEnabled(blenderConfigured && mHaveKeys);
 
-        ui->RenderButton->setToolTip(blenderInstalled
+        ui->RenderButton->setToolTip(blenderConfigured
                                         ? tr("Render LDraw model")
                                         : tr("Blender not configured. Click 'Settings' to configure."));
 
@@ -256,9 +256,9 @@ void RenderDialog::on_RenderSettingsButton_clicked()
                     false /*document model*/);
 
         mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
-        bool blenderInstalled = !Preferences::blenderVersion.isEmpty();
-        ui->RenderButton->setEnabled(blenderInstalled);
-        if (!blenderInstalled)
+        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+        ui->RenderButton->setEnabled(blenderConfigured);
+        if (!blenderConfigured)
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
     }
 }

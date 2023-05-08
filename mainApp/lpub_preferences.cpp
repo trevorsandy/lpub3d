@@ -326,6 +326,7 @@ QString Preferences::systemEditor;
 QString Preferences::currentLibrarySave         = EMPTY_STRING_DEFAULT;
 
 QString Preferences::blenderVersion;
+QString Preferences::blenderAddonVersion;
 QString Preferences::blenderLDrawConfigFile;
 QString Preferences::blenderPreferencesFile;
 QString Preferences::blenderConfigDir;
@@ -2840,7 +2841,7 @@ void Preferences::rendererPreferences()
         }
     }
 
-    // Blender executable
+    // Blender executable, version
     QString const blenderExeKey("BlenderExeFile");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderExeKey))) {
         logInfo() << qUtf8Printable(QObject::tr("Blender: %1not configured").arg(blenderExe.isEmpty() ? "" : QString("%1 ").arg(blenderExe)));
@@ -2848,32 +2849,33 @@ void Preferences::rendererPreferences()
     } else {
         blenderExe = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderExeKey)).toString());
         if (QFileInfo(blenderExe).exists()) {
-            blenderInstalled = true;
-            logInfo() << qUtf8Printable(QObject::tr("Blender: Using %1").arg(blenderExe));
-            QFileInfo blendFileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE));
-            if ((defaultBlendFile = blendFileInfo.exists())) {
-                logInfo() << qUtf8Printable(QObject::tr("Blendfile (default): %1").arg(blendFileInfo.absoluteFilePath()));
+            // Blender version
+            QString const blenderVersionKey("BlenderVersion");
+            if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
+                QStringList const &items = Settings.value(QString("%1/%2").arg(SETTINGS,blenderVersionKey)).toString().split("|");
+                if (items.size()) {
+                    blenderVersion = items.first();
+                    blenderInstalled = true;
+                    if (items.size() > 1) {
+                        blenderAddonVersion = items.last();
+
+                    }
+                    logInfo() << qUtf8Printable(QObject::tr("Blender version: %1%2").arg(blenderVersion).arg(blenderAddonVersion));
+                }
+                logInfo() << qUtf8Printable(QObject::tr("Blender executable: %1").arg(blenderExe));
+                QFileInfo blendFileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE));
+                if ((defaultBlendFile = blendFileInfo.exists())) {
+                    logInfo() << qUtf8Printable(QObject::tr("Blendfile (default): %1").arg(blendFileInfo.absoluteFilePath()));
+                } else {
+                    logNotice() << qUtf8Printable(QObject::tr("Default blendfile does not exist: %1").arg(blendFileInfo.absoluteFilePath()));
+                }
             } else {
-                logNotice() << qUtf8Printable(QObject::tr("Default blendfile does not exist: %1").arg(blendFileInfo.absoluteFilePath()));
+                logNotice() << qUtf8Printable(QObject::tr("Blender version: Undefined"));
             }
         } else {
             Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
             blenderExe.clear();
         }
-    }
-
-    // Blender version
-    QString const blenderVersionKey("BlenderVersion");
-    if (blenderInstalled && !blenderLDrawConfigFile.isEmpty()) {
-        if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
-            blenderVersion = Settings.value(QString("%1/%2").arg(SETTINGS,blenderVersionKey)).toString();
-            logInfo() << qUtf8Printable(QObject::tr("Blender version: %1").arg(blenderVersion));
-        } else {
-            logNotice() << qUtf8Printable(QObject::tr("Blender version: Undefined"));
-        }
-    } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
-        blenderVersion.clear();
     }
 
     // Blender import module
@@ -4460,9 +4462,11 @@ void Preferences::setBlenderExePathPreference(QString s)
 {
   QSettings Settings;
   blenderInstalled = true;
-  if (!QFileInfo(s).exists())
+  if (!QFileInfo(s).exists()) {
+      setBlenderImportModule(s);
+      setBlenderVersionPreference(s);
       blenderInstalled = false;
-  else
+  } else
       blenderExe = QDir::toNativeSeparators(s);
   QString const blenderExeKey("BlenderExeFile");
   if (blenderExe.isEmpty())
@@ -4476,10 +4480,20 @@ void Preferences::setBlenderVersionPreference(QString s)
     QSettings Settings;
     blenderVersion = s;
     QString const blenderVersionKey("BlenderVersion");
-    if (s.isEmpty())
+    if (s.isEmpty()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderVersionKey));
-    else
+        setBlenderImportModule(s);
+        blenderAddonVersion.clear();
+        blenderInstalled = false;
+    } else {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),QVariant(s));
+        QStringList const &items = s.split("|");
+        if (items.size()) {
+            blenderVersion = items.first();
+            if (items.size() > 1)
+                blenderAddonVersion = items.last();
+        }
+    }
 }
 
 void Preferences::setBlenderLDrawConfigPreference(QString s)
@@ -4487,9 +4501,10 @@ void Preferences::setBlenderLDrawConfigPreference(QString s)
     QSettings Settings;
     blenderLDrawConfigFile = QDir::toNativeSeparators(s);
     QString const blenderLDrawConfigKey("BlenderLDrawConfigFile");
-    if (s.isEmpty())
+    if (s.isEmpty()) {
+        setBlenderImportModule(s);
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey));
-    else
+    } else
         Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey),QVariant(s));
 }
 

@@ -249,7 +249,7 @@ void BlenderPreferences::getRenderSettings(
 
     mDialogCancelled = false;
 
-    mBlenderConfigured = Preferences::blenderInstalled && !Preferences::blenderLDrawConfigFile.isEmpty();
+    mBlenderConfigured = !Preferences::blenderImportModule.isEmpty();
 
     clear();
 
@@ -348,8 +348,12 @@ void BlenderPreferences::getRenderSettings(
                                            ? tr("Import MM")
                                            : "";
 
+    QString colour, text;
     if (mBlenderConfigured) {
-        blenderVersionLabel->setText(tr("Blender Version"));
+        colour = Preferences::displayTheme == THEME_DARK
+                     ? QLatin1String("white")
+                     : QLatin1String("black");
+        text = tr("Blender Version");
         blenderVersionEdit->setText(blenderVersion);
         if (!blenderAddonVersion.isEmpty()) {
             blenderAddonModulesBox->setEnabled(true);
@@ -359,15 +363,16 @@ void BlenderPreferences::getRenderSettings(
             blenderImportMMActBox->setChecked(importModule.endsWith(" MM"));
         }
     } else {
-        const QString colour = Preferences::displayTheme == THEME_DARK
-                                   ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
-                                   : QLatin1String("blue");
-        blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
-        blenderVersionLabel->setText(tr("Blender not configured"));
+        colour = Preferences::displayTheme == THEME_DARK
+                     ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
+                     : QLatin1String("blue");
+        text = tr("Blender not configured");
         blenderVersionEdit->setVisible(mBlenderConfigured);
         // set default LDraw import module
         blenderImportActBox->setChecked(true);
     }
+    blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
+    blenderVersionLabel->setText(text);
 
     blenderAddonUpdateButton = new QPushButton(tr("Update..."), blenderContent);
     blenderAddonUpdateButton->setToolTip(tr("Update %1 Blender LDraw addon").arg(VER_PRODUCTNAME_STR));
@@ -875,15 +880,14 @@ bool BlenderPreferences::settingsModified(int &width, int &height, double &rende
 
 void BlenderPreferences::resetSettings()
 {
+    mBlenderConfigured = !Preferences::blenderImportModule.isEmpty();
+
     blenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
-    const QStringList versionItems       = Preferences::blenderVersion.split("|");
-    blenderVersion                       = versionItems.first();
-    blenderAddonVersion                  = versionItems.size() == 2 ? versionItems.last() : QString();
+    blenderVersion                       = Preferences::blenderVersion;
+    blenderAddonVersion                  = Preferences::blenderAddonVersion;
 
     blenderVersionEdit->setText(blenderVersion);
     blenderAddonVersionEdit->setText(blenderAddonVersion);
-
-    mBlenderConfigured = !Preferences::blenderExe.isEmpty() && !Preferences::blenderLDrawConfigFile.isEmpty();;
 
     if (blenderImportActBox->isChecked()) {
         disconnect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
@@ -1079,9 +1083,8 @@ void BlenderPreferences::loadSettings() {
     }
 
     blenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
-    const QStringList versionItems       = Preferences::blenderVersion.split("|");
-    blenderVersion                       = versionItems.first();
-    blenderAddonVersion                  = versionItems.size() == 2 ? versionItems.last() : QString();
+    blenderVersion                       = Preferences::blenderVersion;
+    blenderAddonVersion                  = Preferences::blenderAddonVersion;
 }
 
 void BlenderPreferences::saveSettings()
@@ -1472,6 +1475,7 @@ void BlenderPreferences::configureBlender(bool testBlender)
                                    : QLatin1String("blue");
         blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
         blenderVersionLabel->setText(tr("Blender not configured"));
+        blenderVersionEdit->clear();
         blenderVersionEdit->setVisible(mBlenderConfigured);
         blenderAddonUpdateButton->setEnabled(mBlenderConfigured);
         blenderPathsBox->setEnabled(mBlenderConfigured);
@@ -1929,17 +1933,21 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     // Remove old addon archive if exist
     if (QFileInfo(blenderAddonDir).exists()) {
+        bool result = true;
         QDir dir(blenderAddonDir);
-        dir.setNameFilters(QStringList() << "*.*");
-        dir.setFilter(QDir::Files);
-
-        for (const QString &dirFile : dir.entryList()) {
-            dir.remove(dirFile);
-            emit gui->messageSig(LOG_INFO, tr("Removed Blender addon item: [%1]").arg(dirFile));
+        Q_FOREACH(QFileInfo const &info, dir.entryInfoList(QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+            if (info.isDir())
+                result &= QDir(info.absoluteFilePath()).removeRecursively();
+            else
+                result &= QFile::remove(info.absoluteFilePath());
+            if (result)
+                emit gui->messageSig(LOG_INFO, tr("Removed addon: [%1]").arg(info.absoluteFilePath()));
+            else
+                emit gui->messageSig(LOG_NOTICE, tr("Failed to remove addon: %1").arg(info.absoluteFilePath()));
         }
-
-        if (!dir.rmdir("."))
-            emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender folder: %1")
+        result &= dir.rmdir(blenderAddonDir);
+        if (!result)
+            emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon: %1")
                                                  .arg(blenderAddonDir));
     }
 
@@ -2037,8 +2045,11 @@ void BlenderPreferences::readStdOut()
     QRegExp rxAddonVersion("^ADDON VERSION: ", Qt::CaseInsensitive);
 
     bool errorEncountered = false;
-    QStringList items,messages;
+    QStringList items,errors;
     QStringList stdOutLines = StdOut.split(QRegExp("\n|\r\n|\r"));
+
+    QString const saveAddonVersion = blenderAddonVersion;
+    QString const saveVersion = blenderVersion;
 
     int lineCount = 0;
     for (QString const &stdOutLine : stdOutLines) {
@@ -2078,16 +2089,16 @@ void BlenderPreferences::readStdOut()
         } else if (stdOutLine.contains(rxError) || stdOutLine.contains(rxWarning)) {
             auto cleanLine = [&] () {
                 return stdOutLine.trimmed()
-                           .replace("<","&lt;")
+                         /*.replace("<","&lt;")
                            .replace(">","&gt;")
-                           .replace("&","&amp;") + "\n";
+                           .replace("&","&amp;")*/ + "<br>";
             };
             errorEncountered = stdOutLine.contains(rxError);
-            messages << cleanLine();
+            errors << cleanLine();
             int errorCount = lineCount;
             for (;errorCount < stdOutLines.size(); errorCount++) {
                 if (stdOutLine.at(0) == "")
-                    messages << cleanLine();
+                    errors << cleanLine();
                 else
                     break;
             }
@@ -2099,12 +2110,17 @@ void BlenderPreferences::readStdOut()
         }
         lineCount++;
     }
-    if (messages.size()) {
+    if (errors.size()) {
         mBlenderConfigured = false;
-        blenderVersionEdit->clear();
-        QString const stdOutLog = QDir::toNativeSeparators(QString("\n\n- See %1/Blender/stdout-blender-addon-install")
+        if (blenderAddonVersion != saveAddonVersion)
+            blenderAddonVersion = saveAddonVersion;
+        if (blenderVersion != saveVersion)
+            blenderVersion = saveVersion;
+        blenderAddonVersionEdit->setText(blenderAddonVersion);
+        blenderVersionEdit->setText(blenderVersion);
+        QString const stdOutLog = QDir::toNativeSeparators(QString("<br>- See %1/Blender/stdout-blender-addon-install")
                                                                 .arg(Preferences::lpub3d3rdPartyConfigDir));
-        emit gui->messageSig(LOG_BLENDER_ADDON, messages.join(" ").append(stdOutLog), errorEncountered);
+        emit gui->messageSig(LOG_BLENDER_ADDON, errors.join(" ").append(stdOutLog), errorEncountered);
     }
 }
 
@@ -2125,7 +2141,8 @@ QString BlenderPreferences::readStdErr(bool &hasError) const
     while ( ! in.atEnd())
     {
         QString line = in.readLine(0);
-        returnLines << line.trimmed().replace("<","&lt;")
+        returnLines << line.trimmed()
+                               .replace("<","&lt;")
                                .replace(">","&gt;")
                                .replace("&","&amp;") + "<br>";
         if (!hasError)
@@ -2199,6 +2216,7 @@ void BlenderPreferences::showResult()
         message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
         statusUpdate(false, tr("%1: Addon install failed.").arg("Error"));
         mBlenderConfigured = false;
+        blenderAddonVersionEdit->clear();
         blenderVersionEdit->clear();
         emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
     } else {

@@ -248,6 +248,7 @@ class Preferences
     static QString ldrawColourPartsFile;
 
     static QString blenderVersion;
+    static QString blenderAddonVersion;
     static QString blenderLDrawConfigFile;
     static QString blenderPreferencesFile;
     static QString blenderConfigDir;
