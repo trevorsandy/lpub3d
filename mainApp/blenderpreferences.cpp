@@ -341,12 +341,10 @@ void BlenderPreferences::getRenderSettings(
             blenderImportMMActBox->setChecked(importModule.endsWith(" MM"));
         }
     } else {
-        if (Preferences::displayTheme == THEME_DARK) {
-            const QString themeColor = Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT];
-            blenderVersionLabel->setStyleSheet("QLabel { color : " + themeColor + "; }");
-        } else {
-            blenderVersionLabel->setStyleSheet("QLabel { color : blue; }");
-        }
+        const QString colour = Preferences::displayTheme == THEME_DARK
+                                   ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
+                                   : QLatin1String("blue");
+        blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
         blenderVersionLabel->setText(tr("Blender not configured"));
         blenderVersionEdit->setVisible(mBlenderConfigured);
         // set default LDraw import module
@@ -1452,7 +1450,10 @@ void BlenderPreferences::configureBlender()
     if (blenderFile.isEmpty()) {
         blenderVersion.clear();
         mBlenderConfigured = false;
-        blenderVersionLabel->setStyleSheet("QLabel { color : blue; }");
+        const QString colour = Preferences::displayTheme == THEME_DARK
+                                   ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
+                                   : QLatin1String("blue");
+        blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
         blenderVersionLabel->setText(tr("Blender not configured"));
         blenderVersionEdit->setVisible(mBlenderConfigured);
         blenderAddonUpdateButton->setEnabled(mBlenderConfigured);
@@ -1579,10 +1580,7 @@ void BlenderPreferences::configureBlender()
                 mBlenderConfigured = true;
                 mBlenderAddonUpdate = !mBlenderConfigured;
                 blenderVersionLabel->setText(tr("Blender Version"));
-                if (Preferences::displayTheme == THEME_DARK)
-                    blenderVersionLabel->setStyleSheet("QLabel { color : white ; }");
-                else
-                    blenderVersionLabel->setStyleSheet("QLabel { color : black; }");
+                blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(Preferences::displayTheme == THEME_DARK ? QLatin1String("white") : QLatin1String("black")));
                 blenderVersionEdit->setText(blenderVersion);
                 blenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
                 blenderVersionEdit->setVisible(mBlenderConfigured);
@@ -1804,7 +1802,11 @@ void BlenderPreferences::statusUpdate(bool ok, const QString &message)
         pathLineEditList[LBL_BLENDER_PATH]->text() = QString();
         Preferences::setBlenderImportModule(QString());
         label  = ! message.isEmpty() ? message : tr("Blender not configured");
-        colour = message.startsWith("Error:", Qt::CaseInsensitive) ? "red" : "blue";
+        colour = message.startsWith("Error:", Qt::CaseInsensitive)
+                     ? QLatin1String("red")
+                     : Preferences::displayTheme == THEME_DARK
+                           ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
+                           : QLatin1String("blue");
         mDialogCancelled = true;
     }
     blenderVersionLabel->setText(label);
@@ -1991,10 +1993,7 @@ void BlenderPreferences::showResult()
         mBlenderConfigured = true;
         mBlenderAddonUpdate = !mBlenderConfigured;
         blenderVersionLabel->setText(tr("Blender Version"));
-        if (Preferences::displayTheme == THEME_DARK)
-            blenderVersionLabel->setStyleSheet("QLabel { color : white ; }");
-        else
-            blenderVersionLabel->setStyleSheet("QLabel { color : black; }");
+        blenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(Preferences::displayTheme == THEME_DARK ? QLatin1String("white") : QLatin1String("black")));
         blenderVersionEdit->setText(blenderVersion);
         blenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
         blenderVersionEdit->setVisible(mBlenderConfigured);

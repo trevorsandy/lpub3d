@@ -68,6 +68,7 @@ public:
 
 protected:
     bool settingsModified(int &width, int &height, double &renderPercentage);
+    QString readStdErr(bool &hasError) const;
     void initLDrawImport();
     void initLDrawImportMM();
 
@@ -92,7 +93,6 @@ public slots:
     bool promptCancel();
     void showResult();
     void getStandardOutput();
-    QString readStdErr(bool &hasError) const;
     void statusUpdate(bool ok = false, const QString &message = QString());
 
 private:
