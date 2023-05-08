@@ -250,6 +250,7 @@ class Preferences
     static QString blenderVersion;
     static QString blenderLDrawConfigFile;
     static QString blenderPreferencesFile;
+    static QString blenderConfigDir;
     static QString blenderImportModule;
     static QString blenderExe;
 

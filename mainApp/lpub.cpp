@@ -2795,17 +2795,15 @@ void Gui::editLdviewIni()
 
 void Gui::editBlenderParameters()
 {
-    QString const blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
-
     QString blenderConfigFile, titleLabel;
     bool blenderParameters = sender() == getAct("editBlenderParametersAct.1");
     bool blenderPreferences = sender() == getAct("editBlenderPreferencesAct.1");
     if (blenderParameters) {
         titleLabel = tr("LDraw Parameters");
-        blenderConfigFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
+        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
     } else if (blenderPreferences) {
         titleLabel = tr("Import and Render Preferences");
-        blenderConfigFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE);
+        blenderConfigFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE);
     }
 
     QFileInfo fileInfo(blenderConfigFile);
@@ -7767,7 +7765,8 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             bool const multi = lines > 1;
             QString const type = errorEncountered ? multi ? tr("errors") : tr("error") : multi ? tr("warnings") : tr("warning");
             QString const header = "<b>" + tr ("Addon install %1 encountered.").arg(type) + "&nbsp;</b>";
-            QString const body = tr ("Addon install encountered %1 %2. See Show Details...").arg(multi ? tr("an") : tr("a")).arg(type);
+            QString const body = tr ("Addon install encountered %1. See Show Details...")
+                                     .arg(errorEncountered ? multi ? type : tr("an %1").arg(type) : multi ? type : tr("a %1").arg(type));
             box.setText (header);
             box.setInformativeText (body);
             box.setDetailedText(message);

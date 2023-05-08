@@ -172,7 +172,7 @@
 
 #define VER_BLENDER_DEFAULT_BLEND_FILE      "lpub3d.blend"
 #define VER_BLENDER_ADDON_FILE              "LDrawBlenderRenderAddons.zip"
-#define VER_BLENDER_ADDON_INSTALL_FILE      "installBlenderAddons.py"
+#define VER_BLENDER_ADDON_INSTALL_FILE      "install_blender_ldraw_addons.py"
 #define VER_BLENDER_RENDER_CONFIG_FILE      "LDrawRendererPreferences.ini"
 #define VER_BLENDER_DOCUMENT_CONFIG_FILE    "PreferredRendererPreferences.ini"
 #define VER_BLENDER_LDRAW_PARAMS_FILE       "BlenderLDrawParameters.lst"

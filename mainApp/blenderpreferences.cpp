@@ -1104,20 +1104,19 @@ void BlenderPreferences::saveSettings()
     }
     Preferences::setBlenderVersionPreference(value);
 
-    QString blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
     if (mDocumentRender)
         value = Preferences::blenderPreferencesFile.isEmpty()
-                    ? QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_DOCUMENT_CONFIG_FILE)
+                    ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_DOCUMENT_CONFIG_FILE)
                     : Preferences::blenderPreferencesFile;
     else
         value = Preferences::blenderLDrawConfigFile.isEmpty()
-                    ? QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE)
+                    ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_RENDER_CONFIG_FILE)
                     : Preferences::blenderLDrawConfigFile;
     Preferences::setBlenderLDrawConfigPreference(value);
 
     QString searchDirectoriesKey;
     QString parameterFileKey = QLatin1String("parameterFile");
-    QString parameterFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
+    QString parameterFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
 
     QSettings Settings(value, QSettings::IniFormat);
 
@@ -1488,7 +1487,6 @@ void BlenderPreferences::configureBlender(bool testBlender)
         QString const blenderDir = QDir::toNativeSeparators(QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir));
         QString const blenderAddonDir    = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
         QString const blenderSetupDir    = QDir::toNativeSeparators(QString("%1/setup").arg(blenderDir));
-        QString const blenderConfigDir   = QDir::toNativeSeparators(QString("%1/config").arg(blenderDir));
         QString const blenderExeCompare  = QDir::toNativeSeparators(Preferences::blenderExe).toLower();
         QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
         QString const blenderTestString  = QLatin1String("###TEST_BLENDER###");
@@ -1518,6 +1516,7 @@ void BlenderPreferences::configureBlender(bool testBlender)
                 systemEnvironment.prepend("ADDONS_TO_LOAD=" + addonPathsAndModuleNames);
                 systemEnvironment.prepend("ALLOW_MODIFY_EXTERNAL_PYTHON=" + allowModifyExternalPython);
                 process->setEnvironment(systemEnvironment);
+                qDebug() << qPrintable(QString("ADDON SYSTEM ENVIRONMENT: %1").arg(systemEnvironment.join(" ")));
             } 
             else
             {
@@ -1747,7 +1746,7 @@ void BlenderPreferences::configureBlender(bool testBlender)
         }
 
         // Create Blender config directory
-        QDir configDir(blenderConfigDir);
+        QDir configDir(Preferences::blenderConfigDir);
         if(!QDir(configDir).exists())
             configDir.mkpath(".");
 
@@ -1780,8 +1779,8 @@ void BlenderPreferences::configureBlender(bool testBlender)
 
         // Check if there are addon folders in /addons
         if (QDir(blenderAddonDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
-            //A. Create a QJsonObject
-            QJsonObject jsonObj;
+            //A. Create a QJsonDocument
+            QJsonDocument jsonDoc;
             //B. Create jsonArray
             QJsonArray jsonArray;
             // 1. get list of addons
@@ -1824,11 +1823,10 @@ void BlenderPreferences::configureBlender(bool testBlender)
                     }
                 }
             }
-            //E. Add jsonArray to jsonObj and give it an object Name
-            jsonObj["addons"] = jsonArray;
+            //E. Add jsonArray to jsonDocument
+            jsonDoc.setArray(jsonArray);
             //F. Create a QByteArray and fill it with QJsonDocument (json compact format)
-            addonPathsAndModuleNames = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
-            qDebug() << "Rendered json byteArray text: " << lpub_endl<< addonPathsAndModuleNames << lpub_endl;
+            addonPathsAndModuleNames = jsonDoc.toJson(QJsonDocument::Compact);
         }
 
         result = processCommand(PR_INSTALL);
@@ -2034,14 +2032,15 @@ void BlenderPreferences::readStdOut()
 
     QRegExp rxInfo("^INFO: ");
     QRegExp rxData("^DATA: ");
-    QRegExp rxError("^ERROR: ", Qt::CaseInsensitive);
-    QRegExp rxWarning("^WARNING: ", Qt::CaseInsensitive);
+    QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxWarning("^(?:\\w)*WARNING: ", Qt::CaseInsensitive);
     QRegExp rxAddonVersion("^ADDON VERSION: ", Qt::CaseInsensitive);
 
     bool errorEncountered = false;
     QStringList items,messages;
     QStringList stdOutLines = StdOut.split(QRegExp("\n|\r\n|\r"));
 
+    int lineCount = 0;
     for (QString const &stdOutLine : stdOutLines) {
         if (stdOutLine.isEmpty())
             continue;
@@ -2077,20 +2076,35 @@ void BlenderPreferences::readStdOut()
                 pathLineEditList[LBL_STUD_LOGO_PATH]->setText(items.at(2));
             }
         } else if (stdOutLine.contains(rxError) || stdOutLine.contains(rxWarning)) {
+            auto cleanLine = [&] () {
+                return stdOutLine.trimmed()
+                           .replace("<","&lt;")
+                           .replace(">","&gt;")
+                           .replace("&","&amp;") + "\n";
+            };
             errorEncountered = stdOutLine.contains(rxError);
-            messages << stdOutLine.trimmed()
-                                .replace("<","&lt;")
-                                .replace(">","&gt;")
-                                .replace("&","&amp;") + "<br>";
+            messages << cleanLine();
+            int errorCount = lineCount;
+            for (;errorCount < stdOutLines.size(); errorCount++) {
+                if (stdOutLine.at(0) == "")
+                    messages << cleanLine();
+                else
+                    break;
+            }
         } else if (stdOutLine.contains(rxAddonVersion)) {
             // Get Addon version
             items = stdOutLine.split(":");
             blenderAddonVersion = tr("v%1").arg(items.at(1).trimmed()); // 1 addon version
             blenderAddonVersionEdit->setText(blenderAddonVersion);
         }
+        lineCount++;
     }
     if (messages.size()) {
-        emit gui->messageSig(LOG_BLENDER_ADDON, messages.join(" "), errorEncountered);
+        mBlenderConfigured = false;
+        blenderVersionEdit->clear();
+        QString const stdOutLog = QDir::toNativeSeparators(QString("\n\n- See %1/Blender/stdout-blender-addon-install")
+                                                                .arg(Preferences::lpub3d3rdPartyConfigDir));
+        emit gui->messageSig(LOG_BLENDER_ADDON, messages.join(" ").append(stdOutLog), errorEncountered);
     }
 }
 
@@ -2184,6 +2198,8 @@ void BlenderPreferences::showResult()
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
         message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
         statusUpdate(false, tr("%1: Addon install failed.").arg("Error"));
+        mBlenderConfigured = false;
+        blenderVersionEdit->clear();
         emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
     } else {
         blenderExeGridLayout->replaceWidget(progressBar, blenderVersionEdit);
@@ -2485,8 +2501,7 @@ void BlenderPreferences::loadDefaultParameters(QByteArray& Buffer, int Which)
 
 bool BlenderPreferences::exportParameterFile(){
 
-    QString const blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
-    QString parameterFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
+    QString const parameterFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
     QFile file(parameterFile);
 
     if (!overwriteFile(file.fileName()))

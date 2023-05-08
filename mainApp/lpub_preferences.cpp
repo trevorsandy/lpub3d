@@ -328,6 +328,7 @@ QString Preferences::currentLibrarySave         = EMPTY_STRING_DEFAULT;
 QString Preferences::blenderVersion;
 QString Preferences::blenderLDrawConfigFile;
 QString Preferences::blenderPreferencesFile;
+QString Preferences::blenderConfigDir;
 QString Preferences::blenderImportModule        = DEFAULT_BLENDER_IMPORT_MODULE;
 QString Preferences::blenderExe;
 
@@ -2805,7 +2806,7 @@ void Preferences::rendererPreferences()
     updatePOVRayIniFile(SkipExisting);
 
     // Blender config file path
-    QString const blenderConfigDir = QString("%1/Blender/config").arg(lpub3d3rdPartyConfigDir);
+    blenderConfigDir = QString("%1/Blender/setup/addon_setup/config").arg(lpub3d3rdPartyConfigDir);
 
     // Blender LDraw config file
     QString const blenderLDrawConfigFileKey("BlenderLDrawConfigFile");
