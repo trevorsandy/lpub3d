@@ -285,8 +285,9 @@ Rc IntMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected a whole number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected a whole number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
 
   return FailureRc;
 }
@@ -329,8 +330,9 @@ Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
         }
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected a floating point number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected a floating point number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
 
   return FailureRc;
 }
@@ -417,8 +419,9 @@ Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected two floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
 
   return FailureRc;
 }
@@ -467,8 +470,9 @@ Rc Vector3Meta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
 
   return FailureRc;
 }
@@ -508,8 +512,9 @@ Rc StringMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected a string after \"%1\"") .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected a string after \"%1\"") .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
 
   return FailureRc;
 }
@@ -571,8 +576,9 @@ Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
 
   return FailureRc;
 }
@@ -1069,8 +1075,9 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
     } else {
 
       if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed background \"%1\"") .arg(argv.join(" ")));
-        }
+        QString const message = QMessageBox::tr("Malformed background \"%1\"") .arg(argv.join(" "));
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+      }
 
       return FailureRc;
     }
@@ -1532,7 +1539,8 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 
         if (!id && !scoped)
         {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
+          QString const message = QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" "));
+          emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
           rc = FailureRc;
         }
     }
@@ -2001,8 +2009,9 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
     } else {
 
       if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed pointer \"%1\"") .arg(argv.join(" ")));
-        }
+        QString const message = QMessageBox::tr("Malformed pointer \"%1\"") .arg(argv.join(" "));
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+      }
       return FailureRc;
     }
 }
@@ -2171,8 +2180,8 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
     return AssemAnnotationIconRc;
   }
   if (reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed CSI Annotation metacommand \"%1\"\n")
-                         .arg(argv.join(" ")));
+    QString const message = QMessageBox::tr("Malformed CSI Annotation metacommand \"%1\"\n").arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return rc;
 }
@@ -2332,7 +2341,8 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
     else if (argv[1] == "PREFERRED_RENDERER")
       rc = PreferredRendererRc;
   } else if (reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+    QString const message = QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return rc;
 }
@@ -2500,8 +2510,9 @@ Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected HORIZONTAL or VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected HORIZONTAL or VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 QString AllocMeta::format(bool local, bool global)
@@ -2691,8 +2702,9 @@ Rc FillMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ASPECT, STRETCH, or TILE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected ASPECT, STRETCH, or TILE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 QString FillMeta::format(bool local, bool global)
@@ -2743,8 +2755,9 @@ Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 
@@ -2790,8 +2803,9 @@ Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
       return PageOrientationRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PORTRAIT or LANDSCAPE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected PORTRAIT or LANDSCAPE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 
@@ -2836,8 +2850,9 @@ Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
       return CountInstanceRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 
@@ -2892,8 +2907,9 @@ Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
       return ContStepNumRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 
@@ -2941,8 +2957,9 @@ Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
       return BuildModEnableRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 
@@ -2992,8 +3009,9 @@ Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
       return FinalModelEnableRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 
@@ -3125,7 +3143,8 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
   // suppress 'PORTRAIT or LANDSCAPE'  for now
   // "Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) and optionally PORTRAIT or LANDSCAPE but got \"%1\""
   if (reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) but got \"%1\"") .arg(argv.join(" ")));
+    QString const message = QMessageBox::tr("Expected two decimal numbers and/or page size id (e.g. A4, Letter, Custom...) but got \"%1\"") .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
 
   return FailureRc;
@@ -3288,8 +3307,9 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
       }
   if (rc == FailureRc) {
     if (reportErrors) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" ")));
-      }
+      QString const message = QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+    }
   }
   return SepRc;
 }
@@ -3359,7 +3379,8 @@ Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
     }
   }
   if (reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <decimal X pos> <decimal Y pos> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+    QString const message = QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <decimal X pos> <decimal Y pos> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return FailureRc;
 }
@@ -3427,7 +3448,8 @@ Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
     rc = FailureRc;
   }
   if (rc == FailureRc && reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    QString const message = QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
   }
   return rc;
 }
@@ -3770,9 +3792,9 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       return InsertRc;
     } else {
       if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed Insert metacommand \"%1\"\n")
-                               .arg(argv.join(" ")));
-        }
+        QString const message = QMessageBox::tr("Malformed Insert metacommand \"%1\"\n").arg(argv.join(" "));
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+      }
       return FailureRc;
     }
 }
@@ -4410,7 +4432,8 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+      QString const message = QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   }
 
@@ -4470,7 +4493,8 @@ Rc LPubFaHiMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+      QString const message = QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   }
 
@@ -4525,7 +4549,8 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected LDraw_colour_name | (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
+      QString const message = QMessageBox::tr("Expected LDraw_colour_name | (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index]) .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
   }
 
@@ -4993,8 +5018,9 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       return RotStepRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed ROTSETP meta \"%1\"") .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Malformed ROTSETP meta \"%1\"") .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 QString RotStepMeta::format(bool local, bool global)
@@ -5033,8 +5059,9 @@ Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
         }
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed buffer exchange \"%1\"") .arg(argv.join(" ")));
-    }
+    QString const message = QMessageBox::tr("Malformed buffer exchange \"%1\"") .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+  }
   return FailureRc;
 }
 QString BuffExchgMeta::format(bool local, bool global)
@@ -5097,10 +5124,13 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
   }
 
   if (rc == FailureRc){
-    if (reportErrors)
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed build mod meta command \"%1\"") .arg(argv.join(" ")));
+    if (reportErrors) {
+      QString const message = QMessageBox::tr("Malformed build mod meta command \"%1\"") .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+    }
   } else if (!missingMeta.isEmpty()) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Build mod meta %1 requires a key value. Got \"%2\"") .arg(missingMeta).arg(argv.join(" ")));
+    QString const message = QMessageBox::tr("Build mod meta %1 requires a key value. Got \"%2\"") .arg(missingMeta).arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     rc = FailureRc;
   }
 
@@ -5238,9 +5268,9 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
           return PliPartGroupRc;
     } else {
       if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed PLI Group metacommand \"%1\"\n")
-                               .arg(argv.join(" ")));
-        }
+        QString const message = QMessageBox::tr("Malformed PLI Group metacommand \"%1\"\n").arg(argv.join(" "));
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+      }
       return FailureRc;
     }
 }
@@ -6580,15 +6610,17 @@ void NoStepMeta::init(
   AbstractMeta::init(parent,name);
   rc = _rc;
 }
-Rc NoStepMeta::parse(QStringList &argv, int index,Where & /* here */ )
+
+Rc NoStepMeta::parse(QStringList &argv, int index,Where &here )
 {
   if (index == argv.size()) {
       return rc;
     } else {
 
       if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-        }
+        QString const message = QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+      }
 
       return FailureRc;
     }
@@ -7074,8 +7106,8 @@ Rc Meta::parse(
 
         if (rc == FailureRc) {
             if (reportErrors) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Parse failed %1:%2\n%3")
-                                     .arg(here.modelName) .arg(here.lineNumber) .arg(line));
+                QString const message = QMessageBox::tr("Parse failed %1:%2\n%3").arg(here.modelName) .arg(here.lineNumber) .arg(line);
+                emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
             }
         }
         return rc;

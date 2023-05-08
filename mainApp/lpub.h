@@ -1535,7 +1535,7 @@ public slots:
 signals:
   /* tell the editor to display this file */
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile, const StepLines &lineScope);
-  void parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int = 3);
+  void parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool/*option*/, bool/*override*/, int = 3/*critical*/);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);
