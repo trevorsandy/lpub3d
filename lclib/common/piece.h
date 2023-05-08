@@ -174,10 +174,8 @@ public:
 	void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
 	void RemoveKeyFrames() override;
 
-/*** LPub3D Mod - lpub fade highlight ***/
-	void AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade, bool LPubFade = false) const;
-	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
-/*** LPub3D Mod end ***/
+	void AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade) const;
+	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
 	void SubModelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min, lcVector3& Max) const;
 	void SubModelAddBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::vector<lcVector3>& Points) const;
 

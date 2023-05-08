@@ -16,9 +16,6 @@ lcScene::lcScene()
 	mAllowLOD = true;
 	mMeshLODDistance = 250.0f;
 	mHasFadedParts = false;
-/*** LPub3D Mod - lpub fade highlight ***/
-	mHasLPubFadedParts = false;
-/*** LPub3D Mod end ***/
 
 	mPreTranslucentCallback = nullptr;
 }
@@ -37,9 +34,6 @@ void lcScene::Begin(const lcMatrix44& ViewMatrix)
 	mHighlightColor = lcVector4FromColor(Preferences.mHighlightNewPartsColor);
 	mFadeColor = lcVector4FromColor(Preferences.mFadeStepsColor);
 	mHasFadedParts = false;
-/*** LPub3D Mod - lpub fade highlight ***/
-	mHasLPubFadedParts = false;
-/*** LPub3D Mod end ***/
 	mTranslucentFade = mFadeColor.w != 1.0f;
 }
 
@@ -69,9 +63,7 @@ void lcScene::End()
 	std::sort(mTranslucentMeshes.begin(), mTranslucentMeshes.end(), TranslucentMeshCompare);
 }
 
-/*** LPub3D Mod - lpub fade highlight ***/
-void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State, bool LPubFade)
-/*** LPub3D Mod end ***/
+void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State)
 {
 	lcRenderMesh& RenderMesh = mRenderMeshes.Add();
 
@@ -86,9 +78,6 @@ void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorInde
 	const bool Translucent = lcIsColorTranslucent(ColorIndex) || ForceTranslucent;
 	const lcMeshFlags Flags = Mesh->mFlags;
 	mHasFadedParts |= State == lcRenderMeshState::Faded;
-/*** LPub3D Mod - lpub fade highlight ***/
-	mHasLPubFadedParts |= LPubFade;
-/*** LPub3D Mod end ***/
 
 	if ((Flags & (lcMeshFlag::HasSolid | lcMeshFlag::HasLines)) || ((Flags & lcMeshFlag::HasDefault) && !Translucent))
 		mOpaqueMeshes.Add(mRenderMeshes.GetSize() - 1);
@@ -498,9 +487,8 @@ void lcScene::Draw(lcContext* Context) const
 	const bool DrawConditional = Preferences.mDrawConditionalLines && Preferences.mLineWidth > 0.0f;
 /*** LPub3D Mod - lpub fade highlight ***/
 // 03/22/2021 8039f5b Draw conditional lines on a separate pass.
-	const bool LPubFadeHighlight = gApplication->LPubFadeParts()     && // turn off during HTML Steps export
-								   gApplication->LPubFadeHighlight() &&
-								   mHasLPubFadedParts                &&
+	const bool LPubFadeHighlight = gApplication->LPubFadeHighlight() &&
+								   gApplication->LPubFadeParts()     && // set to off during HTML Steps export
 								  !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
 

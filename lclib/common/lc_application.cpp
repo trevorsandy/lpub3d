@@ -344,18 +344,18 @@ bool lcApplication::LPubHighlightParts()
 bool lcApplication::LPubFadeParts()
 {
 	// called by lcScene::Draw
-	return mPreferences.mFadeSteps;
+	bool const exportingHTML = mProject ? mProject->IsExportingHTML() : false;
+	return mPreferences.mFadeSteps && ! exportingHTML;
 }
 
 bool lcApplication::LPubFadeHighlight()
 {
-	// called by lcModel::LoadLDraw, lcModel::GetScene
+	// called by lcModel::LoadLDraw, lcScene::Draw 
 	return mPreferences.mLPubFadeHighlight;
 }
 
 bool lcApplication::LPubDisplayModelStep()
 {
-	// called by lcModel::GetScene
 	return lpub->CurrentStepIsDisplayModel();
 }
 

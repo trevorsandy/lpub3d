@@ -701,9 +701,7 @@ void lcPiece::RemoveKeyFrames()
 	mRotationKeys.ChangeKey(lcMatrix33(mModelWorld), 1, true);
 }
 
-/*** LPub3D Mod - lpub fade highlight ***/
-void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade, bool LPubFade) const
-/*** LPub3D Mod end ***/
+void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade) const
 {
 	lcRenderMeshState RenderMeshState = lcRenderMeshState::Default;
 	bool ParentActive = false;
@@ -726,20 +724,16 @@ void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade
 			RenderMeshState = lcRenderMeshState::Faded;
 	}
 
-/*** LPub3D Mod - lpub fade highlight ***/
 	if (!mMesh)
-		mPieceInfo->AddRenderMeshes(Scene, mModelWorld, mColorIndex, RenderMeshState, ParentActive, LPubFade);
+		mPieceInfo->AddRenderMeshes(Scene, mModelWorld, mColorIndex, RenderMeshState, ParentActive);
 	else
-		Scene->AddMesh(mMesh, mModelWorld, mColorIndex, RenderMeshState, LPubFade);
-/*** LPub3D Mod end ***/
+		Scene->AddMesh(mMesh, mModelWorld, mColorIndex, RenderMeshState);
 
 	if (RenderMeshState == lcRenderMeshState::Focused || RenderMeshState == lcRenderMeshState::Selected)
 		Scene->AddInterfaceObject(this);
 }
 
-/*** LPub3D Mod - lpub fade highlight ***/
-void lcPiece::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
-/*** LPub3D Mod end ***/
+void lcPiece::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
 {
 	int ColorIndex = mColorIndex;
 
@@ -753,12 +747,10 @@ void lcPiece::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMat
 	else if (ParentActive)
 		RenderMeshState = IsFocused() ? lcRenderMeshState::Focused : (IsSelected() ? lcRenderMeshState::Selected : lcRenderMeshState::Default);
 
-/*** LPub3D Mod - lpub fade highlight ***/
 	if (!mMesh)
-		mPieceInfo->AddRenderMeshes(Scene, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, ActiveSubmodelInstance == this, LPubFade);
+		mPieceInfo->AddRenderMeshes(Scene, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, ActiveSubmodelInstance == this);
 	else
-		Scene->AddMesh(mMesh, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, LPubFade);
-/*** LPub3D Mod end ***/
+		Scene->AddMesh(mMesh, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState);
 
 	if (ParentActive && (RenderMeshState == lcRenderMeshState::Focused || RenderMeshState == lcRenderMeshState::Selected))
 		Scene->AddInterfaceObject(this);

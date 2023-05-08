@@ -1377,10 +1377,6 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	if (mPieceInfo)
 		mPieceInfo->AddRenderMesh(*Scene);
 
-/*** LPub3D Mod - lpub fade highlight ***/
-	bool LPubFade = gApplication->LPubFadeHighlight();
-/*** LPub3D Mod - export ***/
-
 	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->IsVisible(mCurrentStep))
@@ -1396,16 +1392,12 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 				Highlight &= StepShow == mCurrentStep;
 			}
 /*** LPub3D Mod end ***/
-			else if (!LPubFade)
+			else
 			{
 				Fade &= Piece->GetLPubFade();
 				Highlight &= Piece->GetLPubHighlight();
 			}
-			else
-			{
-				LPubFade &= Piece->GetLPubFade();
-			}
-			Piece->AddMainModelRenderMeshes(Scene, Highlight, Fade, LPubFade);
+			Piece->AddMainModelRenderMeshes(Scene, Highlight, Fade);
 /*** LPub3D Mod end ***/
 		}
 	}
@@ -1422,15 +1414,11 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	}
 }
 
-/*** LPub3D Mod - lpub fade highlight ***/
-void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
-/*** LPub3D Mod end ***/
+void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
 {
 	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
-/*** LPub3D Mod - lpub fade highlight ***/
-			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive, LPubFade);
-/*** LPub3D Mod end ***/
+			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive);
 }
 
 QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
