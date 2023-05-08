@@ -41,6 +41,7 @@ class QComboBox;
 class QProgressBar;
 class QProcess;
 class QTimer;
+class ParmsWindow;
 
 class BlenderPreferences : public QWidget
 {
@@ -114,6 +115,8 @@ private:
     QCheckBox   *blenderRenderActBox;
     QCheckBox   *blenderImportActBox;
     QCheckBox   *blenderImportMMActBox;
+
+    ParmsWindow *parmsWindow;                 // the parameter file editor
 
     QDialog      *dialog;
     QProgressBar *progressBar;

@@ -1248,7 +1248,6 @@ public slots:
   void togglePreviewWidget(bool);
   void updatePreview();
   void enableVisualBuildModification();
-  void viewStandardOutput(const QString filePath, const QString title = "");
   int setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep);
 
   bool VisualEditorRotateTransform()
@@ -1528,6 +1527,7 @@ public slots:
   void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false);
   bool loadFile(const QString &file);
   bool loadFile(const QString &file, bool console);
+  void openWith(const QString &filePath);
 
   void showRenderDialog();
 
@@ -1789,7 +1789,6 @@ private:
 
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);
-  void openWith(const QString &filePath);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);
   void setSceneItemZValue(SceneObjectDirection direction);

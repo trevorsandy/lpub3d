@@ -43,6 +43,7 @@
 
 #include "blenderpreferences.h"
 #include "lpub_preferences.h"
+#include "parmswindow.h"
 #include "commonmenus.h"
 #include "lpub.h"
 #include "version.h"
@@ -257,6 +258,8 @@ void BlenderPreferences::getRenderSettings(
 
     blenderContent = new QWidget(dialog);
     blenderContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+    parmsWindow = new ParmsWindow(blenderContent);
 
     blenderForm = new QFormLayout(blenderContent);
 
@@ -706,6 +709,35 @@ void BlenderPreferences::enableImportModule()
 
     mDialogCancelled = true;
     dialog->accept();
+
+void BlenderPreferences::getStandardOutput()
+{
+    QString const logFile = QString("%1/Blender/stdout-blender-addon-install").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QFileInfo fileInfo(logFile);
+    if (!fileInfo.exists()) {
+        emit gui->messageSig(LOG_ERROR, tr("Blender addon standard output file not found: %1.")
+                                            .arg(fileInfo.absoluteFilePath()));
+        return;
+    }
+
+    if (logFile.isEmpty())
+        return;
+
+    if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl("file:///"+logFile, QUrl::TolerantMode));
+        else
+#endif
+            gui->openWith(Preferences::logFilePath);
+    } else {
+        parmsWindow->displayParmsFile(logFile);
+        const QString _title = tr("%1 Blender addon standard output").arg(VER_PRODUCTNAME_STR);
+        const QString _status = tr("View Blender standard output");
+        parmsWindow->setWindowTitle(tr(_title.toLatin1(),_status.toLatin1()));
+        parmsWindow->show();
+    }
+}
 
     Preferences::setBlenderImportModule(preferredImportModule);
 

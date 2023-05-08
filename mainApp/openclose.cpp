@@ -366,35 +366,35 @@ void Gui::openWith(const QString &filePath)
     QStringList arguments = QStringList() << filePath;
     QString program;
 
-    if (action) {
+    if (action)
         program = action->data().toString();
-        if (program.isEmpty()) {
-            program = Preferences::systemEditor;
-            if (!program.isEmpty()) {
-                openWithProgramAndArgs(program,arguments);
-            }
-#ifdef Q_OS_MACOS
-            else {
-                program = QString("open");
-                arguments.prepend("-e");
-            }
-#else
-            else {
-                emit lpub->messageSig(LOG_ERROR, tr("No program specified. Cannot launch %1.")
-                                                    .arg(QFileInfo(filePath).fileName()));
-            }
-#endif
-        } else {
+
+    if (program.isEmpty()) {
+        program = Preferences::systemEditor;
+        if (!program.isEmpty()) {
             openWithProgramAndArgs(program,arguments);
         }
-        qint64 pid;
-        QString workingDirectory = QDir::currentPath() + QDir::separator();
-        QProcess::startDetached(program, arguments, workingDirectory, &pid);
-        emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
-                                           .arg(QFileInfo(filePath).fileName()).arg(pid)
-                                           .arg(QFileInfo(program).fileName())
-                                           .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+#ifdef Q_OS_MACOS
+        else {
+            program = QString("open");
+            arguments.prepend("-e");
+        }
+#else
+        else {
+            QDesktopServices::openUrl(QUrl("file:///"+filePath, QUrl::TolerantMode));
+        }
+#endif
+    } else {
+        openWithProgramAndArgs(program,arguments);
     }
+    qint64 pid;
+    QString workingDirectory = QDir::currentPath() + QDir::separator();
+    QProcess::startDetached(program, arguments, workingDirectory, &pid);
+    emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
+                                        .arg(QFileInfo(filePath).fileName()).arg(pid)
+                                        .arg(QFileInfo(program).fileName())
+                                        .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+
 }
 
 void Gui::openWith()

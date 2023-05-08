@@ -44,7 +44,7 @@ class ParmsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-  ParmsWindow(QMainWindow *parent = nullptr);
+  ParmsWindow(QWidget *parent = nullptr);
 
 protected:
 

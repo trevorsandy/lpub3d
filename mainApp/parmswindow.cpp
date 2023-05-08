@@ -53,7 +53,7 @@ protected:
 
 ParmsWindow *parmsWindow;
 
-ParmsWindow::ParmsWindow(QMainWindow *parent) :
+ParmsWindow::ParmsWindow(QWidget *parent) :
   QMainWindow(parent)
 {
     parmsWindow  = this;
