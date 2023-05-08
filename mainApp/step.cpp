@@ -38,7 +38,6 @@
 #include "calloutbackgrounditem.h"
 #include "csiannotation.h"
 #include "pointer.h"
-#include "calloutpointeritem.h"
 #include "numberitem.h"
 #include "resolution.h"
 #include "dependencies.h"
@@ -528,8 +527,7 @@ int Step::createCsi(
       StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
       AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &csiStepMeta.autoEdgeColor;
       HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
-      bool lpubFadeHighlight  = (csiStepMeta.fadeSteps.lpubFade.value() && csiStepMeta.fadeSteps.enable.value()) ||
-                                (csiStepMeta.highlightStep.lpubHighlight.value() && csiStepMeta.highlightStep.enable.value());
+      bool lpubFadeHighlight  = csiStepMeta.fadeSteps.lpubFade.value() || csiStepMeta.highlightStep.lpubHighlight.value();
       viewerOptions                 = new NativeOptions();
       viewerOptions->HighlightNewParts = false; // gui->suppressColourMeta();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
@@ -721,8 +719,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
 
   bool enableFadeSteps       = csiStepMeta.fadeSteps.enable.value();
   bool enableHighlightStep   = csiStepMeta.highlightStep.enable.value();
-  bool lpubFadeHighlight     = (csiStepMeta.fadeSteps.lpubFade.value() && enableFadeSteps) ||
-                               (csiStepMeta.highlightStep.lpubHighlight.value() && enableHighlightStep);
+  bool lpubFadeHighlight     = csiStepMeta.fadeSteps.lpubFade.value() ||
+                               csiStepMeta.highlightStep.lpubHighlight.value();
 
   bool highlightFirstStep    = Preferences::highlightFirstStep;
 

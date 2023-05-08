@@ -2892,7 +2892,7 @@ int Native::renderCsi(
     Options->ZoomExtents       = false;
     Options->FadeParts         = fadeParts || Preferences::enableFadeSteps;
     Options->HighlightParts    = highlightParts || Preferences::enableHighlightStep;
-    Options->LPubFadeHighlight = (fadeParts && lpubFade) || (highlightParts && lpubHighlight);
+    Options->LPubFadeHighlight = lpubFade || lpubHighlight;
     Options->AutoEdgeColor     = aecm->enable.value();
     Options->EdgeContrast      = aecm->contrast.value();
     Options->EdgeSaturation    = aecm->saturation.value();
