@@ -33,7 +33,7 @@ lcQHTMLDialog::lcQHTMLDialog(QWidget* Parent, lcHTMLExportOptions* Options)
 /*** LPub3D Mod end ***/
 	ui->partsAfterEachStep->setChecked(mOptions->PartsListStep);
 	ui->partsAtTheEnd->setChecked(mOptions->PartsListEnd);
-/*** LPub3D Mod - HTML Fade Previous Steps ***/
+/*** LPub3D Mod - HTML Fade Steps ***/
 	ui->FadeSteps->setChecked(mOptions->HtmlFadeSteps);
 /*** LPub3D Mod end ***/
 }
@@ -68,7 +68,7 @@ void lcQHTMLDialog::accept()
 /*** LPub3D Mod end ***/
 	mOptions->PartsListStep = ui->partsAfterEachStep->isChecked();
 	mOptions->PartsListEnd = ui->partsAtTheEnd->isChecked();
-/*** LPub3D Mod - HTML Fade Previous Steps ***/
+/*** LPub3D Mod - HTML Fade Steps ***/
 	mOptions->HtmlFadeSteps = ui->FadeSteps->isChecked();
 /*** LPub3D Mod end ***/
 

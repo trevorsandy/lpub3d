@@ -7923,7 +7923,7 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
-        // WT_GUI_FADE_PREVIOUS_STEPS
+        // WT_GUI_FADE_STEPS
         {
             QObject::tr(
             "  Turn on or off fade previous steps or step parts globally.\n\n"
@@ -7969,7 +7969,7 @@ void CommonMenus::setWhatsThis()
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
-                 QLatin1String("\n\n  WT_GUI_FADE_PREVIOUS_STEPS")
+                 QLatin1String("\n\n  WT_GUI_FADE_STEPS")
 #else
                  ""
 #endif

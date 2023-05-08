@@ -6157,9 +6157,9 @@ bool Preferences::getPreferences()
 
             suspendFileDisplay = restartApplication || reloadFile || reloadPage;
 
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Previous Steps is %1.")
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Fade Steps is %1.")
                                   .arg(dialog->enableFadeSteps() ? On : Off));
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Current Step is %1.")
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Highlight Step is %1.")
                                   .arg(dialog->enableHighlightStep() ? On : Off));
 
             if (dialog->enableFadeSteps() && !LDrawColourParts::ldrawColorPartsIsLoaded()) {

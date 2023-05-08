@@ -582,14 +582,14 @@ void Gui::exportAsHtmlSteps()
     bool saveFadeStepsFlag = Preferences::enableFadeSteps;
     if (saveFadeStepsFlag) {
         Preferences::enableFadeSteps = false;
-        emit messageSig(LOG_INFO,tr("%1 Fade Previous Steps set to OFF during HTML Steps export.").arg(VER_PRODUCTNAME_STR));
+        emit messageSig(LOG_INFO,tr("%1 Fade Steps set to OFF during HTML Steps export.").arg(VER_PRODUCTNAME_STR));
     }
     if (! renderer->NativeExport(lpub->Options)) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML Steps export failed."));
     }
     if (saveFadeStepsFlag) {
         Preferences::enableFadeSteps = saveFadeStepsFlag;
-        emit messageSig(LOG_INFO,tr("%1 Fade Previous Steps restored to ON following HTML Steps export.").arg(VER_PRODUCTNAME_STR));
+        emit messageSig(LOG_INFO,tr("%1 Fade Steps restored to ON following HTML Steps export.").arg(VER_PRODUCTNAME_STR));
     }
 
     lpub->Options = nullptr;

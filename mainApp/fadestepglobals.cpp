@@ -79,7 +79,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   layout->addWidget(&sw);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox(tr("Fade Previous Steps"));
+  QGroupBox *box = new QGroupBox(tr("Fade Steps"));
   box->setToolTip(tr("Enable fade previous steps"));
   layout->addWidget(box);
   fadeStepsChild = new FadeStepsGui(fadeStepsMeta,box);

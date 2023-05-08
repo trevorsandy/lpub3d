@@ -81,7 +81,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   layout->addWidget(&sw);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox(tr("Highlight Current Step"));
+  QGroupBox *box = new QGroupBox(tr("Highlight Step"));
   box->setToolTip(tr("Enable highlight current step"));
   layout->addWidget(box);
   highlightStepChild = new HighlightStepGui(highlightStepMeta,box);

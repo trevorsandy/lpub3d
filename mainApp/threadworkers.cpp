@@ -115,8 +115,8 @@ void PartWorker::ldsearchDirPreferences(){
       Paths::mkCustomDirs();
   }
 
-  emit gui->messageSig(LOG_INFO,(doFadeStep() ? tr("Fade Previous Steps is ON.") : tr("Fade Previous Steps is OFF.")));
-  emit gui->messageSig(LOG_INFO,(doHighlightStep() ? tr("Highlight Current Step is ON.") : tr("Highlight Current Step is OFF.")));
+  emit gui->messageSig(LOG_INFO,(doFadeStep() ? tr("Fade Steps is ON.") : tr("Fade Steps is OFF.")));
+  emit gui->messageSig(LOG_INFO,(doHighlightStep() ? tr("Highlight Step is ON.") : tr("Highlight Step is OFF.")));
 
   // LDrawINI not found and not reset so load registry key
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&

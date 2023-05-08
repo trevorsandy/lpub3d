@@ -491,7 +491,7 @@
             <string>This setting allows you to highlight current build step parts</string>
            </property>
            <property name="title">
-            <string>Enable Highlight Current Step</string>
+            <string>Enable Highlight Step</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -651,7 +651,7 @@
             <string>This setting allows you to fade previous build step parts </string>
            </property>
            <property name="title">
-            <string>Enable Fade Previous Steps</string>
+            <string>Enable Fade Steps</string>
            </property>
            <property name="checkable">
             <bool>true</bool>

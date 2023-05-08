@@ -1228,7 +1228,7 @@ const lcCommand gCommands[] =
 	// LC_VIEW_FADE_PREVIOUS_STEPS
 	{
 		QT_TRANSLATE_NOOP("Action", "View.FadePreviousSteps"),
-		QT_TRANSLATE_NOOP("Menu", "Fade Previous Steps"),
+		QT_TRANSLATE_NOOP("Menu", "Fade Steps"),
 		QT_TRANSLATE_NOOP("Status", "Toggle fading previous model steps"),
 		""
 	},

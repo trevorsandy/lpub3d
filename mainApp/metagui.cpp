@@ -2137,15 +2137,15 @@ FadeStepsGui::FadeStepsGui(
 
   if (parent) {
       parent->setLayout(grid);
-      parent->setWhatsThis(lpubWT(WT_GUI_FADE_PREVIOUS_STEPS, parent->title()));
+      parent->setWhatsThis(lpubWT(WT_GUI_FADE_STEPS, parent->title()));
   } else {
       setLayout(grid);
-      setWhatsThis(lpubWT(WT_GUI_FADE_PREVIOUS_STEPS, tr("Fade Previous Steps")));
+      setWhatsThis(lpubWT(WT_GUI_FADE_STEPS, tr("Fade Steps")));
   }
 
   // enable fade step row
 
-  fadeCheck = new QCheckBox(tr("Enable Fade Previous Steps"), parent);
+  fadeCheck = new QCheckBox(tr("Enable Fade Steps"), parent);
   fadeCheck->setChecked(_meta->enable.value());
   fadeCheck->setToolTip(tr("Turn on global fade previous steps or step parts."));
 
@@ -2160,7 +2160,7 @@ FadeStepsGui::FadeStepsGui(
                               ? tr("LPub fade is obligatory when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE])
                               : tr("LPub fade is optional when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE]);
 
-  lpubFadeCheck = new QCheckBox(tr("Use LPub Fade Previous Steps"), parent);
+  lpubFadeCheck = new QCheckBox(tr("Use LPub Fade Steps"), parent);
   lpubFadeCheck->setChecked(_meta->lpubFade.value() || obligatory);
   lpubFadeCheck->setEnabled(!obligatory);
   lpubFadeCheck->setToolTip(toolTip);
@@ -2172,7 +2172,7 @@ FadeStepsGui::FadeStepsGui(
 
   // fade setup row
 
-  setupCheck = new QCheckBox(tr("Setup LPub Fade Previous Steps"), parent);
+  setupCheck = new QCheckBox(tr("Setup LPub Fade Steps"), parent);
   setupCheck->setChecked(_meta->setup.value());
   setupCheck->setToolTip(tr("Setup LPub fade steps. Check to use LPub fade previous steps or step parts locally."));
 
@@ -2393,12 +2393,12 @@ HighlightStepGui::HighlightStepGui(
       parent->setWhatsThis(lpubWT(WT_GUI_HIGHLIGHT_CURRENT_STEP, parent->title()));
   } else {
       setLayout(grid);
-      setWhatsThis(lpubWT(WT_GUI_HIGHLIGHT_CURRENT_STEP, tr("Highlight Current Step")));
+      setWhatsThis(lpubWT(WT_GUI_HIGHLIGHT_CURRENT_STEP, tr("Highlight Step")));
   }
 
   // enable highlight row
 
-  highlightCheck = new QCheckBox(tr("Enable Highlight Current Step"), parent);
+  highlightCheck = new QCheckBox(tr("Enable Highlight Step"), parent);
   highlightCheck->setChecked(_meta->enable.value());
   highlightCheck->setToolTip(tr("Turn on global highlight current step."));
 
@@ -2414,7 +2414,7 @@ HighlightStepGui::HighlightStepGui(
                               ? tr("LPub highlight is obligatory when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE])
                               : tr("LPub highlight is optional when preferred renderer is %1.").arg(rendererNames[RENDERER_NATIVE]);
 
-  lpubHighlightCheck = new QCheckBox(tr("Use LPub Highlight Current Step"), parent);
+  lpubHighlightCheck = new QCheckBox(tr("Use LPub Highlight Step"), parent);
   lpubHighlightCheck->setChecked(_meta->lpubHighlight.value() || obligatory);
   lpubHighlightCheck->setEnabled(!obligatory);
   lpubHighlightCheck->setToolTip(toolTip);
@@ -2426,7 +2426,7 @@ HighlightStepGui::HighlightStepGui(
 
   // fade setup row
 
-  setupCheck = new QCheckBox(tr("Setup LPub Highlight Current Step"), parent);
+  setupCheck = new QCheckBox(tr("Setup LPub Highlight Step"), parent);
   setupCheck->setChecked(_meta->setup.value());
   setupCheck->setToolTip(tr("Setup LPub highlight step. Check to use LPub highlight current step or step parts locally."));
 

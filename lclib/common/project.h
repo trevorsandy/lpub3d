@@ -32,7 +32,7 @@ public:
 /*** LPub3D Mod - HTML Highlight New Parts ***/
 	bool HtmlHighlightNewParts;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - HTML Fade Previous Steps ***/
+/*** LPub3D Mod - HTML Fade Steps ***/
 	bool HtmlFadeSteps;
 /*** LPub3D Mod end ***/
 };

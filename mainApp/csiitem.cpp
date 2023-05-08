@@ -716,7 +716,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       bottomOfStep,
                       &step->csiStepMeta.fadeSteps);
     } else if (selectedAction == setHighlightStepAction) {
-        setHighlightStep(tr("Highlight Current Step %1").arg(name),
+        setHighlightStep(tr("Highlight Step %1").arg(name),
                          topOfStep,
                          bottomOfStep,
                          &step->csiStepMeta.highlightStep);

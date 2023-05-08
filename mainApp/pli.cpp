@@ -60,7 +60,7 @@
 
 QCache<QString,QString> Pli::orientation;
 
-QString PartTypeNames[NUM_PART_TYPES] = { QObject::tr("Fade Previous Steps"), QObject::tr("Highlight Current Step"), QObject::tr("Normal") };
+QString PartTypeNames[NUM_PART_TYPES] = { QObject::tr("Fade Steps"), QObject::tr("Highlight Step"), QObject::tr("Normal") };
 
 const Where &Pli::topOfStep()
 {

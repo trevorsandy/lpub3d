@@ -684,10 +684,10 @@ bool LPub::setFadeStepsFromCommand()
   }
 
   if (Preferences::enableFadeSteps != Preferences::initEnableFadeSteps)
-    emit lpub->messageSig(LOG_INFO_STATUS,tr("Fade Previous Steps is %1 - Set from meta command.")
+    emit lpub->messageSig(LOG_INFO_STATUS,tr("Fade Steps is %1 - Set from meta command.")
                                             .arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
   if (setupFadeSteps)
-     emit lpub->messageSig(LOG_INFO_STATUS,tr("Fade Previous Steps Setup is ENABLED."));
+     emit lpub->messageSig(LOG_INFO_STATUS,tr("Fade Steps Setup is ENABLED."));
 
   if (!Preferences::enableFadeSteps && !setupFadeSteps)
     return false;
@@ -788,10 +788,10 @@ bool LPub::setHighlightStepFromCommand()
   }
 
   if (Preferences::enableHighlightStep != Preferences::initEnableHighlightStep)
-    emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Current Step is %1 - Set from meta command.")
+    emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Step is %1 - Set from meta command.")
                                              .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
   if (setupHighlightStep)
-     emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Current Step Setup is ENABLED."));
+     emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Step Setup is ENABLED."));
 
   if (!Preferences::enableHighlightStep && !setupHighlightStep)
     return false;

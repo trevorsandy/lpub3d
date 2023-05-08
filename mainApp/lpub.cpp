@@ -6353,10 +6353,10 @@ void Gui::createActions()
         lpub->actions.insert(povrayRendererArgumentsAction->objectName(), Action(QStringLiteral("SharedContext.Add Povray Renderer Arguments"), povrayRendererArgumentsAction));
 
         QAction *highlightStepAction = commonMenus.highlightStepMenu(*contextMenu,name);
-        lpub->actions.insert(highlightStepAction->objectName(), Action(QStringLiteral("SharedContext.Highlight Current Step"), highlightStepAction));
+        lpub->actions.insert(highlightStepAction->objectName(), Action(QStringLiteral("SharedContext.Highlight Step"), highlightStepAction));
 
         QAction *fadeStepsAction = commonMenus.fadeStepsMenu(*contextMenu,name);
-        lpub->actions.insert(fadeStepsAction->objectName(), Action(QStringLiteral("SharedContext.Fade Previous Steps"), fadeStepsAction));
+        lpub->actions.insert(fadeStepsAction->objectName(), Action(QStringLiteral("SharedContext.Fade Steps"), fadeStepsAction));
 
         QAction *preferredRendererAction = commonMenus.preferredRendererMenu(*contextMenu,name);
         lpub->actions.insert(preferredRendererAction->objectName(), Action(QStringLiteral("SharedContext.Change Renderer"), preferredRendererAction));

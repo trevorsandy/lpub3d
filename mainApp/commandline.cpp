@@ -567,7 +567,7 @@ int LPub::processCommandLine()
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps)
   {
       Preferences::enableFadeSteps = fadeSteps;
-      message = tr("Fade Previous Steps set to ON.");
+      message = tr("Fade Steps set to ON.");
       emit messageSig(LOG_INFO,message);
       if (fadeStepsColour.isEmpty())
       {
@@ -646,7 +646,7 @@ int LPub::processCommandLine()
   if (highlightStep && highlightStep != Preferences::enableHighlightStep)
   {
       Preferences::enableHighlightStep = highlightStep;
-      message = tr("Highlight Current Step set to ON.");
+      message = tr("Highlight Step set to ON.");
       emit messageSig(LOG_INFO,message);
   }
 

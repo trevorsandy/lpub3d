@@ -44,7 +44,7 @@ lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 /*** LPub3D Mod - HTML Highlight New Parts ***/
 	HtmlHighlightNewParts = gApplication->mPreferences.mHighlightNewParts;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - HTML Fade Previous Steps ***/
+/*** LPub3D Mod - HTML Fade Steps ***/
 	HtmlFadeSteps = gApplication->mPreferences.mFadeSteps;
 /*** LPub3D Mod end ***/
 }
@@ -73,7 +73,7 @@ void lcHTMLExportOptions::SaveDefaults()
 /*** LPub3D Mod - HTML Highlight New Parts ***/
 	gApplication->mPreferences.mHighlightNewParts = HtmlHighlightNewParts;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - HTML Fade Previous Steps ***/
+/*** LPub3D Mod - HTML Fade Steps ***/
 	gApplication->mPreferences.mFadeSteps = HtmlFadeSteps;
 /*** LPub3D Mod end ***/
 }
