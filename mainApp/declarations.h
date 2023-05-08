@@ -829,6 +829,9 @@ enum ThemeColorType {
 #define DEFAULT_TIP_HEIGHT                      1.0f/8.0f                                         // 0.12500
 #define DEFAULT_TIP_WIDTH                       DEFAULT_TIP_HEIGHT * DEFAULT_TIP_RATIO            // 0.31250
 
+#define RENDER_DEFAULT_WIDTH                    1280
+#define RENDER_DEFAULT_HEIGHT                    720
+
 #define DEFAULT_ASSEM_CAMERA_LATITUDE           23
 #define DEFAULT_ASSEM_CAMERA_LONGITUDE          45
 #define DEFAULT_PART_CAMERA_LATITUDE            23

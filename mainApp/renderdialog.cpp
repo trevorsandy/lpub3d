@@ -25,8 +25,6 @@
 #include "parmswindow.h"
 #include "commonmenus.h"
 
-#define RENDER_DEFAULT_WIDTH 1280
-#define RENDER_DEFAULT_HEIGHT 720
 #define LP3D_CA 0.01
 #define LP3D_CDF 1.0
 
@@ -247,18 +245,23 @@ void RenderDialog::on_RenderSettingsButton_clicked()
     } else if (mRenderType == BLENDER_RENDER) {
 
         double renderPercentage = mCsiKeyList.at(K_MODELSCALE).toDouble();
-        BlenderPreferences *blenderRenderDialogGui =
-            new BlenderPreferences(this);
-        blenderRenderDialogGui->getRenderSettings(
+
+        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+
+        bool ok = BlenderPreferencesDialog::getBlenderPreferences(
                     mWidth,
                     mHeight,
                     renderPercentage,
-                    false /*document model*/);
+                    false /*document model*/,
+                    this);
 
-        mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
-        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+        if (ok) {
+            mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
+            blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+        }
+
         ui->RenderButton->setEnabled(blenderConfigured);
-        if (!blenderConfigured)
+        if (!ok && !blenderConfigured)
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
     }
 }

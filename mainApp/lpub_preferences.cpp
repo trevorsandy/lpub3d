@@ -2811,34 +2811,18 @@ void Preferences::rendererPreferences()
 
     // Blender LDraw config file
     QString const blenderLDrawConfigFileKey("BlenderLDrawConfigFile");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey))) {
         blenderLDrawConfigFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_ADDON_CONFIG_FILE));
-        if (QFileInfo(blenderLDrawConfigFile).exists())
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey),QVariant(blenderLDrawConfigFile));
-        else
-            blenderLDrawConfigFile.clear();
     } else {
         blenderLDrawConfigFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey)).toString());
-        if (!QFileInfo(blenderLDrawConfigFile).exists()) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigFileKey));
-            blenderLDrawConfigFile.clear();
-        }
     }
 
     // Document render config file
     QString const blenderPreferencesFileKey("BlenderPreferencesFile");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey))) {
         blenderPreferencesFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE));
-        if (QFileInfo(blenderPreferencesFile).exists())
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey),QVariant(blenderPreferencesFile));
-        else
-            blenderPreferencesFile.clear();
     } else {
         blenderPreferencesFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey)).toString());
-        if (!QFileInfo(blenderPreferencesFile).exists()) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,blenderPreferencesFileKey));
-            blenderPreferencesFile.clear();
-        }
     }
 
     // Blender executable, version
@@ -2879,7 +2863,7 @@ void Preferences::rendererPreferences()
 
     // Blender import module
     QString const blenderImportModuleKey("BlenderImportModule");
-    if (blenderInstalled && !blenderLDrawConfigFile.isEmpty()) {
+    if (blenderInstalled) {
         if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey)))
             blenderImportModule = Settings.value(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey)).toString();
         else
@@ -4486,7 +4470,7 @@ void Preferences::setBlenderVersionPreference(QString s)
         blenderAddonVersion.clear();
         blenderInstalled = false;
     } else {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),QVariant(s));
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),QVariant(blenderVersion));
         QStringList const &items = s.split("|");
         if (items.size()) {
             blenderVersion = items.first();
@@ -4501,10 +4485,9 @@ void Preferences::setBlenderLDrawConfigPreference(QString s)
     QSettings Settings;
     blenderLDrawConfigFile = QDir::toNativeSeparators(s);
     QString const blenderLDrawConfigKey("BlenderLDrawConfigFile");
-    if (s.isEmpty()) {
-        setBlenderImportModule(s);
+    if (s.isEmpty())
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey));
-    } else
+    else
         Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderLDrawConfigKey),QVariant(blenderLDrawConfigFile));
 }
 
@@ -4516,7 +4499,7 @@ void Preferences::setBlenderImportModule(QString s)
     if (s.isEmpty())
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
     else
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey),QVariant(s));
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey),QVariant(blenderImportModule));
 }
 
 void Preferences::removeBuildModFormatPreference(bool i)

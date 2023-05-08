@@ -29,6 +29,7 @@
 
 #include "qtimer.h"
 #include <QWidget>
+#include <QDialog>
 
 class QFormLayout;
 class QGridLayout;
@@ -38,26 +39,61 @@ class QLineEdit;
 class QCheckBox;
 class QPushButton;
 class QComboBox;
+class QScrollArea;
 class QProgressBar;
 class QProcess;
 class QTimer;
 class ParmsWindow;
 
+class BlenderPreferences;
+class BlenderPreferencesDialog : public QDialog
+{
+    Q_OBJECT
+public:
+
+    explicit BlenderPreferencesDialog(int      width,
+                                      int      height,
+                                      double   renderPercentage,
+                                      bool     docRender,
+                                      QWidget *parent);
+
+    virtual ~BlenderPreferencesDialog();
+
+    static bool getBlenderPreferences(
+        int     &width,
+        int     &height,
+        double  &renderPercentage,
+        bool     docRender,
+        QWidget *parent = nullptr);
+
+public slots:
+    void showPathsGroup();
+    void resetSettings();
+    void accept() override;
+    void reject() override;
+
+private:
+    QPushButton *mPathsButton;
+    BlenderPreferences *mPrefeferences;
+};
+
 class BlenderPreferences : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BlenderPreferences(QWidget *parent = nullptr);
+
+    explicit BlenderPreferences(int      width,
+                                int      height,
+                                double   renderPercentage,
+                                bool     docRender,
+                                QWidget *parent = nullptr);
+
     ~BlenderPreferences();
 
-    void getRenderSettings(int &width,
-                           int &height,
-                           double &renderPercentage,
-                           bool docRender);
+    virtual void apply(const int response = QDialog::Accepted);
 
     static void loadSettings();
     static void saveSettings();
-
     static int numPaths(bool = false);
     static int numSettings(bool = false);
     static int numSettingsMM(bool = false);
@@ -66,13 +102,20 @@ public:
     static void loadDefaultParameters(QByteArray& Buffer, int Which);
     static bool exportParameterFile();
     static bool overwriteFile(const QString &file);
+    static bool settingsModified(const QString &module = "");
+
+    static int     mWidth;
+    static int     mHeight;
+    static qreal   mRenderPercentage;
 
 protected:
-    bool settingsModified(int &width, int &height, double &renderPercentage);
+    static bool settingsModified(int &width, int &height, double &renderPercentage, QString const &module = "");
     QString readStdErr(bool &hasError) const;
+    void clearGroupBox(QGroupBox *groupBox);
     void initLDrawImport();
     void initLDrawImportMM();
     void clearLists();
+    void loadLiterals();
 
 public slots:
     void resetSettings();
@@ -89,7 +132,6 @@ public slots:
     void validateColourScheme(QString const &);
 
     void update();
-    void reject();
     void readStdOut();
     void writeStdOut();
     bool promptCancel();
@@ -98,33 +140,32 @@ public slots:
     void statusUpdate(bool addon, bool error = true, const QString &message = QString());
 
 private:
-    QFormLayout *blenderForm;
-    QWidget     *blenderContent;
-    QGridLayout *blenderAddonGridLayout;
-    QGridLayout *blenderPathsLayout;
-    QGridLayout *blenderExeGridLayout;
-    QFormLayout *settingsSubform;
+    QFormLayout *mForm;
+    QWidget     *mContent;
+    QGridLayout *mAddonGridLayout;
+    QGridLayout *mPathsLayout;
+    QGridLayout *mExeGridLayout;
+    QFormLayout *mSettingsSubform;
 
-    QGroupBox   *blenderPathsBox;
-    QGroupBox   *blenderAddonModulesBox;
-    QGroupBox   *blenderSettingsBox;
-    QLineEdit   *blenderVersionEdit;
-    QLabel      *blenderVersionLabel;
-    QLabel      *blenderAddonVersionLabel;
-    QLineEdit   *blenderAddonVersionEdit;
-    QCheckBox   *blenderRenderActBox;
-    QCheckBox   *blenderImportActBox;
-    QCheckBox   *blenderImportMMActBox;
+    QGroupBox   *mPathsBox;
+    QGroupBox   *mAddonModulesBox;
+    QGroupBox   *mSettingsBox;
+    QLineEdit   *mVersionEdit;
+    QLabel      *mVersionLabel;
+    QLabel      *mAddonVersionLabel;
+    QLineEdit   *mAddonVersionEdit;
+    QCheckBox   *mRenderActBox;
+    QCheckBox   *mImportActBox;
+    QCheckBox   *mImportMMActBox;
 
-    ParmsWindow *parmsWindow;                 // the parameter file editor
+    ParmsWindow *mParmsWindow;                 // the parameter file editor
 
-    QDialog      *dialog;
-    QProgressBar *progressBar;
-    QProcess     *process;
-    QTimer       updateTimer;
-    QStringList  stdOutList;
-    QString      versionText;
-    bool         blenderVersionFound;
+    QProgressBar *mProgressBar;
+    QProcess     *mProcess;
+    QTimer        mUpdateTimer;
+
+    QStringList  mStdOutList;
+    bool         mVersionFound;
 
     enum BlenderRenPathType
     {
@@ -149,7 +190,8 @@ private:
         LBL_CROP_IMAGE,                         //  4   QCheckBox
         LBL_CURVED_WALLS,                       //  5   QCheckBox
         LBL_FLATTEN_HIERARCHY,                  //  6   QCheckBox
-        LBL_IMPORT_CAMERAS,                     //  7   QCheckBox
+        NUM_COMBO_ITEMS,                        //  7
+        LBL_IMPORT_CAMERAS = NUM_COMBO_ITEMS,   //  7   QCheckBox
         LBL_IMPORT_LIGHTS,                      //  8   QCheckBox
         LBL_INSTANCE_STUDS,                     //  9   QCheckBox
         LBL_KEEP_ASPECT_RATIO,                  // 10   QCheckBox
@@ -240,62 +282,63 @@ private:
 
     enum BlenderRenLabelTypeMM
     {
-        LBL_ADD_ENVIRONMENT_MM,                  // 00 QCheckBox
-        LBL_BLEND_FILE_TRUSTED_MM,               // 01 QCheckBox
-        LBL_CROP_IMAGE_MM,                       // 02 QCheckBox
-        LBL_DISPLAY_LOGO,                        // 03 QCheckBox
-        LBL_IMPORT_CAMERAS_MM,                   // 04 QCheckBox
-        LBL_IMPORT_EDGES,                        // 05 QCheckBox
-        LBL_IMPORT_LIGHTS_MM,                    // 06 QCheckBox
-        LBL_KEEP_ASPECT_RATIO_MM,                // 07 QCheckBox
-        LBL_MAKE_GAPS,                           // 08 QCheckBox
-        LBL_META_BFC,                            // 09 QCheckBox
-        LBL_META_CLEAR,                          // 10 QCheckBox
-        LBL_META_GROUP,                          // 11 QCheckBox
-        LBL_META_PAUSE,                          // 12 QCheckBox
-        LBL_META_PRINT_WRITE,                    // 13 QCheckBox
-        LBL_META_SAVE,                           // 14 QCheckBox
-        LBL_META_STEP,                           // 15 QCheckBox
-        LBL_META_STEP_GROUPS,                    // 16 QCheckBox
-        LBL_NO_STUDS,                            // 17 QCheckBox
-        LBL_OVERWRITE_IMAGE_MM,                  // 18 QCheckBox
-        LBL_POSITION_CAMERA_MM,                  // 19 QCheckBox
-        LBL_PARENT_TO_EMPTY,                     // 20 QCheckBox
-        LBL_PREFER_STUDIO,                       // 21 QCheckBox
-        LBL_PREFER_UNOFFICIAL,                   // 22 QCheckBox
-        LBL_PRESERVE_HIERARCHY,                  // 23 QCheckBox
-        LBL_PROFILE,                             // 24 QCheckBox
-        LBL_RECALCULATE_NORMALS,                 // 25 QCheckBox
-        LBL_REMOVE_DOUBLES_MM,                   // 26 QCheckBox
-        LBL_RENDER_WINDOW_MM,                    // 27 QCheckBox
-        LBL_SEARCH_ADDL_PATHS_MM,                // 28 QCheckBox
-        LBL_SETEND_FRAME,                        // 29 QCheckBox
-        LBL_SET_TIMELINE_MARKERS,                // 30 QCheckBox
-        LBL_SHADE_SMOOTH,                        // 31 QCheckBox
-        LBL_TRANSPARENT_BACKGROUND_MM,           // 32 QCheckBox
-        LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS, // 33 QCheckBox
-        LBL_TREAT_SHORTCUT_AS_MODEL,             // 34 QCheckBox
-        LBL_TRIANGULATE,                         // 35 QCheckBox
-        LBL_USE_ARCHIVE_LIBRARY_MM,              // 36 QCheckBox
-        LBL_USE_FREESTYLE_EDGES,                 // 37 QCheckBox
-        LBL_VERBOSE_MM,                          // 38 QLineEdit
+        LBL_ADD_ENVIRONMENT_MM,                    // 00 QCheckBox
+        LBL_BLEND_FILE_TRUSTED_MM,                 // 01 QCheckBox
+        LBL_CROP_IMAGE_MM,                         // 02 QCheckBox
+        LBL_DISPLAY_LOGO,                          // 03 QCheckBox
+        LBL_IMPORT_CAMERAS_MM,                     // 04 QCheckBox
+        LBL_IMPORT_EDGES,                          // 05 QCheckBox
+        NUM_COMBO_ITEMS_MM,                        // 06
+        LBL_IMPORT_LIGHTS_MM = NUM_COMBO_ITEMS_MM, // 06 QCheckBox
+        LBL_KEEP_ASPECT_RATIO_MM,                  // 07 QCheckBox
+        LBL_MAKE_GAPS,                             // 08 QCheckBox
+        LBL_META_BFC,                              // 09 QCheckBox
+        LBL_META_CLEAR,                            // 10 QCheckBox
+        LBL_META_GROUP,                            // 11 QCheckBox
+        LBL_META_PAUSE,                            // 12 QCheckBox
+        LBL_META_PRINT_WRITE,                      // 13 QCheckBox
+        LBL_META_SAVE,                             // 14 QCheckBox
+        LBL_META_STEP,                             // 15 QCheckBox
+        LBL_META_STEP_GROUPS,                      // 16 QCheckBox
+        LBL_NO_STUDS,                              // 17 QCheckBox
+        LBL_OVERWRITE_IMAGE_MM,                    // 18 QCheckBox
+        LBL_POSITION_CAMERA_MM,                    // 19 QCheckBox
+        LBL_PARENT_TO_EMPTY,                       // 20 QCheckBox
+        LBL_PREFER_STUDIO,                         // 21 QCheckBox
+        LBL_PREFER_UNOFFICIAL,                     // 22 QCheckBox
+        LBL_PRESERVE_HIERARCHY,                    // 23 QCheckBox
+        LBL_PROFILE,                               // 24 QCheckBox
+        LBL_RECALCULATE_NORMALS,                   // 25 QCheckBox
+        LBL_REMOVE_DOUBLES_MM,                     // 26 QCheckBox
+        LBL_RENDER_WINDOW_MM,                      // 27 QCheckBox
+        LBL_SEARCH_ADDL_PATHS_MM,                  // 28 QCheckBox
+        LBL_SETEND_FRAME,                          // 29 QCheckBox
+        LBL_SET_TIMELINE_MARKERS,                  // 30 QCheckBox
+        LBL_SHADE_SMOOTH,                          // 31 QCheckBox
+        LBL_TRANSPARENT_BACKGROUND_MM,             // 32 QCheckBox
+        LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS,   // 33 QCheckBox
+        LBL_TREAT_SHORTCUT_AS_MODEL,               // 34 QCheckBox
+        LBL_TRIANGULATE,                           // 35 QCheckBox
+        LBL_USE_ARCHIVE_LIBRARY_MM,                // 36 QCheckBox
+        LBL_USE_FREESTYLE_EDGES,                   // 37 QCheckBox
+        LBL_VERBOSE_MM,                            // 38 QLineEdit
 
-        LBL_CAMERA_BORDER_PERCENT_MM,            // 39/00 QLineEdit
-        LBL_FRAMES_PER_STEP,                     // 40/00 QLineEdit
-        LBL_GAP_SCALE,                           // 41/01 QLineEdit
-        LBL_IMPORT_SCALE,                        // 42/02 QLineEdit
-        LBL_MERGE_DISTANCE,                      // 43/03 QLineEdit
-        LBL_RENDER_PERCENTAGE_MM,                // 44/04 QLineEdit
-        LBL_RESOLUTION_WIDTH,                    // 45/05 QLineEdit
-        LBL_RESOLUTION_HEIGHT,                   // 46/06 QLineEdit
-        LBL_STARTING_STEP_FRAME,                 // 47/07 QLineEdit
+        LBL_CAMERA_BORDER_PERCENT_MM,              // 39/00 QLineEdit
+        LBL_FRAMES_PER_STEP,                       // 40/00 QLineEdit
+        LBL_GAP_SCALE,                             // 41/01 QLineEdit
+        LBL_IMPORT_SCALE,                          // 42/02 QLineEdit
+        LBL_MERGE_DISTANCE,                        // 43/03 QLineEdit
+        LBL_RENDER_PERCENTAGE_MM,                  // 44/04 QLineEdit
+        LBL_RESOLUTION_WIDTH,                      // 45/05 QLineEdit
+        LBL_RESOLUTION_HEIGHT,                     // 46/06 QLineEdit
+        LBL_STARTING_STEP_FRAME,                   // 47/07 QLineEdit
 
-        LBL_CHOSEN_LOGO,                         // 48/00 QComboBox
-        LBL_COLOUR_SCHEME_MM,                    // 49/01 QComboBox
-        LBL_GAP_SCALE_STRATEGY,                  // 50/02 QComboBox
-        LBL_GAP_TARGET,                          // 51/03 QComboBox
-        LBL_RESOLUTION_MM,                       // 52/04 QComboBox
-        LBL_SMOOTH_TYPE,                         // 53/05 QComboBox
+        LBL_CHOSEN_LOGO,                           // 48/00 QComboBox
+        LBL_COLOUR_SCHEME_MM,                      // 49/01 QComboBox
+        LBL_GAP_SCALE_STRATEGY,                    // 50/02 QComboBox
+        LBL_GAP_TARGET,                            // 51/03 QComboBox
+        LBL_RESOLUTION_MM,                         // 52/04 QComboBox
+        LBL_SMOOTH_TYPE,                           // 53/05 QComboBox
 
         NUM_SETTINGS_MM
     };
@@ -384,46 +427,42 @@ private:
         QString tooltip;
     };
 
-    struct ComboOptItems
+    struct ComboItems
     {
         QString data;
         QString items;
     };
 
-    static BlenderPaths blenderPaths [];
-    static BlenderPaths defaultPaths [];
-    static BlenderSettings blenderSettings [];
-    static BlenderSettings blenderSettingsMM [];
-    static BlenderSettings defaultSettings [];
-    static BlenderSettings defaultSettingsMM [];
-    static ComboOptItems comboOptItems [];
-    static ComboOptItems comboOptItemsMM [];
+    static BlenderPaths    mBlenderPaths[];
+    static BlenderPaths    mDefaultPaths[];
+    static BlenderSettings mBlenderSettings[];
+    static BlenderSettings mBlenderSettingsMM[];
+    static BlenderSettings mDefaultSettings[];
+    static BlenderSettings mDefaultSettingsMM[];
+    static ComboItems      mComboItems[];
+    static ComboItems      mComboItemsMM[];
 
-    static qreal   mRenderPercentage;
     static bool    mDialogCancelled;
     static bool    mDocumentRender;
-    static QString blenderVersion;
-    static QString blenderAddonVersion;
+    static QString mVersion;
+    static QString mAddonVersion;
 
-    QAction     *defaultColourEditAction;
-    QPushButton *blenderAddonUpdateButton;
-    QPushButton *blenderAddonStdOutButton;
-    QPushButton *pathsGroupButton;
+    QAction     *mDefaultColourEditAction;
+    QPushButton *mAddonUpdateButton;
+    QPushButton *mAddonStdOutButton;
+    QPushButton *mPathsGroupButton;
 
-    QList<QLineEdit   *> pathLineEditList;
-    QList<QPushButton *> pathBrowseButtonList;
-    QList<QLabel      *> settingLabelList;
-    QList<QCheckBox   *> checkBoxList;
-    QList<QLineEdit   *> lineEditList;
-    QList<QComboBox   *> comboBoxList;
+    QList<QLineEdit   *> mPathLineEditList;
+    QList<QPushButton *> mPathBrowseButtonList;
+    QList<QLabel      *> mSettingLabelList;
+    QList<QCheckBox   *> mCheckBoxList;
+    QList<QLineEdit   *> mLineEditList;
+    QList<QComboBox   *> mComboBoxList;
 
-    bool mBlenderConfigured;
-    bool mBlenderAddonUpdate;
-    int mWidth;
-    int mHeight;
-
+    bool mConfigured;
+    bool mAddonUpdate;
 };
 
-extern class BlenderPreferences *blenderPreferences;
+extern class BlenderPreferences *gAddonPreferences;
 
 #endif // BLENDERPREFERENCES_H
