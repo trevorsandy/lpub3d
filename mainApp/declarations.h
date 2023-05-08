@@ -117,7 +117,6 @@ enum NativeRenderType { NATIVE_VIEW, NATIVE_IMAGE, NATIVE_EXPORT };
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, ALWAYS_SHOW, SHOW_MESSAGE, SHOW_WARNING, SHOW_ERROR };
 enum MissingHeaderType { NoneMissing, NameMissing, AuthorMissing, BothMissing };
-enum LDrawFileRegExpType { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, INC_RX, DES_RX, LDG_RX, LDC_RX, EOH_RX, DMS_RX, LDS_RX };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum RemoveObjectsRc { RemovedPieceRc, RemovedCameraRc, RemovedLightRc };
@@ -135,6 +134,24 @@ enum RecentFilesType { MAX_RECENT_FILES = 8 };
 enum SceneObjectInfo { ObjectId };
 enum CamFlag { DefFoV, DefZNear, DefZFar };
 enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
+
+enum LDrawFileRegExpType {
+    SOF_RX,  // Start of File
+    EOF_RX,  // End of File
+    LDR_RX,  // LDraw File
+    AUT_RX,  // Author Header
+    NAM_RX,  // Name Header
+    CAT_RX,  // Category Header
+    INC_RX,  // Include File
+    DES_RX,  // Model Description
+    LDG_RX,  // LDCad Group
+    LDC_RX,  // LDCad Generated Content
+    EOH_RX,  // End of Header
+    DMS_RX,  // Display Model Step
+    LDS_RX,  // LDraw Step boundry
+    FHE_RX,  // Fade or Highlight Enabled (or Setup)
+    LFH_RX   // LPub Fade or LPub Highlight
+};
 
 enum DisplayType { DT_DEFAULT,
                    DT_PAGE,

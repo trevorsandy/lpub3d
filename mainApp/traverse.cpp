@@ -1215,7 +1215,11 @@ int Gui::drawPage(
               }
               break;
             case EnableFadeStepsRc:
-              if (!curMeta.LPub.fadeSteps.enable.global && !curMeta.LPub.fadeSteps.setup.value()) {
+              if (!step)
+                break;
+              if (!curMeta.LPub.fadeSteps.enable.global &&
+                  !curMeta.LPub.fadeSteps.setup.value() &&
+                  step->csiStepMeta.fadeSteps.lpubFade.value()) {
                 parseError(tr("Fade previous steps command IGNORED."
                               "<br>FADE_STEPS SETUP must be set to TRUE."
                               "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
@@ -1268,7 +1272,11 @@ int Gui::drawPage(
               }
               break;
             case EnableHighlightStepRc:
-              if (!curMeta.LPub.highlightStep.enable.global && !curMeta.LPub.highlightStep.setup.value()) {
+              if (!step)
+                break;
+              if (!curMeta.LPub.highlightStep.enable.global &&
+                  !curMeta.LPub.highlightStep.setup.value() &&
+                  step->csiStepMeta.highlightStep.lpubHighlight.value()) {
                 parseError(tr("Highlight current step command IGNORED."
                               "<br>HIGHLIGHT_STEP SETUP must be set to TRUE."
                               "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
@@ -1297,33 +1305,39 @@ int Gui::drawPage(
             case LPubHighlightRc:
               if (!step)
                 break;
-              if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-                if (rc == LPubFadeCalloutAssemRc) {
-                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.callout.csi.fadeSteps.lpubFade;
-                } else if (rc == LPubFadeGroupAssemRc) {
-                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.multiStep.csi.fadeSteps.lpubFade;
-                } else if (rc == LPubFadeAssemRc) {
-                  curMeta.LPub.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
-                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
-                } else if (rc == LPubFadeRc) {
-                  curMeta.LPub.assem.fadeSteps.lpubFade = curMeta.LPub.fadeSteps.lpubFade;
-                  step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.fadeSteps.lpubFade;
-                } else if (rc == LPubHighlightCalloutAssemRc) {
-                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.callout.csi.highlightStep.lpubHighlight;
-                } else if (rc == LPubHighlightGroupAssemRc) {
-                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.multiStep.csi.highlightStep.lpubHighlight;
-                } else if (rc == LPubHighlightAssemRc) {
-                  curMeta.LPub.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
-                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
-                } else if (rc == LPubHighlightRc) {
-                  curMeta.LPub.assem.highlightStep.lpubHighlight = curMeta.LPub.highlightStep.lpubHighlight;
-                  step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.highlightStep.lpubHighlight;
+              if (rc == LPubFadeCalloutAssemRc) {
+                step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.callout.csi.fadeSteps.lpubFade;
+              } else if (rc == LPubFadeGroupAssemRc) {
+                step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.multiStep.csi.fadeSteps.lpubFade;
+              } else if (rc == LPubFadeAssemRc) {
+                curMeta.LPub.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
+                step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.assem.fadeSteps.lpubFade;
+              } else if (rc == LPubFadeRc) {
+                curMeta.LPub.assem.fadeSteps.lpubFade = curMeta.LPub.fadeSteps.lpubFade;
+                step->csiStepMeta.fadeSteps.lpubFade = curMeta.LPub.fadeSteps.lpubFade;
+              } else if (rc == LPubHighlightCalloutAssemRc) {
+                step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.callout.csi.highlightStep.lpubHighlight;
+              } else if (rc == LPubHighlightGroupAssemRc) {
+                step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.multiStep.csi.highlightStep.lpubHighlight;
+              } else if (rc == LPubHighlightAssemRc) {
+                curMeta.LPub.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
+                step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.assem.highlightStep.lpubHighlight;
+              } else if (rc == LPubHighlightRc) {
+                curMeta.LPub.assem.highlightStep.lpubHighlight = curMeta.LPub.highlightStep.lpubHighlight;
+                step->csiStepMeta.highlightStep.lpubHighlight = curMeta.LPub.highlightStep.lpubHighlight;
+              }
+              if (Preferences::preferredRenderer != RENDERER_NATIVE) {
+                bool error = false;
+                if ((error |= !step->csiStepMeta.fadeSteps.lpubFade.value()))
+                  step->csiStepMeta.fadeSteps.lpubFade.setValue(true);
+                if ((error |= !step->csiStepMeta.highlightStep.lpubHighlight.value()))
+                  step->csiStepMeta.highlightStep.lpubHighlight.setValue(true);
+                if (error) {
+                  QString const command = line.contains("LPUB_FADE") ? QLatin1String("LPUB_FADE") : QLatin1String("LPUB_HIGHLIGHT");
+                  parseError(tr("%1 command IGNORED."
+                                "<br>%1 command requires preferred render RENDERER_NATIVE."
+                                "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
                 }
-              } else {
-                QString const command = line.contains("LPUB_FADE") ? QLatin1String("LPUB_FADE") : QLatin1String("LPUB_HIGHLIGHT");
-                parseError(tr("%1 command IGNORED."
-                              "<br>%1 command requires preferred render RENDERER_NATIVE."
-                              "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
               }
               break;
 

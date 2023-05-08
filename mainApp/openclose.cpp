@@ -909,7 +909,7 @@ bool Gui::openFile(const QString &fileName)
       }
   }
 
-  setupFadeOrHighlight(lpub->setFadeStepsFromCommand(), lpub->setHighlightStepFromCommand());
+  enableLPubFadeOrHighlight(false/*fadeEnabled*/, false/*highlightEnabled*/, true/*waitForFinish*/);
 
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
@@ -941,15 +941,15 @@ bool Gui::openFile(const QString &fileName)
   return true;
 }
 
-void Gui::setupFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep)
+int Gui::setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep)
 {
-  if (!enableFadeSteps && !enableHighlightStep)
-    return;
+  if (!setupFadeSteps && !setupHighlightStep)
+    return 0;
 
   if (!m_fadeStepsSetup || !m_highlightStepSetup) {
-    QString const message = enableFadeSteps && enableHighlightStep
+    QString const message = setupFadeSteps && setupHighlightStep
         ? tr("Setup and load fade and highlight color parts...")
-        : enableFadeSteps
+        : setupFadeSteps
             ? tr("Setup and load fade color parts...")
             : tr("Setup and load highlight color parts...");
     emit lpub->messageSig(LOG_INFO_STATUS, message);
@@ -961,19 +961,39 @@ void Gui::setupFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep)
     partWorkerLDSearchDirs.addCustomDirs();
   }
 
-  if (enableFadeSteps && !m_fadeStepsSetup) {
+  if (setupFadeSteps && !m_fadeStepsSetup) {
     if (Preferences::enableImageMatting)
       LDVImageMatte::clearMatteCSIImages();
     partWorkerLDSearchDirs.setDoFadeStep(true);
-    processFadeColourParts(true/*overwrite*/, enableFadeSteps);
+    processFadeColourParts(true/*overwrite*/, setupFadeSteps);
     m_fadeStepsSetup = true;
   }
 
-  if (enableHighlightStep && !m_highlightStepSetup) {
+  if (setupHighlightStep && !m_highlightStepSetup) {
     partWorkerLDSearchDirs.setDoHighlightStep(true);
-    processHighlightColourParts(false/*overwrite*/, enableHighlightStep);
+    processHighlightColourParts(false/*overwrite*/, setupHighlightStep);
     m_highlightStepSetup = true;
   }
+  return 0;
+}
+
+void Gui::enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep ,bool waitForFinish)
+{
+  if (m_fadeStepsSetup && m_highlightStepSetup)
+    return;
+
+  if (enableFadeSteps)
+    emit lpub->messageSig(LOG_INFO_STATUS,tr("LPub Fade Steps is ENABLED."));
+  if (enableHighlightStep)
+    emit lpub->messageSig(LOG_INFO_STATUS,tr("LPub Highlight Step is ENABLED."));
+
+  QFuture<int> future = QtConcurrent::run([&]()->int{
+      bool enableFade = (m_fadeStepsSetup || enableFadeSteps) ? true : lpub->setFadeStepsFromCommand();
+      bool enableHighlight = (m_highlightStepSetup || enableHighlightStep) ? true : lpub->setHighlightStepFromCommand();
+
+      return gui->setupFadeOrHighlight(enableFade, enableHighlight);
+  });
+  waitForFinish ? future.waitForFinished() : gui->futureWatcher.setFuture(future);
 }
 
 void Gui::updateRecentFileActions()

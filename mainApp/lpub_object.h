@@ -110,9 +110,10 @@ public:
   /// Run visual editor command line execution
   int Process3DViewerCommandLine();
 
+  /// Preferred renderer from meta command
   bool setPreferredRendererFromCommand(const QString &);
 
-  /// Fade and highlight settings from command line calls
+  /// Fade and highlight settings from meta command
   bool setFadeStepsFromCommand();
   bool setHighlightStepFromCommand();
 

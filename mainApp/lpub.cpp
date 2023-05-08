@@ -3477,6 +3477,10 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 
+    // Fade and Highlight
+    connect(this,           SIGNAL(enableLPubFadeOrHighlightSig(bool,bool,bool)),
+            this,           SLOT(  enableLPubFadeOrHighlight(bool,bool,bool)));
+
     progressLabel = new QLabel(this);
     progressLabel->setMinimumWidth(200);
     progressBar = new QProgressBar();
@@ -4804,7 +4808,7 @@ QAction *Gui::getAct(const QString &objectName)
     if (lpub->actions.contains(objectName))
         return lpub->actions.value(objectName).action;
 #ifdef QT_DEBUG_MODE
-    emit lpub->messageSig(LOG_ERROR, QString("Mainwindow action was not found or is null [%1]").arg(objectName));
+    emit gui->messageSig(LOG_ERROR, QString("Mainwindow action was not found or is null [%1]").arg(objectName));
 #endif
     return nullptr;
 }

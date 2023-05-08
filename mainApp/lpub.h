@@ -1244,11 +1244,11 @@ public slots:
   void updatePreview();
   void enableVisualBuildModification();
   void viewStandardOutput(const QString filePath, const QString title = "");
-  void setupFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep);
+  int setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep);
 
   bool VisualEditorRotateTransform()
   {
-      return EnableBuildModAct->isChecked();
+    return EnableBuildModAct->isChecked();
   }
 
   void SetVisualEditorRotateTransform(bool b)
@@ -1592,6 +1592,7 @@ signals:
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
 
+  void enableLPubFadeOrHighlightSig(bool, bool, bool);
   void operateHighlightParts(bool, bool);
   void operateFadeParts(bool, bool);
   void setPliIconPathSig(QString &,QString &);
@@ -1606,7 +1607,6 @@ public:
   PartWorker             partWorkerLDSearchDirs;      // part worker to process search directories and fade and or highlight color parts
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
-
   static QMap<int, PageSizeData>  pageSizes;          // page size and orientation object
 
 protected:
@@ -1618,6 +1618,7 @@ protected:
   QString                mRotStepType;
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
   QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
+  QFutureWatcher<int>    futureWatcher;        // watch the countPage future
 
   int                    mViewerZoomLevel;
 
@@ -1640,8 +1641,6 @@ private:
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  // 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
-
-  QFutureWatcher<int>    futureWatcher;      // watch the countPage future
   
   QMutex                 pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
   QMutex                 writeMutex;         // non-recursive write to temp working directory and countPage mutex 
@@ -1839,6 +1838,8 @@ private slots:
     void editBLColors();
     void editBLCodes();
     void generateCustomColourPartsList(bool prompt = true);
+    void enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep ,bool waitForFinish);
+
     void viewLog();
     void loadStatus();
 

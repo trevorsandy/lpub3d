@@ -277,6 +277,7 @@ class LDrawFile {
     int                         _buildModPrevStepIndex;
     bool                        _mpd;
     static bool                 _helperPartsNotInArchive;
+    static bool                 _lpubFadeHighlight;
     static int                  _savedLines;
     static qint64               _elapsed;
 

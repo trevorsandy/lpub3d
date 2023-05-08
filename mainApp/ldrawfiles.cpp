@@ -175,6 +175,7 @@ int     LDrawFile::_uniquePartCount= 0;
 int     LDrawFile::_helperPartCount= 0;
 int     LDrawFile::_loadIssues     = 0;
 qint64  LDrawFile::_elapsed        = 0;
+bool    LDrawFile::_lpubFadeHighlight = false;
 bool    LDrawFile::_currFileIsUTF8 = false;
 bool    LDrawFile::_loadAborted    = false;
 bool    LDrawFile::_loadBuildMods  = false;
@@ -329,6 +330,7 @@ void LDrawFile::empty()
   _loadBuildMods         = false;
   _loadUnofficialParts   = true;
   _hasUnofficialParts    = false;
+  _lpubFadeHighlight     = false;
   _loadIssues            =  0;
   _elapsed               =  0;
   _partCount             =  0;
@@ -3302,6 +3304,10 @@ void LDrawFile::loadStatusEntry(const int messageType,
 
 void LDrawFile::countParts(const QString &fileName) {
 
+    displayModel       = false;
+    bool lpubFade      = false;
+    bool lpubHighlight = false;
+
     Where top(fileName, getSubmodelIndex(fileName), 0);
 
     int topModelIndx  = top.modelIndex;
@@ -3355,20 +3361,40 @@ void LDrawFile::countParts(const QString &fileName) {
 
                 // meta command parse
                 if (tokens.size() > 1 && tokens[0] == "0") {
-                    if (displayModel)
-                        displayModel = !line.contains(_fileRegExp[LDS_RX]); // LDraw Step
-                    else
-                        displayModel =  line.contains(_fileRegExp[DMS_RX]); // Display Model
+                    if (displayModel) {
+                        if (!(displayModel = !line.contains(_fileRegExp[LDS_RX]))) // LDraw Step Boundry
+                            continue;
+                    }
                     if (tokens[1] == "!LPUB" || tokens[1] == "LPUB") {
-                        // build modification - starts at BEGIN command and ends at END_MOD action
-                        if (tokens.size() >= 4 &&
-                            tokens[2] == "BUILD_MOD") {
-                            if (tokens[3] == "BEGIN") {
-                                buildModLevel = getLevel(tokens[4], BM_BEGIN);
-                            } else if (tokens[3] == "END_MOD") {
-                                buildModLevel = getLevel(QString(), BM_END);
+                        if (tokens.size() >= 4) {
+                            if (!displayModel) {
+                                if ((displayModel =  line.contains(_fileRegExp[DMS_RX]))) // Display Model
+                                    continue;
                             }
-                            lineIncluded = ! buildModLevel;
+                            if (!_lpubFadeHighlight) {
+                                if ((_lpubFadeHighlight = line.contains(_fileRegExp[LFH_RX]))) { // LPub Fade or LPub Highlight
+                                    if (_fileRegExp[LFH_RX].cap(1) == "LPUB_FADE")
+                                        lpubFade = true;
+                                    else
+                                        lpubHighlight = true;
+                                }
+                                continue;
+                            }
+                            if (_lpubFadeHighlight) {
+                                if (line.contains(_fileRegExp[FHE_RX])) { // Fade or Highlight Enabled (or Setup)
+                                    emit gui->enableLPubFadeOrHighlightSig(lpubFade,lpubHighlight,true/*wait for finish*/);
+                                    continue;
+                                }
+                            }
+                            // build modification - starts at BEGIN command and ends at END_MOD action
+                            if (tokens[2] == "BUILD_MOD") {
+                                if (tokens[3] == "BEGIN") {
+                                    buildModLevel = getLevel(tokens[4], BM_BEGIN);
+                                } else if (tokens[3] == "END_MOD") {
+                                    buildModLevel = getLevel(QString(), BM_END);
+                                }
+                                lineIncluded = ! buildModLevel;
+                            }
                         }
                         // ignore parts begin
                         if (tokens.size() == 5 && tokens[0] == "0" &&
@@ -3521,8 +3547,6 @@ void LDrawFile::countParts(const QString &fileName) {
             } // process submodel content
         } // content size
     };
-
-    displayModel = false;
 
     countModelParts(top);
 
@@ -5756,12 +5780,14 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
         << QRegExp("^0\\s+NAME:?\\s+(.*)$",Qt::CaseInsensitive)     // NAM_RX - Name Header
         << QRegExp("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive) // CAT_RX - Category Header
         << QRegExp("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$",Qt::CaseSensitive)                                      // INC_RX - Include File
-        << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseSensitive) // DES_RX - Description
+        << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseSensitive) // DES_RX - Model Description
         << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) // LDG_RX - LDCad Group
         << QRegExp("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
         << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|0 ROTATION)[^\n]*")                       // EOH_RX - End of Header
-        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")       // DMS_RX - Display Model Step
-        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*") // LDS_RX - LDraw Step boundry
+        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")                                              // DMS_RX - Display Model Step
+        << QRegExp("^0\\s+!?(?:LPUB)*\\s?(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*")                                        // LDS_RX - LDraw Step boundry
+        << QRegExp("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(SETUP|ENABLED)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")              // FHE_RX - Fade or Highlight Enabled (or Setup)
+        << QRegExp("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(LPUB_FADE|LPUB_HIGHLIGHT)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")   // LFH_RX - LPub Fade or LPub Highlight
         ;
   }
 
