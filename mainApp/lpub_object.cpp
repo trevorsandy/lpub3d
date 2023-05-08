@@ -357,6 +357,11 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
         else
             Loader = new Project();
 
+        if (Options->LPubFadeHighlight)
+            Loader->SetLPubFadeHighlightParts(
+                Options->FadeParts,
+                Options->HighlightParts);
+
         QString FileName, StepKey;
         if (UseFile && !Options->InputFileName.isEmpty())
            FileName = Options->InputFileName;
@@ -376,6 +381,11 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
     else if (gMainWindow) // NATIVE_VIEW
     {
         Loader = new Project();
+
+        if (Options->LPubFadeHighlight)
+            Loader->SetLPubFadeHighlightParts(
+                Options->FadeParts,
+                Options->HighlightParts);
 
         if (UseFile && !Options->InputFileName.isEmpty())
             Loaded = Loader->Load(Options->InputFileName, true/*ShowErrors*/);

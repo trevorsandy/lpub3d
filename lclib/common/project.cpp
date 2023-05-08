@@ -103,6 +103,10 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 /*** LPub3D Mod - export ***/
 	mExportingHTML = false;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	mLPubFadeParts = false;
+	mLPubHighlightParts = false;
+/*** LPub3D Mod end ***/
 	if (!mIsPreview && gMainWindow)
 		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
 }
@@ -112,6 +116,15 @@ Project::~Project()
 	mModels.DeleteAll();
 }
 
+/*** LPub3D Mod - lpub fade highlight ***/
+void Project::SetLPubFadeHighlightParts(
+	const int LPubFadeParts,
+	const int LPubHighlightParts)
+{
+	mLPubFadeParts = LPubFadeParts;
+	mLPubHighlightParts = LPubHighlightParts;
+}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 void Project::SetRenderAttributes(
 	const int     Renderer,

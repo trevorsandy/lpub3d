@@ -105,6 +105,19 @@ public:
 		return mExportingHTML;
 	}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	bool IsLPubFadeParts() const
+	{
+		return mLPubFadeParts;
+	}
+	bool IsLPubHighlightParts() const
+	{
+		return mLPubHighlightParts;
+	}
+	void SetLPubFadeHighlightParts(
+		const int LPubFadeParts,
+		const int LPubHighlightParts);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	void SetRenderAttributes(
 		const int Renderer,
@@ -230,6 +243,10 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
 	bool mExportingHTML;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	int mLPubFadeParts;
+	int mLPubHighlightParts;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;

@@ -337,21 +337,20 @@ lcApplication::lcApplication(const lcCommandLineOptions &Options)
 /*** LPub3D Mod - load color entry ***/
 bool lcApplication::LPubHighlightParts()
 {
-	return mPreferences.mHighlightNewParts;
+	return mProject ? mProject->IsLPubHighlightParts() && !mProject->IsExportingHTML() : false;
 }
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - lpub fade highlight ***/
 bool lcApplication::LPubFadeParts()
 {
 	// called by lcScene::Draw
-	bool const exportingHTML = mProject ? mProject->IsExportingHTML() : false;
-	return mPreferences.mFadeSteps && ! exportingHTML;
+	return mProject ? (mProject->IsLPubFadeParts() && !mProject->IsExportingHTML()) : false;
 }
 
 bool lcApplication::LPubFadeHighlight()
 {
-	// called by lcModel::LoadLDraw, lcScene::Draw 
-	return mPreferences.mLPubFadeHighlight;
+	// called by lcModel::LoadLDraw, lcScene::Draw
+	return mPreferences.mLPubFadeHighlight && (mProject ? !mProject->IsExportingHTML() : true);
 }
 
 bool lcApplication::LPubDisplayModelStep()
