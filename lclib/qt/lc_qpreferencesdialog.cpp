@@ -788,6 +788,7 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	{
 		Color = &mOptions->Preferences.mBMObjectSelectedColor;
 		Title = tr("Select Build Mod Object Selected Color");
+		DialogOptions = QColorDialog::ShowAlphaChannel;
 	}
 /*** LPub3D Mod end ***/
 	else

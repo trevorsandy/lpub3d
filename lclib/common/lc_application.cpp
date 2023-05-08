@@ -1587,26 +1587,6 @@ void lcApplication::ShowPreferencesDialog()
 	lcPreviewPosition PreviewDockable = Options.Preferences.mPreviewPosition;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - preference refresh ***/
-	Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-	Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-	Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - Native Renderer settings ***/
-	Options.Preferences.mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
-	Options.Preferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - Timeline part icons ***/
-	Options.Preferences.mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - lpub fade highlight ***/
-	Options.Preferences.mLPubFadeHighlight = lcGetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT);
-	Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - Load Preferences Dialog ***/
 	lcQPreferencesDialog *Dialog = lpub->visualEditorPreferencesDialog;
 

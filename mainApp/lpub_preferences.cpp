@@ -5029,16 +5029,6 @@ bool Preferences::getPreferences()
     Options.AASamples = CurrentAASamples;
     Options.StudStyle = CurrentStudStyle;
 
-    Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-    Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-    Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-
-    Options.Preferences.mNativeViewpoint  = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
-    Options.Preferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
-
-    Options.Preferences.mLPubFadeHighlight         = lcGetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT);
-    Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
-
     Options.KeyboardShortcutsModified = false;
     Options.KeyboardShortcutsDefault = false;
 
