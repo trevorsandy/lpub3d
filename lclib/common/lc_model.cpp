@@ -611,8 +611,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 						Preferences.mHighlightNewParts = false;
 				}
 			}
+			else
 /*** LPub3D Mod end ***/
-			else if (Token == QLatin1String("FILE"))
+			if (Token == QLatin1String("FILE"))
 			{
 				QString Name = LineStream.readAll().trimmed();
 
@@ -1376,30 +1377,35 @@ void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHig
 	if (mPieceInfo)
 		mPieceInfo->AddRenderMesh(*Scene);
 
+/*** LPub3D Mod - lpub fade highlight ***/
+	bool LPubFade = gApplication->LPubFadeHighlight();
+/*** LPub3D Mod - export ***/
+
 	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->IsVisible(mCurrentStep))
 		{
 /*** LPub3D Mod - lpub fade highlight ***/
-			bool LPubFade = gApplication->LPubFadeHighlight();
+			bool Fade = AllowFade;
+			bool Highlight = AllowHighlight;
 /*** LPub3D Mod - export ***/
 			if (lcGetActiveProject()->IsExportingHTML())
 			{
 				const lcStep StepShow = Piece->GetStepShow();
-				AllowFade &= StepShow < mCurrentStep;
-				AllowHighlight &= StepShow == mCurrentStep;
+				Fade &= StepShow < mCurrentStep;
+				Highlight &= StepShow == mCurrentStep;
 			}
 /*** LPub3D Mod end ***/
 			else if (!LPubFade)
 			{
-				AllowFade &= Piece->GetLPubFade();
-				AllowHighlight &= Piece->GetLPubHighlight();
+				Fade &= Piece->GetLPubFade();
+				Highlight &= Piece->GetLPubHighlight();
 			}
 			else
 			{
 				LPubFade &= Piece->GetLPubFade();
 			}
-			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight, AllowFade, LPubFade);
+			Piece->AddMainModelRenderMeshes(Scene, Highlight, Fade, LPubFade);
 /*** LPub3D Mod end ***/
 		}
 	}

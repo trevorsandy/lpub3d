@@ -35,6 +35,10 @@ lcPiece::lcPiece(PieceInfo* Info)
 /*** LPub3D Mod - Piece modified ***/
 	mPieceModified = 0;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - lpub fade highlight ***/
+	mLPubFade = false;
+	mLPubHighlight = false;
+/*** LPub3D Mod end ***/
 	mPivotMatrix = lcMatrix44Identity();
 }
 
@@ -58,7 +62,10 @@ lcPiece::lcPiece(const lcPiece& Other)
 /*** LPub3D Mod - Selected Parts ***/
 	mLineTypeIndex = -1;
 /*** LPub3D Mod end ***/
-
+/*** LPub3D Mod - lpub fade highlight ***/
+	mLPubFade = false;
+	mLPubHighlight = false;
+/*** LPub3D Mod end ***/
 	mPivotMatrix = Other.mPivotMatrix;
 	mPivotPointValid = Other.mPivotPointValid;
 
