@@ -318,6 +318,7 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
            StepKey = Options->ViewerStepKey;
 
         Loaded = Loader->Load(FileName, StepKey, Options->ImageType, false/*ShowErrors*/);
+
         if (Loaded)
         {
             gApplication->SetProject(Loader);
@@ -328,21 +329,18 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
     }
     else if (gMainWindow) // NATIVE_VIEW
     {
-        if (UseFile && !Options->InputFileName.isEmpty()) {
-            Loaded = gMainWindow->OpenProject(Options->InputFileName);
-        } else {
-            Loader = new Project();
-            Loaded = Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, true/*ShowErrors*/);
-            if (Loaded)
-            {
-                gApplication->SetProject(Loader);
-                lcView::UpdateProjectViews(Loader);
-            }
-            else
-                delete Loader;
-        }
+        Loader = new Project();
 
-        if (Loaded) {
+        if (UseFile && !Options->InputFileName.isEmpty())
+            Loaded = Loader->Load(Options->InputFileName, true/*ShowErrors*/);
+        else
+            Loaded = Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, true/*ShowErrors*/);
+
+        if (Loaded)
+        {
+            gApplication->SetProject(Loader);
+            lcView::UpdateProjectViews(Loader);
+
             if (Options->IsReset) {
                 gMainWindow->SetRelativeTransform(mRelativeTransform);
                 gMainWindow->SetSeparateTransform(mSeparateTransform);
@@ -361,8 +359,10 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
                     }
                 }
             }
+            gui->RaiseVisualEditDockWindow();
         }
-        gui->RaiseVisualEditDockWindow();
+        else
+            delete Loader;
     }
 
     if (Loaded && Type != NATIVE_EXPORT)
