@@ -517,7 +517,7 @@ void BlenderPreferences::clearGroupBox(QGroupBox *groupBox)
     mForm->getWidgetPosition(groupBox, &row, &itemRole);
 
     //stop if not found
-    if(row == -1) return;
+    if(row == -1 || itemRole != QFormLayout::SpanningRole) return;
 
     //get the target form item
     QLayoutItem* groupBoxIitem = mForm->itemAt ( row, itemRole );
@@ -539,25 +539,6 @@ void BlenderPreferences::clearGroupBox(QGroupBox *groupBox)
 
     // delete the item
     delete groupBoxIitem;
-
-    //get the corresponding item if the widget doesn't span the whole row
-    if( itemRole != QFormLayout::SpanningRole) {
-
-        QFormLayout::ItemRole otherItemRole = QFormLayout::LabelRole;
-
-        if( itemRole == QFormLayout::FieldRole)
-            otherItemRole = QFormLayout::LabelRole;
-        else if( itemRole == QFormLayout::LabelRole)
-            otherItemRole = QFormLayout::FieldRole;
-
-        QLayoutItem* otherItem = mForm->itemAt( row, otherItemRole );
-
-        //remove the other item
-        if( itemRole != QFormLayout::SpanningRole) {
-            mForm->removeItem(otherItem);
-            delete otherItem;
-        }
-    }
 }
 
 void BlenderPreferences::initLDrawImport()
