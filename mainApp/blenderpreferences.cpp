@@ -417,14 +417,12 @@ BlenderPreferences::BlenderPreferences(int      width,
 
     mAddonUpdateButton = new QPushButton(tr("Update"), mContent);
     mAddonUpdateButton->setToolTip(tr("Update %1 Blender LDraw addon").arg(VER_PRODUCTNAME_STR));
-    mAddonUpdateButton->setVisible(!mAddonVersion.isEmpty());
     mAddonGridLayout->addWidget(mAddonUpdateButton,0,2);
     QObject::connect(mAddonUpdateButton, SIGNAL(clicked(bool)),
                      this,               SLOT(updateBlenderAddon()));
 
     mAddonStdOutButton = new QPushButton(tr("Output..."), mContent);
     mAddonStdOutButton->setToolTip(tr("Open the standrd output log"));
-    mAddonStdOutButton->setVisible(!mAddonVersion.isEmpty());
     mAddonGridLayout->addWidget(mAddonStdOutButton,0,3);
     QObject::connect(mAddonStdOutButton, SIGNAL(clicked(bool)),
                      this,               SLOT(getStandardOutput()));
@@ -1511,8 +1509,6 @@ void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &mes
         mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
         mAddonVersionLabel->setText(label);
         mAddonVersionEdit->setVisible(hasAddonVersion);
-        mAddonUpdateButton->setVisible(hasAddonVersion);
-        mAddonStdOutButton->setVisible(hasAddonVersion);
     } else {
         mVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
         mVersionLabel->setText(label);
@@ -1653,7 +1649,6 @@ void BlenderPreferences::showResult()
             mAddonModulesBox->setEnabled(true);
             mAddonVersionEdit->setVisible(true);
             mAddonUpdateButton->setEnabled(true);
-            mAddonUpdateButton->setVisible(true);
             Preferences::setBlenderVersionPreference(
                 QString("%1|%2").arg(mVersion).arg(mAddonVersion));
         }
