@@ -91,7 +91,7 @@ void LPub::loadPreferencesDialog()
 {
   emit messageSig(LOG_INFO_STATUS,tr("Loading preferences dialogs..."));
   preferencesDialog = new PreferencesDialog(gui);
-  visualEditorPreferencesDialog = new lcQPreferencesDialog(nullptr);
+  visualEditorPreferencesDialog = new lcQPreferencesDialog(gui);
 }
 
 /*********************************************

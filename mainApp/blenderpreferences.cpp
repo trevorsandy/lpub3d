@@ -45,21 +45,14 @@
 
 #include "blenderpreferences.h"
 #include "lpub_preferences.h"
-#include "parmswindow.h"
-#include "commonmenus.h"
 #include "lpub.h"
 #include "version.h"
+#include "commonmenus.h"
 
 #include "lc_colors.h"
 #include "lc_qcolorpicker.h"
 
-int     BlenderPreferences::mWidth  = RENDER_DEFAULT_WIDTH;
-int     BlenderPreferences::mHeight = RENDER_DEFAULT_HEIGHT;
-qreal   BlenderPreferences::mRenderPercentage= 0.0;
-bool    BlenderPreferences::mDialogCancelled = false;
-bool    BlenderPreferences::mDocumentRender  = false;
-QString BlenderPreferences::mVersion;
-QString BlenderPreferences::mAddonVersion;
+#include "parmswindow.h"
 
 BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_BLENDER_PATHS];
 BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_BLENDER_PATHS] =
@@ -123,18 +116,18 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettings [NUM_S
     /*38/4 LBL_POSITION_OBJECT       */ {"positionobjectongroundatorigin", "1",        QObject::tr("Position Object"),        QObject::tr("The object is centred at the origin, and on the ground plane")},
     /*39/5 LBL_RESOLUTION            */ {"resolution",                     "Standard", QObject::tr("Resolution"),             QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
     /*40/6 LBL_RESOLVE_NORMALS       */ {"resolvenormals",                 "guess",    QObject::tr("Resolve Normals"),        QObject::tr("Some older LDraw parts have faces with ambiguous normals, this specifies what do do with them")}
-} ;
+};
 
 BlenderPreferences::ComboItems  BlenderPreferences::mComboItems [NUM_COMBO_ITEMS] =
 {
-    /*    FIRST item set as default        Data                       Item:   */
-    /* 00 LBL_COLOUR_SCHEME            */ {"lgeo|ldraw|alt|custom",  "Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours"},
-    /* 01 LBL_FLEX_PARTS_SOURCE (t/f)  */ {"1|0|1",                  "LSynth|LDCad|LDCad and LSynth"},
-    /* 02 LBL_LOGO_STUD_VERSION        */ {"4|3|5",                  "Rounded(4)|Flattened(3)|Subtle Rounded(5)"},
-    /* 03 LBL_LOOK                     */ {"normal|instructions",    "Photo Realistic|Lego Instructions"},
-    /* 04 LBL_POSITION_OBJECT (t/f)    */ {"1|0",                    "Centered At Origin On Ground|Centered At Origin"},
-    /* 05 LBL_RESOLUTION               */ {"Standard|High|Low",      "Standard Primitives|High Resolution Primitives|Low Resolution Primitives"},
-    /* 06 LBL_RESOLVE_NORMALS          */ {"guess|double",           "Recalculate Normals|Two Faces Back To Back"}
+    /*    FIRST item set as default        Data                                  Item:   */
+    /* 00 LBL_COLOUR_SCHEME            */ {"lgeo|ldraw|alt|custom",  QObject::tr("Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours")},
+    /* 01 LBL_FLEX_PARTS_SOURCE (t/f)  */ {"1|0|1",                  QObject::tr("LSynth|LDCad|LDCad and LSynth")},
+    /* 02 LBL_LOGO_STUD_VERSION        */ {"4|3|5",                  QObject::tr("Rounded(4)|Flattened(3)|Subtle Rounded(5)")},
+    /* 03 LBL_LOOK                     */ {"normal|instructions",    QObject::tr("Photo Realistic|Lego Instructions")},
+    /* 04 LBL_POSITION_OBJECT (t/f)    */ {"1|0",                    QObject::tr("Centered At Origin On Ground|Centered At Origin")},
+    /* 05 LBL_RESOLUTION               */ {"Standard|High|Low",      QObject::tr("Standard Primitives|High Resolution Primitives|Low Resolution Primitives")},
+    /* 06 LBL_RESOLVE_NORMALS          */ {"guess|double",           QObject::tr("Recalculate Normals|Two Faces Back To Back")}
 };
 
 BlenderPreferences::BlenderSettings  BlenderPreferences::mBlenderSettingsMM [NUM_SETTINGS_MM];
@@ -181,7 +174,7 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
     /* 37 LBL_USE_FREESTYLE_EDGES                 */ {"usefreestyleedges",             "0",          QObject::tr("Use Freestyle Edges"),      QObject::tr("Render LDraw edges using freestyle")},
     /* 38 LBL_VERBOSE_MM                          */ {"verbose",                       "1",          QObject::tr("Verbose output"),           QObject::tr("Output all messages while working, else only show warnings and errors")},
 
-    /* 39/00 LBL_CAMERA_BORDER_PERCENT_MM         */ {"cameraborderpercent",           "5",        QObject::tr("Camera Border Percent"),    QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
+    /* 39/00 LBL_CAMERA_BORDER_PERCENT_MM         */ {"cameraborderpercent",           "5",          QObject::tr("Camera Border Percent"),    QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
     /* 40/01 LBL_FRAMES_PER_STEP                  */ {"framesperstep",                 "3",          QObject::tr("Frames Per Step"),          QObject::tr("Frames per step")},
     /* 41/02 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
     /* 42/03 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
@@ -201,35 +194,34 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
 
 BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITEMS_MM] =
 {
-    /*    FIRST item set as default        Data                      Item: */
-    /* 00 LBL_CHOSEN_LOGO              */ {"logo|logo2|logo3",       "Logo (Not Used)|Logo2 (Not Used)|Flattened(3)"},
-    /* 01 LBL_COLOUR_SCHEME_MM         */ {"lgeo|ldraw|alt|custom",  "Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours"},
-    /* 02 LBL_GAP_SCALE_STRATEGY       */ {"object|constraint",      "Gap applied directly to object|Gap scaled to adjust to gaps between parts"},
-    /* 03 LBL_GAP_TARGET               */ {"object|mesh",            "Scale object data|Scale mesh data"},
-    /* 04 LBL_RESOLUTION_MM            */ {"Low|Standard|High",      "Low Resolution Primitives|Standard Primitives|High Resolution Primitives"},
-    /* 05 LBL_SMOOTH_TYPE              */ {"auto_smooth|edge_split", "Auto-smooth part faces|Smooth part faces with edge split modifier"}
+    /*    FIRST item set as default        Data                                  Item: */
+    /* 00 LBL_CHOSEN_LOGO              */ {"logo|logo2|logo3",       QObject::tr("Logo (Not Used)|Logo2 (Not Used)|Flattened(3)")},
+    /* 01 LBL_COLOUR_SCHEME_MM         */ {"lgeo|ldraw|alt|custom",  QObject::tr("Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours")},
+    /* 02 LBL_GAP_SCALE_STRATEGY       */ {"object|constraint",      QObject::tr("Gap applied directly to object|Gap scaled to adjust to gaps between parts")},
+    /* 03 LBL_GAP_TARGET               */ {"object|mesh",            QObject::tr("Scale object data|Scale mesh data")},
+    /* 04 LBL_RESOLUTION_MM            */ {"Low|Standard|High",      QObject::tr("Low Resolution Primitives|Standard Primitives|High Resolution Primitives")},
+    /* 05 LBL_SMOOTH_TYPE              */ {"auto_smooth|edge_split", QObject::tr("Auto-smooth part faces|Smooth part faces with edge split modifier")}
 };
 
 BlenderPreferences *gAddonPreferences;
 
 BlenderPreferencesDialog::BlenderPreferencesDialog(
-  int      width,
-  int      height,
-  double   renderPercentage,
-  bool     docRender,
-  QWidget *parent)
-  : QDialog(parent)
+    int      width,
+    int      height,
+    double   renderPercentage,
+    bool     docRender,
+    QWidget *parent)
+    : QDialog(parent)
 {
+    setWindowTitle(tr("Blender Render Settings"));
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     setLayout(layout);
 
-    setWindowTitle(tr("Blender Render Settings"));
-
-    QGroupBox *box = new QGroupBox(nullptr);
-
+    QGroupBox *box = new QGroupBox(this);
     layout->addWidget(box);
 
-    mPrefeferences = new BlenderPreferences(width,height,renderPercentage,docRender,box);
+    mPreferences = new BlenderPreferences(width,height,renderPercentage,docRender,box);
 
     QDialogButtonBox *buttonBox;
     buttonBox = new QDialogButtonBox(this);
@@ -258,21 +250,21 @@ BlenderPreferencesDialog::~BlenderPreferencesDialog()
 }
 
 bool BlenderPreferencesDialog::getBlenderPreferences(
-  int     &width,
-  int     &height,
-  double  &renderPercentage,
-  bool     docRender,
-  QWidget *parent)
+    int     &width,
+    int     &height,
+    double  &renderPercentage,
+    bool     docRender,
+    QWidget *parent)
 {
   BlenderPreferencesDialog *dialog = new BlenderPreferencesDialog(width,height,renderPercentage,docRender,parent);
 
     bool ok = dialog->exec() == QDialog::Accepted;
 
     if (ok) {
-        dialog->mPrefeferences->apply(ok);
-        width            = BlenderPreferences::mWidth;
-        height           = BlenderPreferences::mHeight;
-        renderPercentage = BlenderPreferences::mRenderPercentage;
+        dialog->mPreferences->apply(ok);
+        width            = dialog->mPreferences->mWidth;
+        height           = dialog->mPreferences->mHeight;
+        renderPercentage = dialog->mPreferences->mRenderPercentage;
     }
 
     return ok;
@@ -284,18 +276,18 @@ void BlenderPreferencesDialog::showPathsGroup()
         mPathsButton->setText(tr("Show Paths"));
     else
         mPathsButton->setText(tr("Hide Paths"));
-    mPrefeferences->showPathsGroup();
+    mPreferences->showPathsGroup();
 }
 
 void BlenderPreferencesDialog::resetSettings()
 {
-    mPrefeferences->resetSettings();
+    mPreferences->resetSettings();
 }
 
 void BlenderPreferencesDialog::accept()
 {
-    if (mPrefeferences->settingsModified()) {
-        mPrefeferences->saveSettings();
+    if (mPreferences->settingsModified()) {
+        mPreferences->saveSettings();
         QDialog::accept();
     } else
         QDialog::reject();
@@ -303,20 +295,22 @@ void BlenderPreferencesDialog::accept()
 
 void BlenderPreferencesDialog::reject()
 {
-    if (mPrefeferences->promptCancel())
+    if (mPreferences->promptCancel())
         QDialog::reject();
 }
 
-BlenderPreferences::BlenderPreferences(int      width,
-                                       int      height,
-                                       double   renderPercentage,
-                                       bool     docRender,
-                                       QWidget *parent)
+BlenderPreferences::BlenderPreferences(
+    int      width,
+    int      height,
+    double   renderPercentage,
+    bool     docRender,
+    QWidget *parent)
     : QWidget(parent)
 {
+    gAddonPreferences = this;
 
 #ifndef QT_NO_PROCESS
-  mProcess = nullptr;
+    mProcess = nullptr;
 #endif
 
     mWidth  = width;
@@ -326,30 +320,26 @@ BlenderPreferences::BlenderPreferences(int      width,
 
     mDialogCancelled = false;
 
-    QVBoxLayout *addonLayout = new QVBoxLayout(parent);
+    QVBoxLayout *layout = new QVBoxLayout(parent);
 
     QString windowTitle = tr("Blender Render Settings");
     if (parent) {
         if (!parent->windowTitle().isEmpty())
             windowTitle = parent->windowTitle();
-        parent->setLayout(addonLayout);
+        parent->setLayout(layout);
         parent->setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS, windowTitle));
     } else {
-        setLayout(addonLayout);
+        setLayout(layout);
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS, windowTitle));
     }
 
     mConfigured = !Preferences::blenderImportModule.isEmpty();
-
-    clearLists();
 
     loadSettings();
 
     mContent = new QWidget();
 
     mContent->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-    mParmsWindow = new ParmsWindow(mContent);
 
     mForm = new QFormLayout(mContent);
 
@@ -367,14 +357,14 @@ BlenderPreferences::BlenderPreferences(int      width,
     mExeGridLayout = new QGridLayout(blenderExeBox);
     blenderExeBox->setLayout(mExeGridLayout);
 
-    mVersionLabel = new QLabel(mContent);
-    mExeGridLayout->addWidget(mVersionLabel,0,0);
+    mBlenderVersionLabel = new QLabel(mContent);
+    mExeGridLayout->addWidget(mBlenderVersionLabel,0,0);
 
-    mVersionEdit = new QLineEdit(mContent);
-    mVersionEdit->setPalette(ReadOnlyPalette);
-    mVersionEdit->setReadOnly(true);
-    mVersionEdit->setVisible(mConfigured);
-    mExeGridLayout->addWidget(mVersionEdit,0,1,1,2);
+    mBlenderVersionEdit = new QLineEdit(mContent);
+    mBlenderVersionEdit->setPalette(ReadOnlyPalette);
+    mBlenderVersionEdit->setReadOnly(true);
+    mBlenderVersionEdit->setVisible(mConfigured);
+    mExeGridLayout->addWidget(mBlenderVersionEdit,0,1,1,2);
 
     const int i = LBL_BLENDER_PATH;
     QLabel *pathLabel = new QLabel(mBlenderPaths[i].label, mContent);
@@ -428,36 +418,36 @@ BlenderPreferences::BlenderPreferences(int      width,
                      this,               SLOT(getStandardOutput()));
 
     // LDraw Addon Enabled
-    mAddonModulesBox = new QGroupBox(tr("Enabled Addon Modules"),mContent);
-    QHBoxLayout *blenderAddonModulesHLayout = new QHBoxLayout(mAddonModulesBox);
-    mAddonModulesBox->setLayout(blenderAddonModulesHLayout);
-    mAddonGridLayout->addWidget(mAddonModulesBox,1,0,1,4);
+    mModulesBox = new QGroupBox(tr("Enabled Addon Modules"),mContent);
+    QHBoxLayout *modulesHLayout = new QHBoxLayout(mModulesBox);
+    mModulesBox->setLayout(modulesHLayout);
+    mAddonGridLayout->addWidget(mModulesBox,1,0,1,4);
 
     mImportActBox = new QCheckBox(tr("LDraw Import TN"),mContent);
     mImportActBox->setToolTip(tr("Enable addon import module (adapted from LDraw Import by Toby Nelson) in Blender"));
-    blenderAddonModulesHLayout->addWidget(mImportActBox);
+    modulesHLayout->addWidget(mImportActBox);
     QObject::connect(mImportActBox, SIGNAL(clicked(bool)),
                      this,          SLOT(enableImportModule()));
 
     mImportMMActBox = new QCheckBox(tr("LDraw Import MM"),mContent);
     mImportMMActBox->setToolTip(tr("Enable addon import module (adapted from LDraw Import by Matthew Morrison) in Blender"));
+    modulesHLayout->addWidget(mImportMMActBox);
     QObject::connect(mImportMMActBox, SIGNAL(clicked(bool)),
                      this,            SLOT(enableImportModule()));
-    blenderAddonModulesHLayout->addWidget(mImportMMActBox);
 
     mRenderActBox = new QCheckBox(tr("%1 Image Render").arg(VER_PRODUCTNAME_STR), mContent);
     mRenderActBox->setToolTip(tr("Addon image render module in Blender"));
     mRenderActBox->setEnabled(false);
-    blenderAddonModulesHLayout->addWidget(mRenderActBox);
+    modulesHLayout->addWidget(mRenderActBox);
 
     QString textColour, versionText, addonText;
     if (mConfigured) {
         textColour = QApplication::palette().text().color().name();
         versionText = tr("Blender");
         addonText = tr("Blender Addon");
-        mVersionEdit->setText(mVersion);
+        mBlenderVersionEdit->setText(mBlenderVersion);
         if (!mAddonVersion.isEmpty()) {
-            mAddonModulesBox->setEnabled(true);
+            mModulesBox->setEnabled(true);
             mAddonVersionEdit->setText(mAddonVersion);
             mRenderActBox->setChecked(true);
             mImportActBox->setChecked(  Preferences::blenderImportModule == QLatin1String("TN"));
@@ -469,41 +459,28 @@ BlenderPreferences::BlenderPreferences(int      width,
                          : QLatin1String("blue");
         versionText = tr("Blender not configured");
     }
-    mVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
+    mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
     mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
-    mVersionLabel->setText(versionText);
+    mBlenderVersionLabel->setText(versionText);
     mAddonVersionLabel->setText(addonText);
 
     mAddonUpdate = false;
 
     if (mImportMMActBox->isChecked())
-        initLDrawImportMM();
+        initPathsAndSettingsMM();
     else
-        initLDrawImport();
+        initPathsAndSettings();
 
     // Scroll area
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     scrollArea->setWidget(mContent);
-    addonLayout->addWidget(scrollArea);
-
-    gAddonPreferences = this;
+    layout->addWidget(scrollArea);
 }
 
 BlenderPreferences::~BlenderPreferences()
 {
-    clearLists();
     gAddonPreferences = nullptr;
-}
-
-void BlenderPreferences::clearLists()
-{
-    mPathLineEditList.clear();
-    mPathBrowseButtonList.clear();
-    mSettingLabelList.clear();
-    mCheckBoxList.clear();
-    mLineEditList.clear();
-    mComboBoxList.clear();
 }
 
 void BlenderPreferences::clearGroupBox(QGroupBox *groupBox)
@@ -539,9 +516,9 @@ void BlenderPreferences::clearGroupBox(QGroupBox *groupBox)
     delete groupBoxIitem;
 }
 
-void BlenderPreferences::initLDrawImport()
+void BlenderPreferences::initPathsAndSettings()
 {
-    // qDebug() << qPrintable(QString("DEBUG: InitLDrawImport(TN):"));
+//    qDebug() << qPrintable(QString("DEBUG: InitLDrawImport(TN):"));
     if (!numSettings())
         loadSettings();
 
@@ -549,8 +526,8 @@ void BlenderPreferences::initLDrawImport()
     clearGroupBox(mPathsBox);
     mPathsBox = new QGroupBox(mContent);
     mPathsBox->setTitle(tr("LDraw Import TN Addon Paths"));
-    mPathsLayout = new QGridLayout(mPathsBox);
-    mPathsBox->setLayout(mPathsLayout);
+    mPathsGridLayout = new QGridLayout(mPathsBox);
+    mPathsBox->setLayout(mPathsGridLayout);
     mForm->addRow(mPathsBox);
 
     for(int i = 1/*skip blender executable*/; i < numPaths(); ++i) {
@@ -558,7 +535,7 @@ void BlenderPreferences::initLDrawImport()
         bool isVisible = i != LBL_STUDIO_LDRAW_PATH;
         QLabel *pathLabel = new QLabel(mBlenderPaths[i].label, mPathsBox);
         pathLabel->setToolTip(mBlenderPaths[i].tooltip);
-        mPathsLayout->addWidget(pathLabel,j,0);
+        mPathsGridLayout->addWidget(pathLabel,j,0);
         pathLabel->setVisible(isVisible);
 
         QLineEdit *pathLineEdit = new QLineEdit(mPathsBox);
@@ -568,7 +545,7 @@ void BlenderPreferences::initLDrawImport()
             mPathLineEditList.replace(i, pathLineEdit);
         else
             mPathLineEditList << pathLineEdit;
-        mPathsLayout->addWidget(pathLineEdit,j,1);
+        mPathsGridLayout->addWidget(pathLineEdit,j,1);
         pathLineEdit->setVisible(isVisible);
 
         QPushButton *pathBrowseButton = new QPushButton(tr("Browse..."), mPathsBox);
@@ -576,7 +553,7 @@ void BlenderPreferences::initLDrawImport()
             mPathBrowseButtonList.replace(i, pathBrowseButton);
         else
             mPathBrowseButtonList << pathBrowseButton;
-        mPathsLayout->addWidget(pathBrowseButton,j,2);
+        mPathsGridLayout->addWidget(pathBrowseButton,j,2);
         pathBrowseButton->setVisible(isVisible);
 
         if (isVisible) {
@@ -638,16 +615,14 @@ void BlenderPreferences::initLDrawImport()
             mSettingsSubform->addRow(label,checkBox);
         } else if (i < LBL_COLOUR_SCHEME) { // QLineEdits
             QLineEdit *lineEdit = new QLineEdit(mSettingsBox);
-            if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT){
+            if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT) {
                 connect(lineEdit,SIGNAL(textChanged(const QString &)),
                         this,    SLOT  (sizeChanged(const QString &)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
             } else if(i == LBL_DEFAULT_COLOUR) {
                 lineEdit->setReadOnly(true);
                 lineEdit->setStyleSheet("Text-align:left");
-                QImage img(16, 16, QImage::Format_ARGB32);
-                img.fill(0);
-                mDefaultColourEditAction = lineEdit->addAction(QIcon(QPixmap::fromImage(img)), QLineEdit::TrailingPosition);
+                mDefaultColourEditAction = lineEdit->addAction(QIcon(), QLineEdit::TrailingPosition);
                 QObject::connect(mDefaultColourEditAction, SIGNAL(triggered(bool)),
                                  this,                    SLOT  (colorButtonClicked(bool)));
             } else {
@@ -664,12 +639,14 @@ void BlenderPreferences::initLDrawImport()
             }
             lineEdit->setToolTip(mBlenderSettings[i].tooltip);
             mLineEditList << lineEdit;
+            if (i == LBL_DEFAULT_COLOUR)
+                setDefaultColor(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
             mSettingsSubform->addRow(label,lineEdit);
         } else {                            // QComboBoxes
             QComboBox *comboBox = new QComboBox(mSettingsBox);
             QString const value = mBlenderSettings[i].value;
-            QStringList const itemList = mComboItems[comboBoxItemsIndex].items.split("|");
-            QStringList const dataList = mComboItems[comboBoxItemsIndex].data.split("|");
+            QStringList const dataList = mComboItems[comboBoxItemsIndex].dataList.split("|");
+            QStringList const itemList = mComboItems[comboBoxItemsIndex].itemList.split("|");
 //            qDebug() << qPrintable(QString("DEBUG: QComboBox(TN): Data: %1, Value: %2")
 //                                       .arg(dataList.join(","))
 //                                       .arg(value));
@@ -688,7 +665,6 @@ void BlenderPreferences::initLDrawImport()
         }
     }
 
-    setDefaultColor(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
     setModelSize(mBlenderSettings[LBL_CROP_IMAGE].value.toInt());
 
     if (!mSettingsSubform->rowCount())
@@ -697,9 +673,9 @@ void BlenderPreferences::initLDrawImport()
     mSettingsBox->setEnabled(mConfigured);
 }
 
-void BlenderPreferences::initLDrawImportMM()
+void BlenderPreferences::initPathsAndSettingsMM()
 {
-    // qDebug() << qPrintable(QString("DEBUG: InitLDrawImport(MM):"));
+//    qDebug() << qPrintable(QString("DEBUG: InitLDrawImport(MM):"));
     if (!numSettingsMM())
         loadSettings();
 
@@ -707,8 +683,8 @@ void BlenderPreferences::initLDrawImportMM()
     clearGroupBox(mPathsBox);
     mPathsBox = new QGroupBox(mContent);
     mPathsBox->setTitle(tr("LDraw Import MM Addon Paths"));
-    mPathsLayout = new QGridLayout(mPathsBox);
-    mPathsBox->setLayout(mPathsLayout);
+    mPathsGridLayout = new QGridLayout(mPathsBox);
+    mPathsBox->setLayout(mPathsGridLayout);
     mForm->addRow(mPathsBox);
 
     for(int i = 1/*skip blender executable*/; i < numPaths(); ++i) {
@@ -716,7 +692,7 @@ void BlenderPreferences::initLDrawImportMM()
         bool isVisible = i != LBL_LSYNTH_PATH && i != LBL_STUD_LOGO_PATH;
         QLabel *pathLabel = new QLabel(mBlenderPaths[i].label, mPathsBox);
         pathLabel->setToolTip(mBlenderPaths[i].tooltip);
-        mPathsLayout->addWidget(pathLabel,j,0);
+        mPathsGridLayout->addWidget(pathLabel,j,0);
         pathLabel->setVisible(isVisible);
 
         QLineEdit *pathLineEdit = new QLineEdit(mPathsBox);
@@ -726,7 +702,7 @@ void BlenderPreferences::initLDrawImportMM()
             mPathLineEditList.replace(i, pathLineEdit);
         else
             mPathLineEditList << pathLineEdit;
-        mPathsLayout->addWidget(pathLineEdit,j,1);
+        mPathsGridLayout->addWidget(pathLineEdit,j,1);
         pathLineEdit->setVisible(isVisible);
 
         QPushButton *pathBrowseButton = new QPushButton(tr("Browse..."), mPathsBox);
@@ -734,7 +710,7 @@ void BlenderPreferences::initLDrawImportMM()
             mPathBrowseButtonList.replace(i, pathBrowseButton);
         else
             mPathBrowseButtonList << pathBrowseButton;
-        mPathsLayout->addWidget(pathBrowseButton,j,2);
+        mPathsGridLayout->addWidget(pathBrowseButton,j,2);
         pathBrowseButton->setVisible(isVisible);
 
         if (isVisible) {
@@ -820,8 +796,8 @@ void BlenderPreferences::initLDrawImportMM()
         } else {                            // QComboBoxes
             QComboBox *comboBox = new QComboBox(mSettingsBox);
             QString const value = mBlenderSettingsMM[i].value;
-            QStringList const itemList = mComboItemsMM[comboBoxItemsIndex].items.split("|");
-            QStringList const dataList = mComboItemsMM[comboBoxItemsIndex].data.split("|");
+            QStringList const dataList = mComboItemsMM[comboBoxItemsIndex].dataList.split("|");
+            QStringList const itemList = mComboItemsMM[comboBoxItemsIndex].itemList.split("|");
 //            qDebug() << qPrintable(QString("DEBUG: QComboBox(MM): Data: %1, Value: %2")
 //                                       .arg(dataList.join(","))
 //                                       .arg(value));
@@ -871,7 +847,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
     QString const blenderExe = QDir::toNativeSeparators(mPathLineEditList[LBL_BLENDER_PATH]->text());
 
     if (blenderExe.isEmpty()) {
-        mVersion.clear();
+        mBlenderVersion.clear();
         mConfigured = false;
         statusUpdate(false/*addon*/,true/*error*/);
         mAddonUpdateButton->setEnabled(mConfigured);
@@ -964,25 +940,25 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
                 QString const stdOut = QString(mProcess->readAllStandardOutput());
                 if (!stdOut.contains(blenderTestString)) {
                     message =  tr("A simple check to test if the selected file is Blender failed."
-                                  "Please create an LPub3D GitHub ticket if you are sure the file is Blender 2.8 or newer."
-                                  "The ticket should contain the full path to the Blender executable.");
+                                  "Please create an %1 GitHub ticket if you are sure the file is Blender 2.8 or newer."
+                                  "The ticket should contain the full path to the Blender executable.").arg(VER_PRODUCTNAME_STR);
                     return PR_FAIL;
                 } else {
                     // Get Blender Version
                     QStringList items = stdOut.split('\n',SkipEmptyParts).last().split(" ");
                     if (items.count() > 6 && items.at(0) == QLatin1String("Blender")) {
                         items.takeLast();
-                        mVersion.clear();
+                        mBlenderVersion.clear();
                         for (int i = 1; i < items.size(); i++)
-                            mVersion.append(items.at(i)+" ");
-                        mVersionFound = !mVersion.isEmpty();
-                        if (mVersionFound) {
-                            mVersion = mVersion.trimmed().prepend("v").append(")");
-                            mVersionEdit->setText(mVersion);
+                            mBlenderVersion.append(items.at(i)+" ");
+                        mBlenderVersionFound = !mBlenderVersion.isEmpty();
+                        if (mBlenderVersionFound) {
+                            mBlenderVersion = mBlenderVersion.trimmed().prepend("v").append(")");
+                            mBlenderVersionEdit->setText(mBlenderVersion);
                             // set default LDraw import module if not configured
                             if (!mImportActBox->isChecked() && !mImportMMActBox->isChecked())
                                 mImportActBox->setChecked(true);
-                            message = tr("Blender %1 mProcess completed. Version: %2 validated.").arg(processAction).arg(mVersion);
+                            message = tr("Blender %1 mProcess completed. Version: %2 validated.").arg(processAction).arg(mBlenderVersion);
                         }
                     }
                 }
@@ -1002,7 +978,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
         // Test Blender executable
         testBlender |= sender() == mPathLineEditList[LBL_BLENDER_PATH];
         if (testBlender) {
-            mExeGridLayout->replaceWidget(mVersionEdit, mProgressBar);
+            mExeGridLayout->replaceWidget(mBlenderVersionEdit, mProgressBar);
             mProgressBar->show();
 
             arguments << QString("--factory-startup");
@@ -1078,14 +1054,14 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
             emit gui->messageSig(logType, message);
             statusUpdate(false/*addon*/, testOk, statusLabel);
             if (testOk) {
-                Preferences::setBlenderVersionPreference(mVersion);
+                Preferences::setBlenderVersionPreference(mBlenderVersion);
                 Preferences::setBlenderExePathPreference(blenderExe);
             } else {
                 return;
             }
         } // Test Blender
 
-        if (!mVersion.isEmpty() && !mImportMMActBox->isChecked() && !mImportActBox->isChecked()) {
+        if (!mBlenderVersion.isEmpty() && !mImportMMActBox->isChecked() && !mImportActBox->isChecked()) {
             QPixmap _icon = QPixmap(":/icons/lpub96.png");
             QMessageBox box;
             box.setWindowIcon(QIcon());
@@ -1119,7 +1095,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
                           : QString();  // disable all import modules
             Preferences::setBlenderImportModule(preferredImportModule);
         } else {
-            mVersionEdit->setVisible(mAddonUpdate); // was false
+            mBlenderVersionEdit->setVisible(mAddonUpdate); // was false
         }
 
         if (mProgressBar) {
@@ -1130,16 +1106,16 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
         // Download and extract blender addon
         if (!extractBlenderAddon(blenderDir)) {
             if (mAddonUpdate) {
-                mExeGridLayout->replaceWidget(mProgressBar, mVersionEdit);
+                mExeGridLayout->replaceWidget(mProgressBar, mBlenderVersionEdit);
                 mConfigured = true;
                 mAddonUpdate = !mConfigured;
-                mVersionLabel->setText(tr("Blender"));
-                mVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name()));
-                mVersionEdit->setText(mVersion);
-                mVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
-                mVersionEdit->setVisible(mConfigured);
+                mBlenderVersionLabel->setText(tr("Blender"));
+                mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name()));
+                mBlenderVersionEdit->setText(mBlenderVersion);
+                mBlenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
+                mBlenderVersionEdit->setVisible(mConfigured);
                 if (!mAddonVersion.isEmpty()) {
-                    mAddonModulesBox->setEnabled(true);
+                    mModulesBox->setEnabled(true);
                     mAddonVersionEdit->setText(mAddonVersion);
                 }
                 mAddonUpdateButton->setEnabled(mConfigured);
@@ -1186,7 +1162,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
         emit gui->messageSig(LOG_INFO, message);
 
         if (!testBlender)
-            mVersionFound = false;
+            mBlenderVersionFound = false;
 
         // Check if there are addon folders in /addons
         if (QDir(blenderAddonDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
@@ -1481,7 +1457,7 @@ void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &mes
             mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
             mProgressBar->close();
         } else {
-            mExeGridLayout->replaceWidget(mProgressBar, mVersionEdit);
+            mExeGridLayout->replaceWidget(mProgressBar, mBlenderVersionEdit);
             mProgressBar->hide();
         }
     }
@@ -1510,9 +1486,86 @@ void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &mes
         mAddonVersionLabel->setText(label);
         mAddonVersionEdit->setVisible(hasAddonVersion);
     } else {
-        mVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
-        mVersionLabel->setText(label);
-        mVersionEdit->setVisible(!mVersion.isEmpty());
+        mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
+        mBlenderVersionLabel->setText(label);
+        mBlenderVersionEdit->setVisible(!mBlenderVersion.isEmpty());
+    }
+}
+
+void BlenderPreferences::showResult()
+{
+    QString message;
+    bool hasError;
+    const QString StdErrLog = readStdErr(hasError);
+
+    mProgressBar->close();
+
+    writeStdOut();
+
+    if (mProcess->exitStatus() != QProcess::NormalExit || mProcess->exitCode() != 0 || hasError)
+    {
+        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+        message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
+        statusUpdate(true/*addon*/, true/*error*/,tr("%1: Addon install failed.").arg("Error"));
+        mConfigured = false;
+        emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
+    } else {
+        QString const textColour = QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name());
+        mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
+        mConfigured = true;
+        mAddonUpdate = !mConfigured;
+        mBlenderVersionLabel->setText(tr("Blender"));
+        mBlenderVersionLabel->setStyleSheet(textColour);
+        mBlenderVersionEdit->setText(mBlenderVersion);
+        mBlenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
+        mBlenderVersionEdit->setVisible(mConfigured);
+        if (!mAddonVersion.isEmpty()) {
+            mAddonVersionLabel->setText(tr("Blender Addon"));
+            mAddonVersionLabel->setStyleSheet(textColour);
+            mAddonVersionEdit->setText(mAddonVersion);
+            mModulesBox->setEnabled(true);
+            mAddonVersionEdit->setVisible(true);
+            mAddonUpdateButton->setEnabled(true);
+            Preferences::setBlenderVersionPreference(
+                QString("%1|%2").arg(mBlenderVersion).arg(mAddonVersion));
+        }
+        mPathsBox->setEnabled(mConfigured);
+        mSettingsBox->setEnabled(mConfigured);
+        message = tr("Blender version %1").arg(mBlenderVersion);
+    }
+
+    // Restore standard output button
+    mAddonStdOutButton->setEnabled(true);
+
+    // Close mProcess
+    delete mProcess;
+    mProcess = nullptr;
+
+    emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
+}
+
+void BlenderPreferences::getStandardOutput()
+{
+    QString const logFile = QString("%1/Blender/stdout-blender-addon-install").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QFileInfo fileInfo(logFile);
+    if (!fileInfo.exists()) {
+        emit gui->messageSig(LOG_ERROR, tr("Blender addon standard output file not found: %1.")
+                                            .arg(fileInfo.absoluteFilePath()));
+        return;
+    }
+
+    if (logFile.isEmpty())
+        return;
+
+    if (Preferences::useSystemEditor) {
+        QDesktopServices::openUrl(QUrl("file:///"+logFile, QUrl::TolerantMode));
+    } else {
+        ParmsWindow *parmsWindow = new ParmsWindow(mContent);
+        parmsWindow->displayParmsFile(logFile);
+        const QString _title = tr("%1 Blender addon standard output").arg(VER_PRODUCTNAME_STR);
+        const QString _status = tr("View Blender standard output");
+        parmsWindow->setWindowTitle(tr(_title.toLatin1(),_status.toLatin1()));
+        parmsWindow->show();
     }
 }
 
@@ -1533,29 +1586,29 @@ void BlenderPreferences::readStdOut()
     QStringList stdOutLines = StdOut.split(QRegExp("\n|\r\n|\r"));
 
     QString const saveAddonVersion = mAddonVersion;
-    QString const saveVersion = mVersion;
+    QString const saveVersion = mBlenderVersion;
 
     int lineCount = 0;
     for (QString const &stdOutLine : stdOutLines) {
         if (stdOutLine.isEmpty())
             continue;
 
-        if (!mVersionFound) {
+        if (!mBlenderVersionFound) {
             // Get Blender Version
             items = stdOutLine.split(" ");
             if (items.count() > 6 && items.at(0) == QLatin1String("Blender")) {
                 items.takeLast();
-                mVersion.clear();
+                mBlenderVersion.clear();
                 for (int i = 1; i < items.size(); i++)
-                    mVersion.append(items.at(i)+" ");
-                mVersionFound = !mVersion.isEmpty();
-                if (mVersionFound) {
-                    mVersion = mVersion.trimmed().prepend("v").append(")");
-                    mVersionEdit->setText(mVersion);
+                    mBlenderVersion.append(items.at(i)+" ");
+                mBlenderVersionFound = !mBlenderVersion.isEmpty();
+                if (mBlenderVersionFound) {
+                    mBlenderVersion = mBlenderVersion.trimmed().prepend("v").append(")");
+                    mBlenderVersionEdit->setText(mBlenderVersion);
                     // set default LDraw import module if not configured
                     if (!mImportActBox->isChecked() && !mImportMMActBox->isChecked())
                         mImportActBox->setChecked(true);
-                    //emit gui->messageSig(LOG_DEBUG, tr("Blender version: %1 validated.").arg(mVersion));
+                    //emit gui->messageSig(LOG_DEBUG, tr("Blender version: %1 validated.").arg(mBlenderVersion));
                 }
 
 
@@ -1605,89 +1658,13 @@ void BlenderPreferences::readStdOut()
         mConfigured = false;
         if (mAddonVersion != saveAddonVersion)
             mAddonVersion = saveAddonVersion;
-        if (mVersion != saveVersion)
-            mVersion = saveVersion;
+        if (mBlenderVersion != saveVersion)
+            mBlenderVersion = saveVersion;
         mAddonVersionEdit->setText(mAddonVersion);
-        mVersionEdit->setText(mVersion);
+        mBlenderVersionEdit->setText(mBlenderVersion);
         QString const stdOutLog = QDir::toNativeSeparators(QString("<br>- See %1/Blender/stdout-blender-addon-install")
                                                                 .arg(Preferences::lpub3d3rdPartyConfigDir));
         emit gui->messageSig(LOG_BLENDER_ADDON, errors.join(" ").append(stdOutLog), errorEncountered);
-    }
-}
-
-void BlenderPreferences::showResult()
-{
-    QString message;
-    bool hasError;
-    const QString StdErrLog = readStdErr(hasError);
-
-    mProgressBar->close();
-
-    writeStdOut();
-
-    if (mProcess->exitStatus() != QProcess::NormalExit || mProcess->exitCode() != 0 || hasError)
-    {
-        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
-        message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
-        statusUpdate(true/*addon*/, true/*error*/,tr("%1: Addon install failed.").arg("Error"));
-        mConfigured = false;
-        emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
-    } else {
-        QString const textColour = QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name());
-        mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
-        mConfigured = true;
-        mAddonUpdate = !mConfigured;
-        mVersionLabel->setText(tr("Blender"));
-        mVersionLabel->setStyleSheet(textColour);
-        mVersionEdit->setText(mVersion);
-        mVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
-        mVersionEdit->setVisible(mConfigured);
-        if (!mAddonVersion.isEmpty()) {
-            mAddonVersionLabel->setText(tr("Blender Addon"));
-            mAddonVersionLabel->setStyleSheet(textColour);
-            mAddonVersionEdit->setText(mAddonVersion);
-            mAddonModulesBox->setEnabled(true);
-            mAddonVersionEdit->setVisible(true);
-            mAddonUpdateButton->setEnabled(true);
-            Preferences::setBlenderVersionPreference(
-                QString("%1|%2").arg(mVersion).arg(mAddonVersion));
-        }
-        mPathsBox->setEnabled(mConfigured);
-        mSettingsBox->setEnabled(mConfigured);
-        message = tr("Blender version %1").arg(mVersion);
-    }
-
-    // Restore standard output button
-    mAddonStdOutButton->setEnabled(true);
-
-    // Close mProcess
-    delete mProcess;
-    mProcess = nullptr;
-
-    emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
-}
-
-void BlenderPreferences::getStandardOutput()
-{
-    QString const logFile = QString("%1/Blender/stdout-blender-addon-install").arg(Preferences::lpub3d3rdPartyConfigDir);
-    QFileInfo fileInfo(logFile);
-    if (!fileInfo.exists()) {
-        emit gui->messageSig(LOG_ERROR, tr("Blender addon standard output file not found: %1.")
-                                            .arg(fileInfo.absoluteFilePath()));
-        return;
-    }
-
-    if (logFile.isEmpty())
-        return;
-
-    if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl("file:///"+logFile, QUrl::TolerantMode));
-    } else {
-        mParmsWindow->displayParmsFile(logFile);
-        const QString _title = tr("%1 Blender addon standard output").arg(VER_PRODUCTNAME_STR);
-        const QString _status = tr("View Blender standard output");
-        mParmsWindow->setWindowTitle(tr(_title.toLatin1(),_status.toLatin1()));
-        mParmsWindow->show();
     }
 }
 
@@ -1792,12 +1769,12 @@ void BlenderPreferences::apply(const int response)
 
 bool BlenderPreferences::settingsModified(const QString &module)
 {
-    return settingsModified(mWidth, mHeight, mRenderPercentage, module);
+    return settingsModified(gAddonPreferences->mWidth, gAddonPreferences->mHeight, gAddonPreferences->mRenderPercentage, module);
 }
 
 bool BlenderPreferences::settingsModified(int &width, int &height, double &renderPercentage, const QString &module)
 {
-    if  (mDialogCancelled)
+    if  (gAddonPreferences->mDialogCancelled)
         return false;
 
     bool moduleMM = !module.isEmpty()
@@ -1957,10 +1934,10 @@ void BlenderPreferences::resetSettings()
     mConfigured = !Preferences::blenderImportModule.isEmpty();
 
     mBlenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
-    mVersion                              = Preferences::blenderVersion;
+    mBlenderVersion                              = Preferences::blenderVersion;
     mAddonVersion                         = Preferences::blenderAddonVersion;
 
-    mVersionEdit->setText(mVersion);
+    mBlenderVersionEdit->setText(mBlenderVersion);
     mAddonVersionEdit->setText(mAddonVersion);
 
     if (mImportActBox->isChecked()) {
@@ -2054,22 +2031,22 @@ void BlenderPreferences::resetSettings()
 
 void BlenderPreferences::loadSettings() {
 
-    // qDebug() << qPrintable(QString("DEBUG: Load Settings:"));
+//    qDebug() << qPrintable(QString("DEBUG: Load Settings:"));
 
     // load default paths if paths not populated
     if (!numPaths()) {
-        QString defaultBlendFile = QString("%1/Blender/config/%2")
-                                       .arg(Preferences::lpub3d3rdPartyConfigDir)
-                                       .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
-        QStringList addonPaths = QStringList()
-                                 /* LBL_BLENDER_PATH      */ << Preferences::blenderExe
-                                 /* LBL_BLENDFILE_PATH    */ << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
-                                 /* LBL_ENVIRONMENT_PATH  */ << QString()
-                                 /* LBL_LDCONFIG_PATH     */ << Preferences::altLDConfigPath
-                                 /* LBL_LDRAW_PATH        */ << Preferences::Preferences::ldrawLibPath
-                                 /* LBL_LSYNTH_PATH       */ << QString()
-                                 /* LBL_STUD_LOGO_PATH    */ << QString()
-                                 /* LBL_STUDIO_LDRAW_PATH */ << QString();
+        QString const defaultBlendFile = QString("%1/Blender/config/%2")
+                                             .arg(Preferences::lpub3d3rdPartyConfigDir)
+                                             .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
+        QStringList const addonPaths = QStringList()
+        /* LBL_BLENDER_PATH      */    << Preferences::blenderExe
+        /* LBL_BLENDFILE_PATH    */    << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
+        /* LBL_ENVIRONMENT_PATH  */    << QString()
+        /* LBL_LDCONFIG_PATH     */    << Preferences::altLDConfigPath
+        /* LBL_LDRAW_PATH        */    << Preferences::Preferences::ldrawLibPath
+        /* LBL_LSYNTH_PATH       */    << QString()
+        /* LBL_STUD_LOGO_PATH    */    << QString()
+        /* LBL_STUDIO_LDRAW_PATH */    << QString();
         for (int i = 0; i < numPaths(DEFAULT_SETTINGS); i++) {
             mBlenderPaths[i] = {
                 mDefaultPaths[i].key,
@@ -2099,7 +2076,7 @@ void BlenderPreferences::loadSettings() {
 //                                       .arg(i < LBL_BEVEL_WIDTH ? QString("%1(%2)")
 //                                                                      .arg(mBlenderSettings[i].value == "1" ? "True" : "False").arg(mBlenderSettings[i].value) : mBlenderSettings[i].value));
         }
-        mBlenderSettings[LBL_RENDER_PERCENTAGE].value = QString::number(mRenderPercentage * 100);
+        mBlenderSettings[LBL_RENDER_PERCENTAGE].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
         mBlenderSettings[LBL_DEFAULT_COLOUR].value = QString::number(gDefaultColor);
     }
 
@@ -2117,12 +2094,12 @@ void BlenderPreferences::loadSettings() {
 //                                       .arg(i < LBL_CAMERA_BORDER_PERCENT_MM ? QString("%1(%2)")
 //                                                .arg(mBlenderSettingsMM[i].value == "1" ? "True" : "False").arg(mBlenderSettingsMM[i].value) : mBlenderSettingsMM[i].value));
         }
-        mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(mRenderPercentage * 100);
+        mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
     }
 
     // set config file
     QFileInfo blenderConfigFileInfo;
-    if (mDocumentRender)
+    if (gAddonPreferences->mDocumentRender)
         blenderConfigFileInfo.setFile(Preferences::blenderPreferencesFile);
     else
         blenderConfigFileInfo.setFile(Preferences::blenderLDrawConfigFile);
@@ -2130,10 +2107,10 @@ void BlenderPreferences::loadSettings() {
     bool configFileExists = blenderConfigFileInfo.exists();
 
     // set defaults for document render settings
-    if (mDocumentRender) {
-        mBlenderSettings[LBL_ADD_ENVIRONMENT].value        = "0";
-        mBlenderSettings[LBL_TRANSPARENT_BACKGROUND].value = "1";
-        mBlenderSettings[LBL_CROP_IMAGE].value             = "1";
+    if (gAddonPreferences->mDocumentRender) {
+        mBlenderSettings[LBL_ADD_ENVIRONMENT].value             = "0";
+        mBlenderSettings[LBL_TRANSPARENT_BACKGROUND].value      = "1";
+        mBlenderSettings[LBL_CROP_IMAGE].value                  = "1";
 
         mBlenderSettingsMM[LBL_ADD_ENVIRONMENT_MM].value        = "0";
         mBlenderSettingsMM[LBL_TRANSPARENT_BACKGROUND_MM].value = "1";
@@ -2196,13 +2173,13 @@ void BlenderPreferences::loadSettings() {
     }
 
     mBlenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
-    mVersion                              = Preferences::blenderVersion;
-    mAddonVersion                         = Preferences::blenderAddonVersion;
+    gAddonPreferences->mBlenderVersion    = Preferences::blenderVersion;
+    gAddonPreferences->mAddonVersion      = Preferences::blenderAddonVersion;
 }
 
 void BlenderPreferences::saveSettings()
 {
-     // qDebug() << qPrintable(QString("DEBUG: Save Settings:"));
+//    qDebug() << qPrintable(QString("DEBUG: Save Settings:"));
     if (!numSettings() || !numSettingsMM())
         loadSettings();
 
@@ -2212,16 +2189,16 @@ void BlenderPreferences::saveSettings()
     Preferences::setBlenderExePathPreference(QDir::toNativeSeparators(value));
 
     value.clear();
-    if (!mVersion.isEmpty())
-        value = mVersion;
-    if (!mAddonVersion.isEmpty()) {
-        gAddonPreferences->mAddonModulesBox->setEnabled(true);
-        gAddonPreferences->mAddonVersionEdit->setText(mAddonVersion);
-        value.append(QString("|%1").arg(mAddonVersion));
+    if (!gAddonPreferences->mBlenderVersion.isEmpty())
+        value = gAddonPreferences->mBlenderVersion;
+    if (!gAddonPreferences->mAddonVersion.isEmpty()) {
+        gAddonPreferences->mModulesBox->setEnabled(true);
+        gAddonPreferences->mAddonVersionEdit->setText(gAddonPreferences->mAddonVersion);
+        value.append(QString("|%1").arg(gAddonPreferences->mAddonVersion));
     }
     Preferences::setBlenderVersionPreference(value);
 
-    if (mDocumentRender)
+    if (gAddonPreferences->mDocumentRender)
         value = Preferences::blenderPreferencesFile.isEmpty()
                     ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_DOCUMENT_CONFIG_FILE)
                     : Preferences::blenderPreferencesFile;
@@ -2353,9 +2330,9 @@ void BlenderPreferences::enableImportModule()
     }
 
     if (mImportMMActBox->isChecked())
-        initLDrawImportMM();
+        initPathsAndSettingsMM();
     else
-        initLDrawImport();
+        initPathsAndSettings();
 }
 
 int BlenderPreferences::numSettings(bool mDefaultSettings)
@@ -2472,28 +2449,28 @@ void BlenderPreferences::browseBlender(bool unused)
 void BlenderPreferences::sizeChanged(const QString &value)
 {
     const bool importMM = mImportMMActBox->isChecked();
-    const int keep_aspect_ratio_index = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
-    const int width_edit_index = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
-    const int height_edit_index = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
+    const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
+    const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
+    const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
 
     /* original height x new width / original width = new height */
     int mNewValue = value.toInt();
-    if (mCheckBoxList[keep_aspect_ratio_index]->isChecked())
+    if (mCheckBoxList[keep_aspect_ratio]->isChecked())
     {
-        if (sender() == mLineEditList[width_edit_index])
+        if (sender() == mLineEditList[width_edit])
         {
-            disconnect(mLineEditList[height_edit_index],SIGNAL(textChanged(const QString &)),
+            disconnect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                        this,SLOT  (sizeChanged(const QString &)));
-            mLineEditList[height_edit_index]->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
-            connect(mLineEditList[height_edit_index],SIGNAL(textChanged(const QString &)),
+            mLineEditList[height_edit]->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
+            connect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                     this,SLOT  (sizeChanged(const QString &)));
         }
-        else if (sender() == mLineEditList[height_edit_index])
+        else if (sender() == mLineEditList[height_edit])
         {
-            disconnect(mLineEditList[width_edit_index],SIGNAL(textChanged(const QString &)),
+            disconnect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
                        this, SLOT  (sizeChanged(const QString &)));
-            mLineEditList[width_edit_index]->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
-            connect(mLineEditList[width_edit_index],SIGNAL(textChanged(const QString &)),
+            mLineEditList[width_edit]->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
+            connect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
                     this,SLOT  (sizeChanged(const QString &)));
         }
     }
@@ -2502,20 +2479,20 @@ void BlenderPreferences::sizeChanged(const QString &value)
 void BlenderPreferences::setModelSize(bool checked)
 {
     const bool importMM = mImportMMActBox->isChecked();
-    const int add_environment_index = importMM ? ADD_ENVIRONMENT_BOX_MM : ADD_ENVIRONMENT_BOX;
-    const int trans_background_index = importMM ? TRANSPARENT_BACKGROUND_BOX_MM : TRANSPARENT_BACKGROUND_BOX;
-    const int keep_aspect_ratio_index = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
-    const int width_edit_index = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
-    const int height_edit_index = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
+    const int add_environment = importMM ? ADD_ENVIRONMENT_BOX_MM : ADD_ENVIRONMENT_BOX;
+    const int trans_background = importMM ? TRANSPARENT_BACKGROUND_BOX_MM : TRANSPARENT_BACKGROUND_BOX;
+    const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
+    const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
+    const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
 
     if (checked) {
         bool conflict[3];
-        if ((conflict[1] = mCheckBoxList[add_environment_index]->isChecked()))
-            mCheckBoxList[add_environment_index]->setChecked(!checked);
-        if ((conflict[2] = !mCheckBoxList[trans_background_index]->isChecked()))
-            mCheckBoxList[trans_background_index]->setChecked(checked);
-        if ((conflict[0] = mCheckBoxList[keep_aspect_ratio_index]->isChecked()))
-            mCheckBoxList[keep_aspect_ratio_index]->setChecked(!checked);
+        if ((conflict[1] = mCheckBoxList[add_environment]->isChecked()))
+            mCheckBoxList[add_environment]->setChecked(!checked);
+        if ((conflict[2] = !mCheckBoxList[trans_background]->isChecked()))
+            mCheckBoxList[trans_background]->setChecked(checked);
+        if ((conflict[0] = mCheckBoxList[keep_aspect_ratio]->isChecked()))
+            mCheckBoxList[keep_aspect_ratio]->setChecked(!checked);
 
         if (conflict[0] || conflict[1] || conflict[2]) {
             QMessageBox box;
@@ -2525,36 +2502,36 @@ void BlenderPreferences::setModelSize(bool checked)
             box.setDefaultButton   (QMessageBox::Ok);
             box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
             box.setWindowTitle(tr ("LDraw Render Settings"));
-            QString header = "<b>" + tr ("Crop image configuration settings conflict were resolved.") + "</b>";
-            QString body = tr ("%1%2%3")
-                               .arg(conflict[0] ? "Keep aspect ratio set to false.<br>" : "")
-                               .arg(conflict[1] ? "Add environment (backdrop and base plane) set to false.<br>" : "")
-                               .arg(conflict[2] ? "Transparent background set to true.<br>" : "");
+            QString const header = "<b>" + tr ("Crop image configuration settings conflict were resolved.") + "</b>";
+            QString const body = QString ("%1%2%3")
+                                    .arg(conflict[0] ? tr("Keep aspect ratio set to false.<br>") : "")
+                                    .arg(conflict[1] ? tr("Add environment (backdrop and base plane) set to false.<br>") : "")
+                                    .arg(conflict[2] ? tr("Transparent background set to true.<br>") : "");
             box.setText (header);
             box.setInformativeText (body);
             box.exec();
         }
     }
 
-    disconnect(mLineEditList[width_edit_index],SIGNAL(textChanged(const QString &)),
+    disconnect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
                this,SLOT  (sizeChanged(const QString &)));
-    disconnect(mLineEditList[height_edit_index],SIGNAL(textChanged(const QString &)),
+    disconnect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                this, SLOT  (sizeChanged(const QString &)));
 
     if (checked)
     {
-        mLineEditList[width_edit_index]->setText(QString::number(gui->GetImageWidth()));
-        mLineEditList[height_edit_index]->setText(QString::number(gui->GetImageHeight()));
+        mLineEditList[width_edit]->setText(QString::number(gui->GetImageWidth()));
+        mLineEditList[height_edit]->setText(QString::number(gui->GetImageHeight()));
     }
     else
     {
-        mLineEditList[width_edit_index]->setText(QString::number(mWidth));
-        mLineEditList[height_edit_index]->setText(QString::number(mHeight));
+        mLineEditList[width_edit]->setText(QString::number(mWidth));
+        mLineEditList[height_edit]->setText(QString::number(mHeight));
     }
 
-    connect(mLineEditList[height_edit_index],SIGNAL(textChanged(const QString &)),
+    connect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
             this,SLOT  (sizeChanged(const QString &)));
-    connect(mLineEditList[width_edit_index],SIGNAL(textChanged(const QString &)),
+    connect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
             this,SLOT  (sizeChanged(const QString &)));
 }
 
@@ -2576,10 +2553,10 @@ void BlenderPreferences::validateColourScheme(QString const &value)
         box.setDefaultButton   (QMessageBox::Ok);
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         box.setWindowTitle(tr ("Custom LDraw Colours"));
-        QString header = "<b>" + tr ("Colour scheme 'custom' cannot be enabled. Custom LDConfig file not found.") + "</b>";
-        QString body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
-                          "The default colour scheme '%1' will be used.")
-                           .arg(importMM ? mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value : mBlenderSettings[LBL_COLOUR_SCHEME].value);
+        QString const header = "<b>" + tr ("Colour scheme 'custom' cannot be enabled. Custom LDConfig file not found.") + "</b>";
+        QString const body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
+                                 "The default colour scheme '%1' will be used.<br>")
+                                 .arg(importMM ? mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value : mBlenderSettings[LBL_COLOUR_SCHEME].value);
         box.setText (header);
         box.setInformativeText (body);
         box.exec();
@@ -2982,8 +2959,8 @@ bool BlenderPreferences::overwriteFile(const QString &file)
     box.setIconPixmap (_icon);
     box.setTextFormat (Qt::RichText);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    QString title = "<b>" + QMessageBox::tr ("Export %1").arg(fileInfo.fileName()) + "</b>";
-    QString text = QMessageBox::tr ("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
+    QString const title = "<b>" + QMessageBox::tr ("Export %1").arg(fileInfo.fileName()) + "</b>";
+    QString const text = QMessageBox::tr ("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
     box.setText (title);
     box.setInformativeText (text);
     box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Yes);

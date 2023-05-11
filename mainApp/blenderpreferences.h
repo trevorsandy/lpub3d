@@ -43,7 +43,6 @@ class QScrollArea;
 class QProgressBar;
 class QProcess;
 class QTimer;
-class ParmsWindow;
 
 class BlenderPreferences;
 class BlenderPreferencesDialog : public QDialog
@@ -74,7 +73,7 @@ public slots:
 
 private:
     QPushButton *mPathsButton;
-    BlenderPreferences *mPrefeferences;
+    BlenderPreferences *mPreferences;
 };
 
 class BlenderPreferences : public QWidget
@@ -90,82 +89,81 @@ public:
 
     ~BlenderPreferences();
 
-    virtual void apply(const int response = QDialog::Accepted);
-
     static void loadSettings();
     static void saveSettings();
+    static bool exportParameterFile();
+    static bool settingsModified(const QString &module = "");
+
+    void apply(const int response = QDialog::Accepted);
+
+    int     mWidth;
+    int     mHeight;
+    qreal   mRenderPercentage;
+
+protected:
     static int numPaths(bool = false);
     static int numSettings(bool = false);
     static int numSettingsMM(bool = false);
     static bool getBlenderAddon(const QString &);
     static bool extractBlenderAddon(const QString &);
     static void loadDefaultParameters(QByteArray& Buffer, int Which);
-    static bool exportParameterFile();
     static bool overwriteFile(const QString &file);
-    static bool settingsModified(const QString &module = "");
-
-    static int     mWidth;
-    static int     mHeight;
-    static qreal   mRenderPercentage;
-
-protected:
     static bool settingsModified(int &width, int &height, double &renderPercentage, QString const &module = "");
+
     QString readStdErr(bool &hasError) const;
     void clearGroupBox(QGroupBox *groupBox);
-    void initLDrawImport();
-    void initLDrawImportMM();
-    void clearLists();
-    void loadLiterals();
+    void initPathsAndSettings();
+    void initPathsAndSettingsMM();
 
 public slots:
     void resetSettings();
+    void showPathsGroup();
+    bool promptCancel();
+
+private slots:
     void browseBlender(bool);
     void configureBlenderAddon(bool = false);
     void updateBlenderAddon();
-    void showPathsGroup();
     void enableImportModule();
     void sizeChanged(const QString &);
-    bool promptAccept();
     void setDefaultColor(int value) const;
     void colorButtonClicked(bool);
     void setModelSize(bool);
     void validateColourScheme(QString const &);
-
+    bool promptAccept();
     void update();
     void readStdOut();
     void writeStdOut();
-    bool promptCancel();
-    void showResult();
     void getStandardOutput();
+    void showResult();
     void statusUpdate(bool addon, bool error = true, const QString &message = QString());
 
 private:
-    QFormLayout *mForm;
     QWidget     *mContent;
-    QGridLayout *mAddonGridLayout;
-    QGridLayout *mPathsLayout;
+
+    QFormLayout *mForm;
     QGridLayout *mExeGridLayout;
+    QGridLayout *mAddonGridLayout;
+    QGridLayout *mPathsGridLayout;
     QFormLayout *mSettingsSubform;
 
-    QGroupBox   *mPathsBox;
-    QGroupBox   *mAddonModulesBox;
-    QGroupBox   *mSettingsBox;
-    QLineEdit   *mVersionEdit;
-    QLabel      *mVersionLabel;
-    QLabel      *mAddonVersionLabel;
+    QLineEdit   *mBlenderVersionEdit;
+    QLabel      *mBlenderVersionLabel;
     QLineEdit   *mAddonVersionEdit;
-    QCheckBox   *mRenderActBox;
+    QLabel      *mAddonVersionLabel;
+    QGroupBox   *mModulesBox;
     QCheckBox   *mImportActBox;
     QCheckBox   *mImportMMActBox;
-
-    ParmsWindow *mParmsWindow;                 // the parameter file editor
+    QCheckBox   *mRenderActBox;
+    QGroupBox   *mSettingsBox;
+    QGroupBox   *mPathsBox;
 
     QProgressBar *mProgressBar;
     QProcess     *mProcess;
     QTimer        mUpdateTimer;
 
     QStringList  mStdOutList;
-    bool         mVersionFound;
+    bool         mBlenderVersionFound;
 
     enum BlenderRenPathType
     {
@@ -232,7 +230,7 @@ private:
     };
 
     enum BlenderRenControlType
-    {                                                  // Index
+    {                                                    // Index
         BLENDER_PATH_EDIT,                               // 00
         ADD_ENVIRONMENT_BOX     = BLENDER_PATH_EDIT,     // 00
         BEVEL_WIDTH_EDIT        = BLENDER_PATH_EDIT,     // 00
@@ -429,8 +427,8 @@ private:
 
     struct ComboItems
     {
-        QString data;
-        QString items;
+        QString dataList;
+        QString itemList;
     };
 
     static BlenderPaths    mBlenderPaths[];
@@ -442,10 +440,7 @@ private:
     static ComboItems      mComboItems[];
     static ComboItems      mComboItemsMM[];
 
-    static bool    mDialogCancelled;
-    static bool    mDocumentRender;
-    static QString mVersion;
-    static QString mAddonVersion;
+
 
     QAction     *mDefaultColourEditAction;
     QPushButton *mAddonUpdateButton;
@@ -459,8 +454,12 @@ private:
     QList<QLineEdit   *> mLineEditList;
     QList<QComboBox   *> mComboBoxList;
 
+    QString mBlenderVersion;
+    QString mAddonVersion;
     bool mConfigured;
     bool mAddonUpdate;
+    bool mDocumentRender;
+    bool mDialogCancelled;
 };
 
 extern class BlenderPreferences *gAddonPreferences;
