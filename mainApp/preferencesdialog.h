@@ -279,7 +279,9 @@ class PreferencesDialog : public QDialog
     void enableShortcutEditReset(const QString &displayText);
 
     void applyBlenderAddonPreferences();
+    void resetBlenderAddonPreferences();
     void showBlenderAddonPaths();
+    void enableBlenderAddonButton(bool);
 
     bool maybeSave();
     void closeEvent(QCloseEvent *event) override;
@@ -298,7 +300,9 @@ private:
 
     void setBlenderAddonPreferences();
 
-    QPushButton *blenderAddonPathsBtn;
+    QPushButton *blenderAddonApplyButton;
+    QPushButton *blenderAddonResetButton;
+    QPushButton *blenderAddonPathsButton;
     BlenderPreferences *blenderAddonPreferences;
 
     QDialog     *messageDialog;

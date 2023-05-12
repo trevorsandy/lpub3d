@@ -68,10 +68,13 @@ public:
 public slots:
     void showPathsGroup();
     void resetSettings();
+    void enableButton(bool);
     void accept() override;
     void reject() override;
 
 private:
+    QPushButton *mApplyButton;
+    QPushButton *mResetButton;
     QPushButton *mPathsButton;
     BlenderPreferences *mPreferences;
 };
@@ -92,7 +95,7 @@ public:
     static void loadSettings();
     static void saveSettings();
     static bool exportParameterFile();
-    static bool settingsModified(const QString &module = "");
+    static bool settingsModified(bool update = true, QString const &module = QString());
 
     void apply(const int response = QDialog::Accepted);
 
@@ -108,12 +111,14 @@ protected:
     static bool extractBlenderAddon(const QString &);
     static void loadDefaultParameters(QByteArray& Buffer, int Which);
     static bool overwriteFile(const QString &file);
-    static bool settingsModified(int &width, int &height, double &renderPercentage, QString const &module = "");
 
     QString readStdErr(bool &hasError) const;
     void clearGroupBox(QGroupBox *groupBox);
     void initPathsAndSettings();
     void initPathsAndSettingsMM();
+
+signals:
+    void settingChangedSig(bool);
 
 public slots:
     void resetSettings();
@@ -126,10 +131,12 @@ private slots:
     void updateBlenderAddon();
     void enableImportModule();
     void sizeChanged(const QString &);
-    void setDefaultColor(int value) const;
+    void setDefaultColor(int value);
     void colorButtonClicked(bool);
     void setModelSize(bool);
-    void validateColourScheme(QString const &);
+    void validateColourScheme(int);
+    void settingChanged(int = -1);
+    void pathChanged();
     bool promptAccept();
     void update();
     void readStdOut();
@@ -218,13 +225,13 @@ private:
         LBL_IMAGE_SCALE,                        // 32/6 QLineEdit
         LBL_RENDER_PERCENTAGE,                  // 33/7 QLineEdit
 
-        LBL_COLOUR_SCHEME,                      // 33/0 QComboBox
-        LBL_FLEX_PARTS_SOURCE,                  // 34/1 QComboBox
-        LBL_LOGO_STUD_VERSION,                  // 35/2 QComboBox
-        LBL_LOOK,                               // 26/3 QComboBox
-        LBL_POSITION_OBJECT,                    // 37/4 QComboBox
-        LBL_RESOLUTION,                         // 38/5 QComboBox
-        LBL_RESOLVE_NORMALS,                    // 39/6 QComboBox
+        LBL_COLOUR_SCHEME,                      // 34/0 QComboBox
+        LBL_FLEX_PARTS_SOURCE,                  // 35/1 QComboBox
+        LBL_LOGO_STUD_VERSION,                  // 36/2 QComboBox
+        LBL_LOOK,                               // 27/3 QComboBox
+        LBL_POSITION_OBJECT,                    // 38/4 QComboBox
+        LBL_RESOLUTION,                         // 39/5 QComboBox
+        LBL_RESOLVE_NORMALS,                    // 40/6 QComboBox
 
         NUM_SETTINGS
     };
