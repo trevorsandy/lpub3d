@@ -417,7 +417,6 @@ BlenderPreferences::BlenderPreferences(
     mAddonVersionEdit->setToolTip(tr("%1 Blender LDraw import and image renderer addon").arg(VER_PRODUCTNAME_STR));
     mAddonVersionEdit->setPalette(ReadOnlyPalette);
     mAddonVersionEdit->setReadOnly(true);
-    mAddonVersionEdit->setVisible(!mAddonVersion.isEmpty());
     mAddonGridLayout->addWidget(mAddonVersionEdit,0,1);
     mAddonGridLayout->setColumnStretch(1,1/*1 is greater than 0 (default)*/);
 
@@ -459,7 +458,7 @@ BlenderPreferences::BlenderPreferences(
 
     loadSettings();
 
-    // Populate Blender version and addon attributes
+    // Populate Blender version and addon attributes - after loadSettings
     const int i = LBL_BLENDER_PATH;
     pathLabel->setText(mBlenderPaths[i].label);
     pathLabel->setToolTip(mBlenderPaths[i].tooltip);
@@ -468,14 +467,14 @@ BlenderPreferences::BlenderPreferences(
     pathLineEdit->setToolTip(mBlenderPaths[i].tooltip);
 
     if (mAddonVersion.isEmpty()) {
-      mModulesBox->setEnabled(false);
-      mAddonUpdateButton->setEnabled(false);
-      mImportActBox->setChecked(true); // default addon module
+        mModulesBox->setEnabled(false);
+        mAddonUpdateButton->setEnabled(false);
+        mImportActBox->setChecked(true); // default addon module
     } else {
-      mAddonVersionEdit->setText(mAddonVersion);
-      mRenderActBox->setChecked(true);
-      mImportActBox->setChecked(  Preferences::blenderImportModule == QLatin1String("TN"));
-      mImportMMActBox->setChecked(Preferences::blenderImportModule == QLatin1String("MM"));
+        mAddonVersionEdit->setText(mAddonVersion);
+        mRenderActBox->setChecked(true);
+        mImportActBox->setChecked(  Preferences::blenderImportModule == QLatin1String("TN"));
+        mImportMMActBox->setChecked(Preferences::blenderImportModule == QLatin1String("MM"));
     }
 
     QString textColour, versionText, addonText;
@@ -491,12 +490,12 @@ BlenderPreferences::BlenderPreferences(
         versionText = tr("Blender not configured");
     }
 
+    mAddonUpdate = false;
+    mAddonVersionEdit->setVisible(!mAddonVersion.isEmpty());
     mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
     mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
     mBlenderVersionLabel->setText(versionText);
     mAddonVersionLabel->setText(addonText);
-
-    mAddonUpdate = false;
 
     if (mImportMMActBox->isChecked())
         initPathsAndSettingsMM();
@@ -1160,15 +1159,16 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
             return;
         }
 
+        // Install Blender addon
+        statusUpdate(true/*addon*/, false/*error*/, tr("Install addon..."));
+
         // Create Blender config directory
         QDir configDir(Preferences::blenderConfigDir);
         if(!QDir(configDir).exists())
             configDir.mkpath(".");
 
-        // Save Blender settings
+        // Save initial settings
         saveSettings();
-
-        // Install Blender addon
 
         arguments.clear();
         arguments << QString("--background");
@@ -1246,12 +1246,10 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
 
         result = processCommand(PR_INSTALL);
 
-        QString const statusMessage = result == PR_OK
-                                          ? tr("Install addon...")
-                                          : tr("Addon install failed.");
-        LogType logType = result == PR_OK ? LOG_INFO : LOG_ERROR;
-        emit gui->messageSig(logType, message);
-        statusUpdate(true/*addon*/,result != PR_OK/*error*/, statusMessage);
+        emit gui->messageSig(result == PR_OK ? LOG_INFO : LOG_ERROR, message);
+
+        if (result != PR_OK)
+            statusUpdate(true/*addon*/, true/*error*/, tr("Addon install failed."));
     } else {
         emit gui->messageSig(LOG_ERROR, tr("Blender executable not found at [%1]").arg(blenderExe), true);
     }
@@ -1606,6 +1604,8 @@ void BlenderPreferences::showResult()
         mBlenderVersionEdit->setText(mBlenderVersion);
         mBlenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
         mBlenderVersionEdit->setVisible(mConfigured);
+        mPathsBox->setEnabled(mConfigured);
+        mSettingsBox->setEnabled(mConfigured);
         if (!mAddonVersion.isEmpty()) {
             mAddonVersionLabel->setText(tr("Blender Addon"));
             mAddonVersionLabel->setStyleSheet(textColour);
@@ -1615,9 +1615,8 @@ void BlenderPreferences::showResult()
             mAddonUpdateButton->setEnabled(true);
             Preferences::setBlenderVersionPreference(
                 QString("%1|%2").arg(mBlenderVersion).arg(mAddonVersion));
+            saveSettings();
         }
-        mPathsBox->setEnabled(mConfigured);
-        mSettingsBox->setEnabled(mConfigured);
         message = tr("Blender version %1").arg(mBlenderVersion);
     }
 
