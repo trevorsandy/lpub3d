@@ -790,6 +790,8 @@ enum ThemeColorType {
 #define KEYBOARDSHORTCUTS                      "KeyboardShortcuts"
 #define TABLAYOUTS                             "TabLayouts"
 
+#define BLENDER_RENDER_ADDON                   "io_scene_lpub3d_renderldraw"
+
 #define MAX_TABLAYOUTS                         10
 
 #define FADE_SFX                                "-fade"

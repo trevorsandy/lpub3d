@@ -467,19 +467,23 @@ BlenderPreferences::BlenderPreferences(
     pathLineEdit->setText(mBlenderPaths[i].value);
     pathLineEdit->setToolTip(mBlenderPaths[i].tooltip);
 
+    if (mAddonVersion.isEmpty()) {
+      mModulesBox->setEnabled(false);
+      mAddonUpdateButton->setEnabled(false);
+      mImportActBox->setChecked(true); // default addon module
+    } else {
+      mAddonVersionEdit->setText(mAddonVersion);
+      mRenderActBox->setChecked(true);
+      mImportActBox->setChecked(  Preferences::blenderImportModule == QLatin1String("TN"));
+      mImportMMActBox->setChecked(Preferences::blenderImportModule == QLatin1String("MM"));
+    }
+
     QString textColour, versionText, addonText;
     if (mConfigured) {
         textColour = QApplication::palette().text().color().name();
         versionText = tr("Blender");
         addonText = tr("Blender Addon");
         mBlenderVersionEdit->setText(mBlenderVersion);
-        if (!mAddonVersion.isEmpty()) {
-            mModulesBox->setEnabled(true);
-            mAddonVersionEdit->setText(mAddonVersion);
-            mRenderActBox->setChecked(true);
-            mImportActBox->setChecked(  Preferences::blenderImportModule == QLatin1String("TN"));
-            mImportMMActBox->setChecked(Preferences::blenderImportModule == QLatin1String("MM"));
-        }
     } else {
         textColour = Preferences::displayTheme == THEME_DARK
                          ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
@@ -1385,14 +1389,18 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                                       "Archive file %2 may be open in another program.")
                                       .arg(zip.getZipError()).arg(QFileInfo(blenderAddonFile).fileName());
             emit gui->messageSig(LOG_WARNING, result);
-
-            // Download new archive
-            return false;
+            return false; // Download new archive
         }
-        QString const versionFile = QLatin1String("addons/io_scene_lpub3d_importldraw/__version__.py");
+
+        QString const versionFile = QString("addons/%1/__version__.py").arg(BLENDER_RENDER_ADDON);
         zip.setCurrentFile(versionFile);
         QuaZipFile file(&zip);
-        file.open(QIODevice::ReadOnly);
+        if (!file.open(QIODevice::ReadOnly)) {
+            emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read addon archive file: [%1]<br>%2.")
+                                                .arg(versionFile)
+                                                .arg(file.errorString()));
+            return false; // Download new archive
+        }
         QByteArray ba = file.readAll();
         file.close();
 
@@ -1408,7 +1416,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         }
         zip.close();
         if (zip.getZipError() != UNZ_OK)
-            emit gui->messageSig(LOG_WARNING, tr("Archive close errorReturn code %1.").arg(zip.getZipError()));
+            emit gui->messageSig(LOG_WARNING, tr("Archive close error. Return code %1.").arg(zip.getZipError()));
 
         lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray response_data = lpub->getDownloadedFile();
@@ -1602,8 +1610,8 @@ void BlenderPreferences::showResult()
             mAddonVersionLabel->setText(tr("Blender Addon"));
             mAddonVersionLabel->setStyleSheet(textColour);
             mAddonVersionEdit->setText(mAddonVersion);
-            mModulesBox->setEnabled(true);
             mAddonVersionEdit->setVisible(true);
+            mModulesBox->setEnabled(true);
             mAddonUpdateButton->setEnabled(true);
             Preferences::setBlenderVersionPreference(
                 QString("%1|%2").arg(mBlenderVersion).arg(mAddonVersion));
