@@ -1885,6 +1885,15 @@ void CommonMenus::setWhatsThis()
             "    covers and final model or assembly displays.\n\n"
             "  - LDGLite: %1 legacy renderer written in 'c' offering\n"
             "    fast image rendering ideal for proofing.\n\n"
+            "  - Blender: %1 addon module to enable LDraw import,\n"
+            "    export and image rendering using Blender 2.80 or\n"
+            "    later.\n"
+            "    The Blender LDraw addon is not configured by default.\n"
+            "    To enable, you must install Blender and 2.80 or later\n"
+            "    and set the Blender path to trigger the %1 automated\n"
+            "    addon configuration.\n"
+            "    Once configured, you can use this dialog to cutomize\n"
+            "    your Blender LDraw import, and image render settings.\n\n"
             "  The Renderers tab also present the preferred renderer,\n"
             "  projection and render process timeout settings.\n"
             "  Additonally, LSynth options for configurable parts are\n"
@@ -4079,12 +4088,40 @@ void CommonMenus::setWhatsThis()
                 )
         },
         // WT_DIALOG_BLENDER_RENDER_SETTINGS
-        {
+        { //-------------------------------------------------------//
             QObject::tr(
-            "  Configure the Blender single image render\n"
-            "  settings.\n"
-            "  Use the individual setting's tooltip to see\n"
-            "  setting description.%1\n")
+            "  You can configure the Blender LDraw addon settings.\n"
+            "  - Blender Executable: set Blender path. On entry,\n"
+            "    %1 will automatically apply the setting and\n"
+            "    attempt the configure the LDraw addon.\n"
+            "  - %1 Blender LDraw Addon: you can update the LDraw\n"
+            "    addon which will downlod the latest addon or apply\n"
+            "    the current addon if the version is the same or newer\n"
+            "    than the online version.\n"
+            "    You can view the standard output log for the update.\n\n"
+            "  - Enabled Addon Modules: check the desired import module.\n"
+            "    The LDraw Import TN import module is the long-standing\n"
+            "    Blender LDraw import addon, while the LDraw Import MM\n"
+            "    addon was recently introduced. The latter addon also\n"
+            "    offer LDraw export functionality.\n"
+            "    The %1 3D Image Render addon is mandatory but if\n"
+            "    no import module is enabled, none of the modules\n"
+            "    will be enabled in Blender so it will not be possible\n"
+            "    to perform an LDraw model import or render.\n\n"
+            "  - LDraw Import Addon Paths: addon paths are specific\n"
+            "    to the enabled addon import module.\n"
+            "  - LDraw Import Addon Settings: addon settings are\n"
+            "    specific to the enabled addon import module.\n"
+            "  - Apply: apply the addon path and setting preferences.\n"
+            "  - Show/Hide Paths: show or hide the addon paths\n"
+            "    display box.\n"
+            "  - Reset: reset the addon path and setting preferences\n"
+            "    to the system defult values.\n\n"
+            "  You can see the specific description of each setting\n"
+            "  if you hover over the setting to display its tooltip.\n"
+            "  Use the dialogue window scroll bar to access the\n"
+            "  complete selection of addon settings.%2\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_DIALOG_BLENDER_RENDER_SETTINGS")
@@ -5193,7 +5230,7 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Configure %1 preferred renderer, projection and\n"
             "  image processing timeout settings:\n\n"
-            "  - Preferred Renderer:"
+            "  - Preferred Renderer:\n"
             "    * POVRay: %1 ray tracing renderer offering feature\n"
             "      rich, photo-realistic rendering ideal for document\n"
             "      covers and final model or assembly displays.\n\n"
