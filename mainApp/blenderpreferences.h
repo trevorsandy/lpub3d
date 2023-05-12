@@ -140,6 +140,7 @@ private slots:
     bool promptAccept();
     void update();
     void readStdOut();
+    void readStdOut(const QString &stdOutput, QString &errors);
     void writeStdOut();
     void getStandardOutput();
     void showResult();
@@ -446,8 +447,6 @@ private:
     static BlenderSettings mDefaultSettingsMM[];
     static ComboItems      mComboItems[];
     static ComboItems      mComboItemsMM[];
-
-
 
     QAction     *mDefaultColourEditAction;
     QPushButton *mAddonUpdateButton;

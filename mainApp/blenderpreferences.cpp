@@ -253,7 +253,9 @@ BlenderPreferencesDialog::BlenderPreferencesDialog(
 
     layout->addWidget(buttonBox);
 
-    setMinimumSize(200, 500);
+    setMinimumSize(box->sizeHint().width() + 50, 500);
+
+    setSizeGripEnabled(true);
 
     setModal(true);
 }
@@ -269,7 +271,7 @@ bool BlenderPreferencesDialog::getBlenderPreferences(
     bool     docRender,
     QWidget *parent)
 {
-  BlenderPreferencesDialog *dialog = new BlenderPreferencesDialog(width,height,renderPercentage,docRender,parent);
+    BlenderPreferencesDialog *dialog = new BlenderPreferencesDialog(width,height,renderPercentage,docRender,parent);
 
     bool ok = dialog->exec() == QDialog::Accepted;
 
@@ -357,11 +359,11 @@ BlenderPreferences::BlenderPreferences(
 
     mConfigured = !Preferences::blenderImportModule.isEmpty();
 
-    loadSettings();
-
-    mContent = new QWidget(this);
+    mContent = new QWidget();
 
     mForm = new QFormLayout(mContent);
+
+    mContent->setLayout(mForm);
 
     QPalette ReadOnlyPalette = QApplication::palette();
     if (Preferences::displayTheme == THEME_DARK)
@@ -377,33 +379,27 @@ BlenderPreferences::BlenderPreferences(
     mExeGridLayout = new QGridLayout(blenderExeBox);
     blenderExeBox->setLayout(mExeGridLayout);
 
-    mBlenderVersionLabel = new QLabel(mContent);
+    mBlenderVersionLabel = new QLabel(blenderExeBox);
     mExeGridLayout->addWidget(mBlenderVersionLabel,0,0);
 
-    mBlenderVersionEdit = new QLineEdit(mContent);
+    mBlenderVersionEdit = new QLineEdit(blenderExeBox);
     mBlenderVersionEdit->setPalette(ReadOnlyPalette);
     mBlenderVersionEdit->setReadOnly(true);
     mBlenderVersionEdit->setVisible(mConfigured);
     mExeGridLayout->addWidget(mBlenderVersionEdit,0,1,1,2);
 
-    const int i = LBL_BLENDER_PATH;
-    QLabel *pathLabel = new QLabel(mBlenderPaths[i].label, mContent);
-    pathLabel->setToolTip(mBlenderPaths[i].tooltip);
+    QLabel *pathLabel = new QLabel(blenderExeBox);
     mExeGridLayout->addWidget(pathLabel,1,0);
 
-    QLineEdit *pathLineEdit = new QLineEdit(mContent);
-    pathLineEdit->setText(mBlenderPaths[i].value);
-    pathLineEdit->setObjectName(mBlenderPaths[i].key);
-    pathLineEdit->setToolTip(mBlenderPaths[i].tooltip);
-    mPathLineEditList << pathLineEdit;
+    QLineEdit *pathLineEdit = new QLineEdit(blenderExeBox);
     mExeGridLayout->addWidget(pathLineEdit,1,1);
+    mPathLineEditList << pathLineEdit;
     connect(pathLineEdit, SIGNAL(editingFinished()),
             this,         SLOT(configureBlenderAddon()));
 
-    QPushButton *pathBrowseButton = new QPushButton(tr("Browse..."), mContent);
-    pathBrowseButton->setObjectName(mBlenderPaths[i].key);
-    mPathBrowseButtonList << pathBrowseButton;
+    QPushButton *pathBrowseButton = new QPushButton(tr("Browse..."), blenderExeBox);
     mExeGridLayout->addWidget(pathBrowseButton,1,2);
+    mPathBrowseButtonList << pathBrowseButton;
     connect(pathBrowseButton, SIGNAL(clicked(bool)),
             this,             SLOT(browseBlender(bool)));
 
@@ -414,10 +410,10 @@ BlenderPreferences::BlenderPreferences(
     mAddonGridLayout = new QGridLayout(blenderAddonVersionBox);
     blenderAddonVersionBox->setLayout(mAddonGridLayout);
 
-    mAddonVersionLabel = new QLabel(mContent);
+    mAddonVersionLabel = new QLabel(blenderAddonVersionBox);
     mAddonGridLayout->addWidget(mAddonVersionLabel,0,0);
 
-    mAddonVersionEdit = new QLineEdit(mContent);
+    mAddonVersionEdit = new QLineEdit(blenderAddonVersionBox);
     mAddonVersionEdit->setToolTip(tr("%1 Blender LDraw import and image renderer addon").arg(VER_PRODUCTNAME_STR));
     mAddonVersionEdit->setPalette(ReadOnlyPalette);
     mAddonVersionEdit->setReadOnly(true);
@@ -425,13 +421,13 @@ BlenderPreferences::BlenderPreferences(
     mAddonGridLayout->addWidget(mAddonVersionEdit,0,1);
     mAddonGridLayout->setColumnStretch(1,1/*1 is greater than 0 (default)*/);
 
-    mAddonUpdateButton = new QPushButton(tr("Update"), mContent);
+    mAddonUpdateButton = new QPushButton(tr("Update"), blenderAddonVersionBox);
     mAddonUpdateButton->setToolTip(tr("Update %1 Blender LDraw addon").arg(VER_PRODUCTNAME_STR));
     mAddonGridLayout->addWidget(mAddonUpdateButton,0,2);
     connect(mAddonUpdateButton, SIGNAL(clicked(bool)),
             this,               SLOT(updateBlenderAddon()));
 
-    mAddonStdOutButton = new QPushButton(tr("Output..."), mContent);
+    mAddonStdOutButton = new QPushButton(tr("Output..."), blenderAddonVersionBox);
     mAddonStdOutButton->setToolTip(tr("Open the standrd output log"));
     mAddonStdOutButton->setEnabled(false);
     mAddonGridLayout->addWidget(mAddonStdOutButton,0,3);
@@ -444,22 +440,32 @@ BlenderPreferences::BlenderPreferences(
     mModulesBox->setLayout(modulesHLayout);
     mAddonGridLayout->addWidget(mModulesBox,1,0,1,4);
 
-    mImportActBox = new QCheckBox(tr("LDraw Import TN"),mContent);
+    mImportActBox = new QCheckBox(tr("LDraw Import TN"),mModulesBox);
     mImportActBox->setToolTip(tr("Enable addon import module (adapted from LDraw Import by Toby Nelson) in Blender"));
     modulesHLayout->addWidget(mImportActBox);
     connect(mImportActBox, SIGNAL(clicked(bool)),
             this,          SLOT(enableImportModule()));
 
-    mImportMMActBox = new QCheckBox(tr("LDraw Import MM"),mContent);
+    mImportMMActBox = new QCheckBox(tr("LDraw Import MM"),mModulesBox);
     mImportMMActBox->setToolTip(tr("Enable addon import module (adapted from LDraw Import by Matthew Morrison) in Blender"));
     modulesHLayout->addWidget(mImportMMActBox);
     connect(mImportMMActBox, SIGNAL(clicked(bool)),
             this,            SLOT(enableImportModule()));
 
-    mRenderActBox = new QCheckBox(tr("%1 Image Render").arg(VER_PRODUCTNAME_STR), mContent);
+    mRenderActBox = new QCheckBox(tr("%1 Image Render").arg(VER_PRODUCTNAME_STR), mModulesBox);
     mRenderActBox->setToolTip(tr("Addon image render module in Blender"));
     mRenderActBox->setEnabled(false);
     modulesHLayout->addWidget(mRenderActBox);
+
+    loadSettings();
+
+    // Populate Blender version and addon attributes
+    const int i = LBL_BLENDER_PATH;
+    pathLabel->setText(mBlenderPaths[i].label);
+    pathLabel->setToolTip(mBlenderPaths[i].tooltip);
+
+    pathLineEdit->setText(mBlenderPaths[i].value);
+    pathLineEdit->setToolTip(mBlenderPaths[i].tooltip);
 
     QString textColour, versionText, addonText;
     if (mConfigured) {
@@ -480,6 +486,7 @@ BlenderPreferences::BlenderPreferences(
                          : QLatin1String("blue");
         versionText = tr("Blender not configured");
     }
+
     mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
     mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
     mBlenderVersionLabel->setText(versionText);
@@ -493,7 +500,8 @@ BlenderPreferences::BlenderPreferences(
         initPathsAndSettings();
 
     // Scroll area
-    QScrollArea *scrollArea = new QScrollArea;
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(mContent);
     layout->addWidget(scrollArea);
 }
@@ -1637,12 +1645,8 @@ void BlenderPreferences::getStandardOutput()
     }
 }
 
-void BlenderPreferences::readStdOut()
+void BlenderPreferences::readStdOut(const QString &stdOutput, QString &errors)
 {
-    QString StdOut = QString(mProcess->readAllStandardOutput());
-
-    mStdOutList.append(StdOut);
-
     QRegExp rxInfo("^INFO: ");
     QRegExp rxData("^DATA: ");
     QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
@@ -1650,13 +1654,14 @@ void BlenderPreferences::readStdOut()
     QRegExp rxAddonVersion("^ADDON VERSION: ", Qt::CaseInsensitive);
 
     bool errorEncountered = false;
-    QStringList items,errors;
-    QStringList stdOutLines = StdOut.split(QRegExp("\n|\r\n|\r"));
+    QStringList items, errorList;
+    QStringList stdOutLines = stdOutput.split(QRegExp("\n|\r\n|\r"));
 
     QString const saveAddonVersion = mAddonVersion;
     QString const saveVersion = mBlenderVersion;
 
     int lineCount = 0;
+    int editListItems = mPathLineEditList.size();
     for (QString const &stdOutLine : stdOutLines) {
         if (stdOutLine.isEmpty())
             continue;
@@ -1678,42 +1683,43 @@ void BlenderPreferences::readStdOut()
                         mImportActBox->setChecked(true);
                     //emit gui->messageSig(LOG_DEBUG, tr("Blender version: %1 validated.").arg(mBlenderVersion));
                 }
-
-
             }
         }
 
         if (stdOutLine.contains(rxInfo)) {
             items = stdOutLine.split(": ");
-            statusUpdate(true/*addon*/, false/*error*/);
         } else if (stdOutLine.contains(rxData)) {
             items = stdOutLine.split(": ");
             if (items.at(1) == "ENVIRONMENT_FILE") {
                 mBlenderPaths[LBL_ENVIRONMENT_PATH].value = items.at(2);
-                mPathLineEditList[LBL_ENVIRONMENT_PATH]->setText(items.at(2));
+                if (editListItems > LBL_ENVIRONMENT_PATH)
+                    mPathLineEditList[LBL_ENVIRONMENT_PATH]->setText(items.at(2));
             } else if (items.at(1) == "LSYNTH_DIRECTORY") {
                 mBlenderPaths[LBL_LSYNTH_PATH].value = items.at(2);
-                mPathLineEditList[LBL_LSYNTH_PATH]->setText(items.at(2));
+                if (editListItems > LBL_LSYNTH_PATH)
+                    mPathLineEditList[LBL_LSYNTH_PATH]->setText(items.at(2));
             } else if (items.at(1) == "STUDLOGO_DIRECTORY") {
                 mBlenderPaths[LBL_STUD_LOGO_PATH].value = items.at(2);
-                mPathLineEditList[LBL_STUD_LOGO_PATH]->setText(items.at(2));
+                if (editListItems > LBL_STUD_LOGO_PATH)
+                    mPathLineEditList[LBL_STUD_LOGO_PATH]->setText(items.at(2));
             }
         } else if (stdOutLine.contains(rxError) || stdOutLine.contains(rxWarning)) {
             auto cleanLine = [&] () {
                 return stdOutLine.trimmed()
-                         /*.replace("<","&lt;")
-                           .replace(">","&gt;")
-                           .replace("&","&amp;")*/ + "<br>";
+                       /*.replace("<","&lt;")
+                         .replace(">","&gt;")
+                         .replace("&","&amp;")*/ + "<br>";
             };
-            errorEncountered = stdOutLine.contains(rxError);
-            errors << cleanLine();
+            errorList << cleanLine();
             int errorCount = lineCount;
             for (;errorCount < stdOutLines.size(); errorCount++) {
                 if (stdOutLine.at(0) == "")
-                    errors << cleanLine();
+                    errorList << cleanLine();
                 else
                     break;
             }
+            if (!errorEncountered)
+                errorEncountered = stdOutLine.contains(rxError);
         } else if (stdOutLine.contains(rxAddonVersion)) {
             // Get Addon version
             items = stdOutLine.split(":");
@@ -1722,17 +1728,46 @@ void BlenderPreferences::readStdOut()
         }
         lineCount++;
     }
-    if (errors.size()) {
-        mConfigured = false;
-        if (mAddonVersion != saveAddonVersion)
+
+    if (errorList.size()) {
+        if (!mBlenderVersionFound) {
+            if (mBlenderVersion != saveVersion) {
+                mConfigured = false;
+                mBlenderVersion = saveVersion;
+                mBlenderVersionEdit->setText(mBlenderVersion);
+            }
+        }
+        if (mAddonVersion != saveAddonVersion) {
+            mConfigured = false;
             mAddonVersion = saveAddonVersion;
-        if (mBlenderVersion != saveVersion)
-            mBlenderVersion = saveVersion;
-        mAddonVersionEdit->setText(mAddonVersion);
-        mBlenderVersionEdit->setText(mBlenderVersion);
+            mAddonVersionEdit->setText(mAddonVersion);
+        }
+        errors = errorList.join(" ");
+    }
+}
+
+void BlenderPreferences::readStdOut()
+{
+    QString const &StdOut = QString(mProcess->readAllStandardOutput());
+
+    mStdOutList.append(StdOut);
+
+    QRegExp rxInfo("^INFO: ");
+    QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
+
+    bool const hasError = StdOut.contains(rxError);
+
+    if (StdOut.contains(rxInfo) && !hasError)
+        statusUpdate(true/*addon*/, false/*error*/);
+
+    QString errorsAndWarnings;
+
+    readStdOut(StdOut, errorsAndWarnings);
+
+    if (!errorsAndWarnings.isEmpty()) {
         QString const stdOutLog = QDir::toNativeSeparators(QString("<br>- See %1/Blender/stdout-blender-addon-install")
-                                                                .arg(Preferences::lpub3d3rdPartyConfigDir));
-        emit gui->messageSig(LOG_BLENDER_ADDON, errors.join(" ").append(stdOutLog), errorEncountered);
+                                                               .arg(Preferences::lpub3d3rdPartyConfigDir));
+        emit gui->messageSig(LOG_BLENDER_ADDON, errorsAndWarnings.append(stdOutLog), hasError);
     }
 }
 
@@ -1741,8 +1776,8 @@ QString BlenderPreferences::readStdErr(bool &hasError) const
     auto cleanLine = [] (const QString &line) {
         return line.trimmed()
                /*.replace("<","&lt;")
-                           .replace(">","&gt;")
-                           .replace("&","&amp;")*/ + "<br>";
+                 .replace(">","&gt;")
+                 .replace("&","&amp;")*/ + "<br>";
     };
     hasError = false;
     QStringList returnLines;
@@ -1774,7 +1809,7 @@ void BlenderPreferences::writeStdOut()
     {
         QTextStream Out(&file);
         for (const QString& Line : mStdOutList)
-            Out << Line;
+            Out << Line << lpub_endl;
         file.close();
         mAddonStdOutButton->setEnabled(true);
     }
@@ -2223,6 +2258,23 @@ void BlenderPreferences::loadSettings()
             QString const value = Settings.value(key, QString()).toString();
             if (!value.isEmpty()) {
                 mBlenderSettingsMM[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
+            }
+        }
+    } else {
+        QString const logFile = QString("%1/Blender/stdout-blender-addon-install").arg(Preferences::lpub3d3rdPartyConfigDir);
+        if (QFileInfo(logFile).isReadable()) {
+            QFile file(logFile);
+            if (file.open(QFile::ReadOnly | QFile::Text))
+            {
+                QByteArray ba = file.readAll();
+                file.close();
+                QString errors;
+                gAddonPreferences->mProgressBar = nullptr;
+                gAddonPreferences->readStdOut(QString(ba), errors);
+            } else {
+                emit gui->messageSig(LOG_WARNING, tr("Failed to open log file: %1:\n%2")
+                                                      .arg(file.fileName())
+                                                      .arg(file.errorString()));
             }
         }
     }
