@@ -430,6 +430,7 @@ BlenderPreferences::BlenderPreferences(
 
     mAddonStdOutButton = new QPushButton(tr("Output..."), mContent);
     mAddonStdOutButton->setToolTip(tr("Open the standrd output log"));
+    mAddonStdOutButton->setEnabled(false);
     mAddonGridLayout->addWidget(mAddonStdOutButton,0,3);
     connect(mAddonStdOutButton, SIGNAL(clicked(bool)),
             this,               SLOT(getStandardOutput()));
@@ -1603,9 +1604,6 @@ void BlenderPreferences::showResult()
         message = tr("Blender version %1").arg(mBlenderVersion);
     }
 
-    // Restore standard output button
-    mAddonStdOutButton->setEnabled(true);
-
     // Close mProcess
     delete mProcess;
     mProcess = nullptr;
@@ -1777,6 +1775,7 @@ void BlenderPreferences::writeStdOut()
         for (const QString& Line : mStdOutList)
             Out << Line;
         file.close();
+        mAddonStdOutButton->setEnabled(true);
     }
     else
     {
