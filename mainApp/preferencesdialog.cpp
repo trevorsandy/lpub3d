@@ -332,6 +332,8 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   connect(lpub,                             SIGNAL(checkForUpdatesFinished ()),
           this,                             SLOT(updateChangelog ()));
 
+  setMinimumSize(200, 400);
+
   setSizeGripEnabled(true);
 }
 
@@ -776,31 +778,46 @@ void PreferencesDialog::setBlenderAddonPreferences()
 
     QDialogButtonBox *buttonBox;
     buttonBox = new QDialogButtonBox(this);
-    blenderAddonApplyButton = new QPushButton(tr("Apply"));
+    blenderAddonApplyButton = new QPushButton(tr("Apply"), buttonBox);
     blenderAddonApplyButton->setToolTip(tr("Apply addon paths and settings preferences"));
     blenderAddonApplyButton->setEnabled(false);
     buttonBox->addButton(blenderAddonApplyButton,QDialogButtonBox::ActionRole);
     connect(blenderAddonApplyButton,SIGNAL(clicked()),this,SLOT(applyBlenderAddonPreferences()));
 
-    blenderAddonPathsButton = new QPushButton(tr("Show Paths"));
+    blenderAddonPathsButton = new QPushButton(tr("Hide Paths"), buttonBox);
+    blenderAddonPathsButton->setToolTip(tr("Hide addon path preferences dialog"));
     buttonBox->addButton(blenderAddonPathsButton,QDialogButtonBox::ActionRole);
     connect(blenderAddonPathsButton,SIGNAL(clicked()),this,SLOT(showBlenderAddonPaths()));
 
-    blenderAddonResetButton = new QPushButton(tr("Reset"));
+    blenderAddonResetButton = new QPushButton(tr("Reset"), buttonBox);
     blenderAddonResetButton->setToolTip(tr("Reset addon paths and settings preferences to system defaults"));
     blenderAddonResetButton->setEnabled(false);
     buttonBox->addButton(blenderAddonResetButton,QDialogButtonBox::ActionRole);
     connect(blenderAddonResetButton,SIGNAL(clicked()),this,SLOT(resetBlenderAddonPreferences()));
 
-    connect(blenderAddonPreferences,SIGNAL(settingChangedSig(bool)), SLOT(enableBlenderAddonButton(bool)));
+    if (!QFileInfo(Preferences::blenderLDrawConfigFile).isReadable() &&
+        !Preferences::blenderImportModule.isEmpty())
+        blenderAddonApplyButton->setEnabled(true);
+
+    connect(blenderAddonPreferences,SIGNAL(settingChangedSig(bool)),this,SLOT(enableBlenderAddonButton(bool)));
 
     ui.blenderGrpBox->layout()->addWidget(buttonBox);
+}
+
+void PreferencesDialog::showBlenderAddonPaths()
+{
+    QString const display = blenderAddonPathsButton->text().startsWith("Hide") ? tr("Show") : tr("Hide");
+    blenderAddonPathsButton->setText(tr("%1 Paths").arg(display));
+    blenderAddonPathsButton->setToolTip(tr("%1 addon path preferences dialog").arg(display));
+    blenderAddonPreferences->showPathsGroup();
 }
 
 void PreferencesDialog::enableBlenderAddonButton(bool change)
 {
     blenderAddonApplyButton->setEnabled(change);
     blenderAddonResetButton->setEnabled(change);
+    blenderAddonPathsButton->setText(tr("Hide Paths"));
+    blenderAddonPathsButton->setToolTip(tr("Hide addon path preferences dialog"));
 }
 
 void PreferencesDialog::applyBlenderAddonPreferences()
@@ -813,18 +830,6 @@ void PreferencesDialog::resetBlenderAddonPreferences()
 {
     blenderAddonPreferences->resetSettings();
     blenderAddonApplyButton->setEnabled(false);
-}
-
-void PreferencesDialog::showBlenderAddonPaths()
-{
-    if(blenderAddonPathsButton->text().startsWith("Hide")) {
-        blenderAddonPathsButton->setText(tr("Show Paths"));
-        blenderAddonPathsButton->setToolTip(tr("Hide addon path preferences dialog"));
-    } else {
-        blenderAddonPathsButton->setText(tr("Hide Paths"));
-        blenderAddonPathsButton->setToolTip(tr("Show addon path preferences dialog"));
-    }
-    blenderAddonPreferences->showPathsGroup();
 }
 
 void PreferencesDialog::sceneColorButtonClicked()

@@ -261,13 +261,17 @@ void RenderDialog::on_RenderSettingsButton_clicked()
         }
 
         ui->RenderButton->setEnabled(blenderConfigured);
-        if (!ok && !blenderConfigured)
+        if (!blenderConfigured)
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
     }
 }
 
 void RenderDialog::on_RenderButton_clicked()
 {
+    if (!QFileInfo(Preferences::blenderLDrawConfigFile).isReadable() &&
+        !Preferences::blenderImportModule.isEmpty())
+        BlenderPreferences::saveSettings();
+
     std::function<QStringList()> getFileContent;
     getFileContent = [&] ()
     {
