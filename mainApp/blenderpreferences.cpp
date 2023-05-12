@@ -101,7 +101,7 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettings [NUM_S
 
     /*26/0 LBL_BEVEL_WIDTH           */ {"bevelwidth",                     "0.5",      QObject::tr("Bevel Width"),            QObject::tr("Width of the bevelled edges")},
     /*27/1 LBL_CAMERA_BORDER_PERCENT */ {"cameraborderpercentage",         "5.0",      QObject::tr("Camera Border Percent"),  QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
-    /*28/2 LBL_DEFAULT_COLOUR        */ {"defaultcolour",                  "4",        QObject::tr("Default Colour"),         QObject::tr("Sets the default part colour")},
+    /*28/2 LBL_DEFAULT_COLOUR        */ {"defaultcolour",                  "16",       QObject::tr("Default Colour"),         QObject::tr("Sets the default part colour using LDraw colour code")},
     /*29/3 LBL_GAPS_SIZE             */ {"gapwidth",                       "0.01",     QObject::tr("Gap Width"),              QObject::tr("Amount of gap space between each part")},
     /*20/4 LBL_IMAGE_WIDTH           */ {"resolutionwidth",                "800",      QObject::tr("Image Width"),            QObject::tr("Sets the rendered image width in pixels.")},
     /*31/5 LBL_IMAGE_HEIGHT          */ {"resolutionheight",               "600",      QObject::tr("Image Height"),           QObject::tr("Sets the rendered image height in pixels.")},
@@ -665,7 +665,7 @@ void BlenderPreferences::initPathsAndSettings()
             lineEdit->setToolTip(mBlenderSettings[i].tooltip);
             mLineEditList << lineEdit;
             if (i == LBL_DEFAULT_COLOUR)
-                setDefaultColor(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
+                setDefaultColor(lcGetColorIndex(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt()));
             mSettingsSubform->addRow(label,lineEdit);
         } else {                            // QComboBoxes
             QComboBox *comboBox = new QComboBox(mSettingsBox);
@@ -1293,7 +1293,7 @@ void BlenderPreferences::settingChanged(int index)
         QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
         if (comboBox) {
             i = comboBox->property("ControlID").toInt();
-            item = comboBox->itemData(index).toString()/*comboBox->itemText(index)*/;
+            item = comboBox->itemData(index).toString();
         }
     } else {
         QCheckBox *checkBox = qobject_cast<QCheckBox *>(sender());
@@ -1920,27 +1920,30 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         _oldValue = width;
                         _width  = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
-                            width = int(_width);
-                            if (update)
+                            if (update) {
+                                width = int(_width);
                                 mBlenderSettingsMM[i].value = QString::number(width);
+                            }
                             modified |= itemChanged(_oldValue, _width);
                         }
                     } else if (j == RESOLUTION_HEIGHT_EDIT) {
                         _oldValue = height;
                         _height = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
-                            height = int(_height);
-                            if (update)
+                            if (update) {
+                                height = int(_height);
                                 mBlenderSettingsMM[i].value = QString::number(height);
+                            }
                             modified |= itemChanged(_oldValue, _height);
                         }
                     } else if (j == LBL_RENDER_PERCENTAGE_MM) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) {
-                            renderPercentage = double(_renderPercentage / 100);
-                            if (update)
+                            if (update) {
+                                renderPercentage = double(_renderPercentage / 100);
                                 mBlenderSettingsMM[i].value = QString::number(_renderPercentage);
+                            }
                             modified |= itemChanged(_oldValue, renderPercentage);
                         }
                     } else {
@@ -1989,36 +1992,48 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         _oldValue = width;
                         _width  = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
-                            width = int(_width);
-                            if (update)
+                            if (update) {
+                                width = int(_width);
                                 mBlenderSettings[i].value = QString::number(width);
+                            }
                             modified |= itemChanged(_oldValue, _width);
                         }
                     } else if (j == IMAGE_HEIGHT_EDIT) {
                         _oldValue = height;
                         _height = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
-                            height = int(_height);
-                            if (update)
+                            if (update) {
+                                height = int(_height);
                                 mBlenderSettings[i].value = QString::number(height);
+                            }
                             modified |= itemChanged(_oldValue, _height);
                         }
                     } else if (j == LBL_RENDER_PERCENTAGE) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
-                        if (ok) {
-                            renderPercentage = double(_renderPercentage / 100);
-                            if (update)
+                        if (ok) { 
+                            if (update) {
+                                renderPercentage = double(_renderPercentage / 100);
                                 mBlenderSettings[i].value = QString::number(_renderPercentage);
+                            }
                             modified |= itemChanged(_oldValue, renderPercentage);
                         }
                     } else {
-                        _oldValue = mBlenderSettings[i].value.toDouble();
-                        _value = j == DEFAULT_COLOUR_EDIT ? gAddonPreferences->mLineEditList[j]->property("ColourID").toDouble(&ok)
-                                                          : gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        if (j == DEFAULT_COLOUR_EDIT) {
+                            _oldValue = lcGetColorIndex(mBlenderSettings[i].value.toInt());  // colour code
+                            _value = gAddonPreferences->mLineEditList[j]->property("ColorIndex").toInt(&ok);
+                        } else {
+                            _oldValue = mBlenderSettings[i].value.toDouble();
+                            _value = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        }
                         if (ok) {
-                            if (update)
-                                mBlenderSettings[i].value = QString::number(j == DEFAULT_COLOUR_EDIT ? int(_value) : _value);
+                            if (update) {
+                                if (j == DEFAULT_COLOUR_EDIT) {
+                                    mBlenderSettings[i].value = QString::number(lcGetColorCode(qint32(_value)));
+                                } else {
+                                    mBlenderSettings[i].value = QString::number(_value);
+                                }
+                            }
                             modified |= itemChanged(_oldValue, _value);
                         }
                     }
@@ -2057,7 +2072,7 @@ void BlenderPreferences::resetSettings()
     mConfigured = !Preferences::blenderImportModule.isEmpty();
 
     mBlenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
-    mBlenderVersion                              = Preferences::blenderVersion;
+    mBlenderVersion                       = Preferences::blenderVersion;
     mAddonVersion                         = Preferences::blenderAddonVersion;
 
     mBlenderVersionEdit->setText(mBlenderVersion);
@@ -2085,7 +2100,7 @@ void BlenderPreferences::resetSettings()
                     else if (j == RENDER_PERCENTAGE_EDIT)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else if (j == DEFAULT_COLOUR_EDIT)
-                        setDefaultColor(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
+                        setDefaultColor(lcGetColorIndex(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt()));
                     else
                         mLineEditList[j]->setText(mBlenderSettings[i].value);
                     if (i < LBL_RENDER_PERCENTAGE)
@@ -2192,7 +2207,6 @@ void BlenderPreferences::loadSettings()
             };
         }
         mBlenderSettings[LBL_RENDER_PERCENTAGE].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
-        mBlenderSettings[LBL_DEFAULT_COLOUR].value = QString::number(gDefaultColor);
     }
 
     // load default MM settings if settings not populated
@@ -2466,7 +2480,7 @@ void BlenderPreferences::showPathsGroup()
 
 void BlenderPreferences::colorButtonClicked(bool)
 {
-    int ColorIndex = mLineEditList[DEFAULT_COLOUR_EDIT]->property("ColourID").toInt();
+    int ColorIndex = mLineEditList[DEFAULT_COLOUR_EDIT]->property("ColorIndex").toInt();
 
     QWidget *parent = mLineEditList[DEFAULT_COLOUR_EDIT];
     lcQColorPickerPopup *popup = new lcQColorPickerPopup(parent, ColorIndex);
@@ -2491,12 +2505,12 @@ void BlenderPreferences::colorButtonClicked(bool)
     popup->show();
 }
 
-void BlenderPreferences::setDefaultColor(int value)
+void BlenderPreferences::setDefaultColor(int colorIndex)
 {
     QImage img(12, 12, QImage::Format_ARGB32);
     img.fill(0);
 
-    lcColor* color = &gColorList[uint(value)];
+    lcColor* color = &gColorList[colorIndex];
     QPainter painter(&img);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.setPen(Qt::darkGray);
@@ -2504,12 +2518,13 @@ void BlenderPreferences::setDefaultColor(int value)
     painter.drawRect(0, 0, img.width() - 1, img.height() - 1);
     painter.end();
 
-    mLineEditList[DEFAULT_COLOUR_EDIT]->setText(QString("%1 (%2)").arg(color->Name).arg(value));
-    mLineEditList[DEFAULT_COLOUR_EDIT]->setProperty("ColourID", QVariant::fromValue(value));
+    int const colorCode = lcGetColorCode(colorIndex);
+    mLineEditList[DEFAULT_COLOUR_EDIT]->setText(QString("%1 (%2)").arg(color->Name).arg(colorCode));
+    mLineEditList[DEFAULT_COLOUR_EDIT]->setProperty("ColorIndex", QVariant::fromValue(colorIndex));
     mDefaultColourEditAction->setIcon(QPixmap::fromImage(img));
     mDefaultColourEditAction->setToolTip(tr("Select Colour"));
 
-    bool change = mBlenderSettings[LBL_DEFAULT_COLOUR].value != QString::number(value);
+    bool change = mBlenderSettings[LBL_DEFAULT_COLOUR].value != QString::number(colorCode);
     change |= settingsModified(false/*update*/);
     emit settingChangedSig(change);
 }

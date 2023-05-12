@@ -131,7 +131,7 @@ private slots:
     void updateBlenderAddon();
     void enableImportModule();
     void sizeChanged(const QString &);
-    void setDefaultColor(int value);
+    void setDefaultColor(int);
     void colorButtonClicked(bool);
     void setModelSize(bool);
     void validateColourScheme(int);
