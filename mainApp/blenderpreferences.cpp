@@ -103,10 +103,10 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettings [NUM_S
     /*27/1 LBL_CAMERA_BORDER_PERCENT */ {"cameraborderpercentage",         "5.0",      QObject::tr("Camera Border Percent"),  QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
     /*28/2 LBL_DEFAULT_COLOUR        */ {"defaultcolour",                  "16",       QObject::tr("Default Colour"),         QObject::tr("Sets the default part colour using LDraw colour code")},
     /*29/3 LBL_GAPS_SIZE             */ {"gapwidth",                       "0.01",     QObject::tr("Gap Width"),              QObject::tr("Amount of gap space between each part")},
-    /*20/4 LBL_IMAGE_WIDTH           */ {"resolutionwidth",                "800",      QObject::tr("Image Width"),            QObject::tr("Sets the rendered image width in pixels.")},
-    /*31/5 LBL_IMAGE_HEIGHT          */ {"resolutionheight",               "600",      QObject::tr("Image Height"),           QObject::tr("Sets the rendered image height in pixels.")},
+    /*20/4 LBL_IMAGE_WIDTH           */ {"resolutionwidth",                "800",      QObject::tr("Image Width"),            QObject::tr("Sets the rendered image width in pixels - updated from current step on dialog open.")},
+    /*31/5 LBL_IMAGE_HEIGHT          */ {"resolutionheight",               "600",      QObject::tr("Image Height"),           QObject::tr("Sets the rendered image height in pixels - updated from current step on dialog open.")},
     /*32/6 LBL_IMAGE_SCALE           */ {"scale",                          "0.02",     QObject::tr("Image Scale"),            QObject::tr("Sets the imported model scale (between .01 and 1.0). Scale is 1.0 and is huge and unwieldy in the viewport")},
-    /*33/6 LBL_RENDER_PERCENTAGE     */ {"renderpercentage",               "100",      QObject::tr("Render Percentage"),      QObject::tr("Sets the rendered image percentage scale for its pixel resolution (default is 100)")},
+    /*33/6 LBL_RENDER_PERCENTAGE     */ {"renderpercentage",               "100",      QObject::tr("Render Percentage"),      QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step on dialog open.")},
 
 
     /*34/0 LBL_COLOUR_SCHEME         */ {"usecolourscheme",                "lgeo",     QObject::tr("Colour Scheme"),          QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
@@ -179,9 +179,9 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
     /* 41/02 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
     /* 42/03 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
     /* 43/04 LBL_MERGE_DISTANCE                   */ {"mergedistance",                 "0.05",       QObject::tr("Merge Distance"),           QObject::tr("Maximum distance between elements to merge")},
-    /* 44/05 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution (default is 100)")},
-    /* 45/06 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels")},
-    /* 46/07 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels")},
+    /* 44/05 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step on dialog open.")},
+    /* 45/06 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - updated from current step on dialog open.")},
+    /* 46/07 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - updated from current step on dialog open.")},
     /* 47/08 LBL_STARTING_STEP_FRAME              */ {"startingstepframe",             "1",          QObject::tr("Starting Step Frame"),      QObject::tr("Frame to add the first STEP meta command")},
 
     /* 48/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
@@ -691,7 +691,7 @@ void BlenderPreferences::initPathsAndSettings()
         }
     }
 
-    setModelSize(mBlenderSettings[LBL_CROP_IMAGE].value.toInt());
+    setModelSize();
 
     if (!mSettingsSubform->rowCount())
         mSettingsSubform = nullptr;
@@ -843,7 +843,7 @@ void BlenderPreferences::initPathsAndSettingsMM()
         }
     }
 
-    setModelSize(mBlenderSettingsMM[LBL_CROP_IMAGE_MM].value.toInt());
+    setModelSize();
 
     if (!mSettingsSubform->rowCount())
         mSettingsSubform = nullptr;
@@ -1615,7 +1615,9 @@ void BlenderPreferences::showResult()
             mAddonUpdateButton->setEnabled(true);
             Preferences::setBlenderVersionPreference(
                 QString("%1|%2").arg(mBlenderVersion).arg(mAddonVersion));
+            setModelSize(true/*update*/);
             saveSettings();
+            mDialogCancelled = false;
         }
         message = tr("Blender version %1").arg(mBlenderVersion);
     }
@@ -1936,7 +1938,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             }
                             modified |= itemChanged(_oldValue, _height);
                         }
-                    } else if (j == LBL_RENDER_PERCENTAGE_MM) {
+                    } else if (j == RENDER_PERCENTAGE_EDIT_MM) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) {
@@ -2008,7 +2010,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             }
                             modified |= itemChanged(_oldValue, _height);
                         }
-                    } else if (j == LBL_RENDER_PERCENTAGE) {
+                    } else if (j == RENDER_PERCENTAGE_EDIT) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) { 
@@ -2241,7 +2243,6 @@ void BlenderPreferences::loadSettings()
                 mDefaultSettings[i].tooltip
             };
         }
-        mBlenderSettings[LBL_RENDER_PERCENTAGE].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
     }
 
     // load default MM settings if settings not populated
@@ -2254,7 +2255,6 @@ void BlenderPreferences::loadSettings()
                 mDefaultSettingsMM[i].tooltip
             };
         }
-        mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
     }
 
     // set config file
@@ -2335,9 +2335,17 @@ void BlenderPreferences::loadSettings()
         }
     }
 
-    mBlenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
-    gAddonPreferences->mBlenderVersion    = Preferences::blenderVersion;
-    gAddonPreferences->mAddonVersion      = Preferences::blenderAddonVersion;
+    mBlenderSettings[LBL_IMAGE_WIDTH].value            = QString::number(gAddonPreferences->mWidth);
+    mBlenderSettings[LBL_IMAGE_HEIGHT].value           = QString::number(gAddonPreferences->mHeight);
+    mBlenderSettings[LBL_RENDER_PERCENTAGE].value      = QString::number(gAddonPreferences->mRenderPercentage * 100);
+
+    mBlenderSettingsMM[LBL_RESOLUTION_WIDTH].value     = QString::number(gAddonPreferences->mWidth);
+    mBlenderSettingsMM[LBL_RESOLUTION_HEIGHT].value    = QString::number(gAddonPreferences->mHeight);
+    mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
+
+    mBlenderPaths[LBL_BLENDER_PATH].value              = Preferences::blenderExe;
+    gAddonPreferences->mBlenderVersion                 = Preferences::blenderVersion;
+    gAddonPreferences->mAddonVersion                   = Preferences::blenderAddonVersion;
 }
 
 void BlenderPreferences::saveSettings()
@@ -2652,28 +2660,34 @@ void BlenderPreferences::sizeChanged(const QString &value)
                     this,                     SLOT  (sizeChanged(const QString &)));
         }
 
+        // Change is provided here for consistency only as resolution_width,
+        // resolution_height, and render_percentage are passed at the render command
         change |= settingsModified(false/*update*/);
         emit settingChangedSig(change);
     }
 }
 
-void BlenderPreferences::setModelSize(bool checked)
+void BlenderPreferences::setModelSize(bool update)
 {
     const bool importMM = mImportMMActBox->isChecked();
+    const int crop_image = importMM ? CROP_IMAGE_BOX_MM : CROP_IMAGE_BOX;
     const int add_environment = importMM ? ADD_ENVIRONMENT_BOX_MM : ADD_ENVIRONMENT_BOX;
     const int trans_background = importMM ? TRANSPARENT_BACKGROUND_BOX_MM : TRANSPARENT_BACKGROUND_BOX;
     const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
     const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
     const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
 
-    if (checked) {
+    const bool cropImage = mCheckBoxList[crop_image]->isChecked();
+
+    if (cropImage) {
         bool conflict[3];
+
         if ((conflict[1] = mCheckBoxList[add_environment]->isChecked()))
-            mCheckBoxList[add_environment]->setChecked(!checked);
+            mCheckBoxList[add_environment]->setChecked(!cropImage);
         if ((conflict[2] = !mCheckBoxList[trans_background]->isChecked()))
-            mCheckBoxList[trans_background]->setChecked(checked);
+            mCheckBoxList[trans_background]->setChecked(cropImage);
         if ((conflict[0] = mCheckBoxList[keep_aspect_ratio]->isChecked()))
-            mCheckBoxList[keep_aspect_ratio]->setChecked(!checked);
+            mCheckBoxList[keep_aspect_ratio]->setChecked(!cropImage);
 
         if (conflict[0] || conflict[1] || conflict[2]) {
             QMessageBox box;
@@ -2699,23 +2713,14 @@ void BlenderPreferences::setModelSize(bool checked)
     disconnect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                this,                      SLOT  (sizeChanged(const QString &)));
 
-    QString const width = QString::number(checked ? gui->GetImageWidth() : mWidth);
-    QString const height = QString::number(checked ? gui->GetImageHeight() : mHeight);
+    QString const width = QString::number(cropImage ? gui->GetImageWidth() : mWidth);
+    QString const height = QString::number(cropImage ? gui->GetImageHeight() : mHeight);
 
     mLineEditList[width_edit]->setText(width);
     mLineEditList[height_edit]->setText(height);
 
-    bool change = false;
-    if (importMM) {
-        change = mBlenderSettingsMM[width_edit].value  != width  ||
-                     mBlenderSettingsMM[height_edit].value != height;
-    } else {
-        change = mBlenderSettings[width_edit].value  != width  ||
-                     mBlenderSettings[height_edit].value != height;
-    }
-
-    change |= settingsModified(false/*update*/);
-    emit settingChangedSig(change);
+    if (update)
+        settingsModified(true/*update*/);
 
     connect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
             this,                      SLOT  (sizeChanged(const QString &)));
