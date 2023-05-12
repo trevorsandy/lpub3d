@@ -790,7 +790,7 @@ void PreferencesDialog::setBlenderAddonPreferences()
     connect(blenderAddonPathsButton,SIGNAL(clicked()),this,SLOT(showBlenderAddonPaths()));
 
     blenderAddonResetButton = new QPushButton(tr("Reset"), buttonBox);
-    blenderAddonResetButton->setToolTip(tr("Reset addon paths and settings preferences to system defaults"));
+    blenderAddonResetButton->setToolTip(tr("Reset addon paths and settings preferences"));
     blenderAddonResetButton->setEnabled(false);
     buttonBox->addButton(blenderAddonResetButton,QDialogButtonBox::ActionRole);
     connect(blenderAddonResetButton,SIGNAL(clicked()),this,SLOT(resetBlenderAddonPreferences()));

@@ -238,7 +238,7 @@ BlenderPreferencesDialog::BlenderPreferencesDialog(
 
     mResetButton = new QPushButton(tr("Reset"), buttonBox);
     mResetButton->setEnabled(false);
-    mResetButton->setToolTip(tr("Reset addon paths and settings preferences to system defaults"));
+    mResetButton->setToolTip(tr("Reset addon paths and settings preferences"));
     buttonBox->addButton(mResetButton,QDialogButtonBox::ActionRole);
     connect(mResetButton,SIGNAL(clicked()),this,SLOT(resetSettings()));
 
@@ -2069,6 +2069,41 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
 
 void BlenderPreferences::resetSettings()
 {
+    BlenderPaths const *paths = mBlenderPaths;
+    BlenderSettings const *settings = mBlenderSettings;
+    BlenderSettings const *settingsMM = mBlenderSettingsMM;
+
+    QDialog *dlg = new QDialog(this);
+    dlg->setWindowTitle(tr("Addon Reset"));
+    dlg->setWhatsThis(tr("Select how to reset settings. Choice is since last apply or system default."));
+    QVBoxLayout *layout = new QVBoxLayout(dlg);
+    QGroupBox *dlgGroup = new QGroupBox(dlg);
+    QHBoxLayout *dlgLayout = new QHBoxLayout(dlgGroup);
+    QRadioButton *lastBtn = new QRadioButton(tr("Last Apply"));
+    dlgLayout->addWidget(lastBtn);
+    QRadioButton *defaultBtn = new QRadioButton(tr("System Default"));
+    dlgLayout->addWidget(defaultBtn);
+    dlgGroup->setLayout(dlgLayout);
+    layout->addWidget(dlgGroup);
+    dlg->setLayout(layout);
+
+    lastBtn->setChecked(true);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dlg);
+    layout->addWidget(&buttonBox);
+    connect(&buttonBox, SIGNAL(accepted()), dlg, SLOT(accept()));
+    connect(&buttonBox, SIGNAL(rejected()), dlg, SLOT(reject()));
+
+    if (dlg->exec() == QDialog::Accepted) {
+        if (defaultBtn->isChecked()) {
+            qInfo() << "DEBUG : Default Button Selected";
+            paths = mDefaultPaths;
+            settings = mDefaultSettings;
+            settingsMM = mDefaultSettingsMM;
+        }
+    }
+
     mConfigured = !Preferences::blenderImportModule.isEmpty();
 
     mBlenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
@@ -2081,13 +2116,13 @@ void BlenderPreferences::resetSettings()
     if (mImportActBox->isChecked()) {
         disconnect(mLineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
                    this,                            SLOT  (sizeChanged(const QString &)));
-        disconnect(mLineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
-                   this,                           SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                   this,                            SLOT  (sizeChanged(const QString &)));
 
         for(int i = 0; i < numSettings(); i++) {
             if (i < LBL_BEVEL_WIDTH) {
                 for(int j = 0; j < mCheckBoxList.size(); j++) {
-                    mCheckBoxList[j]->setChecked(mBlenderSettings[i].value.toInt());
+                    mCheckBoxList[j]->setChecked(settings[i].value.toInt());
                     if (i < LBL_VERBOSE)
                         i++;
                 }
@@ -2100,39 +2135,39 @@ void BlenderPreferences::resetSettings()
                     else if (j == RENDER_PERCENTAGE_EDIT)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else if (j == DEFAULT_COLOUR_EDIT)
-                        setDefaultColor(lcGetColorIndex(mBlenderSettings[LBL_DEFAULT_COLOUR].value.toInt()));
+                        setDefaultColor(lcGetColorIndex(settings[LBL_DEFAULT_COLOUR].value.toInt()));
                     else
-                        mLineEditList[j]->setText(mBlenderSettings[i].value);
+                        mLineEditList[j]->setText(settings[i].value);
                     if (i < LBL_RENDER_PERCENTAGE)
                         i++;
                 }
             } else {
                 for(int j = 0; j < mComboBoxList.size(); j++) {
-                    mComboBoxList[j]->setCurrentIndex(int(mComboBoxList[j]->findData(QVariant::fromValue(mBlenderSettings[i].value))));
+                    mComboBoxList[j]->setCurrentIndex(int(mComboBoxList[j]->findData(QVariant::fromValue(settings[i].value))));
                     i++;
                 }
             }
         }
         for (int i = 0; i < numPaths(); i++) {
-            mPathLineEditList[i]->setText(mBlenderPaths[i].value);
+            mPathLineEditList[i]->setText(paths[i].value);
         }
 
         connect(mLineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
                 this,                            SLOT  (sizeChanged(const QString &)));
-        connect(mLineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
-                this,                           SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                this,                            SLOT  (sizeChanged(const QString &)));
 
     } else if (mImportMMActBox->isChecked()) {
 
         disconnect(mLineEditList[RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
                    this,                                 SLOT  (sizeChanged(const QString &)));
-        disconnect(mLineEditList[RESOLUTION_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
-                   this,                                SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                   this,                                 SLOT  (sizeChanged(const QString &)));
 
         for(int i = 0; i < numSettingsMM(); i++) {
             if (i < LBL_CAMERA_BORDER_PERCENT_MM) {
                 for(int j = 0; j < mCheckBoxList.size(); j++) {
-                    mCheckBoxList[j]->setChecked(mBlenderSettingsMM[i].value.toInt());
+                    mCheckBoxList[j]->setChecked(settingsMM[i].value.toInt());
                     if (i < LBL_VERBOSE_MM)
                         i++;
                 }
@@ -2145,28 +2180,28 @@ void BlenderPreferences::resetSettings()
                     else if (j == RENDER_PERCENTAGE_EDIT_MM)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else
-                        mLineEditList[j]->setText(mBlenderSettingsMM[i].value);
+                        mLineEditList[j]->setText(settingsMM[i].value);
                     if (i < LBL_STARTING_STEP_FRAME)
                         i++;
                 }
             } else {
                 for(int j = 0; j < mComboBoxList.size(); j++) {
-                    mComboBoxList[j]->setCurrentIndex(int(mComboBoxList[j]->findData(QVariant::fromValue(mBlenderSettingsMM[i].value))));
+                    mComboBoxList[j]->setCurrentIndex(int(mComboBoxList[j]->findData(QVariant::fromValue(settingsMM[i].value))));
                     i++;
                 }
             }
         }
         for (int i = 0; i < numPaths(); i++) {
-            mPathLineEditList[i]->setText(mBlenderPaths[i].value);
+            mPathLineEditList[i]->setText(paths[i].value);
         }
 
         connect(mLineEditList[RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
                 this,                                 SLOT  (sizeChanged(const QString &)));
-        connect(mLineEditList[RESOLUTION_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
-                this,                                SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                this,                                 SLOT  (sizeChanged(const QString &)));
     }
 
-    emit settingChangedSig(false/*change*/);
+    emit settingChangedSig(true/*change*/);
 }
 
 void BlenderPreferences::loadSettings()
