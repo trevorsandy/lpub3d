@@ -136,6 +136,7 @@ private slots:
     void setModelSize(bool = false);
     void validateColourScheme(int);
     void settingChanged(int = -1);
+    void settingChanged(const QString &value);
     void pathChanged();
     bool promptAccept();
     void update();

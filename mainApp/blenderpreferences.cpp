@@ -659,8 +659,8 @@ void BlenderPreferences::initPathsAndSettings()
                     lineEdit->setValidator(new QIntValidator(1,1000));
                 else
                     lineEdit->setValidator(new QDoubleValidator(0.01,100.0,2));
-                connect(lineEdit,     SIGNAL(editingFinished()),
-                        this,         SLOT  (settingChanged()));
+                connect(lineEdit, SIGNAL(textEdited(    const QString &)),
+                        this,     SLOT  (settingChanged(const QString &)));
             }
             lineEdit->setToolTip(mBlenderSettings[i].tooltip);
             mLineEditList << lineEdit;
@@ -813,8 +813,8 @@ void BlenderPreferences::initPathsAndSettingsMM()
                     lineEdit->setValidator(new QDoubleValidator(0.001,100.0,3));
                 else
                     lineEdit->setValidator(new QIntValidator(1, RENDER_IMAGE_MAX_SIZE));
-                connect(lineEdit,     SIGNAL(editingFinished()),
-                        this,         SLOT  (settingChanged()));
+                connect(lineEdit, SIGNAL(textEdited(    const QString &)),
+                        this,     SLOT  (settingChanged(const QString &)));
             }
             lineEdit->setToolTip(mBlenderSettingsMM[i].tooltip);
             mLineEditList << lineEdit;
@@ -1283,11 +1283,29 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
     return proceed;
 }
 
+void BlenderPreferences::settingChanged(const QString &value)
+{
+    bool change = false;
+
+    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
+    if (lineEdit) {
+        int i = lineEdit->property("ControlID").toInt();
+        if (mImportMMActBox->isChecked()) {
+            change = mBlenderSettingsMM[i].value != value;
+        } else {
+            change = mBlenderSettings[i].value != value;
+        }
+    }
+
+    change |= settingsModified(false/*update*/);
+    emit settingChangedSig(change);
+}
+
 void BlenderPreferences::settingChanged(int index)
 {
     int i = -1;
     bool change = false;
-    QString item, value;
+    QString item;
 
     if (index > -1) {
         QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
@@ -1300,12 +1318,6 @@ void BlenderPreferences::settingChanged(int index)
         if (checkBox) {
             i = checkBox->property("ControlID").toInt();
             item = QString::number(checkBox->isChecked());
-        } else {
-            QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
-            if (lineEdit) {
-                 i = lineEdit->property("ControlID").toInt();
-                item = lineEdit->text();
-            }
         }
     }
 
