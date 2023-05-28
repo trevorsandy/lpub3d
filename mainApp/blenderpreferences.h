@@ -99,8 +99,8 @@ public:
 
     void apply(const int response = QDialog::Accepted);
 
-    int     mWidth;
-    int     mHeight;
+    int     mImageWidth;
+    int     mImageHeight;
     qreal   mRenderPercentage;
 
 protected:

@@ -4119,7 +4119,13 @@ void CommonMenus::setWhatsThis()
             "    You can select how to reset addon settings.\n"
             "    The choice is since last apply or system default.\n\n"
             "  You can see the specific description of each setting\n"
-            "  if you hover over the setting to display its tooltip.\n"
+            "  if you hover over the setting to display its tooltip.\n\n"
+            "  Image Width, Image Height and Render Percentage are\n"
+            "  always updated from the current step model when the\n"
+            "  this dialog is opened. These settngs can be manually\n"
+            "  overridden, Also, when Crop Image is checked the\n"
+            "  current step cropped image width and height is\n"
+            "  calculated and and used\n\n"
             "  Use the dialogue window scroll bar to access the\n"
             "  complete selection of addon settings.%2\n")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))

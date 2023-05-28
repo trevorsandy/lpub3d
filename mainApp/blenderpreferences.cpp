@@ -103,10 +103,10 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettings [NUM_S
     /*27/1 LBL_CAMERA_BORDER_PERCENT */ {"cameraborderpercentage",         "5.0",      QObject::tr("Camera Border Percent"),  QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
     /*28/2 LBL_DEFAULT_COLOUR        */ {"defaultcolour",                  "16",       QObject::tr("Default Colour"),         QObject::tr("Sets the default part colour using LDraw colour code")},
     /*29/3 LBL_GAPS_SIZE             */ {"gapwidth",                       "0.01",     QObject::tr("Gap Width"),              QObject::tr("Amount of gap space between each part")},
-    /*20/4 LBL_IMAGE_WIDTH           */ {"resolutionwidth",                "800",      QObject::tr("Image Width"),            QObject::tr("Sets the rendered image width in pixels - updated from current step on dialog open.")},
-    /*31/5 LBL_IMAGE_HEIGHT          */ {"resolutionheight",               "600",      QObject::tr("Image Height"),           QObject::tr("Sets the rendered image height in pixels - updated from current step on dialog open.")},
+    /*20/4 LBL_IMAGE_WIDTH           */ {"resolutionwidth",                "800",      QObject::tr("Image Width"),            QObject::tr("Sets the rendered image width in pixels - from current step image, label shows config setting.")},
+    /*31/5 LBL_IMAGE_HEIGHT          */ {"resolutionheight",               "600",      QObject::tr("Image Height"),           QObject::tr("Sets the rendered image height in pixels - from current step image, label shows config setting.")},
     /*32/6 LBL_IMAGE_SCALE           */ {"scale",                          "0.02",     QObject::tr("Image Scale"),            QObject::tr("Sets the imported model scale (between .01 and 1.0). Scale is 1.0 and is huge and unwieldy in the viewport")},
-    /*33/6 LBL_RENDER_PERCENTAGE     */ {"renderpercentage",               "100",      QObject::tr("Render Percentage"),      QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step on dialog open.")},
+    /*33/6 LBL_RENDER_PERCENTAGE     */ {"renderpercentage",               "100",      QObject::tr("Render Percentage"),      QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step, label shows config setting.")},
 
 
     /*34/0 LBL_COLOUR_SCHEME         */ {"usecolourscheme",                "lgeo",     QObject::tr("Colour Scheme"),          QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
@@ -179,9 +179,9 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
     /* 41/02 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
     /* 42/03 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
     /* 43/04 LBL_MERGE_DISTANCE                   */ {"mergedistance",                 "0.05",       QObject::tr("Merge Distance"),           QObject::tr("Maximum distance between elements to merge")},
-    /* 44/05 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step on dialog open.")},
-    /* 45/06 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - updated from current step on dialog open.")},
-    /* 46/07 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - updated from current step on dialog open.")},
+    /* 44/05 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step, label shows config setting.")},
+    /* 45/06 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - from current step image, label shows config setting.")},
+    /* 46/07 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - from current step image, label shows config setting.")},
     /* 47/08 LBL_STARTING_STEP_FRAME              */ {"startingstepframe",             "1",          QObject::tr("Starting Step Frame"),      QObject::tr("Frame to add the first STEP meta command")},
 
     /* 48/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
@@ -277,8 +277,8 @@ bool BlenderPreferencesDialog::getBlenderPreferences(
 
     if (ok) {
         dialog->mPreferences->apply(ok);
-        width            = dialog->mPreferences->mWidth;
-        height           = dialog->mPreferences->mHeight;
+        width            = dialog->mPreferences->mImageWidth;
+        height           = dialog->mPreferences->mImageHeight;
         renderPercentage = dialog->mPreferences->mRenderPercentage;
     }
 
@@ -337,8 +337,8 @@ BlenderPreferences::BlenderPreferences(
     mProcess = nullptr;
 #endif
 
-    mWidth  = width;
-    mHeight = height;
+    mImageWidth  = width;
+    mImageHeight = height;
     mRenderPercentage = renderPercentage;
     mDocumentRender = docRender;
 
@@ -608,12 +608,7 @@ void BlenderPreferences::initPathsAndSettings()
 
     for(int i = 0; i < numSettings(); i++) {
         QLabel *label = new QLabel(mSettingsBox);
-        if (i == LBL_CROP_IMAGE)
-            label->setText(QString("%1 (%2 x %3)")
-                               .arg(mBlenderSettings[i].label)
-                               .arg(gui->GetImageWidth()).arg(gui->GetImageHeight()));
-        else
-            label->setText(mBlenderSettings[i].label);
+        label->setText(mBlenderSettings[i].label);
         label->setToolTip(mBlenderSettings[i].tooltip);
         mSettingLabelList << label;
 
@@ -766,12 +761,7 @@ void BlenderPreferences::initPathsAndSettingsMM()
 
     for(int i = 0; i < numSettingsMM(); i++) {
         QLabel *label = new QLabel(mSettingsBox);
-        if (i == LBL_CROP_IMAGE_MM)
-            label->setText(QString("%1 (%2 x %3)")
-                               .arg(mBlenderSettingsMM[i].label)
-                               .arg(gui->GetImageWidth()).arg(gui->GetImageHeight()));
-        else
-            label->setText(mBlenderSettingsMM[i].label);
+        label->setText(mBlenderSettingsMM[i].label);
         label->setToolTip(mBlenderSettingsMM[i].tooltip);
         mSettingLabelList << label;
 
@@ -1897,8 +1887,8 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
     if  (gAddonPreferences->mDialogCancelled)
         return false;
 
-    int &width = gAddonPreferences->mWidth;
-    int &height = gAddonPreferences->mHeight;
+    int &width = gAddonPreferences->mImageWidth;
+    int &height = gAddonPreferences->mImageHeight;
     double &renderPercentage = gAddonPreferences->mRenderPercentage;
 
     bool moduleMM = !module.isEmpty()
@@ -2143,9 +2133,9 @@ void BlenderPreferences::resetSettings()
             } else if (i < LBL_COLOUR_SCHEME) {
                 for(int j = 0; j < mLineEditList.size(); j++) {
                     if (j == IMAGE_WIDTH_EDIT)
-                        mLineEditList[j]->setText(QString::number(mWidth));
+                        mLineEditList[j]->setText(QString::number(mImageWidth));
                     else if (j == IMAGE_HEIGHT_EDIT)
-                        mLineEditList[j]->setText(QString::number(mHeight));
+                        mLineEditList[j]->setText(QString::number(mImageHeight));
                     else if (j == RENDER_PERCENTAGE_EDIT)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else if (j == DEFAULT_COLOUR_EDIT)
@@ -2188,9 +2178,9 @@ void BlenderPreferences::resetSettings()
             } else if (i < LBL_CHOSEN_LOGO) {
                 for(int j = 0; j < mLineEditList.size(); j++) {
                     if (j == RESOLUTION_WIDTH_EDIT)
-                        mLineEditList[j]->setText(QString::number(mWidth));
+                        mLineEditList[j]->setText(QString::number(mImageWidth));
                     else if (j == RESOLUTION_HEIGHT_EDIT)
-                        mLineEditList[j]->setText(QString::number(mHeight));
+                        mLineEditList[j]->setText(QString::number(mImageHeight));
                     else if (j == RENDER_PERCENTAGE_EDIT_MM)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else
@@ -2296,8 +2286,8 @@ void BlenderPreferences::loadSettings()
         for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
             if (i == LBL_STUDIO_LDRAW_PATH)
                 continue;
-            QString const key = QString("%1/%2").arg(IMPORTLDRAW, mBlenderPaths[i].key);
-            QString const value = Settings.value(key, QString()).toString();
+            QString const &key = QString("%1/%2").arg(IMPORTLDRAW, mBlenderPaths[i].key);
+            QString const &value = Settings.value(key, QString()).toString();
             if (QFileInfo(value).exists()) {
                 mBlenderPaths[i].value = QDir::toNativeSeparators(value);
             }
@@ -2306,26 +2296,34 @@ void BlenderPreferences::loadSettings()
         for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
             if (i == LBL_LSYNTH_PATH || i == LBL_STUD_LOGO_PATH)
                 continue;
-            QString const key = QString("%1/%2").arg(IMPORTLDRAWMM, mBlenderPaths[i].key_mm);
-            QString const value = Settings.value(key, QString()).toString();
+            QString const &key = QString("%1/%2").arg(IMPORTLDRAWMM, mBlenderPaths[i].key_mm);
+            QString const &value = Settings.value(key, QString()).toString();
             if (QFileInfo(value).exists()) {
                 mBlenderPaths[i].value = QDir::toNativeSeparators(value);
             }
         }
 
         for (int i = 0; i < numSettings(); i++) {
-            QString const key = QString("%1/%2").arg(IMPORTLDRAW, mBlenderSettings[i].key);
-            QString const value = Settings.value(key, QString()).toString();
+            QString const &key = QString("%1/%2").arg(IMPORTLDRAW, mBlenderSettings[i].key);
+            QString const &value = Settings.value(key, QString()).toString();
             if (!value.isEmpty()) {
                 mBlenderSettings[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
+            }
+            if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT || i == LBL_RENDER_PERCENTAGE) {
+                QString const &label = mDefaultSettings[i].label;
+                mBlenderSettings[i].label = QString("%1 - Setting (%2)").arg(label).arg(value);
             }
         }
 
         for (int i = 0; i < numSettingsMM(); i++) {
-            QString const key = QString("%1/%2").arg(IMPORTLDRAWMM, mBlenderSettingsMM[i].key);
-            QString const value = Settings.value(key, QString()).toString();
+            QString const &key = QString("%1/%2").arg(IMPORTLDRAWMM, mBlenderSettingsMM[i].key);
+            QString const &value = Settings.value(key, QString()).toString();
             if (!value.isEmpty()) {
                 mBlenderSettingsMM[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
+            }
+            if (i == LBL_RENDER_PERCENTAGE_MM || i == LBL_RESOLUTION_WIDTH || i == LBL_RESOLUTION_HEIGHT) {
+                QString const &label = mDefaultSettingsMM[i].label;
+                mBlenderSettingsMM[i].label = QString("%1 - Setting (%2)").arg(label).arg(value);
             }
         }
     } else {
@@ -2347,12 +2345,12 @@ void BlenderPreferences::loadSettings()
         }
     }
 
-    mBlenderSettings[LBL_IMAGE_WIDTH].value            = QString::number(gAddonPreferences->mWidth);
-    mBlenderSettings[LBL_IMAGE_HEIGHT].value           = QString::number(gAddonPreferences->mHeight);
+    mBlenderSettings[LBL_IMAGE_WIDTH].value            = QString::number(gAddonPreferences->mImageWidth);
+    mBlenderSettings[LBL_IMAGE_HEIGHT].value           = QString::number(gAddonPreferences->mImageHeight);
     mBlenderSettings[LBL_RENDER_PERCENTAGE].value      = QString::number(gAddonPreferences->mRenderPercentage * 100);
 
-    mBlenderSettingsMM[LBL_RESOLUTION_WIDTH].value     = QString::number(gAddonPreferences->mWidth);
-    mBlenderSettingsMM[LBL_RESOLUTION_HEIGHT].value    = QString::number(gAddonPreferences->mHeight);
+    mBlenderSettingsMM[LBL_RESOLUTION_WIDTH].value     = QString::number(gAddonPreferences->mImageWidth);
+    mBlenderSettingsMM[LBL_RESOLUTION_HEIGHT].value    = QString::number(gAddonPreferences->mImageHeight);
     mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
 
     mBlenderPaths[LBL_BLENDER_PATH].value              = Preferences::blenderExe;
@@ -2642,7 +2640,7 @@ void BlenderPreferences::sizeChanged(const QString &value)
             disconnect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                        this,                      SLOT  (sizeChanged(const QString &)));
 
-            QString const height = QString::number(qRound(double(mHeight * mNewValue / mWidth)));
+            QString const height = QString::number(qRound(double(mImageHeight * mNewValue / mImageWidth)));
             mLineEditList[height_edit]->setText(height);
 
             if (importMM) {
@@ -2659,7 +2657,7 @@ void BlenderPreferences::sizeChanged(const QString &value)
             disconnect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
                        this, SLOT  (sizeChanged(const QString &)));
 
-            QString const width = QString::number(qRound(double(mNewValue * mWidth / mHeight)));
+            QString const width = QString::number(qRound(double(mNewValue * mImageWidth / mImageHeight)));
             mLineEditList[width_edit]->setText(width);
 
             if (importMM) {
@@ -2688,8 +2686,18 @@ void BlenderPreferences::setModelSize(bool update)
     const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
     const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
     const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
+    const int crop_image_label = importMM ? LBL_CROP_IMAGE_MM : LBL_CROP_IMAGE;
+
+    const int imageWidth = gui->GetImageWidth();
+    const int imageHeight = gui->GetImageHeight();
 
     const bool cropImage = mCheckBoxList[crop_image]->isChecked();
+
+    QString const cropImageLabel = mSettingLabelList[crop_image_label]->text();
+    mSettingLabelList[crop_image_label]->setText(QString("%1 (%2 x %3)")
+                                                     .arg(cropImageLabel)
+                                                     .arg(imageWidth)
+                                                     .arg(imageHeight));
 
     if (cropImage) {
         bool conflict[3];
@@ -2725,8 +2733,8 @@ void BlenderPreferences::setModelSize(bool update)
     disconnect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                this,                      SLOT  (sizeChanged(const QString &)));
 
-    QString const width = QString::number(cropImage ? gui->GetImageWidth() : mWidth);
-    QString const height = QString::number(cropImage ? gui->GetImageHeight() : mHeight);
+    QString const width = QString::number(cropImage ? imageWidth : mImageWidth);
+    QString const height = QString::number(cropImage ? imageHeight : mImageHeight);
 
     mLineEditList[width_edit]->setText(width);
     mLineEditList[height_edit]->setText(height);
