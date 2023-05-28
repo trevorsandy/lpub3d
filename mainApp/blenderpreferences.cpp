@@ -54,18 +54,18 @@
 
 #include "parmswindow.h"
 
-BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_BLENDER_PATHS];
-BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_BLENDER_PATHS] =
+BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_PATH_ITEMS];
+BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_PATH_ITEMS] =
 {
     /*                                 Key:                  MM Key:               Value:             Label:                                   Tooltip (Description):*/
-    /* 0   LBL_BLENDER_PATH        */ {"blenderpath",        "blenderpath",        "",    QObject::tr("Blender Path"),             QObject::tr("Full file path to Blender application executable")},
-    /* 1   LBL_BLENDFILE_PATH      */ {"blendfile",          "blendfile",          "",    QObject::tr("Blendfile Path"),           QObject::tr("Full file path to a supplement .blend file - specify to append additional settings")},
-    /* 2.  LBL_ENVIRONMENT_PATH    */ {"environmentfile",    "environmentfile",    "",    QObject::tr("Environment Texture Path"), QObject::tr("Full file path to .exr environment texture file - specify if not using default bundled in addon")},
-    /* 3   LBL_LDCONFIG_PATH       */ {"customldconfigfile", "customldconfigfile", "",    QObject::tr("Custom LDConfig Path"),     QObject::tr("Full file path to custom LDConfig file - specify if not %1 alternate LDConfig file").arg(VER_PRODUCTNAME_STR)},
-    /* 4   LBL_LDRAW_PATH          */ {"ldrawdirectory",     "ldrawpath",          "",    QObject::tr("LDraw Directory"),          QObject::tr("Full directory path to the LDraw parts library (download from https://library.ldraw.org)")},
-    /* 5   LBL_LSYNTH_PATH         */ {"lsynthdirectory",    "",                   "",    QObject::tr("LSynth Directory"),         QObject::tr("Full directory path to LSynth primitives - specify if not using default bundled in addon")},
-    /* 6   LBL_STUD_LOGO_PATH      */ {"studlogodirectory",  "",                   "",    QObject::tr("Stud Logo Directory"),      QObject::tr("Full directory path to stud logo primitives - if stud logo enabled, specify if unofficial parts not used or not using default bundled in addon")},
-    /* 7   LBL_STUDIO_LDRAW_PATH   */ {"",                   "studioldrawpath",    "",    QObject::tr("Stud.io LDraw Path"),       QObject::tr("Full filepath to the Stud.io LDraw Parts Library (download from https://www.bricklink.com/v3/studio/download.page)")}
+    /* 0   PATH_BLENDER        */ {"blenderpath",        "blenderpath",        "",    QObject::tr("Blender Path"),             QObject::tr("Full file path to Blender application executable")},
+    /* 1   PATH_BLENDFILE      */ {"blendfile",          "blendfile",          "",    QObject::tr("Blendfile Path"),           QObject::tr("Full file path to a supplement .blend file - specify to append additional settings")},
+    /* 2.  PATH_ENVIRONMENT    */ {"environmentfile",    "environmentfile",    "",    QObject::tr("Environment Texture Path"), QObject::tr("Full file path to .exr environment texture file - specify if not using default bundled in addon")},
+    /* 3   PATH_LDCONFIG       */ {"customldconfigfile", "customldconfigfile", "",    QObject::tr("Custom LDConfig Path"),     QObject::tr("Full file path to custom LDConfig file - specify if not %1 alternate LDConfig file").arg(VER_PRODUCTNAME_STR)},
+    /* 4   PATH_LDRAW          */ {"ldrawdirectory",     "ldrawpath",          "",    QObject::tr("LDraw Directory"),          QObject::tr("Full directory path to the LDraw parts library (download from https://library.ldraw.org)")},
+    /* 5   PATH_LSYNTH         */ {"lsynthdirectory",    "",                   "",    QObject::tr("LSynth Directory"),         QObject::tr("Full directory path to LSynth primitives - specify if not using default bundled in addon")},
+    /* 6   PATH_STUD_LOGO      */ {"studlogodirectory",  "",                   "",    QObject::tr("Stud Logo Directory"),      QObject::tr("Full directory path to stud logo primitives - if stud logo enabled, specify if unofficial parts not used or not using default bundled in addon")},
+    /* 7   PATH_STUDIO_LDRAW   */ {"",                   "studioldrawpath",    "",    QObject::tr("Stud.io LDraw Path"),       QObject::tr("Full filepath to the Stud.io LDraw Parts Library (download from https://www.bricklink.com/v3/studio/download.page)")}
 };
 
 BlenderPreferences::BlenderSettings  BlenderPreferences::mBlenderSettings [NUM_SETTINGS];
@@ -459,7 +459,7 @@ BlenderPreferences::BlenderPreferences(
     loadSettings();
 
     // Populate Blender version and addon attributes - after loadSettings
-    const int i = LBL_BLENDER_PATH;
+    const int i = PATH_BLENDER;
     pathLabel->setText(mBlenderPaths[i].label);
     pathLabel->setToolTip(mBlenderPaths[i].tooltip);
 
@@ -555,7 +555,7 @@ void BlenderPreferences::initPathsAndSettings()
 
     for(int i = 1/*skip blender executable*/; i < numPaths(); ++i) {
         int j = i - 1; // adjust for skipping first item - blender executable
-        bool isVisible = i != LBL_STUDIO_LDRAW_PATH;
+        bool isVisible = i != PATH_STUDIO_LDRAW;
         QLabel *pathLabel = new QLabel(mBlenderPaths[i].label, mPathsBox);
         pathLabel->setToolTip(mBlenderPaths[i].tooltip);
         mPathsGridLayout->addWidget(pathLabel,j,0);
@@ -708,7 +708,7 @@ void BlenderPreferences::initPathsAndSettingsMM()
 
     for(int i = 1/*skip blender executable*/; i < numPaths(); ++i) {
         int j = i - 1; // adjust for skipping first item - blender executable
-        bool isVisible = i != LBL_LSYNTH_PATH && i != LBL_STUD_LOGO_PATH;
+        bool isVisible = i != PATH_LSYNTH && i != PATH_STUD_LOGO;
         QLabel *pathLabel = new QLabel(mBlenderPaths[i].label, mPathsBox);
         pathLabel->setToolTip(mBlenderPaths[i].tooltip);
         mPathsGridLayout->addWidget(pathLabel,j,0);
@@ -844,13 +844,13 @@ void BlenderPreferences::updateBlenderAddon()
 {
     mAddonUpdateButton->setEnabled(false);
 
-    disconnect(mPathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()),
+    disconnect(mPathLineEditList[PATH_BLENDER], SIGNAL(editingFinished()),
                this,                                SLOT  (configureBlenderAddon()));
 
-    configureBlenderAddon(sender() == mPathBrowseButtonList[LBL_BLENDER_PATH],
+    configureBlenderAddon(sender() == mPathBrowseButtonList[PATH_BLENDER],
                           sender() == mAddonUpdateButton);
 
-    connect(mPathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()),
+    connect(mPathLineEditList[PATH_BLENDER], SIGNAL(editingFinished()),
             this,                                SLOT  (configureBlenderAddon()));
 }
 
@@ -859,7 +859,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
     mProgressBar = nullptr;
 
     // Confirm blender exe exist
-    QString const blenderExe = QDir::toNativeSeparators(mPathLineEditList[LBL_BLENDER_PATH]->text());
+    QString const blenderExe = QDir::toNativeSeparators(mPathLineEditList[PATH_BLENDER]->text());
 
     if (blenderExe.isEmpty()) {
         mBlenderVersion.clear();
@@ -991,7 +991,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         mProgressBar->setValue(1);
 
         // Test Blender executable
-        testBlender |= sender() == mPathLineEditList[LBL_BLENDER_PATH];
+        testBlender |= sender() == mPathLineEditList[PATH_BLENDER];
         if (testBlender) {
             mExeGridLayout->replaceWidget(mBlenderVersionEdit, mProgressBar);
             mProgressBar->show();
@@ -1478,7 +1478,7 @@ void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &mes
     }
     if (error) {
         if (!addon)
-            mPathLineEditList[LBL_BLENDER_PATH]->text() = QString();
+            mPathLineEditList[PATH_BLENDER]->text() = QString();
 
         Preferences::setBlenderImportModule(QString());
 
@@ -1622,7 +1622,7 @@ void BlenderPreferences::pathChanged()
         const int i = lineEdit->property("ControlID").toInt();
         const QString &path = QDir::toNativeSeparators(lineEdit->text()).toLower();
 
-        if (i != LBL_BLENDER_PATH) {
+        if (i != PATH_BLENDER) {
             change = QDir::toNativeSeparators(mBlenderPaths[i].value).toLower() != path;
         }
 
@@ -1701,17 +1701,17 @@ void BlenderPreferences::readStdOut(const QString &stdOutput, QString &errors)
         } else if (stdOutLine.contains(rxData)) {
             items = stdOutLine.split(": ");
             if (items.at(1) == "ENVIRONMENT_FILE") {
-                mBlenderPaths[LBL_ENVIRONMENT_PATH].value = items.at(2);
-                if (editListItems > LBL_ENVIRONMENT_PATH)
-                    mPathLineEditList[LBL_ENVIRONMENT_PATH]->setText(items.at(2));
+                mBlenderPaths[PATH_ENVIRONMENT].value = items.at(2);
+                if (editListItems > PATH_ENVIRONMENT)
+                    mPathLineEditList[PATH_ENVIRONMENT]->setText(items.at(2));
             } else if (items.at(1) == "LSYNTH_DIRECTORY") {
-                mBlenderPaths[LBL_LSYNTH_PATH].value = items.at(2);
-                if (editListItems > LBL_LSYNTH_PATH)
-                    mPathLineEditList[LBL_LSYNTH_PATH]->setText(items.at(2));
+                mBlenderPaths[PATH_LSYNTH].value = items.at(2);
+                if (editListItems > PATH_LSYNTH)
+                    mPathLineEditList[PATH_LSYNTH]->setText(items.at(2));
             } else if (items.at(1) == "STUDLOGO_DIRECTORY") {
-                mBlenderPaths[LBL_STUD_LOGO_PATH].value = items.at(2);
-                if (editListItems > LBL_STUD_LOGO_PATH)
-                    mPathLineEditList[LBL_STUD_LOGO_PATH]->setText(items.at(2));
+                mBlenderPaths[PATH_STUD_LOGO].value = items.at(2);
+                if (editListItems > PATH_STUD_LOGO)
+                    mPathLineEditList[PATH_STUD_LOGO]->setText(items.at(2));
             }
         } else if (stdOutLine.contains(rxError) || stdOutLine.contains(rxWarning)) {
             auto cleanLine = [&] () {
@@ -2118,7 +2118,7 @@ void BlenderPreferences::resetSettings()
 
     mConfigured = !Preferences::blenderImportModule.isEmpty();
 
-    mBlenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
+    mBlenderPaths[PATH_BLENDER].value = Preferences::blenderExe;
     mBlenderVersion                       = Preferences::blenderVersion;
     mAddonVersion                         = Preferences::blenderAddonVersion;
 
@@ -2224,14 +2224,14 @@ void BlenderPreferences::loadSettings()
                                              .arg(Preferences::lpub3d3rdPartyConfigDir)
                                              .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         QStringList const addonPaths = QStringList()
-        /* LBL_BLENDER_PATH      */    << Preferences::blenderExe
-        /* LBL_BLENDFILE_PATH    */    << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
-        /* LBL_ENVIRONMENT_PATH  */    << QString()
-        /* LBL_LDCONFIG_PATH     */    << Preferences::altLDConfigPath
-        /* LBL_LDRAW_PATH        */    << Preferences::Preferences::ldrawLibPath
-        /* LBL_LSYNTH_PATH       */    << QString()
-        /* LBL_STUD_LOGO_PATH    */    << QString()
-        /* LBL_STUDIO_LDRAW_PATH */    << QString();
+        /* PATH_BLENDER      */        << Preferences::blenderExe
+        /* PATH_BLENDFILE    */        << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
+        /* PATH_ENVIRONMENT  */        << QString()
+        /* PATH_LDCONFIG     */        << Preferences::altLDConfigPath
+        /* PATH_LDRAW        */        << Preferences::Preferences::ldrawLibPath
+        /* PATH_LSYNTH       */        << QString()
+        /* PATH_STUD_LOGO    */        << QString()
+        /* PATH_STUDIO_LDRAW */        << QString();
         for (int i = 0; i < numPaths(DEFAULT_SETTINGS); i++) {
             mBlenderPaths[i] = {
                 mDefaultPaths[i].key,
@@ -2292,7 +2292,7 @@ void BlenderPreferences::loadSettings()
         QSettings Settings(blenderConfigFileInfo.absoluteFilePath(), QSettings::IniFormat);
 
         for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
-            if (i == LBL_STUDIO_LDRAW_PATH)
+            if (i == PATH_STUDIO_LDRAW)
                 continue;
             QString const &key = QString("%1/%2").arg(IMPORTLDRAW, mBlenderPaths[i].key);
             QString const &value = Settings.value(key, QString()).toString();
@@ -2302,7 +2302,7 @@ void BlenderPreferences::loadSettings()
         }
 
         for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
-            if (i == LBL_LSYNTH_PATH || i == LBL_STUD_LOGO_PATH)
+            if (i == PATH_LSYNTH || i == PATH_STUD_LOGO)
                 continue;
             QString const &key = QString("%1/%2").arg(IMPORTLDRAWMM, mBlenderPaths[i].key_mm);
             QString const &value = Settings.value(key, QString()).toString();
@@ -2361,7 +2361,7 @@ void BlenderPreferences::loadSettings()
     mBlenderSettingsMM[LBL_RESOLUTION_HEIGHT].value    = QString::number(gAddonPreferences->mImageHeight);
     mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
 
-    mBlenderPaths[LBL_BLENDER_PATH].value              = Preferences::blenderExe;
+    mBlenderPaths[PATH_BLENDER].value              = Preferences::blenderExe;
     gAddonPreferences->mBlenderVersion                 = Preferences::blenderVersion;
     gAddonPreferences->mAddonVersion                   = Preferences::blenderAddonVersion;
 }
@@ -2371,9 +2371,9 @@ void BlenderPreferences::saveSettings()
     if (!numSettings() || !numSettingsMM())
         loadSettings();
 
-    QString value = mBlenderPaths[LBL_BLENDER_PATH].value;
+    QString value = mBlenderPaths[PATH_BLENDER].value;
     if (value.isEmpty())
-        value = gAddonPreferences->mPathLineEditList[LBL_BLENDER_PATH]->text();
+        value = gAddonPreferences->mPathLineEditList[PATH_BLENDER]->text();
     Preferences::setBlenderExePathPreference(QDir::toNativeSeparators(value));
 
     value.clear();
@@ -2413,7 +2413,7 @@ void BlenderPreferences::saveSettings()
     Settings.beginGroup(IMPORTLDRAW);
 
     for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
-        if (i == LBL_STUDIO_LDRAW_PATH)
+        if (i == PATH_STUDIO_LDRAW)
             continue;
         QString const key = mBlenderPaths[i].key;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
@@ -2442,7 +2442,7 @@ void BlenderPreferences::saveSettings()
     Settings.beginGroup(IMPORTLDRAWMM);
 
     for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
-        if (i == LBL_LSYNTH_PATH || i == LBL_STUD_LOGO_PATH)
+        if (i == PATH_LSYNTH || i == PATH_STUD_LOGO)
             continue;
         QString const key = mBlenderPaths[i].key_mm;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
@@ -2597,7 +2597,7 @@ void BlenderPreferences::browseBlender(bool)
             QString const blenderPath = QDir::toNativeSeparators(mBlenderPaths[i].value).toLower();
             QFileDialog fileDialog(nullptr);
             fileDialog.setWindowTitle(tr("Locate %1").arg(mBlenderPaths[i].label));
-            if (i < LBL_LDRAW_PATH)
+            if (i < PATH_LDRAW)
                 fileDialog.setFileMode(QFileDialog::ExistingFile);
             else
                 fileDialog.setFileMode(QFileDialog::Directory);
@@ -2610,7 +2610,7 @@ void BlenderPreferences::browseBlender(bool)
                     if (pathInfo.exists()) {
                         QString const selectedPath = QDir::toNativeSeparators(pathInfo.absoluteFilePath()).toLower();
                         mPathLineEditList[i]->setText(selectedPathList.at(0));
-                        if (i != LBL_BLENDER_PATH) {
+                        if (i != PATH_BLENDER) {
                             bool change = false;
                             if (mImportMMActBox->isChecked()) {
                                 change = QDir::toNativeSeparators(mBlenderSettingsMM[i].value).toLower() != selectedPath;
@@ -2620,7 +2620,7 @@ void BlenderPreferences::browseBlender(bool)
                             change |= settingsModified(false/*update*/);
                             emit settingChangedSig(change);
                         }
-                        if (i == LBL_BLENDER_PATH && blenderPath != selectedPath) {
+                        if (i == PATH_BLENDER && blenderPath != selectedPath) {
                             mBlenderPaths[i].value = selectedPath;
                             updateBlenderAddon();
                         }
@@ -2752,7 +2752,7 @@ void BlenderPreferences::validateColourScheme(int index)
     BlenderSettings *settings = importMM ? mBlenderSettingsMM : mBlenderSettings;
 
     if (combo->itemText(index) == "custom" &&
-        mBlenderPaths[LBL_LDCONFIG_PATH].value.isEmpty() &&
+        mBlenderPaths[PATH_LDCONFIG].value.isEmpty() &&
         Preferences::altLDConfigPath.isEmpty()) {
         BlenderSettings const *defaultSettings = importMM ? mDefaultSettingsMM : mDefaultSettings;
         settings[color_scheme].value = defaultSettings[color_scheme].value;

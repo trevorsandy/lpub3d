@@ -182,16 +182,16 @@ private:
 
     enum BlenderRenPathType
     {
-        LBL_BLENDER_PATH,                       //  0 QLineEdit/QPushButton
-        LBL_BLENDFILE_PATH,                     //  1 QLineEdit/QPushButton
-        LBL_ENVIRONMENT_PATH,                   //  2 QLineEdit/QPushButton
-        LBL_LDCONFIG_PATH,                      //  3 QLineEdit/QPushButton
-        LBL_LDRAW_PATH,                         //  4 QLineEdit/QPushButton
-        LBL_LSYNTH_PATH,                        //  5 QLineEdit/QPushButton
-        LBL_STUD_LOGO_PATH,                     //  6 QLineEdit/QPushButton
-        LBL_STUDIO_LDRAW_PATH,                  //  7 QLineEdit/QPushButton
+        PATH_BLENDER,       //  0 QLineEdit/QPushButton
+        PATH_BLENDFILE,     //  1 QLineEdit/QPushButton
+        PATH_ENVIRONMENT,   //  2 QLineEdit/QPushButton
+        PATH_LDCONFIG,      //  3 QLineEdit/QPushButton
+        PATH_LDRAW,         //  4 QLineEdit/QPushButton
+        PATH_LSYNTH,        //  5 QLineEdit/QPushButton
+        PATH_STUD_LOGO,     //  6 QLineEdit/QPushButton
+        PATH_STUDIO_LDRAW,  //  7 QLineEdit/QPushButton
 
-        NUM_BLENDER_PATHS
+        NUM_PATH_ITEMS
     };
 
     enum BlenderRenLabelType
