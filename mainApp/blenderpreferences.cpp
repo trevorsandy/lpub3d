@@ -1230,7 +1230,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
             }
             //E. Add jsonArray to jsonDocument
             jsonDoc.setArray(jsonArray);
-            //F. Create a QByteArray and fill it with QJsonDocument (json compact format)
+            //F. Fill QByteArray with QJsonDocument (json compact format)
             addonPathsAndModuleNames = jsonDoc.toJson(QJsonDocument::Compact);
         }
 
@@ -1271,73 +1271,6 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
         gAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,tr("Extract addon failed."));
 
     return proceed;
-}
-
-void BlenderPreferences::settingChanged(const QString &value)
-{
-    bool change = false;
-
-    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
-    if (lineEdit) {
-        int i = lineEdit->property("ControlID").toInt();
-        if (mImportMMActBox->isChecked()) {
-            change = mBlenderSettingsMM[i].value != value;
-        } else {
-            change = mBlenderSettings[i].value != value;
-        }
-    }
-
-    change |= settingsModified(false/*update*/);
-    emit settingChangedSig(change);
-}
-
-void BlenderPreferences::settingChanged(int index)
-{
-    int i = -1;
-    bool change = false;
-    QString item;
-
-    if (index > -1) {
-        QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
-        if (comboBox) {
-            i = comboBox->property("ControlID").toInt();
-            item = comboBox->itemData(index).toString();
-        }
-    } else {
-        QCheckBox *checkBox = qobject_cast<QCheckBox *>(sender());
-        if (checkBox) {
-            i = checkBox->property("ControlID").toInt();
-            item = QString::number(checkBox->isChecked());
-        }
-    }
-
-    if (i > -1) {
-        if (mImportMMActBox->isChecked()) {
-            change = mBlenderSettingsMM[i].value != item;
-        } else {
-            change = mBlenderSettings[i].value != item;
-        }
-    }
-
-    change |= settingsModified(false/*update*/);
-    emit settingChangedSig(change);
-}
-
-void BlenderPreferences::pathChanged()
-{
-    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
-    if (lineEdit) {
-        bool change = false;
-        const int i = lineEdit->property("ControlID").toInt();
-        const QString &path = QDir::toNativeSeparators(lineEdit->text()).toLower();
-
-        if (i != LBL_BLENDER_PATH) {
-            change = QDir::toNativeSeparators(mBlenderPaths[i].value).toLower() != path;
-        }
-
-        change |= settingsModified(false/*update*/);
-        emit settingChangedSig(change);
-    }
 }
 
 bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
@@ -1477,7 +1410,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         }
     }
 
-    // Remove old addon archive if exist
+    // Remove old extracted addon if exist
     if (QFileInfo(blenderAddonDir).exists()) {
         bool result = true;
         QDir dir(blenderAddonDir);
@@ -1631,6 +1564,73 @@ void BlenderPreferences::showResult()
     emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
 }
 
+void BlenderPreferences::settingChanged(const QString &value)
+{
+    bool change = false;
+
+    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
+    if (lineEdit) {
+        int i = lineEdit->property("ControlID").toInt();
+        if (mImportMMActBox->isChecked()) {
+            change = mBlenderSettingsMM[i].value != value;
+        } else {
+            change = mBlenderSettings[i].value != value;
+        }
+    }
+
+    change |= settingsModified(false/*update*/);
+    emit settingChangedSig(change);
+}
+
+void BlenderPreferences::settingChanged(int index)
+{
+    int i = -1;
+    bool change = false;
+    QString item;
+
+    if (index > -1) {
+        QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
+        if (comboBox) {
+            i = comboBox->property("ControlID").toInt();
+            item = comboBox->itemData(index).toString();
+        }
+    } else {
+        QCheckBox *checkBox = qobject_cast<QCheckBox *>(sender());
+        if (checkBox) {
+            i = checkBox->property("ControlID").toInt();
+            item = QString::number(checkBox->isChecked());
+        }
+    }
+
+    if (i > -1) {
+        if (mImportMMActBox->isChecked()) {
+            change = mBlenderSettingsMM[i].value != item;
+        } else {
+            change = mBlenderSettings[i].value != item;
+        }
+    }
+
+    change |= settingsModified(false/*update*/);
+    emit settingChangedSig(change);
+}
+
+void BlenderPreferences::pathChanged()
+{
+    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
+    if (lineEdit) {
+        bool change = false;
+        const int i = lineEdit->property("ControlID").toInt();
+        const QString &path = QDir::toNativeSeparators(lineEdit->text()).toLower();
+
+        if (i != LBL_BLENDER_PATH) {
+            change = QDir::toNativeSeparators(mBlenderPaths[i].value).toLower() != path;
+        }
+
+        change |= settingsModified(false/*update*/);
+        emit settingChangedSig(change);
+    }
+}
+
 void BlenderPreferences::getStandardOutput()
 {
     QString const logFile = QString("%1/Blender/stdout-blender-addon-install").arg(Preferences::lpub3d3rdPartyConfigDir);
@@ -1647,11 +1647,10 @@ void BlenderPreferences::getStandardOutput()
     if (Preferences::useSystemEditor) {
         QDesktopServices::openUrl(QUrl("file:///"+logFile, QUrl::TolerantMode));
     } else {
+        const QString _title = tr("%1 Blender Addon Standard Output").arg(VER_PRODUCTNAME_STR);
         ParmsWindow *parmsWindow = new ParmsWindow(mContent);
+        parmsWindow->setWindowTitle(_title);
         parmsWindow->displayParmsFile(logFile);
-        const QString _title = tr("%1 Blender addon standard output").arg(VER_PRODUCTNAME_STR);
-        const QString _status = tr("View Blender standard output");
-        parmsWindow->setWindowTitle(tr(_title.toLatin1(),_status.toLatin1()));
         parmsWindow->show();
     }
 }
@@ -2498,26 +2497,26 @@ void BlenderPreferences::enableImportModule()
         initPathsAndSettings();
 }
 
-int BlenderPreferences::numSettings(bool mDefaultSettings)
+int BlenderPreferences::numSettings(bool defaultSettings)
 {
     int size = 0;
-    if (!mBlenderSettings[0].key.isEmpty() || mDefaultSettings)
+    if (!mBlenderSettings[0].key.isEmpty() || defaultSettings)
         size = sizeof(mBlenderSettings)/sizeof(mBlenderSettings[0]);
     return size;
 }
 
-int BlenderPreferences::numSettingsMM(bool mDefaultSettings)
+int BlenderPreferences::numSettingsMM(bool defaultSettings)
 {
     int size = 0;
-    if (!mBlenderSettingsMM[0].key.isEmpty() || mDefaultSettings)
+    if (!mBlenderSettingsMM[0].key.isEmpty() || defaultSettings)
         size = sizeof(mBlenderSettingsMM)/sizeof(mBlenderSettingsMM[0]);
     return size;
 }
 
-int BlenderPreferences::numPaths(bool mDefaultSettings)
+int BlenderPreferences::numPaths(bool defaultSettings)
 {
     int size = 0;
-    if (!mBlenderPaths[0].key.isEmpty() || mDefaultSettings)
+    if (!mBlenderPaths[0].key.isEmpty() || defaultSettings)
         size = sizeof(mBlenderPaths)/sizeof(mBlenderPaths[0]);
     return size;
 }
@@ -2802,9 +2801,8 @@ bool BlenderPreferences::promptAccept()
     return false;
 }
 
-void BlenderPreferences::loadDefaultParameters(QByteArray& Buffer, int Which)
+void BlenderPreferences::loadDefaultParameters(QByteArray& buffer, int which)
 {
-
     /*
     # File: BlenderLDrawParameters.lst
     #
@@ -3059,13 +3057,13 @@ void BlenderPreferences::loadDefaultParameters(QByteArray& Buffer, int Which)
         "lighted_brick, 54869.dat, 1.000, 0.052, 0.017, 1.0\n"
     };
 
-    Buffer.clear();
-    if (Which == PARAMS_CUSTOM_COLOURS)
-        Buffer.append(DefaultCustomColours, sizeof(DefaultCustomColours));
-    else if (Which == PARAMS_SLOPED_BRICKS)
-        Buffer.append(DefaultSlopedBricks, sizeof(DefaultSlopedBricks));
-    else if (Which == PARAMS_LIGHTED_BRICKS)
-        Buffer.append(DefaultLightedBricks, sizeof(DefaultLightedBricks));
+    buffer.clear();
+    if (which == PARAMS_CUSTOM_COLOURS)
+        buffer.append(DefaultCustomColours, sizeof(DefaultCustomColours));
+    else if (which == PARAMS_SLOPED_BRICKS)
+        buffer.append(DefaultSlopedBricks, sizeof(DefaultSlopedBricks));
+    else if (which == PARAMS_LIGHTED_BRICKS)
+        buffer.append(DefaultLightedBricks, sizeof(DefaultLightedBricks));
 }
 
 bool BlenderPreferences::exportParameterFile(){

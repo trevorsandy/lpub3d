@@ -37,8 +37,8 @@ class QLabel;
 class QGroupBox;
 class QLineEdit;
 class QCheckBox;
-class QPushButton;
 class QComboBox;
+class QPushButton;
 class QScrollArea;
 class QProgressBar;
 class QProcess;
@@ -104,12 +104,12 @@ public:
     qreal   mRenderPercentage;
 
 protected:
-    static int numPaths(bool = false);
-    static int numSettings(bool = false);
-    static int numSettingsMM(bool = false);
-    static bool getBlenderAddon(const QString &);
-    static bool extractBlenderAddon(const QString &);
-    static void loadDefaultParameters(QByteArray& Buffer, int Which);
+    static int numPaths(bool defaultSettings = false);
+    static int numSettings(bool defaultSettings = false);
+    static int numSettingsMM(bool defaultSettings = false);
+    static bool getBlenderAddon(const QString &blenderDir);
+    static bool extractBlenderAddon(const QString &blenderDir);
+    static void loadDefaultParameters(QByteArray& buffer, int which);
     static bool overwriteFile(const QString &file);
 
     QString readStdErr(bool &hasError) const;
@@ -136,16 +136,16 @@ private slots:
     void setModelSize(bool = false);
     void validateColourScheme(int);
     void settingChanged(int = -1);
-    void settingChanged(const QString &value);
+    void settingChanged(const QString &);
     void pathChanged();
     bool promptAccept();
     void update();
     void readStdOut();
-    void readStdOut(const QString &stdOutput, QString &errors);
+    void readStdOut(const QString &, QString &);
     void writeStdOut();
     void getStandardOutput();
     void showResult();
-    void statusUpdate(bool addon, bool error = true, const QString &message = QString());
+    void statusUpdate(bool, bool = true, const QString & = QString());
 
 private:
     QWidget     *mContent;
