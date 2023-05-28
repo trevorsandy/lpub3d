@@ -1576,10 +1576,10 @@ void BlenderPreferences::settingChanged(const QString &value)
         } else {
             change = mBlenderSettings[i].value != value;
         }
-    }
 
-    change |= settingsModified(false/*update*/);
-    emit settingChangedSig(change);
+        change |= settingsModified(false/*update*/);
+        emit settingChangedSig(change);
+    }
 }
 
 void BlenderPreferences::settingChanged(int index)
