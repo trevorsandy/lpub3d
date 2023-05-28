@@ -2746,7 +2746,7 @@ void lcMainWindow::UpdateColor()
 
 	mColorButton->setIcon(Pixmap);
 	mColorButton->setText(QString("  ") + gColorList[mColorIndex].Name);
-	mColorList->setCurrentColor(mColorIndex);
+	mColorList->SetCurrentColor(mColorIndex);
 }
 
 void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoText)

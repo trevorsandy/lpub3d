@@ -348,12 +348,12 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 			{
 			case lcObjectType::Piece:
 				if (Mode == LC_PROPERTY_WIDGET_EMPTY)
+/*** LPub3D Mod - set the focus on the first piece ***/
 				{
 					Mode = LC_PROPERTY_WIDGET_PIECE;
-/*** LPub3D Mod - set the focus on the first piece ***/
 					Focus = (lcObject*)Selection[ObjectIdx];
-/*** LPub3D Mod end ***/
 				}
+/*** LPub3D Mod end ***/
 				else if (Mode != LC_PROPERTY_WIDGET_PIECE)
 				{
 					Mode = LC_PROPERTY_WIDGET_MULTIPLE;
@@ -1246,8 +1246,7 @@ void lcQPropertiesTree::slotColorButtonClicked()
 			ColorIndex = ((lcPiece*)Focus)->GetColorIndex();
 
 		Popup  = new lcColorPickerPopup(Button, ColorIndex);
-		connect(Popup, &lcColorPickerPopup::Selected, this, &lcQPropertiesTree::slotSetValue);
-
+		connect(Popup, SIGNAL(Selected(int)), SLOT(slotSetValue(int)));
 	}
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)
 	{
@@ -1264,7 +1263,10 @@ void lcQPropertiesTree::slotColorButtonClicked()
 	Popup->setMinimumSize(qMax(300, width()), qMax(200, static_cast<int>(width() * 2 / 3)));
 
 	if (Popup && Button) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+		QScreen* Screen = Button->screen();
+		const QRect ScreenRect = Screen ? Screen->geometry() : QRect();
+#elif (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 		QScreen* Screen = QGuiApplication::screenAt(Button->mapToGlobal(Button->rect().bottomLeft()));
 		const QRect ScreenRect = Screen ? Screen->geometry() : QApplication::desktop()->geometry();
 #else

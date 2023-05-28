@@ -48,10 +48,10 @@ LDrawColorDialog::LDrawColorDialog(
 
      lcColorList* ColorList = new lcColorList(ui->colorFrame);
      ColorLayout->addWidget(ColorList);
-     connect(ColorList, SIGNAL(colorChanged(int)), this, SLOT(colorChanged(int)));
+     connect(ColorList, SIGNAL(ColorChanged(int)), this, SLOT(colorChanged(int)));
 
      mInitialIndex = lcGetColorIndex(quint32(initial));
-     ColorList->setCurrentColor(mInitialIndex);
+     ColorList->SetCurrentColor(mInitialIndex);
 
      mSelectedIndex = -1;
      mModified = false;

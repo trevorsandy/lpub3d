@@ -2573,7 +2573,7 @@ void BlenderPreferences::colorButtonClicked(bool)
 
     QWidget *parent = mLineEditList[CTL_DEFAULT_COLOUR_EDIT];
     lcColorPickerPopup *popup = new lcColorPickerPopup(parent, ColorIndex);
-    connect(popup, SIGNAL(selected(int)), SLOT(setDefaultColor(int)));
+    connect(popup, SIGNAL(Selected(int)), SLOT(setDefaultColor(int)));
     popup->setMinimumSize(300, 200);
 
     const QRect desktop = QApplication::desktop()->geometry();
