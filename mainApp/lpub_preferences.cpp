@@ -1211,7 +1211,7 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
 
     QProcess pr;
     pr.setEnvironment(envList);
-    pr.start("/bin/sh",QStringList() << scriptFile);
+    pr.start(UNIX_SHELL,QStringList() << scriptFile);
 
     if (! pr.waitForStarted()) {
         logError() << qUtf8Printable(QObject::tr("Cannot start library check process."));
