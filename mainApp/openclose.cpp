@@ -429,11 +429,11 @@ void Gui::openRecentFile()
 void Gui::clearRecentFiles()
 {
   QSettings Settings;
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
-    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY))) {
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY)).toStringList();
     files.clear();
-     Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
-   }
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY), files);
+  }
   updateRecentFileActions();
 }
 
@@ -999,8 +999,8 @@ void Gui::enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightSt
 void Gui::updateRecentFileActions()
 {
   QSettings Settings;
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
-    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY))) {
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY)).toStringList();
 
     int numRecentFiles = qMin(files.size(), int(MAX_RECENT_FILES));
 
@@ -1015,7 +1015,7 @@ void Gui::updateRecentFileActions()
         --numRecentFiles;
       }
     }
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY), files);
 
     for (int i = 0; i < numRecentFiles; i++) {
       QFileInfo fileInfo(files[i]);
@@ -1056,23 +1056,28 @@ void Gui::setCurrentFile(const QString &fileName)
 
   if (fileName.size() > 0) {
     QSettings Settings;
-    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY)).toStringList();
     files.removeAll("");
     files.removeAll(fileName);
     files.prepend(fileName);
     while (files.size() > MAX_RECENT_FILES) {
       files.removeLast();
     }
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY), files);
   }
   updateRecentFileActions();
 }
 
-void Gui::loadLastOpenedFile(){
-    updateRecentFileActions();
-    if (getAct("recentFile1Act.1")) {
-        loadFile(getAct("recentFile1Act.1")->data().toString());
+void Gui::loadLastOpenedFile() {
+  updateRecentFileActions();
+  int const fileIndex = 0;
+  QAction *fileAction = recentFilesActs[fileIndex];
+  if (fileAction) {
+    QString const recentFile = fileAction->data().toString();
+    if (QFileInfo(recentFile).isReadable()) {
+      loadFile(recentFile);
     }
+  }
 }
 
 void Gui::fileChanged(const QString &path)

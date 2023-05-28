@@ -1,4 +1,4 @@
-LPub3D 2.4.6.286.3397 (28 05 2023 18:55:27)
+LPub3D 2.4.6.287.3398 (28 05 2023 18:57:32)
 
 Features, enhancements, fixes and changes
 ------------
@@ -28,13 +28,14 @@ Revisions:
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on command ASSEM ANNOTATION DISPLAY GLOBAL TRUE #707
 - Fix - Crash on insert BOM without a preceding STEP command #670
-- Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Crash when converting a submodel with NOSTEP to callout #706
+- Fix - Crash when exporting images with Native renderer #695
+- Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Edge line width not persisted #712
 - Fix - Fade previous steps project global setup disabled on initial load #688
 - Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
-- Fix - Crash when exporting images with Native renderer #695
+- Fix - Load last opened file on startup not working #713
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
 - Fix - Parts List Instance placement dialog #685

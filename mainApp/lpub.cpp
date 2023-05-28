@@ -5051,7 +5051,7 @@ void Gui::createActions()
     for (int i = 0; i < MAX_RECENT_FILES; i++) {
       recentFilesActs[i] = new QAction(this);
       recentFilesActs[i]->setObjectName(tr("recentFile%1Act.1").arg(i));
-      recentFilesActs[i]->setStatusTip(tr("Clear recent file %1").arg(i));
+      recentFilesActs[i]->setStatusTip(tr("Recently opened file %1").arg(i));
       recentFilesActs[i]->setVisible(false);
       lpub->actions.insert(recentFilesActs[i]->objectName(), Action(QStringLiteral("Recent Files.Recent File %1").arg(i), recentFilesActs[i]));
       connect(recentFilesActs[i], SIGNAL(triggered()), this, SLOT(openRecentFile()));

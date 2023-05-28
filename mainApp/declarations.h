@@ -950,6 +950,7 @@ enum ThemeColorType {
 #define VEXIQ_LDRAW_LIB_PATH_KEY                "VEXIQLDrawLibPath"
 
 #define LPUB3D_DATA_PATH_KEY                    "LPub3DDataPath"
+#define LPUB3D_RECENT_FILES_KEY                 "LPRecentFileList"
 
 #define LEGO_FADE_COLOUR_DEFAULT                "Light_Blue"
 #define TENTE_FADE_COLOUR_DEFAULT               "Light_Orange"
