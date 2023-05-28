@@ -37,6 +37,7 @@
 
 class ParmsHighlighter;
 class ParmEditor;
+class FindReplace;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class ParmsWindow : public QMainWindow
@@ -44,11 +45,38 @@ class ParmsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-  ParmsWindow(QWidget *parent = nullptr);
+  explicit ParmsWindow(QWidget *parent = nullptr);
+    ~ParmsWindow() {};
+
+  void setWindowTitle(const QString &title);
+
+  ParmEditor *textEdit()
+  {
+      return _textEdit;
+  }
+
+public slots:
+  void displayParmsFile(const QString &fileName);
+
+private slots:
+    void openFile();
+    void gotoLine();
+    void refreshFile();
+    void enableSave();
+    void toggleClear();
+    void viewLogWindowSettings();
+    bool maybeSave();
+    bool saveFile(bool force = false);
+    bool saveCopyAsFile();
+    void topOfDocument();
+    void bottomOfDocument();
+    void systemEditor();
+    void showAllCharacters();
+    void showContextMenu(const QPoint &pt);
+    void setSelectionHighlighter();
+    void closeEvent(QCloseEvent *event) override;
 
 protected:
-
-private:
     void createActions();
     void createMenus();
     void createToolBars();
@@ -86,35 +114,13 @@ private:
     QAction *undoAct;
     QAction *redoAct;
 
-private slots:
-    void openFile();
-    void gotoLine();
-    void refreshFile();
-    void enableSave();
-    void toggleClear();
-    void viewLogWindowSettings();
-    bool maybeSave();
-    bool saveFile(bool force = false);
-    bool saveCopyAsFile();
-    void topOfDocument();
-    void bottomOfDocument();
-    void systemEditor();
-    void showAllCharacters();
-    void showContextMenu(const QPoint &pt);
-    void setSelectionHighlighter();
-    void closeEvent(QCloseEvent *event) override;
 
-public slots:
-    void displayParmsFile(const QString &fileName);
-
-public:
-    ParmEditor *textEdit() { return _textEdit; }
-    void setWindowTitle(const QString &title);
 };
 
 extern class ParmsWindow *parmsWindow;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class ParmEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -122,15 +128,18 @@ class ParmEditor : public QPlainTextEdit
 public:
     explicit ParmEditor(QWidget *parent = nullptr);
 
-    void showAllCharacters(bool show);
+    ~ParmEditor()override{}
+
+    void showAllCharacters(bool enabled);
     void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
     bool getIsUTF8() { return _fileIsUTF8; }
+
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int  lineNumberAreaWidth();
-    void parmsOpen(int &opt);
-    bool parmsSave(int &opt);
+
     void gotoLine(int line);
-    QWidget     *popUp;
+
+    FindReplace *popUp;
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

@@ -56,10 +56,7 @@ ParmsWindow *parmsWindow;
 ParmsWindow::ParmsWindow(QWidget *parent) :
   QMainWindow(parent)
 {
-    parmsWindow  = this;
-    parmsWindow->statusBar()->show();
-
-    _textEdit          = new ParmEditor(this);
+    _textEdit   = new ParmEditor(this);
 
     highlighter = new ParmsHighlighter(_textEdit->document());
 
@@ -68,6 +65,7 @@ ParmsWindow::ParmsWindow(QWidget *parent) :
     _textEdit->setLineWrapMode(ParmEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+
     _textEdit->popUp = nullptr;
     _fadeStepFile      = false;
     _fileModified      = false;
@@ -81,6 +79,10 @@ ParmsWindow::ParmsWindow(QWidget *parent) :
     setCentralWidget(_textEdit);
 
     readSettings();
+
+    statusBar()->show();
+
+    parmsWindow  = this;
 }
 
 void ParmsWindow::gotoLine()
@@ -819,8 +821,8 @@ void ParmEditor::gotoLine(int line)
     this->setTextCursor(cursor);
 }
 
-void ParmEditor::showAllCharacters(bool show){
-    if (show){
+void ParmEditor::showAllCharacters(bool enabled){
+    if (enabled){
         showCharacters(" ","\u002E");
 #ifdef Q_OS_WIN
         showCharacters("\t","\u003E");
