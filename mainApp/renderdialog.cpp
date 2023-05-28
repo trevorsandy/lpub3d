@@ -643,9 +643,9 @@ void RenderDialog::on_RenderButton_clicked()
         QThread::sleep(2);
 
 #ifdef Q_OS_WIN
-        shellProgram = QLatin1String("cmd.exe");
+        shellProgram = QLatin1String(WINDOWS_SHELL);
 #else
-        shellProgram = QLatin1String("/bin/sh");
+        shellProgram = QLatin1String(UNIX_SHELL);
 #endif
 
         mProcess = new RenderProcess(this);

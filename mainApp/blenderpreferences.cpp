@@ -1060,9 +1060,9 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
             QThread::sleep(1);
 
 #ifdef Q_OS_WIN
-            shellProgram = QLatin1String("cmd.exe");
+            shellProgram = QLatin1String(WINDOWS_SHELL);
 #else
-            shellProgram = QLatin1String("/bin/sh");
+            shellProgram = QLatin1String(UNIX_SHELL);
 #endif
             ProcEnc result = processCommand(PR_TEST);
             bool testOk = result != PR_FAIL;
