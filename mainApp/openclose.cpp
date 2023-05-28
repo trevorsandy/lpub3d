@@ -235,9 +235,8 @@ void Gui::updateOpenWithActions()
 
       auto getProgramIcon = [&programPath] ()
       {
-          QStringList pathList   = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-          QString iconPath       = pathList.first();
-          const QString iconFile = QString("%1/%2icon.png").arg(iconPath).arg(QFileInfo(programPath).baseName());
+          const QString programName = QString("%1icon.png").arg(QFileInfo(programPath).baseName());
+          const QString iconFile = QString("%1/%2").arg(QDir::tempPath()).arg(programName);
           if (!QFileInfo(iconFile).exists()) {
               QFileInfo programInfo(programPath);
               QFileSystemModel *fsModel = new QFileSystemModel;
