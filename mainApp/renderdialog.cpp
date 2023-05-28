@@ -552,7 +552,7 @@ void RenderDialog::on_RenderButton_clicked()
         QString message;
         QStringList Arguments;
         QString pythonExpression;
-        pythonExpression.append(QString("\"import bpy; bpy.ops.render_scene.lpub3drenderldraw("
+        pythonExpression.append(QString("\"import bpy; bpy.ops.render_scene.lpub3d_render_ldraw("
                                         "'EXEC_DEFAULT', "
                                         "resolution_width=%1, resolution_height=%2, "
                                         "render_percentage=%3, model_file=r'%4', "
@@ -757,7 +757,7 @@ void RenderDialog::ReadStdOut()
     QString renderType;
     QRegExp rxRenderProgress;
     rxRenderProgress.setCaseSensitivity(Qt::CaseInsensitive);
-    bool blenderVersion3 = Preferences::blenderVersion.startsWith("v3");
+    bool const blenderVersion3 = Preferences::blenderVersion.startsWith("v3");
     if (blenderVersion3)
     {
         rxRenderProgress.setPattern("Sample (\\d+)\\/(\\d+)");
