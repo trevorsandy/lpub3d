@@ -44,20 +44,6 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     mProcess = nullptr;
 #endif
 
-    QRegExp verRx("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(\\*|\\d+)");
-    if (Preferences::blenderVersion.contains(verRx)) {
-        bool ok[3];
-        int vMaj = verRx.cap(1).toInt(&ok[0]);
-        int vMin = verRx.cap(2).toInt(&ok[1]);
-        int vPat = verRx.cap(3).toInt(&ok[2]);
-        if (ok[0])
-            mBlenderVersion << vMaj;
-        if (ok[1])
-            mBlenderVersion << vMin;
-        if (ok[2])
-            mBlenderVersion << vPat;
-    }
-
     mWidth      = RENDER_DEFAULT_WIDTH;
     mHeight     = RENDER_DEFAULT_HEIGHT;
 
@@ -122,6 +108,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         ui->InputEdit->setText(Render::getRenderModelFile(mRenderType, false/*save current model*/));
         ui->InputEdit->setEnabled(false);
         ui->InputBrowseButton->setEnabled(false);
+        ui->InputBrowseButton->setToolTip(tr("Select LDraw model file - Uncheck Generate Model to enable."));
         resetInputAct = ui->InputEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
         resetInputAct->setText(tr("Reset"));
         resetInputAct->setEnabled(false);
@@ -162,17 +149,16 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
 
+        if (blenderConfigured)
+            mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
+                                ? tr("LDraw Import TN")
+                                : tr("LDraw Import MM");
+
         ui->RenderButton->setEnabled(blenderConfigured && mHaveKeys);
 
         ui->RenderButton->setToolTip(blenderConfigured
-                                        ? tr("Render LDraw model")
-                                        : tr("Blender not configured. Click 'Settings' to configure."));
-
-        mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
-                      ? tr("LDraw Import TN")
-                      : Preferences::blenderImportModule == QLatin1String("MM")
-                      ? tr("LDraw Import MM")
-                      : "";
+                                        ? tr("Render LDraw Model")
+                                        : tr("Blender not configured. Use Settings... to configure."));
 
         if (mImportOnly) {
             labelMessage = tr("Open%1 in Blender using %2")
@@ -183,9 +169,17 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
             ui->InputGenerateCheck->setMinimumWidth(0);
 
             ui->RenderButton->setText(tr("Open in Blender"));
-            ui->RenderButton->setToolTip(tr("Import and open LDraw model in Blender"));
-            ui->RenderSettingsButton->setToolTip(tr("Blender import settings"));
+            ui->RenderButton->setFixedWidth(ui->RenderButton->sizeHint().width() + 20);
+
+            if (blenderConfigured)
+                ui->RenderButton->setToolTip(tr("Import and open LDraw model in Blender"));
+
             ui->RenderLabel->setText(labelMessage);
+            ui->RenderLabel->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
+
+            ui->RenderSettingsButton->setToolTip(tr("Blender import settings"));
+            ui->RenderSettingsButton->setFixedWidth(ui->RenderButton->width());
+            ui->outputLayout->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
 
             ui->OutputLabel->hide();
             ui->OutputEdit->hide();
@@ -194,30 +188,35 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
             ui->RenderOutputButton->hide();
             ui->OutputLine->hide();
             ui->RenderLine->hide();
+
+            setMinimumWidth(600);
+            adjustSize();
+            ui->preview->hide();
         } else {
+            int scaledWidth = 768;
+            int scaledHeight = 432;
+
             ui->RenderSettingsButton->setToolTip(tr("Blender render settings"));
-        }
 
-        bool useConfigSize = false;
-        if (QFileInfo(Preferences::blenderLDrawConfigFile).exists())
-        {
-            QSettings Settings(Preferences::blenderLDrawConfigFile, QSettings::IniFormat);
-            if (Settings.value(QString("%1/cropImage").arg(IMPORTLDRAW), QString()).toBool())
+            if (QFileInfo(Preferences::blenderLDrawConfigFile).exists())
             {
-                useConfigSize = true;
-                mWidth  = gui->GetImageWidth();
-                mHeight = gui->GetImageHeight();
+                QSettings Settings(Preferences::blenderLDrawConfigFile, QSettings::IniFormat);
+                if (Settings.value(QString("%1/cropImage").arg(IMPORTLDRAW), QString()).toBool())
+                {
+                    scaledWidth  = gui->GetImageWidth();
+                    scaledHeight = gui->GetImageHeight();
+                }
             }
+
+            QImage Image(QPixmap(":/resources/blenderlogo1280x720.png").toImage());
+            Image = Image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            ui->preview->setPixmap(QPixmap::fromImage(Image.scaled(scaledWidth, scaledHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
         }
 
-        adjustSize();
-        if (!mImportOnly)
-            setMinimumWidth(useConfigSize ? mWidth : ui->preview->geometry().width());
-        ui->preview->hide();
+        connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
     }
 
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
-    connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
 
     mUpdateTimer.start(500);
 
@@ -268,10 +267,6 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
 void RenderDialog::on_RenderButton_clicked()
 {
-    if (!QFileInfo(Preferences::blenderLDrawConfigFile).isReadable() &&
-        !Preferences::blenderImportModule.isEmpty())
-        BlenderPreferences::saveSettings();
-
     std::function<QStringList()> getFileContent;
     getFileContent = [&] ()
     {
@@ -307,10 +302,6 @@ void RenderDialog::on_RenderButton_clicked()
     mPreviewWidth  = ui->preview->width();
     mPreviewHeight = ui->preview->height();
 
-    QImage Image(mPreviewWidth, mPreviewHeight, QImage::Format_RGB32);
-    Image.fill(QColor(255, 255, 255));
-    ui->preview->setPixmap(QPixmap::fromImage(Image));
-
     mRenderTime.start();
 
     QString message;
@@ -320,6 +311,10 @@ void RenderDialog::on_RenderButton_clicked()
         lpub->getAct("povrayRenderAct.4")->setEnabled(false);
 
         ui->RenderLabel->setText(tr("Generating POV-Ray scene file..."));
+
+        QImage Image(mPreviewWidth, mPreviewHeight, QImage::Format_RGB32);
+        Image.fill(QColor(255, 255, 255));
+        ui->preview->setPixmap(QPixmap::fromImage(Image));
 
         QApplication::processEvents();
 
@@ -544,7 +539,8 @@ void RenderDialog::on_RenderButton_clicked()
         mBlendProgValue = 0;
         mBlendProgMax   = 0;
 
-        if (! QFileInfo(Preferences::blenderLDrawConfigFile).exists())
+        if (!QFileInfo(Preferences::blenderLDrawConfigFile).isReadable() &&
+            !Preferences::blenderImportModule.isEmpty())
             BlenderPreferences::saveSettings();
 
         QString defaultBlendFile = QString("%1/Blender/config/%2")
@@ -569,7 +565,7 @@ void RenderDialog::on_RenderButton_clicked()
         if (Preferences::blenderImportModule == QLatin1String("MM"))
             pythonExpression.append(", use_ldraw_import_mm=True");
         if (searchCustomDir)
-            pythonExpression.append(", search_additional_paths=True");    
+            pythonExpression.append(", search_additional_paths=True");
         if (mImportOnly) {
             pythonExpression.append(", import_only=True");
 
@@ -716,7 +712,6 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
 //    emit gui->messageSig(LOG_DEBUG, QString("PID %1, Parent PID: %2").arg(pid).arg(ppid));
     DWORD pID        = DWORD(pid);
     DWORD ppID       = DWORD(ppid);
-    BOOL bChild      = FALSE;
     HANDLE hSnapshot = INVALID_HANDLE_VALUE, hProcess = INVALID_HANDLE_VALUE;
     PROCESSENTRY32 pe32;
 
@@ -733,7 +728,7 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
     do {
         if (QString::fromWCharArray(pe32.szExeFile).contains(QRegExp("^(?:cmd\\.exe|conhost\\.exe|blender\\.exe)$", Qt::CaseInsensitive))) {
             if ((pe32.th32ProcessID == pID && pe32.th32ParentProcessID == ppID) || // parent:   cmd.exe
-                (bChild = pe32.th32ParentProcessID == pID)) {                      // children: conhost.exe, blender.exe
+                (pe32.th32ParentProcessID == pID)) {                      // children: conhost.exe, blender.exe
                 if ((hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe32.th32ProcessID)) == INVALID_HANDLE_VALUE) {
                     emit gui->messageSig(LOG_ERROR, tr("%1 failed: %2").arg("OpenProcess").arg(GetLastError()));
                     return -3;
@@ -741,7 +736,7 @@ int RenderDialog::TerminateChildProcess(const qint64 pid, const qint64 ppid)
                     TerminateProcess(hProcess, 9);
                     CloseHandle(hProcess);
                     emit gui->messageSig(LOG_INFO, tr("%1 Process Terminated: PID: %2  Parent PID: %3  Name: %4")
-                                         .arg(bChild ? tr("Child") : tr("Parent"))
+                                         .arg(pe32.th32ParentProcessID == pID ? tr("Child") : tr("Parent"))
                                          .arg(pe32.th32ProcessID)
                                          .arg(pe32.th32ParentProcessID)
                                          .arg(QString::fromWCharArray(pe32.szExeFile)));
@@ -762,7 +757,7 @@ void RenderDialog::ReadStdOut()
     QString renderType;
     QRegExp rxRenderProgress;
     rxRenderProgress.setCaseSensitivity(Qt::CaseInsensitive);
-    bool blenderVersion3 = mBlenderVersion[0] == 3;
+    bool blenderVersion3 = Preferences::blenderVersion.startsWith("v3");
     if (blenderVersion3)
     {
         rxRenderProgress.setPattern("Sample (\\d+)\\/(\\d+)");
@@ -804,9 +799,7 @@ QString RenderDialog::ReadStdErr(bool &hasError) const
     while ( ! in.atEnd())
     {
         QString line = in.readLine(0);
-        returnLines << line.trimmed().replace("<","&lt;")
-                                     .replace(">","&gt;")
-                                     .replace("&","&amp;") + "<br>";
+        returnLines << line.trimmed() + "<br>";
         if (mRenderType == POVRAY_RENDER) {
             if (line.contains(QRegExp("^POV-Ray finished$", Qt::CaseSensitive)))
                 hasError = false;
@@ -938,13 +931,7 @@ void RenderDialog::ShowResult()
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         box.setWindowTitle(mRenderType == BLENDER_RENDER ? tr("Blender Render") : tr("POV-Ray Render"));
 
-        QString header = "<b>" + tr ("Render Error.") +
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
+        QString header = "<b>" + tr ("Render Error.") + "</b>";
         QString body = tr ("An error occurred while rendering. See Show Details...");
         box.setText (header);
         box.setInformativeText (body);
@@ -1046,9 +1033,7 @@ void RenderDialog::UpdateElapsedTime()
 {
     if (mProcess && !mImportOnly)
     {
-        QString const renderType = mBlenderVersion[0] == 3
-                ? QLatin1String("Samples")
-                : QLatin1String("Tiles");
+        QString const renderType = Preferences::blenderVersion.startsWith("v3") ? QLatin1String("Samples") : QLatin1String("Tiles");
         ui->RenderLabel->setText(tr("%1: %2/%3, %4")
                                   .arg(renderType)
                                   .arg(mBlendProgValue)
@@ -1105,9 +1090,10 @@ bool RenderDialog::PromptCancel()
                 WriteStdOut();
                 ui->RenderOutputButton->setEnabled(true);
             }
-            ui->RenderLabel->setText(tr("Tiles: %1/%2, Render Cancelled.")
-                                      .arg(mBlendProgValue)
-                                      .arg(mBlendProgMax));
+            if (mRenderType == BLENDER_RENDER)
+                ui->RenderLabel->setText(tr("Tiles: %1/%2, Render Cancelled.")
+                                            .arg(mBlendProgValue)
+                                            .arg(mBlendProgMax));
         }
         else
             return false;

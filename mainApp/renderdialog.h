@@ -32,9 +32,10 @@ class RenderProcess : public QProcess
     Q_OBJECT
 
 public:
-    explicit RenderProcess(
-            QObject *parent = nullptr) :
-        QProcess(parent){}
+    explicit RenderProcess(QObject *parent = nullptr) 
+	: QProcess(parent)
+	{
+	}
     ~RenderProcess();
 };
 
@@ -102,7 +103,6 @@ protected:
 
     bool mHaveKeys;
     bool mTransBackground;
-    QVector<int> mBlenderVersion;
     int mWidth;
     int mHeight;
     int mResolution;

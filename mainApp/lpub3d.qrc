@@ -40,6 +40,7 @@
         <file alias="background.png">resources/background.png</file>
         <file alias="blendericon.png">resources/blendericon.png</file>
         <file alias="blendericon16.png">resources/blendericon16.png</file>
+        <file alias="blenderlogo1280x720.png">resources/blenderlogo1280x720.png</file>
         <file alias="bold.png">resources/bold.png</file>
         <file alias="bomannotation.png">resources/bomannotation.png</file>
         <file alias="bomsetup.png">resources/bomsetup.png</file>

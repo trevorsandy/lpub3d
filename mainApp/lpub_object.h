@@ -145,7 +145,7 @@ public:
   /// Load banner
   static void loadBanner(const int &type);
 
-  /// Download management calls
+  /// Download management public calls
   void downloadFile(QString URL,
                     QString,
                     bool promptRedirect = false,
@@ -198,7 +198,7 @@ public:
   /// Native export options
   NativeOptions *Options = nullptr;
 
-  /// Download management calls
+  /// Download management public members
   QProgressDialog *mProgressDialog = nullptr;
   bool mPromptRedirect;
   bool mHttpRequestAborted;
@@ -237,7 +237,7 @@ public slots:
   /// Visual editor transform
   void saveVisualEditorTransformSettings();
 
-  /// Download management calls
+  /// Download management public slots
   void httpDownloadFinished();
   void cancelDownload();
   void updateDownloadProgress(qint64, qint64);
@@ -246,6 +246,7 @@ public slots:
     mFileLoaded = true;
     mFileLoadFail = !b;
   }
+  
   /// Update change log call
   void setupChangeLogUpdate();
   void updaterCancelled();
@@ -272,7 +273,7 @@ signals:
   void checkForUpdatesFinished();
 
 protected:
-  /// Download management members
+  /// Download management protected members
   bool                   mShowProgress = true;
   QNetworkAccessManager* mHttpManager = nullptr;
   QNetworkReply*         mHttpReply = nullptr;
