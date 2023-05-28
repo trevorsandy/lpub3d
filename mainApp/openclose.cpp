@@ -321,9 +321,6 @@ void Gui::updateOpenWithActions()
       // add menu actions from updated list
       for (int k = 0; k < numPrograms; k++)
         openWithMenu->addAction(openWithActList.at(k));
-
-      // enable menu accordingly
-      openWithMenu->setEnabled(numPrograms > 0);
     }
 }
 
@@ -762,6 +759,7 @@ void Gui::closeFile()
   setGoToPageCombo->setEnabled(false);
   setPageLineEdit->clear();
   setPageLineEdit->setEnabled(false);
+  openWithMenu->setEnabled(false);
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
@@ -921,6 +919,7 @@ bool Gui::openFile(const QString &fileName)
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setCurrentFile(fileInfo.absoluteFilePath());
   undoStack->setClean();
+  openWithMenu->setEnabled(numPrograms);
   for (int i = 0; i < numPrograms; i++) {
     QFileInfo programFileInfo(programEntries.at(i).split("|").last());
     openWithActList[i]->setStatusTip(tr("Open %1 with %2")

@@ -6585,7 +6585,6 @@ void Gui::enableActions()
   getMenu("cacheMenu")->setEnabled(true);
   getMenu("exportMenu")->setEnabled(true);
   getMenu("loadStatusMenu")->setEnabled(true);
-  openWithMenu->setEnabled(numPrograms);
 
   //Visual Editor
   //ViewerExportMenu->setEnabled(true); // Hide Visual Editor step export functions
@@ -6718,6 +6717,7 @@ void Gui::createMenus()
 
     openWithMenu = fileMenu->addMenu(tr("Open With..."));
     openWithMenu->setObjectName("openWithMenu");
+    openWithMenu->setEnabled(false);
     menus.insert(openWithMenu->objectName(), openWithMenu);
     openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
     openWithMenu->setStatusTip(tr("Open model file with selected application"));
