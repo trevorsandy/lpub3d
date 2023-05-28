@@ -7623,9 +7623,11 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Part annotation styles.\n"
-            "  - Select Style to Edit: display the corresponding\n"
+            "  - Select Style to Edit: enable the corresponding\n"
             "    background, border, text and size for editing.\n"
-            "    Choices include square, circle or rectangle.\n\n"
+            "    Choices include square, circle or rectangle.\n"
+            "    This setting defaults to None when the dialogue\n"
+            "    is initially opened.\n\n"
             "  - Background: edit the annotation background\n\n"
             "  - Border: edit the annotation border attributes\n\n"
             "  - Annotation Text Format: edit the annotation text\n"

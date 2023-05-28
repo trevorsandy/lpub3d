@@ -6458,7 +6458,7 @@ PliAnnotationGui::PliAnnotationGui(
   }
 
   //PLI Annotation Source
-  gbPLIAnnotationSource = new QGroupBox(tr("Display %1 Annotation From Source").arg(bom ? tr("Bill Of Materials (BOM)") : tr("Part List (PLI)") ),parent);
+  gbPLIAnnotationSource = new QGroupBox(tr("Display %1 Annotation Source").arg(bom ? tr("Bill Of Materials (BOM)") : tr("Part List (PLI)") ),parent);
   gbPLIAnnotationSource->setWhatsThis(lpubWT(WT_GUI_PART_ANNOTATIONS_SOURCE, gbPLIAnnotationSource->title()));
   gbPLIAnnotationSource->setCheckable(true);
   gbPLIAnnotationSource->setChecked(meta->display.value());
