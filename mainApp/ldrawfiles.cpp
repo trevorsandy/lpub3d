@@ -159,7 +159,7 @@ int getLevel(const QString& key, int position)
 QStringList LDrawFile::_subFileOrder;
 QStringList LDrawFile::_subFileOrderNoUnoff;
 QStringList LDrawFile::_displayModelList;
-QStringList LDrawFile::_includeFileList;
+QStringList LDrawFile::_includeFileOrder;
 QStringList LDrawFile::_buildModList;
 QStringList LDrawFile::_loadedItems;
 QString LDrawFile::_file           = "";
@@ -317,7 +317,7 @@ void LDrawFile::empty()
   _buildModStepIndexes.clear();
   _buildModRendered.clear();
   _buildModList.clear();
-  _includeFileList.clear();
+  _includeFileOrder.clear();
   _displayModelList.clear();
   _missingItems.clear();
   _loadedItems.clear();
@@ -416,7 +416,7 @@ void LDrawFile::insert(const QString &mcFileName,
       modelDesc);
   _subFiles.insert(fileName,subFile);
   if (includeFile) {
-    _includeFileList << fileName;
+    _includeFileOrder << fileName;
   } else {
     _subFileOrder << mcFileName;
     if (displayModel)
@@ -530,7 +530,7 @@ int LDrawFile::isUnofficialPart(const QString &name)
 
 bool LDrawFile::isIncludeFile(const QString &mcFileName)
 {
-  return _includeFileList.contains(mcFileName,Qt::CaseInsensitive);
+  return _includeFileOrder.contains(mcFileName,Qt::CaseInsensitive);
 }
 
 bool LDrawFile::isDisplayModel(const QString &mcFileName)
@@ -595,18 +595,24 @@ QDateTime LDrawFile::lastModified(const QString &mcFileName)
 
 bool LDrawFile::contains(const QString &file, bool searchAll)
 {
-  if (searchAll)
-      for (int i = 0; i < _subFileOrder.size(); i++) {
-        if (_subFileOrder.at(i).toLower() == file.toLower()) {
-          return true;
-        }
+  if (searchAll) {
+    for (int i = 0; i < _subFileOrder.size(); i++) {
+      if (_subFileOrder.at(i).toLower() == file.toLower()) {
+        return true;
       }
-  else
-      for (int i = 0; i < _subFileOrderNoUnoff.size(); i++) {
-        if (_subFileOrderNoUnoff[i].toLower() == file.toLower()) {
-          return true;
-        }
+    }
+    for (int i = 0; i < _includeFileOrder.size(); i++) {
+      if (_includeFileOrder.at(i).toLower() == file.toLower()) {
+        return true;
       }
+    }
+  } else {
+    for (int i = 0; i < _subFileOrderNoUnoff.size(); i++) {
+      if (_subFileOrderNoUnoff[i].toLower() == file.toLower()) {
+        return true;
+      }
+    }
+  }
   return false;
 }
 
@@ -807,9 +813,9 @@ QStringList LDrawFile::getSubFilePaths()
     if (!filePath.isEmpty())
         subFilesPaths << filePath;
   }
-  if (_includeFileList.size()){
-      for (int i = 0; i < _includeFileList.size(); i++) {
-        QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(_includeFileList[i]);
+  if (_includeFileOrder.size()){
+      for (int i = 0; i < _includeFileOrder.size(); i++) {
+        QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(_includeFileOrder[i]);
         if (f != _subFiles.end()) {
             if (!f.value()._subFilePath.isEmpty()) {
                 subFilesPaths << f.value()._subFilePath;
@@ -958,7 +964,7 @@ QStringList& LDrawFile::subFileOrder() {
 }
 
 QStringList& LDrawFile::includeFileList() {
-    return _includeFileList;
+    return _includeFileOrder;
 }
 
 QStringList& LDrawFile::displayModelList() {
@@ -3070,6 +3076,7 @@ void LDrawFile::countInstances(
               for (++top.lineNumber; top.lineNumber < j; top.lineNumber++) {
                 split(f->_contents[top.lineNumber],tokens);
                 if (tokens.size() == 15 && tokens[0] == "1") {
+                  // exclude unofficial inline files
                   if (contains(tokens[14],false/*searchAll*/) && ! stepIgnore && ! buildModIgnore) {
                     // add contains 'child' index to parent list
                     if (isSubmodel(tokens[14])) {
@@ -3158,6 +3165,7 @@ void LDrawFile::countInstances(
       } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
         if (! displayModel && ! stepIgnore && ! buildModIgnore) {
           buildModPartCount++;
+          // exclude unofficial inline files
           if (contains(tokens[14],false/*searchAll*/)) {
             // add contains 'child' index to parent list
             if (isSubmodel(tokens[14])) {

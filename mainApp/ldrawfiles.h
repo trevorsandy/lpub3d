@@ -324,14 +324,14 @@ class LDrawFile {
       _buildModStepIndexes.clear();
       _buildModRendered.clear();
       _displayModelList.clear();
-      _includeFileList.clear();
+      _includeFileOrder.clear();
       _buildModList.clear();
       _missingItems.clear();
       _loadedItems.clear();
     }
 
     static QStringList          _subFileOrder;
-    static QStringList          _includeFileList;
+    static QStringList          _includeFileOrder;
     static QStringList          _subFileOrderNoUnoff;
     static QStringList          _displayModelList;
     static QStringList          _buildModList;

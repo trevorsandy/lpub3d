@@ -1,4 +1,4 @@
-LPub3D 2.4.6.290.3401 (28 05 2023 19:03:41)
+LPub3D 2.4.6.291.3402 (28 05 2023 19:05:47)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,6 +34,7 @@ Revisions:
 - Fix - Crash when 'Treat as Part' is activated #672
 - Fix - Edge line width not persisted #712
 - Fix - Fade previous steps project global setup disabled on initial load #688
+- Fix - Global meta change not persisted to include file #717
 - Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
 - Fix - Load last opened file on startup not working #713
