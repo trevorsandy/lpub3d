@@ -180,7 +180,7 @@ private:
     QStringList  mStdOutList;
     bool         mBlenderVersionFound;
 
-    enum BlenderRenPathType
+    enum BlenderPathType
     {
         PATH_BLENDER,       //  0 QLineEdit/QPushButton
         PATH_BLENDFILE,     //  1 QLineEdit/QPushButton
@@ -191,13 +191,14 @@ private:
         PATH_STUD_LOGO,     //  6 QLineEdit/QPushButton
         PATH_STUDIO_LDRAW,  //  7 QLineEdit/QPushButton
 
-        NUM_PATH_ITEMS
+        NUM_PATHS
     };
 
-    enum BlenderRenLabelType
+    enum BlenderLabelType
     {
         LBL_ADD_ENVIRONMENT,                    //  0   QCheckBox
-        LBL_ADD_GAPS,                           //  1   QCheckBox
+        DEFAULT_SETTINGS,                       //  1
+        LBL_ADD_GAPS = DEFAULT_SETTINGS,        //  1   QCheckBox
         LBL_BEVEL_EDGES,                        //  2   QCheckBox
         LBL_BLENDFILE_TRUSTED,                  //  3   QCheckBox
         LBL_CROP_IMAGE,                         //  4   QCheckBox
@@ -244,56 +245,54 @@ private:
         NUM_SETTINGS
     };
 
-    enum BlenderRenControlType
-    {                                                    // Index
-        BLENDER_PATH_EDIT,                               // 00
-        ADD_ENVIRONMENT_BOX     = BLENDER_PATH_EDIT,     // 00
-        BEVEL_WIDTH_EDIT        = BLENDER_PATH_EDIT,     // 00
-        COLOUR_SCHEME_COMBO     = BLENDER_PATH_EDIT,     // 00
-        ADD_GAPS_BOX,                                    // 01
-        CAMERA_BORDER_PERCENT_EDIT = ADD_GAPS_BOX,       // 01
-        FLEX_PARTS_SOURCE_COMBO = ADD_GAPS_BOX,          // 01
-        DEFAULT_SETTINGS        = ADD_GAPS_BOX,          // 01
-        BEVEL_EDGES_BOX,                                 // 02
-        DEFAULT_COLOUR_EDIT     = BEVEL_EDGES_BOX,       // 02
-        LOGO_STUD_VERSION_COMBO = BEVEL_EDGES_BOX,       // 02
-        BLENDFILE_TRUSTED_BOX,                           // 03
-        GAPS_SIZE_EDIT          = BLENDFILE_TRUSTED_BOX, // 03
-        LOOK_COMBO              = BLENDFILE_TRUSTED_BOX, // 03
-        CROP_IMAGE_BOX,                                  // 04
-        IMAGE_WIDTH_EDIT        = CROP_IMAGE_BOX,        // 04
-        POSITION_OBJECT_COMBO   = CROP_IMAGE_BOX,        // 04
-        CURVED_WALLS_BOX,                                // 05
-        IMAGE_HEIGHT_EDIT       = CURVED_WALLS_BOX,      // 05
-        RESOLUTION_COMBO        = CURVED_WALLS_BOX,      // 05
-        FLATTEN_HIERARCHY_BOX,                           // 06
-        IMAGE_SCALE_EDIT        = FLATTEN_HIERARCHY_BOX, // 06
-        RESOLVE_NORMALS_COMBO   = FLATTEN_HIERARCHY_BOX, // 06
-        COMBO_BOX_ITEMS         = FLATTEN_HIERARCHY_BOX, // 06
-        IMPORT_CAMERAS_BOX,                              // 07
-        RENDER_PERCENTAGE_EDIT  = IMPORT_CAMERAS_BOX,    // 07
-        LINE_EDIT_ITEMS         = IMPORT_CAMERAS_BOX,    // 07
-        IMPORT_LIGHTS_BOX,                               // 08
-        INSTANCE_STUDS_BOX,                              // 09
-        KEEP_ASPECT_RATIO_BOX,                           // 10
-        LINK_PARTS_BOX,                                  // 11
-        NUMBER_NODES_BOX,                                // 12
-        OVERWRITE_IMAGE_BOX,                             // 13
-        OVERWRITE_MATERIALS_BOX,                         // 14
-        OVERWRITE_MESHES_BOX,                            // 15
-        POSITION_CAMERA_BOX,                             // 16
-        REMOVE_DOUBLES_BOX,                              // 17
-        RENDER_WINDOW_BOX,                               // 18
-        USE_ARCHIVE_LIBS_BOX,                            // 19
-        SEARCH_ADDL_PATHS_BOX,                           // 20
-        SMOOTH_SHADING_BOX,                              // 21
-        TRANSPARENT_BACKGROUND_BOX,                      // 22
-        UNOFFICIAL_PARTS_BOX,                            // 23
-        USE_LOGO_STUDS_BOX,                              // 24
-        VERBOSE_BOX                                      // 25
+    enum BlenderControlType
+    {                                                            // Index
+        CTL_BLENDER_PATH_EDIT,                                   // 00
+        CTL_ADD_ENVIRONMENT_BOX     = CTL_BLENDER_PATH_EDIT,     // 00
+        CTL_BEVEL_WIDTH_EDIT        = CTL_BLENDER_PATH_EDIT,     // 00
+        CTL_COLOUR_SCHEME_COMBO     = CTL_BLENDER_PATH_EDIT,     // 00
+        CTL_ADD_GAPS_BOX,                                        // 01
+        CTL_CAMERA_BORDER_PERCENT_EDIT = CTL_ADD_GAPS_BOX,       // 01
+        CTL_FLEX_PARTS_SOURCE_COMBO = CTL_ADD_GAPS_BOX,          // 01
+        CTL_BEVEL_EDGES_BOX,                                     // 02
+        CTL_DEFAULT_COLOUR_EDIT     = CTL_BEVEL_EDGES_BOX,       // 02
+        CTL_LOGO_STUD_VERSION_COMBO = CTL_BEVEL_EDGES_BOX,       // 02
+        CTL_BLENDFILE_TRUSTED_BOX,                               // 03
+        CTL_GAPS_SIZE_EDIT          = CTL_BLENDFILE_TRUSTED_BOX, // 03
+        CTL_LOOK_COMBO              = CTL_BLENDFILE_TRUSTED_BOX, // 03
+        CTL_CROP_IMAGE_BOX,                                      // 04
+        CTL_IMAGE_WIDTH_EDIT        = CTL_CROP_IMAGE_BOX,        // 04
+        CTL_POSITION_OBJECT_COMBO   = CTL_CROP_IMAGE_BOX,        // 04
+        CTL_CURVED_WALLS_BOX,                                    // 05
+        CTL_IMAGE_HEIGHT_EDIT       = CTL_CURVED_WALLS_BOX,      // 05
+        CTL_RESOLUTION_COMBO        = CTL_CURVED_WALLS_BOX,      // 05
+        CTL_FLATTEN_HIERARCHY_BOX,                               // 06
+        CTL_IMAGE_SCALE_EDIT        = CTL_FLATTEN_HIERARCHY_BOX, // 06
+        CTL_RESOLVE_NORMALS_COMBO   = CTL_FLATTEN_HIERARCHY_BOX, // 06
+        CTL_IMPORT_CAMERAS_BOX,                                  // 07
+        CTL_RENDER_PERCENTAGE_EDIT  = CTL_IMPORT_CAMERAS_BOX,    // 07
+        CTL_LINE_EDIT_ITEMS         = CTL_IMPORT_CAMERAS_BOX,    // 07
+        CTL_IMPORT_LIGHTS_BOX,                                   // 08
+        CTL_INSTANCE_STUDS_BOX,                                  // 09
+        CTL_KEEP_ASPECT_RATIO_BOX,                               // 10
+        CTL_LINK_PARTS_BOX,                                      // 11
+        CTL_NUMBER_NODES_BOX,                                    // 12
+        CTL_OVERWRITE_IMAGE_BOX,                                 // 13
+        CTL_OVERWRITE_MATERIALS_BOX,                             // 14
+        CTL_OVERWRITE_MESHES_BOX,                                // 15
+        CTL_POSITION_CAMERA_BOX,                                 // 16
+        CTL_REMOVE_DOUBLES_BOX,                                  // 17
+        CTL_RENDER_WINDOW_BOX,                                   // 18
+        CTL_USE_ARCHIVE_LIBS_BOX,                                // 19
+        CTL_SEARCH_ADDL_PATHS_BOX,                               // 20
+        CTL_SMOOTH_SHADING_BOX,                                  // 21
+        CTL_TRANSPARENT_BACKGROUND_BOX,                          // 22
+        CTL_UNOFFICIAL_PARTS_BOX,                                // 23
+        CTL_USE_LOGO_STUDS_BOX,                                  // 24
+        CTL_VERBOSE_BOX,                                         // 25
     };
 
-    enum BlenderRenLabelTypeMM
+    enum BlenderLabelTypeMM
     {
         LBL_ADD_ENVIRONMENT_MM,                    // 00 QCheckBox
         LBL_BLEND_FILE_TRUSTED_MM,                 // 01 QCheckBox
@@ -356,74 +355,73 @@ private:
         NUM_SETTINGS_MM
     };
 
-    enum BlenderRenControlTypeMM
-    {                                                             // Index
-        BLENDER_PATH_EDIT_MM,                                     // 00
-        ADD_ENVIRONMENT_BOX_MM        = BLENDER_PATH_EDIT_MM,     // 00
-        CAMERA_BORDER_PERCENT_EDIT_MM = BLENDER_PATH_EDIT_MM,     // 00
-        CHOSEN_LOGO_COMBO             = BLENDER_PATH_EDIT_MM,     // 00
-        BLEND_FILE_TRUSTED_BOX_MM,                                // 01
-        FRAMES_PER_STEP_EDIT          = BLEND_FILE_TRUSTED_BOX_MM,// 01
-        COLOUR_SCHEME_COMBO_MM        = BLEND_FILE_TRUSTED_BOX_MM,// 01
-        CROP_IMAGE_BOX_MM,                                        // 02
-        GAP_SCALE_EDIT                = CROP_IMAGE_BOX_MM,        // 02
-        GAP_SCALE_STRATEGY_COMBO      = CROP_IMAGE_BOX_MM,        // 02
-        DISPLAY_LOGO_BOX,                                         // 03
-        IMPORT_SCALE_EDIT             = DISPLAY_LOGO_BOX,         // 03
-        GAP_TARGET_COMBO              = DISPLAY_LOGO_BOX,         // 03
-        IMPORT_CAMERAS_BOX_MM,                                    // 04
-        MERGE_DISTANCE_EDIT           = IMPORT_CAMERAS_BOX_MM,    // 04
-        RESOLUTION_COMBO_MM           = IMPORT_CAMERAS_BOX_MM,    // 04
-        IMPORT_EDGES_BOX,                                         // 05
-        RENDER_PERCENTAGE_EDIT_MM     = IMPORT_EDGES_BOX,         // 05
-        SMOOTH_TYPE_COMBO             = IMPORT_EDGES_BOX,         // 05
-        COMBO_BOX_ITEMS_MM            = IMPORT_EDGES_BOX,         // 05
-        IMPORT_LIGHTS_BOX_MM,                                     // 06
-        RESOLUTION_WIDTH_EDIT         = IMPORT_LIGHTS_BOX_MM,     // 06
-        KEEP_ASPECT_RATIO_BOX_MM,                                 // 07
-        RESOLUTION_HEIGHT_EDIT        = KEEP_ASPECT_RATIO_BOX_MM, // 07
-        MAKE_GAPS_BOX,                                            // 08
-        STARTING_STEP_FRAME_EDIT      = MAKE_GAPS_BOX,            // 08
-        LINE_EDIT_ITEMS_MM            = MAKE_GAPS_BOX,            // 08
-        META_BFC_BOX,                                             // 09
-        META_CLEAR_BOX,                                           // 10
-        META_GROUP_BOX,                                           // 11
-        META_PAUSE_BOX,                                           // 12
-        META_PRINT_WRITE_BOX,                                     // 13
-        META_SAVE_BOX,                                            // 14
-        META_STEP_BOX,                                            // 15
-        META_STEP_GROUPS_BOX,                                     // 16
-        NO_STUDS_BOX,                                             // 17
-        OVERWRITE_IMAGE_BOX_MM,                                   // 18
-        PARENT_TO_EMPTY_BOX,                                      // 19
-        PREFER_STUDIO_BOX,                                        // 20
-        PREFER_UNOFFICIAL_BOX,                                    // 21
-        PRESERVE_HIERARCHY_BOX,                                   // 22
-        PROFILE_BOX,                                              // 23
-        RECALCULATE_NORMALS_BOX,                                  // 24
-        REMOVE_DOUBLES_BOX_MM,                                    // 25
-        RENDER_WINDOW_BOX_MM,                                     // 26
-        SEARCH_ADDL_PATHS_MM_BOX,                                 // 27
-        SETEND_FRAME_BOX,                                         // 28
-        SET_TIMELINE_MARKERS_BOX,                                 // 29
-        SHADE_SMOOTH_BOX,                                         // 30
-        TRANSPARENT_BACKGROUND_BOX_MM,                            // 31
-        TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,                  // 32
-        TREAT_SHORTCUT_AS_MODEL_BOX,                              // 33
-        TRIANGULATE_BOX,                                          // 34
-        USE_ARCHIVE_LIBRARY_BOX_MM,                               // 35
-        USE_FREESTYLE_EDGES_BOX,                                  // 36
-        VERBOSE_BOX_MM                                            // 37
+    enum BlenderControlTypeMM
+    {                                                                     // Index
+        CTL_BLENDER_PATH_EDIT_MM,                                         // 00
+        CTL_ADD_ENVIRONMENT_BOX_MM        = CTL_BLENDER_PATH_EDIT_MM,     // 00
+        CTL_CAMERA_BORDER_PERCENT_EDIT_MM = CTL_BLENDER_PATH_EDIT_MM,     // 00
+        CTL_CHOSEN_LOGO_COMBO             = CTL_BLENDER_PATH_EDIT_MM,     // 00
+        CTL_BLEND_FILE_TRUSTED_BOX_MM,                                    // 01
+        CTL_FRAMES_PER_STEP_EDIT          = CTL_BLEND_FILE_TRUSTED_BOX_MM,// 01
+        CTL_COLOUR_SCHEME_COMBO_MM        = CTL_BLEND_FILE_TRUSTED_BOX_MM,// 01
+        CTL_CROP_IMAGE_BOX_MM,                                            // 02
+        CTL_GAP_SCALE_EDIT                = CTL_CROP_IMAGE_BOX_MM,        // 02
+        CTL_GAP_SCALE_STRATEGY_COMBO      = CTL_CROP_IMAGE_BOX_MM,        // 02
+        CTL_DISPLAY_LOGO_BOX,                                             // 03
+        CTL_IMPORT_SCALE_EDIT             = CTL_DISPLAY_LOGO_BOX,         // 03
+        CTL_GAP_TARGET_COMBO              = CTL_DISPLAY_LOGO_BOX,         // 03
+        CTL_IMPORT_CAMERAS_BOX_MM,                                        // 04
+        CTL_MERGE_DISTANCE_EDIT           = CTL_IMPORT_CAMERAS_BOX_MM,    // 04
+        CTL_RESOLUTION_COMBO_MM           = CTL_IMPORT_CAMERAS_BOX_MM,    // 04
+        CTL_IMPORT_EDGES_BOX,                                             // 05
+        CTL_RENDER_PERCENTAGE_EDIT_MM     = CTL_IMPORT_EDGES_BOX,         // 05
+        CTL_SMOOTH_TYPE_COMBO             = CTL_IMPORT_EDGES_BOX,         // 05
+        CTL_IMPORT_LIGHTS_BOX_MM,                                         // 06
+        CTL_RESOLUTION_WIDTH_EDIT         = CTL_IMPORT_LIGHTS_BOX_MM,     // 06
+        CTL_KEEP_ASPECT_RATIO_BOX_MM,                                     // 07
+        CTL_RESOLUTION_HEIGHT_EDIT        = CTL_KEEP_ASPECT_RATIO_BOX_MM, // 07
+        CTL_MAKE_GAPS_BOX,                                                // 08
+        CTL_STARTING_STEP_FRAME_EDIT      = CTL_MAKE_GAPS_BOX,            // 08
+        CTL_LINE_EDIT_ITEMS_MM            = CTL_MAKE_GAPS_BOX,            // 08
+        CTL_META_BFC_BOX,                                                 // 09
+        CTL_META_CLEAR_BOX,                                               // 10
+        CTL_META_GROUP_BOX,                                               // 11
+        CTL_META_PAUSE_BOX,                                               // 12
+        CTL_META_PRINT_WRITE_BOX,                                         // 13
+        CTL_META_SAVE_BOX,                                                // 14
+        CTL_META_STEP_BOX,                                                // 15
+        CTL_META_STEP_GROUPS_BOX,                                         // 16
+        CTL_NO_STUDS_BOX,                                                 // 17
+        CTL_OVERWRITE_IMAGE_BOX_MM,                                       // 18
+        CTL_PARENT_TO_EMPTY_BOX,                                          // 19
+        CTL_PREFER_STUDIO_BOX,                                            // 20
+        CTL_PREFER_UNOFFICIAL_BOX,                                        // 21
+        CTL_PRESERVE_HIERARCHY_BOX,                                       // 22
+        CTL_PROFILE_BOX,                                                  // 23
+        CTL_RECALCULATE_NORMALS_BOX,                                      // 24
+        CTL_REMOVE_DOUBLES_BOX_MM,                                        // 25
+        CTL_RENDER_WINDOW_BOX_MM,                                         // 26
+        CTL_SEARCH_ADDL_PATHS_MM_BOX,                                     // 27
+        CTL_SETEND_FRAME_BOX,                                             // 28
+        CTL_SET_TIMELINE_MARKERS_BOX,                                     // 29
+        CTL_SHADE_SMOOTH_BOX,                                             // 30
+        CTL_TRANSPARENT_BACKGROUND_BOX_MM,                                // 31
+        CTL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,                      // 32
+        CTL_TREAT_SHORTCUT_AS_MODEL_BOX,                                  // 33
+        CTL_TRIANGULATE_BOX,                                              // 34
+        CTL_USE_ARCHIVE_LIBRARY_BOX_MM,                                   // 35
+        CTL_USE_FREESTYLE_EDGES_BOX,                                      // 36
+        CTL_VERBOSE_BOX_MM                                                // 37
     };
 
-    enum BlenderRenBrickType
+    enum BlenderBrickType
     {
         PARAMS_CUSTOM_COLOURS,
         PARAMS_SLOPED_BRICKS,
         PARAMS_LIGHTED_BRICKS
     };
 
-    enum MessageBoxButtonsEnc {
+    enum MessageBoxButtonsType {
         MBB_OK,
         MBB_YES,
         MBB_YES_NO

@@ -54,8 +54,8 @@
 
 #include "parmswindow.h"
 
-BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_PATH_ITEMS];
-BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_PATH_ITEMS] =
+BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_PATHS];
+BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_PATHS] =
 {
     /*                                 Key:                  MM Key:               Value:             Label:                                   Tooltip (Description):*/
     /* 0   PATH_BLENDER        */ {"blenderpath",        "blenderpath",        "",    QObject::tr("Blender Path"),             QObject::tr("Full file path to Blender application executable")},
@@ -845,13 +845,13 @@ void BlenderPreferences::updateBlenderAddon()
     mAddonUpdateButton->setEnabled(false);
 
     disconnect(mPathLineEditList[PATH_BLENDER], SIGNAL(editingFinished()),
-               this,                                SLOT  (configureBlenderAddon()));
+               this,                            SLOT  (configureBlenderAddon()));
 
     configureBlenderAddon(sender() == mPathBrowseButtonList[PATH_BLENDER],
                           sender() == mAddonUpdateButton);
 
     connect(mPathLineEditList[PATH_BLENDER], SIGNAL(editingFinished()),
-            this,                                SLOT  (configureBlenderAddon()));
+            this,                            SLOT  (configureBlenderAddon()));
 }
 
 void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdate)
@@ -1928,7 +1928,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
             // lineedits
             else if (i < LBL_CHOSEN_LOGO) {
                 for(int j = 0; j < gAddonPreferences->mLineEditList.size(); j++) {
-                    if (j == RESOLUTION_WIDTH_EDIT) {
+                    if (j == CTL_RESOLUTION_WIDTH_EDIT) {
                         _oldValue = width;
                         _width  = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
@@ -1938,7 +1938,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             }
                             modified |= itemChanged(_oldValue, _width);
                         }
-                    } else if (j == RESOLUTION_HEIGHT_EDIT) {
+                    } else if (j == CTL_RESOLUTION_HEIGHT_EDIT) {
                         _oldValue = height;
                         _height = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
@@ -1948,7 +1948,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             }
                             modified |= itemChanged(_oldValue, _height);
                         }
-                    } else if (j == RENDER_PERCENTAGE_EDIT_MM) {
+                    } else if (j == CTL_RENDER_PERCENTAGE_EDIT_MM) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) {
@@ -2000,7 +2000,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
             // lineedits
             else if (i < LBL_COLOUR_SCHEME) {
                 for(int j = 0; j < gAddonPreferences->mLineEditList.size(); j++) {
-                    if (j == IMAGE_WIDTH_EDIT) {
+                    if (j == CTL_IMAGE_WIDTH_EDIT) {
                         _oldValue = width;
                         _width  = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
@@ -2010,7 +2010,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             }
                             modified |= itemChanged(_oldValue, _width);
                         }
-                    } else if (j == IMAGE_HEIGHT_EDIT) {
+                    } else if (j == CTL_IMAGE_HEIGHT_EDIT) {
                         _oldValue = height;
                         _height = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
@@ -2020,7 +2020,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             }
                             modified |= itemChanged(_oldValue, _height);
                         }
-                    } else if (j == RENDER_PERCENTAGE_EDIT) {
+                    } else if (j == CTL_RENDER_PERCENTAGE_EDIT) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) { 
@@ -2031,7 +2031,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                             modified |= itemChanged(_oldValue, renderPercentage);
                         }
                     } else {
-                        if (j == DEFAULT_COLOUR_EDIT) {
+                        if (j == CTL_DEFAULT_COLOUR_EDIT) {
                             _oldValue = lcGetColorIndex(mBlenderSettings[i].value.toInt());  // colour code
                             _value = gAddonPreferences->mLineEditList[j]->property("ColorIndex").toInt(&ok);
                         } else {
@@ -2040,7 +2040,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         }
                         if (ok) {
                             if (update) {
-                                if (j == DEFAULT_COLOUR_EDIT) {
+                                if (j == CTL_DEFAULT_COLOUR_EDIT) {
                                     mBlenderSettings[i].value = QString::number(lcGetColorCode(qint32(_value)));
                                 } else {
                                     mBlenderSettings[i].value = QString::number(_value);
@@ -2109,7 +2109,6 @@ void BlenderPreferences::resetSettings()
 
     if (dlg->exec() == QDialog::Accepted) {
         if (defaultBtn->isChecked()) {
-            qInfo() << "DEBUG : Default Button Selected";
             paths = mDefaultPaths;
             settings = mDefaultSettings;
             settingsMM = mDefaultSettingsMM;
@@ -2119,17 +2118,17 @@ void BlenderPreferences::resetSettings()
     mConfigured = !Preferences::blenderImportModule.isEmpty();
 
     mBlenderPaths[PATH_BLENDER].value = Preferences::blenderExe;
-    mBlenderVersion                       = Preferences::blenderVersion;
-    mAddonVersion                         = Preferences::blenderAddonVersion;
+    mBlenderVersion                   = Preferences::blenderVersion;
+    mAddonVersion                     = Preferences::blenderAddonVersion;
 
     mBlenderVersionEdit->setText(mBlenderVersion);
     mAddonVersionEdit->setText(mAddonVersion);
 
     if (mImportActBox->isChecked()) {
-        disconnect(mLineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                   this,                            SLOT  (sizeChanged(const QString &)));
-        disconnect(mLineEditList[IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                   this,                            SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[CTL_IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                   this,                                SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[CTL_IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                   this,                                SLOT  (sizeChanged(const QString &)));
 
         for(int i = 0; i < numSettings(); i++) {
             if (i < LBL_BEVEL_WIDTH) {
@@ -2140,13 +2139,13 @@ void BlenderPreferences::resetSettings()
                 }
             } else if (i < LBL_COLOUR_SCHEME) {
                 for(int j = 0; j < mLineEditList.size(); j++) {
-                    if (j == IMAGE_WIDTH_EDIT)
+                    if (j == CTL_IMAGE_WIDTH_EDIT)
                         mLineEditList[j]->setText(QString::number(mImageWidth));
-                    else if (j == IMAGE_HEIGHT_EDIT)
+                    else if (j == CTL_IMAGE_HEIGHT_EDIT)
                         mLineEditList[j]->setText(QString::number(mImageHeight));
-                    else if (j == RENDER_PERCENTAGE_EDIT)
+                    else if (j == CTL_RENDER_PERCENTAGE_EDIT)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
-                    else if (j == DEFAULT_COLOUR_EDIT)
+                    else if (j == CTL_DEFAULT_COLOUR_EDIT)
                         setDefaultColor(lcGetColorIndex(settings[LBL_DEFAULT_COLOUR].value.toInt()));
                     else
                         mLineEditList[j]->setText(settings[i].value);
@@ -2164,17 +2163,17 @@ void BlenderPreferences::resetSettings()
             mPathLineEditList[i]->setText(paths[i].value);
         }
 
-        connect(mLineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                this,                            SLOT  (sizeChanged(const QString &)));
-        connect(mLineEditList[IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                this,                            SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[CTL_IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                this,                                SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[CTL_IMAGE_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                this,                                SLOT  (sizeChanged(const QString &)));
 
     } else if (mImportMMActBox->isChecked()) {
 
-        disconnect(mLineEditList[RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                   this,                                 SLOT  (sizeChanged(const QString &)));
-        disconnect(mLineEditList[RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                   this,                                 SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[CTL_RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                   this,                                     SLOT  (sizeChanged(const QString &)));
+        disconnect(mLineEditList[CTL_RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                   this,                                     SLOT  (sizeChanged(const QString &)));
 
         for(int i = 0; i < numSettingsMM(); i++) {
             if (i < LBL_CAMERA_BORDER_PERCENT_MM) {
@@ -2185,11 +2184,11 @@ void BlenderPreferences::resetSettings()
                 }
             } else if (i < LBL_CHOSEN_LOGO) {
                 for(int j = 0; j < mLineEditList.size(); j++) {
-                    if (j == RESOLUTION_WIDTH_EDIT)
+                    if (j == CTL_RESOLUTION_WIDTH_EDIT)
                         mLineEditList[j]->setText(QString::number(mImageWidth));
-                    else if (j == RESOLUTION_HEIGHT_EDIT)
+                    else if (j == CTL_RESOLUTION_HEIGHT_EDIT)
                         mLineEditList[j]->setText(QString::number(mImageHeight));
-                    else if (j == RENDER_PERCENTAGE_EDIT_MM)
+                    else if (j == CTL_RENDER_PERCENTAGE_EDIT_MM)
                         mLineEditList[j]->setText(QString::number(mRenderPercentage * 100));
                     else
                         mLineEditList[j]->setText(settingsMM[i].value);
@@ -2207,10 +2206,10 @@ void BlenderPreferences::resetSettings()
             mPathLineEditList[i]->setText(paths[i].value);
         }
 
-        connect(mLineEditList[RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
-                this,                                 SLOT  (sizeChanged(const QString &)));
-        connect(mLineEditList[RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
-                this,                                 SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[CTL_RESOLUTION_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                this,                                     SLOT  (sizeChanged(const QString &)));
+        connect(mLineEditList[CTL_RESOLUTION_WIDTH_EDIT], SIGNAL(textChanged(const QString &)),
+                this,                                     SLOT  (sizeChanged(const QString &)));
     }
 
     emit settingChangedSig(true/*change*/);
@@ -2541,9 +2540,9 @@ void BlenderPreferences::showPathsGroup()
 
 void BlenderPreferences::colorButtonClicked(bool)
 {
-    int ColorIndex = mLineEditList[DEFAULT_COLOUR_EDIT]->property("ColorIndex").toInt();
+    int ColorIndex = mLineEditList[CTL_DEFAULT_COLOUR_EDIT]->property("ColorIndex").toInt();
 
-    QWidget *parent = mLineEditList[DEFAULT_COLOUR_EDIT];
+    QWidget *parent = mLineEditList[CTL_DEFAULT_COLOUR_EDIT];
     lcQColorPickerPopup *popup = new lcQColorPickerPopup(parent, ColorIndex);
     connect(popup, SIGNAL(selected(int)), SLOT(setDefaultColor(int)));
     popup->setMinimumSize(300, 200);
@@ -2580,8 +2579,8 @@ void BlenderPreferences::setDefaultColor(int colorIndex)
     painter.end();
 
     int const colorCode = lcGetColorCode(colorIndex);
-    mLineEditList[DEFAULT_COLOUR_EDIT]->setText(QString("%1 (%2)").arg(color->Name).arg(colorCode));
-    mLineEditList[DEFAULT_COLOUR_EDIT]->setProperty("ColorIndex", QVariant::fromValue(colorIndex));
+    mLineEditList[CTL_DEFAULT_COLOUR_EDIT]->setText(QString("%1 (%2)").arg(color->Name).arg(colorCode));
+    mLineEditList[CTL_DEFAULT_COLOUR_EDIT]->setProperty("ColorIndex", QVariant::fromValue(colorIndex));
     mDefaultColourEditAction->setIcon(QPixmap::fromImage(img));
     mDefaultColourEditAction->setToolTip(tr("Select Colour"));
 
@@ -2634,9 +2633,9 @@ void BlenderPreferences::browseBlender(bool)
 void BlenderPreferences::sizeChanged(const QString &value)
 {
     const bool importMM = mImportMMActBox->isChecked();
-    const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
-    const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
-    const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
+    const int keep_aspect_ratio = importMM ? CTL_KEEP_ASPECT_RATIO_BOX_MM : CTL_KEEP_ASPECT_RATIO_BOX;
+    const int width_edit = importMM ? CTL_RESOLUTION_WIDTH_EDIT : CTL_IMAGE_WIDTH_EDIT;
+    const int height_edit = importMM ? CTL_RESOLUTION_HEIGHT_EDIT : CTL_IMAGE_HEIGHT_EDIT;
     BlenderSettings const *settings = importMM ? mBlenderSettingsMM : mBlenderSettings;
 
     /* original height x new width / original width = new height */
@@ -2660,7 +2659,7 @@ void BlenderPreferences::sizeChanged(const QString &value)
         else if (sender() == mLineEditList[height_edit])
         {
             disconnect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
-                       this, SLOT  (sizeChanged(const QString &)));
+                       this,                     SLOT  (sizeChanged(const QString &)));
 
             QString const width = QString::number(qRound(double(mNewValue * mImageWidth / mImageHeight)));
             mLineEditList[width_edit]->setText(width);
@@ -2681,12 +2680,12 @@ void BlenderPreferences::sizeChanged(const QString &value)
 void BlenderPreferences::setModelSize(bool update)
 {
     const bool importMM = mImportMMActBox->isChecked();
-    const int crop_image = importMM ? CROP_IMAGE_BOX_MM : CROP_IMAGE_BOX;
-    const int add_environment = importMM ? ADD_ENVIRONMENT_BOX_MM : ADD_ENVIRONMENT_BOX;
-    const int trans_background = importMM ? TRANSPARENT_BACKGROUND_BOX_MM : TRANSPARENT_BACKGROUND_BOX;
-    const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
-    const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
-    const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
+    const int crop_image = importMM ? CTL_CROP_IMAGE_BOX_MM : CTL_CROP_IMAGE_BOX;
+    const int add_environment = importMM ? CTL_ADD_ENVIRONMENT_BOX_MM : CTL_ADD_ENVIRONMENT_BOX;
+    const int trans_background = importMM ? CTL_TRANSPARENT_BACKGROUND_BOX_MM : CTL_TRANSPARENT_BACKGROUND_BOX;
+    const int keep_aspect_ratio = importMM ? CTL_KEEP_ASPECT_RATIO_BOX_MM : CTL_KEEP_ASPECT_RATIO_BOX;
+    const int width_edit = importMM ? CTL_RESOLUTION_WIDTH_EDIT : CTL_IMAGE_WIDTH_EDIT;
+    const int height_edit = importMM ? CTL_RESOLUTION_HEIGHT_EDIT : CTL_IMAGE_HEIGHT_EDIT;
     const int crop_image_label = importMM ? LBL_CROP_IMAGE_MM : LBL_CROP_IMAGE;
 
     const int imageWidth = gui->GetImageWidth();
