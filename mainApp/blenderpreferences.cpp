@@ -2637,6 +2637,7 @@ void BlenderPreferences::sizeChanged(const QString &value)
     const int keep_aspect_ratio = importMM ? KEEP_ASPECT_RATIO_BOX_MM : KEEP_ASPECT_RATIO_BOX;
     const int width_edit = importMM ? RESOLUTION_WIDTH_EDIT : IMAGE_WIDTH_EDIT;
     const int height_edit = importMM ? RESOLUTION_HEIGHT_EDIT : IMAGE_HEIGHT_EDIT;
+    BlenderSettings const *settings = importMM ? mBlenderSettingsMM : mBlenderSettings;
 
     /* original height x new width / original width = new height */
     bool change = false;
@@ -2651,11 +2652,7 @@ void BlenderPreferences::sizeChanged(const QString &value)
             QString const height = QString::number(qRound(double(mImageHeight * mNewValue / mImageWidth)));
             mLineEditList[height_edit]->setText(height);
 
-            if (importMM) {
-                change = mBlenderSettingsMM[height_edit].value != height;
-            } else {
-                change = mBlenderSettings[height_edit].value != height;
-            }
+            change = settings[height_edit].value != height;
 
             connect(mLineEditList[height_edit],SIGNAL(textChanged(const QString &)),
                     this,                      SLOT  (sizeChanged(const QString &)));
@@ -2668,18 +2665,14 @@ void BlenderPreferences::sizeChanged(const QString &value)
             QString const width = QString::number(qRound(double(mNewValue * mImageWidth / mImageHeight)));
             mLineEditList[width_edit]->setText(width);
 
-            if (importMM) {
-                change = mBlenderSettingsMM[width_edit].value  != width;
-            } else {
-                change = mBlenderSettings[width_edit].value  != width;
-            }
+            change = settings[height_edit].value != width;
 
             connect(mLineEditList[width_edit],SIGNAL(textChanged(const QString &)),
                     this,                     SLOT  (sizeChanged(const QString &)));
         }
 
-        // Change is provided here for consistency only as resolution_width,
-        // resolution_height, and render_percentage are passed at the render command
+        // Change is provided here for consistency only as ImageWidth,
+        // ImageHeight, and RenderPercentage are passed at the render command
         change |= settingsModified(false/*update*/);
         emit settingChangedSig(change);
     }
@@ -2755,28 +2748,23 @@ void BlenderPreferences::validateColourScheme(int index)
         return;
 
     const bool importMM = mImportMMActBox->isChecked();
+    const int color_scheme = importMM ? LBL_COLOUR_SCHEME_MM : LBL_COLOUR_SCHEME;
+    BlenderSettings *settings = importMM ? mBlenderSettingsMM : mBlenderSettings;
 
     if (combo->itemText(index) == "custom" &&
         mBlenderPaths[LBL_LDCONFIG_PATH].value.isEmpty() &&
         Preferences::altLDConfigPath.isEmpty()) {
-        if (importMM)
-            mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value = mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value;
-        else
-            mBlenderSettings[LBL_COLOUR_SCHEME].value = mDefaultSettings[LBL_COLOUR_SCHEME].value;
+        BlenderSettings const *defaultSettings = importMM ? mDefaultSettingsMM : mDefaultSettings;
+        settings[color_scheme].value = defaultSettings[color_scheme].value;
 
         QString const &title = tr ("Custom LDraw Colours");
         QString const &header = "<b>" + tr ("Colour scheme 'custom' cannot be enabled. Custom LDConfig file not found.") + "</b>";
         QString const &body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
                                   "The default colour scheme '%1' will be used.<br>")
-                                  .arg(importMM ? mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value : mBlenderSettings[LBL_COLOUR_SCHEME].value);
-        showMessage(title, header, body, QString(), MBB_OK, QMessageBox::Critical);
+                                  .arg(settings[color_scheme].value);
+        showMessage(title, header, body, QString(), MBB_OK, QMessageBox::Warning);
     } else {
-        bool change = false;
-        if (importMM) {
-            change = mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value != combo->itemText(index);
-        } else {
-            change = mBlenderSettings[LBL_COLOUR_SCHEME].value != combo->itemText(index);
-        }
+        bool change = settings[color_scheme].value != combo->itemText(index);
         change |= settingsModified(false/*update*/);
         emit settingChangedSig(change);
     }
