@@ -1272,19 +1272,24 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
 
 bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 {
-    enum BlenderAddOnUpdate
+    enum AddonEnc
     {
-        BLENDER_ADDON_FAIL = -1,
-        BLENDER_ADDON_DOWNLOAD,
-        BLENDER_ADDON_RELOAD,
-        BLENDER_ADDON_CANCEL
+        ADDON_FAIL = -1,
+        ADDON_NOT_FOUND,
+        ADDON_DOWNLOAD = ADDON_NOT_FOUND,
+        ADDON_ARCHIVE,
+        ADDON_EXTRACTED,
+        ADDON_RELOAD,
+        ADDON_CANCEL
     };
 
-    QString const blenderAddonDir    = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
-    QString const blenderAddonFile   = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
-    bool blenderAddonExists          = QFileInfo(blenderAddonFile).isReadable();
-    QString status                   = tr("Installing Blender addon...");
-    BlenderAddOnUpdate AddOnUpdate   = BLENDER_ADDON_DOWNLOAD;
+    QString const blenderAddonDir  = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
+    QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
+    QString const addonVersionFile = QDir::toNativeSeparators(QString("%1/%2/__version__.py").arg(blenderAddonDir).arg(BLENDER_RENDER_ADDON));
+    bool extractedAddon            = QFileInfo(addonVersionFile).isReadable();
+    bool blenderAddonExists        = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
+    QString status                 = tr("Installing Blender addon...");
+    AddonEnc addonAction           = ADDON_DOWNLOAD;
     QString localVersion, onlineVersion;
 
     using namespace std;
@@ -1313,26 +1318,42 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     auto getBlenderAddonVersionMatch = [&] ()
     {
-        QuaZip zip(blenderAddonFile);
-        if (!zip.open(QuaZip::mdUnzip)) {
-            QString const result = tr("Could not open archive to check content. Return code %1.<br>"
-                                      "Archive file %2 may be open in another program.")
-                                      .arg(zip.getZipError()).arg(QFileInfo(blenderAddonFile).fileName());
-            emit gui->messageSig(LOG_WARNING, result);
-            return false; // Download new archive
-        }
+        QByteArray ba;
+        if (!extractedAddon) {
+            QuaZip zip(blenderAddonFile);
+            if (!zip.open(QuaZip::mdUnzip)) {
+                QString const result = tr("Could not open archive to check content. Return code %1.<br>"
+                                          "Archive file %2 may be open in another program.")
+                                          .arg(zip.getZipError()).arg(QFileInfo(blenderAddonFile).fileName());
+                emit gui->messageSig(LOG_WARNING, result);
+                return false; // Download new archive
+            }
 
-        QString const versionFile = QString("addons/%1/__version__.py").arg(BLENDER_RENDER_ADDON);
-        zip.setCurrentFile(versionFile);
-        QuaZipFile file(&zip);
-        if (!file.open(QIODevice::ReadOnly)) {
-            emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read addon archive file: [%1]<br>%2.")
-                                                .arg(versionFile)
-                                                .arg(file.errorString()));
-            return false; // Download new archive
+            QString const addonVersionFile = QString("addons/%1/__version__.py").arg(BLENDER_RENDER_ADDON);
+            zip.setCurrentFile(addonVersionFile);
+            QuaZipFile file(&zip);
+            if (!file.open(QIODevice::ReadOnly)) {
+                emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read addon archive version file: [%1]<br>%2.")
+                                                    .arg(addonVersionFile)
+                                                    .arg(file.errorString()));
+                return false; // Download new archive
+            }
+            ba = file.readAll();
+            file.close();
+            zip.close();
+            if (zip.getZipError() != UNZ_OK)
+                emit gui->messageSig(LOG_WARNING, tr("Archive close error. Return code %1.").arg(zip.getZipError()));
+        } else {
+            QFile file(addonVersionFile);
+            if (!file.open(QIODevice::ReadOnly)) {
+                emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read addon version file: [%1]<br>%2.")
+                                                    .arg(addonVersionFile)
+                                                    .arg(file.errorString()));
+                return false; // Download new archive
+            }
+            ba = file.readAll();
+            file.close();
         }
-        QByteArray ba = file.readAll();
-        file.close();
 
         QTextStream content(ba.data());
         while (!content.atEnd())
@@ -1344,9 +1365,6 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 localVersion = content.readAll().trimmed().replace("(","v").replace(",",".").replace(" ","").replace(")","");
             }
         }
-        zip.close();
-        if (zip.getZipError() != UNZ_OK)
-            emit gui->messageSig(LOG_WARNING, tr("Archive close error. Return code %1.").arg(zip.getZipError()));
 
         lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray response_data = lpub->getDownloadedFile();
@@ -1368,7 +1386,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     if (blenderAddonExists) {
         if (getBlenderAddonVersionMatch()) {
-            AddOnUpdate = BLENDER_ADDON_RELOAD;
+            addonAction = ADDON_RELOAD;
         } else if (Preferences::modeGUI) {
             QPixmap _icon = QPixmap(":/icons/lpub96.png");
             if (_icon.isNull())
@@ -1390,18 +1408,18 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
             int execReturn = box.exec();
             if (execReturn == QMessageBox::Cancel) {
                 status = tr("Blender addon setup cancelled");
-                AddOnUpdate = BLENDER_ADDON_CANCEL;
+                addonAction = ADDON_CANCEL;
             } else if (execReturn == QMessageBox::No) {
-                AddOnUpdate = BLENDER_ADDON_RELOAD;
+                addonAction = ADDON_RELOAD;
             }
         }
 
-        if (AddOnUpdate == BLENDER_ADDON_DOWNLOAD)
+        if (addonAction == ADDON_DOWNLOAD)
             status = tr("Download addon...");
 
         gAddonPreferences->statusUpdate(true/*addon*/, false/*error*/,status);
 
-        if (AddOnUpdate == BLENDER_ADDON_CANCEL) {
+        if (addonAction == ADDON_CANCEL) {
             gAddonPreferences->mDialogCancelled = true;
             return false;
         }
@@ -1428,7 +1446,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     }
 
     // Download Blender addon
-    if (AddOnUpdate == BLENDER_ADDON_DOWNLOAD) {
+    if (addonAction == ADDON_DOWNLOAD) {
         blenderAddonExists = false;
         lpub->downloadFile(VER_BLENDER_ADDON_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray Buffer = lpub->getDownloadedFile();
