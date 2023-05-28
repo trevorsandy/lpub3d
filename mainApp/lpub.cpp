@@ -7720,37 +7720,6 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
                 restartApplication(false, false);
             }
         }
-    } else
-    if (logType == LOG_BLENDER_ADDON) {
-
-        bool const errorEncountered = msgBox;
-
-        if (Preferences::loggingEnabled) {
-            if (errorEncountered) {
-                logError() << qPrintable(message.replace("<br>"," "));
-            } else {
-                logWarning() << qPrintable(message.replace("<br>"," "));
-            }
-        }
-
-        if (guiEnabled && !abortInProgress) {
-            QMessageBoxResizable box;
-            box.setTextFormat (Qt::RichText);
-            box.setIcon (errorEncountered ? QMessageBox::Critical : QMessageBox::Warning);
-            box.setStandardButtons (QMessageBox::Ok);
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            box.setWindowTitle(tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR));
-            int const lines = message.count("<br>");
-            bool const multi = lines > 1;
-            QString const type = errorEncountered ? multi ? tr("errors") : tr("error") : multi ? tr("warnings") : tr("warning");
-            QString const header = "<b>" + tr ("Addon install %1 encountered.").arg(type) + "&nbsp;</b>";
-            QString const body = tr ("Addon install encountered %1. See Show Details...")
-                                     .arg(errorEncountered ? multi ? type : tr("an %1").arg(type) : multi ? type : tr("a %1").arg(type));
-            box.setText (header);
-            box.setInformativeText (body);
-            box.setDetailedText(message);
-            box.exec();
-        }
     }
 
     // reset logging to default settings

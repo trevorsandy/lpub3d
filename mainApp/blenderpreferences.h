@@ -111,6 +111,12 @@ protected:
     static bool extractBlenderAddon(const QString &blenderDir);
     static void loadDefaultParameters(QByteArray& buffer, int which);
     static bool overwriteFile(const QString &file);
+    static int showMessage(QString const &title,
+                           QString const &header,
+                           QString const &body,
+                           QString const &detail = QString(),
+                           const int buttons = MBB_OK,
+                           const int icon = 0);
 
     QString readStdErr(bool &hasError) const;
     void clearGroupBox(QGroupBox *groupBox);
@@ -415,6 +421,12 @@ private:
         PARAMS_CUSTOM_COLOURS,
         PARAMS_SLOPED_BRICKS,
         PARAMS_LIGHTED_BRICKS
+    };
+
+    enum MessageBoxButtonsEnc {
+        MBB_OK,
+        MBB_YES,
+        MBB_YES_NO
     };
 
     struct BlenderSettings

@@ -170,8 +170,7 @@ enum LogType { LOG_STATUS,
                LOG_DEBUG,
                LOG_WARNING,
                LOG_ERROR,
-               LOG_FATAL,
-               LOG_BLENDER_ADDON
+               LOG_FATAL
 };
 enum TraverseRc { HitNothing,
                   HitEndOfFile = HitNothing,

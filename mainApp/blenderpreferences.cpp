@@ -1077,25 +1077,17 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         } // Test Blender
 
         if (!mBlenderVersion.isEmpty() && !mImportMMActBox->isChecked() && !mImportActBox->isChecked()) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            QMessageBox box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-            box.setWindowTitle(tr ("%1 Blender LDraw Addon Modules").arg(VER_PRODUCTNAME_STR));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            QString title = tr ("No import module enabled."
-                                "If you continue, the default import module (Import TN) will be used.<br>"
-                                "Otherwise, all addon modules will be disabled.");
-            box.setText (title);
-            QString text  = tr ("Continue with the default import module ?");
-            box.setInformativeText (text);
-            box.setStandardButtons (QMessageBox::Yes | QMessageBox::Cancel);
-            box.setDefaultButton   (QMessageBox::Yes);
-
-            if (box.exec() != QMessageBox::Yes) {
+            QString const &title = tr ("%1 Blender LDraw Addon Modules").arg(VER_PRODUCTNAME_STR);
+            QString const &header = tr ("No import module enabled."
+                                        "If you continue, the default import module (Import TN) will be used.<br>"
+                                        "If you select No, all addon modules will be disabled.");
+            QString const &body = tr ("Continue with the default import module ?");
+            int exec = showMessage(title, header, body, QString(), MBB_YES_NO, QMessageBox::NoIcon);
+            if (exec != QMessageBox::Yes) {
                 mRenderActBox->setChecked(false);
-                return;
+                if (exec == QMessageBox::Cancel) {
+                    return;
+                }
             }
 
             mImportActBox->setChecked(true);
@@ -1388,28 +1380,16 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         if (getBlenderAddonVersionMatch()) {
             addonAction = ADDON_RELOAD;
         } else if (Preferences::modeGUI) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            if (_icon.isNull())
-                _icon = QPixmap (":/icons/update.png");
-            QMessageBox box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-            box.setWindowTitle(tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            QString title = tr ("Detected %1 Blender LDraw addon %2. A newer version %3 exists.")
-                                .arg(VER_PRODUCTNAME_STR)
-                                .arg(onlineVersion).arg(onlineVersion);
-            box.setText (title);
-            QString text  = tr ("Do you want to download version %1 ?").arg(onlineVersion);
-            box.setInformativeText (text);
-            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-            box.setDefaultButton   (QMessageBox::Yes);
-            int execReturn = box.exec();
-            if (execReturn == QMessageBox::Cancel) {
+            QString const &title = tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR);
+            QString const &header = tr ("Detected %1 Blender LDraw addon %2. A newer version %3 exists.")
+                                        .arg(VER_PRODUCTNAME_STR)
+                                        .arg(onlineVersion).arg(onlineVersion);
+            QString const &body  = tr ("Do you want to download version %1 ?").arg(onlineVersion);
+            int exec = showMessage(title, header, body, QString(), MBB_YES, QMessageBox::NoIcon);
+            if (exec == QMessageBox::Cancel) {
                 status = tr("Blender addon setup cancelled");
                 addonAction = ADDON_CANCEL;
-            } else if (execReturn == QMessageBox::No) {
+            } else if (exec == QMessageBox::No) {
                 addonAction = ADDON_RELOAD;
             }
         }
@@ -1543,7 +1523,13 @@ void BlenderPreferences::showResult()
         message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
         statusUpdate(true/*addon*/, true/*error*/,tr("%1: Addon install failed.").arg("Error"));
         mConfigured = false;
-        emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
+
+        // emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
+
+        QString const &title = tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR);
+        QString const &header =  "<b>" + tr ("Addon install failed.") + "</b>";
+        QString const &body = tr ("LDraw addon install encountered one or more errors. See Show Details...");
+        showMessage(title, header, body, StdErrLog, MBB_OK, QMessageBox::Critical);
     } else {
         QString const textColour = QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name());
         mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
@@ -1778,8 +1764,10 @@ void BlenderPreferences::readStdOut()
 
     QRegExp rxInfo("^INFO: ");
     QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxWarning("^(?:\\w)*WARNING: ", Qt::CaseInsensitive);
 
     bool const hasError = StdOut.contains(rxError);
+    bool const hasWarning = StdOut.contains(rxWarning);
 
     if (StdOut.contains(rxInfo) && !hasError)
         statusUpdate(true/*addon*/, false/*error*/);
@@ -1791,7 +1779,14 @@ void BlenderPreferences::readStdOut()
     if (!errorsAndWarnings.isEmpty()) {
         QString const stdOutLog = QDir::toNativeSeparators(QString("<br>- See %1/Blender/stdout-blender-addon-install")
                                                                .arg(Preferences::lpub3d3rdPartyConfigDir));
-        emit gui->messageSig(LOG_BLENDER_ADDON, errorsAndWarnings.append(stdOutLog), hasError);
+
+        QMessageBox::Icon icon = hasError ? QMessageBox::Critical : QMessageBox::Warning;
+        QString const &items = hasError ? tr("errors%1").arg(hasWarning ? tr(" and warnings") : "") : hasWarning ? tr("warnings") : "";
+
+        QString const &title = tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR);
+        QString const &header =  "<b>" + tr ("Addon install standard output.") + "</b>";
+        QString const &body = tr ("LDraw addon install encountered %1. See Show Details...").arg(items);
+        showMessage(title, header, body, errorsAndWarnings.append(stdOutLog), MBB_OK, icon);
     }
 }
 
@@ -1848,10 +1843,10 @@ bool BlenderPreferences::promptCancel()
 {
 #ifndef QT_NO_PROCESS
     if (mProcess) {
-        if (QMessageBox::question(nullptr,
-                                  tr("Cancel Addon Install"),
-                                  tr("Are you sure you want to cancel the add on install?"),
-                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        QString const &title = tr ("Cancel %1 Addon Install").arg(VER_PRODUCTNAME_STR);
+        QString const &header =  "<b>" + tr("Are you sure you want to cancel the add on install ?") + "</b>";
+        int exec = showMessage(title, header, QString(), QString(), MBB_YES_NO, QMessageBox::Question);
+        if (exec == QMessageBox::Yes)
         {
             mProcess->kill();
 
@@ -2723,21 +2718,13 @@ void BlenderPreferences::setModelSize(bool update)
             mCheckBoxList[keep_aspect_ratio]->setChecked(!cropImage);
 
         if (conflict[0] || conflict[1] || conflict[2]) {
-            QMessageBox box;
-            box.setTextFormat (Qt::RichText);
-            box.setIcon (QMessageBox::Information);
-            box.setStandardButtons (QMessageBox::Ok);
-            box.setDefaultButton   (QMessageBox::Ok);
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            box.setWindowTitle(tr ("LDraw Render Settings"));
-            QString const header = "<b>" + tr ("Crop image configuration settings conflict were resolved.") + "</b>";
-            QString const body = QString ("%1%2%3")
-                                    .arg(conflict[0] ? tr("Keep aspect ratio set to false.<br>") : "")
-                                    .arg(conflict[1] ? tr("Add environment (backdrop and base plane) set to false.<br>") : "")
-                                    .arg(conflict[2] ? tr("Transparent background set to true.<br>") : "");
-            box.setText (header);
-            box.setInformativeText (body);
-            box.exec();
+            QString const &title = tr ("LDraw Render Settings Conflict");
+            QString const &header = "<b>" + tr ("Crop image configuration settings conflict were resolved.") + "</b>";
+            QString const &body = QString("%1%2%3")
+                                      .arg(conflict[0] ? tr("Keep aspect ratio set to false.<br>") : "")
+                                      .arg(conflict[1] ? tr("Add environment (backdrop and base plane) set to false.<br>") : "")
+                                      .arg(conflict[2] ? tr("Transparent background set to true.<br>") : "");
+            showMessage(title, header, body, QString(), MBB_OK, QMessageBox::Information);
         }
     }
 
@@ -2776,20 +2763,13 @@ void BlenderPreferences::validateColourScheme(int index)
             mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value = mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value;
         else
             mBlenderSettings[LBL_COLOUR_SCHEME].value = mDefaultSettings[LBL_COLOUR_SCHEME].value;
-        QMessageBox box;
-        box.setTextFormat (Qt::RichText);
-        box.setIcon (QMessageBox::Critical);
-        box.setStandardButtons (QMessageBox::Ok);
-        box.setDefaultButton   (QMessageBox::Ok);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setWindowTitle(tr ("Custom LDraw Colours"));
-        QString const header = "<b>" + tr ("Colour scheme 'custom' cannot be enabled. Custom LDConfig file not found.") + "</b>";
-        QString const body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
-                                 "The default colour scheme '%1' will be used.<br>")
-                                 .arg(importMM ? mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value : mBlenderSettings[LBL_COLOUR_SCHEME].value);
-        box.setText (header);
-        box.setInformativeText (body);
-        box.exec();
+
+        QString const &title = tr ("Custom LDraw Colours");
+        QString const &header = "<b>" + tr ("Colour scheme 'custom' cannot be enabled. Custom LDConfig file not found.") + "</b>";
+        QString const &body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
+                                  "The default colour scheme '%1' will be used.<br>")
+                                  .arg(importMM ? mBlenderSettingsMM[LBL_COLOUR_SCHEME_MM].value : mBlenderSettings[LBL_COLOUR_SCHEME].value);
+        showMessage(title, header, body, QString(), MBB_OK, QMessageBox::Critical);
     } else {
         bool change = false;
         if (importMM) {
@@ -2804,10 +2784,10 @@ void BlenderPreferences::validateColourScheme(int index)
 
 bool BlenderPreferences::promptAccept()
 {
-    if (QMessageBox::question(nullptr,
-                              tr("Render Settings Modified"),
-                              tr("Do you want to accept the modified settings before quitting ?"),
-                              QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel) == QMessageBox::Yes)
+    QString const &title = tr ("Render Settings Modified");
+    QString const &header =  "<b>" + tr("Do you want to accept the modified settings before quitting ?") + "</b>";
+    int exec = showMessage(title, header, QString(), QString(), MBB_YES_NO, QMessageBox::Question);
+    if (exec == QMessageBox::Yes)
     {
         return true;
     }
@@ -3187,22 +3167,69 @@ bool BlenderPreferences::overwriteFile(const QString &file)
     if (!fileInfo.exists())
         return true;
 
-    // Get the application icon as a pixmap
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
+    QString const &title = tr ("Replace Existing File");
+    QString const header = "<b>" + QMessageBox::tr ("Existing file %1 detected.").arg(fileInfo.fileName()) + "</b>";
+    QString const body = QMessageBox::tr ("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
+    int exec = showMessage(title, header, body, QString(), MBB_YES, QMessageBox::NoIcon);
+
+    return (exec == QMessageBox::Yes);
+}
+
+int BlenderPreferences::showMessage(
+    const QString &title,
+    QString const &header,
+    QString const &body,
+    const QString &detail,
+    int const buttons,
+    int const icon)
+{
+    if (Preferences::loggingEnabled) {
+        if (icon == QMessageBox::Critical) {
+            logError() << qPrintable(QString(header).replace("<br>","\n"));
+        } else if (icon == QMessageBox::Warning) {
+            logWarning() << qPrintable(QString(header).replace("<br>","\n"));
+        }
+    }
+
+    if (!Preferences::modeGUI)
+        return QMessageBox::Ok;
 
     QMessageBox box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    if (!icon) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        box.setIconPixmap (_icon);
+    } else {
+        box.setIcon (static_cast<QMessageBox::Icon>(icon));
+    }
     box.setTextFormat (Qt::RichText);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    QString const title = "<b>" + QMessageBox::tr ("Export %1").arg(fileInfo.fileName()) + "</b>";
-    QString const text = QMessageBox::tr ("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
-    box.setText (title);
-    box.setInformativeText (text);
-    box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Yes);
-    box.setDefaultButton   (QMessageBox::Yes);
+    box.setWindowTitle(title);
+    box.setText (header);
+    if (!body.isEmpty()) {
+        box.setInformativeText (body);
+    }
+    if (!detail.isEmpty()) {
+        box.setDetailedText(detail);
+        if (icon == QMessageBox::Critical) {
+            logError() << qPrintable(QString(detail).replace("<br>","\n"));
+        } else if (icon == QMessageBox::Warning) {
+            logWarning() << qPrintable(QString(detail).replace("<br>","\n"));
+        }
+    }
+    switch (buttons) {
+    case MBB_YES:
+        box.setStandardButtons (QMessageBox::Yes | QMessageBox::Cancel);
+        box.setDefaultButton   (QMessageBox::Yes);
+        break;
+    case MBB_YES_NO:
+        box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        box.setDefaultButton   (QMessageBox::Yes);
+        break;
+    default:
+        box.setStandardButtons (QMessageBox::Ok);
+        break;
+    }
 
-    return (box.exec() == QMessageBox::Yes);
+    return box.exec();
 }
