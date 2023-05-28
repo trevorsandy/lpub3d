@@ -135,72 +135,76 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
 {
     /*                                                Key:                             Value:                    Label                                    Tooltip (Description)*/
     /* 00 LBL_ADD_ENVIRONMENT_MM                  */ {"addenvironment",                "1",          QObject::tr("Add Environment"),          QObject::tr("Adds a ground plane and environment texture")},
-    /* 01 LBL_BLEND_FILE_TRUSTED_MM               */ {"blendfiletrusted",              "0",          QObject::tr("Trusted Blend File"),       QObject::tr("Specify whether to treat the .blend file as being loaded from a trusted source")},
-    /* 02 LBL_CROP_IMAGE_MM                       */ {"cropimage",                     "0",          QObject::tr("Crop Image"),               QObject::tr("Crop the image border at opaque content. Requires transparent background set to True")},
-    /* 03 LBL_DISPLAY_LOGO                        */ {"displaylogo",                   "0",          QObject::tr("Display Logo"),             QObject::tr("Display the logo on the stud")},
-    /* 04 LBL_IMPORT_CAMERAS_MM                   */ {"importcameras",                 "1",          QObject::tr("Import Cameras"),           QObject::tr("%1 can specify camera definitions within the ldraw data. Choose to load them or ignore them.").arg(VER_PRODUCTNAME_STR)},
-    /* 05 LBL_IMPORT_EDGES                        */ {"importedges",                   "0",          QObject::tr("Import Edges"),             QObject::tr("Import LDraw edges as edges")},
-    /* 06 LBL_IMPORT_LIGHTS_MM                    */ {"importlights",                  "0",          QObject::tr("Import Lights"),            QObject::tr("%1 can specify point and sunlight definitions within the ldraw data. Choose to load them or ignore them.").arg(VER_PRODUCTNAME_STR)},
-    /* 07 LBL_KEEP_ASPECT_RATIO_MM                */ {"keepaspectratio",               "1",          QObject::tr("Keep Aspect Ratio"),        QObject::tr("Maintain the aspect ratio when resizing the output image - this attribute is not passed to Blender")},
-    /* 08 LBL_MAKE_GAPS                           */ {"makegaps",                      "1",          QObject::tr("Make Gaps"),                QObject::tr("Make small gaps between bricks. A small gap is more realistic")},
-    /* 09 LBL_META_BFC                            */ {"metabfc",                       "1",          QObject::tr("BFC"),                      QObject::tr("Process LDraw Back Face Culling meta commands")},
-    /* 10 LBL_META_CLEAR                          */ {"metaclear",                     "0",          QObject::tr("CLEAR Command"),            QObject::tr("Hides all parts in the timeline up to where this command is encountered")},
-    /* 11 LBL_META_GROUP                          */ {"metagroup",                     "1",          QObject::tr("GROUP Command"),            QObject::tr("Process GROUP meta commands")},
-    /* 12 LBL_META_PAUSE                          */ {"metapause",                     "0",          QObject::tr("PAUSE Command"),            QObject::tr("Not implemented")},
-    /* 13 LBL_META_PRINT_WRITE                    */ {"metaprintwrite",                "0",          QObject::tr("PRINT/WRITE Command"),      QObject::tr("Prints PRINT/WRITE META commands to the system console.")},
-    /* 14 LBL_META_SAVE                           */ {"metasave",                      "0",          QObject::tr("SAVE Command"),             QObject::tr("Not implemented")},
-    /* 15 LBL_META_STEP                           */ {"metastep",                      "0",          QObject::tr("STEP Command"),             QObject::tr("Adds a keyframe that shows the part at the moment in the timeline")},
-    /* 16 LBL_META_STEP_GROUPS                    */ {"metastepgroups",                "0",          QObject::tr("STEP Groups"),              QObject::tr("Create collection for individual steps")},
-    /* 17 LBL_NO_STUDS                            */ {"nostuds",                       "0",          QObject::tr("No Studs"),                 QObject::tr("Don't import studs")},
-    /* 18 LBL_OVERWRITE_IMAGE_MM                  */ {"overwriteimage",                "1",          QObject::tr("Overwrite Image"),          QObject::tr("Specify whether to overwrite an existing rendered image file")},
-    /* 19 LBL_POSITION_CAMERA_MM                  */ {"positioncamera",                "1",          QObject::tr("Position Camera"),          QObject::tr("Position the camera to show the whole model")},
-    /* 20 LBL_PARENT_TO_EMPTY                     */ {"parenttoempty",                 "1",          QObject::tr("Parent To Empty"),          QObject::tr("Parent the model to an empty")},
-    /* 21 LBL_PREFER_STUDIO                       */ {"preferstudio",                  "0",          QObject::tr("Prefer Stud.io Library"),   QObject::tr("Search for parts in Stud.io library first")},
-    /* 22 LBL_PREFER_UNOFFICIAL                   */ {"preferunofficial",              "0",          QObject::tr("Prefer Unofficial Parts"),  QObject::tr("Search for unofficial parts first")},
-    /* 23 LBL_PRESERVE_HIERARCHY                  */ {"preservehierarchy",             "0",          QObject::tr("Preserve File Structure"),  QObject::tr("Don't merge the constituent subparts and primitives into the top level part. Some parts may not render properly")},
-    /* 24 LBL_PROFILE                             */ {"profile",                       "0",          QObject::tr("Profile"),                  QObject::tr("Profile import performance")},
-    /* 25 LBL_RECALCULATE_NORMALS                 */ {"recalculatenormals",            "0",          QObject::tr("Recalculate Normals"),      QObject::tr("Recalculate normals. Not recommended if BFC processing is active")},
-    /* 26 LBL_REMOVE_DOUBLES_MM                   */ {"removedoubles",                 "1",          QObject::tr("No Duplicate Vertices"),    QObject::tr("Merge vertices that are within a certain distance.")},
-    /* 27 LBL_RENDER_WINDOW_MM                    */ {"renderwindow",                  "1",          QObject::tr("Display Render Window"),    QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
-    /* 28 LBL_SEARCH_ADDL_PATHS_MM                */ {"searchadditionalpaths",         "0",          QObject::tr("Search Additional Paths"),  QObject::tr("Specify whether to search additional LDraw paths")},
-    /* 29 LBL_SETEND_FRAME                        */ {"setendframe",                   "1",          QObject::tr("Set Step End Frame"),       QObject::tr("Set the end frame to the last step")},
-    /* 30 LBL_SET_TIMELINE_MARKERS                */ {"settimelinemarkers",            "0",          QObject::tr("Set Timeline Markers"),     QObject::tr("Set timeline markers for meta commands")},
-    /* 31 LBL_SHADE_SMOOTH                        */ {"shadesmooth",                   "1",          QObject::tr("Shade Smooth"),             QObject::tr("Use flat or smooth shading for part faces")},
-    /* 32 LBL_TRANSPARENT_BACKGROUND_MM           */ {"transparentbackground",         "0",          QObject::tr("Transparent Background"),   QObject::tr("Specify whether to render a background")},
-    /* 33 LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS */ {"treatmodelswithsubpartsasparts","1",          QObject::tr("Treat Subparts As Parts"),  QObject::tr("Treat subpart like a part by merging its constituent parts into one object")},
-    /* 34 LBL_TREAT_SHORTCUT_AS_MODEL             */ {"treatshortcutasmodel",          "0",          QObject::tr("Treat Shortcuts As Models"),QObject::tr("Split shortcut parts into their constituent pieces as if they were models")},
-    /* 35 LBL_TRIANGULATE                         */ {"triangulate",                   "0",          QObject::tr("Triangulate Faces"),        QObject::tr("Triangulate all faces")},
-    /* 36 LBL_USE_ARCHIVE_LIBRARY_MM              */ {"usearchivelibrary",             "0",          QObject::tr("Use Archive Libraries"),    QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
-    /* 37 LBL_USE_FREESTYLE_EDGES                 */ {"usefreestyleedges",             "0",          QObject::tr("Use Freestyle Edges"),      QObject::tr("Render LDraw edges using freestyle")},
-    /* 38 LBL_VERBOSE_MM                          */ {"verbose",                       "1",          QObject::tr("Verbose output"),           QObject::tr("Output all messages while working, else only show warnings and errors")},
+    /* 01 LBL_BEVEL_EDGES_MM                      */ {"beveledges",                    "0",          QObject::tr("Bevel Edgest"),             QObject::tr("Bevel edges. Can cause some parts to render incorrectly")},
+    /* 02 LBL_BLEND_FILE_TRUSTED_MM               */ {"blendfiletrusted",              "0",          QObject::tr("Trusted Blend File"),       QObject::tr("Specify whether to treat the .blend file as being loaded from a trusted source")},
+    /* 03 LBL_CROP_IMAGE_MM                       */ {"cropimage",                     "0",          QObject::tr("Crop Image"),               QObject::tr("Crop the image border at opaque content. Requires transparent background set to True")},
+    /* 04 LBL_DISPLAY_LOGO                        */ {"displaylogo",                   "0",          QObject::tr("Display Logo"),             QObject::tr("Display the logo on the stud")},
+    /* 05 LBL_IMPORT_CAMERAS_MM                   */ {"importcameras",                 "1",          QObject::tr("Import Cameras"),           QObject::tr("%1 can specify camera definitions within the ldraw data. Choose to load them or ignore them.").arg(VER_PRODUCTNAME_STR)},
+    /* 06 LBL_IMPORT_EDGES                        */ {"importedges",                   "0",          QObject::tr("Import Edges"),             QObject::tr("Import LDraw edges as edges")},
+    /* 07 LBL_IMPORT_LIGHTS_MM                    */ {"importlights",                  "0",          QObject::tr("Import Lights"),            QObject::tr("%1 can specify point and sunlight definitions within the ldraw data. Choose to load them or ignore them.").arg(VER_PRODUCTNAME_STR)},
+    /* 08 LBL_KEEP_ASPECT_RATIO_MM                */ {"keepaspectratio",               "1",          QObject::tr("Keep Aspect Ratio"),        QObject::tr("Maintain the aspect ratio when resizing the output image - this attribute is not passed to Blender")},
+    /* 09 LBL_MAKE_GAPS                           */ {"makegaps",                      "1",          QObject::tr("Make Gaps"),                QObject::tr("Make small gaps between bricks. A small gap is more realistic")},
+    /* 10 LBL_META_BFC                            */ {"metabfc",                       "1",          QObject::tr("BFC"),                      QObject::tr("Process LDraw Back Face Culling meta commands")},
+    /* 11 LBL_META_CLEAR                          */ {"metaclear",                     "0",          QObject::tr("CLEAR Command"),            QObject::tr("Hides all parts in the timeline up to where this command is encountered")},
+    /* 12 LBL_META_GROUP                          */ {"metagroup",                     "1",          QObject::tr("GROUP Command"),            QObject::tr("Process GROUP meta commands")},
+    /* 13 LBL_META_PAUSE                          */ {"metapause",                     "0",          QObject::tr("PAUSE Command"),            QObject::tr("Not implemented")},
+    /* 14 LBL_META_PRINT_WRITE                    */ {"metaprintwrite",                "0",          QObject::tr("PRINT/WRITE Command"),      QObject::tr("Prints PRINT/WRITE META commands to the system console.")},
+    /* 15 LBL_META_SAVE                           */ {"metasave",                      "0",          QObject::tr("SAVE Command"),             QObject::tr("Not implemented")},
+    /* 16 LBL_META_STEP                           */ {"metastep",                      "0",          QObject::tr("STEP Command"),             QObject::tr("Adds a keyframe that shows the part at the moment in the timeline")},
+    /* 17 LBL_META_STEP_GROUPS                    */ {"metastepgroups",                "0",          QObject::tr("STEP Groups"),              QObject::tr("Create collection for individual steps")},
+    /* 18 LBL_NO_STUDS                            */ {"nostuds",                       "0",          QObject::tr("No Studs"),                 QObject::tr("Don't import studs")},
+    /* 19 LBL_OVERWRITE_IMAGE_MM                  */ {"overwriteimage",                "1",          QObject::tr("Overwrite Image"),          QObject::tr("Specify whether to overwrite an existing rendered image file")},
+    /* 20 LBL_POSITION_CAMERA_MM                  */ {"positioncamera",                "1",          QObject::tr("Position Camera"),          QObject::tr("Position the camera to show the whole model")},
+    /* 21 LBL_PARENT_TO_EMPTY                     */ {"parenttoempty",                 "1",          QObject::tr("Parent To Empty"),          QObject::tr("Parent the model to an empty")},
+    /* 22 LBL_PREFER_STUDIO                       */ {"preferstudio",                  "0",          QObject::tr("Prefer Stud.io Library"),   QObject::tr("Search for parts in Stud.io library first")},
+    /* 23 LBL_PREFER_UNOFFICIAL                   */ {"preferunofficial",              "0",          QObject::tr("Prefer Unofficial Parts"),  QObject::tr("Search for unofficial parts first")},
+    /* 24 LBL_PRESERVE_HIERARCHY                  */ {"preservehierarchy",             "0",          QObject::tr("Preserve File Structure"),  QObject::tr("Don't merge the constituent subparts and primitives into the top level part. Some parts may not render properly")},
+    /* 25 LBL_PROFILE                             */ {"profile",                       "0",          QObject::tr("Profile"),                  QObject::tr("Profile import performance")},
+    /* 26 LBL_RECALCULATE_NORMALS                 */ {"recalculatenormals",            "0",          QObject::tr("Recalculate Normals"),      QObject::tr("Recalculate normals. Not recommended if BFC processing is active")},
+    /* 27 LBL_REMOVE_DOUBLES_MM                   */ {"removedoubles",                 "1",          QObject::tr("No Duplicate Vertices"),    QObject::tr("Merge vertices that are within a certain distance.")},
+    /* 28 LBL_RENDER_WINDOW_MM                    */ {"renderwindow",                  "1",          QObject::tr("Display Render Window"),    QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
+    /* 29 LBL_SEARCH_ADDL_PATHS_MM                */ {"searchadditionalpaths",         "0",          QObject::tr("Search Additional Paths"),  QObject::tr("Specify whether to search additional LDraw paths")},
+    /* 30 LBL_SETEND_FRAME                        */ {"setendframe",                   "1",          QObject::tr("Set Step End Frame"),       QObject::tr("Set the end frame to the last step")},
+    /* 31 LBL_SET_TIMELINE_MARKERS                */ {"settimelinemarkers",            "0",          QObject::tr("Set Timeline Markers"),     QObject::tr("Set timeline markers for meta commands")},
+    /* 32 LBL_SHADE_SMOOTH                        */ {"shadesmooth",                   "1",          QObject::tr("Shade Smooth"),             QObject::tr("Use flat or smooth shading for part faces")},
+    /* 33 LBL_TRANSPARENT_BACKGROUND_MM           */ {"transparentbackground",         "0",          QObject::tr("Transparent Background"),   QObject::tr("Specify whether to render a background")},
+    /* 34 LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS */ {"treatmodelswithsubpartsasparts","1",          QObject::tr("Treat Subparts As Parts"),  QObject::tr("Treat subpart like a part by merging its constituent parts into one object")},
+    /* 35 LBL_TREAT_SHORTCUT_AS_MODEL             */ {"treatshortcutasmodel",          "0",          QObject::tr("Treat Shortcuts As Models"),QObject::tr("Split shortcut parts into their constituent pieces as if they were models")},
+    /* 36 LBL_TRIANGULATE                         */ {"triangulate",                   "0",          QObject::tr("Triangulate Faces"),        QObject::tr("Triangulate all faces")},
+    /* 37 LBL_USE_ARCHIVE_LIBRARY_MM              */ {"usearchivelibrary",             "0",          QObject::tr("Use Archive Libraries"),    QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
+    /* 38 LBL_USE_FREESTYLE_EDGES                 */ {"usefreestyleedges",             "0",          QObject::tr("Use Freestyle Edges"),      QObject::tr("Render LDraw edges using freestyle")},
+    /* 39 LBL_VERBOSE_MM                          */ {"verbose",                       "1",          QObject::tr("Verbose output"),           QObject::tr("Output all messages while working, else only show warnings and errors")},
 
-    /* 39/00 LBL_CAMERA_BORDER_PERCENT_MM         */ {"cameraborderpercent",           "5",          QObject::tr("Camera Border Percent"),    QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
-    /* 40/01 LBL_FRAMES_PER_STEP                  */ {"framesperstep",                 "3",          QObject::tr("Frames Per Step"),          QObject::tr("Frames per step")},
-    /* 41/02 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
-    /* 42/03 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
-    /* 43/04 LBL_MERGE_DISTANCE                   */ {"mergedistance",                 "0.05",       QObject::tr("Merge Distance"),           QObject::tr("Maximum distance between elements to merge")},
-    /* 44/05 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step, label shows config setting.")},
-    /* 45/06 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - from current step image, label shows config setting.")},
-    /* 46/07 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - from current step image, label shows config setting.")},
-    /* 47/08 LBL_STARTING_STEP_FRAME              */ {"startingstepframe",             "1",          QObject::tr("Starting Step Frame"),      QObject::tr("Frame to add the first STEP meta command")},
+    /* 40/00 LBL_BEVEL_SEGMENTS                   */ {"bevelsegments",                 "4",          QObject::tr("Bevel Segments"),           QObject::tr("Bevel segments")},
+    /* 41/01 LBL_BEVEL_WEIGHT                     */ {"bevelweight",                   "0.3",        QObject::tr("Bevel Weight"),             QObject::tr("Bevel weight")},
+    /* 42/02 LBL_BEVEL_WIDTH_MM                   */ {"bevelwidth",                    "0.3",        QObject::tr("Bevel Width"),              QObject::tr("Width of the bevelled edges")},
+    /* 43/03 LBL_CAMERA_BORDER_PERCENT_MM         */ {"cameraborderpercent",           "5",          QObject::tr("Camera Border Percent"),    QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
+    /* 44/04 LBL_FRAMES_PER_STEP                  */ {"framesperstep",                 "3",          QObject::tr("Frames Per Step"),          QObject::tr("Frames per step")},
+    /* 45/05 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
+    /* 46/06 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
+    /* 47/07 LBL_MERGE_DISTANCE                   */ {"mergedistance",                 "0.05",       QObject::tr("Merge Distance"),           QObject::tr("Maximum distance between elements to merge")},
+    /* 48/08 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step, label shows config setting.")},
+    /* 49/09 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - from current step image, label shows config setting.")},
+    /* 50/10 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - from current step image, label shows config setting.")},
+    /* 51/11 LBL_STARTING_STEP_FRAME              */ {"startingstepframe",             "1",          QObject::tr("Starting Step Frame"),      QObject::tr("Frame to add the first STEP meta command")},
 
-    /* 48/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
-    /* 49/01 LBL_COLOUR_SCHEME_MM                 */ {"usecolourscheme",               "lgeo",       QObject::tr("Colour Scheme"),            QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
-    /* 50/02 LBL_GAP_SCALE_STRATEGY               */ {"gapscalestrategy",              "constraint", QObject::tr("Gap Strategy"),             QObject::tr("Apply gap to object directly or scale and empty to adjust to gaps between parts")},
-    /* 51/03 LBL_GAP_TARGET                       */ {"gaptarget",                     "object",     QObject::tr("Gap Target"),               QObject::tr("Whether to scale the object data or mesh data")},
-    /* 52/04 LBL_RESOLUTION_MM                    */ {"resolution",                    "Standard",   QObject::tr("Resolution"),               QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
-    /* 53/05 LBL_SMOOTH_TYPE                      */ {"smoothtype",                    "edge_split", QObject::tr("Smooth Type"),              QObject::tr("Use either autosmooth or an edge split modifier to smooth part faces")}
+    /* 52/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
+    /* 53/01 LBL_COLOUR_SCHEME_MM                 */ {"usecolourscheme",               "lgeo",       QObject::tr("Colour Scheme"),            QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
+    /* 54/02 LBL_GAP_SCALE_STRATEGY               */ {"gapscalestrategy",              "constraint", QObject::tr("Gap Strategy"),             QObject::tr("Apply gap to object directly or scale and empty to adjust to gaps between parts")},
+    /* 55/03 LBL_GAP_TARGET                       */ {"gaptarget",                     "object",     QObject::tr("Gap Target"),               QObject::tr("Whether to scale the object data or mesh data")},
+    /* 56/04 LBL_RESOLUTION_MM                    */ {"resolution",                    "Standard",   QObject::tr("Resolution"),               QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
+    /* 57/05 LBL_SMOOTH_TYPE                      */ {"smoothtype",                    "edge_split", QObject::tr("Smooth Type"),              QObject::tr("Use either autosmooth or an edge split modifier to smooth part faces")}
 };
 
 BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITEMS_MM] =
 {
     /*    FIRST item set as default        Data                                  Item: */
-    /* 00 LBL_CHOSEN_LOGO              */ {"logo|logo2|logo3",       QObject::tr("Logo (Not Used)|Logo2 (Not Used)|Flattened(3)")},
-    /* 01 LBL_COLOUR_SCHEME_MM         */ {"lgeo|ldraw|alt|custom",  QObject::tr("Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours")},
-    /* 02 LBL_GAP_SCALE_STRATEGY       */ {"object|constraint",      QObject::tr("Gap applied directly to object|Gap scaled to adjust to gaps between parts")},
-    /* 03 LBL_GAP_TARGET               */ {"object|mesh",            QObject::tr("Scale object data|Scale mesh data")},
-    /* 04 LBL_RESOLUTION_MM            */ {"Low|Standard|High",      QObject::tr("Low Resolution Primitives|Standard Primitives|High Resolution Primitives")},
-    /* 05 LBL_SMOOTH_TYPE              */ {"auto_smooth|edge_split", QObject::tr("Auto-smooth part faces|Smooth part faces with edge split modifier")}
+    /* 00 LBL_CHOSEN_LOGO              */ {"logo|logo2|logo3",                   QObject::tr("Logo (Not Used)|Logo2 (Not Used)|Flattened(3)")},
+    /* 01 LBL_COLOUR_SCHEME_MM         */ {"lgeo|ldraw|alt|custom",              QObject::tr("Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours")},
+    /* 02 LBL_GAP_SCALE_STRATEGY       */ {"object|constraint",                  QObject::tr("Gap applied directly to object|Gap scaled to adjust to gaps between parts")},
+    /* 03 LBL_GAP_TARGET               */ {"object|mesh",                        QObject::tr("Scale object data|Scale mesh data")},
+    /* 04 LBL_RESOLUTION_MM            */ {"Low|Standard|High",                  QObject::tr("Low Resolution Primitives|Standard Primitives|High Resolution Primitives")},
+    /* 05 LBL_SMOOTH_TYPE              */ {"edge_split|auto_smooth|bmesh_split", QObject::tr("Smooth part faces with edge split modifier|Auto-smooth part faces|Split during initial mesh processing")}
 };
 
 BlenderPreferences *gAddonPreferences;
@@ -346,7 +350,7 @@ BlenderPreferences::BlenderPreferences(
 
     QVBoxLayout *layout = new QVBoxLayout(parent);
 
-    QString windowTitle = tr("Blender Render Settings");
+    QString windowTitle = tr("Blender LDraw Addon Settings");
     if (parent) {
         if (!parent->windowTitle().isEmpty())
             windowTitle = parent->windowTitle();
@@ -356,8 +360,6 @@ BlenderPreferences::BlenderPreferences(
         setLayout(layout);
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER_SETTINGS, windowTitle));
     }
-
-    mConfigured = !Preferences::blenderImportModule.isEmpty();
 
     mContent = new QWidget();
 
@@ -385,7 +387,6 @@ BlenderPreferences::BlenderPreferences(
     mBlenderVersionEdit = new QLineEdit(blenderExeBox);
     mBlenderVersionEdit->setPalette(ReadOnlyPalette);
     mBlenderVersionEdit->setReadOnly(true);
-    mBlenderVersionEdit->setVisible(mConfigured);
     mExeGridLayout->addWidget(mBlenderVersionEdit,0,1,1,2);
 
     QLabel *pathLabel = new QLabel(blenderExeBox);
@@ -458,7 +459,8 @@ BlenderPreferences::BlenderPreferences(
 
     loadSettings();
 
-    // Populate Blender version and addon attributes - after loadSettings
+    mConfigured = !Preferences::blenderImportModule.isEmpty();
+
     const int i = PATH_BLENDER;
     pathLabel->setText(mBlenderPaths[i].label);
     pathLabel->setToolTip(mBlenderPaths[i].tooltip);
@@ -477,22 +479,37 @@ BlenderPreferences::BlenderPreferences(
         mImportMMActBox->setChecked(Preferences::blenderImportModule == QLatin1String("MM"));
     }
 
-    QString textColour, versionText, addonText;
+    QString versionTextColour = QApplication::palette().text().color().name(),addonTextColour;
+    QString versionText = tr("Blender"), addonText = tr("Blender Addon");
     if (mConfigured) {
-        textColour = QApplication::palette().text().color().name();
-        versionText = tr("Blender");
-        addonText = tr("Blender Addon");
+        addonTextColour = versionTextColour;
         mBlenderVersionEdit->setText(mBlenderVersion);
+        mBlenderVersionEdit->setVisible(true);
     } else {
-        textColour = Preferences::displayTheme == THEME_DARK
-                         ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
-                         : QLatin1String("blue");
-        versionText = tr("Blender not configured");
+        QString const textColour = Preferences::displayTheme == THEME_DARK
+                                       ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
+                                       : QLatin1String("blue");
+
+        if (Preferences::blenderExe.isEmpty()) {
+            versionText = tr("Blender not configured.");
+            versionTextColour = textColour;
+        } else
+            mBlenderVersionEdit->setText(mBlenderVersion);
+
+        if (QFileInfo(QString("%1/Blender/%2").arg(Preferences::lpub3d3rdPartyConfigDir).arg(VER_BLENDER_ADDON_FILE)).isReadable()) {
+            mModulesBox->setEnabled(false);
+            mImportActBox->setChecked(true);
+            mAddonUpdateButton->setEnabled(true);
+            addonText = Preferences::blenderExe.isEmpty()
+                            ? tr("Addon not configured.")
+                            : tr("Addon not configured - Update.");
+            addonTextColour = textColour;
+        }
     }
 
     mAddonVersionEdit->setVisible(!mAddonVersion.isEmpty());
-    mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
-    mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
+    mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(versionTextColour));
+    mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(addonTextColour));
     mBlenderVersionLabel->setText(versionText);
     mAddonVersionLabel->setText(addonText);
 
@@ -764,7 +781,7 @@ void BlenderPreferences::initPathsAndSettingsMM()
         label->setToolTip(mBlenderSettingsMM[i].tooltip);
         mSettingLabelList << label;
 
-        if (i < LBL_CAMERA_BORDER_PERCENT_MM) { // QCheckBoxes
+        if (i < LBL_BEVEL_SEGMENTS) { // QCheckBoxes
             QCheckBox *checkBox = new QCheckBox(mSettingsBox);
             checkBox->setProperty("ControlID",QVariant(i));
             checkBox->setChecked(mBlenderSettingsMM[i].value.toInt());
@@ -800,6 +817,8 @@ void BlenderPreferences::initPathsAndSettingsMM()
                     lineEdit->setValidator(new QIntValidator(1,1000));
                 else if (i == LBL_GAP_SCALE || i == LBL_MERGE_DISTANCE)
                     lineEdit->setValidator(new QDoubleValidator(0.001,100.0,3));
+                else if (i == LBL_BEVEL_WEIGHT || i == LBL_BEVEL_WIDTH_MM)
+                    lineEdit->setValidator(new QDoubleValidator(0.0,10.0,1));
                 else
                     lineEdit->setValidator(new QIntValidator(1, RENDER_IMAGE_MAX_SIZE));
                 connect(lineEdit, SIGNAL(textEdited(    const QString &)),
@@ -906,7 +925,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                 systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
                 systemEnvironment.prepend("ADDONS_TO_LOAD=" + addonPathsAndModuleNames);
                 mProcess->setEnvironment(systemEnvironment);
-            } 
+            }
             else
             {
                 processAction = tr("test");
@@ -1001,51 +1020,43 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             arguments << QString("--python-expr");
             arguments << QString("\"import sys;print('%1');sys.stdout.flush();sys.exit()\"").arg(blenderTestString);
 
-            QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-            QString const scriptDir = configPathList.first();
-
             bool error = false;
 
-            if (QFileInfo(scriptDir).exists()) {
-                QString scriptName, scriptCommand;
+            QString scriptName, scriptCommand;
 
 #ifdef Q_OS_WIN
-                scriptName =  QLatin1String("blender_test.bat");
+            scriptName =  QLatin1String("blender_test.bat");
 #else
-                scriptName =  QLatin1String("blender_test.sh");
+            scriptName =  QLatin1String("blender_test.sh");
 #endif
-                scriptCommand = QString("%1 %2").arg(blenderExe).arg(arguments.join(" "));
+            scriptCommand = QString("%1 %2").arg(blenderExe).arg(arguments.join(" "));
 
-                message = tr("Blender Test Command: %1").arg(scriptCommand);
+            message = tr("Blender Test Command: %1").arg(scriptCommand);
+#ifdef QT_DEBUG_MODE
+            qDebug() << qPrintable(message);
+#else
+            emit gui->messageSig(LOG_INFO, message);
+#endif
+            script.setFileName(QString("%1/%2").arg(QDir::tempPath()).arg(scriptName));
+            if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream stream(&script);
+#ifdef Q_OS_WIN
+                stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
+#else
+                stream << QLatin1String("#!/bin/bash") << lpub_endl;
+#endif
+                stream << scriptCommand << lpub_endl;
+                script.close();
+                message = tr("Blender Test Script: %2").arg(QDir::toNativeSeparators(script.fileName()));
 #ifdef QT_DEBUG_MODE
                 qDebug() << qPrintable(message);
 #else
                 emit gui->messageSig(LOG_INFO, message);
 #endif
-                script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
-                if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                    QTextStream stream(&script);
-#ifdef Q_OS_WIN
-                    stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
-#else
-                    stream << QLatin1String("#!/bin/bash") << lpub_endl;
-#endif
-                    stream << scriptCommand << lpub_endl;
-                    script.close();
-                    message = tr("Blender Test Script: %2").arg(QDir::toNativeSeparators(script.fileName()));
-#ifdef QT_DEBUG_MODE
-                    qDebug() << qPrintable(message);
-#else
-                    emit gui->messageSig(LOG_INFO, message);
-#endif
-                } else {
-                    message = tr("Cannot write Blender render script file [%1] %2.")
-                                  .arg(script.fileName())
-                                  .arg(script.errorString());
-                    error = true;
-                }
             } else {
-                message = tr("Cannot create Blender render script temp path.");
+                message = tr("Cannot write Blender render script file [%1] %2.")
+                              .arg(script.fileName())
+                              .arg(script.errorString());
                 error = true;
             }
 
@@ -1062,7 +1073,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
 #else
             shellProgram = QLatin1String(UNIX_SHELL);
 #endif
-            ProcEnc result = processCommand(PR_TEST);
+            result = processCommand(PR_TEST);
             bool testOk = result != PR_FAIL;
             QString const statusLabel = testOk ? "" : tr("Blender test failed.");
             LogType logType = testOk ? LOG_INFO : LOG_ERROR;
@@ -1082,7 +1093,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                                         "If you continue, the default import module (Import TN) will be used.<br>"
                                         "If you select No, all addon modules will be disabled.");
             QString const &body = tr ("Continue with the default import module ?");
-            int exec = showMessage(title, header, body, QString(), MBB_YES_NO, QMessageBox::NoIcon);
+            int exec = showMessage(header, title, body, QString(), MBB_YES_NO, QMessageBox::NoIcon);
             if (exec != QMessageBox::Yes) {
                 mRenderActBox->setChecked(false);
                 if (exec == QMessageBox::Cancel) {
@@ -1113,7 +1124,6 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         // Download and extract blender addon
         if (!extractBlenderAddon(blenderDir)) {
             if (addonUpdate) {
-                mExeGridLayout->replaceWidget(mProgressBar, mBlenderVersionEdit);
                 mConfigured = true;
                 mBlenderVersionLabel->setText(tr("Blender"));
                 mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name()));
@@ -1125,8 +1135,10 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                     mAddonVersionEdit->setText(mAddonVersion);
                 }
                 mAddonUpdateButton->setEnabled(mConfigured);
-                if (mProgressBar)
+                if (mProgressBar) {
+                    mExeGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
                     mProgressBar->close();
+                }
             }
             return;
         }
@@ -1139,7 +1151,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         }
 
         // Install Blender addon
-        statusUpdate(true/*addon*/, false/*error*/, tr("Install addon..."));
+        statusUpdate(true/*addon*/, false/*error*/, tr("Installing addon..."));
 
         // Create Blender config directory
         QDir configDir(Preferences::blenderConfigDir);
@@ -1229,6 +1241,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
 
         if (result != PR_OK)
             statusUpdate(true/*addon*/, true/*error*/, tr("Addon install failed."));
+
     } else {
         emit gui->messageSig(LOG_ERROR, tr("Blender executable not found at [%1]").arg(blenderExe), true);
     }
@@ -1277,7 +1290,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     QString const blenderAddonDir  = QDir::toNativeSeparators(QString("%1/addons").arg(blenderDir));
     QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
-    QString const addonVersionFile = QDir::toNativeSeparators(QString("%1/%2/__version__.py").arg(blenderAddonDir).arg(BLENDER_RENDER_ADDON));
+    QString const addonVersionFile = QDir::toNativeSeparators(QString("%1/%2/__version__.py").arg(blenderAddonDir).arg(BLENDER_RENDER_ADDON_FOLDER));
     bool extractedAddon            = QFileInfo(addonVersionFile).isReadable();
     bool blenderAddonExists        = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
     QString status                 = tr("Installing Blender addon...");
@@ -1310,6 +1323,16 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     auto getBlenderAddonVersionMatch = [&] ()
     {
+        lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
+        QByteArray response_data = lpub->getDownloadedFile();
+        if (!response_data.isEmpty()) {
+            QJsonDocument json = QJsonDocument::fromJson(response_data);
+            onlineVersion = json.object()["tag_name"].toString();
+        } else {
+            emit gui->messageSig(LOG_WARNING, tr("Check latest addon version failed."));
+            return true; // Reload existing archive
+        }
+
         QByteArray ba;
         if (!extractedAddon) {
             QuaZip zip(blenderAddonFile);
@@ -1321,13 +1344,15 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 return false; // Download new archive
             }
 
-            QString const addonVersionFile = QString("addons/%1/__version__.py").arg(BLENDER_RENDER_ADDON);
+            QString const addonVersionFile = QString("addons/%1/__version__.py").arg(BLENDER_RENDER_ADDON_FOLDER);
             zip.setCurrentFile(addonVersionFile);
             QuaZipFile file(&zip);
+            // check if legacy addon
+            if (!file.open(QIODevice::ReadOnly))
+                zip.setCurrentFile(QLatin1String("addons/io_scene_lpub3d_renderldraw/__version__.py"));
             if (!file.open(QIODevice::ReadOnly)) {
-                emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read addon archive version file: [%1]<br>%2.")
-                                                    .arg(addonVersionFile)
-                                                    .arg(file.errorString()));
+                emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot read addon archive version file: [%1]<br>%2.")
+                                                              .arg(addonVersionFile).arg(file.errorString()));
                 return false; // Download new archive
             }
             ba = file.readAll();
@@ -1338,9 +1363,8 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         } else {
             QFile file(addonVersionFile);
             if (!file.open(QIODevice::ReadOnly)) {
-                emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read addon version file: [%1]<br>%2.")
-                                                    .arg(addonVersionFile)
-                                                    .arg(file.errorString()));
+                emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot read addon version file: [%1]<br>%2.")
+                                                              .arg(addonVersionFile).arg(file.errorString()));
                 return false; // Download new archive
             }
             ba = file.readAll();
@@ -1358,18 +1382,10 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
             }
         }
 
-        lpub->downloadFile(VER_BLENDER_ADDON_LATEST_URL, tr("Latest Addon"),false/*promptRedirect*/,false/*showProgress*/);
-        QByteArray response_data = lpub->getDownloadedFile();
-        if (!response_data.isEmpty()) {
-            QJsonDocument json = QJsonDocument::fromJson(response_data);
-            onlineVersion = json.object()["tag_name"].toString();
-        } else
-            emit gui->messageSig(LOG_WARNING, tr("Check latest addon version failed."));
-
         if (!localVersion.isEmpty() && !onlineVersion.isEmpty()) {
             // localVersion is smaller than onlineVersion so prompt to download new archive
             if (versionStringCompare(localVersion.toStdString(), onlineVersion.toStdString()) < 0)
-                return false;
+                return false; // Download new archive
         }
 
         // Reload existing archive
@@ -1380,12 +1396,14 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         if (getBlenderAddonVersionMatch()) {
             addonAction = ADDON_RELOAD;
         } else if (Preferences::modeGUI) {
+            if (localVersion.isEmpty())
+                localVersion = gAddonPreferences->mAddonVersion;
             QString const &title = tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR);
             QString const &header = tr ("Detected %1 Blender LDraw addon %2. A newer version %3 exists.")
                                         .arg(VER_PRODUCTNAME_STR)
-                                        .arg(onlineVersion).arg(onlineVersion);
+                                        .arg(localVersion).arg(onlineVersion);
             QString const &body  = tr ("Do you want to download version %1 ?").arg(onlineVersion);
-            int exec = showMessage(title, header, body, QString(), MBB_YES, QMessageBox::NoIcon);
+            int exec = showMessage(header, title, body, QString(), MBB_YES, QMessageBox::NoIcon);
             if (exec == QMessageBox::Cancel) {
                 status = tr("Blender addon setup cancelled");
                 addonAction = ADDON_CANCEL;
@@ -1395,7 +1413,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         }
 
         if (addonAction == ADDON_DOWNLOAD)
-            status = tr("Download addon...");
+            status = tr("Downloading addon...");
 
         gAddonPreferences->statusUpdate(true/*addon*/, false/*error*/,status);
 
@@ -1422,7 +1440,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         result &= dir.rmdir(blenderAddonDir);
         if (!result)
             emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon: %1")
-                                                 .arg(blenderAddonDir));
+                                                .arg(blenderAddonDir));
     }
 
     // Download Blender addon
@@ -1470,7 +1488,6 @@ void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &mes
     if (mProgressBar) {
         if (addon) {
             mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
-            mProgressBar->close();
         } else {
             mExeGridLayout->replaceWidget(mProgressBar, mBlenderVersionEdit);
             mProgressBar->hide();
@@ -1529,7 +1546,7 @@ void BlenderPreferences::showResult()
         QString const &title = tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR);
         QString const &header =  "<b>" + tr ("Addon install failed.") + "</b>";
         QString const &body = tr ("LDraw addon install encountered one or more errors. See Show Details...");
-        showMessage(title, header, body, StdErrLog, MBB_OK, QMessageBox::Critical);
+        showMessage(header, title, body, StdErrLog, MBB_OK, QMessageBox::Critical);
     } else {
         QString const textColour = QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name());
         mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
@@ -1561,7 +1578,7 @@ void BlenderPreferences::showResult()
     delete mProcess;
     mProcess = nullptr;
 
-    emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
+    emit gui->messageSig(hasError ? LOG_ERROR : LOG_INFO, message);
 }
 
 void BlenderPreferences::settingChanged(const QString &value)
@@ -1786,7 +1803,7 @@ void BlenderPreferences::readStdOut()
         QString const &title = tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR);
         QString const &header =  "<b>" + tr ("Addon install standard output.") + "</b>";
         QString const &body = tr ("LDraw addon install encountered %1. See Show Details...").arg(items);
-        showMessage(title, header, body, errorsAndWarnings.append(stdOutLog), MBB_OK, icon);
+        showMessage(header, title, body, errorsAndWarnings.append(stdOutLog), MBB_OK, icon);
     }
 }
 
@@ -1845,7 +1862,7 @@ bool BlenderPreferences::promptCancel()
     if (mProcess) {
         QString const &title = tr ("Cancel %1 Addon Install").arg(VER_PRODUCTNAME_STR);
         QString const &header =  "<b>" + tr("Are you sure you want to cancel the add on install ?") + "</b>";
-        int exec = showMessage(title, header, QString(), QString(), MBB_YES_NO, QMessageBox::Question);
+        int exec = showMessage(header, title, QString(), QString(), MBB_YES_NO, QMessageBox::Question);
         if (exec == QMessageBox::Yes)
         {
             mProcess->kill();
@@ -1915,7 +1932,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
         // settings
         for(int i = 0; i < numSettingsMM(); i++) {
             // checkboxes
-            if (i < LBL_CAMERA_BORDER_PERCENT_MM) {
+            if (i < LBL_BEVEL_SEGMENTS) {
                 for(int j = 0; j < gAddonPreferences->mCheckBoxList.size(); j++) {
                     oldValue = mBlenderSettingsMM[i].value;
                     if (update)
@@ -2023,7 +2040,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                     } else if (j == CTL_RENDER_PERCENTAGE_EDIT) {
                         _oldValue = renderPercentage;
                         _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
-                        if (ok) { 
+                        if (ok) {
                             if (update) {
                                 renderPercentage = double(_renderPercentage / 100);
                                 mBlenderSettings[i].value = QString::number(_renderPercentage);
@@ -2176,7 +2193,7 @@ void BlenderPreferences::resetSettings()
                    this,                                     SLOT  (sizeChanged(const QString &)));
 
         for(int i = 0; i < numSettingsMM(); i++) {
-            if (i < LBL_CAMERA_BORDER_PERCENT_MM) {
+            if (i < LBL_BEVEL_SEGMENTS) {
                 for(int j = 0; j < mCheckBoxList.size(); j++) {
                     mCheckBoxList[j]->setChecked(settingsMM[i].value.toInt());
                     if (i < LBL_VERBOSE_MM)
@@ -2217,17 +2234,29 @@ void BlenderPreferences::resetSettings()
 
 void BlenderPreferences::loadSettings()
 {
+    if (QFileInfo(Preferences::blenderExe).isReadable())
+    {
+        if (Preferences::blenderImportModule.isEmpty())
+            Preferences::setBlenderImportModule(QLatin1String(DEFAULT_BLENDER_IMPORT_MODULE));
+    } else {
+        Preferences::setBlenderExePathPreference(QString());
+        Preferences::setBlenderImportModule(QString());
+    }
+
+    QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+
+    if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable())
+        Preferences::setBlenderImportModule(QString());
+
     // load default paths if paths not populated
     if (!numPaths()) {
-        QString const defaultBlendFile = QString("%1/Blender/config/%2")
-                                             .arg(Preferences::lpub3d3rdPartyConfigDir)
-                                             .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
+        QString const defaultBlendFile = QString("%1/config/%2").arg(blenderDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         QStringList const addonPaths = QStringList()
         /* PATH_BLENDER      */        << Preferences::blenderExe
         /* PATH_BLENDFILE    */        << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
         /* PATH_ENVIRONMENT  */        << QString()
         /* PATH_LDCONFIG     */        << Preferences::altLDConfigPath
-        /* PATH_LDRAW        */        << Preferences::Preferences::ldrawLibPath
+        /* PATH_LDRAW        */        << Preferences::ldrawLibPath
         /* PATH_LSYNTH       */        << QString()
         /* PATH_STUD_LOGO    */        << QString()
         /* PATH_STUDIO_LDRAW */        << QString();
@@ -2451,7 +2480,7 @@ void BlenderPreferences::saveSettings()
     for (int i = 0; i < numSettingsMM(); i++) {
         if (i == LBL_KEEP_ASPECT_RATIO_MM) {
             continue;
-        } else if (i < LBL_CAMERA_BORDER_PERCENT_MM) {
+        } else if (i < LBL_BEVEL_SEGMENTS) {
             value = mBlenderSettingsMM[i].value == "1"
                         ? "True"
                         : "False";
@@ -2716,7 +2745,7 @@ void BlenderPreferences::setModelSize(bool update)
                                       .arg(conflict[0] ? tr("Keep aspect ratio set to false.<br>") : "")
                                       .arg(conflict[1] ? tr("Add environment (backdrop and base plane) set to false.<br>") : "")
                                       .arg(conflict[2] ? tr("Transparent background set to true.<br>") : "");
-            showMessage(title, header, body, QString(), MBB_OK, QMessageBox::Information);
+            showMessage(header, title, body, QString(), MBB_OK, QMessageBox::Information);
         }
     }
 
@@ -2761,7 +2790,7 @@ void BlenderPreferences::validateColourScheme(int index)
         QString const &body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
                                   "The default colour scheme '%1' will be used.<br>")
                                   .arg(settings[color_scheme].value);
-        showMessage(title, header, body, QString(), MBB_OK, QMessageBox::Warning);
+        showMessage(header, title, body, QString(), MBB_OK, QMessageBox::Warning);
     } else {
         bool change = settings[color_scheme].value != combo->itemText(index);
         change |= settingsModified(false/*update*/);
@@ -2773,7 +2802,7 @@ bool BlenderPreferences::promptAccept()
 {
     QString const &title = tr ("Render Settings Modified");
     QString const &header =  "<b>" + tr("Do you want to accept the modified settings before quitting ?") + "</b>";
-    int exec = showMessage(title, header, QString(), QString(), MBB_YES_NO, QMessageBox::Question);
+    int exec = showMessage(header, title, QString(), QString(), MBB_YES_NO, QMessageBox::Question);
     if (exec == QMessageBox::Yes)
     {
         return true;
@@ -3002,7 +3031,7 @@ void BlenderPreferences::loadDefaultParameters(QByteArray& buffer, int which)
         "sloped_brick,   30390, -45\n"
         "sloped_brick,   30499,  16\n"
         "sloped_brick,   32083,  45\n"
-        "sloped_brick,   43708,  72\n"
+        "sloped_brick,   43708,  64|72\n"
         "sloped_brick,   43710,  72,      45\n"
         "sloped_brick,   43711,  72,      45\n"
         "sloped_brick,   47759,  40|63\n"
@@ -3157,14 +3186,14 @@ bool BlenderPreferences::overwriteFile(const QString &file)
     QString const &title = tr ("Replace Existing File");
     QString const header = "<b>" + QMessageBox::tr ("Existing file %1 detected.").arg(fileInfo.fileName()) + "</b>";
     QString const body = QMessageBox::tr ("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
-    int exec = showMessage(title, header, body, QString(), MBB_YES, QMessageBox::NoIcon);
+    int exec = showMessage(header, title, body, QString(), MBB_YES, QMessageBox::NoIcon);
 
     return (exec == QMessageBox::Yes);
 }
 
 int BlenderPreferences::showMessage(
-    const QString &title,
     QString const &header,
+    QString const &title,
     QString const &body,
     const QString &detail,
     int const buttons,
@@ -3191,7 +3220,12 @@ int BlenderPreferences::showMessage(
     }
     box.setTextFormat (Qt::RichText);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    box.setWindowTitle(title);
+    if (!title.isEmpty()) {
+        box.setWindowTitle(title);
+    } else {
+        box.setWindowTitle(tr("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR));
+    }
+
     box.setText (header);
     if (!body.isEmpty()) {
         box.setInformativeText (body);
@@ -3216,6 +3250,29 @@ int BlenderPreferences::showMessage(
     default:
         box.setStandardButtons (QMessageBox::Ok);
         break;
+    }
+
+    int minimumWidth = 400;
+    int fontWidth = QFontMetrics(box.font()).averageCharWidth();
+    int fixedTextLength = (minimumWidth / fontWidth);
+    if (header.length() < body.length() && header.length() < fixedTextLength)
+    {
+        QGridLayout* boxLayout = (QGridLayout*)box.layout();
+        QLayoutItem* boxLayoutItem = boxLayout->itemAtPosition(0, 2);
+        QWidget* textWidget = boxLayoutItem->widget();
+        if (textWidget)
+        {
+            int fixedWidth = body.length() * fontWidth;
+            if (fixedWidth == minimumWidth)
+            {
+                int index = (minimumWidth / fontWidth) - 1;
+                if (!body.midRef(index, 1).isEmpty())
+                    fixedWidth = body.indexOf(" ", index);
+            }
+            else if (fixedWidth < minimumWidth)
+                fixedWidth = minimumWidth;
+            textWidget->setFixedWidth(fixedWidth);
+        }
     }
 
     return box.exec();

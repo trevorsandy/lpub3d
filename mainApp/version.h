@@ -174,7 +174,7 @@
 #define VER_BLENDER_DEFAULT_BLEND_FILE      "lpub3d.blend"
 #define VER_BLENDER_ADDON_FILE              "LDrawBlenderRenderAddons.zip"
 #define VER_BLENDER_ADDON_INSTALL_FILE      "install_blender_ldraw_addons.py"
-#define VER_BLENDER_ADDON_CONFIG_FILE      "LDrawRendererPreferences.ini"
+#define VER_BLENDER_ADDON_CONFIG_FILE       "LDrawRendererPreferences.ini"
 #define VER_BLENDER_DOCUMENT_CONFIG_FILE    "PreferredRendererPreferences.ini"
 #define VER_BLENDER_LDRAW_PARAMS_FILE       "BlenderLDrawParameters.lst"
 
@@ -205,7 +205,7 @@
 #define VER_REBRICKABLE_KEYS_JSON_URL       VER_HOMEPAGE_GITHUB_STR "assets/resources/rebrickablekeys.json"
 #define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_HOMEPAGE_GITHUB_STR "assets/resources/codes.txt"
 #define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_HOMEPAGE_GITHUB_STR "assets/resources/missingimage.png"
-#define VER_BLENDER_ADDON_URL               VER_BLENDER_ADDON_STR   "releases/latest/download/" VER_BLENDER_ADDON_FILE
+#define VER_BLENDER_ADDON_URL               VER_BLENDER_ADDON_STR "releases/latest/download/" VER_BLENDER_ADDON_FILE
 #define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -243,7 +243,7 @@
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2019"
   #define VER_COMPILED_FOR               "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2019 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 9.0.0 on Qt 6.3.1 (MSVC 2019, 64bit)"
+  #define VER_IDE                        "Qt Creator 10.0.0 on Qt 6.4.2 (MSVC 2019, 64bit)"
 #endif
 
 #endif // VERSION_H

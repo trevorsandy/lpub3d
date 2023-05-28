@@ -111,12 +111,12 @@ protected:
     static bool extractBlenderAddon(const QString &blenderDir);
     static void loadDefaultParameters(QByteArray& buffer, int which);
     static bool overwriteFile(const QString &file);
-    static int showMessage(QString const &title,
-                           QString const &header,
-                           QString const &body,
+    static int showMessage(QString const &header,
+                           QString const &title = QString(),
+                           QString const &body = QString(),
                            QString const &detail = QString(),
                            const int buttons = MBB_OK,
-                           const int icon = 0);
+                           const int icon = 3);
 
     QString readStdErr(bool &hasError) const;
     void clearGroupBox(QGroupBox *groupBox);
@@ -154,32 +154,6 @@ private slots:
     void statusUpdate(bool, bool = true, const QString & = QString());
 
 private:
-    QWidget     *mContent;
-
-    QFormLayout *mForm;
-    QGridLayout *mExeGridLayout;
-    QGridLayout *mAddonGridLayout;
-    QGridLayout *mPathsGridLayout;
-    QFormLayout *mSettingsSubform;
-
-    QLineEdit   *mBlenderVersionEdit;
-    QLabel      *mBlenderVersionLabel;
-    QLineEdit   *mAddonVersionEdit;
-    QLabel      *mAddonVersionLabel;
-    QGroupBox   *mModulesBox;
-    QCheckBox   *mImportActBox;
-    QCheckBox   *mImportMMActBox;
-    QCheckBox   *mRenderActBox;
-    QGroupBox   *mSettingsBox;
-    QGroupBox   *mPathsBox;
-
-    QProgressBar *mProgressBar;
-    QProcess     *mProcess;
-    QTimer        mUpdateTimer;
-
-    QStringList  mStdOutList;
-    bool         mBlenderVersionFound;
-
     enum BlenderPathType
     {
         PATH_BLENDER,       //  0 QLineEdit/QPushButton
@@ -294,124 +268,132 @@ private:
 
     enum BlenderLabelTypeMM
     {
-        LBL_ADD_ENVIRONMENT_MM,                    // 00 QCheckBox
-        LBL_BLEND_FILE_TRUSTED_MM,                 // 01 QCheckBox
-        LBL_CROP_IMAGE_MM,                         // 02 QCheckBox
-        LBL_DISPLAY_LOGO,                          // 03 QCheckBox
-        LBL_IMPORT_CAMERAS_MM,                     // 04 QCheckBox
-        LBL_IMPORT_EDGES,                          // 05 QCheckBox
-        NUM_COMBO_ITEMS_MM,                        // 06
-        LBL_IMPORT_LIGHTS_MM = NUM_COMBO_ITEMS_MM, // 06 QCheckBox
-        LBL_KEEP_ASPECT_RATIO_MM,                  // 07 QCheckBox
-        LBL_MAKE_GAPS,                             // 08 QCheckBox
-        LBL_META_BFC,                              // 09 QCheckBox
-        LBL_META_CLEAR,                            // 10 QCheckBox
-        LBL_META_GROUP,                            // 11 QCheckBox
-        LBL_META_PAUSE,                            // 12 QCheckBox
-        LBL_META_PRINT_WRITE,                      // 13 QCheckBox
-        LBL_META_SAVE,                             // 14 QCheckBox
-        LBL_META_STEP,                             // 15 QCheckBox
-        LBL_META_STEP_GROUPS,                      // 16 QCheckBox
-        LBL_NO_STUDS,                              // 17 QCheckBox
-        LBL_OVERWRITE_IMAGE_MM,                    // 18 QCheckBox
-        LBL_POSITION_CAMERA_MM,                    // 19 QCheckBox
-        LBL_PARENT_TO_EMPTY,                       // 20 QCheckBox
-        LBL_PREFER_STUDIO,                         // 21 QCheckBox
-        LBL_PREFER_UNOFFICIAL,                     // 22 QCheckBox
-        LBL_PRESERVE_HIERARCHY,                    // 23 QCheckBox
-        LBL_PROFILE,                               // 24 QCheckBox
-        LBL_RECALCULATE_NORMALS,                   // 25 QCheckBox
-        LBL_REMOVE_DOUBLES_MM,                     // 26 QCheckBox
-        LBL_RENDER_WINDOW_MM,                      // 27 QCheckBox
-        LBL_SEARCH_ADDL_PATHS_MM,                  // 28 QCheckBox
-        LBL_SETEND_FRAME,                          // 29 QCheckBox
-        LBL_SET_TIMELINE_MARKERS,                  // 30 QCheckBox
-        LBL_SHADE_SMOOTH,                          // 31 QCheckBox
-        LBL_TRANSPARENT_BACKGROUND_MM,             // 32 QCheckBox
-        LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS,   // 33 QCheckBox
-        LBL_TREAT_SHORTCUT_AS_MODEL,               // 34 QCheckBox
-        LBL_TRIANGULATE,                           // 35 QCheckBox
-        LBL_USE_ARCHIVE_LIBRARY_MM,                // 36 QCheckBox
-        LBL_USE_FREESTYLE_EDGES,                   // 37 QCheckBox
-        LBL_VERBOSE_MM,                            // 38 QLineEdit
+        LBL_ADD_ENVIRONMENT_MM,                    //  0 QCheckBox
+        LBL_BEVEL_EDGES_MM,                        //  1 QCheckBox
+        LBL_BLEND_FILE_TRUSTED_MM,                 //  2 QCheckBox
+        LBL_CROP_IMAGE_MM,                         //  3 QCheckBox
+        LBL_DISPLAY_LOGO,                          //  4 QCheckBox
+        LBL_IMPORT_CAMERAS_MM,                     //  5 QCheckBox
+        LBL_IMPORT_EDGES,                          //  6 QCheckBox
+        NUM_COMBO_ITEMS_MM,                        //  7
+        LBL_IMPORT_LIGHTS_MM = NUM_COMBO_ITEMS_MM, //  7 QCheckBox
+        LBL_KEEP_ASPECT_RATIO_MM,                  //  8 QCheckBox
+        LBL_MAKE_GAPS,                             //  9 QCheckBox
+        LBL_META_BFC,                              // 10 QCheckBox
+        LBL_META_CLEAR,                            // 11 QCheckBox
+        LBL_META_GROUP,                            // 12 QCheckBox
+        LBL_META_PAUSE,                            // 13 QCheckBox
+        LBL_META_PRINT_WRITE,                      // 14 QCheckBox
+        LBL_META_SAVE,                             // 15 QCheckBox
+        LBL_META_STEP,                             // 16 QCheckBox
+        LBL_META_STEP_GROUPS,                      // 17 QCheckBox
+        LBL_NO_STUDS,                              // 18 QCheckBox
+        LBL_OVERWRITE_IMAGE_MM,                    // 19 QCheckBox
+        LBL_POSITION_CAMERA_MM,                    // 20 QCheckBox
+        LBL_PARENT_TO_EMPTY,                       // 21 QCheckBox
+        LBL_PREFER_STUDIO,                         // 22 QCheckBox
+        LBL_PREFER_UNOFFICIAL,                     // 23 QCheckBox
+        LBL_PRESERVE_HIERARCHY,                    // 24 QCheckBox
+        LBL_PROFILE,                               // 25 QCheckBox
+        LBL_RECALCULATE_NORMALS,                   // 26 QCheckBox
+        LBL_REMOVE_DOUBLES_MM,                     // 27 QCheckBox
+        LBL_RENDER_WINDOW_MM,                      // 28 QCheckBox
+        LBL_SEARCH_ADDL_PATHS_MM,                  // 29 QCheckBox
+        LBL_SETEND_FRAME,                          // 30 QCheckBox
+        LBL_SET_TIMELINE_MARKERS,                  // 31 QCheckBox
+        LBL_SHADE_SMOOTH,                          // 32 QCheckBox
+        LBL_TRANSPARENT_BACKGROUND_MM,             // 33 QCheckBox
+        LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS,   // 34 QCheckBox
+        LBL_TREAT_SHORTCUT_AS_MODEL,               // 35 QCheckBox
+        LBL_TRIANGULATE,                           // 36 QCheckBox
+        LBL_USE_ARCHIVE_LIBRARY_MM,                // 37 QCheckBox
+        LBL_USE_FREESTYLE_EDGES,                   // 38 QCheckBox
+        LBL_VERBOSE_MM,                            // 39 QCheckBox
 
-        LBL_CAMERA_BORDER_PERCENT_MM,              // 39/00 QLineEdit
-        LBL_FRAMES_PER_STEP,                       // 40/00 QLineEdit
-        LBL_GAP_SCALE,                             // 41/01 QLineEdit
-        LBL_IMPORT_SCALE,                          // 42/02 QLineEdit
-        LBL_MERGE_DISTANCE,                        // 43/03 QLineEdit
-        LBL_RENDER_PERCENTAGE_MM,                  // 44/04 QLineEdit
-        LBL_RESOLUTION_WIDTH,                      // 45/05 QLineEdit
-        LBL_RESOLUTION_HEIGHT,                     // 46/06 QLineEdit
-        LBL_STARTING_STEP_FRAME,                   // 47/07 QLineEdit
+        LBL_BEVEL_SEGMENTS,                        // 40/ 0 QLineEdit
+        LBL_BEVEL_WEIGHT,                          // 41/ 1 QLineEdit
+        LBL_BEVEL_WIDTH_MM,                        // 42/ 2 QLineEdit
+        LBL_CAMERA_BORDER_PERCENT_MM,              // 43/ 3 QLineEdit
+        LBL_FRAMES_PER_STEP,                       // 44/ 4 QLineEdit
+        LBL_GAP_SCALE,                             // 45/ 5 QLineEdit
+        LBL_IMPORT_SCALE,                          // 46/ 6 QLineEdit
+        LBL_MERGE_DISTANCE,                        // 47/ 7 QLineEdit
+        LBL_RENDER_PERCENTAGE_MM,                  // 48/ 8 QLineEdit
+        LBL_RESOLUTION_WIDTH,                      // 49/ 9 QLineEdit
+        LBL_RESOLUTION_HEIGHT,                     // 50/10 QLineEdit
+        LBL_STARTING_STEP_FRAME,                   // 51/11 QLineEdit
 
-        LBL_CHOSEN_LOGO,                           // 48/00 QComboBox
-        LBL_COLOUR_SCHEME_MM,                      // 49/01 QComboBox
-        LBL_GAP_SCALE_STRATEGY,                    // 50/02 QComboBox
-        LBL_GAP_TARGET,                            // 51/03 QComboBox
-        LBL_RESOLUTION_MM,                         // 52/04 QComboBox
-        LBL_SMOOTH_TYPE,                           // 53/05 QComboBox
+        LBL_CHOSEN_LOGO,                           // 52/ 0 QComboBox
+        LBL_COLOUR_SCHEME_MM,                      // 53/ 1 QComboBox
+        LBL_GAP_SCALE_STRATEGY,                    // 54/ 2 QComboBox
+        LBL_GAP_TARGET,                            // 55/ 3 QComboBox
+        LBL_RESOLUTION_MM,                         // 56/ 4 QComboBox
+        LBL_SMOOTH_TYPE,                           // 57/ 5 QComboBox
 
         NUM_SETTINGS_MM
     };
 
     enum BlenderControlTypeMM
-    {                                                                     // Index
-        CTL_BLENDER_PATH_EDIT_MM,                                         // 00
-        CTL_ADD_ENVIRONMENT_BOX_MM        = CTL_BLENDER_PATH_EDIT_MM,     // 00
-        CTL_CAMERA_BORDER_PERCENT_EDIT_MM = CTL_BLENDER_PATH_EDIT_MM,     // 00
-        CTL_CHOSEN_LOGO_COMBO             = CTL_BLENDER_PATH_EDIT_MM,     // 00
-        CTL_BLEND_FILE_TRUSTED_BOX_MM,                                    // 01
-        CTL_FRAMES_PER_STEP_EDIT          = CTL_BLEND_FILE_TRUSTED_BOX_MM,// 01
-        CTL_COLOUR_SCHEME_COMBO_MM        = CTL_BLEND_FILE_TRUSTED_BOX_MM,// 01
-        CTL_CROP_IMAGE_BOX_MM,                                            // 02
-        CTL_GAP_SCALE_EDIT                = CTL_CROP_IMAGE_BOX_MM,        // 02
-        CTL_GAP_SCALE_STRATEGY_COMBO      = CTL_CROP_IMAGE_BOX_MM,        // 02
-        CTL_DISPLAY_LOGO_BOX,                                             // 03
-        CTL_IMPORT_SCALE_EDIT             = CTL_DISPLAY_LOGO_BOX,         // 03
-        CTL_GAP_TARGET_COMBO              = CTL_DISPLAY_LOGO_BOX,         // 03
-        CTL_IMPORT_CAMERAS_BOX_MM,                                        // 04
-        CTL_MERGE_DISTANCE_EDIT           = CTL_IMPORT_CAMERAS_BOX_MM,    // 04
-        CTL_RESOLUTION_COMBO_MM           = CTL_IMPORT_CAMERAS_BOX_MM,    // 04
-        CTL_IMPORT_EDGES_BOX,                                             // 05
-        CTL_RENDER_PERCENTAGE_EDIT_MM     = CTL_IMPORT_EDGES_BOX,         // 05
-        CTL_SMOOTH_TYPE_COMBO             = CTL_IMPORT_EDGES_BOX,         // 05
-        CTL_IMPORT_LIGHTS_BOX_MM,                                         // 06
-        CTL_RESOLUTION_WIDTH_EDIT         = CTL_IMPORT_LIGHTS_BOX_MM,     // 06
-        CTL_KEEP_ASPECT_RATIO_BOX_MM,                                     // 07
-        CTL_RESOLUTION_HEIGHT_EDIT        = CTL_KEEP_ASPECT_RATIO_BOX_MM, // 07
-        CTL_MAKE_GAPS_BOX,                                                // 08
-        CTL_STARTING_STEP_FRAME_EDIT      = CTL_MAKE_GAPS_BOX,            // 08
-        CTL_LINE_EDIT_ITEMS_MM            = CTL_MAKE_GAPS_BOX,            // 08
-        CTL_META_BFC_BOX,                                                 // 09
-        CTL_META_CLEAR_BOX,                                               // 10
-        CTL_META_GROUP_BOX,                                               // 11
-        CTL_META_PAUSE_BOX,                                               // 12
-        CTL_META_PRINT_WRITE_BOX,                                         // 13
-        CTL_META_SAVE_BOX,                                                // 14
-        CTL_META_STEP_BOX,                                                // 15
-        CTL_META_STEP_GROUPS_BOX,                                         // 16
-        CTL_NO_STUDS_BOX,                                                 // 17
-        CTL_OVERWRITE_IMAGE_BOX_MM,                                       // 18
-        CTL_PARENT_TO_EMPTY_BOX,                                          // 19
-        CTL_PREFER_STUDIO_BOX,                                            // 20
-        CTL_PREFER_UNOFFICIAL_BOX,                                        // 21
-        CTL_PRESERVE_HIERARCHY_BOX,                                       // 22
-        CTL_PROFILE_BOX,                                                  // 23
-        CTL_RECALCULATE_NORMALS_BOX,                                      // 24
-        CTL_REMOVE_DOUBLES_BOX_MM,                                        // 25
-        CTL_RENDER_WINDOW_BOX_MM,                                         // 26
-        CTL_SEARCH_ADDL_PATHS_MM_BOX,                                     // 27
-        CTL_SETEND_FRAME_BOX,                                             // 28
-        CTL_SET_TIMELINE_MARKERS_BOX,                                     // 29
-        CTL_SHADE_SMOOTH_BOX,                                             // 30
-        CTL_TRANSPARENT_BACKGROUND_BOX_MM,                                // 31
-        CTL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,                      // 32
-        CTL_TREAT_SHORTCUT_AS_MODEL_BOX,                                  // 33
-        CTL_TRIANGULATE_BOX,                                              // 34
-        CTL_USE_ARCHIVE_LIBRARY_BOX_MM,                                   // 35
-        CTL_USE_FREESTYLE_EDGES_BOX,                                      // 36
-        CTL_VERBOSE_BOX_MM                                                // 37
+    {
+        CTL_BLENDER_PATH_EDIT_MM,                                         //  0
+        CTL_ADD_ENVIRONMENT_BOX_MM        = CTL_BLENDER_PATH_EDIT_MM,     //  0
+        CTL_BEVEL_SEGMENTS_EDIT           = CTL_BLENDER_PATH_EDIT_MM,     //  0
+        CTL_CHOSEN_LOGO_COMBO             = CTL_BLENDER_PATH_EDIT_MM,     //  0
+        CTL_BEVEL_EDGES_BOX_MM,                                           //  1
+        CTL_BEVEL_WEIGHT_EDIT             = CTL_BEVEL_EDGES_BOX_MM,       //  1
+        CTL_COLOUR_SCHEME_COMBO_MM        = CTL_BEVEL_EDGES_BOX_MM,       //  1
+        CTL_BLEND_FILE_TRUSTED_BOX_MM,                                    //  2
+        CTL_BEVEL_WIDTH_EDIT_MM           = CTL_BLEND_FILE_TRUSTED_BOX_MM,//  2
+        CTL_GAP_SCALE_STRATEGY_COMBO      = CTL_BLEND_FILE_TRUSTED_BOX_MM,//  2
+        CTL_CROP_IMAGE_BOX_MM,                                            //  3
+        CTL_CAMERA_BORDER_PERCENT_EDIT_MM = CTL_CROP_IMAGE_BOX_MM,        //  3
+        CTL_GAP_TARGET_COMBO              = CTL_CROP_IMAGE_BOX_MM,        //  3
+        CTL_DISPLAY_LOGO_BOX,                                             //  4
+        CTL_FRAMES_PER_STEP_EDIT          = CTL_DISPLAY_LOGO_BOX,         //  4
+        CTL_RESOLUTION_COMBO_MM           = CTL_DISPLAY_LOGO_BOX,         //  4
+        CTL_IMPORT_CAMERAS_BOX_MM,                                        //  5
+        CTL_GAP_SCALE_EDIT                = CTL_IMPORT_CAMERAS_BOX_MM,    //  5
+        CTL_SMOOTH_TYPE_COMBO             = CTL_IMPORT_CAMERAS_BOX_MM,    //  5
+        CTL_IMPORT_EDGES_BOX,                                             //  6
+        CTL_IMPORT_SCALE_EDIT             = CTL_IMPORT_EDGES_BOX,         //  6
+        CTL_IMPORT_LIGHTS_BOX_MM,                                         //  7
+        CTL_MERGE_DISTANCE_EDIT           = CTL_IMPORT_LIGHTS_BOX_MM,     //  7
+        CTL_KEEP_ASPECT_RATIO_BOX_MM,                                     //  8
+        CTL_RENDER_PERCENTAGE_EDIT_MM     = CTL_KEEP_ASPECT_RATIO_BOX_MM, //  8
+        CTL_MAKE_GAPS_BOX,                                                //  9
+        CTL_RESOLUTION_WIDTH_EDIT         = CTL_MAKE_GAPS_BOX,            //  9
+        CTL_META_BFC_BOX,                                                 // 10
+        CTL_RESOLUTION_HEIGHT_EDIT        = CTL_META_BFC_BOX,             // 10
+        CTL_META_CLEAR_BOX,                                               // 11
+        CTL_STARTING_STEP_FRAME_EDIT      = CTL_META_CLEAR_BOX,           // 11
+        CTL_META_GROUP_BOX,                                               // 12
+        CTL_META_PAUSE_BOX,                                               // 13
+        CTL_META_PRINT_WRITE_BOX,                                         // 14
+        CTL_META_SAVE_BOX,                                                // 15
+        CTL_META_STEP_BOX,                                                // 16
+        CTL_META_STEP_GROUPS_BOX,                                         // 17
+        CTL_NO_STUDS_BOX,                                                 // 18
+        CTL_POSITION_CAMERA_BOX_MM,                                       // 19
+        CTL_OVERWRITE_IMAGE_BOX_MM,                                       // 10
+        CTL_PARENT_TO_EMPTY_BOX,                                          // 21
+        CTL_PREFER_STUDIO_BOX,                                            // 22
+        CTL_PREFER_UNOFFICIAL_BOX,                                        // 23
+        CTL_PRESERVE_HIERARCHY_BOX,                                       // 24
+        CTL_PROFILE_BOX,                                                  // 25
+        CTL_RECALCULATE_NORMALS_BOX,                                      // 26
+        CTL_REMOVE_DOUBLES_BOX_MM,                                        // 27
+        CTL_RENDER_WINDOW_BOX_MM,                                         // 28
+        CTL_SEARCH_ADDL_PATHS_MM_BOX,                                     // 29
+        CTL_SETEND_FRAME_BOX,                                             // 20
+        CTL_SET_TIMELINE_MARKERS_BOX,                                     // 31
+        CTL_SHADE_SMOOTH_BOX,                                             // 32
+        CTL_TRANSPARENT_BACKGROUND_BOX_MM,                                // 33
+        CTL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS_BOX,                      // 34
+        CTL_TREAT_SHORTCUT_AS_MODEL_BOX,                                  // 35
+        CTL_TRIANGULATE_BOX,                                              // 36
+        CTL_USE_ARCHIVE_LIBRARY_BOX_MM,                                   // 37
+        CTL_USE_FREESTYLE_EDGES_BOX,                                      // 38
+        CTL_VERBOSE_BOX_MM                                                // 39
     };
 
     enum BlenderBrickType
@@ -421,7 +403,8 @@ private:
         PARAMS_LIGHTED_BRICKS
     };
 
-    enum MessageBoxButtonsType {
+    enum MessageBoxButtonsType
+    {
         MBB_OK,
         MBB_YES,
         MBB_YES_NO
@@ -459,11 +442,6 @@ private:
     static ComboItems      mComboItems[];
     static ComboItems      mComboItemsMM[];
 
-    QAction     *mDefaultColourEditAction;
-    QPushButton *mAddonUpdateButton;
-    QPushButton *mAddonStdOutButton;
-    QPushButton *mPathsGroupButton;
-
     QList<QLineEdit   *> mPathLineEditList;
     QList<QPushButton *> mPathBrowseButtonList;
     QList<QLabel      *> mSettingLabelList;
@@ -471,11 +449,42 @@ private:
     QList<QLineEdit   *> mLineEditList;
     QList<QComboBox   *> mComboBoxList;
 
+    QWidget     *mContent;
+
+    QFormLayout *mForm;
+    QGridLayout *mExeGridLayout;
+    QGridLayout *mAddonGridLayout;
+    QGridLayout *mPathsGridLayout;
+    QFormLayout *mSettingsSubform;
+
+    QLineEdit   *mBlenderVersionEdit;
+    QLabel      *mBlenderVersionLabel;
+    QLineEdit   *mAddonVersionEdit;
+    QLabel      *mAddonVersionLabel;
+    QGroupBox   *mModulesBox;
+    QCheckBox   *mImportActBox;
+    QCheckBox   *mImportMMActBox;
+    QCheckBox   *mRenderActBox;
+    QGroupBox   *mSettingsBox;
+    QGroupBox   *mPathsBox;
+    QPushButton *mAddonUpdateButton;
+    QPushButton *mAddonStdOutButton;
+    QPushButton *mPathsGroupButton;
+
+    QAction      *mDefaultColourEditAction;
+    QProgressBar *mProgressBar;
+    QProcess     *mProcess;
+
+    QTimer        mUpdateTimer;
+
+    QStringList mStdOutList;
+
     QString mBlenderVersion;
     QString mAddonVersion;
     bool mConfigured;
     bool mDocumentRender;
     bool mDialogCancelled;
+    bool mBlenderVersionFound;
 };
 
 extern class BlenderPreferences *gAddonPreferences;
