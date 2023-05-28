@@ -490,7 +490,6 @@ BlenderPreferences::BlenderPreferences(
         versionText = tr("Blender not configured");
     }
 
-    mAddonUpdate = false;
     mAddonVersionEdit->setVisible(!mAddonVersion.isEmpty());
     mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
     mAddonVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(textColour));
@@ -845,18 +844,17 @@ void BlenderPreferences::updateBlenderAddon()
 {
     mAddonUpdateButton->setEnabled(false);
 
-    QObject::disconnect(mPathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()),
-                        this,                                SLOT  (configureBlenderAddon()));
+    disconnect(mPathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()),
+               this,                                SLOT  (configureBlenderAddon()));
 
-    mAddonUpdate = !mAddonVersion.isEmpty();
-
-    configureBlenderAddon(sender() == mPathBrowseButtonList[LBL_BLENDER_PATH]);
+    configureBlenderAddon(sender() == mPathBrowseButtonList[LBL_BLENDER_PATH],
+                          sender() == mAddonUpdateButton);
 
     connect(mPathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()),
             this,                                SLOT  (configureBlenderAddon()));
 }
 
-void BlenderPreferences::configureBlenderAddon(bool testBlender)
+void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdate)
 {
     mProgressBar = nullptr;
 
@@ -892,7 +890,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
 
         bool newBlenderExe = blenderExeCompare != blenderExe.toLower();
 
-        if (mConfigured && !mAddonUpdate && !newBlenderExe)
+        if (mConfigured && !addonUpdate && !newBlenderExe)
             return;
 
         // Process command
@@ -1112,7 +1110,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
                           : QString();  // disable all import modules
             Preferences::setBlenderImportModule(preferredImportModule);
         } else {
-            mBlenderVersionEdit->setVisible(mAddonUpdate); // was false
+            mBlenderVersionEdit->setVisible(addonUpdate);
         }
 
         if (mProgressBar) {
@@ -1122,10 +1120,9 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender)
 
         // Download and extract blender addon
         if (!extractBlenderAddon(blenderDir)) {
-            if (mAddonUpdate) {
+            if (addonUpdate) {
                 mExeGridLayout->replaceWidget(mProgressBar, mBlenderVersionEdit);
                 mConfigured = true;
-                mAddonUpdate = !mConfigured;
                 mBlenderVersionLabel->setText(tr("Blender"));
                 mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name()));
                 mBlenderVersionEdit->setText(mBlenderVersion);
@@ -1533,7 +1530,6 @@ void BlenderPreferences::showResult()
         QString const textColour = QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name());
         mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
         mConfigured = true;
-        mAddonUpdate = !mConfigured;
         mBlenderVersionLabel->setText(tr("Blender"));
         mBlenderVersionLabel->setStyleSheet(textColour);
         mBlenderVersionEdit->setText(mBlenderVersion);

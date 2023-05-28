@@ -127,7 +127,7 @@ public slots:
 
 private slots:
     void browseBlender(bool);
-    void configureBlenderAddon(bool = false);
+    void configureBlenderAddon(bool = false, bool = false);
     void updateBlenderAddon();
     void enableImportModule();
     void sizeChanged(const QString &);
@@ -464,7 +464,6 @@ private:
     QString mBlenderVersion;
     QString mAddonVersion;
     bool mConfigured;
-    bool mAddonUpdate;
     bool mDocumentRender;
     bool mDialogCancelled;
 };
