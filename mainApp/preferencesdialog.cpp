@@ -332,7 +332,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   connect(lpub,                             SIGNAL(checkForUpdatesFinished ()),
           this,                             SLOT(updateChangelog ()));
 
-  setMinimumSize(200, 400);
+  setMinimumSize(600, 700);
 
   setSizeGripEnabled(true);
 }
