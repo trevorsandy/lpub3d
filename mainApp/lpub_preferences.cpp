@@ -2173,8 +2173,7 @@ void Preferences::ldrawPreferences(bool browse)
     // LSynth settings
     QString const addLSynthSearchDirKey("AddLSynthSearchDir");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey))) {
-        QVariant uValue(false);
-        addLSynthSearchDir = false;
+        QVariant uValue(addLSynthSearchDir);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey),uValue);
     } else {
         addLSynthSearchDir = Settings.value(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey)).toBool();
@@ -2182,8 +2181,7 @@ void Preferences::ldrawPreferences(bool browse)
 
     QString const archiveLSynthPartsKey("ArchiveLSynthParts");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey))) {
-        QVariant uValue(false);
-        archiveLSynthParts = false;
+        QVariant uValue(archiveLSynthParts);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey),uValue);
     } else {
         archiveLSynthParts = Settings.value(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey)).toBool();
@@ -2211,33 +2209,29 @@ void Preferences::lpub3dUpdatePreferences(){
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"))) {
-        QVariant pValue(true);
-        showUpdateNotifications = true;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"),pValue);
+        QVariant uValue(showUpdateNotifications);
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"),uValue);
     } else {
         showUpdateNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"EnableDownloader"))) {
-        QVariant pValue(true);
-        enableDownloader = true;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),pValue);
+        QVariant uValue(enableDownloader);
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),uValue);
     } else {
         enableDownloader = Settings.value(QString("%1/%2").arg(UPDATES,"EnableDownloader")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects"))) {
-        QVariant uValue(true);
-        showDownloadRedirects = false;
+        QVariant uValue(showDownloadRedirects);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects"),uValue);
     } else {
         showDownloadRedirects = Settings.value(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"))) {
-        QVariant pValue(true);
-        showAllNotifications = true;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"),pValue);
+        QVariant uValue(showAllNotifications);
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"),uValue);
     } else {
         showAllNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowAllNotifications")).toBool();
     }
@@ -2882,8 +2876,7 @@ void Preferences::rendererPreferences()
     // Display povray image during rendering [experimental]
     QString const povrayDisplayKey("POVRayDisplay");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
-        QVariant uValue(false);
-        povrayDisplay = false;
+        QVariant uValue(povrayDisplay);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayDisplayKey),uValue);
     } else {
         povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
@@ -2901,8 +2894,7 @@ void Preferences::rendererPreferences()
     // Automatically crop POV-Ray rendered images
     QString const povrayAutoCropKey("PovrayAutoCrop");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey))) {
-        QVariant uValue(true);
-        povrayAutoCrop = true;
+        QVariant uValue(povrayAutoCrop);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey),uValue);
     } else {
         povrayAutoCrop = Settings.value(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey)).toBool();
@@ -3549,8 +3541,7 @@ void Preferences::unitsPreferences()
 {
     QSettings Settings;
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"Centimeters"))) {
-        QVariant uValue(false);
-        preferCentimeters = false;
+        QVariant uValue(preferCentimeters);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),uValue);
     } else {
         preferCentimeters = Settings.value(QString("%1/%2").arg(SETTINGS,"Centimeters")).toBool();
@@ -3668,8 +3659,7 @@ void Preferences::userInterfacePreferences()
     QSettings Settings;
     QString const sceneRulerKey("SceneRuler");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerKey))) {
-        QVariant uValue(false);
-        sceneRuler = false;
+        QVariant uValue(sceneRuler);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
     } else {
         sceneRuler = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerKey)).toBool();
@@ -3685,8 +3675,7 @@ void Preferences::userInterfacePreferences()
 
     QString const sceneGuidesKey("SceneGuides");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesKey))) {
-        QVariant uValue(false);
-        sceneGuides = false;
+        QVariant uValue(sceneGuides);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesKey),uValue);
     } else {
         sceneGuides = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesKey)).toBool();
@@ -3710,8 +3699,7 @@ void Preferences::userInterfacePreferences()
 
     QString const customSceneBackgroundColorKey("CustomSceneBackgroundColor");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey))) {
-        QVariant uValue(false);
-        customSceneBackgroundColor = false;
+        QVariant uValue(customSceneBackgroundColor);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey),uValue);
     } else {
         customSceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey)).toBool();
@@ -3719,8 +3707,7 @@ void Preferences::userInterfacePreferences()
 
     QString const customSceneGridColorKey("CustomSceneGridColor");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey))) {
-        QVariant uValue(false);
-        customSceneGridColor = false;
+        QVariant uValue(customSceneGridColor);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey),uValue);
     } else {
         customSceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey)).toBool();
@@ -3728,8 +3715,7 @@ void Preferences::userInterfacePreferences()
 
     QString const customSceneRulerTickColorKey("CustomSceneRulerTickColor");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey))) {
-        QVariant uValue(false);
-        customSceneRulerTickColor = false;
+        QVariant uValue(customSceneRulerTickColor);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey),uValue);
     } else {
         customSceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey)).toBool();
@@ -3737,8 +3723,7 @@ void Preferences::userInterfacePreferences()
 
   QString const customSceneRulerTrackingColorKey("CustomSceneRulerTrackingColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey))) {
-      QVariant uValue(false);
-      customSceneRulerTrackingColor = false;
+      QVariant uValue(customSceneRulerTrackingColor);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey),uValue);
   } else {
       customSceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey)).toBool();
@@ -3746,8 +3731,7 @@ void Preferences::userInterfacePreferences()
 
   QString const customSceneGuideColorKey("CustomSceneGuideColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey))) {
-      QVariant uValue(false);
-      customSceneGuideColor = false;
+      QVariant uValue(customSceneGuideColor);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey),uValue);
   } else {
       customSceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey)).toBool();
@@ -3805,8 +3789,7 @@ void Preferences::userInterfacePreferences()
 
   QString const snapToGridKey("SnapToGrid");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,snapToGridKey))) {
-      QVariant uValue(false);
-      snapToGrid = false;
+      QVariant uValue(snapToGrid);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
   } else {
       snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
@@ -3814,8 +3797,7 @@ void Preferences::userInterfacePreferences()
 
   QString const hidePageBackgroundKey("HidePageBackground");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey))) {
-      QVariant uValue(false);
-      hidePageBackground = false;
+      QVariant uValue(hidePageBackground);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey),uValue);
   } else {
       hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey)).toBool();
@@ -3823,8 +3805,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showGuidesCoordinatesKey("ShowGuidesCoordinates");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey))) {
-      QVariant uValue(false);
-      showGuidesCoordinates = false;
+      QVariant uValue(showGuidesCoordinates);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey),uValue);
   } else {
       showGuidesCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey)).toBool();
@@ -3832,8 +3813,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showTrackingCoordinatesKey("ShowTrackingCoordinates");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey))) {
-      QVariant uValue(false);
-      showTrackingCoordinates = false;
+      QVariant uValue(showTrackingCoordinates);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey),uValue);
   } else {
       showTrackingCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey)).toBool();
@@ -3849,8 +3829,7 @@ void Preferences::userInterfacePreferences()
 
   QString const lineParseErrorsKey("ShowLineParseErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey))) {
-      QVariant uValue(true);
-      lineParseErrors = true;
+      QVariant uValue(lineParseErrors);
       Settings.setValue(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey),uValue);
   } else {
       lineParseErrors = Settings.value(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey)).toBool();
@@ -3866,8 +3845,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showIncludeFileErrorsKey("ShowIncludeFileErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey))) {
-      QVariant uValue(true);
-      showIncludeFileErrors = true;
+      QVariant uValue(showIncludeFileErrors);
       Settings.setValue(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey),uValue);
   } else {
       showIncludeFileErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey)).toBool();
@@ -3875,8 +3853,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showBuildModErrorsKey("ShowBuildModErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey))) {
-      QVariant uValue(true);
-      showBuildModErrors = true;
+      QVariant uValue(showBuildModErrors);
       Settings.setValue(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey),uValue);
   } else {
       showBuildModErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey)).toBool();
@@ -3884,8 +3861,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showBuildModEditErrorsKey("ShowBuildModEditErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showBuildModEditErrorsKey))) {
-      QVariant uValue(true);
-      showBuildModEditErrors = true;
+      QVariant uValue(showBuildModEditErrors);
       Settings.setValue(QString("%1/%2").arg(MESSAGES,showBuildModEditErrorsKey),uValue);
   } else {
       showBuildModEditErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModEditErrorsKey)).toBool();
@@ -3893,8 +3869,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showAnnotationErrorsKey("ShowAnnotationErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey))) {
-      QVariant uValue(true);
-      showAnnotationErrors = true;
+      QVariant uValue(showAnnotationErrors);
       Settings.setValue(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey),uValue);
   } else {
       showAnnotationErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey)).toBool();
@@ -3902,8 +3877,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey))) {
-      QVariant uValue(true);
-      showSaveOnRedraw = true;
+      QVariant uValue(showSaveOnRedraw);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
   } else {
       showSaveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey)).toBool();
@@ -3911,8 +3885,7 @@ void Preferences::userInterfacePreferences()
 
   QString const showSaveOnUpdateKey("ShowSaveOnUpdate");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey))) {
-      QVariant uValue(true);
-      showSaveOnUpdate = true;
+      QVariant uValue(showSaveOnUpdate);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
   } else {
       showSaveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey)).toBool();
@@ -3945,8 +3918,7 @@ void Preferences::userInterfacePreferences()
 
   QString const loadLastOpenedFileKey("LoadLastOpenedFile");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey))) {
-      QVariant uValue(false);
-      loadLastOpenedFile = false;
+      QVariant uValue(loadLastOpenedFile);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey),uValue);
   } else {
       loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
@@ -3954,8 +3926,7 @@ void Preferences::userInterfacePreferences()
 
   QString const extendedSubfileSearchKey("ExtendedSubfileSearch");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey))) {
-      QVariant uValue(false);
-      extendedSubfileSearch = false;
+      QVariant uValue(extendedSubfileSearch);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey),uValue);
   } else {
       extendedSubfileSearch = Settings.value(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey)).toBool();
@@ -3971,8 +3942,7 @@ void Preferences::userInterfacePreferences()
 
   QString const saveOnRedrawKey("SaveOnRedraw");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,saveOnRedrawKey))) {
-      QVariant uValue(true);
-      saveOnRedraw = true;
+      QVariant uValue(saveOnRedraw);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,saveOnRedrawKey),uValue);
   } else {
       saveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,saveOnRedrawKey)).toBool();
@@ -3980,8 +3950,7 @@ void Preferences::userInterfacePreferences()
 
   QString const saveOnUpdateKey("SaveOnUpdate");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey))) {
-      QVariant uValue(true);
-      saveOnUpdate = true;
+      QVariant uValue(saveOnUpdate);
       Settings.setValue(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey),uValue);
   } else {
       saveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey)).toBool();
@@ -4850,8 +4819,7 @@ void Preferences::exportPreferences()
 {
     QSettings Settings;
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg"))) {
-      QVariant uValue(false);
-      ignoreMixedPageSizesMsg = false;
+      QVariant uValue(ignoreMixedPageSizesMsg);
       Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg"),uValue);
     } else {
       if (modeGUI)
@@ -4861,8 +4829,7 @@ void Preferences::exportPreferences()
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"))) {
-      QVariant uValue(false);
-      pdfPageImage = false;
+      QVariant uValue(pdfPageImage);
       Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"),uValue);
     } else {
       pdfPageImage = Settings.value(QString("%1/%2").arg(DEFAULTS,"PdfPageImage")).toBool();
@@ -4882,9 +4849,8 @@ void Preferences::publishingPreferences()
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"))) {
-        QVariant pValue(false);
-        doNotShowPageProcessDlg = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),pValue);
+        QVariant uValue(doNotShowPageProcessDlg);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),uValue);
     } else {
         if (modeGUI)
           doNotShowPageProcessDlg = Settings.value(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg")).toBool();
@@ -4893,25 +4859,22 @@ void Preferences::publishingPreferences()
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"))) {
-        QVariant pValue(false);
-        displayAllAttributes = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),pValue);
+        QVariant uValue(displayAllAttributes);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),uValue);
     } else {
         displayAllAttributes = Settings.value(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"))) {
-        QVariant pValue(false);
-        generateCoverPages = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"),pValue);
+        QVariant uValue(generateCoverPages);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"),uValue);
     } else {
         generateCoverPages = Settings.value(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"))) {
-        QVariant pValue(false);
-        printDocumentTOC = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"),pValue);
+        QVariant uValue(printDocumentTOC);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"),uValue);
     } else {
         printDocumentTOC = Settings.value(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC")).toBool();
     }
