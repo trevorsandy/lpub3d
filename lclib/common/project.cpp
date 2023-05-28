@@ -15,7 +15,7 @@
 #include "lc_file.h"
 #include "lc_zipfile.h"
 #include "lc_qimagedialog.h"
-#include "lc_qmodellistdialog.h"
+#include "lc_modellistdialog.h"
 #include "lc_bricklink.h"
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
@@ -369,7 +369,7 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 
 void Project::ShowModelListDialog()
 {
-	lcQModelListDialog Dialog(gMainWindow, mModels);
+	lcModelListDialog Dialog(gMainWindow, mModels);
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;

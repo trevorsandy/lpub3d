@@ -2,7 +2,7 @@
 #include "lc_qpreferencesdialog.h"
 #include "ui_lc_qpreferencesdialog.h"
 #include "lc_qutils.h"
-#include "lc_qcategorydialog.h"
+#include "lc_categorydialog.h"
 #include "lc_library.h"
 #include "lc_application.h"
 #include "lc_qutils.h"
@@ -1072,7 +1072,7 @@ void lcQPreferencesDialog::on_newCategory_clicked()
 {
 	lcLibraryCategory category;
 
-	lcQCategoryDialog dialog(this, &category);
+	lcCategoryDialog dialog(this, &category);
 /*** LPub3D Mod - Common menus help ***/
 	dialog.setWhatsThis(lpubWT(WT_DIALOG_VISUAL_CATEGORY_NEW, dialog.windowTitle()));
 /*** LPub3D Mod end ***/
@@ -1100,7 +1100,7 @@ void lcQPreferencesDialog::on_editCategory_clicked()
 	if (categoryIndex == -1)
 		return;
 
-	lcQCategoryDialog dialog(this, &mOptions->Categories[categoryIndex]);
+	lcCategoryDialog dialog(this, &mOptions->Categories[categoryIndex]);
 /*** LPub3D Mod - Common menus help ***/
 	dialog.setWhatsThis(lpubWT(WT_DIALOG_VISUAL_CATEGORY_EDIT, dialog.windowTitle()));
 /*** LPub3D Mod end ***/

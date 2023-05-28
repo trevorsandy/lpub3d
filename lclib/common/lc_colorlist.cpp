@@ -1,5 +1,5 @@
 #include "lc_global.h"
-#include "lc_qcolorlist.h"
+#include "lc_colorlist.h"
 #include "lc_application.h"
 #include "lc_library.h"
 #include "lc_colors.h"
@@ -45,17 +45,17 @@ void lcDrawNoColorRect(QPainter& Painter, const QRect& Rect)
 	}
 }
 
-lcQColorList::lcQColorList(QWidget* Parent, bool AllowNoColor)
+lcColorList::lcColorList(QWidget* Parent, bool AllowNoColor)
 	: QWidget(Parent), mAllowNoColor(AllowNoColor)
 {
 	setFocusPolicy(Qt::StrongFocus);
 
 	UpdateCells();
 
-	connect(lcGetPiecesLibrary(), &lcPiecesLibrary::ColorsLoaded, this, &lcQColorList::ColorsLoaded);
+	connect(lcGetPiecesLibrary(), &lcPiecesLibrary::ColorsLoaded, this, &lcColorList::ColorsLoaded);
 }
 
-void lcQColorList::UpdateCells()
+void lcColorList::UpdateCells()
 {
 	mCells.clear();
 	mGroups.clear();
@@ -112,7 +112,7 @@ void lcQColorList::UpdateCells()
 	setMinimumHeight(TextHeight + 5 * mRows);
 }
 
-void lcQColorList::UpdateRects()
+void lcColorList::UpdateRects()
 {
 	QFontMetrics Metrics(font());
 	int TextHeight = 0;
@@ -203,22 +203,22 @@ void lcQColorList::UpdateRects()
 	}
 }
 
-void lcQColorList::ColorsLoaded()
+void lcColorList::ColorsLoaded()
 {
 	UpdateCells();
 	UpdateRects();
 
-	setCurrentColor(lcGetColorIndex(mColorCode));
+	SetCurrentColor(lcGetColorIndex(mColorCode));
 
 	update();
 }
 
-QSize lcQColorList::sizeHint() const
+QSize lcColorList::sizeHint() const
 {
 	return QSize(200, mPreferredHeight);
 }
 
-void lcQColorList::setCurrentColor(int ColorIndex)
+void lcColorList::SetCurrentColor(int ColorIndex)
 {
 	for (size_t CellIndex = 0; CellIndex < mCells.size(); CellIndex++)
 	{
@@ -230,7 +230,7 @@ void lcQColorList::setCurrentColor(int ColorIndex)
 	}
 }
 
-bool lcQColorList::event(QEvent *event)
+bool lcColorList::event(QEvent *event)
 {
 	if (event->type() == QEvent::ToolTip)
 	{
@@ -304,7 +304,7 @@ bool lcQColorList::event(QEvent *event)
 	return QWidget::event(event);
 }
 
-void lcQColorList::mousePressEvent(QMouseEvent* MouseEvent)
+void lcColorList::mousePressEvent(QMouseEvent* MouseEvent)
 {
 	for (size_t CellIndex = 0; CellIndex < mCells.size(); CellIndex++)
 	{
@@ -312,7 +312,7 @@ void lcQColorList::mousePressEvent(QMouseEvent* MouseEvent)
 			continue;
 
 		SelectCell(CellIndex);
-		emit colorSelected(mCells[CellIndex].ColorIndex);
+		emit ColorSelected(mCells[CellIndex].ColorIndex);
 
 		break;
 	}
@@ -320,7 +320,7 @@ void lcQColorList::mousePressEvent(QMouseEvent* MouseEvent)
 	mDragStartPosition = MouseEvent->pos();
 }
 
-void lcQColorList::mouseMoveEvent(QMouseEvent* MouseEvent)
+void lcColorList::mouseMoveEvent(QMouseEvent* MouseEvent)
 {
 	if (!(MouseEvent->buttons() & Qt::LeftButton))
 		return;
@@ -337,7 +337,7 @@ void lcQColorList::mouseMoveEvent(QMouseEvent* MouseEvent)
 	Drag->exec(Qt::CopyAction);
 }
 
-void lcQColorList::keyPressEvent(QKeyEvent *event)
+void lcColorList::keyPressEvent(QKeyEvent *event)
 {
 	size_t NewCell = mCurrentCell;
 
@@ -409,7 +409,7 @@ void lcQColorList::keyPressEvent(QKeyEvent *event)
 	}
 	else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
 	{
-		emit colorSelected(mCells[mCurrentCell].ColorIndex);
+		emit ColorSelected(mCells[mCurrentCell].ColorIndex);
 	}
 
 	if (NewCell != mCurrentCell)
@@ -418,7 +418,7 @@ void lcQColorList::keyPressEvent(QKeyEvent *event)
 		QWidget::keyPressEvent(event);
 }
 
-void lcQColorList::resizeEvent(QResizeEvent* Event)
+void lcColorList::resizeEvent(QResizeEvent* Event)
 {
 	if (mWidth == width() && mHeight == height())
 		return;
@@ -431,7 +431,7 @@ void lcQColorList::resizeEvent(QResizeEvent* Event)
 	QWidget::resizeEvent(Event);
 }
 
-void lcQColorList::paintEvent(QPaintEvent* Event)
+void lcColorList::paintEvent(QPaintEvent* Event)
 {
 	Q_UNUSED(Event);
 
@@ -475,18 +475,10 @@ void lcQColorList::paintEvent(QPaintEvent* Event)
 		QRect CellRect = mCells[mCurrentCell].Rect;
 		CellRect.adjust(1, 1, -1, -1);
 		Painter.drawRect(CellRect);
-
-		/*
-		if (GetFocus() == this)
-		{
-			rc.DeflateRect(2, 2);
-			dc.DrawFocusRect(rc);
-		}
-		*/
 	}
 }
 
-void lcQColorList::SelectCell(size_t CellIndex)
+void lcColorList::SelectCell(size_t CellIndex)
 {
 	if (CellIndex >= mCells.size())
 		return;
@@ -497,6 +489,6 @@ void lcQColorList::SelectCell(size_t CellIndex)
 	mCurrentCell = CellIndex;
 	mColorCode = lcGetColorCode(mCells[CellIndex].ColorIndex);
 
-	emit colorChanged(mCells[mCurrentCell].ColorIndex);
+	emit ColorChanged(mCells[mCurrentCell].ColorIndex);
 	update();
 }

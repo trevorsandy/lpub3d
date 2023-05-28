@@ -1,10 +1,10 @@
 #include "lc_global.h"
-#include "lc_qarraydialog.h"
-#include "ui_lc_qarraydialog.h"
+#include "lc_arraydialog.h"
+#include "ui_lc_arraydialog.h"
 #include "lc_qutils.h"
 
-lcQArrayDialog::lcQArrayDialog(QWidget* Parent)
-	: QDialog(Parent), ui(new Ui::lcQArrayDialog)
+lcArrayDialog::lcArrayDialog(QWidget* Parent)
+	: QDialog(Parent), ui(new Ui::lcArrayDialog)
 {
 	ui->setupUi(this);
 
@@ -56,12 +56,12 @@ lcQArrayDialog::lcQArrayDialog(QWidget* Parent)
 	ui->rotation3z->setText(lcFormatValueLocalized(mRotations[2].z));
 }
 
-lcQArrayDialog::~lcQArrayDialog()
+lcArrayDialog::~lcArrayDialog()
 {
 	delete ui;
 }
 
-void lcQArrayDialog::accept()
+void lcArrayDialog::accept()
 {
 	int Counts[3];
 

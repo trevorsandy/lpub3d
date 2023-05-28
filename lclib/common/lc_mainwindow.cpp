@@ -5,11 +5,11 @@
 #include "lc_partselectionwidget.h"
 #include "lc_timelinewidget.h"
 #include "lc_viewwidget.h"
-#include "lc_qcolorlist.h"
+#include "lc_colorlist.h"
 #include "lc_qpropertiestree.h"
 #include "lc_qutils.h"
 #include "lc_qupdatedialog.h"
-#include "lc_qaboutdialog.h"
+#include "lc_aboutdialog.h"
 #include "lc_setsdatabasedialog.h"
 #include "lc_qhtmldialog.h"
 #include "lc_renderdialog.h"
@@ -805,8 +805,8 @@ void lcMainWindow::CreateToolBars()
 	mColorsToolBar->setObjectName("ColorsToolbar");
 	mColorsToolBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-	mColorList = new lcQColorList();
-	connect(mColorList, SIGNAL(colorChanged(int)), this, SLOT(ColorChanged(int)));
+	mColorList = new lcColorList();
+	connect(mColorList, &lcColorList::ColorChanged, this, &lcMainWindow::ColorChanged);
 
 	QWidget* ColorWidget = new QWidget(mColorsToolBar);
 
@@ -1712,7 +1712,7 @@ void lcMainWindow::ShowUpdatesDialog()
 
 void lcMainWindow::ShowAboutDialog()
 {
-	lcQAboutDialog Dialog(this);
+	lcAboutDialog Dialog(this);
 	Dialog.exec();
 }
 

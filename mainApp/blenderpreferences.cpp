@@ -50,7 +50,7 @@
 #include "commonmenus.h"
 
 #include "lc_colors.h"
-#include "lc_qcolorpicker.h"
+#include "lc_colorpicker.h"
 
 #include "parmswindow.h"
 
@@ -2572,7 +2572,7 @@ void BlenderPreferences::colorButtonClicked(bool)
     int ColorIndex = mLineEditList[CTL_DEFAULT_COLOUR_EDIT]->property("ColorIndex").toInt();
 
     QWidget *parent = mLineEditList[CTL_DEFAULT_COLOUR_EDIT];
-    lcQColorPickerPopup *popup = new lcQColorPickerPopup(parent, ColorIndex);
+    lcColorPickerPopup *popup = new lcColorPickerPopup(parent, ColorIndex);
     connect(popup, SIGNAL(selected(int)), SLOT(setDefaultColor(int)));
     popup->setMinimumSize(300, 200);
 

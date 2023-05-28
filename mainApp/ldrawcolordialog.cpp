@@ -27,7 +27,7 @@
 #include "ui_ldrawcolordialog.h"
 #include "commonmenus.h"
 #include "lc_global.h"
-#include "lc_qcolorlist.h"
+#include "lc_colorlist.h"
 #include "lc_colors.h"
 #include "color.h"
 
@@ -46,7 +46,7 @@ LDrawColorDialog::LDrawColorDialog(
      QGridLayout* ColorLayout = new QGridLayout(ui->colorFrame);
      ColorLayout->setContentsMargins(0, 0, 0, 0);
 
-     lcQColorList* ColorList = new lcQColorList(ui->colorFrame);
+     lcColorList* ColorList = new lcColorList(ui->colorFrame);
      ColorLayout->addWidget(ColorList);
      connect(ColorList, SIGNAL(colorChanged(int)), this, SLOT(colorChanged(int)));
 

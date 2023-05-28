@@ -4,11 +4,16 @@ HEADERS += \
     $$PWD/common/camera.h \
     $$PWD/common/group.h \
     $$PWD/common/image.h \
+    $$PWD/common/lc_aboutdialog.h \
     $$PWD/common/lc_application.h \
+    $$PWD/common/lc_arraydialog.h \
     $$PWD/common/lc_array.h \
     $$PWD/common/lc_bricklink.h \
     $$PWD/common/lc_category.h \
-	$$PWD/common/lc_collapsiblewidget.h \
+    $$PWD/common/lc_categorydialog.h \
+    $$PWD/common/lc_collapsiblewidget.h \
+    $$PWD/common/lc_colorlist.h \
+    $$PWD/common/lc_colorpicker.h \	
     $$PWD/common/lc_colors.h \
     $$PWD/common/lc_commands.h \
     $$PWD/common/lc_context.h \
@@ -17,6 +22,7 @@ HEADERS += \
     $$PWD/common/lc_findreplacewidget.h \
     $$PWD/common/lc_glextensions.h \
     $$PWD/common/lc_global.h \
+    $$PWD/common/lc_groupdialog.h \
     $$PWD/common/lc_http.h \
     $$PWD/common/lc_instructions.h \
     $$PWD/common/lc_instructionsdialog.h \
@@ -28,6 +34,7 @@ HEADERS += \
     $$PWD/common/lc_meshloader.h \
     $$PWD/common/lc_minifigdialog.h \
     $$PWD/common/lc_model.h \
+    $$PWD/common/lc_modellistdialog.h \
     $$PWD/common/lc_pagesetupdialog.h \
     $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
@@ -51,16 +58,9 @@ HEADERS += \
     $$PWD/common/pieceinf.h \
     $$PWD/common/project.h \
     $$PWD/common/texfont.h \
-    $$PWD/qt/lc_qaboutdialog.h \
-    $$PWD/qt/lc_qarraydialog.h \
-    $$PWD/qt/lc_qcategorydialog.h \
-    $$PWD/qt/lc_qcolorlist.h \
-    $$PWD/qt/lc_qcolorpicker.h \
     $$PWD/qt/lc_qeditgroupsdialog.h \
-    $$PWD/qt/lc_qgroupdialog.h \
     $$PWD/qt/lc_qhtmldialog.h \
     $$PWD/qt/lc_qimagedialog.h \
-    $$PWD/qt/lc_qmodellistdialog.h \
     $$PWD/qt/lc_qpreferencesdialog.h \
     $$PWD/qt/lc_qpropertiesdialog.h \
     $$PWD/qt/lc_qpropertiestree.h \
@@ -74,10 +74,15 @@ SOURCES += \
     $$PWD/common/camera.cpp \
     $$PWD/common/group.cpp \
     $$PWD/common/image.cpp \
+    $$PWD/common/lc_aboutdialog.cpp \
     $$PWD/common/lc_application.cpp \
+    $$PWD/common/lc_arraydialog.cpp \
     $$PWD/common/lc_bricklink.cpp \
     $$PWD/common/lc_category.cpp \
+    $$PWD/common/lc_categorydialog.cpp \
     $$PWD/common/lc_collapsiblewidget.cpp \
+    $$PWD/common/lc_colorlist.cpp \
+    $$PWD/common/lc_colorpicker.cpp \
     $$PWD/common/lc_colors.cpp \
     $$PWD/common/lc_commands.cpp \
     $$PWD/common/lc_context.cpp \
@@ -85,6 +90,7 @@ SOURCES += \
     $$PWD/common/lc_file.cpp \
     $$PWD/common/lc_findreplacewidget.cpp \
     $$PWD/common/lc_glextensions.cpp \
+    $$PWD/common/lc_groupdialog.cpp \
     $$PWD/common/lc_http.cpp \
     $$PWD/common/lc_instructions.cpp \
     $$PWD/common/lc_instructionsdialog.cpp \
@@ -95,6 +101,7 @@ SOURCES += \
     $$PWD/common/lc_meshloader.cpp \
     $$PWD/common/lc_minifigdialog.cpp \
     $$PWD/common/lc_model.cpp \
+    $$PWD/common/lc_modellistdialog.cpp \
     $$PWD/common/lc_pagesetupdialog.cpp \
     $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
@@ -118,16 +125,9 @@ SOURCES += \
     $$PWD/common/pieceinf.cpp \
     $$PWD/common/project.cpp \
     $$PWD/common/texfont.cpp \
-    $$PWD/qt/lc_qaboutdialog.cpp \
-    $$PWD/qt/lc_qarraydialog.cpp \
-    $$PWD/qt/lc_qcategorydialog.cpp \
-    $$PWD/qt/lc_qcolorlist.cpp \
-    $$PWD/qt/lc_qcolorpicker.cpp \
     $$PWD/qt/lc_qeditgroupsdialog.cpp \
-    $$PWD/qt/lc_qgroupdialog.cpp \
     $$PWD/qt/lc_qhtmldialog.cpp \
     $$PWD/qt/lc_qimagedialog.cpp \
-    $$PWD/qt/lc_qmodellistdialog.cpp \
     $$PWD/qt/lc_qpreferencesdialog.cpp \
     $$PWD/qt/lc_qpropertiesdialog.cpp \
     $$PWD/qt/lc_qpropertiestree.cpp \
@@ -139,17 +139,17 @@ SOURCES += \
     $$PWD/qt/system.cpp
 
 FORMS += \
+    $$PWD/common/lc_aboutdialog.ui \
+    $$PWD/common/lc_arraydialog.ui \
+    $$PWD/common/lc_categorydialog.ui \
+    $$PWD/common/lc_groupdialog.ui \
     $$PWD/common/lc_pagesetupdialog.ui \
     $$PWD/common/lc_partpalettedialog.ui \
     $$PWD/common/lc_minifigdialog.ui \
-    $$PWD/qt/lc_qaboutdialog.ui \
-    $$PWD/qt/lc_qarraydialog.ui \
-    $$PWD/qt/lc_qcategorydialog.ui \
+    $$PWD/common/lc_modellistdialog.ui \
     $$PWD/qt/lc_qeditgroupsdialog.ui \
-    $$PWD/qt/lc_qgroupdialog.ui \
     $$PWD/qt/lc_qhtmldialog.ui \
     $$PWD/qt/lc_qimagedialog.ui \
-    $$PWD/qt/lc_qmodellistdialog.ui \
     $$PWD/qt/lc_qpreferencesdialog.ui \
     $$PWD/qt/lc_qpropertiesdialog.ui \
     $$PWD/qt/lc_qselectdialog.ui \

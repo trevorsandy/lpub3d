@@ -65,7 +65,7 @@
 #include "commonmenus.h"
 
 #include "lc_colors.h"
-#include "lc_qcolorpicker.h"
+#include "lc_colorpicker.h"
 
 #include "gradients.h"
 #include "pagesizes.h"

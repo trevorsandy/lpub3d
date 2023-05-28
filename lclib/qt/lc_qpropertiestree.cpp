@@ -1,6 +1,6 @@
 #include "lc_global.h"
 #include "lc_qpropertiestree.h"
-#include "lc_qcolorpicker.h"
+#include "lc_colorpicker.h"
 #include "lc_application.h"
 #include "lc_model.h"
 #include "lc_mainwindow.h"
@@ -1245,8 +1245,8 @@ void lcQPropertiesTree::slotColorButtonClicked()
 		if (Focus && Focus->IsPiece())
 			ColorIndex = ((lcPiece*)Focus)->GetColorIndex();
 
-		Popup  = new lcQColorPickerPopup(Button, ColorIndex);
-		connect(Popup, SIGNAL(selected(int)), SLOT(slotSetValue(int)));
+		Popup  = new lcColorPickerPopup(Button, ColorIndex);
+		connect(Popup, &lcColorPickerPopup::Selected, this, &lcQPropertiesTree::slotSetValue);
 
 	}
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)

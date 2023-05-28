@@ -1,6 +1,6 @@
 #include "lc_global.h"
 #include "lc_findreplacewidget.h"
-#include "lc_qcolorpicker.h"
+#include "lc_colorpicker.h"
 #include "lc_library.h"
 #include "lc_mainwindow.h"
 #include "pieceinf.h"
@@ -20,7 +20,7 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 	Layout->setContentsMargins(5, 5, 5, 5);
 
 	Layout->addWidget(new QLabel(tr("Find:")), 0, 0);
-	lcQColorPicker* FindColorPicker = new lcQColorPicker(this, true);
+	lcColorPicker* FindColorPicker = new lcColorPicker(this, true);
 /*** LPub3D Mod - colour picker status ***/
 	FindColorPicker->setStatusTip(tr("Find pieces that match selected color"));
 /*** LPub3D Mod end ***/
@@ -48,18 +48,18 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 	Layout->addWidget(FindCancelButton, 0, 5);
 / *** LPub3D Mod end ***/
 
-	connect(FindColorPicker, &lcQColorPicker::colorChanged, this, &lcFindReplaceWidget::FindColorIndexChanged);
+	connect(FindColorPicker, &lcColorPicker::ColorChanged, this, &lcFindReplaceWidget::FindColorIndexChanged);
 	connect(mFindPartComboBox->lineEdit(), &QLineEdit::returnPressed, gMainWindow->mActions[LC_EDIT_FIND_NEXT], &QAction::trigger);
 	connect(mFindPartComboBox->lineEdit(), &QLineEdit::textEdited, this, &lcFindReplaceWidget::FindTextEdited);
 	connect(mFindPartComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &lcFindReplaceWidget::FindActivated);
 
-	lcQColorPicker* ReplaceColorPicker = nullptr;
+	lcColorPicker* ReplaceColorPicker = nullptr;
 
 	if (Replace)
 	{
 		Layout->addWidget(new QLabel(tr("Replace:")), 1, 0);
 
-		ReplaceColorPicker = new lcQColorPicker(this, true);
+		ReplaceColorPicker = new lcColorPicker(this, true);
 		Layout->addWidget(ReplaceColorPicker, 1, 1);
 
 		mReplacePartComboBox = new QComboBox(this);
@@ -75,7 +75,7 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 		ReplaceAllButton->setDefaultAction(gMainWindow->mActions[LC_EDIT_REPLACE_ALL]);
 		Layout->addWidget(ReplaceAllButton, 1, 4);
 
-		connect(ReplaceColorPicker, &lcQColorPicker::colorChanged, this, &lcFindReplaceWidget::ReplaceColorIndexChanged);
+		connect(ReplaceColorPicker, &lcColorPicker::ColorChanged, this, &lcFindReplaceWidget::ReplaceColorIndexChanged);
 		connect(mReplacePartComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &lcFindReplaceWidget::ReplaceActivated);
 
 		mReplacePartComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -99,7 +99,7 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 		for (PieceInfo* Info : SortedPieces)
 			mReplacePartComboBox->addItem(QString::fromLatin1(Info->m_strDescription), QVariant::fromValue((void*)Info));
 
-		ReplaceColorPicker->setCurrentColor(lcGetColorIndex(LC_COLOR_NOCOLOR));
+		ReplaceColorPicker->SetCurrentColor(lcGetColorIndex(LC_COLOR_NOCOLOR));
 		mReplacePartComboBox->setCurrentIndex(0);
 	}
 
@@ -119,13 +119,13 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 		Params.FindInfo = Focus->mPieceInfo;
 		Params.FindColorIndex = Focus->GetColorIndex();
 
-		FindColorPicker->setCurrentColor(Params.FindColorIndex);
+		FindColorPicker->SetCurrentColor(Params.FindColorIndex);
 		mFindPartComboBox->setCurrentIndex(mFindPartComboBox->findData(QVariant::fromValue((void*)Params.FindInfo)));
 
 	}
 	else
 	{
-		FindColorPicker->setCurrentColor(lcGetColorIndex(LC_COLOR_NOCOLOR));
+		FindColorPicker->SetCurrentColor(lcGetColorIndex(LC_COLOR_NOCOLOR));
 		mFindPartComboBox->setEditText(QString());
 	}
 
