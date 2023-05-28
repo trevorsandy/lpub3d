@@ -65,8 +65,10 @@ void PreferencesDialog::lcQPreferencesInit()
         glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
         mLineWidthGranularity = 1.0f;
     }
-    ui.LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / mLineWidthGranularity);
+
+    ui.LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(mLineWidthGranularity, 1.0f));
     ui.LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
+
     ui.FadeSteps->setChecked(mOptions->Preferences.mFadeSteps);
     ui.HighlightNewParts->setChecked(mOptions->Preferences.mHighlightNewParts);
     ui.AutomateEdgeColor->setChecked(mOptions->Preferences.mAutomateEdgeColor);
@@ -132,8 +134,10 @@ void PreferencesDialog::lcQPreferencesAccept()
         mOptions->AASamples = 4;
     else
         mOptions->AASamples = 2;
-    mOptions->Preferences.mDrawEdgeLines = ui.edgeLines->isChecked();
+    float const LineWidth = mLineWidthRange[0] + static_cast<float>(ui.LineWidthSlider->value()) * mLineWidthGranularity;
     mOptions->Preferences.mAllowLOD = ui.MeshLOD->isChecked();
+    mOptions->Preferences.mDrawEdgeLines = ui.edgeLines->isChecked();
+    mOptions->Preferences.mLineWidth = LineWidth > 0.9f && LineWidth < 1.09f ? 1.0f : LineWidth;
     mOptions->Preferences.mMeshLODDistance = ui.MeshLODSlider->value() * mMeshLODMultiplier;
     mOptions->Preferences.mShadingMode = (lcShadingMode)ui.ShadingMode->currentIndex();
     mOptions->StudStyle = static_cast<lcStudStyle>(ui.studStyleCombo->currentIndex());
@@ -178,7 +182,7 @@ void PreferencesDialog::on_ConditionalLinesCheckBox_toggled()
 void PreferencesDialog::on_LineWidthSlider_valueChanged()
 {
     float Value = mLineWidthRange[0] + static_cast<float>(ui.LineWidthSlider->value()) * mLineWidthGranularity;
-    ui.LineWidthLabel->setText(QString::number(Value));
+    ui.LineWidthLabel->setText(QString::number((Value > 0.9f && Value < 1.09f) ? 1.0f : Value));
 }
 
 void PreferencesDialog::on_MeshLODSlider_valueChanged()

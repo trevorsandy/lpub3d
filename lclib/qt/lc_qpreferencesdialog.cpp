@@ -204,7 +204,7 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 		mLineWidthGranularity = 1.0f;
 	}
 
-	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / mLineWidthGranularity);
+	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(1.0f, mLineWidthGranularity));
 	ui->LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
 
 	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
@@ -497,9 +497,11 @@ void lcQPreferencesDialog::accept()
 	else
 		mOptions->AASamples = 2;
 
+	float const LineWidth = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
+
 	mOptions->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
 	mOptions->Preferences.mDrawConditionalLines = ui->ConditionalLinesCheckBox->isChecked();
-	mOptions->Preferences.mLineWidth = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
+	mOptions->Preferences.mLineWidth = LineWidth > 0.9f && LineWidth < 1.09f ? 1.0f : LineWidth;
 	mOptions->Preferences.mAllowLOD = ui->MeshLOD->isChecked();
 	mOptions->Preferences.mMeshLODDistance = ui->MeshLODSlider->value() * mMeshLODMultiplier;
 	mOptions->Preferences.mFadeSteps = ui->FadeSteps->isChecked();
@@ -875,7 +877,7 @@ void lcQPreferencesDialog::on_ConditionalLinesCheckBox_toggled()
 void lcQPreferencesDialog::on_LineWidthSlider_valueChanged()
 {
 	float Value = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
-	ui->LineWidthLabel->setText(QString::number(Value));
+	ui->LineWidthLabel->setText(QString::number((Value > 0.9f && Value < 1.09f) ? 1.0f : Value));
 }
 
 void lcQPreferencesDialog::on_MeshLODSlider_valueChanged()

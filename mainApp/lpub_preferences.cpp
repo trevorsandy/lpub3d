@@ -5950,8 +5950,9 @@ bool Preferences::getPreferences()
         bool shadingModeChanged     = Options.Preferences.mShadingMode     != Preferences.mShadingMode;
         bool lineWidthChanged       = Options.Preferences.mLineWidth       != Preferences.mLineWidth;
         bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != Preferences.mNativeViewpoint;
-        bool LPubFadeHighlightChanged    = Options.Preferences.mLPubFadeHighlight    != Preferences.mLPubFadeHighlight;
+        bool LPubFadeHighlightChanged = Options.Preferences.mLPubFadeHighlight != Preferences.mLPubFadeHighlight;
         bool DrawCondlLinesChanged  = Options.Preferences.mDrawConditionalLines != Preferences.mDrawConditionalLines;
+        float oldLineWidth          = Preferences.mLineWidth;
 
         bool NativeProjectionChanged = false;
         if (!PerspectiveProjectionChanged)
@@ -6038,7 +6039,7 @@ bool Preferences::getPreferences()
                                           .arg(oldShadingMode).arg(newShadingMode));
                 if (lineWidthChanged)
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Edge line width changed from %1 to %2.")
-                                          .arg(double(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH)))
+                                          .arg(double(oldLineWidth))
                                           .arg(double(Options.Preferences.mLineWidth)));
                 if (drawEdgeLinesChanged)
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Draw edge lines is %1.")
