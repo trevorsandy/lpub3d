@@ -152,48 +152,49 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
     /* 15 LBL_META_SAVE                           */ {"metasave",                      "0",          QObject::tr("SAVE Command"),             QObject::tr("Not implemented")},
     /* 16 LBL_META_STEP                           */ {"metastep",                      "0",          QObject::tr("STEP Command"),             QObject::tr("Adds a keyframe that shows the part at the moment in the timeline")},
     /* 17 LBL_META_STEP_GROUPS                    */ {"metastepgroups",                "0",          QObject::tr("STEP Groups"),              QObject::tr("Create collection for individual steps")},
-    /* 18 LBL_NO_STUDS                            */ {"nostuds",                       "0",          QObject::tr("No Studs"),                 QObject::tr("Don't import studs")},
-    /* 19 LBL_OVERWRITE_IMAGE_MM                  */ {"overwriteimage",                "1",          QObject::tr("Overwrite Image"),          QObject::tr("Specify whether to overwrite an existing rendered image file")},
-    /* 20 LBL_POSITION_CAMERA_MM                  */ {"positioncamera",                "1",          QObject::tr("Position Camera"),          QObject::tr("Position the camera to show the whole model")},
-    /* 21 LBL_PARENT_TO_EMPTY                     */ {"parenttoempty",                 "1",          QObject::tr("Parent To Empty"),          QObject::tr("Parent the model to an empty")},
-    /* 22 LBL_PREFER_STUDIO                       */ {"preferstudio",                  "0",          QObject::tr("Prefer Stud.io Library"),   QObject::tr("Search for parts in Stud.io library first")},
-    /* 23 LBL_PREFER_UNOFFICIAL                   */ {"preferunofficial",              "0",          QObject::tr("Prefer Unofficial Parts"),  QObject::tr("Search for unofficial parts first")},
-    /* 24 LBL_PRESERVE_HIERARCHY                  */ {"preservehierarchy",             "0",          QObject::tr("Preserve File Structure"),  QObject::tr("Don't merge the constituent subparts and primitives into the top level part. Some parts may not render properly")},
-    /* 25 LBL_PROFILE                             */ {"profile",                       "0",          QObject::tr("Profile"),                  QObject::tr("Profile import performance")},
-    /* 26 LBL_RECALCULATE_NORMALS                 */ {"recalculatenormals",            "0",          QObject::tr("Recalculate Normals"),      QObject::tr("Recalculate normals. Not recommended if BFC processing is active")},
-    /* 27 LBL_REMOVE_DOUBLES_MM                   */ {"removedoubles",                 "1",          QObject::tr("No Duplicate Vertices"),    QObject::tr("Merge vertices that are within a certain distance.")},
-    /* 28 LBL_RENDER_WINDOW_MM                    */ {"renderwindow",                  "1",          QObject::tr("Display Render Window"),    QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
-    /* 29 LBL_SEARCH_ADDL_PATHS_MM                */ {"searchadditionalpaths",         "0",          QObject::tr("Search Additional Paths"),  QObject::tr("Specify whether to search additional LDraw paths")},
-    /* 30 LBL_SETEND_FRAME                        */ {"setendframe",                   "1",          QObject::tr("Set Step End Frame"),       QObject::tr("Set the end frame to the last step")},
-    /* 31 LBL_SET_TIMELINE_MARKERS                */ {"settimelinemarkers",            "0",          QObject::tr("Set Timeline Markers"),     QObject::tr("Set timeline markers for meta commands")},
-    /* 32 LBL_SHADE_SMOOTH                        */ {"shadesmooth",                   "1",          QObject::tr("Shade Smooth"),             QObject::tr("Use flat or smooth shading for part faces")},
-    /* 33 LBL_TRANSPARENT_BACKGROUND_MM           */ {"transparentbackground",         "0",          QObject::tr("Transparent Background"),   QObject::tr("Specify whether to render a background")},
-    /* 34 LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS */ {"treatmodelswithsubpartsasparts","1",          QObject::tr("Treat Subparts As Parts"),  QObject::tr("Treat subpart like a part by merging its constituent parts into one object")},
-    /* 35 LBL_TREAT_SHORTCUT_AS_MODEL             */ {"treatshortcutasmodel",          "0",          QObject::tr("Treat Shortcuts As Models"),QObject::tr("Split shortcut parts into their constituent pieces as if they were models")},
-    /* 36 LBL_TRIANGULATE                         */ {"triangulate",                   "0",          QObject::tr("Triangulate Faces"),        QObject::tr("Triangulate all faces")},
-    /* 37 LBL_USE_ARCHIVE_LIBRARY_MM              */ {"usearchivelibrary",             "0",          QObject::tr("Use Archive Libraries"),    QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
-    /* 38 LBL_USE_FREESTYLE_EDGES                 */ {"usefreestyleedges",             "0",          QObject::tr("Use Freestyle Edges"),      QObject::tr("Render LDraw edges using freestyle")},
-    /* 39 LBL_VERBOSE_MM                          */ {"verbose",                       "1",          QObject::tr("Verbose output"),           QObject::tr("Output all messages while working, else only show warnings and errors")},
+    /* 18 LBL_META_TEXMAP                         */ {"metatexmap",                    "1",          QObject::tr("TEXMAP and DATA Command"),  QObject::tr("Process TEXMAP and DATA meta commands")},
+    /* 19 LBL_NO_STUDS                            */ {"nostuds",                       "0",          QObject::tr("No Studs"),                 QObject::tr("Don't import studs")},
+    /* 20 LBL_OVERWRITE_IMAGE_MM                  */ {"overwriteimage",                "1",          QObject::tr("Overwrite Image"),          QObject::tr("Specify whether to overwrite an existing rendered image file")},
+    /* 21 LBL_POSITION_CAMERA_MM                  */ {"positioncamera",                "1",          QObject::tr("Position Camera"),          QObject::tr("Position the camera to show the whole model")},
+    /* 22 LBL_PARENT_TO_EMPTY                     */ {"parenttoempty",                 "1",          QObject::tr("Parent To Empty"),          QObject::tr("Parent the model to an empty")},
+    /* 23 LBL_PREFER_STUDIO                       */ {"preferstudio",                  "0",          QObject::tr("Prefer Stud.io Library"),   QObject::tr("Search for parts in Stud.io library first")},
+    /* 24 LBL_PREFER_UNOFFICIAL                   */ {"preferunofficial",              "0",          QObject::tr("Prefer Unofficial Parts"),  QObject::tr("Search for unofficial parts first")},
+    /* 25 LBL_PRESERVE_HIERARCHY                  */ {"preservehierarchy",             "0",          QObject::tr("Preserve File Structure"),  QObject::tr("Don't merge the constituent subparts and primitives into the top level part. Some parts may not render properly")},
+    /* 26 LBL_PROFILE                             */ {"profile",                       "0",          QObject::tr("Profile"),                  QObject::tr("Profile import performance")},
+    /* 27 LBL_RECALCULATE_NORMALS                 */ {"recalculatenormals",            "0",          QObject::tr("Recalculate Normals"),      QObject::tr("Recalculate normals. Not recommended if BFC processing is active")},
+    /* 28 LBL_REMOVE_DOUBLES_MM                   */ {"removedoubles",                 "1",          QObject::tr("No Duplicate Vertices"),    QObject::tr("Merge vertices that are within a certain distance.")},
+    /* 29 LBL_RENDER_WINDOW_MM                    */ {"renderwindow",                  "1",          QObject::tr("Display Render Window"),    QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
+    /* 30 LBL_SEARCH_ADDL_PATHS_MM                */ {"searchadditionalpaths",         "0",          QObject::tr("Search Additional Paths"),  QObject::tr("Specify whether to search additional LDraw paths")},
+    /* 31 LBL_SETEND_FRAME                        */ {"setendframe",                   "1",          QObject::tr("Set Step End Frame"),       QObject::tr("Set the end frame to the last step")},
+    /* 32 LBL_SET_TIMELINE_MARKERS                */ {"settimelinemarkers",            "0",          QObject::tr("Set Timeline Markers"),     QObject::tr("Set timeline markers for meta commands")},
+    /* 33 LBL_SHADE_SMOOTH                        */ {"shadesmooth",                   "1",          QObject::tr("Shade Smooth"),             QObject::tr("Use flat or smooth shading for part faces")},
+    /* 34 LBL_TRANSPARENT_BACKGROUND_MM           */ {"transparentbackground",         "0",          QObject::tr("Transparent Background"),   QObject::tr("Specify whether to render a background")},
+    /* 35 LBL_TREAT_MODELS_WITH_SUBPARTS_AS_PARTS */ {"treatmodelswithsubpartsasparts","1",          QObject::tr("Treat Subparts As Parts"),  QObject::tr("Treat subpart like a part by merging its constituent parts into one object")},
+    /* 36 LBL_TREAT_SHORTCUT_AS_MODEL             */ {"treatshortcutasmodel",          "0",          QObject::tr("Treat Shortcuts As Models"),QObject::tr("Split shortcut parts into their constituent pieces as if they were models")},
+    /* 37 LBL_TRIANGULATE                         */ {"triangulate",                   "0",          QObject::tr("Triangulate Faces"),        QObject::tr("Triangulate all faces")},
+    /* 38 LBL_USE_ARCHIVE_LIBRARY_MM              */ {"usearchivelibrary",             "0",          QObject::tr("Use Archive Libraries"),    QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
+    /* 39 LBL_USE_FREESTYLE_EDGES                 */ {"usefreestyleedges",             "0",          QObject::tr("Use Freestyle Edges"),      QObject::tr("Render LDraw edges using freestyle")},
+    /* 40 LBL_VERBOSE_MM                          */ {"verbose",                       "1",          QObject::tr("Verbose output"),           QObject::tr("Output all messages while working, else only show warnings and errors")},
 
-    /* 40/00 LBL_BEVEL_SEGMENTS                   */ {"bevelsegments",                 "4",          QObject::tr("Bevel Segments"),           QObject::tr("Bevel segments")},
-    /* 41/01 LBL_BEVEL_WEIGHT                     */ {"bevelweight",                   "0.3",        QObject::tr("Bevel Weight"),             QObject::tr("Bevel weight")},
-    /* 42/02 LBL_BEVEL_WIDTH_MM                   */ {"bevelwidth",                    "0.3",        QObject::tr("Bevel Width"),              QObject::tr("Width of the bevelled edges")},
-    /* 43/03 LBL_CAMERA_BORDER_PERCENT_MM         */ {"cameraborderpercent",           "5",          QObject::tr("Camera Border Percent"),    QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
-    /* 44/04 LBL_FRAMES_PER_STEP                  */ {"framesperstep",                 "3",          QObject::tr("Frames Per Step"),          QObject::tr("Frames per step")},
-    /* 45/05 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
-    /* 46/06 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
-    /* 47/07 LBL_MERGE_DISTANCE                   */ {"mergedistance",                 "0.05",       QObject::tr("Merge Distance"),           QObject::tr("Maximum distance between elements to merge")},
-    /* 48/08 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step, label shows config setting.")},
-    /* 49/09 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - from current step image, label shows config setting.")},
-    /* 50/10 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - from current step image, label shows config setting.")},
-    /* 51/11 LBL_STARTING_STEP_FRAME              */ {"startingstepframe",             "1",          QObject::tr("Starting Step Frame"),      QObject::tr("Frame to add the first STEP meta command")},
+    /* 41/00 LBL_BEVEL_SEGMENTS                   */ {"bevelsegments",                 "4",          QObject::tr("Bevel Segments"),           QObject::tr("Bevel segments")},
+    /* 42/01 LBL_BEVEL_WEIGHT                     */ {"bevelweight",                   "0.3",        QObject::tr("Bevel Weight"),             QObject::tr("Bevel weight")},
+    /* 43/02 LBL_BEVEL_WIDTH_MM                   */ {"bevelwidth",                    "0.3",        QObject::tr("Bevel Width"),              QObject::tr("Width of the bevelled edges")},
+    /* 44/03 LBL_CAMERA_BORDER_PERCENT_MM         */ {"cameraborderpercent",           "5",          QObject::tr("Camera Border Percent"),    QObject::tr("When positioning the camera, include a (percentage) border around the model in the render")},
+    /* 45/04 LBL_FRAMES_PER_STEP                  */ {"framesperstep",                 "3",          QObject::tr("Frames Per Step"),          QObject::tr("Frames per step")},
+    /* 46/05 LBL_GAP_SCALE                        */ {"gapscale",                      "0.997",      QObject::tr("Gap Scale"),                QObject::tr("Scale individual parts by this much to create the gap")},
+    /* 47/06 LBL_IMPORT_SCALE                     */ {"importscale",                   "0.02",       QObject::tr("Import Scale"),             QObject::tr("What scale to import at. Full scale is 1.0 and is so huge that it is unwieldy in the viewport")},
+    /* 48/07 LBL_MERGE_DISTANCE                   */ {"mergedistance",                 "0.05",       QObject::tr("Merge Distance"),           QObject::tr("Maximum distance between elements to merge")},
+    /* 49/08 LBL_RENDER_PERCENTAGE_MM             */ {"renderpercentage",              "100",        QObject::tr("Render Percentage"),        QObject::tr("Sets the rendered image percentage scale for its pixel resolution - updated from current step, label shows config setting.")},
+    /* 50/09 LBL_RESOLUTION_WIDTH                 */ {"resolutionwidth",               "800",        QObject::tr("Image Width"),              QObject::tr("Sets the rendered image width in pixels - from current step image, label shows config setting.")},
+    /* 51/10 LBL_RESOLUTION_HEIGHT                */ {"resolutionheight",              "600",        QObject::tr("Image Height"),             QObject::tr("Sets the rendered image height in pixels - from current step image, label shows config setting.")},
+    /* 52/11 LBL_STARTING_STEP_FRAME              */ {"startingstepframe",             "1",          QObject::tr("Starting Step Frame"),      QObject::tr("Frame to add the first STEP meta command")},
 
-    /* 52/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
-    /* 53/01 LBL_COLOUR_SCHEME_MM                 */ {"usecolourscheme",               "lgeo",       QObject::tr("Colour Scheme"),            QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
-    /* 54/02 LBL_GAP_SCALE_STRATEGY               */ {"gapscalestrategy",              "constraint", QObject::tr("Gap Strategy"),             QObject::tr("Apply gap to object directly or scale and empty to adjust to gaps between parts")},
-    /* 55/03 LBL_GAP_TARGET                       */ {"gaptarget",                     "object",     QObject::tr("Gap Target"),               QObject::tr("Whether to scale the object data or mesh data")},
-    /* 56/04 LBL_RESOLUTION_MM                    */ {"resolution",                    "Standard",   QObject::tr("Resolution"),               QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
-    /* 57/05 LBL_SMOOTH_TYPE                      */ {"smoothtype",                    "edge_split", QObject::tr("Smooth Type"),              QObject::tr("Use either autosmooth or an edge split modifier to smooth part faces")}
+    /* 53/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
+    /* 54/01 LBL_COLOUR_SCHEME_MM                 */ {"usecolourscheme",               "lgeo",       QObject::tr("Colour Scheme"),            QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
+    /* 55/02 LBL_GAP_SCALE_STRATEGY               */ {"gapscalestrategy",              "constraint", QObject::tr("Gap Strategy"),             QObject::tr("Apply gap to object directly or scale and empty to adjust to gaps between parts")},
+    /* 56/03 LBL_GAP_TARGET                       */ {"gaptarget",                     "object",     QObject::tr("Gap Target"),               QObject::tr("Whether to scale the object data or mesh data")},
+    /* 57/04 LBL_RESOLUTION_MM                    */ {"resolution",                    "Standard",   QObject::tr("Resolution"),               QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
+    /* 58/05 LBL_SMOOTH_TYPE                      */ {"smoothtype",                    "edge_split", QObject::tr("Smooth Type"),              QObject::tr("Use either autosmooth or an edge split modifier to smooth part faces")}
 };
 
 BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITEMS_MM] =
@@ -1118,6 +1119,9 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             }
 
             if (mProgressBar) {
+                mProgressBar->setMaximum(0);
+                mProgressBar->setMinimum(0);
+                mProgressBar->setValue(1);
                 mAddonGridLayout->replaceWidget(mAddonVersionEdit, mProgressBar);
                 mProgressBar->show();
             }
@@ -1783,8 +1787,8 @@ void BlenderPreferences::readStdOut()
     mStdOutList.append(StdOut);
 
     QRegExp rxInfo("^INFO: ");
-    QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
-    QRegExp rxWarning("^(?:\\w)*WARNING: ", Qt::CaseInsensitive);
+    QRegExp rxError("(?:\\w)*ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxWarning("(?:\\w)*WARNING: ", Qt::CaseInsensitive);
 
     bool const hasError = StdOut.contains(rxError);
     bool const hasWarning = StdOut.contains(rxWarning);
