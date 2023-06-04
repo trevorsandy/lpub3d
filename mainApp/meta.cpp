@@ -340,7 +340,7 @@ QString FloatMeta::format(bool local, bool global)
 {
   QString foo;
   foo = QString("%1") .arg(double(value()),_fieldWidth,'f',_precision);
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 void FloatMeta::doc(QStringList &out, QString preamble)
 {
@@ -353,7 +353,7 @@ QString UnitMeta::format(bool local, bool global)
 {
   QString foo;
   foo = QString("%1") .arg(double(valueInches()),_fieldWidth,'f',_precision);
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 
 int UnitMeta::valuePixels()
@@ -386,7 +386,7 @@ QString UnitsMeta::format(bool local, bool global)
   foo = QString("%1 %2")
       .arg(double(valueInches(0)),_fieldWidth,'f',_precision)
       .arg(double(valueInches(1)),_fieldWidth,'f',_precision);
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 
 /* ------------------ */
@@ -430,7 +430,7 @@ QString FloatPairMeta::format(bool local, bool global)
   QString foo = QString("%1 %2")
       .arg(double(_value[pushed][0]),_fieldWidth,'f',_precision)
       .arg(double(_value[pushed][1]),_fieldWidth,'f',_precision);
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 void FloatPairMeta::doc(QStringList &out, QString preamble)
 {
@@ -482,7 +482,7 @@ QString Vector3Meta::format(bool local, bool global)
       .arg(double(_x[pushed]),_fieldWidth,'f',_precision)
       .arg(double(_y[pushed]),_fieldWidth,'f',_precision)
       .arg(double(_z[pushed]),_fieldWidth,'f',_precision);
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 void Vector3Meta::doc(QStringList &out, QString preamble)
 {
@@ -696,8 +696,6 @@ void PlacementMeta::setValue(
 
 Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
 {
-  RectPlacement  _placementR;
-  PlacementType  _relativeTo;
   float _offsets[2];
   Rc rc = FailureRc;
   QString foo;
@@ -709,9 +707,6 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|SUBMODEL_DISPLAY|"
                         "ROTATE_ICON|ASSEM_PART|STEP|RANGE|TEXT|BOM|PAGE_POINTER|SINGLE_STEP|RESERVE|"
                         "COVER_PAGE|ANNOTATION|DIVIDER_POINTER)$";
-
-  _placementR    = _value[pushed].rectPlacement;
-  _relativeTo    = _value[pushed].relativeTo;
   _offsets[0]    = 0;
   _offsets[1]    = 0;
 
@@ -743,6 +738,8 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
         }
     }
 
+  RectPlacement _placementR; //_value[pushed].rectPlacement;
+  PlacementType _relativeTo; //_value[pushed].relativeTo;
   QString placement, justification, preposition, relativeTo;
 
   QRegExp rx("^(TOP|BOTTOM)$");
@@ -827,8 +824,8 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
       if (i == NumSpots) {
           return FailureRc;
         }
-      _placementR = RectPlacement(i);
 
+      _placementR = RectPlacement(i);
       _relativeTo = PlacementType(tokenMap[relativeTo]);
       setValue(_placementR,_relativeTo);
       _value[pushed].offsets[0] = _offsets[0];
@@ -2675,7 +2672,7 @@ QString CameraAnglesMeta::format(bool local, bool global)
                        .arg(double(_value[pushed].angles[1]),_fieldWidth,'f',_precision);
     }
   }
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 
 void CameraAnglesMeta::doc(QStringList &out, QString preamble)
@@ -3163,7 +3160,7 @@ QString PageSizeMeta::format(bool local, bool global)
     foo += QStringLiteral(" LANDSCAPE");
   }
 
-  return LeafMeta::format(local,global,foo);
+  return LeafMeta::format(local,global,foo.trimmed());
 }
 void PageSizeMeta::doc(QStringList &out, QString preamble)
 {
