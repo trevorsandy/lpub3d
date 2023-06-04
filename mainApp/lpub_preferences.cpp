@@ -3615,6 +3615,7 @@ void Preferences::editorPreferences()
 
 void Preferences::themePreferences()
 {
+    Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
     QSettings Settings;
 
     QString const displayThemeKey("DisplayTheme");
@@ -3657,7 +3658,7 @@ void Preferences::themePreferences()
                 "#\n"
                 "# Unknown values treated as 0 (no preference).\n\n"
                 "[ -z $(which gdbus) ] && echo \"Warning: gdbus not found\" && exit 0 || :\n\n"
-                "declare -r l=log\n\n"
+                "export l=log\n\n"
                 "(gdbus call --session --timeout=1000 \\\n"
                 "            --dest=org.freedesktop.portal.Desktop \\\n"
                 "            --object-path /org/freedesktop/portal/desktop \\\n"
@@ -3679,12 +3680,12 @@ void Preferences::themePreferences()
             } else {
                 error = true;
                 displayTheme = THEME_DEFAULT;
-                logError() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
+                logWarning() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
             }
         } else {
             error = true;
             displayTheme = THEME_DEFAULT;
-            logError() << qUtf8Printable(QObject::tr("Cannot create theme check temp path."));
+            logWarning() << qUtf8Printable(QObject::tr("Cannot create theme check temp path."));
         }
 
         if (!error) {
@@ -3695,7 +3696,7 @@ void Preferences::themePreferences()
             if (!pr.waitForStarted()) {
                 error = true;
                 displayTheme = THEME_DEFAULT;
-                logError() << qUtf8Printable(QObject::tr("Cannot start theme check process."));
+                logWarning() << qUtf8Printable(QObject::tr("Cannot start theme check process."));
             }
 
             int waitTime = 1500 ; // 1.5 secs
@@ -3704,14 +3705,14 @@ void Preferences::themePreferences()
                   QByteArray status = pr.readAll();
                   error = true;
                   displayTheme = THEME_DEFAULT;
-                  logError() << qUtf8Printable(QObject::tr("Theme check process failed with code %1 %2").arg(pr.exitCode()).arg(QString(status)));
+                  logWarning() << qUtf8Printable(QObject::tr("Theme check process failed with code %1 %2").arg(pr.exitCode()).arg(QString(status)));
                 }
             }
 
             QString const &prStderr = pr.readAllStandardError();
             if (!error && !prStderr.isEmpty()) {
                 displayTheme = THEME_DEFAULT;
-                logError() << qUtf8Printable(QObject::tr("Theme check returned error: %1").arg(prStderr));
+                logWarning() << qUtf8Printable(QObject::tr("Theme check returned error: %1").arg(prStderr));
             }
 
             int exitCode = pr.exitCode();
@@ -3739,6 +3740,7 @@ void Preferences::themePreferences()
             themeColors[i] = Settings.value(QString("%1/%2").arg(THEMECOLORS,themeKey)).toString().toUpper();
         }
     }
+    Preferences::setMessageLogging();
 }
 
 void Preferences::userInterfacePreferences()
