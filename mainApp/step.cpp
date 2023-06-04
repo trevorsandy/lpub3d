@@ -765,17 +765,9 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
   }
 
   bool FadeMetaAdded = false;
-
-  bool AddCloseFadeMeta = false;
-
   bool SilhouetteMetaAdded = false;
-
-  bool AddCloseSilhouetteMeta = false;
-
   bool fadeCommand = false;
-
   bool highlightCommand = false;
-
   int stepNum = 0;
 
   if (displayStep) {

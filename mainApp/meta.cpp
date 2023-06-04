@@ -2550,8 +2550,8 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
   QRegExp rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|LAT_LON|DEFAULT)$");
   if (argv.size() - index == 1) {
     if (argv[index].contains(rx)) {
-      float latitude  = 0.0f;
-      float longitude = 0.0f;
+      float latitude  = 30.0f;
+      float longitude = 45.0f;
       CameraView cameraView  = static_cast<CameraView>(_value[pushed].map[argv[index]]);
       switch (cameraView)
       {
@@ -2601,6 +2601,8 @@ Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
             default:
               break;
           }
+          break;
+        default:
           break;
       }
       _value[pushed].cameraView = cameraView;
@@ -3623,8 +3625,8 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           rc = InsertPageRc;
       } else if (argv[index] == "MODEL") {
           rc = InsertFinalModelRc;
-      } else if (argv[index] == "DISPLAY_MODEL") {
-          displayModel = rc = InsertDisplayModelRc;
+      } else if ((displayModel = argv[index] == "DISPLAY_MODEL")) {
+          rc = InsertDisplayModelRc;
       } else if (argv[index] == "COVER_PAGE") {
           rc = InsertCoverPageRc;
       }

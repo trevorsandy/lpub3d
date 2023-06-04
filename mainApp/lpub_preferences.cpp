@@ -1193,9 +1193,7 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
             stream << scriptCommand << lpub_endl;
             file.close();
         } else {
-            logError() << qUtf8Printable(QString("Cannot write library check script file [%1] %2.")
-                                             .arg(file.fileName())
-                                             .arg(file.errorString()));
+            logError() << qUtf8Printable(QObject::tr("Cannot write library check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
            return false;
         }
     } else {

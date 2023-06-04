@@ -185,8 +185,11 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 	lcMatrix33 RelativeRotation;
 	lcModel* ActiveModel = mView->GetActiveModel();
 	ActiveModel->GetMoveRotateTransform(OverlayCenter, RelativeRotation);
+	/*** LPub3D Mod - Selected Parts ***/
+	/***
 	bool AnyPiecesSelected = ActiveModel->AnyPiecesSelected();
-
+	***/
+	/*** LPub3D Mod end ***/
 	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
 
 	if (ActiveModel != mView->GetModel())
@@ -421,12 +424,12 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 			case lcTrackTool::RotateY:
 /*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				Context->SetColor(0.0f, 0.0f, 0.8f, 0.3f);
-/*** LPub3D Mod end ***/				
+/*** LPub3D Mod end ***/
 				Angle = MouseToolDistance[1];
 				Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateZ:
-/*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
+/*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				Context->SetColor(0.0f, 0.8f, 0.0f, 0.3f);
 /*** LPub3D Mod end ***/
 				Angle = MouseToolDistance[2];
@@ -621,21 +624,21 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 			case lcTrackTool::RotateX:
 /*** LPub3D Mod - Rotate Tangent Vector Text ***/
 				strncpy(Axis, "X", 24);
-/*** LPub3D Mod end ***/				
+/*** LPub3D Mod end ***/
 				Angle = MouseToolDistance[0];
 				Rotation = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateY:
 /*** LPub3D Mod - Rotate Tangent Vector Text, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				strncpy(Axis, "Z", 24);
-/*** LPub3D Mod end ***/				
+/*** LPub3D Mod end ***/
 				Angle = MouseToolDistance[1];
 				Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateZ:
 /*** LPub3D Mod - Rotate Tangent Vector Text, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				strncpy(Axis, "Y", 24);
-/*** LPub3D Mod end ***/				
+/*** LPub3D Mod end ***/
 				Angle = MouseToolDistance[2];
 				Rotation = lcVector4(90.0f, 0.0f, -1.0f, 0.0f);
 				break;

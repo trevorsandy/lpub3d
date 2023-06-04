@@ -2458,7 +2458,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	if (ActiveModel)
 	{
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
-		ModAction = ActiveModel->GetModAction() || Focus && Focus->IsPiece() || Flags & LC_SEL_PIECE || Flags & LC_SEL_MODEL_SELECTED;
+		ModAction = ActiveModel->GetModAction() || (Focus && Focus->IsPiece()) || (Flags & LC_SEL_PIECE) || (Flags & LC_SEL_MODEL_SELECTED);
 #ifdef QT_DEBUG_MODE
 		const QString TypeNames[] =
 		{

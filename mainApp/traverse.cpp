@@ -2462,7 +2462,7 @@ int Gui::drawPage(
                           synthBegin = false;
                       }
 
-                      bool pliPerStep;
+                      bool pliPerStep = false;
 
                       if (!opts.displayModel) {
                           if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
@@ -2471,8 +2471,6 @@ int Gui::drawPage(
                               pliPerStep = true;
                           } else if ( ! multiStep && ! opts.calledOut && steps->meta.LPub.stepPli.perStep.value()) {
                               pliPerStep = true;
-                          } else {
-                              pliPerStep = false;
                           }
                       }
 
@@ -2639,7 +2637,6 @@ int Gui::drawPage(
                       * NO STEP - No step object, e.g. BOM, inserted page (no rendered graphics)
                       */
                       {
-
                           if (pliPerStep) {
                               opts.pliParts.clear();
                               opts.pliPartGroups.clear();
@@ -5625,6 +5622,7 @@ int Gui::setBuildModForNextStep(
                         index = getStartIndex(topOfSubmodel, index, true);
                     }
                 }
+                break;
             case '0':
                 rc = meta.parse(line,walk);
                 switch (rc) {
@@ -5640,6 +5638,7 @@ int Gui::setBuildModForNextStep(
                 default:
                     break;
                 }
+                break;
             }
         }
         return index;                               // return the index

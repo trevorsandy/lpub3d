@@ -2671,9 +2671,9 @@ void BlenderPreferences::browseBlender(bool)
 void BlenderPreferences::sizeChanged(const QString &value)
 {
     const bool importMM = mImportMMActBox->isChecked();
-    const int keep_aspect_ratio = importMM ? CTL_KEEP_ASPECT_RATIO_BOX_MM : CTL_KEEP_ASPECT_RATIO_BOX;
-    const int width_edit = importMM ? CTL_RESOLUTION_WIDTH_EDIT : CTL_IMAGE_WIDTH_EDIT;
-    const int height_edit = importMM ? CTL_RESOLUTION_HEIGHT_EDIT : CTL_IMAGE_HEIGHT_EDIT;
+    const int keep_aspect_ratio = importMM ? int(CTL_KEEP_ASPECT_RATIO_BOX_MM) : int(CTL_KEEP_ASPECT_RATIO_BOX);
+    const int width_edit = importMM ? int(CTL_RESOLUTION_WIDTH_EDIT) : int(CTL_IMAGE_WIDTH_EDIT);
+    const int height_edit = importMM ? int(CTL_RESOLUTION_HEIGHT_EDIT) : int(CTL_IMAGE_HEIGHT_EDIT);
     BlenderSettings const *settings = importMM ? mBlenderSettingsMM : mBlenderSettings;
 
     /* original height x new width / original width = new height */
@@ -2718,13 +2718,13 @@ void BlenderPreferences::sizeChanged(const QString &value)
 void BlenderPreferences::setModelSize(bool update)
 {
     const bool importMM = mImportMMActBox->isChecked();
-    const int crop_image = importMM ? CTL_CROP_IMAGE_BOX_MM : CTL_CROP_IMAGE_BOX;
-    const int add_environment = importMM ? CTL_ADD_ENVIRONMENT_BOX_MM : CTL_ADD_ENVIRONMENT_BOX;
-    const int trans_background = importMM ? CTL_TRANSPARENT_BACKGROUND_BOX_MM : CTL_TRANSPARENT_BACKGROUND_BOX;
-    const int keep_aspect_ratio = importMM ? CTL_KEEP_ASPECT_RATIO_BOX_MM : CTL_KEEP_ASPECT_RATIO_BOX;
-    const int width_edit = importMM ? CTL_RESOLUTION_WIDTH_EDIT : CTL_IMAGE_WIDTH_EDIT;
-    const int height_edit = importMM ? CTL_RESOLUTION_HEIGHT_EDIT : CTL_IMAGE_HEIGHT_EDIT;
-    const int crop_image_label = importMM ? LBL_CROP_IMAGE_MM : LBL_CROP_IMAGE;
+    const int crop_image = importMM ? int(CTL_CROP_IMAGE_BOX_MM) : int(CTL_CROP_IMAGE_BOX);
+    const int add_environment = importMM ? int(CTL_ADD_ENVIRONMENT_BOX_MM) : int(CTL_ADD_ENVIRONMENT_BOX);
+    const int trans_background = importMM ? int(CTL_TRANSPARENT_BACKGROUND_BOX_MM) : int(CTL_TRANSPARENT_BACKGROUND_BOX);
+    const int keep_aspect_ratio = importMM ? int(CTL_KEEP_ASPECT_RATIO_BOX_MM) : int(CTL_KEEP_ASPECT_RATIO_BOX);
+    const int width_edit = importMM ? int(CTL_RESOLUTION_WIDTH_EDIT) : int(CTL_IMAGE_WIDTH_EDIT);
+    const int height_edit = importMM ? int(CTL_RESOLUTION_HEIGHT_EDIT) : int(CTL_IMAGE_HEIGHT_EDIT);
+    const int crop_image_label = importMM ? int(LBL_CROP_IMAGE_MM) : int(LBL_CROP_IMAGE);
 
     const int imageWidth = gui->GetImageWidth();
     const int imageHeight = gui->GetImageHeight();
