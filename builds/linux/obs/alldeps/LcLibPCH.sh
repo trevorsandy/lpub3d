@@ -15,7 +15,7 @@
 # See https://bugzilla.redhat.com/show_bug.cgi?id=1721553
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: November 11, 2022
+#  Last Update: June 04, 2023
 #  Copyright (C) 2022 - 2023 by Trevor SANDY
 #
 # sample commands [from application root - e.g. lpub3d/]:
@@ -33,7 +33,7 @@ LP3D_LC_DIR=${LC_DIR:-$(echo "$PWD/lclib")}
 
 echo && echo "   LP3D_LC_DIR........[${LP3D_LC_DIR}]"
 
-echo && echo "   Remove precompile_header from lcLib project file"
+echo && echo "   Remove precompile header directives from lcLib project file"
 echo "   --------------------------------------"
 COUNTER=0
 LP3D_FILE="${LP3D_LC_DIR}/lclib.pro"
@@ -47,7 +47,7 @@ else
   echo "   ERROR: Could not update ${LP3D_FILE}"
 fi
 
-echo && echo "   Add global header to lcLib headers"
+echo && echo "   Add lc_global.h to lcLib headers"
 echo "   --------------------------------------"
 COUNTER=0
 for LP3D_FILE in $(find ${LP3D_LC_DIR} -not -path "${LP3D_LC_DIR}/common/lc_global.h" -type f -name "*.h")
@@ -55,14 +55,14 @@ do
   if [ -f ${LP3D_FILE} -a -r ${LP3D_FILE} ]
   then
     sed -i "s/^#pragma once$/#pragma once\n\n#include \"lc_global.h\"/" "${LP3D_FILE}" && \
-    echo "   $((COUNTER += 1)). Add global header to header ${LP3D_FILE}" || \
-    echo "   $((COUNTER += 1)).ERROR: Could not apply update to ${LP3D_FILE}"
+    echo "   $((COUNTER += 1)). Add lc_global.h to ${LP3D_FILE}" || \
+    echo "   $((COUNTER += 1)).ERROR: Could not add lc_global.h to ${LP3D_FILE}"
   else
     echo "   ERROR: Could not update ${LP3D_FILE}. File was not found."
   fi
 done
 
-echo && echo "   Remove global header from lcLib source files"
+echo && echo "   Remove lc_global.h from lcLib source files"
 echo "   --------------------------------------"
 COUNTER=0
 for LP3D_FILE in $(find ${LP3D_LC_DIR} -not -path "${LP3D_LC_DIR}/qt/system.cpp" -type f -name "*.cpp")
@@ -70,8 +70,8 @@ do
   if [ -f ${LP3D_FILE} -a -r ${LP3D_FILE} ]
   then
     sed -i "/#include \"lc_global.h\"/d" "${LP3D_FILE}" && \
-    echo "   $((COUNTER += 1)). Removed global header from [$LP3D_FILE]" || \
-    echo "   $((COUNTER += 1)).ERROR: Could not apply update to ${LP3D_FILE}"
+    echo "   $((COUNTER += 1)). Removed lc_global.h from [$LP3D_FILE]" || \
+    echo "   $((COUNTER += 1)).ERROR: Could not remove lc_global.h from ${LP3D_FILE}"
   else
     echo "   ERROR: Could not update ${LP3D_FILE}. File was not found."
   fi

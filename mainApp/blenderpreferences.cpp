@@ -2785,7 +2785,7 @@ void BlenderPreferences::validateColourScheme(int index)
         return;
 
     const bool importMM = mImportMMActBox->isChecked();
-    const int color_scheme = importMM ? LBL_COLOUR_SCHEME_MM : LBL_COLOUR_SCHEME;
+    const int color_scheme = importMM ? int(LBL_COLOUR_SCHEME_MM) : int(LBL_COLOUR_SCHEME);
     BlenderSettings *settings = importMM ? mBlenderSettingsMM : mBlenderSettings;
 
     if (combo->itemText(index) == "custom" &&
