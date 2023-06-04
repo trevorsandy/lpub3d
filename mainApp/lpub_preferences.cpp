@@ -3624,7 +3624,7 @@ void Preferences::themePreferences()
         displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
     }
 
-#ifdef Q_OS_WIN
+#ifndef Q_OS_MAC
     QString const useSystemThemeKey("UseSystemTheme");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useSystemThemeKey))) {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemThemeKey),useSystemTheme);
@@ -3633,11 +3633,100 @@ void Preferences::themePreferences()
     }
 
     if (useSystemTheme) {
+#ifdef Q_OS_WIN
         if (Application::instance()->windowsLightTheme())
             displayTheme = THEME_DEFAULT;
         else
             displayTheme = THEME_DARK;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+#elif defined Q_OS_LINUX
+        QString scriptFile;
+        QTemporaryDir tempDir;
+        bool error = false;
+        if (tempDir.isValid()) {
+            scriptFile = QString("%1/theme.sh").arg(tempDir.path());
+            // script based on https://unix.stackexchange.com/questions/701432/command-for-detecting-whether-the-system-is-using-a-dark-or-light-desktop-theme
+            QString const scriptCommand = QString(
+                "# org.freedesktop.appearance color-scheme\n"
+                "#\n"
+                "# Capture the system's preferred color scheme.\n"
+                "# Supported values are:\n"
+                "#\n"
+                "#   0: No preference\n"
+                "#   1: Prefer dark appearance\n"
+                "#   2: Prefer light appearance\n"
+                "#\n"
+                "# Unknown values treated as 0 (no preference).\n\n"
+                "[ -z $(which gdbus) ] && echo \"Warning: gdbus not found\" && exit 0 || :\n\n"
+                "declare -r l=log\n\n"
+                "(gdbus call --session --timeout=1000 \\\n"
+                "            --dest=org.freedesktop.portal.Desktop \\\n"
+                "            --object-path /org/freedesktop/portal/desktop \\\n"
+                "            --method org.freedesktop.portal.Settings.Read org.freedesktop.appearance color-scheme\n"
+                ") >$l.out 2>&1 && scheme=$(cat $l.out) && rm $l.out\n\n"
+                "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
+                "case $scheme in\n"
+                "  ( '(<<uint32 1>>,)' ) exit 1;;\n"
+                "  ( '(<<uint32 2>>,)' ) exit 2;;\n"
+                "  ( *                 ) exit 0;;\n"
+                "esac\n");
+
+            QFile file(scriptFile);
+            if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream stream(&file);
+                stream << "#!/bin/bash" << lpub_endl;
+                stream << scriptCommand << lpub_endl;
+                file.close();
+            } else {
+                error = true;
+                displayTheme = THEME_DEFAULT;
+                logError() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
+            }
+        } else {
+            error = true;
+            displayTheme = THEME_DEFAULT;
+            logError() << qUtf8Printable(QObject::tr("Cannot create theme check temp path."));
+        }
+
+        if (!error) {
+            QProcess pr;
+            pr.setEnvironment(QProcess::systemEnvironment());
+            pr.start(UNIX_SHELL, QStringList() << scriptFile);
+
+            if (!pr.waitForStarted()) {
+                error = true;
+                displayTheme = THEME_DEFAULT;
+                logError() << qUtf8Printable(QObject::tr("Cannot start theme check process."));
+            }
+
+            int waitTime = 1500 ; // 1.5 secs
+            if (!error && !pr.waitForFinished(waitTime)) {
+                if (pr.exitCode() != 0) {
+                  QByteArray status = pr.readAll();
+                  error = true;
+                  displayTheme = THEME_DEFAULT;
+                  logError() << qUtf8Printable(QObject::tr("Theme check process failed with code %1 %2").arg(pr.exitCode()).arg(QString(status)));
+                }
+            }
+
+            QString const &prStderr = pr.readAllStandardError();
+            if (!error && !prStderr.isEmpty()) {
+                displayTheme = THEME_DEFAULT;
+                logError() << qUtf8Printable(QObject::tr("Theme check returned error: %1").arg(prStderr));
+            }
+
+            int exitCode = pr.exitCode();
+            if (exitCode) {
+                displayTheme = exitCode == 1 ? THEME_DARK : THEME_DEFAULT;
+                logInfo() << qUtf8Printable(QString("Display Theme: %1 (%2)").arg(displayTheme).arg(exitCode));
+            } else {
+                displayTheme = THEME_DEFAULT;
+                QString const standardOutput = pr.readAllStandardOutput().trimmed();
+                if (!standardOutput.isEmpty())
+                    logNotice() << qUtf8Printable(QObject::tr("Theme Check %1").arg(standardOutput));
+            }
+        }
+#endif
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey), displayTheme);
     }
 #endif
 

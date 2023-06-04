@@ -182,7 +182,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   /* Themes */
   ui.themeCombo->addItem(THEME_DEFAULT);
   ui.themeCombo->addItem(THEME_DARK);
-#ifdef Q_OS_WIN
+#ifndef Q_OS_MAC
   ui.themeCombo->addItem(THEME_SYSTEM);
 #endif
 
