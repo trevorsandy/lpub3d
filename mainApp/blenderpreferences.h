@@ -83,7 +83,6 @@ class BlenderPreferences : public QWidget
 {
     Q_OBJECT
 public:
-
     explicit BlenderPreferences(int      width,
                                 int      height,
                                 double   renderPercentage,
@@ -96,6 +95,12 @@ public:
     static void saveSettings();
     static bool exportParameterFile();
     static bool settingsModified(bool update = true, QString const &module = QString());
+    static int showMessage(QString const &header,
+                           QString const &title = QString(),
+                           QString const &body = QString(),
+                           QString const &detail = QString(),
+                           const int buttons = MBB_OK,
+                           const int icon = 3 /*QMessageBox::Critical*/);
 
     void apply(const int response = QDialog::Accepted);
 
@@ -111,12 +116,6 @@ protected:
     static bool extractBlenderAddon(const QString &blenderDir);
     static void loadDefaultParameters(QByteArray& buffer, int which);
     static bool overwriteFile(const QString &file);
-    static int showMessage(QString const &header,
-                           QString const &title = QString(),
-                           QString const &body = QString(),
-                           QString const &detail = QString(),
-                           const int buttons = MBB_OK,
-                           const int icon = 3);
 
     QString readStdErr(bool &hasError) const;
     void clearGroupBox(QGroupBox *groupBox);
@@ -133,7 +132,7 @@ public slots:
 
 private slots:
     void browseBlender(bool);
-    void configureBlenderAddon(bool = false, bool = false);
+    void configureBlenderAddon(bool = false, bool = false, bool = false);
     void updateBlenderAddon();
     void enableImportModule();
     void sizeChanged(const QString &);

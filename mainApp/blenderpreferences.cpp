@@ -873,7 +873,7 @@ void BlenderPreferences::updateBlenderAddon()
             this,                            SLOT  (configureBlenderAddon()));
 }
 
-void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdate)
+void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdate, bool moduleChange)
 {
     mProgressBar = nullptr;
 
@@ -909,7 +909,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
 
         bool newBlenderExe = blenderExeCompare != blenderExe.toLower();
 
-        if (mConfigured && !addonUpdate && !newBlenderExe)
+        if (mConfigured && !addonUpdate && !moduleChange && !newBlenderExe)
             return;
 
         // Process command
@@ -1004,159 +1004,161 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(update()));
         mUpdateTimer.start(500);
 
-        mProgressBar = new QProgressBar(mContent);
-        mProgressBar->setMaximum(0);
-        mProgressBar->setMinimum(0);
-        mProgressBar->setValue(1);
+        if (!moduleChange) {
+            mProgressBar = new QProgressBar(mContent);
+            mProgressBar->setMaximum(0);
+            mProgressBar->setMinimum(0);
+            mProgressBar->setValue(1);
 
-        // Test Blender executable
-        testBlender |= sender() == mPathLineEditList[PATH_BLENDER];
-        if (testBlender) {
-            mExeGridLayout->replaceWidget(mBlenderVersionEdit, mProgressBar);
-            mProgressBar->show();
+            // Test Blender executable
+            testBlender |= sender() == mPathLineEditList[PATH_BLENDER];
+            if (testBlender) {
+                mExeGridLayout->replaceWidget(mBlenderVersionEdit, mProgressBar);
+                mProgressBar->show();
 
-            arguments << QString("--factory-startup");
-            arguments << QString("-b");
-            arguments << QString("--python-expr");
-            arguments << QString("\"import sys;print('%1');sys.stdout.flush();sys.exit()\"").arg(blenderTestString);
+                arguments << QString("--factory-startup");
+                arguments << QString("-b");
+                arguments << QString("--python-expr");
+                arguments << QString("\"import sys;print('%1');sys.stdout.flush();sys.exit()\"").arg(blenderTestString);
 
-            bool error = false;
+                bool error = false;
 
-            QString scriptName, scriptCommand;
+                QString scriptName, scriptCommand;
 
 #ifdef Q_OS_WIN
-            scriptName =  QLatin1String("blender_test.bat");
+                scriptName =  QLatin1String("blender_test.bat");
 #else
-            scriptName =  QLatin1String("blender_test.sh");
+                scriptName =  QLatin1String("blender_test.sh");
 #endif
-            scriptCommand = QString("%1 %2").arg(blenderExe).arg(arguments.join(" "));
+                scriptCommand = QString("%1 %2").arg(blenderExe).arg(arguments.join(" "));
 
-            message = tr("Blender Test Command: %1").arg(scriptCommand);
-#ifdef QT_DEBUG_MODE
-            qDebug() << qPrintable(message);
-#else
-            emit gui->messageSig(LOG_INFO, message);
-#endif
-            script.setFileName(QString("%1/%2").arg(QDir::tempPath()).arg(scriptName));
-            if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream stream(&script);
-#ifdef Q_OS_WIN
-                stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
-#else
-                stream << QLatin1String("#!/bin/bash") << lpub_endl;
-#endif
-                stream << scriptCommand << lpub_endl;
-                script.close();
-                message = tr("Blender Test Script: %2").arg(QDir::toNativeSeparators(script.fileName()));
+                message = tr("Blender Test Command: %1").arg(scriptCommand);
 #ifdef QT_DEBUG_MODE
                 qDebug() << qPrintable(message);
 #else
                 emit gui->messageSig(LOG_INFO, message);
 #endif
-            } else {
-                message = tr("Cannot write Blender render script file [%1] %2.")
-                              .arg(script.fileName())
-                              .arg(script.errorString());
-                error = true;
-            }
-
-            if (error) {
-                emit gui->messageSig(LOG_ERROR, message);
-                statusUpdate(false/*addon*/);
-                return;
-            }
-
-            QThread::sleep(1);
-
+                script.setFileName(QString("%1/%2").arg(QDir::tempPath()).arg(scriptName));
+                if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    QTextStream stream(&script);
 #ifdef Q_OS_WIN
-            shellProgram = QLatin1String(WINDOWS_SHELL);
+                    stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
 #else
-            shellProgram = QLatin1String(UNIX_SHELL);
+                    stream << QLatin1String("#!/bin/bash") << lpub_endl;
 #endif
-            result = processCommand(PR_TEST);
-            bool testOk = result != PR_FAIL;
-            QString const statusLabel = testOk ? "" : tr("Blender test failed.");
-            LogType logType = testOk ? LOG_INFO : LOG_ERROR;
-            emit gui->messageSig(logType, message);
-            statusUpdate(false/*addon*/, testOk, statusLabel);
-            if (testOk) {
-                Preferences::setBlenderVersionPreference(mBlenderVersion);
-                Preferences::setBlenderExePathPreference(blenderExe);
-            } else {
-                return;
-            }
-        } // Test Blender
+                    stream << scriptCommand << lpub_endl;
+                    script.close();
+                    message = tr("Blender Test Script: %2").arg(QDir::toNativeSeparators(script.fileName()));
+#ifdef QT_DEBUG_MODE
+                    qDebug() << qPrintable(message);
+#else
+                    emit gui->messageSig(LOG_INFO, message);
+#endif
+                } else {
+                    message = tr("Cannot write Blender render script file [%1] %2.")
+                                  .arg(script.fileName())
+                                  .arg(script.errorString());
+                    error = true;
+                }
 
-        if (!mBlenderVersion.isEmpty() && !mImportMMActBox->isChecked() && !mImportActBox->isChecked()) {
-            QString const &title = tr ("%1 Blender LDraw Addon Modules").arg(VER_PRODUCTNAME_STR);
-            QString const &header = tr ("No import module enabled."
-                                        "If you continue, the default import module (Import TN) will be used.<br>"
-                                        "If you select No, all addon modules will be disabled.");
-            QString const &body = tr ("Continue with the default import module ?");
-            int exec = showMessage(header, title, body, QString(), MBB_YES_NO, QMessageBox::NoIcon);
-            if (exec != QMessageBox::Yes) {
-                mRenderActBox->setChecked(false);
-                if (exec == QMessageBox::Cancel) {
+                if (error) {
+                    emit gui->messageSig(LOG_ERROR, message);
+                    statusUpdate(false/*addon*/);
                     return;
                 }
+
+                QThread::sleep(1);
+
+#ifdef Q_OS_WIN
+                shellProgram = QLatin1String(WINDOWS_SHELL);
+#else
+                shellProgram = QLatin1String(UNIX_SHELL);
+#endif
+                result = processCommand(PR_TEST);
+                bool testOk = result != PR_FAIL;
+                QString const statusLabel = testOk ? "" : tr("Blender test failed.");
+                LogType logType = testOk ? LOG_INFO : LOG_ERROR;
+                emit gui->messageSig(logType, message);
+                statusUpdate(false/*addon*/, testOk, statusLabel);
+                if (testOk) {
+                    Preferences::setBlenderVersionPreference(mBlenderVersion);
+                    Preferences::setBlenderExePathPreference(blenderExe);
+                } else {
+                    return;
+                }
+            } // Test Blender
+
+            if (!mBlenderVersion.isEmpty() && !mImportMMActBox->isChecked() && !mImportActBox->isChecked()) {
+                QString const &title = tr ("%1 Blender LDraw Addon Modules").arg(VER_PRODUCTNAME_STR);
+                QString const &header = tr ("No import module enabled."
+                                            "If you continue, the default import module (Import TN) will be used.<br>"
+                                            "If you select No, all addon modules will be disabled.");
+                QString const &body = tr ("Continue with the default import module ?");
+                int exec = showMessage(header, title, body, QString(), MBB_YES_NO, QMessageBox::NoIcon);
+                if (exec != QMessageBox::Yes) {
+                    mRenderActBox->setChecked(false);
+                    if (exec == QMessageBox::Cancel) {
+                        return;
+                    }
+                }
+
+                mImportActBox->setChecked(true);
             }
 
-            mImportActBox->setChecked(true);
-        }
-
-        if (testBlender) {
-            QString const preferredImportModule =
-                mImportActBox->isChecked()
-                    ? QString("TN")
-                    : mImportMMActBox->isChecked()
-                          ? QString("MM")
-                          : QString();  // disable all import modules
-            Preferences::setBlenderImportModule(preferredImportModule);
-        } else {
-            mBlenderVersionEdit->setVisible(addonUpdate);
-        }
-
-        if (mProgressBar) {
-            mAddonGridLayout->replaceWidget(mAddonVersionEdit, mProgressBar);
-            mProgressBar->show();
-        }
-
-        // Download and extract blender addon
-        if (!extractBlenderAddon(blenderDir)) {
-            if (addonUpdate) {
-                mConfigured = true;
-                mBlenderVersionLabel->setText(tr("Blender"));
-                mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name()));
-                mBlenderVersionEdit->setText(mBlenderVersion);
-                mBlenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
-                mBlenderVersionEdit->setVisible(mConfigured);
-                if (!mAddonVersion.isEmpty()) {
-                    mModulesBox->setEnabled(true);
-                    mAddonVersionEdit->setText(mAddonVersion);
-                }
-                mAddonUpdateButton->setEnabled(mConfigured);
-                if (mProgressBar) {
-                    mExeGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
-                    mProgressBar->close();
-                }
+            if (testBlender) {
+                QString const preferredImportModule =
+                    mImportActBox->isChecked()
+                        ? QString("TN")
+                        : mImportMMActBox->isChecked()
+                              ? QString("MM")
+                              : QString();  // disable all import modules
+                Preferences::setBlenderImportModule(preferredImportModule);
+            } else {
+                mBlenderVersionEdit->setVisible(addonUpdate);
             }
-            return;
+
+            if (mProgressBar) {
+                mAddonGridLayout->replaceWidget(mAddonVersionEdit, mProgressBar);
+                mProgressBar->show();
+            }
+
+            // Download and extract blender addon
+            if (!extractBlenderAddon(blenderDir)) {
+                if (addonUpdate) {
+                    mConfigured = true;
+                    mBlenderVersionLabel->setText(tr("Blender"));
+                    mBlenderVersionLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(QApplication::palette().text().color().name()));
+                    mBlenderVersionEdit->setText(mBlenderVersion);
+                    mBlenderVersionEdit->setToolTip(tr("Display the Blender and %1 Render addon version").arg(VER_PRODUCTNAME_STR));
+                    mBlenderVersionEdit->setVisible(mConfigured);
+                    if (!mAddonVersion.isEmpty()) {
+                        mModulesBox->setEnabled(true);
+                        mAddonVersionEdit->setText(mAddonVersion);
+                    }
+                    mAddonUpdateButton->setEnabled(mConfigured);
+                    if (mProgressBar) {
+                        mExeGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
+                        mProgressBar->close();
+                    }
+                }
+                return;
+            }
+
+            // Main installation script
+            if (!QFileInfo(blenderInstallFile).exists()) {
+                gui->messageSig(LOG_ERROR, tr("Could not find addon install file: %1").arg(blenderInstallFile));
+                statusUpdate(true/*addon*/,true/*error*/,tr("Addon file not found."));
+                return;
+            }
+
+            // Install Blender addon
+            statusUpdate(true/*addon*/, false/*error*/, tr("Installing addon..."));
+
+            // Create Blender config directory
+            QDir configDir(Preferences::blenderConfigDir);
+            if(!QDir(configDir).exists())
+                configDir.mkpath(".");
         }
-
-        // Main installation script
-        if (!QFileInfo(blenderInstallFile).exists()) {
-            gui->messageSig(LOG_ERROR, tr("Could not find addon install file: %1").arg(blenderInstallFile));
-            statusUpdate(true/*addon*/,true/*error*/,tr("Addon file not found."));
-            return;
-        }
-
-        // Install Blender addon
-        statusUpdate(true/*addon*/, false/*error*/, tr("Installing addon..."));
-
-        // Create Blender config directory
-        QDir configDir(Preferences::blenderConfigDir);
-        if(!QDir(configDir).exists())
-            configDir.mkpath(".");
 
         // Save initial settings
         saveSettings();
@@ -1530,7 +1532,8 @@ void BlenderPreferences::showResult()
     bool hasError;
     const QString StdErrLog = readStdErr(hasError);
 
-    mProgressBar->close();
+    if (mProgressBar)
+        mProgressBar->close();
 
     writeStdOut();
 
@@ -2454,7 +2457,10 @@ void BlenderPreferences::saveSettings()
         } else if (i < LBL_BEVEL_WIDTH) {
             value = mBlenderSettings[i].value == "1" ? "True" : "False";
         } else if (i > LBL_VERBOSE) {
-            value = mBlenderSettings[i].value;
+            if (i == LBL_FLEX_PARTS_SOURCE || i == LBL_POSITION_OBJECT)
+                value = mBlenderSettings[i].value == "1" ? "True" : "False";
+            else
+                value = mBlenderSettings[i].value;
         }
 
         QString const key = mBlenderSettings[i].key;
@@ -2481,9 +2487,7 @@ void BlenderPreferences::saveSettings()
         if (i == LBL_KEEP_ASPECT_RATIO_MM) {
             continue;
         } else if (i < LBL_BEVEL_SEGMENTS) {
-            value = mBlenderSettingsMM[i].value == "1"
-                        ? "True"
-                        : "False";
+            value = mBlenderSettingsMM[i].value == "1" ? "True" : "False";
         } else if (i > LBL_VERBOSE_MM) {
             value = mBlenderSettingsMM[i].value;
         }
@@ -2522,9 +2526,8 @@ void BlenderPreferences::enableImportModule()
     if (preferredImportModule.isEmpty())
         return;
 
-    if (settingsModified(true/*update*/, saveImportModule)) {
+    if (settingsModified(true/*update*/, saveImportModule))
         saveSettings();
-    }
 
     Preferences::setBlenderImportModule(preferredImportModule);
 
@@ -2532,6 +2535,8 @@ void BlenderPreferences::enableImportModule()
         initPathsAndSettingsMM();
     else
         initPathsAndSettings();
+
+    configureBlenderAddon(false/*testBlender*/, false/*addonUpdate*/, true/*moduleChange*/);
 }
 
 int BlenderPreferences::numSettings(bool defaultSettings)
