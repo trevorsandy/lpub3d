@@ -2896,7 +2896,7 @@ void Gui::ReloadVisualEditor(){
                                             .arg(Top)
                                             .arg(Bottom);
                  if (QMessageBox::warning(this,tr("%1 BuildMod Warning").arg(VER_PRODUCTNAME_STR),message,
-                                          QMessageBox::Abort|QMessageBox::Ignore,QMessageBox::Ignore) == QMessageBox::Abort) {
+                                          QMessageBox::No|QMessageBox::Yes,QMessageBox::No) == QMessageBox::No) {
                      showLine(currentStep->topOfStep());
                      progressPermStatusRemove();
                      return;
@@ -2923,10 +2923,10 @@ void Gui::ReloadVisualEditor(){
                                    "<br>Do you want to continue with this create action ?");
                  box.setText (title);
                  box.setInformativeText (text);
-                 box.setStandardButtons (QMessageBox::Abort | QMessageBox::Ignore);
-                 box.setDefaultButton   (QMessageBox::Abort);
+                 box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+                 box.setDefaultButton   (QMessageBox::No);
 
-                 if (box.exec() == QMessageBox::Abort) {
+                 if (box.exec() == QMessageBox::No) {
                      showLine(currentStep->topOfStep());
                      progressPermStatusRemove();
                      return;
