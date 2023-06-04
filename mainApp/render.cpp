@@ -4063,8 +4063,8 @@ int Render::createNativeModelFile(
     bool         doHighlightStep,
     int          type)
 {
-  QStringList nativeSubModels;
-  QStringList nativeSubModelParts;
+  QStringList nativeSubfiles;
+  QStringList nativeSubfileParts;
   QStringList nativeParts = rotatedParts;
   Options::Mt imageType = static_cast<Options::Mt>(type);
 
@@ -4074,7 +4074,7 @@ int Render::createNativeModelFile(
   if (rotatedParts.size()) {
       /* Parse the rotated parts looking for subModels,
        * renaming fade and highlight step parts - so we can test - and
-       * merging and formatting submodels by calling mergeNativeSubModels and
+       * merging and formatting submodels by calling mergeNativeSubfiles and
        * returning all parts by reference
       */
       for (int index = 0; index < rotatedParts.size(); index++) {
@@ -4122,16 +4122,16 @@ int Render::createNativeModelFile(
 
               if (lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
-                  if (!nativeSubModels.contains(type.toLower()))
-                       nativeSubModels << type.toLower();
+                  if (!nativeSubfiles.contains(type.toLower()))
+                       nativeSubfiles << type.toLower();
                 }
             }
         } //end for
 
       /* process extracted submodels and unofficial files */
-      if (nativeSubModels.size()) {
-          nativeSubModels.removeDuplicates();
-          if ((rc = mergeNativeSubModels(nativeSubModels, nativeSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
+      if (nativeSubfiles.size()) {
+          nativeSubfiles.removeDuplicates();
+          if ((rc = mergeNativeSubfiles(nativeSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0){
               emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to process viewer submodels"));
               return rc;
             }
@@ -4140,11 +4140,11 @@ int Render::createNativeModelFile(
       /* add sub model content to nativeRotatedParts file */
       const QLatin1String mpdModelMeta("0 FILE ");
       bool mpdModel = nativeParts.at(0).startsWith(mpdModelMeta);
-      if (! nativeSubModelParts.empty()) {
-          bool singleSubmodel = false;
+      if (! nativeSubfileParts.empty()) {
+          bool singleSubfile = false;
           QString rotStepLine;
           // check if main model and submodel shares the same name
-          if (mpdModel && nativeParts.at(0) == nativeSubModelParts.at(0)) {
+          if (mpdModel && nativeParts.at(0) == nativeSubfileParts.at(0)) {
               int typeCount = 0;
               bool mpdModelNotTransformed = false;
               for (const QString &line : nativeParts) {
@@ -4156,19 +4156,19 @@ int Render::createNativeModelFile(
                   else if (line.startsWith("0 // ROTSTEP "))
                       rotStepLine = line;
               }
-              singleSubmodel = mpdModelNotTransformed && nativeSubModels.size() == 1;
-              if (singleSubmodel) {
+              singleSubfile = mpdModelNotTransformed && nativeSubfiles.size() == 1;
+              if (singleSubfile) {
                   nativeParts.clear();
-                  nativeSubModels.clear();
+                  nativeSubfiles.clear();
               }
           }
 
-          for (int i = 0; i < nativeSubModelParts.size(); i++) {
-              QString smLine = nativeSubModelParts[i];
+          for (int i = 0; i < nativeSubfileParts.size(); i++) {
+              QString smLine = nativeSubfileParts[i];
               nativeParts << smLine;
           }
 
-          if (singleSubmodel && !rotStepLine.isEmpty())
+          if (singleSubfile && !rotStepLine.isEmpty())
               nativeParts.insert(3,rotStepLine);
       }
 
@@ -4179,7 +4179,7 @@ int Render::createNativeModelFile(
       };
       if (mpdModel) {
           QFileInfo fi(nativeParts[0].split(mpdModelMeta).last());
-          if (nativeSubModels.contains(fi.fileName())) {
+          if (nativeSubfiles.contains(fi.fileName())) {
               QString baseName  = fi.completeBaseName();
               QString modelName = QString(fi.fileName()).replace(baseName, QString("%1-main").arg(baseName));
               nativeParts[0]    = QString("0 FILE %1").arg(modelName);
@@ -4195,35 +4195,35 @@ int Render::createNativeModelFile(
   return 0;
 }
 
-int Render::mergeNativeSubModels(QStringList &subModels,
-                                  QStringList &subModelParts,
-                                  bool doFadeStep,
-                                  bool doHighlightStep,
-                                  int imageType)
+int Render::mergeNativeSubfiles(QStringList &subFiles,
+                                QStringList &subFileParts,
+                                bool doFadeStep,
+                                bool doHighlightStep,
+                                int imageType)
 {
-  QStringList nativeSubModels        = subModels;
-  QStringList nativeSubModelParts    = subModelParts;
-  QStringList newSubModels;
+  QStringList nativeSubfiles     = subFiles;
+  QStringList nativeSubfileParts = subFileParts;
+  QStringList newSubfiles;
   QStringList argv;
 
-  if (nativeSubModels.size()) {
+  if (nativeSubfiles.size()) {
 
       /* read in all detected sub model file content */
-      for (int index = 0; index < nativeSubModels.size(); index++) {
+      for (int index = 0; index < nativeSubfiles.size(); index++) {
 
           QString ldrName(QDir::currentPath() + "/" +
                           Paths::tmpDir + "/" +
-                          nativeSubModels[index]);
+                          nativeSubfiles[index]);
 
           /* initialize the working submodel file - define header. */
-          QString modelName = QFileInfo(nativeSubModels[index]).completeBaseName()/*.toLower()*/;
+          QString modelName = QFileInfo(nativeSubfiles[index]).completeBaseName()/*.toLower()*/;
           modelName = modelName.replace(
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
 
-          nativeSubModelParts << QString("0 FILE %1").arg(nativeSubModels[index]);
+          nativeSubfileParts << QString("0 FILE %1").arg(nativeSubfiles[index]);
           if (imageType != Options::MON) {
-              nativeSubModelParts << QString("0 %1").arg(modelName);
-              nativeSubModelParts << QString("0 Name: %1").arg(nativeSubModels[index]);
+              nativeSubfileParts << QString("0 %1").arg(modelName);
+              nativeSubfileParts << QString("0 Name: %1").arg(nativeSubfiles[index]);
           }
 
           /* read the actual submodel file */
@@ -4280,28 +4280,28 @@ int Render::mergeNativeSubModels(QStringList &subModels,
 
                   if (lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                       /* capture all subfiles (full string) to be processed when finished */
-                      if (!newSubModels.contains(type.toLower()))
-                              newSubModels << type.toLower();
+                      if (!newSubfiles.contains(type.toLower()))
+                              newSubfiles << type.toLower();
                     }
                 }
               if (isGhost(nativeLine))
                   argv.prepend(GHOST_META);
               nativeLine = argv.join(" ");
-              nativeSubModelParts << nativeLine;
+              nativeSubfileParts << nativeLine;
             }
-          nativeSubModelParts << QLatin1String("0 NOFILE");
+          nativeSubfileParts << QLatin1String("0 NOFILE");
         }
 
       /* recurse and process any identified submodel files */
-      if (newSubModels.size() > 0){
-          newSubModels.removeDuplicates();
+      if (newSubfiles.size() > 0){
+          newSubfiles.removeDuplicates();
           int rc;
-          if ((rc = mergeNativeSubModels(newSubModels, nativeSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
+          if ((rc = mergeNativeSubfiles(newSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0){
               emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to recurse viewer submodels"));
               return rc;
             }
         }
-      subModelParts = nativeSubModelParts;
+      subFileParts = nativeSubfileParts;
     }
   return 0;
 }

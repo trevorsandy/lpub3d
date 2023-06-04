@@ -92,8 +92,8 @@ public:
                                      bool doFadeStep,
                                      bool doHighlightStep,
                                      int imageType = 0);
-  static int             mergeNativeSubModels(QStringList &subModels,
-                                     QStringList &subModelParts,
+  static int             mergeNativeSubfiles(QStringList &subFiles,
+                                     QStringList &subFileParts,
                                      bool doFadeStep,
                                      bool doHighlightStep,
                                      int imageType = 0);
