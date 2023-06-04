@@ -37,3 +37,4 @@ protected:
 };
 
 extern TexFont gTexFont;
+

@@ -95,3 +95,4 @@ protected:
 	std::map<QString, lcMinifigTemplate> mTemplates;
 	static const char* mSectionNames[LC_MFW_NUMITEMS];
 };
+

@@ -1780,8 +1780,8 @@ void BlenderPreferences::readStdOut()
     mStdOutList.append(StdOut);
 
     QRegExp rxInfo("^INFO: ");
-    QRegExp rxError("(?:\\w)*ERROR: ", Qt::CaseInsensitive);
-    QRegExp rxWarning("(?:\\w)*WARNING: ", Qt::CaseInsensitive);
+    QRegExp rxError("^(?:\\w)*ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxWarning("^(?:\\w)*WARNING: ", Qt::CaseInsensitive);
 
     bool const hasError = StdOut.contains(rxError);
     bool const hasWarning = StdOut.contains(rxWarning);
