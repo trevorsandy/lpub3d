@@ -87,6 +87,7 @@ public:
   static bool            doLDVCommand(const QStringList &args,
                                       int exportMode = -1 /*EXPORT_NONE*/,
                                       int = 6 /*NumIniFiles*/);
+  static bool            isSingleSubfile(const QStringList &partLines);
   static int             createNativeModelFile(QStringList &rotatedParts,
                                      bool doFadeStep,
                                      bool doHighlightStep,

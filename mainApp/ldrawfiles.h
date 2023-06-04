@@ -467,6 +467,7 @@ class LDrawFile {
     int fileOrderIndex(const QString &file);
     bool contains(const QString &file, bool = true);
     bool isSubmodel(const QString &file);
+    bool isSubfileLine(const QString &line);
     bool modified();
     bool modified(const QString &fileName, bool = false);
     bool modified(const QStringList &parsedStack, bool reset);

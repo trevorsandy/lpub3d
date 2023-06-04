@@ -252,16 +252,17 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int imageType, int displayType) {
-
+int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int type, int displayType)
+{
     QStringList tokens;
+    Options::Mt imageType = static_cast<Options::Mt>(type);
     DisplayType modelType = static_cast<DisplayType>(displayType);
     QString baseName = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
     bool isMPD       = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
-    // Test for MPD
-    if (!isMPD) {
+    // Test for MPD - if single subfile line - subfile parts consolidated as single LDR
+    if (!isMPD && !isSingleSubfile(lines)) {
         for (int i = 0; i < lines.size(); i++) {
             QString line = lines.at(i);
             split(line, tokens);
@@ -4034,16 +4035,38 @@ const QString Render::getRenderModelFile(int renderType, bool saveCurrentModel) 
     return modelFile;
 }
 
+bool Render::isSingleSubfile(const QStringList &partLines)
+{
+    bool result = false;
+    if (partLines.isEmpty())
+        return result;
+    else if (partLines.count() == 1) {
+        result = lpub->ldrawFile.isSubfileLine(partLines.first());
+    } else {
+        int partCount = 0;
+        for (QString const &partLine : partLines) {
+            if (partCount > 1)
+                return result;
+            if (!partLine.isEmpty() && !partLine.startsWith("0"))
+                partCount++;
+            if (partLine.startsWith("1"))
+                result = lpub->ldrawFile.isSubfileLine(partLine);
+        }
+    }
+    return result;
+}
+
 // create Native version of the CSI/PLI file - consolidate subfiles and parts into single file
 int Render::createNativeModelFile(
     QStringList &rotatedParts,
     bool         doFadeStep,
     bool         doHighlightStep,
-    int          imageType)
+    int          type)
 {
   QStringList nativeSubModels;
   QStringList nativeSubModelParts;
   QStringList nativeParts = rotatedParts;
+  Options::Mt imageType = static_cast<Options::Mt>(type);
 
   QStringList argv;
   int         rc;

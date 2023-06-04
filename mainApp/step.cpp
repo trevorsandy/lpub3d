@@ -459,10 +459,34 @@ int Step::createCsi(
       if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
 
           updateViewer = true; // just to be safe
+          QStringList viewerParts = csiParts;
+          bool doFadeSteps = csiStepMeta.fadeSteps.enable.value();
+          bool doHighlightStep = csiStepMeta.highlightStep.enable.value();
+          bool singleSubfile = renderer->isSingleSubfile(viewerParts);
+
+          // process part list with single submodel
+          if (singleSubfile) {
+              if (renderer->createNativeModelFile(viewerParts,doFadeSteps,doHighlightStep,Options::CSI) == 0) {
+                  viewerParts.takeFirst();
+                  bool clearMpdMeta = false;
+                  for (int i = 0; i < viewerParts.count(); i++) {
+                      if (viewerParts[i].startsWith("0 FILE")) {
+                          clearMpdMeta = true;
+                          viewerParts.removeAt(i);
+                      }
+                      if (clearMpdMeta) {
+                          if (viewerParts[i].startsWith("0 NOFILE")) {
+                              viewerParts.removeAt(i);
+                              break;
+                          }
+                      }
+                  }
+              }
+          }
 
           // set rotated parts - input is csiParts
           QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
-              QStringList futureParts = csiParts;
+              QStringList futureParts = viewerParts;
               // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
               if (renderer->rotateParts(
                           addLine,
@@ -489,25 +513,25 @@ int Step::createCsi(
           if (rotatedPartsNH.size() && rotatedPartsNH.at(0)[0] == '0')
               rotatedPartsNH.takeFirst();
 
-          // Prepare content for Native renderer
-          if (!rc && Preferences::inlineNativeContent) {
-              QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
-                  QStringList futureParts = rotatedParts;
-                  // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
-                  renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,displayStep);
-                  // consolidate subfiles and parts into single file
-                  bool doFadeSteps = csiStepMeta.fadeSteps.enable.value();
-                  bool doHighlightStep = csiStepMeta.highlightStep.enable.value();
-                  if (renderer->createNativeModelFile(futureParts,doFadeSteps,doHighlightStep) != 0) {
-                      emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
-                      pngName = QString(":/resources/missingimage.png");
-                      futureParts.clear();
-                  }
-                  return futureParts;
-              });
+          // process part list for Native renderer - if not already processed in singleSubfile above
+          if (!singleSubfile) {
+              if (!rc && Preferences::inlineNativeContent) {
+                  QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
+                      QStringList futureParts = rotatedParts;
+                      // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
+                      renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,displayStep);
+                      // consolidate subfiles and parts into single file
+                      if (renderer->createNativeModelFile(futureParts,doFadeSteps,doHighlightStep) != 0) {
+                          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+                          pngName = QString(":/resources/missingimage.png");
+                          futureParts.clear();
+                      }
+                      return futureParts;
+                  });
 
-              rotatedParts = RenderFuture.result();
-              rc = rotatedParts.isEmpty();
+                  rotatedParts = RenderFuture.result();
+                  rc = rotatedParts.isEmpty();
+              }
           }
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
@@ -575,7 +599,7 @@ int Step::createCsi(
 //      moved to drawPage::StepRc
 //      if (!calledOut && !multiStep && updateViewer)
 //          loadTheViewer();
-  }
+  } // Generate Visual Editor CSI entry
 
   // Generate the renderer CSI file
 
@@ -685,7 +709,7 @@ int Step::createCsi(
          csiPlacement.size[1] = pixmap->height();
          return rc;
      }
-  }
+  } // Generate the renderer CSI file
 
   // Reset updateViewer - leave value in place for calledOut and multiStep
   if (!calledOut && !multiStep)

@@ -1,4 +1,4 @@
-LPub3D 2.4.6.299.3410 (04 06 2023 02:36:02)
+LPub3D 2.4.6.300.3411 (04 06 2023 02:37:58)
 
 Features, enhancements, fixes and changes
 ------------
@@ -23,6 +23,7 @@ Revisions:
 - Change - Fade opacity value inverted #708
 - Change - Fade previous steps colour value #689
 - Change - Load model with absolute path FILE name #686
+- Change - Native Render view angle change between sub-model and main model #718
 - Change - Part list annotation style #716
 - Change - Persisting fade previous steps and highlight current step settings #683
 - Change - Refactor Blender integration - update to support Blender 3.4 #677

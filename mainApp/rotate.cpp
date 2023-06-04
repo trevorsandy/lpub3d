@@ -202,19 +202,22 @@ int Render::rotateParts(
           QString           &ldrName,
           const QString     &modelName,
           FloatPairMeta     &ca,
-          bool               ldv       /* false */,
-          int                imageType /* CSI */)
+          bool               ldv  /* false */,
+          int                type /* CSI */)
 {
   bool ldvFunction     = ldv || gui->m_partListCSIFile;
   bool doFadeStep      = Preferences::enableFadeSteps;
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;
   bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction;
+  bool singleSubfile   = isSingleSubfile(parts);
+  Options::Mt imageType = static_cast<Options::Mt>(type);
 
   QStringList rotatedParts = parts;
 
   // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
-  rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
+  if (!singleSubfile)
+      rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
 
   // intercept rotatedParts for imageMatting
   QStringList imageMatteParts = rotatedParts;
@@ -226,27 +229,53 @@ int Render::rotateParts(
     return -1;
   }
 
-  // add ROTSTEP command
-  QString rotsComment = getRotstepMeta(rotStep);
-  if (imageType != Options::MON)
-      rotatedParts.prepend(rotsComment);
-
   // Prepare content for Native renderer
   if (nativeRenderer && Preferences::inlineNativeContent && ! ldvFunction) {
+
       // header and closing meta for Visual Editor - this call returns an updated pliFile
-      setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
+      if (!singleSubfile)
+          setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
       // consolidate subfiles and parts into single file
       int rc = 0;
-      if (Preferences::buildModEnabled && imageType == Options::SMI)
+      if (Preferences::buildModEnabled && imageType == Options::SMI) {
           rc = mergeSubmodelContent(rotatedParts);
-      else
+      } else {
           rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
+          if (!rc && singleSubfile) {
+              rotatedParts.takeFirst();
+              bool clearMpdMeta = false;
+              for (int i = 0; i < rotatedParts.count(); i++) {
+                  if (rotatedParts[i].startsWith("0 FILE")) {
+                      clearMpdMeta = true;
+                      rotatedParts.removeAt(i);
+                  }
+                  if (clearMpdMeta) {
+                      if (rotatedParts[i].startsWith("0 NOFILE")) {
+                          rotatedParts.removeAt(i);
+                          break;
+                      }
+                  }
+              }
+              rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
+          }
+      }
       if (rc)
           emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
-                               .arg(imageType == static_cast<int>(Options::CSI) ?
-                                        "Current Step Instance (CSI)" : static_cast<int>(Options::MON) ?
+                               .arg(imageType == Options::CSI ?
+                                        "Current Step Instance (CSI)" : imageType == Options::MON ?
                                         "Mono Color Submodel (MON)" :  "Submodel Preview (SMI)"));
+  }
+
+  // add ROTSTEP command
+  QString rotsComment = getRotstepMeta(rotStep);
+  if (imageType != Options::MON) {
+      for (int i = 0; i < rotatedParts.size(); i++) {
+          if (!rotatedParts[i].isEmpty() && !rotatedParts[i].startsWith("0")) {
+              rotatedParts.insert(i,rotsComment);
+              break;
+          }
+      }
   }
 
   // Write parts to file
@@ -466,7 +495,8 @@ int Render::rotateParts(
   // declare center points (min + max)/2
   double center[3];
   for (int d = 0; d < 3; d++) {
-    center[d] = (min[d] + max[d])/2;
+    bool calculate = min[d] != max[d];
+    center[d] = calculate ? (min[d] + max[d])/2 : max[d];
   }
 
   // rotate each line
