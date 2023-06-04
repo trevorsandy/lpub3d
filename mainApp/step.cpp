@@ -982,7 +982,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                 bool validLine = false;
                 if(line.isEmpty())
                   continue;
-                if ((validLine = line[0] != "0"))
+                if ((validLine = !line.startsWith("0")))
                   parts.insert(j, line);
                 else if ((validLine = line.startsWith("0 !FADE")))
                   parts.insert(j, line);

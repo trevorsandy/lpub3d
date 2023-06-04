@@ -32,10 +32,12 @@
 
 #include <QStringList>
 #include <QString>
+#include <QVector>
 #include <QMap>
-#include <QDateTime>
+#include <QMultiMap>
 #include <QList>
 #include <QMutex>
+#include <QDateTime>
 
 #include "excludedparts.h"
 #include "stickerparts.h"

@@ -745,7 +745,7 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 	connect(mFilterCategoriesAction, SIGNAL(triggered()), this, SLOT(FilterCategoriesTriggered()));
 	FilterCategoriesLayout->addWidget(mFilterCategoriesWidget);
 
-	mFilterCaseAction = new QAction();
+	mFilterCaseAction = new QAction(nullptr);
 	mFilterCaseAction->setIcon(QIcon(":/resources/case.png"));
 	mFilterCaseAction->setToolTip(tr("Match Case"));
 	mFilterCaseAction->setCheckable(true);

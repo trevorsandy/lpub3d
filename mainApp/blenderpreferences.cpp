@@ -1738,20 +1738,7 @@ void BlenderPreferences::readStdOut(const QString &stdOutput, QString &errors)
                     mPathLineEditList[PATH_STUD_LOGO]->setText(items.at(2));
             }
         } else if (stdOutLine.contains(rxError) || stdOutLine.contains(rxWarning)) {
-            auto cleanLine = [&] () {
-                return stdOutLine.trimmed()
-                       /*.replace("<","&lt;")
-                         .replace(">","&gt;")
-                         .replace("&","&amp;")*/ + "<br>";
-            };
-            errorList << cleanLine();
-            int errorCount = lineCount;
-            for (;errorCount < stdOutLines.size(); errorCount++) {
-                if (stdOutLine.at(0) == "")
-                    errorList << cleanLine();
-                else
-                    break;
-            }
+            errorList << stdOutLine.trimmed() +  + "<br>";
             if (!errorEncountered)
                 errorEncountered = stdOutLine.contains(rxError);
         } else if (stdOutLine.contains(rxAddonVersion)) {
