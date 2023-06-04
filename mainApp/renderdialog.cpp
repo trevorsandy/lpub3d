@@ -664,6 +664,9 @@ void RenderDialog::on_RenderButton_clicked()
         emit gui->messageSig(LOG_INFO, message);
 #endif
         if (mImportOnly) {
+            QFileInfo info(GetLogFileName(true/*stdOut*/));
+            if (info.exists())
+                QFile::remove(info.absoluteFilePath());
 #ifdef Q_OS_WIN
             mProcess->startDetached(shellProgram, QStringList() << "/C" << script.fileName());
 #else
@@ -675,6 +678,29 @@ void RenderDialog::on_RenderButton_clicked()
                 CloseProcess();
                 if (mStdOutList.size())
                     WriteStdOut();
+                if (info.exists())
+                {
+                    QFile log(info.absoluteFilePath());
+                    QTime waiting = QTime::currentTime().addSecs(3);
+                    while (!log.size() || QTime::currentTime() < waiting)
+                        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                    if (log.size()) {
+                        if (log.open(QFile::ReadOnly | QFile::Text))
+                        {
+                            QByteArray ba = log.readAll();
+                            bool const error = QString(ba).contains(QRegExp("(?:\\w)*ERROR: ", Qt::CaseInsensitive));
+                            bool const warning = QString(ba).contains(QRegExp("(?:\\w)*WARNING: ", Qt::CaseInsensitive));
+                            if (error || warning)
+                            {
+                                QMessageBox::Icon icon = error ? QMessageBox::Critical : QMessageBox::Warning;
+                                QString const &items = error ? tr("errors%1").arg(warning ? tr(" and warnings") : "") : warning ? tr("warnings") : "";
+                                QString const &title = tr("Open in Blender standard output");
+                                QString const &body = tr("Open in Blender encountered %1. See Show Details...").arg(items);
+                                BlenderPreferences::showMessage(body, title, QString(), QString(ba), 0, icon);
+                            }
+                        }
+                    }
+                }
                 close();
                 return;
             }
@@ -923,22 +949,10 @@ void RenderDialog::ShowResult()
         ui->RenderLabel->setText(tr("Image generation failed."));
         ui->RenderProgress->setRange(0,1);
         ui->RenderProgress->setValue(0);
-        QMessageBoxResizable box;
-        box.setTextFormat (Qt::RichText);
-        box.setIcon (QMessageBox::Critical);
-        box.setStandardButtons (QMessageBox::Ok);
-        box.setDefaultButton   (QMessageBox::Ok);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setWindowTitle(mRenderType == BLENDER_RENDER ? tr("Blender Render") : tr("POV-Ray Render"));
-
-        QString header = "<b>" + tr ("Render Error.") + "</b>";
-        QString body = tr ("An error occurred while rendering. See Show Details...");
-        box.setText (header);
-        box.setInformativeText (body);
-        box.setDetailedText(StdErrLog);
-        box.exec();
+        QString const &title = mRenderType == BLENDER_RENDER ? tr("Blender Render") : tr("POV-Ray Render");
+        QString const &body = tr ("An error occurred while rendering. See Show Details...");
+        BlenderPreferences::showMessage(body, title, QString(), StdErrLog, 0, QMessageBox::Critical);
         return;
-
     } else {
         ui->RenderProgress->setValue(ui->RenderProgress->maximum());
     }
@@ -1063,7 +1077,8 @@ void RenderDialog::CloseProcess()
         emit gui->messageSig(LOG_INFO, tr("Blender process closed"));
     }
 
-    ui->RenderButton->setText(mImportOnly ? tr("Import") : tr("Render"));
+    if (!mImportOnly)
+        ui->RenderButton->setText(tr("Render"));
 }
 
 bool RenderDialog::PromptCancel()
