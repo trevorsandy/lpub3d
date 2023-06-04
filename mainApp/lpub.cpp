@@ -4810,10 +4810,18 @@ void Gui::createActions()
 
     createOpenWithActions();
 
+    QAction *reloadFromDiskAct = new QAction(QIcon(":/resources/loadfromdisk.png"), tr("&Reload from Disk"), this);
+    reloadFromDiskAct->setObjectName("reloadFromDiskAct.1");
+    reloadFromDiskAct->setShortcut(QStringLiteral("Ctrl+Shift+R"));
+    reloadFromDiskAct->setStatusTip(tr("Reload current file from disk"));
+    reloadFromDiskAct->setEnabled(false);
+    lpub->actions.insert(reloadFromDiskAct->objectName(), Action(QStringLiteral("File.Reload From Disk"), reloadFromDiskAct));
+    connect(reloadFromDiskAct, SIGNAL(triggered()), this, SLOT(reloadFromDisk()));
+
     QAction *saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setObjectName("saveAct.1");
     saveAct->setShortcut(QStringLiteral("Ctrl+S"));
-    saveAct->setStatusTip(tr("Save the document to disk"));
+    saveAct->setStatusTip(tr("Save current file to disk"));
     saveAct->setEnabled(false);
     lpub->actions.insert(saveAct->objectName(), Action(QStringLiteral("File.Save"), saveAct));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
@@ -4821,7 +4829,7 @@ void Gui::createActions()
     QAction *saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save A&s..."), this);
     saveAsAct->setObjectName("saveAsAct.1");
     saveAsAct->setShortcut(QStringLiteral("Ctrl+Shift+S"));
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
+    saveAsAct->setStatusTip(tr("Save current file under a new name"));
     saveAsAct->setEnabled(false);
     lpub->actions.insert(saveAsAct->objectName(), Action(QStringLiteral("File.Save As"), saveAsAct));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -4829,7 +4837,7 @@ void Gui::createActions()
     QAction *saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
     saveCopyAct->setObjectName("saveCopyAct.1");
     saveCopyAct->setShortcut(QStringLiteral("Ctrl+Shift+C"));
-    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name"));
+    saveCopyAct->setStatusTip(tr("Save a copy of the current file under a new name"));
     saveCopyAct->setEnabled(false);
     lpub->actions.insert(saveCopyAct->objectName(), Action(QStringLiteral("File.Save A Copy As"), saveCopyAct));
     connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveCopy()));
@@ -4837,7 +4845,7 @@ void Gui::createActions()
     QAction *closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close File"), this);
     closeFileAct->setObjectName("closeFileAct.1");
     closeFileAct->setShortcut(QStringLiteral("Ctrl+W"));
-    closeFileAct->setStatusTip(tr("Close current model file"));
+    closeFileAct->setStatusTip(tr("Close current file"));
     closeFileAct->setEnabled(false);
     lpub->actions.insert(closeFileAct->objectName(), Action(QStringLiteral("File.Close File"), closeFileAct));
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
@@ -6489,6 +6497,7 @@ void Gui::enableActions()
   if (suspendFileDisplay)
     return;
 
+  getAct("reloadFromDiskAct.1")->setEnabled(true);
   getAct("saveAsAct.1")->setEnabled(true);
   getAct("saveCopyAct.1")->setEnabled(true);
   getAct("closeFileAct.1")->setEnabled(true);
@@ -6593,6 +6602,7 @@ void Gui::enableActions()
 
 void Gui::disableActions()
 {
+  getAct("reloadFromDiskAct.1")->setEnabled(false);
   getAct("saveAsAct.1")->setEnabled(false);
   getAct("saveCopyAct.1")->setEnabled(false);
   getAct("closeFileAct.1")->setEnabled(false);
@@ -6729,6 +6739,7 @@ void Gui::createMenus()
       openWithMenu->addAction(openWithActList.at(i));
     }
 
+    fileMenu->addAction(getAct("reloadFromDiskAct.1"));
     fileMenu->addAction(getAct("saveAct.1"));
     fileMenu->addAction(getAct("saveAsAct.1"));
     fileMenu->addAction(getAct("saveCopyAct.1"));
@@ -7061,6 +7072,7 @@ void Gui::createToolBars()
     fileToolBar->setObjectName("fileToolBar");
     toolbars.insert(fileToolBar->objectName(), fileToolBar);
     fileToolBar->addAction(getAct("openAct.1"));
+    fileToolBar->addAction(getAct("reloadFromDiskAct.1"));
     fileToolBar->addAction(getAct("saveAct.1"));
     fileToolBar->addAction(getAct("saveAsAct.1"));
     //fileToolBar->addAction(getAct("saveCopyAct.1"));

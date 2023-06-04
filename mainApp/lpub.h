@@ -1973,6 +1973,7 @@ private slots:
     bool maybeSave(bool prompt = true, int sender = SaveOnNone);
     bool saveFile(const QString &fileName);
     void closeFile();
+    void reloadFromDisk();
     void restorePreviousPage();
     void updateOpenWithActions();
     void updateRecentFileActions();

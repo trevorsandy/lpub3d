@@ -1078,6 +1078,17 @@ void Gui::loadLastOpenedFile() {
   }
 }
 
+void Gui::reloadFromDisk()
+{
+  if (!QFileInfo(curFile).isReadable())
+    return;
+  int goToPage = displayPageNum;
+  if (!openFile(curFile))
+    return;
+  displayPageNum = goToPage;
+  displayPage();
+}
+
 void Gui::fileChanged(const QString &path)
 {
   if (! changeAccepted)

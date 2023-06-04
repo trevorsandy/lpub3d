@@ -180,6 +180,7 @@
         <file alias="left_dark.png">resources/left_dark.png</file>
         <file alias="lineattributes.png">resources/lineattributes.png</file>
         <file alias="linewrap16.png">resources/linewrap16.png</file>
+        <file alias="loadfromdisk.png">resources/loadfromdisk.png</file>
         <file alias="loadstatus.png">resources/loadstatus.png</file>
         <file alias="lookat.png">resources/lookat.png</file>
         <file alias="lookat16.png">resources/lookat16.png</file>
