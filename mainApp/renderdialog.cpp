@@ -245,8 +245,6 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
         double renderPercentage = mCsiKeyList.at(K_MODELSCALE).toDouble();
 
-        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
-
         bool ok = BlenderPreferencesDialog::getBlenderPreferences(
                     mWidth,
                     mHeight,
@@ -254,14 +252,13 @@ void RenderDialog::on_RenderSettingsButton_clicked()
                     false /*document model*/,
                     this);
 
-        if (ok) {
+        if (ok)
             mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
-            blenderConfigured = !Preferences::blenderImportModule.isEmpty();
-        }
 
-        ui->RenderButton->setEnabled(blenderConfigured);
-        if (!blenderConfigured)
+        if (Preferences::blenderImportModule.isEmpty())
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
+        else
+            ui->RenderButton->setEnabled(true);
     }
 }
 
