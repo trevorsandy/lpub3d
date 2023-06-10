@@ -2140,7 +2140,8 @@ QMutex countMutex(QMutex::Recursive);
 int CountPageWorker::countPage(
     Meta            *meta,
     LDrawFile       *ldrawFile,
-    FindPageOptions  &opts)
+    FindPageOptions  &opts,
+    const QString    &addLine)
 {
   QMutexLocker countLocker(&countMutex);
 
@@ -2181,8 +2182,9 @@ int CountPageWorker::countPage(
   opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
   ldrawFile->setRendered(opts.current.modelName,
-                         opts.isMirrored,
+                         opts.renderModelColour,
                          opts.renderParentModel,
+                         opts.isMirrored,
                          opts.stepNumber,
                          opts.flags.countInstances,
                          true/*countPage*/);
@@ -2309,14 +2311,14 @@ int CountPageWorker::countPage(
               }
               Gui::lastStepPageNum = opts.pageNum;
 
-              QStringList token;
+              QStringList tokens;
 
-              split(line,token);
+              split(line,tokens);
 
-              if (token.size() == 15) {
+              if (tokens.size() == 15) {
 
-                  QString type = token[token.size()-1];
-                  QString colorType = token[1]+type;
+                  QString type = tokens[tokens.size()-1];
+                  QString colorType = tokens[1]+type;
 
                   int contains = ldrawFile->isSubmodel(type);
 
@@ -2335,10 +2337,23 @@ int CountPageWorker::countPage(
 
                       if (validSubmodel) {
 
+                          // inherit colour number if material colour
+                          if (tokens[1] == LDRAW_MAIN_MATERIAL_COLOUR) {
+                              if (!addLine.isEmpty()) {
+                                  QStringList addTokens;
+                                  split(addLine, addTokens);
+                                  if (addTokens.size() == 15)
+                                      opts.renderModelColour = addTokens[1];
+                              }
+                          } else {
+                              opts.renderModelColour = tokens[1];
+                          }
+
                           // check if submodel was rendered
                           bool rendered = ldrawFile->rendered(type,
-                                                              ldrawFile->mirrored(token),
+                                                              opts.renderModelColour,
                                                               opts.current.modelName,
+                                                              ldrawFile->mirrored(tokens),
                                                               opts.stepNumber,
                                                               opts.flags.countInstances,
                                                               true /*countPage*/);
@@ -2351,7 +2366,7 @@ int CountPageWorker::countPage(
 
                               if (! buildMod.ignore || ! buildModRendered) {
 
-                                  opts.isMirrored = ldrawFile->mirrored(token);
+                                  opts.isMirrored = ldrawFile->mirrored(tokens);
 
                                   // add submodel to the model modelStack - it can also be a callout
                                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
@@ -2410,9 +2425,10 @@ int CountPageWorker::countPage(
                                               opts.stepNumber,
                                               opts.contStepNumber,
                                               opts.groupStepNumber,
+                                              opts.renderModelColour,
                                               opts.current.modelName /*renderParentModel*/);
 
-                                  const TraverseRc drc = static_cast<TraverseRc>(countPage(meta, ldrawFile, modelOpts));
+                                  const TraverseRc drc = static_cast<TraverseRc>(countPage(meta, ldrawFile, modelOpts, line));
                                   if (drc == HitAbortProcess)
                                       return static_cast<int>(drc);
 

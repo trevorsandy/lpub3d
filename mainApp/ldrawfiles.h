@@ -483,15 +483,17 @@ class LDrawFile {
     void unrendered();
     void setRendered(
             const QString &fileName,
-            bool           mirrored,
+            const QString &modelColour,
             const QString &renderParentModel,
+            bool           mirrored,
             int            renderStepNumber,
             int            howCounted,
             bool           countPage = false);
     bool rendered(
             const QString &fileName,
-            bool           mirrored,
+            const QString &modelColour,
             const QString &renderParentModel,
+            bool           mirrored,
             int            renderStepNumber,
             int            howCounted,
             bool           countPage = false);

@@ -3204,7 +3204,13 @@ int Gui::findPage(
   };
 #endif
 
-  lpub->ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber/*opts.groupStepNumber*/, opts.flags.countInstances);
+  lpub->ldrawFile.setRendered(
+      opts.current.modelName,
+      opts.renderModelColour,
+      opts.renderParentModel,
+      opts.isMirrored,
+      opts.stepNumber/*opts.groupStepNumber*/,
+      opts.flags.countInstances);
 
   /*
    * For findPage(), the BuildMod behaviour captures the appropriate 'block' of lines
@@ -3269,11 +3275,12 @@ int Gui::findPage(
       case '1':
           split(line,tokens);
 
-          if (tokens.size() > 2 && tokens[1] == LDRAW_MAIN_MATERIAL_COLOUR) {
-              split(addLine,addTokens);
-              if (addTokens.size() == 15) {
+          // inherit colour number if material colour
+          if (tokens.size() > 2) {
+              if (tokens[1] == LDRAW_MAIN_MATERIAL_COLOUR)
+                  split(addLine, addTokens);
+              if (addTokens.size() == 15)
                   tokens[1] = addTokens[1];
-              }
               line = tokens.join(" ");
           }
 
@@ -3287,22 +3294,20 @@ int Gui::findPage(
               }
               lastStepPageNum = opts.pageNum;
 
-              QStringList token;
+              QStringList tokens;
 
-              split(line,token);
+              split(line,tokens);
 
-              if (token.size() == 15) {
+              if (tokens.size() == 15) {
 
-                  QString type = token[token.size()-1];
-                  QString colorType = token[1]+type;
+                  QString type = tokens[tokens.size()-1];
+                  QString colorType = tokens[1]+type;
 
                   /* if it is a sub-model (or assembled/rotated callout), then process it.
                    * Called out sub-models (except those assembled/rotated) are processed in drawPage() */
 
-                  bool contains = lpub->ldrawFile.isSubmodel(type);
-
                   // if submodel
-                  if (contains) {
+                  if (lpub->ldrawFile.isSubmodel(type)) {
 
                       // when the display page is not the end of a submodel
                       bool partiallyRendered = false;
@@ -3312,12 +3317,16 @@ int Gui::findPage(
 
                       bool validSubmodel = (!opts.displayModel && !opts.flags.callout) || (validCallout) || (opts.displayModel && validCallout);
 
+                      opts.renderModelColour = tokens[1];
+
                       // if not callout or assembled/rotated callout
                       if (validSubmodel) {
 
                           // check if submodel was rendered
-                          bool rendered = lpub->ldrawFile.rendered(type,lpub->ldrawFile.mirrored(token),
+                          bool rendered = lpub->ldrawFile.rendered(type,
+                                                                   opts.renderModelColour,
                                                                    opts.current.modelName,
+                                                                   lpub->ldrawFile.mirrored(tokens),
                                                                    opts.stepNumber,
                                                                    opts.flags.countInstances);
 
@@ -3329,7 +3338,7 @@ int Gui::findPage(
 
                               if (! buildMod.ignore || ! buildModRendered) {
 
-                                  opts.isMirrored = lpub->ldrawFile.mirrored(token);
+                                  opts.isMirrored = lpub->ldrawFile.mirrored(tokens);
 
                                   // add submodel to the model stack - it can't be a callout
                                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
@@ -3387,6 +3396,7 @@ int Gui::findPage(
                                               opts.stepNumber,
                                               opts.contStepNumber,
                                               opts.groupStepNumber,
+                                              opts.renderModelColour,
                                               opts.current.modelName /*renderParentModel*/);
 
                                   const TraverseRc frc = static_cast<TraverseRc>(findPage(view, scene, meta, line, modelOpts));
@@ -3413,6 +3423,7 @@ int Gui::findPage(
                                           opts.flags             = modelOpts.flags;
                                           opts.modelStack        = modelOpts.modelStack;
                                           opts.stepNumber        = modelOpts.stepNumber;
+                                          opts.renderModelColour = modelOpts.renderModelColour;
                                           opts.renderParentModel = modelOpts.renderParentModel;
                                           // decrement current lineNumber by 1 line to account for
                                           // lineNumber increment as we iterate to terminate the
@@ -4848,11 +4859,12 @@ void Gui::countPages()
                   0              /*stepNumber*/,
                   0              /*contStepNumber*/,
                   0              /*groupStepNumber*/,
+                  empty          /*renderModelColour*/,
                   empty          /*renderParentModel*/);
 
       LDrawFile::_currentLevels.clear();
 
-      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &lpub->ldrawFile, opts);
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &lpub->ldrawFile, opts, empty);
       future.waitForFinished();
       pagesCounted();
    }
@@ -5029,6 +5041,7 @@ void Gui::drawPage(
               0            /*stepNumber*/,
               0            /*contStepNumber*/,
               0            /*groupStepNumber*/,
+              empty        /*renderModelColour*/,
               empty        /*renderParentModel*/);
 
   const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
@@ -5065,7 +5078,7 @@ void Gui::drawPage(
       QString const &line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber);
       if (!line.contains(LDrawFile::_fileRegExp[LDS_RX]))
         opts.flags.partsAdded = 0;
-      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts, empty);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
 #ifdef QT_DEBUG_MODE
         if (modelStackCount)

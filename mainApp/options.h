@@ -295,6 +295,7 @@ public:
             int              _stepNumber,
             int              _contStepNumber,
             int              _groupStepNumber = 0,
+            QString          _renderModelColour = "",
             QString          _renderParentModel = "")
         :
           pageNum           (_pageNum),
@@ -311,6 +312,7 @@ public:
           stepNumber        (_stepNumber),
           contStepNumber    (_contStepNumber),
           groupStepNumber   (_groupStepNumber),
+          renderModelColour (_renderModelColour),
           renderParentModel (_renderParentModel)
     {  }
     int            &pageNum;
@@ -326,6 +328,7 @@ public:
     int             stepNumber;
     int             contStepNumber;
     int             groupStepNumber;
+    QString         renderModelColour;
     QString         renderParentModel;
 };
 

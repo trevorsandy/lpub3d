@@ -342,7 +342,8 @@ public slots:
     static int countPage(
             Meta            *meta,
             LDrawFile       *ldrawFile,
-            FindPageOptions &opts);
+            FindPageOptions &opts,
+            QString const   &addLine);
 };
 
 class LDrawFile;
