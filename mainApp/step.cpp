@@ -1919,11 +1919,16 @@ int Step::sizeit(
             }
         }
 
-      int rp = calloutPlacement.placement;
+      PlacementEnc rp = calloutPlacement.placement;
       switch (calloutPlacement.relativeTo) {
         case CsiType:
-          callout->tbl[XX] = coPlace[rp][XX];
-          callout->tbl[YY] = coPlace[rp][YY];
+          if (calloutPlacement.preposition == Outside) {
+            callout->tbl[XX] = coPlace[rp][XX];
+            callout->tbl[YY] = coPlace[rp][YY];
+          } else {
+            callout->tbl[XX] = TblCsi;
+            callout->tbl[YY] = TblCsi;
+          }
           break;
         case PartsListType:
           callout->tbl[XX] = pli.tbl[XX] + relativePlace[rp][XX];
@@ -2827,18 +2832,22 @@ void Step::placeit(
             case SubModelType:
             case StepNumberType:
             case RotateIconType:
-              callout->loc[y] = origins[callout->tbl[y]];
-              if (callout->shared) {
-                  callout->loc[y] -= callout->margin.value(y) - 500;
-                }
+              if (calloutPlacement.preposition == Outside) {
+                callout->loc[y] = origins[callout->tbl[y]];
+                if (callout->shared) {
+                    callout->loc[y] -= callout->margin.value(y) - 500;
+                  }
 
-              if (y == YY) {
-                  callout->justifyY(origins[callout->tbl[y]],
-                      rows[callout->tbl[y]]);
-                } else {
-                  callout->justifyX(origins[callout->tbl[y]],
-                      rows[callout->tbl[y]]);
-                }
+                if (y == YY) {
+                    callout->justifyY(origins[callout->tbl[y]],
+                        rows[callout->tbl[y]]);
+                  } else {
+                    callout->justifyX(origins[callout->tbl[y]],
+                        rows[callout->tbl[y]]);
+                  }
+              } else if (calloutPlacement.relativeTo == CsiType) {
+                csiPlacement.placeRelative(callout);
+              }
               break;
             default:
               break;
