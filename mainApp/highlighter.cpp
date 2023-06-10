@@ -300,6 +300,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bCOLS\\b"),
         QStringLiteral("\\bCONNECTOR\\b"),
         QStringLiteral("\\bCONSOLIDATE_INSTANCE_COUNT\\b"),
+        QStringLiteral("\\bCONSOLIDATE_INSTANCE_COUNT_BY_COLOR\\b"),
         QStringLiteral("\\bCONSTRAIN\\b"),
         QStringLiteral("\\bCONTENT\\b"),
         QStringLiteral("\\bCONTINUOUS_STEP_NUMBERS\\b"),

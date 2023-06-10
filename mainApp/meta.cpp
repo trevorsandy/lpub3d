@@ -6645,6 +6645,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   contModelStepNum.setRange(0,10000);
   contModelStepNum.setValue(0);
   countInstance.setValue(CountAtModel);
+  countInstanceByColour.setValue(true);
   contStepNumbers.setValue(false);
   startPageNumber.setRange(1,10000);
   startPageNumber.setValue(1);
@@ -6692,6 +6693,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   parseNoStep              .init(this,"PARSE_NOSTEP");
   autoEdgeColor            .init(this,"AUTOMATE_EDGE_COLOR");
   countInstance            .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  countInstanceByColour    .init(this,"CONSOLIDATE_INSTANCE_COUNT_BY_COLOR");
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli                  .init(this,"STEP_PLI");

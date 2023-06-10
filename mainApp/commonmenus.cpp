@@ -7819,16 +7819,22 @@ void CommonMenus::setWhatsThis()
             "  Check the box to enable this feature or uncheck to\n"
             "  disable.\n\n"
             "  Select where to consolidate the submodel instance\n"
-            "  count.\n\n"
+            "  count from the radio-button options.\n\n"
             "  You can consolidate the submodel instance count with\n"
             "  the following options:\n"
             "  - At Top: display count at last step page of first\n"
-            "    occurrence in the entire model file.\n\n"
+            "    occurrence in the entire model file. This is the\n"
+            "    LPub instance count default behaviour. However the\n"
+            "    default %1 count behaviour is At Model.\n\n"
             "  - At Model: display count at last step page of first\n"
             "    occurrence in the parent model. This is the default\n"
             "    behaviour.\n\n"
             "  - At Step: display count at step page of first\n"
-            "    occurrence in the respective step.%1\n")
+            "    occurrence in the respective step.\n\n"
+            "  - Count By Colour Code: Count unique instances for\n"
+            "    submodels that have the same name but unique colour\n"
+            "    code. This option is enabled (checked) by default.%2\n")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_CONSOLIDATE_SUBMODEL_INSTANCE_COUNT")

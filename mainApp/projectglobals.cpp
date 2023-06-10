@@ -50,6 +50,14 @@ public:
   }
 };
 
+void GlobalProjectCheckBoxGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
 /**********************************************************************
  *
  * Global to project
@@ -165,9 +173,16 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox(tr("Submodel Instances"));
   vlayout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
-  box->setToolTip(tr("Consolidate submodel instance count on first occurrence"));
+  box->setToolTip(tr("Consolidate submodel instance count."));
   data->children.append(childCountInstance);
   connect (childCountInstance, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  connect (childCountInstance->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableCountInstanceByColour(bool)));
+
+  countInstanceByColourCheck = new QCheckBox("Count By Colour Code", nullptr);
+  countInstanceByColourCheck->setChecked(lpubMeta->countInstanceByColour.value());
+  countInstanceByColourCheck->setToolTip(tr("Count unique instances for submodels that have the same name but unique colour code."));
+  qobject_cast<QGridLayout*>(box->layout())->addWidget(countInstanceByColourCheck,2,0,1,3);
+  connect (countInstanceByColourCheck, SIGNAL(clicked(bool)), this, SLOT(countInstanceByColour(bool)));
 
   box = new QGroupBox(tr("Continuous Step Numbers"));
   vlayout->addWidget(box);
@@ -247,6 +262,18 @@ void GlobalProjectDialog::reloadWhatsThis(int value)
 void GlobalProjectDialog::enableCameraDDF(int renderer)
 {
    childCameraDDF->setEnabled(renderer == RENDERER_NATIVE);
+}
+
+void GlobalProjectDialog::enableCountInstanceByColour(bool b)
+{
+   countInstanceByColourCheck->setEnabled(b);
+}
+
+void GlobalProjectDialog::countInstanceByColour(bool b)
+{
+   LPubMeta *lpubMeta = &data->meta.LPub;
+   GlobalProjectCheckBoxGui* childCountInstanceByColour = new GlobalProjectCheckBoxGui(&lpubMeta->countInstanceByColour, b);
+   data->children.append(childCountInstanceByColour);
 }
 
 void GlobalProjectDialog::checkConflict(bool b)

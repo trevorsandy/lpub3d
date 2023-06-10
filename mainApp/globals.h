@@ -385,6 +385,25 @@ public slots:
  ****************************************************************/
 
 class GlobalProjectPrivate;
+class GlobalProjectCheckBoxGui : public MetaGui
+{
+  Q_OBJECT
+
+  public:
+  GlobalProjectCheckBoxGui(BoolMeta *_meta, bool b) {
+      bool state = _meta->value();
+      meta = _meta;
+      meta->setValue(b);
+      modified = meta->value() != state;
+  };
+  GlobalProjectCheckBoxGui() {}
+  ~GlobalProjectCheckBoxGui() {}
+  virtual void apply(QString &modelName);
+
+  private:
+  BoolMeta *meta;
+};
+
 class GlobalProjectDialog : public QDialog
 {
   Q_OBJECT
@@ -393,12 +412,12 @@ private:
   PreferredRendererGui *childPreferredRenderer;
   ResolutionGui        *childResolution;
   CameraDDFGui         *childCameraDDF;
+  QCheckBox            *countInstanceByColourCheck;
   ContStepNumGui       *childContStepNumbers;
   SpinGui              *childStartStepNumberSpin;
   SpinGui              *childStartPageNumberSpin;
 
 public:
-
   GlobalProjectDialog(const QString &topLevelFile, Meta &meta);
   ~GlobalProjectDialog() {}
   static void getProjectGlobals(const QString topLevelFile, Meta &meta);
@@ -410,6 +429,8 @@ public slots:
   void reloadWhatsThis(int value);
   void reloadDisplayPage(bool);
   void checkConflict(bool);
+  void countInstanceByColour(bool);
+  void enableCountInstanceByColour(bool);
   void enableCameraDDF(int);
 };
 #endif

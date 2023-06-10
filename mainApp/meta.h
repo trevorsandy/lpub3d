@@ -4254,6 +4254,7 @@ public:
   RotateIconMeta       rotateIcon;
   SubModelMeta         subModel;
   CountInstanceMeta    countInstance;
+  BoolMeta             countInstanceByColour;
   ContStepNumMeta      contStepNumbers;
   IntMeta              contModelStepNum;
   IntMeta              startPageNumber;

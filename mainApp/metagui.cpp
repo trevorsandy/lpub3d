@@ -3015,7 +3015,13 @@ void CountInstanceGui::radioChanged(bool checked)
 void CountInstanceGui::valueChanged(bool checked)
 {
   int state = meta->value();
-  meta->setValue(checked ? CountTrue : CountFalse);
+  int value = state;
+  if (state == CountFalse && checked)
+      value = CountTrue;
+  meta->setValue(checked ? value : int(CountFalse));
+  topRadio->setEnabled(checked);
+  modelRadio->setEnabled(checked);
+  stepRadio->setEnabled(checked);
   if (!modified)
       modified = meta->value() != state;
    emit settingsChanged(modified);
