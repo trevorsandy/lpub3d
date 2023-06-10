@@ -2866,18 +2866,22 @@ void Step::placeit(
             case PartsListType:
             case StepNumberType:
             case RotateIconType:
-              _subModel->loc[y] = origins[_subModel->tbl[y]];
-              if (_subModel->shared) {
-                  _subModel->loc[y] -= _subModel->margin.value(y) - 500;
-                }
+              if (subModelPlacement.preposition == Outside) {
+                _subModel->loc[y] = origins[_subModel->tbl[y]];
+                if (_subModel->shared) {
+                    _subModel->loc[y] -= _subModel->margin.value(y) - 500;
+                  }
 
-              if (y == YY) {
-                  _subModel->justifyY(origins[_subModel->tbl[y]],
-                      rows[_subModel->tbl[y]]);
-                } else {
-                  _subModel->justifyX(origins[_subModel->tbl[y]],
-                      rows[_subModel->tbl[y]]);
-                }
+                if (y == YY) {
+                    _subModel->justifyY(origins[_subModel->tbl[y]],
+                        rows[_subModel->tbl[y]]);
+                  } else {
+                    _subModel->justifyX(origins[_subModel->tbl[y]],
+                        rows[_subModel->tbl[y]]);
+                  }
+              } else if (subModelPlacement.relativeTo == CsiType) {
+                csiPlacement.placeRelative(_subModel);
+              }
               break;
             default:
               break;
