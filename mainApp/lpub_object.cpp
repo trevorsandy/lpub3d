@@ -388,7 +388,7 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
                 Options->HighlightParts);
 
         if (UseFile && !Options->InputFileName.isEmpty())
-            Loaded = Loader->Load(Options->InputFileName, true/*ShowErrors*/);
+            Loaded = Loader->Load(Options->InputFileName, true/*ShowErrors*/, Options->ViewerStepKey);
         else
             Loaded = Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, true/*ShowErrors*/);
 

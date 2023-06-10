@@ -88,6 +88,12 @@ public:
 	{
 		return mFileName;
 	}
+/*** LPub3D Mod - viewer step key ***/
+	QString &GetStepKey()
+	{
+		return mStepKey;
+	}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline top item ***/
 	QString &GetTimelineTopItemString()
 	{
@@ -190,7 +196,9 @@ public:
 
 	bool Load(const QString& LoadFileName, const QString& StepKey, int Type, bool ShowErrors);
 /*** LPub3D Mod end ***/
-	bool Load(const QString& FileName, bool ShowErrors);
+/*** LPub3D Mod - viewer step key ***/
+	bool Load(const QString& FileName, bool ShowErrors, const QString &StepKey = "");
+/*** LPub3D Mod end ***/
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
 	void Merge(Project* Other);
@@ -222,6 +230,9 @@ protected:
 	bool mIsPreview;
 /*** LPub3D Mod - Render Image ***/
 	bool mRenderImage;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - viewer step key ***/
+	QString mStepKey;
 /*** LPub3D Mod end ***/
 	bool mModified;
 	QString mFileName;

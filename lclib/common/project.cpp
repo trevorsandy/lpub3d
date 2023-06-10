@@ -483,15 +483,16 @@ void Project::SetModified(bool value)
 }
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - preview widget ***/
-bool Project::Load(const QString& FileName, bool ShowErrors)
+/*** LPub3D Mod - preview widget / viewer step key ***/
+bool Project::Load(const QString& FileName, bool ShowErrors, const QString &StepKey)
 {
-	return Load(FileName, QString()/*StepKey*/, 0/*Options::PLI*/, ShowErrors);
+	return Load(FileName, StepKey, 0/*Options::PLI*/, ShowErrors);
 }
 
 bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type, bool ShowErrors)
 {
 	mImageType = Type;
+	mStepKey = StepKey;
 	QString FileName = LoadFileName;
 	bool IsLPubModel = false;
 	bool IsLPubBanner = false;
@@ -536,7 +537,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			// SMI: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
 			// PLI: 0=partName,  1=colourNumber, 2=stepNumber
 			bool IsPli = mImageType == Options::PLI;
-			QStringList Keys = LPub::getViewerStepKeys(true/*Return Name*/, IsPli, StepKey);
+			QStringList Keys = LPub::getViewerStepKeys(true/*Return Name*/, IsPli, mStepKey);
 
 			if (Keys.size() > 2) {
 				const QString PieceName = Keys.at(BM_STEP_MODEL_KEY);
@@ -592,27 +593,27 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		if ((IsLPubBanner = QFileInfo(FileName).completeBaseName().endsWith(QLatin1String(VISUAL_BANNER_SUFFIX))))
 			SetTimeLineTopItem();
 	}
-	else if (!StepKey.isEmpty() || IsLPubModel)
+	else if (!mStepKey.isEmpty() || IsLPubModel)
 	{
 		if (!IsLPubModel/*We have a StepKey*/)
 		{
 /*** LPub3D Mod - viewer step key ***/
 			if (mImageType == Options::CSI)
-				lpub->ldrawFile.viewerStepModified(StepKey, true/*reset*/);
+				lpub->ldrawFile.viewerStepModified(mStepKey, true/*reset*/);
 /*** LPub3D Mod end ***/
 
-			FileName = lpub->ldrawFile.getViewerStepFilePath(StepKey);
+			FileName = lpub->ldrawFile.getViewerStepFilePath(mStepKey);
 
 			if (FileName.isEmpty())
 			{
 				if (ShowErrors)
 /*** LPub3D Mod - viewer step key ***/
-					emit lpub->messageSig(LOG_ERROR,tr("Did not receive file name for step key '%1'.").arg(StepKey));
+					emit lpub->messageSig(LOG_ERROR,tr("Did not receive file name for step key '%1'.").arg(mStepKey));
 /*** LPub3D Mod end ***/
 				return false;
 			}
 
-			Content = lpub->ldrawFile.getViewerStepRotatedContents(StepKey);
+			Content = lpub->ldrawFile.getViewerStepRotatedContents(mStepKey);
 
 			SetTimeLineTopItem();
 		}
