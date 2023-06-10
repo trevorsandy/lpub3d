@@ -3397,10 +3397,15 @@ int Gui::findPage(
                                   }
 
                                   opts.pageDisplayed = modelOpts.pageDisplayed;
+                                  // when we stop before the end of a child submodel,
+                                  // capture the child submodel flags for countPages
                                   partiallyRendered = modelOpts.current.lineNumber < modelOpts.flags.numLines;
-                                  if (opts.pageDisplayed) {                 // capture where we stopped in the submodel
-                                      // when we stop before the end of a child submodel,
-                                      // we need to capture the child submodel flags for countPages
+                                  if (opts.pageDisplayed) {   // capture where we stopped in the submodel
+                                      // when we stop at the end of a child submodel and the current modelStack is empty,
+                                      // capture the child submodel flags for countPagese
+                                      partiallyRendered |= (modelOpts.current.lineNumber == modelOpts.flags.numLines &&
+                                                            modelOpts.modelStack.size() > opts.modelStack.size() &&
+                                                            opts.modelStack.size() == 0);
                                       if (partiallyRendered) {
                                           opts.pageNum           = modelOpts.pageNum;
                                           opts.current           = modelOpts.current;
@@ -3419,10 +3424,12 @@ int Gui::findPage(
                                           Where walk = modelOpts.current;
                                           Rc rc = lpub->mi.scanForward(walk,StepMask,partsAdded);
                                           opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
-                                          // if no parts added to last step, set partsAdded to -1 so later increment
+                                          // if no parts added to the last step,
+                                          // set partsAdded to -1 so later increment
                                           // will result in a value of 0.
                                           if (opts.flags.parseBuildMods) {
-                                              opts.flags.partsAdded = -1;
+                                              if (! opts.flags.partsAdded)
+                                                  opts.flags.partsAdded = -1;
                                               opts.flags.buildModLevel = modelOpts.flags.buildModLevel;
                                           }
                                       } else {
@@ -5051,8 +5058,12 @@ void Gui::drawPage(
 
     auto countPage = [&] (int modelStackCount)
     {
-      // if the next line is the end of a step, preserve the parts added flag, otherwise clear so we don't count again in countPage
-      if (!lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).contains(LDrawFile::_fileRegExp[LDS_RX]))
+      // if the current line number equal to the number of submodel lines, decrement the current line number
+      if (opts.flags.partsAdded && opts.current.lineNumber == opts.flags.numLines)
+          opts.current--;
+      // if the current line is the end of a step, preserve the parts added flag, otherwise clear so we don't count again in countPage
+      QString const &line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber);
+      if (!line.contains(LDrawFile::_fileRegExp[LDS_RX]))
         opts.flags.partsAdded = 0;
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
@@ -5155,7 +5166,7 @@ void Gui::drawPage(
         // set partsAdded count to saved parts added count;
         opts.flags.partsAdded = savePartsAdded;
 
-        QString line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).trimmed();
+        QString const &line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).trimmed();
         QStringList token;
         split(line,token);
 
@@ -5188,11 +5199,8 @@ void Gui::drawPage(
       if (opts.modelStack.size())
           opts.modelStack.pop_back();
 
-      // upate the modelstack count
-      int stackCount = opts.modelStack.size();
-
       // let's go
-      if (static_cast<TraverseRc>(countPage(stackCount)) == HitAbortProcess)
+      if (static_cast<TraverseRc>(countPage(opts.modelStack.size())) == HitAbortProcess)
           return;
     } // iterate the model stack
 
