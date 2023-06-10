@@ -424,6 +424,14 @@ int Step::createCsi(
       bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
 
 //#ifdef QT_DEBUG_MODE
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Updated for Key (Model,Line,Step) %2")
+//                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
+//#endif
+
+      // Or update if the unrotated content has changed - e.g. colour change for material colour lines
+      viewerUpdate |= lpub->ldrawFile.viewerStepContentChanged(viewerStepKey, csiParts);
+
+//#ifdef QT_DEBUG_MODE
 //      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Changed for Key (Model,Line,Step) %2")
 //                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
 //#endif
@@ -432,7 +440,7 @@ int Step::createCsi(
       viewerUpdate |= lpub->ldrawFile.viewerStepModified(viewerStepKey,true/*reset*/);
 
 //#ifdef QT_DEBUG_MODE
-//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Content Modified for Key (Model,Line,Step) %2")
+//      qDebug() << qPrintable(QString("DEBUG: %1 - Viewer Step Modified for Key (Model,Line,Step) %2")
 //                                     .arg(viewerUpdate ? "TRUE " : "FALSE").arg(viewerStepKey));
 //#endif
 

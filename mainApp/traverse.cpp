@@ -1000,7 +1000,10 @@ int Gui::drawPage(
                               opts.printing,
                               opts.bfxStore2,
                               opts.assembledCallout,
-                              true               /*calledOut*/
+                              true               /*calledOut*/,
+                              false              /*displayModel*/,
+                              opts.renderModelColour,
+                              opts.renderParentModel
                               );
 
                   returnValue = static_cast<TraverseRc>(drawPage(view, scene, callout, line, calloutOpts));
@@ -1929,19 +1932,15 @@ int Gui::drawPage(
                      displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
                   // count the instances - use steps->meta (vs. steps->groupStepMeta) to access current submodelStack
                   //
-                  // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
-                  // the updated countInstances routine's configuration is CountAtModel - this is the default options set
-                  // and configurable in Project globals
+                  // lpub->ldrawFile.instances() always return results for CountAtTop - the historic LPub count scheme.
+                  // However, the default countInstances configuration is CountAtModel - configurable in Project globals.
+                  // lpub->mi.countInstances(...) uses countInstances and opts.renderModelColour to return instances.
                   if (!opts.displayModel && displayInstanceCount) {
                       // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
                       if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
                           instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
                       else
-                      if (countInstances == CountAtStep)
-                          instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
-                      else
-                      if (countInstances > CountFalse && countInstances < CountAtStep)
-                          instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                        instances = lpub->mi.countInstances(&steps->meta, opts.current.modelName, opts.renderModelColour, countInstances);
                   }
 
 #ifdef QT_DEBUG_MODE
@@ -2539,19 +2538,15 @@ int Gui::drawPage(
                               instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
                               if (steps->meta.LPub.subModel.showInstanceCount.value())
                                   displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
-                              // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
-                              // the updated countInstances routine's configuration is CountAtModel - this is the default options set
-                              // and configurable in Project globals
+                              // lpub->ldrawFile.instances() always return results for CountAtTop - the historic LPub count scheme.
+                              // However, the default countInstances configuration is CountAtModel - configurable in Project globals.
+                              // lpub->mi.countInstances(...) uses countInstances and opts.renderModelColour to return instances.
                               if (displayInstanceCount) {
                                   // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
                                   if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
                                       instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
                                   else
-                                  if (countInstances == CountAtStep)
-                                      instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
-                                  else
-                                  if (countInstances > CountFalse && countInstances < CountAtStep)
-                                      instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                                      instances = lpub->mi.countInstances(&steps->meta, opts.current.modelName, opts.renderModelColour, countInstances);
                               }
 
                               steps->meta.LPub.subModel.instance.setValue(instances);
@@ -2672,22 +2667,18 @@ int Gui::drawPage(
                                       opts.stepNum >= numSteps;
 
                           // get the number of submodel instances in the model file
-                          int instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                          instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
                           if (!opts.displayModel && countInstances)
                              displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
-                          // lpub->ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
-                          // the updated countInstances routine's configuration is CountAtModel - this is the default options set
-                          // and configurable in Project globals
+                          // lpub->ldrawFile.instances() always return results for CountAtTop - the historic LPub count scheme.
+                          // However, the default countInstances configuration is CountAtModel - configurable in Project globals.
+                          // lpub->mi.countInstances(...) uses countInstances and opts.renderModelColour to return instances.
                           if (!opts.displayModel && displayInstanceCount) {
                               // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
                               if (steps->meta.LPub.page.countInstanceOverride.value())
                                   instances = steps->meta.LPub.page.countInstanceOverride.value();
                               else
-                              if (countInstances == CountAtStep)
-                                  instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
-                              else
-                              if (countInstances > CountFalse && countInstances < CountAtStep)
-                                  instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                                  instances = lpub->mi.countInstances(&steps->meta, opts.current.modelName, opts.renderModelColour, countInstances);
                           }
 
                           // update the page if submodel instances greater than 1
@@ -3612,7 +3603,9 @@ int Gui::findPage(
                                   opts.flags.stepGroupBfxStore2,
                                   false /*assembledCallout*/,
                                   false /*calldeOut*/,
-                                  opts.displayModel);
+                                  opts.displayModel,
+                                  opts.renderModelColour,
+                                  opts.renderParentModel);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("a_find_save_csi_parts");
 #endif
@@ -3877,7 +3870,9 @@ int Gui::findPage(
                                         opts.printing,
                                         opts.flags.bfxStore2,
                                         false,false,
-                                        opts.displayModel);
+                                        opts.displayModel,
+                                        opts.renderModelColour,
+                                        opts.renderParentModel);
 #ifdef WRITE_PARTS_DEBUG
                             writeFindPartsFile("b_find_save_csi_parts");
 #endif
@@ -4285,7 +4280,9 @@ int Gui::findPage(
                       opts.printing,
                       opts.flags.bfxStore2,
                       false,false,
-                      opts.displayModel);
+                      opts.displayModel,
+                      opts.renderModelColour,
+                      opts.renderParentModel);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("b_find_save_csi_parts");
 #endif
@@ -4859,8 +4856,8 @@ void Gui::countPages()
                   0              /*stepNumber*/,
                   0              /*contStepNumber*/,
                   0              /*groupStepNumber*/,
-                  empty          /*renderModelColour*/,
-                  empty          /*renderParentModel*/);
+                  LDRAW_MAIN_MATERIAL_COLOUR /*renderModelColour*/,
+                  "model~origin" /*renderParentModel*/);
 
       LDrawFile::_currentLevels.clear();
 
@@ -5041,8 +5038,8 @@ void Gui::drawPage(
               0            /*stepNumber*/,
               0            /*contStepNumber*/,
               0            /*groupStepNumber*/,
-              empty        /*renderModelColour*/,
-              empty        /*renderParentModel*/);
+              LDRAW_MAIN_MATERIAL_COLOUR /*renderModelColour*/,
+              "model~origin" /*renderParentModel*/);
 
   const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
   if (frc == HitAbortProcess) {

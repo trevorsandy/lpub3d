@@ -86,6 +86,7 @@ public:
   void deletePointer(          const Where &, bool, bool, bool);
   void changeRotation(         const Where &);
 
+  int countInstances(          Meta *, const QString &, const QString &, const int);
   int countInstancesInModel(   Meta *, const QString &);
   int countInstancesInStep(    Meta *, const QString &);
 

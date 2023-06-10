@@ -1,4 +1,4 @@
-LPub3D 2.4.6.316.3427 (10 06 2023 06:02:45)
+LPub3D 2.4.6.317.3428 (10 06 2023 06:04:48)
 
 Features, enhancements, fixes and changes
 ------------
@@ -27,6 +27,7 @@ Revisions:
 - Change - Part list annotation style #716
 - Change - Persisting fade previous steps and highlight current step settings #683
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
+- Change - Refactor consolidate submodel instance to enable count by colour #719
 - Change - Use default camera setting on viewer switch to camera none #676
 - Fix - Crash on command ASSEM ANNOTATION DISPLAY GLOBAL TRUE #707
 - Fix - Crash on insert BOM without a preceding STEP command #670

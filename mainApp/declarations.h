@@ -990,7 +990,9 @@ enum ThemeColorType {
 
 #define SCENE_GUIDES_LINE_DEFAULT               2             // PenStyle - DashLine
 
-#define PUBLISH_DESCRIPTION_DEFAULT            "LDraw model"
+#define PUBLISH_DESCRIPTION_DEFAULT             "LDraw model"
+
+#define COUNT_PAGE_PREFIX                       "count~page"
 
 #define EDITOR_MIN_LINES_DEFAULT                300           // minimum number of lines to capture at each data read
 #define EDITOR_MAX_LINES_DEFAULT                10000         // maximum number of lines to capture at each data read

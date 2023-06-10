@@ -1210,21 +1210,26 @@ void LDrawFile::setRendered(
     const QString &renderParentModel,
     bool           mirrored,
     int            renderStepNumber,
-    int            howCounted,
+    int            countInstance,
     bool           countPage)
 {
-  QString key, fileName = mcFileName.toLower();
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  CountInstanceEnc howToCount = static_cast<CountInstanceEnc>(countInstance);
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(mcFileName.toLower());
   if (i != _subFiles.end()) {
-    key =
-      howCounted == CountAtStep ?
-        QString("%1_%2").arg(renderParentModel).arg(renderStepNumber) :
-      howCounted > CountFalse && howCounted < CountAtStep ?
-        renderParentModel : QString();
+    QString key;
+    if (howToCount > CountTrue && howToCount < CountAtTop) {
+      key =
+        howToCount == CountAtStep
+                  ? QString("%1;%2").arg(renderParentModel).arg(renderStepNumber)
+                  : renderParentModel;
+    }
+
     if (!modelColour.isEmpty())
-      key.prepend(QString("%1_").arg(modelColour));
+      key.prepend(QString("%1%2").arg(modelColour).arg(key.isEmpty() ? "" : ";"));
+
     if (countPage)
-      key.prepend("cp~_");
+      key.prepend(QString("%1%2").arg(COUNT_PAGE_PREFIX).arg(key.isEmpty() ? "" : ";"));
+
     if (mirrored) {
       i.value()._mirrorRendered = true;
       if (!key.isEmpty() && !i.value()._mirrorRenderedKeys.contains(key)) {
@@ -1241,15 +1246,15 @@ void LDrawFile::setRendered(
     qDebug() << "SET RENDERED:\n"
              << "COUNTPAGE:"         << "[" << qPrintable(countPage ? "Yes" : "No") << "]\n"
              << "KEY:"               << "[" << qPrintable(key.isEmpty() ? "_Empty_" : key) << "]\n"
-             << "FileName:"          << "[" << qPrintable(fileName) << "]\n"
+             << "FileName:"          << "[" << qPrintable(mcFileName) << "]\n"
              << "RenderParentModel:" << "[" << qPrintable(renderParentModel.isEmpty() ? "_Empty_" : renderParentModel)  << "]\n"
              << "ModelColour:"       << "[" << qPrintable(modelColour.isEmpty() ? "_Empty_" : modelColour) << "]\n"
              << "RenderStepNumber:"  << "[" << qPrintable(QString::number(renderStepNumber)) << "]\n"
-             << "HowCounted:"        << "[" << qPrintable(howCounted == CountAtStep  ? "CountAtStep"  :
-                                                          howCounted == CountAtTop   ? "CountAtTop"   :
-                                                          howCounted == CountAtModel ? "CountAtModel" :
-                                                          howCounted == CountFalse   ? "CountFalse" :
-                                                                        QString::number(howCounted)) << "]\n"
+             << "HowCounted:"        << "[" << qPrintable(howToCount == CountAtStep  ? "CountAtStep"  :
+                                                          howToCount == CountAtTop   ? "CountAtTop"   :
+                                                          howToCount == CountAtModel ? "CountAtModel" :
+                                                          howToCount == CountFalse   ? "CountFalse" :
+                                                                        QString::number(howToCount)) << "]\n"
                 ;
 #endif
 //*/
@@ -1262,60 +1267,74 @@ bool LDrawFile::rendered(
     const QString &renderParentModel,
     bool           mirrored,
     int            renderStepNumber,
-    int            howCounted,
+    int            countInstance,
     bool           countPage)
 {
-  QString key, altKey, fileName = mcFileName.toLower();
+  CountInstanceEnc howToCount = static_cast<CountInstanceEnc>(countInstance);
+  QString key, altKey;
   bool rendered = false, haveKey = false;
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (howCounted != CountFalse && i != _subFiles.end()) {
-    key =
-      howCounted == CountAtStep ?
-        QString("%1_%2").arg(renderParentModel).arg(renderStepNumber) :
-      howCounted > CountFalse && howCounted < CountAtStep ?
-        renderParentModel : QString() ;
-    if (!modelColour.isEmpty())
-      key.prepend(QString("%1_").arg(modelColour));
-    altKey = key;
-    if (countPage)
-        key.prepend("cp~_");
-    if (mirrored) {
-      // check the countPage key ('cp~' prefix) if present.
-      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
-                  i.value()._mirrorRenderedKeys.contains(key);
-      // if no key found using countPage key, attempt to check the findPage key (no 'cp~' prefix)
-      if (!haveKey && countPage) {
-        haveKey = altKey.isEmpty() ? howCounted == CountAtTop ? true : false :
-                    i.value()._mirrorRenderedKeys.contains(altKey);
-      }
-      rendered  = i.value()._mirrorRendered;
-    } else {
-      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
-                  i.value()._renderedKeys.contains(key);
-      if (!haveKey && countPage) {
-        haveKey = altKey.isEmpty() ? howCounted == CountAtTop ? true : false :
-                    i.value()._renderedKeys.contains(altKey);
-      }
-      rendered  = i.value()._rendered;
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(mcFileName.toLower());
+  if (i != _subFiles.end()) {
+    if (howToCount > CountTrue && howToCount < CountAtTop) {
+      key =
+          howToCount == CountAtStep
+              ? QString("%1;%2").arg(renderParentModel).arg(renderStepNumber)
+              : renderParentModel;
     }
+
+    if (!modelColour.isEmpty())
+      key.prepend(QString("%1%2").arg(modelColour).arg(key.isEmpty() ? "" : ";"));
+
+    altKey = key;
+
+    if (countPage)
+      key.prepend(QString("%1%2").arg(COUNT_PAGE_PREFIX).arg(key.isEmpty() ? "" : ";"));
+
+    auto getHaveKey = [&] (const QStringList &renderedKeys)
+    {
+      // check the countPage key COUNT_PAGE_PREFIX if present.
+      bool keyFound = key.isEmpty() || (countPage && key == COUNT_PAGE_PREFIX)
+                          ? howToCount == CountAtTop
+                                ? true
+                                : false
+                          : renderedKeys.contains(key);
+      // if no key found using COUNT_PAGE_PREFIX, attempt to check the findPage key without COUNT_PAGE_PREFIX
+      if (!keyFound && countPage) {
+          keyFound = altKey.isEmpty()
+                         ? howToCount == CountAtTop
+                               ? true
+                               : false
+                         : renderedKeys.contains(altKey);
+      }
+      return keyFound;
+    };
+
+    if (mirrored) {
+      haveKey = getHaveKey(i.value()._mirrorRenderedKeys);
+      rendered = i.value()._mirrorRendered;
+    } else {
+      haveKey = getHaveKey(i.value()._renderedKeys);
+      rendered = i.value()._rendered;
+    }
+
     rendered &= haveKey;
   }
 /*
 #ifdef QT_DEBUG_MODE
   qDebug() << "RENDERED:"          << "[" << qPrintable(rendered  ? "YES" : "NO") << "]\n"
            << "COUNTPAGE:"         << "[" << qPrintable(countPage ? "Yes" : "No") << "]\n"
-           << "HAVEKEY:"           << "[" << qPrintable(haveKey   ? "Yes" : "No") << "]\n"
            << "KEY:"               << "[" << qPrintable(key.isEmpty() ? "_Empty_" : key) << "]\n"
            << "ALTKEY:"            << "[" << qPrintable(altKey.isEmpty() ? "_Empty_" : altKey) << "]\n"
-           << "FileName:"          << "[" << qPrintable(fileName) << "]\n"
+           << "HAVEKEY:"           << "[" << qPrintable(haveKey   ? "Yes" : "No") << "]\n"
+           << "FileName:"          << "[" << qPrintable(mcFileName) << "]\n"
            << "RenderParentModel:" << "[" << qPrintable(renderParentModel.isEmpty() ? "_Empty_" : renderParentModel)  << "]\n"
            << "ModelColour:"       << "[" << qPrintable(modelColour.isEmpty() ? "Empty" : modelColour) << "]\n"
            << "RenderStepNumber:"  << "[" << qPrintable(QString::number(renderStepNumber)) << "]\n"
-           << "HowCounted:"        << "[" << qPrintable(howCounted == CountAtStep  ? "CountAtStep"  :
-                                                        howCounted == CountAtTop   ? "CountAtTop"   :
-                                                        howCounted == CountAtModel ? "CountAtModel" :
-                                                        howCounted == CountFalse   ? "CountFalse" :
-                                                        QString::number(howCounted)) << "]\n"
+           << "HowCounted:"        << "[" << qPrintable(howToCount == CountAtStep  ? "CountAtStep"  :
+                                                        howToCount == CountAtTop   ? "CountAtTop"   :
+                                                        howToCount == CountAtModel ? "CountAtModel" :
+                                                        howToCount == CountFalse   ? "CountFalse" :
+                                                        QString::number(howToCount)) << "]\n"
       ;
 #endif
 //*/
@@ -4365,13 +4384,13 @@ int LDrawFile::setBuildModRendered(const QString &buildModKey, const QString &re
 
 bool LDrawFile::getBuildModRendered(const QString &buildModKey, const QString &renderedModel, bool countPage)
 {
-    QString  modKey = countPage ? "cp~"+buildModKey.toLower() : buildModKey.toLower();
-    QMap<QString, QStringList>::iterator i = _buildModRendered.find(modKey);
+    QString const modKey = QString("%1%2").arg(countPage ? COUNT_PAGE_PREFIX";" : "").arg(buildModKey);
+    QMap<QString, QStringList>::iterator i = _buildModRendered.find(modKey.toLower());
     if (i != _buildModRendered.end()) {
         if (i.value().contains(renderedModel.toLower())) {
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_DEBUG, QString("BuildMod RenderedModel: %1, ModKey: '%2'")
-                                 .arg(renderedModel).arg((countPage ? "cp~" : "")+buildModKey));
+                                                    .arg(renderedModel).arg(modKey));
 #endif
             return true;
         }
@@ -4401,7 +4420,7 @@ void LDrawFile::clearBuildModRendered(bool countPage)
     for (const QString &key : _buildModRendered.keys()) {
         if (countPage) {
            for (const QString &modelFile : _buildModRendered[key]) {
-               if (modelFile.startsWith("cp~")) {
+               if (modelFile.startsWith(COUNT_PAGE_PREFIX)) {
                    _buildModRendered[key].removeAll(modelFile);
                }
            }
@@ -5582,6 +5601,21 @@ bool LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
   return rc;
 }
 
+bool LDrawFile::viewerStepContentChanged(const QString &stepKey, const QStringList &unrotatedContents)
+{
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
+  if (i != _viewerSteps.end()) {
+    QByteArray newByteArray, oldByteArray;
+    QDataStream newContent(&newByteArray, QIODevice::WriteOnly);
+    newContent << unrotatedContents;
+
+    QDataStream oldContent(&oldByteArray, QIODevice::WriteOnly);
+    oldContent << i.value()._unrotatedContents;
+
+    return newByteArray != oldByteArray;
+  }
+  return false;
+}
 
 bool LDrawFile::viewerStepModified(const QString &stepKey, bool reset)
 {

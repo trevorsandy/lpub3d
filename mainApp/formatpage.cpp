@@ -205,7 +205,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                       useTop);
     } else if (selectedAction == overrideCountAction) {
       bool ok;
-      int max = (1 + gui->getSubmodelInstances(page->meta.LPub.countInstance.here().modelName, false)) * 4;
+      int max = (1 + lpub->ldrawFile.instances(page->meta.LPub.countInstance.here().modelName, false)) * 4;
       int override = QInputDialog::getInt(gui,tr("Submodel Instances"),tr("Submodel Instances"),value,0,max,1,&ok);
       if (ok) {
           Where trueTopOfModel;

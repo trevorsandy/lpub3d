@@ -229,6 +229,238 @@ int MetaItem::removeFirstStep(
   return sum;
 }
 
+int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString &modelColour, const int countInstances)
+{
+  bool countAtStep = countInstances == CountAtStep;
+  bool countAtModel = countInstances == CountAtModel;
+
+  if (countAtModel)
+    if (lpub->ldrawFile.isDisplayModel(modelName))
+      return 0;
+
+  int   numLines;
+  Where walk(modelName,countAtStep ? 0 : 1);
+
+/* submodelStack tells us where this submodel is referenced in the
+ * parent file so we use it to target the correct STEP if CountAtStep
+ * or the correct SUBMODEL if CountAtModel
+ */
+
+  SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
+
+  Where subModel(tos.modelName,0);
+  if (countAtModel)
+    lpub->ldrawFile.skipHeader(subModel.modelName,subModel.lineNumber);
+
+/* For CountAtModel, scan the lines following this line, to see if there is
+ * another submodel just like this one that needs to be added as multiplier.
+ *
+ * Models that are callouts are not counted as instances and
+ * Build Modification content are also excluded from the instance count
+ */
+
+  Where step(tos.modelName,tos.lineNumber);
+
+/* For CountAtStep we want to scan backward to see if there
+ * is another submodel just like this one then we scan the lines
+ * following this line, to see if there is another submodel
+ * just like this one that needs to be added as multiplier.
+ *
+ * In either direction, we need to stop on STEP/ROTSTEP.
+ * Models that are callouts are not counted as instances and
+ * Build Modification content are also excluded from the instance count
+ */
+
+  int instanceCount = 0;
+
+  QString firstLine;
+  Where lastInstance, firstInstance;
+
+  int buildModLevel = 0;
+  bool ignorePartLine = false;
+
+  if (countAtStep) {
+    Where walkBack = step;
+    for (; walkBack.lineNumber >= 0; walkBack--) {
+      QString line = lpub->ldrawFile.readLine(walkBack.modelName,walkBack.lineNumber);
+
+      if (isHeader(line)) {
+        break;
+      } else {
+        QStringList argv;
+        split(line,argv);
+        if (argv.size() >= 2 && argv[0] == "0") {
+          if (argv[1] == "STEP" || argv[1] == "ROTSTEP") {
+            break;
+          }
+          // part substitutions are not counted
+          if ((argv.size() == 5 && argv[0] == "0" &&
+               (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+               (argv[2] == "PART"  || argv[2] == "PLI") &&
+               argv[3] == "BEGIN"  &&
+               argv[4] == "IGN") ||
+              (argv.size() == 3 && argv[0] == "0" &&
+               argv[1] == "MLCAD" &&
+               argv[2] == "SKIP_BEGIN"))
+            ignorePartLine = true;
+          if ((argv.size() == 4 && argv[0] == "0" &&
+               (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+               (argv[2] == "PART" || argv[2] == "PLI") &&
+               argv[3] == "END") ||
+              (argv.size() == 3 && argv[0] == "0" &&
+               argv[1] == "MLCAD" &&
+               argv[2] == "SKIP_END"))
+            ignorePartLine = false;
+          // Sorry, models that are callouts are not counted as instances
+          if (argv.size() == 4 && argv[0] == "0" &&
+             (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+              argv[2] == "CALLOUT" && argv[3] == "END") {
+            //process callout content
+            for (--walkBack; walkBack.lineNumber >= 0; walkBack--) {
+              QString calloutLine = lpub->ldrawFile.readLine(walkBack.modelName,walkBack.lineNumber);
+              QStringList tokens;
+              split(calloutLine,tokens);
+              if (tokens.size() == 15 && tokens[0] == "1") {
+                ignorePartLine = true;
+              } else if (tokens.size() == 4 && tokens[0] == "0" &&
+                        (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                         tokens[2] == "CALLOUT" && tokens[3] == "BEGIN") {
+                ignorePartLine = false;
+                break;
+              }
+            }
+          } // callout submodel
+          // build modification content are not counted
+          else if (argv.size() >= 4 && argv[0] == "0" &&
+                  (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+                   argv[2] == "BUILD_MOD") {
+            if (argv[3] == "BEGIN") {
+              buildModLevel = getLevel(argv[4],BM_BEGIN);
+            } else if (argv[3] == "END_MOD") {
+              buildModLevel = getLevel(QString(), BM_END);
+            }
+            ignorePartLine = buildModLevel;
+          } // build modification
+        } else if (argv.size() == 15 && argv[0] == "1") {
+          if (ignorePartLine)
+            continue;
+          if (lpub->ldrawFile.isSubmodel(argv[14])) {
+            bool colourMatch = argv[1] == modelColour;
+            if (argv[14] == modelName) {
+              if (firstLine == "") {
+                firstLine = line;
+                firstInstance = walkBack;
+                lastInstance = walkBack;
+                if (colourMatch)
+                  ++instanceCount;
+              } else {
+                if (equivalentAdds(firstLine,line)) {
+                  firstInstance = walkBack;
+                  if (colourMatch)
+                    ++instanceCount;
+                } else {
+                  continue;
+                }
+              }
+            }
+          } else {
+              continue;
+          }
+        }
+      }
+    }
+    walk = step + 1;
+  } else {
+    walk = subModel;
+  }
+
+  numLines = lpub->ldrawFile.size(walk.modelName);
+  for ( ; walk.lineNumber < numLines; walk++) {
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+    QStringList argv;
+    split(line,argv);
+    if (argv.size() >= 2 && argv[0] == "0") {
+      if (countAtStep && (argv[1] == "STEP" || argv[1] == "ROTSTEP")) {
+        break;
+      }
+      // part substitutions are not counted
+      if ((argv.size() == 5 && argv[0] == "0" &&
+           (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+           (argv[2] == "PART"  || argv[2] == "PLI") &&
+           argv[3] == "BEGIN"  &&
+           argv[4] == "IGN") ||
+          (argv.size() == 3 && argv[0] == "0" &&
+           argv[1] == "MLCAD" &&
+           argv[2] == "SKIP_BEGIN"))
+        ignorePartLine = true;
+      if ((argv.size() == 4 && argv[0] == "0" &&
+           (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+           (argv[2] == "PART" || argv[2] == "PLI") &&
+           argv[3] == "END") ||
+          (argv.size() == 3 && argv[0] == "0" &&
+           argv[1] == "MLCAD" &&
+           argv[2] == "SKIP_END"))
+        ignorePartLine = false;
+      // models that are callouts are not counted as instances
+      if (argv.size() == 4 && argv[0] == "0" &&
+          (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+          argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
+        //process callout content
+        for (++walk; walk.lineNumber < numLines; walk++) {
+          QString calloutLine = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
+          QStringList tokens;
+          split(calloutLine,tokens);
+          if (tokens.size() == 15 && tokens[0] == "1") {
+            ignorePartLine = true;
+          } else
+            if (tokens.size() == 4 && tokens[0] == "0" &&
+                (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                tokens[2] == "CALLOUT" && tokens[3] == "END") {
+                ignorePartLine = false;
+                break;
+            }
+        }
+      } // callout
+      // build modification content are not counted
+      else if (argv.size() >= 4 && argv[0] == "0" &&
+               (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+               argv[2] == "BUILD_MOD") {
+        if (argv[3] == "BEGIN") {
+          buildModLevel = getLevel(argv[4],BM_BEGIN);
+        } else if (argv[3] == "END_MOD") {
+          buildModLevel = getLevel(QString(), BM_END);
+        }
+        ignorePartLine = buildModLevel;
+      } // build modification end
+    } else if (argv.size() == 15 && argv[0] == "1") {
+      if (ignorePartLine)
+        continue;
+      if (lpub->ldrawFile.isSubmodel(argv[14])) {
+        bool colourMatch = argv[1] == modelColour;
+        if (argv[14] == modelName) {
+          if (firstLine == "") {
+            firstLine = line;
+            firstInstance = walk;
+            if (colourMatch)
+              ++instanceCount;
+          } else {
+            if (equivalentAdds(firstLine,line)) {
+                lastInstance = walk;
+                if (colourMatch)
+                  ++instanceCount;
+            } else {
+                continue;
+            }
+          }
+        } else {
+          continue;
+        }
+      }
+    }
+  }
+  return instanceCount;
+}
+
 int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 
     int   numLines;

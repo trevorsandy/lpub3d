@@ -372,7 +372,9 @@ public:
             bool                         _bfxStore2,
             bool                         _assembledCallout = false,
             bool                         _calledOut        = false,
-            bool                         _displayModel     = false)
+            bool                         _displayModel     = false,
+            QString                      _renderModelColour = "",
+            QString                      _renderParentModel = "")
         :
           current                       (_current),
           csiParts                      (_csiParts),
@@ -394,7 +396,9 @@ public:
           bfxStore2                     (_bfxStore2),
           assembledCallout              (_assembledCallout),
           calledOut                     (_calledOut),
-          displayModel                  (_displayModel)
+          displayModel                  (_displayModel),
+          renderModelColour             (_renderModelColour),
+          renderParentModel             (_renderParentModel)
     {  }
     Where                       &current;
     QStringList                 &csiParts;
@@ -417,6 +421,8 @@ public:
     bool                         assembledCallout;
     bool                         calledOut;
     bool                         displayModel;
+    QString                      renderModelColour;
+    QString                      renderParentModel;
 };
 
 class PartLineAttributes

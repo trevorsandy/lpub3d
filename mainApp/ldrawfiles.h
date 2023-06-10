@@ -487,7 +487,7 @@ class LDrawFile {
             const QString &renderParentModel,
             bool           mirrored,
             int            renderStepNumber,
-            int            howCounted,
+            int            countInstance,
             bool           countPage = false);
     bool rendered(
             const QString &fileName,
@@ -495,10 +495,10 @@ class LDrawFile {
             const QString &renderParentModel,
             bool           mirrored,
             int            renderStepNumber,
-            int            howCounted,
+            int            countInstance,
             bool           countPage = false);
-    void addCustomColorParts(const QString &mcFileName, bool autoAdd = false);
     int instances(const QString &fileName, bool mirrored);
+    void addCustomColorParts(const QString &mcFileName, bool autoAdd = false);
     void recountParts();
     void countParts(const QString &fileName);
     void countInstances();
@@ -629,6 +629,7 @@ class LDrawFile {
     bool        isViewerStepMultiStep(const QString &stepKey);
     bool        isViewerStepCalledOut(const QString &stepKey);
     bool        viewerStepContentExist(const QString &stepKey);
+    bool        viewerStepContentChanged(const QString &stepKey, const QStringList &unrotatedContents);
     bool        viewerStepModified(const QString &stepKey, bool reset = false);
     bool        deleteViewerStep(const QString &stepKey);
     bool        setViewerStepHasBuildModAction(const QString &stepKey, bool value);

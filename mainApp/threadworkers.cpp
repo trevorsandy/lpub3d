@@ -2465,7 +2465,7 @@ int CountPageWorker::countPage(
                       if (Preferences::buildModEnabled &&
                           buildMod.state == BM_BEGIN   &&
                           ! buildModRendered) {
-                          ldrawFile->setBuildModRendered("cp~"+buildMod.key, colorType);
+                          ldrawFile->setBuildModRendered(QString("%1;%2").arg(COUNT_PAGE_PREFIX).arg(buildMod.key), colorType);
                       }
 
                   } // Contains [IsSubmodel]
