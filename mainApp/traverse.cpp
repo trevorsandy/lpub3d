@@ -5069,11 +5069,11 @@ void Gui::drawPage(
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
 #ifdef QT_DEBUG_MODE
         if (modelStackCount)
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished modelStack.size WAIT YES Stack [%1]").arg(modelStackCount));
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher WaitForFinsished modelStackCount [%1] WAIT YES").arg(modelStackCount));
         if (countWaitForFinished())
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished countWaitForFinished WAIT YES"));
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher WaitForFinsished countWaitForFinished WAIT YES"));
         if (suspendFileDisplay)
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished suspendFileDisplay WAIT YES"));
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher WaitForFinsished suspendFileDisplay WAIT YES"));
 #endif
         future.waitForFinished();
         if (static_cast<TraverseRc>(future.result()) == HitAbortProcess)
@@ -5082,7 +5082,7 @@ void Gui::drawPage(
           pagesCounted();
       } else {
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher setFuture WAIT NO"));
+        emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher SetFuture WAIT NO"));
 #endif
         futureWatcher.setFuture(future);
       }
@@ -5090,9 +5090,10 @@ void Gui::drawPage(
     };
 
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page entry for LineNumber %1, ModelName %2")
+    emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page for LineNumber %1, ModelName %2, PageNum %3")
                         .arg(opts.current.lineNumber, 3, 10, QChar('0'))
-                        .arg(opts.current.modelName));
+                        .arg(opts.current.modelName)
+                        .arg(opts.pageNum, 3, 10, QChar('0')));
 #endif
 
     // global meta settings from findPage that went out of scope
@@ -5134,10 +5135,11 @@ void Gui::drawPage(
                                QString() : opts.modelStack.last().modelName);
 
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page entry (Model Stack Count %1) for LineNumber %2, ModelName %3")
-                          .arg(opts.modelStack.size(), 2, 10, QChar('0'))
+      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page (Model Stack Entry %1) LineNumber %2, ModelName %3, PageNum %4")
+                          .arg(modelStackCount, 2, 10, QChar('0'))
                           .arg(opts.current.lineNumber, 3, 10, QChar('0'))
-                          .arg(opts.current.modelName));
+                          .arg(opts.current.modelName)
+                          .arg(opts.pageNum, 3, 10, QChar('0')));
 #endif
 
       // pass buildMod settings to parent model
@@ -5186,9 +5188,10 @@ void Gui::drawPage(
             // increment to the next line
             opts.current++;
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Page entry ADJUSTED, PART ADDED for LineNumber %1, ModelName %2, Line [%3]")
+            emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page (Adjusted, Part Added) LineNumber %1, ModelName %2, PageNum %3, Line [%4]")
                                  .arg(opts.current.lineNumber, 3, 10, QChar('0'))
                                  .arg(opts.current.modelName)
+                                 .arg(opts.pageNum, 3, 10, QChar('0'))
                                  .arg(line));
 #endif
           }
