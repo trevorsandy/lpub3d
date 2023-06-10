@@ -91,7 +91,9 @@ public:
   static int             createNativeModelFile(QStringList &rotatedParts,
                                      bool doFadeStep,
                                      bool doHighlightStep,
-                                     int imageType = 0);
+                                     int imageType = 0,
+                                     bool singleSubfile = false);
+  static bool            pruneNativeParts(QStringList &rotatedParts);
   static int             mergeNativeSubfiles(QStringList &subFiles,
                                      QStringList &subFileParts,
                                      bool doFadeStep,
@@ -102,7 +104,7 @@ public:
                                      const QString &modelName,
                                      int imageType,
                                      int displayType = 0);       /*DT_DEFAULT*/
-  static int           rotatePartsRD(const QStringList &parts,   // RotateParts #1 - 5 parms - used exclusively by RenderDialog
+  static int            rotatePartsRD(const QStringList &parts,   // RotateParts #1 - 5 parms - used exclusively by RenderDialog
                                      QString &ldrName,
                                      const QString &rs,
                                      QString &ca,

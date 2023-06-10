@@ -261,8 +261,8 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
     bool isMPD       = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
-    // Test for MPD - if single subfile line - subfile parts consolidated as single LDR
-    if (!isMPD && !isSingleSubfile(lines)) {
+    // Test for MPD - if single subfile line
+    if (!isMPD) {
         for (int i = 0; i < lines.size(); i++) {
             QString line = lines.at(i);
             split(line, tokens);
@@ -4037,23 +4037,62 @@ const QString Render::getRenderModelFile(int renderType, bool saveCurrentModel) 
 
 bool Render::isSingleSubfile(const QStringList &partLines)
 {
-    bool result = false;
+    bool singleSubfile = false;
     if (partLines.isEmpty())
-        return result;
+        return singleSubfile;
     else if (partLines.count() == 1) {
-        result = lpub->ldrawFile.isSubfileLine(partLines.first());
+        singleSubfile = lpub->ldrawFile.isSubfileLine(partLines.first());
     } else {
         int partCount = 0;
         for (QString const &partLine : partLines) {
             if (partCount > 1)
-                return result;
+                return singleSubfile;
             if (!partLine.isEmpty() && !partLine.startsWith("0"))
                 partCount++;
             if (partLine.startsWith("1"))
-                result = lpub->ldrawFile.isSubfileLine(partLine);
+                singleSubfile = lpub->ldrawFile.isSubfileLine(partLine);
         }
     }
-    return result;
+    if (singleSubfile) {
+        QStringList tokens;
+        split(partLines.first(), tokens);
+        for (QString const &line : lpub->ldrawFile.contents(tokens[tokens.size()-1])) {
+            if (lpub->ldrawFile.isSubfileLine(line)) {
+                singleSubfile = false;
+                break;
+            }
+        }
+    }
+    return singleSubfile;
+}
+
+bool Render::pruneNativeParts(QStringList &rotatedParts)
+{
+    //rotatedParts.takeFirst();
+    bool singleSubfile = false;
+    int mpdFileIndx = -1, mpdNoFileIndx = -1;
+    for (int i = 0; i < rotatedParts.count(); i++) {
+        if (!singleSubfile) {
+            singleSubfile = rotatedParts[i].startsWith("0 FILE");
+            mpdFileIndx = singleSubfile ? i : -1;
+        }
+        if (singleSubfile && rotatedParts[i].startsWith("0 FILE")) {
+            singleSubfile = false;
+            break;
+        }
+        if (singleSubfile) {
+            if (rotatedParts[i].startsWith("0 NOFILE")) {
+                mpdNoFileIndx = i;
+                break;
+            }
+        }
+    }
+    if (singleSubfile) {
+        rotatedParts.removeAt(mpdFileIndx);
+        if (mpdNoFileIndx >= 0)
+            rotatedParts.removeAt(mpdNoFileIndx);
+    }
+    return singleSubfile;
 }
 
 // create Native version of the CSI/PLI file - consolidate subfiles and parts into single file
@@ -4061,14 +4100,16 @@ int Render::createNativeModelFile(
     QStringList &rotatedParts,
     bool         doFadeStep,
     bool         doHighlightStep,
-    int          type)
+    int          type,
+    bool         singleSubfile)
 {
-  QStringList nativeSubfiles;
-  QStringList nativeSubfileParts;
-  QStringList nativeParts = rotatedParts;
   Options::Mt imageType = static_cast<Options::Mt>(type);
+  const QLatin1String mpdModelMeta("0 FILE ");
+  bool mpdModel = rotatedParts.at(0).startsWith(mpdModelMeta);
+  QStringList argv, nativeParts, nativeSubfiles, nativeSubfileParts;
+  if (mpdModel || !singleSubfile)
+      nativeParts = rotatedParts;
 
-  QStringList argv;
   int         rc;
 
   if (rotatedParts.size()) {
@@ -4138,12 +4179,12 @@ int Render::createNativeModelFile(
         }
 
       /* add sub model content to nativeRotatedParts file */
-      const QLatin1String mpdModelMeta("0 FILE ");
-      bool mpdModel = nativeParts.at(0).startsWith(mpdModelMeta);
       if (! nativeSubfileParts.empty()) {
-          bool singleSubfile = false;
+          bool _singleSubfile = false;
           QString rotStepLine;
           // check if main model and submodel shares the same name
+          if (!singleSubfile)
+              mpdModel = nativeParts.at(0).startsWith(mpdModelMeta);
           if (mpdModel && nativeParts.at(0) == nativeSubfileParts.at(0)) {
               int typeCount = 0;
               bool mpdModelNotTransformed = false;
@@ -4156,8 +4197,8 @@ int Render::createNativeModelFile(
                   else if (line.startsWith("0 // ROTSTEP "))
                       rotStepLine = line;
               }
-              singleSubfile = mpdModelNotTransformed && nativeSubfiles.size() == 1;
-              if (singleSubfile) {
+              _singleSubfile = mpdModelNotTransformed && nativeSubfiles.size() == 1;
+              if (_singleSubfile) {
                   nativeParts.clear();
                   nativeSubfiles.clear();
               }
@@ -4187,6 +4228,10 @@ int Render::createNativeModelFile(
               nativeParts[2]    = QString("0 Name: %1").arg(modelName);
           }
       }
+
+      /* prune FILE and NOFILE from single subfile  */
+      if (singleSubfile)
+          pruneNativeParts(nativeParts);
 
       /* return rotated parts by reference */
       rotatedParts = nativeParts;

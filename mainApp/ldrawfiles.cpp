@@ -4969,8 +4969,8 @@ int LDrawFile::getTopOfStep(const QString &modelName, int &modelIndex, int &line
                         if (topModelIndex == modelIndex) {
                             lineNumber = _buildModStepIndexes[stepIndex].at(BM_STEP_LINE_KEY);
                         } else {
-                            emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 is below model start, returned modelIndex %4.")
-                                                                        .arg(modelIndex).arg(modelName).arg(lineNumber).arg(topModelIndex));
+                            emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 is below model start, returned modelIndex %4 (%5).")
+                                                                        .arg(modelIndex).arg(modelName).arg(lineNumber).arg(topModelIndex).arg(getSubmodelName(topModelIndex)));
                             return BM_INVALID_INDEX;
                         }
                     }

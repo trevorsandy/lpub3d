@@ -241,24 +241,9 @@ int Render::rotateParts(
       if (Preferences::buildModEnabled && imageType == Options::SMI) {
           rc = mergeSubmodelContent(rotatedParts);
       } else {
-          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
-          if (!rc && singleSubfile) {
-              rotatedParts.takeFirst();
-              bool clearMpdMeta = false;
-              for (int i = 0; i < rotatedParts.count(); i++) {
-                  if (rotatedParts[i].startsWith("0 FILE")) {
-                      clearMpdMeta = true;
-                      rotatedParts.removeAt(i);
-                  }
-                  if (clearMpdMeta) {
-                      if (rotatedParts[i].startsWith("0 NOFILE")) {
-                          rotatedParts.removeAt(i);
-                          break;
-                      }
-                  }
-              }
+          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType,singleSubfile);
+          if (!rc && singleSubfile)
               rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
-          }
       }
       if (rc)
           emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")

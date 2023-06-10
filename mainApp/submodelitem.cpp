@@ -410,7 +410,7 @@ int SubModel::createSubModelImage(
                   if (Preferences::buildModEnabled && !meta->LPub.coverPageViewEnabled.value())
                       rcf = renderer->mergeSubmodelContent(futureModel);
                   else
-                      rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/);
+                      rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/,true/*singleSubmodel*/);
                   if (rcf) {
                       emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged Submodel Preview (SMI) file"));
                       imageName = QString(":/resources/missingimage.png");

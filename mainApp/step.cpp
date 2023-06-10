@@ -465,24 +465,8 @@ int Step::createCsi(
           bool singleSubfile = renderer->isSingleSubfile(viewerParts);
 
           // process part list with single submodel
-          if (singleSubfile) {
-              if (renderer->createNativeModelFile(viewerParts,doFadeSteps,doHighlightStep,Options::CSI) == 0) {
-                  viewerParts.takeFirst();
-                  bool clearMpdMeta = false;
-                  for (int i = 0; i < viewerParts.count(); i++) {
-                      if (viewerParts[i].startsWith("0 FILE")) {
-                          clearMpdMeta = true;
-                          viewerParts.removeAt(i);
-                      }
-                      if (clearMpdMeta) {
-                          if (viewerParts[i].startsWith("0 NOFILE")) {
-                              viewerParts.removeAt(i);
-                              break;
-                          }
-                      }
-                  }
-              }
-          }
+          if (singleSubfile)
+              renderer->createNativeModelFile(viewerParts,doFadeSteps,doHighlightStep,Options::CSI,singleSubfile);
 
           // set rotated parts - input is csiParts
           QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
@@ -600,6 +584,11 @@ int Step::createCsi(
 //      if (!calledOut && !multiStep && updateViewer)
 //          loadTheViewer();
   } // Generate Visual Editor CSI entry
+
+#ifdef QT_DEBUG_MODE
+  LDrawFile &ldrawFile = lpub->ldrawFile;
+  Q_UNUSED(ldrawFile)
+#endif
 
   // Generate the renderer CSI file
 
