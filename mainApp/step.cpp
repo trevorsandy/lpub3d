@@ -3022,8 +3022,10 @@ void Step::addGraphicsItems(
       if (placementData.relativeTo == CalloutType) {
           callout->addGraphicsItems(offsetX-loc[XX],offsetY-loc[YY],rect,parent, movable);
         } else {
-          bool callout_movable = true /*movable*/; // huh ? this will always be true;
-          if (parentRelativeType == StepGroupType && placementData.relativeTo == StepGroupType) {
+          bool callout_movable = movable;
+          if (parentRelativeType == StepGroupType && (placementData.relativeTo == PageType ||
+                                                      placementData.relativeTo == CsiType  ||
+                                                      placementData.relativeTo == PartsListType)) {
               callout_movable = true;
           }
           callout->addGraphicsItems(callout->shared ? 0 : offsetX,offsetY,rect,parent, callout_movable);
