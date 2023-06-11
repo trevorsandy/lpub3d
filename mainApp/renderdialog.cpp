@@ -146,8 +146,14 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         setWindowTitle(tr("Blender %1").arg(mImportOnly ? tr("LDraw Import") : tr("Image Render")));
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
-
-        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+		
+		bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+		
+		QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+		if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
+			blenderConfigured = false;
+			Preferences::setBlenderImportModule(QString());
+		}
 
         if (blenderConfigured)
             mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
@@ -842,11 +848,13 @@ void RenderDialog::WriteStdOut()
     if (file.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text))
     {
         QTextStream Out(&file);
+		
         for (const QString& Line : mStdOutList)
             Out << Line;
+		
         file.close();
-        if (mStdOutList.size())
-            ui->RenderOutputButton->setEnabled(true);
+
+        ui->RenderOutputButton->setEnabled(true);
     }
     else
     {
@@ -953,9 +961,6 @@ void RenderDialog::ShowResult()
     } else {
         ui->RenderProgress->setValue(ui->RenderProgress->maximum());
     }
-
-    if (mRenderType == BLENDER_RENDER)
-        ReadStdOut();
 #endif
 
     QString message;
@@ -989,8 +994,8 @@ void RenderDialog::ShowResult()
         lpub->getAct("blenderRenderAct.4")->setEnabled(true);
 
         Success = QFileInfo(FileName).exists();
-        if (Success){
-
+        if (Success) {
+            setMinimumSize(100, 100);
             QImageReader reader(FileName);
             mImage = reader.read();
             mImage = mImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
@@ -999,9 +1004,6 @@ void RenderDialog::ShowResult()
             mPreviewHeight = mImage.height();
 
             ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
-            setMinimumSize(100, 100);
-            adjustSize();
-            ui->preview->show();
         }
     }
 

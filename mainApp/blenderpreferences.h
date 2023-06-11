@@ -183,37 +183,38 @@ private:
         LBL_INSTANCE_STUDS,                     //  9   QCheckBox
         LBL_KEEP_ASPECT_RATIO,                  // 10   QCheckBox
         LBL_LINK_PARTS,                         // 11   QCheckBox
-        LBL_NUMBER_NODES,                       // 12   QCheckBox
-        LBL_OVERWRITE_IMAGE,                    // 13   QCheckBox
-        LBL_OVERWRITE_MATERIALS,                // 14   QCheckBox
-        LBL_OVERWRITE_MESHES,                   // 15   QCheckBox
-        LBL_POSITION_CAMERA,                    // 16   QCheckBox
-        LBL_REMOVE_DOUBLES,                     // 17   QCheckBox
-        LBL_RENDER_WINDOW,                      // 18   QCheckBox
-        LBL_USE_ARCHIVE_LIBS,                   // 19   QChekcBox
-        LBL_SEARCH_ADDL_PATHS,                  // 20   QCheckBox
-        LBL_SMOOTH_SHADING,                     // 21   QCheckBox
-        LBL_TRANSPARENT_BACKGROUND,             // 22   QCheckBox
-        LBL_UNOFFICIAL_PARTS,                   // 23   QCheckBox
-        LBL_USE_LOGO_STUDS,                     // 24   QCheckBox
-        LBL_VERBOSE,                            // 25   QCheckBox
+		LBL_MINIFIG_HIERARCHY,                  // 12   QCheckBox
+        LBL_NUMBER_NODES,                       // 13   QCheckBox
+        LBL_OVERWRITE_IMAGE,                    // 14   QCheckBox
+        LBL_OVERWRITE_MATERIALS,                // 15   QCheckBox
+        LBL_OVERWRITE_MESHES,                   // 16   QCheckBox
+        LBL_POSITION_CAMERA,                    // 17   QCheckBox
+        LBL_REMOVE_DOUBLES,                     // 18   QCheckBox
+        LBL_RENDER_WINDOW,                      // 19   QCheckBox
+        LBL_USE_ARCHIVE_LIBS,                   // 20   QChekcBox
+        LBL_SEARCH_ADDL_PATHS,                  // 21   QCheckBox
+        LBL_SMOOTH_SHADING,                     // 22   QCheckBox
+        LBL_TRANSPARENT_BACKGROUND,             // 23   QCheckBox
+        LBL_UNOFFICIAL_PARTS,                   // 24   QCheckBox
+        LBL_USE_LOGO_STUDS,                     // 25   QCheckBox
+        LBL_VERBOSE,                            // 26   QCheckBox
 
-        LBL_BEVEL_WIDTH,                        // 26/0 QLineEdit
-        LBL_CAMERA_BORDER_PERCENT,              // 27/1 QLineEdit
-        LBL_DEFAULT_COLOUR,                     // 28/2 QLineEdit
-        LBL_GAPS_SIZE,                          // 29/3 QLineEdit
-        LBL_IMAGE_WIDTH,                        // 30/4 QLineEdit
-        LBL_IMAGE_HEIGHT,                       // 31/5 QLineEdit
-        LBL_IMAGE_SCALE,                        // 32/6 QLineEdit
-        LBL_RENDER_PERCENTAGE,                  // 33/7 QLineEdit
+        LBL_BEVEL_WIDTH,                        // 27/0 QLineEdit
+        LBL_CAMERA_BORDER_PERCENT,              // 28/1 QLineEdit
+        LBL_DEFAULT_COLOUR,                     // 29/2 QLineEdit
+        LBL_GAPS_SIZE,                          // 30/3 QLineEdit
+        LBL_IMAGE_WIDTH,                        // 31/4 QLineEdit
+        LBL_IMAGE_HEIGHT,                       // 32/5 QLineEdit
+        LBL_IMAGE_SCALE,                        // 33/6 QLineEdit
+        LBL_RENDER_PERCENTAGE,                  // 34/7 QLineEdit
 
-        LBL_COLOUR_SCHEME,                      // 34/0 QComboBox
-        LBL_FLEX_PARTS_SOURCE,                  // 35/1 QComboBox
-        LBL_LOGO_STUD_VERSION,                  // 36/2 QComboBox
-        LBL_LOOK,                               // 27/3 QComboBox
-        LBL_POSITION_OBJECT,                    // 38/4 QComboBox
-        LBL_RESOLUTION,                         // 39/5 QComboBox
-        LBL_RESOLVE_NORMALS,                    // 40/6 QComboBox
+        LBL_COLOUR_SCHEME,                      // 35/0 QComboBox
+        LBL_FLEX_PARTS_SOURCE,                  // 36/1 QComboBox
+        LBL_LOGO_STUD_VERSION,                  // 27/2 QComboBox
+        LBL_LOOK,                               // 38/3 QComboBox
+        LBL_POSITION_OBJECT,                    // 39/4 QComboBox
+        LBL_RESOLUTION,                         // 40/5 QComboBox
+        LBL_RESOLVE_NORMALS,                    // 41/6 QComboBox
 
         NUM_SETTINGS
     };
@@ -249,20 +250,21 @@ private:
         CTL_INSTANCE_STUDS_BOX,                                  // 09
         CTL_KEEP_ASPECT_RATIO_BOX,                               // 10
         CTL_LINK_PARTS_BOX,                                      // 11
-        CTL_NUMBER_NODES_BOX,                                    // 12
-        CTL_OVERWRITE_IMAGE_BOX,                                 // 13
-        CTL_OVERWRITE_MATERIALS_BOX,                             // 14
-        CTL_OVERWRITE_MESHES_BOX,                                // 15
-        CTL_POSITION_CAMERA_BOX,                                 // 16
-        CTL_REMOVE_DOUBLES_BOX,                                  // 17
-        CTL_RENDER_WINDOW_BOX,                                   // 18
-        CTL_USE_ARCHIVE_LIBS_BOX,                                // 19
-        CTL_SEARCH_ADDL_PATHS_BOX,                               // 20
-        CTL_SMOOTH_SHADING_BOX,                                  // 21
-        CTL_TRANSPARENT_BACKGROUND_BOX,                          // 22
-        CTL_UNOFFICIAL_PARTS_BOX,                                // 23
-        CTL_USE_LOGO_STUDS_BOX,                                  // 24
-        CTL_VERBOSE_BOX,                                         // 25
+		CTL_MINIFIG_HIERARCHY_BOX,                               // 12
+        CTL_NUMBER_NODES_BOX,                                    // 13
+        CTL_OVERWRITE_IMAGE_BOX,                                 // 14
+        CTL_OVERWRITE_MATERIALS_BOX,                             // 15
+        CTL_OVERWRITE_MESHES_BOX,                                // 16
+        CTL_POSITION_CAMERA_BOX,                                 // 17
+        CTL_REMOVE_DOUBLES_BOX,                                  // 18
+        CTL_RENDER_WINDOW_BOX,                                   // 19
+        CTL_USE_ARCHIVE_LIBS_BOX,                                // 20
+        CTL_SEARCH_ADDL_PATHS_BOX,                               // 21
+        CTL_SMOOTH_SHADING_BOX,                                  // 22
+        CTL_TRANSPARENT_BACKGROUND_BOX,                          // 23
+        CTL_UNOFFICIAL_PARTS_BOX,                                // 24
+        CTL_USE_LOGO_STUDS_BOX,                                  // 25
+        CTL_VERBOSE_BOX,                                         // 26
     };
 
     enum BlenderLabelTypeMM
