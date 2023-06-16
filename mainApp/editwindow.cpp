@@ -412,8 +412,8 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
 }
 
 void EditWindow::openWith()
-{
-    QStringList arguments = QStringList() << QDir::toNativeSeparators(fileName);
+{   QString const filePath = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
+    QStringList arguments = QStringList() << filePath;
     QString program;
     QAction *action = qobject_cast<QAction *>(sender());
     if (action) {
