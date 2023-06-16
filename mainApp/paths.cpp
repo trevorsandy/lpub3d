@@ -39,24 +39,25 @@
 Paths paths;
 
 QString Paths::lpubDir          = QLatin1String(VER_PRODUCTNAME_STR);
-QString Paths::tmpDir           = QString("%1/tmp").arg(VER_PRODUCTNAME_STR);
-QString Paths::assemDir         = QString("%1/assem").arg(VER_PRODUCTNAME_STR);
-QString Paths::partsDir         = QString("%1/parts").arg(VER_PRODUCTNAME_STR);
-QString Paths::bomDir           = QString("%1/bom").arg(VER_PRODUCTNAME_STR);
-QString Paths::submodelDir      = QString("%1/submodels").arg(VER_PRODUCTNAME_STR);
-QString Paths::povrayRenderDir  = QString("%1/povray").arg(VER_PRODUCTNAME_STR);
-QString Paths::blenderRenderDir = QString("%1/blender").arg(VER_PRODUCTNAME_STR);
-QString Paths::htmlStepsDir     = QString("%1/htmlsteps").arg(VER_PRODUCTNAME_STR);
+QString Paths::tmpDir           = QString("%1%2tmp").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::assemDir         = QString("%1%2assem").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::partsDir         = QString("%1%2parts").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::bomDir           = QString("%1%2bom").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::submodelDir      = QString("%1%2submodels").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::povrayRenderDir  = QString("%1%2povray").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::blenderRenderDir = QString("%1%2blender").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
+QString Paths::htmlStepsDir     = QString("%1%2htmlsteps").arg(VER_PRODUCTNAME_STR).arg(QDir::separator());
 QString Paths::logsDir          = QLatin1String("logs");
 QString Paths::extrasDir        = QLatin1String("extras");
 QString Paths::libraryDir       = QLatin1String("libraries");
 
-QString Paths::customDir        = QString();
-QString Paths::customPartDir    = QString();
-QString Paths::customSubDir     = QString();
-QString Paths::customPrimDir    = QString();
-QString Paths::customPrim8Dir   = QString();
-QString Paths::customPrim48Dir  = QString();
+QString Paths::customDir        = QString("%1custom").arg(Preferences::validLDrawLibrary);
+QString Paths::customPartDir    = QString("%1custom%2parts").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
+QString Paths::customSubDir     = QString("%1custom%2parts%2s").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
+QString Paths::customTextureDir = QString("%1custom%2parts%2textures").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
+QString Paths::customPrimDir    = QString("%1custom%2p").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
+QString Paths::customPrim8Dir   = QString("%1custom%2p%28").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
+QString Paths::customPrim48Dir  = QString("%1custom%2p%248").arg(Preferences::validLDrawLibrary).arg(QDir::separator());
 
 QStringList Paths::customDirs;
 
@@ -86,39 +87,36 @@ void Paths::mkDirs(){
 
 }
 
-void Paths::mkCustomDirs(){
-
-  customDir       = Preferences::validLDrawLibrary+"custom";
-  customPartDir   = Preferences::validLDrawLibrary+"custom/parts";
-  customSubDir    = Preferences::validLDrawLibrary+"custom/parts/s";
-  customPrimDir   = Preferences::validLDrawLibrary+"custom/p";
-  customPrim8Dir  = Preferences::validLDrawLibrary+"custom/p/8";
-  customPrim48Dir = Preferences::validLDrawLibrary+"custom/p/48";
+void Paths::mkCustomDirs() {
 
   QDir dir;
 
   QString dp = Preferences::lpubDataPath;
-  if(! dir.exists(dp + "/" + customDir))
-    dir.mkdir(dp + "/" + customDir);
+  if(! dir.exists(dp + QDir::separator() + customDir))
+    dir.mkdir(dp + QDir::separator() + customDir);
 
-  if (! dir.exists(dp + "/" + customPartDir))
-    dir.mkdir(dp + "/" + customPartDir);
+  if (! dir.exists(dp + QDir::separator() + customPartDir))
+    dir.mkdir(dp + QDir::separator() + customPartDir);
 
-  if (! dir.exists(dp + "/" + customSubDir))
-    dir.mkdir(dp + "/" + customSubDir);
+  if (! dir.exists(dp + QDir::separator() + customSubDir))
+    dir.mkdir(dp + QDir::separator() + customSubDir);
 
-  if (! dir.exists(dp + "/" + customPrimDir))
-    dir.mkdir(dp + "/" + customPrimDir);
+  if (! dir.exists(dp + QDir::separator() + customTextureDir))
+    dir.mkdir(dp + QDir::separator() + customTextureDir);
 
-  if (! dir.exists(dp + "/" + customPrim8Dir))
-    dir.mkdir(dp + "/" + customPrim8Dir);
+  if (! dir.exists(dp + QDir::separator() + customPrimDir))
+    dir.mkdir(dp + QDir::separator() + customPrimDir);
 
-  if (! dir.exists(dp + "/" + customPrim48Dir))
-    dir.mkdir(dp + "/" + customPrim48Dir);
+  if (! dir.exists(dp + QDir::separator() + customPrim8Dir))
+    dir.mkdir(dp + QDir::separator() + customPrim8Dir);
 
-  customDirs << dp + "/" + customPartDir
-             << dp + "/" + customSubDir
-             << dp + "/" + customPrimDir
-             << dp + "/" + customPrim8Dir
-             << dp + "/" + customPrim48Dir;
+  if (! dir.exists(dp + QDir::separator() + customPrim48Dir))
+    dir.mkdir(dp + QDir::separator() + customPrim48Dir);
+
+  customDirs << dp + QDir::separator() + customPartDir
+             << dp + QDir::separator() + customSubDir
+             << dp + QDir::separator() + customTextureDir
+             << dp + QDir::separator() + customPrimDir
+             << dp + QDir::separator() + customPrim8Dir
+             << dp + QDir::separator() + customPrim48Dir;
 }

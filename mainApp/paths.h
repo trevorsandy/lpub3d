@@ -41,6 +41,7 @@ public:
     static QString customDir;
     static QString customPartDir;
     static QString customSubDir;
+    static QString customTextureDir;
     static QString customPrimDir;
     static QString customPrim8Dir;
     static QString customPrim48Dir;
