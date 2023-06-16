@@ -3246,28 +3246,7 @@ int BlenderPreferences::showMessage(
         break;
     }
 
-    int minimumWidth = 400;
-    int fontWidth = QFontMetrics(box.font()).averageCharWidth();
-    int fixedTextLength = (minimumWidth / fontWidth);
-    if (header.length() < body.length() && header.length() < fixedTextLength)
-    {
-        QGridLayout* boxLayout = (QGridLayout*)box.layout();
-        QLayoutItem* boxLayoutItem = boxLayout->itemAtPosition(0, 2);
-        QWidget* textWidget = boxLayoutItem->widget();
-        if (textWidget)
-        {
-            int fixedWidth = body.length() * fontWidth;
-            if (fixedWidth == minimumWidth)
-            {
-                int index = (minimumWidth / fontWidth) - 1;
-                if (!body.midRef(index, 1).isEmpty())
-                    fixedWidth = body.indexOf(" ", index);
-            }
-            else if (fixedWidth < minimumWidth)
-                fixedWidth = minimumWidth;
-            textWidget->setFixedWidth(fixedWidth);
-        }
-    }
+    Preferences::messageBoxAdjustWidth(qobject_cast<QMessageBox*>(&box), header, body, 400);
 
     return box.exec();
 }
