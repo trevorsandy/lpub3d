@@ -7886,7 +7886,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   }
 
   if (Preferences::ldSearchDirs.size() > 0) {
-      Q_FOREACH (const QString &searchDir, Preferences::ldSearchDirs)
+      for (const QString &searchDir : Preferences::ldSearchDirs)
         textEditSearchDirs->appendPlainText(searchDir);
   }
 
@@ -7925,12 +7925,12 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
     if (searchDirs.size() && searchDirs != Preferences::ldSearchDirs) {
       QStringList validDirs, invalidDirs, newDirs;
 
-      Q_FOREACH (const QString &searchDir, searchDirs) {
+      for (const QString &searchDir : searchDirs) {
 
         bool match = false;
         const QString dir = QDir::toNativeSeparators(searchDir);
 
-        Q_FOREACH (const QString &ldDir, Preferences::ldSearchDirs) {
+        for (const QString &ldDir : Preferences::ldSearchDirs) {
           if (dir.toLower() == ldDir.toLower()) {
             match = true;
             break;
@@ -7941,7 +7941,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
           validDirs << dir;
         } else {
           match = false;
-          Q_FOREACH (const QString &excludedDir, excludedSearchDirs) {
+          for (const QString &excludedDir : excludedSearchDirs) {
             if (dir.toLower() == excludedDir.toLower()) {
               invalidDirs << dir;
               match = true;
@@ -7965,14 +7965,14 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
         const QString message = tr("The search directory list contains excluded or invalid paths which will not be saved.");
         QMessageBox::warning(dialog, tr("Search Directories"), QString("%1<br>%2").arg(message).arg(invalidDirs.join("<br>")));
         emit gui->messageSig(LOG_INFO, message);
-        Q_FOREACH (const QString &dir, invalidDirs) {
+        for (const QString &dir : invalidDirs) {
           emit gui->messageSig(LOG_INFO, QString("    - %1").arg(dir));
         }
       }
 
       if (!validDirs.isEmpty()) {
         emit gui->messageSig(LOG_INFO, tr("Updated LDraw Directories:"));
-        Q_FOREACH (const QString &dir, validDirs) {
+        for (const QString &dir : validDirs) {
           emit gui->messageSig(LOG_INFO,QString("    - %1").arg(dir));
         }
       }
@@ -8008,7 +8008,7 @@ void LDrawSearchDirDialog::buttonClicked()
       gui->partWorkerLDSearchDirs.resetSearchDirSettings();
       textEditSearchDirs->clear();
 
-      Q_FOREACH (const QString &searchDir, Preferences::ldSearchDirs)
+      for (const QString &searchDir : Preferences::ldSearchDirs)
         textEditSearchDirs->appendPlainText(searchDir);
 
       box.setIcon (QMessageBox::Information);
@@ -8020,7 +8020,7 @@ void LDrawSearchDirDialog::buttonClicked()
   } else if (sender() == pushButtonAddDirectory) {
     const QString ldrawPath = Preferences::ldrawLibPath;
     const QString result = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(dialog, tr("Select Parts Directory"), QString("%1/%2").arg(ldrawPath).arg("unofficial")));
-    Q_FOREACH (const QString &excludedDir, excludedSearchDirs) {
+    for (const QString &excludedDir : excludedSearchDirs) {
       if (result.toLower() == excludedDir.toLower()) {
           box.setIcon (QMessageBox::Warning);
           box.setWindowTitle(tr ("Invalid Search Directory"));
