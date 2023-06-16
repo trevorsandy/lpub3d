@@ -195,12 +195,22 @@ public:
     int  action;
     int  state;
     bool ignore;
+    bool countPage;
     BuildModFlags()
         : level(0),
           action(0),
           state(-1),
-          ignore(false)
+          ignore(false),
+          countPage(false)
     { }
+    void setCountPage(const BuildModFlags &rhs)
+    {
+        level = rhs.level;
+        action = rhs.action;
+        state = rhs.state;
+        ignore = rhs.ignore;
+        countPage = true;
+    }
     void clear()
     {
         key.clear();
@@ -208,6 +218,7 @@ public:
         action = 0;
         state = -1;
         ignore = false;
+        countPage = false;
     }
 };
 

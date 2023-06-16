@@ -5112,7 +5112,7 @@ void Gui::drawPage(
 
     // pass buildMod settings to parent model
     if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
-      opts.flags.buildMod = opts.flags.buildModStack.last();
+      opts.flags.buildMod.setCountPage(opts.flags.buildModStack.last());
 //*
 #ifdef QT_DEBUG_MODE
       const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
@@ -5155,7 +5155,7 @@ void Gui::drawPage(
 
       // pass buildMod settings to parent model
       if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
-        opts.flags.buildMod = opts.flags.buildModStack.last();
+        opts.flags.buildMod.setCountPage(opts.flags.buildModStack.last());
 //*
 #ifdef QT_DEBUG_MODE
         const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
@@ -5797,11 +5797,12 @@ int Gui::setBuildModForNextStep(
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
             case BuildModBeginRc:
-                if (buildMod.state == BM_BEGIN)
-                    emit gui->parseErrorSig(QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
+                if (buildMod.state == BM_BEGIN) {
+                    QString const message = QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
                                                     "Multiple build modifications per STEP are not allowed.")
-                                                    .arg(meta.LPub.buildMod.key()).arg(buildMod.key),
-                                                    walk,Preferences::BuildModErrors,false,false);
+                                                    .arg(meta.LPub.buildMod.key()).arg(buildMod.key);
+                    emit gui->parseErrorSig(message, walk,Preferences::BuildModErrors,false,false);
+                }
                 buildMod.key   = meta.LPub.buildMod.key();
                 buildMod.level = getLevel(buildMod.key, BM_BEGIN);
                 buildModKeys.insert(buildMod.level, buildMod.key);
