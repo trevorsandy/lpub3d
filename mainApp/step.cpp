@@ -967,40 +967,10 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
           // check if part is submodel
           is_submodel_file = lpub->ldrawFile.isSubmodel(fileNameStr);
 
-          // process submodel parts if display step
-          if (displayStep && is_submodel_file) {
-            QStringList const &contents = lpub->ldrawFile.contents(fileNameStr);
-            if (contents.size()) {
-              // remove the submodel line from the parts list
-              parts.takeAt(index);
-              int j = index;
-              for (int i = 0; i < contents.size(); i++) {
-                QString const &line = contents.at(i);
-                bool validLine = false;
-                if(line.isEmpty())
-                  continue;
-                if ((validLine = !line.startsWith("0")))
-                  parts.insert(j, line);
-                else if ((validLine = line.startsWith("0 !FADE")))
-                  parts.insert(j, line);
-                else if ((validLine = line.startsWith("0 !SILHOUETTE")))
-                  parts.insert(j, line);
-                if (validLine) {
-                  // return the previous index to reprocess the current line in csiLine
-                  if (j == index)
-                    index--;
-                  // inserting top-down so increment index to insert after current
-                  j++;
-                }
-              }
-            }
-            // finished processing the subfile so return to previous index
-            continue;
-          } // display step submodel
-            /*
-            if (is_colour_part)
-              emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
-            */
+          /*
+          if (is_colour_part)
+            emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
+          */
         } // type_1_line
 
         // write fade step entries
