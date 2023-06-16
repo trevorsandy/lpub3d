@@ -365,6 +365,7 @@ class Preferences
     static bool    isAppImagePayload;
     static bool    modeGUI;
     static bool    useSystemTheme;
+    static bool    darkTheme;
 
     static bool    sceneRuler;
     static int     sceneRulerTracking;

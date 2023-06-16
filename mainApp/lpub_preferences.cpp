@@ -437,6 +437,7 @@ bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
 bool    Preferences::inlineNativeContent        = true;
 bool    Preferences::useSystemTheme             = true;
+bool    Preferences::darkTheme                  = false;
 
 bool    Preferences::ldgliteInstalled           = false;
 bool    Preferences::ldviewInstalled            = false;
@@ -3732,6 +3733,8 @@ void Preferences::themePreferences()
     }
 #endif
 
+    darkTheme = displayTheme == THEME_DARK;
+
     for (int i = 0; i < THEME_NUM_COLORS; i++) {
         const QString themeKey(defaultThemeColors[i].key);
         if ( ! Settings.contains(QString("%1/%2").arg(THEMECOLORS,themeKey))) {
@@ -3741,6 +3744,7 @@ void Preferences::themePreferences()
             themeColors[i] = Settings.value(QString("%1/%2").arg(THEMECOLORS,themeKey)).toString().toUpper();
         }
     }
+
     Preferences::setMessageLogging();
 }
 
