@@ -5981,6 +5981,7 @@ void Gui::writeToTmp(const QString &fileName,
       bool buildModIgnore     = false;
       bool buildModItems      = false;
       bool buildModApplicable = false;
+      bool isDataFile         = false;
 
       QString                 buildModKey;
       QMap<int, int>          buildModActions;
@@ -6002,6 +6003,14 @@ void Gui::writeToTmp(const QString &fileName,
       Meta  meta;
       for (int i = 0; i < contents.size() && !Gui::abortProcess(); i++) {
           QString line = contents[i];
+
+          if (line.contains(LDrawFile::_fileRegExp[DAT_RX]))
+              isDataFile = true;
+          if (isDataFile) {
+              csiParts.append(line);
+              continue;
+          }
+
           QStringList tokens;
 
           split(line,tokens);
@@ -6129,7 +6138,8 @@ void Gui::writeToTmp(const QString &fileName,
           }
       }
 
-      lpub->ldrawFile.setLineTypeRelativeIndexes(topOfStep.modelIndex,lineTypeIndexes);
+      if (!isDataFile)
+          lpub->ldrawFile.setLineTypeRelativeIndexes(topOfStep.modelIndex,lineTypeIndexes);
 
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
