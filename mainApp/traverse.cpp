@@ -3355,6 +3355,17 @@ int Gui::findPage(
                                   RotStepMeta saveRotStep2 = meta.rotStep;
                                   meta.rotStep.clear();
 
+                                  // Save the parent (flags.parentStepGroup/flags.parentCallout)
+                                  // stepGroup and callout flags. We use the parent flags to
+                                  // suppress partsAdded so a new page (number) is not triggered
+                                  // for the callout or stepGroup when we are in a partial render
+                                  // state, which is to say when the child submoelStack is greater
+                                  // than the parent submoelStack. This means we pass both the child
+                                  // (flags.stepGroup/flags.callout) and parent stepGroup and callout
+                                  // flags to countPage.
+                                  bool saveCallout2 = opts.flags.callout;
+                                  bool saveStepGroup2 = opts.flags.stepGroup;
+
                                   // set the group step number to the first step of the submodel
                                   if (meta.LPub.multiStep.pli.perStep.value() == false &&
                                       meta.LPub.multiStep.showGroupStepNumber.value()) {
@@ -3447,6 +3458,9 @@ int Gui::findPage(
 
                                   saveStepPageNum = stepPageNum;
                                   meta.rotStep  = saveRotStep2;             // restore old rotstep
+
+                                  opts.flags.parentCallout = saveCallout2;  // restore parent called and stepGroup flags
+                                  opts.flags.parentStepGroup = saveStepGroup2;
 
                                   if (opts.contStepNumber) {                // capture continuous step number from exited submodel
                                       opts.contStepNumber = saveContStepNum;
@@ -5063,6 +5077,8 @@ void Gui::drawPage(
   } else {
 
     int modelStackCount = opts.modelStack.size();
+    bool parentStepGrpup = opts.flags.parentStepGroup;
+    bool parentCallout = opts.flags.parentCallout;
 #ifdef QT_DEBUG_MODE
     QString message;
 #endif
@@ -5148,8 +5164,9 @@ void Gui::drawPage(
                                QString() : opts.modelStack.last().modelName);
 
 #ifdef QT_DEBUG_MODE
-      message = QString(" COUNTING  - Submodel Page (Model Stack Entry %1) LineNumber %2, ModelName %3, PageNum %4")
+      message = QString(" COUNTING  - Submodel Page (Model Stack Entry %1%2) LineNumber %3, ModelName %4, PageNum %5")
                         .arg(modelStackCount, 2, 10, QChar('0'))
+                        .arg(parentStepGrpup ? ", [StepGroup]" : parentCallout ? ", [Callout]" : "" )
                         .arg(opts.current.lineNumber, 3, 10, QChar('0'))
                         .arg(opts.current.modelName)
                         .arg(opts.pageNum, 3, 10, QChar('0'));
@@ -5188,11 +5205,10 @@ void Gui::drawPage(
           QString type = token[token.size()-1];
 
           if (lpub->ldrawFile.isSubmodel(type)) {
-            Where walk = opts.current;
-            Rc rc = lpub->mi.scanBackward(walk, StepGroupMask|CalloutMask);
-            opts.flags.stepGroup = (rc == StepGroupBeginRc || rc == StepGroupDividerRc);
-            opts.flags.callout   = (rc == CalloutBeginRc || rc == CalloutDividerRc);
-            // do not increment partsAdded (enable add new page) if we are in a step group or a callout
+            // restore parent stepGroup and callout flags.
+            opts.flags.stepGroup = parentStepGrpup;
+            opts.flags.callout = parentCallout;
+            // do not increment partsAdded (enable add new page) if we are in a stepGroup or a callout
             if (opts.flags.stepGroup || opts.flags.callout)
               opts.flags.partsAdded = 0;
             else if (!opts.flags.partsAdded)

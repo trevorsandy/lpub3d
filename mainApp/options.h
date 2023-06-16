@@ -242,6 +242,8 @@ public:
     bool parseBuildMods;
     bool parseStepGroupBM;
     bool countPageContains;
+    bool parentCallout;
+    bool parentStepGroup;
     bool resetIncludeRc;
     bool includeFileFound;
     int  includeFileRc;
@@ -272,6 +274,8 @@ public:
           parseBuildMods    (false),
           parseStepGroupBM  (false),
           countPageContains (false),
+          parentCallout  (false),
+          parentStepGroup(false),
           resetIncludeRc    (false),
           includeFileFound  (false),
           includeFileRc     (-1),    // EndOfIncludeFileRc
