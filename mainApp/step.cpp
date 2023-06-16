@@ -371,29 +371,25 @@ int Step::createCsi(
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
                           .arg(nameSuffix);
-
-  int rc = 0;
-
 /*
 #ifdef QT_DEBUG_MODE
-      const QString stepType = calledOut ? "called out" : multiStep ? "step group" : "single step";
-      const int stepTypeLineNum = calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber;
-      emit gui->messageSig(LOG_DEBUG,
-                           QString("Create CSI ViewerStep "
-                                   "Key: '%1' ["
-                                   "ModelIndex: %2 (%3), "
-                                   "LineNumber: %4, "
-                                   "StepNumber: %5], "
-                                   "Type: [%6]%7")
-                                   .arg(viewerStepKey)
-                                   .arg(gui->getSubmodelIndex(top.modelName))
-                                   .arg(top.modelName)
-                                   .arg(top.lineNumber)
-                                   .arg(stepNumber.number)
-                                   .arg(stepType)
-                                   .arg(stepType == "single step" ? "" : QString(", StepsLineNumber: [%1]").arg(stepTypeLineNum)));
+  const QString keyMessage = QString("Create CSI ViewerStepKey "
+                                     "Key: '%1' ["
+                                     "ModelIndex: %2 (%3), "
+                                     "LineNumber: %4, "
+                                     "StepNumber: %5%6]")
+                              .arg(viewerStepKey)
+                              .arg(gui->getSubmodelIndex(top.modelName))
+                              .arg(top.modelName)
+                              .arg(top.lineNumber)
+                              .arg(stepNumber.number)
+                              .arg(nameSuffix.isEmpty() ? "" : QString(", Suffix: %1").arg(nameSuffix));
+  //emit gui->messageSig(LOG_DEBUG, keyMessage);
+  qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
-*/
+//*/
+
+  int rc = 0;
 
   QElapsedTimer timer;
 
@@ -465,7 +461,29 @@ int Step::createCsi(
 //#endif
 
       if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
-
+/*
+#ifdef QT_DEBUG_MODE
+          const QString action = addViewerStepContent ? "Create" : csiOutOfDate ? "Update Stale" : "Update";
+          const QString stepType = calledOut ? "called out" : multiStep ? "step group" : "single step";
+          const int stepTypeLineNum = calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber;
+          const QString message = QString("%1 CSI ViewerStep Entry"
+                                          "Key: '%2' ["
+                                          "ModelIndex: %3 (%4), "
+                                          "LineNumber: %5, "
+                                          "StepNumber: %6%7], "
+                                          "Type: [%8]%9")
+                                      .arg(action)
+                                      .arg(viewerStepKey)
+                                      .arg(gui->getSubmodelIndex(top.modelName))
+                                      .arg(top.modelName)
+                                      .arg(top.lineNumber)
+                                      .arg(stepNumber.number)
+                                      .arg(nameSuffix.isEmpty() ? "" : QString(", Suffix: %1").arg(nameSuffix))
+                                      .arg(stepType)
+                                      .arg(stepType == "single step" ? "" : QString(", StepsLineNumber: [%1]").arg(stepTypeLineNum));
+          qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
+#endif
+//*/
           updateViewer = true; // just to be safe
           QStringList viewerParts = csiParts;
           bool doFadeSteps = csiStepMeta.fadeSteps.enable.value();

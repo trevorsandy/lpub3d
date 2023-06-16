@@ -5589,13 +5589,14 @@ bool LDrawFile::setViewerStepHasBuildModAction(const QString &stepKey, bool valu
 #ifdef QT_DEBUG_MODE
   else if (!stepKey.isEmpty()) {
     const QStringList Keys = stepKey.split(";");
-    const QString noticeMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
-                                           .arg(Keys.at(BM_STEP_MODEL_KEY))
-                                           .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt(),false))
-                                           .arg(Keys.at(BM_STEP_LINE_KEY))
-                                           .arg(Keys.at(BM_STEP_NUM_KEY))
-                                           .arg(stepKey);
-    emit gui->messageSig(LOG_NOTICE, noticeMessage);
+    const QString noticeMessage = QString("Cannot set ViewerStep BuildMod Action for Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Viewer Step/Key does not exist.")
+                                          .arg(Keys.at(BM_STEP_MODEL_KEY))
+                                          .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt(),false))
+                                          .arg(Keys.at(BM_STEP_LINE_KEY))
+                                          .arg(Keys.at(BM_STEP_NUM_KEY))
+                                          .arg(stepKey);
+    //emit gui->messageSig(LOG_NOTICE, noticeMessage);
+    qDebug() << qPrintable(QString("DEBUG: %1").arg(noticeMessage));
   }
 #endif
   return rc;

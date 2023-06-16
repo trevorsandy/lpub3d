@@ -2593,9 +2593,9 @@ int CountPageWorker::countPage(
                   // step-groups, and parse lines after MULTI_STEP END in the last STEP of a submodel.
                   // Do not parse callouts when jumping ahead because the current step will be assigned any
                   // action change which will cause callouts to display the 'final' action for the page when
-                  // the intention would be to have the drawPage interate the callout's STEPS to render each
+                  // the intention would be to have the drawPage iterate the callout's STEPS to render each
                   // STEP's action accordingly. Build modification actions in callouts and step-groups are
-                  // parsed in drawPage. Likewise build modification actions are not parsed for during count
+                  // parsed in drawPage. Likewise build modification actions are not parsed during count
                   // page processing step-groups STEPs after the first STEP.
                   if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM && ! opts.flags.callout) {
                       if (opts.flags.partsAdded)
@@ -2616,17 +2616,19 @@ int CountPageWorker::countPage(
                                                       .arg(buildMod.key), opts.current,Preferences::BuildModErrors,false,false,QMessageBox::Icon::Information);
                       } else {
                           const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                          emit gui->parseErrorSig(tr("CountPage BuildMod key '%1' for %2 action was not found.")
+                          emit gui->parseErrorSig(tr("Jump forward BuildMod key '%1' for %2 action was not found.")
                                                   .arg(buildMod.key).arg(action),
                                                   opts.current,Preferences::BuildModErrors,false,false);
                       }
                       if ((Rc)buildMod.action != rc) {
-#ifdef QT_DEBUG_MODE
-                          emit gui->messageSig(LOG_NOTICE, QString("Setup Reset Build Mod - Key: '%1', Current Action: %2, Next Action: %3")
-                                               .arg(buildMod.key)
-                                               .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
-                                               .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
-#endif
+#ifdef QT_DEBUG_MODE 
+                      const QString message = tr("Jump forward Build Mod Reset Setup - Key: '%1', Current Action: %2, Next Action: %3") 
+                                                 .arg(buildMod.key) 
+                                                 .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)") 
+                                                 .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"); 
+                      emit gui->messageSig(LOG_NOTICE, message); 
+                      //qDebug() << qPrintable(QString("DEBUG: %1").arg(message)); 
+#endif 
                           // get the viewerStepKey for the current step
                           const QString viewerStepKey = QString("%1;%2;%3%4")
                                                         .arg(topOfStep.modelIndex)
@@ -2636,7 +2638,8 @@ int CountPageWorker::countPage(
 
                           // set BuildMod action for step if exists
                           if (lpub->ldrawFile.setViewerStepHasBuildModAction(viewerStepKey, true))
-                              ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                              ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc); 
+ 
                       }
                       buildMod.state = BM_NONE;
                   } // opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM

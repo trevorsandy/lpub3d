@@ -2195,21 +2195,24 @@ int Gui::drawPage(
                   buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, buildModStepIndex));
                   if (buildModActions.value(buildMod.level) != rc) {
 #ifdef QT_DEBUG_MODE
-                      emit gui->messageSig(LOG_NOTICE, QString("Setup Reset Build Mod - Key: '%1', Current Action: %2, Next Action: %3")
-                                           .arg(buildMod.key)
-                                           .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
-                                           .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
+                      const QString message = tr("Build Mod Reset Setup - Key: '%1', Current Action: %2, Next Action: %3")
+                                                 .arg(buildMod.key)
+                                                 .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
+                                                 .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)");
+                      emit gui->messageSig(LOG_NOTICE, message);
+                      //qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
-                      // set BuildMod step has action in current step
+                      // set BuildMod step key for previous (e.g. BEGIN) action
                       const QString buildModStepKey = getViewerStepKey(getBuildModStepIndex(buildMod.key));
 
                       // set BuildMod action for current step
                       if (lpub->ldrawFile.setViewerStepHasBuildModAction(buildModStepKey, true))
                           setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       else
-                          parseError(tr("DrawPage could not set BuildMod %1 action for key '%2'.")
-                                        .arg(rc == BuildModApplyRc ? tr("Apply") : tr("Remove")).arg(buildMod.key),
-                                        opts.current,Preferences::BuildModErrors);
+                          parseError(tr("Could not preserve previous BuildMod %1 action for key '%2'.<br>Step or key was not found.")
+                                        .arg(rc == BuildModApplyRc ? tr("Remove") : tr("Apply")).arg(buildMod.key),
+                                        opts.current,Preferences::BuildModErrors, true, false, QMessageBox::Warning);
+                      setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
                       // Check if CsiAnnotation and process them if any
@@ -2602,7 +2605,7 @@ int Gui::drawPage(
                           if (buildModKeys.size()) {
                               if (buildMod.state != BM_END)
                                   parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
-                              Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
+                              for (int buildModLevel : buildModKeys.keys()) {
                                   if (buildModInsert)
                                       insertBuildModification(buildModLevel);
                                   else
@@ -2944,8 +2947,7 @@ int Gui::drawPage(
                    *  STEP - case no parts added - e.g. model starting with ROTSTEP END
                    */
                   {
-                      ;
-//                      topOfStep     = opts.current;  // set next step
+                      topOfStep = opts.current;  // set next step
                   }
               } // STEP - case of not NOSTEP and not BuildMod ignore
 
