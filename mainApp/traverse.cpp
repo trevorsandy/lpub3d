@@ -1584,6 +1584,7 @@ int Gui::drawPage(
                     lpub->mi.scanForward(top, StepMask, partsAdded);
                     if (partsAdded) {
                         opts.csiParts.clear();
+                        opts.lineTypeIndexes.clear();
                         displayType = DT_MODEL_CUSTOM;
                     }
                     saveRotStep = curMeta.rotStep.value();
