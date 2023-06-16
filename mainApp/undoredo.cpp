@@ -229,7 +229,7 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
     if (onStepMeta)
       return;
     else
-      endRx.setPattern("^[1-5] |^0 ROTATION|^0 STEP$|^0 ROTSTEP|^0 !?LPUB MULTI_STEP BEGIN$|^0 !?LPUB CALLOUT BEGIN$|^0 !?LPUB INSERT");
+      endRx.setPattern("^[1-5] |^0 ROTATION|^0 STEP|^0 ROTSTEP|^0 !?LPUB MULTI_STEP BEGIN|^0 !?LPUB CALLOUT BEGIN|^0 !?LPUB INSERT");
   }
   Where walk    = onStepMeta ? topOfStep + 1 : topOfStep;
   Where lastPos = topOfStep;
