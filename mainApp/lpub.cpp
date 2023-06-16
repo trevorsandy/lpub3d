@@ -4810,6 +4810,13 @@ void Gui::createActions()
 
     createOpenWithActions();
 
+    QAction *openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder..."), this);
+    openWorkingFolderAct->setObjectName("openWorkingFolderAct.1");
+    openWorkingFolderAct->setShortcut(QStringLiteral("Alt+Shift+1"));
+    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder"));
+    lpub->actions.insert(openWorkingFolderAct->objectName(), Action(QStringLiteral("File.Open Working Folder"), openWorkingFolderAct));
+    connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
+
     QAction *reloadFromDiskAct = new QAction(QIcon(":/resources/loadfromdisk.png"), tr("&Reload from Disk"), this);
     reloadFromDiskAct->setObjectName("reloadFromDiskAct.1");
     reloadFromDiskAct->setShortcut(QStringLiteral("Ctrl+Shift+R"));
@@ -5972,13 +5979,6 @@ void Gui::createActions()
     lpub->actions.insert(viewLogAct->objectName(), Action(QStringLiteral("Help.View Runtime Log"), viewLogAct));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
-    QAction *openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder..."), this);
-    openWorkingFolderAct->setObjectName("openWorkingFolderAct.1");
-    openWorkingFolderAct->setShortcut(QStringLiteral("Alt+Shift+1"));
-    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder"));
-    lpub->actions.insert(openWorkingFolderAct->objectName(), Action(QStringLiteral("Help.Open Working Folder"), openWorkingFolderAct));
-    connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
-
     if (Preferences::modeGUI) {
 
         // context menu actions
@@ -6497,6 +6497,7 @@ void Gui::enableActions()
   if (suspendFileDisplay)
     return;
 
+  getAct("openWorkingFolderAct.1")->setEnabled(true);
   getAct("reloadFromDiskAct.1")->setEnabled(true);
   getAct("saveAsAct.1")->setEnabled(true);
   getAct("saveCopyAct.1")->setEnabled(true);
@@ -6551,7 +6552,6 @@ void Gui::enableActions()
   getAct("editBLCodesAct.1")->setEnabled(true);
   getAct("editModelFileAct.1")->setEnabled(true);
   getAct("editPliControlFileAct.1")->setEnabled(!Preferences::pliControlFile.isEmpty());
-  getAct("openWorkingFolderAct.1")->setEnabled(true);
   getAct("openParameterFileFolderAct.1")->setEnabled(true);
 
 //  setPageLineEdit)->setEnabled(true);
@@ -6602,6 +6602,7 @@ void Gui::enableActions()
 
 void Gui::disableActions()
 {
+  getAct("openWorkingFolderAct.1")->setEnabled(false);
   getAct("reloadFromDiskAct.1")->setEnabled(false);
   getAct("saveAsAct.1")->setEnabled(false);
   getAct("saveCopyAct.1")->setEnabled(false);
@@ -6634,7 +6635,6 @@ void Gui::disableActions()
   getAct("removeChildSubmodelFormatAct.1")->setEnabled(false);
   getAct("removeBuildModFormatAct.1")->setEnabled(false);
   getAct("editModelFileAct.1")->setEnabled(false);
-  getAct("openWorkingFolderAct.1")->setEnabled(false);
   getAct("firstPageAct.1")->setEnabled(false);
   getAct("lastPageAct.1")->setEnabled(false);
   getAct("nextPageAct.1")->setEnabled(false);
@@ -6739,7 +6739,9 @@ void Gui::createMenus()
       openWithMenu->addAction(openWithActList.at(i));
     }
 
+    fileMenu->addAction(getAct("openWorkingFolderAct.1"));
     fileMenu->addAction(getAct("reloadFromDiskAct.1"));
+
     fileMenu->addAction(getAct("saveAct.1"));
     fileMenu->addAction(getAct("saveAsAct.1"));
     fileMenu->addAction(getAct("saveCopyAct.1"));
@@ -6992,7 +6994,6 @@ void Gui::createMenus()
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->setObjectName("helpMenu");
     menus.insert(helpMenu->objectName(), helpMenu);
-    helpMenu->addAction(getAct("openWorkingFolderAct.1"));
     helpMenu->addAction(getAct("viewLogAct.1"));
 #ifndef DISABLE_UPDATE_CHECK
     helpMenu->addAction(getAct("updateAppAct.1"));
