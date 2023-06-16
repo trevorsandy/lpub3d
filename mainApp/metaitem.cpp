@@ -233,6 +233,7 @@ int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString
 {
   bool countAtStep = countInstances == CountAtStep;
   bool countAtModel = countInstances == CountAtModel;
+  bool countByColour = meta->LPub.countInstanceByColour.value();
 
   if (countAtModel)
     if (lpub->ldrawFile.isDisplayModel(modelName))
@@ -257,6 +258,7 @@ int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString
  *
  * Models that are callouts are not counted as instances and
  * Build Modification content are also excluded from the instance count
+ *
  */
 
   Where step(tos.modelName,tos.lineNumber);
@@ -278,7 +280,6 @@ int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString
 
   int buildModLevel = 0;
   bool ignorePartLine = false;
-  bool countByColour = meta->LPub.countInstanceByColour.value();
 
   if (countAtStep) {
     Where walkBack = step;
@@ -347,7 +348,7 @@ int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString
             continue;
           if (lpub->ldrawFile.isSubmodel(argv[14])) {
             bool colourMatch = argv[1] == modelColour;
-            if (!countByColour)
+            if (!countByColour || argv[1] == LDRAW_MAIN_MATERIAL_COLOUR)
               colourMatch = true;
             if (argv[14] == modelName) {
               if (firstLine == "") {
@@ -440,7 +441,7 @@ int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString
         continue;
       if (lpub->ldrawFile.isSubmodel(argv[14])) {
         bool colourMatch = argv[1] == modelColour;
-        if (!countByColour)
+        if (!countByColour || argv[1] == LDRAW_MAIN_MATERIAL_COLOUR)
           colourMatch = true;
         if (argv[14] == modelName) {
           if (firstLine == "") {

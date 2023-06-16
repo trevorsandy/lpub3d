@@ -1,4 +1,4 @@
-LPub3D 2.4.6.325.3436 (17 06 2023 00:53:42)
+LPub3D 2.4.6.326.3437 (17 06 2023 00:55:52)
 
 Features, enhancements, fixes and changes
 ------------
@@ -41,6 +41,7 @@ Revisions:
 - Fix - Inconsistent page loading and numbering #693
 - Fix - Justify outside placement #690
 - Fix - Load last opened file on startup not working #713
+- Fix - Multi-level inherited colour lost assembly count in r322 #723
 - Fix - Parameter file viewer bad path for save copy as menu action #674
 - Fix - Part IDs missing in BOM #680
 - Fix - Parts List Instance placement dialog #685
