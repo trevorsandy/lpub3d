@@ -913,7 +913,12 @@ bool Gui::openFile(const QString &fileName)
   emit lpub->messageSig(LOG_INFO, tr("Loading user interface items..."));
   attitudeAdjustment();
   mpdCombo->clear();
-  mpdCombo->addItems(lpub->ldrawFile.subFileOrder());
+  for (int i = 0; i < lpub->ldrawFile.subFileOrder().count(); i++) {
+      const QString &subFile = lpub->ldrawFile.subFileOrder().at(i);
+      mpdCombo->addItem(subFile);
+      if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
+          mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
+  }
   mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
   connect(mpdCombo,SIGNAL(activated(int)), this,    SLOT(mpdComboChanged(int)));
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
