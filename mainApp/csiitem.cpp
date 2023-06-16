@@ -129,6 +129,7 @@ void CsiItem::partLine(
     switch (rc){
     case FadeRc:
     case SilhouetteRc:
+    case TexMapRc:
     case ColourRc:
     case PartNameRc:
     case PartTypeRc:

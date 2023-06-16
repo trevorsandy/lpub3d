@@ -1,4 +1,4 @@
-LPub3D 2.4.6.343.3454 (17 06 2023 01:32:43)
+LPub3D 2.4.6.344.3455 (17 06 2023 01:35:00)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add view load status dialogue menu action #698
+- Enhancement - Enable MPD model file imbedded image with !DATA meta command #722
 - Enhancement - Insert display model - enable part and submodel lines #704
 - Enhancement - On startup, set theme based on Windows system theme #700
 - Enhancement - Refactor fade and highlight parts behaviour #710

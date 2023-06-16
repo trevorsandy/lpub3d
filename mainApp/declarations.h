@@ -137,6 +137,8 @@ enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayR
 
 enum LDrawFileRegExpType {
     SOF_RX,  // Start of File
+    DAT_RX,  // Imbedded Image Data
+    B64_RX,  // Base 64 Image Data Line
     EOF_RX,  // End of File
     LDR_RX,  // LDraw File
     AUT_RX,  // Author Header

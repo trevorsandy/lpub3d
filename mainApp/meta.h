@@ -209,6 +209,8 @@ enum Rc {
 
          IncludeFileErrorRc,
 
+         TexMapRc,
+
          InvalidLineRc,
 
          NoStepRc,
@@ -4396,6 +4398,7 @@ public:
   RcMeta        clear;
   RcMeta        fade;
   RcMeta        silhouette;
+  RcMeta        texmap;
   RcMeta        colour;
   RotStepMeta   rotStep;
   BuffExchgMeta bfx;

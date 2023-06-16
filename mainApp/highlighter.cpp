@@ -598,6 +598,8 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bCCW\\b"),
         QStringLiteral("\\bCLEAR\\b"),
         QStringLiteral("!?\\bCMDLINE\\b"),
+        QStringLiteral("\\bCYLINDRICAL\\b"),
+        QStringLiteral("!?\\bDATA\\b"),
         QStringLiteral("!?\\bHELP\\b"),
         QStringLiteral("!?\\bHISTORY\\b"),
         QStringLiteral("!?\\bKEYWORDS\\b"),
@@ -605,10 +607,14 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("!?\\bLICENSE\\b"),
         QStringLiteral("\\bNAME\\b:"),
         QStringLiteral("^(?!0 !LPUB|1).*\\bFILE\\b"),
+        QStringLiteral("\\bFALLBACK\\b"),
+        QStringLiteral("\\bNEXT\\b"),
         QStringLiteral("\\bNOFILE\\b"),
-        QStringLiteral("!?\\bHELP\\b"),
         QStringLiteral("\\bOFFICIAL\\b"),
         QStringLiteral("\\bORIGINAL LDRAW\\b"),
+        QStringLiteral("\\bPLANAR\\b"),
+        QStringLiteral("\\bSPHERICAL\\b"),
+        QStringLiteral("\\bSTART\\b"),
         QStringLiteral("!?\\bTHEME\\b"),
         QStringLiteral("\\bUNOFFICIAL MODEL\\b"),
         QStringLiteral("\\bUN-OFFICIAL\\b"),
@@ -633,6 +639,8 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bUNOFFICIAL SHORTCUT ALIAS\\b"),
         QStringLiteral("\\bUNOFFICIAL PART PHYSICAL_COLOUR\\b"),
         QStringLiteral("\\bUNOFFICIAL SHORTCUT PHYSICAL_COLOUR\\b"),
+        QStringLiteral("!?\\bTEXMAP\\b"),
+        QStringLiteral("!?\\bTEXMAP END\\b"),
         QStringLiteral("\\b~MOVED TO\\b")
     };
 
@@ -970,8 +978,17 @@ void Highlighter::highlightBlock(const QString &text)
         startIndex = text.indexOf(LDrawMultiLineCommentStartExpression, startIndex + commentLength);
     }
 
+    // Line Types
+    // 1 <colour> x y z a b c d e f g h i <file>
+    // 2 <colour> x1 y1 z1 x2 y2 z2
+    // 3 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3
+    // 4 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
+    // 5 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
+    QRegularExpression typeRx("^[1-5]\\s+");
+    QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)");
     int index = -1;
-    if (text.startsWith("1 "))
+    bool texmap = false;
+    if (text.contains(typeRx) || (texmap = text.contains(texmapRx)))
         index = 0;
     else if (text.startsWith("0 GHOST "))
         index = 8;
@@ -986,41 +1003,94 @@ void Highlighter::highlightBlock(const QString &text)
         for (int t = 14; t < tt.size(); t++)
             part += (tt[t]+" ");
         QStringList tokens;
-        if (tt.size() > 14) {
-            tokens  << tt[ 0]                        //  1 - part type
-                    << tt[ 1]                        //  2 - color
-                    << tt[ 2]+" "+tt[ 3]+" "+tt[ 4]  //  5 - position
-                    << tt[ 5]+" "+tt[ 6]+" "+tt[ 7]  //  8 - transform
-                    << tt[ 8]+" "+tt[ 9]+" "+tt[10]  // 11 - transform
-                    << tt[11]+" "+tt[12]+" "+tt[13]  // 14 - transform
-                    << part.trimmed();               // 15 - part
+        if (tt.size() > 14 && !texmap) {
+            tokens  << tt[ 0]                        // (0)  1 - part type
+                    << tt[ 1]                        // (1)  2 - color
+                    << tt[ 2]+" "+tt[ 3]+" "+tt[ 4]  // (2)  5 - position
+                    << tt[ 5]+" "+tt[ 6]+" "+tt[ 7]  // (3)  8 - transform
+                    << tt[ 8]+" "+tt[ 9]+" "+tt[10]  // (4) 11 - transform
+                    << tt[11]+" "+tt[12]+" "+tt[13]  // (5) 14 - transform
+                    << part.trimmed();               // (6) 15 - part
         } else {
             for (int i = 0; i < tt.size(); i++) {
-                if (i < 2)
-                    tokens << tt[i];
-                if (tt.size() < 2)
-                    break;
-                if (i == 4)
-                    tokens << tt[2]+" "+tt[3]+" "+tt[4];
-                if (tt.size() < 5)
-                    break;
-                if (i == 7)
-                    tokens << tt[5]+" "+tt[6]+" "+tt[7];
-                if (tt.size() < 8)
-                    break;
-                if (i == 10)
-                    tokens << tt[8]+" "+tt[9]+" "+tt[10];
-                if (tt.size() < 11)
-                    break;
-                if (i == 13)
-                    tokens << tt[11]+" "+tt[12]+" "+tt[13];
-                if (tt.size() < 14)
-                    break;
+                if (texmap) {
+                    if (i == 3)  { // i = 1, insert type (0), texmap (1) START|NEXT (2), method (2)
+                        tokens << tt[0];
+                        tokens << tt[1];
+                        tokens << tt[2]+" "+tt[3];
+                        if (tt.size() < 4)
+                            break;
+                    } else
+                    if (i == 6) { // append x1 y1 z1 point (3)
+                        tokens << tt[4]+" "+tt[5]+" "+tt[6];
+                        if (tt.size() < 7)
+                            break;
+                    } else
+                    if (i == 9) { // append x2 y2 z2 point (4)
+                        tokens << tt[7]+" "+tt[8]+" "+tt[9];
+                        if (tt.size() < 10)
+                            break;
+                    } else
+                    if (i == 12) { // append x3 y3 z3 point (5)
+                        tokens << tt[10]+" "+tt[11]+" "+tt[12];
+                        if (tt.size() < 13)
+                            break;
+                    } else
+                    if (i == 13) { // append angle1/.png (6) - cylindrical
+                        tokens << tt[13];
+                        if (tt.size() < 14)
+                            break;
+                    }
+                    if (i == 14) { // append angle2/.png (7) - spherical
+                        tokens << tt[14];
+                        if (tt.size() < 15)
+                            break;
+                    }
+                    if (i == 15) { // append .png (8)
+                        tokens << tt[15];
+                        if (tt.size() < 16)
+                            break;
+                    }
+                } else {
+                    if (i == 1)  { // i = 1, insert type (0) and colour (1)
+                        tokens << tt[0];
+                        tokens << tt[1];
+                        if (tt.size() < 2)
+                            break;
+                    } else
+                    if (i == 4) { // append x y z position (2)
+                        tokens << tt[2]+" "+tt[3]+" "+tt[4];
+                        if (tt.size() < 5)
+                            break;
+                    } else
+                    if (i == 7) { // append x1 y1 z1 transform (3)
+                        tokens << tt[5]+" "+tt[6]+" "+tt[7];
+                        if (tt.size() < 8)
+                            break;
+                    } else
+                    if (i == 10) { // append x2 y2 z2 transform (4)
+                        tokens << tt[8]+" "+tt[9]+" "+tt[10];
+                        if (tt.size() < 11)
+                            break;
+                    } else
+                    if (i == 13) { // append x3 y3 z3 transform (5)
+                        tokens << tt[11]+" "+tt[12]+" "+tt[13];
+                        if (tt.size() < 14)
+                            break;
+                    } else
+                    if (i == 14) { // append part (6)
+                        tokens << tt[14];
+                        if (tt.size() < 15)
+                            break;
+                    }
+                }
             }
         }
         for (int i = 0; i < tokens.size(); i++) {
             if (index >= 0 && index < text.length()) {
-                setFormat(index, tokens[i].length(), lineType1Formats[i]);
+                int idx = (texmap && i > 5) ? 6 : i; // set texmap tokens after (6) to last (type) format
+                if (!texmap || (texmap && i > 2))    // skip position format for texmap
+                    setFormat(index, tokens[i].length(), lineType1Formats[idx]);
                 index += tokens[i].length() + 1;     // add 1 position for the space
             }
         }

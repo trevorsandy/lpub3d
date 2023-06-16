@@ -1364,6 +1364,7 @@ int Gui::drawPage(
 
             case PartNameRc:
             case PartTypeRc:
+            case TexMapRc:
             case MLCadGroupRc:
             case LDCadGroupRc:
             case LeoCadModelRc:
@@ -5493,6 +5494,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
                                        false/*displayModel*/,
                                        true/*generated*/,
                                        true/*includeFile*/,
+                                       false/*dataFile*/,
                                        fileInfo.absoluteFilePath(),
                                        fileInfo.completeBaseName());
                 enableWatcher();
@@ -6086,6 +6088,7 @@ void Gui::writeToTmp(const QString &fileName,
 
                   case PartNameRc:
                   case PartTypeRc:
+                  case TexMapRc:
                   case MLCadGroupRc:
                   case LDCadGroupRc:
                   case LeoCadModelRc:

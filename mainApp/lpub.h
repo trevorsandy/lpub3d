@@ -657,8 +657,8 @@ public:
     return lpub->ldrawFile.modified(parsedIndexes, reset);
   }
 
-  void insertGeneratedModel(const QString &name,
-                                  QStringList &csiParts) {
+  void insertGeneratedModel(const QString &name, QStringList &csiParts)
+  {
     QDateTime date;
     lpub->ldrawFile.insert(name,
                            csiParts,
@@ -667,6 +667,7 @@ public:
                            false /*displayModel*/,
                            true  /*generated*/,
                            false /*includeFile*/,
+                           false /*dataFile*/,
                            QString(),
                            QFileInfo(name).completeBaseName());
     writeToTmp();

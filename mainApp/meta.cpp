@@ -6900,6 +6900,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   clear      .init(this,"CLEAR",       ClearRc);
   fade       .init(this,"!FADE",       FadeRc);
   silhouette .init(this,"!SILHOUETTE", SilhouetteRc);
+  texmap     .init(this,"!TEXMAP",     TexMapRc);
   colour     .init(this,"!COLOUR",     ColourRc);
   rotStep    .init(this,"ROTSTEP");
   bfx        .init(this,"BUFEXCHG");

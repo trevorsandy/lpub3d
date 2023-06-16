@@ -191,6 +191,7 @@ LDrawSubFile::LDrawSubFile(
   bool               displayModel,
   bool               generated,
   bool               includeFile,
+  bool               dataFile,
   const QString     &subFilePath,
   const QString     &description)
 {
@@ -210,6 +211,7 @@ LDrawSubFile::LDrawSubFile(
   _displayModel = displayModel;
   _generated = generated;
   _includeFile = includeFile;
+  _dataFile = dataFile;
   _startPageNumber = 0;
   _lineTypeIndexes.clear();
   _subFileIndexes.clear();
@@ -396,6 +398,7 @@ void LDrawFile::insert(const QString &mcFileName,
                       bool            displayModel,
                       bool            generated,
                       bool            includeFile,
+                      bool            dataFile,
                       const QString  &subFilePath,
                       const QString  &description)
 {
@@ -412,6 +415,7 @@ void LDrawFile::insert(const QString &mcFileName,
       displayModel,
       generated,
       includeFile,
+      dataFile,
       subFilePath,
       modelDesc);
   _subFiles.insert(fileName,subFile);
@@ -1397,7 +1401,7 @@ int LDrawFile::loadFile(const QString &fileName)
     QTextStream in(&qba);
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
-        if (line.contains(_fileRegExp[SOF_RX])) {
+        if (line.contains(_fileRegExp[SOF_RX]) || line.contains(_fileRegExp[DAT_RX])) {
             emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("File '%1' identified as Multi-Part LDraw System (MPD) Document").arg(fileInfo.fileName()));
             type = MPD_FILE;
             break;
@@ -1416,7 +1420,8 @@ int LDrawFile::loadFile(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    topLevelModel = true;
+    topLevelModel      = true;
+    updatePartsArchive = false;
 
     _modelFile = fileInfo.fileName();
 
@@ -1425,6 +1430,15 @@ int LDrawFile::loadFile(const QString &fileName)
             loadMPDFile(fileInfo.absoluteFilePath());
         else
             loadLDRFile(fileInfo.absoluteFilePath());
+        if (updatePartsArchive) {
+            QString const textureDir = QString("%1%2%3").arg(Preferences::lpubDataPath).arg(QDir::separator()).arg(Paths::customTextureDir);
+            if (!Preferences::ldSearchDirs.contains(textureDir)) {
+                Preferences::ldSearchDirs << textureDir;
+                emit gui->messageSig(LOG_INFO, QObject::tr("Added custom textures directory: %1").arg(textureDir));
+            }
+            PartWorker partWorkerLDSearchDirs;
+            partWorkerLDSearchDirs.updateLDSearchDirs(true /*archive*/, true/*custom directory*/);
+        }
     });
     loadFuture.waitForFinished();
 
@@ -1608,6 +1622,7 @@ bool LDrawFile::loadIncludeFile(const QString &mcFileName)
                false/*displayModel*/,
                true/*generated*/,
                true/*includeFile*/,
+               false/*dataFile*/,
                fileInfo.absoluteFilePath(),
                fileInfo.completeBaseName());
     }
@@ -1720,6 +1735,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     int lineIndx             = -1;
     bool alreadyLoaded       = false;
     bool subfileFound        = false;
+    bool isDatafile      = false;
     bool partHeaderFinished  = false;
     bool stagedSubfilesFound = externalFile;
     bool modelHeaderFinished = externalFile ? true : false;
@@ -1746,7 +1762,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     hdrAuthorNotFound = true;
     unofficialPart    = UNOFFICIAL_UNKNOWN;
 
-    QString subfileName, subFile, smLine;
+    QByteArray dataFile;
+    QString subfileName, subFile, smLine, datafileName;
     QStringList stagedContents, stagedSubfiles, contents, tokens;
     QStringList searchPaths = Preferences::ldSearchDirs;
 
@@ -1934,10 +1951,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 stagedSubfiles.removeAt(subfileIndx);
         }
 
-        // processing inlined parts
+        // processing inlined parts or base 64 data
         if (!sof && hdrFILENotFound) {
             if (subfileName.isEmpty() && hdrNameNotFound) {
-                sosf = smLine.contains(_fileRegExp[NAM_RX]);
+                sosf = smLine.contains(_fileRegExp[NAM_RX]) || (isDatafile = smLine.contains(_fileRegExp[DAT_RX]));
+                if (isDatafile && _fileRegExp[DAT_RX].cap(1).isEmpty())
+                    emit gui->messageSig(LOG_WARNING,QObject::tr("Malformed !DATA command. No file name specified.<br>%1").arg(smLine));
                 if (! sosf)
                     contents << smLine;
             } else if (! hdrNameNotFound && smLine.startsWith("0")) {
@@ -1962,7 +1981,18 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     }
                 }
             }
-        }
+        } // inlined parts
+
+        // processing base 64 data lines
+        if (isDatafile) {
+            if (smLine.contains(_fileRegExp[B64_RX])) {
+                dataFile.append(_fileRegExp[B64_RX].cap(1).toUtf8());
+            } else if (! sosf) {
+                eosf = true;
+                saveDatafile(datafileName, dataFile);
+                dataFile.clear();
+            }
+        } // base 64 data
 
         /* - if at start of file marker, populate subfileName
          * - if at end of file marker, clear subfileName
@@ -1987,18 +2017,21 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                                displayModel,
                                false/*generated*/,
                                false/*includeFile*/,
+                               isDatafile/*dataFile*/,
                                externalFile ? fileInfo.absoluteFilePath() : "",
                                _description);
                     }
                     if (contents.size()) {
-                        if ((headerMissing = MissingHeaderType(missingHeaders())))
+                        if (!isDatafile && (headerMissing = MissingHeaderType(missingHeaders())))
                             normalizeHeader(subfileName, headerMissing);
                         emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
                                                                      .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
                     }
+                    isDatafile = false;
                     topLevelModel = false;
                     unofficialPart = UNOFFICIAL_UNKNOWN;
                 }
+
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
                     stagedSubfiles.removeAt(subfileIndx);
@@ -2018,10 +2051,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     modelHeaderFinished = false;
                     subfileName = _fileRegExp[SOF_RX].cap(1);
                 } else/*sosf*/ {
-
                     hdrNameNotFound = sosf = false;
-                    partHeaderFinished = false;
-                    subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
+                    partHeaderFinished = isDatafile ? true : false;
+                    subfileName = isDatafile ? _fileRegExp[DAT_RX].cap(1).trimmed() : _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     contents << smLine;
                 }
                 if (! alreadyLoaded) {
@@ -2060,6 +2092,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         }
     } // iterate stagedContents
 
+    // resolve outstanding image file from base 64 data
+    if (isDatafile)
+        saveDatafile(datafileName, dataFile);
+
     // at end of file - NOFILE tag not specified
     if ( ! subfileName.isEmpty()) {
         if (LDrawFile::contains(subfileName)) {
@@ -2078,11 +2114,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                        displayModel,
                        false/*generated*/,
                        false/*includeFile*/,
+                       isDatafile/*dataFile*/,
                        externalFile ? fileInfo.absoluteFilePath() : "",
                        _description);
             }
             if (contents.size()) {
-                if ((headerMissing = MissingHeaderType(missingHeaders())))
+                if (!isDatafile && (headerMissing = MissingHeaderType(missingHeaders())))
                     normalizeHeader(subfileName, headerMissing);
                 emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
                                                              .arg(fileType()).arg(subfileName).arg(QString::number(size(subfileName))));
@@ -2577,6 +2614,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                                    displayModel,
                                    false/*generated*/,
                                    false/*includeFile*/,
+                                   false/*dataFile*/,
                                    externalFile ? fileInfo.absoluteFilePath() : "",
                                    _description);
 
@@ -2653,6 +2691,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                            displayModel,
                            false/*generated*/,
                            false/*includeFile*/,
+                           false/*dataFile*/,
                            externalFile ? fileInfo.absoluteFilePath() : "",
                            _description);
                     if ((headerMissing = MissingHeaderType(missingHeaders())))
@@ -3682,7 +3721,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
 
         if (f != _subFiles.end() && ! f.value()._generated) {
 
-            addFILEMeta    = _mpd && !f.value()._includeFile;
+            addFILEMeta    = _mpd && !f.value()._includeFile && !f.value()._dataFile;
 
             if (!f.value()._subFilePath.isEmpty()) {
 
@@ -3835,6 +3874,57 @@ bool LDrawFile::saveIncludeFile(const QString &fileName){
       }
     }
     return true;
+}
+
+bool LDrawFile::saveDatafile(const QString &fileName, const QByteArray &dataFile)
+{
+  if (dataFile.isEmpty()) {
+    emit gui->messageSig(LOG_WARNING, QObject::tr("Base 64 image data for %1 is empty.").arg(fileName));
+    return false;
+  }
+
+  QString const imageDirPath = QString("%1%2%3").arg(Preferences::lpubDataPath).arg(QDir::separator()).arg(Paths::customTextureDir);
+  QString const imageFilePath = QString("%1%2%3").arg(imageDirPath).arg(QDir::separator()).arg(fileName);
+
+  QFileInfo fileInfo(imageFilePath);
+  QString const datafileName = fileInfo.baseName().toUpper();
+
+  bool imageFileExists = fileInfo.exists();
+  bool imageFileArchived = lcGetPiecesLibrary()->FindTexture(QString(datafileName).toLatin1().constData(), nullptr, false);
+
+  if (imageFileExists && imageFileArchived) {
+    emit gui->messageSig(LOG_INFO, QObject::tr("Image file '%1' exists.").arg(fileName));
+    return true;
+  }
+
+  QDir textureDir(imageDirPath);
+  if (!textureDir.exists())
+    textureDir.mkpath(".");
+
+  QPixmap image;
+  if (!image.loadFromData(QByteArray::fromBase64(dataFile))) {
+    emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot load base 64 image data for %1").arg(fileName));
+    return false;
+  }
+
+  if (!imageFileExists) {
+    QFile file(imageFilePath);
+    if (file.open(QIODevice::WriteOnly)) {
+      if ((imageFileExists = image.save(&file, "PNG"))) {
+        imageFileArchived = false;
+        emit gui->messageSig(LOG_INFO, QObject::tr("Saved image file %1.").arg(file.fileName()));
+      } else
+        emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot save image file %1").arg(file.fileName()));
+    } else
+      emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot open for write image file %1<br>%2").arg(file.fileName()).arg(file.errorString()));
+  }
+
+  if (imageFileExists && !imageFileArchived) {
+    updatePartsArchive = true;
+    return true;
+  }
+
+  return false;
 }
 
 void LDrawFile::insertMissingItem(const QStringList &item)
@@ -5843,6 +5933,8 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
   {
     _fileRegExp
         << QRegExp("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive)       // SOF_RX - Start of File
+        << QRegExp("^0\\s+!?DATA\\s+(.*)$",Qt::CaseInsensitive)     // DAT_RX - Imbedded Image Data
+        << QRegExp("^0\\s+!:\\s+(.*)$",Qt::CaseInsensitive)         // B64_RX - Base 64 Image Data Line
         << QRegExp("^0\\s+NOFILE\\s*$",Qt::CaseInsensitive)         // EOF_RX - End of File
         << QRegExp("^1\\s+.*$",Qt::CaseInsensitive)                 // LDR_RX - LDraw File
         << QRegExp("^0\\s+AUTHOR:?\\s+(.*)$",Qt::CaseInsensitive)   // AUT_RX - Author Header

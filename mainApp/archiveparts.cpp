@@ -149,8 +149,8 @@ bool ArchiveParts::Archive(
 
       Q_FOREACH (QFileInfo const &zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
-              bool okToOverwrite = (zipFileInfo.fileName().endsWith(QString("%1.dat").arg(FADE_SFX),Qt::CaseInsensitive) ||
-                                    zipFileInfo.fileName().endsWith(QString("%1.dat").arg(HIGHLIGHT_SFX),Qt::CaseInsensitive));
+              bool okToOverwrite = (zipFileInfo.fileName().endsWith(QString("%1.dat").arg(QLatin1String(FADE_SFX)),Qt::CaseInsensitive) ||
+                                    zipFileInfo.fileName().endsWith(QString("%1.dat").arg(QLatin1String(HIGHLIGHT_SFX)),Qt::CaseInsensitive));
               if (overwriteCustomPart && okToOverwrite) {
                   partStatus = "Overwriting archive";
                   //qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();

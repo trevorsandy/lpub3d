@@ -232,6 +232,7 @@ public:
     bool         _changedSinceLastWrite;
     bool         _generated;
     bool         _includeFile;
+    bool         _dataFile;
     bool         _displayModel;
     int          _startPageNumber;
     int          _unofficialPart;
@@ -248,6 +249,7 @@ public:
         bool               displayModel = false,
         bool               generated = false,
         bool               includeFile = false,
+        bool               dataFile = false,
         const QString     &subFilePath = QString(),
         const QString     &description = QString());
     ~LDrawSubFile()
@@ -298,6 +300,7 @@ class LDrawFile {
     bool metaStartPageNumNotFound;
     bool metaStartStepNumNotFound;
     bool helperPartsNotFound;
+    bool updatePartsArchive;
     bool topLevelModel;
     bool displayModel;
     bool topHeaderFinished;
@@ -390,14 +393,16 @@ class LDrawFile {
     bool saveFile(const QString &fileName);
     bool saveModelFile(const QString &filename);
     bool saveIncludeFile(const QString &filename);
+    bool saveDatafile(const QString &fileName, const QByteArray &imageData);
 
     void insert(const QString       &fileName,
                       QStringList   &contents,
                       QDateTime     &datetime,
                       int            unofficialPart,
+                      bool           displayModel = false,
                       bool           generated = false,
                       bool           includeFile = false,
-                      bool           displayModel = false,
+                      bool           dataFile = false,
                       const QString &subFilePath = QString(),
                       const QString &description = QString());
 
