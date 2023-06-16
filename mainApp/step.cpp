@@ -967,6 +967,36 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
           // check if part is submodel
           is_submodel_file = lpub->ldrawFile.isSubmodel(fileNameStr);
 
+          // interrogate submodel contents for invalid lines
+          if (displayStep && is_submodel_file) {
+            std::function<void(const QString&)> processSubmodel;
+            processSubmodel = [&](const QString &submodelName)
+            {
+              QStringList const &contents = lpub->ldrawFile.contents(submodelName);
+              if (contents.size()) {
+                QRegExp invalidMetaRx("^0 STEP|^0 ROTSTEP|^0 !?FADE|^0 !?SILHOUETTE|^0 !?LPUB (?:MULTI_STEP|CALLOUT|INSERT (?:PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE))");
+                for (int i = 0; i < contents.size(); i++) {
+                  QString const &line = contents.at(i);
+                  if(line.isEmpty())
+                    continue;
+                  else if (line.contains(invalidMetaRx)) {
+                    Where where(submodelName, lpub->ldrawFile.getSubmodelIndex(submodelName), i);
+                    QString const &message = QObject::tr("Meta command not supported in display step submodel '%1'.<br>Line [%2]").arg(submodelName).arg(line);
+                    gui->parseError(message,where,Preferences::ParseErrors,true,false,QMessageBox::Warning);
+                  } else {
+                    QStringList argv;
+                    split(line, argv);
+                    if (argv[0] == "1" && argv.size() == 15) {
+                      if (lpub->ldrawFile.isSubmodel(argv[argv.size()-1]))
+                        processSubmodel(argv[argv.size()-1]);
+                    }
+                  }
+                }
+              }
+            };
+            processSubmodel(fileNameStr);
+          } // display step submodel
+
           /*
           if (is_colour_part)
             emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
