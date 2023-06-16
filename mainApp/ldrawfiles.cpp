@@ -56,6 +56,7 @@
 #include "lc_previewwidget.h"
 
 QList<QRegExp> LDrawFile::_fileRegExp;
+static QStringList itemsLoaded;
 QList<QRegExp> LDrawHeaderRegExp;
 QList<QRegExp> LDrawUnofficialPartRegExp;
 QList<QRegExp> LDrawUnofficialSubPartRegExp;
@@ -3352,13 +3353,16 @@ void LDrawFile::loadStatusEntry(const int messageType,
 {
   LoadMsgType msgType = static_cast<LoadMsgType>(messageType);
 
-  bool alreadyLoaded = false;
-  if (msgType < MPD_SUBMODEL_LOAD_MSG) {
-    for (QString const &item : _loadedItems) {
-      if ((alreadyLoaded = item.split("|").at(1) == type))
-        break;
-    }
+  bool alreadyLoaded = false, emitStatusMessage = true;
+
+  if (itemsLoaded.contains(type)) {
+    emitStatusMessage = false;
+    if (msgType < MPD_SUBMODEL_LOAD_MSG)
+      alreadyLoaded = true;
+  } else {
+    itemsLoaded.append(type);
   }
+
   if (!alreadyLoaded) {
     LogType logType = LOG_NOTICE;
     int showMessage = 0;
@@ -3387,7 +3391,8 @@ void LDrawFile::loadStatusEntry(const int messageType,
     else
       message = statusMessage;
 
-    emit gui->messageSig(logType, message, showMessage);
+    if (emitStatusMessage)
+        emit gui->messageSig(logType, message, showMessage);
   }
   if (uniqueCount)
     _loadedItems.append(statusEntry);
@@ -3395,6 +3400,7 @@ void LDrawFile::loadStatusEntry(const int messageType,
 
 void LDrawFile::countParts(const QString &fileName) {
 
+    itemsLoaded.clear();
     displayModel       = false;
     bool lpubFade      = false;
     bool lpubHighlight = false;
@@ -6055,7 +6061,7 @@ bool isSubstitute(QString &line, QString &lineOut){
   QRegExp substitutePartRx("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})",Qt::CaseInsensitive);
   if (line.contains(substitutePartRx)) {
       lineOut = substitutePartRx.cap(1);
-      emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBSTITUTE").arg(lineOut));
+      emit gui->messageSig(LOG_NOTICE,QString("Part [%1] dataFileSUBSTITUTE").arg(lineOut));
       return true;
   }
   lineOut = QString();
