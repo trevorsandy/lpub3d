@@ -64,12 +64,14 @@ QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
 QList<QRegExp> LDrawUnofficialShortcutRegExp;
 const QString LDrawUnofficialType[UNOFFICIAL_NUM] =
 {
-    QLatin1String("Unofficial Submodel"),  // UNOFFICIAL_SUBMODEL
-    QLatin1String("Unofficial Part"),      // UNOFFICIAL_PART
-    QLatin1String("Unofficial Subpart"),   // UNOFFICIAL_SUBPART
-    QLatin1String("Unofficial Primitive"), // UNOFFICIAL_PRIMITIVE
-    QLatin1String("Unofficial Shortcut"),  // UNOFFICIAL_SHORTUCT
-    QLatin1String("Unofficial Other File") // UNOFFICIAL_OTHER
+    QLatin1String("Unofficial Submodel"),      // UNOFFICIAL_SUBMODEL
+    QLatin1String("Unofficial Part"),          // UNOFFICIAL_PART
+    QLatin1String("Unofficial Generated Part"),// UNOFFICIAL_GENERATED_PART
+    QLatin1String("Unofficial Subpart"),       // UNOFFICIAL_SUBPART
+    QLatin1String("Unofficial Primitive"),     // UNOFFICIAL_PRIMITIVE
+    QLatin1String("Unofficial Shortcut"),      // UNOFFICIAL_SHORTUCT
+    QLatin1String("Unofficial Data File"),     // UNOFFICIAL_DATA
+    QLatin1String("Unofficial Other File")     // UNOFFICIAL_OTHER
 };
 
 /********************************************
@@ -2060,10 +2062,16 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading MPD subfile '%1'...").arg(subfileName));
                 }
                 if (isDatafile) {
-                    if (subfileName.isEmpty())
-                        emit gui->messageSig(LOG_WARNING, QObject::tr("Malformed !DATA command. No file name specified.<br>%1").arg(smLine));
-                    else
+                    if (subfileName.isEmpty()) {
+                        const QString id = QString("DATA%1").arg(lineIndx + 1);
+                        const QString message = QObject::tr("Malformed !DATA command. No file name specified (file: %1, line: %2).<br>Line: %3")
+                                                            .arg(fileInfo.fileName()).arg(lineIndx + 1).arg(smLine);
+                        const QString statusEntry = QObject::tr("%1|DATA%2|Malformed !DATA command. No file name specified (subfile: %3, line: %4).")
+                                                                .arg(BAD_DATA_LOAD_MSG).arg(lineIndx).arg(fileInfo.fileName()).arg(lineIndx + 1);
+                        loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, id, message);
+                    } else {
                         emit gui->messageSig(LOG_TRACE, QObject::tr("MPD subfile '%1' spcified as %2.").arg(subfileName).arg(fileType()));
+                    }
                 }
             } else if (eof || eosf) {
                 /* - at the end of submodel file or inline part
@@ -3373,7 +3381,8 @@ void LDrawFile::loadStatusEntry(const int messageType,
 
     if (msgType == MISSING_PART_LOAD_MSG   ||
         msgType == EMPTY_SUBMODEL_LOAD_MSG ||
-        msgType == BAD_INCLUDE_LOAD_MSG) {
+        msgType == BAD_INCLUDE_LOAD_MSG    ||
+        msgType == BAD_DATA_LOAD_MSG) {
       logType = LOG_WARNING;
       if (msgType == MISSING_PART_LOAD_MSG) {
         _loadIssues = static_cast<int>(SHOW_ERROR);
@@ -3390,7 +3399,8 @@ void LDrawFile::loadStatusEntry(const int messageType,
     if (statusMessage.endsWith(" validated."))
       message = statusMessage.arg(_uniquePartCount).arg(type);
     else if (msgType != EMPTY_SUBMODEL_LOAD_MSG &&
-             msgType != BAD_INCLUDE_LOAD_MSG)
+             msgType != BAD_INCLUDE_LOAD_MSG &&
+             msgType != BAD_DATA_LOAD_MSG)
       message = statusMessage.arg(type);
     else
       message = statusMessage;
@@ -3408,6 +3418,7 @@ void LDrawFile::countParts(const QString &fileName) {
     displayModel       = false;
     bool lpubFade      = false;
     bool lpubHighlight = false;
+    bool checkTexmap   = false;
 
     Where top(fileName, getSubmodelIndex(fileName), 0);
 
@@ -3417,6 +3428,8 @@ void LDrawFile::countParts(const QString &fileName) {
                                       .arg(_loadedItems.size()
                                                ? QObject::tr("Recounting")
                                                : QObject::tr("Counting")).arg(top.modelName);
+
+    QRegExp texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)\\s+(\\b\\w+\\b)");
 
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, size(top.modelName));
@@ -3448,8 +3461,12 @@ void LDrawFile::countParts(const QString &fileName) {
             // process submodel content...
             for (; top.lineNumber < lines; top.lineNumber++) {
 
+                QString type;
                 QStringList tokens;
                 QString line = content.at(top.lineNumber);
+
+                bool countThisLine = true;
+                bool helperPart    = true/*allow helper part*/;
 
                 if (top.modelIndex == topModelIndx)
                     emit gui->progressPermSetValueSig(top.lineNumber);
@@ -3511,22 +3528,35 @@ void LDrawFile::countParts(const QString &fileName) {
                            tokens[3] == "END") {
                             lineIncluded = true;
                         }
+                    } else
+                    if (checkTexmap) {
+                        if (line.contains(texmapRx)) {
+                            QStringList argv = line.split(" ");
+                            int t = 13; // PLANAR
+                            QString const method = texmapRx.cap(1).toUpper();
+                            if (method == "CYLINDRICAL")
+                                t += 1;
+                            else if (method == "SPHERICAL")
+                                t += 2;
+                            for (int i = t; i < argv.size(); i++)
+                                type += (argv[i]+" ");
+                            type = type.trimmed();
+                        }
                     }
                 } // meta command lines
 
-                QString type;
-                bool countThisLine = true;
-                bool helperPart    = true/*allow helper part*/;
-
-                if ((countThisLine = tokens.size() == 15 && tokens[0] == "1"))
+                if ((countThisLine = tokens.size() == 15 && tokens[0] == "1")) {
                     type = tokens[14];
-                else if (isSubstitute(line, type))
+                } else if (checkTexmap && !type.isEmpty()) {
+                    countThisLine = true;
+                } else if (isSubstitute(line, type)) {
                     countThisLine = !type.isEmpty();
+                }
 
                 if (countThisLine && lineIncluded && !ExcludedParts::isExcludedPart(type, helperPart)) {
 
                     if (contains(type)) {
-                        subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
+                        subFileType = LDrawUnofficialFileType(isUnofficialPart(type));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
                             Where top(type, getSubmodelIndex(type), 0);
                             countModelParts(top);
@@ -3558,10 +3588,10 @@ void LDrawFile::countParts(const QString &fileName) {
                                 inMissingItems = isMissingItem(type);
                                 statusDesc  = QObject::tr("Unofficial Inline%1 - %2 (file: %3, line: %4)")
                                                           .arg(subFileType == UNOFFICIAL_GENERATED_PART
-                                                          ? QObject::tr(" LDCad generated")
+                                                          ? QObject::tr(" LDCad Generated Part")
                                                           : helperPart
-                                                                ? QObject::tr(" helper")
-                                                                : "")
+                                                                ? QObject::tr(" Helper Part")
+                                                                : " Part")
                                                           .arg(description).arg(top.modelName).arg(top.lineNumber);
                                 statusEntry = QObject::tr("%1|%2|%3")
                                                           .arg(subFileType == UNOFFICIAL_GENERATED_PART
@@ -3577,19 +3607,31 @@ void LDrawFile::countParts(const QString &fileName) {
                                                                                                    : QObject::tr("Part %1 is an INLINE PART."));
                                 statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type).arg(statusDesc);
                                 loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [Inline %2] validated."),true/*unique count*/);
+                                if (subFileType == UNOFFICIAL_PART) {
+                                    checkTexmap = true;
+                                    Where top(type, getSubmodelIndex(type), 0);
+                                    countModelParts(top);
+                                }
                                 break;
                             case UNOFFICIAL_SUBPART:
                                 inMissingItems = isMissingItem(type);
-                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3 (file: %4, line: %5)")
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline Subpart - %3 (file: %4, line: %5)")
                                                           .arg(INLINE_SUBPART_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE SUBPART"));
                                 break;
                             /* Add these primitives into the load status dialogue because they are loaded in the LDrawFile.subfiles */
                             case UNOFFICIAL_PRIMITIVE:
                                 inMissingItems = isMissingItem(type);
-                                statusEntry = QObject::tr("%1|%2|Unofficial Inline - %3 (file: %4, line: %5)")
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline Primitive - %3 (file: %4, line: %5)")
                                                           .arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE PRIMITIVE"));
+                                break;
+                            case UNOFFICIAL_DATA:
+                                description = QString("Base 64 data file");
+                                inMissingItems = isMissingItem(type);
+                                statusEntry = QObject::tr("%1|%2|Unofficial Inline Data - %3 (file: %4, line: %5)")
+                                                          .arg(INLINE_DATA_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
+                                loadStatusEntry(INLINE_DATA_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE DATA"));
                                 break;
                             default:
                                 break;
@@ -6101,6 +6143,8 @@ int getUnofficialFileType(QString &line)
       return UNOFFICIAL_SHORTCUT;
     }
   }
+  if (line.contains(LDrawFile::_fileRegExp[DAT_RX]))
+    return UNOFFICIAL_DATA;
 
   return UNOFFICIAL_UNKNOWN;
 }

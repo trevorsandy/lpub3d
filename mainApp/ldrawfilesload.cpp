@@ -95,10 +95,12 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     msmc = countItems(MPD_SUBMODEL_LOAD_MSG);
     lsmc = countItems(LDR_SUBFILE_LOAD_MSG);
     ipc  = countItems(INLINE_PART_LOAD_MSG);
+    idc  = countItems(INLINE_DATA_LOAD_MSG);
     igpc = countItems(INLINE_GENERATED_PART_LOAD_MSG);
     ispc = countItems(INLINE_SUBPART_LOAD_MSG);
     ippc = countItems(INLINE_PRIMITIVE_LOAD_MSG);
     esmc = countItems(EMPTY_SUBMODEL_LOAD_MSG);
+    bidc = countItems(BAD_DATA_LOAD_MSG);
     bifc = countItems(BAD_INCLUDE_LOAD_MSG);
     ifc  = countItems(INCLUDE_FILE_LOAD_MSG);
     hpc  = helperPartCount;
@@ -356,6 +358,8 @@ void LdrawFilesLoad::summary() const
         messages.append(QObject::tr("%1<br> - Missing parts:        <b>%2</b></span>").arg("<span style=\"color:#FF0000\">").arg(mpc));
     if (esmc)
         messages.append(QObject::tr("%1<br> - Empty submodels:      <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(esmc));
+    if (bidc)
+        messages.append(QObject::tr("%1<br> - Data issues:          <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(bidc));
     if (bifc)
         messages.append(QObject::tr("%1<br> - Include file issues:  <b>%2</b></span>").arg("<span style=\"color:#8B8000\">").arg(bifc));
     if (delta)
@@ -382,6 +386,8 @@ void LdrawFilesLoad::summary() const
         messages.append(QObject::tr("<br> - Inline primitives:      <b>%1</b>").arg(ippc));
     if (ispc)
         messages.append(QObject::tr("<br> - Inline subparts:        <b>%1</b>").arg(ispc));
+    if (idc)
+        messages.append(QObject::tr("<br> - Inline data:            <b>%1</b>").arg(idc));
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
     if (ppc)
         messages.append(QObject::tr("<br> - Primitive parts:        <b>%1</b>").arg(ppc));
@@ -468,6 +474,7 @@ void LdrawFilesLoad::populate(bool groupItems)
                     break;
                     case EMPTY_SUBMODEL_LOAD_MSG:
                     case BAD_INCLUDE_LOAD_MSG:
+                    case BAD_DATA_LOAD_MSG:
                     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
                     case PRIMITIVE_LOAD_MSG:
                     case SUBPART_LOAD_MSG:
@@ -494,8 +501,9 @@ void LdrawFilesLoad::populate(bool groupItems)
         case VALID_LOAD_MSG:
         case INLINE_PART_LOAD_MSG:
         case INLINE_GENERATED_PART_LOAD_MSG:
-        case INLINE_SUBPART_LOAD_MSG:
         case INLINE_PRIMITIVE_LOAD_MSG:
+        case INLINE_SUBPART_LOAD_MSG:
+        case INLINE_DATA_LOAD_MSG:
         case MPD_SUBMODEL_LOAD_MSG:
         case LDR_SUBFILE_LOAD_MSG:
         case HELPER_PART_LOAD_MSG:
@@ -520,6 +528,7 @@ void LdrawFilesLoad::populate(bool groupItems)
             break;
         case EMPTY_SUBMODEL_LOAD_MSG:
         case BAD_INCLUDE_LOAD_MSG:
+        case BAD_DATA_LOAD_MSG:
         /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
         case PRIMITIVE_LOAD_MSG:
         case SUBPART_LOAD_MSG:
@@ -569,6 +578,9 @@ void LdrawFilesLoad::populate(bool groupItems)
     if (ipc)
         setRow(INLINE_PART_LOAD_MSG,      tr("Inline Parts (%1)").arg(ipc));
 
+    if (idc)
+        setRow(INLINE_DATA_LOAD_MSG,      tr("Inline Data (%1)").arg(ipc));
+
     if (igpc)
         setRow(INLINE_GENERATED_PART_LOAD_MSG, tr("Inline Generated Parts (%1)").arg(igpc));
 
@@ -583,6 +595,9 @@ void LdrawFilesLoad::populate(bool groupItems)
 
     if (bifc)
         setRow(BAD_INCLUDE_LOAD_MSG,      tr("Warning - Include File Issues (%1)").arg(bifc));
+
+    if (bidc)
+        setRow(BAD_DATA_LOAD_MSG,         tr("Warning - Data File Issues (%1)").arg(bidc));
 
     // These should never trigger because to do so means official primitives or subparts have been loaded
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles

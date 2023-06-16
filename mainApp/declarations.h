@@ -190,6 +190,7 @@ enum LoadMsgType { VALID_LOAD_MSG,
                    INLINE_GENERATED_PART_LOAD_MSG,
                    INLINE_PRIMITIVE_LOAD_MSG,
                    INLINE_SUBPART_LOAD_MSG,
+                   INLINE_DATA_LOAD_MSG,
                    MPD_SUBMODEL_LOAD_MSG,
                    LDR_SUBFILE_LOAD_MSG,
                    HELPER_PART_LOAD_MSG,
@@ -199,6 +200,7 @@ enum LoadMsgType { VALID_LOAD_MSG,
                    SUBPART_LOAD_MSG,
                    */
                    EMPTY_SUBMODEL_LOAD_MSG,
+                   BAD_DATA_LOAD_MSG,
                    BAD_INCLUDE_LOAD_MSG,
                    INCLUDE_FILE_LOAD_MSG,
                    ALL_LOAD_MSG
@@ -321,6 +323,7 @@ enum LDrawUnofficialFileType {
     UNOFFICIAL_SUBPART,
     UNOFFICIAL_PRIMITIVE,
     UNOFFICIAL_SHORTCUT,
+    UNOFFICIAL_DATA,
     UNOFFICIAL_OTHER,
     UNOFFICIAL_NUM
 };

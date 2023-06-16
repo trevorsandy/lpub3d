@@ -97,10 +97,12 @@ private:
     int lsmc;
     int hpc;
     int ipc;
+    int idc;
     int igpc;
     int ispc;
     int ippc;
     int esmc;
+    int bidc;
     int bifc;
     int ifc;
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
