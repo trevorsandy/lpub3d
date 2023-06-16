@@ -2161,7 +2161,6 @@ int CountPageWorker::countPage(
       gui->skipHeader(opts.current);
       topOfStep = opts.current;
       opts.flags.countPageContains = false;
-      opts.flags.addCountPage = true;
   } else if (Preferences::buildModEnabled) {
       // set the topOfStep, lineNumber from findPage is automatically incremented
       ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
@@ -2482,7 +2481,7 @@ int CountPageWorker::countPage(
         case '4':
         case '5':
           // if opts.displayModel, we have a custom display
-          if (! opts.displayModel && ! buildMod.ignore && opts.flags.addCountPage) {
+          if (! opts.displayModel && ! buildMod.ignore) {
               ++opts.flags.partsAdded;
             } // ! BuildModIgnore, for each line
             break;
@@ -2516,7 +2515,6 @@ int CountPageWorker::countPage(
             case StepGroupEndRc:
               if (opts.flags.stepGroup && ! opts.flags.noStep2) {
                   opts.flags.stepGroup = false;
-                  opts.flags.addCountPage = true;
 
                   // terminate parse build modifications
                   if (opts.flags.parseBuildMods) {
@@ -2804,11 +2802,6 @@ int CountPageWorker::countPage(
                   } // enable parse build modifications, except actions, for steps after first step in step group
                   meta->pop();
                } // PartsAdded && ! NoStep
-
-              if ( ! opts.flags.stepGroup && ! opts.flags.callout && ! opts.flags.noStep) {
-                  // Enable partsAdded flag update needed to trigger pageNum increment
-                  opts.flags.addCountPage = true;
-              } // ! StepGroup
 
               buildMod.clear();
               meta->LPub.buildMod.clear();

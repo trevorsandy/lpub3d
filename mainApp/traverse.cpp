@@ -3660,7 +3660,6 @@ int Gui::findPage(
                                   .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
-                  opts.flags.addCountPage = true;
                   topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
@@ -3926,7 +3925,6 @@ int Gui::findPage(
                                             .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                             ++opts.pageNum;
-                            opts.flags.addCountPage = true;
                             topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
                         } // ! opts.flags.noStep && ! StepGroup (StepRc,RotStepRc)
 
@@ -4333,10 +4331,8 @@ int Gui::findPage(
           topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
 
           if (opts.current.modelName == topLevelFile()) {
-              if (! opts.pageDisplayed) {
+              if (! opts.pageDisplayed)
                   opts.pageDisplayed = opts.pageNum > displayPageNum;
-                  opts.flags.addCountPage = true;
-              }
           }
       } // ! opts.flags.noStep (last step in submodel)
 
@@ -5178,9 +5174,6 @@ void Gui::drawPage(
 
       // set flags and increment the parent model lineNumber by 1 if the line is the child submodel
       if (opts.current.lineNumber < lpub->ldrawFile.size(opts.current.modelName)) {
-        // set partsAdded count to saved parts added count;
-        opts.flags.partsAdded = savePartsAdded;
-
         QString const &line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).trimmed();
         QStringList token;
         split(line,token);
