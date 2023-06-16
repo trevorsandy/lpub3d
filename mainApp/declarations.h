@@ -829,6 +829,7 @@ enum ThemeColorType {
 #define DEFAULT_TIP_RATIO                       2.5f                                              // Width to Height ratio
 #define DEFAULT_TIP_HEIGHT                      1.0f/8.0f                                         // 0.12500
 #define DEFAULT_TIP_WIDTH                       DEFAULT_TIP_HEIGHT * DEFAULT_TIP_RATIO            // 0.31250
+#define DEFAULT_MSG_BOX_MIN_WIDTH               300
 
 #define RENDER_DEFAULT_WIDTH                    1280
 #define RENDER_DEFAULT_HEIGHT                    720

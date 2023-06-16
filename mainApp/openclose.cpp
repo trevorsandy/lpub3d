@@ -1108,11 +1108,13 @@ void Gui::fileChanged(const QString &path)
   box.setWindowTitle(tr ("%1 File Change").arg(VER_PRODUCTNAME_STR));
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   QString title = "<b>" + tr ("External change detected") + "</b>";
-  QString text = tr("\"%1\" contents were changed by an external source. Reload?").arg(path);
+  QString text = tr("Current file contents were changed by an external source<br>\"%1\".<br>Reload ?").arg(path);
   box.setText (title);
   box.setInformativeText (text);
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);
+
+  Preferences::messageBoxAdjustWidth(qobject_cast<QMessageBox*>(&box), title, text);
 
   if (box.exec() == QMessageBox::Yes) {
     changeAccepted = true;

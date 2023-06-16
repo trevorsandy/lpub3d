@@ -561,6 +561,7 @@ int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
 int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
 int     Preferences::nativeImageCameraFoVAdjust = NATIVE_IMAGE_CAMERA_FOV_ADJUST;
+int     Preferences::msgBoxMinimumWidth         = DEFAULT_MSG_BOX_MIN_WIDTH;
 
 int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT;
 
@@ -4245,6 +4246,41 @@ bool Preferences::getShowMessagePreference(MsgKey key)
         break;
     }
     return result;
+}
+
+void Preferences::messageBoxAdjustWidth(QMessageBox *box, const QString &title, const QString &text, int minWidth)
+{
+    QSettings Settings;
+    QString const messageBoxMinimumWidthKey("MessageBoxMinimumWidth");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,messageBoxMinimumWidthKey)))
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,messageBoxMinimumWidthKey), msgBoxMinimumWidth);
+    else
+        msgBoxMinimumWidth = Settings.value(QString("%1/%2").arg(SETTINGS,messageBoxMinimumWidthKey)).toInt();
+
+    int minimumWidth = minWidth ? minWidth : msgBoxMinimumWidth;
+    int maximumWidth = minimumWidth * 1.5;
+
+    int fontWidth = QFontMetrics(box->font()).averageCharWidth();
+    int fixedTextLength = (minimumWidth / fontWidth);
+
+    if (title.length() < text.length() && title.length() < fixedTextLength) {
+        QGridLayout* boxLayout = (QGridLayout*)box->layout();
+        QLayoutItem* boxLayoutItem = boxLayout->itemAtPosition(0, 2);
+        QWidget* textWidget = boxLayoutItem->widget();
+        if (textWidget) {
+            int fixedWidth = text.length() * fontWidth;
+            if (fixedWidth == minimumWidth) {
+                int index = (minimumWidth / fontWidth) - 1;
+                if (!text.midRef(index, 1).isEmpty()) {
+                    fixedWidth = text.indexOf(" ", index);
+                }
+            } else if (fixedWidth < minimumWidth) {
+                fixedWidth = minimumWidth;
+            } else if (fixedWidth > maximumWidth)
+                fixedWidth = maximumWidth;
+            textWidget->setMinimumWidth(fixedWidth);
+        }
+    }
 }
 
 int  Preferences::showMessage(

@@ -23,6 +23,7 @@ enum UpdateFlag { UpdateExisting, SkipExisting };
 
 class QString;
 class QStringList;
+class QMessageBox;
 
 class Preferences
 {
@@ -168,6 +169,7 @@ class Preferences
                            bool option = false,
                            bool override = false,
                            int icon = 3);
+    static void messageBoxAdjustWidth(QMessageBox *box, const QString &title, const QString &text, int minWidth = 0);
 
     static ThemeSettings defaultThemeColors[];
     static QString themeColors[];
@@ -421,6 +423,7 @@ class Preferences
     static int     editorDecoration;
     static int     fileLoadWaitTime;
     static int     editorFontSize;
+    static int     msgBoxMinimumWidth;
 
     static bool    initEnableFadeSteps;
     static bool    initFadeStepsUseColour;
