@@ -5062,36 +5062,38 @@ void Gui::drawPage(
 
   } else {
 
-    int modelStackCount  = opts.modelStack.size();
-    int savePartsAdded   = opts.flags.partsAdded;
+    int modelStackCount = opts.modelStack.size();
+#ifdef QT_DEBUG_MODE
+    QString message;
+#endif
 
     auto countPage = [&] (int modelStackCount)
     {
-      // if the current line number equal to the number of submodel lines, decrement the current line number
-      if (opts.flags.partsAdded && opts.current.lineNumber == opts.flags.numLines)
-          opts.current--;
-      // if the current line is the end of a step, preserve the parts added flag, otherwise clear so we don't count again in countPage
-      QString const &line = lpub->ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber);
-      if (!line.contains(LDrawFile::_fileRegExp[LDS_RX]))
-        opts.flags.partsAdded = 0;
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts, empty);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
 #ifdef QT_DEBUG_MODE
-        if (modelStackCount)
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher WaitForFinsished modelStackCount [%1] WAIT YES").arg(modelStackCount));
-        if (countWaitForFinished())
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher WaitForFinsished countWaitForFinished WAIT YES"));
-        if (suspendFileDisplay)
-          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher WaitForFinsished suspendFileDisplay WAIT YES"));
+          if (modelStackCount) {
+            message = QString(" COUNTING  - FutureWatcher WaitForFinsished modelStackCount [%1] WAIT YES").arg(modelStackCount);
+            qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
+          }
+          if (countWaitForFinished()) {
+            message = QString(" COUNTING  - FutureWatcher WaitForFinsished countWaitForFinished WAIT YES");
+            qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
+          }
+          if (suspendFileDisplay) {
+            message = QString(" COUNTING  - FutureWatcher WaitForFinsished suspendFileDisplay WAIT YES");
+            qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
+          }
 #endif
         future.waitForFinished();
         if (static_cast<TraverseRc>(future.result()) == HitAbortProcess)
-            return static_cast<int>(HitAbortProcess);
+          return static_cast<int>(HitAbortProcess);
         if (!modelStackCount)
           pagesCounted();
       } else {
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher SetFuture WAIT NO"));
+        message = QString(" COUNTING  - FutureWatcher SetFuture WAIT NO");
+        qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
         futureWatcher.setFuture(future);
       }
@@ -5099,10 +5101,11 @@ void Gui::drawPage(
     };
 
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page for LineNumber %1, ModelName %2, PageNum %3")
-                        .arg(opts.current.lineNumber, 3, 10, QChar('0'))
-                        .arg(opts.current.modelName)
-                        .arg(opts.pageNum, 3, 10, QChar('0')));
+    message = QString(" COUNTING  - Submodel Page (Normal Count) LineNumber %1, ModelName %2, PageNum %3")
+                      .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                      .arg(opts.current.modelName)
+                      .arg(opts.pageNum, 3, 10, QChar('0'));
+    qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
 
     // global meta settings from findPage that went out of scope
@@ -5115,14 +5118,15 @@ void Gui::drawPage(
 #ifdef QT_DEBUG_MODE
       const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
       const QString bms [ ] = {"BM_NONE [-1]","BM_BEGIN [0]","BM_END_MOD [1]","BM_END [2]"};
-      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - BuildMod flags: "
-                                              "No. %1, key: '%2', action: %3, level: %4, state %5, ignore: %6")
-                          .arg(opts.flags.buildModStack.size(), 2, 10, QChar('0'))
-                          .arg(opts.flags.buildMod.key)
-                          .arg(opts.flags.buildMod.action ? bma[opts.flags.buildMod.action - BomEndRc] : bma[BuildModNoActionRc])
-                          .arg(opts.flags.buildMod.level, 2, 10, QChar('0'))
-                          .arg(opts.flags.buildMod.state > BM_NONE ? bms[opts.flags.buildMod.state + 1] : bms[BM_BEGIN])
-                          .arg(opts.flags.buildMod.ignore ? "TRUE [1]" : "FALSE [0]"));
+      message = QString(" COUNTING  - BuildMod flags: "
+                        "No. %1, key: '%2', action: %3, level: %4, state %5, ignore: %6")
+                        .arg(opts.flags.buildModStack.size(), 2, 10, QChar('0'))
+                        .arg(opts.flags.buildMod.key)
+                        .arg(opts.flags.buildMod.action ? bma[opts.flags.buildMod.action - BomEndRc] : bma[BuildModNoActionRc])
+                        .arg(opts.flags.buildMod.level, 2, 10, QChar('0'))
+                        .arg(opts.flags.buildMod.state > BM_NONE ? bms[opts.flags.buildMod.state + 1] : bms[BM_BEGIN])
+                        .arg(opts.flags.buildMod.ignore ? "TRUE [1]" : "FALSE [0]");
+      qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
 //*/
       // remove buildMod from where we stopped in the parent model
@@ -5144,11 +5148,12 @@ void Gui::drawPage(
                                QString() : opts.modelStack.last().modelName);
 
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page (Model Stack Entry %1) LineNumber %2, ModelName %3, PageNum %4")
-                          .arg(modelStackCount, 2, 10, QChar('0'))
-                          .arg(opts.current.lineNumber, 3, 10, QChar('0'))
-                          .arg(opts.current.modelName)
-                          .arg(opts.pageNum, 3, 10, QChar('0')));
+      message = QString(" COUNTING  - Submodel Page (Model Stack Entry %1) LineNumber %2, ModelName %3, PageNum %4")
+                        .arg(modelStackCount, 2, 10, QChar('0'))
+                        .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                        .arg(opts.current.modelName)
+                        .arg(opts.pageNum, 3, 10, QChar('0'));
+      qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
 
       // pass buildMod settings to parent model
@@ -5158,14 +5163,15 @@ void Gui::drawPage(
 #ifdef QT_DEBUG_MODE
         const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
         const QString bms [ ] = {"BM_NONE [-1]","BM_BEGIN [0]","BM_END_MOD [1]","BM_END [2]"};
-        emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - BuildMod flags: "
-                                                "No. %1, key: '%2', action: %3, level: %4, state %5, ignore: %6")
-                            .arg(opts.flags.buildModStack.size(), 2, 10, QChar('0'))
-                            .arg(opts.flags.buildMod.key)
-                            .arg(opts.flags.buildMod.action ? bma[opts.flags.buildMod.action - BomEndRc] : bma[BuildModNoActionRc])
-                            .arg(opts.flags.buildMod.level, 2, 10, QChar('0'))
-                            .arg(opts.flags.buildMod.state > BM_NONE ? bms[opts.flags.buildMod.state + 1] : bms[BM_BEGIN])
-                            .arg(opts.flags.buildMod.ignore ? "TRUE [1]" : "FALSE [0]"));
+        message = QString(" COUNTING  - BuildMod flags: "
+                          "No. %1, key: '%2', action: %3, level: %4, state %5, ignore: %6")
+                          .arg(opts.flags.buildModStack.size(), 2, 10, QChar('0'))
+                          .arg(opts.flags.buildMod.key)
+                          .arg(opts.flags.buildMod.action ? bma[opts.flags.buildMod.action - BomEndRc] : bma[BuildModNoActionRc])
+                          .arg(opts.flags.buildMod.level, 2, 10, QChar('0'))
+                          .arg(opts.flags.buildMod.state > BM_NONE ? bms[opts.flags.buildMod.state + 1] : bms[BM_BEGIN])
+                          .arg(opts.flags.buildMod.ignore ? "TRUE [1]" : "FALSE [0]");
+        qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
 //*/
         // remove buildMod from where we stopped in the parent model
@@ -5194,11 +5200,14 @@ void Gui::drawPage(
             // increment to the next line
             opts.current++;
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page (Adjusted, Part Added) LineNumber %1, ModelName %2, PageNum %3, Line [%4]")
-                                 .arg(opts.current.lineNumber, 3, 10, QChar('0'))
-                                 .arg(opts.current.modelName)
-                                 .arg(opts.pageNum, 3, 10, QChar('0'))
-                                 .arg(line));
+            bool increment  = !opts.flags.stepGroup && !opts.flags.callout && opts.flags.partsAdded;
+            message = QString(" COUNTING  - Submodel Page (Parent Adjust%1) LineNumber %2, ModelName %3, PageNum %4, Line [%5]")
+                              .arg(increment ? ", Parts Added" : "")
+                              .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                              .arg(opts.current.modelName)
+                              .arg(opts.pageNum, 3, 10, QChar('0'))
+                              .arg(line);
+            qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
           }
         }

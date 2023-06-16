@@ -2319,7 +2319,7 @@ int CountPageWorker::countPage(
                   QString type = tokens[tokens.size()-1];
                   QString colorType = tokens[1]+type;
 
-                  int contains = ldrawFile->isSubmodel(type);
+                  bool contains = ldrawFile->isSubmodel(type);
 
                   // if submodel
                   if (contains) {
