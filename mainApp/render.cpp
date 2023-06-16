@@ -4049,7 +4049,7 @@ bool Render::isSingleSubfile(const QStringList &partLines)
                 return singleSubfile;
             if (!partLine.isEmpty() && !partLine.startsWith("0"))
                 partCount++;
-            if (partLine.startsWith("1"))
+            if (partCount < 2 && partLine.startsWith("1"))
                 singleSubfile = lpub->ldrawFile.isSubfileLine(partLine);
         }
     }
