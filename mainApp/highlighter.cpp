@@ -1018,70 +1018,44 @@ void Highlighter::highlightBlock(const QString &text)
                         tokens << tt[0];
                         tokens << tt[1];
                         tokens << tt[2]+" "+tt[3];
-                        if (tt.size() < 4)
-                            break;
                     } else
                     if (i == 6) { // append x1 y1 z1 point (3)
                         tokens << tt[4]+" "+tt[5]+" "+tt[6];
-                        if (tt.size() < 7)
-                            break;
                     } else
                     if (i == 9) { // append x2 y2 z2 point (4)
                         tokens << tt[7]+" "+tt[8]+" "+tt[9];
-                        if (tt.size() < 10)
-                            break;
                     } else
                     if (i == 12) { // append x3 y3 z3 point (5)
                         tokens << tt[10]+" "+tt[11]+" "+tt[12];
-                        if (tt.size() < 13)
-                            break;
                     } else
-                    if (i == 13) { // append angle1/.png (6) - cylindrical
+                    if (i == 13) { // append angle1/.png (6) - planar
                         tokens << tt[13];
-                        if (tt.size() < 14)
-                            break;
-                    }
-                    if (i == 14) { // append angle2/.png (7) - spherical
+                    } else
+                    if (i == 14) { // append angle2/.png (7) - cylindrical
                         tokens << tt[14];
-                        if (tt.size() < 15)
-                            break;
-                    }
-                    if (i == 15) { // append .png (8)
+                    } else
+                    if (i == 15) { // append .png (8) - spherical
                         tokens << tt[15];
-                        if (tt.size() < 16)
-                            break;
                     }
                 } else {
                     if (i == 1)  { // i = 1, insert type (0) and colour (1)
                         tokens << tt[0];
                         tokens << tt[1];
-                        if (tt.size() < 2)
-                            break;
                     } else
                     if (i == 4) { // append x y z position (2)
                         tokens << tt[2]+" "+tt[3]+" "+tt[4];
-                        if (tt.size() < 5)
-                            break;
                     } else
                     if (i == 7) { // append x1 y1 z1 transform (3)
                         tokens << tt[5]+" "+tt[6]+" "+tt[7];
-                        if (tt.size() < 8)
-                            break;
                     } else
                     if (i == 10) { // append x2 y2 z2 transform (4)
                         tokens << tt[8]+" "+tt[9]+" "+tt[10];
-                        if (tt.size() < 11)
-                            break;
                     } else
                     if (i == 13) { // append x3 y3 z3 transform (5)
                         tokens << tt[11]+" "+tt[12]+" "+tt[13];
-                        if (tt.size() < 14)
-                            break;
                     } else
                     if (i == 14) { // append part (6)
                         tokens << tt[14];
-                        if (tt.size() < 15)
-                            break;
                     }
                 }
             }

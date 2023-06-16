@@ -1956,8 +1956,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         if (!sof && hdrFILENotFound) {
             if (subfileName.isEmpty() && hdrNameNotFound) {
                 sosf = smLine.contains(_fileRegExp[NAM_RX]) || (isDatafile = smLine.contains(_fileRegExp[DAT_RX]));
-                if (isDatafile && _fileRegExp[DAT_RX].cap(1).isEmpty())
-                    emit gui->messageSig(LOG_WARNING,QObject::tr("Malformed !DATA command. No file name specified.<br>%1").arg(smLine));
                 if (! sosf)
                     contents << smLine;
             } else if (! hdrNameNotFound && smLine.startsWith("0")) {
@@ -1982,7 +1980,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     }
                 }
             }
-        } // inlined parts
+        } // inlined parts or base 64 data
 
         // processing base 64 data lines
         if (isDatafile) {
@@ -1993,7 +1991,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 saveDatafile(datafileName, dataFile);
                 dataFile.clear();
             }
-        } // base 64 data
+        } // base 64 data lines
 
         /* - if at start of file marker, populate subfileName
          * - if at end of file marker, clear subfileName
@@ -2057,10 +2055,16 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     subfileName = isDatafile ? _fileRegExp[DAT_RX].cap(1).trimmed() : _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     contents << smLine;
                 }
+                unofficialPart = isDatafile ? UNOFFICIAL_DATA : UNOFFICIAL_UNKNOWN;
                 if (! alreadyLoaded) {
                     emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading MPD subfile '%1'...").arg(subfileName));
                 }
-                unofficialPart = UNOFFICIAL_UNKNOWN;
+                if (isDatafile) {
+                    if (subfileName.isEmpty())
+                        emit gui->messageSig(LOG_WARNING, QObject::tr("Malformed !DATA command. No file name specified.<br>%1").arg(smLine));
+                    else
+                        emit gui->messageSig(LOG_TRACE, QObject::tr("MPD subfile '%1' spcified as %2.").arg(subfileName).arg(fileType()));
+                }
             } else if (eof || eosf) {
                 /* - at the end of submodel file or inline part
                 */
