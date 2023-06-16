@@ -1,4 +1,4 @@
-LPub3D 2.4.6.342.3453 (17 06 2023 01:30:26)
+LPub3D 2.4.6.343.3454 (17 06 2023 01:32:43)
 
 Features, enhancements, fixes and changes
 ------------
@@ -29,6 +29,7 @@ Revisions:
 - Change - Refactor Blender integration - update to support Blender 3.4 #677
 - Change - Refactor consolidate submodel instance to enable count by colour #719
 - Change - Use default camera setting on viewer switch to camera none #676
+- Fix - Abnormal message when loading the model #724
 - Fix - Callout placement inside step assembly for multi-step page #720
 - Fix - Crash on command ASSEM ANNOTATION DISPLAY GLOBAL TRUE #707
 - Fix - Crash on insert BOM without a preceding STEP command #670
