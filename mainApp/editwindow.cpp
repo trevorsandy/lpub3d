@@ -652,7 +652,7 @@ void EditWindow::createActions()
 
     copyFileNameToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("File Name to Clipboard"), this);
     copyFileNameToClipboardAct->setObjectName("copyFileNameToClipboardAct.2");
-    copyFileNameToClipboardAct->setShortcut(QStringLiteral("Alt+Shift+0"));
+    copyFileNameToClipboardAct->setShortcut(QStringLiteral("Alt+Shift+5"));
     copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard"));
     lpub->actions.insert(copyFileNameToClipboardAct->objectName(), Action(QStringLiteral("File.File Name To Clipboard"), copyFileNameToClipboardAct));
     connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));

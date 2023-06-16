@@ -330,8 +330,12 @@ void Gui::updateClipboard()
     QAction *action = qobject_cast<QAction *>(sender());
     if (action) {
         bool isImage = false;
+        bool fullPath = false;
         QString data;
-        if (action == getAct("copyFilePathToClipboardAct.1")) {
+        if (action == getAct("copyFileNameToClipboardAct.1")) {
+            data = QFileInfo(getCurFile()).fileName();
+        } else if (action == getAct("copyFilePathToClipboardAct.1")) {
+            fullPath = true;
             data = QDir::toNativeSeparators(getCurFile());
         } else {
             isImage = true;
@@ -356,11 +360,12 @@ void Gui::updateClipboard()
 
         QString efn =QFileInfo(data).fileName();
         // Text elided to 20 chars
-        QString fileName = QString("%1 '%2' full path")
-                           .arg(isImage ? "Image" : "File")
-                           .arg(efn.size() > 20 ?
-                                efn.left(17) + "..." +
-                                efn.right(3) : efn);
+        QString fileName = QString("%1 '%2' %3")
+                               .arg(isImage ? tr("Image") : tr("File"))
+                               .arg(efn.size() > 20 ?
+                                        efn.left(17) + "..." +
+                                        efn.right(3) : efn)
+                               .arg(fullPath ? tr("full path") : tr("name"));
 
         emit messageSig(LOG_INFO_STATUS, QString("'%1' copied to clipboard.").arg(fileName));
     }
@@ -5055,6 +5060,13 @@ void Gui::createActions()
     lpub->actions.insert(povrayRenderAct->objectName(), Action(QStringLiteral("3DViewer.POVRay Render"), povrayRenderAct));
     connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
+    QAction *copyFileNameToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("File Name to Clipboard"), this);
+    copyFileNameToClipboardAct->setObjectName("copyFileNameToClipboardAct.1");
+    copyFileNameToClipboardAct->setShortcut(QStringLiteral("Alt+Shift+4"));
+    copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard"));
+    lpub->actions.insert(copyFileNameToClipboardAct->objectName(), Action(QStringLiteral("File.File Name To Clipboard"), copyFileNameToClipboardAct));
+    connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
+
     QAction *copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
     copyFilePathToClipboardAct->setObjectName("copyFilePathToClipboardAct.1");
     copyFilePathToClipboardAct->setShortcut(QStringLiteral("Alt+Shift+0"));
@@ -6585,6 +6597,7 @@ void Gui::enableActions()
   getAct("exportColladaAct.1")->setEnabled(true);
   getAct("exportHtmlAct.1")->setEnabled(true);
   getAct("exportHtmlStepsAct.1")->setEnabled(true);
+  getAct("copyFileNameToClipboardAct.1")->setEnabled(true);
   getAct("copyFilePathToClipboardAct.1")->setEnabled(true);
   blenderRenderAct->setEnabled(true);
   blenderImportAct->setEnabled(true);
@@ -6660,6 +6673,7 @@ void Gui::disableActions()
   getAct("exportColladaAct.1")->setEnabled(false);
   getAct("exportHtmlAct.1")->setEnabled(false);
   getAct("exportHtmlStepsAct.1")->setEnabled(false);
+  getAct("copyFileNameToClipboardAct.1")->setEnabled(false);
   getAct("copyFilePathToClipboardAct.1")->setEnabled(false);
   blenderRenderAct->setEnabled(false);
   blenderImportAct->setEnabled(false);
@@ -6798,6 +6812,7 @@ void Gui::createMenus()
 
 #ifndef QT_NO_CLIPBOARD
     fileMenu->addSeparator();
+    fileMenu->addAction(getAct("copyFileNameToClipboardAct.1"));
     fileMenu->addAction(getAct("copyFilePathToClipboardAct.1"));
 #endif
     fileMenu->addSeparator();
