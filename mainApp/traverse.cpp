@@ -1636,7 +1636,7 @@ int Gui::drawPage(
                 }
 
                 if (stepContains(top,partTypeLineRx)) {
-                  parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/, 3/*critical*/);
+                  parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/);
                 }
               }
               break;
