@@ -1851,14 +1851,11 @@ void lcModel::SetActive(bool Active)
 {
 	CalculateStep(Active ? mCurrentStep : LC_STEP_MAX);
 	mActive = Active;
-/*** LPub3D Mod - Selected Parts - Render Image / viewer step key ***/
-	if (!mIsPreview && gMainWindow && !lcGetActiveProject()->IsRenderImage())
+/*** LPub3D Mod - Selected Parts - Render Image ***/
+	if (Active && !mIsPreview && gMainWindow && !lcGetActiveProject()->IsRenderImage())
 	{
-		QString ModelName = mProperties.mModelName;
-		QString const &Key = lcGetActiveProject()->GetStepKey();
-		if (!Key.isEmpty())
-			ModelName = lpub->ldrawFile.getSubmodelName(Key.split(";").first().toInt());
-		emit gMainWindow->SetActiveModelSig(ModelName,Active);
+		if (mProperties.mModelName != VIEWER_MODEL_DEFAULT)
+			emit gMainWindow->SetActiveModelSig(mProperties.mModelName);
 	}
 /*** LPub3D Mod end ***/
 }

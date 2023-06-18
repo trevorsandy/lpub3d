@@ -839,8 +839,8 @@ void Gui::initiaizeVisualEditor()
     connect(this,        SIGNAL(clearViewerWindowSig()),
             gMainWindow, SLOT(  NewProject()));
 
-    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
-            this,        SLOT(  SetActiveModel(const QString&,bool)));
+    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&)),
+            this,        SLOT(  SetActiveModel(const QString&)));
 
     connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
             gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
@@ -2280,31 +2280,27 @@ void Gui::writeNativeSettings()
     gApplication->SaveTabLayout();
 }
 
-void Gui::SetActiveModel(const QString &modelName, bool setActive)
+void Gui::SetActiveModel(const QString &modelName)
 {
-    if (modelName == VIEWER_MODEL_DEFAULT)
-        return;
-    if (lcGetActiveProject()->GetImageType() != Options::CSI)
-        return;
-    if (getCurrentStep() && modelName == getCurrentStep()->topOfStep().modelName)
-        return;
+    QString const &stepKey = lcGetActiveProject()->GetStepKey();
 
-    bool displayModelFile = false;
-    if (setActive) {
-        if (isSubmodel(modelName)) {
-            const QString stepKey = getViewerStepKeyWhere(Where(getSubmodelIndex(modelName), 0));
-            if (!stepKey.isEmpty()) {
-                lpub->setCurrentStep(stepKey);
-                displayModelFile = true;
-            }
-        } else if (getCurrentStep()) {
-            displayModelFile = true;
+    if (!stepKey.isEmpty()) {
+        if (stepKey == getCurrentStep()->viewerStepKey)
+            return;
+        lpub->setCurrentStep(stepKey);
+    } else {
+        if (modelName == VIEWER_MODEL_DEFAULT)
+            return;
+        if (getCurrentStep()) {
+            if (modelName == getCurrentStep()->topOfStep().modelName)
+                return;
         } else {
-            emit messageSig(LOG_ERROR, QString("Active model '%1' not found").arg(modelName));
+            emit messageSig(LOG_WARNING, QString("Model '%1' could not be set active.").arg(modelName));
+            return;
         }
-        if (displayModelFile)
-            displayFile(&lpub->ldrawFile, getCurrentStep()->topOfStep());
     }
+
+    displayFile(&lpub->ldrawFile, getCurrentStep()->topOfStep());
 }
 
 int Gui::GetImageWidth()

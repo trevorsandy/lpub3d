@@ -397,7 +397,7 @@ signals:
 	void updateSig();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
-	void SetActiveModelSig(const QString &, bool);
+	void SetActiveModelSig(const QString &);
 	void SelectedPartLinesSig(QVector<TypeLine> &, PartSource);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Move unod/redo trigger to LPub3D ***/
