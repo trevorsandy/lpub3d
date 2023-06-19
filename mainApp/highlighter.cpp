@@ -952,38 +952,40 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     /* Line format only - no rules */
 
-    // LDraw Line Type Format
+    // LDraw Line Type 1 Format (0)
     LDrawLineType1Format.setForeground(br06);
     LDrawLineType1Format.setFontWeight(QFont::Bold);
-    lineType1Formats.append(LDrawLineType1Format);
+    lineTypeFormats.append(LDrawLineType1Format);
 
-    // LDraw Color Format
+    // LDraw Color Format (1)
     LDrawColorFormat.setForeground(br07);
     LDrawColorFormat.setFontWeight(QFont::Bold);
-    lineType1Formats.append(LDrawColorFormat);
+    lineTypeFormats.append(LDrawColorFormat);
 
-    // LDraw Position Format
+    // LDraw Position Format (2)
     LDrawPositionFormat.setForeground(br08);
     LDrawPositionFormat.setFontWeight(QFont::Normal);
-    lineType1Formats.append(LDrawPositionFormat);
+    lineTypeFormats.append(LDrawPositionFormat);
 
-    // LDraw Transform1 Format
+    // LDraw Transform1 Format (3)
     LDrawTransform1Format.setForeground(br09);
     LDrawTransform1Format.setFontWeight(QFont::Normal);
-    lineType1Formats.append(LDrawTransform1Format);
-    // LDraw Transform2 Format
+    lineTypeFormats.append(LDrawTransform1Format);
+
+    // LDraw Transform2 Format (4)
     LDrawTransform2Format.setForeground(br10);
     LDrawTransform2Format.setFontWeight(QFont::Normal);
-    lineType1Formats.append(LDrawTransform2Format);
-    // LDraw Transform3 Format
+    lineTypeFormats.append(LDrawTransform2Format);
+
+    // LDraw Transform3 Format (5)
     LDrawTransform3Format.setForeground(br11);
     LDrawTransform3Format.setFontWeight(QFont::Normal);
-    lineType1Formats.append(LDrawTransform3Format);
+    lineTypeFormats.append(LDrawTransform3Format);
 
-    // LDraw Part File Format
+    // LDraw Part File Format (6)
     LDrawFileFormat.setForeground(br12);
     LDrawFileFormat.setFontWeight(QFont::Bold);
-    lineType1Formats.append(LDrawFileFormat);
+    lineTypeFormats.append(LDrawFileFormat);
 }
 
 void Highlighter::highlightBlock(const QString &text)
@@ -1019,24 +1021,32 @@ void Highlighter::highlightBlock(const QString &text)
         startIndex = text.indexOf(LDrawMultiLineCommentStartExpression, startIndex + commentLength);
     }
 
-    // Line Types
+    // Geometry Line Types
     // 1 <colour> x y z a b c d e f g h i <file>
     // 2 <colour> x1 y1 z1 x2 y2 z2
     // 3 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3
     // 4 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
     // 5 <colour> x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4
-    QRegularExpression typeRx("^[1-5]\\s+");
+    QRegularExpression typeRx("^([1-5])\\s+");
     QRegularExpression texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)");
+    QRegularExpressionMatch typeMatch = typeRx.match(text);
     int index = -1;
-    bool texmap = false;
-    if (text.contains(typeRx) || (texmap = text.contains(texmapRx)))
+    bool texmap = false, type1_5 = false, type1 = false, type2_5 = false;
+    if ((type1_5 = typeMatch.hasMatch()) || (texmap = text.contains(texmapRx)))
         index = 0;
     else if (text.startsWith("0 GHOST "))
         index = 8;
     else if (text.startsWith("0 MLCAD HIDE "))
         index = 13;
+    else if (text.startsWith("0 !: ") && text.split(" ").size() > 3)
+        index = 1;
     else
         return;
+
+    if (type1_5) {
+        type1 = typeMatch.captured(1) == "1";
+        type2_5 = !type1;
+    }
 
     QStringList tt = text.mid(index).trimmed().split(" ", SkipEmptyParts);
     if (tt.size()) {
@@ -1060,10 +1070,10 @@ void Highlighter::highlightBlock(const QString &text)
                         tokens << tt[1];
                         tokens << tt[2]+" "+tt[3];
                     } else
-                    if (i == 6) { // append x1 y1 z1 point (3)
+                    if (i == 6)  { // append x1 y1 z1 point (3)
                         tokens << tt[4]+" "+tt[5]+" "+tt[6];
                     } else
-                    if (i == 9) { // append x2 y2 z2 point (4)
+                    if (i == 9)  { // append x2 y2 z2 point (4)
                         tokens << tt[7]+" "+tt[8]+" "+tt[9];
                     } else
                     if (i == 12) { // append x3 y3 z3 point (5)
@@ -1083,10 +1093,10 @@ void Highlighter::highlightBlock(const QString &text)
                         tokens << tt[0];
                         tokens << tt[1];
                     } else
-                    if (i == 4) { // append x y z position (2)
+                    if (i == 4)  { // append x y z position (2)
                         tokens << tt[2]+" "+tt[3]+" "+tt[4];
                     } else
-                    if (i == 7) { // append x1 y1 z1 transform (3)
+                    if (i == 7)  { // append x1 y1 z1 transform (3)
                         tokens << tt[5]+" "+tt[6]+" "+tt[7];
                     } else
                     if (i == 10) { // append x2 y2 z2 transform (4)
@@ -1103,10 +1113,10 @@ void Highlighter::highlightBlock(const QString &text)
         }
         for (int i = 0; i < tokens.size(); i++) {
             if (index >= 0 && index < text.length()) {
-                int idx = (texmap && i > 5) ? 6 : i; // set texmap tokens after (6) to last (type) format
-                if (!texmap || (texmap && i > 2))    // skip position format for texmap
+                int idx = (texmap && i > 5) ? 6 : i;              // set texmap tokens after (6) to last (type) format
+                if (type1 || (type2_5 && i) || (texmap && i > 2)) // skip type format for type2_5 and position format for texmap
                     setFormat(index, tokens[i].length(), lineTypeFormats[idx]);
-                index += tokens[i].length() + 1;     // add 1 position for the space
+                index += tokens[i].length() + 1;                  // add 1 position for the space
             }
         }
     }
