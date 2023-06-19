@@ -37,8 +37,8 @@ Highlighter::Highlighter(QTextDocument *parent)
 {
     HighlightingRule rule;
 
-    QBrush br01,br02,br03,br04,br05,br06,br07,br08,br09,br10,br11,br12,br13,br14;
-    QBrush br15,br16,br17,br18,br19,br20,br21,br22,br23,br24,br25,br26,br27,br28,br29;
+    QBrush br01,br02,br03,br04,br05,br06,br07,br08,br09,br10,br11,br12,br13,br14,br15,br16;
+    QBrush br17,br18,br19,br20,br21,br22,br23,br24,br25,br26,br27,br28,br29,br30,br31,br32;
     if (Application::instance()->getTheme() == THEME_DEFAULT) {
         br01 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_COMMENTS]));
         br02 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_HEADER]));
@@ -52,23 +52,26 @@ Highlighter::Highlighter(QTextDocument *parent)
         br10 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_2]));
         br11 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_3]));
         br12 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_PART_FILE]));
-        br13 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPES_2_TO_5]));
-        br14 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_NUMBER]));
-        br15 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_HEX_NUMBER]));
-        br16 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_PAGE_SIZE]));
-        br17 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LEOCAD]));
-        br18 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LSYNTH]));
-        br19 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDCAD]));
-        br20 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_MLCAD]));
-        br21 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_MLCAD_BODY]));
-        br22 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_FALSE]));
-        br23 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_TRUE]));
-        br24 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D]));
-        br25 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_BODY]));
-        br26 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_HEADER_VALUE]));
-        br27 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_QUOTED_TEXT]));
-        br28 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_0_FIRST_CHARACTER]));
-        br29 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDCAD_GROUP_DEFINE]));
+        br13 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_2]));
+        br14 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_3]));
+        br15 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_4]));
+        br16 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_5]));
+        br17 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_NUMBER]));
+        br18 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_HEX_NUMBER]));
+        br19 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_PAGE_SIZE]));
+        br20 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LEOCAD]));
+        br21 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LSYNTH]));
+        br22 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDCAD]));
+        br23 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_MLCAD]));
+        br24 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_MLCAD_BODY]));
+        br25 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_FALSE]));
+        br26 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_TRUE]));
+        br27 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D]));
+        br28 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_BODY]));
+        br29 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_HEADER_VALUE]));
+        br30 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_QUOTED_TEXT]));
+        br31 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_0_FIRST_CHARACTER]));
+        br32 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDCAD_GROUP_DEFINE]));
     }
     else
     if (Application::instance()->getTheme() == THEME_DARK) {
@@ -84,48 +87,51 @@ Highlighter::Highlighter(QTextDocument *parent)
         br10 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_2]));
         br11 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_3]));
         br12 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_PART_FILE]));
-        br13 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPES_2_TO_5]));
-        br14 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_NUMBER]));
-        br15 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_HEX_NUMBER]));
-        br16 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_PAGE_SIZE]));
-        br17 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LEOCAD]));
-        br18 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LSYNTH]));
-        br19 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDCAD]));
-        br20 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_MLCAD]));
-        br21 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_MLCAD_BODY]));
-        br22 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_FALSE]));
-        br23 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_TRUE]));
-        br24 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D]));
-        br25 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_BODY]));
-        br26 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_HEADER_VALUE]));
-        br27 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]));
-        br28 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPE_0_FIRST_CHARACTER]));
-        br29 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDCAD_GROUP_DEFINE]));
+        br13 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPE_2]));
+        br14 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPE_3]));
+        br15 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPE_4]));
+        br16 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPE_5]));
+        br17 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_NUMBER]));
+        br18 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_HEX_NUMBER]));
+        br19 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_PAGE_SIZE]));
+        br20 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LEOCAD]));
+        br21 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LSYNTH]));
+        br22 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDCAD]));
+        br23 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_MLCAD]));
+        br24 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_MLCAD_BODY]));
+        br25 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_FALSE]));
+        br26 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_TRUE]));
+        br27 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D]));
+        br28 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_BODY]));
+        br29 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_HEADER_VALUE]));
+        br30 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]));
+        br31 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_LINE_TYPE_0_FIRST_CHARACTER]));
+        br32 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDCAD_GROUP_DEFINE]));
     }
 
     // LPub3D Quoted Text Format
-    LPubQuotedTextFormat.setForeground(br27);
+    LPubQuotedTextFormat.setForeground(br30);
     LPubQuotedTextFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("[<\"].*[>\"]"));
     rule.format = LPubQuotedTextFormat;
     highlightingRules.append(rule);
 
     // LPub3D Number Format
-    LPubNumberFormat.setForeground(br14);
+    LPubNumberFormat.setForeground(br17);
     LPubNumberFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?"));
     rule.format = LPubNumberFormat;
     highlightingRules.append(rule);
 
     // LPub3D Font Number Format
-    LPubFontNumberFormat.setForeground(br14);
+    LPubFontNumberFormat.setForeground(br17);
     LPubFontNumberFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("[,-](\\d+)")); // match digit if preceded by single character , or -
     rule.format = LPubFontNumberFormat;
     highlightingRules.append(rule);
 
     // LDraw Custom COLOUR Description Format
-    LDrawColourDescFormat.setForeground(br26);
+    LDrawColourDescFormat.setForeground(br29);
     LDrawColourDescFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("\\bLPub3D_[A-Za-z|_]+\\b"), QRegularExpression::CaseInsensitiveOption);
     rule.format = LDrawColourDescFormat;
@@ -153,14 +159,14 @@ Highlighter::Highlighter(QTextDocument *parent)
     highlightingRules.append(rule);
 
     // LPub3D Font Number Comma and dash Format
-    LPubFontCommaFormat.setForeground(br27);
+    LPubFontCommaFormat.setForeground(br30);
     LPubFontCommaFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("[,]"));
     rule.format = LPubFontCommaFormat;
     highlightingRules.append(rule);
 
     // LPub3D Page Size Format
-    LPubPageSizeFormat.setForeground(br16);
+    LPubPageSizeFormat.setForeground(br19);
     LPubPageSizeFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("\\b[AB][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$"), QRegularExpression::CaseInsensitiveOption); // Qt::CaseInsensitive
     rule.format = LPubPageSizeFormat;
@@ -185,7 +191,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     // LPub3D Custom COLOUR, FADE, SILHOUETTE Meta Format
-    LPubCustomColorFormat.setForeground(br20);
+    LPubCustomColorFormat.setForeground(br23);
     LPubCustomColorFormat.setFontWeight(QFont::Bold);
 
     const QString LPubCustomColorPatterns[] =
@@ -216,21 +222,21 @@ Highlighter::Highlighter(QTextDocument *parent)
     highlightingRules.append(rule);
 
     // LPub3D Boolean False Format
-    LPubFalseMetaFormat.setForeground(br22);
+    LPubFalseMetaFormat.setForeground(br25);
     LPubFalseMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("\\bFALSE\\b"));
     rule.format = LPubFalseMetaFormat;
     highlightingRules.append(rule);
 
     // LPub3D Boolean True Format
-    LPubTrueMetaFormat.setForeground(br23);
+    LPubTrueMetaFormat.setForeground(br26);
     LPubTrueMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("\\bTRUE\\b"));
     rule.format = LPubTrueMetaFormat;
     highlightingRules.append(rule);
 
     // LPub3D Body Meta Format
-    LPubBodyMetaFormat.setForeground(br25);
+    LPubBodyMetaFormat.setForeground(br28);
     LPubBodyMetaFormat.setFontWeight(QFont::Bold);
 
     const QString LPubBodyMetaPatterns[] =
@@ -572,14 +578,14 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     // LPub3D Meta Format
-    LPubMetaFormat.setForeground(br24);
+    LPubMetaFormat.setForeground(br27);
     LPubMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("!?\\bLPUB\\b"));
     rule.format = LPubMetaFormat;
     highlightingRules.append(rule);
 
     // LDraw Header Value Format
-    LDrawHeaderValueFormat.setForeground(br26);
+    LDrawHeaderValueFormat.setForeground(br29);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("^(?!0 !LPUB|0 !LEOCAD|0 !LDCAD|0 MLCAD|0 GROUP|0 SYNTH|0 !COLOUR|0 !FADE|0 !SILHOUETTE|0 ROTSTEP|0 BUFEXCHG|0 PLIST|[1-5]).*$"));
     rule.format = LDrawHeaderValueFormat;
@@ -671,7 +677,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     // MLCad Body Meta Format
-    MLCadBodyMetaFormat.setForeground(br17);
+    MLCadBodyMetaFormat.setForeground(br20);
     MLCadBodyMetaFormat.setFontWeight(QFont::Bold);
 
     const QString MLCadBodyMetaPatterns[] =
@@ -706,21 +712,21 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     // MLCad Meta Format
-    MLCadMetaFormat.setForeground(br21);
+    MLCadMetaFormat.setForeground(br24);
     MLCadMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("!?\\bMLCAD\\b"));
     rule.format = MLCadMetaFormat;
     highlightingRules.append(rule);
 
     // LSynth Format
-    LSynthMetaFormat.setForeground(br18);
+    LSynthMetaFormat.setForeground(br21);
     LSynthMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("!?\\bSYNTH\\b[^\n]*"));
     rule.format = LSynthMetaFormat;
     highlightingRules.append(rule);
 
     // LDCad Body Meta Format
-    LDCadBodyMetaFormat.setForeground(br19);
+    LDCadBodyMetaFormat.setForeground(br22);
     LDCadBodyMetaFormat.setFontWeight(QFont::Bold);
 
     const QString LDCadBodyMetaPatterns[] =
@@ -761,7 +767,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     highlightingRules.append(rule);
 
     // LDCad Meta Group Format
-    LDCadMetaGroupFormat.setForeground(br29);
+    LDCadMetaGroupFormat.setForeground(br32);
     LDCadMetaGroupFormat.setFontWeight(QFont::Bold);
 
     const QString LDCadMetaGroupPatterns[] =
@@ -778,7 +784,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     // LDCad Value Bracket Format
-    LDCadBracketFormat.setForeground(br17);
+    LDCadBracketFormat.setForeground(br20);
     LDCadBracketFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("[\\[|=|\\]]"));
     rule.format = LDCadBracketFormat;
@@ -792,7 +798,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     highlightingRules.append(rule);
 
     // LeoCAD Body Meta Format
-    LeoCADBodyMetaFormat.setForeground(br17);
+    LeoCADBodyMetaFormat.setForeground(br20);
     LeoCADBodyMetaFormat.setFontWeight(QFont::Bold);
 
     const QString LeoCADBodyMetaPatterns[] =
@@ -869,14 +875,14 @@ Highlighter::Highlighter(QTextDocument *parent)
     }
 
     // LeoCAD Format
-    LeoCADMetaFormat.setForeground(br20);
+    LeoCADMetaFormat.setForeground(br23);
     LeoCADMetaFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("!?\\bLEOCAD\\b"));
     rule.format = LeoCADMetaFormat;
     highlightingRules.append(rule);
 
     // LDraw Meta Line Format
-    LDrawLineType0Format.setForeground(br28);
+    LDrawLineType0Format.setForeground(br31);
     LDrawLineType0Format.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("^0"));
     rule.format = LDrawLineType0Format;
@@ -903,7 +909,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     LDrawMultiLineCommentEndExpression = QRegularExpression(QStringLiteral("0\\s{1}\\*\\/[^\n]*"));
 
     // LPub3D Hex Number Format
-    LPubHexNumberFormat.setForeground(br15);
+    LPubHexNumberFormat.setForeground(br18);
     LPubHexNumberFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(QStringLiteral("(0x|#)([\\dA-F]+)"), QRegularExpression::CaseInsensitiveOption);
     rule.format = LPubHexNumberFormat;
