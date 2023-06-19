@@ -1180,14 +1180,20 @@ void Preferences::loggingPreferences()
 }
 
 #ifdef Q_OS_MAC
-bool Preferences::validLib(const QString &libName, const QString &libVersion) {
-
-    int waitTime = 60000 ; // 60 secs
+bool Preferences::validLib(const QString &libName, const QString &libVersion)
+{
     QString scriptFile, scriptCommand;
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QStringList envList = env.toStringList();
+
     QTemporaryDir tempDir;
-    if (tempDir.isValid()) {
+    if (!tempDir.isValid()) {
+        logError() << qUtf8Printable(QObject::tr("Cannot create library check temp path."));
+        return false;
+    } else {
         scriptFile =  QString("%1/ver.sh").arg(tempDir.path());
-        //logDebug() << qUtf8Printable(QObject::tr("Script file: [%1]").arg(scriptFile));
+
+        //logInfo() << qUtf8Printable(QObject::tr("Library check script: [%1]").arg(scriptFile));
 
         if (libName != "xquartz")
             scriptCommand = QString("echo $(brew info " + libName + ") | sed \"s/^.*stable \\([^(]*\\).*/\\1/\"");
@@ -1204,26 +1210,21 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
             logError() << qUtf8Printable(QObject::tr("Cannot write library check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
            return false;
         }
-    } else {
-        logError() << qUtf8Printable(QObject::tr("Cannot create library check temp path."));
-        return false;
-    }
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    QStringList envList = env.toStringList();
-    envList.replaceInStrings(QRegularExpression("^(?i)PATH=(.*)"), "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin/:/opt/x11/bin:$HOME/bin:\\1");
+        envList.replaceInStrings(QRegularExpression("^(?i)PATH=(.*)"), "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin/:/opt/x11/bin:$HOME/bin:\\1");
+    }
 
     //logDebug() << qUtf8Printable(QObject::tr("SystemEnvironment:  %1").arg(envList.join(" ")));
 
     QProcess pr;
     pr.setEnvironment(envList);
-    pr.start(UNIX_SHELL,QStringList() << scriptFile);
-
+    pr.start(UNIX_SHELL, QStringList() << scriptFile);
     if (! pr.waitForStarted()) {
         logError() << qUtf8Printable(QObject::tr("Cannot start library check process."));
         return false;
     }
 
+    int waitTime = 60000 ; // 60 secs
     if (! pr.waitForFinished(waitTime)) {
         if (pr.exitCode() != 0) {
             QByteArray status = pr.readAll();
@@ -3648,55 +3649,62 @@ void Preferences::themePreferences()
         else
             displayTheme = THEME_DARK;
 #elif defined Q_OS_LINUX
-        QString scriptFile;
-        QTemporaryDir tempDir;
         bool error = false;
-        if (tempDir.isValid()) {
-            scriptFile = QString("%1/theme.sh").arg(tempDir.path());
-            // script based on https://unix.stackexchange.com/questions/701432/command-for-detecting-whether-the-system-is-using-a-dark-or-light-desktop-theme
-            QString const scriptCommand = QString(
-                "# org.freedesktop.appearance color-scheme\n"
-                "#\n"
-                "# Capture the system's preferred color scheme.\n"
-                "# Supported values are:\n"
-                "#\n"
-                "#   0: No preference\n"
-                "#   1: Prefer dark appearance\n"
-                "#   2: Prefer light appearance\n"
-                "#\n"
-                "# Unknown values treated as 0 (no preference).\n\n"
-                "[ -z $(which gdbus) ] && echo \"Warning: gdbus not found\" && exit 0 || :\n\n"
-                "export l=log\n\n"
-                "(gdbus call --session --timeout=1000 \\\n"
-                "            --dest=org.freedesktop.portal.Desktop \\\n"
-                "            --object-path /org/freedesktop/portal/desktop \\\n"
-                "            --method org.freedesktop.portal.Settings.Read org.freedesktop.appearance color-scheme\n"
-                ") >$l.out 2>&1 && scheme=$(cat $l.out) && rm $l.out\n\n"
-                "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
-                "case $scheme in\n"
-                "  ( '(<<uint32 1>>,)' ) exit 1;;\n"
-                "  ( '(<<uint32 2>>,)' ) exit 2;;\n"
-                "  ( *                 ) exit 0;;\n"
-                "esac\n");
 
-            QFile file(scriptFile);
-            if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream stream(&file);
-                stream << "#!/bin/bash" << lpub_endl;
-                stream << scriptCommand << lpub_endl;
-                file.close();
-            } else {
+        QString scriptFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_THEME_CHECK_SCRIPT));
+
+        if (!QFileInfo(scriptFile).isReadable()) {
+            QTemporaryDir tempDir;
+            if (!tempDir.isValid()) {
                 error = true;
                 displayTheme = THEME_DEFAULT;
-                logWarning() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
+                logWarning() << qUtf8Printable(QObject::tr("Cannot create theme check temp path."));
+            } else {
+                scriptFile = QString("%1/theme.sh").arg(tempDir.path());
+                // script based on https://unix.stackexchange.com/questions/701432/command-for-detecting-whether-the-system-is-using-a-dark-or-light-desktop-theme
+                QString const scriptCommand = QString(
+                    "# org.freedesktop.appearance color-scheme\n"
+                    "#\n"
+                    "# Capture the system's preferred color scheme.\n"
+                    "# Supported values are:\n"
+                    "#\n"
+                    "#   0: No preference\n"
+                    "#   1: Prefer dark appearance\n"
+                    "#   2: Prefer light appearance\n"
+                    "#\n"
+                    "# Unknown values treated as 0 (no preference).\n\n"
+                    "[ -z $(which gdbus) ] && echo \"Warning: gdbus not found\" && exit 0 || :\n\n"
+                    "export l=log\n\n"
+                    "(gdbus call --session --timeout=1000 \\\n"
+                    "            --dest=org.freedesktop.portal.Desktop \\\n"
+                    "            --object-path /org/freedesktop/portal/desktop \\\n"
+                    "            --method org.freedesktop.portal.Settings.Read org.freedesktop.appearance color-scheme\n"
+                    ") >$l.out 2>&1 && scheme=$(cat $l.out) && rm $l.out\n\n"
+                    "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
+                    "case $scheme in\n"
+                    "  ( '(<<uint32 1>>,)' ) exit 1;;\n"
+                    "  ( '(<<uint32 2>>,)' ) exit 2;;\n"
+                    "  ( *                 ) exit 0;;\n"
+                    "esac\n");
+
+                QFile file(scriptFile);
+                if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    QTextStream stream(&file);
+                    stream << "#!/bin/bash" << lpub_endl;
+                    stream << scriptCommand << lpub_endl;
+                    file.close();
+                } else {
+                    error = true;
+                    displayTheme = THEME_DEFAULT;
+                    logWarning() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
+                }
             }
-        } else {
-            error = true;
-            displayTheme = THEME_DEFAULT;
-            logWarning() << qUtf8Printable(QObject::tr("Cannot create theme check temp path."));
         }
 
+        //logInfo() << qUtf8Printable(QObject::tr("Library check script: [%1]").arg(scriptFile));
+
         if (!error) {
+
             QProcess pr;
             pr.setEnvironment(QProcess::systemEnvironment());
             pr.start(UNIX_SHELL, QStringList() << scriptFile);
