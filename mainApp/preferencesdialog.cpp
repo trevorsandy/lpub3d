@@ -179,6 +179,9 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.browseLDView->hide();
   ui.browsePOVRAY->hide();
 
+  // setup Blender addon renderer
+  setBlenderAddonPreferences();
+
   /* Themes */
   ui.themeCombo->addItem(THEME_DEFAULT);
   ui.themeCombo->addItem(THEME_DARK);
@@ -396,8 +399,6 @@ void PreferencesDialog::setPreferences()
   setRenderers();
 
   // end preferred renderer
-
-  setBlenderAddonPreferences();
 
   ui.fadeStepsUseColourGrpBox->setTitle(            fadeStepsColorTitle);
   ui.pliControlEdit->setText(                    Preferences::pliControlFile);
