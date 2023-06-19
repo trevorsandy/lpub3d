@@ -60,69 +60,73 @@ private:
     QRegularExpression LDrawMultiLineCommentEndExpression;
 
     QVector<HighlightingRule> highlightingRules;
-    QVector<QTextCharFormat> lineType1Formats;
+    QVector<QTextCharFormat> lineTypeFormats;
 
-    QTextCharFormat LDrawCommentFormat;    // b01 - Comments
-    QTextCharFormat LDrawMultiLineCommentFormat; // b01 - Comments
+    QTextCharFormat LDrawCommentFormat;          // br01 - Comments
+    QTextCharFormat LDrawMultiLineCommentFormat; // br01 - Comments
 
-    QTextCharFormat LPubInvalidFormat;     // b22 - LPub3D False
-    QTextCharFormat LPubLocalMetaFormat;   // b04 - LPub3D Local
-    QTextCharFormat LPubGlobalMetaFormat;  // b05 - LPub3D Global
-    QTextCharFormat LPubFalseMetaFormat;   // b22 - LPub3D False
-    QTextCharFormat LPubTrueMetaFormat;    // b23 - LPub3D True
-    QTextCharFormat LPubMetaFormat;        // b24 - LPub3D
-    QTextCharFormat LPubBodyMetaFormat;    // b25 - LPub3D Body
-    QTextCharFormat LPubQuotedTextFormat;  // b27 - LPub3D Quoted Text
-    QTextCharFormat LPubFontCommaFormat;   // b27 - LPub3D Quoted Text
-    QTextCharFormat LPubFontNumberFormat;  // b14 - LPub3D Number
-    QTextCharFormat LPubNumberFormat;      // b14 - LPub3D Number
-    QTextCharFormat LPubHexNumberFormat;   // b15 - LPub3D Hex Number
-    QTextCharFormat LPubPageSizeFormat;    // b16 - LPub3D Page Size
-    QTextCharFormat LPubSubPartFormat;     // b12 - LPub3D Part File
-    QTextCharFormat LPubSubColorFormat;    // b07 - LDraw Part Colour Code
-    QTextCharFormat LPubCustomColorFormat; // b24 - LeoCAD
-    QTextCharFormat LPubCustomColorCodeFormat; // b07 - LDraw Part Colour Code
+    QTextCharFormat LPubInvalidFormat;           // br25 - LPub3D False
+    QTextCharFormat LPubLocalMetaFormat;         // br04 - LPub3D Local
+    QTextCharFormat LPubGlobalMetaFormat;        // br05 - LPub3D Global
+    QTextCharFormat LPubFalseMetaFormat;         // br25 - LPub3D False
+    QTextCharFormat LPubTrueMetaFormat;          // br28 - LPub3D True
+    QTextCharFormat LPubMetaFormat;              // br27 - LPub3D
+    QTextCharFormat LPubBodyMetaFormat;          // br28 - LPub3D Body
+    QTextCharFormat LPubQuotedTextFormat;        // br30 - LPub3D Quoted Text
+    QTextCharFormat LPubFontCommaFormat;         // br30 - LPub3D Quoted Text
+    QTextCharFormat LPubFontNumberFormat;        // br17 - LPub3D Number
+    QTextCharFormat LPubNumberFormat;            // br17 - LPub3D Number
+    QTextCharFormat LPubHexNumberFormat;         // br18 - LPub3D Hex Number
+    QTextCharFormat LPubPageSizeFormat;          // br19 - LPub3D Page Size
+    QTextCharFormat LPubSubPartFormat;           // br12 - LPub3D Part File
+    QTextCharFormat LPubSubColorFormat;          // br07 - LDraw Part Colour Code
+    QTextCharFormat LPubCustomColorFormat;       // br27 - LeoCAD
+    QTextCharFormat LPubCustomColorCodeFormat;   // br07 - LDraw Part Colour Code
 
-    QTextCharFormat LDrawHeaderValueFormat;// b26 - LDraw Header Value
-    QTextCharFormat LDrawHeaderFormat;     // b02 - LDraw Header
-    QTextCharFormat LDrawBodyFormat;       // b03 - LDraw Body
-    QTextCharFormat LDrawColourMetaFormat; // b05 - LPub3D Global
-    QTextCharFormat LDrawColourDescFormat; // b26 - LDraw Header Value
-    QTextCharFormat LDrawLineType0Format;  // b28 - LDraw Line Type 0 First Character
+    QTextCharFormat LDrawHeaderValueFormat;      // br29 - LDraw Header Value
+    QTextCharFormat LDrawHeaderFormat;           // br02 - LDraw Header
+    QTextCharFormat LDrawBodyFormat;             // br03 - LDraw Body
+    QTextCharFormat LDrawColourMetaFormat;       // br05 - LPub3D Global
+    QTextCharFormat LDrawColourDescFormat;       // br29 - LDraw Header Value
+    QTextCharFormat LDrawLineType0Format;        // br31 - LDraw Line Type 0 First Character
 
     // position 0
-    QTextCharFormat LDrawLineType1Format;  // b06 - LDraw Line Type 1
+    QTextCharFormat LDrawLineType1Format;        // br06 - LDraw Line Type 1
     // position 1
-    QTextCharFormat LDrawColorFormat;      // b07 - LDraw Part Colour Code
+    QTextCharFormat LDrawColorFormat;            // br07 - LDraw Part Colour Code
     // positions 2-4
-    QTextCharFormat LDrawPositionFormat;   // b08 - LDraw Part Position [x y z]
+    QTextCharFormat LDrawPositionFormat;         // br08 - LDraw Part Position [x y z]
     // transform1 5-7
-    QTextCharFormat LDrawTransform1Format; // b09 - LDraw Part Transform1 [a b c]
+    QTextCharFormat LDrawTransform1Format;       // br09 - LDraw Part Transform1 [a b c]
     // transform2 8-10
-    QTextCharFormat LDrawTransform2Format; // b10 - LDraw Part Transform2 [d e f]
+    QTextCharFormat LDrawTransform2Format;       // br10 - LDraw Part Transform2 [d e f]
     // transform3 11-13
-    QTextCharFormat LDrawTransform3Format; // b11 - LDraw Part Transform3 [g h i]
+    QTextCharFormat LDrawTransform3Format;       // br11 - LDraw Part Transform3 [g h i]
     // ldraw file 14
-    QTextCharFormat LDrawFileFormat;       // b12 - LDraw Part File
+    QTextCharFormat LDrawFileFormat;             // br12 - LDraw Part File
 
-    QTextCharFormat LDrawLineType2_5Format;// b13 - LDraw Line Types 2-5
-    QTextCharFormat LDrawLineType3Format;  // bXX - LDraw Triangle Line       [not used]
-    QTextCharFormat LDrawLineType4Format;  // bXX - LDraw Quadrilateral Line  [not used]
-    QTextCharFormat LDrawLineType5Format;  // bXX - LDraw Optional Line Line  [not used]
+    QTextCharFormat LDrawLineType2Format;        // br13 - LDraw Line Types 2-5
+    QTextCharFormat LDrawLineType3Format;        // br14 - LDraw Triangle Line
+    QTextCharFormat LDrawLineType4Format;        // br15 - LDraw Quadrilateral Line
+    QTextCharFormat LDrawLineType5Format;        // br16 - LDraw Optional Line Line
 
-    QTextCharFormat LeoCADMetaFormat;      // b20 - LeoCAD
-    QTextCharFormat LeoCADBodyMetaFormat;  // b17 - LeoCAD
+    QTextCharFormat LDrawTexmapLineFormat;       // br16 - LDraw Optional Line Line
 
-    QTextCharFormat LSynthMetaFormat;      // b18 - LSynth
+    QTextCharFormat LDrawDataLineFormat;         // br16 - LDraw Optional Line Line
 
-    QTextCharFormat LDCadMetaKeyFormat;    // b11 - LDCad Key
-    QTextCharFormat LDCadMetaValueFormat;  // b18 - LDCad Value
-    QTextCharFormat LDCadBodyMetaFormat;   // b19 - LDCad
-    QTextCharFormat LDCadBracketFormat;    // b17 - LDCad Value Bracket
-    QTextCharFormat LDCadMetaGroupFormat;  // b29 - LDCad Group Define
+    QTextCharFormat LeoCADMetaFormat;            // br23 - LeoCAD
+    QTextCharFormat LeoCADBodyMetaFormat;        // br20 - LeoCAD
 
-    QTextCharFormat MLCadMetaFormat;       // b20 - MLCad
-    QTextCharFormat MLCadBodyMetaFormat;   // b21 - MLCad Body
+    QTextCharFormat LSynthMetaFormat;            // br21 - LSynth
+
+    QTextCharFormat LDCadMetaKeyFormat;          // br11 - LDCad Key
+    QTextCharFormat LDCadMetaValueFormat;        // br21 - LDCad Value
+    QTextCharFormat LDCadBodyMetaFormat;         // br22 - LDCad
+    QTextCharFormat LDCadBracketFormat;          // br20 - LDCad Value Bracket
+    QTextCharFormat LDCadMetaGroupFormat;        // br32 - LDCad Group Define
+
+    QTextCharFormat MLCadMetaFormat;             // br23 - MLCad
+    QTextCharFormat MLCadBodyMetaFormat;         // br24 - MLCad Body
 
 };
 

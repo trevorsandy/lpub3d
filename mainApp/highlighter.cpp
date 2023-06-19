@@ -881,18 +881,53 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LeoCADMetaFormat;
     highlightingRules.append(rule);
 
-    // LDraw Meta Line Format
+    // LDraw Meta Command Line Format
     LDrawLineType0Format.setForeground(br31);
     LDrawLineType0Format.setFontWeight(QFont::Normal);
     rule.pattern = QRegularExpression(QStringLiteral("^0"));
     rule.format = LDrawLineType0Format;
     highlightingRules.append(rule);
 
-    // LDraw Lines 2-5 Format
-    LDrawLineType2_5Format.setForeground(br13);
-    LDrawLineType2_5Format.setFontWeight(QFont::Bold);
-    rule.pattern = QRegularExpression(QStringLiteral("^[2-5][^\n]*"));
-    rule.format = LDrawLineType2_5Format;
+    // LDraw Line Type 2 Format
+    LDrawLineType2Format.setForeground(br13);
+    LDrawLineType2Format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("^2"));
+    rule.format = LDrawLineType2Format;
+    highlightingRules.append(rule);
+
+    // LDraw Line Type 3 Format
+    LDrawLineType3Format.setForeground(br14);
+    LDrawLineType3Format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("^3"));
+    rule.format = LDrawLineType3Format;
+    highlightingRules.append(rule);
+
+    // LDraw Lines 4 Format
+    LDrawLineType4Format.setForeground(br15);
+    LDrawLineType4Format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("^4"));
+    rule.format = LDrawLineType4Format;
+    highlightingRules.append(rule);
+
+    // LDraw Lines 5 Format
+    LDrawLineType5Format.setForeground(br16);
+    LDrawLineType5Format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("^5"));
+    rule.format = LDrawLineType5Format;
+    highlightingRules.append(rule);
+
+    // LDraw Texmap Line Format
+    LDrawTexmapLineFormat.setForeground(br07);
+    LDrawTexmapLineFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(QStringLiteral("\\s+!:\\s+"));
+    rule.format = LDrawTexmapLineFormat;
+    highlightingRules.append(rule);
+
+    // LDraw Data Line Format
+    LDrawDataLineFormat.setForeground(br30);
+    LDrawDataLineFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegularExpression(QStringLiteral("(?<=^0\\s!:\\s)[^\n]*")); // match content preceded by '0 !: '
+    rule.format = LDrawDataLineFormat;
     highlightingRules.append(rule);
 
     // LDraw Comment Format
@@ -1070,7 +1105,7 @@ void Highlighter::highlightBlock(const QString &text)
             if (index >= 0 && index < text.length()) {
                 int idx = (texmap && i > 5) ? 6 : i; // set texmap tokens after (6) to last (type) format
                 if (!texmap || (texmap && i > 2))    // skip position format for texmap
-                    setFormat(index, tokens[i].length(), lineType1Formats[idx]);
+                    setFormat(index, tokens[i].length(), lineTypeFormats[idx]);
                 index += tokens[i].length() + 1;     // add 1 position for the space
             }
         }
