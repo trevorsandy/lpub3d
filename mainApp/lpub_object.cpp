@@ -637,11 +637,12 @@ bool LPub::setFadeStepsFromCommand()
   if (lpubFade) {
     if (result != QLatin1String("GLOBAL"))
       emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command missing GLOBAL qualifier."),true/*Show Dialog*/);
-  } else if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-    emit lpub->messageSig(LOG_WARNING,tr("LPUB_FADE command IGNORED.<br>"
-                                         "LPUB_FADE command requires preferred render RENDERER_NATIVE.<br>"
-                                         "PREFERRED_RENDERER command must precede LPUB_FADE."),true/*Show Dialog*/);
-    lpubFade = true;
+    if (!nativeRenderer) {
+      emit lpub->messageSig(LOG_WARNING,tr("LPUB_FADE command IGNORED.<br>"
+                                           "LPUB_FADE command requires preferred render RENDERER_NATIVE.<br>"
+                                           "PREFERRED_RENDERER command must precede LPUB_FADE."),true/*Show Dialog*/);
+      lpubFade = false;
+    }
   }
 
   if (!Preferences::enableFadeSteps) {
@@ -740,11 +741,12 @@ bool LPub::setHighlightStepFromCommand()
   if (lpubHighlight) {
     if (result != QLatin1String("GLOBAL"))
       emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command missing GLOBAL qualifier."),true/*Show Dialog*/);
-  } else if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-    emit lpub->messageSig(LOG_WARNING,tr("LPUB_HIGHLIGHT command IGNORED.<br>"
-                                         "LPUB_HIGHLIGHT command requires preferred render RENDERER_NATIVE.<br>"
-                                         "PREFERRED_RENDERER command must precede LPUB_HIGHLIGHT."),true/*Show Dialog*/);
-    lpubHighlight = true;
+    if (!nativeRenderer) {
+      emit lpub->messageSig(LOG_WARNING,tr("LPUB_HIGHLIGHT command IGNORED.<br>"
+                                           "LPUB_HIGHLIGHT command requires preferred render RENDERER_NATIVE.<br>"
+                                           "PREFERRED_RENDERER command must precede LPUB_HIGHLIGHT."),true/*Show Dialog*/);
+      lpubHighlight = false;
+    }
   }
 
   if (!Preferences::enableHighlightStep) {
