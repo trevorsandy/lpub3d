@@ -216,7 +216,7 @@ int Render::rotateParts(
   QStringList rotatedParts = parts;
 
   // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
-  if (!singleSubfile)
+  if (!nativeRenderer || (nativeRenderer && !singleSubfile))
       rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
 
   // intercept rotatedParts for imageMatting
@@ -230,9 +230,9 @@ int Render::rotateParts(
   }
 
   // Prepare content for Native renderer
-  if (nativeRenderer && Preferences::inlineNativeContent && ! ldvFunction) {
+  if (nativeRenderer && Preferences::inlineNativeContent && !ldvFunction) {
 
-      // header and closing meta for Visual Editor - this call returns an updated pliFile
+      // header and closing meta for Visual Editor - this call will update rotatedParts
       if (!singleSubfile)
           setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
