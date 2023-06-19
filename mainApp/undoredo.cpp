@@ -277,7 +277,7 @@ bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx, bool displayMode
   Where walk = topOfStep;
   LDrawFile &ldrawFile = lpub->ldrawFile;
   int  numLines = ldrawFile.size(walk.modelName);
-  QRegExp endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+NOFILE$|^0\\s+FILE");
+  QRegExp endRx("^0\\s+STEP$|^0\\s+ROTSTEP|^0\\s+NOFILE$|^0\\s+FILE|^0\\s+!DATA");
   for (; walk < numLines; ++walk) {
     QString line = ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if (displayModel) {
