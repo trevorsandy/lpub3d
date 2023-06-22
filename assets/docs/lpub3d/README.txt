@@ -1,4 +1,130 @@
-LPub3D 2.4.5.0.2977 (24 11 2022 00:12:00)
+LPub3D 2.4.7.0.3476 (21 06 2023 12:27:47)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Add view load status dialogue menu action #698
+- Enhancement - Enable MPD model file imbedded image with !DATA meta command #722
+- Enhancement - Insert display model - enable part and submodel lines #704
+- Enhancement - On startup, set theme based on Windows system theme #700
+- Enhancement - Refactor fade and highlight parts behaviour #710
+- Enhancement - Update LDView renderer to version 4.5 #709
+- Change - Add open parameter file folder to configuration menu actions #681
+- Change - Enable Bill of material progress status #679
+- Change - Fade opacity value inverted #708
+- Change - Fade previous steps colour value #689
+- Change - Load model with absolute path FILE name #686
+- Change - Native Render view angle change between sub-model and main model #718
+- Change - Part list annotation style #716
+- Change - Persisting fade previous steps and highlight current step settings #683
+- Change - Refactor Blender integration - update to support Blender 3.4 #677
+- Change - Refactor consolidate submodel instance to enable count by colour #719
+- Change - Use default camera setting on viewer switch to camera none #676
+- Fix - Abnormal message when loading the model #724
+- Fix - Assembly viewing angle incorrect when LDView is used to render #725
+- Fix - Callout placement inside step assembly for multi-step page #720
+- Fix - Crash on command ASSEM ANNOTATION DISPLAY GLOBAL TRUE #707
+- Fix - Crash on insert BOM without a preceding STEP command #670
+- Fix - Crash when converting a submodel with NOSTEP to callout #706
+- Fix - Crash when exporting images with Native renderer #695
+- Fix - Crash when 'Treat as Part' is activated #672
+- Fix - Edge line width not persisted #712
+- Fix - Fade previous steps project global setup disabled on initial load #688
+- Fix - Global meta change not persisted to include file #717
+- Fix - Inconsistent page loading and numbering #693
+- Fix - Justify outside placement #690
+- Fix - Load last opened file on startup not working #713
+- Fix - Multi-level inherited colour lost assembly count in r322 #723
+- Fix - Parameter file viewer bad path for save copy as menu action #674
+- Fix - Part IDs missing in BOM #680
+- Fix - Parts List Instance placement dialog #685
+- Fix - Persistent data directory installation folder message #687
+- Fix - Placement regression #694
+- Fix - PLI windows are misaligned in Multi Step pages #703
+- Fix - Refresh step assembly image menu action missing #675
+- Fix - ROTSTEP END in step group is broken #696
+- Fix - Segfault after running --help or --version from console #668
+- Fix - Segfault if selection in command editor and also on cover page #669
+- Fix - Settings are not saved #692
+- Fix - Spurious warning at the end of an export #699
+- Fix - Sub models are deleted #684
+- Fix - Unexpected PLI BEGIN and PLI END parse errors #678
+- Fix - Visual editor parts highlight when parts selected in command editor #682
+- Fix - Wrong message in dialog box #701
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.6.0.3111 (11 01 2023 10:47:23)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Add submodels to file load status #636
+- Enhancement - Add reset viewer assembly display menu action #652
+- Enhancement - Add specify latitude longitude to viewpoints #654
+- Enhancement - Build modifications - step-group step in the visual editor #635
+- Enhancement - Cover page, bill of material, export and error banners #649
+- Enhancement - Logging - update messaging and log types #634
+- Enhancement - Prompt user to archive unofficial parts #628
+- Enhancement - Separate bill of material working folder from parts #659
+- Enhancement - Show errors and warnings on export or continuous process completion #639
+- Enhancement - Messages - add option to abort processing on error #643
+- Change - Automatically display the visual editor default camera properties #658
+- Change - Build modification - declaration and action in same STEP #633
+- Change - Build modifications - visual editor build mod actions in same STEP #666
+- Change - Check BUILD_MOD action is after MULTI_STEP END #644
+- Change - Change reset image menu action description to refresh image #623
+- Change - Display clear cache message in information dialog #660
+- Change - Loading inline unofficial parts, subparts and primitives #667
+- Change - Parse top-model INCLUDE file at model file load #631
+- Change - Re-use Build Mod name (ID) #663
+- Fix - Apply ROTSTEP to step-group STEP #653
+- Fix - Build modification - correct Get BuildMod INVALID StepIndex message #627
+- Fix - Build modification - correct jump forward parse error #622
+- Fix - Build modification - correct navigate backward parse error #621
+- Fix - Build modification - REMOVE/APPLY action must be placed after MULTI_STEP END #664
+- Fix - Build modification - unable to validate nested build mod level #642
+- Fix - Build modification - visual editor build mod actions #651
+- Fix - Configuration preferences dialog cutoff/min window size #616
+- Fix - Crash when generating BOM images #657
+- Fix - Enable navigation actions #656
+- Fix - Export to PDF abnormal behaviour #624
+- Fix - Failed to resolve file at path #561
+- Fix - Moving a part in the 3D editor misplaces it #646
+- Fix - Next Step menu actions not working as expected #637
+- Fix - Open with programs menu action not enabled #629
+- Fix - Option Add pointer missing in Call Out #647
+- Fix - Primitives shown as missing parts in file load status #630
+- Fix - Remove LPub Formatting menu action does nothing #638
+- Fix - Selecting a submodel in the Visual editor gives error #665
+- Fix - Set Attributes to Page Pointer globally #648
+- Fix - Settings for Coverpage and Backcover do not work #620
+- Fix - Submodel preview ldr file not generated #655
+- Quality - Multiplication result converted to larger type #641
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.5.0.2977 (23 11 2022 21:55:39)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,7 +144,7 @@ Revisions:
 - Enhancement - Add load unofficial parts in command editor to project setup #591
 - Enhancement - Add load visual editor at cover page to project setup #593
 - Enhancement - Expand WhatsThis help to common dialogues #618
-- Enhancement - Improve performance - enable CLI, PLI and SMP multi-thread execution #598
+- Enhancement - Improve performance - enable CLI, PLI and SMI multi-thread execution #598
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - LPub command editor snippet system #602
 - Enhancement - Manage context menu actions #606

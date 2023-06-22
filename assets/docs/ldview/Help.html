@@ -164,7 +164,6 @@ TABLE.SampleData TD
 <li><a href="#GeneralTab">General Tab</a>
 <ul>
 <li><a href="#GeneralAABox">Antialiasing Box</a></li>
-<li><a href="#GeneralCustomConfigBox">Custom Config Box</a></li>
 <li><a href="#GeneralColorsBox">Colors Box</a></li>
 <li><a href="#GeneralMiscBox">Misc Box</a></li>
 </ul></li>
@@ -1084,7 +1083,7 @@ certain video drivers.  If your snapshots are corrupted, enable this.
 Otherwise, leave it disabled.
 </p>
 <p>
-<i><a name="TransBGCheck">Transparent Background</a></i> (Default:
+<i><a name="TransBGCheck">Transparent Background</a></i> (Default: 
 <i>Off</i>):<br/>
 Enabling this option causes the backround area of the snapshot to be
 transparent, instead of using whatever background color is selected in LDView.
@@ -1623,19 +1622,6 @@ option may not have an effect if <a href="#FSAA">Full-scene
 Antialiasing</a> is enabled.
 </p>
 
-<p>
-<span class="SubHeader2"><a name="GeneralCustomConfigBox">Custom Config Box</a></span><br/>
-<i><a name="CustomConfig">Text Field</a></i> (Default: <i>Blank</i>):<br/>
-This text field allows you to enter or paste the full path to an LDraw file that
-you want to use for custom config. It is expected that a custom config file
-would normally contain custom color definitions that get loaded after the
-standard ones in LDConfig.ldr (if that is enabled). It can thus override any
-colors that are defined in LDConfig.ldr, as well as define new colors.<br/>
-The file can contain any valid LDraw statements, including geometry, but any
-geometry specified by this file will be drawn in addition to any file that is
-loaded. The geometry will not be included in model size calculations, so it may
-be cropped.
-</p>
 
 <p>
 <span class="SubHeader2"><a name="GeneralColorsBox">Colors Box</a></span><br/>
@@ -1656,9 +1642,9 @@ colors.  Resetting the General preferences also resets these colors.
 Enabling this option causes default-colored items to be transparent.
 </p>
 <p>
-<i><a name="ProcessLDConfig">Process LDConfig.ldr</a></i>
+<i><a name="ProcessLDConfig">Process ldconfig.ldr</a></i>
 (Default: <i>On</i>):<br/>
-This controls whether or not LDView processes the LDConfig.ldr file that is now
+This controls whether or not LDView processes the ldconfig.ldr file that is now
 distributed as part of the LDraw parts library.  This file contains settings
 that can effect how LDraw models are displayed.  Currently the only settings it
 contains are color definitions.  Enabling this option will use the LDraw.org
@@ -1860,7 +1846,7 @@ This option is only available while BFC is enabled.  Enabling it causes the back
 faces of polygons to be drawn in red.  This is mainly useful for part authors to
 allow them to correctly specify which direction faces should face in order to
 BFC certify their part files.<br/>
-<i>Note:</i> enabling this option disables transparency.
+<i>See also:</i> <a href="#ColoredFacesNotes">Colored faces notes</a>.
 </p>
 <p>
 <i>Green front faces</i> (Default: <i>Off</i>):<br/>
@@ -1868,7 +1854,7 @@ This option is only available while BFC is enabled.  Enabling it causes the
 front faces of polygons to be drawn in green.  This is mainly useful for part
 authors to allow them to correctly specify which direction faces should face in
 order to BFC certify their part files.<br/>
-<i>Note:</i> enabling this option disables transparency.
+<i>See also:</i> <a href="#ColoredFacesNotes">Colored faces notes</a>.
 </p>
 <p>
 <i>Blue neutral faces</i> (Default: <i>Off</i>):<br/>
@@ -1876,7 +1862,17 @@ This option is only available while BFC is enabled.  Enabling it causes the
 faces of non BFC certified polygons to be drawn in blue.  This is mainly useful
 for part authors to allow them to correctly specify which direction faces should
 face in order to BFC certify their part files.<br/>
-<i>Note:</i> enabling this option disables transparency.
+<i>See also:</i> <a href="#ColoredFacesNotes">Colored faces notes</a>.
+</p>
+<p>
+<br/>
+<i><a name="ColoredFacesNotes">Colored faces notes</a></i>:<br/>
+<ol>
+<li>Enabling any of the BFC colored faces (red, green, blue) disables transparency.</li>
+<li>Parts whose main color is a transparent color will show green front faces and
+red back faces on their opaque geometry when these options are enabled. When they
+are drawn normally, the opaque geometry in these parts has BFC disabled.</li>
+</ol>
 </p>
 <p>
 <span class="SubHeader2"><a name="GeometryEdgeLinesBox">Edge Lines Box</a></span><br/>
@@ -1930,8 +1926,8 @@ all edge lines to be drawn in black or dark gray.  This can be particularly
 useful to part authors, as it causes the edge lines for the default color (light
 gray) to be much more visible.  Dark gray edges are used on dark colors, and
 black edges are used on all other colors.<br/>
-If <a href="#ProcessLDConfig"><i>Process LDConfig.ldr</i></a> is checked in the
-General Preferences, LDView will look for a entries in LDConfig.ldr with color
+If <a href="#ProcessLDConfig"><i>Process ldconfig.ldr</i></a> is checked in the
+General Preferences, LDView will look for a entries in ldconfig.ldr with color
 names of Black_Edge and Dark_Gray_Edge.  If it finds either entry, it will use
 that color instead of black or dark gray.
 </p>
@@ -2042,7 +2038,7 @@ LDView to put point light sources in the scene in the locations where LIGHT.DAT
 is used as a part.  LDView uses the color assigned to the light part as the
 color for the light source.  Note that at most 8 lights will be shown by LDView
 (the first 8 in the file), and if the video card doesn't support 8, then less
-will be shown.
+will be shown. 
 </p>
 <p>
 <i>Replace standard light</i>(Default: <i>On</i>):<br/>
@@ -2052,7 +2048,7 @@ time a model is loaded that contains one or more LIGHT.DAT parts.  Models that
 don't contain any LIGHT.DAT parts will still be illuminated using LDView's
 standard light source.  Note that using both LIGHT.DAT lights and the standard
 light source will often result in too much light, leading to a kind of
-overexposure effect.
+overexposure effect. 
 </p>
 <p>
 <i>Hide LIGHT.DAT geometry</i>(Default: <i>Off</i>):<br/>
@@ -2761,16 +2757,8 @@ does not find the file, the default LDConfig.ldr will be used instead.
 Example:
 </p>
 <PRE>
-	LDView -LDConfig=LDCfgalt.ldr
+	LDView -LDConfig=LDConfig_TLG.ldr
 </PRE>
-<p>
-<div class="Note">
-	<div>Note:</div>
-	<div>If you just want to override a few colors from the standard
-	LDConfig.ldr, you can do that by setting a
-	<a href="#GeneralCustomConfigBox">Custom Config</a>.</div>
-</div>
-</p>
 <p>
 <span class="SubHeader"><a name="L3PCompatibility">L3P-compatible
 Options</a></span><br/>
@@ -3205,22 +3193,6 @@ set-specific, while others aren't.
 	</tr>
 	<tr>
 		<td valign="top">
-			CustomConfigPath
-		</td>
-		<td valign="top">
-			String
-		</td>
-		<td valign="top">
-			NO
-		</td>
-		<td valign="top">
-			Equivalent to the value in the text field in the
-			<a href="#GeneralCustomConfigBox"><i>General-&gt;Custom
-			config</i></a> box.
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">
 			CutawayAlpha
 		</td>
 		<td valign="top" nowrap="nowrap">
@@ -3303,7 +3275,12 @@ set-specific, while others aren't.
 		</td>
 		<td valign="top">
 			Latitude to use when view is reset when in
-			<a href="#LatLonMode">Latitude/Longitude Rotation Mode.</a></td>
+			<a href="#LatLonMode">Latitude/Longitude Rotation Mode.</a>  For
+			command line snapshots, latitude to use if neither
+			<a href="#DefaultLatLongSetting">DefaultLatLong</a> nor
+			<span class="NoWrap"><a href="#CameraGlobe">-cg</a></span> command
+			line arguments are used.
+		</td>
 	</tr>
 	<tr>
 		<td valign="top">
@@ -3335,7 +3312,12 @@ set-specific, while others aren't.
 		</td>
 		<td valign="top">
 			Longitude to use when view is reset when in
-			<a href="#LatLonMode">Latitude/Longitude Rotation Mode.</a></td>
+			<a href="#LatLonMode">Latitude/Longitude Rotation Mode.</a> For
+			command line snapshots, longitude to use if neither
+			<a href="#DefaultLatLongSetting">DefaultLatLong</a> nor
+			<span class="NoWrap"><a href="#CameraGlobe">-cg</a></span> command
+			line arguments are used.
+		</td>
 	</tr>
 	<tr>
 		<td valign="top">
@@ -4418,7 +4400,7 @@ set-specific, while others aren't.
 			NO
 		</td>
 		<td valign="top">
-			Equivalent to the <i>Process LDConfig.ldr</i> check box in the
+			Equivalent to the <i>Process ldconfig.ldr</i> check box in the
 			<i>General-&gt;Misc</i> box.
 		</td>
 	</tr>
