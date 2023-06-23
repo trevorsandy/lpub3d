@@ -77,7 +77,7 @@ These steps can be applied to any LPub3D release where a GPG signature file is a
 ```
 $WebClient = [System.Net.WebClient]::new()
 $PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623.exe'
-$PublishedHash = 'E691F63538C7AC1932B35A55C6918D67125B536B0FEE7E418A03212D7E2E86A863301F1CCA9FAA812812E8E460DD2EDB31B8E9F968A31D7BD14D4E3B4E68E38A'
+$PublishedHash = '88a20bf242aea76472ccb6d540f16c16e7646d259fe09067e0983e58230774b960141365da00e6300b474c6091b8dff8868f39d1f3664ac8d0bd15d00573728a'
 $FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
 $FileHash.Hash -eq $PublishedHash
 ```
