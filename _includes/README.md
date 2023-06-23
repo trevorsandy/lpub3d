@@ -70,13 +70,13 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 ### Verify Windows Distribution Hash using PowerShell
 The following steps are using LPub3D Windows release hosted on [GitHub][github_releases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
-- Get the hash file [LPub3D-2.4.7.2.3478_20230623.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623.exe.sha512)
+- Get the hash file [LPub3D-2.4.7.5.3481_20230623.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623.exe.sha512)
 - Open a PowerShell session
 - Add the package download path to `$PkgUrl`
 - Add the hash file sha512 hash to `$PublishedHash`.
 ```
 $WebClient = [System.Net.WebClient]::new()
-$PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623.exe'
+$PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623.exe'
 $PublishedHash = 'E691F63538C7AC1932B35A55C6918D67125B536B0FEE7E418A03212D7E2E86A863301F1CCA9FAA812812E8E460DD2EDB31B8E9F968A31D7BD14D4E3B4E68E38A'
 $FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
 $FileHash.Hash -eq $PublishedHash
@@ -87,13 +87,13 @@ $FileHash.Hash -eq $PublishedHash
 The following steps are using LPub3D AppImage release hosted on [GitHub][github_releases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
 - Get the GPG public key: [pubring.auto](https://raw.github.com/trevorsandy/lpub3d/master/builds/utilities/ci/secure/pubring.auto)
-- Get the release: [LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage)
-- Get the hash file: [LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage.sha512)
-- Get the GPG hash file signature: [LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage.sha512.sig)
+- Get the release: [LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage)
+- Get the hash file: [LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage.sha512)
+- Get the GPG hash file signature: [LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage.sha512.sig)
 - Ensure GPG is installed and configured: `$> which gpg`
 - Import the public key file into GPG: `$> gpg --import pubring.auto`
-- Verify the against its hash file: `$> sha512sum -c LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage.sha512`
-- Verify the GPG hash file signature: `$> gpg --verify LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage.sha512.sig`
+- Verify the against its hash file: `$> sha512sum -c LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage.sha512`
+- Verify the GPG hash file signature: `$> gpg --verify LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage.sha512.sig`
 
 ### Quick Links
  - [Build and package LPub3D from source][buildfromsource]
@@ -288,9 +288,9 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "macOS Big Sur 11"
 [windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2019 10.0.17763"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.2.3478_20230623-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.5.3481_20230623-x86_64.AppImage
 
 [almalinux-icon]:      {{ '/assets/images/almalinux_logo.png' | relative_url }} "Alma Linux 9"
 [arch-icon]:           {{ '/assets/images/arch.png' | relative_url }} "Arch Linux"
@@ -360,7 +360,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [gh-actions-url]:      https://github.com/trevorsandy/lpub3d/actions
 
 [gh-rel-badge]:        https://img.shields.io/github/release/trevorsandy/lpub3d.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
-[gh-rel-url]:          https://github.com/trevorsandy/lpub3d/releases/latest "LPub3D-2.4.7.2.3478_20230623"
+[gh-rel-url]:          https://github.com/trevorsandy/lpub3d/releases/latest "LPub3D-2.4.7.5.3481_20230623"
 
 [gh-dl-badge]:         https://img.shields.io/github/downloads/trevorsandy/lpub3d/total.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
 [gh-dl-url]:           https://github.com/trevorsandy/lpub3d/releases
