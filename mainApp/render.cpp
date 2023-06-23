@@ -1980,7 +1980,7 @@ int LDView::renderCsi(
         if (ldviewParmsArgs.size()){
             emit gui->messageSig(LOG_INFO,QObject::tr("LDView additional CSI renderer parameters: %1")
                                                           .arg(ldviewParmsArgs.join(" ")));
-            cg.append(ldviewParmsArgs.join(" "));
+            cg.append(QString(" %1").arg(ldviewParmsArgs.join(" ")));
         }
     };
 
@@ -2478,7 +2478,7 @@ int LDView::renderPli(
           // Set zoom to fit when use image size specified
           QString _sz;
           if (useImageSize && _mc.isEmpty())
-              _sz = QString("-SaveZoomToFit=1");
+              _sz = QString(" -SaveZoomToFit=1");
           cg = QString("%1 %2 %3%4").arg(_mc).arg(_dl).arg(_dz).arg(_sz.isEmpty() ? "" : _sz);
       } else {
           cg = pp ? pl ? QString("-DefaultLatLong=%1 %2")

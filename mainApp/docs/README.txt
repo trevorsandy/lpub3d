@@ -1,4 +1,4 @@
-LPub3D 2.4.7.3.3479 (23 06 2023 16:23:21)
+LPub3D 2.4.7.4.3480 (23 06 2023 16:25:39)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Fix - Abnormal rendering behaviour #726
+- Fix - Add LDView Assembly Rendered Arguments conflated #727
 
 --------------------------------------------------------------------------------------------------
 
