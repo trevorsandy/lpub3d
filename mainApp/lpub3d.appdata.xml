@@ -16,10 +16,10 @@
               file formats. LPub3D is available for free under the GNU Public License v3
               and runs on Windows, Linux and macOS Operating Systems.
               Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-              LeoCAD© 2022 Leonardo Zide and additional third party components.
+              LeoCAD© 2023 Leonardo Zide and additional third party components.
               LEGO® is a trademark of the LEGO Group of companies which does not
               sponsor, authorize or endorse this application.
-              © 2015-2022 Trevor SANDY
+              © 2015-2023 Trevor SANDY.
             </p>
         </description>
         <categories>
@@ -78,59 +78,82 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.7.3478" date="2023-06-23">
+            <release version="2.4.7.3479" date="2023-06-23">
                 <description>
-                    <p>LPub3D 23.06.2023 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>LPub3D 23.06.2023 v2.4.7 r3 Continuous Build
+                       - Fix - Abnormal rendering behaviour #726
+                       See https://github.com/trevorsandy/lpub3d/releases/download/continuous/release_notes.html
+                    </p>
                 </description>
             </release>
             <release version="2.4.7.3476" date="2023-06-21">
                 <description>
-                    <p>LPub3D 21.06.2023 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>LPub3D 21.06.2023 v2.4.7
+                       See https://github.com/trevorsandy/lpub3d/releases/download/v2.4.7/release_notes.html
+                    </p>
                 </description>
             </release>
             <release version="2.4.6.3001" date="2022-11-30">
                 <description>
-                    <p>LPub3D 30.11.2022 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 30.11.2022 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.4.5.2977" date="2022-11-24">
                 <description>
-                    <p>LPub3D 23.11.2022 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 23.11.2022 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.4.4.2670" date="2022-05-31">
                 <description>
-                    <p>LPub3D 31.05.2022 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 31.05.2022 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.4.3.2557" date="2021-05-14">
                 <description>
-                    <p>LPub3D 14.05.2021 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 14.05.2021 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.4.2.2432" date="2021-03-31">
                 <description>
-                    <p>LPub3D 31.03.2021 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 31.03.2021 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.4.1.2389" date="2021-03-15">
                 <description>
-                    <p>LPub3D 15.03.2021 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 15.03.2021 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.4.0.1990" date="2020-03-10">
                 <description>
-                    <p>LPub3D 03.10.2020 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 03.10.2020 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.3.13.1511" date="2019-09-10">
                 <description>
-                    <p>LPub3D 10.09.2019 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 10.09.2019 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.3.12.1356" date="2019-06-20">
                 <description>
-                    <p>LPub3D 20.06.2019 enhancements and fixes - see RELEASE_NOTES.html for details</p>
+                    <p>
+                      LPub3D 20.06.2019 enhancements and fixes - see RELEASE_NOTES.html for details
+                    </p>
                 </description>
             </release>
             <release version="2.3.11.1269" date="2019-05-17" />

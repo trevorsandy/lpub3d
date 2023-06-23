@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 30, 2022
+# Last Update June 23, 2023
 # Copyright (C) 2016 - 2023 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -327,16 +327,19 @@ then
 
     else
         sed -i -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}" "${FILE}"
-        # only perform release update when the last commit was an annotated tag
+        # perform release update when the last commit is an annotated tag else perform a continuous build update
         cd "$(realpath $LP3D_PWD/..)"
         last_commit_sha=$(git rev-parse HEAD) >/dev/null 2>&1
         last_annotated_tag_sha=$(git rev-list -n 1 $(git describe --abbrev=0)) >/dev/null 2>&1
         cd "${LP3D_CALL_DIR}"
+        Info "$((LP3D_CMD_COUNT += 1)). update appdata info    - add version and date  [$FILE]" || :
+        sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" "${FILE}"
         if [ "${last_commit_sha}" = "${last_annotated_tag_sha}" ]
         then
-            Info "$((LP3D_CMD_COUNT += 1)). update appdata info    - add version and date  [$FILE]" || :
-            sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" \
-                   -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes - see RELEASE_NOTES.html for details<\/p>/}" "${FILE}"
+            sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION}/}" \
+                   -e "0,/.*See https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v.*/                       See https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}\/release_notes.html/}" "${FILE}"
+        else
+            sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION} r${LP3D_VER_REVISION} Continuous Build/}" "${FILE}"
         fi
     fi
 else
