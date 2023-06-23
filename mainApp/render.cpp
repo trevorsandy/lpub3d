@@ -1977,9 +1977,9 @@ int LDView::renderCsi(
         }
 
         // additional LDView parameters;
-        if (ldviewParmsArgs.size()){
+        if (ldviewParmsArgs.size()) {
             emit gui->messageSig(LOG_INFO,QObject::tr("LDView additional CSI renderer parameters: %1")
-                                                          .arg(ldviewParmsArgs.join(" ")));
+                                                      .arg(ldviewParmsArgs.join(" ")));
             cg.append(QString(" %1").arg(ldviewParmsArgs.join(" ")));
         }
     };

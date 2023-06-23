@@ -1,4 +1,4 @@
-LPub3D 2.4.7.4.3480 (23 06 2023 16:25:39)
+LPub3D 2.4.7.5.3481 (23 06 2023 16:27:45)
 
 Features, enhancements, fixes and changes
 ------------
