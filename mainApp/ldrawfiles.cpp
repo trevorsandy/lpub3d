@@ -634,13 +634,12 @@ bool LDrawFile::isSubmodel(const QString &file)
   return false;
 }
 
-bool LDrawFile::isSubfileLine(const QString &line)
+bool LDrawFile::isSingleSubfileLine(const QString &line)
 {
   QStringList tokens;
   split(line, tokens);
   if (tokens[0] == "1" && tokens.size() == 15) {
-      QString const &fileName = tokens[tokens.size()-1];
-      return isSubmodel(fileName) || isUnofficialPart(fileName);
+    return isSubmodel(tokens[tokens.size()-1]);
   }
   return false;
 }

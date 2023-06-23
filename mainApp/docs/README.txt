@@ -1,4 +1,23 @@
-LPub3D 2.4.7.0.3476 (21 06 2023 12:27:47)
+LPub3D 2.4.7.1.3477 (23 06 2023 02:25:11)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Fix - Abnormal rendering behaviour #726
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.7.0.3476 (21 06 2023 12:27:47))
 
 Features, enhancements, fixes and changes
 ------------
