@@ -3389,6 +3389,46 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
+        // WT_SETUP_PROJECT_SUBMODEL_OPTIONS
+        {
+            QObject::tr(
+            "  Configure LDraw submodel file settings for your\n"
+            "  instructions document.\n\n"
+            "  Edit your instruction document submodel instance\n"
+            "  consolidation, instance count, and set submodel\n"
+            "  substitute part as an unofficial part settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT_SUBMODEL_OPTIONS")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_SETUP_PROJECT_SUBMODEL_SUBSTITUTE_PART
+        {
+            QObject::tr(
+            "  The following configuration setup is available for\n"
+            "  submodels used as a substitute part:\n"
+            "  - Set As Unofficial Part: Check to automatically set\n"
+            "  submodel substitute parts as unofficial part.\n"
+            "  This setting will automatically set subfiles designated\n"
+            "  as a submodel, which is the case when there is no\n"
+            "  !LDRAW_ORG part type file header, as an unofficial part.\n"
+            "  If left unchecked, you will be prompted with a warning\n"
+            "  message to giving you the options to consider adding a\n"
+            "  part type header to the file or to dynamically set the\n"
+            "  submodel as an unofficial part and proceed with the page\n"
+            "  load.\n\n"
+            "  By default this setting is disabled (unchecked).%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PROJECT_SUBMODEL_SUBSTITUTE_PART")
+#else
+                ""
+#endif
+                )
+        },
         // WT_SETUP_SUBMODEL
         {
             QObject::tr(

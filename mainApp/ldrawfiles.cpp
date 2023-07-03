@@ -787,6 +787,15 @@ void LDrawFile::setDisplayModel(
   }
 }
 
+void LDrawFile::setUnofficialPart(const QString &mcFileName, const int type)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    i.value()._unofficialPart = type;
+  }
+}
+
 void LDrawFile::setSubFilePath(
                  const QString     &mcFileName,
                  const QString &subFilePath)

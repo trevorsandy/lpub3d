@@ -418,6 +418,8 @@ class LDrawFile {
     QString getSubFilePath(const QString &fileName);
     void normalizeHeader(const QString &fileName,
                          int missing = 0);
+    void setUnofficialPart(const QString &mcFileName,
+                           const int type = 1/*UNOFFICIAL_PART*/);
     void setDisplayModel(const QString &mcFileName);
     void setSubFilePath(const QString &mcFileName,
                      const QString &subFilePath);

@@ -6656,6 +6656,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   startStepNumber.setValue(1);
   parseNoStep.setValue(false);
   coverPageViewEnabled.setValue(true);
+  setSubstituteAsUnofficialPart.setValue(false);
   cameraDDF.setFormats(4,2,"9.99");
   cameraDDF.setRange(1.0f,100.0f);
   cameraDDF.setValue(MetaDefaults::getCameraDDF());
@@ -6677,6 +6678,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   finalModelEnabled        .init(this,"FINAL_MODEL_ENABLED");
   coverPageViewEnabled     .init(this,"COVER_PAGE_MODEL_VIEW_ENABLED");
   loadUnoffPartsInEditor   .init(this,"LOAD_UNOFFICIAL_PARTS_IN_EDITOR");
+  setSubstituteAsUnofficialPart.init(this,"SET_SUBMODEL_SUBSTITUTE_AS_UNOFFICIAL_PART");
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);

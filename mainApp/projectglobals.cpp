@@ -170,6 +170,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   data->children.append(childParseNoStep);
   connect (childParseNoStep->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
+  /*
   box = new QGroupBox(tr("Submodel Instances"));
   vlayout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
@@ -183,6 +184,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   countInstanceByColourCheck->setToolTip(tr("Count unique instances for submodels that have the same name but unique colour code."));
   qobject_cast<QGridLayout*>(box->layout())->addWidget(countInstanceByColourCheck,2,0,1,3);
   connect (countInstanceByColourCheck, SIGNAL(clicked(bool)), this, SLOT(countInstanceByColour(bool)));
+  */
 
   box = new QGroupBox(tr("Continuous Step Numbers"));
   vlayout->addWidget(box);
@@ -212,6 +214,43 @@ GlobalProjectDialog::GlobalProjectDialog(
   childStartPageNumberSpin = new SpinGui(tr("Page number"), &lpubMeta->startPageNumber,0,10000,1);
   data->children.append(childStartPageNumberSpin);
   grid->addWidget(childStartPageNumberSpin,0,1);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  tabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Submodel Options Tab
+   */
+
+  widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Submodel Options"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_PROJECT_SUBMODEL_OPTIONS,widget->objectName()));
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox(tr("Submodel Consolidation and Count"));
+  vlayout->addWidget(box);
+  CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
+  box->setToolTip(tr("Consolidate submodel instance count."));
+  data->children.append(childCountInstance);
+  connect (childCountInstance, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  connect (childCountInstance->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableCountInstanceByColour(bool)));
+
+  countInstanceByColourCheck = new QCheckBox("Count By Colour Code", nullptr);
+  countInstanceByColourCheck->setChecked(lpubMeta->countInstanceByColour.value());
+  countInstanceByColourCheck->setToolTip(tr("Count unique instances for submodels that have the same name but unique colour code."));
+  qobject_cast<QGridLayout*>(box->layout())->addWidget(countInstanceByColourCheck,2,0,1,3);
+  connect (countInstanceByColourCheck, SIGNAL(clicked(bool)), this, SLOT(countInstanceByColour(bool)));
+
+  box = new QGroupBox("Submodel Substitute Parts");
+  box->setWhatsThis(lpubWT(WT_SETUP_PROJECT_SUBMODEL_SUBSTITUTE_PART,box->title()));
+  vlayout->addWidget(box);
+  CheckBoxGui *childSubstitutePart = new CheckBoxGui(tr("Set As Unofficial Part"),&lpubMeta->setSubstituteAsUnofficialPart,box);
+  box->setToolTip(("Automatically set submodel substitute parts as unofficial part."));
+  data->children.append(childSubstitutePart);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);

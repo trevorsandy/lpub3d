@@ -4268,6 +4268,7 @@ public:
   HighContrastColorMeta highContrast;
   BoolMeta             parseNoStep;
   BoolMeta             coverPageViewEnabled;
+  BoolMeta             setSubstituteAsUnofficialPart;
   LoadUnoffPartsMeta   loadUnoffPartsInEditor;
 
   LeoCadGroupMeta      group;

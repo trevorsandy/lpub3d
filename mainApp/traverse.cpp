@@ -1431,6 +1431,48 @@ int Gui::drawPage(
                   opts.pliParts << Pli::partLine(addPart,opts.current,curMeta);
                 }
 
+              if (isSubmodel(curMeta.LPub.pli.begin.sub.value().part)) {
+                  if (curMeta.LPub.setSubstituteAsUnofficialPart.value()) {
+                      lpub->ldrawFile.setUnofficialPart(curMeta.LPub.pli.begin.sub.value().part, UNOFFICIAL_PART);
+                    } else {
+                      QString message, here = tr("(file: %1, line: %2)").arg(opts.current.modelName).arg(opts.current.lineNumber + 1);
+                      if (!Preferences::modeGUI && Preferences::lpub3dLoaded) {
+                          lpub->ldrawFile.setUnofficialPart(curMeta.LPub.pli.begin.sub.value().part, UNOFFICIAL_PART);
+                          message = tr("Substitute part %1 detected as a submodel %2. Subfile set to Unofficial Part")
+                                       .arg(curMeta.LPub.pli.begin.sub.value().part).arg(here);
+                          emit messageSig(LOG_WARNING, message);
+                        } else {
+                          message = tr("Substitute part '%1' detected as a submodel %2.<br>"
+                                       "Consider adding an !LDRAW_ORG unofficial part header to this subfile.<br>"
+                                       "<br>Or click Yes to to set this subfile as an unofficial part now ?")
+                                       .arg(curMeta.LPub.pli.begin.sub.value().part).arg(here);
+                          auto Rc = QMessageBox::warning(this,tr("Substitute Part Warning").arg(VER_PRODUCTNAME_STR), message,
+                                                         QMessageBox::No|QMessageBox::Yes|QMessageBox::Abort,QMessageBox::Yes);
+                          switch (Rc) {
+                            case QMessageBox::Yes:
+                                lpub->ldrawFile.setUnofficialPart(curMeta.LPub.pli.begin.sub.value().part, UNOFFICIAL_PART);
+                                break;
+                            case QMessageBox::Abort:
+                                Gui::setAbortProcess(true);
+                                displayPageNum = prevDisplayPageNum;
+                                if (exporting()) {             // exporting
+                                    emit setExportingSig(false);
+                                } else if (ContinuousPage()) { // continuous page processing
+                                    emit setContinuousPageSig(false);
+                                    while (pageProcessRunning != PROC_NONE) {
+                                        QTime waiting = QTime::currentTime().addMSecs(500);
+                                        while (QTime::currentTime() < waiting)
+                                            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                    }
+                }
+
               if (step == nullptr && ! noStep && ! buildMod.ignore) {
                   if (range == nullptr) {
                       range = newRange(steps,opts.calledOut);

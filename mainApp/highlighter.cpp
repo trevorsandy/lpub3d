@@ -494,6 +494,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bSECONDARY_DIRECTION\\b"),
         QStringLiteral("\\bSEND_TO_BACK\\b"),
         QStringLiteral("\\bSEPARATOR\\b"),
+        QStringLiteral("\\bSET_SUBMODEL_SUBSTITUTE_AS_UNOFFICIAL_PART\\b"),
         QStringLiteral("\\bSETUP\\b"),
         QStringLiteral("\\bSHAPE\\b"),
         QStringLiteral("\\bSHARP_TOP_LOGO\\b"),

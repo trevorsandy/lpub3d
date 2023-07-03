@@ -1,4 +1,4 @@
-LPub3D 2.4.7.10.3486 (03 07 2023 03:53:11)
+LPub3D 2.4.7.11.3487 (03 07 2023 03:55:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Change - Custom parts with underscore in the name #730
 - Change - Relative justify vertical axis on outside placement #729
+- Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
 
