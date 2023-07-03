@@ -499,7 +499,7 @@ int SubModel::createSubModelImage(
 
       if ( ! viewerSubmodel) {
           // feed DAT to renderer
-          if (rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
+          if (rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0/*keySub*/) != 0)) {
               emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
                                    .arg(rendererNames[Render::getRenderer()])
                       .arg(imageName)

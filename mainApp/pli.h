@@ -210,6 +210,7 @@ class Pli : public Placement {
         QStringList imageKeys[NUM_PART_TYPES];
         QStringList imageNames[NUM_PART_TYPES];
         QStringList ldrNames[NUM_PART_TYPES];
+        QStringList ldrAltNames[NUM_PART_TYPES];
         QString baseName[NUM_PART_TYPES];
         QString partColor[NUM_PART_TYPES];
         int sub[NUM_PART_TYPES];

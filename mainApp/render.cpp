@@ -531,16 +531,26 @@ const QStringList Render::getImageAttributes(const QString &pngName)
     if (Preferences::enableHighlightStep && pngName.endsWith(HIGHLIGHT_SFX))
         cleanString.chop(QString(HIGHLIGHT_SFX).size());
 
-    // treat parts with '_' in the name
-    const int index = cleanString.indexOf("-");
-    // 1. get type name without renderer index
-    const QString type = cleanString.left(index);
-    // 2. remove renderer index and delimiter from string - e.g. '-0'
-    cleanString = cleanString.right(cleanString.length() - (index + 2));
-    // 3. prepend type
-    cleanString.prepend(QString("%1").arg(type));
+    QStringList cleanStringList = cleanString.split("_");
 
-    return cleanString.split("_");
+    // treat parts with '_' in the name - decode
+    if (cleanStringList.at(nType).count(";"))
+        cleanStringList[nType].replace(";", "_");
+
+    // treat parts with renderer index prefix
+    QRegExp renderIdRx("-([0-3])$");
+    int rendererIndex = cleanStringList.at(nType).lastIndexOf(renderIdRx);
+    if (rendererIndex > -1) {
+        int rendererId = renderIdRx.cap(1).toInt();
+        bool rendererSuffix = rendererId == getRenderer();
+        // get type name without renderer index
+        if (rendererSuffix) {
+            const QString type = cleanStringList[nType].left(rendererIndex);
+            cleanStringList[nType] = type;
+        }
+    }
+
+    return cleanStringList;
 }
 
 bool Render::compareImageAttributes(
@@ -1132,6 +1142,7 @@ int POVRay::renderPli(
           &cd,
           &pngName,
           &target,
+          &pliType,
           &modelScale,
           &cameraFoV,
           &cameraAngleX,
@@ -1141,7 +1152,8 @@ int POVRay::renderPli(
       QString     &CA,
       QString     &cg,
       bool        &noCA,
-      QStringList &parmsArgs)
+      QStringList &parmsArgs,
+      QString     &cleanPngName)
   {
       // additional LDView parameters;
       qreal cdf = LP3D_CDF;
@@ -1173,6 +1185,8 @@ int POVRay::renderPli(
       if (pp && pl && !pz)
           dz = QString("-DefaultZoom=%1").arg(double(modelScale));
 
+      cleanPngName = pngName;
+
       // Process substitute part attributes
       if (keySub) {
         QStringList attributes = getImageAttributes(pngName);
@@ -1188,6 +1202,9 @@ int POVRay::renderPli(
           cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
         }
       }
+
+      if (keySub || pliType == BOM)
+          cleanPngName.replace(";", "_");
 
       CA = pp ? df : QString("-ca%1") .arg(LP3D_CA);              // replace CA with FOV
 
@@ -1228,7 +1245,9 @@ int POVRay::renderPli(
       }
   };
 
-  getRendererSettings(CA, cg, noCA, parmsArgs);
+  QString cleanPngName;
+
+  getRendererSettings(CA, cg, noCA, parmsArgs, cleanPngName);
 
   QString ss,ae,ac,ai,hs,hp,pb,hd;
   getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hp, pb, hd);
@@ -1344,7 +1363,7 @@ int POVRay::renderPli(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(cleanPngName));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
 
@@ -1428,7 +1447,7 @@ int POVRay::renderPli(
       }
   }
 
-  if (clipImage(pngName))
+  if (clipImage(cleanPngName))
     return 0;
   else
     return -1;
@@ -1637,6 +1656,7 @@ int LDGLite::renderPli(
   Vector3 target     = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   // Process substitute part attributes
+  QString cleanPngName = pngName;
   if (keySub) {
     QStringList attributes = getImageAttributes(pngName);
     bool hr;
@@ -1651,6 +1671,9 @@ int LDGLite::renderPli(
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
     }
   }
+
+  if (keySub || pliType == BOM)
+    cleanPngName.replace(";", "_");
 
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
@@ -1686,7 +1709,7 @@ int LDGLite::renderPli(
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
   QString o  = QString("-o0,-%1")   .arg(height/6);
-  QString mf = QString("-mF%1")     .arg(pngName);
+  QString mf = QString("-mF%1")     .arg(cleanPngName);
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
   QString ss,ae,ac,ai,hs,hp,pb,hd;
@@ -1772,7 +1795,7 @@ int LDGLite::renderPli(
     }
   }
 
-  QFile outputImageFile(pngName);
+  QFile outputImageFile(cleanPngName);
   if (! outputImageFile.exists()) {
       emit gui->messageSig(LOG_ERROR,QObject::tr("LDGLite PLI image generation failed for %1 with message %2")
                            .arg(outputImageFile.fileName()).arg(outputImageFile.errorString()));
@@ -2350,10 +2373,16 @@ int LDView::renderPli(
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
   // test ldrNames
-  QFileInfo fileInfo(ldrNames.first());
+  QString cleanLdrName = ldrNames.first();
+  QStringList cleanLdrNames = ldrNames;
+
+  if (keySub || pliType == BOM)
+    cleanLdrName = QString(cleanLdrNames.first()).replace(";", "_");
+
+  QFileInfo fileInfo(cleanLdrName);
   if ( ! fileInfo.exists()) {
       emit gui->messageSig(LOG_ERROR,QObject::tr("PLI render input file was not found at the specified path [%1]")
-                                                 .arg(ldrNames.first()));
+                                                 .arg(cleanLdrName));
     return -1;
   }
 
@@ -2533,20 +2562,29 @@ int LDView::renderPli(
 
   /* Create the PLI DAT file(s) */
 
-  QString f;
+  QString f, cleanPngName;
   bool hasSubstitutePart   = false;
   bool usingDefaultArgs    = true;
   bool usingSingleSetArgs  = false;
   bool snapshotArgsChanged = false;
+
   if (useLDViewSCall() && pliType != SUBMODEL) {  // Use LDView SingleCall
 
       // process part attributes
       QString snapshotsCmdLineArgs,snapshotArgs;
       QStringList snapShotsListArgs, subSnapShotsListArgs;
+      cleanLdrNames.clear();
 
-      Q_FOREACH (QString ldrName,ldrNames) {
-          if (!QFileInfo(ldrName).exists()) {
-              emit gui->messageSig(LOG_ERROR, QObject::tr("LDR file %1 not found.").arg(ldrName));
+      for (QString const &ldrName : ldrNames) {
+
+          cleanLdrName = ldrName;
+
+          if (keySub || pliType == BOM)
+              cleanLdrName = QString(ldrName).replace(";", "_");
+          cleanLdrNames << cleanLdrName;
+
+          if (!QFileInfo(cleanLdrName).exists()) {
+              emit gui->messageSig(LOG_ERROR, QObject::tr("LDR file %1 not found.").arg(cleanLdrName));
               continue;
           }
 
@@ -2576,22 +2614,22 @@ int LDView::renderPli(
           if (hasSubstitutePart) {
 
              usingDefaultArgs = false;
-             QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
+             cleanPngName = cleanLdrName.replace("_SUB.ldr",".png");
 
              // use command list as pngName and ldrName must be specified
-             subSnapShotsListArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
+             subSnapShotsListArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(cleanPngName).arg(cleanLdrName));
 
           } else {
 
              // if using different snapshot args, trigger command list
              if (!usingDefaultArgs) {
 
-                 QString saveArgs = QString("-SaveSnapShots=1 %1").arg(ldrName);
+                 const QString saveArgs = QString("-SaveSnapShots=1 %1").arg(cleanLdrName);
                  snapShotsListArgs.append(QString("%1 %2 %3").arg(CA).arg(cg).arg(saveArgs));
              }
           }
 
-          snapshotLdrs.append(ldrName);
+          snapshotLdrs.append(cleanLdrName);
       }
 
       // using same snapshot args for all parts
@@ -2661,7 +2699,7 @@ int LDView::renderPli(
   } else { // End Use SingleCall
 
       usingSingleSetArgs = usingDefaultArgs;
-
+      cleanPngName = pngName;
       if (keySub) {
           // process substitute attributes
           attributes = getImageAttributes(pngName);
@@ -2671,7 +2709,10 @@ int LDView::renderPli(
           getRendererSettings(CA,cg);
       }
 
-      f  = QString("-SaveSnapShot=%1") .arg(pngName);
+      if (keySub || pliType == BOM)
+          cleanPngName.replace(";", "_");
+
+      f  = QString("-SaveSnapShot=%1") .arg(cleanPngName);
   }
 
   QString ss,ae,ac,ai,hs,hp,pb,hd;
@@ -2731,7 +2772,7 @@ int LDView::renderPli(
           arguments = arguments + snapshotLdrs;  // 13. LDR input file(s)
   } else {
       //-SaveSnapShot=%1
-      arguments << QDir::toNativeSeparators(ldrNames.first());
+      arguments << QDir::toNativeSeparators(cleanLdrNames.first());
   }
 
   removeEmptyStrings(arguments);
@@ -2744,11 +2785,11 @@ int LDView::renderPli(
       return -1;
 
   // move generated PLI images to parts subfolder
-  if (useLDViewSCall() && pliType != SUBMODEL){
-      Q_FOREACH (QString ldrName, ldrNames){
-          QString pngFileTmpPath = ldrName.endsWith("_SUB.ldr") ?
-                                   ldrName.replace("_SUB.ldr",".png") :
-                                   ldrName.replace(".ldr",".png");
+  if (useLDViewSCall() && pliType != SUBMODEL) {
+      for (QString cleanLdrName : cleanLdrNames) {
+          QString pngFileTmpPath = cleanLdrName.endsWith("_SUB.ldr") ?
+                                   cleanLdrName.replace("_SUB.ldr",".png") :
+                                   cleanLdrName.replace(".ldr",".png");
           QString pngFilePath = partsPath + QDir::separator() + QFileInfo(pngFileTmpPath).fileName();
           QFile destinationFile(pngFilePath);
           QFile sourceFile(pngFileTmpPath);
@@ -3079,13 +3120,19 @@ int Native::renderPli(
   // Camera Angles always passed to Native renderer except if ABS rotstep
   bool noCA            = !customViewpoint && metaType.rotStep.value().type.toUpper() == QLatin1String("ABS");
   bool pp              = Preferences::perspectiveProjection;
+  QString cleanPngName = pngName;
+  QStringList attributes;
+
+  if (keySub || pliType == BOM) {
+      cleanPngName.replace(";", "_");
+      attributes = getImageAttributes(pngName);
+      if (attributes.size() >= nTypeNameKey)
+          nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
+  }
 
   // Process substitute part attributes
   if (keySub) {
     bool hr;
-    QStringList attributes = getImageAttributes(pngName);
-    if (attributes.size() >= nTypeNameKey)
-        nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
     if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
       noCA = attributes.at(hr ? nRotTrans : nRot_Trans).toUpper() == QLatin1String("ABS");
     if (attributes.size() >= nHasTarget)
@@ -3111,14 +3158,9 @@ int Native::renderPli(
       viewerStepKey = lpub->currentStep->pli.viewerPliPartKey;
       break;
   case BOM:
-      if (nameKey.isEmpty()) {
-        const QStringList attributes = getImageAttributes(pngName);
-        if (attributes.size() >= nTypeNameKey)
-          nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
-      }
       if (!nameKey.isEmpty()) {
-        Options = lpub->page.pli.viewerOptsList[nameKey];
-        viewerStepKey = QString("%1;0").arg(nameKey.replace("_",";"));
+        Options = lpub->page.pli.viewerOptsList[nameKey]; 
+        viewerStepKey = QString("%1;%2;0").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
       }
       break;
   }
@@ -3139,7 +3181,7 @@ int Native::renderPli(
     Options->Longitude      = noCA ? 0.0f : cameraAngleY;
     Options->LineWidth      = lcGetPreferences().mLineWidth;
     Options->ModelScale     = modelScale;
-    Options->OutputFileName = pngName;
+    Options->OutputFileName = cleanPngName;
     Options->PageHeight     = LPub::pageSize(meta.LPub.page, YY);
     Options->PageWidth      = LPub::pageSize(meta.LPub.page, XX);
     Options->Position       = position;
@@ -3164,13 +3206,13 @@ int Native::renderPli(
     emit gui->messageSig(LOG_DEBUG,QObject::tr("Render %1 using viewer step key '%2' for image '%3'.")
                                                .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI")
                                                .arg(viewerStepKey)
-                                               .arg(QFileInfo(pngName).fileName()));
+                                               .arg(QFileInfo(cleanPngName).fileName()));
 #endif
   } else {
     emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to retrieve %1 render options %2 for image '%3'.")
                                                .arg(pliType == SUBMODEL ? "SMI" : pliType == BOM ? "BOM" : "PLI")
                                                .arg(viewerStepKey.isEmpty() ? "and viewer step key" : QString("using viewer step key '%1'").arg(viewerStepKey))
-                                               .arg(QFileInfo(pngName).fileName()));
+                                               .arg(QFileInfo(cleanPngName).fileName()));
     return -1;
   }
 

@@ -971,10 +971,15 @@ int Pli::createPartImage(
     QStringList nameKeys = nameKey.split("_");
 
     // treat parts with '_' in the name - decode
+    QString altNameKey;
     if (nameKeys.at(nType).count(";")) {
+        // keySub nameKey uses encoded nameKey when '_' in name
+        if (keySub || bom)
+            altNameKey = nameKey;
         nameKeys[nType].replace(";", "_");
         nameKey.replace(";", "_");
-    }
+    } else if (bom)
+        altNameKey = nameKey;
 
     // populate rotStep string from nameKeys - if exist
     bool hr;
@@ -1043,8 +1048,11 @@ int Pli::createPartImage(
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
         QString imageDir = isSubModel ? Paths::submodelDir : partsDir;
-        imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ptn[pT].typeName + ".png");
-        ldrNames  = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "pli.ldr");
+        ldrNames  = QStringList() << QDir::toNativeSeparators(QString("%1/%2/pli.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir));
+        imageName = QDir::toNativeSeparators(QString("%1/%2/%3%4.png").arg(QDir::currentPath()).arg(imageDir).arg(nameKey).arg(ptn[pT].typeName));
+        QString renderImageName = imageName;
+        if (keySub || bom)
+            renderImageName = QDir::toNativeSeparators(QString("%1/%2/%3%4.png").arg(QDir::currentPath()).arg(imageDir).arg(altNameKey).arg(ptn[pT].typeName));
 
         QFile part(imageName);
 
@@ -1195,7 +1203,7 @@ int Pli::createPartImage(
                 part.close();
 
                 // feed DAT to renderer
-                if ((renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub) != 0)) {
+                if ((renderer->renderPli(ldrNames,renderImageName,*meta,pliType,keySub) != 0)) {
                     emit gui->messageSig(LOG_ERROR,QObject::tr("%1 PLI [%2] render failed for<br>[%3]")
                                          .arg(rendererNames[Render::getRenderer()])
                                          .arg(PartTypeNames[pT])
@@ -2460,10 +2468,15 @@ int Pli::partSizeLDViewSCall() {
             QStringList nameKeys = nameKey.split("_");
 
             // treat parts with '_' in the name - decode
+            QString altNameKey;
             if (nameKeys.at(nType).count(";")) {
+                // keySub nameKey uses encoded nameKey when '_' in name
+                if (keySub || bom)
+                  altNameKey = nameKey;
                 nameKeys[nType].replace(";", "_");
                 nameKey.replace(";", "_");
-            }
+            } else if (bom)
+                altNameKey = nameKey;
 
             // populate rotStep string from nameKeys - if exist
             bool hr;
@@ -2526,13 +2539,15 @@ int Pli::partSizeLDViewSCall() {
 
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
-                QString ldrName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + key + ".ldr");
+                QString altKey = !ptn[pT].typeName.isEmpty() ? altNameKey + ptn[pT].typeName : altNameKey;
+                QString ldrName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(key));
+                QString ldrAltName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(altKey));
                 QString partsDir = bom ? Paths::bomDir : Paths::partsDir;
                 QString imageDir = isSubModel ? Paths::submodelDir : partsDir;
                 // remove _SUB for imageName
                 if (keySub && key.endsWith("_SUB"))
                     key.replace("_SUB","");
-                QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + key + ".png");
+                QString imageName = QDir::toNativeSeparators(QString("%1/%2/%3.png").arg(QDir::currentPath()).arg(imageDir).arg(key));
 
                 // create icon path key - using actual color code
                 QString colourCode, imageKey;
@@ -2634,6 +2649,7 @@ int Pli::partSizeLDViewSCall() {
 
                     // store ldrName - long name includes nameKey
                     ia.ldrNames[pT] << ldrName;
+                    ia.ldrAltNames[pT] << ldrAltName;
 
                     // define ldr file name
                     QFileInfo typeInfo = QFileInfo(pliPart->type);
@@ -2701,7 +2717,10 @@ int Pli::partSizeLDViewSCall() {
                         part.close();
                     }
 
-                } else { ia.ldrNames[pT] << QStringList(); } // part already exist
+                } else {
+                    ia.ldrNames[pT] << QStringList();
+                    ia.ldrAltNames[pT] << QStringList();
+                } // part already exist
             }     // for every part type
         }         // part is valid
         else
@@ -2736,9 +2755,13 @@ int Pli::partSizeLDViewSCall() {
         QElapsedTimer timer;
         timer.start();
 
-        if (ia.sub[pT])
+        QStringList renderLdrNames = ia.ldrNames[pT];
+        if (ia.sub[pT]) {
             iaSub = ia.sub[pT]; // keySub
-        if ((createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),iaSub) != 0)) {
+            renderLdrNames = ia.ldrAltNames[pT];
+        } else if (bom)
+            renderLdrNames = ia.ldrAltNames[pT];
+        if ((createPartImagesLDViewSCall(renderLdrNames,(isSubModel ? false : pT == NORMAL_PART),iaSub) != 0)) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("LDView Single Call PLI render failed."));
             continue;
         }
