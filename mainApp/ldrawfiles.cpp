@@ -6087,11 +6087,9 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
   }
 }
 
-bool isHeader(QString &line)
+bool isHeader(const QString &line)
 {
-  int size = LDrawHeaderRegExp.size();
-
-  for (int i = 0; i < size; i++) {
+  for (int i = 0; i < LDrawHeaderRegExp.size(); i++) {
     if (line.contains(LDrawHeaderRegExp[i])) {
       return true;
     }
@@ -6099,7 +6097,7 @@ bool isHeader(QString &line)
   return false;
 }
 
-bool isComment(QString &line){
+bool isComment(const QString &line){
   QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
   if (line.contains(commentLine))
       return true;
@@ -6111,15 +6109,20 @@ bool isComment(QString &line){
  * is not considered as having an extension, but part.dat
  * is considered as having extensions
  */
-bool isSubstitute(QString &line, QString &lineOut){
+bool isSubstitute(const QString &line, QString &lineOut)
+{
   QRegExp substitutePartRx("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})",Qt::CaseInsensitive);
   if (line.contains(substitutePartRx)) {
-      lineOut = substitutePartRx.cap(1);
-      emit gui->messageSig(LOG_NOTICE,QString("Part [%1] dataFileSUBSTITUTE").arg(lineOut));
-      return true;
+    lineOut = substitutePartRx.cap(1);
+    return true;
   }
-  lineOut = QString();
   return false;
+}
+
+bool isSubstitute(const QString &line)
+{
+  QString dummy;
+  return isSubstitute(line, dummy);
 }
 
 int getUnofficialFileType(QString &line)
@@ -6157,7 +6160,7 @@ int getUnofficialFileType(QString &line)
   return UNOFFICIAL_UNKNOWN;
 }
 
-bool isGhost(QString &line){
+bool isGhost(const QString &line){
   QRegExp ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
   if (line.contains(ghostMeta))
       return true;

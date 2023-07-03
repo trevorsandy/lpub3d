@@ -660,9 +660,10 @@ class LDrawFile {
 int split(const QString &line, QStringList &argv);
 int validSoQ(const QString &line, int soq);
 int  getUnofficialFileType(QString &line);
-bool isHeader(QString &line);
-bool isComment(QString &line);
-bool isGhost(QString &line);
-bool isSubstitute(QString &line, QString &lineOut);
+bool isHeader(const QString &line);
+bool isComment(const QString &line);
+bool isGhost(const QString &line);
+bool isSubstitute(const QString &line);
+bool isSubstitute(const QString &line, QString &lineOut);
 
 #endif
