@@ -1289,7 +1289,8 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
 
 QString BorderMeta::format(bool local, bool global)
 {
-  QString foo,border;
+  QString foo,border,colour;
+
   switch (_value[pushed].type) {
     case BorderData::BdrNone:
       foo = QString("NONE %1")
@@ -1297,16 +1298,18 @@ QString BorderMeta::format(bool local, bool global)
       break;
     case BorderData::BdrSquare:
       border = _value[pushed].hideTip ? "HIDDEN" : "SQUARE";
+      colour = _value[pushed].color[0] == '#' ? _value[pushed].color : "\"" + _value[pushed].color + "\"";
       foo = QString("%1 %2 %3 %4")
           .arg(border)
           .arg(_value[pushed].line)
-          .arg(_value[pushed].color)
+          .arg(colour)
           .arg(double(_value[pushed].thickness),0,'f',3);
       break;
     case BorderData::BdrRound:
+      colour = _value[pushed].color[0] == '#' ? _value[pushed].color : "\"" + _value[pushed].color + "\"";
       foo = QString("ROUND %1 %2 %3 %4")
           .arg(_value[pushed].line)
-          .arg(_value[pushed].color)
+          .arg(colour)
           .arg(double(_value[pushed].thickness),0,'f',3)
           .arg(double(_value[pushed].radius),0,'f',3);
       break;
