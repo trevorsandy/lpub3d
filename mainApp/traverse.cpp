@@ -1044,7 +1044,7 @@ int Gui::drawPage(
 
           // STEP - Set display submodel at first submodel step
 
-          if (step && steps->meta.LPub.subModel.show.value()) {
+          if (step && (steps->meta.LPub.subModel.show.value() || (multiStep && steps->meta.LPub.multiStep.subModel.show.value()))) {
               bool topModel     = (lpub->ldrawFile.topLevelFile() == topOfStep.modelName);
               bool showTopModel = (steps->meta.LPub.subModel.showTopModel.value());
               bool calloutOk    = (opts.calledOut ? opts.assembledCallout : true ) &&
