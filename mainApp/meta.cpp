@@ -6433,6 +6433,8 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   // Rotate Icon
   rotateIcon.placement.setValue(RightOutside,CsiType);
   adjustOnItemOffset.setValue(false);
+  // Step number justify vertical axis outside placement for multiple ranges - page dividers
+  justifyYAxisOutsidePlacement.setValue(false);
   // Set explicit step size
   stepSize.setValuesInches(0.0f,0.0f);
   stepSize.setRange(0.0f,1000.0f);
@@ -6465,6 +6467,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   rotateIcon .init(this,  "ROTATE_ICON");
 
   adjustOnItemOffset.init(this, "ADJUST_ON_ITEM_OFFSET");
+  justifyYAxisOutsidePlacement.init(this, "JUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT_MULTIPLE_RANGES");
   stepSize .init(this,    "STEP_SIZE");
 
   begin    .init(this,    "BEGIN",  StepGroupBeginRc);

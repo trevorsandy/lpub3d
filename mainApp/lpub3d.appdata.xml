@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.7.3485" date="2023-07-03">
+            <release version="2.4.7.3486" date="2023-07-03">
                 <description>
-                    <p>LPub3D 03.07.2023 v2.4.7 r9 Continuous Build
+                    <p>LPub3D 03.07.2023 v2.4.7 r10 Continuous Build
                        Change - Custom parts with underscore in the name #730.
                        Change - Relative justify vertical axis on outside placement #729.
                        Fix - Abnormal rendering behaviour #726.

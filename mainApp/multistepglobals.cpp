@@ -155,6 +155,12 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   child = new CheckBoxGui(tr("Show Submodel Preview At First Step"),&multiStepMeta->subModel.show,box);
   data->children.append(child);
 
+  box = new QGroupBox(tr("Justify Step Number Vertical Axis Outside Placement"));
+  box->setWhatsThis(lpubWT(WT_SETUP_MULTI_STEP_JUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT,box->title()));
+  vlayout->addWidget(box);
+  child = new CheckBoxGui(tr("Enable For Multiple Ranges - Page Divider Present"),&multiStepMeta->justifyYAxisOutsidePlacement,box);
+  data->children.append(child);
+
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);

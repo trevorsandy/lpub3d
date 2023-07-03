@@ -2653,6 +2653,33 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
+        // WT_SETUP_MULTI_STEP_JUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT
+        {
+            QObject::tr(
+            "  The following configuration setup is available for\n"
+            "  Step number justify vertical axis outside placement:\n"
+            "  - Enable step numberjustify vertical 'y' axis outside\n"
+            "    placement for multiple ranges pages - i.e. pages with\n"
+            "    dividers.\n\n"
+            "  Multi-step pages with page dividers have traditionally\n"
+            "  justified step numbers set outside and relative to the\n"
+            "  step's Parts List Instance (PLI) horizontal alignment\n"
+            "  so that all step numbers in the step group horizontal\n"
+            "  row display at the same vertical 'Y' axis.\n\n"
+            "  With this setting checked, step numbers are justified\n"
+            "  to he margin distance away from its respective PLI.\n"
+            "  Therefore, step numbers map display at different 'Y'\n"
+            "  axes according to the height of the PLI\n\n"
+            "  By default this setting is disabled so that the\n"
+            "  behaviour is set as the default.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_MULTI_STEP_JUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT")
+#else
+                 ""
+#endif
+                )
+        },
         // WT_SETUP_PAGE
         {
             QObject::tr(

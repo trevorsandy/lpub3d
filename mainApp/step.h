@@ -91,6 +91,7 @@ class Step : public AbstractRangeElement
     bool                  bfxLoadStep;
     bool                  buildModActionStep;
     bool                  adjustOnItemOffset;
+    bool                  justifyYAxisOutsidePlacement;
     bool                  updateViewer;
     QString               ldrName;
     QString               pngName;

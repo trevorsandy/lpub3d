@@ -140,6 +140,7 @@ Step::Step(
       csiStepMeta                  = _meta.LPub.multiStep.csi;
       justifyStep                  = _meta.LPub.multiStep.justifyStep;
       adjustOnItemOffset           = _meta.LPub.multiStep.adjustOnItemOffset.value();
+      justifyYAxisOutsidePlacement = _meta.LPub.multiStep.justifyYAxisOutsidePlacement.value();
       stepSize                     = _meta.LPub.multiStep.stepSize;
     } else {
       csiPlacement.margin          = _meta.LPub.assem.margin;
@@ -2810,7 +2811,7 @@ void Step::placeit(
         }
      }
 
-     if(singleRange) {
+     if(singleRange || justifyYAxisOutsidePlacement) {
         PlacementData& pd = stepNumber.placement.value();
         if (pd.preposition == Outside && pd.placement == Bottom) {
            switch (stepNumber.placement.value().relativeTo) {

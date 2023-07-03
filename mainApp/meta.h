@@ -4021,6 +4021,7 @@ public:
   StringListMeta        subModelFontColor;
 
   BoolMeta              adjustOnItemOffset;
+  BoolMeta              justifyYAxisOutsidePlacement;
   RotateIconMeta        rotateIcon;
   UnitsMeta             stepSize;
   ShowSubModelMeta      subModel;

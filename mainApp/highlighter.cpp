@@ -391,6 +391,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bJUSTIFY_CENTER_HORIZONTAL\\b"),
         QStringLiteral("\\bJUSTIFY_CENTER_VERTICAL\\b"),
         QStringLiteral("\\bJUSTIFY_LEFT\\b"),
+        QStringLiteral("\\bJUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT_MULTIPLE_RANGES\\b"),
         QStringLiteral("\\bLANDSCAPE\\b"),
         QStringLiteral("\\bLDGLITE\\b"),
         QStringLiteral("\\bLDGLITE_PARMS\\b"),
