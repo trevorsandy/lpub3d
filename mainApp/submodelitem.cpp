@@ -181,7 +181,7 @@ void SubModel::clear()
   parts.clear();
 }
 
-bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color, bool noCA)
+bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color, bool noCA, bool coverPagePreview)
 {
    subModel = subModel.toLower();
    QStringList rotatedModel;
@@ -208,12 +208,11 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    if ((renderer->rotateParts(
             addLine,
             subModelMeta.rotStep,
-   //       futureModel
             rotatedModel,
             ldrName,
             step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
             cameraAngles,
-            false/*ldv*/,
+            coverPagePreview ? DT_MODEL_COVER_PAGE_PREVIEW : DT_DEFAULT,
             Options::SMI)) != 0) {
        emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
        imageName = QString(":/resources/missingimage.png");
@@ -353,6 +352,13 @@ int SubModel::createSubModelImage(
       // Viewer submodel does not yet exist in repository
       bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerSubmodelKey);
 
+      // do not create native content for cover page display model - created in Update smi file, rotateModel call
+      bool coverPagePreview = meta->LPub.coverPageViewEnabled.value() &&
+                              step->displayStep == DT_MODEL_COVER_PAGE_PREVIEW &&
+                              step->subModel.viewerSubmodel;
+
+      QStringList rotatedModel;
+
       if (addViewerStepContent || ! submodel.exists() || imageOutOfDate) {
 
           FloatPairMeta cameraAngles;
@@ -393,7 +399,7 @@ int SubModel::createSubModelImage(
               return futureModel;
           });
 
-          QStringList rotatedModel = RenderFuture.result();
+          rotatedModel = RenderFuture.result();
           rc = rotatedModel.isEmpty();
 
           // rotated model without header or consolidation
@@ -401,16 +407,21 @@ int SubModel::createSubModelImage(
 
           // Prepare content for Native renderer
           if (!rc && Preferences::inlineNativeContent) {
-              QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedModel] () {
+              QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
                   QStringList futureModel = rotatedModel;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
-                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI,false/*displayModel*/);
+                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI,step->displayStep);
                   // consolidate submodel subfiles into single file
                   int rcf = 0;
-                  if (Preferences::buildModEnabled && !meta->LPub.coverPageViewEnabled.value())
-                      rcf = renderer->mergeSubmodelContent(futureModel);
-                  else
-                      rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/,true/*singleSubmodel*/);
+                  if (!coverPagePreview) {
+                      if (Preferences::buildModEnabled) {
+                          rcf = renderer->mergeSubmodelContent(futureModel);
+                      } else {
+                          // single subfile check = this should be false unless model is ldr without inline parts
+                          bool singleSubfile = renderer->isSingleSubfile(futureModel);
+                          rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/,singleSubfile);
+                      }
+                  }
                   if (rcf) {
                       emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create merged Submodel Preview (SMI) file"));
                       imageName = QString(":/resources/missingimage.png");
@@ -435,8 +446,12 @@ int SubModel::createSubModelImage(
       if (!rc) {
         QFuture<int> RenderFuture = QtConcurrent::run([&] () {
             int frc = 0;
+            // If not nativeRenderer use preview name coverPagePreview
+            QString ldrName = ldrNames.first();
+            if (coverPagePreview && Preferences::preferredRenderer != RENDERER_NATIVE)
+                ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(QFileInfo(ldrName).absolutePath()).arg(SUBMODEL_COVER_PAGE_PREVIEW_BASENAME));
             // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
-            if (! rotateModel(ldrNames.first(),type,color,noCA)) {
+            if (! rotateModel(ldrName,type,color,noCA,coverPagePreview)) {
                 emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.")
                                      .arg(ldrNames.first()));
                 return frc = 1;

@@ -2360,8 +2360,10 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
     }
 
     if (stepOption == SMI || clearAll) {
-        if (!renderer->useLDViewSCall())
+        if (!renderer->useLDViewSCall()) {
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + SUBMODEL_IMAGE_BASENAME + QLatin1String(".ldr"));
+            fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + SUBMODEL_COVER_PAGE_PREVIEW_BASENAME + QLatin1String(".ldr"));
+        }
         SubModelPart* submodel = step->subModel.getSubmodel();
         if (submodel) {
             const QString key = QString("%1;%2;%3_%4")

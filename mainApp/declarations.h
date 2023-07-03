@@ -160,6 +160,7 @@ enum DisplayType { DT_DEFAULT,
                    DT_COVER_FRONT,
                    DT_COVER_BACK,
                    DT_MODEL_DEFAULT,
+                   DT_MODEL_COVER_PAGE_PREVIEW,
                    DT_MODEL_CUSTOM,
                    DT_MODEL_FINAL
 };
@@ -942,6 +943,7 @@ enum ThemeColorType {
 
 #define VISUAL_BANNER_SUFFIX                    "Visual Banner"
 #define SUBMODEL_IMAGE_BASENAME                 "smi"
+#define SUBMODEL_COVER_PAGE_PREVIEW_BASENAME    "coverpagepreview"
 #define PREVIEW_MODEL_DEFAULT                   "Preview.ldr"
 #define VIEWER_MODEL_DEFAULT                    "Model.ldr"
 

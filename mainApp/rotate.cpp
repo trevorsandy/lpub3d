@@ -209,7 +209,7 @@ int Render::rotateParts(
   bool doFadeStep      = Preferences::enableFadeSteps;
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;
-  bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction;
+  bool nativeRenderer  = option == DT_MODEL_COVER_PAGE_PREVIEW || (Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction);
   bool singleSubfile   = isSingleSubfile(parts);
   Options::Mt imageType = static_cast<Options::Mt>(type);
 

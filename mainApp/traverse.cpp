@@ -2850,25 +2850,26 @@ int Gui::drawPage(
 
                                   if (step) {
                                       const QString cover = frontCover ? tr("front cover") : tr("back cover");
-                                      emit messageSig(LOG_INFO, QString("Set preview model display at %1 for %2, step number %3...")
+                                      emit messageSig(LOG_INFO, QString("Set cover page preview model display at %1 for %2, step number %3...")
                                                                         .arg(cover).arg(topOfStep.modelName).arg(stepNum));
                                       step->setBottomOfStep(opts.current);
-                                      step->displayStep = DT_MODEL_DEFAULT;
+                                      step->displayStep = DT_MODEL_COVER_PAGE_PREVIEW;
                                       step->subModel.viewerSubmodel = true;
                                       steps->meta.LPub.subModel.showStepNum.setValue(stepNum);
                                       step->subModel.setSubModel(topOfStep.modelName,steps->meta);
+                                      const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
                                       if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0) {
-                                          emit gui->messageSig(LOG_ERROR, tr("Failed to set preview model display at %1 for %2, stepNum %3 (%4.ldr).")
-                                                                              .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(SUBMODEL_IMAGE_BASENAME));
+                                          emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page preview display at %1 for %2, stepNum %3 (%4.ldr).")
+                                                                             .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(fileName));
                                       } else {
                                           // set the current step - enable access from other parts of the application - e.g. Renderer
                                           lpub->setCurrentStep(step);
                                           if (lpub->currentStep) {
                                               if (step->subModel.viewerSubmodelKey == lpub->currentStep->viewerStepKey) {
                                                   showLine(topOfStep);
-                                                  const QString modelFileName = QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(SUBMODEL_IMAGE_BASENAME);
+                                                  const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
                                                   if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
-                                                      emit gui->messageSig(LOG_WARNING, tr("Could not load preview model (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+                                                      emit gui->messageSig(LOG_WARNING, tr("Could not load cover page preview (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
                                               } else {
                                                   QString const currentStepKey = lpub->currentStep->viewerStepKey;
                                                   emit gui->messageSig(LOG_WARNING, QObject::tr("The specified submodel step key: '%1' does not match the current step key: '%2'")
