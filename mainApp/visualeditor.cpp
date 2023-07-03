@@ -2567,9 +2567,19 @@ void Gui::loadTheme(){
   ReloadVisualEditor();
 }
 
-void Gui::ReloadVisualEditor(){
-  if (getCurrentStep()){
-    Render::LoadViewer(getCurrentStep()->viewerOptions);
+void Gui::ReloadVisualEditor() {
+  Step *currentStep = getCurrentStep();
+  if (currentStep) {
+    if (currentStep->displayStep == DT_MODEL_COVER_PAGE_PREVIEW) {
+      Where topOfStep = currentStep->topOfStep();
+      showLine(topOfStep);
+      const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
+      const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
+      if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
+        emit gui->messageSig(LOG_WARNING, tr("Could not reload cover page preview (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+    } else if (currentStep->viewerOptions) {
+      Render::LoadViewer(currentStep->viewerOptions);
+    }
   } else {
     Project* NewProject = new Project();
     gApplication->SetProject(NewProject);
