@@ -177,7 +177,7 @@ class Step : public AbstractRangeElement
       int  rows[],    // accumulate sub-row heights here
       int  cols[]);   // accumulate sub-col widths here
 
-    bool collide(int square[][NumPlaces],
+    bool collide(int square[NumPlaces][NumPlaces],
                  int tbl[],
                  int x,
                  int y);

@@ -2739,11 +2739,14 @@ void Step::placeit(
      break;
   }
 
-  /* Justify top and bottom outside rectPlacement - see ticket #690
-   * Apply relative justify to 'y' when the page is a single range - no divider. */
+  /* Relative justify 'y' on outside placement - see ticket #690, #694, #703, #729 */
+
   Page *page = dynamic_cast<Page *>(grandparent());
-  if (page && page->list.size() == 1/*single range - no divider*/) {
-     if (shared) {
+  if (page) {
+     /* Apply when the page is a single range - no divider. */
+     const bool singleRange = page->list.size() == 1;
+
+     if (singleRange && shared) {
         PlacementData& pd = pli.placement.value();
         if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
            switch (pli.placement.value().relativeTo) {
@@ -2785,7 +2788,7 @@ void Step::placeit(
         }
      }
 
-     if(placeRotateIcon) {
+     if(singleRange && placeRotateIcon) {
         PlacementData& pd = rotateIcon.placement.value();
         if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
            switch (rotateIcon.placement.value().relativeTo) {
@@ -2807,27 +2810,28 @@ void Step::placeit(
         }
      }
 
-     PlacementData& pd = stepNumber.placement.value();
-     if (pd.rectPlacement == TopOutside || pd.rectPlacement == BottomOutside) {
-        switch (stepNumber.placement.value().relativeTo) {
-        case CsiType:
-           csiPlacement.justifyRelative(&stepNumber,y);
-           break;
-        case PartsListType:
-           pli.justifyRelative(&stepNumber,y);
-           break;
-        case SubModelType:
-           subModel.justifyRelative(&stepNumber,y);
-           break;
-        case RotateIconType:
-           rotateIcon.justifyRelative(&stepNumber,y);
-           break;
-        default:
-           break;
+     if(singleRange) {
+        PlacementData& pd = stepNumber.placement.value();
+        if (pd.preposition == Outside && pd.placement == Bottom) {
+           switch (stepNumber.placement.value().relativeTo) {
+           case CsiType:
+              csiPlacement.justifyRelative(&stepNumber,y);
+              break;
+           case PartsListType:
+              pli.justifyRelative(&stepNumber,y);
+              break;
+           case SubModelType:
+              subModel.justifyRelative(&stepNumber,y);
+              break;
+           case RotateIconType:
+              rotateIcon.justifyRelative(&stepNumber,y);
+              break;
+           default:
+              break;
+           }
         }
      }
-  }
-  /* apply relative justify - end */
+  } /* Relative justify 'y' on outside placement - end */
 
   /* place the callouts that are relative to step components */
 
