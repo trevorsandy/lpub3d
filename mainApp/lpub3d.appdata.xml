@@ -78,14 +78,15 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.7.3487" date="2023-07-03">
+            <release version="2.4.7.3488" date="2023-07-03">
                 <description>
-                    <p>LPub3D 03.07.2023 v2.4.7 r11 Continuous Build
+                    <p>LPub3D 03.07.2023 v2.4.7 r12 Continuous Build
                        Change - Custom parts with underscore in the name #730.
                        Change - Relative justify vertical axis on outside placement #729.
                        Change - Set submodel substitute part as unofficial part #733.
                        Fix - Abnormal rendering behaviour #726.
                        Fix - Add LDView Assembly Rendered Arguments conflated #727.
+                       Fix - Scrambled submodel when placed before ignore IGN command #732.
                        See RELEASE_NOTES for full details.
                     </p>
                 </description>

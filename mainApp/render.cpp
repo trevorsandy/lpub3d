@@ -4081,17 +4081,17 @@ bool Render::isSingleSubfile(const QStringList &partLines)
 {
     bool singleSubfile = false;
     if (partLines.isEmpty())
-        return singleSubfile;
+        return false;
     else if (partLines.count() == 1) {
         singleSubfile = lpub->ldrawFile.isSingleSubfileLine(partLines.first());
     } else {
         int partCount = 0;
         for (QString const &partLine : partLines) {
             if (partCount > 1)
-                return singleSubfile;
-            if (!partLine.isEmpty() && !partLine.startsWith("0"))
+                return false;
+            if (!partLine.isEmpty() && !partLine.startsWith("0 "))
                 partCount++;
-            if (partCount < 2 && partLine.startsWith("1"))
+            if (partCount == 1 && partLine.startsWith("1 "))
                 singleSubfile = lpub->ldrawFile.isSingleSubfileLine(partLine);
         }
     }
@@ -4099,10 +4099,8 @@ bool Render::isSingleSubfile(const QStringList &partLines)
         QStringList tokens;
         split(partLines.first(), tokens);
         for (QString const &line : lpub->ldrawFile.contents(tokens[tokens.size()-1])) {
-            if (lpub->ldrawFile.isSingleSubfileLine(line)) {
-                singleSubfile = false;
-                break;
-            }
+            if (lpub->ldrawFile.isSingleSubfileLine(line))
+                return false;
         }
     }
     return singleSubfile;
