@@ -278,30 +278,41 @@ void CalloutBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
     gui->beginMacro(QString("DragCallout"));
 
-    QPointF delta(position.x() - pos().x(),
-                  position.y() - pos().y());
+    qreal dX = position.x() - pos().x();
+    qreal dY = position.y() - pos().y();
 
-    if (delta.x() || delta.y()) {
+    PlacementData placementData = placement.value();
 
-      QPoint deltaI(int(delta.x()+0.5),int(delta.y()+0.5));
+    qreal saveOffsets[2];
+    saveOffsets[0] = placementData.offsets[0];
+    saveOffsets[1] = placementData.offsets[1];
 
-//      callout->updatePointers(deltaI); // Updates performed at mouseMoveEvent
+    if (qAbs(dX) > 0 || qAbs(dY) > 0) {
 
-      PlacementData placementData = placement.value();
+//      Updates moved to CalloutBackgroundItem::mouseMoveEvent
+//      QPointF delta(position.x() - pos().x(),
+//                    position.y() - pos().y());
+//      QPoint deltaI(int(delta.x()+0.5),int(delta.y()+0.5));
+//      callout->updatePointers(deltaI);
 
-      float w = delta.x()/lpub->pageSize(callout->meta.LPub.page, 0);
-      float h = delta.y()/lpub->pageSize(callout->meta.LPub.page, 1);
+      qreal pW = lpub->pageSize(callout->meta.LPub.page, 0);
+      qreal pH = lpub->pageSize(callout->meta.LPub.page, 1);
+
+      qreal cW = dX/pW;
+      qreal cH = dY/pH;
 
       if (placementData.relativeTo == CsiType) {
-        w = delta.x()/csiRect.width();
-        h = delta.y()/csiRect.height();
+        cW = dX/csiRect.width();
+        cH = dY/csiRect.height();
       }
-  
-      placementData.offsets[0] -= w;
-      placementData.offsets[1] -= h;
+
+      placementData.offsets[0] -= cW;
+      placementData.offsets[1] -= cH;
+
       placement.setValue(placementData);
 
       changePlacementOffset(callout->topOfCallout(),&placement,CalloutType,false,0);  
+      changePlacementOffset(callout->topOfCallout(),&placement,CalloutType,false,0);
     }
 
     gui->endMacro();

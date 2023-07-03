@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.7.3483" date="2023-07-03">
+            <release version="2.4.7.3484" date="2023-07-03">
                 <description>
-                    <p>LPub3D 03.07.2023 v2.4.7 r7 Continuous Build
+                    <p>LPub3D 03.07.2023 v2.4.7 r8 Continuous Build
                        Change - Custom parts with underscore in the name #730.
                        Fix - Abnormal rendering behaviour #726.
                        Fix - Add LDView Assembly Rendered Arguments conflated #727.

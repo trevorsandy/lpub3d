@@ -2834,6 +2834,7 @@ void Step::placeit(
   for (int i = 0; i < list.size(); i++) {
       Callout *callout = list[i];
       PlacementData calloutPlacement = callout->placement.value();
+      bool noOffset = calloutPlacement.offsets[0] == 0 && calloutPlacement.offsets[1] == 0;
 
       if (shared && callout->shared) {
           if (callout->size[y] > origins[TblCsi]) {
@@ -2850,21 +2851,16 @@ void Step::placeit(
             case SubModelType:
             case StepNumberType:
             case RotateIconType:
-              if (calloutPlacement.preposition == Outside) {
-                callout->loc[y] = origins[callout->tbl[y]];
-                if (callout->shared) {
-                    callout->loc[y] -= callout->margin.value(y) - 500;
-                  }
-
-                if (y == YY) {
-                    callout->justifyY(origins[callout->tbl[y]],
-                        rows[callout->tbl[y]]);
-                  } else {
-                    callout->justifyX(origins[callout->tbl[y]],
-                        rows[callout->tbl[y]]);
-                  }
-              } else if (calloutPlacement.relativeTo == CsiType) {
-                csiPlacement.placeRelative(callout);
+              callout->loc[y] = origins[callout->tbl[y]];
+              if (callout->shared)
+                callout->loc[y] -= callout->margin.value(y) - 500;
+              if (y == YY)
+                callout->justifyY(origins[callout->tbl[y]], rows[callout->tbl[y]]);
+              else
+                callout->justifyX(origins[callout->tbl[y]], rows[callout->tbl[y]]);
+              if (noOffset && calloutPlacement.preposition == Inside) {
+                if (calloutPlacement.relativeTo == CsiType)
+                  csiPlacement.placeRelative(callout);
               }
               break;
             default:
