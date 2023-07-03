@@ -4247,7 +4247,12 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
       m_progressDialog->setWindowTitle(QString("LDraw Archive Library Update"));
       m_progressDialog->setLabelText(QString("Archiving search directory parts..."));
-      m_progressDialog->setRange(0,items.count());
+      if (OnDemand) {
+        m_progressDialog->setRange(0,0);
+        m_progressDialog->setValue(1);
+      } else {
+        m_progressDialog->setRange(0,items.count());
+      }
       m_progressDialog->setAutoHide(true);
       m_progressDialog->setModal(true);
       m_progressDialog->show();
@@ -4261,29 +4266,34 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
 
       disconnect (m_progressDialog, SIGNAL (cancelClicked()),
                   this,             SLOT (cancelExporting()));
+      connect(m_progressDialog,     SIGNAL(cancelClicked()),
+              job,                  SLOT(requestEndThreadNow()));
+      connect(job,                  SIGNAL(progressMessageSig (QString)),
+              m_progressDialog,     SLOT(setLabelText(QString)));
+      if (!OnDemand)
+          connect(job,                  SIGNAL(progressSetValueSig(int)),
+                  m_progressDialog,     SLOT(setValue(int)));
+
       if (Update)
           connect(thread,           SIGNAL(started()),
                   job,              SLOT(updateLDSearchDirsParts()));
       else
           connect(thread,           SIGNAL(started()),
                   job,              SLOT(processLDSearchDirParts()));
+
       connect(thread,               SIGNAL(finished()),
               thread,               SLOT(deleteLater()));
-      connect(job,                  SIGNAL(progressSetValueSig(int)),
-              m_progressDialog,     SLOT(setValue(int)));
-      connect(m_progressDialog,     SIGNAL(cancelClicked()),
-              job,                  SLOT(requestEndThreadNow()));
-      connect(job,                  SIGNAL(progressMessageSig (QString)),
-              m_progressDialog,     SLOT(setLabelText(QString)));
       connect(job,                  SIGNAL(partsArchiveResultSig(int)),
               this,                 SLOT(workerJobResult(int)));
       connect(this,                 SIGNAL(requestEndThreadNowSig()),
               job,                  SLOT(requestEndThreadNow()));
       connect(job,                  SIGNAL(partsArchiveFinishedSig()),
               thread,               SLOT(quit()));
+
       if (OnDemand)
           connect(job,              SIGNAL(partsArchiveFinishedSig()),
                   job,              SLOT(deleteLater()));
+
       wait->connect(job,            SIGNAL(partsArchiveFinishedSig()),
                     wait,           SLOT(quit()));
 
@@ -4291,7 +4301,9 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       thread->start();
       wait->exec();
 
-      m_progressDialog->setValue(items.count());
+      if (!OnDemand)
+          m_progressDialog->setValue(items.count());
+
       connect (m_progressDialog, SIGNAL (cancelClicked()),
                this, SLOT (cancelExporting()));
 
