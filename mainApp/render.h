@@ -115,7 +115,7 @@ public:
                                      QString &ldrName,
                                      const QString &modelName,
                                      FloatPairMeta &ca,
-                                     bool ldv,
+                                     int option,
                                      int imageType);
   static int             rotateParts(const QString &addLine,     // RotateParts #3 - 5 parms
                                      RotStepMeta &rotStep,

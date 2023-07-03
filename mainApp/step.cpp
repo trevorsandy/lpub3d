@@ -647,7 +647,7 @@ int Step::createCsi(
                       ldrName,
                       top.modelName,
                       cameraAngles,
-                      false/*ldv*/,
+                      DT_DEFAULT,
                       Options::CSI)) != 0) {
                  emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.").arg(ldrName));
                  pngName = QString(":/resources/missingimage.png");

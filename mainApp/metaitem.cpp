@@ -4745,7 +4745,7 @@ bool MetaItem::offsetPoint(
       ldrNames << ldrName;
       csiKeys << title + "Mono";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       ok[0] = true;
@@ -4753,7 +4753,7 @@ bool MetaItem::offsetPoint(
       if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
           // RotateParts #2 - 8 parms
-          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
+          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
@@ -5234,7 +5234,7 @@ QPointF MetaItem::defaultPointerTip(
       ldrName = ldrNames.first();
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
   } else {
       ok[0] = true;
@@ -5242,7 +5242,7 @@ QPointF MetaItem::defaultPointerTip(
       if (Preferences::preferredRenderer == RENDERER_NATIVE) {
          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
          // RotateParts #2 - 8 parms
-         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
+         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
   }

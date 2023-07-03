@@ -757,7 +757,7 @@ int POVRay::renderCsi(
 
   // RotateParts #2 - 8 parms
   int rc;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
       return rc;
    }
 
@@ -1488,7 +1488,7 @@ int LDGLite::   renderCsi(
   cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
                          meta.LPub.assem.cameraAngles.value(1));
   // RotateParts #2 - 8 parms
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
      return rc;
   }
 
@@ -2207,7 +2207,7 @@ int LDView::renderCsi(
                                meta.LPub.assem.cameraAngles.value(1));
 
         // RotateParts #2 - 8 parms
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
+        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("LDView CSI rotate parts failed!"));
             return rc;
         } else
@@ -2967,7 +2967,7 @@ int Native::renderCsi(
           emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Rendering CSI Objects..."));
           QString baseName = csiKeys.first();
           QString outPath  = Gui::m_saveDirectoryName;
-          bool ldvExport   = true;
+          int ldvExport    = DT_LDV_FUNCTION;
 
           switch (Options->ExportMode) {
           case EXPORT_3DS_MAX:
@@ -2985,19 +2985,19 @@ int Native::renderCsi(
           case EXPORT_COLLADA:
               Options->ExportMode = int(EXPORT_COLLADA);
               Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".dae");
-              ldvExport = false;
+              ldvExport = DT_DEFAULT;
               break;
           case EXPORT_WAVEFRONT:
               Options->ExportMode = int(EXPORT_WAVEFRONT);
               Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".obj");
-              ldvExport = false;
+              ldvExport = DT_DEFAULT;
               break;
           default:
               emit gui->messageSig(LOG_ERROR,QObject::tr("Invalid CSI Object export option."));
               return -1;
           }
           // These exports are performed by the Native LDV module (LDView).
-          if (ldvExport) {
+          if (ldvExport == DT_LDV_FUNCTION) {
               if (Gui::m_exportMode == EXPORT_POVRAY     ||
                   Gui::m_exportMode == EXPORT_STL        ||
                   Gui::m_exportMode == EXPORT_HTML_PARTS ||

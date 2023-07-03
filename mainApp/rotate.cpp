@@ -159,7 +159,7 @@ int Render::rotatePartsRD(
               QString     &ca,
               int          imageType)
 {
-    bool ldvExport = true, good = false, ok = false;
+    bool good = false, ok = false;
     const QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
 
     QStringList rotStepList = rs.split(" ");
@@ -191,7 +191,7 @@ int Render::rotatePartsRD(
     FloatPairMeta cameraAngles;
     cameraAngles.setValues(latitude,longitude);
 
-    return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(),cameraAngles, ldvExport, imageType);
+    return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(), cameraAngles, DT_LDV_FUNCTION, imageType);
 }
 
 // RotateParts #2 - 8 parms - generates an ldr file (never called by pli type)
@@ -202,10 +202,10 @@ int Render::rotateParts(
           QString           &ldrName,
           const QString     &modelName,
           FloatPairMeta     &ca,
-          bool               ldv  /* false */,
-          int                type /* CSI */)
+          int                option,
+          int                type)
 {
-  bool ldvFunction     = ldv || gui->m_partListCSIFile;
+  bool ldvFunction     = option == DT_LDV_FUNCTION || gui->m_partListCSIFile;
   bool doFadeStep      = Preferences::enableFadeSteps;
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;

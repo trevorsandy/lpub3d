@@ -157,6 +157,7 @@ enum LDrawFileRegExpType {
 
 enum DisplayType { DT_DEFAULT,
                    DT_PAGE,
+                   DT_LDV_FUNCTION = DT_PAGE,
                    DT_COVER_FRONT,
                    DT_COVER_BACK,
                    DT_MODEL_DEFAULT,
