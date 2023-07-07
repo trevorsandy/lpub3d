@@ -1353,13 +1353,14 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
             QString const addonVersionFile = QString("addons/%1/__version__.py").arg(BLENDER_RENDER_ADDON_FOLDER);
             zip.setCurrentFile(addonVersionFile);
             QuaZipFile file(&zip);
-            // check if legacy addon
-            if (!file.open(QIODevice::ReadOnly))
-                zip.setCurrentFile(QLatin1String("addons/io_scene_lpub3d_renderldraw/__version__.py"));
             if (!file.open(QIODevice::ReadOnly)) {
-                emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot read addon archive version file: [%1]<br>%2.")
-                                                              .arg(addonVersionFile).arg(file.errorString()));
-                return false; // Download new archive
+                // check if legacy addon
+                zip.setCurrentFile(QLatin1String("addons/io_scene_lpub3d_renderldraw/__version__.py"));
+                if (!file.open(QIODevice::ReadOnly)) {
+                    emit gui->messageSig(LOG_WARNING, QObject::tr("Cannot read addon archive version file: [%1]<br>%2.")
+                                                                  .arg(addonVersionFile).arg(file.errorString()));
+                    return false; // Download new archive
+                }
             }
             ba = file.readAll();
             file.close();
@@ -2235,7 +2236,7 @@ void BlenderPreferences::loadSettings()
         Preferences::setBlenderImportModule(QString());
     }
 
-    QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QString const blenderDir = QDir::toNativeSeparators(QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir));
 
     if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable())
         Preferences::setBlenderImportModule(QString());
