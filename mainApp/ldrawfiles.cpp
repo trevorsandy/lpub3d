@@ -3891,9 +3891,14 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                 if (!omitNOFIlEMeta) {
                     out << "0 NOFILE" << lpub_endl;
                     _savedLines++;
+                    out << "0" << lpub_endl;
+                    _savedLines++;
                 }
-                out << lpub_endl;
-                _savedLines++;
+                else
+                {
+                    out << lpub_endl;
+                    _savedLines++;
+                }
             }
         }
     }
