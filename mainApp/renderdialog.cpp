@@ -80,17 +80,16 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         mHaveKeys = true;
     }
 
-    QString mn;
     if (mHaveKeys && currentStep) {
         bool const displayModel = currentStep->displayStep >= DT_MODEL_DEFAULT || currentStep->subModel.viewerSubmodel;
-        mn = tr("STEP %1").arg(currentStep->stepNumber.number);
+        mMn = tr("STEP %1").arg(currentStep->stepNumber.number);
         if (displayModel) {
-            mn = currentStep->topOfStep().modelName;
-            mn = mn.replace(mn.indexOf(mn.at(0)),1,mn.at(0).toUpper());
+            mMn = currentStep->topOfStep().modelName;
+            mMn = mMn.replace(mMn.indexOf(mMn.at(0)),1,mMn.at(0).toUpper());
         }
     }
 
-    QString labelMessage = tr("Render image%1").arg(mn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mn));
+    QString labelMessage = tr("Render image%1").arg(mMn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mMn));
 
     ui->RenderLabel->setText(labelMessage);
 
@@ -104,7 +103,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     if (showInput) {
         ui->InputGenerateCheck->setToolTip(tr("Generate LDraw input file (csi_blender.ldr)%1")
-                                               .arg(tr(" from %1").arg(mn)));
+                                               .arg(tr(" from %1").arg(mMn)));
         ui->InputEdit->setText(Render::getRenderModelFile(mRenderType, false/*save current model*/));
         ui->InputEdit->setEnabled(false);
         ui->InputBrowseButton->setEnabled(false);
@@ -146,14 +145,14 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         setWindowTitle(tr("Blender %1").arg(mImportOnly ? tr("LDraw Import") : tr("Image Render")));
 
         setWhatsThis(lpubWT(WT_DIALOG_BLENDER_RENDER,windowTitle()));
-		
-		bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
-		
-		QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
-		if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
-			blenderConfigured = false;
-			Preferences::setBlenderImportModule(QString());
-		}
+
+        bool blenderConfigured = !Preferences::blenderImportModule.isEmpty();
+
+        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+        if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable()) {
+            blenderConfigured = false;
+            Preferences::setBlenderImportModule(QString());
+        }
 
         if (blenderConfigured)
             mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
@@ -168,7 +167,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         if (mImportOnly) {
             labelMessage = tr("Open%1 in Blender using %2")
-                               .arg(mn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mn)).arg(mImportModule);
+                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
 
             ui->InputLabel->setMinimumWidth(0);
             ui->InputBrowseButton->setMinimumWidth(0);
@@ -264,7 +263,20 @@ void RenderDialog::on_RenderSettingsButton_clicked()
         if (Preferences::blenderImportModule.isEmpty())
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
         else
+        {
+            if (mImportOnly) {
+                mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
+                        ? tr("LDraw Import TN")
+                        : tr("LDraw Import MM");
+
+                QString labelMessage = tr("Open%1 in Blender using %2")
+                                          .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
+                ui->RenderLabel->setText(labelMessage);
+                ui->RenderLabel->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
+            }
+
             ui->RenderButton->setEnabled(true);
+        }
     }
 }
 
@@ -848,10 +860,10 @@ void RenderDialog::WriteStdOut()
     if (file.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text))
     {
         QTextStream Out(&file);
-		
+
         for (const QString& Line : mStdOutList)
             Out << Line;
-		
+
         file.close();
 
         ui->RenderOutputButton->setEnabled(true);
@@ -1205,13 +1217,13 @@ void RenderDialog::validateInput()
         ui->InputGenerateCheck->setChecked(true);
         ui->InputBrowseButton->setEnabled(false);
     } else {
-        QString mn = fileInfo.fileName(), labelMessage;
-        mn = mn.replace(mn.indexOf(mn.at(0)),1,mn.at(0).toUpper());
+        QString mMn = fileInfo.fileName(), labelMessage;
+        mMn = mMn.replace(mMn.indexOf(mMn.at(0)),1,mMn.at(0).toUpper());
         if (mImportOnly)
             labelMessage = tr("Open%1 in Blender using %2")
-                               .arg(mn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mn)).arg(mImportModule);
+                               .arg(mMn.isEmpty() ? "" : tr(" <b>%1</b>").arg(mMn)).arg(mImportModule);
         else
-            labelMessage = tr("Render image%1").arg(mn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mn));
+            labelMessage = tr("Render image%1").arg(mMn.isEmpty() ? "" : tr(" for <b>%1</b>").arg(mMn));
         ui->RenderLabel->setText(labelMessage);
     }
 

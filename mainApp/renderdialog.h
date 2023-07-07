@@ -32,10 +32,10 @@ class RenderProcess : public QProcess
     Q_OBJECT
 
 public:
-    explicit RenderProcess(QObject *parent = nullptr) 
-	: QProcess(parent)
-	{
-	}
+    explicit RenderProcess(QObject *parent = nullptr)
+    : QProcess(parent)
+    {
+    }
     ~RenderProcess();
 };
 
@@ -96,6 +96,7 @@ protected:
     QString mViewerStepKey;
     QString mModelFile;
     QString mImportModule;
+    QString mMn;
 
     QStringList mCsiKeyList;
     QStringList mCsiKeyListData;
