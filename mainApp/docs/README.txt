@@ -1,4 +1,4 @@
-LPub3D 2.4.7.19.3495 (03 07 2023 04:14:22)
+LPub3D 2.4.7.20.3496 (07 07 2023 03:36:34)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Change - Custom parts with underscore in the name #730
+- Change - MLCad Part unknown! PART line error after mpd file save #734
 - Change - Relative justify vertical axis on outside placement #729
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726

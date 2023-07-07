@@ -237,4 +237,3 @@ private:
 	mutable QWidget *m_editedWidget;
 	mutable bool m_disablePainting;
 };
-

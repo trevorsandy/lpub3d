@@ -3772,6 +3772,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
     for (int i = 0; i < _subFileOrder.size(); i++) {
 
         bool addFILEMeta = false;
+        bool afterFILEMeta = false;
         bool omitNOFIlEMeta = false;
         bool isModelHeader = true;
         bool isLDCadContent = false;
@@ -3809,6 +3810,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
 
             if (addFILEMeta) {
                 out << "0 FILE " << subFileName << lpub_endl;
+                afterFILEMeta = true;
                 _savedLines++;
             }
 
@@ -3820,6 +3822,8 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                 bool insertNewLineAfter = false;
 
                 QString line = f.value()._contents[j];
+
+                afterFILEMeta &= line.trimmed() == "0";
 
                 if (isModelHeader && line[0] == '0') {
                     if (!isLDCadContent)
@@ -3875,10 +3879,12 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                     out << line << lpub_endl;
                     out << lpub_endl;
                 }
-                else
+                else if (!afterFILEMeta)
                     out << line << lpub_endl;
 
                 newLineIinserted = insertNewLineBefore || insertNewLineAfter;
+
+                afterFILEMeta = false;
             }
 
             if (addFILEMeta) {
