@@ -3514,6 +3514,10 @@ int Gui::findPage(
                                       opts.groupStepNumber = saveGroupStepNum;
                                   }
 
+                                  if (isPreDisplayPage) {
+                                      saveMeta = meta;
+                                  }
+
                                   if (exporting()) {
                                       pageSizes.remove(DEF_SIZE);
                                       pageSizes.insert(DEF_SIZE,pageSize2); // restore old Default pageSize information

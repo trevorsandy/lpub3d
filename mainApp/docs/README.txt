@@ -1,4 +1,4 @@
-LPub3D 2.4.7.24.3500 (07 07 2023 03:46:06)
+LPub3D 2.4.7.25.3501 (07 07 2023 03:48:31)
 
 Features, enhancements, fixes and changes
 ------------
@@ -19,6 +19,7 @@ Revisions:
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Include file meta commands not always applied #735
 - Fix - Scrambled submodel when placed before ignore IGN command #732
 
 --------------------------------------------------------------------------------------------------
