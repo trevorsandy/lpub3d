@@ -95,9 +95,6 @@ protected:
 
 	void getPartProperties(lcPartProperties *properties);
 
-/*** LPub3D Mod - LPub3D properties ***/
-	bool FirstHit;
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - enable lights ***/
 	int mLightType;
 	int mLightShape;

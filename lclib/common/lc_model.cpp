@@ -3427,6 +3427,7 @@ void lcModel::SetCameraName(lcCamera* Camera, const QString& Name)
 	gMainWindow->UpdateCameraMenu();
 }
 
+/*** LPub3D Mod - enable lights ***/
 void lcModel::SetLightName(lcLight* Light, const QString &Name)
 {
 	if (Light->GetName() == Name)
@@ -3439,6 +3440,7 @@ void lcModel::SetLightName(lcLight* Light, const QString &Name)
 	UpdateAllViews();
 	gMainWindow->UpdateCameraMenu();
 }
+/*** LPub3D Mod end ***/
 
 bool lcModel::AnyPiecesSelected() const
 {

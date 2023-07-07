@@ -1578,8 +1578,6 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	partShow->setData(0, PropertyValueRole, Show);
 	partHide->setText(1, Hide == LC_STEP_MAX ? QString() : QString::number(Hide));
 	partHide->setData(0, PropertyValueRole, Hide);
-
-	FirstHit = false;
 }
 
 void lcQPropertiesTree::SetCamera(lcObject* Focus)

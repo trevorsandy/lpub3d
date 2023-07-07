@@ -2171,7 +2171,7 @@ lcTool lcView::GetCurrentTool() const
 		lcTool::RotateView,  // lcTrackTool::OrbitXY
 		lcTool::Roll,        // lcTrackTool::Roll
 		lcTool::ZoomRegion,  // lcTrackTool::ZoomRegion
-		lcTool::RotateStep   // lcTrackTool::RotateStep	   /*** LPub3D Mod - enable lights ***/
+		lcTool::RotateStep   // lcTrackTool::RotateStep	   /*** LPub3D Mod - rotate step ***/
 	};
 
 	LC_ARRAY_SIZE_CHECK(ToolFromTrackTool, lcTrackTool::Count);

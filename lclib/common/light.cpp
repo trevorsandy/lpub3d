@@ -13,7 +13,6 @@
 #define LC_LIGHT_SPHERE_RADIUS 5.0f
 /*** LPub3D Mod - enable lights ***/
 #define LC_LIGHT_BASEFACE_EDGE 12.5f
-/*** LPub3D Mod end ***/
 
 // New omni light.
 lcLight::lcLight(float px, float py, float pz, bool lpubMeta)
@@ -29,6 +28,7 @@ lcLight::lcLight(float px, float py, float pz, bool lpubMeta)
 	Initialize(lcVector3(px, py, pz), lcVector3(0.0f, 0.0f, 0.0f), LC_POINTLIGHT);
 	UpdatePosition(1);
 }
+/*** LPub3D Mod end ***/
 
 // New directional or spot light.
 /*** LPub3D Mod - enable lights ***/
@@ -182,7 +182,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 				mLightFactorKeys.SaveKeysLDraw(Stream, "LIGHT RADIUS_AND_SPOT_BLEND_KEY ");
 			} else {
 				Stream << QLatin1String(Meta + " LIGHT RADIUS ") << mLightFactor[0] << LineEnding;
-				Stream << QLatin1String(Meta + " SPOT_BLEND ") << mLightFactor[1] << LineEnding;
+				Stream << QLatin1String(Meta + " LIGHT SPOT_BLEND ") << mLightFactor[1] << LineEnding;
 			}
 			if (mLightSpotSizeKeys.GetSize() > 1)
 				mLightSpotSizeKeys.SaveKeysLDraw(Stream, "LIGHT SPOT_SIZE_KEY ");

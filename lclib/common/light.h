@@ -302,7 +302,7 @@ public:
 /*** LPub3D Mod end ***/
 	float mSpotCutoff;
 	float mSpotExponent;
-/*** LPub3D Mod - enable lights, moved from protected ***/
+/*** LPub3D Mod - moved mName from protected, enable lights ***/
 	QString mName;
 /*** LPub3D Mod end ***/
 
@@ -332,7 +332,7 @@ protected:
 	void DrawPointLight(lcContext* Context) const;
 	void DrawSpotLight(lcContext* Context) const;
 
-/*** LPub3D Mod - enable point lignt, moved mName to public ***/
+/*** LPub3D Mod - moved mName to public, enable lights ***/
 //    QString mName;
 	quint32 mState;
 };
