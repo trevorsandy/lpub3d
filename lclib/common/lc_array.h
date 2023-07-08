@@ -234,4 +234,3 @@ protected:
 	size_t mAlloc;
 	int mGrow;
 };
-
