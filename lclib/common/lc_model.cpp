@@ -524,29 +524,27 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - LPUB meta command ***/
 	bool LPubMeta = true;
 
-	auto ViewerMetaCommandLine = [] (QTextStream &Stream, bool &LPubMeta)
+	auto ViewerMetaCommandLine = [] (QTextStream &Stream, QString &Token, bool &LPubMeta)
 	{
-		qint64 savePosition = Stream.pos();
-		QString Token;
-		Stream >> Token;
 		bool retValue = false;
 		if (Token == QLatin1String("!LPUB"))
 		{
-			Stream >> Token;
-			retValue = LPubMeta = Token == QLatin1String("MODEL")	||
-								   Token == QLatin1String("PIECE")	||
-								   Token == QLatin1String("CAMERA") ||
-								   Token == QLatin1String("LIGHT")	||
-								   Token == QLatin1String("GROUP")	||
-								   Token == QLatin1String("SYNTH");
+			qint64 savePosition = Stream.pos();
+			QString _Token;
+			Stream >> _Token;
+			retValue = LPubMeta = _Token == QLatin1String("MODEL")  ||
+								  _Token == QLatin1String("PIECE")  ||
+								  _Token == QLatin1String("CAMERA") ||
+								  _Token == QLatin1String("LIGHT")  ||
+								  _Token == QLatin1String("GROUP")  ||
+								  _Token == QLatin1String("SYNTH");
+			Stream.seek(savePosition);
 		}
 		else if (Token == QLatin1String("!LEOCAD"))
 		{
 			LPubMeta = false;
 			retValue = true;
 		}
-
-		Stream.seek(savePosition);
 
 		return retValue;
 	};
@@ -648,7 +646,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				continue;
 			}
 /*** LPub3D Mod - LPUB meta command ***/
-			if (!ViewerMetaCommandLine(LineStream, LPubMeta))
+			if (!ViewerMetaCommandLine(LineStream, Token, LPubMeta))
 			{
 				mFileLines.append(OriginalLine);
 				continue;
