@@ -97,7 +97,7 @@ CONFIG(debug, debug|release) {
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
     COPY_LDV_SOURCE_FILES = #True
     # This line points to ldview git extract folder name, you can set as you like
-    VER_LDVSRC            = ldview_vsbuild
+    VER_LDVSRC            = ldview_vs_build
     # This line defines the path of the ldview git extract relative to this project file
     LDVSRCPATH            = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
 } else {

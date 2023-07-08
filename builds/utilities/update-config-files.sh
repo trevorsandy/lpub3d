@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 23, 2023
+# Last Update July 08, 2023
 # Copyright (C) 2016 - 2023 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -336,10 +336,9 @@ then
         sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" "${FILE}"
         if [ "${last_commit_sha}" = "${last_annotated_tag_sha}" ]
         then
-            sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION}/}" \
-                   -e "0,/.*See https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v.*/                       See https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}\/release_notes.html/}" "${FILE}"
+            sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION} Release Build./}"
         else
-            sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION} r${LP3D_VER_REVISION} Continuous Build/}" "${FILE}"
+            sed -i -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") v${LP3D_VERSION} r${LP3D_VER_REVISION} Continuous Build./}" "${FILE}"
         fi
     fi
 else
