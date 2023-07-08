@@ -1,4 +1,30 @@
-LPub3D 2.4.7.0.3476 (21 06 2023 12:27:47)
+LPub3D 2.4.7.29.3505 (08 07 2023 03:15:34)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Change - Custom parts with underscore in the name #730
+- Change - MLCad Part unknown! PART line error after mpd file save #734
+- Change - Relative justify vertical axis on outside placement #729
+- Change - Set submodel substitute part as unofficial part #733
+- Fix - Abnormal rendering behaviour #726
+- Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Include file meta commands not always applied #735
+- Fix - Scrambled submodel when placed before ignore IGN command #732
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.7.0.3476 (21 06 2023 12:27:47))
 
 Features, enhancements, fixes and changes
 ------------
