@@ -55,7 +55,9 @@ class lcMeshLoaderSection
 {
 public:
 	lcMeshLoaderSection(lcMeshPrimitiveType PrimitiveType, lcMeshLoaderMaterial* Material)
-		: mMaterial(Material), mPrimitiveType(PrimitiveType), mIndices(1024, 1024)
+/*** LPub3D Mod - use std::vector for lcArray ***/	
+		: mMaterial(Material), mPrimitiveType(PrimitiveType), mIndices(1024)
+/*** LPub3D Mod end ***/		
 	{
 	}
 
@@ -98,8 +100,10 @@ class lcMeshLoaderTypeData
 public:
 	lcMeshLoaderTypeData()
 	{
-		mVertices.SetGrow(1024);
-		mConditionalVertices.SetGrow(1024);
+/*** LPub3D Mod - use std::vector for lcArray ***/		
+//		mVertices.SetGrow(1024);
+//		mConditionalVertices.SetGrow(1024);
+/*** LPub3D Mod end ***/		
 	}
 
 	lcMeshLoaderTypeData(const lcMeshLoaderTypeData&) = delete;
