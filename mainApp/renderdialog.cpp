@@ -1257,14 +1257,20 @@ RenderProcess::~RenderProcess(){
 
 void RenderDialog::on_RenderOutputButton_clicked()
 {
-    QString renderType = mRenderType == POVRAY_RENDER ? QLatin1String("POV-Ray") : QLatin1String("Blender");
+    QString renderType = QLatin1String("Blender");
     QFileInfo fileInfo(GetLogFileName(true/*stdOut*/));
+    QString message = tr("Blender standard output file not found: %1.").arg(fileInfo.absoluteFilePath());
+    if (mRenderType == POVRAY_RENDER)
+    {
+        renderType = QLatin1String("POV-Ray");
+        fileInfo.setFile(GetLogFileName(false/*stdOut*/));
+        message = tr("POV-Ray standard error file not found: %1.").arg(fileInfo.absoluteFilePath());
+    }
     if (!fileInfo.exists()) {
-        emit gui->messageSig(LOG_ERROR, tr("%1 Standard output file not found: %2.")
-                             .arg(renderType).arg(fileInfo.absoluteFilePath()));
+        emit gui->messageSig(LOG_ERROR, message);
         return;
     }
-    QString title = tr("%1 Render Standard Output").arg(renderType);
+    QString title = tr("%1 Render Output").arg(renderType);
     QString status = tr("View %1 render process standard output").arg(renderType);
     gui->displayParmsFile(fileInfo.absoluteFilePath());
     gui->parmsWindow->setWindowTitle(tr(title.toLatin1(),status.toLatin1()));
