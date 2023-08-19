@@ -1369,6 +1369,12 @@ int Gui::drawPage(
             case LDCadGroupRc:
             case LeoCadModelRc:
             case LeoCadPieceRc:
+            case LeoCadSynthRc:
+            case LeoCadGroupBeginRc:
+            case LeoCadGroupEndRc:
+              CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
+              break;
+
             case LeoCadCameraRc:
             case LeoCadLightRc:
             case LeoCadLightSizeRc:
@@ -1376,9 +1382,8 @@ int Gui::drawPage(
             case LeoCadLightGridRc:
             case LeoCadLightPOVRayRc:
             case LeoCadLightShadowless:
-            case LeoCadSynthRc:
-            case LeoCadGroupBeginRc:
-            case LeoCadGroupEndRc:
+              if (line.contains(" LOCAL "))
+                  line.remove("LOCAL ");
               CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
               if (rc == LeoCadLightSizeRc)
               {
@@ -3091,6 +3096,7 @@ int Gui::findPage(
 {
   bool isPreDisplayPage = true;
   bool isDisplayPage    = false;
+  bool isLocalMeta      = false;
 
   opts.pageDisplayed    = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
 
@@ -4132,6 +4138,15 @@ int Gui::findPage(
             case LDCadGroupRc:
             case LeoCadModelRc:
             case LeoCadPieceRc:
+            case LeoCadSynthRc:
+            case LeoCadGroupBeginRc:
+            case LeoCadGroupEndRc:
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                  CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
+              }
+              opts.flags.partsAdded = true;
+              break;
+
             case LeoCadCameraRc:
             case LeoCadLightRc:
             case LeoCadLightSizeRc:
@@ -4139,10 +4154,11 @@ int Gui::findPage(
             case LeoCadLightGridRc:
             case LeoCadLightPOVRayRc:
             case LeoCadLightShadowless:
-            case LeoCadSynthRc:
-            case LeoCadGroupBeginRc:
-            case LeoCadGroupEndRc:
-              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+              isLocalMeta = line.contains(" LOCAL ");
+              if ((isDisplayPage && isLocalMeta) || (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && !isLocalMeta))
+              {
+                  if (isLocalMeta)
+                      line.remove("LOCAL ");
                   CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
               }
               opts.flags.partsAdded = true;
@@ -6168,6 +6184,12 @@ void Gui::writeToTmp(const QString &fileName,
                   case LDCadGroupRc:
                   case LeoCadModelRc:
                   case LeoCadPieceRc:
+                  case LeoCadSynthRc:
+                  case LeoCadGroupBeginRc:
+                  case LeoCadGroupEndRc:
+                      CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
+                      break;
+
                   case LeoCadCameraRc:
                   case LeoCadLightRc:
                   case LeoCadLightSizeRc:
@@ -6175,9 +6197,8 @@ void Gui::writeToTmp(const QString &fileName,
                   case LeoCadLightGridRc:
                   case LeoCadLightPOVRayRc:
                   case LeoCadLightShadowless:
-                  case LeoCadSynthRc:
-                  case LeoCadGroupBeginRc:
-                  case LeoCadGroupEndRc:
+                      if (line.contains(" LOCAL "))
+                          line.remove("LOCAL ");
                       CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
                       break;
 
@@ -6491,15 +6512,20 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
               case LeoCadModelRc:
               case LeoCadPieceRc:
               case LeoCadCameraRc:
+              case LeoCadSynthRc:
+              case LeoCadGroupBeginRc:
+              case LeoCadGroupEndRc:
+              fileContent << line;
+              break;
+
               case LeoCadLightRc:
               case LeoCadLightSizeRc:
               case LeoCadLightTypeRc:
               case LeoCadLightGridRc:
               case LeoCadLightPOVRayRc:
               case LeoCadLightShadowless:
-              case LeoCadSynthRc:
-              case LeoCadGroupBeginRc:
-              case LeoCadGroupEndRc:
+              if (line.contains(" LOCAL "))
+                  line.remove("LOCAL ");
               fileContent << line;
               break;
 
