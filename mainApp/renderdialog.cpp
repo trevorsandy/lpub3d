@@ -257,13 +257,14 @@ void RenderDialog::on_RenderSettingsButton_clicked()
                     false /*document model*/,
                     this);
 
-        if (ok)
-            mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
+        lpub->getAct("LightGroupAct.4")->setEnabled(ok);
 
         if (Preferences::blenderImportModule.isEmpty())
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
-        else
+        else if (ok)
         {
+            mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
+
             if (mImportOnly) {
                 mImportModule = Preferences::blenderImportModule == QLatin1String("TN")
                         ? tr("LDraw Import TN")

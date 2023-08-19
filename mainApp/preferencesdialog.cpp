@@ -2199,6 +2199,8 @@ void PreferencesDialog::accept()
     if (resetSceneColorsFlag)
         emit gui->messageSig(LOG_INFO,tr("Scene Colors have been reset."));
 
+    lpub->getAct("LightGroupAct.4")->setEnabled(!Preferences::blenderImportModule.isEmpty());
+
     if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
         fileInfo.setFile(ui.povrayPath->text());
         bool povRayExists = fileInfo.exists();
