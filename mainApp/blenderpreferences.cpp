@@ -2451,7 +2451,8 @@ void BlenderPreferences::saveSettings()
             continue;
         QString const key = mBlenderPaths[i].key;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
-        Settings.setValue(key, QVariant(value));
+		if (Settings.contains(key))
+			Settings.setValue(key, QVariant(value));
     }
 
     for (int i = 0; i < numSettings(); i++) {
@@ -2467,7 +2468,8 @@ void BlenderPreferences::saveSettings()
         }
 
         QString const key = mBlenderSettings[i].key;
-        Settings.setValue(key, QVariant(value));
+		if (Settings.contains(key))
+			Settings.setValue(key, QVariant(value));
     }
 
     Settings.setValue(parameterFileKey, QVariant(QDir::toNativeSeparators(parameterFile)));
@@ -2483,7 +2485,8 @@ void BlenderPreferences::saveSettings()
             continue;
         QString const key = mBlenderPaths[i].key_mm;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
-        Settings.setValue(key, QVariant(value));
+		if (Settings.contains(key))
+			Settings.setValue(key, QVariant(value));
     }
 
     for (int i = 0; i < numSettingsMM(); i++) {
@@ -2495,7 +2498,8 @@ void BlenderPreferences::saveSettings()
             value = mBlenderSettingsMM[i].value;
         }
         QString const key = mBlenderSettingsMM[i].key;
-        Settings.setValue(key, QVariant(value));
+		if (Settings.contains(key))
+			Settings.setValue(key, QVariant(value));
     }
 
     searchDirectoriesKey = QLatin1String("additionalSearchPaths");
