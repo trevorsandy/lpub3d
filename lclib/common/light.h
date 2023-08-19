@@ -5,12 +5,11 @@
 
 #define LC_LIGHT_HIDDEN            0x0001
 #define LC_LIGHT_DISABLED          0x0002
-#define LC_LIGHT_SPOT              0x0004
-#define LC_LIGHT_DIRECTIONAL       0x0008
-#define LC_LIGHT_POSITION_SELECTED 0x0010
-#define LC_LIGHT_POSITION_FOCUSED  0x0020
-#define LC_LIGHT_TARGET_SELECTED   0x0040
-#define LC_LIGHT_TARGET_FOCUSED    0x0080
+#define LC_LIGHT_DIRECTIONAL       0x0004
+#define LC_LIGHT_POSITION_SELECTED 0x0008
+#define LC_LIGHT_POSITION_FOCUSED  0x0010
+#define LC_LIGHT_TARGET_SELECTED   0x0020
+#define LC_LIGHT_TARGET_FOCUSED    0x0040
 
 #define LC_LIGHT_SELECTION_MASK    (LC_LIGHT_POSITION_SELECTED | LC_LIGHT_TARGET_SELECTED)
 #define LC_LIGHT_FOCUS_MASK        (LC_LIGHT_POSITION_FOCUSED | LC_LIGHT_TARGET_FOCUSED)
@@ -83,12 +82,7 @@ public:
 
 	bool IsPointLight() const
 	{
-		return (mState & (LC_LIGHT_SPOT | LC_LIGHT_DIRECTIONAL)) == 0;
-	}
-
-	bool IsSpotLight() const
-	{
-		return (mState & LC_LIGHT_SPOT) != 0;
+		return (mState & LC_LIGHT_DIRECTIONAL) == 0;
 	}
 
 	bool IsDirectionalLight() const
@@ -325,12 +319,11 @@ protected:
 	lcObjectKeyArray<float> mSpotExponentKeys;
 
 /*** LPub3D Mod - enable lights ***/
-	void SetLightState(int LightType);
 	void Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType);
+	void SetLightState(int LightType);
+	void DrawPointLight(lcContext* Context) const;
 	void DrawDirectionalLight(lcContext* Context) const;
 /*** LPub3D Mod end ***/
-	void DrawPointLight(lcContext* Context) const;
-	void DrawSpotLight(lcContext* Context) const;
 
 /*** LPub3D Mod - moved mName to public, enable lights ***/
 //    QString mName;
