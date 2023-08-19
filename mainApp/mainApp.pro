@@ -437,9 +437,6 @@ LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
 
 #~~~ LDView libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Copy libraries from LDView (Disabled)
-#COPY_LDV_LIBS = True
-
 # Load LDView libraries for LDVQt
 LOAD_LDV_LIBS = True
 

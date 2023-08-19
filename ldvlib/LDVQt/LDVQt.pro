@@ -93,13 +93,23 @@ CONFIG(debug, debug|release) {
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
-    # The remaining lines in this block adds the LDView source files...
+    # The remaining lines in this block adds the LDView header and source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    COPY_LDV_SOURCE_FILES = #True
+    VER_USE_LDVIEW_DEV = True
     # This line points to ldview git extract folder name, you can set as you like
-    VER_LDVSRC            = ldview_vs_build
+    VER_LDVIEW_DEV      = ldview_vs_build
     # This line defines the path of the ldview git extract relative to this project file
-    LDVSRCPATH            = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
+    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} ) )
+    equals(VER_USE_LDVIEW_DEV,True) {
+        exists($$VER_LDVIEW_DEV_REPOSITORY) {
+            INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
+            message("~~~ USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+            message("~~~ ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        } else {
+            VER_USE_LDVIEW_DEV = False
+            message("~~~ WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        }
+    }
 } else {
     BUILD_CONF = Release
     ARCH_BLD = bit_release
@@ -109,9 +119,6 @@ BUILD += $$BUILD_CONF Build
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
 #~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Copy headers from LDView (Disabled)
-#COPY_LDV_HEADERS = True
 
 # Load LDView headers
 LOAD_LDV_HEADERS = True
@@ -176,16 +183,6 @@ contains(QT_VERSION, ^6\\..*) {
       QMAKE_CXXFLAGS += -std=c++0x
     }
   }
-}
-
-#~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-equals(COPY_LDV_SOURCE_FILES,True) {
-    exists($$LDVSRCPATH) {
-      message("~~~ lib$${TARGET} Enable copy LDView sources to $$LDVINCLUDE ~~~ ")
-    } else {
-      message("~~~ lib$${TARGET} Could not copy LDView sources. $$LDVINCLUDE not found ~~~ ")
-    }
 }
 
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -259,15 +256,6 @@ FORMS += \
 OTHER_FILES += \
     $$PWD/LDVWidgetMessages.ini \
     $$PWD/../../mainApp/extras/ldvMessages.ini
-
-# These includes are only processed in debug on Windows mode
-win32-msvc*:equals(COPY_LDV_SOURCE_FILES,True) {
-    include(include/LDExporter/LDExporter.pri)
-    include(include/LDLib/LDLib.pri)
-    include(include/LDLoader/LDLoader.pri)
-    include(include/TCFoundation/TCFoundation.pri)
-    include(include/TRE/TRE.pri)
-}
 
 # suppress warnings
 !win32-msvc*:!macx {
