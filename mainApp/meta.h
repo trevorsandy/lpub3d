@@ -114,8 +114,8 @@ enum Rc {
          LeoCadPieceRc,
          LeoCadCameraRc,
          LeoCadLightRc,
-         LeoCadLightWidthRc, // Light HEIGHT written on WIDTH line
-         LeoCadLightTypeRc,  // Light NAME written on TYPE line
+         LeoCadLightSizeRc,  // Light HEIGHT and WIDTH  written on same line
+         LeoCadLightTypeRc,  // Light NAME and TYPE written on same line
          LeoCadSynthRc,
          LeoCadGroupBeginRc,
          LeoCadGroupEndRc,
@@ -4038,11 +4038,11 @@ public:
 /*------------------------*/
 struct LightData
 {
-  StringMeta    lightName;     // QString   mName;
-  StringMeta    lightType;     // QString   mLightType; (Light NAME (mName) written on TYPE line)
-  StringMeta    lightShape;    // QString   mLightShape;
+  StringMeta    name;          // QString   mName;
+  StringMeta    type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  StringMeta    shape;         // QString   mLightShape;
 
-  FloatMeta     lightSpecular; // float     mLightSpecular;
+  FloatMeta     specular;      // float     mLightSpecular;
   FloatMeta     spotSize;      // float     mSpotSize;
   FloatMeta     spotCutoff;    // float     mSpotCutoff;
   FloatMeta     power;         // float     mSpotExponent;
@@ -4056,6 +4056,8 @@ struct LightData
   FloatMeta     spotBlend;     // float     mLightFactor[1]
 
   Vector3Meta   lightColour;   // lcVector3 mLightColor
+
+  Vector3Meta   color;         // lcVector3 mLightColor
   Vector3Meta   target;        // lcVector3 mPosition
   Vector3Meta   position;      // lcVector3 mTargetPosition
 };
@@ -4063,11 +4065,11 @@ struct LightData
 class LightMeta : public BranchMeta
 {
 public:
-  StringMeta    lightName;     // QString   mName;
-  StringMeta    lightType;     // QString   mLightType; (Light NAME (mName) written on TYPE line)
-  StringMeta    lightShape;    // QString   mLightShape;
+  StringMeta    name;          // QString   mName;
+  StringMeta    type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  StringMeta    shape;         // QString   mLightShape;
 
-  FloatMeta     lightSpecular; // float     mLightSpecular;
+  FloatMeta     specular;      // float     mLightSpecular;
   FloatMeta     spotSize;      // float     mSpotSize;
   FloatMeta     spotCutoff;    // float     mSpotCutoff;
   FloatMeta     power;         // float     mSpotExponent;
@@ -4081,17 +4083,19 @@ public:
   FloatMeta     spotBlend;     // float     mLightFactor[1]
 
   Vector3Meta   lightColour;   // lcVector3 mLightColor
+
+  Vector3Meta   color;         // lcVector3 mLightColor
   Vector3Meta   target;        // lcVector3 mPosition
   Vector3Meta   position;      // lcVector3 mTargetPosition
 
   LightData value()
   {
       LightData             value;
-      value.lightName     = lightName;
-      value.lightType     = lightType;
-      value.lightShape    = lightShape;
+      value.name          = name;
+      value.type          = type;
+      value.shape         = shape;
 
-      value.lightSpecular = lightSpecular;
+      value.specular      = specular;
       value.spotSize      = spotSize;
       value.spotCutoff    = spotCutoff;
       value.power         = power;
@@ -4105,6 +4109,8 @@ public:
       value.spotBlend     = spotBlend;
 
       value.lightColour   = lightColour;
+
+      value.color         = color;
       value.target        = target;
       value.position      = position;
 
@@ -4113,11 +4119,11 @@ public:
 
   void setValue(LightData &value)
   {
-      lightName     = value.lightName;
-      lightType     = value.lightType;
-      lightShape    = value.lightShape;
+      name          = value.name;
+      type          = value.type;
+      shape         = value.shape;
 
-      lightSpecular = value.lightSpecular;
+      specular      = value.specular;
       spotSize      = value.spotSize;
       spotCutoff    = value.spotCutoff;
       power         = value.power;
@@ -4130,7 +4136,7 @@ public:
       size          = value.size;
       spotBlend     = value.spotBlend;
 
-      lightColour   = value.lightColour;
+      color         = value.color;
       target        = value.target;
       position      = value.position;
   }
@@ -4138,11 +4144,11 @@ public:
   void reset()
   {
       LightData             value;
-      value.lightName     .setValue(QString());
-      value.lightType     .setValue("Point");
-      value.lightShape    .setValue("Square");
+      value.name          .setValue(QString());
+      value.type          .setValue("Point");
+      value.shape         .setValue("Square");
 
-      value.lightSpecular .setValue(1.0f);
+      value.specular      .setValue(1.0f);
       value.spotSize      .setValue(75.0f);
       value.spotCutoff    .setValue(40.0f);
       value.power         .setValue(10.0f);
@@ -4156,6 +4162,8 @@ public:
       value.spotBlend     .setValue(0.15f);
 
       value.lightColour   .setValues(1.0f,1.0f,1.0f);
+
+      value.color         .setValues(1.0f,1.0f,1.0f);
       value.target        .setValues(0.0f,0.0f,0.0f);
       value.position      .setValues(0.0f,0.0f,0.0f);
 

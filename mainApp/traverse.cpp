@@ -1371,13 +1371,13 @@ int Gui::drawPage(
             case LeoCadPieceRc:
             case LeoCadCameraRc:
             case LeoCadLightRc:
-            case LeoCadLightWidthRc:
+            case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
               CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
-              if (rc == LeoCadLightWidthRc)
+              if (rc == LeoCadLightSizeRc)
               {
                  // Light WIDTH and HEIGHT written on same line
                  QString height = line.trimmed().split(" ").last();
@@ -1386,11 +1386,11 @@ int Gui::drawPage(
               if (rc == LeoCadLightTypeRc) {
                   // Light TYPE and NAME written on same line
                   int index = line.size() - line.lastIndexOf("NAME") - 5;
-                  QString lightName = line.right(index).replace("\"", "");
-                  curMeta.LeoCad.light.lightName.setValue(lightName);
+                  QString name = line.right(index).replace("\"", "");
+                  curMeta.LeoCad.light.name.setValue(name);
 
                   LightData lightData = curMeta.LeoCad.light.value();
-                  QString lightKey = QString("%1 %2").arg(lightData.lightType.value()).arg(lightName);
+                  QString lightKey = QString("%1 %2").arg(lightData.type.value()).arg(name);
                   lightList.insert(lightKey, lightData);
               }
               break;
@@ -4118,7 +4118,7 @@ int Gui::findPage(
             case LeoCadPieceRc:
             case LeoCadCameraRc:
             case LeoCadLightRc:
-            case LeoCadLightWidthRc:
+            case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
@@ -6151,7 +6151,7 @@ void Gui::writeToTmp(const QString &fileName,
                   case LeoCadPieceRc:
                   case LeoCadCameraRc:
                   case LeoCadLightRc:
-                  case LeoCadLightWidthRc:
+                  case LeoCadLightSizeRc:
                   case LeoCadLightTypeRc:
                   case LeoCadSynthRc:
                   case LeoCadGroupBeginRc:
@@ -6470,7 +6470,7 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
               case LeoCadPieceRc:
               case LeoCadCameraRc:
               case LeoCadLightRc:
-              case LeoCadLightWidthRc:
+              case LeoCadLightSizeRc:
               case LeoCadLightTypeRc:
               case LeoCadSynthRc:
               case LeoCadGroupBeginRc:

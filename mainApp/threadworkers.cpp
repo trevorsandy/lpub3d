@@ -2876,7 +2876,7 @@ int CountPageWorker::countPage(
             case LeoCadPieceRc:
             case LeoCadCameraRc:
             case LeoCadLightRc:
-            case LeoCadLightWidthRc:
+            case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:

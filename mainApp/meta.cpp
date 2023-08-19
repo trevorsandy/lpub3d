@@ -6529,11 +6529,11 @@ void ResolutionMeta::metaKeywords(QStringList &out, QString preamble)
 
 LightMeta::LightMeta() : BranchMeta()
 {
-  lightColour.setValues(1.0f,1.0f,1.0f);
+  color.setValues(1.0f,1.0f,1.0f);
 
-  lightSpecular.setFormats(9,1,"######9.9");
-  lightSpecular.setRange(0.0f,9999.0f);
-  lightSpecular.setValue(1.0f);
+  specular.setFormats(9,1,"######9.9");
+  specular.setRange(0.0f,9999.0f);
+  specular.setValue(1.0f);
 
   spotSize.setFormats(9,1,"######9.9");
   spotSize.setRange(0.0f,FLT_MAX);
@@ -6575,18 +6575,18 @@ LightMeta::LightMeta() : BranchMeta()
   spotBlend.setRange(0.0f,FLT_MAX);
   spotBlend.setValue(0.15f);
 
-  lightType.setValue("Point");
-  lightShape.setValue("Square");
+  type.setValue("Point");
+  shape.setValue("Square");
 }
 
-void LightMeta::init(BranchMeta *parent, QString name)
+void LightMeta::init(BranchMeta *parent, QString _name)
 {
-  AbstractMeta::init(parent, name);
+  AbstractMeta::init(parent, _name);
   // TODO - Add missing to LeoCAD highlight
-  lightType.init     (this,"TYPE",            LeoCadLightTypeRc);   // Light NAME written on TYPE line
-  lightName.init     (this,"NAME",            LeoCadLightRc);
-  lightShape.init    (this,"SHAPE",           LeoCadLightRc);
-  lightSpecular.init (this,"SPECULAR",        LeoCadLightRc);
+  type.init          (this,"TYPE",            LeoCadLightTypeRc);  // Light NAME and TYPE written on same line
+  name.init          (this,"NAME",            LeoCadLightRc);
+  shape.init         (this,"SHAPE",           LeoCadLightRc);
+  specular.init      (this,"SPECULAR",        LeoCadLightRc);
   spotSize.init      (this,"SPOT_SIZE",       LeoCadLightRc);
   spotCutoff.init    (this,"CUTOFF_DISTANCE", LeoCadLightRc);
 
@@ -6595,12 +6595,12 @@ void LightMeta::init(BranchMeta *parent, QString name)
 
   angle.init         (this,"ANGLE",           LeoCadLightRc);
   radius.init        (this,"RADIUS",          LeoCadLightRc);
-  width.init         (this,"WIDTH",           LeoCadLightWidthRc);  // Light HEIGHT written on WIDTH line
+  width.init         (this,"WIDTH",           LeoCadLightSizeRc);  // Light HEIGHT and WIDTH  written on same line
   height.init        (this,"HEIGHT",          LeoCadLightRc);
   size.init          (this,"SIZE",            LeoCadLightRc);
   spotBlend.init     (this,"SPOT_BLEND",      LeoCadLightRc);
 
-  lightColour.init   (this,"COLOR_RGB",       LeoCadLightRc);
+  color.init         (this,"COLOR_RGB",       LeoCadLightRc);
   target.init        (this,"TARGET_POSITION", LeoCadLightRc);
   position.init      (this,"POSITION",        LeoCadLightRc);
 }

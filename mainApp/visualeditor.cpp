@@ -1327,8 +1327,8 @@ void Gui::applyLightSettings()
                 lightMeta.setValue(currentStep->lightList[lightKey]);
 
             // Type and Name
-            lightMeta.lightType.setValue(Type);
-            metaString = lightMeta.lightType.format(false,false);
+            lightMeta.type.setValue(Type);
+            metaString = lightMeta.type.format(false,false);
             metaString.append(QString(" NAME \"%1\"").arg(Light->mName));
             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
 
@@ -1355,20 +1355,20 @@ void Gui::applyLightSettings()
             }
 
             // Colour
-            if (notEqual(Light->mLightColor[0], lightData.lightColour.x()) ||
-                notEqual(Light->mLightColor[1], lightData.lightColour.y()) ||
-                notEqual(Light->mLightColor[2], lightData.lightColour.z())) {
-                lightMeta.lightColour.setValues(Light->mLightColor[0],
+            if (notEqual(Light->mLightColor[0], lightData.color.x()) ||
+                notEqual(Light->mLightColor[1], lightData.color.y()) ||
+                notEqual(Light->mLightColor[2], lightData.color.z())) {
+                lightMeta.color.setValues(Light->mLightColor[0],
                                                 Light->mLightColor[1],
                                                 Light->mLightColor[2]);
-                metaString = lightMeta.lightColour.format(false,false);
+                metaString = lightMeta.color.format(false,false);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
             // Specular
-            if (notEqual(Light->mLightSpecular, lightData.lightSpecular.value())) {
-                lightMeta.lightSpecular.setValue(Light->mLightSpecular);
-                metaString = lightMeta.lightSpecular.format(false,false);
+            if (notEqual(Light->mLightSpecular, lightData.specular.value())) {
+                lightMeta.specular.setValue(Light->mLightSpecular);
+                metaString = lightMeta.specular.format(false,false);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
@@ -1462,8 +1462,8 @@ void Gui::applyLightSettings()
                         break;
                     }
                     if (notEqual(Light->mLightShape, lightData.radius.value())) {
-                        lightMeta.lightShape.setValue(Shape);
-                        metaString = lightMeta.lightShape.format(false,false);
+                        lightMeta.shape.setValue(Shape);
+                        metaString = lightMeta.shape.format(false,false);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     break;
