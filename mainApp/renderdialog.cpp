@@ -138,6 +138,10 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         mTransBackground = true;
 
+        QImage Image(QPixmap(":/resources/1024px-Povray_logo_sphere.png").toImage());
+        Image = Image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        ui->preview->setPixmap(QPixmap::fromImage(Image.scaled(mWidth, mHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+
         setMinimumSize(100, 100);
 
     } else if (mRenderType == BLENDER_RENDER) {

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/resources">
+        <file alias="1024px-Povray_logo_sphere.png">resources/1024px-Povray_logo_sphere.png</file>
         <file alias="ldraw_document.icns">ldraw_document.icns</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
         <file alias="lpub3d.ico">lpub3d.ico</file>
