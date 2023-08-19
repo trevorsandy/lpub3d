@@ -1654,7 +1654,7 @@ lcTrackTool lcView::GetOverrideTrackTool(Qt::MouseButton Button) const
 	constexpr lcTrackTool TrackToolFromTool[] =
 	{
 		lcTrackTool::Insert,      // lcTool::Insert
-		lcTrackTool::PointLight,  // lcTool::Light
+		lcTrackTool::PointLight,  // lcTool::PointLight
 		lcTrackTool::SunLight,    // lcTool::SunLight      /*** LPub3D Mod - enable lights ***/
 		lcTrackTool::AreaLight,   // lcTool::AreaLight     /*** LPub3D Mod - enable lights ***/
 		lcTrackTool::SpotLight,   // lcTool::SpotLight
@@ -2141,7 +2141,7 @@ lcTool lcView::GetCurrentTool() const
 	{
 		lcTool::Select,      // lcTrackTool::None
 		lcTool::Insert,      // lcTrackTool::Insert
-		lcTool::Light,       // lcTrackTool::PointLight
+		lcTool::PointLight,  // lcTrackTool::PointLight
 		lcTool::SunLight,    // lcTrackTool::SunLight      /*** LPub3D Mod - enable lights ***/
 		lcTool::AreaLight,   // lcTrackTool::AreaLight     /*** LPub3D Mod - enable lights ***/
 		lcTool::SpotLight,   // lcTrackTool::SpotLight
@@ -2205,7 +2205,7 @@ void lcView::UpdateTrackTool()
 		NewTrackTool = lcTrackTool::Insert;
 		break;
 
-	case lcTool::Light:
+	case lcTool::PointLight:
 		NewTrackTool = lcTrackTool::PointLight;
 		break;
 
@@ -2444,28 +2444,29 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 	lcTool Tool = GetCurrentTool();
 	lcModel* ActiveModel = GetActiveModel();
 
+	auto AddLight = [this, ActiveModel](lcLightType LightType)
+	{
+		lcVector3 Position = GetCameraLightInsertPosition();
+		lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
+		ActiveModel->BeginDirectionalLightTool(Position, Target, LightType);
+	};
+
 	switch (Tool)
 	{
-		case lcTool::Insert:
-		case lcTool::Light:
-			break;
+	case lcTool::Insert:
+	case lcTool::PointLight:
+		break;
 
-/*** LPub3D Mod - enable lights ***/
-	case lcTool::SunLight:
-	case lcTool::AreaLight:
-/*** LPub3D Mod end ***/
 	case lcTool::SpotLight:
-		{
-			lcVector3 Position = GetCameraLightInsertPosition();
-			lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
-/*** LPub3D Mod - enable lights ***/
-			int LightType =
-					Tool == lcTool::SunLight ? LC_SUNLIGHT
-											 : Tool == lcTool::SpotLight ? LC_SPOTLIGHT :
-																		   LC_AREALIGHT;
-			ActiveModel->BeginDirectionalLightTool(Position, Target, LightType);
-/*** LPub3D Mod end ***/
-		}
+		AddLight(lcLightType::Spot);
+		break;
+
+	case lcTool::SunLight:
+		AddLight(lcLightType::Sun);
+		break;
+
+	case lcTool::AreaLight:
+		AddLight(lcLightType::Area);
 		break;
 
 		case lcTool::Camera:
@@ -2538,7 +2539,7 @@ void lcView::StopTracking(bool Accept)
 	switch (Tool)
 	{
 	case lcTool::Insert:
-	case lcTool::Light:
+	case lcTool::PointLight:
 /*** LPub3D Mod - enable lights ***/
 	case lcTool::SunLight:
 	case lcTool::AreaLight:

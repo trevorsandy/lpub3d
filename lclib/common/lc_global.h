@@ -79,6 +79,7 @@ class lcObject;
 class lcPiece;
 class lcCamera;
 class lcLight;
+enum class lcLightType;
 class lcGroup;
 class PieceInfo;
 typedef std::map<const PieceInfo*, std::map<int, int>> lcPartsList;

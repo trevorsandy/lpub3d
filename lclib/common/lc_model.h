@@ -365,7 +365,7 @@ public:
 	void InsertPieceToolClicked(const lcMatrix44& WorldMatrix);
 	void PointLightToolClicked(const lcVector3& Position);
 /*** LPub3D Mod - enable lights ***/
-	void BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, int LightType);
+	void BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, lcLightType LightType);
 	void UpdateDirectionalLightTool(const lcVector3& Position);
 /*** LPub3D Mod end ***/
 	void BeginCameraTool(const lcVector3& Position, const lcVector3& Target);

@@ -626,7 +626,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Add new pieces to the model"),
 		""
 	},
-	// LC_EDIT_ACTION_LIGHT
+	// LC_EDIT_ACTION_POINT_LIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
 		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
@@ -634,14 +634,14 @@ const lcCommand gCommands[] =
 		""
 	},
 /*** LPub3D Mod - enable lights ***/
-	// LC_EDIT_ACTION_SUNLIGHT
+	// LC_EDIT_ACTION_SUN_LIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
 		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
 		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in Properties tab"),
 		""
 	},
-	// LC_EDIT_ACTION_AREALIGHT
+	// LC_EDIT_ACTION_AREA_LIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
 		QT_TRANSLATE_NOOP("Menu", "Arealight"),
@@ -649,7 +649,7 @@ const lcCommand gCommands[] =
 		""
 	},
 /*** LPub3D Mod end ***/
-	// LC_EDIT_ACTION_SPOTLIGHT
+	// LC_EDIT_ACTION_SPOT_LIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
 		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
@@ -1883,7 +1883,7 @@ LC_ARRAY_SIZE_CHECK(gCommands, LC_NUM_COMMANDS);
 const char* gToolNames[] =
 {
 	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),      // lcTool::Insert
-	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // lcTool::Light
+	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // lcTool::PointLight
 	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),   // lcTool::NewSunLight  /*** LPub3D Mod - enable lights ***/
 	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // lcTool::NewAreaLight /*** LPub3D Mod - enable lights ***/
 	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),  // lcTool::SpotLight

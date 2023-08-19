@@ -21,13 +21,12 @@ enum lcLightSection
 };
 
 /*** LPub3D Mod - enable lights ***/
-enum lcLightType
+enum class lcLightType
 {
-	LC_UNDEFINED_LIGHT,
-	LC_POINTLIGHT,
-	LC_AREALIGHT,
-	LC_SUNLIGHT,
-	LC_SPOTLIGHT
+	Point,
+	Area,
+	Sun,
+	Spot
 };
 
 enum lcLightShape
@@ -81,13 +80,10 @@ struct lcLightProperties
 class lcLight : public lcObject
 {
 public:
-/*** LPub3D Mod - LPUB meta command ***/
-	lcLight(float px, float py, float pz, bool lpubmeta = true);
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - enable lights ***/
-	lcLight(float px, float py, float pz, float tx, float ty, float tz, int LightType);
+	lcLight(const lcVector3& Position, const lcVector3& TargetPosition, lcLightType LightType, bool LPubMeta = true);
 /*** LPub3D Mod end ***/
-	~lcLight();
+	virtual ~lcLight() = default;
 
 	lcLight(const lcLight&) = delete;
 	lcLight(lcLight&&) = delete;
@@ -96,12 +92,22 @@ public:
 
 	bool IsPointLight() const
 	{
-		return (mState & LC_LIGHT_DIRECTIONAL) == 0;
+		return mLightType == lcLightType::Point;
 	}
 
 	bool IsDirectionalLight() const
 	{
-		return (mState & LC_LIGHT_DIRECTIONAL) != 0;
+		return mLightType != lcLightType::Point;
+	}
+
+	lcLightType GetLightType() const
+	{
+		return mLightType;
+	}
+
+	int GetLightShape() const
+	{
+		return mLightShape;
 	}
 
 	bool IsSelected() const override
@@ -290,7 +296,6 @@ public:
 	}
 /*** LPub3D Mod end ***/
 
-	// Temporary parameters
 	lcMatrix44 mWorldLight;
 	lcVector3 mPosition;
 	lcVector3 mTargetPosition;
@@ -308,13 +313,8 @@ public:
 	bool  mSpotCutoffSet;
 	bool  mHeightSet;
 	bool  mEnableCutoff;
-/*** LPub3D Mod - LPUB meta command ***/
-	bool mLPubMeta;
-/*** LPub3D Mod end ***/
 	bool  mPOVRayLight;
 	bool  mShadowless;
-	int   mLightType;
-	int   mLightShape;
 	float mLightDiffuse;
 	float mLightSpecular;
 	float mSpotSize;
@@ -324,9 +324,7 @@ public:
 /*** LPub3D Mod end ***/
 	float mSpotCutoff;
 	float mSpotExponent;
-/*** LPub3D Mod - moved mName from protected, enable lights ***/
 	QString mName;
-/*** LPub3D Mod end ***/
 
 protected:
 	lcObjectKeyArray<lcVector3> mPositionKeys;
@@ -339,8 +337,6 @@ protected:
 	lcObjectKeyArray<lcVector3> mLightColorKeys;
 	lcObjectKeyArray<lcVector2> mLightFactorKeys;
 	lcObjectKeyArray<lcVector2> mAreaGridKeys;
-	lcObjectKeyArray<int> mLightTypeKeys;
-	lcObjectKeyArray<int> mLightShapeKeys;
 	lcObjectKeyArray<float> mLightSpecularKeys;
 	lcObjectKeyArray<float> mLightDiffuseKeys;
 	lcObjectKeyArray<float> mSpotSizeKeys;
@@ -351,13 +347,14 @@ protected:
 	lcObjectKeyArray<float> mSpotExponentKeys;
 
 /*** LPub3D Mod - enable lights ***/
-	void Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType);
 	void DrawDirectionalLight(lcContext* Context) const;
 	void DrawPointLight(lcContext* Context) const;
-	void SetLightState(int LightType);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - moved mName to public, enable lights ***/
-//    QString mName;
 	quint32 mState;
+	lcLightType mLightType;
+	int mLightShape;
+/*** LPub3D Mod - LPUB meta command ***/
+	bool mLPubMeta;
+/*** LPub3D Mod end ***/
 };

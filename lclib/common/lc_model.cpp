@@ -681,7 +681,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			{
 /*** LPub3D Mod - enable lights ***/
 				if (!Light)
-					Light = new lcLight(0.0f, 0.0f, 0.0f, LPubMeta);
+					Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, LPubMeta);
 
 				if (Light->ParseLDrawLine(LineStream))
 				{
@@ -4458,7 +4458,7 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 	switch (Tool)
 	{
 	case lcTool::Insert:
-	case lcTool::Light:
+	case lcTool::PointLight:
 /*** LPub3D Mod - enable lights ***/
 	case lcTool::SunLight:
 	case lcTool::AreaLight:
@@ -4537,28 +4537,46 @@ void lcModel::InsertPieceToolClicked(const lcMatrix44& WorldMatrix)
 
 void lcModel::PointLightToolClicked(const lcVector3& Position)
 {
-	lcLight* Light = new lcLight(Position[0], Position[1], Position[2]);
+	lcLight* Light = new lcLight(Position, lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point);
 	Light->CreateName(mLights);
 	mLights.Add(Light);
 
 	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_POSITION, false);
-	SaveCheckpoint(tr("New Pointlight"));
+	SaveCheckpoint(tr("New Point Light"));
 }
 
 /*** LPub3D Mod - enable lights ***/
-void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, int LightType)
+void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, lcLightType LightType)
 {
-	lcLight* Light = new lcLight(Position[0], Position[1], Position[2], Target[0], Target[1], Target[2], LightType);
+	lcLight* Light = new lcLight(Position, Target, LightType);
 	Light->CreateName(mLights);
 	mLights.Add(Light);
 
 	mMouseToolDistance = Target;
 
 	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_TARGET, false);
-	QString light(LightType == LC_SUNLIGHT  ? "Sunlight "
-				: LightType == LC_SPOTLIGHT ? "Spotlight "
+	QString light(LightType == lcLightType::Sun  ? "Sunlight "
+				: LightType == lcLightType::Spot ? "Spotlight "
 				: "Arealight ");
 	SaveCheckpoint(tr("%1").arg(light));
+
+	switch (LightType)
+	{
+	case lcLightType::Point:
+		break;
+
+	case lcLightType::Area:
+		SaveCheckpoint(tr("New Area Light"));
+		break;
+
+	case lcLightType::Sun:
+		SaveCheckpoint(tr("New Sun Light"));
+		break;
+
+	case lcLightType::Spot:
+		SaveCheckpoint(tr("New Spot Light"));
+		break;
+	}
 }
 
 void lcModel::UpdateDirectionalLightTool(const lcVector3& Position)

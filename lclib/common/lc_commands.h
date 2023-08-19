@@ -96,10 +96,10 @@ enum lcCommandId
 	LC_EDIT_TRANSFORM_RELATIVE_ROTATION,
 	LC_EDIT_ACTION_FIRST,
 	LC_EDIT_ACTION_INSERT = LC_EDIT_ACTION_FIRST,
-	LC_EDIT_ACTION_LIGHT,
-	LC_EDIT_ACTION_SUNLIGHT,                           /*** LPub3D Mod - enable lights ***/
-	LC_EDIT_ACTION_AREALIGHT,                          /*** LPub3D Mod - enable lights ***/
-	LC_EDIT_ACTION_SPOTLIGHT,
+	LC_EDIT_ACTION_POINT_LIGHT,
+	LC_EDIT_ACTION_SUN_LIGHT,                           /*** LPub3D Mod - enable lights ***/
+	LC_EDIT_ACTION_AREA_LIGHT,                          /*** LPub3D Mod - enable lights ***/
+	LC_EDIT_ACTION_SPOT_LIGHT,
 	LC_EDIT_ACTION_CAMERA,
 	LC_EDIT_ACTION_SELECT,
 	LC_EDIT_ACTION_MOVE,
@@ -301,7 +301,7 @@ extern const lcCommand gCommands[];
 enum class lcTool
 {
 	Insert,
-	Light,
+	PointLight,
 	SunLight,      /*** LPub3D Mod - enable lights ***/
 	AreaLight,     /*** LPub3D Mod - enable lights ***/
 	SpotLight,

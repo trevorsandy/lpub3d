@@ -263,24 +263,24 @@ void lcMainWindow::CreateActions()
 	QIcon EditActionLightIcon;
 	EditActionLightIcon.addFile(":/resources/action_light.png");
 	EditActionLightIcon.addFile(":/resources/action_light_16.png");
-	mActions[LC_EDIT_ACTION_LIGHT]->setIcon(EditActionLightIcon);
+	mActions[LC_EDIT_ACTION_POINT_LIGHT]->setIcon(EditActionLightIcon);
 
 /*** LPub3D Mod - enable lights ***/
 	QIcon EditActionSunlightIcon;
 	EditActionSunlightIcon.addFile(":/resources/action_sunlight.png");
 	EditActionSunlightIcon.addFile(":/resources/action_sunlight_16.png");
-	mActions[LC_EDIT_ACTION_SUNLIGHT]->setIcon(EditActionSunlightIcon);
+	mActions[LC_EDIT_ACTION_SUN_LIGHT]->setIcon(EditActionSunlightIcon);
 
 	QIcon EditActionArealightIcon;
 	EditActionArealightIcon.addFile(":/resources/action_arealight.png");
 	EditActionArealightIcon.addFile(":/resources/action_arealight_16.png");
-	mActions[LC_EDIT_ACTION_AREALIGHT]->setIcon(EditActionArealightIcon);
+	mActions[LC_EDIT_ACTION_AREA_LIGHT]->setIcon(EditActionArealightIcon);
 /*** LPub3D Mod end ***/
 
 	QIcon EditActionSpotLightIcon;
 	EditActionSpotLightIcon.addFile(":/resources/action_spotlight.png");
 	EditActionSpotLightIcon.addFile(":/resources/action_spotlight_16.png");
-	mActions[LC_EDIT_ACTION_SPOTLIGHT]->setIcon(EditActionSpotLightIcon);
+	mActions[LC_EDIT_ACTION_SPOT_LIGHT]->setIcon(EditActionSpotLightIcon);
 
 	QIcon EditActionSelectIcon;
 	EditActionSelectIcon.addFile(":/resources/action_select.png");
@@ -512,10 +512,10 @@ void lcMainWindow::CreateMenus()
 /*** LPub3D Mod - suppress mToolsMenu conflicting items ***/
 /***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_INSERT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SUNLIGHT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_AREALIGHT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_POINT_LIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SUN_LIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_AREA_LIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOT_LIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsMenu->addSeparator();
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -770,10 +770,10 @@ void lcMainWindow::CreateToolBars()
 /*** LPub3D Mod - toolstoolbar undo/redo ***/
 /***
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SUNLIGHT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_AREALIGHT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_POINT_LIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SUN_LIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_AREA_LIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOT_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsToolBar->addSeparator();
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -4081,21 +4081,21 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetTool(lcTool::Insert);
 		break;
 
-	case LC_EDIT_ACTION_LIGHT:
-		SetTool(lcTool::Light);
+	case LC_EDIT_ACTION_POINT_LIGHT:
+		SetTool(lcTool::PointLight);
 		break;
 
 /*** LPub3D Mod - enable lights ***/
-		case LC_EDIT_ACTION_SUNLIGHT:
+		case LC_EDIT_ACTION_SUN_LIGHT:
 		SetTool(lcTool::SunLight);
 		break;
 
-	case LC_EDIT_ACTION_AREALIGHT:
+	case LC_EDIT_ACTION_AREA_LIGHT:
 		SetTool(lcTool::AreaLight);
 		break;
 /*** LPub3D Mod end ***/
 
-	case LC_EDIT_ACTION_SPOTLIGHT:
+	case LC_EDIT_ACTION_SPOT_LIGHT:
 		SetTool(lcTool::SpotLight);
 		break;
 
