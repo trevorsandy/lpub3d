@@ -143,6 +143,7 @@ class Preferences
     static void setBlenderVersionPreference(QString);
     static void setBlenderLDrawConfigPreference(QString);
     static void setBlenderImportModule(QString);
+	static void setBlenderAddonVersionCheck(bool = true);
 
     static void setInitFadeSteps();
     static void setInitHighlightStep();
@@ -315,6 +316,7 @@ class Preferences
     static bool    ldviewInstalled;
     static bool    povRayInstalled;
     static bool    blenderInstalled;
+    static bool    blenderAddonVersionCheck;
 
     static bool    useNativePovGenerator;
     static bool    enableFadeSteps;

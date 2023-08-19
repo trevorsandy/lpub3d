@@ -420,6 +420,7 @@ bool    Preferences::perspectiveProjection      = true;
 bool    Preferences::saveOnRedraw               = true;
 bool    Preferences::saveOnUpdate               = true;
 bool    Preferences::useNativePovGenerator      = true;
+bool    Preferences::blenderAddonVersionCheck   = true;
 
 bool    Preferences::applyCALocally             = true;
 bool    Preferences::modeGUI                    = true;
@@ -2875,6 +2876,15 @@ void Preferences::rendererPreferences()
             Settings.remove(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey));
         blenderImportModule.clear();
     }
+	
+	// Blender addon version check
+    QString const blenderAddonVersionCheckKey("BlenderAddonVersionCheck");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderAddonVersionCheckKey))) {
+        QVariant eValue(blenderAddonVersionCheck);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderAddonVersionCheckKey),eValue);
+    } else {
+        blenderAddonVersionCheck = Settings.value(QString("%1/%2").arg(SETTINGS,blenderAddonVersionCheckKey)).toBool();
+    }
 
     // Populate POVRay Library paths
     if (!povRayInstalled)
@@ -4614,6 +4624,15 @@ void Preferences::setBlenderImportModule(QString s)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderImportModuleKey),QVariant(blenderImportModule));
 }
 
+void Preferences::setBlenderAddonVersionCheck(bool i)
+{
+  QSettings Settings;
+  blenderAddonVersionCheck = i;
+  QVariant uValue(i);
+  QString const settingsKey("BlenderAddonVersionCheck");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,settingsKey),uValue);
+}
+
 void Preferences::removeBuildModFormatPreference(bool i)
 {
   QSettings Settings;
@@ -5635,7 +5654,7 @@ bool Preferences::getPreferences()
         bool displayThemeChanged = false;
         bool useSystemThemeChanged = false;
         if ((displayThemeChanged = displayTheme != dialog->displayTheme())) {
-#ifdef Q_OS_WIN            
+#ifdef Q_OS_WIN
             if (dialog->displayTheme() == THEME_SYSTEM) {
                 useSystemThemeChanged = useSystemTheme == false;
                 useSystemTheme = true;
@@ -5648,7 +5667,7 @@ bool Preferences::getPreferences()
                 useSystemTheme = false;
                 displayTheme = dialog->displayTheme();
             }
-#else            
+#else
             displayTheme = dialog->displayTheme();
 #endif
             darkTheme  = displayTheme == THEME_DARK;
