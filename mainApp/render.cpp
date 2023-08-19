@@ -708,6 +708,30 @@ void Render::getStudStyleAndAutoEdgeSettings(
     }
 }
 
+QStringList Render::splitParms(const QString &parms)
+{
+    QRegExp quoteRx("\"|'");
+    bool quoted = QString(parms.at(0)).contains(quoteRx);      // true if the first character is " or '
+    if (!quoted)
+        return parms.split(' ');                               // if not quoted split on space
+    bool inside = true;
+    QStringList list = parms.split(quoteRx, SkipEmptyParts);   // Split by " or '
+    QStringList values;
+    if (list.size() == 1) {
+        values << list.first();
+    } else {
+        for (const QString &item : list) {
+            if (inside) {                                       // If 's' is inside quotes ...
+                values.append(item);                            // ... get the whole string
+            } else {                                            // If 's' is outside quotes ...
+                values.append(item.split(' ', SkipEmptyParts)); // ... get the split string
+            }
+            inside = !inside;
+        }
+    }
+    return values;
+}
+
 /***************************************************************************
  *
  * The math for zoom factor.  1.0 is true size.
@@ -762,7 +786,7 @@ int POVRay::renderCsi(
    }
 
   // Populate render attributes
-  QStringList ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
+  QStringList ldviewParmslist = splitParms(meta.LPub.assem.ldviewParms.value());
   QString transform  = meta.rotStep.value().type.toUpper();
   bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == QLatin1String("ABS"));
@@ -827,7 +851,7 @@ int POVRay::renderCsi(
                   }
               }
               if (!pd && !pl && !pf && !pz) {
-                addArgument(parmsArgs, ldviewParmslist[i]);    // 10. ldviewParms [usually empty]
+                addArgument(parmsArgs, ldviewParmslist[i]);    // 10. ldviewParms [usually empty but can include PovLights]
               }
           }
       }
@@ -1030,7 +1054,7 @@ int POVRay::renderCsi(
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   povArguments.insert(2,I);
 
-  parmsArgs = meta.LPub.assem.povrayParms.value().split(' ');
+  parmsArgs = splitParms(meta.LPub.assem.povrayParms.value());
   for (int i = 0; i < parmsArgs.size(); i++) {
       if (parmsArgs[i] != "" && parmsArgs[i] != " ") {
           addArgument(povArguments, parmsArgs[i], QString(), 1/*POVGen*/);
@@ -1104,7 +1128,7 @@ int POVRay::renderPli(
   QString povName = ldrNames.first() +".pov";
 
   // Populate render attributes
-  QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
+  QStringList ldviewParmslist = splitParms(metaType.ldviewParms.value());
   QString transform  = metaType.rotStep.value().type.toUpper();
   bool customViewpoint = metaType.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == QLatin1String("ABS") : transform == QLatin1String("ABS");
@@ -1400,7 +1424,7 @@ int POVRay::renderPli(
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   povArguments.insert(2,I);
 
-  parmsArgs = meta.LPub.assem.povrayParms.value().split(' ');
+  parmsArgs = splitParms(meta.LPub.assem.povrayParms.value());
   for (int i = 0; i < parmsArgs.size(); i++) {
       if (parmsArgs[i] != "" && parmsArgs[i] != " ") {
           addArgument(povArguments, parmsArgs[i], QString(), 1/*POVGen*/);
@@ -1558,7 +1582,7 @@ int LDGLite::   renderCsi(
 
   QStringList list;
   // First, load parms from meta if any
-  list = meta.LPub.assem.ldgliteParms.value().split(' ');
+  list = splitParms(meta.LPub.assem.ldgliteParms.value());
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
          addArgument(arguments, list[i]);
@@ -1733,7 +1757,7 @@ int LDGLite::renderPli(
 
   QStringList list;
   // First, load additional parms from meta if any
-  list = metaType.ldgliteParms.value().split(' ');
+  list = splitParms(metaType.ldgliteParms.value());
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
          addArgument(arguments, list[i]);
@@ -1861,7 +1885,7 @@ int LDView::renderCsi(
     if (useLDViewSCall())
         ;
     else
-        ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
+        ldviewParmslist = splitParms(meta.LPub.assem.ldviewParms.value());
     QString transform  = meta.rotStep.value().type.toUpper();
     bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
     bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == QLatin1String("ABS"));
@@ -2392,7 +2416,7 @@ int LDView::renderPli(
   QString partsPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + (pliType == SUBMODEL ? Paths::submodelDir : partsDir));
 
   // Populate render attributes
-  QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
+  QStringList ldviewParmslist = splitParms(metaType.ldviewParms.value());
   QString transform  = metaType.rotStep.value().type.toUpper();
   bool customViewpoint = metaType.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == QLatin1String("ABS") : transform == QLatin1String("ABS");

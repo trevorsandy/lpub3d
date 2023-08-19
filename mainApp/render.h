@@ -71,6 +71,7 @@ public:
   static bool            RenderNativeView(const NativeOptions *, bool RenderImage = false);
   static bool            LoadViewer(const NativeOptions *);
   static QStringList const getImageAttributes(const QString &);
+  static QStringList splitParms(const QString &);
   static bool            compareImageAttributes(const QStringList &, const QString &, bool pare = true);
   static void            getStudStyleAndAutoEdgeSettings(StudStyleMeta *ssm,
                                       HighContrastColorMeta *hccm, AutoEdgeColorMeta *acm,
