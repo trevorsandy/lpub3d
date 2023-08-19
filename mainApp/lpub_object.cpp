@@ -1923,7 +1923,9 @@ QAction *LPub::getAct(const QString &objectName)
 {
     if (actions.contains(objectName))
         return actions.value(objectName).action;
-    emit messageSig(LOG_TRACE, tr("Action was not found or is null [%1]").arg(objectName));
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_ERROR, QString("Action was not found or is null [%1]").arg(objectName));
+#endif
     return nullptr;
 }
 

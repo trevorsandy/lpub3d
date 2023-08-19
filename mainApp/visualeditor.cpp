@@ -466,12 +466,6 @@ void Gui::create3DActions()
     LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
     LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
     lpub->actions.insert(LightGroupAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Lights.Lights"), LightGroupAct));
-    // Light icons
-    LightGroupAct = new QAction(tr("Lights"), this);
-    LightGroupAct->setToolTip(tr("Lights - Pointlight"));
-    LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
-    LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
-    LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
 
     gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SUNLIGHT));

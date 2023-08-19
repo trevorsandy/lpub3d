@@ -3384,7 +3384,7 @@ bool PreferencesDialog::SaveKeyboardShortcuts(const QString& FileName, int &Coun
 bool PreferencesDialog::SaveKeyboardShortcuts(QTextStream& Stream, int &Count)
 {
     if (!mOptions->KeyboardShortcuts.isEmpty()) {
-        if (QMessageBox::question(this, QLatin1Literal(VER_PRODUCTNAME_STR), tr("Do you want to save un-committed keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        if (QMessageBox::question(this, QLatin1String(VER_PRODUCTNAME_STR), tr("Do you want to save un-committed keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QMap<QString, QKeySequence>::const_iterator it = mOptions->KeyboardShortcuts.constBegin();
             while (it != mOptions->KeyboardShortcuts.constEnd()) {
                 if (lpub->actions.contains(it.key()))
