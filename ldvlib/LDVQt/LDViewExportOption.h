@@ -23,11 +23,41 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QComboBox>
+#include <QMap>
 
 class LDVExportSetting : public LDExporterSetting
 {
 public:
 	void resetLights();
+};
+
+class PovLight
+{
+public:
+	PovLight(const QString & = "");
+	bool parseString(const char* in, float *out);
+	void setTypeInt();
+	void setTypeText();
+	void setItemText();
+	QString getLightString();
+	QString itemText;
+	QString typeText;
+	bool  isvalid;
+	int   type;
+	int   shadowless;
+	float latitude;
+	float longitude;
+	float target[3];
+	float color[3];
+	float intensity;
+	float radius;
+	float falloff;
+	float tightness;
+	int   circle;
+	int   width;
+	int   height;
+	int   rows;
+	int   columns;
 };
 
 class LDVWidget;
@@ -69,34 +99,53 @@ private slots:
 	void setLights(int);
 	void setLights(double);
 	void addLight(void);
+	void updateLight(void);
 	void removeLight(void);
 	void selectLight(int);
 
 protected:
+	PovLight getLight(void) const;
 	void populateExportSettings(void);
 	void resetSettings(SettingsMap &settings);
 
-	LDrawModelViewer *m_modelViewer;
-	LDExporter       *m_exporter;
-	QWidget          *m_box;
-	QVBoxLayout      *m_lay;
-	bool              m_POVLightsLoaded;
-	SettingsMap       m_settings;
-	ButtonMap         m_button;
-	GroupMap          m_groups;
+	LDrawModelViewer  *m_modelViewer;
+	LDExporter        *m_exporter;
+	QWidget           *m_box;
+	QVBoxLayout       *m_lay;
+	SettingsMap        m_settings;
+	ButtonMap          m_button;
+	GroupMap           m_groups;
 
-	QComboBox        *m_liCombo;
-	QLineEdit        *m_liNumEdit;
-	QCheckBox        *m_liShadowsChk;
-	QDoubleSpinBox   *m_liLatSpin;
-	QDoubleSpinBox   *m_liLonSpin;
-	QDoubleSpinBox   *m_liIntSpin;
-	QSpinBox         *m_liASizeSpin;
-	QSpinBox         *m_liALightsSpin;
+	QLabel            *m_messageLabel;
 
-	QLabel           *m_messageLabel;
-	QStringList       m_pov_lightList;
-	int               m_number;
+	QPushButton       *m_addPovLightBtn;
+	QPushButton       *m_removePovLightBtn;
+	QPushButton       *m_updatePovLightBtn;
+
+	QLineEdit         *m_PovLightNumEdit;
+	QComboBox         *m_PovLightOptTypeCombo;
+	QCheckBox         *m_PovLightOptShadowlessChk;
+	QDoubleSpinBox    *m_PovLightOptLatitudeDSpin;
+	QDoubleSpinBox    *m_PovLightOptLongitudeDSpin;
+	QDoubleSpinBox    *m_PovLightOptTargetXDSpin;
+	QDoubleSpinBox    *m_PovLightOptTargetYDSpin;
+	QDoubleSpinBox    *m_PovLightOptTargetZDSpin;
+	QDoubleSpinBox    *m_PovLightOptColorRDSpin;
+	QDoubleSpinBox    *m_PovLightOptColorGDSpin;
+	QDoubleSpinBox    *m_PovLightOptColorBDSpin;
+	QDoubleSpinBox    *m_PovLightOptIntensityDSpin;
+	QDoubleSpinBox    *m_PovLightOptSpotRadiusDSpin;
+	QDoubleSpinBox    *m_PovLightOptSpotFalloffDSpin;
+	QDoubleSpinBox    *m_PovLightOptSpotTightnessDSpin;
+	QCheckBox         *m_PovLightOptAreaCircleChk;
+	QSpinBox          *m_PovLightOptAreaWidthSpin;
+	QSpinBox          *m_PovLightOptAreaHeightSpin;
+	QSpinBox          *m_PovLightOptAreaRowsSpin;
+	QSpinBox          *m_PovLightOptAreaColumnsSpin;
+	QComboBox         *m_PovLightCombo;
+
+	QStringList        m_PovLightList;
+	QMap<int,PovLight> m_PovLightMap;
 };
 
 #endif // __LDVIEWExportOption_H__

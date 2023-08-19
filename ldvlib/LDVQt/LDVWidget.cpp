@@ -209,7 +209,7 @@ bool LDVWidget::doCommand(QStringList &arguments)
 	bool retValue = true;
 	if (!LDSnapshotTaker::doCommandLine(false, true))
 	{
-		if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1)){
+		if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1)) {
 			emit lpub->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
 			retValue = false;
 		} else
