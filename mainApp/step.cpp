@@ -680,8 +680,33 @@ int Step::createCsi(
               Render::getRenderer() == RENDERER_LDVIEW ? ldviewParms :
               Render::getRenderer() == RENDERER_LDGLITE ? ldgliteParms :
                             /*POV scene file generator*/  ldviewParms ;
-         if (Preferences::preferredRenderer == RENDERER_POVRAY)
-             meta.LPub.assem.povrayParms = povrayParms;
+         if (Preferences::preferredRenderer == RENDERER_POVRAY) {
+            meta.LPub.assem.povrayParms = povrayParms;
+
+            if (lightList.size()) {
+                QStringList pl;
+                if (!meta.LPub.assem.ldviewParms.value().isEmpty()) {
+                    QRegExp quotedRx("\"|'");
+                    pl = meta.LPub.assem.ldviewParms.value().split(' ');
+                    for (int i = 0; i < pl.size(); i++) {
+                        if (QString(pl.at(i)).contains(quotedRx))
+                            continue;
+                        else
+                            pl[i] = QString("'%1'").arg(pl.at(i));
+                    }
+                }
+                int i = 0;
+                QString ls = QString("'-PovExporter/PovLights=\"");
+                for (const LightData &ld : lightList) {
+                    ls.append(QString("%1%2").arg(i ? ";" : "").arg(ld.getPOVLightMacroString()));
+                    i++;
+                }
+                ls.append("\"'");
+                pl.append(ls);
+
+                meta.LPub.assem.ldviewParms.setValue(pl.join(" "));
+            }
+         }
 
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey

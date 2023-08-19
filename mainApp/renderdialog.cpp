@@ -360,23 +360,29 @@ void RenderDialog::on_RenderButton_clicked()
             }
 
             if (!errorEncountered.isEmpty()) {
+                ui->RenderLabel->setText(tr("Error encountered."));
                 emit gui->messageSig(LOG_ERROR, errorEncountered);
                 lpub->getAct("povrayRenderAct.4")->setEnabled(true);
                 return;
             }
         }
 
+        const QStringList povrayLights = gui->get3DViewerPOVLightList();
+
         // Camera angle keys
-        QString caKey = mCsiKeyList.at(K_LATITUDE)+" "+  // latitude
+        QString caKey =
+                mCsiKeyList.at(K_LATITUDE)+" "+          // latitude
                 mCsiKeyList.at(K_LONGITUDE);             // longitude
 
         // Target keys
-        QString mKey =  mCsiKeyList.at(K_TARGETX)+" "+   // target[X]
+        QString mKey =
+                mCsiKeyList.at(K_TARGETX)+" "+           // target[X]
                 mCsiKeyList.at(K_TARGETY)+" "+           // target[Y]
-                mCsiKeyList.at(K_TARGETZ)+" ";           // target[Z]
+                mCsiKeyList.at(K_TARGETZ);               // target[Z]
 
         // Rotstep keys
-        QString rsKey = mCsiKeyList.at(K_ROTSX)+" "+     // rots[X]
+        QString rsKey =
+                mCsiKeyList.at(K_ROTSX)+" "+             // rots[X]
                 mCsiKeyList.at(K_ROTSY)+" "+             // rots[Y]
                 mCsiKeyList.at(K_ROTSZ)+" "+             // rots[Z]
                 mCsiKeyList.at(K_ROTSTYPE);              // type [REL|ABS]
@@ -384,11 +390,13 @@ void RenderDialog::on_RenderButton_clicked()
         // RotateParts #1 - 5 parms, rotate parts for ldvExport - apply rotstep and camera angles
         if ((Render::rotatePartsRD(csiParts, mModelFile, rsKey, caKey, Options::CSI)) != 0) {
             lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+            ui->RenderLabel->setText(tr("Error encountered."));
             return ;
         }
 
         // Camera distance keys
-        QString cdKey = QString::number(mWidth)+" "+     // imageWidth
+        QString cdKey =
+                QString::number(mWidth)+" "+             // imageWidth
                 QString::number(mHeight)+" "+            // imageHeight
                 mCsiKeyList.at(K_MODELSCALE)+" "+        // modelScale
                 mCsiKeyList.at(K_RESOLUTION)+" "+        // resolution
@@ -410,7 +418,7 @@ void RenderDialog::on_RenderButton_clicked()
                 .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble())
                 .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
 
-        QString m  = mKey == "0 0 0" ? QString() : mKey;
+        QString m  = mKey == "0 0 0" ? QString() : mKey.trimmed();
         QString w  = QString("-SaveWidth=%1")  .arg(mWidth);
         QString h  = QString("-SaveHeight=%1") .arg(mHeight);
         QString f  = QString("-ExportFile=%1") .arg(GetPOVFileName());
@@ -421,22 +429,22 @@ void RenderDialog::on_RenderButton_clicked()
         Arguments << cg;
 
         /*
-                K_STEPNUMBER = 0,  // 0  not used
-                K_IMAGEWIDTH,      // 1  not used
-                K_RESOLUTION,      // 2
-                K_RESOLUTIONTYPE,  // 3
-                K_MODELSCALE,      // 4
-                K_FOV,             // 5  not used
-                K_LATITUDE,        // 6
-                K_LONGITUDE,       // 7
-                K_TARGETX,         // 8
-                K_TARGETY,         // 9
-                K_TARGETZ,         // 10
-                K_ROTSX,           // 11
-                K_ROTSY,           // 12
-                K_ROTSZ,           // 13
-                K_ROTSTYPE         // 14
-            */
+            K_STEPNUMBER = 0,  // 0  not used
+            K_IMAGEWIDTH,      // 1  not used
+            K_RESOLUTION,      // 2
+            K_RESOLUTIONTYPE,  // 3
+            K_MODELSCALE,      // 4
+            K_FOV,             // 5  not used
+            K_LATITUDE,        // 6
+            K_LONGITUDE,       // 7
+            K_TARGETX,         // 8
+            K_TARGETY,         // 9
+            K_TARGETZ,         // 10
+            K_ROTSX,           // 11
+            K_ROTSY,           // 12
+            K_ROTSZ,           // 13
+            K_ROTSTYPE         // 14
+        */
 
         // replace CA with FOV
         if (pp) {
@@ -454,13 +462,19 @@ void RenderDialog::on_RenderButton_clicked()
                     .arg(noCA ? double(0.0f) : mCsiKeyList.at(K_LONGITUDE).toDouble());
             Render::addArgument(Arguments, dz, "-DefaultZoom");
             Render::addArgument(Arguments, dl, "-DefaultLatLong");
+            Arguments << m;
         }
 
-        Arguments << m;
         Arguments << w;
         Arguments << h;
         Arguments << f;
         Arguments << l;
+
+        if (povrayLights.size() && povrayLights[0] != "")
+        {
+            QString p = QString("-PovExporter/PovLights=\"%1\"").arg(povrayLights.join(";"));
+            Arguments << p;
+        }
 
         if (!Preferences::altLDConfigPath.isEmpty()) {
             Arguments << "-LDConfig=" + Preferences::altLDConfigPath;
@@ -476,7 +490,10 @@ void RenderDialog::on_RenderButton_clicked()
         // generate POV file
         if (!Render::doLDVCommand(Arguments,POVRAY_RENDER)) {
             lpub->getAct("povrayRenderAct.4")->setEnabled(true);
+            ui->RenderLabel->setText(tr("Error encountered."));
             return ;
+        } else {
+            ui->RenderLabel->setText(tr("Rendering POV-Ray scene..."));
         }
 
         message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));
@@ -542,6 +559,7 @@ void RenderDialog::on_RenderButton_clicked()
             lpub->getAct("povrayRenderAct.4")->setEnabled(true);
             message = tr("Error starting POV-Ray.");
             emit gui->messageSig(LOG_ERROR, message);
+            ui->RenderLabel->setText(tr("Error encountered."));
             CloseProcess();
         }
 
@@ -648,11 +666,13 @@ void RenderDialog::on_RenderButton_clicked()
                                      .arg(script.fileName())
                                      .arg(script.errorString()));
                 lpub->getAct("blenderRenderAct.4")->setEnabled(true);
+                ui->RenderLabel->setText(tr("Error encountered."));
                 return;
             }
         } else {
             emit gui->messageSig(LOG_ERROR, tr("Cannot create Blender render script temp path."));
             lpub->getAct("blenderRenderAct.4")->setEnabled(true);
+            ui->RenderLabel->setText(tr("Error encountered."));
             return;
         }
 
@@ -746,6 +766,7 @@ void RenderDialog::on_RenderButton_clicked()
             lpub->getAct("blenderRenderAct.4")->setEnabled(true);
             message = tr("Error starting Blender render process");
             emit gui->messageSig(LOG_ERROR, message);
+            ui->RenderLabel->setText(tr("Error encountered."));
             CloseProcess();
         }
     }  // BLENDER_RENDER

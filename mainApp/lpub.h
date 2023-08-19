@@ -1212,6 +1212,8 @@ public:
 
   void saveCurrent3DViewerModel(const QString &modelFile);
 
+  QStringList get3DViewerPOVLightList() const;
+
   /******************************
    *
    * Shortcut mangement
