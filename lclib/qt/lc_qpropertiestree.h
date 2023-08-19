@@ -82,7 +82,7 @@ protected:
 	void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void updateColorEditor(QPushButton *editor, int value) const;
 /*** LPub3D Mod - enable lights ***/
-	void updateLightColorEditor(QPushButton *editor, QColor value) const;
+	void updateLightColorEditor(QPushButton *editor, QColor color) const;
 /*** LPub3D Mod end ***/
 
 	QTreeWidgetItem *addProperty(QTreeWidgetItem *parent, const QString& label, PropertyType propertyType);

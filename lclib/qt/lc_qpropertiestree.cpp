@@ -497,7 +497,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			editor->setChecked(value);
 			editor->setEnabled(false);
-			editor->setToolTip("Property is read only");
+			editor->setToolTip(tr("Property is read only"));
 
 			return editor;
 		}
@@ -509,7 +509,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){0,1}$");
 			editor->setValidator(new QRegExpValidator(vrx,parent));
 			editor->setText(lcFormatValueLocalized(value));
-			editor->setToolTip("Eneter respective angle or both angles. Use single space delimeter");
+			editor->setToolTip(tr("Eneter respective angle or both angles. Use single space delimeter"));
 
 			connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
 
@@ -523,7 +523,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){0,1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){0,1}$");
 			editor->setValidator(new QRegExpValidator(vrx,parent));
 			editor->setText(lcFormatValueLocalized(value));
-			editor->setToolTip("Enter respective axis or all axes. Use single space delimeter");
+			editor->setToolTip(tr("Enter respective axis or all axes. Use single space delimeter"));
 
 			connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
 
@@ -538,7 +538,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			editor->setText(lcFormatValueLocalized(value));
 			editor->setReadOnly(true);
-			editor->setToolTip("Property is read only");
+			editor->setToolTip(tr("Property is read only"));
 
 			return editor;
 		}
@@ -577,7 +577,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			editor->setText(QString::number(value));
 			editor->setReadOnly(true);
-			editor->setToolTip("Property is read only");
+			editor->setToolTip(tr("Property is read only"));
 
 			return editor;
 		}
@@ -602,7 +602,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			editor->setText(value);
 			editor->setReadOnly(true);
-			editor->setToolTip("Property is read only");
+			editor->setToolTip(tr("Property is read only"));
 
 			return editor;
 		}
@@ -709,23 +709,21 @@ void lcQPropertiesTree::updateColorEditor(QPushButton *editor, int value) const
 }
 
 /*** LPub3D Mod - enable lights ***/
-void lcQPropertiesTree::updateLightColorEditor(QPushButton *editor, QColor qcolor) const
+void lcQPropertiesTree::updateLightColorEditor(QPushButton *editor, QColor color) const
 {
 	QImage img(12, 12, QImage::Format_ARGB32);
 	img.fill(0);
 
-	QString description = QString("Hex: %1").arg(qcolor.name());
-
 	QPainter painter(&img);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
 	painter.setPen(Qt::darkGray);
-	painter.setBrush(qcolor);
+	painter.setBrush(color);
 	painter.drawRect(0, 0, img.width() - 1, img.height() - 1);
 	painter.end();
 
 	editor->setStyleSheet("Text-align:left");
 	editor->setIcon(QPixmap::fromImage(img));
-	editor->setText(description);
+	editor->setText(color.name().toUpper());
 }
 /*** LPub3D Mod end ***/
 
@@ -1250,45 +1248,45 @@ void lcQPropertiesTree::slotColorButtonClicked()
 	}
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)
 	{
-		QColor qcolor;
 		lcVector3 Color(0.0f, 0.0f, 0.0f); // Black
 		if (Focus && Focus->IsLight())
 			Color = ((lcLight*)Focus)->mLightColor;
 
-		qcolor = QColor::fromRgbF(qreal(Color[0]), qreal(Color[1]), qreal(Color[2]));
-		Popup  = new QColorDialog(qcolor, Button);
+		QColor RgbColor = QColor::fromRgbF(qreal(Color[0]), qreal(Color[1]), qreal(Color[2]));
+		Popup  = new QColorDialog(RgbColor, Button);
 		connect(Popup, SIGNAL(colorSelected(QColor)), SLOT(slotSetColorValue(QColor)));
 	}
 
-	Popup->setMinimumSize(qMax(300, width()), qMax(200, static_cast<int>(width() * 2 / 3)));
+	if (Popup) {
+		Popup->setMinimumSize(qMax(300, width()), qMax(200, static_cast<int>(width() * 2 / 3)));
 
-	if (Popup && Button) {
+		if (Button) {
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-		QScreen* Screen = Button->screen();
-		const QRect ScreenRect = Screen ? Screen->geometry() : QRect();
+			QScreen* Screen = Button->screen();
+			const QRect ScreenRect = Screen ? Screen->geometry() : QRect();
 #elif (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-		QScreen* Screen = QGuiApplication::screenAt(Button->mapToGlobal(Button->rect().bottomLeft()));
-		const QRect ScreenRect = Screen ? Screen->geometry() : QApplication::desktop()->geometry();
+			QScreen* Screen = QGuiApplication::screenAt(Button->mapToGlobal(Button->rect().bottomLeft()));
+			const QRect ScreenRect = Screen ? Screen->geometry() : QApplication::desktop()->geometry();
 #else
-		const QRect ScreenRect = QApplication::desktop()->geometry();
+			const QRect ScreenRect = QApplication::desktop()->geometry();
 #endif
+			int x = mapToGlobal(QPoint(0, 0)).x();
+			int y = Button->mapToGlobal(Button->rect().bottomLeft()).y();
 
-		int x = mapToGlobal(QPoint(0, 0)).x();
-		int y = Button->mapToGlobal(Button->rect().bottomLeft()).y();
+			if (x < ScreenRect.left())
+				x = ScreenRect.left();
+			if (y < ScreenRect.top())
+				y = ScreenRect.top();
 
-		if (x < ScreenRect.left())
-			x = ScreenRect.left();
-		if (y < ScreenRect.top())
-			y = ScreenRect.top();
+			if (x + Popup->width() > ScreenRect.right())
+				x = ScreenRect.right() - Popup->width();
+			if (y + Popup->height() > ScreenRect.bottom())
+				y = ScreenRect.bottom() - Popup->height();
 
-		if (x + Popup->width() > ScreenRect.right())
-			x = ScreenRect.right() - Popup->width();
-		if (y + Popup->height() > ScreenRect.bottom())
-			y = ScreenRect.bottom() - Popup->height();
-
-	Popup->move(QPoint(x, y));
-	Popup->setFocus();
-	Popup->show();
+			Popup->move(QPoint(x, y));
+			Popup->setFocus();
+			Popup->show();
+		}
 	}
 }
 /*** LPub3D Mod end ***/
@@ -1752,20 +1750,17 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 /*** LPub3D Mod - enable lights ***/
 	lcLight* Light = (Focus && Focus->IsLight()) ? (lcLight*)Focus : nullptr;
 
-	QString Name                = "Light";
-	const char* FactorALabel    = "FactorA";
-	const char* ExponentLabel   = "Exponent";
-	QString Type                = "";
-	QString Shape               = "";
-	QString FactorAToolTip      = "";
-	QString FactorBToolTip      = "";
-	int   LightIndex            = LC_UNDEFINED_LIGHT;
-	int   ShapeIndex            = LC_UNDEFINED_SHAPE;
-	float SpotSize              = 0.0f;
-	float Specular              = 0.0f;
-	float Cutoff                = 0.0f;
-	float Exponent              = 0.0f;
-	bool EnableCutoff           = false;
+	QString Name = tr("Light");
+	QString FactorALabel = tr("FactorA");
+	QString ExponentLabel = tr("Exponent");
+	QString Type, Shape, FactorAToolTip, FactorBToolTip;
+	int   LightIndex = LC_UNDEFINED_LIGHT;
+	int   ShapeIndex = LC_UNDEFINED_SHAPE;
+	float SpotSize = 0.0f;
+	float Specular = 0.0f;
+	float Cutoff = 0.0f;
+	float Exponent = 0.0f;
+	bool EnableCutoff = false;
 	PropertyType TargetProperty = PropertyFloat;
 	lcVector3 Position(0.0f, 0.0f, 0.0f);
 	lcVector3 Target(0.0f, 0.0f, 0.0f);
@@ -1776,110 +1771,110 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	{
 		Name = Light->GetName();
 
-		Position	   = Light->mPosition; // normalizeDegrees(Light->mPosition);
-		Target		   = Light->mTargetPosition; // normalizeDegrees(Light->mTargetPosition);
-		Color		   = Light->mLightColor;
-		Factor		   = Light->mLightFactor;
-		LightIndex	   = Light->mLightType;
+		Position = Light->mPosition; // normalizeDegrees(Light->mPosition);
+		Target = Light->mTargetPosition; // normalizeDegrees(Light->mTargetPosition);
+		Color = Light->mLightColor;
+		Factor = Light->mLightFactor;
+		LightIndex = Light->mLightType;
 		switch(LightIndex){
 		case LC_POINTLIGHT:
-			Type = "Point";
-			FactorALabel = "Radius (m)";
-			FactorAToolTip = "Shadow soft size - Light size for shadow sampling";
+			Type = QLatin1String("Point");
+			FactorALabel = tr("Radius (m)");
+			FactorAToolTip = tr("Shadow soft size - Light size for shadow sampling");
 			break;
 		case LC_SUNLIGHT:
-			Type = "Sun";
-			FactorALabel = "Angle (°)";
-			FactorAToolTip = "Angular diamater of the sun as seen from the Earth";
+			Type = QLatin1String("Sun");
+			FactorALabel = tr("Angle (°)");
+			FactorAToolTip = tr("Angular diamater of the sun as seen from the Earth");
 			break;
 		case LC_SPOTLIGHT:
-			Type = "Spot";
-			FactorALabel = "Radius (m)";
-			FactorAToolTip = "Shadow soft size - Light size for shadow sampling";
-			FactorBToolTip = "Shadow blend - The softness of the spotlight edge";
+			Type = QLatin1String("Spot");
+			FactorALabel = tr("Radius (m)");
+			FactorAToolTip = tr("Shadow soft size - Light size for shadow sampling");
+			FactorBToolTip = tr("Shadow blend - The softness of the spotlight edge");
 			break;
 		case LC_AREALIGHT:
-			Type = "Area";
-			FactorALabel = "Width (X)";
-			FactorAToolTip = "Size of the area of the area light. X direction size for rectangular shapes";
-			FactorBToolTip = "Size of the area of the area light. Y direction size for rectangular shapes";
+			Type = QLatin1String("Area");
+			FactorALabel = tr("Width (X)");
+			FactorAToolTip = tr("Size of the area of the area light. X direction size for rectangular shapes");
+			FactorBToolTip = tr("Size of the area of the area light. Y direction size for rectangular shapes");
 			break;
 		default:
-			Type = "Undefined";
-			FactorALabel = "FactorA";
+			Type = QLatin1String("Undefined");
+			FactorALabel = tr("FactorA");
 			break;
 		}
-		ShapeIndex     = Light->mLightShape;
+		ShapeIndex = Light->mLightShape;
 		switch(ShapeIndex){
 		case LC_LIGHT_SHAPE_SQUARE:
-			Shape = "Square";
+			Shape = QLatin1String("Square");
 			break;
 		case LC_LIGHT_SHAPE_DISK:
-			Shape = "Disk";
+			Shape = QLatin1String("Disk");
 			break;
 		case LC_LIGHT_SHAPE_RECTANGLE:
-			Shape = "Rectangle";
+			Shape = QLatin1String("Rectangle");
 			break;
 		case LC_LIGHT_SHAPE_ELLIPSE:
-			Shape = "Ellipse";
+			Shape = QLatin1String("Ellipse");
 			break;
 		default:
 			break;
 		}
-		Specular       = Light->mLightSpecular;
-		Exponent       = Light->mSpotExponent;
-		ExponentLabel  = LightIndex ? LightIndex == LC_SUNLIGHT ? "Strength" : "Power" : "Exponent";
-		Cutoff         = Light->mSpotCutoff;
-		EnableCutoff   = Light->mEnableCutoff;
+		Specular = Light->mLightSpecular;
+		Exponent = Light->mSpotExponent;
+		ExponentLabel = LightIndex ? LightIndex == LC_SUNLIGHT ? tr("Strength") : tr("Power") : tr("Exponent");
+		Cutoff = Light->mSpotCutoff;
+		EnableCutoff = Light->mEnableCutoff;
 		TargetProperty = Light->mLightType > LC_POINTLIGHT ? PropertyFloat : PropertyFloatReadOnly;
-		SpotSize       = Light->mSpotSize;
+		SpotSize = Light->mSpotSize;
 	}
 
 	if (mWidgetMode != LC_PROPERTY_WIDGET_LIGHT ||
-		mLightType  != LightIndex ||
+		mLightType != LightIndex ||
 		mLightShape != ShapeIndex)
 	{
 		SetEmpty();
 		// Position
-		lightPosition  = addProperty(nullptr, tr("Position"), PropertyGroup);
+		lightPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
 		lightPositionX = addProperty(lightPosition, tr("X"), PropertyFloat);
 		lightPositionY = addProperty(lightPosition, tr("Y"), PropertyFloat);
 		lightPositionZ = addProperty(lightPosition, tr("Z"), PropertyFloat);
 		// Target Position
 		if (LightIndex != LC_POINTLIGHT) {
-			lightTarget  = addProperty(nullptr, tr("Target"), PropertyGroup);
+			lightTarget = addProperty(nullptr, tr("Target"), PropertyGroup);
 			lightTargetX = addProperty(lightTarget, tr("X"), TargetProperty);
 			lightTargetY = addProperty(lightTarget, tr("Y"), TargetProperty);
 			lightTargetZ = addProperty(lightTarget, tr("Z"), TargetProperty);
 		}
 		// Ambient Colour
-		lightColor  = addProperty(nullptr, tr("Color"), PropertyGroup);
-		lightColorIcon = addProperty(lightColor, tr("Color"), PropertyLightColor);
+		lightColor = addProperty(nullptr, tr("Color"), PropertyGroup);
+		lightColorIcon = addProperty(lightColor, tr("Name"), PropertyLightColor);
 		lightColorR = addProperty(lightColor, tr("Red"), PropertyFloat);
 		lightColorG = addProperty(lightColor, tr("Green"), PropertyFloat);
 		lightColorB = addProperty(lightColor, tr("Blue"), PropertyFloat);
 		// Properties
-		lightProperties   = addProperty(nullptr, tr("Properties"), PropertyGroup);
-		lightType         = addProperty(lightProperties, tr("Type"), PropertyStringReadOnly);
-		lightExponent     = addProperty(lightProperties, tr(ExponentLabel), PropertyFloat);
-		lightFactorA      = addProperty(lightProperties, tr(FactorALabel), PropertyFloat);
+		lightProperties = addProperty(nullptr, tr("Properties"), PropertyGroup);
+		lightType = addProperty(lightProperties, tr("Type"), PropertyStringReadOnly);
+		lightExponent = addProperty(lightProperties, ExponentLabel, PropertyFloat);
+		lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
 		if (LightIndex == LC_AREALIGHT) {
 			if (ShapeIndex == LC_LIGHT_SHAPE_RECTANGLE || ShapeIndex == LC_LIGHT_SHAPE_ELLIPSE)
-				lightFactorB   = addProperty(lightProperties, tr("Height (Y)"), PropertyFloat);
-			lightShape         = addProperty(lightProperties, tr("Shape"), PropertyLightShape);
+				lightFactorB = addProperty(lightProperties, tr("Height (Y)"), PropertyFloat);
+			lightShape = addProperty(lightProperties, tr("Shape"), PropertyLightShape);
 		} else if (LightIndex == LC_SPOTLIGHT) {
-			lightFactorB   = addProperty(lightProperties, tr("Spot Blend"), PropertyFloat);
-			lightSpotSize      = addProperty(lightProperties, tr("Spot Size (°)"), PropertyFloatLightSpotSize);
+			lightFactorB = addProperty(lightProperties, tr("Spot Blend"), PropertyFloat);
+			lightSpotSize = addProperty(lightProperties, tr("Spot Size (°)"), PropertyFloatLightSpotSize);
 		}
 		if (LightIndex != LC_SUNLIGHT) {
 			lightEnableCutoff = addProperty(lightProperties, tr("Cutoff"), PropertyBool);
-			lightCutoff       = addProperty(lightProperties, tr("Cutoff Distance"), PropertyFloat);
+			lightCutoff = addProperty(lightProperties, tr("Cutoff Distance"), PropertyFloat);
 		}
-		lightSpecular     = addProperty(lightProperties, tr("Specular"), PropertyFloat);
-		lightName         = addProperty(lightProperties, tr("Name"), PropertyString);
+		lightSpecular = addProperty(lightProperties, tr("Specular"), PropertyFloat);
+		lightName = addProperty(lightProperties, tr("Name"), PropertyString);
 
 		mWidgetMode = LC_PROPERTY_WIDGET_LIGHT;
-		mLightType  = LightIndex;
+		mLightType = LightIndex;
 		mLightShape = ShapeIndex;
 	}
 
@@ -1906,20 +1901,18 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	QImage img(16, 16, QImage::Format_ARGB32);
 	img.fill(0);
 
-	lcVector3 _Color(Color[0]*255, Color[1]*255, Color[2]*255);
-	QColor qcolor = QColor::fromRgb(int(_Color[0]), int(_Color[1]), int(_Color[2]));
-	QString description = QString("Hex: %1").arg(qcolor.name());
+	QColor RgbColor = QColor::fromRgb(int(Color[0]*255), int(Color[1]*255), int(Color[2]*255));
 
 	QPainter painter(&img);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
 	painter.setPen(Qt::darkGray);
-	painter.setBrush(qcolor);
+	painter.setBrush(RgbColor);
 	painter.drawRect(0, 0, img.width() - 1, img.height() - 1);
 	painter.end();
 
 	lightColorIcon->setIcon(1, QIcon(QPixmap::fromImage(img)));
-	lightColorIcon->setText(1, description);
-	lightColorIcon->setData(0, PropertyValueRole, qcolor);
+	lightColorIcon->setText(1, RgbColor.name().toUpper());
+	lightColorIcon->setData(0, PropertyValueRole, RgbColor);
 
 	lightColorR->setText(1, lcFormatValueLocalized(Color[0]));
 	lightColorR->setData(0, PropertyValueRole, Color[0]);
