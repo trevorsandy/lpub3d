@@ -204,7 +204,7 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
 BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITEMS_MM] =
 {
     /*    FIRST item set as default        Data                                  Item: */
-    /* 00 LBL_CHOSEN_LOGO              */ {"logo|logo2|logo3",                   QObject::tr("Logo (Not Used)|Logo2 (Not Used)|Flattened(3)")},
+    /* 00 LBL_CHOSEN_LOGO              */ {"logo3|logo4|logo5",                  QObject::tr("Raised flattened logo geometry(3)|Raised rounded logo geometry(4)|Subtle rounded logo geometry(5)")},
     /* 01 LBL_COLOUR_SCHEME_MM         */ {"lgeo|ldraw|alt|custom",              QObject::tr("Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours")},
     /* 02 LBL_COLOUR_STRATEGY          */ {"material|vertex_colors",             QObject::tr("Material|Vertex Colors")},
     /* 03 LBL_GAP_SCALE_STRATEGY       */ {"object|constraint",                  QObject::tr("Gap applied directly to object|Gap scaled to adjust to gaps between parts")},
