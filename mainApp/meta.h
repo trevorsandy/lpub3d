@@ -116,6 +116,9 @@ enum Rc {
          LeoCadLightRc,
          LeoCadLightSizeRc,  // Light HEIGHT and WIDTH  written on same line
          LeoCadLightTypeRc,  // Light NAME and TYPE written on same line
+         LeoCadLightGridRc,  // Light AREA_COLUMNS and AREA_ROWS written on same line
+         LeoCadLightPOVRayRc,
+         LeoCadLightShadowless,
          LeoCadSynthRc,
          LeoCadGroupBeginRc,
          LeoCadGroupEndRc,
@@ -4036,144 +4039,142 @@ public:
 };
 
 /*------------------------*/
-struct LightData
-{
-  StringMeta    name;          // QString   mName;
-  StringMeta    type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
-  StringMeta    shape;         // QString   mLightShape;
-
-  FloatMeta     specular;      // float     mLightSpecular;
-  FloatMeta     spotSize;      // float     mSpotSize;
-  FloatMeta     spotCutoff;    // float     mSpotCutoff;
-  FloatMeta     power;         // float     mSpotExponent;
-  FloatMeta     strength;      // float     mSpotExponent;
-
-  FloatMeta     angle;         // float     mLightFactor[0]
-  FloatMeta     radius;        // float     mLightFactor[0]
-  FloatMeta     width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
-  FloatMeta     height;        // float     mLightFactor[1]
-  FloatMeta     size;          // float     mLightFactor[0]
-  FloatMeta     spotBlend;     // float     mLightFactor[1]
-
-  Vector3Meta   lightColour;   // lcVector3 mLightColor
-
-  Vector3Meta   color;         // lcVector3 mLightColor
-  Vector3Meta   target;        // lcVector3 mPosition
-  Vector3Meta   position;      // lcVector3 mTargetPosition
-};
-
 class LightMeta : public BranchMeta
 {
 public:
-  StringMeta    name;          // QString   mName;
-  StringMeta    type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
-  StringMeta    shape;         // QString   mLightShape;
+  StringMeta  name;          // QString   mName;
+  StringMeta  type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  StringMeta  shape;         // QString   mLightShape;
 
-  FloatMeta     specular;      // float     mLightSpecular;
-  FloatMeta     spotSize;      // float     mSpotSize;
-  FloatMeta     spotCutoff;    // float     mSpotCutoff;
-  FloatMeta     power;         // float     mSpotExponent;
-  FloatMeta     strength;      // float     mSpotExponent;
+  FloatMeta   specular;      // float     mLightSpecular;
+  FloatMeta   spotSize;      // float     mSpotSize;
+  FloatMeta   spotCutoff;    // float     mSpotCutoff;
+  FloatMeta   power;         // float     mSpotExponent;
+  FloatMeta   strength;      // float     mSpotExponent;
+  FloatMeta   diffuse;       // float     mLightDiffuse
 
-  FloatMeta     angle;         // float     mLightFactor[0]
-  FloatMeta     radius;        // float     mLightFactor[0]
-  FloatMeta     width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
-  FloatMeta     height;        // float     mLightFactor[1]
-  FloatMeta     size;          // float     mLightFactor[0]
-  FloatMeta     spotBlend;     // float     mLightFactor[1]
+  FloatMeta   angle;         // float     mLightFactor[0]
+  FloatMeta   radius;        // float     mLightFactor[0]
+  FloatMeta   width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
+  FloatMeta   height;        // float     mLightFactor[1]
+  FloatMeta   size;          // float     mLightFactor[0]
+  FloatMeta   spotBlend;     // float     mLightFactor[1]
+  FloatMeta   spotFalloff;   // float     mSpotFalloff
+  FloatMeta   spotTightness; // float     mmSpotTightness
 
-  Vector3Meta   lightColour;   // lcVector3 mLightColor
+  IntMeta     areaRows;      // int       mAreaGrid[0] (Area Rows and Columns written on same line)
+  IntMeta     areaColumns;   // int       mAreaGrid[1]
 
-  Vector3Meta   color;         // lcVector3 mLightColor
-  Vector3Meta   target;        // lcVector3 mPosition
-  Vector3Meta   position;      // lcVector3 mTargetPosition
+  Vector3Meta color;         // lcVector3 mLightColor
+  Vector3Meta target;        // lcVector3 mPosition
+  Vector3Meta position;      // lcVector3 mTargetPosition
+
+  RcMeta      _povrayLight;
+  bool        povrayLight;   // bool      mPOVRayLight
+  RcMeta      _shadowless;
+  bool        shadowless;    // bool      mShadowless
+
+  float       latitude;      // float Calculated
+  float       longitude;     // float Calculated
 
   LightData value()
   {
       LightData             value;
-      value.name          = name;
-      value.type          = type;
-      value.shape         = shape;
+      value.name          = name.value();
+      value.type          = type.value();
+      value.shape         = shape.value();
 
-      value.specular      = specular;
-      value.spotSize      = spotSize;
-      value.spotCutoff    = spotCutoff;
-      value.power         = power;
-      value.strength      = strength;
+      value.specular      = specular.value();
+      value.spotSize      = spotSize.value();
+      value.spotCutoff    = spotCutoff.value();
+      value.power         = power.value();
+      value.strength      = strength.value();
+      value.diffuse       = diffuse.value();
 
-      value.angle         = angle;
-      value.radius        = radius;
-      value.width         = width;
-      value.height        = height;
-      value.size          = size;
-      value.spotBlend     = spotBlend;
+      value.angle         = angle.value();
+      value.radius        = radius.value();
+      value.width         = width.value();
+      value.height        = height.value();
+      value.size          = size.value();
+      value.spotBlend     = spotBlend.value();
+      value.spotFalloff   = spotFalloff.value();
+      value.spotTightness = spotTightness.value();
 
-      value.lightColour   = lightColour;
+      value.areaRows      = areaRows.value();
+      value.areaColumns   = areaColumns.value();
 
-      value.color         = color;
-      value.target        = target;
-      value.position      = position;
+      value.color[0]      = color.x();
+      value.color[1]      = color.y();
+      value.color[2]      = color.z();
+
+      value.target[0]     = target.x();
+      value.target[1]     = target.y();
+      value.target[2]     = target.z();
+
+      value.position[0]   = position.x();
+      value.position[1]   = position.y();
+      value.position[2]   = position.z();
+
+      setLatLong();
+
+      value.latitude      = latitude;
+      value.longitude     = longitude;
+
+      value.povrayLight   = povrayLight;
+      value.shadowless    = shadowless;
+      value.defaultLight  = name.value().isEmpty();
 
       return value;
   }
 
   void setValue(LightData &value)
   {
-      name          = value.name;
-      type          = value.type;
-      shape         = value.shape;
+      name         .setValue(value.name);
+      type         .setValue(value.type);
+      shape        .setValue(value.shape);
 
-      specular      = value.specular;
-      spotSize      = value.spotSize;
-      spotCutoff    = value.spotCutoff;
-      power         = value.power;
-      strength      = value.strength;
+      specular     .setValue(value.specular);
+      spotSize     .setValue(value.spotSize);
+      spotCutoff   .setValue(value.spotCutoff);
+      power        .setValue(value.power);
+      strength     .setValue(value.strength);
+      diffuse      .setValue(value.diffuse);
 
-      angle         = value.angle;
-      radius        = value.radius;
-      width         = value.width;
-      height        = value.height;
-      size          = value.size;
-      spotBlend     = value.spotBlend;
+      angle        .setValue(value.angle);
+      radius       .setValue(value.radius);
+      width        .setValue(value.width);
+      height       .setValue(value.height);
+      size         .setValue(value.size);
+      spotBlend    .setValue(value.spotBlend);
+      spotFalloff  .setValue(value.spotFalloff);
+      spotTightness.setValue(value.spotTightness);
 
-      color         = value.color;
-      target        = value.target;
-      position      = value.position;
+      areaRows     .setValue(value.areaRows);
+      areaColumns  .setValue(value.areaColumns);
+
+      color        .setValues(value.color[0],value.color[1],value.color[2]);
+      target       .setValues(value.target[0],value.target[1],value.target[2]);
+      position     .setValues(value.position[0],value.position[1],value.position[2]);
+
+      povrayLight = value.povrayLight;
+      shadowless  = value.shadowless;
+
+      setLatLong();
   }
 
   void reset()
   {
-      LightData             value;
-      value.name          .setValue(QString());
-      value.type          .setValue("Point");
-      value.shape         .setValue("Square");
-
-      value.specular      .setValue(1.0f);
-      value.spotSize      .setValue(75.0f);
-      value.spotCutoff    .setValue(40.0f);
-      value.power         .setValue(10.0f);
-      value.strength      .setValue(10.0f);
-
-      value.angle         .setValue(11.4f);
-      value.radius        .setValue(0.25f);
-      value.width         .setValue(0.25f);
-      value.height        .setValue(0.25f);
-      value.size          .setValue(0.25f);
-      value.spotBlend     .setValue(0.15f);
-
-      value.lightColour   .setValues(1.0f,1.0f,1.0f);
-
-      value.color         .setValues(1.0f,1.0f,1.0f);
-      value.target        .setValues(0.0f,0.0f,0.0f);
-      value.position      .setValues(0.0f,0.0f,0.0f);
-
-      setValue(value);
+      LightData values;
+      setValue(values);
   }
+
+  void setLatLong();
 
   LightMeta();
   LightMeta(const LightMeta &rhs) : BranchMeta(rhs)
   {
   }
+
 
 //  virtual ~LightMeta() {}
   virtual void init(BranchMeta *parent, QString name);

@@ -1373,6 +1373,9 @@ int Gui::drawPage(
             case LeoCadLightRc:
             case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
+            case LeoCadLightGridRc:
+            case LeoCadLightPOVRayRc:
+            case LeoCadLightShadowless:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
@@ -1380,19 +1383,32 @@ int Gui::drawPage(
               if (rc == LeoCadLightSizeRc)
               {
                  // Light WIDTH and HEIGHT written on same line
-                 QString height = line.trimmed().split(" ").last();
+                 const QString height = line.trimmed().split(" ").last();
                  curMeta.LeoCad.light.height.setValue(height.toFloat());
               }
+              else
+              if (rc == LeoCadLightGridRc) {
+                 // Light AREA_COLUMNS and AREA_ROWS written on same line
+                 const QString areaColumns = line.trimmed().split(" ").last();
+                 curMeta.LeoCad.light.height.setValue(areaColumns.toInt());
+              }
+              else
               if (rc == LeoCadLightTypeRc) {
                   // Light TYPE and NAME written on same line
                   int index = line.size() - line.lastIndexOf("NAME") - 5;
-                  QString name = line.right(index).replace("\"", "");
+                  const QString name = line.right(index).replace("\"", "");
                   curMeta.LeoCad.light.name.setValue(name);
 
                   LightData lightData = curMeta.LeoCad.light.value();
-                  QString lightKey = QString("%1 %2").arg(lightData.type.value()).arg(name);
+                  const QString lightKey = QString("%1 %2").arg(lightData.type).arg(name);
                   lightList.insert(lightKey, lightData);
               }
+              else
+              if (rc == LeoCadLightPOVRayRc)
+                  curMeta.LeoCad.light.povrayLight = true;
+              else
+              if (rc == LeoCadLightShadowless)
+                  curMeta.LeoCad.light.shadowless = true;
               break;
 
             case IncludeRc:
@@ -4120,6 +4136,9 @@ int Gui::findPage(
             case LeoCadLightRc:
             case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
+            case LeoCadLightGridRc:
+            case LeoCadLightPOVRayRc:
+            case LeoCadLightShadowless:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
@@ -6153,6 +6172,9 @@ void Gui::writeToTmp(const QString &fileName,
                   case LeoCadLightRc:
                   case LeoCadLightSizeRc:
                   case LeoCadLightTypeRc:
+                  case LeoCadLightGridRc:
+                  case LeoCadLightPOVRayRc:
+                  case LeoCadLightShadowless:
                   case LeoCadSynthRc:
                   case LeoCadGroupBeginRc:
                   case LeoCadGroupEndRc:
@@ -6472,6 +6494,9 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
               case LeoCadLightRc:
               case LeoCadLightSizeRc:
               case LeoCadLightTypeRc:
+              case LeoCadLightGridRc:
+              case LeoCadLightPOVRayRc:
+              case LeoCadLightShadowless:
               case LeoCadSynthRc:
               case LeoCadGroupBeginRc:
               case LeoCadGroupEndRc:

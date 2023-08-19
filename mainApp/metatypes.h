@@ -867,6 +867,116 @@ public:
   }
 };
 
+class LightData
+{
+public:
+  LightData() :
+      type(typeNames[Point]),
+      shape("Square"),
+      specular(1.0f),
+      spotSize(75.0f),
+      spotCutoff(40.0f),
+      power(10.0f),
+      strength(10.0f),
+      diffuse(1.0f),
+      angle(11.4f),
+      radius(0.25f),
+      width(0.25f),
+      height(0.25f),
+      size(0.25f),
+      spotBlend(0.15f),
+      spotFalloff(45.0f),
+      spotTightness(0.0f),
+      areaRows(10),
+      areaColumns(10),
+      latitude(32.0f),
+      longitude(45.0f),
+      povrayLight(false),
+      shadowless(false),
+      defaultLight(true)
+  {
+    if (typeMap.size() == 0)
+    {
+       typeMap[typeNames[Point]] = Point;
+       typeMap[typeNames[Area]] = Area;
+       typeMap[typeNames[Sun]] = Sun;
+       typeMap[typeNames[Spot]] = Spot;
+    }
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
+    target[0] = 0.0f;
+    target[1] = 0.0f;
+    target[2] = 0.0f;
+    position[0] = 0.0f;
+    position[1] = 0.0f;
+    position[2] = 0.0f;
+  }
+
+  QString getPOVLightMacroString() const
+  {
+    if (povrayLight)
+    {
+       const int typeEnc = typeMap[type];
+       return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 %15")
+           /*01*/ .arg(typeEnc)
+           /*02*/ .arg(shadowless)
+           /*03*/ .arg(double(latitude),1)
+           /*04*/ .arg(double(longitude),1)
+           /*05*/ .arg(QString("<%1,%2,%3>").arg(double(target[0]),1).arg(double(target[1]),1).arg(double(target[2]),1))
+           /*06*/ .arg(QString("<%1,%2,%3>").arg(color[0]).arg(color[1]).arg(color[2]))
+           /*07*/ .arg(double(power),1)
+           /*08*/ .arg(double(typeEnc != Spot ? 0 : radius),1)
+           /*09*/ .arg(double(spotFalloff),1)
+           /*10*/ .arg(double(spotTightness),1)
+           /*11*/ .arg(shape == 1/*LC_LIGHT_SHAPE_DISK*/ ? "1" : "0")
+           /*12*/ .arg(int(width))
+           /*13*/ .arg(int(height))
+           /*14*/ .arg(int(areaRows))
+           /*15*/ .arg(int(areaColumns));
+    }
+    return QString();
+  }
+
+  QHash<QString, int>typeMap;
+  enum TypeEnc { Point, Area, Sun, Spot, NumTypes };
+  QString typeNames[NumTypes] = { "POINT", "AREA", "SUN", "SPOT" };
+
+  QString name;          // QString   mName;
+  QString type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  QString shape;         // QString   mLightShape;
+
+  float   specular;      // float     mLightSpecular;
+  float   spotSize;      // float     mSpotSize;
+  float   spotCutoff;    // float     mSpotCutoff;
+  float   power;         // float     mSpotExponent;
+  float   strength;      // float     mSpotExponent;
+  float   diffuse;       // float     mLightDiffuse
+
+  float   angle;         // float     mLightFactor[0]
+  float   radius;        // float     mLightFactor[0]
+  float   width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
+  float   height;        // float     mLightFactor[1]
+  float   size;          // float     mLightFactor[0]
+  float   spotBlend;     // float     mLightFactor[1]
+  float   spotFalloff;   // float     mSpotFalloff
+  float   spotTightness; // float     mmSpotTightness
+
+  int     areaRows;      // int       mAreaGrid[0] (Area Rows and Columns written on same line)
+  int     areaColumns;   // int       mAreaGrid[1]
+
+  float   color[3];      // lcVector3 mLightColor
+  float   target[3];     // lcVector3 mPosition
+  float   position[3];   // lcVector3 mTargetPosition
+
+  float   latitude;      // float Calculated
+  float   longitude;     // float Calculated
+
+  bool    povrayLight;   // bool      mPOVRayLight
+  bool    shadowless;    // bool      mShadowless
+  bool    defaultLight;
+};
+
 /*********************************************
  *
  * Default camera settings

@@ -2878,6 +2878,9 @@ int CountPageWorker::countPage(
             case LeoCadLightRc:
             case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
+            case LeoCadLightGridRc:
+            case LeoCadLightPOVRayRc:
+            case LeoCadLightShadowless:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:

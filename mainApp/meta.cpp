@@ -270,7 +270,8 @@ void IntMeta::init(
 }
 Rc IntMeta::parse(QStringList &argv, int index,Where &here)
 {
-  if (index == argv.size() - 1) {
+  int size = argv.size();
+  if ((size - 1) >= index) { // changed from index == (size-1) to (size-1) >= index for LightMeta
       bool ok;
       int v;
       v = argv[index].toInt(&ok);
@@ -317,7 +318,7 @@ void FloatMeta::init(
 Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
 {
   int size = argv.size();
-  if (index >= size - 1) { // changed operator from == to >= for LightMeta
+  if ((size - 1) >= index) { // changed from index == (size-1) to (size-1) >= index for LightMeta
       bool ok;
       float v = argv[index].toFloat(&ok);
       if (ok) {
@@ -6551,6 +6552,10 @@ LightMeta::LightMeta() : BranchMeta()
   strength.setRange(-FLT_MAX,FLT_MAX);
   strength.setValue(10.0f);
 
+  diffuse.setFormats(4,2,"9.99");
+  diffuse.setRange(0.0f,FLT_MAX);
+  diffuse.setValue(1.0f);
+
   angle.setFormats(5,1,"##9.9");
   angle.setRange(0.0f,180.0f);
   angle.setValue(11.4f);
@@ -6575,15 +6580,47 @@ LightMeta::LightMeta() : BranchMeta()
   spotBlend.setRange(0.0f,FLT_MAX);
   spotBlend.setValue(0.15f);
 
+  spotFalloff.setFormats(4,2,"9.99");
+  spotFalloff.setRange(0.0f,FLT_MAX);
+  spotFalloff.setValue(45.0f);
+
+  spotTightness.setFormats(4,2,"9.99");
+  spotTightness.setRange(0.0f,FLT_MAX);
+  spotTightness.setValue(0.0f);
+
+  areaRows.setRange(1,10000);
+  areaColumns.setRange(1,10000);
+
+  povrayLight = false;
+  shadowless  = false;
+
   type.setValue("Point");
   shape.setValue("Square");
+}
+
+void LightMeta::setLatLong()
+{
+  const lcVector3 axisX(1, 0, 0);
+  const lcVector3 axisY(0, 1, 0);
+  const lcVector3 axisZ(0, 0, 1);
+  const lcVector3 lightPosition(position.x(), position.y(), position.z());
+  const lcVector3 lightTarget(target.x(), target.y(), target.z());
+  lcVector3 frontVector(lightPosition - lightTarget);
+
+  frontVector.Normalize();
+  latitude = acos(lcDot(-frontVector, axisZ)) * LC_RTOD - 90.0f;
+
+  const lcVector3 axisXY = -lcNormalize(lcVector3(frontVector.x, frontVector.y, 0.0f));
+  longitude = acos(lcDot(axisXY, axisY)) * LC_RTOD;
+
+  if (lcDot(axisXY, axisX) > 0)
+      longitude = -longitude;
 }
 
 void LightMeta::init(BranchMeta *parent, QString _name)
 {
   AbstractMeta::init(parent, _name);
-  // TODO - Add missing to LeoCAD highlight
-  type.init          (this,"TYPE",            LeoCadLightTypeRc);  // Light NAME and TYPE written on same line
+  type.init          (this,"TYPE",            LeoCadLightTypeRc);  // Light NAME and TYPE written on same line, Convert string TYPE to type
   name.init          (this,"NAME",            LeoCadLightRc);
   shape.init         (this,"SHAPE",           LeoCadLightRc);
   specular.init      (this,"SPECULAR",        LeoCadLightRc);
@@ -6592,13 +6629,22 @@ void LightMeta::init(BranchMeta *parent, QString _name)
 
   power.init         (this,"POWER",           LeoCadLightRc);
   strength.init      (this,"STRENGTH",        LeoCadLightRc);
+  diffuse.init       (this,"DIFFUSE",         LeoCadLightRc);
 
   angle.init         (this,"ANGLE",           LeoCadLightRc);
   radius.init        (this,"RADIUS",          LeoCadLightRc);
-  width.init         (this,"WIDTH",           LeoCadLightSizeRc);  // Light HEIGHT and WIDTH  written on same line
+  width.init         (this,"WIDTH",           LeoCadLightSizeRc);  // Light WIDTH and HEIGHT  written on same line
   height.init        (this,"HEIGHT",          LeoCadLightRc);
   size.init          (this,"SIZE",            LeoCadLightRc);
   spotBlend.init     (this,"SPOT_BLEND",      LeoCadLightRc);
+  spotFalloff.init   (this,"SPOT_FALLOFF",    LeoCadLightRc);
+  spotTightness.init (this,"SPOT_TIGHTNESS",  LeoCadLightRc);
+
+  areaRows.init      (this,"AREA_ROWS",       LeoCadLightGridRc);  // Light AREA_COLUMNS and AREA_ROWS written on same line
+  areaColumns.init   (this,"AREA_COLUMNS",    LeoCadLightRc);
+
+  _povrayLight.init   (this,"POV_RAY",        LeoCadLightPOVRayRc);
+  _shadowless.init    (this,"SHADOWLESS",     LeoCadLightShadowless);
 
   color.init         (this,"COLOR_RGB",       LeoCadLightRc);
   target.init        (this,"TARGET_POSITION", LeoCadLightRc);
