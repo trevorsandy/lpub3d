@@ -416,7 +416,7 @@ public:
 	void SetCameraName(lcCamera* Camera, const QString& Name);
 /*** LPub3D Mod - enable lights ***/
 	void SetLightName(lcLight* Light, const QString& Name);
-	void UpdateLight(lcLight* Light, const lcLightProps Props, int Property);
+	void UpdateLight(lcLight* Light, const lcLightProperties Props, int Property);
 /*** LPub3D Mod end ***/
 
 	void ShowPropertiesDialog();

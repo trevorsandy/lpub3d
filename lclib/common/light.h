@@ -25,41 +25,55 @@ enum lcLightType
 {
 	LC_UNDEFINED_LIGHT,
 	LC_POINTLIGHT,
-	LC_SUNLIGHT,
-	LC_SPOTLIGHT,
 	LC_AREALIGHT,
-	LC_NUM_LIGHT_TYPES
+	LC_SUNLIGHT,
+	LC_SPOTLIGHT
+};
+
+enum lcLightShape
+{
+	LC_LIGHT_SHAPE_UNDEFINED = -1,
+	LC_LIGHT_SHAPE_SQUARE,
+	LC_LIGHT_SHAPE_DISK,
+	LC_LIGHT_SHAPE_RECTANGLE,
+	LC_LIGHT_SHAPE_ELLIPSE
 };
 
 enum lcLightProperty
 {
-	LC_UNDEFINED_SHAPE = -1,
 	LC_LIGHT_NONE,
-	LC_LIGHT_SHAPE_SQUARE = LC_LIGHT_NONE,
 	LC_LIGHT_SHAPE,
-	LC_LIGHT_SHAPE_DISK = LC_LIGHT_SHAPE,
 	LC_LIGHT_COLOR,
-	LC_LIGHT_SHAPE_RECTANGLE = LC_LIGHT_COLOR,
 	LC_LIGHT_TYPE,
-	LC_LIGHT_SHAPE_ELLIPSE = LC_LIGHT_TYPE,
 	LC_LIGHT_FACTOR,
+	LC_LIGHT_DIFFUSE,
 	LC_LIGHT_SPECULAR,
+	LC_LIGHT_SHADOWLESS,
 	LC_LIGHT_EXPONENT,
+	LC_LIGHT_AREA_GRID,
 	LC_LIGHT_SPOT_SIZE,
+	LC_LIGHT_SPOT_FALLOFF,
+	LC_LIGHT_SPOT_TIGHTNESS,
 	LC_LIGHT_CUTOFF,
-	LC_LIGHT_USE_CUTOFF
+	LC_LIGHT_USE_CUTOFF,
+	LC_LIGHT_POVRAY
 };
 
-class lcLightProps
+struct lcLightProperties
 {
-public:
 	lcVector3 mLightColor;
 	lcVector2 mLightFactor;
+	lcVector2 mAreaGrid;
+	float     mLightDiffuse;
 	float     mLightSpecular;
 	float     mSpotExponent;
 	float     mSpotCutoff;
+	float     mSpotFalloff;
+	float     mSpotTightness;
 	float     mSpotSize;
 	bool      mEnableCutoff;
+	bool      mShadowless;
+	bool      mPOVRayLight;
 	int       mLightShape;
 };
 /*** LPub3D Mod end ***/
@@ -254,18 +268,24 @@ public:
 	bool Setup(int LightIndex);
 	void CreateName(const lcArray<lcLight*>& Lights);
 /*** LPub3D Mod - enable lights ***/
-	void UpdateLight(lcStep Step, lcLightProps Props, int Property);
-	lcLightProps GetLightProps() const
+	void UpdateLight(lcStep Step, lcLightProperties Props, int Property);
+	lcLightProperties GetLightProperties() const
 	{
-		lcLightProps props;
-		props.mLightColor    = mLightColor;
-		props.mLightFactor   = mLightFactor;
+		lcLightProperties props;
+		props.mLightColor = mLightColor;
+		props.mLightFactor = mLightFactor;
+		props.mLightDiffuse = mLightDiffuse;
 		props.mLightSpecular = mLightSpecular;
-		props.mSpotExponent  = mSpotExponent;
-		props.mSpotCutoff    = mSpotCutoff;
-		props.mSpotSize      = mSpotSize;
-		props.mEnableCutoff  = mEnableCutoff;
-		props.mLightShape    = mLightShape;
+		props.mSpotExponent = mSpotExponent;
+		props.mSpotCutoff = mSpotCutoff;
+		props.mSpotFalloff = mSpotFalloff;
+		props.mSpotTightness = mSpotTightness;
+		props.mSpotSize = mSpotSize;
+		props.mPOVRayLight = mPOVRayLight;
+		props.mEnableCutoff = mEnableCutoff;
+		props.mShadowless = mShadowless;
+		props.mAreaGrid = mAreaGrid;
+		props.mLightShape = mLightShape;
 		return props;
 	}
 /*** LPub3D Mod end ***/
@@ -281,6 +301,8 @@ public:
 /*** LPub3D Mod - enable lights ***/
 	lcVector3 mLightColor;
 	lcVector2 mLightFactor;
+	lcVector2 mAreaGrid;
+	lcVector2 mAreaSize;
 	bool  mAngleSet;
 	bool  mSpotBlendSet;
 	bool  mSpotCutoffSet;
@@ -289,10 +311,16 @@ public:
 /*** LPub3D Mod - LPUB meta command ***/
 	bool mLPubMeta;
 /*** LPub3D Mod end ***/
+	bool  mPOVRayLight;
+	bool  mShadowless;
 	int   mLightType;
 	int   mLightShape;
+	float mLightDiffuse;
 	float mLightSpecular;
 	float mSpotSize;
+	float mSpotFalloff;
+	float mSpotTightness;
+	float mPOVRayExponent;
 /*** LPub3D Mod end ***/
 	float mSpotCutoff;
 	float mSpotExponent;
@@ -310,19 +338,23 @@ protected:
 /*** LPub3D Mod - enable lights ***/
 	lcObjectKeyArray<lcVector3> mLightColorKeys;
 	lcObjectKeyArray<lcVector2> mLightFactorKeys;
+	lcObjectKeyArray<lcVector2> mAreaGridKeys;
 	lcObjectKeyArray<int> mLightTypeKeys;
 	lcObjectKeyArray<int> mLightShapeKeys;
 	lcObjectKeyArray<float> mLightSpecularKeys;
-	lcObjectKeyArray<float> mLightSpotSizeKeys;
+	lcObjectKeyArray<float> mLightDiffuseKeys;
+	lcObjectKeyArray<float> mSpotSizeKeys;
+	lcObjectKeyArray<float> mSpotFalloffKeys;
+	lcObjectKeyArray<float> mSpotTightnessKeys;
 /*** LPub3D Mod end ***/
 	lcObjectKeyArray<float> mSpotCutoffKeys;
 	lcObjectKeyArray<float> mSpotExponentKeys;
 
 /*** LPub3D Mod - enable lights ***/
 	void Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType);
-	void SetLightState(int LightType);
-	void DrawPointLight(lcContext* Context) const;
 	void DrawDirectionalLight(lcContext* Context) const;
+	void DrawPointLight(lcContext* Context) const;
+	void SetLightState(int LightType);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - moved mName to public, enable lights ***/

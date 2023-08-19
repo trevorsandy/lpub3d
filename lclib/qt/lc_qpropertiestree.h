@@ -46,6 +46,7 @@ public:
 		PropertyFloat,
 /*** LPub3D Mod - enable lights ***/
 		PropertyFloatLightSpotSize,
+		PropertyFloatLightSpotFalloff,
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
 		PropertyBoolReadOnly,
@@ -55,7 +56,8 @@ public:
 		PropertyStep,
 		PropertyString,
 /*** LPub3D Mod - enable lights ***/
-		PropertyStringReadOnly,
+		PropertyStringLightReadOnly,
+		PropertyLightFormat,
 		PropertyLightShape,
 		PropertyLightColor,
 /*** LPub3D Mod end ***/
@@ -98,6 +100,7 @@ protected:
 /*** LPub3D Mod - enable lights ***/
 	int mLightType;
 	int mLightShape;
+	bool mPOVRayLight;
 /*** LPub3D Mod end ***/
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
@@ -161,6 +164,7 @@ protected:
 	QTreeWidgetItem *cameraName;
 
 /*** LPub3D Mod - enable lights ***/
+	QTreeWidgetItem *lightConfiguration;
 	QTreeWidgetItem *lightPosition;
 	QTreeWidgetItem *lightPositionX;
 	QTreeWidgetItem *lightPositionY;
@@ -175,6 +179,7 @@ protected:
 	QTreeWidgetItem *lightColorG;
 	QTreeWidgetItem *lightColorB;
 	QTreeWidgetItem *lightProperties;
+	QTreeWidgetItem *lightDiffuse;
 	QTreeWidgetItem *lightSpecular;
 	QTreeWidgetItem *lightCutoff;
 	QTreeWidgetItem *lightEnableCutoff;
@@ -185,6 +190,12 @@ protected:
 	QTreeWidgetItem *lightFactorA;
 	QTreeWidgetItem *lightFactorB;
 	QTreeWidgetItem *lightName;
+	QTreeWidgetItem *lightFormat;
+	QTreeWidgetItem *lightShadowless;
+	QTreeWidgetItem *lightAreaGridRows;
+	QTreeWidgetItem *lightAreaGridColumns;
+	QTreeWidgetItem *lightSpotFalloff;
+	QTreeWidgetItem *lightSpotTightness;
 /*** LPub3D Mod end ***/
 };
 

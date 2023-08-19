@@ -3329,7 +3329,7 @@ void lcModel::SetSelectedPiecesStepHide(lcStep Step)
 }
 
 /*** LPub3D Mod - enable lights ***/
-void lcModel::UpdateLight(lcLight* Light, const lcLightProps Props, int Property)
+void lcModel::UpdateLight(lcLight* Light, const lcLightProperties Props, int Property)
 {
 	Light->UpdateLight(mCurrentStep, Props, Property);
 

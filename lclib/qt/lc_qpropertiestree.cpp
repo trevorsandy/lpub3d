@@ -477,17 +477,31 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 		}
 /*** LPub3D Mod - enable lights ***/
 	case PropertyFloatLightSpotSize:
-	{
-		QLineEdit *editor = new QLineEdit(parent);
-		float value = item->data(0, PropertyValueRole).toFloat();
+		{
+			QLineEdit *editor = new QLineEdit(parent);
+			float value = item->data(0, PropertyValueRole).toFloat();
 
-		editor->setValidator(new QDoubleValidator(1.0, 180.0,1, editor));
-		editor->setText(lcFormatValueLocalized(value));
-		editor->setToolTip(tr("Angle of the spotlight beam."));
+			editor->setValidator(new QDoubleValidator(1.0, 180.0,1, editor));
+			editor->setText(lcFormatValueLocalized(value));
+			editor->setToolTip(tr("Angle of the spotlight beam."));
 
-		connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
-		return editor;
-	}
+			connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
+			return editor;
+		}
+
+	case PropertyFloatLightSpotFalloff:
+		{
+			QLineEdit *editor = new QLineEdit(parent);
+			float value = item->data(0, PropertyValueRole).toFloat();
+
+			editor->setValidator(new QDoubleValidator(1.0, 90.0,1, editor));
+			editor->setText(lcFormatValueLocalized(value));
+			editor->setToolTip(tr("Angle of the spotlight beam beteeen the cone edge and center line."));
+
+			connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
+			return editor;
+		}
+
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
 	case PropertyBoolReadOnly:
@@ -595,7 +609,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			return editor;
 		}
 /*** LPub3D Mod - enable lights ***/
-	case PropertyStringReadOnly:
+	case PropertyStringLightReadOnly:
 		{
 			QLineEdit *editor = new QLineEdit(parent);
 			const char *value = (const char*)item->data(0, PropertyValueRole).value<void*>();
@@ -606,6 +620,26 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			return editor;
 		}
+
+	case PropertyLightFormat:
+		{
+			QComboBox *editor = new QComboBox(parent);
+
+			editor->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+			editor->setMinimumContentsLength(1);
+
+			QStringList formats = { "Blender", "POVRay" };
+			for (int i = 0; i < formats.size(); i++)
+				editor->addItem(formats.at(i), QVariant::fromValue(i));
+
+			int value = item->data(0, PropertyValueRole).toInt();
+			editor->setCurrentIndex(value);
+
+			connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetValue(int)));
+
+			return editor;
+		}
+
 	case PropertyLightShape:
 		{
 			QComboBox *editor = new QComboBox(parent);
@@ -613,7 +647,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			editor->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
 			editor->setMinimumContentsLength(1);
 
-			QStringList shapes = { "Square", "Disk", "Rectangle",  "Ellipse"};
+			QStringList shapes = { "Square", "Disk", "Rectangle",  "Ellipse" };
 			for (int i = 0; i < shapes.size(); i++)
 				editor->addItem(shapes.at(i), QVariant::fromValue(i));
 
@@ -625,16 +659,16 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			return editor;
 		}
 	case PropertyLightColor:
-	{
-		QPushButton *editor = new QPushButton(parent);
-		QColor value = item->data(0, PropertyValueRole).value<QColor>();
+		{
+			QPushButton *editor = new QPushButton(parent);
+			QColor value = item->data(0, PropertyValueRole).value<QColor>();
 
-		updateLightColorEditor(editor, value);
+			updateLightColorEditor(editor, value);
 
-		connect(editor, SIGNAL(clicked()), this, SLOT(slotColorButtonClicked()));
+			connect(editor, SIGNAL(clicked()), this, SLOT(slotColorButtonClicked()));
 
-		return editor;
-	}
+			return editor;
+		}
 /*** LPub3D Mod end ***/
 	case PropertyColor:
 		{
@@ -753,11 +787,19 @@ void lcQPropertiesTree::slotToggled(bool Value)
 	{
 		lcLight* Light = (Focus && Focus->IsLight()) ? (lcLight*)Focus : nullptr;
 
-		if (Light && Item == lightEnableCutoff)
+		if (Light)
 		{
-			lcLightProps Props = Light->GetLightProps();
-			Props.mEnableCutoff = Value;
-			Model->UpdateLight(Light, Props, LC_LIGHT_USE_CUTOFF);
+			lcLightProperties Props = Light->GetLightProperties();
+			if (Item == lightEnableCutoff)
+			{
+				Props.mEnableCutoff = Value;
+				Model->UpdateLight(Light, Props, LC_LIGHT_USE_CUTOFF);
+			}
+			else if (Item == lightShadowless)
+			{
+				Props.mShadowless = Value;
+				Model->UpdateLight(Light, Props, LC_LIGHT_SHADOWLESS);
+			}
 		}
 	}
 /*** LPub3D Mod end ***/
@@ -1057,7 +1099,7 @@ void lcQPropertiesTree::slotReturnPressed()
 
 		if (Light)
 		{
-			lcLightProps Props = Light->GetLightProps();
+			lcLightProperties Props = Light->GetLightProperties();
 
 			QString Name = Light->GetName();
 
@@ -1099,11 +1141,11 @@ void lcQPropertiesTree::slotReturnPressed()
 			{
 				float Value = lcParseValueLocalized(Editor->text());
 				if (Item == lightColorR)
-					Props.mLightColor[X] = Value;
+					Props.mLightColor[0] = Value;
 				else if (Item == lightColorG)
-					Props.mLightColor[Y] = Value;
+					Props.mLightColor[2] = Value;
 				else if (Item == lightColorB)
-					Props.mLightColor[Z] = Value;
+					Props.mLightColor[1] = Value;
 
 				Model->UpdateLight(Light, Props, LC_LIGHT_COLOR);
 			}
@@ -1117,9 +1159,15 @@ void lcQPropertiesTree::slotReturnPressed()
 
 				Model->UpdateLight(Light, Props, LC_LIGHT_FACTOR);
 			}
+			else if (Item == lightDiffuse)
+			{
+				Props.mLightDiffuse = lcParseValueLocalized(Editor->text());
+
+				Model->UpdateLight(Light, Props, LC_LIGHT_DIFFUSE);
+			}
 			else if (Item == lightSpecular)
 			{
-				 Props.mLightSpecular = lcParseValueLocalized(Editor->text());
+				Props.mLightSpecular = lcParseValueLocalized(Editor->text());
 
 				Model->UpdateLight(Light, Props, LC_LIGHT_SPECULAR);
 			}
@@ -1140,6 +1188,28 @@ void lcQPropertiesTree::slotReturnPressed()
 				Props.mSpotSize = lcParseValueLocalized(Editor->text());
 
 				Model->UpdateLight(Light, Props, LC_LIGHT_SPOT_SIZE);
+			}
+			else if (Item == lightSpotFalloff)
+			{
+				Props.mSpotFalloff = lcParseValueLocalized(Editor->text());
+
+				Model->UpdateLight(Light, Props, LC_LIGHT_SPOT_FALLOFF);
+			}
+			else if (Item == lightSpotTightness)
+			{
+				Props.mSpotTightness = lcParseValueLocalized(Editor->text());
+
+				Model->UpdateLight(Light, Props, LC_LIGHT_SPOT_TIGHTNESS);
+			}
+			else if (Item == lightAreaGridRows || Item == lightAreaGridColumns)
+			{
+				float Value = lcParseValueLocalized(Editor->text());
+				if (Item == lightAreaGridRows)
+					Props.mAreaGrid[0] = Value;
+				else if (Item == lightAreaGridColumns)
+					Props.mAreaGrid[1] = Value;
+
+				Model->UpdateLight(Light, Props, LC_LIGHT_AREA_GRID);
 			}
 			else if (Item == lightName)
 			{
@@ -1196,11 +1266,19 @@ void lcQPropertiesTree::slotSetValue(int Value)
 
 		lcLight* Light = (Focus && Focus->IsLight()) ? (lcLight*)Focus : nullptr;
 
-		if (Light && Item == lightShape)
+		if (Light)
 		{
-			lcLightProps Props = Light->GetLightProps();
-			Props.mLightShape = Value;
-			Model->UpdateLight(Light, Props, LC_LIGHT_SHAPE);
+			lcLightProperties Props = Light->GetLightProperties();
+			if (Item == lightShape)
+			{
+				Props.mLightShape = static_cast<lcLightShape>(Value);
+				Model->UpdateLight(Light, Props, LC_LIGHT_SHAPE);
+			}
+			else if (Item == lightFormat)
+			{
+				Props.mPOVRayLight =  Value;
+				Model->UpdateLight(Light, Props, LC_LIGHT_POVRAY);
+			}
 		}
 	}
 }
@@ -1219,7 +1297,7 @@ void lcQPropertiesTree::slotSetColorValue(QColor Value)
 		float b = Value.blue();
 		lcVector3 Color(r/255, g/255, b/255);
 
-		lcLightProps Props = Light->GetLightProps();
+		lcLightProperties Props = Light->GetLightProperties();
 		Props.mLightColor = Color;
 		Model->UpdateLight(Light, Props, LC_LIGHT_COLOR);
 	}
@@ -1372,6 +1450,7 @@ void lcQPropertiesTree::SetEmpty()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - enable lights ***/
+	lightConfiguration = nullptr;
 	lightPosition = nullptr;
 	lightPositionX = nullptr;
 	lightPositionY = nullptr;
@@ -1386,6 +1465,7 @@ void lcQPropertiesTree::SetEmpty()
 	lightColorG = nullptr;
 	lightColorB = nullptr;
 	lightProperties = nullptr;
+	lightDiffuse = nullptr;
 	lightSpecular = nullptr;
 	lightCutoff = nullptr;
 	lightEnableCutoff = nullptr;
@@ -1396,6 +1476,12 @@ void lcQPropertiesTree::SetEmpty()
 	lightName = nullptr;
 	lightSpotSize = nullptr;
 	lightShape = nullptr;
+	lightFormat = nullptr;
+	lightShadowless = nullptr;
+	lightAreaGridRows = nullptr;
+	lightAreaGridColumns = nullptr;
+	lightSpotFalloff = nullptr;
+	lightSpotTightness = nullptr;
 /*** LPub3D Mod end ***/
 
 	mWidgetMode = LC_PROPERTY_WIDGET_EMPTY;
@@ -1751,103 +1837,157 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	lcLight* Light = (Focus && Focus->IsLight()) ? (lcLight*)Focus : nullptr;
 
 	QString Name = tr("Light");
-	QString FactorALabel = tr("FactorA");
 	QString ExponentLabel = tr("Exponent");
-	QString Type, Shape, FactorAToolTip, FactorBToolTip;
-	int   LightIndex = LC_UNDEFINED_LIGHT;
-	int   ShapeIndex = LC_UNDEFINED_SHAPE;
+	QString FactorALabel = QLatin1String("FactorA");
+	QString Type = QLatin1String("Undefined");
+	QString Format, Shape, SpotSizeToolTip, ExponentToolTip, FactorAToolTip, FactorBToolTip;
+	lcLightType LightIndex = LC_UNDEFINED_LIGHT;
+	lcLightShape ShapeIndex = LC_LIGHT_SHAPE_UNDEFINED;
+	int FormatIndex = 0;
 	float SpotSize = 0.0f;
+	float SpotFalloff = 0.0f;
+	float SpotTightness = 0.0f;
+	float Diffuse = 0.0f;
 	float Specular = 0.0f;
 	float Cutoff = 0.0f;
 	float Exponent = 0.0f;
 	bool EnableCutoff = false;
+	bool POVRayLight = false;
+	bool Shadowless = false;
 	PropertyType TargetProperty = PropertyFloat;
+	PropertyType SpotSizeProperty = PropertyFloatLightSpotSize;
 	lcVector3 Position(0.0f, 0.0f, 0.0f);
 	lcVector3 Target(0.0f, 0.0f, 0.0f);
 	lcVector3 Color(0.0f, 0.0f, 0.0f);
 	lcVector2 Factor(0.0f, 0.0f);
+	lcVector2 AreaGrid(0.0f, 0.0f);
 
 	if (Light)
 	{
 		Name = Light->GetName();
 
-		Position = Light->mPosition; // normalizeDegrees(Light->mPosition);
-		Target = Light->mTargetPosition; // normalizeDegrees(Light->mTargetPosition);
+		POVRayLight = Light->mPOVRayLight;
+		FormatIndex = static_cast<int>(POVRayLight);
+		Format = POVRayLight ? QLatin1String("POVRay") : QLatin1String("Blender");
+
+		Shadowless = Light->mShadowless;
+		Position = Light->mPosition;
+		Target = Light->mTargetPosition;
 		Color = Light->mLightColor;
 		Factor = Light->mLightFactor;
-		LightIndex = Light->mLightType;
-		switch(LightIndex){
+		LightIndex = static_cast<lcLightType>(Light->mLightType);
+
+		switch(LightIndex)
+		{
 		case LC_POINTLIGHT:
 			Type = QLatin1String("Point");
 			FactorALabel = tr("Radius (m)");
-			FactorAToolTip = tr("Shadow soft size - Light size for shadow sampling");
+			FactorAToolTip = tr("The light size for shadow sampling in metres.");
+			break;
+		case LC_AREALIGHT:
+			Type = QLatin1String("Area");
+			if (POVRayLight)
+			{
+				Factor = Light->mAreaSize;
+				FactorALabel = tr("Width");
+				FactorAToolTip = tr("The width (X direction) of the area light in units.");
+				FactorBToolTip = tr("The height (Y direction) of the area light in units.");
+			}
+			else
+			{
+				FactorALabel = tr("Width (m)");
+				FactorAToolTip = tr("The width (X direction) of the area light in metres.");
+				FactorBToolTip = tr("The height (Y direction) of the area light in units.");
+			}
 			break;
 		case LC_SUNLIGHT:
 			Type = QLatin1String("Sun");
 			FactorALabel = tr("Angle (°)");
-			FactorAToolTip = tr("Angular diamater of the sun as seen from the Earth");
+				FactorAToolTip = tr("Angular diamater of the sun as seen from the Earth.");
 			break;
 		case LC_SPOTLIGHT:
 			Type = QLatin1String("Spot");
-			FactorALabel = tr("Radius (m)");
-			FactorAToolTip = tr("Shadow soft size - Light size for shadow sampling");
-			FactorBToolTip = tr("Shadow blend - The softness of the spotlight edge");
-			break;
-		case LC_AREALIGHT:
-			Type = QLatin1String("Area");
-			FactorALabel = tr("Width (X)");
-			FactorAToolTip = tr("Size of the area of the area light. X direction size for rectangular shapes");
-			FactorBToolTip = tr("Size of the area of the area light. Y direction size for rectangular shapes");
+			FactorBToolTip = tr("The softness of the spotlight edge.");
+			if (POVRayLight)
+			{
+				FactorALabel = tr("Radius (°)");
+					FactorAToolTip = tr("The angle between the \"hot-spot\" edge at the beam center and the center line.");
+				SpotSizeToolTip = tr("Angle of the spotlight beam - Read only.");
+				Factor[0] = Light->mSpotSize - Light->mSpotFalloff;
+				SpotSizeProperty = PropertyFloatReadOnly;
+			}
+			else
+			{
+				FactorALabel = tr("Radius (m)");
+				FactorAToolTip = tr("Shadow soft size - Light size in metres for shadow sampling.");
+				SpotSizeToolTip = tr("Angle of the spotlight beam.");
+			}
 			break;
 		default:
-			Type = QLatin1String("Undefined");
-			FactorALabel = tr("FactorA");
 			break;
 		}
-		ShapeIndex = Light->mLightShape;
-		switch(ShapeIndex){
+
+		ShapeIndex = static_cast<lcLightShape>(Light->mLightShape);
+		switch(ShapeIndex)
+		{
 		case LC_LIGHT_SHAPE_SQUARE:
-			Shape = QLatin1String("Square");
+			Shape = tr("Square");
 			break;
 		case LC_LIGHT_SHAPE_DISK:
-			Shape = QLatin1String("Disk");
+			Shape = POVRayLight ? tr("Circle") : tr("Disk");
 			break;
 		case LC_LIGHT_SHAPE_RECTANGLE:
-			Shape = QLatin1String("Rectangle");
+			Shape = tr("Rectangle");
 			break;
 		case LC_LIGHT_SHAPE_ELLIPSE:
-			Shape = QLatin1String("Ellipse");
+			Shape = tr("Ellipse");
 			break;
 		default:
 			break;
 		}
+
+		Diffuse = Light->mLightDiffuse;
 		Specular = Light->mLightSpecular;
-		Exponent = Light->mSpotExponent;
-		ExponentLabel = LightIndex ? LightIndex == LC_SUNLIGHT ? tr("Strength") : tr("Power") : tr("Exponent");
+		if (POVRayLight)
+		{
+			Exponent = Light->mPOVRayExponent;
+			ExponentToolTip = tr("Intensity of the light with typical range of 0 to 1.0.");
+		}
+		else
+		{
+			Exponent = Light->mSpotExponent;
+			ExponentToolTip = tr("Intensity of the light in watts.");
+		}
+		ExponentLabel = LightIndex == LC_SUNLIGHT ? tr("Strength") : tr("Power");
 		Cutoff = Light->mSpotCutoff;
 		EnableCutoff = Light->mEnableCutoff;
 		TargetProperty = Light->mLightType > LC_POINTLIGHT ? PropertyFloat : PropertyFloatReadOnly;
 		SpotSize = Light->mSpotSize;
+		SpotFalloff = Light->mSpotFalloff;
+		SpotTightness = Light->mSpotTightness;
+		AreaGrid = Light->mAreaGrid;
 	}
 
-	if (mWidgetMode != LC_PROPERTY_WIDGET_LIGHT ||
-		mLightType != LightIndex ||
-		mLightShape != ShapeIndex)
+	if (mWidgetMode != LC_PROPERTY_WIDGET_LIGHT || mLightType != LightIndex || mLightShape != ShapeIndex || mPOVRayLight != POVRayLight)
 	{
 		SetEmpty();
+		// Configuration
+		lightConfiguration = addProperty(nullptr, tr("Configuration"), PropertyGroup);
+		lightFormat = addProperty(lightConfiguration, tr("Format"), PropertyLightFormat);
 		// Position
 		lightPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
 		lightPositionX = addProperty(lightPosition, tr("X"), PropertyFloat);
 		lightPositionY = addProperty(lightPosition, tr("Y"), PropertyFloat);
 		lightPositionZ = addProperty(lightPosition, tr("Z"), PropertyFloat);
 		// Target Position
-		if (LightIndex != LC_POINTLIGHT) {
+		if (LightIndex != LC_POINTLIGHT && !(LightIndex == LC_AREALIGHT && POVRayLight))
+		{
 			lightTarget = addProperty(nullptr, tr("Target"), PropertyGroup);
 			lightTargetX = addProperty(lightTarget, tr("X"), TargetProperty);
 			lightTargetY = addProperty(lightTarget, tr("Y"), TargetProperty);
 			lightTargetZ = addProperty(lightTarget, tr("Z"), TargetProperty);
 		}
-		// Ambient Colour
+		// Light Colour
 		lightColor = addProperty(nullptr, tr("Color"), PropertyGroup);
 		lightColorIcon = addProperty(lightColor, tr("Name"), PropertyLightColor);
 		lightColorR = addProperty(lightColor, tr("Red"), PropertyFloat);
@@ -1855,27 +1995,53 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 		lightColorB = addProperty(lightColor, tr("Blue"), PropertyFloat);
 		// Properties
 		lightProperties = addProperty(nullptr, tr("Properties"), PropertyGroup);
-		lightType = addProperty(lightProperties, tr("Type"), PropertyStringReadOnly);
+		lightType = addProperty(lightProperties, tr("Type"), PropertyStringLightReadOnly);
+		lightShadowless = addProperty(lightProperties, tr("Shadowless"), PropertyBool);
 		lightExponent = addProperty(lightProperties, ExponentLabel, PropertyFloat);
-		lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
-		if (LightIndex == LC_AREALIGHT) {
-			if (ShapeIndex == LC_LIGHT_SHAPE_RECTANGLE || ShapeIndex == LC_LIGHT_SHAPE_ELLIPSE)
-				lightFactorB = addProperty(lightProperties, tr("Height (Y)"), PropertyFloat);
+		if ((LightIndex == LC_POINTLIGHT || LightIndex == LC_SUNLIGHT) && !POVRayLight)
+			lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
+		if (LightIndex == LC_AREALIGHT)
+		{
 			lightShape = addProperty(lightProperties, tr("Shape"), PropertyLightShape);
-		} else if (LightIndex == LC_SPOTLIGHT) {
-			lightFactorB = addProperty(lightProperties, tr("Spot Blend"), PropertyFloat);
-			lightSpotSize = addProperty(lightProperties, tr("Spot Size (°)"), PropertyFloatLightSpotSize);
+			lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
+			if (ShapeIndex == LC_LIGHT_SHAPE_RECTANGLE || ShapeIndex == LC_LIGHT_SHAPE_ELLIPSE || POVRayLight)
+				lightFactorB = addProperty(lightProperties, tr("Height (Y)"), PropertyFloat);
+			else
+				FactorAToolTip = tr("The size of the area light grid in metres.");
+			if (POVRayLight)
+			{
+				lightAreaGridRows = addProperty(lightProperties, tr("Grid Rows"), PropertyFloat);
+				lightAreaGridColumns = addProperty(lightProperties, tr("Grid Columns"), PropertyFloat);
+			}
 		}
-		if (LightIndex != LC_SUNLIGHT) {
-			lightEnableCutoff = addProperty(lightProperties, tr("Cutoff"), PropertyBool);
-			lightCutoff = addProperty(lightProperties, tr("Cutoff Distance"), PropertyFloat);
+		else if (LightIndex == LC_SPOTLIGHT)
+		{
+			lightSpotSize = addProperty(lightProperties, tr("Spot Size (°)"), SpotSizeProperty);
+				lightFactorA = addProperty(lightProperties, FactorALabel, PropertyFloat);
+			if (!POVRayLight)
+				lightFactorB = addProperty(lightProperties, tr("Spot Blend"), PropertyFloat);
+			else
+			{
+				lightSpotFalloff = addProperty(lightProperties, tr("Spot Falloff (°)"), PropertyFloatLightSpotFalloff);
+					lightSpotTightness = addProperty(lightProperties, tr("Spot Tightness"), PropertyFloat);
+			}
 		}
-		lightSpecular = addProperty(lightProperties, tr("Specular"), PropertyFloat);
+		if (!POVRayLight)
+		{
+			if (LightIndex != LC_SUNLIGHT)
+			{
+				lightEnableCutoff = addProperty(lightProperties, tr("Cutoff"), PropertyBool);
+				lightCutoff = addProperty(lightProperties, tr("Cutoff Distance"), PropertyFloat);
+			}
+			lightDiffuse = addProperty(lightProperties, tr("Diffuse"), PropertyFloat);
+			lightSpecular = addProperty(lightProperties, tr("Specular"), PropertyFloat);
+		}
 		lightName = addProperty(lightProperties, tr("Name"), PropertyString);
 
 		mWidgetMode = LC_PROPERTY_WIDGET_LIGHT;
 		mLightType = LightIndex;
 		mLightShape = ShapeIndex;
+		mPOVRayLight = POVRayLight;
 	}
 
 	mFocus = Light;
@@ -1888,8 +2054,9 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	lightPositionZ->setText(1, lcFormatValueLocalized(Position[Y]));
 	lightPositionZ->setData(0, PropertyValueRole, Position[Y]);
 
+	if (LightIndex != LC_POINTLIGHT && !(LightIndex == LC_AREALIGHT && POVRayLight))
+	{
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	if (LightIndex != LC_POINTLIGHT) {
 		lightTargetX->setText(1, lcFormatValueLocalized(Target[X]));
 		lightTargetX->setData(0, PropertyValueRole, Target[X]);
 		lightTargetY->setText(1, lcFormatValueLocalized(-Target[Z]));
@@ -1901,7 +2068,7 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	QImage img(16, 16, QImage::Format_ARGB32);
 	img.fill(0);
 
-	QColor RgbColor = QColor::fromRgb(int(Color[0]*255), int(Color[1]*255), int(Color[2]*255));
+	QColor RgbColor = QColor::fromRgb(int(Color[1]*255), int(Color[1]*255), int(Color[2]*255));
 
 	QPainter painter(&img);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
@@ -1916,58 +2083,109 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 
 	lightColorR->setText(1, lcFormatValueLocalized(Color[0]));
 	lightColorR->setData(0, PropertyValueRole, Color[0]);
-	lightColorR->setToolTip(1, tr("Red color component - use .0 - 1 format"));
+	lightColorR->setToolTip(1, tr("Red color using 0 to 1 decimal."));
 	lightColorG->setText(1, lcFormatValueLocalized(Color[1]));
 	lightColorG->setData(0, PropertyValueRole, Color[1]);
-	lightColorG->setToolTip(1, tr("Green color component - use .0 - 1 format"));
+	lightColorG->setToolTip(1, tr("Green color using 0 to 1 decimal."));
 	lightColorB->setText(1, lcFormatValueLocalized(Color[2]));
 	lightColorB->setData(0, PropertyValueRole, Color[2]);
-	lightColorB->setToolTip(1, tr("Blue color component - use  format"));
+	lightColorB->setToolTip(1, tr("Blue color using 0 to 1 decimal."));
+
+	lightFormat->setText(1, Format);
+	lightFormat->setData(0, PropertyValueRole, FormatIndex);
 
 	lightType->setText(1, Type);
 	lightType->setData(0, PropertyValueRole, Type);
 
+	lightShadowless->setText(1, Shadowless ? "True" : "False");
+	lightShadowless->setData(0, PropertyValueRole, Shadowless);
+
 	lightExponent->setText(1, lcFormatValueLocalized(Exponent));
 	lightExponent->setData(0, PropertyValueRole, Exponent);
-	lightExponent->setToolTip(1, tr("Intensity of the light in Watts."));
+	lightExponent->setToolTip(1, ExponentToolTip);
 
-	lightFactorA->setText(1, lcFormatValueLocalized(Factor[0]));
-	lightFactorA->setData(0, PropertyValueRole, Factor[0]);
-	lightFactorA->setToolTip(1, tr(FactorAToolTip.toLatin1()));
-
-	if (LightIndex == LC_AREALIGHT) {
-		if (ShapeIndex == LC_LIGHT_SHAPE_RECTANGLE || ShapeIndex == LC_LIGHT_SHAPE_ELLIPSE) {
-			lightFactorB->setText(1, lcFormatValueLocalized(Factor[1]));
-			lightFactorB->setData(0, PropertyValueRole, Factor[1]);
-			lightFactorB->setToolTip(1, tr(FactorBToolTip.toLatin1()));
-		}
-
+	if ((LightIndex == LC_POINTLIGHT || LightIndex == LC_SUNLIGHT) && !POVRayLight)
+	{
+		lightFactorA->setText(1, lcFormatValueLocalized(Factor[0]));
+		lightFactorA->setData(0, PropertyValueRole, Factor[0]);
+		lightFactorA->setToolTip(1, FactorAToolTip);
+	}
+	else if (LightIndex == LC_AREALIGHT)
+	{
 		lightShape->setText(1, Shape);
 		lightShape->setData(0, PropertyValueRole, ShapeIndex);
-		lightShape->setToolTip(1, tr("Shape of the arealight."));
+		lightShape->setToolTip(1, tr("Suggested shape of the arealight."));
 
-	} else if (LightIndex == LC_SPOTLIGHT) {
-		lightFactorB->setText(1, lcFormatValueLocalized(Factor[1]));
-		lightFactorB->setData(0, PropertyValueRole, Factor[1]);
-		lightFactorB->setToolTip(1, tr(FactorBToolTip.toLatin1()));
+		lightFactorA->setText(1, lcFormatValueLocalized(Factor[0]));
+		lightFactorA->setData(0, PropertyValueRole, Factor[0]);
+		lightFactorA->setToolTip(1, FactorAToolTip);
 
+		if (ShapeIndex == LC_LIGHT_SHAPE_RECTANGLE || ShapeIndex == LC_LIGHT_SHAPE_ELLIPSE || POVRayLight)
+		{
+			lightFactorB->setText(1, lcFormatValueLocalized(Factor[1]));
+			lightFactorB->setData(0, PropertyValueRole, Factor[1]);
+			lightFactorB->setToolTip(1, FactorBToolTip);
+		}
+
+		if (POVRayLight)
+		{
+			lightAreaGridRows->setText(1, lcFormatValueLocalized(AreaGrid[0]));
+			lightAreaGridRows->setData(0, PropertyValueRole, AreaGrid[0]);
+			lightAreaGridRows->setToolTip(1, tr("The number of sample rows in the area light."));
+
+			lightAreaGridColumns->setText(1, lcFormatValueLocalized(AreaGrid[1]));
+			lightAreaGridColumns->setData(0, PropertyValueRole, AreaGrid[1]);
+			lightAreaGridColumns->setToolTip(1, tr("The number of sample columns in the area light."));
+		}
+	}
+	else if (LightIndex == LC_SPOTLIGHT)
+	{
 		lightSpotSize->setText(1, lcFormatValueLocalized(SpotSize));
 		lightSpotSize->setData(0, PropertyValueRole, SpotSize);
-		lightSpotSize->setToolTip(1, tr("Angle of the spotlight beam."));
+		lightSpotSize->setToolTip(1, SpotSizeToolTip);
+
+		lightFactorA->setText(1, lcFormatValueLocalized(Factor[0]));
+		lightFactorA->setData(0, PropertyValueRole, Factor[0]);
+		lightFactorA->setToolTip(1, FactorAToolTip);
+
+		if (!POVRayLight)
+		{
+			lightFactorB->setText(1, lcFormatValueLocalized(Factor[1]));
+			lightFactorB->setData(0, PropertyValueRole, Factor[1]);
+			lightFactorB->setToolTip(1, FactorBToolTip);
+		}
+		else
+		{
+			lightSpotFalloff->setText(1, lcFormatValueLocalized(SpotFalloff));
+			lightSpotFalloff->setData(0, PropertyValueRole, SpotFalloff);
+			lightSpotFalloff->setToolTip(1, tr("The angle between the spot beam edge and center line."));
+
+			lightSpotTightness->setText(1, lcFormatValueLocalized(SpotTightness));
+			lightSpotTightness->setData(0, PropertyValueRole, SpotTightness);
+			lightSpotTightness->setToolTip(1, tr("Additional exponential spotlight edge softening."));
+		}
 	}
 
-	if (LightIndex != LC_SUNLIGHT) {
-		lightEnableCutoff->setText(1, EnableCutoff ? "True" : "False");
-		lightEnableCutoff->setData(0, PropertyValueRole, EnableCutoff);
+	if (!POVRayLight)
+	{
+		if (LightIndex != LC_SUNLIGHT)
+		{
+			lightEnableCutoff->setText(1, EnableCutoff ? "True" : "False");
+			lightEnableCutoff->setData(0, PropertyValueRole, EnableCutoff);
 
-		lightCutoff->setText(1, lcFormatValueLocalized(Cutoff));
-		lightCutoff->setData(0, PropertyValueRole, Cutoff);
-		lightCutoff->setToolTip(1, tr("Distance at which the light influence will be set to 0."));
+			lightCutoff->setText(1, lcFormatValueLocalized(Cutoff));
+			lightCutoff->setData(0, PropertyValueRole, Cutoff);
+			lightCutoff->setToolTip(1, tr("Distance at which the light influence will be set to 0."));
+		}
+
+		lightDiffuse->setText(1, lcFormatValueLocalized(Diffuse));
+		lightDiffuse->setData(0, PropertyValueRole, Diffuse);
+		lightDiffuse->setToolTip(1, tr("Diffuse reflection multiplier factor."));
+
+		lightSpecular->setText(1, lcFormatValueLocalized(Specular));
+		lightSpecular->setData(0, PropertyValueRole, Specular);
+		lightSpecular->setToolTip(1, tr("Specular reflection multiplier factor."));
 	}
-
-	lightSpecular->setText(1, lcFormatValueLocalized(Specular));
-	lightSpecular->setData(0, PropertyValueRole, Specular);
-	lightSpecular->setToolTip(1, tr("Specular reflection multiplier factor."));
 
 	lightName->setText(1, Name);
 	lightName->setData(0, PropertyValueRole, QVariant::fromValue(Name));
