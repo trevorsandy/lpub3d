@@ -854,6 +854,16 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
   }
 
   if (renderer == RENDERER_LDVIEW) {
+    if (Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
+      message = tr("Renderer preference use LDView Snapshot List changed from %1 to %2.")
+                    .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
+                    .arg(useLDVSnapShotList ? "Yes" : "No");
+      emit lpub->messageSig(LOG_INFO,message);
+      Preferences::enableLDViewSnaphsotList = useLDVSnapShotList;
+      if (useLDVSnapShotList)
+        useLDVSingleCall = true;
+      renderFlagChanged = true;
+    }
     if (Preferences::enableLDViewSingleCall != useLDVSingleCall) {
       message = tr("Renderer preference use LDView Single Call changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
@@ -861,17 +871,6 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
       emit lpub->messageSig(LOG_INFO,message);
       Preferences::enableLDViewSingleCall = useLDVSingleCall;
       renderFlagChanged = true;
-    }
-    if (Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
-      message = tr("Renderer preference use LDView Snapshot List changed from %1 to %2.")
-                        .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
-                        .arg(useLDVSingleCall ? "Yes" : "No");
-      emit lpub->messageSig(LOG_INFO,message);
-      Preferences::enableLDViewSnaphsotList = useLDVSnapShotList;
-      if (useLDVSnapShotList)
-          Preferences::enableLDViewSingleCall = true;
-      if (!renderFlagChanged)
-        renderFlagChanged = true;
     }
   } else if (renderer == RENDERER_POVRAY) {
     if (Preferences::useNativePovGenerator != useNativeGenerator) {
@@ -894,7 +893,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
                       .arg(renderer == RENDERER_POVRAY ? tr(" (POV file generator is %1)")
                                                                  .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                            renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
-                                                         useLDVSnapShotList ? tr(" (Single Call using Export File List)") :
+                                                         useLDVSnapShotList ? tr(" (Single Call using Snapshot File List)") :
                                                                               tr(" (Single Call)") :
                                                                               QString() : QString());
     emit lpub->messageSig(LOG_INFO,message);
