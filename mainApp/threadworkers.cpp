@@ -119,8 +119,8 @@ void PartWorker::ldsearchDirPreferences(){
   emit gui->messageSig(LOG_INFO,(doHighlightStep() ? tr("Highlight Step is ON.") : tr("Highlight Step is OFF.")));
 
   // LDrawINI not found and not reset so load registry key
-  if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
-      Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey))) {
+  bool ldSearchDirsSettingKeyExist = Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
+  if (!Preferences::ldrawiniFound && !_resetSearchDirSettings && ldSearchDirsSettingKeyExist) {
       emit gui->messageSig(LOG_INFO, tr("LDrawINI not found, loading LDSearch directories from registry key..."));
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
@@ -173,7 +173,7 @@ void PartWorker::ldsearchDirPreferences(){
               Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
           }
        }
-    } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load local paths
+    } else if (loadLDrawSearchDirs()) { //ldraw.ini not found and settingKey not found or reset so load local paths
       Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
       emit gui->messageSig(LOG_INFO, tr("Loading LDraw parts search directories..."));
     } else {
