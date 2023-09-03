@@ -118,13 +118,17 @@ Files:
 Copyright: 2007-2009 Kevin Clague <kevin.clague@gmail.com>
 License: GPL-2
 
-Files: lc_lib/*
+Files: WPngImage/*
+Copyright (c) 2016 Juha Nieminen
+License: MIT
+
+Files: lclib/*
 Copyright: 2002-2023 Leonardo Zide <leozide@gmail.com>
 License: GPL-2
 
 Files: quazip/*
 Copyright: 2005-2022 Sergey A. Tachenov and contributors
-License: GPL-2
+License: LGPL-2.1
 
 Files: qslog/*
 Copyright: 2022 Razvan Petru
@@ -134,13 +138,30 @@ Files: qsimpleupdater/*
 Copyright: 2015 Alex Spataru
 License: DBAD
 
-Files: mainApp/ldsearchdirs.cpp mainApp/ldsearchdirs.h
+Files:
+ mainApp/ldsearchdirs.cpp
+ mainApp/ldsearchdirs.h
 Copyright: 2000-2013 Travis Cobbs
 License: GPL-2
 
 Files: ldrawini/*
 Copyright: 2004-2008 Lars C. Hassing <SP.lars@AM.hassings.dk>
 License: MIT
+
+Files:
+ mainApp/jsonconfig/*
+ mainApp/commands/snippets/*
+ mainApp/commands/commandcompleter.cpp
+ mainApp/commands/commandcompleter.h
+ mainApp/commands/commandlistmodel.cpp
+ mainApp/commands/commandlistmodel.h
+ mainApp/commands/commandstablemodel.cpp
+ mainApp/commands/commandstablemodel.h
+ mainApp/commands/jsoncommandtranslator.cpp
+ mainApp/commands/jsoncommandtranslator.h
+ mainApp/commands/jsoncommandtranslatorfactory.h
+Copyright (c) 2013-2015 Christian Loose.
+License: GPL-2
 
 Copyright: 2017 - 2023 Trevor SANDY <trevor.sandy@gmail.com>
 
