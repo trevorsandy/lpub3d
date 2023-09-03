@@ -1,4 +1,4 @@
-LPub3D 2.4.7.63.3539 (03 09 2023 23:37:01)
+LPub3D 2.4.7.64.3540 (03 09 2023 23:39:45)
 
 Features, enhancements, fixes and changes
 ------------
@@ -20,6 +20,7 @@ Revisions:
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
 - Fix - Include file meta commands not always applied #735
+- Fix - Parse MPD description line on insert MULTI_STEP BEGIN command #738
 - Fix - Scrambled submodel when placed before ignore IGN command #732
 
 --------------------------------------------------------------------------------------------------

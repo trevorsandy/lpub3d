@@ -234,14 +234,29 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
   Where walk    = onStepMeta ? topOfStep + 1 : topOfStep;
   Where lastPos = topOfStep;
   int  numLines = lpub->ldrawFile.size(walk.modelName);
+  bool foundHeaderLine = false;
+  bool isHeaderLine = false;
+  auto isDescriptionLine = [&]()
+  {
+    if (!isScanPastGlobal || foundHeaderLine)
+      return false;
+    QString nextLine = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber+1);
+    foundHeaderLine = isHeader(nextLine);
+    return foundHeaderLine;
+  };
   if (walk < numLines) {
     QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if (isScanPastGlobal && line.contains(endRx))
       return;
     for ( ++walk; walk < numLines; ++walk) {
       line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-      lastPos = line.contains(lineRx) ? walk : lastPos;
-      if ( ! line.contains(lineRx) && ! isHeader(line)) {
+      if (isScanPastGlobal) {
+          isHeaderLine = isHeader(line);
+          if (isHeaderLine)
+              foundHeaderLine = true;
+      }
+      lastPos = line.contains(lineRx) || isHeaderLine || isDescriptionLine() ? walk : lastPos;
+      if ( ! line.contains(lineRx) && ! isHeaderLine) {
         topOfStep = lastPos;
         if (line.contains(endRx)) {
             if (! isScanPastGlobal)
