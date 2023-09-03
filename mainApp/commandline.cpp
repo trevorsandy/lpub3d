@@ -117,6 +117,7 @@ int LPub::processCommandLine()
           metaCommandsFile;
   QString const StudStyleMessage = tr("High contrast stud style is required for the");
   QString const AutomateEdgeColourMessage = tr("Automate edge color is required for the");
+  QColor ParsedColor;
 
   // Parse parameters
   QStringList Arguments = Application::instance()->arguments();
@@ -151,7 +152,7 @@ int LPub::processCommandLine()
       if (IsExcluded)
           continue;
 
-      auto InvalidParse = [this, &Param, &Arguments, &ArgIdx, &ParseOK] (const QString& Text, bool Pair, bool SetParse = true)
+      auto InvalidParse = [&] (const QString& Text, bool Pair, bool SetParse = true)
       {
           QString message = Text.isEmpty() ? tr("Invalid value specified") : Text;
           if (Pair)
@@ -162,7 +163,7 @@ int LPub::processCommandLine()
           ParseOK = SetParse ? false : true;
       };
 
-      auto ParseString = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
+      auto ParseString = [&](QString& Value, bool Required)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
@@ -178,7 +179,7 @@ int LPub::processCommandLine()
           return true;
       };
 
-      auto ParseInteger = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](int& Value, int Min, int Max)
+      auto ParseInteger = [&](int& Value, int Min, int Max)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
@@ -200,7 +201,7 @@ int LPub::processCommandLine()
           return false;
       };
 
-      auto ParseFloat = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](float& Value, float Min, float Max)
+      auto ParseFloat = [&](float& Value, float Min, float Max)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
@@ -222,13 +223,13 @@ int LPub::processCommandLine()
           return false;
       };
 
-      auto ParseColor32 = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](quint32& Color)
+      auto ParseColor32 = [&](quint32& Color)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
               ArgIdx++;
               QString Parameter = Arguments[ArgIdx];
-              QColor ParsedColor = QColor(Parameter);
+              ParsedColor = QColor(Parameter);
 
               if (ParsedColor.isValid())
               {
@@ -606,7 +607,7 @@ int LPub::processCommandLine()
               Preferences::fadeStepsOpacity = fadeStepsOpacity;
           }
       }
-      QColor ParsedColor = LDrawColor::color(fadeStepsColour);
+      ParsedColor = LDrawColor::color(fadeStepsColour);
       if (ParsedColor.isValid() &&
           fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower())
       {
@@ -650,16 +651,18 @@ int LPub::processCommandLine()
       emit messageSig(LOG_INFO,message);
   }
 
-  QColor ParsedColor = LDrawColor::color(fadeStepsColour);
-  if (ParsedColor.isValid() &&
-      highlightStepColour.toLower() != Preferences::highlightStepColour.toLower() &&
-      Preferences::enableHighlightStep)
+  if (!highlightStepColour.isEmpty() && Preferences::enableHighlightStep)
   {
-      message = tr("Highlight Step Color preference changed from %1 to %2.")
-          .arg(Preferences::highlightStepColour)
-          .arg(highlightStepColour);
-      emit messageSig(LOG_INFO,message);
-      Preferences::highlightStepColour = highlightStepColour;
+      ParsedColor = LDrawColor::color(highlightStepColour);
+      if (ParsedColor.isValid() &&
+          highlightStepColour.toLower() != Preferences::highlightStepColour.toLower())
+      {
+          message = tr("Highlight Step Color preference changed from %1 to %2.")
+              .arg(Preferences::highlightStepColour)
+              .arg(highlightStepColour);
+          emit messageSig(LOG_INFO,message);
+          Preferences::highlightStepColour = highlightStepColour;
+      }
   }
 
   if ((highlightLineWidth != Preferences::highlightStepLineWidth ) && Preferences::enableHighlightStep)

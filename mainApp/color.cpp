@@ -202,16 +202,27 @@ QColor LDrawColor::color(const QString& argument)
   QString key(argument.toLower());
   QRegExp hexRx("\\s*(0x|#)([\\dA-F]+)\\s*$",Qt::CaseInsensitive);
   bool isHexRGB = key.contains(hexRx);
+  bool isVexColour = Preferences::validLDrawLibrary == VEXIQ_LIBRARY;
+  bool isValidName = false;
   bool isCode = false;
-  int code = -1;
   QColor color;
 
-  if (name2QColor.contains(key)) {
-    color = name2QColor[key];
-    code = key.toInt(&isCode);
-    Q_UNUSED(code)
-  } else if (isHexRGB) {
+  if (isHexRGB) {
     color = QColor(QString("#%1").arg(hexRx.cap(2)));
+  } else {
+    if (isVexColour) {
+      key.prepend("vex_");
+      if (!(isValidName = name2QColor.contains(key))) {
+        key = key.mid(3);
+        isValidName = name2QColor.contains(key);
+      }
+    } else {
+      isValidName = name2QColor.contains(key);
+    }
+    if (isValidName) {
+      color = name2QColor[key];
+      key.toInt(&isCode);
+    }
   }
 
   if (color.isValid()) {
@@ -219,7 +230,7 @@ QColor LDrawColor::color(const QString& argument)
     return color;
   }
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color OBJECT for %1 [%2] ").arg(isHexRGB ? "VALUE" : isCode ? "CODE" : "NAME").arg(argument));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color OBJECT for %1 [%2]. RETURNED Black color OBJECT.").arg(isHexRGB ? "VALUE" : isCode ? "CODE" : "NAME").arg(argument));
 
   color = QColor(Qt::black);
 
