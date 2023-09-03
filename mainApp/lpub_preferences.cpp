@@ -780,7 +780,7 @@ void Preferences::setDistribution() {
                 QString header  = "<b> " + QMessageBox::tr ("%1 writable data installation folder.").arg(VER_PRODUCTNAME_STR) + "</b>";
                 QString body = QMessageBox::tr ("Would you like to create a writable folder outside the Windows Program Files / (x86) folder ?<br><br>"
                                                 "If you choose No, the data folder will automatically be created in<br>%1.").arg(lpubDataPath);
-                QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) "
+                QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. Conda, AIOI) "
                                                  "distribution of %1 installed under the Windows Program Files/(x86) folder.<br><br>"
                                                  "Updatable data will not be able to be written unless you modify the "
                                                  "Windows User Account Control for this folder which is not recommended.<br><br>"
@@ -1435,7 +1435,7 @@ void Preferences::lpubPreferences()
         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY), QDir::toNativeSeparators(lpubDataPath));
     }
 
-    if (portableDistribution) { // we have a portable distribution
+    if (portableDistribution) { // we have a portable or packaged distribution
 
         lpub3dCachePath = QDir::toNativeSeparators(QString("%1/cache").arg(lpubDataPath));
 

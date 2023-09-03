@@ -996,9 +996,25 @@ int Application::initialize(lcCommandLineOptions &Options)
 #else
     Preferences::printInfo(tr("Secure Socket Layer..........(QT_NO_SSL Declaration Detected.)"));
 #endif // QT_NO_SSL
+QString distribution = tr("Installed");
 #ifdef Q_OS_WIN
-    Preferences::printInfo(tr("Application Distribution.....(%1)").arg(Preferences::portableDistribution ? "Portable" : "Installed"));
+    if (Preferences::portableDistribution)
+#ifdef LP3D_CONDA
+        distribution = tr("Conda Package");
+#else
+        distribution = tr("Portable");
 #endif
+#elif defined(Q_OS_LINUX)
+#ifdef LP3D_APPIMAGE
+    distribution = tr("Appimage");
+#elif defined(LP3D_SNAP)
+    distribution = tr("Snap Package");
+#elif defined(LP3D_FLATPACK)
+    distribution = tr("Flatpak Package");
+#endif
+#elif defined(Q_OS_MAC)
+#endif
+    Preferences::printInfo(tr("Application Distribution.....(%1)").arg(distribution));
     Preferences::printInfo("-----------------------------");
 
     // splash
@@ -1085,6 +1101,7 @@ int Application::initialize(lcCommandLineOptions &Options)
     QList<QPair<QString, bool>> LibraryPaths;
 
 #ifdef Q_OS_WIN
+    gPortableDist = Preferences::portableDistribution;
     gConsoleMode = !modeGUI();
     lcSehInit();
 #endif
@@ -1313,8 +1330,6 @@ int main(int argc, char** argv)
 //#endif
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
-#elif defined Q_OS_WIN
-    gPortableDist = Preferences::portableDistribution;
 #endif
 
     Application app(argc, argv);

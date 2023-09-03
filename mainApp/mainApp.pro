@@ -398,6 +398,7 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|con|contains(build_package, yes)) {
         DISTRO_PACKAGE = CONDA ($$opt)
         CONFIG-=$$opt
         CONFIG+=conda_build
+        DEFINES += LP3D_CONDA
     } else {
         DISTRO_PACKAGE = ($$opt)
     }
