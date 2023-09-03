@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 03, 2021
+# Last Update August 29, 2023
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -209,6 +209,7 @@ cd ~/ \\
 pbEOF
         ;;
     "fedora")
+	    gid="1001"
         cp -f builds/linux/obs/alldeps/lpub3d.spec .
         cp -f builds/linux/obs/lpub3d-rpmlintrc .
         cp -f builds/linux/CreateRpm.sh .
@@ -257,6 +258,7 @@ cd ~/ \\
 pbEOF
         ;;
     "archlinux")
+	    gid="1001"
         cp -f builds/linux/obs/alldeps/PKGBUILD .
         cp -f builds/linux/CreatePkg.sh .
 cat << pbEOF >>${out_path}/Dockerfile
@@ -304,8 +306,8 @@ pbEOF
         ;;
 esac
 cat << pbEOF >>${out_path}/docker-run-CMD.sh
-  sudo cp -af ./*.log /buildpkg/ 2>/dev/null || :; \\
-fi
+    sudo cp -af ./*.log /buildpkg/ 2>/dev/null || :; \\
+   fi
 pbEOF
 
 # add Dockerfile to context
