@@ -482,12 +482,14 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*
 
     // Update LDView extra search directories
     QString const couldNotUpdate = tr("Could not update %1. Missing [ExtraSearchDirs] section.");
+    Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
     if (Preferences::ldviewInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
        emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::ldviewIni));
     if (Preferences::ldviewInstalled && Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
        emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::ldviewPOVIni));
     if (Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
        emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::nativeExportIni));
+    Preferences::setMessageLogging();
 
     // Update LDGLite extra search directories
     if (Preferences::ldgliteInstalled && Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -779,12 +781,14 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
                   QString const couldNotUpdate = tr("Could not update %1. Missing [ExtraSearchDirs] section.");
+                  Preferences::setMessageLogging(DEFAULT_LOG_LEVEL);
                   if (Preferences::ldviewInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
                       emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::ldviewIni));
                   if (Preferences::ldviewInstalled && Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
                       emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::ldviewPOVIni));
                   if (Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
                       emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::nativeExportIni));
+                  Preferences::setMessageLogging();
                   updateLDGLiteSearchDirs = Preferences::ldgliteInstalled && Preferences::preferredRenderer == RENDERER_LDGLITE;
               }
           }
