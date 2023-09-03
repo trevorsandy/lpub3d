@@ -872,7 +872,7 @@ class LightData
 public:
   LightData() :
       type(typeNames[Point]),
-      shape("Square"),
+      shape("SQUARE"),
       specular(1.0f),
       spotSize(75.0f),
       spotCutoff(40.0f),
@@ -918,6 +918,7 @@ public:
     if (povrayLight)
     {
        const int typeEnc = typeMap[type];
+       const bool isCircle = shape.toUpper() == QLatin1String("DISK") || shape.toUpper() == QLatin1String("CIRCLE");
        return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 %15")
            /*01*/ .arg(typeEnc)
            /*02*/ .arg(shadowless)
@@ -929,7 +930,7 @@ public:
            /*08*/ .arg(double(typeEnc != Spot ? 0 : radius),1)
            /*09*/ .arg(double(spotFalloff),1)
            /*10*/ .arg(double(spotTightness),1)
-           /*11*/ .arg(shape == 1/*LC_LIGHT_SHAPE_DISK*/ ? "1" : "0")
+           /*11*/ .arg(isCircle ? "1" : "0")
            /*12*/ .arg(int(width))
            /*13*/ .arg(int(height))
            /*14*/ .arg(int(areaRows))
