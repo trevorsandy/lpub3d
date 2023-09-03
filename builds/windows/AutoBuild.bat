@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 29, 2023
+rem  Last Update: September 02, 2023
 rem  Copyright (C) 2017 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -146,7 +146,7 @@ IF "%BUILD_WORKER%" NEQ "True" (
 IF "%LP3D_CONDA_BUILD%" NEQ "True" (
   IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Professional\VC\Auxiliary\Build" (
     SET LP3D_VCVARSALL_DIR=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Professional\VC\Auxiliary\Build
-  )  
+  )
   IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build" (
     SET LP3D_VCVARSALL_DIR=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build
   )
@@ -519,13 +519,14 @@ SET "PKG_TARGET_DIR=%BUILD_WORKSPACE%\builds\windows\%CONFIGURATION%\%PACKAGE%-A
 IF ERRORLEVEL 0 (
   IF "%LP3D_CONDA_BUILD%" EQU "True" (
     PUSHD "%LIBRARY_PREFIX%"
-    XCOPY /Q /S /I /E /V /Y /H "%PKG_TARGET_DIR%" "%PACKAGE%_%PLATFORM_ARCH%"
+    XCOPY /Q /S /I /E /V /Y /H "%PKG_TARGET_DIR%" bin >NUL 2>&1
+    IF NOT ERRORLEVEL 0 (
+      POPD
+      ECHO.
+      ECHO -ERROR - Failed to copy %PKG_TARGET_DIR% to %LIBRARY_PREFIX%\bin.
+      GOTO :ERROR_END
+    )
     POPD
-  )
-  IF NOT ERRORLEVEL 0 (
-    ECHO.
-    ECHO -ERROR - Failed to copy %PKG_TARGET_DIR% to install path.
-    GOTO :ERROR_END
   )
 )
 GOTO :END
@@ -1220,7 +1221,6 @@ EXIT /b
 :END_STATUS
 CALL :ELAPSED_BUILD_TIME
 ECHO  Elapsed build time %LP3D_ELAPSED_BUILD_TIME%
-ENDLOCAL
 EXIT /b
 
 :ERROR_END
