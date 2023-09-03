@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 02, 2023
+rem  Last Update: September 04, 2023
 rem  Copyright (C) 2017 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -448,6 +448,8 @@ SET platform_build_start=%time%
 
 rem stop here if only running settings for CreateExePkg.bat
 IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
+  ECHO.
+  ECHO -Package %PACKAGE% x86_64 and x86 distributions...
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET EXE_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
   SET EXE_TARGET_DIR=builds\windows\%CONFIGURATION%\!EXE_PRODUCT_DIR!
@@ -463,10 +465,9 @@ IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
     ECHO -ERROR - !EXE! was not found. Cannot create install package.
     GOTO :ERROR_END
   )
-  ENDLOCAL
-
   rem Perform build check if specified
-  IF %CHECK%==1 (CALL :BUILD_CHECK x86)
+  IF %CHECK%==1 (CALL :BUILD_CHECK x86) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
+  ENDLOCAL
   GOTO :END
 )
 
@@ -514,8 +515,8 @@ CALL :ELAPSED_BUILD_TIME %platform_build_start%
 ECHO.
 ECHO -Elapsed %PACKAGE% %PLATFORM_ARCH% build time %LP3D_ELAPSED_BUILD_TIME%
 rem Perform build check if specified
-IF %CHECK%==1 CALL :BUILD_CHECK %PLATFORM_ARCH%
 SET "PKG_TARGET_DIR=%BUILD_WORKSPACE%\builds\windows\%CONFIGURATION%\%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%\%PACKAGE%_%PLATFORM_ARCH%"
+IF %CHECK%==1 (CALL :BUILD_CHECK %PLATFORM_ARCH%) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
 IF ERRORLEVEL 0 (
   IF "%LP3D_CONDA_BUILD%" EQU "True" (
     PUSHD "%LIBRARY_PREFIX%"
@@ -564,7 +565,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
   ENDLOCAL
-  IF %CHECK%==1 (CALL :BUILD_CHECK %%P)
+  IF %CHECK%==1 (CALL :BUILD_CHECK %%P) ELSE (CALL :ADD_LDRAW_LIBS_TO_EXTRAS)
 )
 GOTO :END
 
@@ -783,6 +784,67 @@ ECHO -Staging distribution files...
 ECHO.
 rem Perform build and stage package components
 nmake.exe %LPUB3D_MAKE_ARGS% install
+EXIT /b
+
+:ADD_LDRAW_LIBS_TO_EXTRAS
+IF NOT EXIST "%LDRAW_LIBS%\" (
+  ECHO.
+  ECHO -ERROR - LDraw store folder %LDRAW_LIBS% does not exist.
+  EXIT /b 1
+)
+IF  "%PKG_TARGET_DIR%" EQU "" (
+  SET "PKG_TARGET_DIR=%BUILD_WORKSPACE%\builds\windows\%CONFIGURATION%\%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%\%PACKAGE%_%PLATFORM_ARCH%"
+)
+ECHO.
+ECHO - Copy LDraw archive libraries to extras folder...
+
+IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
+  IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
+    COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive lib %OfficialCONTENT% does not exist in %LDRAW_LIBS%\.
+  )
+) ELSE (
+  ECHO.
+  ECHO - Archive library %OfficialCONTENT% exist in extras folder. Nothing to do.
+)
+
+IF NOT EXIST "%PKG_TARGET_DIR%\extras\%TenteCONTENT%" (
+  IF EXIST "%LDRAW_LIBS%\%TenteCONTENT%" (
+    COPY /V /Y "%LDRAW_LIBS%\%TenteCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive lib %TenteCONTENT% does not exist in %LDRAW_LIBS%\.
+  )
+) ELSE (
+  ECHO.
+  ECHO - Archive library %TenteCONTENT% exist in extras folder. Nothing to do.
+)
+
+IF NOT EXIST "%PKG_TARGET_DIR%\extras\%VexiqCONTENT%" (
+  IF EXIST "%LDRAW_LIBS%\%VexiqCONTENT%" (
+    COPY /V /Y "%LDRAW_LIBS%\%VexiqCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive lib %VexiqCONTENT% does not exist in %LDRAW_LIBS%\.
+  )
+) ELSE (
+  ECHO.
+  ECHO - Archive library %VexiqCONTENT% exist in extras folder. Nothing to do.
+)
+
+IF NOT EXIST "%PKG_TARGET_DIR%\extras\%LPub3DCONTENT%" (
+  IF EXIST "%LDRAW_LIBS%\%LPub3DCONTENT%" (
+    COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive lib %LPub3DCONTENT% does not exist in %LDRAW_LIBS%\.
+  )
+) ELSE (
+  ECHO.
+  ECHO - Archive library %LPub3DCONTENT% exist in extras folder. Nothing to do.
+)
 EXIT /b
 
 :REQUEST_LDRAW_DIR
@@ -1226,7 +1288,7 @@ EXIT /b
 :ERROR_END
 ECHO.
 ECHO -%PACKAGE% %~nx0 FAILED.
-ECHO -%~nx0 will terminated!
+ECHO -%~nx0 will terminate!
 CALL :END_STATUS
 EXIT /b 3
 
