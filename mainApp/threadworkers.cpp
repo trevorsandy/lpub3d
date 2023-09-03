@@ -481,7 +481,7 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*
     Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
     // Update LDView extra search directories
-    QString const couldNotUpdate = tr("Could not update %1");
+    QString const couldNotUpdate = tr("Could not update %1. Missing [ExtraSearchDirs] section.");
     if (Preferences::ldviewInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
        emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::ldviewIni));
     if (Preferences::ldviewInstalled && Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
@@ -778,7 +778,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
-                  QString const couldNotUpdate = tr("Could not update %1");
+                  QString const couldNotUpdate = tr("Could not update %1. Missing [ExtraSearchDirs] section.");
                   if (Preferences::ldviewInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
                       emit gui->messageSig(LOG_ERROR, couldNotUpdate.arg(Preferences::ldviewIni));
                   if (Preferences::ldviewInstalled && Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
