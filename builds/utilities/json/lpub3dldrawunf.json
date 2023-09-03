@@ -1,32 +1,37 @@
 {
   "updates": {
     "windows": {
-	  "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://www.ldraw.org/direct-parts-access",
     "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "windows-exe": {
-	  "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://www.ldraw.org/direct-parts-access",
     "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
+    "windows-conda": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://www.ldraw.org/direct-parts-access",
+    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },	
     "macos-dmg": {
-	  "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://www.ldraw.org/direct-parts-access",
     "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-deb": {
-	  "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://www.ldraw.org/direct-parts-access",
     "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-rpm": {
-	  "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://www.ldraw.org/direct-parts-access",
     "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-pkg": {
-	  "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://www.ldraw.org/direct-parts-access",
     "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },

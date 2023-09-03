@@ -79,21 +79,31 @@ Updater::Updater()
     m_downloader = new Downloader();
     m_manager = new QNetworkAccessManager();
 
+// LPub3D Mod
 #if defined Q_OS_WIN
+#if defined LP3D_CONDA
+    m_platform = "windows-conda";
+#else
     m_platform = "windows-exe";
-#elif defined Q_OS_MAC
-    m_platform = "macos-dmg";
-#elif defined Q_OS_LINUX
-  #if defined DISTRO_PACKAGE
-      m_platform = QString("linux-%1").arg(DISTRO_PACKAGE);
-  #else
-      m_platform = "linux";
-  #endif
-#elif defined Q_OS_ANDROID
-    m_platform = "android";
-#elif defined Q_OS_IOS
-    m_platform = "ios";
 #endif
+#elif defined Q_OS_MAC
+    m_platform = QLatin1String("macos-dmg");
+#elif defined Q_OS_LINUX
+#if defined LP3D_APPIMAGE
+    m_platform = QLatin1String("linux-api");
+#elif defined LP3D_SNAP
+    m_platform = QLatin1String("linux-snp");
+#elif defined LP3D_FLATPACK
+    m_platform = QLatin1String("linux-flp");
+#else
+    m_platform = QLatin1String("linux");
+#endif
+#elif defined Q_OS_ANDROID
+    m_platform = QLatin1String("android");
+#elif defined Q_OS_IOS
+    m_platform = QLatin1String("ios");
+#endif
+// End Mod
 
     //qDebug() << qPrintable(QString("DISTRO_PACKAGE_CODE (m_platform): %1").arg(m_platform));
 
