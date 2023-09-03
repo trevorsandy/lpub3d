@@ -710,13 +710,15 @@ void Render::getStudStyleAndAutoEdgeSettings(
 
 QStringList Render::splitParms(const QString &parms)
 {
+    QStringList values;
+    if (parms.isEmpty())
+        return values;
     QRegExp quoteRx("\"|'");
     bool quoted = QString(parms.at(0)).contains(quoteRx);      // true if the first character is " or '
     if (!quoted)
         return parms.split(' ');                               // if not quoted split on space
     bool inside = true;
     QStringList list = parms.split(quoteRx, SkipEmptyParts);   // Split by " or '
-    QStringList values;
     if (list.size() == 1) {
         values << list.first();
     } else {
