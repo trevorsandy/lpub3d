@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 29, 2023
+rem  Last Update: September 02, 2023
 rem  Copyright (C) 2018 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -11,17 +11,27 @@ rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 rem Construct the staged files path
-SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
-SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
-SET PKG_CONFIG_DIR=%ABS_WD%\builds\windows\%CONFIGURATION%
-SET PKG_TARGET_DIR=%PKG_CONFIG_DIR%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
+
+IF "%LP3D_CONDA_TEST%" NEQ "True" (
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
+  SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
+  SET PKG_CONFIG_DIR=%ABS_WD%\builds\windows\%CONFIGURATION%
+  SET PKG_TARGET_DIR=!PKG_CONFIG_DIR!\!PKG_PRODUCT_DIR!\!PKG_DISTRO_DIR!
+  SET PKG_RUNLOG_DIR=!PKG_CONFIG_DIR!\!PKG_PRODUCT_DIR!\%PACKAGE%_Logs
+  SETLOCAL DISABLEDELAYEDEXPANSION
+) ELSE (
+  SET PKG_PLATFORM=x86_64
+  SET PKG_DISTRO_DIR=%PACKAGE%_x86_64
+  SET PKG_TARGET_DIR=%LIBRARY_PREFIX%\bin
+  SET PKG_RUNLOG_DIR=%SRC_DIR%\%PACKAGE%_Logs
+)
 SET PKG_CHECK_DIR=%ABS_WD%\builds\check
-SET PKG_RUNLOG_DIR=%PKG_CONFIG_DIR%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
+SET PKG_CHECK_FILE=%PKG_CHECK_DIR%\build_checks.mpd
+SET PKG_RUNLOG_FILE=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
 SET PKG_POV_CONF_DIR=%PKG_TARGET_DIR%\3rdParty\lpub3d_trace_cui-3.8\config
 SET PKG_TARGET_FILE=%PKG_TARGET_DIR%\%PACKAGE%.exe
-SET PKG_RUNLOG_FILE=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
-SET PKG_CHECK_FILE=%PKG_CHECK_DIR%\build_checks.mpd
-SET PKG_DUMP_FILE=%LOCALAPPDATA%\LPub3D Software\LPub3D\dump\%PACKAGE%.dmp
+SET PKG_DUMP_FILE=%PKG_TARGET_DIR%\%PACKAGE%.dmp
 IF /I "%PKG_PLATFORM%"=="x86" (
   SET PKG_PDB_FILE=%ABS_WD%\mainApp\32bit_%CONFIGURATION%\%PACKAGE%.pdb
 ) ELSE (
@@ -37,8 +47,10 @@ IF "%CONFIGURATION%"=="release" (
 ) ELSE (
   SET PKG_CONFIG_FILE=%PKG_TARGET_DIR%\config\LPub3D Software Maint\LPub3Dd.ini
 )
-IF NOT "%INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
-IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
+IF "%LP3D_CONDA_TEST%" NEQ "True" (
+  IF NOT "%INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
+  IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
+)
 IF "%LP3D_VALID_7ZIP%" =="" SET LP3D_VALID_7ZIP=0
 
 SET PKG_CHECKS=7
@@ -75,7 +87,9 @@ rem Setup logging and check status
 IF NOT EXIST "%TEMP%\$" (
   MD "%TEMP%\$"
 )
-SET PKG_LOG_FILE=%TEMP%\$\Check.out
+SET PKG_LOG_FILE=%TEMP%\$\CheckLog.out
+SET PKG_CHECK_OUT=Check.out
+SET PKG_CHECK_RESULT=%TEMP%\$\%PKG_CHECK_OUT% ECHO
 SET PKG_CHECK_PASS_IN=CheckPass.in
 SET PKG_UPDATE_CHECK_PASS=%TEMP%\$\%PKG_CHECK_PASS_IN% ECHO
 SET PKG_CHECKS_PASS_IN=ChecksPass.in
@@ -91,19 +105,29 @@ SET PKG_UPDATE_CHECKS_FAIL=%TEMP%\$\%PKG_CHECKS_FAIL_IN% ECHO
 
 ECHO.
 ECHO   PACKAGE...................[%PACKAGE%]
-ECHO   PKG_PLATFORM..............[%PKG_PLATFORM%]
 ECHO   CONFIGURATION.............[%CONFIGURATION%]
-ECHO   BUILD_OPT.................[%BUILD_OPT%]
+IF "%LP3D_CONDA_TEST%" NEQ "True" (
+  ECHO   BUILD_OPT.................[%BUILD_OPT%]
+)
+IF "%LP3D_CONDA_TEST%" EQU "True" (
+  ECHO   LP3D_CONDA_TEST...........[YES]
+)
+IF NOT [%ARCHIVE_ASSETS%]==[] (
+  ECHO   ARCHIVE_CHECK_ASSETS......[YES]
+)
+ECHO   PKG_PLATFORM..............[%PKG_PLATFORM%]
+IF "%LP3D_CONDA_TEST%" NEQ "True" (
+  ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
+)
 ECHO   PKG_DISTRO_DIR............[%PKG_DISTRO_DIR%]
-ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR............[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET_FILE...........[%PKG_TARGET_FILE%]
 ECHO   PKG_PDB_FILE..............[%PKG_PDB_FILE%]
 ECHO   PKG_DUMP_FILE.............[%PKG_DUMP_FILE%]
-ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
+ECHO   PKG_RUNLOG_DIR............[%PKG_RUNLOG_DIR%]
 ECHO   PKG_ASSETS_FOLDER.........[%PKG_CHECK_DIR%]
-IF NOT [%ARCHIVE_ASSETS%]==[] (
-  ECHO   ARCHIVE_CHECK_ASSETS......[YES]
+IF "%LP3D_CONDA_TEST%" NEQ "True" (
+  ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
 )
 
 CALL :SET_LDRAW_LIBS
@@ -186,30 +210,32 @@ SET /P PKG_CHECKS_FAIL=<%TEMP%\$\%PKG_CHECKS_FAIL_IN%
 
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF !PKG_CHECK_PASS! GTR 0 (
-  SET PKG_CHECKS_PASS=!PKG_CHECKS_PASS:~1!
+  SET "PKG_CHECKS_PASS=!PKG_CHECKS_PASS:~1!"
 )
 IF !PKG_CHECK_FAIL! GTR 0 (
-  SET PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL:~1!
+  SET "PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL:~1!"
 )
 CALL :PKG_ELAPSED_TIME %overall_check_start%
 ECHO.
 IF !PKG_CHECK_PASS! GTR 0 (
   IF !PKG_CHECK_FAIL! GTR 0 (
-    SET PKG_CHECK_STATUS=PASS ^(!PKG_CHECK_PASS!^)[!PKG_CHECKS_PASS!], FAIL ^(!PKG_CHECK_FAIL!^)[!PKG_CHECKS_FAIL!]
+    SET "PKG_CHECK_STATUS=PASS ^(!PKG_CHECK_PASS!^)[!PKG_CHECKS_PASS!], FAIL ^(!PKG_CHECK_FAIL!^)[!PKG_CHECKS_FAIL!]"
   ) ELSE (
-    SET PKG_CHECK_STATUS=PASS ^(!PKG_CHECK_PASS!^)[!PKG_CHECKS_PASS!]
+    SET "PKG_CHECK_STATUS=PASS ^(!PKG_CHECK_PASS!^)[!PKG_CHECKS_PASS!]"
   )
 ) ELSE (
   IF !PKG_CHECK_FAIL! GTR 0 (
-    SET PKG_CHECK_STATUS=FAIL ^(!PKG_CHECK_FAIL!^)[!PKG_CHECKS_FAIL!]
+    SET "PKG_CHECK_STATUS=FAIL ^(!PKG_CHECK_FAIL!^)[!PKG_CHECKS_FAIL!]"
   )
 )
 IF [!PKG_CHECK_STATUS!] NEQ [] (
-  SET PKG_CHECK_STATUS=Build Checks Completed: !PKG_CHECK_STATUS!
+  SET "PKG_CHECK_STATUS=Build Checks Completed: !PKG_CHECK_STATUS!"
 ) ELSE (
-  SET PKG_CHECK_STATUS=Build Checks Completed.
+  SET "PKG_CHECK_STATUS=Build Checks Completed."
 )
-ECHO ---- !PKG_CHECK_STATUS!, ELAPSED TIME !LP3D_PKG_ELAPSED_TIME! ----
+SET "PKG_CHECK_SUMMARY=!PKG_CHECK_STATUS!, ELAPSED TIME !LP3D_PKG_ELAPSED_TIME!"
+>%PKG_CHECK_RESULT% !PKG_CHECK_SUMMARY!
+ECHO ---- !PKG_CHECK_SUMMARY! ----
 ECHO.
 SETLOCAL DISABLEDELAYEDEXPANSION
 EXIT /b
@@ -299,38 +325,43 @@ IF "%PKG_CHECK_RESULT%" EQU "%PKG_CHECK_SUCCESS%" (
   SET "PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL!,%PKG_CHECK%"
 >%PKG_UPDATE_CHECKS_FAIL% !PKG_CHECKS_FAIL!
   IF EXIST "%PKG_TARGET_FILE%" (
-    ECHO  -Copying CHECK %PKG_CHECK% %PKG_TARGET_FILE% to run asset....
+    ECHO  -Copying CHECK %PKG_CHECK% %PKG_TARGET_FILE% to run asset...
     COPY /V /Y "%PKG_TARGET_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_TARGET_FILE% was not found.
   )
   IF EXIST "%PKG_PDB_FILE%" (
-    ECHO  -Copying CHECK %PKG_CHECK% %PKG_PDB_FILE% to run asset....
+    ECHO  -Copying CHECK %PKG_CHECK% %PKG_PDB_FILE% to run asset...
     COPY /V /Y "%PKG_PDB_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_PDB_FILE% was not found.
   )
   IF EXIST "%PKG_DUMP_FILE%" (
-    ECHO  -Copying CHECK %PKG_CHECK% %PKG_DUMP_FILE% to run asset....
+    ECHO  -Copying CHECK %PKG_CHECK% %PKG_DUMP_FILE% to run asset...
     COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
-    ECHO  -WARNING - %PKG_DUMP_FILE% was not found.
+    IF EXIST "%LOCALAPPDATA%\Temp\%PACKAGE%.dmp" (
+	  ECHO  -Copying CHECK %PKG_CHECK% %LOCALAPPDATA%\Temp\%PACKAGE%.dmp to run asset...
+	  COPY /V /Y "%LOCALAPPDATA%\Temp\%PACKAGE%.dmp" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
+	) ELSE (
+      ECHO  -WARNING - %PKG_DUMP_FILE% was not found.
+	)
   )
   IF EXIST "%PKG_LOG_FILE%" (
-    ECHO  -Copying CHECK %PKG_CHECK% %PKG_LOG_FILE% to run asset....
+    ECHO  -Copying CHECK %PKG_CHECK% %PKG_LOG_FILE% to run asset...
     COPY /V /Y "%PKG_LOG_FILE%" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO  -WARNING - %PKG_LOG_FILE% was not found.
   )
   IF %PKG_CHECK% EQU 5 (
     IF EXIST "%PKG_POV_CONF_DIR%\povray.conf" (
-      ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.conf to run asset....
+      ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.conf to run asset...
       COPY /V /Y "%PKG_POV_CONF_DIR%\povray.conf" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
     ) ELSE (
       ECHO  -WARNING - %PKG_POV_CONF_DIR%\povray.conf was not found.
     )
     IF EXIST "%PKG_POV_CONF_DIR%\povray.ini" (
-      ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.ini to run asset....
+      ECHO  -Copying CHECK %PKG_CHECK% %PKG_POV_CONF_DIR%\povray.ini to run asset...
       COPY /V /Y "%PKG_POV_CONF_DIR%\povray.ini" "%PKG_CHECK_DIR%" /A | findstr /i /v /r /c:"copied\>"
     ) ELSE (
       ECHO  -WARNING - %PKG_POV_CONF_DIR%\povray.ini was not found.
@@ -344,16 +375,16 @@ CALL :CLEANUP_CHECK_OUTPUT
 EXIT /b
 
 :SET_VALID_7ZIP
+IF "%LP3D_7ZIP_WIN64%" == "" (
+  SET "LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe"
+)
 IF %LP3D_VALID_7ZIP% == 0 (
-  IF "%LP3D_7ZIP_WIN64%" == "" (
-    SET "LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe"
-  )
   "%LP3D_7ZIP_WIN64%" > %TEMP%\output.tmp 2>&1
   FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
     ECHO.%%a | findstr /C:"7-Zip">NUL && (
       SET LP3D_VALID_7ZIP=1
       ECHO.
-      ECHO -Zip x86_64 executable found at %LP3D_7ZIP_WIN64%
+      ECHO -7zip x64 executable found at %LP3D_7ZIP_WIN64%
       GOTO :END_7ZIP_LOOP
     ) || (
       GOTO :END_7ZIP64_LOOP
@@ -361,20 +392,20 @@ IF %LP3D_VALID_7ZIP% == 0 (
   )
 )
 :END_7ZIP64_LOOP
+IF "%LP3D_7ZIP_WIN32%" == "" (
+  SET "LP3D_7ZIP_WIN32=C:\Program Files ^(x86^)\7-zip\7z.exe"
+)
 IF %LP3D_VALID_7ZIP% == 0 (
-  IF "%LP3D_7ZIP_WIN32%" == "" (
-    SET "LP3D_7ZIP_WIN32=C:\Program Files ^(x86^)\7-zip\7z.exe"
-  )
   "%LP3D_7ZIP_WIN32%" > %TEMP%\output.tmp 2>&1
   FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
     ECHO.%%a | findstr /C:"7-Zip">NUL && (
       SET LP3D_VALID_7ZIP=1
       ECHO.
-      ECHO -Zip x86 executable found at %LP3D_7ZIP_WIN32%
+      ECHO -7zip x86 executable found at %LP3D_7ZIP_WIN32%
     ) || (
       ECHO -WARNING - 7zip not found at %LP3D_7ZIP_WIN32% or %LP3D_7ZIP_WIN64%. Cannot archive check assets.
     )
-    GOTO :END_7ZIP32_LOOP
+    GOTO :END_7ZIP_LOOP
   )
 )
 :END_7ZIP_LOOP
@@ -481,6 +512,7 @@ SET LP3D_PKG_ELAPSED_TIME=%hours%:%mins%:%secs%
 EXIT /b
 
 :SET_LDRAW_LIBS
+IF "%LP3D_CONDA_TEST%" EQU "True" EXIT /b
 ECHO.
 ECHO - Copy LDraw archive libraries to extras folder...
 
