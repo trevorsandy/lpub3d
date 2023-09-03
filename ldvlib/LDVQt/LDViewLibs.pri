@@ -329,7 +329,7 @@ contains(LOAD_LDV_LIBS,True) {
                                $${LDVRESDIR}/LDExportMessages.ini \
                                $$PWD/LDVWidgetMessages.ini \
                                ldvmsg_copy_msg
-    ldvmsg_copy_msg.commands = @echo Creating $${LDVMESSAGESINI}...
+    ldvmsg_copy_msg.commands = @echo Project MESSAGE: ~~~ Creating $${TARGET} $${LDVMESSAGESINI}... ~~~
 
     QMAKE_EXTRA_TARGETS += ldvmsg_copy ldvmsg_copy_msg
     PRE_TARGETDEPS      += $$LDVMESSAGESINI_DEP

@@ -6,57 +6,6 @@ win32: stagewindistcontent {
     # 32bit and 64bit
     target.path = $$LPUB3D_STG_PATH
 
-    lpub3d_plugin_bearer.files += \
-        $$[QT_INSTALL_PLUGINS]/bearer/qgenericbearer.dll
-    lpub3d_plugin_bearer.path = $$LPUB3D_STG_PATH/bearer
-
-    lpub3d_plugin_iconengines.files += \
-        $$[QT_INSTALL_PLUGINS]/iconengines/qsvgicon.dll
-    lpub3d_plugin_iconengines.path = $$LPUB3D_STG_PATH/iconengines
-
-    lpub3d_plugin_imageformats.files += \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qgif.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qicns.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qico.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qjpeg.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qsvg.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qtga.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qtiff.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qwbmp.dll \
-        $$[QT_INSTALL_PLUGINS]/imageformats/qwebp.dll
-    lpub3d_plugin_imageformats.path = $$LPUB3D_STG_PATH/imageformats
-
-    lpub3d_plugin_platforms.files += \
-        $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
-    lpub3d_plugin_platforms.path = $$LPUB3D_STG_PATH/platforms
-
-    lpub3d_plugin_printsupport.files += \
-        $$[QT_INSTALL_PLUGINS]/printsupport/windowsprintersupport.dll
-    lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
-
-    lpub3d_plugin_styles.files += \
-        $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyle.dll
-    lpub3d_plugin_styles.path = $$LPUB3D_STG_PATH/styles
-
-    lpub3d_bins_qtlibs.files += \
-        $$[QT_INSTALL_BINS]/Qt5Concurrent.dll \
-        $$[QT_INSTALL_BINS]/Qt5Core.dll \
-        $$[QT_INSTALL_BINS]/Qt5Gui.dll \
-        $$[QT_INSTALL_BINS]/Qt5Network.dll \
-        $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
-        $$[QT_INSTALL_BINS]/Qt5PrintSupport.dll \
-        $$[QT_INSTALL_BINS]/Qt5Svg.dll \
-        $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
-        $$[QT_INSTALL_BINS]/Qt5Xml.dll
-    lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
-
-    lpub3d_bins_additional_libs.files += \
-        $$[QT_INSTALL_BINS]/D3Dcompiler_47.dll \
-        $$[QT_INSTALL_BINS]/libEGL.dll \
-        $$[QT_INSTALL_BINS]/libGLESV2.dll \
-        $$[QT_INSTALL_BINS]/opengl32sw.dll
-    lpub3d_bins_additional_libs.path = $$LPUB3D_STG_PATH
-
     lpub3d_extras.files += \
         $$LPUB3D_STG_EXTRAS/excludedParts.lst \
         $$LPUB3D_STG_EXTRAS/fadeStepColorParts.lst \
@@ -80,16 +29,73 @@ win32: stagewindistcontent {
 
     INSTALLS += \
         target \
-        lpub3d_plugin_bearer \
-        lpub3d_plugin_iconengines \
-        lpub3d_plugin_imageformats \
-        lpub3d_plugin_platforms \
-        lpub3d_plugin_printsupport \
-        lpub3d_plugin_styles \
-        lpub3d_bins_qtlibs \
-        lpub3d_bins_additional_libs \
         lpub3d_extras \
         lpub3d_docs
+
+    conda_build {
+        message("~~~ CONDA BUILD - Qt PLUGLINS AND LIBS WILL NOT BE STAGED ~~~")
+    } else {
+        lpub3d_plugin_bearer.files += \
+            $$[QT_INSTALL_PLUGINS]/bearer/qgenericbearer.dll
+        lpub3d_plugin_bearer.path = $$LPUB3D_STG_PATH/bearer
+
+        lpub3d_plugin_iconengines.files += \
+            $$[QT_INSTALL_PLUGINS]/iconengines/qsvgicon.dll
+        lpub3d_plugin_iconengines.path = $$LPUB3D_STG_PATH/iconengines
+
+        lpub3d_plugin_imageformats.files += \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qgif.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qicns.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qico.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qjpeg.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qsvg.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qtga.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qtiff.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qwbmp.dll \
+            $$[QT_INSTALL_PLUGINS]/imageformats/qwebp.dll
+        lpub3d_plugin_imageformats.path = $$LPUB3D_STG_PATH/imageformats
+
+        lpub3d_plugin_platforms.files += \
+            $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
+        lpub3d_plugin_platforms.path = $$LPUB3D_STG_PATH/platforms
+
+        lpub3d_plugin_printsupport.files += \
+            $$[QT_INSTALL_PLUGINS]/printsupport/windowsprintersupport.dll
+        lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
+
+        lpub3d_plugin_styles.files += \
+            $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyle.dll
+        lpub3d_plugin_styles.path = $$LPUB3D_STG_PATH/styles
+
+        lpub3d_bins_qtlibs.files += \
+            $$[QT_INSTALL_BINS]/Qt5Concurrent.dll \
+            $$[QT_INSTALL_BINS]/Qt5Core.dll \
+            $$[QT_INSTALL_BINS]/Qt5Gui.dll \
+            $$[QT_INSTALL_BINS]/Qt5Network.dll \
+            $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
+            $$[QT_INSTALL_BINS]/Qt5PrintSupport.dll \
+            $$[QT_INSTALL_BINS]/Qt5Svg.dll \
+            $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
+            $$[QT_INSTALL_BINS]/Qt5Xml.dll
+        lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
+
+        lpub3d_bins_additional_libs.files += \
+            $$[QT_INSTALL_BINS]/D3Dcompiler_47.dll \
+            $$[QT_INSTALL_BINS]/libEGL.dll \
+            $$[QT_INSTALL_BINS]/libGLESV2.dll \
+            $$[QT_INSTALL_BINS]/opengl32sw.dll
+        lpub3d_bins_additional_libs.path = $$LPUB3D_STG_PATH
+
+        INSTALLS += \
+            lpub3d_plugin_bearer \
+            lpub3d_plugin_iconengines \
+            lpub3d_plugin_imageformats \
+            lpub3d_plugin_platforms \
+            lpub3d_plugin_printsupport \
+            lpub3d_plugin_styles \
+            lpub3d_bins_qtlibs \
+            lpub3d_bins_additional_libs
+    }
 
     # stage 3rd party executables, documents and resources
 

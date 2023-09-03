@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Jun 03, 2022
+rem  Last Update: August 29, 2023
 rem  Copyright (C) 2017 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -34,10 +34,13 @@ IF "%SCRIPT_DIR%" EQU "utilities" (
 )
 
 rem Variables - change these as required by your build environments
+IF "%GITHUB%" EQU "True" SET BUILD_WORKER=True
+IF "%LP3D_CONDA_BUILD%" EQU "True" SET BUILD_WORKER=True
+
 IF "%LP3D_QTVERSION%" == "" SET LP3D_QTVERSION=5.15.2
 IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2019
 
-IF "%GITHUB%" EQU "True" (
+IF "%BUILD_WORKER%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
   SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -49,14 +52,14 @@ IF "%APPVEYOR%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 )
-IF "%GITHUB%" NEQ "True" (
+IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
     IF [%DIST_DIR%] == [] (
       CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
       ECHO.
       SETLOCAL ENABLEDELAYEDEXPANSION
       ECHO  -WARNING: Distribution not found. Using [!DIST_DIR!].
-      SETLOCAL
+      ENDLOCAL
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
@@ -66,16 +69,24 @@ IF "%GITHUB%" NEQ "True" (
     IF "%LP3D_QT64_MSVC%" == "" (
       SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
     )
-    SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
+    IF "%LP3D_WIN_GIT%" == "" (
+      SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
+    )
   )
+)
+IF "%LP3D_SYS_DIR%" == "" (
+  SET LP3D_SYS_DIR=%SystemRoot%\System32
+)
+IF "%LP3D_7ZIP_WIN64%" == "" (
+  SET LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe
+)
+IF "%LP3D_VALID_7ZIP%" =="" (
+  SET LP3D_VALID_7ZIP=0
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
 SET VER_LDVIEW=LDView-4.5
 SET VER_POVRAY=lpub3d_trace_cui-3.8
-SET SYS_DIR=%SystemRoot%cls\System32\System32
-SET ZIP_DIR_64=C:\program files\7-zip
-SET VALID_ZIP=0
 
 rem Check if invalid platform flag
 IF NOT [%1]==[] (
@@ -97,18 +108,11 @@ ECHO   WORKING_DIRECTORY_RENDERERS....[%ABS_WD%]
 ECHO   DISTRIBUTION DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW LIBRARY FOLDER...........[%LDRAW_DIR%]
 
-IF EXIST "%ZIP_DIR_64%" (
-  ECHO   7-ZIP EXECUTABLE...............[Found at %ZIP_DIR_64%]
-  SET VALID_ZIP=1
-) ELSE (
-  ECHO   7-ZIP EXECUTABLE...............[ERROR - not found at %ZIP_DIR_64%]
-  GOTO :ERROR_END
-)
-
 IF NOT EXIST "%DIST_DIR%\" (
   MKDIR "%DIST_DIR%\"
 )
 
+CALL :CHECK_VALID_ZIP
 CALL :CHECK_LDRAW_LIB
 
 IF [%1]==[] (
@@ -141,36 +145,40 @@ FOR %%A IN ( x86, x86_64 ) DO (
 GOTO :END
 
 :BUILD
-SETLOCAL ENABLEDELAYEDEXPANSION
 IF %BUILD_ARCH% EQU x86 (
-  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe
-  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386
-  SET LP3D_LDVIEW=!LP3D_LDVIEW_BIN!\LDView.exe
-  SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe
+  SET "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe"
+  SET "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe"
+  SET "LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe"
   IF "%PATH_PREPENDED%" NEQ "True" (
-    SET PATH=%LP3D_QT32_MSVC%;%SYS_DIR%;%LP3D_WIN_GIT%
+    IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+      SET "PATH=%LP3D_QT32_MSVC%;%LP3D_SYS_DIR%;%LP3D_WIN_GIT%"
+    )
   )
 ) ELSE (
-  SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe
-  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%
-  SET LP3D_LDVIEW=!LP3D_LDVIEW_BIN!\LDView64.exe
-  SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
+  SET "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe"
+  SET "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe"
+  SET "LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe"
   IF "%PATH_PREPENDED%" NEQ "True" (
-    SET PATH=%LP3D_QT64_MSVC%;%SYS_DIR%;%LP3D_WIN_GIT%
+    IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+      SET "PATH=%LP3D_QT64_MSVC%;%LP3D_SYS_DIR%;%LP3D_WIN_GIT%"
+    )
   )
 )
+
 ECHO.
+SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%PATH_PREPENDED%" EQU "True" (
   ECHO   PATH_ALREADY_PREPENDED.........[!PATH!]
 ) ELSE (
   ECHO   PATH_PREPEND...................[!PATH!]
   SET PATH_PREPENDED=True
 )
-SETLOCAL DISABLEDELAYEDEXPANSION
+ENDLOCAL
+
 CALL :SET_BUILD_ARGS
 FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
-  CALL :%%I_BUILD
-  IF ERRORLEVEL 1 (GOTO :FATAL_ERROR)
+  CALL :%%I_BUILD %BUILD_ARCH%
+  IF %ERRORLEVEL% NEQ 0 (GOTO :FATAL_ERROR)
 )
 GOTO :END
 
@@ -178,7 +186,11 @@ GOTO :END
 IF %BUILD_ARCH% EQU x86 (
   SET POVRAY_INSTALL_ARG=-allins
 ) ELSE (
-  SET POVRAY_INSTALL_ARG=-ins
+  IF "%LP3D_CONDA_BUILD%" EQU "True" (
+    SET POVRAY_INSTALL_ARG=-allins
+  ) ELSE (
+    SET POVRAY_INSTALL_ARG=-ins
+  )
 )
 SET LDGLITE_BUILD_ARGS=%BUILD_ARCH% -ins -chk
 SET LDVIEW_BUILD_ARGS=%BUILD_ARCH% -ins -chk -minlog
@@ -208,6 +220,11 @@ EXIT /b
 :LDVIEW_BUILD
 ECHO.
 ECHO -Build %VER_LDVIEW%...
+IF %1 EQU x86 (
+  SET "LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386"
+) ELSE (
+  SET "LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\%1"
+)
 IF EXIST "%LP3D_LDVIEW%" (
   ECHO - Renderer %VER_LDVIEW% exist - build skipped.
   PUSHD "%LP3D_LDVIEW_BIN%"
@@ -265,9 +282,11 @@ ECHO   BUILD_DIRECTORY................[%BUILD_DIR%]
 ECHO   VALID_SUB_DIRECTORY............[%VALID_SDIR%]
 ECHO   REPOSITORHY_DIRECTORY..........[%ARCHIVE_FILE_DIR%]
 ECHO   BUILD_OUTPUT_PATH..............[%BUILD_OUTPUT_PATH%]
-ECHO   REPO_ARCHIVE_FILE..............[%ARCHIVE_FILE%]
-ECHO   DOWNLOAD_URL.(WebNAME).........[%WebNAME%]
-ECHO   DOWNLOAD_PATH.(WebCONTENT).....[%WebCONTENT%]
+IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+  ECHO   REPO_ARCHIVE_FILE..............[%ARCHIVE_FILE%]
+  ECHO   DOWNLOAD_URL.^(WebNAME^).........[%WebNAME%]
+  ECHO   DOWNLOAD_PATH.^(WebCONTENT^).....[%WebCONTENT%]
+)
 ECHO   COMPLETE_BUILD_PATH............[%BUILD_OUTPUT_PATH%\%BUILD_DIR%]
 IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
@@ -287,14 +306,30 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
 CD /D %BUILD_OUTPUT_PATH%\%BUILD_DIR%
 EXIT /b
 
+:CHECK_VALID_ZIP
+IF %LP3D_VALID_7ZIP% == 0 (
+  "%LP3D_7ZIP_WIN64%" > %TEMP%\output.tmp 2>&1
+  FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
+    ECHO.%%a | findstr /C:"7-Zip">NUL && (
+      SET LP3D_VALID_7ZIP=1
+      ECHO   7-ZIP EXECUTABLE...............[Found at %LP3D_7ZIP_WIN64%]
+    ) || (
+      ECHO   7-ZIP EXECUTABLE...............[ERROR - not found at %LP3D_7ZIP_WIN64%]
+    )
+    GOTO :END_7ZIP_LOOP
+  )
+)
+:END_7ZIP_LOOP
+EXIT /b
+
 :CHECK_LDRAW_LIB
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
 SET BUILD_OUTPUT_PATH_SAVE=%BUILD_OUTPUT_PATH%
-IF "%GITHUB%" EQU "True" (
+IF "%BUILD_WORKER%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%LP3D_3RD_PARTY_PATH%
 )
-IF "%GITHUB%" NEQ "True" (
+IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
     SET BUILD_OUTPUT_PATH=%USERPROFILE%
   )
@@ -344,9 +379,14 @@ rem args: $1 = <build dir>, $2 = <valid subdir>
 IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%" (
   IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
-    ECHO -Extracting %ARCHIVE_FILE%...
-    ECHO.
-    IF %VALID_ZIP% EQU 1 "%ZIP_DIR_64%\7z.exe" x -o"%BUILD_OUTPUT_PATH%\" "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+    IF %LP3D_VALID_7ZIP% EQU 1 (
+      ECHO -Extracting %ARCHIVE_FILE%...
+      ECHO.
+      "%LP3D_7ZIP_WIN64%" x -o"%BUILD_OUTPUT_PATH%\" "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+    ) ELSE (
+      ECHO -ERROR: 7zip exectutable not found at %LP3D_7ZIP_WIN64%. Cannot extract %ARCHIVE_FILE%
+      GOTO :ERROR_END
+    )
   ) ELSE (
     ECHO.
     ECHO -ERROR: Could not find %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%.

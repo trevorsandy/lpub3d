@@ -375,8 +375,8 @@ message("~~~ 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_
 
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
 build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
-if(deb|rpm|pkg|dmg|exe|api|snp|flp|contains(build_package, yes)) {
-    args = deb rpm pkg dmg exe api snp flp
+if(deb|rpm|pkg|dmg|exe|api|snp|flp|con|contains(build_package, yes)) {
+    args = deb rpm pkg dmg exe api snp flp con
     for(arg, args) {
         contains(CONFIG, $$arg): opt = $$arg
     }
@@ -394,6 +394,10 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|contains(build_package, yes)) {
     } else:contains(opt, flp) {
         DEFINES += LP3D_FLATPACK
         DISTRO_PACKAGE = FLATPACK ($$opt)
+    } else:contains(opt, con) {
+        DISTRO_PACKAGE = CONDA ($$opt)
+        CONFIG-=$$opt
+        CONFIG+=conda_build
     } else {
         DISTRO_PACKAGE = ($$opt)
     }

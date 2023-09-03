@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Jun 05, 2022
+rem  Last Update: August 29, 2023
 rem  Copyright (C) 2017 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -32,11 +32,39 @@ IF "%SCRIPT_DIR%" EQU "windows" (
   SET ABS_WD=%CD%
 )
 
-rem Variables - change these as required by your build environments
-IF "%LP3D_QTVERSION%" == "" SET LP3D_QTVERSION=5.15.2
-IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2019
+IF "%LP3D_QTVERSION%" == "" SET "LP3D_QTVERSION=5.15.2"
+IF "%LP3D_VSVERSION%" == "" SET "LP3D_VSVERSION=2019"
 
 IF "%GITHUB%" EQU "True" (
+  SET "BUILD_WORKER=True"
+  SET "BUILD_WORKER_ID=GITHUB"
+  SET "BUILD_WORKER_CONFIG=%GITHUB_CONFIG%"
+  SET "BUILD_WORKER_JOB=%GITHUB_JOB%"
+  SET "BUILD_WORKER_REF=%GITHUB_REF%"
+  SET "BUILD_WORKER_OS=%RUNNER_OS%"
+  SET "BUILD_WORKER_REPO=%GITHUB_REPOSITORY%"
+  SET "BUILD_WORKER_IMAGE=Visual Studio %LP3D_VSVERSION%"
+  SET "BUILD_WORKER_HOST=GITHUB CONTINUOUS INTEGRATION SERVICE"
+  SET "BUILD_WORKSPACE=%GITHUB_WORKSPACE%"
+)
+
+IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  SET "BUILD_WORKER=True"
+  SET "BUILD_WORKER_ID=CONDA"
+  SET "BUILD_WORKER_CONFIG=%LP3D_CONDA_CONFIG%"
+  SET "BUILD_WORKER_JOB=%LP3D_CONDA_JOB%"
+  SET "BUILD_WORKER_OS=%LP3D_CONDA_RUNNER_OS%"
+  SET "BUILD_WORKER_REPO=%LP3D_CONDA_REPOSITORY%"
+  SET "BUILD_WORKER_IMAGE=%CMAKE_GENERATOR%"
+  SET "BUILD_WORKER_HOST=CONDA BUILD INTEGRATION SERVICE"
+  SET "BUILD_WORKSPACE=%LP3D_CONDA_WORKSPACE%"
+)
+
+IF "%LP3D_INSTALL_PKG_ONLY%" == "1" (
+  SET LP3D_COMMIT_MSG=Create installation packages only
+)
+
+IF "%BUILD_WORKER%" EQU "True" (
   IF "%LP3D_DIST_DIR_PATH%" == "" (
     ECHO.
     ECHO  -ERROR - Distribution directory path not defined.
@@ -44,26 +72,29 @@ IF "%GITHUB%" EQU "True" (
   )
   IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
     SET CI=True
-    SET GITHUB_JOB=Local CI Build
+    SET BUILD_WORKER_JOB=Local %BUILD_WORKER_ID% CI Build
   ) ELSE (
-    SET CONFIG_CI=github_ci
+    IF "%GITHUB%" EQU "True" (
+      :: Use MM/DD/YYYY input date format, default is DD/MM/YYYY
+      SET CONFIG_CI=github_ci
+    )
+    IF "%LP3D_CONDA_BUILD%" EQU "True" (
+      SET CONFIG_CI=conda_ci
+    )
   )
-  SET ABS_WD=%GITHUB_WORKSPACE%
-  SET GITHUB_RUNNER_IMAGE=Visual Studio %LP3D_VSVERSION%
+  SET ABS_WD=%BUILD_WORKSPACE%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
-  SET CONFIGURATION=%GITHUB_CONFIG%
+  SET CONFIGURATION=%BUILD_WORKER_CONFIG%
   SET LDRAW_INSTALL_ROOT=%LP3D_3RD_PARTY_PATH%
   SET LDRAW_LIBS=%LP3D_3RD_PARTY_PATH%
   SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
   SET LP3D_UPDATE_LDRAW_LIBS=%UPDATE_LDRAW_LIBS%
-  SETLOCAL ENABLEDELAYEDEXPANSION
   IF "%LP3D_QT32_MSVC%" == "" (
-    SET LP3D_QT32_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!\bin
+    SET LP3D_QT32_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
   )
   IF "%LP3D_QT64_MSVC%" == "" (
-    SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
+    SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
   )
-  SETLOCAL DISABLEDELAYEDEXPANSION
 )
 
 IF "%APPVEYOR%" EQU "True" (
@@ -76,6 +107,7 @@ IF "%APPVEYOR%" EQU "True" (
     SET CI=True
     SET APPVEYOR_BUILD_ID=Local CI Build
   ) ELSE (
+    :: Use MM/DD/YYYY input date format, default is DD/MM/YYYY
     SET CONFIG_CI=appveyor_ci
   )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
@@ -86,17 +118,15 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET LP3D_UPDATE_LDRAW_LIBS=%LP3D_UPDATE_LDRAW_LIBS_VAR%
-  SETLOCAL ENABLEDELAYEDEXPANSION
   IF "%LP3D_QT32_MSVC%" == "" (
-    SET LP3D_QT32_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!\bin
+    SET LP3D_QT32_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
   )
   IF "%LP3D_QT64_MSVC%" == "" (
-    SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
+    SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
   )
-  SETLOCAL DISABLEDELAYEDEXPANSION
 )
 
-IF "%GITHUB%" NEQ "True" (
+IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
     CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
     SET CONFIGURATION=release
@@ -113,20 +143,21 @@ IF "%GITHUB%" NEQ "True" (
   )
 )
 
-IF "%LP3D_INSTALL_PKG_ONLY%" == "1" (
-  SET LP3D_COMMIT_MSG=Create installation packages only
+IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+  IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Professional\VC\Auxiliary\Build" (
+    SET LP3D_VCVARSALL_DIR=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Professional\VC\Auxiliary\Build
+  )  
+  IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build" (
+    SET LP3D_VCVARSALL_DIR=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build
+  )
+  IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\BuildTools\VC\Auxiliary\Build" (
+    SET LP3D_VCVARSALL_DIR=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\BuildTools\VC\Auxiliary\Build
+  )
+  IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Enterprise\VC\Auxiliary\Build" (
+    SET LP3D_VCVARSALL_DIR=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Enterprise\VC\Auxiliary\Build
+  )
 )
-
-IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build" (
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build
-)
-IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\BuildTools\VC\Auxiliary\Build" (
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\BuildTools\VC\Auxiliary\Build
-)
-IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Enterprise\VC\Auxiliary\Build" (
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Enterprise\VC\Auxiliary\Build
-)
-IF "%LP3D_VCVARSALL%" == "" (
+IF NOT EXIST "%LP3D_VCVARSALL_DIR%" (
   ECHO.
   ECHO  -ERROR - Microsoft Visual Studio C++ environment not defined.
   GOTO :ERROR_END
@@ -137,19 +168,28 @@ IF NOT EXIST "%ABS_WD%\mainApp" (
   GOTO :ERROR_END
 )
 
-rem Visual C++ 2012 -vcvars_ver=11.0
-rem Visual C++ 2013 -vcvars_ver=12.0
-rem Visual C++ 2015 -vcvars_ver=14.0
-rem Visual C++ 2017 -vcvars_ver=14.1
-rem Visual C++ 2019 -vcvars_ver=14.2
-IF "%LP3D_VCVARSALL_VER%" == "" SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
-IF "%LP3D_VCVERSION%" == "" SET LP3D_VCVERSION=8.1
+rem Visual C++ 2012 -vcvars_ver=11.0 version 11.0  _MSC_VER 1700
+rem Visual C++ 2013 -vcvars_ver=12.0 version 12.0  _MSC_VER 1800
+rem Visual C++ 2015 -vcvars_ver=14.0 version 14.0  _MSC_VER 1900
+rem Visual C++ 2017 -vcvars_ver=14.1 version 15.9  _MSC_VER 1916
+rem Visual C++ 2019 -vcvars_ver=14.2 version 16.11 _MSC_VER 1929
+rem Visual C++ 2022 -vcvars_ver=14.2 version 17.3  _MSC_VER 1933
+IF "%LP3D_MSC_VER%" == "" SET LP3D_MSC_VER=1900
+IF "%LP3D_VCSDKVER%" == "" SET LP3D_VCSDKVER=8.1
 IF "%LP3D_VCTOOLSET%" == "" SET LP3D_VCTOOLSET=v140
+IF "%LP3D_VCVARSALL_VER%" == "" SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
+IF "%LP3D_VALID_7ZIP%" =="" SET LP3D_VALID_7ZIP=0
 
-SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
+IF "%LP3D_SYS_DIR%" == "" (
+  SET LP3D_SYS_DIR=%WINDIR%\System32
+)
+IF "%LP3D_7ZIP_WIN64%" == "" (
+  SET LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe
+)
+IF "%LP3D_WIN_GIT%" == "" (
+  SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
+)
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
-SET SYS_DIR=%SystemRoot%\System32
-SET zipWin64=C:\program files\7-zip
 
 SET OfficialCONTENT=complete.zip
 SET UnOfficialCONTENT=ldrawunf.zip
@@ -165,7 +205,7 @@ SET PLATFORM_ARCH=unknown
 SET LDCONFIG_FILE=unknown
 SET CHECK=unknown
 
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" %ABS_WD%\mainApp\version.h') DO SET LP3D_PRODUCT=%%i
+FOR /F "tokens=3*" %%i IN ('findstr /c:"#define VER_PRODUCTNAME_STR" %ABS_WD%\mainApp\version.h') DO SET LP3D_PRODUCT=%%i
 SET PACKAGE=%LP3D_PRODUCT:"=%
 IF [%PACKAGE%] == [] (
   ECHO  -WARNING - PACKAGE value not retrieved from %ABS_WD%\mainApp\version.h.
@@ -306,15 +346,23 @@ IF /I "%RENDERERS_ONLY%"=="1" (
   ECHO.
 )
 
+rem set application version variables
+SET UPDATE_CONFIG_ARGS=%ABS_WD%\mainApp
+IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  SET UPDATE_CONFIG_ARGS=%UPDATE_CONFIG_ARGS% ParseVersionInfoFile
+)
+CALL builds\utilities\update-config-files.bat %UPDATE_CONFIG_ARGS%
+IF ERRORLEVEL 1 (GOTO :ERROR_END)
+
 rem Display build settings
 ECHO.
-IF "%GITHUB%" EQU "True" (
-  ECHO   BUILD_HOST.....................[GITHUB CONTINUOUS INTEGRATION SERVICE]
-  ECHO   BUILD_WORKER_IMAGE.............[%GITHUB_RUNNER_IMAGE%]
-  ECHO   BUILD_JOB......................[%GITHUB_JOB%]
-  ECHO   GITHUB_REF.....................[%GITHUB_REF%]
-  ECHO   GITHUB_RUNNER_OS...............[%RUNNER_OS%]
-  ECHO   PROJECT REPOSITORY.............[%GITHUB_REPOSITORY%]
+IF "%BUILD_WORKER%" EQU "True" (
+  ECHO   BUILD_HOST.....................[%BUILD_WORKER_HOST%]
+  ECHO   BUILD_WORKER_IMAGE.............[%BUILD_WORKER_IMAGE%]
+  ECHO   BUILD_WORKER_JOB...............[%BUILD_WORKER_JOB%]
+  ECHO   BUILD_WORKER_REF...............[%BUILD_WORKER_REF%]
+  ECHO   BUILD_WORKER_OS................[%BUILD_WORKER_OS%]
+  ECHO   PROJECT REPOSITORY.............[%BUILD_WORKER_REPO%]
   ECHO   LP3D_WIN_GIT_DIR...............[%LP3D_WIN_GIT_MSG%]
 )
 IF "%APPVEYOR%" EQU "True" (
@@ -337,11 +385,6 @@ ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO   BUILD_OPT......................[%BUILD_OPT%]
 ECHO.
-
-rem set application version variables
-SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
-CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
-IF ERRORLEVEL 1 (GOTO :ERROR_END)
 
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
@@ -420,7 +463,7 @@ IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
     ECHO -ERROR - !EXE! was not found. Cannot create install package.
     GOTO :ERROR_END
   )
-  SETLOCAL DISABLEDELAYEDEXPANSION
+  ENDLOCAL
 
   rem Perform build check if specified
   IF %CHECK%==1 (CALL :BUILD_CHECK x86)
@@ -448,11 +491,10 @@ rem Build 3rd party build from source
 IF %BUILD_THIRD%==1 ECHO.
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 (CALL builds\utilities\CreateRenderers.bat %PLATFORM_ARCH%)
-IF ERRORLEVEL 3 (GOTO :ERROR_END)
+IF NOT ERRORLEVEL 0 (GOTO :ERROR_END)
 IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
-ECHO.
 qmake -v & ECHO.
 rem Configure makefiles
 qmake %LPUB3D_CONFIG_ARGS%
@@ -467,12 +509,25 @@ IF NOT EXIST "%EXE%" (
   GOTO :ERROR_END
 )
 rem Package 3rd party install content - this must come before check so check can use staged content for test
-IF %INSTALL%==1 (CALL :STAGE_INSTALL)
+IF %INSTALL%==1 CALL :STAGE_INSTALL
 CALL :ELAPSED_BUILD_TIME %platform_build_start%
 ECHO.
 ECHO -Elapsed %PACKAGE% %PLATFORM_ARCH% build time %LP3D_ELAPSED_BUILD_TIME%
 rem Perform build check if specified
-IF %CHECK%==1 (CALL :BUILD_CHECK %PLATFORM_ARCH%)
+IF %CHECK%==1 CALL :BUILD_CHECK %PLATFORM_ARCH%
+SET "PKG_TARGET_DIR=%BUILD_WORKSPACE%\builds\windows\%CONFIGURATION%\%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%\%PACKAGE%_%PLATFORM_ARCH%"
+IF ERRORLEVEL 0 (
+  IF "%LP3D_CONDA_BUILD%" EQU "True" (
+    PUSHD "%LIBRARY_PREFIX%"
+    XCOPY /Q /S /I /E /V /Y /H "%PKG_TARGET_DIR%" "%PACKAGE%_%PLATFORM_ARCH%"
+    POPD
+  )
+  IF NOT ERRORLEVEL 0 (
+    ECHO.
+    ECHO -ERROR - Failed to copy %PKG_TARGET_DIR% to install path.
+    GOTO :ERROR_END
+  )
+)
 GOTO :END
 
 :BUILD_ALL
@@ -507,7 +562,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
-  SETLOCAL DISABLEDELAYEDEXPANSION
+  ENDLOCAL
   IF %CHECK%==1 (CALL :BUILD_CHECK %%P)
 )
 GOTO :END
@@ -552,21 +607,28 @@ GOTO :END
 ECHO.
 ECHO -Set MSBuild platform toolset...
 IF %PLATFORM_ARCH%==x86_64 (
-  SET LP3D_VCVARSALL_VER=-vcvars_ver=14.2
-  SET LP3D_VCVERSION=10.0
-  SET LP3D_VCTOOLSET=v142
+  IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+    SET LP3D_MSC_VER=1929
+    SET LP3D_VCSDKVER=10.0
+    SET LP3D_VCTOOLSET=v142
+    SET LP3D_VCVARSALL_VER=-vcvars_ver=14.2
+  )
 ) ELSE (
-  SET LP3D_VCVERSION=8.1
+  SET LP3D_VCSDKVER=8.1
   SET LP3D_VCTOOLSET=v140
   SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
 )
 ECHO.
 ECHO   PLATFORM_ARCHITECTURE..........[%PLATFORM_ARCH%]
 ECHO   MSVS_VERSION...................[%LP3D_VSVERSION%]
-ECHO   MSVC_VERSION...................[%LP3D_VCVERSION%]
+ECHO   MSVC_SDK.......................[%LP3D_VCSDKVER%]
 ECHO   MSVC_TOOLSET...................[%LP3D_VCTOOLSET%]
-IF %PLATFORM_ARCH%==x86 (ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%])
+IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+  IF %PLATFORM_ARCH%==x86 (ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%])
+)
 IF %PLATFORM_ARCH%==x86_64 (ECHO   LP3D_QT64_MSVC.................[%LP3D_QT64_MSVC%])
+ECHO   MSVC_VCVARSALL_VER.............[%LP3D_VCVARSALL_VER%]
+ECHO   MSVC_VCVARSALL_DIR.............[%LP3D_VCVARSALL_DIR%]
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
@@ -586,16 +648,25 @@ FOR /R %%I IN (
   "waitingspinner\Makefile*"
 ) DO DEL /S /Q "%%~I" >NUL 2>&1
 ECHO.
-SET PATH=%SYS_DIR%;%LP3D_WIN_GIT%
-SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release
-SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=exe
+SET "LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release"
+IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  SET "LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=con"
+  SET "PATH=%PATH%"
+) ELSE (
+  SET "LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=exe"
+  SET "PATH=%LP3D_SYS_DIR%;%LP3D_WIN_GIT%"
+)
 IF %CHECK% EQU 1 (
 REM DEBUG============
   IF %PLATFORM_ARCH% EQU x86_64 (
-    IF "%GITHUB%" EQU "True" (
-      ECHO   -Disable Build Check for %PLATFORM_ARCH% GITHUB build
-      ECHO.
-      ECHO   LP3D_BUILD_CHECK...............[No]
+    IF "%BUILD_WORKER%" EQU "True" (
+      IF "%LP3D_CONDA_BUILD%" EQU "True" (
+        ECHO   LP3D_BUILD_CHECK...............[Yes]
+      ) ELSE (
+        ECHO   -Disable Build Check for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
+        ECHO.
+        ECHO   LP3D_BUILD_CHECK...............[No]
+      )
     ) ELSE (
       ECHO   LP3D_BUILD_CHECK...............[Yes]
     )
@@ -606,61 +677,67 @@ REM DEBUG============
 ) ELSE (
   ECHO   LP3D_BUILD_CHECK...............[No]
 )
-IF "%GITHUB%" EQU "True" (
+IF "%BUILD_WORKER%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=%CONFIG_CI%
 )
 IF "%APPVEYOR%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=%CONFIG_CI%
   IF "%LP3D_BUILD_PKG%" EQU "yes" (
+    ECHO.
     ECHO   LP3D_BUILD_PKG.................[%LP3D_BUILD_PKG%]
   )
 )
-IF "%GITHUB%" NEQ "True" (
+IF "%BUILD_WORKER%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
     SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
   )
 )
+
 rem Set vcvars for AppVeyor or local build environments
-IF %PLATFORM_ARCH% EQU x86 (
-  ECHO.
-  SET WINDOWS_TARGET_PLATFORM_VERSION=%LP3D_VCVERSION%
-  IF EXIST "%LP3D_QT32_MSVC%\qtenv2.bat" (
-    CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
+IF "%LP3D_CONDA_BUILD%" NEQ "True" (
+  IF %PLATFORM_ARCH% EQU x86 (
+    ECHO.
+    IF EXIST "%LP3D_QT32_MSVC%\qtenv2.bat" (
+      CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
+    ) ELSE (
+      SET "PATH=%LP3D_QT32_MSVC%;%PATH%"
+    )
+    IF EXIST "%LP3D_VCVARSALL_DIR%\vcvars32.bat" (
+      CALL "%LP3D_VCVARSALL_DIR%\vcvars32.bat" %LP3D_VCVARSALL_VER%
+    ) ELSE (
+      ECHO -ERROR - vcvars32.bat not found.
+      GOTO :ERROR_END
+    )
   ) ELSE (
-    SET PATH=%LP3D_QT32_MSVC%;%PATH%
-  )
-  IF EXIST "%LP3D_VCVARSALL%\vcvars32.bat" (
-    CALL "%LP3D_VCVARSALL%\vcvars32.bat" %LP3D_VCVARSALL_VER%
-  ) ELSE (
-    ECHO -ERROR - vcvars32.bat not found.
-    GOTO :ERROR_END
-  )
-) ELSE (
-  ECHO.
-  IF EXIST "%LP3D_QT64_MSVC%\qtenv2.bat" (
-    CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
-  ) ELSE (
-    SET PATH=%LP3D_QT64_MSVC%;%PATH%
-  )
-  IF EXIST "%LP3D_VCVARSALL%\vcvars64.bat" (
-    CALL "%LP3D_VCVARSALL%\vcvars64.bat" %LP3D_VCVARSALL_VER%
-  ) ELSE (
-    ECHO -ERROR - vcvars64.bat not found.
-    GOTO :ERROR_END
+    ECHO.
+    IF EXIST "%LP3D_QT64_MSVC%\qtenv2.bat" (
+      CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
+    ) ELSE (
+      SET "PATH=%LP3D_QT64_MSVC%;%PATH%"
+    )
+    IF EXIST "%LP3D_VCVARSALL_DIR%\vcvars64.bat" (
+      CALL "%LP3D_VCVARSALL_DIR%\vcvars64.bat" %LP3D_VCVARSALL_VER%
+    ) ELSE (
+      ECHO -ERROR - vcvars64.bat not found.
+      GOTO :ERROR_END
+    )
   )
 )
+
 rem Display MSVC Compiler settings
-ECHO _MSC_VER > %TEMP%\settings.c
-cl -Bv -EP %TEMP%\settings.c >NUL
 ECHO.
+ECHO.%LP3D_MSC_VER% > %TEMP%\settings.c
+cl.exe -Bv -EP %TEMP%\settings.c >NUL
+
 SET LPUB3D_MAKE_ARGS=-c -f Makefile
 SET PATH_PREPENDED=True
 
 ECHO.
+ECHO   LPUB3D_MAKE_ARGS...............[%LPUB3D_MAKE_ARGS%]
 ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
 SETLOCAL ENABLEDELAYEDEXPANSION
 ECHO(  PATH_PREPEND...................[!PATH!]
-  SETLOCAL DISABLEDELAYEDEXPANSION
+  ENDLOCAL
 )
 EXIT /b
 
@@ -668,9 +745,13 @@ EXIT /b
 ECHO.
 REM DEBUG============
 IF %1 EQU x86_64 (
-  IF "%GITHUB%" EQU "True" (
-    ECHO -%PACKAGE% Build Check disabled for %PLATFORM_ARCH% GITHUB build
-    EXIT /b
+  IF "%BUILD_WORKER%" EQU "True" (
+    IF "%LP3D_CONDA_BUILD%" EQU "True" (
+      ECHO -%PACKAGE% Build Check...
+    ) ELSE (
+      ECHO -%PACKAGE% Build Check disabled for %PLATFORM_ARCH% %BUILD_WORKER_ID% build
+      EXIT /b
+    )
   ) ELSE (
     ECHO -%PACKAGE% Build Check...
   )
@@ -688,6 +769,7 @@ IF NOT EXIST "%DIST_DIR%" (
   ECHO -ERROR - 3rd Party Renderer folder '%DIST_DIR%' not found, build check will exit.
   EXIT /b
 )
+
 SET PKG_PLATFORM=%1
 CALL :REQUEST_LDRAW_DIR
 rem run build checks
@@ -710,6 +792,19 @@ CALL :DOWNLOAD_LDRAW_LIBS
 
 ECHO.
 ECHO -Check for LDraw LEGO disk library...
+"%LP3D_7ZIP_WIN64%" > %TEMP%\output.tmp 2>&1
+FOR /f "usebackq eol= delims=" %%a IN (%TEMP%\output.tmp) DO (
+  ECHO.%%a | findstr /C:"7-Zip">NUL && (
+    SET LP3D_VALID_7ZIP=1
+    ECHO.
+    ECHO -7zip exectutable found at "%LP3D_7ZIP_WIN64%"
+  ) || (
+    ECHO.
+    ECHO [WARNING] Could not find 7zip executable at %LP3D_7ZIP_WIN64%.
+  )
+  GOTO :END_7ZIP_LOOP
+)
+:END_7ZIP_LOOP
 IF NOT EXIST "%LDRAW_DIR%\parts" (
   ECHO.
   ECHO -LDraw directory %LDRAW_DIR% does not exist - creating...
@@ -723,13 +818,11 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
       SET CHECK=0
     )
   )
-  IF EXIST "%zipWin64%" (
-    ECHO.
-    ECHO -7zip exectutable found at "%zipWin64%"
+  IF %LP3D_VALID_7ZIP% == 1 (
     ECHO.
     ECHO -Extracting %OfficialCONTENT%...
     ECHO.
-    "%zipWin64%\7z.exe" x -o"%LDRAW_INSTALL_ROOT%\" "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+    "%LP3D_7ZIP_WIN64%" x -o"%LDRAW_INSTALL_ROOT%\" "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
     IF EXIST "%LDRAW_DIR%\parts" (
       ECHO.
       ECHO -LDraw directory %LDRAW_DIR% extracted.
@@ -740,9 +833,6 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
       ECHO -Set LDRAWDIR to %LDRAW_DIR%.
       SET LDRAWDIR=%LDRAW_DIR%
     )
-  ) ELSE (
-    ECHO [WARNING] Could not find 7zip executable.
-    SET CHECK=0
   )
 ) ELSE (
   ECHO.
@@ -830,7 +920,7 @@ ECHO - VBS file "%vbs%" is done compiling
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
-IF "%GITHUB%" EQU "True" (
+IF "%BUILD_WORKER%" EQU "True" (
   IF NOT DEFINED LP3D_UPDATE_LDRAW_LIBS (
     SET LP3D_UPDATE_LDRAW_LIBS=-unofficial
   )
@@ -1136,7 +1226,7 @@ EXIT /b
 :ERROR_END
 ECHO.
 ECHO -%PACKAGE% %~nx0 FAILED.
-ECHO -%~nx0 will terminate!
+ECHO -%~nx0 will terminated!
 CALL :END_STATUS
 EXIT /b 3
 

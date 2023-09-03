@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 15, 2023
+rem  Last Update: August 27, 2023
 rem  Copyright (C) 2015 - 2023 by Trevor SANDY
 rem --
 rem --
@@ -13,7 +13,11 @@ rem
 rem To Run:
 rem CD <LPub3D root>
 rem SET _PRO_FILE_PWD_=<LPub3D absolute path>\mainApp
-rem CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
+rem CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_% [ParseVersionInfoFile|NoFileUpdates|<version string>]
+rem Options:
+rem - ParseVersionInfoFile: Use the version info file to determine the version attributes - used by Conda-build
+rem - NoFileUpdates: Do not perfor configuration file updates - used by RunBulildCheck.bat
+rem - <version string>: Space delimited version attributes - Major Minor Patch Revision Build ShaHash
 
 SET LP3D_ME=%~nx0
 
@@ -26,6 +30,9 @@ IF [%LP3D_BUILDS_DIR%] == [] (
   GOTO :FATAL_ERROR
 )
 
+SET /a NUM_ARGS=0
+FOR %%a IN (%*) DO SET /a NUM_ARGS+=1
+
 rem Line number to replace
 SET LINE_README_TXT=1
 SET LINE_README_MD_VER=67
@@ -34,24 +41,32 @@ SET LINE_RELEASE_NOTES_HTM=19
 SET LP3D_GIT_DEPTH=150000
 SET LP3D_PAST_RELEASES=2.3.6,2.0.20,1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
+SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
 SET LP3D_CALL_DIR=%CD%
 
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
-  ECHO  capture version info using git queries...
-  CALL :GET_GIT_VERSION
+  IF [%2] EQU [ParseVersionInfoFile] (
+    ECHO  capture version info using version.info file...
+    CALL :PARSE_VERSION_INFO_FILE
+  ) ELSE (
+    ECHO  capture version info using git queries...
+    CALL :GET_GIT_VERSION
+  )
   IF ERRORLEVEL 1 (
     GOTO :FATAL_ERROR
   )
 ) ELSE (
-  ECHO  capture version info using version arguments...
-  SET LP3D_VER_MAJOR=%2
-  SET LP3D_VER_MINOR=%3
-  SET LP3D_VER_PATCH=%4
-  SET LP3D_VER_REVISION=%5
-  SET LP3D_VER_BUILD=%6
-  SET LP3D_VER_SHA_HASH=%7
-  IF [%8] NEQ [] (SET LP3D_VER_SUFFIX=%8)
+  IF %NUM_ARGS% GTR 6 (
+    ECHO  capture version info using version arguments...
+    SET LP3D_VER_MAJOR=%2
+    SET LP3D_VER_MINOR=%3
+    SET LP3D_VER_PATCH=%4
+    SET LP3D_VER_REVISION=%5
+    SET LP3D_VER_BUILD=%6
+    SET LP3D_VER_SHA_HASH=%7
+    IF [%8] NEQ [] (SET LP3D_VER_SUFFIX=%8)
+  )
 )
 
 SET LP3D_VERSION=unknown
@@ -74,16 +89,19 @@ SET LP3D_APP_VER_SUFFIX=%LP3D_VER_MAJOR%%LP3D_VER_MINOR%
 SET LP3D_APP_VERSION_LONG=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_BUILD_DATE%
 SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^(%LP3D_BUILD_DATE_TIME%^)
 SET LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PAST_RELEASES%
-
 SET LP3D_VERSION_INFO=%LP3D_VER_MAJOR% %LP3D_VER_MINOR% %LP3D_VER_PATCH% %LP3D_VER_REVISION% %LP3D_VER_BUILD% %LP3D_VER_SHA_HASH%
 IF [%LP3D_VER_SUFFIX%] NEQ [] (
   SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
   SET LP3D_APP_VERSION_TAG=v%LP3D_VERSION%_%LP3D_VER_SUFFIX%
 )
+IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  SET "BUILD_WORKER_REF=refs/tags/v%LP3D_VERSION%"
+  SET "LP3D_COMMIT_MSG=LPub3D conda build %LP3D_DAY%.%LP3D_MONTH%.%LP3D_YEAR%"
+)
 
 CD /D "%LP3D_BUILDS_DIR%"
 
-IF [%2] EQU [] CALL :UPDATE_CONFIG_FILES
+IF [%2] NEQ [NoFileUpdates] CALL :UPDATE_CONFIG_FILES
 
 IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
   ECHO   LP3D_BUILD_TYPE................[Continuous]
@@ -118,7 +136,6 @@ REM ECHO   LP3D_APP_VERSION_TAG...........[%LP3D_APP_VERSION_TAG%]
 ECHO   LP3D_SOURCE_DIR................[%LPUB3D%-%LP3D_APP_VERSION%]
 ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
 
-SET LP3D_VER_INFO_FILE=%LP3D_BUILDS_DIR%\utilities\version.info
 IF EXIST "%LP3D_VER_INFO_FILE%" DEL /Q "%LP3D_VER_INFO_FILE%"
 ECHO %LP3D_VERSION_INFO% > %LP3D_VER_INFO_FILE%
 IF EXIST "%LP3D_VER_INFO_FILE%" (
@@ -135,7 +152,7 @@ SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%
 SET "Replacement=      ^<h4^>^<a id="LPub3D_0"^>^</a^>LPub3D %LP3D_BUILD_VERSION%^</h4^>"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement:^=%"
+  IF %%a EQU %LineToReplace% SET "Line=%Replacement:^=%"
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(!Line!
     ENDLOCAL
@@ -148,7 +165,7 @@ SET /a LineToReplace=%LINE_README_TXT%
 SET "Replacement=LPub3D %LP3D_BUILD_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+  IF %%a EQU %LineToReplace% SET "Line=%Replacement%"
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(!Line!
     ENDLOCAL
@@ -161,7 +178,7 @@ SET /a LineToReplace=%LINE_README_MD_VER%
 SET "Replacement=[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited %LP3D_LAST_EDIT%""
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
-  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+  IF %%a EQU %LineToReplace% SET "Line=%Replacement%"
     SETLOCAL ENABLEDELAYEDEXPANSION
     ECHO(!Line!
     ENDLOCAL
@@ -179,7 +196,24 @@ FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
 CD %TEMP%
 EXIT /b
 
+:PARSE_VERSION_INFO_FILE
+SET /p LP3D_VERSION_INFO=<%LP3D_VER_INFO_FILE%
+FOR /f "tokens=1-6 delims= " %%I IN ("%LP3D_VERSION_INFO%") DO (
+  SET LP3D_VER_MAJOR=%%I
+  SET LP3D_VER_MINOR=%%J
+  SET LP3D_VER_PATCH=%%K
+  SET LP3D_VER_REVISION=%%L
+  SET LP3D_VER_BUILD=%%M
+  SET LP3D_VER_SHA_HASH=%%N
+)
+EXIT /b
+
 :GET_GIT_VERSION
+IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  ECHO  ERROR: Conda-build source does not include .git folder.
+  EXIT /b
+)
+
 CD /D "%LP3D_BUILDS_DIR%\.."
 
 REM Test for .git folder
@@ -263,7 +297,7 @@ SET LP3D_HOUR=unknown
 SET LP3D_MIN=unknown
 SET LP3D_SEC=unknown
 FOR /F "skip=1 delims=" %%F IN ('
-    %SystemRoot%\System32\Wbem\wmic PATH Win32_LocalTime GET Day^,DayOfWeek^,Hour^,Minute^,Month^,Second^,Year /FORMAT:TABLE
+    %WINDIR%\System32\Wbem\wmic PATH Win32_LocalTime GET Day^,DayOfWeek^,Hour^,Minute^,Month^,Second^,Year /FORMAT:TABLE
 ') DO (
     FOR /F "tokens=1-7" %%L IN ("%%F") DO (
         SET _Day=0%%L
@@ -362,6 +396,10 @@ ENDLOCAL & (
   SET LP3D_CHANGE_DATE_LONG=%LP3D_CHANGE_DATE_LONG%
   SET LP3D_AVAILABLE_VERSIONS=%LP3D_AVAILABLE_VERSIONS%
   SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^(%LP3D_BUILD_DATE_TIME%^)
+  IF "%LP3D_CONDA_BUILD%" EQU "True" (
+    SET BUILD_WORKER_REF=%BUILD_WORKER_REF%
+    SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG%
+  )
 )
 EXIT /b 0
 
