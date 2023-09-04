@@ -74,12 +74,12 @@ IF "%BUILD_WORKER%" EQU "True" (
     SET CI=True
     SET BUILD_WORKER_JOB=Local %BUILD_WORKER_ID% CI Build
   ) ELSE (
+    :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
     IF "%GITHUB%" EQU "True" (
-      :: Use MM/DD/YYYY input date format, default is DD/MM/YYYY
-      SET CONFIG_CI=github_ci
+      SET CONFIG_CI=github_ci_win
     )
     IF "%LP3D_CONDA_BUILD%" EQU "True" (
-      SET CONFIG_CI=conda_ci
+      SET CONFIG_CI=azure_ci_win
     )
   )
   SET ABS_WD=%BUILD_WORKSPACE%
@@ -107,8 +107,8 @@ IF "%APPVEYOR%" EQU "True" (
     SET CI=True
     SET APPVEYOR_BUILD_ID=Local CI Build
   ) ELSE (
-    :: Use MM/DD/YYYY input date format, default is DD/MM/YYYY
-    SET CONFIG_CI=appveyor_ci
+    :: Using 'Day MM/DD/YYYY' date format, default is 'DD/MM/YYYY'
+    SET CONFIG_CI=appveyor_ci_win
   )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
