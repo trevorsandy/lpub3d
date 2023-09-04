@@ -1841,8 +1841,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         split(smLine,tokens);
 
         // indicate submodel in display model step
-        if (!displayModel && tokens.size() > 1 && tokens[0] == "0") {
-            displayModel = smLine.contains(_fileRegExp[DMS_RX]);
+        if (displayModel) {
+            displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
+        } else if (tokens.size() > 1 && tokens[0] == "0") {
+            displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
         }
         // type and substitute check
         if ((subfileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
@@ -2447,8 +2449,10 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             split(smLine,tokens);
 
             // indicate submodel in display model step
-            if (!displayModel && tokens.size() > 1 && tokens[0] == "0") {
-                displayModel = smLine.contains(_fileRegExp[DMS_RX]);
+            if (displayModel) {
+                displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
+            } else if (tokens.size() > 1 && tokens[0] == "0") {
+                displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
             }
             // type and substitute check
             if ((subfileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
