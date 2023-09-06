@@ -45,7 +45,7 @@ ImportLDraw - A Blender™ plug-in for importing LDraw™ file format models and
 https://github.com/TobyLobster/ImportLDraw
 Toby Nelson <tobymnelson@gmail.com>
 
-LDraw Handler for Blender 2.82+ and 3.0+ commit e926354
+LDraw Handler for Blender 2.82+ and 3.0+ commit 6d6d786
 https://github.com/cuddlyogre/ExportLDraw
 Matthew Morrison [cuddlyogre]<cuddlyogre@gmail.com>
 
