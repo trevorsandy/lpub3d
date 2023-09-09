@@ -289,7 +289,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2019 10.0.17763"
 
 [windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905-macos.dmg
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905-x86_64-macos.dmg
 [appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905-x86_64.AppImage
 
 [almalinux-icon]:      {{ '/assets/images/almalinux_logo.png' | relative_url }} "Alma Linux 9"
