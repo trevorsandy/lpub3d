@@ -284,9 +284,9 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [ldraw-url]:           http://www.ldraw.org/
 [lgeo-url]:            https://www.eurobricks.com/forum/index.php?/forums/topic/108739-new-parts-for-lgeo-library/
 
-[appimage-icon]:       {{ '/assets/images/appimage.png' | relative_url }} "AppImage - Ubuntu Focal Fossa 20.04"
-[macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "macOS Big Sur 11"
-[windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2019 10.0.17763"
+[appimage-icon]:       {{ '/assets/images/appimage.png' | relative_url }} "AppImage - Ubuntu Jammy Jellyfish 22.04"
+[macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "macOS Ventura 13"
+[windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2022 10.0.20348"
 
 [windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905.exe
 [macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905-x86_64-macos.dmg
@@ -300,11 +300,11 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [mageia-icon]:         {{ '/assets/images/mageia.png' | relative_url }} "Mageia 8"
 [opensuse-icon]:       {{ '/assets/images/opensuse.png' | relative_url }} "openSUSE Leap 42.3"
 [openeuler-icon]:      {{ '/assets/images/openeuler_logo.png' | relative_url }} "openEuler 21.03"
-[raspbian-icon]:       {{ '/assets/images/raspberrypi_logo.png' | relative_url }} "Raspbian 11"
+[raspbian-icon]:       {{ '/assets/images/raspberrypi_logo.png' | relative_url }} "Raspbian 11 Noble Numbat" 
 [rhel-icon]:           {{ '/assets/images/rhel.png' | relative_url }} "Red Hat Enterprise Linux 8"
 [sl-icon]:             {{ '/assets/images/sl.png' | relative_url }} "Scientific Linux 7"
 [sle-icon]:            {{ '/assets/images/sle.png' | relative_url }} "SUSE Enterprise Linux 15 SP4"
-[ubuntu-icon]:         {{ '/assets/images/ubuntu.png' | relative_url }} "Ubuntu 22.04"
+[ubuntu-icon]:         {{ '/assets/images/ubuntu.png' | relative_url }} "Ubuntu Noble Numbat 24.04"
 [univention-icon]:     {{ '/assets/images/univention_logo.png' | relative_url }} "Univention Corporate Server 5.0"
 
 [//]: # Snap icons
