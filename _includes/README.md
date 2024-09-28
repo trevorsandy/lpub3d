@@ -129,6 +129,8 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - [LPub3D meta commands UDL for Notepad++ (zip download)][resources-lpub3d-npp-udl]
 
 ### Features and Enhancements
+<div class="feature-list" markdown="1">
+
  - MPD file imbedded images with !DATA meta command [#722](https://github.com/trevorsandy/lpub3d/issues/722) <span style="color:red">(NEW!)</span>
  - Enhanced step part fade and highlight behaviour [#710](https://github.com/trevorsandy/lpub3d/issues/710) <span style="color:red">(NEW!)</span>
  - Display model step supports part lines [#704](https://github.com/trevorsandy/lpub3d/issues/704) <span style="color:red">(NEW!)</span>
@@ -210,6 +212,8 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - Automated build and deploy from Cloud CI Service: [GitHub Actions][gh-actions-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Ubuntu][dockerubuntu] and [Fedora][dockerfedora] Linux distros
 
+</div><br />
+ 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2024 Leonardo Zide, LDView© 2024 Travis Cobbs & Peter Bartfai and additional third party components. See [Credits][docs-lpub3d-credits] for full details on contributing content.
 
  [![Built-With-Qt-Logo][builtwithqt-logo]][qt-url]

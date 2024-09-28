@@ -1,0 +1,8 @@
+.feature-list {
+  display: block;
+  height: 400px;
+  width: 100%;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+}
