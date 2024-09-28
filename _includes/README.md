@@ -43,8 +43,8 @@ LPub3D **Blender integration** uses the [LPub3D Blender LDraw Addon][blender-add
 
 ### Compatibility
 
-:-----------------------:|:-------------------:|:-------------------:|:---------------------
-![Intel-Logo][intel-logo]|![AMD-Logo][amd-logo]|![ARM-Logo][arm-logo]|![RaspberryPi-Logo][raspberrypi-logo]
+:-----------------------:|:-------------------:|:-------------------:|:-------------------:|:---------------------
+![Intel-Logo][intel-logo]|![AMD-Logo][amd-logo]|![APPLE-M1-Logo][apple-m1-logo]|![ARM-Logo][arm-logo]|![RaspberryPi-Logo][raspberrypi-logo]
 
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
 LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Snap][snapcraft-site-url] or [Flatpak][flathub-site-url] 'sandbox' deployment. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
@@ -273,6 +273,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [intel-logo]:          {{ '/assets/images/intel_logo.png' | relative_url }}
 [amd-logo]:            {{ '/assets/images/amd_logo.png' | relative_url }}
 [arm-logo]:            {{ '/assets/images/arm_logo.png' | relative_url }}
+[apple-m1-logo]:       {{ '/assets/images/apple_m1_logo.png' | relative_url }}
 [raspberrypi-logo]:    {{ '/assets/images/raspberrypi_logo.png' | relative_url }}
 [builtwithqt-logo]:    {{ '/assets/images/builtwithqt_logo.png' | relative_url }}
 
@@ -285,7 +286,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [lgeo-url]:            https://www.eurobricks.com/forum/index.php?/forums/topic/108739-new-parts-for-lgeo-library/
 
 [appimage-icon]:       {{ '/assets/images/appimage.png' | relative_url }} "AppImage - Ubuntu Jammy Jellyfish 22.04"
-[macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "macOS Ventura 13"
+[macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "macOS Sonoma 14 (arm64), Ventura 13 (x86_64)"
 [windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2022 10.0.20348"
 
 [windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.7.75.3551_20230905.exe
