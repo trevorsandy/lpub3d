@@ -22,11 +22,11 @@
   -webkit-transition:.5s;
   transition: .5s;
 }
-.fa-twitter:hover {
+.fa-x-twitter:hover {
   font-size: 20px;
   color: #00aced;
 }
-.fa-twitter {
+.fa-x-twitter {
   padding: 10px;
   -o-transition:.5s;
   -ms-transition:.5s;

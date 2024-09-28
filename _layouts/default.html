@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
     <meta name="viewport" content="width=device-width">
-    <script src="https://use.fontawesome.com/72536cb244.js"></script>
+	<script src="https://kit.fontawesome.com/b15ad03e0d.js" crossorigin="anonymous"></script>
 
     {% seo %}
 
@@ -67,7 +67,7 @@
         {% if site.github.is_project_page %}
         <p>This project is maintained by <a href="{{ site.github.owner_url }}"><br/>{{ site.data.settings.author.name }}</a><br/>
           {% for item in site.data.settings.social %}
-            <a href="{{ item.link }}"><i class="fa fa-{{ item.icon }}" aria-hidden="true" target="_blank"></i></a>
+            <a href="{{ item.link }}"><i class="{{ item.smbl }} fa-{{ item.icon }} fa-fw" aria-hidden="true" target="_blank"></i></a>
           {% endfor %}
         </p>
         {% endif %}
