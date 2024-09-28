@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: Jun 22, 2022
+# Last Update: September 18, 2024
 
 # Config settings
 title: LPub3D
@@ -21,3 +21,7 @@ defaults:
       path: "/assets/images/screenshots"
     values:
       image: true
+
+plugins:
+  - jekyll-include-cache
+  - gemfile
