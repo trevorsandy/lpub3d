@@ -252,6 +252,7 @@ SET LP3D_SUPPORT=unknown
 SET LPUB3D_BUILD_FILE=unknown
 
 SET LP3D_ALTERNATE_VERSIONS_exe=unknown
+SET LP3D_ALTERNATE_VERSIONS_win_conda=unknown
 SET LP3D_ALTERNATE_VERSIONS_dmg=unknown
 SET LP3D_ALTERNATE_VERSIONS_deb=unknown
 SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
@@ -261,6 +262,7 @@ SET LP3D_ALTERNATE_VERSIONS_snp=unknown
 SET LP3D_ALTERNATE_VERSIONS_flp=unknown
 
 SET LP3D_AVAILABLE_VERSIONS_exe=unknown
+SET LP3D_AVAILABLE_VERSIONS_win_conda=unknown
 SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
 SET LP3D_AVAILABLE_VERSIONS_deb=unknown
 SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
@@ -304,6 +306,7 @@ REM tokens=1-3: first token in %%i, second in %%j, third in %%k - e.g. %%i,%%j,%
 
 REM available versions by platform, set tokens to select specific version or versions as appropriate
 FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_exe=%%i
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_win_conda=%%i
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_dmg=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_deb=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_rpm=%%i,%%j,%%k
@@ -313,6 +316,7 @@ FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AV
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_flp=%%i
 
 FOR /F "tokens=2*  delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_exe%") DO SET LP3D_ALTERNATE_VERSIONS_exe=%%i,%%j
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_win_conda%") DO SET LP3D_ALTERNATE_VERSIONS_win_conda=%%i
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_dmg=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_deb%") DO SET LP3D_ALTERNATE_VERSIONS_deb=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_rpm%") DO SET LP3D_ALTERNATE_VERSIONS_rpm=%%i,%%j
@@ -421,7 +425,7 @@ ECHO   BUILD_WORKER_IMAGE.............[%APPVEYOR_BUILD_WORKER_IMAGE%]
 ECHO.  OPEN_SSL_VERSION...............[%OPENSSL_VER%]
 ECHO.
 ECHO   LP3D_AVAILABLE_VERSIONS_exe....[%LP3D_AVAILABLE_VERSIONS_exe%]
-ECHO   LP3D_AVAILABLE_VERSIONS_dmg....[%LP3D_AVAILABLE_VERSIONS_dmg%]
+ECHO   LP3D_AVAILABLE_VERSIONS_win_conda....[%LP3D_AVAILABLE_VERSIONS_win_conda%]
 ECHO   LP3D_AVAILABLE_VERSIONS_deb....[%LP3D_AVAILABLE_VERSIONS_deb%]
 ECHO   LP3D_AVAILABLE_VERSIONS_rpm....[%LP3D_AVAILABLE_VERSIONS_rpm%]
 ECHO   LP3D_AVAILABLE_VERSIONS_pkg....[%LP3D_AVAILABLE_VERSIONS_pkg%]
@@ -430,7 +434,7 @@ ECHO   LP3D_AVAILABLE_VERSIONS_snp....[%LP3D_AVAILABLE_VERSIONS_snp%]
 ECHO   LP3D_AVAILABLE_VERSIONS_flp....[%LP3D_AVAILABLE_VERSIONS_flp%]
 ECHO.
 ECHO   LP3D_ALTERNATE_VERSIONS_exe....[%LP3D_ALTERNATE_VERSIONS_exe%]
-ECHO   LP3D_ALTERNATE_VERSIONS_dmg....[%LP3D_ALTERNATE_VERSIONS_dmg%]
+ECHO   LP3D_ALTERNATE_VERSIONS_win_conda....[%LP3D_ALTERNATE_VERSIONS_win_conda%]
 ECHO   LP3D_ALTERNATE_VERSIONS_deb....[%LP3D_ALTERNATE_VERSIONS_deb%]
 ECHO   LP3D_ALTERNATE_VERSIONS_rpm....[%LP3D_ALTERNATE_VERSIONS_rpm%]
 ECHO   LP3D_ALTERNATE_VERSIONS_PKG....[%LP3D_ALTERNATE_VERSIONS_PKG%]
@@ -787,7 +791,7 @@ ECHO.
 ECHO - Generating update package alternate version json inserts...
 SET LP3D_ARCH=x86_64
 SET LP3D_AMDARCH=amd64
-SET LP3D_DIST_EXTENSIONS=exe, dmg, deb, rpm, pkg, api, snp, flp
+SET LP3D_DIST_EXTENSIONS=exe, win_conda, dmg, deb, rpm, pkg, api, snp, flp
 FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
  CALL :GENERATE_ALT_VERSION_INSERTS %%e
 )
@@ -910,6 +914,9 @@ ECHO - Merging update package version inserts into lpub3dupdates.json...
     IF "%%i" EQU ""alt-version-gen-placeholder-windows-exe": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_exe.txt
     )
+    IF "%%i" EQU ""alt-version-gen-placeholder-windows-conda": {}" (
+      TYPE %PKG_UPDATE_DIR%\versionInsert_win_conda.txt
+    )
     IF "%%i" EQU ""alt-version-gen-placeholder-macos-dmg": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_dmg.txt
     )
@@ -958,6 +965,7 @@ EXIT /b
 :GENERATE_ALT_VERSION_INSERTS
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
+SET "win_conda=-%LP3D_ARCH%.tar.bz2"
 SET "dmg=_osx.%LP3D_EXT%"
 SET "deb=_0ubuntu1_%LP3D_AMDARCH%.%LP3D_EXT%"
 SET "rpm=_1fedora.%LP3D_ARCH%.%LP3D_EXT%"
@@ -979,7 +987,11 @@ IF "%1" EQU "api" (
     IF "%1" EQU "flp" (
       SET "LP3D_DIST_PREFIX=LPub3D-"
     ) ELSE (
-      SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
+      IF "%1" EQU "win_conda" (
+        SET "LP3D_DIST_PREFIX=LPub3D-"
+      ) ELSE (
+        SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
+      )
     )
   )
 )
@@ -1005,6 +1017,9 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
     SET LP3D_ALT_VERSION_LONG=2.3.6.0.1101_20181218
     IF "%1" EQU "exe" (
       SET LP3D_DIST_SUFFIX=.exe
+    )
+    IF "%1" EQU "win_conda" (
+      SET LP3D_DIST_SUFFIX=-%LP3D_ARCH%.tar.bz2
     )
     IF "%1" EQU "dmg" (
       SET LP3D_DIST_SUFFIX=-macos.dmg
