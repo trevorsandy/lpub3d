@@ -19,7 +19,9 @@
 #include <TCFoundation/TCTypedObjectArray.h>
 #include <LDLib/LDrawModelViewer.h>
 #include "ui_LDVExportOptionPanel.h"
+#include <QColorDialog>
 #include <QSpinBox>
+#include <QToolButton>
 #include <QCheckBox>
 #include <QLabel>
 #include <QComboBox>
@@ -107,6 +109,7 @@ private slots:
 
 protected:
 	PovLight getLight(void) const;
+	void colorButtonClicked(void);
 	void populateExportSettings(void);
 	void resetSettings(SettingsMap &settings);
 
@@ -132,7 +135,7 @@ protected:
 	QDoubleSpinBox    *m_PovLightOptTargetXDSpin;
 	QDoubleSpinBox    *m_PovLightOptTargetYDSpin;
 	QDoubleSpinBox    *m_PovLightOptTargetZDSpin;
-	QDoubleSpinBox    *m_PovLightOptColorRDSpin;
+	QToolButton       *m_PovLightOptColorBtn;
 	QDoubleSpinBox    *m_PovLightOptFadeDistanceDSpin;
 	QDoubleSpinBox    *m_PovLightOptFadePowerDSpin;
 	QDoubleSpinBox    *m_PovLightOptIntensityDSpin;

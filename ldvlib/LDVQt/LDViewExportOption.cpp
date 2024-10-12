@@ -405,7 +405,7 @@ void LDViewExportOption::populateExportSettings(void)
 					m_PovLightOptShadowlessChk->setToolTip(TCObject::ls("PovLightShadowlessTT"));
 					grid->addWidget(m_PovLightOptShadowlessChk,4,0);
 
-					label = new QLabel(TCObject::ls("PovLightOptColorR"),this);
+					label = new QLabel(TCObject::ls("PovLightOptColor"),this);
 					grid->addWidget(label,4,1);
 					label = new QLabel(TCObject::ls("PovLightOptFadeDistance"),this);
 					grid->addWidget(label,4,2);
@@ -415,12 +415,9 @@ void LDViewExportOption::populateExportSettings(void)
 					// row 5
 					sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
 					grid->addItem(sp,5,0);
-					m_PovLightOptColorRDSpin =  new QDoubleSpinBox(this);
-					m_PovLightOptColorRDSpin->setRange(0.0, 1.0);
-					m_PovLightOptColorRDSpin->setDecimals(1);
-					m_PovLightOptColorRDSpin->setSingleStep(1);
-					m_PovLightOptColorRDSpin->setToolTip(TCObject::ls("PovLightColorRTT"));
-					grid->addWidget(m_PovLightOptColorRDSpin,5,1);
+					m_PovLightOptColorBtn = new QToolButton(this);
+					m_PovLightOptColorBtn->setToolTip(TCObject::ls("PovLightColorTT"));
+					grid->addWidget(m_PovLightOptColorBtn,5,1);
 
 					m_PovLightOptFadeDistanceDSpin = new QDoubleSpinBox(this);
 					m_PovLightOptFadeDistanceDSpin->setRange(0.0, 1.0);
@@ -562,6 +559,7 @@ void LDViewExportOption::populateExportSettings(void)
 
 					setLights();
 
+					connect( m_PovLightOptColorBtn, &QToolButton::clicked, this, &LDViewExportOption::colorButtonClicked);
 					connect( m_PovLightCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( selectLight(int)));
 					connect( m_PovLightOptIntensityDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptLatitudeDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
@@ -573,7 +571,6 @@ void LDViewExportOption::populateExportSettings(void)
 					connect( m_PovLightOptShadowlessChk, SIGNAL( clicked(bool) ), this, SLOT( applyLights() ) );
 					connect( m_PovLightOptFadeDistanceDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptFadePowerDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
-					connect( m_PovLightOptColorBDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptSpotRadiusDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptSpotFalloffDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptSpotTightnessDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
@@ -847,6 +844,19 @@ void LDViewExportOption::selectLight(int lightIndex)
 	if (!m_PovLightMap.contains(lightIndex))
 		return;
 
+	auto setButtonPixmap = [&](float *color, QToolButton* button)
+	{
+		QPixmap pixmap(12, 12);
+		QColor btnColor = QColor(color[0] * 255, color[1] * 255, color[2] * 255);
+		button->setToolTip(tr("Name: %7 R(%1,%2) G(%3,%4) B(%5,%6)")
+							   .arg(btnColor.red()).arg(btnColor.red() / 255.0f,0,'f',3)
+							   .arg(btnColor.green()).arg(btnColor.green() / 255.0f,0,'f',3)
+							   .arg(btnColor.blue()).arg(btnColor.blue() / 255.0f,0,'f',3)
+							   .arg(btnColor.name().toUpper()));
+		pixmap.fill(btnColor);
+		button->setIcon(pixmap);
+	};
+
 	bool isArealight = m_PovLightMap[lightIndex].type == LightData::Area;
 	bool isSpotlight = m_PovLightMap[lightIndex].type == LightData::Spot;
 	int typeIndex = m_PovLightOptTypeCombo->findText(m_PovLightMap[lightIndex].typeText);
@@ -860,9 +870,9 @@ void LDViewExportOption::selectLight(int lightIndex)
 	m_PovLightOptTargetXDSpin->setValue(m_PovLightMap[lightIndex].target[0]);
 	m_PovLightOptTargetYDSpin->setValue(m_PovLightMap[lightIndex].target[1]);
 	m_PovLightOptTargetZDSpin->setValue(m_PovLightMap[lightIndex].target[2]);
-	m_PovLightOptColorRDSpin->setValue(m_PovLightMap[lightIndex].color[0]);
-	m_PovLightOptColorGDSpin->setValue(m_PovLightMap[lightIndex].color[1]);
-	m_PovLightOptColorBDSpin->setValue(m_PovLightMap[lightIndex].color[2]);
+
+	setButtonPixmap(m_PovLightMap[lightIndex].color, m_PovLightOptColorBtn);
+
 	m_PovLightOptIntensityDSpin->setValue(m_PovLightMap[lightIndex].intensity);
 	m_PovLightOptFadeDistanceDSpin->setValue(m_PovLightMap[lightIndex].fadeDistance);
 	m_PovLightOptFadePowerDSpin->setValue(m_PovLightMap[lightIndex].fadePower);
@@ -887,16 +897,33 @@ void LDViewExportOption::selectLight(int lightIndex)
 
 PovLight LDViewExportOption::getLight() const
 {
-	QString target = QString("%1,%2,%3").arg(m_PovLightOptTargetXDSpin->value()).arg(m_PovLightOptTargetYDSpin->value()).arg(m_PovLightOptTargetZDSpin->value());
-	QString color = QString("%1,%2,%3").arg(m_PovLightOptColorRDSpin->value()).arg(m_PovLightOptColorGDSpin->value()).arg(m_PovLightOptColorBDSpin->value());
 	PovLight light(TCObject::ls("PovLightInitializer"));
+	QString target = QString("%1,%2,%3").arg(m_PovLightOptTargetXDSpin->value()).arg(m_PovLightOptTargetYDSpin->value()).arg(m_PovLightOptTargetZDSpin->value());
+	int lightIndex = m_PovLightCombo->currentIndex();
+
+	if (m_PovLightMap.contains(lightIndex) && m_PovLightMap[lightIndex].isvalid ) {
+		QColor color = QColor(m_PovLightMap[lightIndex].color[0] * 255.0f,
+							  m_PovLightMap[lightIndex].color[1] * 255.0f,
+							  m_PovLightMap[lightIndex].color[2] * 255.0f);
+		if (color.isValid()) {
+			light.color[0] = double(color.red() / 255.0f);
+			light.color[1] = double(color.green() / 255.0f);
+			light.color[2] = double(color.blue() / 255.0f);
+		}
+	}
+
 	light.typeText = m_PovLightOptTypeCombo->currentText();
 	light.shadowless = m_PovLightOptShadowlessChk->isChecked();
 	light.latitude = m_PovLightOptLatitudeDSpin->value();
 	light.longitude = m_PovLightOptLongitudeDSpin->value();
-	light.parseString(target.toLatin1().constData(), light.target);
-	light.parseString(color.toLatin1().constData(), light.color);
+	if (!light.parseString(target.toLatin1().constData(), light.target)) {
+		light.target[0] = 0;
+		light.target[1] = 0;
+		light.target[2] = 0;
+	}
 	light.intensity = m_PovLightOptIntensityDSpin->value();
+	light.fadeDistance = m_PovLightOptFadeDistanceDSpin->value();
+	light.fadePower = m_PovLightOptFadePowerDSpin->value();
 	light.radius = m_PovLightOptSpotRadiusDSpin->value();
 	light.falloff = m_PovLightOptSpotFalloffDSpin->value();
 	light.tightness = m_PovLightOptSpotTightnessDSpin->value();
@@ -1017,6 +1044,48 @@ void LDViewExportOption::setLights(int)
 	applyLights();
 }
 
+void LDViewExportOption::colorButtonClicked()
+{
+	QObject* button = sender();
+	QString title;
+	QColorDialog::ColorDialogOptions DialogOptions;
+
+	if (button != m_PovLightOptColorBtn)
+		return;
+
+	int lightIndex = m_PovLightCombo->currentIndex();
+	if (!m_PovLightMap.contains(lightIndex) || !m_PovLightMap[lightIndex].isvalid )
+		return;
+
+	title = tr("Select Light Color");
+
+	QColor oldColor = QColor(m_PovLightMap[lightIndex].color[0] * 255.0f,
+							 m_PovLightMap[lightIndex].color[1] * 255.0f,
+							 m_PovLightMap[lightIndex].color[2] * 255.0f);
+	QColor newColor = QColorDialog::getColor(oldColor, this, title, DialogOptions);
+
+	if (newColor == oldColor || !newColor.isValid())
+		return;
+
+	float color[3] = {color[0] = double(newColor.red() / 255.0f),
+					  color[1] = double(newColor.green() / 255.0f),
+					  color[2] = double(newColor.blue() / 255.0f)};
+
+	m_PovLightMap[lightIndex].color[0] = double(color[0]);
+	m_PovLightMap[lightIndex].color[1] = double(color[1]);
+	m_PovLightMap[lightIndex].color[2] = double(color[2]);
+
+	QPixmap pix(12, 12);
+	newColor.setAlpha(255);
+	pix.fill(newColor);
+	((QToolButton*)button)->setIcon(pix);
+	((QToolButton*)button)->setToolTip(tr("Name: %7 R(%1,%2) G(%3,%4) B(%5,%6)")
+											 .arg(newColor.red()).arg(color[0],0,'f',3)
+											 .arg(newColor.green()).arg(color[1],0,'f',3)
+											 .arg(newColor.blue()).arg(color[2],0,'f',3)
+											 .arg(newColor.name().toUpper()));
+}
+
 void LDVExportSetting::resetLights()
 {
 	std::string value = TCUserDefaults::defaultStringForKey(m_key.c_str());
@@ -1077,9 +1146,10 @@ QString PovLight::getLightString()
 		snprintf(
 			buffer,
 			sizeof(buffer),
-			"%i %i %g %g <%g,%g,%g> <%g,%g,%g> %g %g %g %g %i %i %i %i %i",
+			"%i %i %g %g <%g,%g,%g> <%g,%g,%g> %g %g %g %g %g %g %i %i %i %i %i",
 			type, shadowless, latitude, longitude,target[0],target[1],target[2],color[0],color[1],color[2],
-			intensity,radius, falloff, tightness, circle, width, height, rows, columns);
+			intensity, fadeDistance, fadePower, radius, falloff, tightness, circle, width, height, rows, columns);
+	//qDebug().noquote() << QString("Get Light String (%1)").arg(QString(buffer).trimmed());
 	return QString(buffer).trimmed();
 }
 
@@ -1088,10 +1158,11 @@ PovLight::PovLight(const QString &lightString)
 {
 	char _target[100];
 	char _color[100];
-	int items = sscanf(lightString.toLatin1().data(), "%d %d %f %f %s %s %f %f %f %f %d %d %d %d %d",
-					  &type, &shadowless, &latitude, &longitude, _target, _color, &intensity,
-					  &radius, &falloff, &tightness, &circle, &width, &height, &rows, &columns);
-	if ((isvalid = items == 15)) {
+	int items = sscanf(lightString.toLatin1().data(), "%d %d %f %f %s %s %f %f %f %f %f %f %d %d %d %d %d",
+					  &type, &shadowless, &latitude, &longitude, _target, _color, &intensity, &fadeDistance,
+					  &fadePower, &radius, &falloff, &tightness, &circle, &width, &height, &rows, &columns);
+	if ((isvalid = items == 17)) {
+		//qDebug().noquote() << QString("PovLight Light (%1)").arg(lightString);
 		setTypeText();
 		setItemText();
 		parseString(_target, target);
