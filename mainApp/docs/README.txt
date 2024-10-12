@@ -1,4 +1,4 @@
-LPub3D 2.4.7.172.3648 (12 10 2024 04:45:38)
+LPub3D 2.4.7.173.3649 (12 10 2024 04:46:50)
 
 Features, enhancements, fixes and changes
 ------------
@@ -26,6 +26,7 @@ Revisions:
 - Fix - Include file meta commands not always applied #735
 - Fix - LPub3D crashes on Mac #753
 - Fix - LPub3D unstable if 'Author:' value is empty in LDR-file #760
+- Fix - Multi_step pli per_step false causes crash #755
 - Fix - Parse MPD description line on insert MULTI_STEP BEGIN command #738
 - Fix - Scrambled submodel when placed before ignore IGN command #732
 - Fix - Submodels shown in BOM when using INSERT DISPLAY_MODEL #739

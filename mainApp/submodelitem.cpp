@@ -248,7 +248,8 @@ int SubModel::createSubModelImage(
 
   float modelScale     = subModelMeta.modelScale.value();
   int stepNumber       = subModelMeta.showStepNum.value() ?
-                         subModelMeta.showStepNum.value() : step->stepNumber.number;
+                         subModelMeta.showStepNum.value() :
+                         step ? step->stepNumber.number : 1; /*stepGroup - submodel displayed at first step page*/
   bool customViewpoint = subModelMeta.cameraAngles.customViewpoint();
   bool noCA            = !customViewpoint && subModelMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
   float camDistance    = subModelMeta.cameraDistance.value();
@@ -353,9 +354,10 @@ int SubModel::createSubModelImage(
       bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerSubmodelKey);
 
       // do not create native content for cover page display model - created in Update smi file, rotateModel call
-      bool coverPagePreview = meta->LPub.coverPageViewEnabled.value() &&
+      bool coverPagePreview = step ?
+                              meta->LPub.coverPageViewEnabled.value() &&
                               step->displayStep == DT_MODEL_COVER_PAGE_PREVIEW &&
-                              step->subModel.viewerSubmodel;
+                              step->subModel.viewerSubmodel : false;
 
       QStringList rotatedModel;
 
@@ -410,7 +412,7 @@ int SubModel::createSubModelImage(
               QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
                   QStringList futureModel = rotatedModel;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
-                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI,step->displayStep);
+                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI, step ? step->displayStep : false);
                   // consolidate submodel subfiles into single file
                   int rcf = 0;
                   if (!coverPagePreview) {
