@@ -88,12 +88,12 @@ OTHER_FILES += \
     $$PWD/../builds/utilities/ci/github/windows-build.bat \
     $$PWD/../builds/utilities/cleanup.bat \
     $$PWD/../builds/utilities/Copyright-Source-Header.txt \
-    $$PWD/../builds/utilities/create-dmg \
     $$PWD/../builds/utilities/CreateRenderers.bat \
     $$PWD/../builds/utilities/CreateRenderers.sh \
-    $$PWD/../builds/utilities/dmg-utils/dmg-fileicon \
-    $$PWD/../builds/utilities/dmg-utils/dmg-license.py \
-    $$PWD/../builds/utilities/dmg-utils/template.applescript \
+    $$PWD/../builds/utilities/dmg-utils/create-dmg \
+    $$PWD/../builds/utilities/dmg-utils/.this-is-the-repo-sentinel-file \
+    $$PWD/../builds/utilities/dmg-utils/support/template.applescript \
+    $$PWD/../builds/utilities/dmg-utils/support/eula-resources-template.xml \
     $$PWD/../builds/utilities/hooks/pre-commit \
     $$PWD/../builds/utilities/json/complete.json \
     $$PWD/../builds/utilities/json/lpub3dldrawunf.json \

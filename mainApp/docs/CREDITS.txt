@@ -92,12 +92,8 @@ https://github.com/mklement0/fileicon 7108132
 Michael Klement <mklement0@gmail.com>
 
 Create Dmg
-https://github.com/andreyvit/create-dmg fbe0f36c
+https://github.com/create-dmg/create-dmg 32121505
 Andrey Tarantsov, Andrew Janke
-
-Dmg License script
-https://github.com/create-dmg/create-dmg/blob/master/support/licenseDMG.py 5eff2ce8
-Jared Hobbs <https://bitbucket.org/jaredhobbs/pyhacker>
 
 LEGO LDraw Library content
 LDraw.org

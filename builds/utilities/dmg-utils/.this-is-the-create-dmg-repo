@@ -1,2 +1,2 @@
 This is just a dummy file so create-dmg can tell whether it's being run from
-inside a repo (e.g. Travis-CI, GitHub etc...) or from an installed location.
+inside the Git repo or from an installed location.

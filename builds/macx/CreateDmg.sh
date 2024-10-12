@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 27, 2024
+# Last Update: September 28, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -315,27 +315,19 @@ cd builds/macx
 
 echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
 cp -rf ../../mainApp/$release/LPub3D.app .
-cp -f ../utilities/icons/setup.icns .
-cp -f ../utilities/icons/setup.png .
-cp -f ../utilities/icons/lpub3dbkg.png .
-cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
 
-echo "- set scrpt permissions..."
-chmod +x ../utilities/create-dmg
-chmod +x ../utilities/dmg-utils/licenseDMG.py
-
-echo "- install library links..."
+echo "- install LDrawIni and QuaZIP library links..."
 /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
 /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Libs/libQuaZIP.1.dylib
 
-echo "- change mapping to LPub3D..."
+echo "- change LDrawIni and QuaZIP mapping to LPub3D..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
 /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/MacOS/LPub3D
 
 echo "- bundle LPub3D..."
 macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
 
-echo "- change library dependency mapping..."
+echo "- change LDrawIni and QuaZIP library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
@@ -376,7 +368,8 @@ if [ -d ${DMGDIR} ]
 then
   rm -f -R ${DMGDIR}
 fi
-mkdir -p ${DMGDIR}
+mkdir -p ${DMGDIR} && \
+echo "- created dmg output directory $(realpath $DMGDIR)"
 
 # pos: builds/macx
 echo "- generate README file and dmg make script..."
@@ -462,9 +455,9 @@ Optional - Check installed library (e.g. libpng)
 ============================================
 - \$ otool -L \$(brew list libpng | grep dylib\$)
     /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
-        /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
-        /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
-        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
+    /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
+    /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
+    /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
 
 LPub3D Library Check Note: On startup LPub3D will test for the /opt/homebrew/bin/brew binary.
 If found, the library check will use the Apple silicon path prefix:
@@ -488,16 +481,24 @@ The Homebrew plist keys are:
 Cheers,
 EOF
 
+echo "- copy ${LPUB3D} package assets to to $(realpath .)..."
+cp -f ../utilities/icons/setup.icns .
+cp -f ../utilities/icons/lpub3dbkg.png .
+cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
+
+echo "- set create-dmg build scrpt permissions..."
+chmod +x ../utilities/dmg-utils/create-dmg
+
 echo "- copy README to Resources/README_macOS.txt..."
 cp -f README DMGSRC/LPub3D.app/Contents/Resources/README_macOS.txt
 
 echo "- generate makedmg script..."
+LP3D_DMG="LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
 cat <<EOF >makedmg
 #!/bin/bash
-../utilities/create-dmg \\
+../utilities/dmg-utils/create-dmg \\
 --volname "LPub3D-Installer" \\
 --volicon "setup.icns" \\
---dmgicon "setup.png" \\
 --background "lpub3dbkg.png" \\
 --icon-size 90 \\
 --text-size 10 \\
@@ -508,8 +509,7 @@ cat <<EOF >makedmg
 --add-file Readme README 512 128 \\
 --app-drop-link 448 344 \\
 --eula .COPYING \\
---skip-jenkins \\
-"${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg" \\
+"${DMGDIR}/${LP3D_DMG}" \\
 DMGSRC/
 EOF
 
@@ -523,14 +523,14 @@ else
   exit 1
 fi
 
-if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg" ]; then
-  echo "      Distribution package.: LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
-  echo "      Package path.........: $PWD/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
+if [ -f "${DMGDIR}/${LP3D_DMG}" ]; then
+echo "      Distribution package.: ${LP3D_DMG}"
+  echo "      Package path.........: $PWD/${LP3D_DMG}"
   echo "- cleanup..."
   rm -f -R DMGSRC
-  rm -f lpub3d.icns lpub3dbkg.png setup.png README .COPYING makedmg
+  rm -f lpub3d.icns lpub3dbkg.png README .COPYING makedmg
 else
-  echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg was not found."
+echo "- ${DMGDIR}/${LP3D_DMG} was not found."
   echo "- $ME Failed."
 fi
 
