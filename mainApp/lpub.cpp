@@ -3596,8 +3596,8 @@ void Gui::initialize()
           this, SLOT(UpdateAllViews()));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
-  connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int)),
-          this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool, int)));
+  connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)),
+          this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -7500,11 +7500,13 @@ void Gui::showLine(const Where &here, int type)
 }
 
 void Gui::parseError(const QString &message,
-        const Where &here,
-        Preferences::MsgKey msgKey,
-        bool option/*false*/,
-        bool override/*false*/,
-        int icon/*NoIcon*/)
+                     const Where &here,
+                     Preferences::MsgKey msgKey,
+                     bool option/*false*/,
+                     bool override/*false*/,
+                     int icon/*NoIcon*/,
+                     const QString &title,
+                     const QString &type)
 {
     if (parsedMessages.contains(here))
         return;
@@ -7538,9 +7540,11 @@ void Gui::parseError(const QString &message,
             bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
             if (okToShowMessage) {
                 Where messageLine = here;
+                const QString msgTitle = title.isEmpty() ? keyType[msgKey][0] : title;
+                const QString msgType = type.isEmpty() ? keyType[msgKey][1] : type;
                 messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
                 Preferences::MsgID msgID(msgKey,messageLine.indexToString());
-                abortProcess = Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override, icon) == QMessageBox::Abort;
+                abortProcess = Preferences::showMessage(msgID, parseMessage, msgTitle, msgType, option, override, icon) == QMessageBox::Abort;
                 if (abortProcess)
                     Gui::setAbortProcess(abortProcess);
             } else

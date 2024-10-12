@@ -340,6 +340,35 @@ int Step::createCsi(
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
 
+  // image path max length check - warning when approaching and hard stop when exceeded.
+  int imagePathLength = pngName.size();
+  bool imagePathControl = imagePathLength + 5 > LP3D_MAX_IMAGE_RENDER_PATH;
+  if (imagePathControl && Preferences::preferredRenderer == RENDERER_LDVIEW) {
+      QMessageBox::Icon messageIcon = QMessageBox::Warning;
+      Where here(QFileInfo(gui->getCurFile()).completeBaseName(),1);
+      QString imagePathMessage = QObject::tr("is [%1] characters, which is approaching<br>").arg(imagePathLength);
+      QString imagePathRequest = QObject::tr("Please consider revising your");
+      bool imagePathCritical = imagePathLength > LP3D_MAX_IMAGE_RENDER_PATH;
+      if (imagePathCritical) {
+          messageIcon = QMessageBox::Critical;
+          imagePathMessage = QObject::tr("is [%1] characters, which has exceeded<br>").arg(imagePathLength);
+          imagePathRequest = QObject::tr("Please revise your");
+      }
+      QString const message = QObject::tr("Your complete model file path %1 the maximum "
+                                          "number of characters [%2] supported by %3.<br><br>"
+                                          "%4 LDraw file path and/or model names to avoid "
+                                          "undefined renderer behaviour.")
+                                          .arg(imagePathMessage).arg(LP3D_MAX_IMAGE_RENDER_PATH)
+                                          .arg(rendererNames[Preferences::preferredRenderer])
+                                          .arg(imagePathRequest);
+      emit gui->parseErrorSig(message, here, Preferences::ParseErrors,
+                              false/*messageOption*/, false/*messageOverride*/, messageIcon,
+                              QObject::tr("Renderer Path Control"),
+                              QObject::tr("renderer image path length warning"));
+      if (imagePathCritical)
+          return 0;
+  }
+
   // add csiKey and pngName to ImageMatte repository - exclude first step
 
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {

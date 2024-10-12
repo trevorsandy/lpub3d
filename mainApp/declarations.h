@@ -973,6 +973,8 @@ enum ThemeColorType {
 #define TENTE_FADE_COLOUR_DEFAULT               "Light_Orange"
 #define VEXIQ_FADE_COLOUR_DEFAULT               "VEX_Sky_Blue"
 
+#define LP3D_MAX_IMAGE_RENDER_PATH            256
+
 #define NATIVE_IMAGE_CAMERA_FOV_ADJUST         15    // Native camera fov adjustment for image generation
 
 #define POVRAY_RENDER_QUALITY_DEFAULT           0    // 0=High, 1-Medium, 2=Low
@@ -983,9 +985,9 @@ enum ThemeColorType {
 #define MAX_OPEN_WITH_PROGRAMS_DEFAULT          3    // maximum open with programs entries
 #define MESSAGE_LINE_WIDTH_DEFAULT             80    // default width of message line in characters
 // Internal common material colours
-#define LDRAW_EDGE_MATERIAL_COLOUR              "24"
-#define LDRAW_MAIN_MATERIAL_COLOUR              "16"
-#define LDRAW_MATERIAL_COLOUR                    16
+#define LDRAW_EDGE_MATERIAL_COLOUR             "24"
+#define LDRAW_MAIN_MATERIAL_COLOUR             "16"
+#define LDRAW_MATERIAL_COLOUR                   16
 
 #define FADE_OPACITY_DEFAULT                    50         // 50 percent transparency
 

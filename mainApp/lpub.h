@@ -1373,7 +1373,9 @@ public slots:
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
                   bool option = false,
                   bool override = false,
-                  int icon = 0/*NoIcon*/);
+                  int icon = 0,/*NoIcon*/
+                  const QString &title = "",
+                  const QString &type = "");
 
   void statusBarMsg(QString msg);
   void statusMessage(LogType logType, const QString &statusMessage, int msgBox = 0);
@@ -1543,7 +1545,14 @@ public slots:
 signals:
   /* tell the editor to display this file */
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile, const StepLines &lineScope);
-  void parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool/*option*/, bool/*override*/, int = 3/*critical*/);
+  void parseErrorSig(const QString &,
+                     const Where &,
+                     Preferences::MsgKey,
+                     bool/*option*/,
+                     bool/*override*/,
+                     int = 3/*critical*/,
+                     const QString &  = "",/*title*/
+                     const QString &  = ""/*type*/);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);
