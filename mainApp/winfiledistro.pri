@@ -1,4 +1,4 @@
-    # These settings are used for package distribution
+    # These settings are used for the Windows package distribution
 win32 {
 
     CONFIG(debug, debug|release) { DIST = debug } else { DIST = release }

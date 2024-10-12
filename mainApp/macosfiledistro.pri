@@ -1,3 +1,4 @@
+    # These settings are used for the MacOS package distribution
 macx {
     # Update Info.plist
     INFO_PLIST_FILE = $$_PRO_FILE_PWD_/Info.plist

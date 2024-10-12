@@ -32,6 +32,7 @@ QT += network
 QT += widgets
 
 INCLUDEPATH += \
+    $$PWD/src \   # LPub3D Mod
     $$PWD/include \
     $$PWD/src/progress_bar
 

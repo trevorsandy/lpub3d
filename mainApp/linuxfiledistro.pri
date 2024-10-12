@@ -1,3 +1,4 @@
+    # These settings are used for the Linux package distribution
 unix:!macx {
     DIST_TARGET = $$lower($$DIST_TARGET)
 
