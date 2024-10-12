@@ -612,6 +612,8 @@ void lcQPreferencesDialog::on_partsArchiveBrowse_clicked()
 		ui->partsLibrary->setText(QDir::toNativeSeparators(result));
 }
 
+/*** LPub3D Mod - disabled, there is not BlenderAddonSettingsButton ***/
+/*
 void lcQPreferencesDialog::on_BlenderAddonSettingsButton_clicked()
 {
 	int Width = 1280;
@@ -628,6 +630,8 @@ void lcQPreferencesDialog::on_BlenderAddonSettingsButton_clicked()
 	Q_UNUSED(Height)
 	Q_UNUSED(Scale)
 }
+*/
+/*** LPub3D Mod end ***/
 
 void lcQPreferencesDialog::on_ColorConfigBrowseButton_clicked()
 {
