@@ -544,7 +544,7 @@ void RenderDialog::on_RenderButton_clicked()
         QStringList povenv = QProcess::systemEnvironment();
         povenv.prepend("POV_IGNORE_SYSCONF_MSG=1");
 
-        RenderProcess Process = new RenderProcess(this);
+        RenderProcess *Process = new RenderProcess(this);
         Process->setEnvironment(povenv);
         Process->setWorkingDirectory(QDir::currentPath() + QDir::separator() + Paths::tmpDir); // pov win console app will not write to dir different from cwd or source file dir
         Process->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
