@@ -61,7 +61,7 @@ jobs:
           LP3D_ANALYZE: 1
       - name: Diagnostics
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: compile-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
