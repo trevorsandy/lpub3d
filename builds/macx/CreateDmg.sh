@@ -12,6 +12,7 @@ FinishElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
+  ME="${ME} for (${LP3D_ARCH})"
   if [ "$BUILD_OPT" = "verify" ]; then
     echo "$ME Verification Finished!"
   elif [ "$BUILD_OPT" = "compile" ]; then
@@ -74,7 +75,9 @@ echo "Start $ME execution at $CWD..."
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d}"
-echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
+LP3D_ARCH="${LP3D_ARCH:-$(uname -m)}"
+echo && echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
 
 if [ "$BUILD_OPT" = "verify" ]; then
   echo "   BUILD OPTION...........[verify only]"
@@ -169,8 +172,12 @@ if [ -z "$LDRAWDIR" ]; then
 fi
 export LDRAWDIR=${LDRAWDIR}
 
-DistArch=$(uname -m)
-if [ "${DistArch}" = "x86_64" ]; then release="64bit_release"; else release="32bit_release"; fi
+case ${LP3D_ARCH} in
+  "x86_64"|"aarch64"|"arm64")
+    DistArch="64bit_release" ;;
+  *)
+    DistArch="32bit_release" ;;
+esac
 
 echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 cd ${LPUB3D}
@@ -421,7 +428,7 @@ cat <<EOF >makedmg
 --app-drop-link 448 344 \\
 --eula .COPYING \\
 --skip-jenkins \\
-"${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" \\
+"${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg" \\
 DMGSRC/
 EOF
 
@@ -435,14 +442,14 @@ else
   exit 1
 fi
 
-if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" ]; then
-  echo "      Distribution package.: LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
-  echo "      Package path.........: $PWD/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
+if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg" ]; then
+  echo "      Distribution package.: LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
+  echo "      Package path.........: $PWD/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
   echo "- cleanup..."
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png setup.png README .COPYING makedmg
 else
-  echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg was not found."
+  echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg was not found."
   echo "- $ME Failed."
 fi
 

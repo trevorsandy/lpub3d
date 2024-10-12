@@ -35,8 +35,8 @@ The LPub3D build process automatically resolves required build dependencies acro
 `$ curl "https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/macx/CreateDmg.sh" -o "CreateDmg.sh"`
 - [ ] 4. enable execute permissions and execute package script  
 `$ chmod +x CreateDmg.sh && ./CreateDmg.sh`
-- [ ] 5. mount and install package available in ./dmgbuild/DMGS  
-`$ hdiutil attach dmgbuild/DMGS/LPub3D-2.4.5.0.3185_20221026-macos.dmg`
+- [ ] 5. mount and install package if available in ./dmgbuild/DMGS 
+`$ hdiutil attach dmgbuild/DMGS/LPub3D-2.4.5.0.3185_20221026-x86_64-macos.dmg`
 - [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD ARCH 'PKG.TAR.ZST' PACKAGE __________

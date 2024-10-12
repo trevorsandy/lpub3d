@@ -14,6 +14,7 @@ FinishElapsedTime() {
   set +x
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
+  ME="${ME} for (${LP3D_ARCH})"
   if [ "$BUILD_OPT" = "verify" ]; then
     echo "$ME Verification Finished!"
   else
@@ -42,13 +43,15 @@ export LP3D_DIST_DIR_PATH="${LP3D_3RD_PARTY_PATH}/macos"
 [ ! -d "${LP3D_DIST_DIR_PATH}" ] && \
 mkdir -p "${LP3D_DIST_DIR_PATH}" || :
 
-# prepare output directory
+# Prepare output directory
 LP3D_OUT_PATH="${LP3D_BUILDPKG_PATH}"
 [ ! -d "${LP3D_OUT_PATH}" ] && \
 mkdir -p ${LP3D_OUT_PATH} || :
 
+# Set variables
 IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 export LPUB3D=${SLUG_PARTS[1]}
+export LP3D_ARCH=${LP3D_ARCH:-x86_64}
 export LP3D_LDRAW_DIR="${LP3D_3RD_PARTY_PATH}/ldraw"
 export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-~/}
 export LDRAWDIR=${LDRAWDIR:-~/ldraw}
