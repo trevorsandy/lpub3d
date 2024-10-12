@@ -17,24 +17,16 @@
 #ifndef LDVWIDGET_H
 #define LDVWIDGET_H
 
-#include <QWindow>
-#include <QGLContext>
+#include <qgl.h>
 #include <QGLWidget>
 #include <QGLFunctions>
-#include <QDateTime>
-#include <QFileDialog>
 #include <QtGui>
+#include <QProgressDialog>
 
-#include <TCFoundation/TCAlertManager.h>
-#include <LDLib/LDLibraryUpdater.h>
 #include <LDLib/LDInputHandler.h>
-#include <LDLib/LDPreferences.h>
 #include <LDLib/LDSnapshotTaker.h>
 
-#include <QProgressDialog>
-#include <QTimer>
 #include "declarations.h"
-
 #include "LDVHtmlInventory.h"
 
 #define LIBRARY_UPDATE_FINISHED 1
@@ -42,6 +34,7 @@
 #define LIBRARY_UPDATE_NONE 3
 #define LIBRARY_UPDATE_ERROR 4
 
+class LDLibraryUpdater;
 class LDrawModelViewer;
 class LDVAlertHandler;
 class LDSnapshotTaker;
@@ -93,7 +86,7 @@ public:
 	void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
 					const char *filename);
 	bool saveImage(char *filename, int imageWidth, int imageHeight);
-	bool grabImage(int &imageWidth, int &imageHeight);
+	bool grabImage(int &imageWidth, int &imageHeight, bool fromCommandLine = false);
 	void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
 					 bool keepRightSideUp, bool saveSettings=true);
 	void showDocument(QString &htmlFilename);
@@ -138,6 +131,10 @@ protected:
 	bool promptForLDrawDir(QString prompt);
 	void libraryUpdateProgress(TCProgressAlert *alert);
 	void setLibraryUpdateProgress(float progress);
+	LDSnapshotTaker::ImageType getSaveImageType(void);
+
+	QOpenGLFramebufferObject *fbo;
+	bool isFboActive() { return fbo != NULL; }
 
 	IniFlag                iniFlag;
 	bool                   forceIni;
@@ -152,6 +149,7 @@ protected:
 	LDVAlertHandler       *ldvAlertHandler;
 	LDInputHandler        *inputHandler;
 
+	int                    saveImageType;
 	char                  *modelFilename;
 	const char            *saveImageFilename;
 	const char            *imageInputFilename;

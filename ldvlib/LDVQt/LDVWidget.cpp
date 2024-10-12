@@ -19,6 +19,7 @@
 #include <QPainter>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QProcess>
 #include <QByteArray>
 #include <QApplication>
@@ -29,7 +30,12 @@
 #include <QTextStream>
 #include <QImageWriter>
 #include <QTextDocument>
-#include <functional>
+#include <QTimer>
+#include <QWindow>
+#include <QGLContext>
+
+#include <string>
+#include <assert.h>
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -48,11 +54,20 @@
 #include <TCFoundation/TCStringArray.h>
 #include <TCFoundation/TCAlertManager.h>
 #include <TCFoundation/TCProgressAlert.h>
-#include <LDLib/LDUserDefaultsKeys.h>
+#ifdef Q_OS_WIN
+#include <TCFoundation/TCTypedValueArray.h>
+#endif // WIN32
 
 #include <LDLoader/LDLModel.h>
+#include <LDLoader/LDLPalette.h>
+#include <LDLoader/LDLMainModel.h>
+
+#include <LDLib/LDUserDefaultsKeys.h>
 #include <LDLib/LDrawModelViewer.h>
 #include <LDLib/LDSnapshotTaker.h>
+#include <LDLib/LDLibraryUpdater.h>
+#include <LDLib/LDPartsList.h>
+#include <LDLib/LDPreferences.h>
 
 #include <TRE/TREMainModel.h>
 #include <TRE/TREGLExtensions.h>
@@ -61,21 +76,9 @@
 #include <LDViewExportOption.h>
 #include "LDViewPartList.h"
 #include <LDVAlertHandler.h>
-
-#include "LDViewPartList.h"
-#include <LDLib/LDPartsList.h>
 #include <LDVWidgetDefaultKeys.h>
 #include <LDVMisc.h>
-
-#include <vector>
-#include <string>
-#include <assert.h>
-
-#include <LDLoader/LDLPalette.h>
-#include <LDLoader/LDLMainModel.h>
-
 #ifdef Q_OS_WIN
-#include <TCFoundation/TCTypedValueArray.h>
 #include <LDVExtensionsSetup.h>
 #endif // WIN32
 
@@ -84,11 +87,14 @@
 #include "annotations.h"
 #include "lpub_object.h"
 #include "version.h"
-#include "paths.h"
 #include "lc_http.h"
 #include "lpub_qtcompat.h"
 
 #define PNG_IMAGE_TYPE_INDEX 1
+#define BMP_IMAGE_TYPE_INDEX 2
+#define JPG_IMAGE_TYPE_INDEX 3
+#define IMAGE_WIDTH_DEFAULT 800
+#define IMAGE_HEIGHT_DEFAULT 600
 #define WINDOW_WIDTH_DEFAULT 640
 #define WINDOW_HEIGHT_DEFAULT 480
 #define LDRAW_ZIP_SHOW_WARNING_KEY "LDrawZipShowWarning"
@@ -228,81 +234,16 @@ void LDVWidget::showLDVExportOptions()
 	setHidden(true);
 }
 
-bool LDVWidget::doCommand(QStringList &arguments)
+bool LDVWidget::setupLDVApplication()
 {
-	TCUserDefaults::setCommandLine(copyString(arguments.join(" ").toUtf8().constData()));
-
-	setStudLogo();
-
-	bool retValue = true;
-	if (!LDSnapshotTaker::doCommandLine(false, true))
-	{
-		if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1)) {
-			emit lpub->messageSig(LOG_ERROR,
-								  QString::fromWCharArray(TCLocalStrings::get(L"ExportCommandError")).arg(arguments.join(" ")));
-			retValue = false;
-		} else
-		if (iniFlag == NativePartList) {
-			if (setupLDVApplication()) {
-				if (setupPartList())
-					doPartList();
-			}
-		}
-	}
-	char *snapshotFilename =
-		TCUserDefaults::stringForKey(SAVE_SNAPSHOT_KEY);
-	commandLineSnapshotSave = (snapshotFilename ? true : false);
-	return retValue;
-}
-
-bool LDVWidget::getUseFBO()
-{
-	if (snapshotTaker)
-		return snapshotTaker->getUseFBO();
-	else
-		return false;
-}
-
-void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
-{
-	if (strcmp(alert->getAlertClass(), "LDSnapshotTaker") == 0)
-	{
-		if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
-		{
-			  makeCurrent();
-		}
-		if (strcmp(alert->getMessage(), "PreFbo") == 0)
-		{
-			if (getUseFBO())
-			{
-				return;
-			}
-			else
-			{
-				makeCurrent();
-				TREGLExtensions::setup();
-				snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
-				if (TREGLExtensions::haveFramebufferObjectExtension())
-				{
-					snapshotTaker->setUseFBO(true);
-				}
-				if (!snapshotTaker->getUseFBO())
-				{
-					setupSnapshotBackBuffer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
-				}
-			}
-		}
-	}
-}
-
-bool LDVWidget::setupLDVApplication(){
 
 	if (!TCUserDefaults::isIniFileSet())
 		setIniFile();
 
 	modelViewer = new LDrawModelViewer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
 
-	if (! modelViewer) {
+	if (! modelViewer)
+	{
 		emit lpub->messageSig(LOG_ERROR,
 							  QString::fromWCharArray(TCLocalStrings::get(L"InitModelViewerError")));
 		return false;
@@ -430,7 +371,8 @@ bool LDVWidget::setIniFile()
 {
 	if (!TCUserDefaults::isIniFileSet() || forceIni)
 	{
-		if (getIniTitle().isEmpty()){
+		if (getIniTitle().isEmpty())
+		{
 			emit lpub->messageSig(LOG_ERROR,
 								  QString::fromWCharArray(TCLocalStrings::get(L"IniNotSpecifiedError")));
 			return false;
@@ -464,6 +406,49 @@ QString LDVWidget::getIniFile()
 		return iniFiles[iniFlag].File;
 }
 
+bool LDVWidget::doCommand(QStringList &arguments)
+{
+	TCUserDefaults::setCommandLine(copyString(arguments.join(" ").toUtf8().constData()));
+
+	setStudLogo();
+
+	bool retValue = true;
+
+	if (!LDSnapshotTaker::doCommandLine(false, true))
+	{
+		if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1))
+		{
+			emit lpub->messageSig(LOG_ERROR,
+								  QString::fromWCharArray(TCLocalStrings::get(L"ExportCommandError")).arg(arguments.join(" ")));
+			retValue = false;
+		}
+		else
+		if (iniFlag == NativePartList)
+		{
+			if (setupLDVApplication())
+			{
+				if (setupPartList())
+					doPartList();
+			}
+		}
+	}
+
+	char *snapshotFilename =
+		TCUserDefaults::stringForKey(SAVE_SNAPSHOT_KEY);
+
+	commandLineSnapshotSave = (snapshotFilename ? true : false);
+
+	return retValue;
+}
+
+bool LDVWidget::getUseFBO()
+{
+	if (snapshotTaker)
+		return snapshotTaker->getUseFBO();
+	else
+		return false;
+}
+
 void LDVWidget::setupLDVFormat(void)
 {
 	// Specify the format and create platform-specific surface
@@ -480,21 +465,256 @@ void LDVWidget::setupLDVContext()
 
 	ldvContext = context();
 
-	if (ldvContext->isValid()) {
+	if (ldvContext->isValid())
+	{
 		setFormat(ldvFormat);
 		needsInitialize = true;
-	} else {
+	}
+	else
+	{
 		emit lpub->messageSig(LOG_ERROR,
 							  QString::fromWCharArray(TCLocalStrings::get(L"OpenGLContextError")));
 	}
 
-	if (needsInitialize) {
+	if (needsInitialize)
+	{
 		initializeGLFunctions();
 		//displayGLExtensions();
 	}
 }
 
-bool LDVWidget::setupPartList(void){
+bool LDVWidget::grabImage(int &imageWidth,
+						  int &imageHeight,
+						  bool fromCommandLine)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+	if (fbo == NULL && (TCUserDefaults::longForKey(IGNORE_FRAMEBUFFER_OBJECT_KEY, 0, false)==0))
+	{
+		QOpenGLFramebufferObjectFormat fboFormat;
+		GLsizei fboSize = 1024;
+		fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+		fbo = new QOpenGLFramebufferObject(fboSize, fboSize, fboFormat);
+		if (fbo->isValid() && fbo->bind())
+		{
+			snapshotTaker->setUseFBO(false);
+			glViewport(0, 0, fboSize, fboSize);
+			if (modelViewer->getMainTREModel() == NULL && !modelViewer->getNeedsReload())
+			{
+				modelViewer->loadModel(true);
+			}
+			inputHandler->stopRotation();
+			bool retValue = snapshotTaker->saveImage(saveImageFilename, imageWidth, imageHeight, saveImageZoomToFit);
+			fbo->release();
+			delete fbo;
+			fbo = NULL;
+			return retValue;
+		}
+		else
+		{
+			delete fbo;
+		}
+	}
+#endif
+
+	if (!fromCommandLine)
+	{
+		makeCurrent();
+		if (modelViewer->getMainTREModel() == NULL && !modelViewer->getNeedsReload())
+		{
+			modelViewer->loadModel(true);
+		}
+		bool retValue = snapshotTaker->saveImage(saveImageFilename, imageWidth, imageHeight, saveImageZoomToFit);
+
+		return retValue;
+	}
+
+	int newWidth = IMAGE_WIDTH_DEFAULT;
+	int newHeight = IMAGE_HEIGHT_DEFAULT;
+	int origWidth = imageWidth;
+	int origHeight = imageHeight;
+	int numXTiles, numYTiles;
+	int saveImageWidth, saveImageHeight;
+	bool saveImageResult = false;
+	bool origSlowClear = modelViewer->getSlowClear();
+	int origMemoryUsage = modelViewer->getMemoryUsage();
+	modelViewer->setMemoryUsage(0);
+
+	if (snapshotTaker->getUseFBO())
+	{
+		newWidth = snapshotTaker->getFBOSize();
+		newHeight = snapshotTaker->getFBOSize();
+	}
+
+	snapshotTaker->calcTiling(imageWidth, imageHeight, newWidth, newHeight, numXTiles, numYTiles);
+
+	if (!snapshotTaker->getUseFBO())
+	{
+		setupSnapshotBackBuffer(newWidth, newHeight);
+	}
+
+	imageWidth = newWidth * numXTiles;
+	imageHeight = newHeight * numYTiles;
+	saveImageWidth = imageWidth;
+	saveImageHeight = imageHeight;
+
+	if (snapshotTaker->getUseFBO())
+	{
+		makeCurrent();
+		saveImageResult = snapshotTaker->saveImage(saveImageFilename,
+												   saveImageWidth, saveImageHeight, saveImageZoomToFit);
+	}
+	else
+	{
+#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
+//      Need code for renderPixmap else saved snapshot image is garbage
+#else
+		renderPixmap(newWidth, newHeight);
+#endif
+	}
+
+	makeCurrent();
+	TREGLExtensions::setup();
+
+	if (!snapshotTaker->getUseFBO())
+	{
+		modelViewer->openGlWillEnd();
+	}
+
+	modelViewer->setWidth(origWidth);
+	modelViewer->setHeight(origHeight);
+	modelViewer->setMemoryUsage(origMemoryUsage);
+	modelViewer->setSlowClear(origSlowClear);
+	modelViewer->setup();
+
+	return saveImageResult;
+}
+
+void LDVWidget::setupSnapshotBackBuffer(int width, int height)
+{
+	modelViewer->setSlowClear(true);
+	modelViewer->setWidth(width);
+	modelViewer->setHeight(height);
+	modelViewer->setup();
+	glReadBuffer(GL_BACK);
+}
+
+bool LDVWidget::saveImage(
+	char *filename,
+	int imageWidth,
+	int imageHeight)
+{
+	makeCurrent();
+	TREGLExtensions::setup();
+	if (!snapshotTaker)
+	{
+		snapshotTaker =	 new LDSnapshotTaker(modelViewer);
+	}
+	if (TREGLExtensions::haveFramebufferObjectExtension())
+	{
+		snapshotTaker->setUseFBO(true);
+	}
+	snapshotTaker->setImageType(getSaveImageType());
+	snapshotTaker->setTrySaveAlpha(
+		TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false));
+	snapshotTaker->setAutoCrop(
+		TCUserDefaults::boolForKey(AUTO_CROP_KEY, false, false));
+	saveImageFilename = filename;
+	saveImageZoomToFit = TCUserDefaults::longForKey(SAVE_ZOOM_TO_FIT_KEY, 1, false);
+
+	return grabImage(imageWidth, imageHeight, true);
+}
+
+bool LDVWidget::loadModel(const char *filename)
+{
+	if (!filename)
+		return false;
+
+	filename = copyString(QFileInfo(filename).absoluteFilePath().toUtf8().constData());
+	if (setDirFromFilename(filename))
+	{
+		emit lpub->messageSig(LOG_INFO_STATUS,
+							  QString::fromWCharArray(TCLocalStrings::get(L"LoadingModelStatus"))
+								  .arg(QFileInfo(filename).completeBaseName()));
+		modelViewer->setFilename(filename);
+		if (!modelViewer->loadModel())
+		{
+			emit lpub->messageSig(LOG_ERROR,
+								  QString::fromWCharArray(TCLocalStrings::get(L"LoadingModelError"))
+									  .arg(filename));
+			return false;
+		}
+	}
+	else
+	{
+		emit lpub->messageSig(LOG_ERROR,
+							  QString::fromWCharArray(TCLocalStrings::get(L"FileDirectoryError"))
+								  .arg(filename));
+		return false;
+	}
+
+	return true;
+}
+
+void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
+{
+	if (strcmp(alert->getAlertClass(), "LDSnapshotTaker") == 0)
+	{
+		if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
+		{
+			if (isFboActive())
+			{
+				if (!fbo->isBound())
+				{
+					fbo->bind();
+				}
+			}
+			else
+			{
+				makeCurrent();
+			}
+		}
+		else
+		if (strcmp(alert->getMessage(), "PreFbo") == 0)
+		{
+			if (getUseFBO())
+			{
+				return;
+			}
+			else
+			{
+				makeCurrent();
+				TREGLExtensions::setup();
+				snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
+				if (TREGLExtensions::haveFramebufferObjectExtension())
+				{
+					snapshotTaker->setUseFBO(true);
+				}
+				if (!snapshotTaker->getUseFBO())
+				{
+					setupSnapshotBackBuffer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
+				}
+			}
+		}
+	}
+}
+
+LDSnapshotTaker::ImageType LDVWidget::getSaveImageType(void)
+{
+	switch (saveImageType)
+	{
+	case PNG_IMAGE_TYPE_INDEX:
+		return LDSnapshotTaker::ITPng;
+	case BMP_IMAGE_TYPE_INDEX:
+		return LDSnapshotTaker::ITBmp;
+	case JPG_IMAGE_TYPE_INDEX:
+		return LDSnapshotTaker::ITJpg;
+	default:
+		return LDSnapshotTaker::ITPng;
+	}
+}
+
+bool LDVWidget::setupPartList(void)
+{
 
 	QString programPath = QCoreApplication::applicationFilePath();
 
@@ -530,7 +750,8 @@ bool LDVWidget::setupPartList(void){
 					TCUserDefaults::setFloatForKey(value, HFOV_KEY, false);
 				}
 			}
-			else if (stringHasCaseInsensitivePrefix(arg, "-cg"))
+			else
+			if (stringHasCaseInsensitivePrefix(arg, "-cg"))
 			{
 				bool ok;
 				int lat,lon;
@@ -551,11 +772,13 @@ bool LDVWidget::setupPartList(void){
 				TCUserDefaults::removeValue(CAMERA_GLOBE_KEY, false);
 				TCUserDefaults::setStringForKey(arg + 3, CAMERA_GLOBE_KEY,false);
 			}
-			else if (stringHasCaseInsensitivePrefix(arg, "-Snapshot="))
+			else
+			if (stringHasCaseInsensitivePrefix(arg, "-Snapshot="))
 			{
 				imageInputFilename = (arg + 10);
 			}
-			else if (stringHasCaseInsensitivePrefix(arg, "-PartlistKey="))
+			else
+			if (stringHasCaseInsensitivePrefix(arg, "-PartlistKey="))
 			{
 				partListKey = (arg + 13);
 				std::string tempStr = partListKey;
@@ -576,84 +799,6 @@ bool LDVWidget::setupPartList(void){
 	}
 
 	return true;
-}
-
-bool LDVWidget::loadModel(const char *filename)
-{
-	if (!filename)
-		return false;
-
-	filename = copyString(QFileInfo(filename).absoluteFilePath().toUtf8().constData());
-	if (setDirFromFilename(filename))
-	{
-		emit lpub->messageSig(LOG_INFO_STATUS,
-							  QString::fromWCharArray(TCLocalStrings::get(L"LoadingModelStatus"))
-								  .arg(QFileInfo(filename).completeBaseName()));
-		modelViewer->setFilename(filename);
-		if (! modelViewer->loadModel())
-		{
-			emit lpub->messageSig(LOG_ERROR,
-								  QString::fromWCharArray(TCLocalStrings::get(L"LoadingModelError"))
-									  .arg(filename));
-			return false;
-		}
-	}
-	else
-	{
-		emit lpub->messageSig(LOG_ERROR,
-							  QString::fromWCharArray(TCLocalStrings::get(L"FileDirectoryError"))
-								  .arg(filename));
-		return false;
-	}
-
-	return true;
-}
-
-bool LDVWidget::grabImage(
-	int &imageWidth,
-	int &imageHeight)
-{
-	bool ok = false;
-	modelViewer->setMemoryUsage(0);
-
-	if (snapshotTaker->getUseFBO())
-	{
-		makeCurrent();
-		ok = snapshotTaker->saveImage(saveImageFilename,
-			imageWidth, imageHeight, saveImageZoomToFit);
-	}
-	else
-	{
-		setupSnapshotBackBuffer(imageWidth, imageHeight);
-		renderPixmap(imageWidth, imageHeight);
-	}
-	return ok;
-}
-
-bool LDVWidget::saveImage(
-	char *filename,
-	int imageWidth,
-	int imageHeight)
-{
-	makeCurrent();
-	TREGLExtensions::setup();
-	if (!snapshotTaker)
-	{
-		snapshotTaker =	 new LDSnapshotTaker(modelViewer);
-	}
-	if (TREGLExtensions::haveFramebufferObjectExtension())
-	{
-		snapshotTaker->setUseFBO(true);
-	}
-	snapshotTaker->setImageType(LDSnapshotTaker::ITPng);
-	snapshotTaker->setTrySaveAlpha(
-		TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false));
-	snapshotTaker->setAutoCrop(
-		TCUserDefaults::boolForKey(AUTO_CROP_KEY, false, false));
-	saveImageFilename = filename;
-	saveImageZoomToFit = TCUserDefaults::longForKey(SAVE_ZOOM_TO_FIT_KEY, 1, false);
-
-	return grabImage(imageWidth, imageHeight);
 }
 
 void LDVWidget::doPartList(
@@ -678,15 +823,18 @@ void LDVWidget::doPartList(
 
 			QString userDefinedSnapshot = htmlInventory->getUserDefinedSnapshot();
 
-			if (!userDefinedSnapshot.isEmpty()) {
+			if (!userDefinedSnapshot.isEmpty())
+			{
 				QString snapshot = QDir::toNativeSeparators(snapshotPath);
 				delete snapshotPath;
 				emit lpub->messageSig(LOG_INFO_STATUS,
 									  QString::fromWCharArray(TCLocalStrings::get(L"SnapshotImageStatus")).arg(userDefinedSnapshot));
 
-				if (htmlInventory->getOverwriteSnapshotFlag()){
+				if (htmlInventory->getOverwriteSnapshotFlag())
+				{
 					QFile snapshotFile(snapshot);
-					if (snapshotFile.exists() && !snapshotFile.remove()){
+					if (snapshotFile.exists() && !snapshotFile.remove())
+					{
 						emit lpub->messageSig(LOG_ERROR,
 											  QString::fromWCharArray(TCLocalStrings::get(L"SnapshotFileRemoveError")).arg(snapshot));
 						return;
@@ -698,17 +846,27 @@ void LDVWidget::doPartList(
 					image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
 				QImageWriter Writer(snapshot);
-				if (!Writer.write(image)) {
+				if (!Writer.write(image))
+				{
 					emit lpub->messageSig(LOG_ERROR,
 										  QString::fromWCharArray(TCLocalStrings::get(L"SnapshotWriteError"))
 											  .arg(snapshot).arg(Writer.errorString()));
 					return;
 				}
-			} else {
+			}
+			else
+			{
 				emit lpub->messageSig(LOG_INFO_STATUS,
 									  QString::fromWCharArray(TCLocalStrings::get(L"SnapshotGenerateStatus")));
 
-				bool seams	   = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
+				char *snapshotPath = copyString(htmlInventory->getSnapshotPath());
+				bool saveZoomToFit = modelViewer->getForceZoomToFit();
+				bool saveActualSize = TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false);
+				int saveWidth = TCUserDefaults::longForKey(SAVE_WIDTH_KEY, 1024, false);
+				int saveHeight = TCUserDefaults::longForKey(SAVE_HEIGHT_KEY, 768, false);
+				bool origSteps = TCUserDefaults::boolForKey(SAVE_STEPS_KEY, false, false);
+				bool seams = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
+				int origStep = modelViewer->getStep();
 
 				TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
 				TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
@@ -718,16 +876,30 @@ void LDVWidget::doPartList(
 				TCUserDefaults::setLongForKey(false, SAVE_ACTUAL_SIZE_KEY, false);
 				TCUserDefaults::setLongForKey(imageWidth, SAVE_WIDTH_KEY, false);
 				TCUserDefaults::setLongForKey(imageHeight, SAVE_HEIGHT_KEY, false);
+
 				std::string trimmedFilename = imageInputFilename;
-				if (trimmedFilename.front() == '"' && trimmedFilename.back() == '"') {
+				if (trimmedFilename.front() == '"' && trimmedFilename.back() == '"')
+				{
 					trimmedFilename.erase(0, 1);
 					trimmedFilename.pop_back();
 				}
-				if (!loadModel(trimmedFilename.c_str())){
+
+				if (!loadModel(trimmedFilename.c_str()))
+				{
 					emit lpub->messageSig(LOG_ERROR, QString::fromWCharArray(TCLocalStrings::get(L"SnapshotFileLoadError")));
 				}
+
+				saveImageType = PNG_IMAGE_TYPE_INDEX;
 				saveImage(snapshotPath, imageWidth, imageHeight);
 				delete snapshotPath;
+
+				htmlInventory->restoreAfterSnapshot(modelViewer);
+				modelViewer->setForceZoomToFit(saveZoomToFit);
+				TCUserDefaults::setLongForKey(saveActualSize, SAVE_ACTUAL_SIZE_KEY, false);
+				TCUserDefaults::setLongForKey(saveWidth, SAVE_WIDTH_KEY, false);
+				TCUserDefaults::setLongForKey(saveHeight, SAVE_HEIGHT_KEY, false);
+				modelViewer->setStep(origStep);
+				TCUserDefaults::setBoolForKey(origSteps, SAVE_STEPS_KEY, false);
 			}
 		}
 	}
@@ -742,7 +914,8 @@ void LDVWidget::doPartList(void)
 {
 	if (modelViewer)
 	{
-		if (!loadModel(modelFilename)){
+		if (!loadModel(modelFilename))
+		{
 			emit lpub->messageSig(LOG_ERROR,
 								  QString::fromWCharArray(TCLocalStrings::get(L"PartListFileLoadError")).arg(modelFilename));
 			return;
@@ -786,7 +959,8 @@ void LDVWidget::doPartList(void)
 				}
 
 				QString initialDir = QString::fromStdString(ldPrefs->getInvLastSavePath());
-				if (initialDir.isEmpty()) {
+				if (initialDir.isEmpty())
+				{
 					initialDir = QString::fromStdString(ldPrefs->getDefaultSaveDir(LDPreferences::SOPartsList,
 																				   modelViewer->getFilename()).c_str());
 					QDir cwd(initialDir);			 // <model>/LPub3D/tmp
@@ -838,18 +1012,17 @@ void LDVWidget::doPartList(void)
 							box.setText (title);
 							box.setInformativeText (text);
 
-							if (Preferences::modeGUI && (box.exec() == QMessageBox::No)) {
+							if (Preferences::modeGUI && (box.exec() == QMessageBox::No))
+							{
 								 continue;
 							}
 						}
-						doPartList(htmlInventory, partsList,
-							htmlFilename.toUtf8().constData());
+						doPartList(htmlInventory, partsList, htmlFilename.toUtf8().constData());
 						done = true;
 					}
 				}
 			}
-			if (htmlInventory->getShowFileFlag() &&
-				QFileInfo(htmlFilename).exists())
+			if (htmlInventory->getShowFileFlag() && QFileInfo(htmlFilename).exists())
 			{
 				showDocument(htmlFilename);
 			}
@@ -859,64 +1032,72 @@ void LDVWidget::doPartList(void)
 	}
 }
 
-void LDVWidget::showDocument(QString &htmlFilename){
+void LDVWidget::showDocument(QString &htmlFilename)
+{
 
-  if (QFileInfo(htmlFilename).exists()){
+	if (QFileInfo(htmlFilename).exists())
+	{
 
-	  //display completion message
-	  QPixmap _icon = QPixmap(":/icons/lpub96.png");
-	  QMessageBoxResizable box;
-	  box.setWindowIcon(QIcon());
-	  box.setIconPixmap (_icon);
-	  box.setTextFormat (Qt::RichText);
-	  box.setStandardButtons (QMessageBox::Close);
-	  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-	  box.setWindowTitle(QString::fromWCharArray(TCLocalStrings::get(L"PartListTitle")));
+		//display completion message
+		QPixmap _icon = QPixmap(":/icons/lpub96.png");
+		QMessageBoxResizable box;
+		box.setWindowIcon(QIcon());
+		box.setIconPixmap (_icon);
+		box.setTextFormat (Qt::RichText);
+		box.setStandardButtons (QMessageBox::Close);
+		box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+		box.setWindowTitle(QString::fromWCharArray(TCLocalStrings::get(L"PartListTitle")));
 
-	  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-	  box.setDefaultButton	 (QMessageBox::Yes);
+		box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+		box.setDefaultButton	 (QMessageBox::Yes);
 
-	  QString title = QString("<b> %1 </b>").arg(QString::fromWCharArray(TCLocalStrings::get(L"PartListGenedTitle")));
-	  QString text = QString::fromWCharArray(TCLocalStrings::get(L"PartListGenedText")).arg(htmlFilename);
+		QString title = QString("<b> %1 </b>").arg(QString::fromWCharArray(TCLocalStrings::get(L"PartListGenedTitle")));
+		QString text = QString::fromWCharArray(TCLocalStrings::get(L"PartListGenedText")).arg(htmlFilename);
 
-	  box.setText (title);
-	  box.setInformativeText (text);
+		box.setText (title);
+		box.setInformativeText (text);
 
-	  if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
-		  const QString CommandPath = htmlFilename;
+		if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes))
+		{
+			const QString CommandPath = htmlFilename;
 #ifdef Q_OS_WIN
-		  QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+			QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-		  QProcess *Process = new QProcess(this);
-		  Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
-		  QStringList arguments = QStringList() << CommandPath;
-		  Process->start(UNIX_SHELL, arguments);
-		  Process->waitForFinished();
-		  if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
-			  QErrorMessage *m = new QErrorMessage(this);
-			  m->showMessage(QString::fromWCharArray(TCLocalStrings::get(L"PartListLaunchError"))
-							   .arg(CommandPath).arg(QString(Process->readAllStandardError())));
-		  }
+			QProcess *Process = new QProcess(this);
+			Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
+			QStringList arguments = QStringList() << CommandPath;
+			Process->start(UNIX_SHELL, arguments);
+			Process->waitForFinished();
+			if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0)
+			{
+				QErrorMessage *m = new QErrorMessage(this);
+				m->showMessage(QString::fromWCharArray(TCLocalStrings::get(L"PartListLaunchError"))
+								   .arg(CommandPath).arg(QString(Process->readAllStandardError())));
+			}
 #endif
-		  return;
-		} else {
+			return;
+		}
+		else
+		{
 			emit lpub->messageSig(LOG_INFO_STATUS, QString::fromWCharArray(TCLocalStrings::get(L"PartListGenerateStatus"))
 									  .arg(QFileInfo(htmlFilename).completeBaseName()));
 			return;
 
 		}
-  } else {
-	  emit lpub->messageSig(LOG_ERROR, QString::fromWCharArray(TCLocalStrings::get(L"PartListGenerateError"))
-								.arg(QFileInfo(htmlFilename).completeBaseName()));
-  }
+	}
+	else
+	{
+		emit lpub->messageSig(LOG_ERROR, QString::fromWCharArray(TCLocalStrings::get(L"PartListGenerateError"))
+								  .arg(QFileInfo(htmlFilename).completeBaseName()));
+	}
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 {
-  if (alert)
-  {
-	  emit lpub->messageSig(LOG_STATUS, alert->getMessage());
-  }
+	if (alert)
+	{
+		emit lpub->messageSig(LOG_STATUS, alert->getMessage());
+	}
 }
 
 bool LDVWidget::setDirFromFilename(const char *filename)
@@ -1113,15 +1294,6 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 	return staticFileCaseLevel(dir, shortName);
 }
 
-void LDVWidget::setupSnapshotBackBuffer(int width, int height)
-{
-	modelViewer->setSlowClear(true);
-	modelViewer->setWidth(width);
-	modelViewer->setHeight(height);
-	modelViewer->setup();
-	glReadBuffer(GL_BACK);
-}
-
 bool LDVWidget::verifyLDrawDir(char *value)
 {
 	QString currentDir = QDir::currentPath();
@@ -1311,12 +1483,12 @@ void LDVWidget::checkForLibraryUpdates(void)
 #if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
 		QCheckBox *cb = new QCheckBox(QString::fromWCharArray(TCLocalStrings::get(L"DoNotShowMessage")));
 		mb.setCheckBox(cb);
-		QObject::connect(cb, &QCheckBox::stateChanged, [&](int state){
+		QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
 		showLDrawZipMsg = (static_cast<Qt::CheckState>(state) != Qt::CheckState::Checked); });
 #endif
 		mb.exec();
 		TCUserDefaults::setBoolForKey(showLDrawZipMsg, LDRAW_ZIP_SHOW_WARNING_KEY, false);
-		if (mb.result()==QMessageBox::No) { return;}
+		if (mb.result()==QMessageBox::No) { return; }
 	}
 	if (libraryUpdater)
 	{
@@ -1590,7 +1762,8 @@ void LDVWidget::displayGLExtensions()
 	countString += QString::fromWCharArray((TCLocalStrings::get(L"OpenGlnExtensionsSuffix")));
 
 	emit lpub->messageSig(LOG_INFO, QString::fromWCharArray(TCLocalStrings::get(L"OpenGLValidExtensions")).arg(countString));
-	Q_FOREACH (const QString &item, list) {
+	Q_FOREACH (const QString &item, list)
+	{
 		emit lpub->messageSig(LOG_INFO, item);
 	}
 #endif
@@ -1621,7 +1794,8 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 		QByteArray RBPartUrl = PartObject["part_url"].toString().toLatin1();
 		QByteArray RBPartCode = PartObject["part_num"].toString().toLatin1();
 		utf8String = QString(RBPartCode).toUtf8().constData();
-		if (LDrawPartID == utf8String) {
+		if (LDrawPartID == utf8String)
+		{
 			emit lpub->messageSig(LOG_INFO, QString::fromWCharArray(TCLocalStrings::get(L"RebrickablePartID"))
 									   .arg(QString::fromStdString(LDrawPartID))
 									   .arg(QString(RBPartCode))
@@ -1631,11 +1805,14 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 		}
 		// secondary check
 		QJsonArray PartIDArray = PartObject["external_ids"].toObject()["LDraw"].toArray();
-		if (!PartIDArray.isEmpty()) {
-			for (int i = 0; i < PartIDArray.size(); i++){
+		if (!PartIDArray.isEmpty())
+		{
+			for (int i = 0; i < PartIDArray.size(); i++)
+			{
 				QByteArray LDPartCode = PartIDArray[i].toString().toLatin1();
 				utf8String = QString(LDPartCode).toUtf8().constData();
-				if (LDrawPartID == utf8String) {
+				if (LDrawPartID == utf8String)
+				{
 					emit lpub->messageSig(LOG_INFO, QString::fromWCharArray(TCLocalStrings::get(L"RebrickableLDrawPartCode"))
 											   .arg(QString(LDPartCode))
 											   .arg(QString(RBPartCode))
