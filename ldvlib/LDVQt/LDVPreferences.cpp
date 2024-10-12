@@ -74,6 +74,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	generalColorBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_COLORS,generalColorBox->title().replace("&","")));
 	generalMiscBox->setWhatsThis(lpubWT(             WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_MISC,generalMiscBox->title().replace("&","")));
 	generalSnapshotSaveBox->setWhatsThis(lpubWT(     WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_SAVE_DIRECTORIES,generalSnapshotSaveBox->title().replace("&","")));
+	customConfigBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_CUSTOM_LDCONFIG, customConfigBox->title().replace("&","")));
 	iniBox->setWhatsThis(lpubWT(                     WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_INI_FILE,iniBox->title().replace("&","")));
 	geometryModelBox->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_MODEL,geometryModelBox->title().replace("&","")));
 	wireframeButton->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GEOMETRY_WIREFRAME,wireframeButton->title().replace("&","")));
@@ -108,6 +109,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	connect( snapshotSaveDirButton, SIGNAL( clicked() ), this, SLOT( snapshotSaveDirBrowse() ) );
 	connect( partsListsSaveDirButton, SIGNAL( clicked() ), this, SLOT( partsListsSaveDirBrowse() ) );
 	connect( exportsSaveDirButton, SIGNAL( clicked() ), this, SLOT( exportsSaveDirBrowse() ) );
+	connect( customConfigButton, SIGNAL( clicked() ), this, SLOT( customConfigBrowse() ) );
 	connect( transparentButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( wireframeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
 	connect( edgesOnlyButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
@@ -501,6 +503,7 @@ void LDVPreferences::doGeneralApply(void)
 
 #endif
 
+	ldPrefs->setCustomConfigPath(customConfigEdit->text().toUtf8().constData());
 	ldPrefs->applyGeneralSettings();
 	ldPrefs->commitGeneralSettings();
 }
@@ -1116,6 +1119,7 @@ void LDVPreferences::reflectGeneralSettings(void)
 #endif
 
 	setupSaveDirs();
+	customConfigEdit->setText(ldPrefs->getCustomConfigPath().c_str());
 }
 
 void LDVPreferences::reflectLDrawSettings(void)
@@ -2699,6 +2703,16 @@ void LDVPreferences::exportsSaveDirBrowse()
 {
 	browseForDir(QString::fromWCharArray(TCLocalStrings::get(L"BrowseForExportListDir")),
 		exportsSaveDirEdit, exportDir);
+}
+
+void LDVPreferences::customConfigBrowse()
+{
+	QString selectedfile=QFileDialog::getOpenFileName(this,"Browse for LDraw file","","LDraw file (*.mpd *.ldr *.dat)");
+	if (!selectedfile.isEmpty())
+	{
+		customConfigEdit->setText(selectedfile);
+		applyButton->setEnabled(true);
+	}
 }
 
 void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString &dir)

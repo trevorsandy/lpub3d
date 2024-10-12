@@ -650,9 +650,16 @@
          <property name="title">
           <string>Custom LDConfig File</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLineEdit" name="customConfigEdit"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="customConfigButton">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -4203,7 +4210,8 @@ into effect until the next time a model is loaded.</string>
   <tabstop>exportsListsSaveDirBox</tabstop>
   <tabstop>exportsSaveDirEdit</tabstop>
   <tabstop>exportsSaveDirButton</tabstop>
-  <tabstop>lineEdit</tabstop>
+  <tabstop>customConfigEdit</tabstop>
+  <tabstop>customConfigButton</tabstop>
   <tabstop>iniFileEdit</tabstop>
   <tabstop>generalResetButton</tabstop>
   <tabstop>ldrawZipEdit</tabstop>
@@ -4298,9 +4306,9 @@ into effect until the next time a model is loaded.</string>
   <tabstop>hotkeyPreferenceSetButton</tabstop>
   <tabstop>delPreferenceSetButton</tabstop>
   <tabstop>newPreferenceSetButton</tabstop>
+  <tabstop>applyButton</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>cancelButton</tabstop>
-  <tabstop>applyButton</tabstop>
  </tabstops>
  <resources>
   <include location="../../mainApp/lpub3d.qrc"/>

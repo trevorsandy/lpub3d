@@ -2139,7 +2139,8 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Configure or reset the LDView antialiasing, color,\n"
-            "  miscellaneous options, and default save directories,\n\n"
+            "  miscellaneous options,default save directories, and\n"
+            "  custom LDConfig file.\n\n"
             "  As the LDView renderer is used in multiple functions,\n"
             "  - i.e. step renderer, html parts list generator and\n"
             "  POV file generator -, there are miltiple configuration\n"
@@ -6078,6 +6079,28 @@ void CommonMenus::setWhatsThis()
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_COLORS")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_CUSTOM_LDCONFIG
+        {
+            QObject::tr(
+            "  This text field allows you to enter or paste the full path to\n"
+            "  an LDraw file that you want to use for custom config. It is\n"
+            "  expected that a custom config file would normally contain\n"
+            "  custom color definitions that get loaded after the standard\n"
+            "  ones in LDConfig.ldr (if that is enabled). It can thus override\n"
+            "  any colors that are defined in LDConfig.ldr, as well as define\n"
+            "  new colors.\n"
+            "  The file can contain any valid LDraw statements, including\n"
+            "  geometry, but any geometry specified by this file will be drawn\n"
+            "  in addition to any file that is loaded. The geometry will not\n"
+            "  be included in model size calculations, so it may be cropped.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_CUSTOM_LDCONFIG")
 #else
                  ""
 #endif

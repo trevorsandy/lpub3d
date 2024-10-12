@@ -170,6 +170,7 @@ public slots:
 	void snapshotSaveDirBrowse();
 	void partsListsSaveDirBrowse();
 	void exportsSaveDirBrowse();
+	void customConfigBrowse();
 	void doAddExtraDir(void);
 	void doDelExtraDir(void);
 	void doUpExtraDir(void);
