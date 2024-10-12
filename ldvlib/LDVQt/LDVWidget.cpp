@@ -132,13 +132,13 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		libraryUpdateProgressReady(false),
 		libraryUpdateTimer(0)
 {
-	iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
-	iniFiles[NativeSTLIni]   = { iniFlagNames[NativeSTLIni],   Preferences::nativeExportIni };
-	iniFiles[Native3DSIni]   = { iniFlagNames[Native3DSIni],   Preferences::nativeExportIni };
+	iniFiles[NativePOVIni]	 = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
+	iniFiles[NativeSTLIni]	 = { iniFlagNames[NativeSTLIni],   Preferences::nativeExportIni };
+	iniFiles[Native3DSIni]	 = { iniFlagNames[Native3DSIni],   Preferences::nativeExportIni };
 	iniFiles[NativePartList] = { iniFlagNames[NativePartList], Preferences::nativeExportIni };
-	iniFiles[POVRayRender]   = { iniFlagNames[POVRayRender],   Preferences::nativeExportIni };
-	iniFiles[LDViewPOVIni]   = { iniFlagNames[LDViewPOVIni],   Preferences::ldviewPOVIni };
-	iniFiles[LDViewIni]      = { iniFlagNames[LDViewIni],      Preferences::ldviewIni };
+	iniFiles[POVRayRender]	 = { iniFlagNames[POVRayRender],   Preferences::nativeExportIni };
+	iniFiles[LDViewPOVIni]	 = { iniFlagNames[LDViewPOVIni],   Preferences::ldviewPOVIni };
+	iniFiles[LDViewIni]		 = { iniFlagNames[LDViewIni],	   Preferences::ldviewIni };
 
 	setupLDVFormat();
 
@@ -557,7 +557,7 @@ bool LDVWidget::saveImage(
 	TREGLExtensions::setup();
 	if (!snapshotTaker)
 	{
-		snapshotTaker =  new LDSnapshotTaker(modelViewer);
+		snapshotTaker =	 new LDSnapshotTaker(modelViewer);
 	}
 	if (TREGLExtensions::haveFramebufferObjectExtension())
 	{
@@ -622,7 +622,7 @@ void LDVWidget::doPartList(
 			} else {
 				emit lpub->messageSig(LOG_INFO_STATUS, QString("Generating Snapshot image..."));
 
-				bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
+				bool seams	   = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
 
 				TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
 				TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
@@ -704,9 +704,9 @@ void LDVWidget::doPartList(void)
 				if (initialDir.isEmpty()) {
 					initialDir = QString::fromStdString(ldPrefs->getDefaultSaveDir(LDPreferences::SOPartsList,
 																				   modelViewer->getFilename()).c_str());
-					QDir cwd(initialDir);            // <model>/LPub3D/tmp
-					cwd.cdUp();                      // <model>/LPub3D
-					cwd.cdUp();                      // <model>
+					QDir cwd(initialDir);			 // <model>/LPub3D/tmp
+					cwd.cdUp();						 // <model>/LPub3D
+					cwd.cdUp();						 // <model>
 					initialDir = cwd.absolutePath();
 				}
 				QDir::setCurrent(initialDir);
@@ -789,7 +789,7 @@ void LDVWidget::showDocument(QString &htmlFilename){
 	  box.setWindowTitle(tr ("HTML Part List"));
 
 	  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-	  box.setDefaultButton   (QMessageBox::Yes);
+	  box.setDefaultButton	 (QMessageBox::Yes);
 
 	  QString title = "<b> HTML part list generated. </b>";
 	  QString text = tr ("Your HTML part list was generated successfully.\n\n"
@@ -901,6 +901,11 @@ bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
 	return false;
 }
 
+void LDVWidget::messageSig(LogType type, const QString &message, int i)
+{
+	emit lpub->messageSig(type, message, i);
+}
+
 void LDVWidget::libraryUpdateProgress(TCProgressAlert *alert)
 {
 	// NOTE: this gets called from inside one of the library update threads.  It
@@ -923,7 +928,7 @@ void LDVWidget::libraryUpdateProgress(TCProgressAlert *alert)
 			// We can't call doLibraryUpdateFinished directly, because we're
 			// executing from the library update thread.  The
 			// doLibraryUpdateFinished function waits for the library update
-			// thread to complete.  That will never happen if it's executing
+			// thread to complete.	That will never happen if it's executing
 			// inside the library update thread.  So we record the finish code,
 			// tell ourselves we have done so, and the doLibraryUpdateTimer()
 			// slot will take care of the rest when running in non-modal mode,
@@ -1297,7 +1302,7 @@ bool LDVWidget::installLDraw(void)
 			{
 				progressDialogClosed = true;
 				// When the install finishes for real, we change the button
-				// title from "Cancel" to "OK".  However, it still acts like
+				// title from "Cancel" to "OK".	 However, it still acts like
 				// a cancel.  So check to se if the update really finished, and
 				// if it didn't, then note that the user canceled.
 				if (!ldrawLibraryUpdateFinished)
@@ -1312,10 +1317,10 @@ bool LDVWidget::installLDraw(void)
 			{
 				libraryUpdateFinished(libraryUpdateFinishCode);
 			}
-			// Sleep for 50ms.  Unlike the QProgressDialog example, we aren't
+			// Sleep for 50ms.	Unlike the QProgressDialog example, we aren't
 			// doing anything inside this loop other than processing the
-			// events.  All the work is happening in other threads.  So sleep
-			// for a short time in order to avoid monopolizing the CPU.  Keep in
+			// events.	All the work is happening in other threads.	 So sleep
+			// for a short time in order to avoid monopolizing the CPU.	 Keep in
 			// mind that while 50ms is essentially unnoticable to a user, it's
 			// quite a long time to the computer.
 #ifdef WIN32
@@ -1497,7 +1502,7 @@ int LDVWidget::doGetRebrickableColor(const int LDrawColorID) const
 	if (colorMatch != -1)
 		return colorMatch;
 
-	return  LDrawColorID;
+	return	LDrawColorID;
 }
 
 std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, bool alt) const
@@ -1598,7 +1603,7 @@ void LDVWidget::doSetRebrickableParts(const QString &parts)
 	ProgressDialog.setMaximum(0);
 	ProgressDialog.setMinimum(0);
 	ProgressDialog.setValue(0);
-//    ProgressDialog.show();
+//	  ProgressDialog.show();
 
 	if (m_Keys.isEmpty())
 		return;

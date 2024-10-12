@@ -68,6 +68,8 @@ public:
 	static bool staticFileCaseCallback(char *filename);
 	static bool staticFileCaseLevel(QDir &dir, char *filename);
 
+	static void messageSig(LogType type, const QString &message, int = 0);
+
 	void modelViewerAlertCallback(TCAlert *alert);
 	void snapshotTakerAlertCallback(TCAlert *alert);
 	void progressAlertCallback(TCProgressAlert *alert);
