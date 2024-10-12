@@ -25,8 +25,8 @@ ECHO   -Start %~nx0 with commandline args: [%*]...
 ECHO ------------------------------------------------------
 ECHO.
 
-FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-IF "%SCRIPT_DIR%" EQU "windows" (
+FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
+IF "%SCRIPT_RUN_DIR%" EQU "windows" (
   CALL :WD_ABS_PATH ..\..\
 ) ELSE (
   SET ABS_WD=%CD%

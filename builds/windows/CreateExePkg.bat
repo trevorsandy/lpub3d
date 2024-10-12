@@ -23,8 +23,8 @@ ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
 REM Set the current working directory to the source directory root - e.g. lpub3d\
-FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-IF "%SCRIPT_DIR%" EQU "windows" (
+FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
+IF "%SCRIPT_RUN_DIR%" EQU "windows" (
   CALL :WD_ABS_PATH ..\..\
 ) ELSE (
   CALL :WD_ABS_PATH .

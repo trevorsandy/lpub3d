@@ -15,9 +15,9 @@ CALL :ELAPSED_BUILD_TIME Start
 ECHO.
 ECHO -Start %~nx0 with commandline args: [%*]...
 
-rem get the parent folder
-FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-IF "%SCRIPT_DIR%" EQU "utilities" (
+rem get the script run from folder - usually the root folder, e.g lpub3d
+FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
+IF "%SCRIPT_RUN_DIR%" EQU "utilities" (
   rem get abs path to build 3rd party packages inside the LPub3D root dir
   IF "%APPVEYOR%" EQU "True" (
     CALL :WD_ABS_PATH ..\..\

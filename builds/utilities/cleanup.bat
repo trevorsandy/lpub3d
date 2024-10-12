@@ -1,6 +1,6 @@
 @ECHO OFF & SETLOCAL
-FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-IF "%SCRIPT_DIR%" EQU "utilities" (
+FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
+IF "%SCRIPT_RUN_DIR%" EQU "utilities" (
   rem Convert relative WD to abs WD and set 'ABS_WD'
   CALL :WD_REL_TO_ABS ../../
 ) ELSE (

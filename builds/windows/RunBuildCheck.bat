@@ -16,8 +16,8 @@ rem  6. Run with log: builds\windows\RunBuildCheck.bat x86 -aca > ..\build_check
 
 CALL :ELAPSED_BUILD_TIME Start
 
-FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
-IF "%SCRIPT_DIR%" EQU "windows" (
+FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
+IF "%SCRIPT_RUN_DIR%" EQU "windows" (
   CALL :WD_REL_TO_ABS ..\..\
 ) ELSE (
   SET ABS_WD=%CD%
