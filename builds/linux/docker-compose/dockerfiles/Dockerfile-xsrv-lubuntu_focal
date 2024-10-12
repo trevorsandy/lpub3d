@@ -38,7 +38,7 @@ CMD sudo service dbus start ; sudo service lightdm start
 : <<'BLOCK_COMMENT'
 Trevor SANDY
 Last Update Jun 23, 2022
-Copyright (C) 2022 - 2023 by Trevor SANDY
+Copyright (C) 2022 - 2024 by Trevor SANDY
 
 Run full Ubuntu desktop GUI in a Docker container displayed on Windows using (XServer)
 

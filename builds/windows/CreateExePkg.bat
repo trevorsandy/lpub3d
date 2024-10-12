@@ -3,7 +3,7 @@ Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: September 09, 2023
-rem  Copyright (C) 2015 - 2023 by Trevor SANDY
+rem  Copyright (C) 2015 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -1659,7 +1659,7 @@ SET genFile=%set_bash_vars% ECHO
 >>%genFile% #
 >>%genFile% #  Trevor SANDY ^<trevor.sandy@gmail.com^>
 >>%genFile% #  Last Update: March 06, 2019
->>%genFile% #  Copyright ^(c^) 2020 - 2023 by Trevor SANDY
+>>%genFile% #  Copyright ^(c^) 2020 - 2024 by Trevor SANDY
 >>%genFile%.
 >>%genFile% export LP3D_SOURCE_DIR="%LP3D_SOURCE_DIR%"
 >>%genFile% export LP3D_CALL_DIR="%LP3D_CALL_DIR%"

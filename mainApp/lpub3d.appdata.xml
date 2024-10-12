@@ -16,10 +16,10 @@
               file formats. LPub3D is available for free under the GNU Public License v3
               and runs on Windows, Linux and macOS Operating Systems.
               Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-              LeoCAD© 2023 Leonardo Zide and additional third party components.
+              LeoCAD© 2024 Leonardo Zide and additional third party components.
               LEGO® is a trademark of the LEGO Group of companies which does not
               sponsor, authorize or endorse this application.
-              © 2015-2023 Trevor SANDY.
+              © 2015-2024 Trevor SANDY.
             </p>
         </description>
         <categories>
@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.7.3583" date="2024-10-12">
+            <release version="2.4.7.3584" date="2024-10-12">
                 <description>
-                    <p>LPub3D 12.10.2024 v2.4.7 r107 Continuous Build.
+                    <p>LPub3D 12.10.2024 v2.4.7 r108 Continuous Build.
                        Change - Custom parts with underscore in the name #730.
                        Change - Difference in rendering with native renderer between versions #731.
                        Change - MLCad Part unknown! PART line error after mpd file save #734.

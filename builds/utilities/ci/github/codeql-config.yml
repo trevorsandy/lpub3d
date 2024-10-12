@@ -1,7 +1,7 @@
 # LPub3D CodeQL analysis configuration
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update: July 24, 2021
-# Copyright (c) 2021 - 2023 by Trevor SANDY
+# Copyright (c) 2021 - 2024 by Trevor SANDY
 #
 name: "LPub3D CodeQL Config"
 

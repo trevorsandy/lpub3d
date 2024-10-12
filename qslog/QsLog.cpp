@@ -1,5 +1,5 @@
 // Copyright (c) 2010 - 2015 Razvan Petru
-// Copyright (C) 2022 - 2023 Trevor SANDY. All rights reserved.
+// Copyright (C) 2022 - 2024 Trevor SANDY. All rights reserved.
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,

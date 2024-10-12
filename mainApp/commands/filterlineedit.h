@@ -3,7 +3,7 @@
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** Copyright (C) 2022 - 2023 Trevor SANDY. All rights reserved.
+** Copyright (C) 2022 - 2024 Trevor SANDY. All rights reserved.
 **
 ** This file is part of the examples of the Qt Toolkit.
 **

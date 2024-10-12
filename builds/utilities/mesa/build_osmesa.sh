@@ -4,7 +4,7 @@
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update November 06, 2022
-#  Copyright (C) 2018 - 2023 by Trevor SANDY
+#  Copyright (C) 2018 - 2024 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
 # Note: If WD is not defined,

@@ -4,7 +4,7 @@ Title Perform a stand-alone build check
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: March 15, 2023
-rem  Copyright (C) 2017 - 2023 by Trevor SANDY
+rem  Copyright (C) 2017 - 2024 by Trevor SANDY
 
 rem  To Run:
 rem  1. Launch command prompt at root folder or this script folder.

@@ -1,7 +1,7 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update: March 11, 2023
-# Copyright (C) 2021 - 2023 by Trevor SANDY
+# Copyright (C) 2021 - 2024 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
 # will skip pull request and push workflows.
