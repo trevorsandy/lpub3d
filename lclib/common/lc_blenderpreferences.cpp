@@ -2421,14 +2421,15 @@ void lcBlenderPreferences::LoadSettings()
 		const QString DefaultBlendFile = QString("%1/Blender/config/%2").arg(gAddonPreferences->mDataDir).arg(LC_BLENDER_ADDON_BLEND_FILE);
 
 		QStringList const AddonPaths = QStringList()
-		/* PATH_BLENDER      */        << lcGetProfileString(LC_PROFILE_BLENDER_PATH)
-		/* PATH_BLENDFILE    */        << (QFileInfo(DefaultBlendFile).exists() ? DefaultBlendFile : QString())
-		/* PATH_ENVIRONMENT  */        << QString()
-		/* PATH_LDCONFIG     */        << lcGetProfileString(LC_PROFILE_COLOR_CONFIG)
-		/* PATH_LDRAW        */        << QFileInfo(lcGetProfileString(LC_PROFILE_PARTS_LIBRARY)).absolutePath()
-		/* PATH_LSYNTH       */        << QString()
-		/* PATH_STUD_LOGO    */        << QString()
-		/* PATH_STUDIO_LDRAW */        << QString();
+		/* 0  PATH_BLENDER      */        << lcGetProfileString(LC_PROFILE_BLENDER_PATH)
+		/* 1  PATH_BLENDFILE    */        << (QFileInfo(DefaultBlendFile).exists() ? DefaultBlendFile : QString())
+		/* 2  PATH_ENVIRONMENT  */        << QString()
+		/* 3  PATH_LDCONFIG     */        << lcGetProfileString(LC_PROFILE_COLOR_CONFIG)
+		/* 4  PATH_LDRAW        */        << QFileInfo(lcGetProfileString(LC_PROFILE_PARTS_LIBRARY)).absolutePath()
+		/* 5  PATH_LSYNTH       */        << QString()
+		/* 6  PATH_STUD_LOGO    */        << QString()
+		/* 7  PATH_STUDIO_LDRAW */        << QString()
+		/* 8  PATH_STUDIO_CUSTOM_PARTS */ << QString();
 		for (int LblIdx = 0; LblIdx < NumPaths(DEFAULT_SETTINGS); LblIdx++)
 		{
 			mBlenderPaths[LblIdx] =

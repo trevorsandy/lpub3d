@@ -57,15 +57,16 @@
 BlenderPreferences::BlenderPaths  BlenderPreferences::mBlenderPaths [NUM_PATHS];
 BlenderPreferences::BlenderPaths  BlenderPreferences::mDefaultPaths [NUM_PATHS] =
 {
-    /*                                 Key:                  MM Key:               Value:             Label:                                   Tooltip (Description):*/
+    /*                             Key:                  MM Key:               Value:             Label:                                   Tooltip (Description):*/
     /* 0   PATH_BLENDER        */ {"blenderpath",        "blenderpath",        "",    QObject::tr("Blender Path"),             QObject::tr("Full file path to Blender application executable")},
     /* 1   PATH_BLENDFILE      */ {"blendfile",          "blendfile",          "",    QObject::tr("Blendfile Path"),           QObject::tr("Full file path to a supplement .blend file - specify to append additional settings")},
-    /* 2.  PATH_ENVIRONMENT    */ {"environmentfile",    "environmentfile",    "",    QObject::tr("Environment Texture Path"), QObject::tr("Full file path to .exr environment texture file - specify if not using default bundled in addon")},
+    /* 2   PATH_ENVIRONMENT    */ {"environmentfile",    "environmentfile",    "",    QObject::tr("Environment Texture Path"), QObject::tr("Full file path to .exr environment texture file - specify if not using default bundled in addon")},
     /* 3   PATH_LDCONFIG       */ {"customldconfigfile", "customldconfigfile", "",    QObject::tr("Custom LDConfig Path"),     QObject::tr("Full file path to custom LDConfig file - specify if not %1 alternate LDConfig file").arg(VER_PRODUCTNAME_STR)},
     /* 4   PATH_LDRAW          */ {"ldrawdirectory",     "ldrawpath",          "",    QObject::tr("LDraw Directory"),          QObject::tr("Full directory path to the LDraw parts library (download from https://library.ldraw.org)")},
     /* 5   PATH_LSYNTH         */ {"lsynthdirectory",    "",                   "",    QObject::tr("LSynth Directory"),         QObject::tr("Full directory path to LSynth primitives - specify if not using default bundled in addon")},
     /* 6   PATH_STUD_LOGO      */ {"studlogodirectory",  "",                   "",    QObject::tr("Stud Logo Directory"),      QObject::tr("Full directory path to stud logo primitives - if stud logo enabled, specify if unofficial parts not used or not using default bundled in addon")},
-    /* 7   PATH_STUDIO_LDRAW   */ {"",                   "studioldrawpath",    "",    QObject::tr("Stud.io LDraw Path"),       QObject::tr("Full filepath to the Stud.io LDraw Parts Library (download from https://www.bricklink.com/v3/studio/download.page)")}
+    /* 7   PATH_STUDIO_LDRAW   */ {"",                   "studioldrawpath",    "",    QObject::tr("Stud.io LDraw Path"),       QObject::tr("Full filepath to the Stud.io LDraw Parts Library (download from https://www.bricklink.com/v3/studio/download.page)")},
+    /* 8   PATH_STUDIO_CUSTOM_PARTS */ {"",              "studiocustompartspath", "", QObject::tr("Stud.io Custom Parts Path"),QObject::tr("Full filepath to the Stud.io LDraw Custom Parts")}
 };
 
 BlenderPreferences::BlenderSettings  BlenderPreferences::mBlenderSettings [NUM_SETTINGS];
@@ -2259,14 +2260,15 @@ void BlenderPreferences::loadSettings()
     if (!numPaths()) {
         QString const defaultBlendFile = QString("%1/config/%2").arg(blenderDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         QStringList const addonPaths = QStringList()
-        /* PATH_BLENDER      */        << Preferences::blenderExe
-        /* PATH_BLENDFILE    */        << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
-        /* PATH_ENVIRONMENT  */        << QString()
-        /* PATH_LDCONFIG     */        << Preferences::altLDConfigPath
-        /* PATH_LDRAW        */        << Preferences::ldrawLibPath
-        /* PATH_LSYNTH       */        << QString()
-        /* PATH_STUD_LOGO    */        << QString()
-        /* PATH_STUDIO_LDRAW */        << QString();
+        /* 0 PATH_BLENDER      */         << Preferences::blenderExe
+        /* 1 PATH_BLENDFILE    */         << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
+        /* 2 PATH_ENVIRONMENT  */         << QString()
+        /* 3 PATH_LDCONFIG     */         << Preferences::altLDConfigPath
+        /* 4 PATH_LDRAW        */         << Preferences::ldrawLibPath
+        /* 5 PATH_LSYNTH       */         << QString()
+        /* 6 PATH_STUD_LOGO    */         << QString()
+        /* 7 PATH_STUDIO_LDRAW */         << QString()
+        /* 8  PATH_STUDIO_CUSTOM_PARTS */ << QString();
         for (int i = 0; i < numPaths(DEFAULT_SETTINGS); i++) {
             mBlenderPaths[i] = {
                 mDefaultPaths[i].key,
@@ -2327,7 +2329,7 @@ void BlenderPreferences::loadSettings()
         QSettings Settings(blenderConfigFileInfo.absoluteFilePath(), QSettings::IniFormat);
 
         for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
-            if (i == PATH_STUDIO_LDRAW)
+            if (i >= PATH_STUDIO_LDRAW)
                 continue;
             QString const &key = QString("%1/%2").arg(IMPORTLDRAW, mBlenderPaths[i].key);
             QString const &value = Settings.value(key, QString()).toString();
@@ -2448,7 +2450,7 @@ void BlenderPreferences::saveSettings()
     Settings.beginGroup(IMPORTLDRAW);
 
     for (int i = 1/*skip blender executable*/; i < numPaths(); i++) {
-        if (i == PATH_STUDIO_LDRAW)
+        if (i >= PATH_STUDIO_LDRAW)
             continue;
         QString const key = mBlenderPaths[i].key;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);

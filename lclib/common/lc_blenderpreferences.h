@@ -240,10 +240,10 @@ private:
 		LBL_BLEND_FILE_TRUSTED_MM,                 //  2 QCheckBox
 		LBL_CASE_SENSITIVE_FILESYSTEM,             //  3 QCheckBox
 		LBL_CROP_IMAGE_MM,                         //  4 QCheckBox
-		LBL_DISPLAY_LOGO,                          //  5 QCheckBox
+		NUM_COMBO_ITEMS_MM,                        //  5
+		LBL_DISPLAY_LOGO = NUM_COMBO_ITEMS_MM,     //  5 QCheckBox
 		LBL_IMPORT_CAMERAS_MM,                     //  6 QCheckBox
-		NUM_COMBO_ITEMS_MM,                        //  7
-		LBL_IMPORT_EDGES = NUM_COMBO_ITEMS_MM,     //  7 QCheckBox
+		LBL_IMPORT_EDGES,                          //  7 QCheckBox
 		LBL_IMPORT_LIGHTS_MM,                      //  8 QCheckBox
 		LBL_KEEP_ASPECT_RATIO_MM,                  //  9 QCheckBox
 		LBL_MAKE_GAPS,                             // 10 QCheckBox
