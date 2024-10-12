@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.7.3634" date="2024-10-12">
+            <release version="2.4.7.3635" date="2024-10-12">
                 <description>
-                    <p>LPub3D 12.10.2024 v2.4.7 r158 Continuous Build.
+                    <p>LPub3D 12.10.2024 v2.4.7 r159 Continuous Build.
                        Change - Custom parts with underscore in the name #730.
                        Change - Difference in rendering with native renderer between versions #731.
                        Change - MLCad Part unknown! PART line error after mpd file save #734.

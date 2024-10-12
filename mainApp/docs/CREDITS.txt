@@ -4,7 +4,7 @@ LPub3D - An LDraw Building Instruction Editor
 https://trevorsandy.github.io/lpub3d
 Trevor Sandy <trevor.sandy@gmail.com>
 
-Visual Editor (LeoCAD version 23.03 sha 2f034c1 specifically adapted for LPub3D)
+Visual Editor (LeoCAD version 23.03 sha 4fce431 specifically adapted for LPub3D)
 https://github.com/trevorsandy/leocad/
 Trevor Sandy <trevor.sandy@gmail.com>
 
@@ -24,28 +24,28 @@ LPub4
 https://sourceforge.net/projects/lpub4/
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 23.03 commit 2f034c1
+LeoCAD 23.03 commit 4fce431
 https://github.com/leozide/leocad
 Leonardo Zide <leozide@gmail.com>
 
-LDGlite 1.3.4 commit 492071
+LDGlite 1.3.4 commit 8497689
 https://github.com/deeice/ldglite
 Don Heyse <dheyse@hotmail.com>
 
-LDView 4.5 commit bed5daf
+LDView 4.5 commit 0f529
 https://github.com/tcobbs/ldview
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
 
-POV-Ray 3.8 commit 74b3ebe
+POV-Ray 3.8 commit ca89731
 https://github.com/POV-Ray/povray
 Persistence of Vision Raytracer Pty. Ltd.
 
-ImportLDraw - A Blender™ plug-in for importing LDraw™ file format models and parts. commit ed7eeb7
+ImportLDraw - A Blender™ plug-in for importing LDraw™ file format models and parts. commit 821a810
 https://github.com/TobyLobster/ImportLDraw
 Toby Nelson <tobymnelson@gmail.com>
 
-LDraw Handler for Blender 2.82+ and 3.0+ commit e926354
+ExportLDraw - LDraw Handler for Blender 2.82+ and 3.0+ commit 9c32bc3
 https://github.com/cuddlyogre/ExportLDraw
 Matthew Morrison [cuddlyogre]<cuddlyogre@gmail.com>
 
@@ -53,7 +53,11 @@ Qt-History-LineEdit c6c6992
 https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
 Mattia Basaglia <mattia.basaglia@gmail.com>
 
-qSLog 2.0.0 b4
+Snippets, JSON configuration library (adapted from CuteMarkEd)
+https://github.com/cloose/CuteMarkEd df584c4
+Christian Loose <christian.loose@hamburg.de>
+
+qSLog 2.0.0 b4 commit 46b643d
 https://bitbucket.org/codeimproved/qslog/src/master/
 Razvan Petru
 
@@ -91,7 +95,7 @@ Dmg fileicon script v0.2.2
 https://github.com/mklement0/fileicon 7108132
 Michael Klement <mklement0@gmail.com>
 
-Create Dmg
+Create Dmg v1.2.1
 https://github.com/create-dmg/create-dmg 32121505
 Andrey Tarantsov, Andrew Janke
 
@@ -102,8 +106,8 @@ LSynth Version 3.1.1 commit 7c8e6fd
 https://github.com/deeice/lsynth
 Don Heyse <dheyse@hotmail.com>
 
-NsisMultiUser Plugin d5da5cf
-https://github.com/trevorsandy/NsisMultiUser
+NsisMultiUser Plugin
+https://github.com/trevorsandy/NsisMultiUser 62cc4bf
 Ricardo Drizin, Alex Mitev
 
 TENTE LDraw Library content
@@ -111,6 +115,3 @@ José Alfonso Solera <jasolo.f@gmail.com> [Jasolo]
 
 VEXIQ LDraw Library content
 Philippe Hurbain <philo@philohome.com> [Philo]
-
-Snippets, JSON configuration library (adapted from CuteMarkEd)
-Christian Loose <christian.loose@hamburg.de>
