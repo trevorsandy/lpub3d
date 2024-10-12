@@ -70,6 +70,8 @@ public:
 
 	static void messageSig(LogType type, const QString &message, int = 0);
 
+	bool setIni(IniFlag iniflag);
+
 	void modelViewerAlertCallback(TCAlert *alert);
 	void snapshotTakerAlertCallback(TCAlert *alert);
 	void progressAlertCallback(TCProgressAlert *alert);
@@ -114,6 +116,9 @@ protected slots:
 
 protected:
 	bool setIniFile(void);
+	bool setFontSettings(void);
+	bool setStudLogo(void);
+	void setSession(bool savedSession = false);
 	bool setupPartList(void);
 	void setupLDVFormat(void);
 	void setupLDVContext(void);
@@ -139,6 +144,7 @@ protected:
 	int                    darkTheme;
 	QGLFormat              ldvFormat;
 	QGLContext            *ldvContext;
+	QWidget               *ldvParent;
 
 	LDPreferences         *ldPrefs;
 	LDrawModelViewer      *modelViewer;

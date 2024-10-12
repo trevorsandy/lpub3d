@@ -36,8 +36,8 @@ TCStringArray* LDViewExportOption::extraSearchDirs = nullptr;
 
 #define	MAX_EXTRA_DIR	10
 
-LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
-	:QDialog(qobject_cast<QWidget*>(modelWidget)),
+LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget, QWidget *parent)
+	:QDialog(parent),
 	LDVExportOptionPanel(),
 	m_modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
 	m_exporter(nullptr),

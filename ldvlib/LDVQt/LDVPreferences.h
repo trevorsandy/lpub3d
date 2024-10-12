@@ -36,7 +36,7 @@ class LDVPreferences : public QDialog, Ui::LDVPreferencesPanel
 {
 	Q_OBJECT
 public:
-	LDVPreferences(LDVWidget *modelWidget);
+	LDVPreferences(LDVWidget *modelWidget, QWidget *parent = nullptr);
 	~LDVPreferences(void);
 
 	void setModelViewer(LDrawModelViewer *_modelViewer) {modelViewer = _modelViewer;}

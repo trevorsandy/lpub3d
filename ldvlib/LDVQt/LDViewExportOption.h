@@ -79,7 +79,7 @@ class LDViewExportOption : public QDialog, Ui::LDVExportOptionPanel
 {
 	Q_OBJECT
 public:
-	LDViewExportOption(LDVWidget *modelWidget);
+	LDViewExportOption(LDVWidget *modelWidget, QWidget *parent = nullptr);
 	~LDViewExportOption();
 
 	void applyExtraSearchDirs(void);

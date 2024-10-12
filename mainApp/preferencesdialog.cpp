@@ -1301,12 +1301,6 @@ void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)
     }
 }
 
-void PreferencesDialog::on_ldvPreferencesBtn_clicked()
-{
-    ldvWidget = new LDVWidget(this);
-    ldvWidget->showLDVPreferences();
-}
-
 void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
 {
     if (checked) {
@@ -1379,22 +1373,36 @@ void PreferencesDialog::on_themeColorsButton_clicked()
     editedThemeColors = themeColorsDialog->getEditedThemeColors();
 }
 
+void PreferencesDialog::on_ldvPreferencesBtn_clicked()
+{
+    if (!ldvWidget)
+        ldvWidget = new LDVWidget(this, LDViewIni);
+    else
+        ldvWidget->setIni(LDViewIni);
+
+    ldvWidget->showLDVPreferences();
+}
+
 void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
 {
-    if (ui.povGenNativeRadio->isChecked())
-        ldvWidget = new LDVWidget(this,NativePOVIni,true);
+    const IniFlag ldvIni = ui.povGenNativeRadio->isChecked() ? NativePOVIni : LDViewPOVIni;
+
+    if (!ldvWidget)
+        ldvWidget = new LDVWidget(this, ldvIni, true);
     else
-        ldvWidget = new LDVWidget(this,LDViewPOVIni,true);
+        ldvWidget->setIni(ldvIni);
 
     ldvWidget->showLDVExportOptions();
 }
 
 void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
 {
-    if (ui.povGenNativeRadio->isChecked())
-        ldvWidget = new LDVWidget(this,NativePOVIni,true);
+    const IniFlag ldvIni = ui.povGenNativeRadio->isChecked() ? NativePOVIni : LDViewPOVIni;
+
+    if (!ldvWidget)
+        ldvWidget = new LDVWidget(this, ldvIni, true);
     else
-        ldvWidget = new LDVWidget(this,LDViewPOVIni,true);
+        ldvWidget->setIni(ldvIni);
 
     ldvWidget->showLDVPreferences();
 }

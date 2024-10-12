@@ -253,6 +253,9 @@ FORMS += \
     $$PWD/LDVPreferencesPanel.ui \
     $$PWD/LDVPartList.ui
 
+RESOURCES += \
+    $$PWD/resources.qrc
+
 OTHER_FILES += \
     $$PWD/LDVWidgetMessages.ini \
     $$PWD/../../mainApp/extras/ldvMessages.ini

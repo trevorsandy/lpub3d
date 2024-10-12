@@ -51,8 +51,8 @@
 
 TCStringArray* LDVPreferences::extraSearchDirs = nullptr;
 
-LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
-	:QDialog(qobject_cast<QWidget*>(modelWidget)),
+LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
+	:QDialog(parent),
 	  LDVPreferencesPanel(),
 	  modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
 	  ldPrefs(new LDPreferences(modelViewer)),

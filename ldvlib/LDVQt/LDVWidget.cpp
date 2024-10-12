@@ -112,6 +112,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		forceIni(forceIni),
 		darkTheme(Preferences::displayTheme == THEME_DARK),
 		ldvContext(nullptr),
+		ldvParent(parent),
 		ldPrefs(nullptr),
 		modelViewer(nullptr),
 		snapshotTaker(nullptr),
@@ -166,23 +167,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 	if (LDVPreferences::getCheckPartTracker())
 		LDVPreferences::setCheckPartTracker(false);
 
-	TCStringArray *sessionNames =
-		TCUserDefaults::getAllSessionNames();
-
-	if (sessionNames->indexOfString(iniFiles[iniFlag].Title.toUtf8().constData()) != -1)
-	{
-		TCUserDefaults::setSessionName(iniFiles[iniFlag].Title.toUtf8().constData(),
-		  PREFERENCE_SET_KEY);
-	}
-	else
-	{
-		TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
-	}
-	sessionNames->release();
-
-	QString prefSet = TCUserDefaults::getSessionName();
-	emit lpub->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
-							 .arg(prefSet.isEmpty() ? "Default" : prefSet));
+	setSession();
 
 	if (!Preferences::ldrawLibPath.isEmpty())
 	{
@@ -214,18 +199,43 @@ LDVWidget::~LDVWidget(void)
 	ldvWidget = nullptr;
 }
 
+void LDVWidget::showLDVPreferences()
+{
+	setupLDVApplication();
+
+	LDVPreferences *ldvPreferences = new LDVPreferences(this, ldvParent);
+
+	if (ldvPreferences->exec() == QDialog::Accepted)
+		ldvPreferences->doOk();
+	else
+		ldvPreferences->doCancel();
+
+	delete ldvPreferences;
+
+	setHidden(true);
+}
+
+void LDVWidget::showLDVExportOptions()
+{
+	setupLDVApplication();
+
+	LDViewExportOption *ldvExportOption = new LDViewExportOption(this, ldvParent);
+
+	if (ldvExportOption->exec() == QDialog::Accepted)
+		ldvExportOption->doOk();
+	else
+		ldvExportOption->doCancel();
+
+	delete ldvExportOption;
+
+	setHidden(true);
+}
+
 bool LDVWidget::doCommand(QStringList &arguments)
 {
 	TCUserDefaults::setCommandLine(arguments.join(" ").toUtf8().constData());
 
-	QImage studImage(":/resources/StudLogo.png");
-	long studLength =
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-		studImage.sizeInBytes();
-#else
-		studImage.byteCount();
-#endif
-	TREMainModel::setRawStudTextureData(studImage.bits(),studLength);
+	setStudLogo();
 
 	bool retValue = true;
 	if (!LDSnapshotTaker::doCommandLine(false, true))
@@ -301,39 +311,117 @@ bool LDVWidget::setupLDVApplication(){
 
 	ldPrefs = new LDPreferences(modelViewer);
 
-	char *sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
-	if (sessionName && sessionName[0])
-	{
-		  TCUserDefaults::setSessionName(sessionName, nullptr, false);
-	}
-	delete sessionName;
+	setSession(true/*savedSession*/);
 
-	QFile fontFile(":/resources/SansSerif.fnt");
-	if (fontFile.exists())
+	if (!setFontSettings())
+		return false;
+
+	return true;
+}
+
+void LDVWidget::setSession(bool savedSession)
+{
+	if (savedSession)
 	{
-		int len = fontFile.size();
-		if (len > 0)
+		char *sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+		if (sessionName && sessionName[0])
 		{
-			char *buffer = (char*)malloc(len);
-			if ( fontFile.open( QIODevice::ReadOnly ))
-			{
-				QDataStream stream( &fontFile );
-				stream.readRawData(buffer,len);
-				modelViewer->setFontData((TCByte*)buffer,len);
-			}
-			free(buffer);
+			TCUserDefaults::setSessionName(sessionName, nullptr, false);
 		}
+
+		delete sessionName;
+
+		return;
+	}
+
+	TCStringArray *sessionNames =
+		TCUserDefaults::getAllSessionNames();
+
+	if (sessionNames->indexOfString(iniFiles[iniFlag].Title.toUtf8().constData()) != -1)
+	{
+		TCUserDefaults::setSessionName(iniFiles[iniFlag].Title.toUtf8().constData(),
+									   PREFERENCE_SET_KEY);
+	}
+	else
+	{
+		TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
+	}
+	sessionNames->release();
+
+	QString prefSet = TCUserDefaults::getSessionName();
+	emit lpub->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
+										.arg(prefSet.isEmpty() ? "Default" : prefSet));
+}
+
+bool LDVWidget::setFontSettings(void)
+{
+	QFile fontFile(":/resources/SansSerif.fnt");
+	if (!fontFile.exists())
+	{
+		emit lpub->messageSig(LOG_ERROR, QString("Font file SansSerif.fnt was not found in resources."));
+		return false;
+	}
+
+	int len = fontFile.size();
+	if (len > 0)
+	{
+		char *buffer = (char*)malloc(len);
+		if ( fontFile.open( QIODevice::ReadOnly ))
+		{
+			QDataStream stream( &fontFile );
+			stream.readRawData(buffer,len);
+			modelViewer->setFontData((TCByte*)buffer,len);
+		}
+		free(buffer);
 	}
 
 	QImage fontImage2x(":/resources/SansSerif@2x.png");
+	if (fontImage2x.isNull())
+	{
+		emit lpub->messageSig(LOG_ERROR, QString("Font file SansSerif@2x.png was not found in resources."));
+		return false;
+	}
+
 	long fontLength =
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 		fontImage2x.sizeInBytes();
 #else
 		fontImage2x.byteCount();
 #endif
+
 	modelViewer->setRawFont2xData(fontImage2x.bits(),fontLength);
 
+	return true;
+}
+
+bool LDVWidget::setStudLogo(void)
+{
+	QImage studImage(":/resources/StudLogo.png");
+	if (studImage.isNull())
+	{
+		emit lpub->messageSig(LOG_ERROR, QString("Stud logo file StudLogo.png was not found in resources."));
+		return false;
+	}
+
+	long studLength =
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+		studImage.sizeInBytes();
+#else
+		studImage.byteCount();
+#endif
+
+	TREMainModel::setRawStudTextureData(studImage.bits(),studLength);
+
+	return true;
+}
+
+bool LDVWidget::setIni(IniFlag iniflag)
+{
+	forceIni = true;
+	iniFlag = iniflag;
+	if (!setIniFile())
+		return false;
+	setSession();
 	return true;
 }
 
@@ -369,30 +457,6 @@ QString LDVWidget::getIniFile()
 		return QString();
 	else
 		return iniFiles[iniFlag].File;
-}
-
-void LDVWidget::showLDVExportOptions()
-{
-	setupLDVApplication();
-
-	LDViewExportOption *ldvExportOption = new LDViewExportOption(this);
-
-	if (ldvExportOption->exec() == QDialog::Accepted)
-		ldvExportOption->doOk();
-	else
-		ldvExportOption->doCancel();
-}
-
-void LDVWidget::showLDVPreferences()
-{
-	setupLDVApplication();
-
-	LDVPreferences *ldvPreferences = new LDVPreferences(this);
-
-	if (ldvPreferences->exec() == QDialog::Accepted)
-		ldvPreferences->doOk();
-	else
-		ldvPreferences->doCancel();
 }
 
 void LDVWidget::setupLDVFormat(void)

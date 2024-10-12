@@ -1,8 +1,5 @@
 <RCC>
   <qresource prefix="/resources">
-    <file alias="LPub32.png">resources/LPub32.png</file>
-    <file alias="StudLogo.png">resources/StudLogo.png</file>
-    <file alias="SansSerif.fnt">resources/SansSerif.fnt</file>
     <file alias="LightAngleLL.png">resources/LightAngleLL.png</file>
     <file alias="LightAngleLLOff.png">resources/LightAngleLLOff.png</file>
     <file alias="LightAngleLL@2x.png">resources/LightAngleLL@2x.png</file>
@@ -39,6 +36,10 @@
     <file alias="LightAngleUR@2x.png">resources/LightAngleUR@2x.png</file>
     <file alias="LightAngleUROff.png">resources/LightAngleUROff.png</file>
     <file alias="LightAngleUROff@2x.png">resources/LightAngleUROff@2x.png</file>
+    <file alias="LPub32.png">resources/LPub32.png</file>
+    <file alias="SansSerif.fnt">resources/SansSerif.fnt</file>
+    <file alias="SansSerif@2x.png">resources/SansSerif@2x.png</file>
+    <file alias="StudLogo.png">resources/StudLogo.png</file>
   </qresource>
 </RCC>
 
