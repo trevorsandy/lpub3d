@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 08, 2022
+# Last Update September 19, 2024
 # Copyright (C) 2022 - 2024 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -12,7 +12,7 @@
 #   -v <        output path>:/ldraw
 #
 # To Run:
-# /bin/bash -xc "chmod a+x builds/linux/CreateAppImage.sh && builds/linux/CreateLinuxPkg.sh"
+# /bin/bash -xc "chmod a+x builds/linux/CreateAppImage.sh && builds/linux/CreateLinuxMulitArch.sh"
 
 set -o functrace
 
@@ -60,7 +60,7 @@ Error () {
 
 # Format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
-ME="CreateLinuxPkg"
+ME="CreateLinuxMulitArch"
 [ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 18, 2024
+# Last Update September 19, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -274,18 +274,18 @@ pbEOF
     LP3D_PRE_PACKAGE_CHECK=1
 fi
 
-cp -f builds/linux/CreateLinuxPkg.sh .
+cp -f builds/linux/CreateLinuxMulitArch.sh .
 cat << pbEOF >>${out_path}/Dockerfile
 ADD --chown=${name}:${name} docker-run-CMD.sh /${name}
-ADD --chown=${name}:${name} CreateLinuxPkg.sh /${name}
+ADD --chown=${name}:${name} CreateLinuxMulitArch.sh /${name}
 CMD /bin/bash
 pbEOF
 
 cat << pbEOF >${out_path}/docker-run-CMD.sh
 #!/bin/bash
 cd ~/ \\
-&& chmod a+x CreateLinuxPkg.sh \\
-&& ./CreateLinuxPkg.sh \\
+&& chmod a+x CreateLinuxMulitArch.sh \\
+&& ./CreateLinuxMulitArch.sh \\
 && if test -d /out; then \\
   cd ~/; \\
   ls -al ./ 2>/dev/null || :; \\

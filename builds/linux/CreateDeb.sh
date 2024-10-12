@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 16, 2024
+# Last Update September 19, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -245,7 +245,7 @@ tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz \
         --exclude="builds/utilities/nsis-scripts" \
         --exclude="builds/linux/docker-compose" \
         --exclude="builds/linux/standard" \
-        --exclude="builds/linux/CreateLinuxPkg.sh" \
+        --exclude="builds/linux/CreateLinuxMulitArch.sh" \
         --exclude="builds/linux/CreatePkg.sh" \
         --exclude="builds/linux/CreateRpm.sh" \
         --exclude="builds/windows" \
