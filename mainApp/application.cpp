@@ -302,6 +302,8 @@
 
       return i == 1;
   }
+#else
+#include <time.h> // This is used to get the sleep struct timespec type.
 #endif
 
 // Initializes the Application instance as null
@@ -1034,6 +1036,37 @@ QString distribution = tr("Installed");
 #endif
     Preferences::printInfo(tr("Application Distribution.....(%1)").arg(distribution));
     Preferences::printInfo("-----------------------------");
+
+    // sleep to support headless debugging
+    char *env_str;
+    env_str = getenv("LPUB3D_MILLISECONDS_SLEEP");
+
+    if (env_str && env_str[0])
+    {
+        long ms_sleep = strtol(env_str, NULL, 10);
+        if (ms_sleep)
+        {
+            Preferences::printInfo(tr("%1 [Pid %2] sleeping for [%3] milliseconds...")
+                                     .arg(QCoreApplication::applicationName())
+                                     .arg(QCoreApplication::applicationPid())
+                                     .arg(ms_sleep));
+#ifdef Q_OS_WIN
+            Sleep(ms_sleep);                // uses #include <Windows.h> on Windows
+#else
+            struct timespec rem;            // uses #include <time.h> on Unix
+            struct timespec req= {
+                (int)(ms_sleep / 1000),     // secs (must be non-negative)
+                (ms_sleep % 1000) * 1000000 // nano (must be in range of 0 to 999999999)
+            };
+            nanosleep(&req, &rem);
+#endif
+        }
+        else
+        {
+            Preferences::printInfo(tr("%1 failed to start sleep for [%2] milliseconds.")
+                                      .arg(VER_PRODUCTNAME_STR).arg(env_str));
+        }
+    }
 
     // splash
     // if you want to rewrite, here is a good example:
