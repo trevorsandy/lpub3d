@@ -916,9 +916,6 @@ int Application::initialize(lcCommandLineOptions &Options)
     // initialize directories
     Preferences::lpubPreferences();
 
-    // Set renderer paths
-    Preferences::rendererPreferences();
-
     // initialize the logger
     Preferences::loggingPreferences();
 
@@ -980,11 +977,24 @@ int Application::initialize(lcCommandLineOptions &Options)
 #else // Q_OS_LINUX and Q_OS_MAC
     Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(QDir::toNativeSeparators(Preferences::lpub3dExtrasResourcePath)));
 #if defined Q_OS_LINUX
+#ifdef DEBUG_MODE_USE_BUILD_FOLDERS
     Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3d3rdPartyAppExeDir)));
+#else
+    const QString lpub3d3rdPartyAppExeDir = QDir(QString("%1/../../%2/%3/3rdParty")
+                                                         .arg(Preferences::lpub3dPath)
+                                                         .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix + "/opt")
+                                                         .arg(Preferences::lpub3dAppName)).absolutePath();
+    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(lpub3d3rdPartyAppExeDir)));
+#endif // DEBUG_MODE_USE_BUILD_FOLDERS
 #endif // Q_OS_LINUX
 #endif //  Q_OS_WIN or Q_OS_LINUX and Q_OS_MAC
     Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dConfigPath)));
     Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dCachePath)));
+#ifdef Q_OS_MAC
+    Preferences::printInfo(tr("%1 Homebrew Install Path.(Apple %2 Configuration)").arg(VER_PRODUCTNAME_STR)
+                                                                  .arg(Preferences::homebrewPathInsert.startsWith("PATH=/opt/homebrew/bin:") ? tr("Silicon") : tr("Intel")));
+    Preferences::printInfo(tr("%1 Homebrew Path Prefix..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::homebrewPathPrefix));
+#endif
     Preferences::printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));
     Preferences::printInfo(tr("%1 Logging Level.........(%2 (%3), Levels: [%4])").arg(VER_PRODUCTNAME_STR).arg(Preferences::loggingLevel)
                                                                   .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
@@ -1061,6 +1071,7 @@ QString distribution = tr("Installed");
     Preferences::themePreferences();
     Preferences::lpub3dUpdatePreferences();
     Preferences::lgeoPreferences();
+    Preferences::rendererPreferences();
     Preferences::fadestepPreferences();
     Preferences::highlightstepPreferences();
     Preferences::unitsPreferences();

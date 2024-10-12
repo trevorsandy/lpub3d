@@ -20,6 +20,9 @@
 #include <QObject>
 
 enum UpdateFlag { UpdateExisting, SkipExisting };
+#ifdef Q_OS_MAC
+enum LibFlag { LibValid, LibMissing, LibInvalid, LibChkError };
+#endif
 
 class QString;
 class QStringList;
@@ -109,9 +112,6 @@ class Preferences
     static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
-#ifdef Q_OS_MAC
-    static bool validLib(const QString &,const QString &);
-#endif
 
     static void setOverwriteCustomParts(bool);  // NO SOURCE
     static void setSceneGuidesPreference(bool);
@@ -170,6 +170,9 @@ class Preferences
                            bool option = false,
                            bool override = false,
                            int icon = 3);
+    #ifdef Q_OS_MAC
+    static LibFlag validRendererLib(const QString &, const QString &);
+    #endif
     static void messageBoxAdjustWidth(QMessageBox *box, const QString &title, const QString &text, int minWidth = 0);
 
     static ThemeSettings defaultThemeColors[];
@@ -278,7 +281,12 @@ class Preferences
     static QString sceneGuideColor;
     static QString currentLibrarySave;
     static QString editorFont;
+#ifdef Q_OS_MAC
+    static QString homebrewPathPrefix;
+    static QString homebrewPathInsert;
 
+    static QStringList missingLibs;
+#endif
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;
     static QStringList messagesNotShown;
@@ -407,7 +415,6 @@ class Preferences
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
 #endif
-
     static int     preferredRenderer;
     static int     nativeImageCameraFoVAdjust;
     static int     fadeStepsOpacity;

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 22, 2024
+# Last Update: September 24, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -379,7 +379,7 @@ Library versions for LPub3D built from source may differ.
 ========================
 LDView:
 
-- XQuartz version 2.7.11 or above (needed for OSMesa)
+- XQuartz version 2.7.11 (11.0) or above (needed for OSMesa)
   https://www.xquartz.org
 
 - LibPNG version 1.6.37 or above
@@ -399,35 +399,70 @@ LDView:
 
 POVRay:
 
-- XQuartz version 2.7.11 or above (needed for X11)
+- XQuartz version 2.7.11 (11.0)  or above (needed for X11)
   https://www.xquartz.org
 
 - LibTIFF version 4.0.10 or above
   http://www.libtiff.org
 
-- OpenEXR greater than version 2.3.0 and less then version 3.0.0
+- OpenEXR greater than version 2.3.0 or above
   http://www.openexr.com
 
 - SDL2 version 2.0.10 or above (for display preview)
   http://www.libsdl.org
 
+Homebrew
+======================================
+LPub3D and its renderers are not yet compiled for the Apple silicon ARM processor.
+Consequently, running LPub3D on an Apple silicon PC will require Rosetta which, if not already 
+installed on your PC will, you will be prompted to install it on your attempt to run LPub3D.
+If you wish to install Rosetta from the command line, the command is:
+
+- \$ /usr/sbin/softwareupdate --install-rosetta agree-to-license (root permission required)
+
 Install brew (if not already installed)
 ======================================
+For an Apple Intel processor:
 - \$ /usr/bin/ruby -e "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+For an Apple silicon ARM processor:
+- \$ arch -x86_64 zsh
+- \$ cd /usr/local && mkdir homebrew
+- \$ curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
 
 Install libraries
 =================
+For an Apple Intel processor:
 - \$ brew update
 - \$ brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
 - \$ brew install --cask xquartz
 
-Optional - Check installed lirary (e.g. libpng)
+For an Apple silicon ARM processor:
+- \$ arch -x86_64 /usr/local/homebrew/bin/brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+- \$ arch -x86_64 /usr/local/homebrew/bin/brew install --cask xquartz
+
+Optional - Check installed library (e.g. libpng)
 ============================================
 - \$ otool -L $(brew list libpng | grep dylib$)
     /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
         /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
         /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
         /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
+
+LPub3D Library Check Note: The default configuration of LPub3D will  
+look for Homebrew libraries at:
+- HomebrewLibPathPrefix: /usr/local/opt.
+
+Additionally, LPub3D will check Homebrew x86_64 libraries using PATH entries:
+- HomebrewPath: PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin
+
+If you choose to place your x86_64 binaries and libraries in alternate locations.
+Consequetly, you can configure your personalized paths in the LPub3D plist at:
+- $HOME/Library/Preferences/com.lpub3d-software.LPub3D.plist. 
+
+The Homebrew plist keys are:
+- HomebrewLibPathPrefix - the path prefix LPub3D will use to locate the Homebrew libraries. 
+- HomebrewPath - the PATH entries needed to help brew run the info command
 
 Cheers,
 EOF

@@ -408,6 +408,8 @@ QString Preferences::sceneRulerTrackingColor    = defaultThemeColors[THEME_DEFAU
 QString Preferences::sceneGuideColor            = defaultThemeColors[THEME_DEFAULT_GUIDE_PEN].color;
 
 #ifdef Q_OS_MAC
+QString Preferences::homebrewPathPrefix         = QStringLiteral("/usr/local/opt");
+QString Preferences::homebrewPathInsert         = QStringLiteral("PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin:");
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_MACOS;
 #elif defined Q_OS_LINUX
 QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_LINUX;
@@ -540,10 +542,6 @@ bool    Preferences::removeBuildModFormat       = false;
 bool    Preferences::removeChildSubmodelFormat  = false;
 bool    Preferences::editorBufferedPaging       = false;
 
-#ifdef Q_OS_MAC
-bool    Preferences::missingRendererLibs        = false;
-#endif
-
 bool    Preferences::loadTheme                  = false;
 bool    Preferences::setSceneTheme              = false;
 bool    Preferences::reloadPage                 = false;
@@ -551,6 +549,10 @@ bool    Preferences::reloadFile                 = false;
 bool    Preferences::resetCustomCache           = false;
 bool    Preferences::restartApplication         = false;
 bool    Preferences::libraryChangeRestart       = false;
+
+#ifdef Q_OS_MAC
+bool    Preferences::missingRendererLibs        = false;
+#endif
 
 int     Preferences::preferredRenderer          = 0; // RENDERER_NATIVE;
 int     Preferences::ldrawFilesLoadMsgs         = 0; // NEVER_SHOW;
@@ -583,6 +585,9 @@ int     Preferences::partCameraLongitude        = DEFAULT_PART_CAMERA_LONGITUDE;
 int     Preferences::submodelCameraLatitude     = DEFAULT_SUBMODEL_CAMERA_LATITUDE;
 int     Preferences::submodelCameraLongitude    = DEFAULT_SUBMODEL_CAMERA_LONGITUDE;
 
+#ifdef Q_OS_MAC
+QStringList Preferences::missingLibs;
+#endif
 #ifdef Q_OS_MAC
 int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_MACOS;
 #elif defined Q_OS_LINUX
@@ -1180,26 +1185,42 @@ void Preferences::loggingPreferences()
     } // end init loggingPreferences
 }
 
-#ifdef Q_OS_MAC
-bool Preferences::validLib(const QString &libName, const QString &libVersion)
+#ifdef Q_OS_MAC //macOS Library Validation Routine
+LibFlag Preferences::validRendererLib(const QString &library, const QString &libraryVersion)
 {
-    QString scriptFile, scriptCommand;
+    QString scriptFile, scriptCommand, libraryName;
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QStringList envList = env.toStringList();
+    bool isXQuartzLib = false;
 
     QTemporaryDir tempDir;
     if (!tempDir.isValid()) {
         logError() << qUtf8Printable(QObject::tr("Cannot create library check temp path."));
-        return false;
+        return LibChkError;
     } else {
-        scriptFile =  QString("%1/ver.sh").arg(tempDir.path());
+        QFileInfo libInfo(library);
+        libraryName = libInfo.completeBaseName().toLower();
+        if (libraryName != QStringLiteral("libpng") && libraryName != QStringLiteral("libtiff"))
+            libraryName = libraryName.replace("lib","");
+        if (!libInfo.exists()) {
+            return LibMissing;
+        } else if ((isXQuartzLib = libraryName == QStringLiteral("osmesa"))) {
+            // XQuartz 1st check -> LDView OSMesa
+            scriptCommand = QString("echo $(xdpyinfo | grep 'version number') | sed 's/[[:alpha:]|(|:|[:space:]]//g' && osascript -e 'quit app \"XQuartz\"'");
+        } else if (libraryName != QStringLiteral("x11")) {
+            // All other libraries check
+            scriptCommand = QString("echo $(brew info " + libraryName + ") | sed \"s/^.*stable \\([^(]*\\).*/\\1/\"");
+        } else {
+            // XQuartz 2nd check (if file exist only) -> POVRay x11
+            logInfo() << qUtf8Printable(QObject::tr("Library check - [%1] minimum :[%2] installed:[%3 %4]")
+                                                    .arg(library, libraryVersion, QString::fromUtf8("\uE289A5"), libraryVersion));
+            return LibValid;
+        }
 
+        scriptFile =  QString("%1/%2_ver.sh").arg(tempDir.path(), libraryName);
+
+        //-- Debug
         //logInfo() << qUtf8Printable(QObject::tr("Library check script: [%1]").arg(scriptFile));
-
-        if (libName != "xquartz")
-            scriptCommand = QString("echo $(brew info " + libName + ") | sed \"s/^.*stable \\([^(]*\\).*/\\1/\"");
-        else
-            scriptCommand = QString("echo $(xdpyinfo | grep 'version number') | sed \"s/^.*\\:[ \\t]*\\(.*\\)$/\\1/\" && osascript -e 'quit app \"XQuartz\"'");
 
         QFile file(scriptFile);
         if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -1207,14 +1228,20 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion)
             stream << "#!/bin/bash" << lpub_endl;
             stream << scriptCommand << lpub_endl;
             file.close();
+            //-- Debug
+            //const QString debugFile = QString("/Users/trevorsandy/Development/logs/%1_ver.sh").arg(libraryName);
+            //if (QFile::exists(debugFile))
+            //    QFile::remove(debugFile);
+            //QFile::copy(scriptFile, debugFile);
         } else {
-            logError() << qUtf8Printable(QObject::tr("Cannot write library check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
-           return false;
+            logError() << qUtf8Printable(QObject::tr("Cannot write library check script file [%1] %2.").arg(file.fileName(),file.errorString()));
+            return LibChkError;
         }
 
-        envList.replaceInStrings(QRegularExpression("^(?i)PATH=(.*)"), "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin/:/opt/x11/bin:$HOME/bin:\\1");
+        envList.replaceInStrings(QRegularExpression("^(?i)PATH=(.*)"), QStringLiteral("%1/opt/x11/bin:$HOME/bin:\\1").arg(homebrewPathInsert));
     }
 
+    //-- Debug
     //logDebug() << qUtf8Printable(QObject::tr("SystemEnvironment:  %1").arg(envList.join(" ")));
 
     QProcess pr;
@@ -1222,19 +1249,18 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion)
     pr.start(UNIX_SHELL, QStringList() << scriptFile);
     if (! pr.waitForStarted()) {
         logError() << qUtf8Printable(QObject::tr("Cannot start library check process."));
-        return false;
+        return LibChkError;
     }
 
-    int waitTime = 60000 ; // 60 secs
+    int waitTime = isXQuartzLib ? -1 : 60000 ; // 60 secs
     if (! pr.waitForFinished(waitTime)) {
         if (pr.exitCode() != 0) {
             QByteArray status = pr.readAll();
             QString str;
             str.append(status);
             logError() << qUtf8Printable(QObject::tr("Library check process failed with code %1 %2")
-                                                 .arg(pr.exitCode())
-                                                 .arg(str));
-            return false;
+                                                     .arg(pr.exitCode()).arg(str));
+            return LibChkError;
         }
     }
 
@@ -1246,56 +1272,62 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion)
          * Until I figure out a better way to override it, I'll just put
          * in place this hack
          */
-        if (libName == "xquartz" && !p_stderr.contains("MessageTracer: Falling back to default whitelist")) {
+        if (libraryName == QStringLiteral("xquartz") && !p_stderr.contains("MessageTracer: Falling back to default whitelist")) {
             logError() << qUtf8Printable(QObject::tr("Library check for xquartx returned error: %1").arg(p_stderr));
-            return false;
+            return LibInvalid;
         }
     }
 
-    QString val1 = libVersion;
-    QString val2 = pr.readAllStandardOutput().trimmed();
+    const QString minimumVersion = libraryVersion;
+    const QString installVersion = pr.readAllStandardOutput().trimmed();
 
-    // Compare v1 with v2 and return an integer:
-    // Return -1 when v1 < v2
-    // Return  0 when v1 = v2
-    // Return  1 when v1 > v2
+    logInfo() << qUtf8Printable(QObject::tr("Library check - [%1] minimum :[%2] installed:[%3]")
+                                            .arg(library, minimumVersion, installVersion));
 
-    auto compareLibVersion = [&val1, &val2] ()
+    // Compare minimumNum with installNum and return an integer:
+    // Return -1 when minimumNum < installNum
+    // Return  0 when minimumNum = installNum
+    // Return  1 when minimumNum > installNum
+
+    auto compareLibVersion = [ & ] ()
     {
-        int result = 0;
-        int v1 = 0,v2 = 0;
-        QString _val1 = val1;
-        QString _val2 = val2;
+        // Debug
+        //if (libraryName == QStringLiteral("jpeg"))
+        //    int foo = 1;
+        int result = 0, minimumNum = 0,installNum = 0;
+        QString minimumStr = minimumVersion;
+        QString installStr = installVersion;
         bool good = false, ok = false;
-        if (_val1 == LIBJPEG_MACOS_VERSION) {
-            _val1.chop(val1.size() - 1);
-            _val2.chop(val2.size() - 1);
-            v1 = _val1.toInt(&good);
-            v2 = _val2.toInt(&ok);
+        if (minimumStr == LIBJPEG_MACOS_VERSION) {
+            minimumStr.chop(minimumVersion.size() - 1);
+            installStr.chop(installVersion.size() - 1);
+            minimumNum = minimumStr.toInt(&good);
+            installNum = installStr.toInt(&ok);
             good &= ok;
             if (good) {
-                if (v1 < v2)
+                if (minimumNum < installNum)
                     return -1;
-                else if (v1 == v2)
+                else if (minimumNum == installNum)
                     return 0;
                 else
                     return 1;
             } else {
-                return QString::compare(_val1, _val2, Qt::CaseInsensitive);
+                // compare alphabetic character
+                return QString::compare(minimumStr, installStr, Qt::CaseInsensitive);
             }
         } else {
-            QStringList _vals1 = _val1.split(".");
-            QStringList _vals2 = _val2.split(".");
-            if (_vals1.size() == _vals2.size()) {
+            QStringList _minimumList = minimumStr.split(".");
+            QStringList _installList = installStr.split(".");
+            if (_minimumList.size() == _installList.size()) {
                 bool good = false, ok = false;
-                for(int i = 0; i < _vals1.size(); i++){
-                    v1 = _vals1.at(i).toInt(&good);
-                    v2 = _vals2.at(i).toInt(&ok);
+                for(int i = 0; i < _minimumList.size(); i++){
+                    minimumNum = _minimumList.at(i).toInt(&good);
+                    installNum = _installList.at(i).toInt(&ok);
                     good &= ok;
                     if (good) {
-                        if (v1 < v2)
+                        if (minimumNum < installNum)
                             result = -1;
-                        else if (v1 == v2)
+                        else if (minimumNum == installNum)
                             result = 0;
                         else
                             result = 1;
@@ -1303,28 +1335,23 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion)
                         if (result)
                             return result;
                     } else {
-                       return QString::compare(_val1, _val2, Qt::CaseInsensitive);
+                       return QString::compare(minimumStr, installStr, Qt::CaseInsensitive);
                     }
                 }
             } else {
-                return QString::compare(_val1, _val2, Qt::CaseInsensitive);
+                return QString::compare(minimumStr, installStr, Qt::CaseInsensitive);
             }
         }
         return result;
     };
 
-    int vc =  compareLibVersion(); // QString::compare(val1, val2, Qt::CaseInsensitive);
-
-    logInfo() << qUtf8Printable(QObject::tr("Library version check - [%1] minimum :[%2] installed:[%3]"/* vc(%4): %5]" */)
-                                        .arg(libName).arg(val1).arg(val2));
-
-    if (vc > 0) {
-        logTrace() << qUtf8Printable(QObject::tr("Library %1 version [%2] is less than required version [%3]")
-                                             .arg(libName).arg(val2).arg(libVersion));
-        return false;
+    if (compareLibVersion() > 0) { // minimum > install
+        logTrace() << qUtf8Printable(QObject::tr("Library '%1' version [%2] is less than required version [%3]")
+                                                 .arg(libraryName, installVersion, libraryVersion));
+        return LibInvalid;
     }
 
-    return true;
+    return LibValid;
 }
 #endif
 
@@ -1579,6 +1606,21 @@ void Preferences::lpubPreferences()
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_STICKER_PARTS_FILE));
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+#ifdef Q_OS_MAC
+    QSettings Settings;
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HomebrewPath"))) {
+        QVariant eValue(homebrewPathInsert);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HomebrewPath"),eValue);
+    } else {
+        homebrewPathInsert = Settings.value(QString("%1/%2").arg(SETTINGS,"HomebrewPath")).toString();
+    }
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HomebrewLibPathPrefix"))) {
+        QVariant eValue(homebrewPathPrefix);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HomebrewLibPathPrefix"),eValue);
+    } else {
+        homebrewPathPrefix = Settings.value(QString("%1/%2").arg(SETTINGS,"HomebrewLibPathPrefix")).toString();
+    }
+#endif
 }
 
 void Preferences::lpub3dLibPreferences(bool browse)
@@ -2549,7 +2591,7 @@ void Preferences::rendererPreferences()
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
         lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
     } else {
-        lpub3d3rdPartyAppDir = QString("%1/%2.app/Contents/3rdParty").arg(lpub3dPath).arg(lpub3dAppName);
+        lpub3d3rdPartyAppDir = QString("%1/%2.app/Contents/3rdParty").arg(lpub3dPath, lpub3dAppName);
     }
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
@@ -2595,7 +2637,6 @@ void Preferences::rendererPreferences()
 
 #ifdef Q_OS_MAC
     emit Application::instance()->splashMsgSig(QObject::tr("25% - %1 macOS Required Library Check...").arg(VER_PRODUCTNAME_STR));
-    QStringList missingLibs;
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
@@ -2604,6 +2645,10 @@ void Preferences::rendererPreferences()
     box.setWindowTitle(QMessageBox::tr ("Missing Libraries"));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     box.setStandardButtons (QMessageBox::Close);
+
+    const QString missing = QStringLiteral(" - not found.");
+    const QString invalid = QStringLiteral(" - invalid version.");
+    const QString errored = QStringLiteral(" - error encountered.");
 #endif
 
     if (ldviewInfo.exists()) {
@@ -2624,61 +2669,37 @@ void Preferences::rendererPreferences()
 
         if (missingRendererLibs) {
             missingLibs.clear();
-            QFileInfo libInfo("/opt/X11/lib/libOSMesa.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                QString xquartz = "xquartz";
-                if (!validLib(xquartz, LIBXQUARTZ_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/libpng/lib/libpng.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName(), LIBPNG_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/gl2ps/lib/libgl2ps.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBGL2PS_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/jpeg/lib/libjpeg.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBJPEG_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/tinyxml/lib/libtinyxml.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBXML_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/minizip/lib/libminizip.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBMINIZIP_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
+
+            const QStringList Libraries[] =
+            {
+                { QStringLiteral("/opt/X11/lib/libOSMesa.dylib"), LIBXQUARTZ_MACOS_VERSION },
+                { QStringLiteral("/libpng/lib/libpng.dylib"), LIBPNG_MACOS_VERSION },
+                { QStringLiteral("/gl2ps/lib/libgl2ps.dylib"), LIBGL2PS_MACOS_VERSION },
+                { QStringLiteral("/jpeg/lib/libjpeg.dylib"), LIBJPEG_MACOS_VERSION },
+                { QStringLiteral("/tinyxml/lib/libtinyxml.dylib"), LIBXML_MACOS_VERSION },
+                { QStringLiteral("/minizip/lib/libminizip.dylib"), LIBMINIZIP_MACOS_VERSION }
+            };
+            int i = 0;
+            for (const QStringList &library : Libraries) {
+                const QString libPath = i ? homebrewPathPrefix + library.first() : library.first();
+                LibFlag flag = validRendererLib(libPath, library.last());
+                if (flag) missingLibs << libPath + (flag == LibMissing ? missing : flag == LibInvalid ? invalid : errored);
+                i++;
             }
 
             missingRendererLibs = missingLibs.size() > 0;
+
             QVariant eValue(missingRendererLibs);
             if (!missingRendererLibs) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
             }
             else
             {
-                QString header = QMessageBox::tr ("<b>Required libraries were not found!</b>");
-                QString body = QMessageBox::tr ("The following LDView libraries were not found:%2%2-%1%2%2"
-                                                "See /Applications/%3.app/Contents/Resources/README_macOS.txt for details.")
-                                                .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n").arg(VER_PRODUCTNAME_STR));
+                QString libraryString = QString("%2-%1%2").arg(missingLibs.join("\n -"), (modeGUI ? "<br>" : "\n"));
+                QString header = QMessageBox::tr ("<b>Required libraries were not validated!</b>");
+                QString body = QMessageBox::tr ("The following LDView libraries were not validated: %1"
+                                                "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
+                                                .arg(libraryString, VER_PRODUCTNAME_STR);
                 box.setText (header);
                 box.setInformativeText (body);
 
@@ -2690,7 +2711,7 @@ void Preferences::rendererPreferences()
                             Application::instance()->splash->show();
                     }
                 } else {
-                    fprintf(stdout,"%s\n",qUtf8Printable(body));
+                    fprintf(stdout,"%s\n",qUtf8Printable(body.replace("\n", " ")));
                     fflush(stdout);
 #ifdef QT_DEBUG_MODE
                     logDebug() << qUtf8Printable(QObject::tr("LDView Missing Libs: %1").arg(missingLibs.join("\n -")));
@@ -2721,56 +2742,39 @@ void Preferences::rendererPreferences()
 
         if (missingRendererLibs) {
             missingLibs.clear();
-            QFileInfo libInfo("/opt/X11/lib/libX11.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                QString xquartz = "xquartz";
-                if (!validLib(xquartz, LIBXQUARTZ_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/libtiff/lib/libtiff.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName(), LIBTIFF_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/openexr/lib/libIlmImf.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                QString openexr = "openexr";
-                if (!validLib(openexr, LIBOPENEXR_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/ilmbase/lib/libHalf.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                QString ilmbase = "ilmbase";
-                if (!validLib(ilmbase, LIBILMBASE_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
-            }
-            libInfo.setFile("/usr/local/opt/sdl2/lib/libSDL2.dylib");
-            if (!libInfo.exists()){
-                missingLibs << libInfo.absoluteFilePath() + " - not found.";
-            } else {
-                if (!validLib(libInfo.completeBaseName().replace("lib","").toLower(), LIBSDL_MACOS_VERSION))
-                    missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
+
+            const QStringList Libraries[] =
+            {
+              { QStringLiteral("/opt/X11/lib/libX11.dylib"), LIBXQUARTZ_MACOS_VERSION },
+              { QStringLiteral("/libtiff/lib/libtiff.dylib"), LIBTIFF_MACOS_VERSION },
+              { QStringLiteral("/sdl2/lib/libSDL2.dylib"), LIBSDL_MACOS_VERSION },
+              { QStringLiteral("/openexr/lib/libOpenEXR.dylib"), LIBOPENEXR_MACOS_VERSION }, // OpenEXR v3
+              { QStringLiteral("/openexr/lib/libIlmImf.dylib"), LIBOPENEXR_MACOS_VERSION },  // OpenEXR v2
+              { QStringLiteral("/ilmbase/lib/libHalf.dylib"), LIBILMBASE_MACOS_VERSION }     // OpenEXR v2
+            };
+            int i = 0;
+            bool OpenEXRv3 = QFile::exists(homebrewPathPrefix + Libraries[3].first());
+            for (const QStringList &library : Libraries) {
+              if ((OpenEXRv3 && i > 3) || (! OpenEXRv3 && i == 3)) continue;
+              const QString libPath = i ? homebrewPathPrefix + library.first() : library.first();
+              LibFlag flag = validRendererLib(libPath, library.last());
+              if (flag) missingLibs << libPath + (flag == LibMissing ? missing : flag == LibInvalid ? invalid : errored);
+              i++;
             }
 
             missingRendererLibs = missingLibs.size() > 0;
+
             QVariant eValue(missingRendererLibs);
             if (!missingRendererLibs) {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
             }
             else
             {
+              QString libraryString = QString("%2-%1%2").arg(missingLibs.join("\n -"), (modeGUI ? "<br>" : "\n"));
               QString header = QMessageBox::tr ("<b>Required libraries were not found!</b>");
-              QString body = QMessageBox::tr ("The following required POVRay libraries were not found:%2%2-%1%2%2 "
-                                              "See /Applications/%3.app/Contents/Resources/README_macOS.txt for details.")
-                                              .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n").arg(VER_PRODUCTNAME_STR));
+              QString body = QMessageBox::tr ("The following required POVRay libraries were not found: %1"
+                                              "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
+                                              .arg(libraryString, VER_PRODUCTNAME_STR);
               box.setText (header);
               box.setInformativeText (body);
 
@@ -2782,7 +2786,7 @@ void Preferences::rendererPreferences()
                       Application::instance()->splash->show();
                 }
               } else {
-                QString message = body.replace("\n", " ");
+                const QString message = body.replace("\n", " ");
                 fprintf(stdout,"%s\n",qUtf8Printable(message));
                 fflush(stdout);
 #ifdef QT_DEBUG_MODE
@@ -2856,7 +2860,7 @@ void Preferences::rendererPreferences()
         blenderExe.clear();
     } else {
         blenderExe = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,blenderExeKey)).toString());
-        if (QFileInfo(blenderExe).exists()) {
+        if (QFileInfo::exists(blenderExe)) {
             // Blender version
             QString const blenderVersionKey("BlenderVersion");
             if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {

@@ -1,4 +1,4 @@
-LPub3D 2.4.7.136.3612 (12 10 2024 04:04:06)
+LPub3D 2.4.7.137.3613 (12 10 2024 04:05:13)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Apple silicon arm64 builds #761 
 - Change - Custom parts with underscore in the name #730
 - Change - Difference in rendering with native renderer between versions #731
 - Change - MLCad Part unknown! PART line error after mpd file save #734
