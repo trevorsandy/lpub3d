@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 02, 2024
+# Last Update September 15, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -25,6 +25,28 @@ FinishElapsedTime() {
 }
 
 trap FinishElapsedTime EXIT
+
+brew_install() {
+  # Usage: 
+  # brew_install qt@5
+  if brew list $1 &>/dev/null; then
+    echo "${1} is already installed."
+  else
+    case $1 in
+    xquartz)
+      brew install --cask $1
+    ;;
+    qt@5)
+      brew install $1
+      echo "Force linking to 'keg-only' instance of Qt..."
+      brew link --force $1
+    ;;
+    *)
+      brew install $1
+    ;;
+    esac
+  fi
+}
 
 # Grab the commit message
 if  [ "${LP3D_COMMIT_MSG}" = *"QUICK_BUILD"* ]; then
@@ -85,14 +107,10 @@ if [ ! -f "~/ldraw" ]; then
 fi
 
 # Make sure Qt is properly setup
-echo "Install 'cask' instance of XQuartz..."
-brew install --cask xquartz
-echo "Install 'keg-only' instance of Qt..."
-brew install qt@5
-echo "Force linking to 'keg-only' instance of Qt..."
-brew link --force qt@5
-echo "Install coreutils..."
-brew install coreutils
+echo "Install 'cask' instance of XQuartz..." && brew_install xquartz
+echo "Install 'keg-only' instance of Qt..." && brew_install qt@5
+echo "Install coreutils..." && brew_install coreutils
+echo "Install wget..." && brew_install wget
 
 # Link gsha512sum to sha512sum
 if [ ! -f "/usr/local/bin/sha512sum" ]; then
@@ -117,7 +135,7 @@ fi
 
 # Download LDraw library archive files
 echo "Downloading archive libraries..."
-[ "${GITHUB}" = "true" ] && \
+[[ "${GITHUB}" = "true" && ! -f "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" ]] && \
 wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip || :
 [ ! -f "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" ] && \
 ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" || :

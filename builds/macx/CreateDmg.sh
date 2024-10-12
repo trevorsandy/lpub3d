@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 08, 2023
+# Last Update: September 15, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -94,7 +94,7 @@ curlopts="-sL -C -"
 
 echo "   LOG FILE...............[${LOG}]" && echo
 
-# when running locally, use this block...
+# when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
   if [ -d ~/Qt/IDE/5.15.0/clang_64 ]; then
@@ -119,8 +119,8 @@ if [ "${CI}" != "true"  ]; then
   echo "skip download and use existing source if available."
   read -n 1 -p "Do you want to continue with this option? : " getsource
 else
-  # For Travis CI, use this block (script called from clone directory - lpub3d)
-  # getsource = downloaded source variable; 'c' = copy flag, 'd' = download flag
+  # Use this block for Homebrew Qt (script called from clone directory - e.g. lpub3d)
+  # Set no-prompt getsource flag: 'c' = copy flag, 'd' = download flag
   getsource=c
   # move outside clone directory (lpub3d)/
   cd ../
@@ -182,15 +182,27 @@ esac
 echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 cd ${LPUB3D}
 
-chmod +x builds/utilities/CreateRenderers.sh
+chmod +x builds/utilities/CreateRenderers.sh && \
 ./builds/utilities/CreateRenderers.sh
 
+DIST_DIR="$(cd ../ && echo "$PWD/lpub3d_macos_3rdparty")"
+
 # Check if renderers exist or were successfully built
-if [ ! -f "../lpub3d_macos_3rdparty/lpub3d_trace_cui-3.8/bin/${LP3D_ARCH}/lpub3d_trace_cui" ] || \
-   [ ! -f "../lpub3d_macos_3rdparty/LDView-4.5/bin/${LP3D_ARCH}/LDView" ] || \
-   [ ! -f "../lpub3d_macos_3rdparty/LDGLite-1.3/bin/${LP3D_ARCH}/LDGLite" ]
-then
-  echo "ERROR - all renderers were not accounted for, the build cannot continue."
+BUILD_RENDERERS=ok
+LDGLITE_PATH="${DIST_DIR}/LDGLite-1.3/bin/${LP3D_ARCH}"
+LDVIEW_PATH="${DIST_DIR}/LDView-4.5/bin/${LP3D_ARCH}"
+POVRAY_PATH="${DIST_DIR}/lpub3d_trace_cui-3.8/bin/${LP3D_ARCH}"
+if [ ! -f "${LDGLITE_PATH}/LDGLite" ]; then
+  BUILD_RENDERERS=ko && echo "ERROR - LDGLite not found at ${LDGLITE_PATH}/"
+fi
+if [ ! -f "${LDVIEW_PATH}/LDView" ]; then
+  BUILD_RENDERERS=ko && echo "ERROR - LDView not found at ${LDVIEW_PATH}/"
+fi
+if [ ! -f "${POVRAY_PATH}/lpub3d_trace_cui" ]; then
+  BUILD_RENDERERS=ko && echo "ERROR - POVRay not found at ${POVRAY_PATH}/"  
+fi
+if [ "${BUILD_RENDERERS}" = "ko" ]; then
+  echo "ERROR - all renderers were not successfully built, ${LPUB3D} build cannot continue."
   exit 1
 fi
 
@@ -199,9 +211,9 @@ if [ "$BUILD_OPT" = "renderers" ]; then
   exit 0
 fi
 
+# Copy LDraw archive libraries to mainApp/extras
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  DIST_DIR="../lpub3d_macos_3rdparty"
   if [ -f "${DIST_DIR}/complete.zip" ]
   then
     echo "-  copy ldraw official library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
@@ -343,7 +355,7 @@ mkdir -p ${DMGDIR}
 # pos: builds/macx
 echo "- generate README file and dmg make script..."
 cat <<EOF >README
-Thank you for installing LPub3D v${LP3D_APP_VERSION} for macOS".
+Thank you for installing LPub3D v${LP3D_APP_VERSION} for macOS.
 
 Drag the LPub3D Application icon to the Applications folder.
 
