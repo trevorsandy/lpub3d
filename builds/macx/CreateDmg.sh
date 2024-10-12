@@ -174,9 +174,9 @@ export LDRAWDIR=${LDRAWDIR}
 
 case ${LP3D_ARCH} in
   "x86_64"|"aarch64"|"arm64")
-    DistArch="64bit_release" ;;
+    release="64bit_release" ;;
   *)
-    DistArch="32bit_release" ;;
+    release="32bit_release" ;;
 esac
 
 echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
@@ -186,9 +186,9 @@ chmod +x builds/utilities/CreateRenderers.sh
 ./builds/utilities/CreateRenderers.sh
 
 # Check if renderers exist or were successfully built
-if [ ! -f "../lpub3d_macos_3rdparty/lpub3d_trace_cui-3.8/bin/$DistArch/lpub3d_trace_cui" ] || \
-   [ ! -f "../lpub3d_macos_3rdparty/LDView-4.5/bin/$DistArch/LDView" ] || \
-   [ ! -f "../lpub3d_macos_3rdparty/LDGLite-1.3/bin/$DistArch/LDGLite" ]
+if [ ! -f "../lpub3d_macos_3rdparty/lpub3d_trace_cui-3.8/bin/${LP3D_ARCH}/lpub3d_trace_cui" ] || \
+   [ ! -f "../lpub3d_macos_3rdparty/LDView-4.5/bin/${LP3D_ARCH}/LDView" ] || \
+   [ ! -f "../lpub3d_macos_3rdparty/LDGLite-1.3/bin/${LP3D_ARCH}/LDGLite" ]
 then
   echo "ERROR - all renderers were not accounted for, the build cannot continue."
   exit 1

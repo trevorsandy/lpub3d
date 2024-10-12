@@ -51,7 +51,7 @@ mkdir -p ${LP3D_OUT_PATH} || :
 # Set variables
 IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 export LPUB3D=${SLUG_PARTS[1]}
-export LP3D_ARCH=${LP3D_ARCH:-x86_64}
+export LP3D_ARCH=${LP3D_ARCH:-$(uname -m)}
 export LP3D_LDRAW_DIR="${LP3D_3RD_PARTY_PATH}/ldraw"
 export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-~/}
 export LDRAWDIR=${LDRAWDIR:-~/ldraw}
