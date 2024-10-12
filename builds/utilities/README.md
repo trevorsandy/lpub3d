@@ -163,7 +163,7 @@ CALL .\%AppInstance%\builds\utilities\ci\github\windows-build.bat > %AppInstance
 **Note:** Compose instructions below are quite likely the same for Docker on Linux or macOS  
 **Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux][dockerarch], [Ubuntu][dockerubuntu] and [Fedora 26][dockerfedora] are available.
 **Note:** [WSL - Windows Subsystem for Linux][wsl] is not essential and can be substitued with Git Bash.  
-**Note:** You can substitue [Fedora 26][dockerfedora] with [archlinux][dockerarch] or [Ubuntu][dockerubuntu] in the steps below.
+**Note:** You can substitue [Fedora 36][dockerfedora] with [archlinux][dockerarch] or [Ubuntu][dockerubuntu] in the steps below.
 
 **Steps:**
 - [ ] 1. make and enter build direcories  

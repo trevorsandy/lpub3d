@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN apt-get update; apt-get install -y apt-utils desktop-file-utils dialog nautilus build-essential debhelper fakeroot ccache lsb-release
 RUN apt-get install -y autotools-dev autoconf pkg-config libtool gdb curl gedit git wget unzip lintian
-RUN apt-get install -y xvfb dos2unix qtcreator valgrind
+RUN apt-get install -y xvfb dos2unix qt5-default qtcreator valgrind
 RUN apt-get install -y lubuntu-desktop lightdm
 RUN apt-get install -y locales
 RUN rm /run/reboot-required*
@@ -37,15 +37,15 @@ CMD sudo service dbus start ; sudo service lightdm start
 
 : <<'BLOCK_COMMENT'
 Trevor SANDY
-Last Update Jun 23, 2022
+Last Update September 12, 2024
 Copyright (C) 2022 - 2024 by Trevor SANDY
 
 Run full Ubuntu desktop GUI in a Docker container displayed on Windows using (XServer)
 
-Prerequisite installations:
+Windows Prerequisite installations:
 1. WSL2
 2. Docker Desktop
-3. VcXsrv
+3. VcXsrv https://github.com/marchaesen/vcxsrv
 
 Windows commands - run from <user>\Projects with this file placed at <user>\Projects\Dockerfiles
 1. build command (Powershell):
@@ -59,14 +59,23 @@ volume 01: (host) C:\Users\Trevor\Projects\Working\Docker-output\buildpkg /build
 volume 02: (host) C:\Users\Trevor\Projects\Working\Docker-output          /user/resources
 volume 03: (host) C:\Users\Trevor\Projects                                /user/projects
 3. run command (Powershell):
-> docker run -it -v ./Working/Docker-output/buildpkg:/buildpkg -v .:/user/projects xsrv-lubuntu /bin/bash
+> cd $env:USERPROFILE
+> $RunCommand = @"
+-v ./Working/Docker-output/buildpkg:/buildpkg 
+-v ./Working/Docker-output:/user/resources 
+-v .:/user/projects 
+xsrv-lubuntu 
+/bin/bash
+"@
+> docker run -it $RunCommand
 
-Run the following command or cut, paste and uncomment into a script
+Run the following LPub3D installation command or cut, paste and uncomment into a script
 
 #!/bin/bash
 
+LP3D_REPOSITORY=lpub3d
 export PRESERVE=true # set to true to preserve locally cloned repository
-if test "${PRESERVE}" != "true"; then wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreateDeb.sh; fi && \
+if test "${PRESERVE}" != "true"; then wget https://raw.githubusercontent.com/trevorsandy/${LP3D_REPOSITORY}/master/builds/linux/CreateDeb.sh; fi && \
 export DOCKER=true && \
 export LP3D_ARCH=amd64 && \
 export DEB_EXTENSION=amd64.deb && \

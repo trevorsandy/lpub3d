@@ -421,7 +421,7 @@ BuildLDView() {
   case ${platform_id} in
   redhat|centos|fedora|suse|mageia|openeuler)
      case ${platform_ver} in
-     7|8|32|33|34|800|1500|1550|150000|150200|150300|2003|2103)
+     7|8|9|33|34|36|37|39|40|800|1500|1550|150000|150200|150300|2003|2103)
        ApplyLDViewStdlibHack
        ;;
      esac
@@ -431,7 +431,7 @@ BuildLDView() {
     ;;
   debian|ubuntu)
     case ${platform_ver,} in
-     7|8|9|10|18.04|20.04|20.10|21.04)
+     7|8|9|10|11|12|18.04|20.04|22.04|24.04)
        ApplyLDViewStdlibHack
        ;;
     esac

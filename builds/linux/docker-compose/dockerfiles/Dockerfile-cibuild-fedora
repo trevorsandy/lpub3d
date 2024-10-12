@@ -1,4 +1,4 @@
-FROM fedora:26
+FROM fedora:36
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN dnf install -y git wget unzip which rpmlint ccache dnf-plugins-core rpm-build > CreateDockerImage_fedora.log 2>&1
 RUN dnf install -y xorg-x11-server-Xvfb desktop-file-utils >> CreateDockerImage_fedora.log 2>&1

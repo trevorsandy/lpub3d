@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 23, 2022
+# Last Update September 12, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -259,10 +259,10 @@ then
             sudo dnf install -y desktop-file-utils
         fi
 
-        # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1.fc26.x86_64.rpm
+        # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1.fc36.x86_64.rpm
         echo "      15-1. Build check install ${LPUB3D}..."
         yes | sudo rpm -Uvh ${DISTRO_FILE}
-        # Check if exe exist - here we use the executable name e.g. lpub3d22
+        # Check if exe exist - here we use the executable name e.g. lpub3d23
         LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
         SOURCE_DIR=../../SOURCES/${WORK_DIR}
         if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then

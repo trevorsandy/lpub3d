@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 23, 2022
+# Last Update September 12, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -332,6 +332,14 @@ then
             LP3D_PLATFORM_NAME="jammy" ;;
         22.10)
             LP3D_PLATFORM_NAME="kinetic" ;;
+        23.04)
+            LP3D_PLATFORM_NAME="lunar" ;;
+        23.10)
+            LP3D_PLATFORM_NAME="mantic" ;;
+        24.04)
+            LP3D_PLATFORM_NAME="noble" ;;
+        24.10)
+            LP3D_PLATFORM_NAME="oracular" ;;
         *)
             LP3D_PLATFORM_NAME="ubuntu" ;;
         esac

@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 09, 2023
+rem  Last Update: September 12, 2024
 rem  Copyright (C) 2015 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -276,8 +276,8 @@ SET LP3D_AVAILABLE_VERSIONS_flp=unknown
 SET LP3D_GITHUB_BASE=https://github.com/trevorsandy/%LPUB3D_DIR%
 SET LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net
 SET LP3D_SOURCEFORGE_UPDATE_BASE=https://lpub3d.sourceforge.io
-SET LP3D_DEB=bionic
-SET LP3D_FCV=fc33
+SET LP3D_DEB=jammy
+SET LP3D_FCV=fc36
 
 ECHO.
 ECHO - Setting up release build parameters...

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 03, 2022
+# Last Update September 12, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -36,16 +36,21 @@ trap FinishElapsedTime EXIT
 # resolve docker image options
 docker_tag=
 docker_image=
-docker_dist="bionic"
+docker_dist="jammy"
 docker_arch="${LP3D_ARCH:-amd64}"
 docker_base="${LP3D_BASE:-ubuntu}"
 docker_qemu="${LP3D_QEMU:-false}"
 docker_platform="--platform linux/${LP3D_ARCH}"
 case "${docker_base}" in
     "ubuntu")
-        docker_dist="bionic" ;;
+        if [ "${LP3D_APPIMAGE}" = "true" ]; then
+            docker_dist="bionic"
+        else
+            docker_dist="jammy"
+        fi 
+        ;;
     "fedora")
-        docker_dist="33" ;;
+        docker_dist="36" ;;
     "archlinux")
         docker_dist="latest" ;;
     *)

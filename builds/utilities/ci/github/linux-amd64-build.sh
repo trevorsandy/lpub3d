@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 29, 2023
+# Last Update September 12, 2024
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -39,12 +39,12 @@ docker_arch="amd64"
 docker_platform="--platform linux/${docker_arch}"
 case "${docker_base}" in
     "ubuntu")
-        docker_dist="bionic"
+        docker_dist="jammy"
         docker_tag="${docker_base}:${docker_dist}"
         docker_image="${docker_tag}"-"${docker_arch}"
         ;;
     "fedora")
-        docker_dist="33"
+        docker_dist="36"
         docker_tag="${docker_base}:${docker_dist}"
         docker_image="${docker_tag}"-"${docker_arch}"
         ;;
