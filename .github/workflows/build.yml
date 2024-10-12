@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 24, 2024
+# Last Update: September 26, 2024
 # Copyright (C) 2021 - 2024 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -20,7 +20,7 @@ on:
 jobs:
   build-linux:
     # if: ${{ false }} # uncomment to disable
-    name: Build Linux
+    name: Build ${{ matrix.BUILD }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -71,8 +71,12 @@ jobs:
 
   build-macos:
     # if: ${{ false }} # uncomment to disable
-    name: Build macOS
-    runs-on: macos-13
+    name: Build macOS ${{ matrix.runner-version }}
+    runs-on: macos-${{ matrix.runner-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner-version: [ 13, 14 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -87,11 +91,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
-          key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
+          key: third-party-macos-${{ matrix.runner-version }}-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      - name: Build macOS
+      - name: Build macOS ${{ matrix.runner-version }}
         run: bash -ex builds/utilities/ci/github/macos-build.sh
         env:
           LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
@@ -102,20 +106,20 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-download
+          name: macos-${{ matrix.runner-version }}-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
       - name: Diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: macos-logs
+          name: macos-${{ matrix.runner-version }}-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
 
   build-windows:
     # if: ${{ false }} # uncomment to disable
-    name: Build Windows
+    name: Build Windows 2022
     runs-on: windows-2022
     steps:
       - name: Checkout
