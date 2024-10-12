@@ -31,14 +31,13 @@
 #include <QErrorMessage>
 #include <algorithm>
 
+#include <LDVQt/LDVWidget.h>
+
 #include "paths.h"
 #include "lpub.h"
 #include "progress_dialog.h"
 #include "dialogexportpages.h"
 #include "messageboxresizable.h"
-
-#include <TCFoundation/TCUserDefaults.h>
-#include <LDLib/LDUserDefaultsKeys.h>
 
 // Set to enable print/export trace logging
 #ifndef PAGE_PRINT_DEBUG
@@ -1516,8 +1515,7 @@ void Gui::exportAs(const QString &_suffix)
       setNativeRenderer();
 
       if (m_saveDirectoryName.isEmpty()) {
-          char *exportsDir = nullptr;
-          exportsDir = TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);
+          char *exportsDir = LDVWidget::getExportsDir();
           if (exportsDir) {
               stripTrailingPathSeparators(exportsDir);
               m_saveDirectoryName = exportsDir;

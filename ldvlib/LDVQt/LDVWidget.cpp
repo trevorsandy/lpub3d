@@ -30,6 +30,8 @@
 #include <QTextStream>
 #include <QImageWriter>
 #include <QTextDocument>
+#include <QDialog>
+#include <QMessageBox>
 #include <QTimer>
 #include <QWindow>
 #include <QGLContext>
@@ -367,6 +369,16 @@ bool LDVWidget::setIni(IniFlag iniflag)
 	return true;
 }
 
+bool LDVWidget::setIniFile(const char* value)
+{
+	return TCUserDefaults::setIniFile(value);
+}
+
+char *LDVWidget::getExportsDir(void)
+{
+	return TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);
+}
+
 bool LDVWidget::setIniFile()
 {
 	if (!TCUserDefaults::isIniFileSet() || forceIni)
@@ -380,7 +392,7 @@ bool LDVWidget::setIniFile()
 
 		const char *title = copyString(getIniFile().toUtf8().constData());
 
-		if (!TCUserDefaults::setIniFile(title))
+		if (!setIniFile(title))
 		{
 			emit lpub->messageSig(LOG_ERROR,
 								  QString::fromWCharArray(TCLocalStrings::get(L"IniNotSetError")).arg(getIniTitle()).arg(getIniFile()));

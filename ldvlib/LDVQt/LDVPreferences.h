@@ -16,11 +16,12 @@
 #define __PREFERENCES_H__
 
 #include <stdlib.h>
+#include <QStyleFactory>
+
 #include <LDLib/LDrawModelViewer.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDInputHandler.h>
 #include "ui_LDVPreferencesPanel.h"
-#include <QStyleFactory>
 
 class LDVWidget;
 

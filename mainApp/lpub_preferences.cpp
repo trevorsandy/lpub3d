@@ -2488,11 +2488,11 @@ void Preferences::preferredRendererPreferences(bool persist)
     // set LDView ini
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
         if (Preferences::useNativePovGenerator)
-            TCUserDefaults::setIniFile(Preferences::nativeExportIni.toLatin1().constData());
+            LDVWidget::setIniFile(copyString(nativeExportIni.toLatin1().constData()));
         else
-            TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
+            LDVWidget::setIniFile(copyString(ldviewPOVIni.toLatin1().constData()));
     } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
-        TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
+        LDVWidget::setIniFile(copyString(ldviewIni.toLatin1().constData()));
     }
 
     // Inline Native renderer prject content
@@ -5177,11 +5177,11 @@ bool Preferences::getPreferences()
     // 'LDView INI settings
     if (preferredRenderer == RENDERER_POVRAY) {
         if (useNativePovGenerator)
-            TCUserDefaults::setIniFile(nativeExportIni.toLatin1().constData());
+            LDVWidget::setIniFile(copyString(nativeExportIni.toLatin1().constData()));
         else
-            TCUserDefaults::setIniFile(ldviewPOVIni.toLatin1().constData());
+            LDVWidget::setIniFile(copyString(ldviewPOVIni.toLatin1().constData()));
     } else if (preferredRenderer == RENDERER_LDVIEW) {
-        TCUserDefaults::setIniFile(ldviewIni.toLatin1().constData());
+        LDVWidget::setIniFile(copyString(ldviewIni.toLatin1().constData()));
     }
 
     if (dialog->exec() == QDialog::Accepted) {

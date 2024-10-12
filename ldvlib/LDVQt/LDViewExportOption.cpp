@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include <QFileDialog>
 #include <QCheckBox>
 #include <QToolTip>
 #include <TCFoundation/TCStringArray.h>

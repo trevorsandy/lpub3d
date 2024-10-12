@@ -60,6 +60,8 @@ public:
 
 	static bool staticFileCaseCallback(char *filename);
 	static bool staticFileCaseLevel(QDir &dir, char *filename);
+	static bool setIniFile(const char* value);
+	static char *getExportsDir(void);
 
 	static void messageSig(LogType type, const QString &message, int = 0);
 

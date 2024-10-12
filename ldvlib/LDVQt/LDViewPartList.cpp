@@ -1,3 +1,4 @@
+#include <QFileDialog>
 #include <TCFoundation/mystring.h>
 #include "LDViewPartList.h"
 #include "LDVWidget.h"
