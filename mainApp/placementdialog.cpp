@@ -254,11 +254,12 @@ PlacementDialog::PlacementDialog(
   PageTypeEnc pageType  = goods->pageType;
   bool partsListPerStep = goods->partsListPerStep;
 
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-  logTrace() << " \nPLACEMENT DIALOG "
-             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
-             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
-             << " \nPageType:   " << (pageType == ContentPage
+  logTrace() << "\nPLACEMENT DIALOG "
+             << "\n ParentType: " << RelNames[parentType] << " (" << parentType << ")"
+             << "\n PlacedType: " << RelNames[placedType] << " (" << placedType << ")"
+             << "\n PageType:   " << (pageType == ContentPage
                                           ? "Content Page"
                                           : pageType == FrontCoverPage
                                                 ? "Front Cover Page"
@@ -268,6 +269,7 @@ PlacementDialog::PlacementDialog(
                                   << " (" << pageType << ")"
                 ;
 #endif
+//*/
 
   switch (parentType) {
   case StepGroupType:  //parent type
@@ -482,15 +484,21 @@ PlacementDialog::PlacementDialog(
   int currentIndex = 0;
 
   for (int i = 0; i < NumRelatives; i++) {
-
-//      logNotice() << "\n POPULATE PLACEMENT COMBO"
-//                     << "\nPlacedType:" << RelNames[placedType]
-//                     << "\n     Index:" << i
-//                     << "\n MatchType:" << RelNames[i];
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    qDebug() << "\n POPULATE PLACEMENT COMBO"
+             << "\n PlacedType:" << RelNames[placedType]
+             << "\n Index:     " << i
+             << "\n MatchType: " << RelNames[i];
+#endif
+//*/
       Q_FOREACH (int ok, oks) {
           if (ok == i) {
-              // logDebug() << "MATCH: Ok:" << ok << "Type:" << RelNames[i];
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+              qDebug() << " Match Ok:  " << ok << "Type:" << RelNames[i];
+#endif
+//*/
               combo->addItem(relativeNames[i]);
               if (i == goods->relativeTo) {
                   currentIndex = combo->count()-1;

@@ -216,15 +216,15 @@ enum PlacementType {          // placement dialogue codes:
   CsiPartType,                //27 Cp
   StepType,                   //28 Stp
   RangeType,                  //29 Rng
-  TextType,                   //30
-  BomType,                    //31
+  TextType,                   //30 Txt
+  BomType,                    //31 Bom
 
-  PagePointerType,            //32
-  SingleStepType,             //33
-  ReserveType,                //34
-  CoverPageType,              //35
-  CsiAnnotationType,          //36
-  DividerPointerType,         //37
+  PagePointerType,            //32 Pptr
+  SingleStepType,             //33 Ss
+  ReserveType,                //34 Res
+  CoverPageType,              //35 Cvp
+  CsiAnnotationType,          //36 Ca
+  DividerPointerType,         //37 Dp
 
   NumRelatives                //38
 };
@@ -1105,15 +1105,15 @@ const QString RelNames[NumRelatives] =
    "CsiPartType",                //27 Cp
    "StepType",                   //28 Stp
    "RangeType",                  //29 Rng
-   "TextType",                   //30
-   "BomType",                    //31
+   "TextType",                   //30 Txt
+   "BomType",                    //31 Bom
 
-   "PagePointerType",            //32
-   "SingleStepType",             //33
-   "ReserveType",                //34
-   "CoverPageType",              //35
-   "CsiAnnotationType",          //36
-   "DividerPointerType"          //37
+   "PagePointerType",            //32 Pptr
+   "SingleStepType",             //33 Ss
+   "ReserveType",                //34 Res
+   "CoverPageType",              //35 Cvp
+   "CsiAnnotationType",          //36 Ca
+   "DividerPointerType"          //37 Dp
 
 }; //NumRelatives"               //38
 
