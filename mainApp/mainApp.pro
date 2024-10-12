@@ -85,11 +85,16 @@ INCLUDEPATH += ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawi
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+SYSTEM_PREFIX = /usr/local
+macx:contains(QT_ARCH,arm64): SYSTEM_PREFIX = /opt/homebrew
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
-# Update the quazip header path if not installed at default location below
+# Update the quazip header path if not installed at default location specified
 quazipnobuild {
-    INCLUDEPATH += /usr/include/quazip
+    INCLUDEPATH += $$SYSTEM_PREFIX/include/quazip
 } else {
     INCLUDEPATH += ../quazip
 }
@@ -218,7 +223,7 @@ win32 {
         DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
         DEFINES += QUAZIP_STATIC
-        
+
         QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
         QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
@@ -306,9 +311,9 @@ CONFIG(debug, debug|release) {
         WPNGIMAGE_LIB = wpngimaged
         WAITING_SPINNER_LIB = waitingspinnerd
 
-		# For Linux builds, simplify debug ops by using runtime content in build folders
-		DEFINES += DEBUG_MODE_USE_BUILD_FOLDERS
-		message("~~~ INFO - RUNTIME PATHS USING BUILD FOLDERS ~~~")
+        # For Linux builds, simplify debug ops by using runtime content in build folders
+        DEFINES += DEBUG_MODE_USE_BUILD_FOLDERS
+        message("~~~ INFO - RUNTIME PATHS USING BUILD FOLDERS ~~~")
     }
 
     # executable target name

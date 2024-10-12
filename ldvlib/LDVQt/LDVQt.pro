@@ -24,9 +24,11 @@ INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
-macx: \
-INCLUDEPATH += /usr/local/include
-
+SYSTEM_PREFIX = /usr/local
+macx {
+    contains(QT_ARCH,arm64): SYSTEM_PREFIX = /opt/homebrew
+    INCLUDEPATH += $${SYSTEM_PREFIX}/include
+}
 DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC
@@ -67,9 +69,9 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     LIB_ARCH =
 }
 
-# specify define for ARM platforms that need to use OpenGL headers
-contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
-ARM_BUILD_ARCH = True
+# specify flag for ARM platforms to use System OpenGL headers
+!macx:contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
+UNIX_ARM_BUILD_ARCH = True
 
 # The ABI version.
 VER_MAJ = 4
@@ -131,7 +133,7 @@ include(LDViewLibs.pri)
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 # specify ARM platforms that need to suppress local glext.h header
-contains(ARM_BUILD_ARCH,True): contains(BUILD_TARGET,suse): contains(HOST_VERSION,1320) {
+contains(UNIX_ARM_BUILD_ARCH,True): contains(BUILD_TARGET,suse): contains(HOST_VERSION,1320) {
     DEFINES += ARM_SKIP_GL_HEADERS
     message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define SKIP_LDV_GL_HEADERS ~~~")
 } else {

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 25, 2024
+# Last Update: September 27, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -76,7 +76,7 @@ echo "Start $ME execution at $CWD..."
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d}"
 LP3D_ARCH="${LP3D_ARCH:-$(uname -m)}"
-echo && echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo && echo "   LPUB3D BUILD ARCH......[${LP3D_ARCH}]"
 echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
 
 if [ "$BUILD_OPT" = "verify" ]; then
@@ -95,7 +95,7 @@ fi
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-echo "   LOG FILE...............[${LOG}]" && echo
+echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not writing log")]" && echo
 
 # when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
@@ -202,11 +202,14 @@ chmod +x builds/utilities/CreateRenderers.sh && \
 
 DIST_DIR="$(cd ../ && echo "$PWD/lpub3d_macos_3rdparty")"
 
+# POVRay configure uses aarch64 architecture value on arm64 Mac build
+[ "${LP3D_ARCH}" = "arm64" ] && LP3D_RAY_ARCH="aarch64" || LP3D_RAY_ARCH=${LP3D_ARCH}
+
 # Check if renderers exist or were successfully built
 BUILD_RENDERERS=ok
 LDGLITE_PATH="${DIST_DIR}/LDGLite-1.3/bin/${LP3D_ARCH}"
 LDVIEW_PATH="${DIST_DIR}/LDView-4.5/bin/${LP3D_ARCH}"
-POVRAY_PATH="${DIST_DIR}/lpub3d_trace_cui-3.8/bin/${LP3D_ARCH}"
+POVRAY_PATH="${DIST_DIR}/lpub3d_trace_cui-3.8/bin/${LP3D_RAY_ARCH}"
 if [ ! -f "${LDGLITE_PATH}/LDGLite" ]; then
   BUILD_RENDERERS=ko && echo "ERROR - LDGLite not found at ${LDGLITE_PATH}/"
 fi

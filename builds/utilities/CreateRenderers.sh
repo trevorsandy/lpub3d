@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update September 25, 2024
+# Last Update September 27, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -1022,6 +1022,7 @@ for buildDir in ldglite ldview povray; do
         Info && Info $Msg && Info $Msg >> $buildLog 2>&1
         Info "------------------Build Log-------------------------"
         cat ${buildLog}
+        Info "----------------End-Build Log-----------------------"
       fi
     fi
     Msg="Build ${buildDir} finished."
