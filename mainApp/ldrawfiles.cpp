@@ -1702,6 +1702,20 @@ void LDrawFile::processMetaCommand(const QStringList &tokens)
     }
 }
 
+QString LDrawFile::fileType(int isUnofficial)
+{
+    if (isUnofficial)
+        return LDrawUnofficialType[unofficialPart];
+    else
+        return topLevelModel
+                ? QObject::tr("model")
+                : unofficialPart
+                  ? LDrawUnofficialType[unofficialPart]
+                  : hdrFILENotFound || !_mpd
+                      ? QObject::tr("subfile")
+                      : QObject::tr("submodel");
+};
+
 void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 {
     MissingHeaderType headerMissing = NoneMissing;
@@ -1718,20 +1732,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         return NoneMissing;
     };
 
-    auto fileType = [&,this] (int isUnofficial = 0)
-    {
-        if (isUnofficial)
-            return LDrawUnofficialType[unofficialPart];
-        else
-            return topLevelModel
-                    ? QObject::tr("model")
-                    : unofficialPart
-                      ? LDrawUnofficialType[unofficialPart]
-                        : hdrFILENotFound
-                        ? QObject::tr("subfile")
-                        : QObject::tr("submodel");
-    };
-
     QFileInfo   fileInfo(fileName);
 
     QFile file(fileName);
@@ -1746,12 +1746,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     int lineIndx             = -1;
     bool alreadyLoaded       = false;
     bool subfileFound        = false;
-    bool isDatafile      = false;
+    bool isDatafile          = false;
     bool partHeaderFinished  = false;
     bool stagedSubfilesFound = externalFile;
     bool modelHeaderFinished = externalFile ? true : false;
     bool sosf = false;
     bool eosf = false;
+    _mpd      = true;
 
     if (topLevelModel) {
         topHeaderFinished          = false;
@@ -2248,8 +2249,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         }
     } // resolve outstanding subfiles
 
-    _mpd = true;
-
     // restore last subfileName for final processing
     if (stagedSubfilesFound && subfileName.isEmpty())
         subfileName = QFileInfo(fileName).fileName();
@@ -2294,18 +2293,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         return NoneMissing;
     };
 
-    auto fileType = [&,this] (int isUnofficial = 0)
-    {
-        if (isUnofficial)
-            return LDrawUnofficialType[unofficialPart];
-        else
-            return topLevelModel
-                    ? QObject::tr("model")
-                    : unofficialPart
-                      ? LDrawUnofficialType[unofficialPart]
-                      : QObject::tr("subfile");
-    };
-
     QString fullName;
     if (fileName.isEmpty())
         fullName = QDir::toNativeSeparators(filePath);
@@ -2333,6 +2320,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         bool partHeaderFinished  = false;
         bool sosf = false;
         bool eosf = false;
+        _mpd      = false;
 
         if (topLevelModel) {
             topFileNotFound            = true;
@@ -2826,8 +2814,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 fileDesc.clear();
             }
         } // resolve outstanding subfiles
-
-        _mpd = false;
 
         subfileName = QFileInfo(fullName).fileName();
 
