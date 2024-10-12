@@ -184,13 +184,13 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   # Download LDraw library archive files
   echo "Downloading archive libraries..."
   [ ! -f "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" ] && \
-  wget -q http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip || :
+  wget -q https://library.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip || :
   [ ! -f "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" ] && \
   ( cd ${LP3D_DIST_DIR_PATH} && ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" lpub3dldrawunf.zip ) || \
   echo "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip exists. Nothing to do."
   
   [ ! -f "${LP3D_3RD_PARTY_PATH}/complete.zip" ] && \
-  wget -q http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip || :
+  wget -q https://library.ldraw.org/library/updates/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip || :
   [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ] && \
   ( cd ${LP3D_DIST_DIR_PATH} && ln -sf "${LP3D_3RD_PARTY_PATH}/complete.zip" complete.zip ) || \
   echo "${LP3D_DIST_DIR_PATH}/complete.zip exists. Nothing to do."

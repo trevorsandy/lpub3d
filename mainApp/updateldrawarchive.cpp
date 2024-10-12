@@ -18,8 +18,8 @@
 
 #include "QsLog.h"
 
-#define LDRAW_UNOFFICIAL_ARCHIVE   "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
-#define LDRAW_OFFICIAL_ARCHIVE     "http://www.ldraw.org/library/updates/complete.zip"
+#define LDRAW_UNOFFICIAL_ARCHIVE   "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+#define LDRAW_OFFICIAL_ARCHIVE     "https://library.ldraw.org/library/updates/complete.zip"
 
 UpdateLdrawArchive::UpdateLdrawArchive(QObject *parent) : QObject(parent)
 {
