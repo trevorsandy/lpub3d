@@ -1,11 +1,11 @@
 <RCC>
     <qresource prefix="/resources">
         <file alias="1024px-Povray_logo_sphere.png">resources/1024px-Povray_logo_sphere.png</file>
+        <file alias="3ds32.png">resources/3ds32.png</file>    
         <file alias="ldraw_document.icns">ldraw_document.icns</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
         <file alias="lpub3d.ico">lpub3d.ico</file>
         <file alias="lpub3d_document.icns">lpub3d_document.icns</file>
-        <file alias="3ds32.png">resources/3ds32.png</file>
         <file alias="LPub32.png">resources/LPub32.png</file>
         <file alias="LPub512Splash.png">resources/LPub512Splash.png</file>
         <file alias="LPub64.ico">resources/LPub64.ico</file>
@@ -135,6 +135,8 @@
         <file alias="editstickerparts.png">resources/editstickerparts.png</file>
         <file alias="editstyleref.png">resources/editstyleref.png</file>
         <file alias="edittitleannotations.png">resources/edittitleannotations.png</file>
+        <file alias="edittools.png">resources/edittools.png</file>
+        <file alias="edittools16.png">resources/edittools16.png</file>
         <file alias="editundo.png">resources/editundo.png</file>
         <file alias="emailproblempackage.png">resources/emailproblempackage.png</file>
         <file alias="enablegroupmove.png">resources/enablegroupmove.png</file>
@@ -248,6 +250,8 @@
         <file alias="removesubstitutepart.png">resources/removesubstitutepart.png</file>
         <file alias="rendererarguments.png">resources/rendererarguments.png</file>
         <file alias="renderersetup.png">resources/renderersetup.png</file>
+        <file alias="replace.png">resources/replace.png</file>
+        <file alias="replace16.png">resources/replace16.png</file>
         <file alias="reset_viewer_image.png">resources/reset_viewer_image.png</file>
         <file alias="reset_viewer_image_16.png">resources/reset_viewer_image_16.png</file>
         <file alias="resetaction.png">resources/resetaction.png</file>
@@ -276,6 +280,14 @@
         <file alias="scale.png">resources/scale.png</file>
         <file alias="scenegrid.png">resources/scenegrid.png</file>
         <file alias="searchdirectories.png">resources/searchdirectories.png</file>
+        <file alias="select_all.png">resources/select_all.png</file>
+        <file alias="select_all16.png">resources/select_all16.png</file>
+        <file alias="select_by_name.png">resources/select_by_name.png</file>
+        <file alias="select_by_name16.png">resources/select_by_name16.png</file>
+        <file alias="select_invert.png">resources/select_invert.png</file>
+        <file alias="select_invert16.png">resources/select_invert16.png</file>
+        <file alias="select_none.png">resources/select_none.png</file>
+        <file alias="select_none16.png">resources/select_none16.png</file>
         <file alias="selectall.png">resources/selectall.png</file>
         <file alias="sendtoback.png">resources/sendtoback.png</file>
         <file alias="showallcharacters.png">resources/showallcharacters.png</file>
@@ -313,7 +325,13 @@
         <file alias="veiw_viewpoint_latitude_longitude_16.png">resources/veiw_viewpoint_latitude_longitude_16.png</file>
         <file alias="veiw_viewpoint_latitude_longitude_dark.png">resources/veiw_viewpoint_latitude_longitude_dark.png</file>
         <file alias="veiw_viewpoint_latitude_longitude_dark_16.png">resources/veiw_viewpoint_latitude_longitude_dark_16.png</file>
+        <file alias="viewcameras.png">resources/viewcameras.png</file>
+        <file alias="viewcameras16.png">resources/viewcameras16.png</file>
         <file alias="viewlog.png">resources/viewlog.png</file>
+        <file alias="viewprojection.png">resources/viewprojection.png</file>
+        <file alias="viewprojection16.png">resources/viewprojection16.png</file>
+        <file alias="viewshaders.png">resources/viewshaders.png</file>
+        <file alias="viewshaders16.png">resources/viewshaders16.png</file>
         <file alias="viewzoomextents.png">resources/viewzoomextents.png</file>
         <file alias="viewzoomextents16.png">resources/viewzoomextents16.png</file>
         <file alias="zoomin.png">resources/zoomin.png</file>

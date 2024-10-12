@@ -2025,6 +2025,8 @@ private:
   QMenu *CameraMenu;
   QMenu *LightMenu;
   QMenu *BuildModMenu;
+  QMenu *SelectMenu;
+  QMenu *FindAndReplaceMenu;
   QMenu *SnapXYMenu;
   QMenu *SnapZMenu;
   QMenu *SnapMenu;
@@ -2076,6 +2078,8 @@ private:
 
   QAction *ApplyLightAct;
   QAction *LightGroupAct;
+  QAction *FindAndReplaceGroupAct;
+  QAction *SelectGroupAct;
   QAction *ViewpointGroupAct;
   QAction *ViewpointZoomExtAct;
   QAction *TransformAct;

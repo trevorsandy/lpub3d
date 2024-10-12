@@ -190,15 +190,15 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Undo"),
 		QT_TRANSLATE_NOOP("Menu", "&Undo"),
-		QT_TRANSLATE_NOOP("Status", "Undo the last action - Ctrl+Shift+Y"),
-		"Ctrl+Shift+Y"                     /*** LPub3D Mod - LPub3D Menu conflict ***/
+		QT_TRANSLATE_NOOP("Status", "Undo the last action"),
+		""                                                                 /*** LPub3D Mod - Ctrl+Shift+Y removed - not used ***/
 	},
 	// LC_EDIT_REDO
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Redo"),
 		QT_TRANSLATE_NOOP("Menu", "&Redo"),
 		QT_TRANSLATE_NOOP("Status", "Redo the previously undone action"),
-		"Ctrl+Shift+Z"                                                     /*** LPub3D Mod - LPub3D Menu conflict ***/
+		""                                                                 /*** LPub3D Mod - Ctrl+Shift+Z removed - not used ***/
 	},
 	// LC_EDIT_CUT
 	{

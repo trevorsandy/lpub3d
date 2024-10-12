@@ -107,7 +107,7 @@ void Gui::create3DActions()
     lpub->actions.insert("EditSnapMoveToggleAct.4", Action(QStringLiteral("3DViewer.Tools.Snap.Move Snap Enabled"), gMainWindow->mActions[LC_EDIT_SNAP_MOVE_TOGGLE]));
 
     gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setObjectName("EditSnapAngleToggleAct.4");
-    lpub->actions.insert("EditSnapAngleToggleAct.4", Action(QStringLiteral("3DViewer.Tools.SnapAngle.Rotation Snap Enabled"), gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]));
+    lpub->actions.insert("EditSnapAngleToggleAct.4", Action(QStringLiteral("3DViewer.Tools.Snap.Rotation Snap Enabled"), gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]));
 
     gMainWindow->mActions[LC_EDIT_CUT]->setObjectName("EditCutAct.4");
     lpub->actions.insert("EditCutAct.4", Action(QStringLiteral("3DViewer.Cut"), gMainWindow->mActions[LC_EDIT_CUT]));
@@ -179,7 +179,7 @@ void Gui::create3DActions()
     lpub->actions.insert("EditRotateStepAct.4", Action(QStringLiteral("3DViewer.Tools.RotateStep.Apply ROTSTEP"), gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]));
 
     gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setObjectName("EditBuildModAct.4");
-    lpub->actions.insert("EditBuildModAct.4", Action(QStringLiteral("3DViewer.Tools.BuildMod"), gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]));
+    lpub->actions.insert("EditBuildModAct.4", Action(QStringLiteral("3DViewer.Tools.Build Modification.Edit Build Modification"), gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]));
 
     gMainWindow->mActions[LC_EDIT_ACTION_INSERT]->setObjectName("EditInsertAct.4");
     lpub->actions.insert("EditInsertAct.4", Action(QStringLiteral("3DViewer.Tools.Insert"), gMainWindow->mActions[LC_EDIT_ACTION_INSERT]));
@@ -418,22 +418,85 @@ void Gui::create3DActions()
     MoveAct->setObjectName("MoveAct.4");
     MoveAct->setStatusTip(tr("Snap translations to fixed intervals"));
     MoveAct->setIcon(QIcon(":/resources/edit_snap_move.png"));
-    lpub->actions.insert(MoveAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Movement Snap"), MoveAct));
+    lpub->actions.insert(MoveAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Snap.Movement Snap"), MoveAct));
 
     AngleAct = new QAction(tr("Rotation Snap"), this);
     AngleAct->setObjectName("AngleAct.4");
     AngleAct->setStatusTip(tr("Snap rotations to fixed intervals"));
     AngleAct->setIcon(QIcon(":/resources/edit_snap_angle.png"));
-    lpub->actions.insert(AngleAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Rotation Snap"), AngleAct));
+    lpub->actions.insert(AngleAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Snap.Rotation Snap"), AngleAct));
 
-    QIcon ResetViewerImageIcon;
-    ResetViewerImageIcon.addFile(":/resources/reset_viewer_image.png");
-    ResetViewerImageIcon.addFile(":/resources/reset_viewer_image_16.png");
-    ResetViewerImageAct = lpub->getAct("resetViewerImageAction.1");
-    ResetViewerImageAct->setIcon(ResetViewerImageIcon);
-    ResetViewerImageAct->setText(tr("Reset Current Display"));
-    ResetViewerImageAct->setStatusTip(tr("Reset the current step assembly display"));
-    connect(ResetViewerImageAct, SIGNAL(triggered()), this, SLOT(resetViewerImage()));
+    gMainWindow->mActions[LC_PIECE_DELETE]->setIcon(QIcon(":/resources/delete.png"));
+
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/saveimage.png"));
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(QStringLiteral("Alt+0"));
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setStatusTip(tr("Save an image of the current view - Alt+0"));
+
+    gMainWindow->mActions[LC_FILE_EXPORT_3DS]->setIcon(QIcon(":/resources/3ds32.png"));
+    gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]->setIcon(QIcon(":/resources/dae32.png"));
+    gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setIcon(QIcon(":/resources/obj32.png"));
+
+    gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setIcon(QIcon(":/resources/remove_view.png"));
+    gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setIcon(QIcon(":/resources/reset_view.png"));
+    gMainWindow->mActions[LC_VIEW_PREFERENCES]->setIcon(QIcon(":/resources/view_preferences.png"));
+
+    gMainWindow->mActions[LC_HELP_HOMEPAGE]->setIcon(QIcon(":/resources/help_homepage.png"));
+    gMainWindow->mActions[LC_HELP_ABOUT]->setIcon(QIcon(":/resources/leocad32.png"));
+
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]->setIcon(QIcon(":/resources/edit_transform_absolute_translation.png"));
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]->setIcon(QIcon(":/resources/edit_transform_relative_translation.png"));
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]->setIcon(QIcon(":/resources/edit_transform_absolute_rotation.png"));
+    gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]->setIcon(QIcon(":/resources/edit_transform_relative_rotation.png"));
+
+    QIcon EditToolsIcon;
+    EditToolsIcon.addFile(":/resources/edittools.png");
+    EditToolsIcon.addFile(":/resources/edittools16.png");
+    gMainWindow->GetToolsMenu()->setIcon(EditToolsIcon);
+
+    QIcon ViewCamerasIcon;
+    ViewCamerasIcon.addFile(":/resources/viewcameras.png");
+    ViewCamerasIcon.addFile(":/resources/viewcameras16.png");
+    gMainWindow->GetCameraMenu()->setIcon(ViewCamerasIcon);
+
+    QIcon ViewProjectionIcon;
+    ViewProjectionIcon.addFile(":/resources/viewprojection.png");
+    ViewProjectionIcon.addFile(":/resources/viewprojection16.png");
+    gMainWindow->GetProjectionMenu()->setIcon(ViewProjectionIcon);
+
+    QIcon ViewShadersIcon;
+    ViewShadersIcon.addFile(":/resources/viewshaders.png");
+    ViewShadersIcon.addFile(":/resources/viewshaders16.png");
+    gMainWindow->GetShadingMenu()->setIcon(ViewShadersIcon);
+
+    QIcon EditActionBuildModIcon;
+    EditActionBuildModIcon.addFile(":/resources/buildmodcreate.png");
+    EditActionBuildModIcon.addFile(":/resources/buildmodcreate16.png");
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setIcon(EditActionBuildModIcon);
+
+    QIcon EditActionReplaceIcon;
+    EditActionReplaceIcon.addFile(":/resources/replace.png");
+    EditActionReplaceIcon.addFile(":/resources/replace16.png");
+    gMainWindow->mActions[LC_EDIT_REPLACE]->setIcon(EditActionReplaceIcon);
+
+    QIcon EditActionSelectAllIcon;
+    EditActionSelectAllIcon.addFile(":/resources/select_all.png");
+    EditActionSelectAllIcon.addFile(":/resources/select_all16.png");
+    gMainWindow->mActions[LC_EDIT_SELECT_ALL]->setIcon(EditActionSelectAllIcon);
+
+    QIcon EditActionSelectNoneIcon;
+    EditActionSelectNoneIcon.addFile(":/resources/select_none.png");
+    EditActionSelectNoneIcon.addFile(":/resources/select_none16.png");
+    gMainWindow->mActions[LC_EDIT_SELECT_NONE]->setIcon(EditActionSelectNoneIcon);
+
+    QIcon EditActionSelectInvertIcon;
+    EditActionSelectInvertIcon.addFile(":/resources/select_invert.png");
+    EditActionSelectInvertIcon.addFile(":/resources/select_invert16.png");
+    gMainWindow->mActions[LC_EDIT_SELECT_INVERT]->setIcon(EditActionSelectInvertIcon);
+
+    QIcon EditActionSelectByNameIcon;
+    EditActionSelectByNameIcon.addFile(":/resources/select_by_name.png");
+    EditActionSelectByNameIcon.addFile(":/resources/select_by_name16.png");
+    gMainWindow->mActions[LC_EDIT_SELECT_BY_NAME]->setIcon(EditActionSelectByNameIcon);
 
     QIcon ViewViewPointHomeIcon;
     ViewViewPointHomeIcon.addFile(ViewpointHome);
@@ -454,6 +517,15 @@ void Gui::create3DActions()
     ResetTransformIcon.addFile(":/resources/reset_viewer_image.png");
     ResetTransformIcon.addFile(":/resources/reset_viewer_image_16.png");
     gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setIcon(ResetTransformIcon);
+
+    QIcon ResetViewerImageIcon;
+    ResetViewerImageIcon.addFile(":/resources/reset_viewer_image.png");
+    ResetViewerImageIcon.addFile(":/resources/reset_viewer_image_16.png");
+    ResetViewerImageAct = lpub->getAct("resetViewerImageAction.1");
+    ResetViewerImageAct->setIcon(ResetViewerImageIcon);
+    ResetViewerImageAct->setText(tr("Reset Current Display"));
+    ResetViewerImageAct->setStatusTip(tr("Reset the current step assembly display"));
+    connect(ResetViewerImageAct, SIGNAL(triggered()), this, SLOT(resetViewerImage()));
 
     // Light icons
     LightGroupAct = new QAction(tr("Lights"), this);
@@ -486,9 +558,26 @@ void Gui::create3DActions()
             this,                                            SLOT(groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT], SIGNAL(triggered()),
-            this,                                            SLOT(groupActionTriggered()));
+            this,                                             SLOT(groupActionTriggered()));
 
-    // Viewpoint icons
+    FindAndReplaceGroupAct = new QAction(gMainWindow->mActions[LC_EDIT_FIND]->text(), this);
+    FindAndReplaceGroupAct->setObjectName("FindAndReplaceGroupAct.4");
+    FindAndReplaceGroupAct->setToolTip(tr("Find And Replace"));
+    FindAndReplaceGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_FIND]->icon());
+    FindAndReplaceGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_FIND]->statusTip());
+    lpub->actions.insert(FindAndReplaceGroupAct->objectName(), Action(QStringLiteral("3DViewer.FindAndReplaceGroup"), FindAndReplaceGroupAct));
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT], SIGNAL(triggered()),
+            this, SIGNAL(gMainWindow->mActions[LC_EDIT_FIND]->triggered()));
+
+    SelectGroupAct =  new QAction(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->text(), this);
+    SelectGroupAct->setObjectName("SelectGroupAct.4");
+    SelectGroupAct->setToolTip(tr("Select All"));
+    SelectGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->icon());
+    SelectGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->statusTip());
+    lpub->actions.insert(SelectGroupAct->objectName(), Action(QStringLiteral("3DViewer.SelectGroup"), SelectGroupAct));
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT], SIGNAL(triggered()),
+            this, SIGNAL(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->triggered()));
+
     ViewpointGroupAct = new QAction(tr("Viewpoints"), this);
     ViewpointGroupAct->setObjectName("ViewpointGroupAct.4");
     ViewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
@@ -554,7 +643,7 @@ void Gui::create3DActions()
     ViewpointZoomExtAct->setStatusTip(tr("Specify whether to zoom all items to fit the current view"));
     ViewpointZoomExtAct->setCheckable(true);
     ViewpointZoomExtAct->setChecked(lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT));
-    lpub->actions.insert(ViewpointZoomExtAct->objectName(), Action(QStringLiteral("3DViewer.Viewpoints.Fit To View"), ViewpointZoomExtAct));
+    lpub->actions.insert(ViewpointZoomExtAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Viewpoints.Fit To View"), ViewpointZoomExtAct));
     connect(ViewpointZoomExtAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
 
     viewerZoomSliderAct = new QWidgetAction(nullptr);
@@ -566,16 +655,6 @@ void Gui::create3DActions()
     viewerZoomSliderWidget->setMinimum(1);
     viewerZoomSliderWidget->setValue(50);
     connect(viewerZoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(ViewerZoomSlider(int)));
-
-    gMainWindow->mActions[LC_PIECE_DELETE]->setIcon(QIcon(":/resources/delete.png"));
-
-    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/saveimage.png"));
-    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(QStringLiteral("Alt+0"));
-    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setStatusTip(tr("Save an image of the current view - Alt+0"));
-
-    gMainWindow->mActions[LC_FILE_EXPORT_3DS]->setIcon(QIcon(":/resources/3ds32.png"));
-    gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]->setIcon(QIcon(":/resources/dae32.png"));
-    gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setIcon(QIcon(":/resources/obj32.png"));
 
     QIcon ViewZoomExtentsIcon;
     ViewZoomExtentsIcon.addFile(":/resources/viewzoomextents.png");
@@ -597,11 +676,12 @@ void Gui::create3DActions()
 void Gui::create3DMenus()
 {
      /*
+      * These menu items are displayed under the LPub3D Visual Editor top-level menu item
+      *
       * Not used
      FileMenuViewer = menuBar()->addMenu(tr("&Step"));
      FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
      */
-
      ViewerExportMenu = new QMenu(tr("&Export As..."), this);
      ViewerExportMenu->setIcon(QIcon(":/resources/exportas.png"));
      ViewerExportMenu->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
@@ -660,6 +740,19 @@ void Gui::create3DMenus()
      gMainWindow->GetViewpointMenu()->insertAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], ViewpointZoomExtAct);
      gMainWindow->GetViewpointMenu()->insertSeparator(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
 
+     FindAndReplaceMenu = new QMenu(tr("Find And Replace"),this);
+     FindAndReplaceMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_NEXT]);
+     FindAndReplaceMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]);
+     FindAndReplaceMenu->addAction(gMainWindow->mActions[LC_EDIT_REPLACE]);
+     FindAndReplaceMenu->addAction(gMainWindow->mActions[LC_EDIT_REPLACE_NEXT]);
+     FindAndReplaceGroupAct->setMenu(FindAndReplaceMenu);
+
+     SelectMenu = new QMenu(tr("Select"),this);
+     SelectMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_NONE]);
+     SelectMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_INVERT]);
+     SelectMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_BY_NAME]);
+     SelectGroupAct->setMenu(SelectMenu);
+
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&Visual Editor"));
      // Visual Editor Preferences menu
@@ -685,23 +778,19 @@ void Gui::create3DMenus()
      ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_NEXT]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_REPLACE]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_REPLACE_NEXT]);
      ViewerMenu->addSeparator();
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
-     ViewerMenu->addSeparator();
-     // Show/Hide Piece menus
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_ALL]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_NONE]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_INVERT]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_BY_NAME]);
      ViewerMenu->addSeparator();
      // Camera menu
      ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
      // Tools menu
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
@@ -735,6 +824,16 @@ void Gui::create3DMenus()
      // Shading menu
      ViewerMenu->addMenu(gMainWindow->GetShadingMenu());
      ViewerMenu->addSeparator();
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
+     ViewerMenu->addSeparator();
+     // Show/Hide Piece menus
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]);
+     ViewerMenu->addSeparator();
      // View menus
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
@@ -766,10 +865,15 @@ void Gui::create3DMenus()
      CameraMenu->addAction(AutoCenterSelectionAct);
      CameraMenu->addAction(DefaultCameraPropertiesAct);
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(CameraMenu);
+
+
 }
 
 void Gui::create3DToolBars()
 {
+    /*
+     * This toolbar is displayed under the LPub3D Visual Editor top-level menu item
+     */
     exportToolBar->addSeparator();
     exportToolBar->addAction(blenderRenderAct);
     exportToolBar->addAction(blenderImportAct);
@@ -780,17 +884,25 @@ void Gui::create3DToolBars()
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]);
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
 
+    /*
+     * This toolbar is displayed on the Visual Editor tab
+     */
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_CUT]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(FindAndReplaceGroupAct);
+    gMainWindow->GetToolsToolBar()->addAction(SelectGroupAct);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
-    gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
@@ -1156,10 +1268,12 @@ void Gui::togglePreviewWidget(bool visible)
             if (viewAct->text() == "Preview") {
                 viewAct->setChecked(visible);
                 viewAct->setVisible(visible);
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
                 emit messageSig(LOG_DEBUG, QString("%1 window %2.")
                                 .arg(viewAct->text()).arg(visible ? "Displayed" : "Hidden"));
 #endif
+//*/
                 break;
             }
         }
@@ -3425,14 +3539,16 @@ void Gui::ReloadVisualEditor() {
                                     .arg(RV[Z][X]) .arg(RV[Z][Y]) .arg(RV[Z][Z])
                                     .arg(VTokens[VTokens.size()-1]);
                  }
-//#ifdef QT_DEBUG_MODE
-//                 qDebug() << qPrintable(QString("DEBUG: TransformPiece PieceLineIndex: %1 Lines:\n"
-//                                                "       Unrotated: %2\n"
-//                                                "       Rotated:   %3\n"
-//                                                "       Piece:     %4\n"
-//                                                "       Result:    %5")
-//                                                .arg(PieceLineIndex).arg(ULine).arg(RLine).arg(VLine).arg(Result));
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+                 qDebug() << qPrintable(QString("DEBUG: TransformPiece PieceLineIndex: %1 Lines:\n"
+                                                "       Unrotated: %2\n"
+                                                "       Rotated:   %3\n"
+                                                "       Piece:     %4\n"
+                                                "       Result:    %5")
+                                                .arg(PieceLineIndex).arg(ULine).arg(RLine).arg(VLine).arg(Result));
+#endif
+//*/
                  return Result;
              };
 
@@ -3908,21 +4024,21 @@ void Gui::ReloadVisualEditor() {
              ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
 
              int BuildModPieces = ViewerModContents.size();
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+             QStringList Items;
+             for (const int &LineIndex: currentStep->lineTypeIndexes)
+                 Items << QString::number(LineIndex);
+             if (Items.size())
+                 qDebug() << qPrintable(QString("DEBUG: LPubStepLineTypeIndexes: %1").arg(Items.join(" ")));
 
-//#ifdef QT_DEBUG_MODE
-//             QStringList Items;
-//             for (const int &LineIndex: currentStep->lineTypeIndexes)
-//                 Items << QString::number(LineIndex);
-//             if (Items.size())
-//                 qDebug() << qPrintable(QString("DEBUG: LPubStepLineTypeIndexes: %1").arg(Items.join(" ")));
+             for (const QString &Line : LPubModContents)
+                 qDebug() << qPrintable(QString("DEBUG: LPubModContents:   %1").arg(Line));
 
-//             for (const QString &Line : LPubModContents)
-//                 qDebug() << qPrintable(QString("DEBUG: LPubModContents:   %1").arg(Line));
-
-//             for (const QString &Line : ViewerModContents)
-//                 qDebug() << qPrintable(QString("DEBUG: ViewerModContents: %1").arg(Line));
-//#endif
-
+             for (const QString &Line : ViewerModContents)
+                 qDebug() << qPrintable(QString("DEBUG: ViewerModContents: %1").arg(Line));
+#endif
+//*/
              // Generate build modification key
              if (!Update) {
                  int buildModCount = lpub->ldrawFile.getBuildModsCount(ModelName) + 1;
@@ -4103,7 +4219,7 @@ void Gui::applyBuildModification()
     if (!currentStep || exporting())
         return;
 
-//* local ldrawFile and step used for debugging
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
      LDrawFile *ldrawFile = &lpub->ldrawFile;
      Q_UNUSED(ldrawFile)
@@ -4676,7 +4792,7 @@ void Gui::deleteBuildModification()
     if (!currentStep)
         return;
 
-//* local ldrawFile and step used for debugging
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
      LDrawFile *ldrawFile = &lpub->ldrawFile;
      Q_UNUSED(ldrawFile)
@@ -4998,20 +5114,20 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
     bool currentModel = modelIndex == QString(lpub->viewerStepKey[0]).toInt();
     bool newLine      = lineIndex  == NEW_PART;     //-1
     bool fromViewer   = source      > EDITOR_LINE;  // 0
-
-//#ifdef QT_DEBUG_MODE
-//    emit messageSig(LOG_DEBUG, QString("currentModel: %1 [modelIndex: %2 == ViewerStepKey(index,line,step)[0]: %3]")
-//                    .arg(currentModel ? "True" : "False")
-//                    .arg(modelIndex)
-//                    .arg(lpub->viewerStepKey));
-//    emit messageSig(LOG_DEBUG, QString("newLine: %1 [lineIndex: %2 == NEW_PART: -1]")
-//                    .arg(newLine ? "True" : "False")
-//                    .arg(lineIndex));
-//    emit messageSig(LOG_DEBUG, QString("fromViewer: %1 [source: %2 > EDITOR_LINE: 0]")
-//                    .arg(fromViewer ? "True" : "False")
-//                    .arg(source));
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_DEBUG, QString("currentModel: %1 [modelIndex: %2 == ViewerStepKey(index,line,step)[0]: %3]")
+                    .arg(currentModel ? "True" : "False")
+                    .arg(modelIndex)
+                    .arg(lpub->viewerStepKey));
+    emit messageSig(LOG_DEBUG, QString("newLine: %1 [lineIndex: %2 == NEW_PART: -1]")
+                    .arg(newLine ? "True" : "False")
+                    .arg(lineIndex));
+    emit messageSig(LOG_DEBUG, QString("fromViewer: %1 [source: %2 > EDITOR_LINE: 0]")
+                    .arg(fromViewer ? "True" : "False")
+                    .arg(source));
+#endif
+//*/
     if (newLine) {
         emit messageSig(LOG_TRACE, tr("New viewer part modelName [%1]")
                                       .arg(getSubmodelName(modelIndex,false)));
@@ -5023,7 +5139,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
         if (!currentStep)
             return false;
-
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
         emit messageSig(LOG_TRACE, tr("%1 Step lineIndex count: %2 item(s)")
                                       .arg(VER_PRODUCTNAME_STR)
@@ -5032,6 +5148,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 //          emit messageSig(LOG_TRACE, tr(" -%1 Part lineNumber [%2] at step line lineIndex [%3] - specified lineIndex [%4]")
 //                                        .arg(.arg(VER_PRODUCTNAME_STR)).arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
 #endif
+//*/
 
         if (fromViewer)      // input relativeIndes
             lineNumber = currentStep->getLineTypeRelativeIndex(lineIndex);
@@ -5046,12 +5163,12 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
             lineNumber = getLineTypeIndex(modelIndex,lineIndex);         // return relativeIndex - step line lineIndex
     } else
         return false;        // lineNumber = EDITOR_LINE;
-
-//#ifdef QT_DEBUG_MODE
-//    emit messageSig(LOG_DEBUG, tr("selected lineNumber: [%1] > NOT_FOUND: [-1]")
-//                                  .arg(lineNumber));
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_DEBUG, tr("selected lineNumber: [%1] > NOT_FOUND: [-1]")
+                                  .arg(lineNumber));
+#endif
+//*/
     return lineNumber > NOT_FOUND; // -1
 }
 
@@ -5082,7 +5199,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
         int lineIndex     = NEW_PART;
         int modelIndex    = NEW_MODEL;
         QString modelName = QLatin1String("undefined");
-
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
         const QString SourceNames[] =
         {
@@ -5103,6 +5220,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
         emit gui->messageSig(LOG_DEBUG, QString("Selection Source: %1 (%2)")
                                                 .arg(fromSource, QString::number(source)));
 #endif
+//*/
         if (indexes.size()) {
             modelName  = getSubmodelName(indexes.at(0).modelIndex,false);
             modelIndex = indexes.at(0).modelIndex;
@@ -5110,13 +5228,13 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
             modelName  = currentStep->topOfStep().modelName;
             modelIndex = getSubmodelIndex(modelName);
         }
-
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
         if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
             emit messageSig(LOG_TRACE, tr("Submodel lineIndex count: %1 item(s)")
                                           .arg(lpub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
 #endif
-
+//*/
         for (int i = 0; i < indexes.size() && validTrigger; ++i) {
             lineIndex = indexes.at(i).lineIndex;
             // New part lines are added in createBuildModification() routine
@@ -5143,7 +5261,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                     }
                 }
             }
-
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
             QString Message;
             if (fromViewer) {
@@ -5173,6 +5291,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
             }
             emit messageSig(LOG_TRACE, Message);
 #endif
+//*/
         } // indexes present and source is not VIEWER_CLR
 
         if (fromViewer) {
@@ -5184,12 +5303,14 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                 if (!modsEnabled) {
                     enableVisualBuildModEditAction();
                 }
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
                 emit messageSig(LOG_TRACE, tr("Delete %1 part(s) specified at step %2, modelName: [%3]")
                                               .arg(fromSource)
                                               .arg(currentStep->stepNumber.number)
                                               .arg(modelName));
 #endif
+//*/
             }
         } else { // indexes from editor
             if (lines.size() && gMainWindow->isVisible())

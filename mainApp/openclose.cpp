@@ -319,8 +319,9 @@ void Gui::updateOpenWithActions()
           openWithMenu->clear();
 
       // add menu actions from updated list
-      for (int k = 0; k < numPrograms; k++)
+      for (int k = 0; k < numPrograms; k++) {
         openWithMenu->addAction(openWithActList.at(k));
+      }
     }
 }
 

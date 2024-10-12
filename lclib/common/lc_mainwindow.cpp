@@ -359,21 +359,6 @@ void lcMainWindow::CreateActions()
 	mActions[LC_VIEW_TIME_NEXT]->setIcon(QIcon(":/resources/time_next.png"));
 	mActions[LC_VIEW_TIME_LAST]->setIcon(QIcon(":/resources/time_last.png"));
 	mActions[LC_VIEW_TIME_ADD_KEYS]->setIcon(QIcon(":/resources/time_add_keys.png"));
-/*** LPub3D Mod - add view and preference icons ***/
-	mActions[LC_VIEW_REMOVE_VIEW]->setIcon(QIcon(":/resources/remove_view.png"));
-	mActions[LC_VIEW_RESET_VIEWS]->setIcon(QIcon(":/resources/reset_view.png"));
-	mActions[LC_VIEW_PREFERENCES]->setIcon(QIcon(":/resources/view_preferences.png"));
-/*** LPub3D Mod end ***/
-	mActions[LC_HELP_HOMEPAGE]->setIcon(QIcon(":/resources/help_homepage.png"));
-/*** LPub3D Mod - about ment icon ***/
-	mActions[LC_HELP_ABOUT]->setIcon(QIcon(":/resources/leocad32.png"));
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - transform command icons ***/
-	mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]->setIcon(QIcon(":/resources/edit_transform_absolute_translation.png"));
-	mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]->setIcon(QIcon(":/resources/edit_transform_relative_translation.png"));
-	mActions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]->setIcon(QIcon(":/resources/edit_transform_absolute_rotation.png"));
-	mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]->setIcon(QIcon(":/resources/edit_transform_relative_rotation.png"));
-/*** LPub3D Mod end ***/
 
 	mActions[LC_EDIT_SNAP_MOVE_TOGGLE]->setCheckable(true);
 	mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setCheckable(true);

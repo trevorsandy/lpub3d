@@ -311,7 +311,12 @@ void lcView::ShowContextMenu() const
 
 	QMenu* Popup = new QMenu();
 
-/*** LPub3D Mod - add context menu edit submodel ***/
+/*** LPub3D Mod - context menu management ***/
+	Popup->addAction(Actions[LC_EDIT_UNDO]);
+	Popup->addAction(Actions[LC_EDIT_REDO]);
+
+	Popup->addSeparator();
+
 	Popup->addAction(Actions[LC_EDIT_CUT]);
 	Popup->addAction(Actions[LC_EDIT_COPY]);
 	Popup->addAction(Actions[LC_EDIT_PASTE]);
@@ -322,6 +327,23 @@ void lcView::ShowContextMenu() const
 	Popup->addAction(Actions[LC_EDIT_FIND]);
 	Popup->addAction(Actions[LC_EDIT_FIND_NEXT]);
 	Popup->addAction(Actions[LC_EDIT_FIND_PREVIOUS]);
+	Popup->addAction(Actions[LC_EDIT_REPLACE]);
+	Popup->addAction(Actions[LC_EDIT_REPLACE_NEXT]);
+
+	Popup->addSeparator();
+
+	Popup->addAction(Actions[LC_EDIT_SELECT_ALL]);
+	Popup->addAction(Actions[LC_EDIT_SELECT_NONE]);
+	Popup->addAction(Actions[LC_EDIT_SELECT_INVERT]);
+	Popup->addAction(Actions[LC_EDIT_SELECT_BY_NAME]);
+
+	Popup->addSeparator();
+
+	Popup->addMenu(gMainWindow->GetToolsMenu());
+	Popup->addMenu(gMainWindow->GetViewpointMenu());
+	Popup->addMenu(gMainWindow->GetCameraMenu());
+	Popup->addMenu(gMainWindow->GetProjectionMenu());
+	Popup->addMenu(gMainWindow->GetShadingMenu());
 
 	Popup->addSeparator();
 
@@ -336,9 +358,7 @@ void lcView::ShowContextMenu() const
 	Popup->addAction(Actions[LC_PIECE_UNHIDE_ALL]);
 
 	Popup->addSeparator();
-/*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - context menu management ***/
 /***
 	Popup->addAction(Actions[LC_EDIT_PASTE_STEPS]);
 	Popup->addAction(Actions[LC_PIECE_DUPLICATE]);
@@ -357,8 +377,6 @@ void lcView::ShowContextMenu() const
 	Popup->addAction(Actions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
 
 	Popup->addSeparator();
-***/
-/*** LPub3D Mod end ***/
 
 	Popup->addMenu(gMainWindow->GetToolsMenu());
 	Popup->addMenu(gMainWindow->GetViewpointMenu());
@@ -367,13 +385,13 @@ void lcView::ShowContextMenu() const
 	Popup->addMenu(gMainWindow->GetShadingMenu());
 
 	Popup->addSeparator();
+***/
 
 	Popup->addAction(Actions[LC_VIEW_SPLIT_HORIZONTAL]);
 	Popup->addAction(Actions[LC_VIEW_SPLIT_VERTICAL]);
 	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);
 	Popup->addAction(Actions[LC_VIEW_RESET_VIEWS]);
 
-/*** LPub3D Mod - context menu preferences ***/
 	Popup->addSeparator();
 
 	Popup->addAction(Actions[LC_VIEW_PREFERENCES]);

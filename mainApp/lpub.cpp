@@ -4788,7 +4788,7 @@ void Gui::createOpenWithActions(int maxPrograms)
         QAction *openWithAct = new QAction(tr("Open With Application %1").arg(i),this);
         openWithAct->setObjectName(tr("openWith%1Act.1").arg(i));
         openWithAct->setVisible(false);
-        lpub->actions.insert(openWithAct->objectName(), Action(QStringLiteral("File.Open With Application %1").arg(i), openWithAct));
+        lpub->actions.insert(openWithAct->objectName(), Action(QStringLiteral("File.OpenWith.Application %1").arg(i), openWithAct));
         connect(openWithAct, SIGNAL(triggered()), this, SLOT(openWith()));
         if (i < openWithActList.size()) {
             openWithActList.replace(i,openWithAct);
@@ -5404,7 +5404,7 @@ void Gui::createActions()
     sceneGuidesComboAct->setEnabled(true);
     sceneGuidesComboAct->setCheckable(true);
     sceneGuidesComboAct->setChecked(Preferences::sceneGuides);
-    lpub->actions.insert(sceneGuidesComboAct->objectName(), Action(QStringLiteral("View.Scene Guides"), sceneGuidesComboAct));
+    lpub->actions.insert(sceneGuidesComboAct->objectName(), Action(QStringLiteral("View.Scene Guides.Toggle"), sceneGuidesComboAct));
     connect(sceneGuidesComboAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
 
     QAction *sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
@@ -5491,7 +5491,7 @@ void Gui::createActions()
     snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid"));
     snapToGridComboAct->setCheckable(true);
     snapToGridComboAct->setChecked(Preferences::snapToGrid);
-    lpub->actions.insert(snapToGridComboAct->objectName(), Action(QStringLiteral("View.Snap To Grid"), snapToGridComboAct));
+    lpub->actions.insert(snapToGridComboAct->objectName(), Action(QStringLiteral("View.Snap To Grid.Toggle"), snapToGridComboAct));
     connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
 
     QAction *hideGridPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
