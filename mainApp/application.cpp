@@ -916,6 +916,9 @@ int Application::initialize(lcCommandLineOptions &Options)
     // initialize directories
     Preferences::lpubPreferences();
 
+    // Set renderer paths
+    Preferences::rendererPreferences();
+
     // initialize the logger
     Preferences::loggingPreferences();
 
@@ -947,33 +950,37 @@ int Application::initialize(lcCommandLineOptions &Options)
             Preferences::printInfo(tr("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
     }
 #elif defined Q_OS_LINUX   // for Linux
+    QString appLabel;
+#ifdef DEBUG_MODE_USE_BUILD_FOLDERS
+    QDir progDir(cwd.absolutePath());
+    appLabel = tr("Executable");
+#else
     QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
+    appLabel = tr("Folder....");
+#endif // DEBUG_MODE_USE_BUILD_FOLDERS
     QDir contentsDir(progDir.absolutePath() + "/");
     QStringList fileFilters = QStringList() << "lpub3d*";
     QStringList shareContents = contentsDir.entryList(fileFilters);
     if (shareContents.size() > 0) {
-        Preferences::printInfo(tr("%1 Application Folder....(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::lpub3dAppName));
+        Preferences::printInfo(tr("%1 Application %2(%3)").arg(VER_PRODUCTNAME_STR,appLabel,Preferences::lpub3dAppName));
     } else {
         Preferences::printInfo(tr("ERROR - Application Folder Not Found."));
     }
 #endif
 #endif // NOT Q_OS_WIN
-    Preferences::printInfo(tr("%1 Application Data Path.(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpubDataPath)));
 #ifdef Q_OS_MAC
     Preferences::printInfo(tr("%1 Bundle App Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dPath)));
 #else // Q_OS_LINUX and Q_OS_WIN
     Preferences::printInfo(tr("%1 Executable Path.......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dPath)));
     Preferences::printInfo(tr("%1 Log File Path.........(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::logFilePath)));
 #endif
+    Preferences::printInfo(tr("%1 Application Data Path.(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpubDataPath)));
 #ifdef Q_OS_WIN
     Preferences::printInfo(tr("%1 Parameters Location...(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::dataLocation)));
 #else // Q_OS_LINUX and Q_OS_MAC
     Preferences::printInfo(tr("LPub3D Extras Resource Path..(%1)").arg(QDir::toNativeSeparators(Preferences::lpub3dExtrasResourcePath)));
 #if defined Q_OS_LINUX
-    QDir rendererDir(QString("%1/../../%2/%3").arg(Preferences::lpub3dPath)
-                     .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix+"/opt")
-                     .arg(Preferences::lpub3dAppName));
-    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(QString("%1/3rdParty").arg(rendererDir.absolutePath()))));
+    Preferences::printInfo(tr("%1 Renderers Exe Path....(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3d3rdPartyAppExeDir)));
 #endif // Q_OS_LINUX
 #endif //  Q_OS_WIN or Q_OS_LINUX and Q_OS_MAC
     Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dConfigPath)));
@@ -1054,7 +1061,6 @@ QString distribution = tr("Installed");
     Preferences::themePreferences();
     Preferences::lpub3dUpdatePreferences();
     Preferences::lgeoPreferences();
-    Preferences::rendererPreferences();
     Preferences::fadestepPreferences();
     Preferences::highlightstepPreferences();
     Preferences::unitsPreferences();

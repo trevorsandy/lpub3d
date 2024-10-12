@@ -305,6 +305,10 @@ CONFIG(debug, debug|release) {
         LDVQT_LIB = ldvqtd
         WPNGIMAGE_LIB = wpngimaged
         WAITING_SPINNER_LIB = waitingspinnerd
+
+		# For Linux builds, simplify debug ops by using runtime content in build folders
+		DEFINES += DEBUG_MODE_USE_BUILD_FOLDERS
+		message("~~~ INFO - RUNTIME PATHS USING BUILD FOLDERS ~~~")
     }
 
     # executable target name

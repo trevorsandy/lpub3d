@@ -612,7 +612,7 @@ QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
  * lpubDataPath            - the application user data location after install
  * lpub3d3rdPartyConfigDir - 3rdParty folder at application user data location
  * lpub3d3rdPartyAppDir    - 3rdParty folder at install location
- * lpubExtrasPath          - not used
+ * lpubExtrasPath          - the application 'extras' ('data' for Windows installer) location after install
  */
 
 Preferences::Preferences()
@@ -1377,7 +1377,11 @@ void Preferences::lpubPreferences()
             isAppImagePayload = true;
     }
 
+#ifdef DEBUG_MODE_USE_BUILD_FOLDERS
+    QDir appDir(cwd.absolutePath());
+#else
     QDir appDir(QString("%1/../share").arg(cwd.absolutePath()));
+#endif // DEBUG_MODE_USE_BUILD_FOLDERS
 
     // This is a shameless hack until I figure out a better way to get the application name folder
     QStringList fileFilters;
@@ -1401,19 +1405,30 @@ void Preferences::lpubPreferences()
 
 #else                                                                 // Elevated User Rights Install
 
+#ifdef DEBUG_MODE_USE_BUILD_FOLDERS
+    lpub3dDocsResourcePath   = QString("%1/docs").arg(appDir.absolutePath());
+    lpub3dExtrasResourcePath = QString("%1/extras").arg(appDir.absolutePath());
+#else
     lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(appDir.absolutePath(),lpub3dAppName);
     lpub3dExtrasResourcePath = QString("%1/%2").arg(appDir.absolutePath(),lpub3dAppName);
+#endif // DEBUG_MODE_USE_BUILD_FOLDERS
 
-#endif
+#endif // X11_BINARY_BUILD
 
 #elif defined Q_OS_WIN
 
     lpub3dDocsResourcePath   = QString("docs");
 
-#endif
+#endif // Q_OS_MAC Q_OS_LINUX Q_OS_WIN
 
     lpub3dPath = cwd.absolutePath();
 
+#ifdef DEBUG_MODE_USE_BUILD_FOLDERS
+    lpubDataPath = lpub3dPath;
+    lpubExtrasPath = QString("%1/extras").arg(lpub3dPath);
+    lpub3dCachePath = QString("%1/cache").arg(lpub3dPath);
+    lpub3dConfigPath = QString("%1/config/%2").arg(lpub3dPath,QCoreApplication::organizationName());
+#else
     // Default user data path
     QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
     lpubDataPath = dataPathList.first();
@@ -1425,6 +1440,7 @@ void Preferences::lpubPreferences()
     // Default configuration path
     QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
     lpub3dConfigPath = configPathList.first();
+#endif // DEBUG_MODE_USE_BUILD_FOLDERS
 
 #ifdef Q_OS_WIN
     QSettings Settings;
@@ -2540,6 +2556,11 @@ void Preferences::rendererPreferences()
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #else // Q_OS_LINUX
+
+#ifdef DEBUG_MODE_USE_BUILD_FOLDERS
+    lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
+    lpub3d3rdPartyAppExeDir = QString("%1/3rdParty").arg(lpub3dPath);
+#else
     QDir appDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
         lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
@@ -2554,6 +2575,7 @@ void Preferences::rendererPreferences()
         appDir.setPath(QString("%1/../../%2").arg(lpub3dPath).arg(optPrefix.isEmpty() ? "opt" : optPrefix+"/opt"));
         lpub3d3rdPartyAppExeDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
     }
+#endif // DEBUG_MODE_USE_BUILD_FOLDERS
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppExeDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/ldview").arg(lpub3d3rdPartyAppExeDir, VER_LDVIEW_STR));
