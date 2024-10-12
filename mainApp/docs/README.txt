@@ -1,4 +1,4 @@
-LPub3D 2.4.7.182.3658 (12 10 2024 04:57:24)
+LPub3D 2.4.7.183.3659 (12 10 2024 04:58:35)
 
 Features, enhancements, fixes and changes
 ------------
@@ -23,6 +23,7 @@ Revisions:
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Caches are not cleared when exporting #750
 - Fix - Crash when opening "BOM Placement" applet. #754
 - Fix - Crash when showing BOM #742
 - Fix - Group step number not displayed when enabled in global settings #764

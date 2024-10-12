@@ -512,7 +512,7 @@ bool Gui::exportAsDialog(ExportMode m)
     }
 
   if(resetCache)
-      resetModelCache();
+      resetModelCache(QFileInfo(curFile).absoluteFilePath());
 
   if (! m_previewDialog){
       switch (m)
