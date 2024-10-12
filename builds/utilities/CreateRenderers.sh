@@ -340,11 +340,10 @@ InstallDependencies() {
       case $1 in
       ldglite)
         controlFile="$PWD/obs/debian/control"
-        sed '/^Build-Depends:/ s/$/ libosmesa6-dev/' -i $controlFile
         ;;
       ldview)
         controlFile="$PWD/QT/debian/control"
-        sed -e '/#Qt4.x/d' -e '/^Build-Depends/d' \
+        sed -e '/^#Qt/d' -e '/libqt4-dev/d' -e '/qt6-base-dev/d' \
             -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
         if [ "$LP3D_BUILD_OS" = "appimage" ]; then
           sed -e 's/ libkf5kio-dev//g' \
@@ -838,30 +837,30 @@ if [ "$OS_NAME" = "Darwin" ]; then
        brewDeps="tinyxml gl2ps libjpeg minizip"
        ;;
      povray)
-       # OpenExr beyond 3.0.0 is not yet supported so restrict install to 2.5.5
-       brewDeps="$brewDeps boost sdl2 libtiff autoconf automake"
+       brewDeps="$brewDeps boost openexr sdl2 libtiff autoconf automake"
        if [ "${CI}" != "true" ]; then
          brewDeps="$brewDeps pkg-config"
        fi
        ;;
      esac
   done
+  Info "Checking for X11 (xquartz) at /usr/X11..."
+  if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
+    Info "Good to go - X11 found."
+  else
+    Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
+    if [ "${CI}" != "true" ]; then
+      Info "  You can install xquartz using homebrew:"
+      Info "  \$ brew cask list"
+      Info "  \$ brew cask install xquartz"
+      Info "  Note: elevated access password will be required."
+      Info "  Build will terminate."
+    fi
+    exit 1
+  fi
   depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
     Info "Dependencies List........[X11 boost ${brewDeps}]"
-    Info "Checking for X11 (xquartz) at /usr/X11..."
-    if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
-      Info "Good to go - X11 found."
-    else
-      Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
-      if [ "${CI}" != "true" ]; then
-        Info "  You can install xquartz using homebrew:"
-        Info "  \$ brew cask list"
-        Info "  \$ brew cask install xquartz"
-        Info "  Note: elevated access password will be required."
-      fi
-      exit 1
-    fi
     if [ "${CI}" = "true" ]; then
      Info  "--- Skipped brew update to save time"
     else
@@ -872,24 +871,8 @@ if [ "$OS_NAME" = "Darwin" ]; then
        brew update > $depsLog 2>&1
      fi
     fi
-    # Info  "--- Uninstall all versions of Boost ignoring dependencies and revert o 1.60..."
-    # brew uninstall --force --ignore-dependencies boost >> $depsLog 2>&1
     Info  "--- Install depenencies..."
     brew install $brewDeps >> $depsLog 2>&1
-    # https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/openexr@2.rb
-    Info  "--- Install OpenExr@2.5.5..."
-    brew install openexr@2 >> $depsLog 2>&1
-    #Info  "--- Install Boost@1.60 from local resource bundle..."
-    #brew install ./${LPUB3D}/builds/utilities/boost/boost@1.60.rb >> $depsLog 2>&1
-    #Info  "--- Force Boost 1.60 link and overwrite conflicting files..."
-    #brew link --force --overwrite boost@1.60 >> $depsLog 2>&1
-    #Info "Upgrade automake and pkg-config"
-    #brew upgrade automake pkg-config >> $depsLog 2>&1
-    #if [[ -d /usr/local/opt/boost@1.60/lib ]]; then
-    #  Info "Boost 1.60 installed."
-    #else
-    #  Info "ERROR - Boost not found."
-    #fi
     Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
   else
     Info "Renderer artefacts exist, nothing to build. Install dependencies skipped" > $depsLog 2>&1

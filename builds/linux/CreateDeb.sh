@@ -1,15 +1,21 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 12, 2024
+# Last Update September 14, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
+# Build LPub3D Linux deb distribution
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateDeb.sh
 # [options]:
-#  - export DOCKER=true (if using Docker image)
-#  - export OBS=false (if building locally)
-#  - export LP3D_ARCH=amd64 (set build architecture, default is amd64)
-#  - export PRESERVE= (if do not clone remote repository, default is unset)
+#  - LOCAL=false - local build - use local versus download renderer and library source
+#  - DOCKER=true - using Docker image
+#  - LPUB3D=lpub3d - repository name
+#  - OBS=false - building locally
+#  - LP3D_ARCH=amd64 - set build architecture
+#  - PRESERVE=false - clone remote repository
+#  - UPDATE_SH=false - update overwrite this script when building in local Docker
+#  - DEB_EXTENSION=amd64.deb - distribution file suffix
+#  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
@@ -39,17 +45,19 @@ ME="CreateDeb"
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 
 CWD=`pwd`
-export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by debian/rules
-
-echo "Start $ME execution at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-LPUB3D="${LPUB3D:-lpub3d}"
-LP3D_ARCH="${LP3D_ARCH:-amd64}"
-PRESERVE="${PRESERVE:-}" # preserve cloned repository
-echo "   LPUB3D SOURCE DIR......${LPUB3D}"
-echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
-echo "   PRESERVE REPO..........$(if test $PRESERVE = "true"; then echo YES; else echo NO; fi)"
+OBS=${OBS:-false}
+LOCAL=${LOCAL:-}
+LPUB3D=${LPUB3D:-lpub3d}
+DOCKER=${DOCKER:-}
+PRESERVE=${PRESERVE:-} # preserve cloned repository
+LP3D_ARCH=${LP3D_ARCH:-amd64}
+DEB_EXTENSION=${DEB_EXTENSION:-$LP3D_ARCH.deb}
+LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
+
+# OpenSUSE Build Service flag must be set for CreateRenderers.sh
+export OBS
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -83,6 +91,24 @@ if [ "${TRAVIS}" = "true"  ]; then
     cd ../
 fi
 
+echo "Start $ME execution at $CWD..."
+
+echo "   LPUB3D SOURCE DIR......${LPUB3D}"
+echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+if [ "$LOCAL" = "true" ]; then
+    echo "   LPUB3D BUILD TYPE......Local"
+    echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
+    echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+    if [ -n "$LOCAL_RESOURCE_PATH" ]; then
+        echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
+    else
+        echo "ERROR - LOCAL_RESOURCE_PATH was not specified. $ME will terminate."
+        exit 1
+    fi
+else
+    echo "   LPUB3D BUILD TYPE......CI"
+fi
+
 echo "1. create DEB working directories in debbuild/..."
 if [ ! -d debbuild/SOURCES ]
 then
@@ -98,13 +124,22 @@ if [ "${TRAVIS}" != "true" ]; then
         echo "2. copy input source to SOURCES/${LPUB3D}..."
         mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
-    	LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
+        LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
         if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
-            echo "2. download ${LPUB3D} source to SOURCES/..."
-            if [ -d "${LPUB3D_REPO}" ]; then
-                rm -rf ${LPUB3D_REPO}
+            if [ "$LOCAL" = "true" ]; then
+                echo "2. copy LOCAL ${LPUB3D} source to SOURCES/..."
+                cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}
+                echo "2a.copy LOCAL ${LPUB3D} renderer source"
+                cp -rf ${LOCAL_RESOURCE_PATH}/povray.tar.gz .
+                cp -rf ${LOCAL_RESOURCE_PATH}/ldglite.tar.gz .
+                cp -rf ${LOCAL_RESOURCE_PATH}/ldview.tar.gz .
+            else
+                echo "2. download ${LPUB3D} source to SOURCES/..."
+                if [ -d "${LPUB3D_REPO}" ]; then
+                    rm -rf ${LPUB3D_REPO}
+                fi
+                git clone https://github.com/trevorsandy/${LPUB3D}.git
             fi
-            git clone https://github.com/trevorsandy/${LPUB3D}.git
         else
             echo "2. preserve ${LPUB3D} source in SOURCES/..."
             if [ -d "${LPUB3D_REPO}" ]; then
@@ -150,7 +185,13 @@ if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
     fi
     mv -f ${LPUB3D} ${WORK_DIR}
 else
-    echo "4. preserve ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
+    if [ "$LOCAL" = "true" ]; then
+        echo "4. overwrite ${LPUB3D}-${LP3D_APP_VERSION}/ with ${LPUB3D}/ in SOURCES/..."
+        cp -TRf ${LPUB3D}/ ${WORK_DIR}/
+        rm -rf ${LPUB3D}
+    else
+        echo "4. preserve ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
+    fi
 fi
 
 echo "5. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${WORK_DIR}/"
@@ -184,21 +225,45 @@ tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz \
         --exclude="lclib/tools" \
         ${WORK_DIR}
 
-echo "6. download LDraw archive libraries to SOURCES/..."
 # we pull in the library archives here because the lpub3d.spec file copies them
 # to the extras location. This config thus supports both Suse OBS and Travis CI build procs.
-[ ! -f lpub3dldrawunf.zip ] && \
-curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip || :
+if [ "$LOCAL" = "true" ]; then
+    echo "6. copy LOCAL LDraw archive libraries to SOURCES/..."
+    [ ! -f lpub3dldrawunf.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip .
+
+    # Place a copy of the unofficial library at ./debbuild
+    [ ! -f ../lpub3dldrawunf.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip ../
+
+    [ ! -f complete.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/complete.zip .
+
+    [ ! -f tenteparts.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/tenteparts.zip .
+
+    [ ! -f vexiqparts.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/vexiqparts.zip .
+else
+    echo "6. download LDraw archive libraries to SOURCES/..."
+    [ ! -f lpub3dldrawunf.zip ] && \
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip || :
+
+    [ ! -f complete.zip ] && \
+    curl -O $curlopts https://library.ldraw.org/library/updates/complete.zip || :
+
+    [ ! -f tenteparts.zip ] && \
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :
+
+    [ ! -f vexiqparts.zip ] && \
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip || :
+fi
+
 [ -d ../lpub3d_linux_3rdparty ] && \
 (cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/lpub3dldrawunf.zip lpub3dldrawunf.zip) || :
-[ ! -f complete.zip ] && \
-curl -O $curlopts https://library.ldraw.org/library/updates/complete.zip || :
+
 [ -d ../lpub3d_linux_3rdparty ] && \
 (cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/complete.zip complete.zip) || :
-[ ! -f tenteparts.zip ] && \
-curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :
-[ ! -f vexiqparts.zip ] && \
-curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip || :
 
 echo "7. extract ${WORK_DIR}/ to debbuild/..."
 cd ${BUILD_DIR}/
@@ -228,7 +293,13 @@ fi
 echo "10-1. build application package from ${BUILD_DIR}/${WORK_DIR}/..."
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc
-cd ${BUILD_DIR}/
+
+if [ "$LOCAL" = "true" ]; then
+    cd ../
+else
+    cd ${BUILD_DIR}/
+fi
+
 DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
 
 echo "10-2. Build package: $PWD/${DISTRO_FILE}"

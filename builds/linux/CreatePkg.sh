@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 23, 2022
+# Last Update September 13, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # To run:
 # $ chmod 755 CreatePkg.sh
@@ -49,7 +49,7 @@ LP3D_ARCH="${LP3D_ARCH:-amd64}"
 PRESERVE="${PRESERVE:-}" # preserve cloned repository
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
-echo "   PRESERVE REPO..........$(if test $PRESERVE = "true"; then echo YES; else echo NO; fi)"
+echo "   PRESERVE REPO..........$(if test "$PRESERVE" = "true"; then echo YES; else echo NO; fi)"
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
