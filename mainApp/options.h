@@ -118,10 +118,10 @@ public:
        PartEdgeColor     (0),
        BlackEdgeColor    (0),
        DarkEdgeColor     (0),
-       RotStep           (Vector3(0, 0, 0)),
-       Target            (Vector3(0, 0, 0)),
-       Position          (Vector3(0, 0, 0)),
-       UpVector          (Vector3(0, 0, 0))
+       RotStep           (Vector3(0.0f, 0.0f, 0.0f)),
+       Target            (Vector3(0.0f, 0.0f, 0.0f)),
+       Position          (Vector3(0.0f, 0.0f, 0.0f)),
+       UpVector          (Vector3(0.0f, 0.0f, 0.0f))
   { }
 //  virtual ~NativeOptions(){}
   QStringList ExportArgs;

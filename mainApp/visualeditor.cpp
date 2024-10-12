@@ -82,11 +82,11 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT]->setObjectName("PointLightAct.4");
     lpub->actions.insert("PointLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.PointLight"), gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT]));
 
-    gMainWindow->mActions[LC_EDIT_ACTION_SUN_LIGHT]->setObjectName("SunLightAct.4");
-    lpub->actions.insert("SunLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.SunLight"), gMainWindow->mActions[LC_EDIT_ACTION_SUN_LIGHT]));
+    gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]->setObjectName("SunLightAct.4");
+    lpub->actions.insert("SunLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.SunLight"), gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]));
 
-    gMainWindow->mActions[LC_EDIT_ACTION_SPOT_LIGHT]->setObjectName("SpotLightAct.4");
-    lpub->actions.insert("SpotLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.SpotLight"), gMainWindow->mActions[LC_EDIT_ACTION_SPOT_LIGHT]));
+    gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setObjectName("SpotLightAct.4");
+    lpub->actions.insert("SpotLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.SpotLight"), gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]));
 
     gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]->setObjectName("AreaLightAct.4");
     lpub->actions.insert("AreaLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.AreaLight"), gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]));
@@ -468,13 +468,13 @@ void Gui::create3DActions()
     lpub->actions.insert(LightGroupAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Lights.Lights"), LightGroupAct));
 
     gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_POINT_LIGHT));
-    gMainWindow->mActions[LC_EDIT_ACTION_SUN_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SUN_LIGHT));
-    gMainWindow->mActions[LC_EDIT_ACTION_SPOT_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SPOT_LIGHT));
+    gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_DIRECTIONAL_LIGHT));
+    gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SPOTLIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_AREA_LIGHT));
 
     gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT]->setProperty("CommandTip", QVariant("Lights - Pointlight"));
-    gMainWindow->mActions[LC_EDIT_ACTION_SUN_LIGHT]->setProperty("CommandTip", QVariant("Lights - Sunlight"));
-    gMainWindow->mActions[LC_EDIT_ACTION_SPOT_LIGHT]->setProperty("CommandTip", QVariant("Lights - Spotlight"));
+    gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]->setProperty("CommandTip", QVariant("Lights - Sunlight"));
+    gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandTip", QVariant("Lights - Spotlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]->setProperty("CommandTip", QVariant("Lights - Arealight"));
     connect(LightGroupAct, SIGNAL(triggered()),
             this,          SLOT(  groupActionTriggered()));
@@ -482,10 +482,10 @@ void Gui::create3DActions()
     connect(gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT],     SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_SUN_LIGHT],  SIGNAL(triggered()),
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT],  SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_SPOT_LIGHT], SIGNAL(triggered()),
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT], SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT], SIGNAL(triggered()),
@@ -654,8 +654,8 @@ void Gui::create3DMenus()
      LightMenu->addAction(ApplyLightAct);
      LightMenu->addSeparator();
      LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT]);
-     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SUN_LIGHT]);
-     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SPOT_LIGHT]);
+     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]);
+     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]);
      LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]);
      LightGroupAct->setMenu(LightMenu);
 
@@ -906,7 +906,6 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setEnabled(enable);
     //File
-    gMainWindow->mActions[LC_FILE_RENDER]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
     //Export
@@ -1301,14 +1300,16 @@ void Gui::applyLightSettings()
             if(readLine(walk).startsWith(lightMeta.preamble))
                 deleteLine(walk);
 
-        for (lcLight* Light : ActiveModel->GetLights()) {
+        for (const std::unique_ptr<lcLight>& Light : ActiveModel->GetLights()) {
 
-            emit messageSig(LOG_INFO, tr("Setting Light [%1]").arg(Light->mName));
+            emit messageSig(LOG_INFO, tr("Setting Light [%1]").arg(Light->GetName()));
+
+            const bool POVRayLight = Light->GetLightFormat() == lcLightFormat::POVRayLight;
 
             // LeoCAD to LDraw to POVRay: 0 1 2 => 0 -2 1 => 2 0 1
-            const int X = Light->mPOVRayLight ? 2 : 0 ;
-            const int Y = Light->mPOVRayLight ? 0 : 1 ;
-            const int Z = Light->mPOVRayLight ? 1 : 2 ;
+            const int X = POVRayLight ? 2 : 0 ;
+            const int Y = POVRayLight ? 0 : 1 ;
+            const int Z = POVRayLight ? 1 : 2 ;
 
             QString Type = "Undefined";
             switch(Light->GetLightType())
@@ -1319,237 +1320,280 @@ void Gui::applyLightSettings()
             case lcLightType::Area:
                 Type = lightData.typeNames[LightData::Area];
                 break;
-            case lcLightType::Sun:
+            case lcLightType::Directional:
                 Type = lightData.typeNames[LightData::Sun];
                 break;
             case lcLightType::Spot:
                 Type = lightData.typeNames[LightData::Spot];
                 break;
+            default:
+                break;
             }
 
             // Populate existing settings
-            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
+            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->GetName());
             if (currentStep->lightList.contains(lightKey))
                 lightMeta.setValue(currentStep->lightList[lightKey]);
 
             // Type and Name
             lightMeta.type.setValue(Type);
             metaString = lightMeta.type.format(local, global);
-            metaString.append(QString(" NAME \"%1\"").arg(Light->mName));
+            metaString.append(QString(" NAME \"%1\"").arg(Light->GetName()));
             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
 
             // Position
-            if (notEqual(Light->mPosition[X], lightData.position[X]) ||
-                notEqual(Light->mPosition[Y], lightData.position[Y]) ||
-                notEqual(Light->mPosition[Z], lightData.position[Z])) {
-                lightMeta.position.setValues(Light->mPosition[X],
-                                             Light->mPosition[Y],
-                                             Light->mPosition[Z]);
+            if (notEqual(Light->GetPosition()[X], lightData.position[X]) ||
+                notEqual(Light->GetPosition()[Y], lightData.position[Y]) ||
+                notEqual(Light->GetPosition()[Z], lightData.position[Z])) {
+                lightMeta.position.setValues(Light->GetPosition()[X],
+                                             Light->GetPosition()[Y],
+                                             Light->GetPosition()[Z]);
                 metaString = lightMeta.position.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
             // Target Position
-            if (notEqual(Light->mTargetPosition[X], lightData.target[X]) ||
-                notEqual(Light->mTargetPosition[Y], lightData.target[Y]) ||
-                notEqual(Light->mTargetPosition[Z], lightData.target[Z])) {
-                lightMeta.target.setValues(Light->mTargetPosition[X],
-                                           Light->mTargetPosition[Y],
-                                           Light->mTargetPosition[Z]);
+            if (notEqual(Light->GetTargetPosition()[X], lightData.target[X]) ||
+                notEqual(Light->GetTargetPosition()[Y], lightData.target[Y]) ||
+                notEqual(Light->GetTargetPosition()[Z], lightData.target[Z])) {
+                lightMeta.target.setValues(Light->GetTargetPosition()[X],
+                                           Light->GetTargetPosition()[Y],
+                                           Light->GetTargetPosition()[Z]);
                 metaString = lightMeta.target.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
+            // Rotation
+            if (notEqual(Light->GetRotation()[0].x, lightData.rotation1[X]) ||
+                notEqual(Light->GetRotation()[0].y, lightData.rotation1[Y]) ||
+                notEqual(Light->GetRotation()[0].z, lightData.rotation1[Z]) ||
+                notEqual(Light->GetRotation()[1].x, lightData.rotation2[X]) ||
+                notEqual(Light->GetRotation()[1].y, lightData.rotation2[Y]) ||
+                notEqual(Light->GetRotation()[1].z, lightData.rotation2[Z]) ||
+                notEqual(Light->GetRotation()[2].x, lightData.rotation3[X]) ||
+                notEqual(Light->GetRotation()[2].y, lightData.rotation3[Y]) ||
+                notEqual(Light->GetRotation()[2].z, lightData.rotation3[Z])) {
+                lightMeta.rotation.setValues(Light->GetRotation()[0].x,Light->GetRotation()[0].y,Light->GetRotation()[0].z,
+                                             Light->GetRotation()[1].x,Light->GetRotation()[1].y,Light->GetRotation()[1].z,
+                                             Light->GetRotation()[2].x,Light->GetRotation()[2].y,Light->GetRotation()[2].z);
+                metaString = lightMeta.rotation.format(local, global);
+                currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            }
+
             // Colour
-            if (notEqual(Light->mLightColor[0], lightData.color[0]) ||
-                notEqual(Light->mLightColor[1], lightData.color[1]) ||
-                notEqual(Light->mLightColor[2], lightData.color[2])) {
-                lightMeta.color.setValues(Light->mLightColor[0],
-                                          Light->mLightColor[1],
-                                          Light->mLightColor[2]);
+            if (notEqual(Light->GetColor()[0], lightData.color[0]) ||
+                notEqual(Light->GetColor()[1], lightData.color[1]) ||
+                notEqual(Light->GetColor()[2], lightData.color[2])) {
+                lightMeta.color.setValues(Light->GetColor()[0],
+                                          Light->GetColor()[1],
+                                          Light->GetColor()[2]);
                 metaString = lightMeta.color.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
-            if (!Light->mPOVRayLight)
+            const float lightPower = POVRayLight ? Light->GetPOVRayPower() : Light->GetBlenderPower();
+
+            if (POVRayLight)
             {
+                // POVRay Power
+                if (notEqual(lightPower, lightData.povrayPower)) {
+                    lightMeta.povrayPower.setValue(lightPower);
+                    metaString = lightMeta.povrayPower.format(local, global);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+            }
+            else
+            {
+                // Blender Power
+                if (notEqual(lightPower, lightData.blenderPower)) {
+                    lightMeta.blenderPower.setValue(lightPower);
+                    metaString = lightMeta.blenderPower.format(local, global);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+
                 // Specular
-                if (notEqual(Light->mLightSpecular, lightData.specular)) {
-                    lightMeta.specular.setValue(Light->mLightSpecular);
+                if (notEqual(Light->GetBlenderSpecular(), lightData.specular)) {
+                    lightMeta.specular.setValue(Light->GetBlenderSpecular());
                     metaString = lightMeta.specular.format(local, global);
                     currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
 
                 // Diffuse
-                if (notEqual(Light->mLightDiffuse, lightData.diffuse)) {
-                    lightMeta.diffuse.setValue(Light->mLightDiffuse);
+                if (notEqual(Light->GetBlenderDiffuse(), lightData.diffuse)) {
+                    lightMeta.diffuse.setValue(Light->GetBlenderDiffuse());
                     metaString = lightMeta.diffuse.format(local, global);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+
+                // Cutoff Distance
+                if (Light->GetEnableBlenderCutoff() && (notEqual(Light->GetBlenderCutoffDistance(), lightData.cutoffDistance))) {
+                    lightMeta.cutoffDistance.setValue(Light->GetBlenderCutoffDistance());
+                    metaString = lightMeta.cutoffDistance.format(local, global);
                     currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
             }
 
-            // Power
-            const float lightPower = Light->mPOVRayLight ? Light->mPOVRayExponent : Light->mSpotExponent;
-            if (notEqual(lightPower, lightData.power)) {
-                lightMeta.power.setValue(lightPower);
-                metaString = lightMeta.power.format(local, global);
+            // Spot Penumbra Angle
+            const float spotPenumbraAngle = Light->GetSpotPenumbraAngle();
+            if (notEqual(spotPenumbraAngle, lightData.spotPenumbraAngle)) {
+                lightMeta.spotPenumbraAngle.setValue(spotPenumbraAngle);
+                metaString = lightMeta.spotPenumbraAngle.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
-            // Cutoff Distance
-            if (Light->mEnableCutoff && !Light->mPOVRayLight &&
-               (notEqual(Light->mSpotCutoff, lightData.spotCutoff))) {
-                lightMeta.spotCutoff.setValue(Light->mSpotCutoff);
-                metaString = lightMeta.spotCutoff.format(local, global);
-                currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-            }
+            lcLightAreaShape areaShapeInt = lcLightAreaShape::Square;
 
             switch (Light->GetLightType())
             {
             case lcLightType::Point:
-                if (!Light->mPOVRayLight)
+                if (!POVRayLight)
                 {
-                    // Radius
-                    if (notEqual(Light->mLightFactor[0], lightData.radius)) {
-                        lightMeta.radius.setValue(Light->mLightFactor[0]);
-                        metaString = lightMeta.radius.format(local, global);
+                    // Point Radius
+                    if (notEqual(Light->GetPointBlenderRadius(), lightData.pointRadius)) {
+                        lightMeta.pointRadius.setValue(Light->GetPointBlenderRadius());
+                        metaString = lightMeta.pointRadius.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                 }
                 break;
             case lcLightType::Spot:
-                if (Light->mPOVRayLight)
+                if (POVRayLight)
                 {
+                    // POVRay Fade Power
+                    if (notEqual(Light->GetPOVRayFadePower(), lightData.fadePower)) {
+                        lightMeta.fadePower.setValue(Light->GetPOVRayFadePower());
+                        metaString = lightMeta.fadePower.format(local, global);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+
+                    // POVRay Fade Distance
+                    if (notEqual(Light->GetPOVRayFadeDistance(), lightData.fadeDistance)) {
+                        lightMeta.fadeDistance.setValue(Light->GetPOVRayFadeDistance());
+                        metaString = lightMeta.fadeDistance.format(local, global);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+
                     // Spot Tightness
-                    if (notEqual(Light->mSpotTightness, lightData.spotTightness)) {
-                        lightMeta.spotTightness.setValue(Light->mSpotTightness);
+                    if (notEqual(Light->GetSpotPOVRayTightness(), lightData.spotTightness)) {
+                        lightMeta.spotTightness.setValue(Light->GetSpotPOVRayTightness());
                         metaString = lightMeta.spotTightness.format(local, global);
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                    // Spot Falloff
-                    if (notEqual(Light->mSpotFalloff, lightData.spotFalloff)) {
-                        lightMeta.spotFalloff.setValue(Light->mSpotFalloff);
-                        metaString = lightMeta.spotFalloff.format(local, global);
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                    // Radius
-                    const float spotRadius = Light->mSpotSize - Light->mSpotFalloff;
-                    if (notEqual(spotRadius, lightData.radius)) {
-                        lightMeta.radius.setValue(spotRadius);
-                        metaString = lightMeta.radius.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                 }
                 else
                 {
+                    // Spot Radius
+                    if (notEqual(Light->GetSpotBlenderRadius(), lightData.spotRadius)) {
+                        lightMeta.spotRadius.setValue(Light->GetSpotBlenderRadius());
+                        metaString = lightMeta.spotRadius.format(local, global);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+
+                    // Spot Cone Angle
+                    if (notEqual(Light->GetSpotConeAngle(), lightData.spotConeAngle)) {
+                        lightMeta.spotConeAngle.setValue(Light->GetSpotConeAngle());
+                        metaString = lightMeta.spotConeAngle.format(local, global);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+
                     // Spot Blend
-                    if (notEqual(Light->mLightFactor[1], lightData.spotBlend)) {
-                        lightMeta.spotBlend.setValue(Light->mLightFactor[1]);
+                    const float spotBlend = spotPenumbraAngle / Light->GetSpotConeAngle();
+                    if (notEqual(spotBlend, lightData.spotBlend)) {
+                        lightMeta.spotBlend.setValue(spotBlend);
                         metaString = lightMeta.spotBlend.format(local, global);
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                    // Radius
-                    if (notEqual(Light->mLightFactor[0], lightData.radius)) {
-                        lightMeta.radius.setValue(Light->mLightFactor[0]);
-                        metaString = lightMeta.radius.format(local, global);
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                    // Spot Size
-                    if (notEqual(Light->mSpotSize, lightData.spotSize)) {
-                        lightMeta.spotSize.setValue(Light->mSpotSize);
-                        metaString = lightMeta.spotSize.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                 }
                 break;
-            case lcLightType::Sun:
+            case lcLightType::Directional:
                 {
-                    // Strength
-                    const float lightStrength = Light->mPOVRayLight ? Light->mPOVRayExponent : Light->mSpotExponent;
-                    if (notEqual(lightStrength, lightData.strength)) {
-                        lightMeta.strength.setValue(lightStrength);
-                        metaString = lightMeta.strength.format(local, global);
-                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-                    }
-                    if (!Light->mPOVRayLight)
+                    if (!POVRayLight)
                     {
-                        // Angle
-                        if (notEqual(Light->mLightFactor[0], lightData.angle)) {
-                            lightMeta.angle.setValue(Light->mLightFactor[0]);
-                            metaString = lightMeta.angle.format(local, global);
+                        // Blender Sun (Directional) Angle
+                        if (notEqual(Light->GetDirectionalBlenderAngle(), lightData.sunAngle)) {
+                            lightMeta.sunAngle.setValue(Light->GetDirectionalBlenderAngle());
+                            metaString = lightMeta.sunAngle.format(local, global);
                             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
                     }
                 }
                 break;
             case lcLightType::Area:
-                if (Light->mPOVRayLight)
+                if (Light->GetAreaShape() == lcLightAreaShape::Rectangle || Light->GetAreaShape() == lcLightAreaShape::Ellipse)
                 {
-                    // Area Rows and Area Columns
-                    if (int(Light->mAreaGrid[0]) != lightData.areaRows || int(Light->mAreaGrid[1]) != lightData.areaColumns) {
-                        lightMeta.areaRows.setValue(Light->mAreaGrid[0]);
-                        lightMeta.areaColumns.setValue(Light->mAreaGrid[1]);
-                        metaString = lightMeta.areaRows.format(local, global);
-                        metaString.append(QString(" AREA_COLUMNS %1").arg(int(Light->mAreaGrid[1])));
+                    // Area Size X (Width)
+                    if (notEqual(Light->GetAreaSizeX(), lightData.areaSizeX)) {
+                        lightMeta.areaSizeX.setValue(Light->GetAreaSizeX());
+                        metaString = lightMeta.areaSizeX.format(local, global);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+
+                    // Area Size Y (Height)
+                    if (notEqual(Light->GetAreaSizeY(), lightData.areaSizeY)) {
+                        lightMeta.areaSizeY.setValue(Light->GetAreaSizeY());
+                        metaString = lightMeta.areaSizeY.format(local, global);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+                }
+                else
+                {
+                    // Area Size (Width == Height)
+                    if (notEqual(Light->GetAreaSizeX(), lightData.areaSize)) {
+                        lightMeta.areaSize.setValue(Light->GetAreaSizeX());
+                        metaString = lightMeta.areaSize.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                 }
 
-                if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight) {
-                    const float width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
-                    const float height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
-                    // Width and Height
-                    if (notEqual(width, lightData.width) || notEqual(height, lightData.height)) {
-                        lightMeta.width.setValue(width);
-                        lightMeta.height.setValue(height);
-                        metaString = lightMeta.width.format(local, global);
-                        metaString.append(QString(" HEIGHT %1").arg(double(height)));
+                if (POVRayLight)
+                {
+                    // Area Grid X notEqual(Light->GetDirectionalBlenderAngle(), lightData.sunAngle)
+                    if (int(Light->GetAreaPOVRayGridX()) != lightData.areaGridX) {
+                        lightMeta.areaGridX.setValue(Light->GetAreaPOVRayGridX());
+                        metaString = lightMeta.areaGridX.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
-                } else {
-                    // Size
-                    if (notEqual(Light->mLightFactor[0], lightData.size)) {
-                        lightMeta.size.setValue(Light->mLightFactor[0]);
-                        metaString = lightMeta.size.format(local, global);
+
+                    // Area Grid Y
+                    if (int(Light->GetAreaPOVRayGridY()) != lightData.areaGridY) {
+                        lightMeta.areaGridY.setValue(Light->GetAreaPOVRayGridY());
+                        metaString = lightMeta.areaGridY.format(local, global);
                         currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                 }
 
-                // Shape
-                QString Shape = "UNDEFINED";
-                switch(Light->GetLightShape()) {
-                case LC_LIGHT_SHAPE_SQUARE:
-                    Shape = QLatin1String("SQUARE");
+                // Area Shape
+                switch(Light->GetAreaShape())
+                {
+                case lcLightAreaShape::Disk:
+                    lightData.areaShape = QLatin1String("DISK");
+                    areaShapeInt = lcLightAreaShape::Disk;
                     break;
-                case LC_LIGHT_SHAPE_DISK:
-                    Shape = QLatin1String("DISK");
+                case lcLightAreaShape::Rectangle:
+                    lightData.areaShape = QLatin1String("RECTANGLE");
+                    areaShapeInt = lcLightAreaShape::Rectangle;
                     break;
-                case LC_LIGHT_SHAPE_RECTANGLE:
-                    Shape = QLatin1String("RECTANGLE");
+                case lcLightAreaShape::Ellipse:
+                    lightData.areaShape = QLatin1String("ELLIPSE");
+                    areaShapeInt = lcLightAreaShape::Ellipse;
                     break;
-                case LC_LIGHT_SHAPE_ELLIPSE:
-                    Shape = QLatin1String("ELLIPSE");
+                default:
+                    lightData.areaShape = QLatin1String("SQUARE");
                     break;
                 }
 
-                int ShapeInt = LC_LIGHT_SHAPE_SQUARE;
-                if (lightData.shape == QLatin1String("DISK"))
-                    ShapeInt = LC_LIGHT_SHAPE_DISK;
-                else if (lightData.shape == QLatin1String("RECTANGLE"))
-                    ShapeInt = LC_LIGHT_SHAPE_RECTANGLE;
-                else if (lightData.shape == QLatin1String("ELLIPSE"))
-                    ShapeInt = LC_LIGHT_SHAPE_ELLIPSE;
-
-                if (Light->GetLightShape() != ShapeInt) {
-                    lightMeta.shape.setValue(Shape);
-                    metaString = lightMeta.shape.format(local, global);
+                if (Light->GetAreaShape() != areaShapeInt)
+                {
+                    metaString = lightMeta.areaShape.format(local, global);
                     currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
+                break;
+            default:
                 break;
             }
 
             // POVRay Light
-            if (Light->mPOVRayLight)
+            if (POVRayLight)
             {
                 lightMeta.setLatLong();
 
@@ -1558,7 +1602,7 @@ void Gui::applyLightSettings()
             }
 
             // Shadowless
-            if (Light->mShadowless)
+            if (!Light->GetCastShadow())
             {
                 metaString = lightMeta._shadowless.format(local, global);
                 currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
@@ -2020,8 +2064,8 @@ void Gui::groupActionTriggered()
         if (ok)
         {
             if (commandId == LC_EDIT_ACTION_POINT_LIGHT ||
-                commandId == LC_EDIT_ACTION_SUN_LIGHT ||
-                commandId == LC_EDIT_ACTION_SPOT_LIGHT ||
+                commandId == LC_EDIT_ACTION_DIRECTIONAL_LIGHT ||
+                commandId == LC_EDIT_ACTION_SPOTLIGHT ||
                 commandId == LC_EDIT_ACTION_AREA_LIGHT) {
                 LightGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
                 LightGroupAct->setToolTip(tr(commandTip.toLatin1()));
@@ -2416,14 +2460,19 @@ QStringList Gui::get3DViewerPOVLightList() const
     if (ActiveModel)
     {
         // Save lights
-        for (lcLight* Light : ActiveModel->GetLights())
+        for (const std::unique_ptr<lcLight>& Light : ActiveModel->GetLights())
         {
-            // LeoCAD to LDraw to POVRay: 0 1 2 => 0 -2 1 => 2 0 1
-            const int X = Light->mPOVRayLight ? 2 : 0 ;
-            const int Y = Light->mPOVRayLight ? 0 : 1 ;
-            const int Z = Light->mPOVRayLight ? 1 : 2 ;
+            const bool POVRayLight = Light->GetLightFormat() == lcLightFormat::POVRayLight;
+
+            // Switch XYZ coordinates from LeoCAD where +Z is up to LDraw where -Y is up, so  (0 1 2) => (0 -2 1)
+            // Then switch from LDraw to POVRay where +Y is up, so (0 -2 1) => (2 0 1)
+            // FYI, from LeoCAD directly to POVRay would be (0 1 2) => (1 0 2)
+            const int X = POVRayLight ? 2 : 0 ;
+            const int Y = POVRayLight ? 0 : 1 ;
+            const int Z = POVRayLight ? 1 : 2 ;
 
             LightData lightData;
+            lcVector3 areaWidth, areaHeight;
 
             QString Type = "Undefined";
             switch(Light->GetLightType())
@@ -2434,98 +2483,74 @@ QStringList Gui::get3DViewerPOVLightList() const
             case lcLightType::Area:
                 Type = lightData.typeNames[LightData::Area];
                 break;
-            case lcLightType::Sun:
+            case lcLightType::Directional:
                 Type = lightData.typeNames[LightData::Sun];
                 break;
             case lcLightType::Spot:
                 Type = lightData.typeNames[LightData::Spot];
                 break;
+            default:
+                break;
             }
 
-            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
+            const QString lightKey = QString("%1 %2").arg(Type).arg(Light->GetName());
             if (currentStep->lightList.contains(lightKey))
                 lightData = currentStep->lightList[lightKey];
 
             lightData.type = Type;
-            lightData.name = Light->mName;
-            lightData.povrayLight = Light->mPOVRayLight;
-            lightData.position[X] = Light->mPosition.x;
-            lightData.position[Y] = Light->mPosition.y;
-            lightData.position[Z] = Light->mPosition.z;
-            lightData.target[X] = Light->mTargetPosition.x;
-            lightData.target[Y] = Light->mTargetPosition.y;
-            lightData.target[Z] = Light->mTargetPosition.z;
-            lightData.color[0] = Light->mLightColor.x;
-            lightData.color[1] = Light->mLightColor.y;
-            lightData.color[2] = Light->mLightColor.z;
-            if (!Light->mPOVRayLight)
-            {
-                lightData.specular = Light->mLightSpecular;
-                lightData.diffuse = Light->mLightDiffuse;
-            }
-            if (Light->GetLightType() != lcLightType::Sun)
-            {
-                lightData.power = Light->mPOVRayLight ? Light->mPOVRayExponent : Light->mSpotExponent;
-                if (Light->mEnableCutoff && !Light->mPOVRayLight)
-                    lightData.spotCutoff = Light->mSpotCutoff;
-            }
+            lightData.name = Light->GetName();
+            lightData.position[X] = Light->GetPosition().x;
+            lightData.position[Y] = Light->GetPosition().y;
+            lightData.position[Z] = Light->GetPosition().z;
+            lightData.target[X] = Light->GetTargetPosition().x;
+            lightData.target[Y] = Light->GetTargetPosition().y;
+            lightData.target[Z] = Light->GetTargetPosition().z;
+            lightData.color[0] = Light->GetColor()[0];
+            lightData.color[1] = Light->GetColor()[1];
+            lightData.color[2] = Light->GetColor()[2];
+            lightData.povrayPower = Light->GetPOVRayPower();
+
             switch (Light->GetLightType())
             {
             case lcLightType::Point:
-                if (!Light->mPOVRayLight)
-                    lightData.radius = Light->mLightFactor[0];
-                break;
-            case lcLightType::Spot:
-                if (Light->mPOVRayLight)
-                {
-                    lightData.spotTightness = Light->mSpotTightness;
-                    lightData.spotFalloff = Light->mSpotFalloff;
-                    lightData.radius = Light->mSpotSize - Light->mSpotFalloff;
-                }
-                else
-                {
-                    lightData.radius = Light->mLightFactor[0];
-                    lightData.spotBlend = Light->mLightFactor[1];
-                    lightData.spotSize = Light->mSpotSize;
-                }
+            case lcLightType::Directional:
                 break;
 
-            case lcLightType::Sun:
-                lightData.strength = Light->mPOVRayLight ? Light->mPOVRayExponent : Light->mSpotExponent;
-                if (!Light->mPOVRayLight)
-                    lightData.angle = Light->mLightFactor[0];
+            case lcLightType::Spot:
+                lightData.spotConeAngle = Light->GetSpotConeAngle();
+                lightData.fadePower = Light->GetPOVRayFadePower();
+                lightData.fadeDistance = Light->GetPOVRayFadeDistance();
+                lightData.spotTightness = Light->GetSpotPOVRayTightness();
                 break;
 
             case lcLightType::Area:
-                if (Light->mPOVRayLight)
+                lightData.areaGridX = int(Light->GetAreaPOVRayGridX());
+                lightData.areaGridY = int(Light->GetAreaPOVRayGridY());
+                lightData.areaWidth = Light->GetAreaSizeX();
+                lightData.areaHeight = Light->GetAreaSizeY();
+                areaWidth = lcVector3(Light->GetWorldMatrix()[0]) * Light->GetAreaSizeX();
+                areaHeight = lcVector3(Light->GetWorldMatrix()[1]) * Light->GetAreaSizeY();
+
+                switch(Light->GetAreaShape())
                 {
-                    lightData.areaRows = int(Light->mAreaGrid[0]);
-                    lightData.areaColumns = int(Light->mAreaGrid[1]);
-                }
-                if (Light->GetLightShape() == LC_LIGHT_SHAPE_RECTANGLE || Light->GetLightShape() == LC_LIGHT_SHAPE_ELLIPSE || Light->mPOVRayLight)
-                {
-                    lightData.width = Light->mPOVRayLight ? Light->mAreaSize[0]: Light->mLightFactor[0];
-                    lightData.height = Light->mPOVRayLight ? Light->mAreaSize[1]: Light->mLightFactor[1];
-                }
-                else
-                {
-                    lightData.size = Light->mLightFactor[0];
-                }
-                QString Shape = "UNDEFINED";
-                switch(Light->GetLightShape()) {
-                case LC_LIGHT_SHAPE_SQUARE:
-                    lightData.shape = QLatin1String("SQUARE");
+                case lcLightAreaShape::Square:
+                    lightData.areaShape = QLatin1String("SQUARE");
                     break;
-                case LC_LIGHT_SHAPE_DISK:
-                    lightData.shape = QLatin1String("DISK");
+                case lcLightAreaShape::Disk:
+                    lightData.areaShape = QLatin1String("DISK");
                     break;
-                case LC_LIGHT_SHAPE_RECTANGLE:
-                    lightData.shape = QLatin1String("RECTANGLE");
+                case lcLightAreaShape::Rectangle:
+                    lightData.areaShape = QLatin1String("RECTANGLE");
                     break;
-                case LC_LIGHT_SHAPE_ELLIPSE:
-                    lightData.shape = QLatin1String("ELLIPSE");
+                case lcLightAreaShape::Ellipse:
+                    lightData.areaShape = QLatin1String("ELLIPSE");
+                    break;
+                case lcLightAreaShape::Count:
                     break;
                 }
+                break;
+
+            case lcLightType::Count:
                 break;
             }
 
@@ -2623,24 +2648,17 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         // Reset the camera
         if (Camera && IsDefaultCamera)
         {
-            bool RemovedCamera = false;
-            for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
+            for (size_t CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().size(); )
             {
                 QString const Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
                 if (Name == Camera->GetName())
-                {
-                    RemovedCamera = true;
                     ActiveModel->RemoveCameraIndex(CameraIdx);
-                }
                 else
                     CameraIdx++;
             }
 
             Camera->SetName(QString());
             ActiveView->SetCamera(Camera, true);
-
-            if (RemovedCamera)
-                gMainWindow->UpdateCameraMenu();
         }
 
         Camera = nullptr;
@@ -2869,7 +2887,7 @@ void Gui::ReloadVisualEditor() {
  int Gui::GetLPubStepPieces()
  {
      if (GetActiveModel())
-         return GetActiveModel()->GetPieces().GetSize();
+         return GetActiveModel()->GetPieces().size();
      return 0;
  }
 
@@ -3042,15 +3060,14 @@ void Gui::ReloadVisualEditor() {
                                         .arg(currentStep->stepNumber.number));
 
              // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
-             lcArray<lcGroup*>  Groups;
-             lcArray<lcCamera*> Cameras;
-             lcArray<lcLight*>  Lights;
-             lcArray<lcPiece*>  LPubPieces;                     // Pieces in the buildMod - may include removed viewer pieces
-             lcArray<lcGroup*>  LPubGroups;
-             lcArray<lcPiece*>  ViewerPieces;                   // All viewer pieces in the step
-             lcArray<lcGroup*>  ViewerGroups;
+             std::vector<std::unique_ptr<lcCamera>> Cameras;
+             std::vector<std::unique_ptr<lcLight>>  Lights;
+             std::vector<std::unique_ptr<lcGroup>>  Groups;
+             std::vector<lcGroup*>  LPubGroups;
+             std::vector<lcGroup*>  ViewerGroups;
+             std::vector<std::unique_ptr<lcPiece>>  LPubPieces;   // Pieces in the buildMod - may include removed viewer pieces
+             std::vector<lcPieceControlPoint> ControlPoints;
              lcModelProperties  ViewerProperties;
-             lcArray<lcPieceControlPoint> ControlPoints;
              QStringList  LPubFileLines,   ViewerFileLines,
                           LPubModContents, ViewerModContents,
                           ModStepKeys;
@@ -3058,14 +3075,14 @@ void Gui::ReloadVisualEditor() {
              bool FadeSteps        = Preferences::enableFadeSteps;
              bool HighlightStep    = Preferences::enableHighlightStep && !suppressColourMeta();
 
-             int AddedPieces       = 0;
              int CurrentStep       = 1;
+             int AddedPieces       = 0;
+
              lcPiece  *Piece       = nullptr;
              lcCamera *Camera      = nullptr;
              lcLight  *Light       = nullptr;
              ViewerProperties      = ActiveModel->GetProperties();
              ViewerFileLines       = ActiveModel->GetFileLines();
-             ViewerPieces          = ActiveModel->GetPieces();
              lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
              QString ModStepKey    = lpub->viewerStepKey;
@@ -3103,6 +3120,8 @@ void Gui::ReloadVisualEditor() {
              buildModificationKey     = QString(); // clear the change key
              int Top               = currentStep->topOfStep().lineNumber;
              int Bottom            = currentStep->bottomOfStep().lineNumber;
+
+             const QByteArray LPMeta("0 !LPUB");
 
              // Check that the the build mod and current step shares the same submodel
              if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
@@ -3168,15 +3187,15 @@ void Gui::ReloadVisualEditor() {
              auto GetGroup = [&Groups](const QString& Name, bool CreateIfMissing)
              {
                  lcGroup* nullGroup = nullptr;
-                 for (lcGroup* Group : Groups)
+                 for (const std::unique_ptr<lcGroup>& Group : Groups)
                      if (Group->mName == Name)
-                         return Group;
+                         return Group.get();
 
                  if (CreateIfMissing)
                  {
                      lcGroup* Group = new lcGroup();
                      Group->mName = Name;
-                     Groups.Add(Group);
+                     Groups.emplace_back(Group);
 
                      return Group;
                  }
@@ -3258,25 +3277,25 @@ void Gui::ReloadVisualEditor() {
              };
 
              // Process piece insert
-             auto InsertPiece = [] (lcArray<lcPiece*> &LPubPieces, lcPiece* Piece, int PieceIdx)
+             auto InsertPiece = [] (std::vector<std::unique_ptr<lcPiece>>& LPubPieces, lcPiece* Piece, size_t PieceIdx)
              {
                  PieceInfo* Info = Piece->mPieceInfo;
 
                  if (!Info->IsModel())
                  {
-                     lcMesh* Mesh = Info->GetMesh();
+                     const lcMesh* Mesh = Info->GetMesh();
 
                      if (Mesh && Mesh->mVertexCacheOffset == -1)
                          lcGetPiecesLibrary()->mBuffersDirty = true;
                  }
 
-                 LPubPieces.InsertAt(PieceIdx, Piece);
+                 LPubPieces.insert(LPubPieces.begin() + PieceIdx, std::unique_ptr<lcPiece>(Piece));
              };
 
              // Process piece add
-             auto AddPiece = [&InsertPiece](lcArray<lcPiece*> &LPubPieces, lcPiece* Piece)
+             auto AddPiece = [&InsertPiece](std::vector<std::unique_ptr<lcPiece>>& LPubPieces, lcPiece* Piece)
              {
-                 for (int PieceIdx = 0; PieceIdx < LPubPieces.GetSize(); PieceIdx++)
+                 for (size_t PieceIdx = 0; PieceIdx < LPubPieces.size(); PieceIdx++)
                  {
                      if (LPubPieces[PieceIdx]->GetStepShow() > Piece->GetStepShow())
                      {
@@ -3285,7 +3304,7 @@ void Gui::ReloadVisualEditor() {
                      }
                  }
 
-                 InsertPiece(LPubPieces, Piece, LPubPieces.GetSize());
+                 InsertPiece(LPubPieces, Piece, LPubPieces.size());
              };
 
              // Process piece transform - add transformation and rotation delta to unrotated line
@@ -3420,7 +3439,10 @@ void Gui::ReloadVisualEditor() {
              Buffer.open(QIODevice::ReadOnly);
              Buffer.seek(0);
 
-             // load LPubFileLines, LPubGroups and LPubPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
+             // Get pieces in current step
+             const int ViewerPieces = ActiveModel->GetPieces().size();
+
+             // Load LPubFileLines, LPubGroups and LPubPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
              while (!Buffer.atEnd())
              {
                  qint64 Pos = Buffer.pos();
@@ -3481,22 +3503,26 @@ void Gui::ReloadVisualEditor() {
                          if (!Camera)
                              Camera = new lcCamera(false);
 
+                         Camera->SetLCMeta(false);
+
                          if (Camera->ParseLDrawLine(LineStream))
                          {
                              Camera->CreateName(Cameras);
-                             Cameras.Add(Camera);
+                             Cameras.emplace_back(Camera);
                              Camera = nullptr;
                          }
                      }
                      else if (Token == QLatin1String("LIGHT"))
                      {
                          if (!Light)
-                             Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point, true/*LPubMeta*/);
+                             Light = new lcLight(lcVector3(0.0f, 0.0f, 0.0f), lcLightType::Point);
+
+                         Light->SetLCMeta(false);
 
                          if (Light->ParseLDrawLine(LineStream))
                          {
                              Light->CreateName(Lights);
-                             Lights.Add(Light);
+                             Lights.emplace_back(Light);
                              Light = nullptr;
                          }
                      }
@@ -3508,16 +3534,16 @@ void Gui::ReloadVisualEditor() {
                          {
                              QString Name = LineStream.readAll().trimmed();
                              lcGroup* Group = GetGroup(Name, true);
-                             if (!LPubGroups.IsEmpty())
-                                 Group->mGroup = LPubGroups[LPubGroups.GetSize() - 1];
+                             if (!LPubGroups.empty())
+                                 Group->mGroup = LPubGroups[LPubGroups.size() - 1];
                              else
                                  Group->mGroup = nullptr;
-                             LPubGroups.Add(Group);
+                             LPubGroups.emplace_back(Group);
                          }
                          else if (Token == QLatin1String("END"))
                          {
-                             if (!LPubGroups.IsEmpty())
-                                 LPubGroups.RemoveIndex(LPubGroups.GetSize() - 1);
+                             if (!LPubGroups.empty())
+                                 LPubGroups.pop_back();
                          }
                      }
                      else if (Token == QLatin1String("SYNTH"))
@@ -3526,11 +3552,11 @@ void Gui::ReloadVisualEditor() {
 
                          if (Token == QLatin1String("BEGIN"))
                          {
-                             ControlPoints.RemoveAll();
+                             ControlPoints.clear();
                          }
                          else if (Token == QLatin1String("END"))
                          {
-                             ControlPoints.RemoveAll();
+                             ControlPoints.clear();
                          }
                          else if (Token == QLatin1String("CONTROL_POINT"))
                          {
@@ -3538,7 +3564,9 @@ void Gui::ReloadVisualEditor() {
                              for (int TokenIdx = 0; TokenIdx < 13; TokenIdx++)
                                  LineStream >> Numbers[TokenIdx];
 
-                             lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
+                             ControlPoints.emplace_back();
+
+                             lcPieceControlPoint& PieceControlPoint = ControlPoints.back();
                              PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
                                                                       lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
                              PieceControlPoint.Scale = Numbers[12];
@@ -3572,8 +3600,8 @@ void Gui::ReloadVisualEditor() {
                          if (!Piece)
                              Piece = new lcPiece(nullptr);
 
-                         if (!LPubGroups.IsEmpty())
-                             Piece->SetGroup(LPubGroups[LPubGroups.GetSize() - 1]);
+                         if (!LPubGroups.empty())
+                             Piece->SetGroup(LPubGroups[LPubGroups.size() - 1]);
 
                          PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), lcGetActiveProject(), true, true);
 
@@ -3604,7 +3632,7 @@ void Gui::ReloadVisualEditor() {
 
              Buffer.close();
 
-             // Load Visual Editor content from ViewerFileLines, ViewerGroups and ViewerPieces, Camera, Lights and LSynth Control Points
+             // Load Visual Editor content from ViewerFileLines, ViewerGroups, Camera, Lights and LSynth Control Points
              bool NewPiece      = false;
              bool SelectedOnly  = false;
              bool PieceInserted = false;
@@ -3626,7 +3654,7 @@ void Gui::ReloadVisualEditor() {
              // Do we have a difference between the number of LPub pieces and Viewer pieces ?
              // If pieces have been added or removed, we capture the delta in PieceAdjustment
              // and AddedPieces.
-             PieceAdjustment = AddedPieces = Update ? ViewerPieces.GetSize() - ModStepPieces : ViewerPieces.GetSize() - getViewerStepPartCount(ModStepKey);
+             PieceAdjustment = AddedPieces = Update ? ViewerPieces - ModStepPieces : ViewerPieces - getViewerStepPartCount(ModStepKey);
 
              // Adjust EndModLineNum to accomodate removed pieces
              if (PieceAdjustment < 0)
@@ -3638,12 +3666,12 @@ void Gui::ReloadVisualEditor() {
                                  .arg(Action)
                                  .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
                                  .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
-                                 .arg(ViewerPieces.GetSize()).arg(VER_PRODUCTNAME_STR).arg(ModStepPieces);
+                                 .arg(ViewerPieces).arg(VER_PRODUCTNAME_STR).arg(ModStepPieces);
                  emit messageSig(LOG_DEBUG, message);
              }
 
              // Viewer current step pieces
-             for (lcPiece* Piece : ViewerPieces)
+             for (const std::unique_ptr<lcPiece>& Piece : ActiveModel->GetPieces())
              {
                  LineIndex  = Piece->GetLineTypeIndex();
 
@@ -3740,60 +3768,60 @@ void Gui::ReloadVisualEditor() {
 
                      if (PieceGroup)
                      {
-                         if (ViewerGroups.IsEmpty() || (!ViewerGroups.IsEmpty() && PieceGroup != ViewerGroups[ViewerGroups.GetSize() - 1]))
+                         if (ViewerGroups.empty() || (!ViewerGroups.empty() && PieceGroup != ViewerGroups[ViewerGroups.size() - 1]))
                          {
-                             lcArray<lcGroup*> PieceParents;
+                             std::deque<lcGroup*> PieceParents;
 
                              for (lcGroup* Group = PieceGroup; Group; Group = Group->mGroup)
-                                 PieceParents.InsertAt(0, Group);
+                                 PieceParents.push_front(Group);
 
-                             int FoundParent = -1;
+                             std::deque<lcGroup*>::iterator ParentsToAdd = PieceParents.begin();
 
-                             while (!ViewerGroups.IsEmpty())
+                             while (!ViewerGroups.empty())
                              {
-                                 lcGroup* Group = ViewerGroups[ViewerGroups.GetSize() - 1];
-                                 int Index = PieceParents.FindIndex(Group);
+                                 lcGroup* Group = ViewerGroups[ViewerGroups.size() - 1];
+                                 const std::deque<lcGroup*>::iterator ParentFound = std::find(PieceParents.begin(), PieceParents.end(), Group);
 
-                                 if (Index == -1)
+                                 if (ParentFound == PieceParents.end())
                                  {
-                                     ViewerGroups.RemoveIndex(ViewerGroups.GetSize() - 1);
-                                     Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+                                     ViewerGroups.pop_back();
+                                     Stream << QLatin1String(LPMeta + " GROUP END\r\n");
                                  }
                                  else
                                  {
-                                     FoundParent = Index;
+                                     ParentsToAdd = ParentFound + 1;
                                      break;
                                  }
                              }
 
-                             for (int ParentIdx = FoundParent + 1; ParentIdx < PieceParents.GetSize(); ParentIdx++)
+                             for (std::deque<lcGroup*>::iterator ParentIt = ParentsToAdd; ParentIt != PieceParents.end(); ParentIt++)
                              {
-                                 lcGroup* Group = PieceParents[ParentIdx];
-                                 ViewerGroups.Add(Group);
-                                 Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
+                                 lcGroup* Group = *ParentIt;
+                                 ViewerGroups.emplace_back(Group);
+                                 Stream << QLatin1String(LPMeta + " GROUP BEGIN ") << Group->mName << LineEnding;
                              }
                          }
                      }
                      else
                      {
-                         while (ViewerGroups.GetSize())
+                         while (ViewerGroups.size())
                          {
-                             ViewerGroups.RemoveIndex(ViewerGroups.GetSize() - 1);
-                             Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+                             ViewerGroups.pop_back();
+                             Stream << QLatin1String(LPMeta + " GROUP END\r\n");
                          }
                      }
 
                      // Process piece synth info
                      if (Piece->mPieceInfo->GetSynthInfo())
                      {
-                         Stream << QLatin1String("0 !LPUB SYNTH BEGIN\r\n");
+                         Stream << QLatin1String(LPMeta + " SYNTH BEGIN\r\n");
 
-                         const lcArray<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
-                         for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
+                         const std::vector<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
+                         for (size_t ControlPointIdx = 0; ControlPointIdx < ControlPoints.size(); ControlPointIdx++)
                          {
                              const lcPieceControlPoint& ControlPoint = ControlPoints[ControlPointIdx];
 
-                             Stream << QLatin1String("0 !LPUB SYNTH CONTROL_POINT");
+                             Stream << QLatin1String(LPMeta + " SYNTH CONTROL_POINT");
 
                              const float* FloatMatrix = ControlPoint.Transform;
                              float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
@@ -3820,7 +3848,7 @@ void Gui::ReloadVisualEditor() {
 
                      // End piece synth info
                      if (Piece->mPieceInfo->GetSynthInfo())
-                         Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
+                         Stream << QLatin1String(LPMeta + " SYNTH END\r\n");
                  } // Process the current piece
              } // Viewer current step pieces
 
@@ -3848,19 +3876,19 @@ void Gui::ReloadVisualEditor() {
              } // Process to bottom of current step
 
              // Process step group end
-             while (ViewerGroups.GetSize())
+             while (ViewerGroups.size())
              {
-                 ViewerGroups.RemoveIndex(ViewerGroups.GetSize() - 1);
-                 Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+                 ViewerGroups.pop_back();
+                 Stream << QLatin1String(LPMeta + " GROUP END\r\n");
              }
 
              // Process camera lines
-             for (lcCamera* Camera : Cameras)
+             for (const std::unique_ptr<lcCamera>& Camera : Cameras)
                  if (!SelectedOnly || Camera->IsSelected())
                      Camera->SaveLDraw(Stream);
 
              // Process light lines
-             for (lcLight* Light : Lights)
+             for (const std::unique_ptr<lcLight>& Light : Lights)
                  if (!SelectedOnly || Light->IsSelected())
                      Light->SaveLDraw(Stream);
 
@@ -3939,7 +3967,7 @@ void Gui::ReloadVisualEditor() {
              buildModData.buildModKey = QString();
 
              if (!Update)
-                 currentStep->buildModMeta.preamble = QLatin1String("0 !LPUB BUILD_MOD ");
+                 currentStep->buildModMeta.preamble = QLatin1String(LPMeta + " BUILD_MOD ");
 
              beginMacro(QLatin1String("BuildModCreate|") + lpub->viewerStepKey);
 
@@ -4002,7 +4030,7 @@ void Gui::ReloadVisualEditor() {
              ModEndLineNum = ModActionLineNum + SaveModPieces + 1;
 
              // Set to updated number of pieces in the current Step
-             ModStepPieces = ViewerPieces.GetSize();
+             ModStepPieces = ViewerPieces;
 
              QVector<int> ModAttributes =
              {
@@ -5230,7 +5258,7 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
     bool firstStep = true;
     QLatin1String LineEnding("\r\n");
     QLatin1String Extension(".ldr");
-    for (lcModel* Model : Importer->GetModels())
+    for (const std::unique_ptr<lcModel>& Model : Importer->GetModels())
     {
         if (firstStep) {
             firstStep = false;
@@ -5245,7 +5273,7 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
             Stream << QLatin1String("0 NOFILE\r\n");
         }
         Stream << QLatin1String("0 FILE ") << Model->GetProperties().mFileName << Extension << LineEnding;
-        Model->SaveLDraw(Stream, false);
+        Model->SaveLDraw(Stream, false, Model->GetCurrentStep());
         Model->SetSaved();
         Stream << QLatin1String("0 NOFILE\r\n");
     }

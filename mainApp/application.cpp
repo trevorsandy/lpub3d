@@ -41,7 +41,9 @@
   #include <fcntl.h>
   #include <io.h>
   #include <fstream>
+  #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
   #include <QtPlatformHeaders\QWindowsWindowFunctions>
+  #endif
 
   #if (NTDDI_VERSION >= NTDDI_WIN8)
     #include <pathcch.h>
@@ -858,10 +860,10 @@ int Application::initialize(lcCommandLineOptions &Options)
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --zplanes <near> <far>: Set the near and far clipping planes used to render images (1 <= <near> < <far>).\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --fade-steps: Render parts from prior steps faded.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --no-fade-steps: Do not render parts from prior steps faded.\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --fade-steps-color <rgba>: Rendering color for prior step parts (#AARRGGBB).\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --highlight: Highlight parts in the steps they appear.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --no-highlight: Do not highlight parts in the steps they appear.\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  --highlight-color: Rendering color for highlighted parts (#AARRGGBB).\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --line-width <width>: Set the width of the edge lines.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n")));
@@ -1094,8 +1096,10 @@ QString distribution = tr("Installed");
 
     qRegisterMetaType<PieceInfo*>("PieceInfo*");
     qRegisterMetaType<QList<int> >("QList<int>");
+    qRegisterMetaType<lcVector3>("lcVector3");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
+    QMetaType::registerComparators<lcVector3>();
 #endif
 
     QList<QPair<QString, bool>> LibraryPaths;
@@ -1211,7 +1215,9 @@ void Application::mainApp()
         gui->show();
 
 #ifdef Q_OS_WIN
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
         QWindowsWindowFunctions::setHasBorderInFullScreen(gui->windowHandle(), true);
+#endif
 #endif
         if (!m_commandline_file.isEmpty())
             emit gui->loadFileSig(m_commandline_file);

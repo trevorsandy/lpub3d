@@ -114,9 +114,7 @@ enum Rc {
          LeoCadPieceRc,
          LeoCadCameraRc,
          LeoCadLightRc,
-         LeoCadLightSizeRc,  // Light HEIGHT and WIDTH  written on same line
          LeoCadLightTypeRc,  // Light NAME and TYPE written on same line
-         LeoCadLightGridRc,  // Light AREA_COLUMNS and AREA_ROWS written on same line
          LeoCadLightPOVRayRc,
          LeoCadLightShadowless,
          LeoCadSynthRc,
@@ -374,6 +372,11 @@ public:
     return preamble == match;
   }
 
+  virtual ~LeafMeta() = default;
+  LeafMeta(LeafMeta&&rhs) = default;
+  LeafMeta& operator=(const LeafMeta&rhs) = default;
+  LeafMeta& operator=(LeafMeta&&rhs) = default;
+
   virtual QString format(bool local, bool global) = 0;
 
   virtual QString format(bool local, bool global, QString);
@@ -433,7 +436,12 @@ public:
   {
     rc = rhs.rc;
   }
-//  virtual ~RcMeta() {}
+  virtual ~RcMeta() = default;
+
+  RcMeta(RcMeta&&rhs) = default;
+  RcMeta& operator=(const RcMeta&rhs) = default;
+  RcMeta& operator=(RcMeta&&rhs) = default;
+
   virtual void init(BranchMeta *parent, const QString name, Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
   virtual QString format(bool,bool) { QString foo; return foo; }
@@ -481,7 +489,12 @@ public:
     _min = min;
     _max = max;
   }
-//  virtual ~IntMeta() {}
+  virtual ~IntMeta() = default;
+
+  IntMeta(IntMeta&&rhs) = default;
+  IntMeta& operator=(const IntMeta&rhs) = default;
+  IntMeta& operator=(IntMeta&&rhs) = default;
+
   virtual void init(BranchMeta *parent,
                     const QString name,
                     Rc _rc=OkRc);
@@ -708,8 +721,178 @@ public:
   {
     return _populated;
   }
-//  virtual ~Vector3Meta() {}
+
+  virtual ~Vector3Meta() = default;
+  Vector3Meta(Vector3Meta&&rhs) = default;
+  Vector3Meta& operator=(const Vector3Meta&rhs) = default;
+  Vector3Meta& operator=(Vector3Meta&&rhs) = default;
+  
   virtual void    init(BranchMeta *parent,
+                    const QString name,
+                    Rc _rc=OkRc);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  virtual QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/* This is a leaf object class for X,Y and Z matrix (x1,x2,x3,y1,y2,y3,z1,z2,z3) floating point numbers */
+
+class Vector33Meta : public RcMeta {
+protected:
+  float     _x1[2];
+  float     _y1[2];
+  float     _z1[2];
+
+  float     _x2[2];
+  float     _y2[2];
+  float     _z2[2];
+
+  float     _x3[2];
+  float     _y3[2];
+  float     _z3[2];
+
+  float     _min,_max;
+  bool      _populated;
+public:
+  int       _fieldWidth;
+  int       _precision;
+  QString   _inputMask;
+  Vector33Meta()
+  {
+    _x1[0]      = 0.0f;
+    _y1[0]      = 0.0f;
+    _z1[0]      = 0.0f;
+
+    _x2[0]      = 0.0f;
+    _y2[0]      = 0.0f;
+    _z2[0]      = 0.0f;
+
+    _x3[0]      = 0.0f;
+    _y3[0]      = 0.0f;
+    _z3[0]      = 0.0f;
+
+    _min        = -FLT_MAX;
+    _max        = FLT_MAX;
+    _fieldWidth = 6;
+    _precision  = 4;
+    _inputMask  = "###9.90";
+    _populated  = false;
+  }
+  Vector33Meta(const Vector33Meta &rhs) : RcMeta(rhs)
+  {
+    _x1[0]      = rhs._x1[0];
+    _y1[0]      = rhs._y1[0];
+    _z1[0]      = rhs._z1[0];
+    _x1[1]      = rhs._x1[1];
+    _y1[1]      = rhs._y1[1];
+    _z1[1]      = rhs._z1[1];
+
+    _x2[0]      = rhs._x2[0];
+    _y2[0]      = rhs._y2[0];
+    _z2[0]      = rhs._z2[0];
+    _x2[1]      = rhs._x2[1];
+    _y2[1]      = rhs._y2[1];
+    _z2[1]      = rhs._z2[1];
+
+    _x3[0]      = rhs._x3[0];
+    _y3[0]      = rhs._y3[0];
+    _z3[0]      = rhs._z3[0];
+    _x3[1]      = rhs._x3[1];
+    _y3[1]      = rhs._y3[1];
+    _z3[1]      = rhs._z3[1];
+
+    _min        = rhs._min;
+    _max        = rhs._max;
+    _fieldWidth = rhs._fieldWidth;
+    _precision  = rhs._precision;
+    _inputMask  = rhs._inputMask;
+    _populated  = rhs._populated;
+  }
+
+  virtual float x1()
+  {
+    return _x1[pushed];
+  }
+  virtual float y1()
+  {
+    return _y1[pushed];
+  }
+  virtual float z1()
+  {
+    return _z1[pushed];
+  }
+  
+  virtual float x2()
+  {
+    return _x2[pushed];
+  }
+  virtual float y2()
+  {
+    return _y2[pushed];
+  }
+  virtual float z2()
+  {
+    return _z2[pushed];
+  }
+  
+  virtual float x3()
+  {
+    return _x3[pushed];
+  }
+  virtual float y3()
+  {
+    return _y3[pushed];
+  }
+  virtual float z3()
+  {
+    return _z3[pushed];
+  }
+  
+  void setValues(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3)
+  {
+    _x1[pushed] = x1;
+    _y1[pushed] = y1;
+    _z1[pushed] = z1;
+	
+    _x2[pushed] = x2;
+    _y2[pushed] = y2;
+    _z2[pushed] = z2;
+	
+    _x3[pushed] = x3;
+    _y3[pushed] = y3;
+    _z3[pushed] = z3;
+
+    _populated = x1 != 0.0f || y1 != 0.0f || z1 != 0.0f ||
+	             x2 != 0.0f || y2 != 0.0f || z2 != 0.0f ||
+				 x3 != 0.0f || y3 != 0.0f || z3 != 0.0f;
+  }
+  void setRange(
+    float min,
+    float max)
+  {
+    _min = min;
+    _max = max;
+  }
+  void setFormats(
+    int fieldWidth,
+    int precision,
+    QString inputMask)
+  {
+    _fieldWidth = fieldWidth;
+    _precision  = precision;
+    _inputMask  = inputMask;
+  }
+  bool isPopulated()
+  {
+    return _populated;
+  }
+
+  virtual ~Vector33Meta() = default;
+  Vector33Meta(Vector33Meta&&rhs) = default;
+  Vector33Meta& operator=(const Vector33Meta&rhs) = default;
+  Vector33Meta& operator=(Vector33Meta&&rhs) = default;
+  
+  virtual void init(BranchMeta *parent,
                     const QString name,
                     Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
@@ -4042,119 +4225,144 @@ public:
 class LightMeta : public BranchMeta
 {
 public:
-  StringMeta  name;          // QString   mName;
-  StringMeta  type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
-  StringMeta  shape;         // QString   mLightShape;
+  StringMeta  name;              // QString   mName;
+  StringMeta  type;              // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  StringMeta  areaShape;         // QString   mAreaShape;
 
-  FloatMeta   specular;      // float     mLightSpecular;
-  FloatMeta   spotSize;      // float     mSpotSize;
-  FloatMeta   spotCutoff;    // float     mSpotCutoff;
-  FloatMeta   power;         // float     mSpotExponent;
-  FloatMeta   strength;      // float     mSpotExponent;
-  FloatMeta   diffuse;       // float     mLightDiffuse
+  FloatMeta   specular;          // float     mBlenderSpecular;
+  FloatMeta   spotConeAngle;     // float     mSpotConeAngle;
+  FloatMeta   cutoffDistance;    // float     mSpotCutoff;
+  FloatMeta   povrayPower;       // float     mPOVRayPower;
+  FloatMeta   blenderPower;      // float     mBlenderPower;
+  FloatMeta   diffuse;           // float     mBlenderDiffuse
 
-  FloatMeta   angle;         // float     mLightFactor[0]
-  FloatMeta   radius;        // float     mLightFactor[0]
-  FloatMeta   width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
-  FloatMeta   height;        // float     mLightFactor[1]
-  FloatMeta   size;          // float     mLightFactor[0]
-  FloatMeta   spotBlend;     // float     mLightFactor[1]
-  FloatMeta   spotFalloff;   // float     mSpotFalloff
-  FloatMeta   spotTightness; // float     mmSpotTightness
+  FloatMeta   sunAngle;          // float     mDirectionalBlenderAngle
+  FloatMeta   pointRadius;       // float     mPointBlenderRadius
+  FloatMeta   spotRadius;        // float     mSpotBlenderRadius
+  FloatMeta   spotBlend;         // float     calculated (Blender only)
+  FloatMeta   fadePower;         // float     mPOVRayFadePower
+  FloatMeta   fadeDistance;      // float     mPOVRayFadeDistance
+  FloatMeta   spotTightness;     // float     mSpotPOVRayTightness
+  FloatMeta   spotPenumbraAngle; // float     mSpotPenumbraAngle
 
-  IntMeta     areaRows;      // int       mAreaGrid[0] (Area Rows and Columns written on same line)
-  IntMeta     areaColumns;   // int       mAreaGrid[1]
+  IntMeta     areaGridX;         // int       mAreaPOVRayGridX
+  IntMeta     areaGridY;         // int       mAreaPOVRayGridY
+  FloatMeta   areaWidth;         // float     mAreaX (POVRay light area size X)
+  FloatMeta   areaHeight;        // float     mAreaY (POVRay light area size Y)
+  FloatMeta   areaSizeX;         // float     mAreaSizeX
+  FloatMeta   areaSizeY;         // float     mAreaSizeY
+  FloatMeta   areaSize;          // float     mAreaSizeX
 
-  Vector3Meta color;         // lcVector3 mLightColor
-  Vector3Meta target;        // lcVector3 mPosition
-  Vector3Meta position;      // lcVector3 mTargetPosition
+  Vector3Meta color;             // lcVector3 mLightColor
+  Vector3Meta target;            // lcVector3 mPosition
+  Vector3Meta position;          // lcVector3 mTargetPosition
+  Vector33Meta rotation;         // lcVector33 mRotation
 
   RcMeta      _povrayLight;
-  bool        povrayLight;   // bool      mPOVRayLight
+  bool        povrayLight;       // bool      mPOVRayLight
   RcMeta      _shadowless;
-  bool        shadowless;    // bool      mShadowless
+  bool        shadowless;        // bool      mShadowless
 
-  float       latitude;      // float Calculated
-  float       longitude;     // float Calculated
+  float       latitude;          // float Calculated
+  float       longitude;         // float Calculated
 
   LightData value()
   {
-      LightData             value;
-      value.name          = name.value();
-      value.type          = type.value();
-      value.shape         = shape.value();
+      LightData               value;
+      value.name              = name.value();
+      value.type              = type.value();
+      value.areaShape         = areaShape.value();
 
-      value.specular      = specular.value();
-      value.spotSize      = spotSize.value();
-      value.spotCutoff    = spotCutoff.value();
-      value.power         = power.value();
-      value.strength      = strength.value();
-      value.diffuse       = diffuse.value();
+      value.specular          = specular.value();
+      value.spotConeAngle     = spotConeAngle.value();
+      value.cutoffDistance    = cutoffDistance.value();
+      value.povrayPower       = povrayPower.value();
+      value.blenderPower      = blenderPower.value();
+      value.diffuse           = diffuse.value();
 
-      value.angle         = angle.value();
-      value.radius        = radius.value();
-      value.width         = width.value();
-      value.height        = height.value();
-      value.size          = size.value();
-      value.spotBlend     = spotBlend.value();
-      value.spotFalloff   = spotFalloff.value();
-      value.spotTightness = spotTightness.value();
+      value.sunAngle          = sunAngle.value();
+      value.pointRadius       = pointRadius.value();
+      value.spotRadius        = spotRadius.value();
+      value.areaSizeX         = areaSizeX.value();
+      value.areaSizeY         = areaSizeY.value();
+      value.areaSize          = areaSize.value();
+      value.spotBlend         = spotBlend.value();
+      value.fadePower         = fadePower.value();
+      value.fadeDistance      = fadeDistance.value();
+      value.spotTightness     = spotTightness.value();
+      value.spotPenumbraAngle = spotPenumbraAngle.value();
 
-      value.areaRows      = areaRows.value();
-      value.areaColumns   = areaColumns.value();
+      value.areaGridX         = areaGridX.value();
+      value.areaGridY         = areaGridY.value();
 
-      value.color[0]      = color.x();
-      value.color[1]      = color.y();
-      value.color[2]      = color.z();
+      value.color[X]          = color.x();
+      value.color[Y]          = color.y();
+      value.color[Z]          = color.z();
 
-      value.target[0]     = target.x();
-      value.target[1]     = target.y();
-      value.target[2]     = target.z();
+      value.target[X]         = target.x();
+      value.target[Y]         = target.y();
+      value.target[Z]         = target.z();
 
-      value.position[0]   = position.x();
-      value.position[1]   = position.y();
-      value.position[2]   = position.z();
+      value.position[X]       = position.x();
+      value.position[Y]       = position.y();
+      value.position[Z]       = position.z();
+
+      value.rotation1[X]      = rotation.x1();
+      value.rotation1[Y]      = rotation.y1();
+      value.rotation1[Z]      = rotation.z1();
+      value.rotation2[X]      = rotation.x2();
+      value.rotation2[Y]      = rotation.y2();
+      value.rotation2[Z]      = rotation.z2();
+      value.rotation3[X]      = rotation.x3();
+      value.rotation3[Y]      = rotation.y3();
+      value.rotation3[Z]      = rotation.z3();
 
       setLatLong();
 
-      value.latitude      = latitude;
-      value.longitude     = longitude;
+      value.latitude          = latitude;
+      value.longitude         = longitude;
 
-      value.povrayLight   = povrayLight;
-      value.shadowless    = shadowless;
-      value.defaultLight  = name.value().isEmpty();
+      value.povrayLight       = povrayLight;
+      value.shadowless        = shadowless;
+      value.defaultLight      = name.value().isEmpty();
 
       return value;
   }
 
   void setValue(LightData &value)
   {
-      name         .setValue(value.name);
-      type         .setValue(value.type);
-      shape        .setValue(value.shape);
+      name             .setValue(value.name);
+      type             .setValue(value.type);
+      areaShape        .setValue(value.areaShape);
 
-      specular     .setValue(value.specular);
-      spotSize     .setValue(value.spotSize);
-      spotCutoff   .setValue(value.spotCutoff);
-      power        .setValue(value.power);
-      strength     .setValue(value.strength);
-      diffuse      .setValue(value.diffuse);
+      specular         .setValue(value.specular);
+      spotConeAngle    .setValue(value.spotConeAngle);
+      cutoffDistance   .setValue(value.cutoffDistance);
+      povrayPower      .setValue(value.povrayPower);
+      blenderPower     .setValue(value.blenderPower);
+      diffuse          .setValue(value.diffuse);
 
-      angle        .setValue(value.angle);
-      radius       .setValue(value.radius);
-      width        .setValue(value.width);
-      height       .setValue(value.height);
-      size         .setValue(value.size);
-      spotBlend    .setValue(value.spotBlend);
-      spotFalloff  .setValue(value.spotFalloff);
-      spotTightness.setValue(value.spotTightness);
+      sunAngle         .setValue(value.sunAngle);
+      pointRadius      .setValue(value.pointRadius);
+      spotRadius       .setValue(value.spotRadius);
+      areaSizeX        .setValue(value.areaSizeX);
+      areaSizeY        .setValue(value.areaSizeY);
+      areaSize         .setValue(value.areaSize);
+      spotBlend        .setValue(value.spotBlend);
+      fadePower        .setValue(value.fadePower);
+      fadeDistance     .setValue(value.fadeDistance);
+      spotTightness    .setValue(value.spotTightness);
+      spotPenumbraAngle.setValue(value.spotPenumbraAngle);
 
-      areaRows     .setValue(value.areaRows);
-      areaColumns  .setValue(value.areaColumns);
+      areaGridX        .setValue(value.areaGridX);
+      areaGridY        .setValue(value.areaGridY);
 
-      color        .setValues(value.color[0],value.color[1],value.color[2]);
-      target       .setValues(value.target[0],value.target[1],value.target[2]);
-      position     .setValues(value.position[0],value.position[1],value.position[2]);
+      color            .setValues(value.color[X],value.color[Y],value.color[Z]);
+      target           .setValues(value.target[X],value.target[Y],value.target[Z]);
+      position         .setValues(value.position[X],value.position[Y],value.position[Z]);
+      rotation         .setValues(value.rotation1[X],value.rotation2[X],value.rotation3[X],
+                                  value.rotation1[Y],value.rotation2[Y],value.rotation3[Y],
+                                  value.rotation1[Z],value.rotation2[Z],value.rotation3[Z]);
 
       povrayLight = value.povrayLight;
       shadowless  = value.shadowless;
@@ -4175,8 +4383,11 @@ public:
   {
   }
 
+  virtual ~LightMeta() = default;
+  LightMeta(LightMeta&&rhs) = default;
+  LightMeta& operator=(const LightMeta&rhs) = default;
+  LightMeta& operator=(LightMeta&&rhs) = default;
 
-//  virtual ~LightMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 

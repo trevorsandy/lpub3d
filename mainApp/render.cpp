@@ -3304,6 +3304,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
     lcCamera* Camera      = nullptr;
 
+    lcStep Step           = 1;
     lcViewpoint Viewpoint = lcViewpoint::Count;
     int ViewPointCompare  = static_cast<int>(Viewpoint);
     bool HasCameraView    = O->Viewpoint < ViewPointCompare;
@@ -3393,13 +3394,13 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
         // Camera Target, Position and UpVector: Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
         if (UsingTarget)
-            Camera->mTargetPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
+            Camera->SetTargetPosition(lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z)),Step,false);
 
         if (UsingTransform) {
-            Camera->mPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z));
-            Camera->mUpVector = lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z));
+            Camera->SetPosition(lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z)),Step,false);
+            Camera->SetUpVector(lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z)),Step,false);
 
-            Camera->SetPosition(1/*lcStep*/);
+            Camera->UpdatePosition(Step);
         }
         else
         {
@@ -3425,7 +3426,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
     if (!DefaultCamera)
     {
-        for (int CameraIndex = 0; CameraIndex < ActiveModel->GetCameras().GetSize(); )
+        for (size_t CameraIndex = 0; CameraIndex < ActiveModel->GetCameras().size(); )
         {
             QString const Name = ActiveModel->GetCameras()[CameraIndex]->GetName();
             if (Name == O->CameraName)

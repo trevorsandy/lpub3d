@@ -1290,11 +1290,11 @@ void LPub::loadCommandCollection()
         if (preamble.endsWith(" FILE"))
             command = preamble + " <\"file path\">";
         else
-        if (preamble.endsWith(" LIGHT SHAPE"))
-            command = preamble + " <\"Undefined\"|\"Square\"|\"Disk\"|\"Rectangle\"|\"Ellipse\">";
+        if (preamble.endsWith(" LIGHT AREA_SHAPE"))
+            command = preamble + " <\"UNDEFINED\"|\"SQUARE\"|\"DISK\"|\"RECTANGLE\"|\"ELLIPSE\">";
         else
         if (preamble.endsWith(" LIGHT TYPE"))
-            command = preamble + " <\"Point\"|\"Sun\"|\"Spot\"|\"Area\">";
+            command = preamble + " <\"POINT\"|\"SUN\"|\"SPOT\"|\"AREA\">";
         else
         if (preamble.endsWith(" REMOVE NAME"))
             command = preamble + " <LDraw part name>";

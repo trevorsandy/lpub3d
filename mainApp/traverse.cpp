@@ -1377,27 +1377,12 @@ int Gui::drawPage(
 
             case LeoCadCameraRc:
             case LeoCadLightRc:
-            case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
-            case LeoCadLightGridRc:
             case LeoCadLightPOVRayRc:
             case LeoCadLightShadowless:
               if (line.contains(" LOCAL "))
                   line.remove("LOCAL ");
               CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
-              if (rc == LeoCadLightSizeRc)
-              {
-                 // Light WIDTH and HEIGHT written on same line
-                 const QString height = line.trimmed().split(" ").last();
-                 curMeta.LeoCad.light.height.setValue(height.toFloat());
-              }
-              else
-              if (rc == LeoCadLightGridRc) {
-                 // Light AREA_COLUMNS and AREA_ROWS written on same line
-                 const QString areaColumns = line.trimmed().split(" ").last();
-                 curMeta.LeoCad.light.height.setValue(areaColumns.toInt());
-              }
-              else
               if (rc == LeoCadLightTypeRc) {
                   // Light TYPE and NAME written on same line
                   int index = line.size() - line.lastIndexOf("NAME") - 5;
@@ -4149,9 +4134,7 @@ int Gui::findPage(
 
             case LeoCadCameraRc:
             case LeoCadLightRc:
-            case LeoCadLightSizeRc:
             case LeoCadLightTypeRc:
-            case LeoCadLightGridRc:
             case LeoCadLightPOVRayRc:
             case LeoCadLightShadowless:
               isLocalMeta = line.contains(" LOCAL ");
@@ -6192,9 +6175,7 @@ void Gui::writeToTmp(const QString &fileName,
 
                   case LeoCadCameraRc:
                   case LeoCadLightRc:
-                  case LeoCadLightSizeRc:
                   case LeoCadLightTypeRc:
-                  case LeoCadLightGridRc:
                   case LeoCadLightPOVRayRc:
                   case LeoCadLightShadowless:
                       if (line.contains(" LOCAL "))
@@ -6519,9 +6500,7 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
               break;
 
               case LeoCadLightRc:
-              case LeoCadLightSizeRc:
               case LeoCadLightTypeRc:
-              case LeoCadLightGridRc:
               case LeoCadLightPOVRayRc:
               case LeoCadLightShadowless:
               if (line.contains(" LOCAL "))

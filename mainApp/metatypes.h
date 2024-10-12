@@ -35,6 +35,12 @@
 #include <QGradient>
 #include "lpub_preferences.h"
 
+enum AxisEnc {
+    X = 0,
+    Y = 1,
+    Z = 2
+};
+
 enum AllocEnc {
   Horizontal = 0,
   Vertical
@@ -872,23 +878,28 @@ class LightData
 public:
   LightData() :
       type(typeNames[Point]),
-      shape("SQUARE"),
+      areaShape("SQUARE"),
       specular(1.0f),
-      spotSize(75.0f),
-      spotCutoff(40.0f),
-      power(10.0f),
-      strength(10.0f),
+      spotConeAngle(80.0f),
+      cutoffDistance(40.0f),
+      povrayPower(1.0f),
+      blenderPower(10.0f),
       diffuse(1.0f),
-      angle(11.4f),
-      radius(0.25f),
-      width(0.25f),
-      height(0.25f),
-      size(0.25f),
+      sunAngle(11.4f),
+      pointRadius(0.25f),
+      spotRadius(0.25f),
       spotBlend(0.15f),
-      spotFalloff(45.0f),
+      fadePower(0.0f),
+      fadeDistance(0.0f),
       spotTightness(0.0f),
-      areaRows(10),
-      areaColumns(10),
+      spotPenumbraAngle(0.0f),
+      areaGridX(2), // 10
+      areaGridY(2), // 10
+      areaWidth(0.0f),
+      areaHeight(0.0f),
+      areaSizeX(250.0f), // 0.25f
+      areaSizeY(250.0f), // 0.25f
+      areaSize(250.0f),  // 0.25f
       latitude(32.0f),
       longitude(45.0f),
       povrayLight(false),
@@ -905,12 +916,21 @@ public:
     color[0] = 1.0f;
     color[1] = 1.0f;
     color[2] = 1.0f;
-    target[0] = 0.0f;
-    target[1] = 0.0f;
-    target[2] = 0.0f;
-    position[0] = 0.0f;
-    position[1] = 0.0f;
-    position[2] = 0.0f;
+    target[X] = 0.0f;
+    target[Y] = 0.0f;
+    target[Z] = 0.0f;
+    position[X] = 0.0f;
+    position[Y] = 0.0f;
+    position[Z] = 0.0f;
+    rotation1[X] = 0.0f;
+    rotation1[Y] = 0.0f;
+    rotation1[Z] = 0.0f;
+    rotation2[X] = 0.0f;
+    rotation2[Y] = 0.0f;
+    rotation2[Z] = 0.0f;
+    rotation3[X] = 0.0f;
+    rotation3[Y] = 0.0f;
+    rotation3[Z] = 0.0f;
   }
 
   QString getPOVLightMacroString() const
@@ -918,23 +938,26 @@ public:
     if (povrayLight)
     {
        const int typeEnc = typeMap[type];
-       const bool isCircle = shape.toUpper() == QLatin1String("DISK") || shape.toUpper() == QLatin1String("CIRCLE");
-       return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 %15")
-           /*01*/ .arg(typeEnc)
-           /*02*/ .arg(shadowless)
-           /*03*/ .arg(double(latitude),1)
-           /*04*/ .arg(double(longitude),1)
-           /*05*/ .arg(QString("<%1,%2,%3>").arg(double(target[0]),1).arg(double(target[1]),1).arg(double(target[2]),1))
-           /*06*/ .arg(QString("<%1,%2,%3>").arg(color[0]).arg(color[1]).arg(color[2]))
-           /*07*/ .arg(double(power),1)
-           /*08*/ .arg(double(typeEnc != Spot ? 0 : radius),1)
-           /*09*/ .arg(double(spotFalloff),1)
-           /*10*/ .arg(double(spotTightness),1)
-           /*11*/ .arg(isCircle ? "1" : "0")
-           /*12*/ .arg(int(width))
-           /*13*/ .arg(int(height))
-           /*14*/ .arg(int(areaRows))
-           /*15*/ .arg(int(areaColumns));
+       const float spotFalloff = spotConeAngle / 2.0f;
+       const bool isCircle = areaShape.toUpper() == QLatin1String("DISK") || areaShape.toUpper() == QLatin1String("CIRCLE");
+       return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 %15 %16 %17")
+           /*01 LightType    */ .arg(typeEnc)
+           /*02 Shadowless   */ .arg(shadowless)
+           /*03 Latitude     */ .arg(double(latitude),1)
+           /*04 Longitude    */ .arg(double(longitude),1)
+           /*05 LightTarget  */ .arg(QString("<%1,%2,%3>").arg(double(target[0]),1).arg(double(target[1]),1).arg(double(target[2]),1))
+           /*06 LightColor   */ .arg(QString("<%1,%2,%3>").arg(color[0]).arg(color[1]).arg(color[2]))
+           /*07 Power        */ .arg(double(povrayPower),1)
+           /*08 FadeDistance */ .arg(double(fadeDistance),1)
+           /*09 FadePower    */ .arg(double(fadePower),1)
+           /*10 SpotRadius   */ .arg(double(typeEnc == Spot ? spotFalloff - spotPenumbraAngle : 0),1)
+           /*11 SpotFalloff  */ .arg(double(spotFalloff),1)
+           /*12 SpotTightness*/ .arg(double(spotTightness),1)
+           /*13 AreaCircle   */ .arg(isCircle ? "1" : "0")
+           /*14 AreaWidth    */ .arg(double(areaWidth),1)
+           /*15 AreaHeight   */ .arg(double(areaHeight),1)
+           /*16 AreaGrid.x   */ .arg(int(areaGridX))
+           /*17 AreaGrid.y   */ .arg(int(areaGridY));
     }
     return QString();
   }
@@ -943,38 +966,47 @@ public:
   enum TypeEnc { Point, Area, Sun, Spot, NumTypes };
   QString typeNames[NumTypes] = { "POINT", "AREA", "SUN", "SPOT" };
 
-  QString name;          // QString   mName;
-  QString type;          // QString   mLightType; (Light NAME (mName) written on TYPE line)
-  QString shape;         // QString   mLightShape;
+  QString name;              // QString   mName;
+  QString type;              // QString   mLightType; (Light NAME (mName) written on TYPE line)
+  QString areaShape;         // QString   mAreaShape;
 
-  float   specular;      // float     mLightSpecular;
-  float   spotSize;      // float     mSpotSize;
-  float   spotCutoff;    // float     mSpotCutoff;
-  float   power;         // float     mSpotExponent;
-  float   strength;      // float     mSpotExponent;
-  float   diffuse;       // float     mLightDiffuse
+  float   specular;          // float     mBlenderSpecular;
+  float   spotConeAngle;     // float     mSpotConeAngle;
+  float   cutoffDistance;    // float     mBlenderCutoffDistance;
+  float   povrayPower;       // float     mPOVRayPower;
+  float   blenderPower;      // float     mBlenderPower;
+  float   diffuse;           // float     mBlenderDiffuse
 
-  float   angle;         // float     mLightFactor[0]
-  float   radius;        // float     mLightFactor[0]
-  float   width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
-  float   height;        // float     mLightFactor[1]
-  float   size;          // float     mLightFactor[0]
-  float   spotBlend;     // float     mLightFactor[1]
-  float   spotFalloff;   // float     mSpotFalloff
-  float   spotTightness; // float     mmSpotTightness
+  float   sunAngle;          // float     mDirectionalBlenderAngle
+  float   pointRadius;       // float     mPointBlenderRadius
+  float   spotRadius;        // float     mSpotBlenderRadius
+  float   spotBlend;         // float     calculated (Blender only)
+  float   fadePower;         // float     mPOVRayFadePower
+  float   fadeDistance;      // float     mPOVRayFadeDistance
+  float   spotTightness;     // float     mSpotPOVRayTightness
+  float   spotPenumbraAngle; // float     mSpotPenumbraAngle
 
-  int     areaRows;      // int       mAreaGrid[0] (Area Rows and Columns written on same line)
-  int     areaColumns;   // int       mAreaGrid[1]
+  int     areaGridX;         // int       mAreaPOVRayGridX
+  int     areaGridY;         // int       mAreaPOVRayGridY
+  float   areaWidth;         // float     mAreaX (POVRay light area size X)
+  float   areaHeight;        // float     mAreaY (POVRay light area size Y)
+  float   areaSizeX;         // float     mAreaSizeX
+  float   areaSizeY;         // float     mAreaSizeY
+  float   areaSize;          // float     mAreaSizeX
 
-  float   color[3];      // lcVector3 mLightColor
-  float   target[3];     // lcVector3 mPosition
-  float   position[3];   // lcVector3 mTargetPosition
+  float   color[3];          // lcVector3 mLightColor
+  float   target[3];         // lcVector3 mPosition
+  float   position[3];       // lcVector3 mTargetPosition
 
-  float   latitude;      // float Calculated
-  float   longitude;     // float Calculated
+  float   rotation1[3];      // lcMatrix33 Rotation maxtix X
+  float   rotation2[3];      // lcMatrix33 Rotation maxtix Y
+  float   rotation3[3];      // lcMatrix33 Rotation maxtix Z
 
-  bool    povrayLight;   // bool      mPOVRayLight
-  bool    shadowless;    // bool      mShadowless
+  float   latitude;          // float Calculated
+  float   longitude;         // float Calculated
+
+  bool    povrayLight;       // bool      mPOVRayLight
+  bool    shadowless;        // bool      mShadowless
   bool    defaultLight;
 };
 

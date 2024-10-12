@@ -492,6 +492,94 @@ void Vector3Meta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+void Vector33Meta::init(
+    BranchMeta *parent,
+    const QString name,
+    Rc _rc)
+{
+  AbstractMeta::init(parent,name);
+  rc = _rc;
+}
+Rc Vector33Meta::parse(QStringList &argv, int index,Where &here)
+{
+  if (argv.size() - index == 9) {
+      bool ok[9];
+
+      float x1 = argv[index  ].toFloat(&ok[0]);
+      float y1 = argv[index+1].toFloat(&ok[1]);
+      float z1 = argv[index+2].toFloat(&ok[2]);
+	  
+      float x2 = argv[index+3].toFloat(&ok[3]);
+      float y2 = argv[index+4].toFloat(&ok[4]);
+      float z2 = argv[index+5].toFloat(&ok[5]);
+	  
+      float x3 = argv[index+6].toFloat(&ok[6]);
+      float y3 = argv[index+7].toFloat(&ok[7]);
+      float z3 = argv[index+8].toFloat(&ok[8]);
+	  
+      if (ok[0] && ok[1] && ok[2] &&
+	      ok[3] && ok[4] && ok[5] &&
+		  ok[6] && ok[7] && ok[8]) {
+          if (x1 < _min || x1 > _max ||
+              y1 < _min || y1 > _max ||
+              z1 < _min || z1 > _max ||
+			  x2 < _min || x2 > _max ||
+              y2 < _min || y2 > _max ||
+              z2 < _min || z2 > _max ||
+			  x3 < _min || x3 > _max ||
+              y3 < _min || y3 > _max ||
+              z3 < _min || z3 > _max) {
+              return RangeErrorRc;
+            }
+
+          _x1[pushed] = x1;
+          _y1[pushed] = y1;
+          _z1[pushed] = z1;
+
+          _x2[pushed] = x2;
+          _y2[pushed] = y2;
+          _z2[pushed] = z2;
+
+          _x3[pushed] = x3;
+          _y3[pushed] = y3;
+          _z3[pushed] = z3;
+
+          _here[pushed] = here;
+          _populated    = !(x1 == 0.0f && y1 == 0.0f && z1 == 0.0f &&
+		                    x2 == 0.0f && y2 == 0.0f && z2 == 0.0f &&
+							x3 == 0.0f && y3 == 0.0f && z3 == 0.0f);
+          return rc;
+        }
+    }
+
+  if (reportErrors) {
+    QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+  }
+
+  return FailureRc;
+}
+QString Vector33Meta::format(bool local, bool global)
+{
+  QString foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9")
+      .arg(double(_x1[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_y1[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_z1[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_x2[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_y2[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_z2[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_x3[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_y3[pushed]),_fieldWidth,'f',_precision)
+      .arg(double(_z3[pushed]),_fieldWidth,'f',_precision);
+  return LeafMeta::format(local,global,foo.trimmed());
+}
+void Vector33Meta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " <decimal X1> <decimal Y1> <decimal Z1> <decimal X2> <decimal Y2> <decimal Z2> <decimal X3> <decimal Y3> <decimal Z3>";
+}
+
+/* ------------------ */
+
 void StringMeta::init(
     BranchMeta *parent,
     QString name,
@@ -6536,66 +6624,74 @@ LightMeta::LightMeta() : BranchMeta()
   specular.setRange(0.0f,9999.0f);
   specular.setValue(1.0f);
 
-  spotSize.setFormats(9,1,"######9.9");
-  spotSize.setRange(0.0f,FLT_MAX);
-  spotSize.setValue(75.0f);
+  spotConeAngle.setFormats(9,1,"######9.9");
+  spotConeAngle.setRange(0.0f,FLT_MAX);
+  spotConeAngle.setValue(80.0f);
 
-  spotCutoff.setFormats(9,1,"######9.9");
-  spotCutoff.setRange(0.0f,FLT_MAX);
-  spotCutoff.setValue(40.0f);
+  cutoffDistance.setFormats(9,1,"######9.9");
+  cutoffDistance.setRange(0.0f,FLT_MAX);
+  cutoffDistance.setValue(40.0f);
 
-  power.setFormats(9,1,"######9.9");
-  power.setRange(-FLT_MAX,FLT_MAX);
-  power.setValue(10.0f);
+  povrayPower.setFormats(9,1,"######9.9");
+  povrayPower.setRange(0.0f,FLT_MAX);
+  povrayPower.setValue(1.0f);
 
-  strength.setFormats(9,1,"######9.9");
-  strength.setRange(-FLT_MAX,FLT_MAX);
-  strength.setValue(10.0f);
+  blenderPower.setFormats(9,1,"######9.9");
+  blenderPower.setRange(0.0f,FLT_MAX);
+  blenderPower.setValue(10.0f);
 
   diffuse.setFormats(4,2,"9.99");
   diffuse.setRange(0.0f,FLT_MAX);
   diffuse.setValue(1.0f);
 
-  angle.setFormats(5,1,"##9.9");
-  angle.setRange(0.0f,180.0f);
-  angle.setValue(11.4f);
+  sunAngle.setFormats(5,1,"##9.9");
+  sunAngle.setRange(0.0f,180.0f);
+  sunAngle.setValue(11.4f);
 
-  radius.setFormats(9,1,"######9.9");
-  radius.setRange(0.0f,FLT_MAX);
-  radius.setValue(0.25f);
+  pointRadius.setFormats(9,1,"######9.9");
+  pointRadius.setRange(0.0f,FLT_MAX);
+  pointRadius.setValue(0.25f);
 
-  width.setFormats(9,1,"######9.9");
-  width.setRange(0.0f,FLT_MAX);
-  width.setValue(0.25f);
+  spotRadius.setFormats(9,1,"######9.9");
+  spotRadius.setRange(0.0f,FLT_MAX);
+  spotRadius.setValue(0.25f);
 
-  height.setFormats(9,1,"######9.9");
-  height.setRange(0.0f,FLT_MAX);
-  height.setValue(0.25f);
+  areaSizeX.setFormats(9,1,"######9.9");
+  areaSizeX.setRange(0.0f,FLT_MAX);
+  areaSizeX.setValue(250.0f);
 
-  size.setFormats(9,1,"######9.9");
-  size.setRange(0.0f,FLT_MAX);
-  size.setValue(0.25f);
+  areaSizeY.setFormats(9,1,"######9.9");
+  areaSizeY.setRange(0.0f,FLT_MAX);
+  areaSizeY.setValue(250.0f);
+
+  areaSize.setFormats(9,1,"######9.9");
+  areaSize.setRange(0.0f,FLT_MAX);
+  areaSize.setValue(250.0f);
 
   spotBlend.setFormats(4,2,"9.99");
   spotBlend.setRange(0.0f,FLT_MAX);
   spotBlend.setValue(0.15f);
 
-  spotFalloff.setFormats(4,2,"9.99");
-  spotFalloff.setRange(0.0f,FLT_MAX);
-  spotFalloff.setValue(45.0f);
+  fadePower.setFormats(4,2,"9.99");
+  fadePower.setRange(0.0f,FLT_MAX);
+  fadePower.setValue(0.0f);
+
+  fadeDistance.setFormats(4,2,"9.99");
+  fadeDistance.setRange(0.0f,FLT_MAX);
+  fadeDistance.setValue(0.0f);
 
   spotTightness.setFormats(4,2,"9.99");
   spotTightness.setRange(0.0f,FLT_MAX);
   spotTightness.setValue(0.0f);
 
-  areaRows.setRange(1,10000);
-  areaColumns.setRange(1,10000);
+  areaGridX.setRange(2,10000);
+  areaGridY.setRange(2,10000);
 
   povrayLight = false;
   shadowless  = false;
 
-  type.setValue("Point");
-  shape.setValue("Square");
+  type.setValue("POINT");
+  areaShape.setValue("SQUARE");
 }
 
 void LightMeta::setLatLong()
@@ -6620,35 +6716,41 @@ void LightMeta::setLatLong()
 void LightMeta::init(BranchMeta *parent, QString _name)
 {
   AbstractMeta::init(parent, _name);
-  type.init          (this,"TYPE",            LeoCadLightTypeRc);  // Light NAME and TYPE written on same line, Convert string TYPE to type
-  name.init          (this,"NAME",            LeoCadLightRc);
-  shape.init         (this,"SHAPE",           LeoCadLightRc);
-  specular.init      (this,"SPECULAR",        LeoCadLightRc);
-  spotSize.init      (this,"SPOT_SIZE",       LeoCadLightRc);
-  spotCutoff.init    (this,"CUTOFF_DISTANCE", LeoCadLightRc);
+  type.init             (this,"TYPE",                    LeoCadLightTypeRc);  // Light NAME and TYPE written on same line, Convert string TYPE to type
+  name.init             (this,"NAME",                    LeoCadLightRc);
+  areaShape.init        (this,"AREA_SHAPE",              LeoCadLightRc);
+  specular.init         (this,"BLENDER_SPECULAR",        LeoCadLightRc);
+  spotConeAngle.init    (this,"SPOT_CONE_ANGLE",         LeoCadLightRc);
+  cutoffDistance.init   (this,"BLENDER_CUTOFF_DISTANCE", LeoCadLightRc);
 
-  power.init         (this,"POWER",           LeoCadLightRc);
-  strength.init      (this,"STRENGTH",        LeoCadLightRc);
-  diffuse.init       (this,"DIFFUSE",         LeoCadLightRc);
+  povrayPower.init      (this,"POVRAY_POWER",            LeoCadLightRc);
+  blenderPower.init     (this,"BLENDER_POWER",           LeoCadLightRc);
+  diffuse.init          (this,"BLENDER_DIFFUSE",         LeoCadLightRc);
 
-  angle.init         (this,"ANGLE",           LeoCadLightRc);
-  radius.init        (this,"RADIUS",          LeoCadLightRc);
-  width.init         (this,"WIDTH",           LeoCadLightSizeRc);  // Light WIDTH and HEIGHT  written on same line
-  height.init        (this,"HEIGHT",          LeoCadLightRc);
-  size.init          (this,"SIZE",            LeoCadLightRc);
-  spotBlend.init     (this,"SPOT_BLEND",      LeoCadLightRc);
-  spotFalloff.init   (this,"SPOT_FALLOFF",    LeoCadLightRc);
-  spotTightness.init (this,"SPOT_TIGHTNESS",  LeoCadLightRc);
+  sunAngle.init         (this,"BLENDER_SUN_ANGLE",       LeoCadLightRc);
+  pointRadius.init      (this,"BLENDER_POINT_RADIUS",    LeoCadLightRc);
+  spotRadius.init       (this,"BLENDER_SPOT_RADIUS",     LeoCadLightRc);
+  areaSizeX.init        (this,"AREA_SIZE_X",             LeoCadLightRc);
+  areaSizeY.init        (this,"AREA_SIZE_Y",             LeoCadLightRc);
+  areaSize.init         (this,"AREA_SIZE",               LeoCadLightRc);
+  spotBlend.init        (this,"SPOT_BLEND",              LeoCadLightRc);
+  fadePower.init        (this,"POVRAY_FADE_POWER",       LeoCadLightRc);
+  fadeDistance.init     (this,"POVRAY_FADE_DISTANCE",    LeoCadLightRc);
+  spotTightness.init    (this,"POVRAY_SPOT_TIGHTNESS",   LeoCadLightRc);
+  spotPenumbraAngle.init(this,"SPOT_PENUMBRA_ANGLE",     LeoCadLightRc);
 
-  areaRows.init      (this,"AREA_ROWS",       LeoCadLightGridRc);  // Light AREA_COLUMNS and AREA_ROWS written on same line
-  areaColumns.init   (this,"AREA_COLUMNS",    LeoCadLightRc);
+  areaGridX.init        (this,"POVRAY_AREA_GRID_X",      LeoCadLightRc);
+  areaGridY.init        (this,"POVRAY_AREA_GRID_Y",      LeoCadLightRc);
+  areaWidth.init        (this,"POVRAY_AREA_SIZE_X",      LeoCadLightRc);
+  areaHeight.init       (this,"POVRAY_AREA_SIZE_Y",      LeoCadLightRc);
 
-  _povrayLight.init   (this,"POV_RAY",        LeoCadLightPOVRayRc);
-  _shadowless.init    (this,"SHADOWLESS",     LeoCadLightShadowless);
+  _povrayLight.init     (this,"POV_RAY",                 LeoCadLightPOVRayRc);
+  _shadowless.init      (this,"SHADOWLESS",              LeoCadLightShadowless);
 
-  color.init         (this,"COLOR_RGB",       LeoCadLightRc);
-  target.init        (this,"TARGET_POSITION", LeoCadLightRc);
-  position.init      (this,"POSITION",        LeoCadLightRc);
+  color.init            (this,"COLOR",                   LeoCadLightRc);
+  target.init           (this,"TARGET_POSITION",         LeoCadLightRc);
+  position.init         (this,"POSITION",                LeoCadLightRc);
+  rotation.init         (this,"ROTATION",                LeoCadLightRc);
 }
 
 /* ------------------ */
@@ -7246,12 +7348,12 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
           "PATH_LENGTH PATH_POINT PATH_SKIN SCRIPT SNAP_CLEAR SNAP_CLP SNAP_CYL SNAP_FGR SNAP_GEN "
           "SNAP_INCL SNAP_SPH SPRING_ANCHOR SPRING_CAP SPRING_POINT SPRING_SECTION";
   const QString leocadKeyWords =
-          "!LEOCAD ANGLE ANGLE_KEY AUTHOR BACKGROUND BEGIN CAMERA COLOR AREA_GRID_KEY "
-          "COLOR_RGB_KEY COMMENT CUTOFF_DISTANCE_KEY DESCRIPTION SPOT_FALLOFF_KEY END FOV "
-          "GRADIENT GROUP HIDDEN IMAGE MODEL NAME ORTHOGRAPHIC PIECE RADIUS_KEY SHAPE_KEY PIVOT "
-          "POSITION_KEY POWER_KEY RADIUS_AND_SPOT_BLEND_KEY SPOT_TIGHTNESS_KEY SIZE_KEY SPECULAR_KEY "
-          "SPOT_SIZE_KEY STEP_HIDE STRENGTH STRENGTH_KEY TARGET_POSITION_KEY "
-          "TYPE_KEY UP_VECTOR UP_VECTOR_KEY ZFAR ZNEAR";
+          "!LEOCAD AUTHOR BACKGROUND BEGIN CAMERA COLOR POVRAY_AREA_GRID_X_KEY POVRAY_AREA_GRID_Y_KEY AREA_SIZE_KEY "
+          "AREA_SIZE_X_KEY AREA_SIZE_Y_KEY COLOR_KEY COMMENT CUTOFF_DISTANCE_KEY DESCRIPTION POVRAY_SPOT_FALLOFF_KEY END FOV "
+          "GRADIENT GROUP HIDDEN IMAGE MODEL NAME ORTHOGRAPHIC PIECE RADIUS_KEY AREA_SHAPE_KEY PIVOT POVRAY_FADE_POWER_KEY "
+          "POSITION_KEY POVRAY_POWER_KEY POVRAY_FADE_DISTANCE_KEY BLENDER_POINT_RADIUS_KEY BLENDER_SPOT_RADIUS_KEY "
+          "POVRAY_SPOT_TIGHTNESS_KEY SIZE_KEY BLENDER_SPECULAR_KEY SPOT_CONE_ANGLE_KEY STEP_HIDE BLENDER_POWER_KEY "
+          "BLENDER_SUN_ANGLE_KEY TARGET_POSITION_KEY SPOT_PENUMBRA_ANGLE_KEY TYPE_KEY UP_VECTOR UP_VECTOR_KEY ZFAR ZNEAR";
   const QString lsynthKeyWords =
           "BEGIN CHAIN CROSS ELECTRIC_CABLE END FIBER_OPTIC_CABLE FLEX_CABLE "
           "FLEXIBLE_AXLE FLEXIBLE_TUBE HIDE INSIDE OUTSIDE PLASTIC_TREAD PNEUMATIC_TUBE "
@@ -7297,13 +7399,27 @@ void Meta::processSpecialCases(QString &line, Where &here) {
         return;
     }
 
+    /* LPub LeoCAD light compatibilty. Replace _DIRECTIONAL_ with _SUN_ */
+    parseRx.setPattern("\\s+(BLENDER_DIRECTIONAL_ANGLE)\\s+");
+    if (line.contains(parseRx)) {
+        line.replace(parseRx.cap(1),"BLENDER_SUN_ANGLE");
+        return;
+    }
+
+    /* LPub LeoCAD light compatibilty. Replace COLOR_RGB with COLOR */
+    parseRx.setPattern("\\s+(COLOR_RGB)\\s+");
+    if (line.contains(parseRx)) {
+        line.replace(parseRx.cap(1),"COLOR");
+        return;
+    }
+
     /* Native camera distance deprecated. Command ignored if not GLOBAL */
     if (line.contains("CAMERA_DISTANCE_NATIVE")) {
         if (Gui::parsedMessages.contains(here)) {
             line = "0 // IGNORED";
         } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
             here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-            QRegExp parseRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
+            parseRx.setPattern("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
             if (line.contains(parseRx)) {
                 QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
                                           "Only application at GLOBAL scope is permitted. "
