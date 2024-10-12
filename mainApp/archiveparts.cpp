@@ -12,10 +12,14 @@
 **
 ****************************************************************************/
 
+#include <quazip.h>
+#include <quazipfile.h>
+#include <quazipdir.h>
+#include <QsLog.h>
+
 #include "archiveparts.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
-#include "paths.h"
 
 ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
 {

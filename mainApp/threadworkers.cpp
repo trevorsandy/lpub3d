@@ -14,21 +14,25 @@
 
 #include <QFileInfo>
 #include <QString>
+#include <quazip.h>
+#include <quazipfile.h>
 
 #include "threadworkers.h"
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
 #include "meta.h"
+#include "version.h"
 #include "application.h"
 #include "editwindow.h"
+#include "lpub_preferences.h"
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
 #endif
 
-#ifdef WIN32
-#include <clocale>
-#endif // WIN32
+//#ifdef WIN32
+//#include <clocale>
+//#endif // WIN32
 
 PartWorker::PartWorker(QString archiveFile, QObject *parent) : QObject(parent)
 {
@@ -1481,6 +1485,12 @@ void PartWorker::processPartsArchive() {
     }
     emit partsArchiveFinishedSig();
 }
+
+bool PartWorker::okToEmitToProgressBar()
+{
+    return (Preferences::lpub3dLoaded && Preferences::modeGUI);
+}
+
 
 ColourPart::ColourPart(
         const QStringList   &contents,

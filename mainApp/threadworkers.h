@@ -24,21 +24,15 @@
 #include <QThread>
 #include <QFuture>
 
-#include "lpub_preferences.h"
 #include "ldrawfiles.h"
 #include "options.h"
 #include "archiveparts.h"
-#include "version.h"
 #include "ldsearchdirs.h"
 #include "declarations.h"
-#include "where.h"
-#include "meta.h"
-
-#include "QsLog.h"
+#include "quazip.h"
 
 class PartWorker;
 class ColourPart;
-class LDPartsDirs;
 
 enum partTypeDir{
     LD_PARTS,
@@ -218,8 +212,7 @@ private:
    bool doHighlightStep()
       {return                _doHighlightStep;}
 
-   bool okToEmitToProgressBar()
-      {return               (Preferences::lpub3dLoaded && Preferences::modeGUI);}
+   bool okToEmitToProgressBar();
 
    bool                      _endThreadNowRequested;
    QMap<QString, ColourPart> _colourParts;
@@ -365,9 +358,6 @@ private:
     static bool _detached;
 };
 
-#include "quazip.h"
-#include "quazipfile.h"
-#include "quazipdir.h"
 class ExtractWorker : public QObject
 {
     Q_OBJECT
