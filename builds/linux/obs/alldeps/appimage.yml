@@ -34,6 +34,7 @@ build:
     - libOSMesa-devel
     - Mesa-devel
     - boost-devel
+    - minizip-devel
 
 script:
   - cd $BUILD_SOURCE_DIR
