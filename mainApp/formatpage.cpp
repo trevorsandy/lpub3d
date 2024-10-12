@@ -1909,6 +1909,7 @@ int Gui::addPliPerPageItems(
   Pli                 *pli                    = &page->pli;
   SubModel            *subModel               = &page->subModel;
   GroupStepNumberItem *groupStepNumber        = page->groupStepNumber.stepNumber;
+  bool                 validSubModel          = page->placeSubModel;
   bool                 displayPageNumber      = page->meta.LPub.page.dpn.value();
   bool                 validPageNumber        = displayPageNumber && pageNumber && pageNumber->value;
   bool                 displayGroupStepNumber = page->meta.LPub.multiStep.showGroupStepNumber.value();
@@ -1942,7 +1943,7 @@ int Gui::addPliPerPageItems(
       groupStepNumber->setPos(groupStepNumber->loc[XX], groupStepNumber->loc[YY]);
   }
 
-  if (subModel){
+  if (validSubModel){
       PlacementData pld = subModel->placement.value();
       if (pld.relativeTo == PageType) {
           plPage.appendRelativeTo(subModel);
