@@ -39,9 +39,6 @@ void lcResetCategories(std::vector<lcLibraryCategory>& Categories, bool BuiltInL
 {
 	const char DefaultCategories[] =
 	{
-/*** LPub3D Mod - move Helper category to top ***/
-		"LPub3D Helper=^%Helper\n"
-/*** LPub3D Mod end ***/
 		"Animal=^%Animal | ^%Bone\n"
 		"Antenna=^%Antenna\n"
 		"Arch=^%Arch\n"
@@ -52,6 +49,9 @@ void lcResetCategories(std::vector<lcLibraryCategory>& Categories, bool BuiltInL
 		"Container=^%Container | ^%Box | ^Chest | ^%Storage | ^Mailbox\n"
 		"Door and Window=^%Door | ^%Window | ^%Glass | ^%Freestyle | ^%Gate | ^%Garage | ^%Roller\n"
 		"Electric=^%Battery | ^%Electric\n"
+/*** LPub3D Mod - move Helper category to top ***/
+		"Helper=^%Helper\n"
+/*** LPub3D Mod end ***/
 		"Hinge and Bracket=^%Hinge | ^%Bracket | ^%Turntable\n"
 		"Hose=^%Hose | ^%Rubber | ^%String\n"
 		"Minifig=^%Minifig\n"
