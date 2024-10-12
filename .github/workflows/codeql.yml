@@ -1,6 +1,6 @@
 # LPub3D security and quality analysis
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 06, 2024
+# Last Update: October 04, 2024
 # Copyright (c) 2021 - 2024 by Trevor SANDY
 #
 name: quality # used for badge label
@@ -51,7 +51,7 @@ jobs:
           bash -ex builds/utilities/ci/github/linux-compile.sh
           test -d ${{ env.LP3D_3RD_PARTY_PATH }} && ls -aldFR ${{ env.LP3D_3RD_PARTY_PATH }} || true
       - name: Initialize
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: cpp
           config-file: builds/utilities/ci/github/codeql-config.yml
@@ -67,4 +67,4 @@ jobs:
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
       - name: Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
