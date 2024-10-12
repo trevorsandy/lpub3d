@@ -330,6 +330,7 @@ public:
   QVector<PlacementType>relativeOf;
   PageTypeEnc    pageType;
   bool           partsListPerStep;
+  bool           partsListShown;
   bool           subModelShown;
   bool           rotateIconShown;
   bool           stepNumberShown;
@@ -346,6 +347,7 @@ public:
     offsets[1] = 0;
     pageType   = ContentPage;
     partsListPerStep = false;
+    partsListShown   = false;
     subModelShown   = false;
     rotateIconShown = false;
     stepNumberShown = false;

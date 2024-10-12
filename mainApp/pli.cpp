@@ -3506,10 +3506,19 @@ void PliBackgroundItem::contextMenuEvent(
                 if (pli->step->showStepNumber) {
                     pli->placement.setStepNumberShown(true);
                     if (pli->step->stepNumber.placement.value().relativeTo == PartsListType)
-                      pli->placement.setValue(StepNumberType);
+                        pli->placement.setValue(StepNumberType);
                 }
                 pli->placement.setSubModelShown(pli->step->placeSubModel);
                 pli->placement.setRotateIconShown(pli->step->placeRotateIcon);
+            } else if (pli->steps && !pli->perStep) {
+                if(pli->steps->groupStepMeta.LPub.multiStep.showGroupStepNumber.value()) {
+                    pli->placement.setStepNumberShown(true);
+                    if (pli->steps->groupStepNumber.placement.value().relativeTo == PartsListType)
+                        pli->placement.setValue(StepNumberType);
+                }
+                pli->placement.setSubModelShown(pli->steps->placeSubModel);
+                // To place rotate icon at page level can be done if requested
+                pli->placement.setRotateIconShown(false);
             }
             pli->placement.setPartsListPerStep(pli->perStep);
             if (pli->bom) {

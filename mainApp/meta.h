@@ -1459,6 +1459,10 @@ public:
   {
     _value[pushed].partsListPerStep = b;
   }
+  void setPartsListShown(bool b)
+  {
+    _value[pushed].partsListShown = b;
+  }
   void setPageType(PageTypeEnc v)
   {
     _value[pushed].pageType = v;

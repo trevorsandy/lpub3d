@@ -1773,6 +1773,24 @@ void SubModelBackgroundItem::contextMenuEvent(
                          bottom,
                          &subModel->subModelMeta.constrain);
     } else if (selectedAction == placementAction) {
+        if (subModel->step) {
+            if (subModel->step->showStepNumber) {
+                subModel->placement.setStepNumberShown(true);
+                if (subModel->step->stepNumber.placement.value().relativeTo == SubModelType)
+                    subModel->placement.setValue(StepNumberType);
+            }
+            subModel->placement.setSubModelShown(subModel->step->placeSubModel);
+            subModel->placement.setRotateIconShown(subModel->step->placeRotateIcon);
+        } else if (subModel->steps && !subModel->perStep) {
+            if(subModel->steps->groupStepMeta.LPub.multiStep.showGroupStepNumber.value()) {
+                subModel->placement.setStepNumberShown(true);
+                if (subModel->steps->groupStepNumber.placement.value().relativeTo == PartsListType)
+                    subModel->placement.setValue(StepNumberType);
+            }
+            subModel->placement.setPartsListShown(subModel->steps->placeSubModel);
+            // To place rotate icon at page level can be done if requested
+            subModel->placement.setRotateIconShown(false);
+        }
         subModel->placement.setPartsListPerStep(subModel->perStep);
         if (subModel->perStep) {
             changePlacement(parentRelativeType,
