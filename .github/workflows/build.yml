@@ -42,7 +42,7 @@ jobs:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-${{ matrix.BUILD }}-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - name: Build ${{ matrix.BUILD }}
         run: bash -ex builds/utilities/ci/github/linux-build.sh
@@ -89,7 +89,7 @@ jobs:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - name: Build macOS
         run: bash -ex builds/utilities/ci/github/macos-build.sh
