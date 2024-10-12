@@ -131,14 +131,11 @@ jobs:
         with:
           path: ${{ env.LP3D_BUILD_BASE }}\Qt
           key: qt-windows-${{ env.QT_CACHE }}
-      - name: VC 140 Build Tools
+      - name: VC 141 Build Tools
         run: |
           Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
           $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-          $ComponentsToAdd= @(
-            "Microsoft.VisualStudio.Component.VC.140"
-            "Microsoft.VisualStudio.Component.WinXP"
-          )
+          $ComponentsToAdd= @("Microsoft.VisualStudio.Component.VC.v141.x86.x64")
           [string]$WorkloadArgs = $ComponentsToAdd | ForEach-Object {" --add " +  $_} # Use --remove to delete component
           $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$WorkloadArgs, '--quiet', '--norestart', '--nocache')
           # should be run twice
