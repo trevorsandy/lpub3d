@@ -210,7 +210,7 @@ BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITE
     /* 04 LBL_SMOOTH_TYPE              */ {"edge_split|auto_smooth|bmesh_split", QObject::tr("Smooth part faces with edge split modifier|Auto-smooth part faces|Split during initial mesh processing")}
 };
 
-BlenderPreferences *gAddonPreferences;
+BlenderPreferences *gBlenderAddonPreferences;
 
 BlenderPreferencesDialog::BlenderPreferencesDialog(
     int      width,
@@ -338,7 +338,7 @@ BlenderPreferences::BlenderPreferences(
     QWidget *parent)
     : QWidget(parent)
 {
-    gAddonPreferences = this;
+    gBlenderAddonPreferences = this;
 
 #ifndef QT_NO_PROCESS
     mProcess = nullptr;
@@ -539,7 +539,7 @@ BlenderPreferences::BlenderPreferences(
 
 BlenderPreferences::~BlenderPreferences()
 {
-    gAddonPreferences = nullptr;
+    gBlenderAddonPreferences = nullptr;
 }
 
 void BlenderPreferences::clearGroupBox(QGroupBox *groupBox)
@@ -1274,7 +1274,7 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
 
     // Extract Blender addon
     if (getBlenderAddon(blenderDir)) {
-        gAddonPreferences->statusUpdate(true/*addon*/, false/*error*/, tr("Extract addon..."));
+        gBlenderAddonPreferences->statusUpdate(true/*addon*/, false/*error*/, tr("Extract addon..."));
         QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
         QStringList addonList = JlCompress::extractDir(blenderAddonFile, blenderDir);
         if (addonList.isEmpty()){
@@ -1287,7 +1287,7 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
     }
 
     if (!proceed)
-        gAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,tr("Extract addon failed."));
+        gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,tr("Extract addon failed."));
 
     return proceed;
 }
@@ -1416,7 +1416,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         } else if (Preferences::modeGUI) {
             if (Preferences::blenderAddonVersionCheck) {
                 if (localVersion.isEmpty())
-                    localVersion = gAddonPreferences->mAddonVersion;
+                    localVersion = gBlenderAddonPreferences->mAddonVersion;
                 QString const &title = tr ("%1 Blender LDraw Addon").arg(VER_PRODUCTNAME_STR);
                 QString const &header = tr ("Detected %1 Blender LDraw addon %2. A newer version %3 exists.")
                                             .arg(VER_PRODUCTNAME_STR)
@@ -1437,10 +1437,10 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         if (addonAction == ADDON_DOWNLOAD)
             status = tr("Downloading addon...");
 
-        gAddonPreferences->statusUpdate(true/*addon*/, false/*error*/,status);
+        gBlenderAddonPreferences->statusUpdate(true/*addon*/, false/*error*/,status);
 
         if (addonAction == ADDON_CANCEL) {
-            gAddonPreferences->mDialogCancelled = true;
+            gBlenderAddonPreferences->mDialogCancelled = true;
             return false;
         }
     }
@@ -1493,7 +1493,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         }
         if (!blenderAddonExists) {
             status = tr("Download addon failed.");
-            gAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,status);
+            gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,status);
         }
     } else if (!blenderAddonExists){
         emit gui->messageSig(LOG_ERROR, tr("Blender addon archive %1 was not found")
@@ -1917,16 +1917,16 @@ void BlenderPreferences::apply(const int response)
 
 bool BlenderPreferences::settingsModified(bool update, const QString &module)
 {
-    if  (gAddonPreferences->mDialogCancelled)
+    if  (gBlenderAddonPreferences->mDialogCancelled)
         return false;
 
-    int &width = gAddonPreferences->mImageWidth;
-    int &height = gAddonPreferences->mImageHeight;
-    double &renderPercentage = gAddonPreferences->mRenderPercentage;
+    int &width = gBlenderAddonPreferences->mImageWidth;
+    int &height = gBlenderAddonPreferences->mImageHeight;
+    double &renderPercentage = gBlenderAddonPreferences->mRenderPercentage;
 
     bool moduleMM = !module.isEmpty()
                         ? module == QLatin1String("MM")
-                        : gAddonPreferences->mImportMMActBox->isChecked();
+                        : gBlenderAddonPreferences->mImportMMActBox->isChecked();
 
     bool ok, modified = !QFileInfo(Preferences::blenderLDrawConfigFile).isReadable();
     qreal _width = 0.0, _height = 0.0, _renderPercentage = 0.0, _value = 0.0, _oldValue = 0.0;
@@ -1941,10 +1941,10 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
         for(int i = 0; i < numSettingsMM(); i++) {
             // checkboxes
             if (i < LBL_BEVEL_SEGMENTS) {
-                for(int j = 0; j < gAddonPreferences->mCheckBoxList.size(); j++) {
+                for(int j = 0; j < gBlenderAddonPreferences->mCheckBoxList.size(); j++) {
                     oldValue = mBlenderSettingsMM[i].value;
                     if (update)
-                        mBlenderSettingsMM[i].value = QString::number(gAddonPreferences->mCheckBoxList[j]->isChecked());
+                        mBlenderSettingsMM[i].value = QString::number(gBlenderAddonPreferences->mCheckBoxList[j]->isChecked());
                     modified |= mBlenderSettingsMM[i].value != oldValue;
                     if (i < LBL_VERBOSE_MM)
                         i++;
@@ -1952,10 +1952,10 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
             }
             // lineedits
             else if (i < LBL_CHOSEN_LOGO) {
-                for(int j = 0; j < gAddonPreferences->mLineEditList.size(); j++) {
+                for(int j = 0; j < gBlenderAddonPreferences->mLineEditList.size(); j++) {
                     if (j == CTL_RESOLUTION_WIDTH_EDIT) {
                         _oldValue = width;
-                        _width  = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        _width  = gBlenderAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             if (update) {
                                 width = int(_width);
@@ -1965,7 +1965,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         }
                     } else if (j == CTL_RESOLUTION_HEIGHT_EDIT) {
                         _oldValue = height;
-                        _height = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        _height = gBlenderAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             if (update) {
                                 height = int(_height);
@@ -1975,7 +1975,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         }
                     } else if (j == CTL_RENDER_PERCENTAGE_EDIT_MM) {
                         _oldValue = renderPercentage;
-                        _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
+                        _renderPercentage = gBlenderAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) {
                             if (update) {
                                 renderPercentage = double(_renderPercentage / 100);
@@ -1985,7 +1985,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         }
                     } else {
                         _oldValue = mBlenderSettingsMM[i].value.toDouble();
-                        _value = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        _value = gBlenderAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             if (update)
                                 mBlenderSettingsMM[i].value = QString::number(_value);
@@ -1998,9 +1998,9 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
             }
             // comboboxes
             else {
-                for(int j = 0; j < gAddonPreferences->mComboBoxList.size(); j++) {
+                for(int j = 0; j < gBlenderAddonPreferences->mComboBoxList.size(); j++) {
                     oldValue = mBlenderSettingsMM[i].value;
-                    QString const value = gAddonPreferences->mComboBoxList[j]->itemData(gAddonPreferences->mComboBoxList[j]->currentIndex()).toString();
+                    QString const value = gBlenderAddonPreferences->mComboBoxList[j]->itemData(gBlenderAddonPreferences->mComboBoxList[j]->currentIndex()).toString();
                     if (update)
                         mBlenderSettingsMM[i].value = value;
                     modified |= value != oldValue;
@@ -2013,10 +2013,10 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
         for(int i = 0; i < numSettings(); i++) {
             // checkboxes
             if (i < LBL_BEVEL_WIDTH) {
-                for(int j = 0; j < gAddonPreferences->mCheckBoxList.size(); j++) {
+                for(int j = 0; j < gBlenderAddonPreferences->mCheckBoxList.size(); j++) {
                     oldValue = mBlenderSettings[i].value;
                     if (update)
-                        mBlenderSettings[i].value = QString::number(gAddonPreferences->mCheckBoxList[j]->isChecked());
+                        mBlenderSettings[i].value = QString::number(gBlenderAddonPreferences->mCheckBoxList[j]->isChecked());
                     modified |= mBlenderSettings[i].value != oldValue;
                     if (i < LBL_VERBOSE)
                         i++;
@@ -2024,10 +2024,10 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
             }
             // lineedits
             else if (i < LBL_COLOUR_SCHEME) {
-                for(int j = 0; j < gAddonPreferences->mLineEditList.size(); j++) {
+                for(int j = 0; j < gBlenderAddonPreferences->mLineEditList.size(); j++) {
                     if (j == CTL_IMAGE_WIDTH_EDIT) {
                         _oldValue = width;
-                        _width  = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        _width  = gBlenderAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             if (update) {
                                 width = int(_width);
@@ -2037,7 +2037,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         }
                     } else if (j == CTL_IMAGE_HEIGHT_EDIT) {
                         _oldValue = height;
-                        _height = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                        _height = gBlenderAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         if (ok) {
                             if (update) {
                                 height = int(_height);
@@ -2047,7 +2047,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                         }
                     } else if (j == CTL_RENDER_PERCENTAGE_EDIT) {
                         _oldValue = renderPercentage;
-                        _renderPercentage = gAddonPreferences->mLineEditList[j]->text().toInt(&ok);
+                        _renderPercentage = gBlenderAddonPreferences->mLineEditList[j]->text().toInt(&ok);
                         if (ok) {
                             if (update) {
                                 renderPercentage = double(_renderPercentage / 100);
@@ -2058,10 +2058,10 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
                     } else {
                         if (j == CTL_DEFAULT_COLOUR_EDIT) {
                             _oldValue = lcGetColorIndex(mBlenderSettings[i].value.toInt());  // colour code
-                            _value = gAddonPreferences->mLineEditList[j]->property("ColorIndex").toInt(&ok);
+                            _value = gBlenderAddonPreferences->mLineEditList[j]->property("ColorIndex").toInt(&ok);
                         } else {
                             _oldValue = mBlenderSettings[i].value.toDouble();
-                            _value = gAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
+                            _value = gBlenderAddonPreferences->mLineEditList[j]->text().toDouble(&ok);
                         }
                         if (ok) {
                             if (update) {
@@ -2080,9 +2080,9 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
             }
             // comboboxes
             else {
-                for(int j = 0; j < gAddonPreferences->mComboBoxList.size(); j++) {
+                for(int j = 0; j < gBlenderAddonPreferences->mComboBoxList.size(); j++) {
                     oldValue = mBlenderSettings[i].value;
-                    QString const value = gAddonPreferences->mComboBoxList[j]->itemData(gAddonPreferences->mComboBoxList[j]->currentIndex()).toString();
+                    QString const value = gBlenderAddonPreferences->mComboBoxList[j]->itemData(gBlenderAddonPreferences->mComboBoxList[j]->currentIndex()).toString();
                     if (update)
                         mBlenderSettings[i].value = value;
                     modified |= value != oldValue;
@@ -2095,7 +2095,7 @@ bool BlenderPreferences::settingsModified(bool update, const QString &module)
     // paths
     for (int i = 0; i < numPaths(); i++) {
         oldValue = mBlenderPaths[i].value;
-        QString const value = gAddonPreferences->mPathLineEditList[i]->text();
+        QString const value = gBlenderAddonPreferences->mPathLineEditList[i]->text();
         if (update)
             mBlenderPaths[i].value = value;
         modified |= value != oldValue;
@@ -2306,7 +2306,7 @@ void BlenderPreferences::loadSettings()
 
     // set config file
     QFileInfo blenderConfigFileInfo;
-    if (gAddonPreferences->mDocumentRender)
+    if (gBlenderAddonPreferences->mDocumentRender)
         blenderConfigFileInfo.setFile(Preferences::blenderPreferencesFile);
     else
         blenderConfigFileInfo.setFile(Preferences::blenderLDrawConfigFile);
@@ -2314,7 +2314,7 @@ void BlenderPreferences::loadSettings()
     bool configFileExists = blenderConfigFileInfo.exists();
 
     // set defaults for document render settings
-    if (gAddonPreferences->mDocumentRender) {
+    if (gBlenderAddonPreferences->mDocumentRender) {
         mBlenderSettings[LBL_ADD_ENVIRONMENT].value             = "0";
         mBlenderSettings[LBL_TRANSPARENT_BACKGROUND].value      = "1";
         mBlenderSettings[LBL_CROP_IMAGE].value                  = "1";
@@ -2380,8 +2380,8 @@ void BlenderPreferences::loadSettings()
                 QByteArray ba = file.readAll();
                 file.close();
                 QString errors;
-                gAddonPreferences->mProgressBar = nullptr;
-                gAddonPreferences->readStdOut(QString(ba), errors);
+                gBlenderAddonPreferences->mProgressBar = nullptr;
+                gBlenderAddonPreferences->readStdOut(QString(ba), errors);
             } else {
                 emit gui->messageSig(LOG_WARNING, tr("Failed to open log file: %1:\n%2")
                                                       .arg(file.fileName())
@@ -2390,17 +2390,17 @@ void BlenderPreferences::loadSettings()
         }
     }
 
-    mBlenderSettings[LBL_IMAGE_WIDTH].value            = QString::number(gAddonPreferences->mImageWidth);
-    mBlenderSettings[LBL_IMAGE_HEIGHT].value           = QString::number(gAddonPreferences->mImageHeight);
-    mBlenderSettings[LBL_RENDER_PERCENTAGE].value      = QString::number(gAddonPreferences->mRenderPercentage * 100);
+    mBlenderSettings[LBL_IMAGE_WIDTH].value            = QString::number(gBlenderAddonPreferences->mImageWidth);
+    mBlenderSettings[LBL_IMAGE_HEIGHT].value           = QString::number(gBlenderAddonPreferences->mImageHeight);
+    mBlenderSettings[LBL_RENDER_PERCENTAGE].value      = QString::number(gBlenderAddonPreferences->mRenderPercentage * 100);
 
-    mBlenderSettingsMM[LBL_RESOLUTION_WIDTH].value     = QString::number(gAddonPreferences->mImageWidth);
-    mBlenderSettingsMM[LBL_RESOLUTION_HEIGHT].value    = QString::number(gAddonPreferences->mImageHeight);
-    mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gAddonPreferences->mRenderPercentage * 100);
+    mBlenderSettingsMM[LBL_RESOLUTION_WIDTH].value     = QString::number(gBlenderAddonPreferences->mImageWidth);
+    mBlenderSettingsMM[LBL_RESOLUTION_HEIGHT].value    = QString::number(gBlenderAddonPreferences->mImageHeight);
+    mBlenderSettingsMM[LBL_RENDER_PERCENTAGE_MM].value = QString::number(gBlenderAddonPreferences->mRenderPercentage * 100);
 
     mBlenderPaths[PATH_BLENDER].value              = Preferences::blenderExe;
-    gAddonPreferences->mBlenderVersion                 = Preferences::blenderVersion;
-    gAddonPreferences->mAddonVersion                   = Preferences::blenderAddonVersion;
+    gBlenderAddonPreferences->mBlenderVersion                 = Preferences::blenderVersion;
+    gBlenderAddonPreferences->mAddonVersion                   = Preferences::blenderAddonVersion;
 }
 
 void BlenderPreferences::saveSettings()
@@ -2410,20 +2410,20 @@ void BlenderPreferences::saveSettings()
 
     QString value = mBlenderPaths[PATH_BLENDER].value;
     if (value.isEmpty())
-        value = gAddonPreferences->mPathLineEditList[PATH_BLENDER]->text();
+        value = gBlenderAddonPreferences->mPathLineEditList[PATH_BLENDER]->text();
     Preferences::setBlenderExePathPreference(QDir::toNativeSeparators(value));
 
     value.clear();
-    if (!gAddonPreferences->mBlenderVersion.isEmpty())
-        value = gAddonPreferences->mBlenderVersion;
-    if (!gAddonPreferences->mAddonVersion.isEmpty()) {
-        gAddonPreferences->mModulesBox->setEnabled(true);
-        gAddonPreferences->mAddonVersionEdit->setText(gAddonPreferences->mAddonVersion);
-        value.append(QString("|%1").arg(gAddonPreferences->mAddonVersion));
+    if (!gBlenderAddonPreferences->mBlenderVersion.isEmpty())
+        value = gBlenderAddonPreferences->mBlenderVersion;
+    if (!gBlenderAddonPreferences->mAddonVersion.isEmpty()) {
+        gBlenderAddonPreferences->mModulesBox->setEnabled(true);
+        gBlenderAddonPreferences->mAddonVersionEdit->setText(gBlenderAddonPreferences->mAddonVersion);
+        value.append(QString("|%1").arg(gBlenderAddonPreferences->mAddonVersion));
     }
     Preferences::setBlenderVersionPreference(value);
 
-    if (gAddonPreferences->mDocumentRender)
+    if (gBlenderAddonPreferences->mDocumentRender)
         value = Preferences::blenderPreferencesFile.isEmpty()
                     ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_DOCUMENT_CONFIG_FILE)
                     : Preferences::blenderPreferencesFile;
@@ -2510,9 +2510,9 @@ void BlenderPreferences::saveSettings()
     concludeSettingsGroup();
 
     QString const preferredImportModule =
-        gAddonPreferences->mImportActBox->isChecked()
+        gBlenderAddonPreferences->mImportActBox->isChecked()
             ? QString("TN")
-            : gAddonPreferences->mImportMMActBox->isChecked()
+            : gBlenderAddonPreferences->mImportMMActBox->isChecked()
                   ? QString("MM") : QString();
     if (preferredImportModule != Preferences::blenderImportModule)
         Preferences::setBlenderImportModule(preferredImportModule);

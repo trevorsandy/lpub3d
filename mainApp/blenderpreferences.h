@@ -487,6 +487,6 @@ private:
     bool mBlenderVersionFound;
 };
 
-extern class BlenderPreferences *gAddonPreferences;
+extern class BlenderPreferences *gBlenderAddonPreferences;
 
 #endif // BLENDERPREFERENCES_H
