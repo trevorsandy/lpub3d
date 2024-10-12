@@ -3887,24 +3887,26 @@ int Gui::findPage(
                                 opts.groupStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                                 saveGroupStepNum      = opts.groupStepNumber;
                             }
-                            // insert build Mods when processing step group steps after the first step
-                            if (opts.flags.stepGroup) {
-                                // insert build modifications
-                                if (buildModKeys.size()) {
-                                    if (buildMod.state != BM_END)
-                                        parseError(QString("Required meta BUILD_MOD END not found"),
-                                                   opts.current, Preferences::BuildModErrors);
-                                    Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
-                                        insertBuildModification(buildModLevel);
-                                    }
-                                    buildModKeys.clear();
-                                    buildModAttributes.clear();
-                                } // BuildModKeys
-                            } // StepGroup
 #ifdef WRITE_PARTS_DEBUG
                             writeFindPartsFile("a_find_csi_parts", csiParts);
 #endif
-                          }
+                        } // ! StepGroup
+
+                        // insert build Mods when processing step group steps after the first step
+                        if (opts.flags.stepGroup) {
+                            // insert build modifications
+                            if (buildModKeys.size()) {
+                                if (buildMod.state != BM_END)
+                                    parseError(QString("Required meta BUILD_MOD END not found"),
+                                               opts.current, Preferences::BuildModErrors);
+                                Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
+                                    insertBuildModification(buildModLevel);
+                                }
+                                buildModKeys.clear();
+                                buildModAttributes.clear();
+                            } // BuildModKeys
+                        } // StepGroup
+
                         if (opts.contStepNumber) { // save continuous step number from current model
                             saveContStepNum = opts.contStepNumber;
                         }
