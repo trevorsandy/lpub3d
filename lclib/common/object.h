@@ -141,4 +141,3 @@ public:
 private:
 	lcObjectType mObjectType;
 };
-

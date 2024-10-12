@@ -2984,6 +2984,11 @@ void Preferences::rendererPreferences()
     } else {
         submodelCameraLongitude = Settings.value(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLongitude")).toInt();
     }
+
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"))) {
+        nativeImageCameraFoVAdjust = Settings.value(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust")).toInt();
+    }
+
     Preferences::setMessageLogging();
 }
 

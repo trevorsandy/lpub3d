@@ -2832,4 +2832,3 @@ void LDVPreferences::disableProxy(void)
 	doProxyServer(false);
 	enableApply();
 }
-
