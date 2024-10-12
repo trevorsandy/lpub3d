@@ -4206,34 +4206,18 @@ void SettingsMeta::resetCameraFoV()
 
 /* ------------------ */
 
-CalloutPliMeta::CalloutPliMeta() : BranchMeta()
+StepsPliMeta::StepsPliMeta() : BranchMeta()
 {
   placement.setValue(TopOutside,CsiType);
   perStep.setValue(true);
 }
 
-void CalloutPliMeta::init(BranchMeta *parent, QString name)
+void StepsPliMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   placement.init(this,"PLACEMENT");
   margin.init(   this,"MARGINS");
   perStep.init  (this,"PER_STEP");
-}
-
-/* ------------------ */
-
-ShowSubModelMeta::ShowSubModelMeta() : BranchMeta()
-{
-  placement.setValue(LeftOutside,CsiType);
-  show.setValue(Preferences::showSubmodelInCallout);
-}
-
-void ShowSubModelMeta::init(BranchMeta *parent, QString name)
-{
-  AbstractMeta::init(parent, name);
-  placement.init(this,"PLACEMENT");
-  margin.init(   this,"MARGINS");
-  show.init  (   this,"SHOW");
 }
 
 /* ------------------ */
@@ -4256,6 +4240,22 @@ void PliBeginMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   ignore.init(this, "IGN",    PliBeginIgnRc);
   sub.init   (this, "SUB");
+}
+
+/* ------------------ */
+
+ShowSubModelMeta::ShowSubModelMeta() : BranchMeta()
+{
+  placement.setValue(LeftOutside,CsiType);
+  show.setValue(Preferences::showSubmodelInCallout);
+}
+
+void ShowSubModelMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init(this,"PLACEMENT");
+  margin.init(   this,"MARGINS");
+  show.init  (   this,"SHOW");
 }
 
 /* ------------------ */

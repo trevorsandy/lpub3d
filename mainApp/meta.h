@@ -191,7 +191,7 @@ enum Rc {
          SynthBeginRc,
          SynthEndRc,
 
-         StepPliPerStepRc,
+         StepsPliPerStepRc,
 
          ResolutionRc,
 
@@ -3408,18 +3408,18 @@ public:
 
 /*------------------------*/
 
-class CalloutPliMeta : public BranchMeta
+class StepsPliMeta : public BranchMeta
 {
 public:
   PlacementMeta placement;
   MarginsMeta   margin;
   BoolMeta      perStep;
-  CalloutPliMeta();
-  CalloutPliMeta(const CalloutPliMeta &rhs) : BranchMeta(rhs)
+  StepsPliMeta();
+  StepsPliMeta(const StepsPliMeta &rhs) : BranchMeta(rhs)
   {
   }
 
-//  virtual ~CalloutPliMeta() {}
+//  virtual ~StepsPliMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -4165,7 +4165,7 @@ public:
   BackgroundMeta      background;
   BorderMeta          border;
   NumberPlacementMeta instance;
-  CalloutPliMeta      pli;
+  StepsPliMeta        pli;
   PointerMeta         pointer;
   PointerAttribMeta   pointerAttrib;
   RotateIconMeta      rotateIcon;
@@ -4198,7 +4198,7 @@ public:
   JustifyStepMeta       justifyStep;
   MarginsMeta           margin;
   PlacementMeta         placement;
-  CalloutPliMeta        pli;
+  StepsPliMeta        pli;
   SepMeta               sep;
   NumberPlacementMeta   stepNum;
   BoolMeta              showGroupStepNumber;
