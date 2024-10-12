@@ -15,8 +15,6 @@
 #include <QDir>
 #include <iostream>
 #include <QMessageBox>
-#include <TCFoundation/TCUserDefaults.h>
-#include <LDVQt/LDVWidget.h>
 #include <QSslSocket>
 
 #include "application.h"
@@ -45,9 +43,10 @@
   #include <QtPlatformHeaders\QWindowsWindowFunctions>
   #endif
 
+  // NTDDI_VERSION using _WIN32_WINNT set to 0x0600 (NTDDI_WIN6)
   #if (NTDDI_VERSION >= NTDDI_WIN8)
     #include <pathcch.h>
-    #pragma comment(lib, "<pathcch.lib")
+    #pragma comment(lib, "pathcch.lib")
   #else
     #include <shlwapi.h>
     #pragma comment(lib, "shlwapi.lib")

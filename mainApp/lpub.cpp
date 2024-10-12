@@ -34,6 +34,8 @@
 #include <QProgressDialog>
 #include <ui_progress_dialog.h>
 
+#include <LDVQt/LDVWidget.h>
+
 #include "lpub.h"
 #include "declarations.h"
 #include "editwindow.h"
@@ -73,11 +75,6 @@
 #include "application.h"
 #include "lc_partselectionwidget.h"
 #include "lc_http.h"
-
-//** LDVLib
-#include <TCFoundation/TCUserDefaults.h>
-#include <LDLib/LDUserDefaultsKeys.h>
-#include <LDVQt/LDVWidget.h>
 
 #if _MSC_VER > 1310
 // Visual C++ 2005 and later require the source files in UTF-8, and all strings

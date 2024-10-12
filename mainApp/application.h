@@ -14,21 +14,14 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <QScopedPointer>
-#include <QException>
-#include <QtWidgets>
-#include <QFile>
-#include <string>
-#include <vector>
+#define _WIN32_WINNT 0x0600
 
 #ifdef Q_OS_WIN
-  #include <Windows.h>
+#include <Windows.h>
 #endif
 
 #include "lc_global.h"
 #include "lc_math.h"
-
-#include "QsLog.h"
 #include "declarations.h"
 
 struct lcCommandLineOptions;

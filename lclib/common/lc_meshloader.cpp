@@ -350,7 +350,7 @@ void lcMeshLoaderTypeData::AddMeshData(const lcMeshLoaderTypeData& Data, const l
 	for (const lcMeshLoaderConditionalVertex& DataVertex : Data.mConditionalVertices)
 	{
 		lcVector3 Position[4];
-		
+
 		Position[0] = lcMul31(DataVertex.Position[0], Transform);
 		Position[1] = lcMul31(DataVertex.Position[1], Transform);
 		Position[2] = lcMul31(DataVertex.Position[2], Transform);
@@ -1146,10 +1146,11 @@ bool lcMeshLoader::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform
 			if (strstr(Token, "!COLOUR") != nullptr)
 			{
 				if (!lcLoadColorEntry(Line, Library->GetStudStyle()))
-					logError() << qPrintable(QString("Could not load colour meta %1.").arg(Line));
+					qCritical() << qPrintable(QString("Could not load colour meta %1.").arg(Line));
+
 				continue;
 			}
-/*** LPub3D Mod end ***/			
+/*** LPub3D Mod end ***/
 
 			while (*Token && *Token <= 32)
 				Token++;

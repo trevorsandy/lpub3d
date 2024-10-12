@@ -27,6 +27,7 @@
 #include "application.h"
 #include "threadworkers.h"
 #include "lpub_object.h"
+#include "version.h"
 /*** LPub3D Mod end ***/
 
 lcApplication* gApplication;
