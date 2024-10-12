@@ -62,13 +62,13 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 
 	setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES,windowTitle()));
 
-	generalTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GENERAL, tr("General")));
-	ldrawTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_LDRAW, tr("LDraw")));
-	geometryTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GEOMETRY, tr("Geometry")));
-	effectsTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_EFFECTS, tr("Effects")));
-	primitivesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PRIMITIVES, tr("Primitives")));
-	updatesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_UPDATES, tr("Updates")));
-	preferencsSetTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PREFERENCES_SET, tr("Preferences Set")));
+	generalTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GENERAL, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
+	ldrawTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_LDRAW, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
+	geometryTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GEOMETRY, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
+	effectsTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_EFFECTS, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
+	primitivesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PRIMITIVES, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
+	updatesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_UPDATES, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
+	preferencsSetTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PREFERENCES_SET, QString::fromWCharArray(TCLocalStrings::get(L"PrefSetTab"))));
 
 	fsaaBox->setWhatsThis(lpubWT(                    WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_ANTIALIASING,fsaaBox->title().replace("&","")));
 	generalColorBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_GENERAL_COLORS,generalColorBox->title().replace("&","")));
@@ -90,9 +90,9 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	primitivesMiscBox->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_MISC,primitivesMiscBox->title().replace("&","")));
 	updatesProxyBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_PROXY,updatesProxyBox->title().replace("&","")));
 	updatesMissingpartBox->setWhatsThis(lpubWT(      WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART,updatesMissingpartBox->title().replace("&","")));
-	ExtraDirListView->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_SEARCH_DIRECTORIES, tr("Extra Search Directories")));
+	ExtraDirListView->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_SEARCH_DIRECTORIES, QString::fromWCharArray(TCLocalStrings::get(L"SearchDirectories"))));
 	updateLDrawLibraryBox->setWhatsThis(lpubWT(      WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_LIBRARY, updateLDrawLibraryBox->title().replace("&","")));
-	preferenceSetList->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET,tr("Preferences Set List")));
+	preferenceSetList->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET,QString::fromWCharArray(TCLocalStrings::get(L"PrefSetList"))));
 
 	connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
@@ -259,7 +259,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 
 	ldvModelWidget = modelWidget;
 
-	this->setWindowTitle(ldvModelWidget->getIniTitle().append(" Preferences"));
+	this->setWindowTitle(ldvModelWidget->getIniTitle().append(QString::fromWCharArray(TCLocalStrings::get(L"PrefSetSuffix"))));
 
 	QPalette readOnlyPalette = QApplication::palette();
 	if (ldvModelWidget->getDarkTheme())
@@ -271,12 +271,12 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget, QWidget *parent)
 	QString iniFileMessage;
 	if (TCUserDefaults::isIniFileSet())
 	{
-		QString prefSet = TCUserDefaults::getSessionName();
-		iniFileMessage = QString("%1").arg(ldvModelWidget->getIniFile());
-		iniBox->setTitle(QString("INI file using '%1' preference set")
-						 .arg(prefSet.isEmpty() ? "Default" : prefSet));
+		const char *prefSet = TCUserDefaults::getSessionName();
+		iniFileMessage = ldvModelWidget->getIniFile();
+		iniBox->setTitle(QString::fromWCharArray(TCLocalStrings::get(L"IniFilePrefSet"))
+						 .arg(prefSet ? QString(prefSet) : QString::fromWCharArray(TCLocalStrings::get(L"DefaultPrefSet"))));
 	} else {
-		iniFileMessage = QString("INI file not specified. Using built-in default settings.");
+		iniFileMessage = QString::fromWCharArray(TCLocalStrings::get(L"IniNotSpecifiedNotice"));
 		iniFileEdit->setStyleSheet("QLineEdit { background-color : red; color : white; }");
 	}
 
@@ -779,7 +779,7 @@ void LDVPreferences::doBackgroundColor()
 /*** LPub3D Mod - use button icon image ***/
 	int r,g,b;
 	QPixmap pix(12, 12);
-	QString title("Select Background Color");
+	QString title(QString::fromWCharArray(TCLocalStrings::get(L"BackgroundColorTitle")));
 	QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
 
 	ldPrefs->getBackgroundColor(r, g, b);
@@ -801,7 +801,7 @@ void LDVPreferences::doDefaultColor()
 	int r, g, b, a, i;
 	QRgb old[16];
 	QPixmap pix(12, 12);
-	QString title("Select Default Color");
+	QString title(QString::fromWCharArray(TCLocalStrings::get(L"DefaultColorTitle")));
 	QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
 
 	for (i = 0 ; i < 16; i++)
@@ -1628,8 +1628,8 @@ void LDVPreferences::doTextureStuds(bool value)
 void LDVPreferences::doNewPreferenceSet()
 {
 	bool ok;
-	QString name = QInputDialog::getText(this,QString("Native POV New Preference Set"),
-				   QString("Enter name of the new PreferenceSet"), QLineEdit::Normal,QString(),
+	QString name = QInputDialog::getText(this,QString::fromWCharArray(TCLocalStrings::get(L"LoadLDVMessagesError")),
+				   QString::fromWCharArray(TCLocalStrings::get(L"PrefSetEnterName")), QLineEdit::Normal,QString(),
 					&ok);
 	if (ok && !name.isEmpty())
 	{
@@ -1710,9 +1710,9 @@ void LDVPreferences::doHotkeyPreferenceSet()
 	lst << TCLocalStrings::get("<None>") << "1" << "2" << "3" <<
 	"4" << "5" << "6" << "7" << "8" << "9" << "0";
 	bool ok;
-	QString res = QInputDialog::getItem(this,getSelectedPrefSet(),
-			"Select a hot key to automatically select this Preference Set:\nAlt + ",
-			lst, hotKeyIndex, false, &ok);
+	const QString res = QInputDialog::getItem(this,getSelectedPrefSet(),
+											  QString::fromWCharArray(TCLocalStrings::get(L"PrefSetHotKeySelect")),
+											  lst, hotKeyIndex, false, &ok);
 	if (ok)
 	{
 		hotKeyIndex = lst.indexOf(res);
@@ -1878,8 +1878,8 @@ bool LDVPreferences::doPrefSetSelected(bool force)
 		{
 			needToReselect = true;
 			selectPrefSet(nullptr, true);
-			QMessageBox::warning(this,QString::fromWCharArray(TCLocalStrings::get(L"Error")),
-				"You have made changes to the current preference set.  You must either apply those changes or abandon them before you can select a new preference set.");
+			QMessageBox::warning(this, QString::fromWCharArray(TCLocalStrings::get(L"Error")),
+								 QString::fromWCharArray(TCLocalStrings::get(L"PrefSetChange")));
 		}
 		delete savedSession;
 	}
@@ -2727,14 +2727,14 @@ void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString 
 
 void LDVPreferences::enableStudStyleCombo()
 {
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("Plain"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("ThinLineLogo"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("OutlineLogo"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("SharpTopLogo"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("RoundedTopLogo"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("FlattenedLogo"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("HighContrast"))));
-	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("HighContrastWithLogo"))));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"Plain")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"ThinLineLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"OutlineLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"SharpTopLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"RoundedTopLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"FlattenedLogo")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"HighContrast")));
+	studStyleCombo->addItem(QString::fromWCharArray(TCLocalStrings::get(L"HighContrastWithLogo")));
 	studStyleCombo->setCurrentIndex(ldPrefs->getStudStyle());
 }
 
@@ -2952,7 +2952,7 @@ void LDVPreferences::populateExtraSearchDirs(void)
 
 void LDVPreferences::doLDrawDir(void)
 {
-	QString dir = QFileDialog::getExistingDirectory(this,"Please select the directory in which you installed LDraw",ldrawDirEdit->text());
+	QString dir = QFileDialog::getExistingDirectory(this,QString::fromWCharArray(TCLocalStrings::get(L"SelectLDrawDirectory")),ldrawDirEdit->text());
 	if (dir.isEmpty()) {return;}
 	ldrawDirEdit->setText(dir);
 	applyButton->setEnabled(true);
@@ -2960,7 +2960,7 @@ void LDVPreferences::doLDrawDir(void)
 
 void LDVPreferences::doLDrawZip(void)
 {
-	QString file = QFileDialog::getOpenFileName(this,"Select the LDraw Part Library Zip","","ZIP file (*.zip)");
+	QString file = QFileDialog::getOpenFileName(this,QString::fromWCharArray(TCLocalStrings::get(L"SelectLDrawPartsZip")),"","ZIP file (*.zip)");
 	if (file.isEmpty()) {return;}
 	if (LDLModel::checkLDrawZipPath(file.toUtf8().constData()))
 	{
