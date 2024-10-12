@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 12, 2024
+# Last Update September 18, 2024
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -37,6 +37,28 @@ docker_image=
 docker_base="$LP3D_BASE"
 docker_arch="amd64"
 docker_platform="--platform linux/${docker_arch}"
+
+# automatic logging
+if [ "${WRITE_LOG}" = "true" ]; then
+    f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
+    f="${out_path}/${f}"
+    ext=".log"
+    if [[ -e "$f$ext" ]] ; then
+        i=1
+        f="${f%.*}";
+        while [[ -e "${f}_${i}${ext}" ]]; do
+          let i++
+        done
+        f="${f}_${i}${ext}"
+    else
+        f="${f}${ext}"
+    fi
+    # output log file
+    LOG="$f"
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
+fi
+
 case "${docker_base}" in
     "ubuntu")
         docker_dist="jammy"
@@ -77,27 +99,6 @@ out_path="${LP3D_BUILDPKG_PATH}"
 [ ! -d "${LP3D_3RD_PARTY_PATH}/${docker_base}_${docker_arch}" ] && \
 mkdir -p ${LP3D_3RD_PARTY_PATH}/${docker_base}_${docker_arch} || :
 base_path="${LP3D_3RD_PARTY_PATH}/${docker_base}_${docker_arch}"
-
-# automatic logging
-if [ "${WRITE_LOG}" = "true" ]; then
-    f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
-    f="${out_path}/${f}"
-    ext=".log"
-    if [[ -e "$f$ext" ]] ; then
-        i=1
-        f="${f%.*}";
-        while [[ -e "${f}_${i}${ext}" ]]; do
-          let i++
-        done
-        f="${f}_${i}${ext}"
-    else
-        f="${f}${ext}"
-    fi
-    # output log file
-    LOG="$f"
-    exec > >(tee -a ${LOG} )
-    exec 2> >(tee -a ${LOG} >&2)
-fi
 
 # prepare ldraw directory
 dist_path="${LP3D_3RD_PARTY_PATH}"
@@ -170,7 +171,7 @@ RUN apt-get update
 RUN apt-get install -y apt-utils git wget unzip lintian build-essential debhelper fakeroot ccache lsb-release
 RUN apt-get install -y autotools-dev autoconf pkg-config libtool curl zip
 RUN apt-get install -y xvfb desktop-file-utils
-RUN apt-get install -y $(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,)
+RUN apt-get install -y $(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,)   #'
 RUN apt-get install -y sudo \\
     && groupadd -r ${name} -g ${gid} \\
     && useradd -u ${uid} -r -g ${name} -m -d /${name} -s /sbin/nologin -c "Build pkg user" ${name} \\
@@ -209,7 +210,7 @@ cd ~/ \\
 pbEOF
         ;;
     "fedora")
-	    gid="1001"
+        gid="1001"
         cp -f builds/linux/obs/alldeps/lpub3d.spec .
         cp -f builds/linux/obs/lpub3d-rpmlintrc .
         cp -f builds/linux/CreateRpm.sh .

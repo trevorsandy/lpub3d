@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 12, 2024
+# Last Update September 18, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -41,6 +41,29 @@ docker_arch="${LP3D_ARCH:-amd64}"
 docker_base="${LP3D_BASE:-ubuntu}"
 docker_qemu="${LP3D_QEMU:-false}"
 docker_platform="--platform linux/${LP3D_ARCH}"
+
+# automatic logging
+if [ "${WRITE_LOG}" = "true" ]; then
+    f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
+    [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
+    f="${out_path}/${f}"
+    ext=".log"
+    if [[ -e "$f$ext" ]] ; then
+        i=1
+        f="${f%.*}";
+        while [[ -e "${f}_${i}${ext}" ]]; do
+            let i++
+        done
+        f="${f}_${i}${ext}"
+    else
+        f="${f}${ext}"
+    fi
+    # output log file
+    LOG="$f"
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
+fi
+
 case "${docker_base}" in
     "ubuntu")
         if [ "${LP3D_APPIMAGE}" = "true" ]; then
@@ -110,28 +133,6 @@ out_path="${LP3D_BUILDPKG_PATH}"
 mkdir -p ${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH} || :
 base_path="${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}"
 
-# automatic logging
-if [ "${WRITE_LOG}" = "true" ]; then
-    f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
-    [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
-    f="${out_path}/${f}"
-    ext=".log"
-    if [[ -e "$f$ext" ]] ; then
-        i=1
-        f="${f%.*}";
-        while [[ -e "${f}_${i}${ext}" ]]; do
-            let i++
-        done
-        f="${f}_${i}${ext}"
-    else
-        f="${f}${ext}"
-    fi
-    # output log file
-    LOG="$f"
-    exec > >(tee -a ${LOG} )
-    exec 2> >(tee -a ${LOG} >&2)
-fi
-
 # prepare ldraw directory
 dist_path="${LP3D_3RD_PARTY_PATH}"
 ldraw_path="${dist_path}/ldraw"
@@ -184,7 +185,7 @@ rm -rf "${ldview_path}" && echo "Cached ${ldview_path} deleted" || :
 echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
 rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 
-# run builds with privileged user account required to load dependent
+# run builds with privileged user account required to load library dependency
 gid="$(id -g)"
 uid="$(id -u)"
 name="$(id -un)"

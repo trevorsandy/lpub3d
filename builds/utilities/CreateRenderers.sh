@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update November 11, 2022
+# Last Update September 15, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -346,12 +346,12 @@ InstallDependencies() {
         sed -e '/^#Qt/d' -e '/libqt4-dev/d' -e '/qt6-base-dev/d' \
             -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
         if [ "$LP3D_BUILD_OS" = "appimage" ]; then
-          sed -e 's/ libkf5kio-dev//g' \
-              -e 's/ extra-cmake-modules//g' \
-              -e 's/ libkf5kdelibs4support5-bin//g' -i $controlFile
+          sed -e 's/ libkf5kio-dev,//g' \
+              -e 's/ extra-cmake-modules,//g' \
+              -e 's/ libkf5kdelibs4support5-bin,//g' -i $controlFile
         fi
         if [[ "${DOCKER}" == "true" && "${GITHUB}" == "" ]]; then
-          sed 's/kdelibs5-dev, //g' -i $controlFile
+          sed 's/ kdelibs5-dev,//g' -i $controlFile
         fi
         ;;
       povray)

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 14, 2024
+# Last Update September 16, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -16,9 +16,32 @@
 #  - UPDATE_SH=false - update overwrite this script when building in local Docker
 #  - DEB_EXTENSION=amd64.deb - distribution file suffix
 #  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
+#  - XSERVER=false - use Docker host XMing/XSrv XServer
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
+
+# LOCAL DOCKER RUN - set accordingly then cut and paste in console to run:
+: <<'BLOCK_COMMENT'
+UPDATE_SH="${UPDATE_SH:-true}"
+if test "${UPDATE_SH}" = "true"; then \
+cp -rf /user/resources/builds/linux/CreateDeb.sh . \
+&& export LOCAL=true \
+&& export DOCKER=true \
+&& export LPUB3D=lpub3d \
+&& export PRESERVE=true \
+&& export LP3D_ARCH=amd64 \
+&& export LOCAL_RESOURCE_PATH=/user/resources \
+&& export XSERVER=false \
+&& chmod a+x CreateDeb.sh \
+&& ./CreateDeb.sh \
+&& if test -d /buildpkg; then \
+  sudo cp -f /user/rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; \
+  sudo cp -f /user/rpmbuild/BUILD/*.log /buildpkg/; \
+  sudo cp -f /user/*.log /buildpkg/; \
+fi
+
+BLOCK_COMMENT
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
@@ -51,6 +74,7 @@ OBS=${OBS:-false}
 LOCAL=${LOCAL:-}
 LPUB3D=${LPUB3D:-lpub3d}
 DOCKER=${DOCKER:-}
+XSERVER=${XSERVER:-}
 PRESERVE=${PRESERVE:-} # preserve cloned repository
 LP3D_ARCH=${LP3D_ARCH:-amd64}
 DEB_EXTENSION=${DEB_EXTENSION:-$LP3D_ARCH.deb}
@@ -58,6 +82,9 @@ LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
 
 # OpenSUSE Build Service flag must be set for CreateRenderers.sh
 export OBS
+if [ "${XSERVER}" = "true" ]; then
+	if test "${LOCAL}" != "true"; then export XSERVER=; fi
+fi
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -97,6 +124,7 @@ echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
 if [ "$LOCAL" = "true" ]; then
     echo "   LPUB3D BUILD TYPE......Local"
+	echo "   LPUB3D BUILD DISPLAY...$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
     echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
     echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
@@ -129,7 +157,7 @@ if [ "${TRAVIS}" != "true" ]; then
             if [ "$LOCAL" = "true" ]; then
                 echo "2. copy LOCAL ${LPUB3D} source to SOURCES/..."
                 cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}
-                echo "2a.copy LOCAL ${LPUB3D} renderer source"
+                echo "2a.copy LOCAL ${LPUB3D} renderer source to SOURCES/..."
                 cp -rf ${LOCAL_RESOURCE_PATH}/povray.tar.gz .
                 cp -rf ${LOCAL_RESOURCE_PATH}/ldglite.tar.gz .
                 cp -rf ${LOCAL_RESOURCE_PATH}/ldview.tar.gz .

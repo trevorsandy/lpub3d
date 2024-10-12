@@ -5,7 +5,7 @@
 # This script is sourced to extract local library assets.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: November 11, 2022
+#  Last Update: September 17, 2024
 #  Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
@@ -97,7 +97,7 @@ then
         shortlib=$(basename $shortlib $extn)
         ln -fs $basename $shortlib
         basename=$shortlib
-        echo "Symlink: $shortlib"
+        echo "Symlink: $basename $shortlib"
       done
     done || true
     # for some reason .so symlinks are not automatically created for these 2 libs...

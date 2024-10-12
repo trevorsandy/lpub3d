@@ -120,7 +120,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.7.3600
+Version: 2.4.7.3601
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -290,6 +290,24 @@ Requires(post): desktop-file-utils
 BuildRequires:  python-gobject
 BuildRequires:  python-gobject-base
 %endif
+
+# -----minizip dependency------
+%if ( 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?rhel} > 7 || 0%{?scientificlinux_version}>=700 || 0%{?oraclelinux}>=7 || 0%{?fedora} || 0%{?openeuler_version} || 0%{?almalinux})
+BuildRequires:  minizip-compat-devel
+%endif
+
+%if 0%{?suse_version}
+BuildRequires:  minizip-devel
+%endif
+
+%if 0%{?mageia}
+%ifarch x86_64
+BuildRequires:  lib64minizip-devel
+%else
+BuildRequires:  libminizip-devel
+%endif
+%endif
+# -----------------------------
 
 # POV-Ray dependencies - SUSE/CentOS builds
 %if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
@@ -797,7 +815,10 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3600
+* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3601
+- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+
+* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3601
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670

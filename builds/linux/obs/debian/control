@@ -2,7 +2,7 @@ Source: lpub3d
 Section: graphics
 Priority: optional
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
-Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev, unzip
+Build-Depends: debhelper (>= 4.1.16), unzip, qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev, libminizip-dev
 Standards-Version: 3.9.7
 Homepage: https://trevorsandy.github.io/lpub3d/
 
@@ -19,7 +19,7 @@ Description: LDraw™ editor for LEGO® style digital building instructions.
  and runs on Windows, Linux and macOS Operating Systems.
  LPub3D is also available as a Linux 'no-install', multi-platform AppImage.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
- LeoCAD© 2020 Leonardo Zide.and additional third party components.
+ LeoCAD© 2024 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2022 Trevor SANDY
+ © 2015-2024 Trevor SANDY

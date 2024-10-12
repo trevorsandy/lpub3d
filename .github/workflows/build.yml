@@ -194,7 +194,7 @@ jobs:
           if-no-files-found: ignore
 
   build-deploy:
-    # if: ${{ false }} # uncomment to disable
+    # add "${{ false }} && # remove to enable" after pipe to disable
     if: |
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&

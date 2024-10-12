@@ -1,15 +1,15 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: September 15, 2024
+#  Last Update: September 16, 2024
 #  Copyright (C) 2017 - 2024 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.7.3600
+pkgver=2.4.7.3601
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
-makedepends=('iptables' 'glu' 'gcc' 'make' 'ca-certificates' 'unzip' 'llvm' 'mesa')
-depends=('qt5-base' 'qt5-tools' 'libpng' 'libjpeg-turbo' 'gl2ps' 'tinyxml' 'minizip' 'freeglut' 'mesa-libgl' 'boost-libs' 'boost' 'openexr' 'libtiff' 'xorg-util-macros' 'libelf' 'llvm-libs')
+makedepends=('iptables' 'glu' 'gcc' 'make' 'ca-certificates' 'llvm' 'mesa')
+depends=('unzip' 'qt5-base' 'qt5-tools' 'libpng' 'libjpeg-turbo' 'gl2ps' 'tinyxml' 'minizip' 'freeglut' 'mesa-libgl' 'boost-libs' 'boost' 'openexr' 'libtiff' 'xorg-util-macros' 'libelf' 'llvm-libs')
 conflicts=()
 replaces=()
 backup=()
@@ -23,7 +23,7 @@ prepare() {
 	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw;
 	export PLATFORM_PRETTY="Arch Linux Extra"
 	export PLATFORM_CODE="arex"
-	export PLATFORM_VER="2020"
+	export PLATFORM_VER="2024"
 	export TARGET_CPU="$(uname -m)"
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \

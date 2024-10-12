@@ -1,18 +1,46 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 13, 2024
+# Last Update September 17, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
+# Build LPub3D Linux rpm distribution
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateRpm.sh
 # [options]:
-#  - export DOCKER=true (if using Docker image)
-#  - export OBS=false (if building locally)
-#  - export LP3D_ARCH=amd64 (set build architecture, default is amd64)
-#  - export PRESERVE= (if do not clone remote repository, default is unset)
+#  - LOCAL=false - local build - use local versus download renderer and library source
+#  - DOCKER=true - using Docker image
+#  - LPUB3D=lpub3d - repository name
+#  - OBS=false - building locally
+#  - LP3D_ARCH=amd64 - set build architecture
+#  - PRESERVE=false - clone remote repository
+#  - UPDATE_SH=false - update overwrite this script when building in local Docker
+#  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
+#  - XSERVER=false - use Docker host XMing/XSrv XServer
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
+
+# LOCAL DOCKER RUN - set accordingly then cut and paste in console to run:
+: <<'BLOCK_COMMENT'
+UPDATE_SH="${UPDATE_SH:-true}"
+if test "${UPDATE_SH}" = "true"; then \
+cp -rf /user/resources/builds/linux/CreateRpm.sh . \
+&& export LOCAL=true \
+&& export DOCKER=true \
+&& export LPUB3D=lpub3d \
+&& export PRESERVE=true \
+&& export LP3D_ARCH=amd64 \
+&& export LOCAL_RESOURCE_PATH=/user/resources \
+&& export XSERVER=false \
+&& chmod a+x CreateRpm.sh \
+&& ./CreateRpm.sh \
+&& if test -d /buildpkg; then \
+  sudo cp -f /user/rpmbuild/RPMS/`uname -m`/*.rpm /buildpkg/; \
+  sudo cp -f /user/rpmbuild/BUILD/*.log /buildpkg/; \
+  sudo cp -f /user/*.log /buildpkg/; \
+fi
+
+BLOCK_COMMENT
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
@@ -39,18 +67,23 @@ ME="CreateRpm"
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 
 CWD=`pwd`
-LP3D_TARGET_ARCH=`uname -m`
-export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by lpub3d.spec
-
-echo "Start $ME execution at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-LPUB3D="${LPUB3D:-lpub3d}"
-LP3D_ARCH="${LP3D_ARCH:-amd64}"
-PRESERVE="${PRESERVE:-}" # preserve cloned repository
-echo "   LPUB3D SOURCE DIR......${LPUB3D}"
-echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
-echo "   PRESERVE REPO..........$(if test "$PRESERVE" = "true"; then echo YES; else echo NO; fi)"
+OBS=${OBS:-false}
+LOCAL=${LOCAL:-}
+LPUB3D=${LPUB3D:-lpub3d}
+DOCKER=${DOCKER:-}
+XSERVER=${XSERVER:-}
+PRESERVE=${PRESERVE:-} # preserve cloned repository
+LP3D_ARCH=${LP3D_ARCH:-amd64}
+LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
+
+LP3D_TARGET_ARCH=`uname -m`
+
+export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by lpub3d.spec
+if [ "${XSERVER}" = "true" ]; then
+    if test "${LOCAL}" != "true"; then export XSERVER=; fi
+fi
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -77,7 +110,25 @@ if [ "${WRITE_LOG}" = "true" ]; then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
-echo "1. create RPM build working directories in rpmbuild/..."
+echo "Start $ME execution at $CWD..."
+
+echo "   LPUB3D SOURCE DIR......${LPUB3D}"
+echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+if [ "$LOCAL" = "true" ]; then
+    echo "   LPUB3D BUILD TYPE......Local"
+    echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
+    echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+    if [ -n "$LOCAL_RESOURCE_PATH" ]; then
+        echo "   LOCAL_RESOURCE_PATH....${LOCAL_RESOURCE_PATH}"
+    else
+        echo "ERROR - LOCAL_RESOURCE_PATH was not specified. $ME will terminate."
+        exit 1
+    fi
+else
+    echo "   LPUB3D BUILD TYPE......CI"
+fi
+
+echo "1. create working directories BUILD, RPMS, SRPMS, SOURCES, and SPECS in rpmbuild/..."
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
@@ -93,25 +144,41 @@ do
         mkdir "${DIR}"
     fi
 done
+
 cd ${BUILD_DIR}/SOURCES
 
-if [ -d "/in" ]; then
-    echo "2. copy input source to SOURCES/${LPUB3D}..."
-    mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
-else
-    LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
-    if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
-        echo "2. download ${LPUB3D} source to SOURCES/..."
-        if [ -d "${LPUB3D_REPO}" ]; then
-            rm -rf ${LPUB3D_REPO}
-        fi
-        git clone https://github.com/trevorsandy/${LPUB3D}.git
+WORK_DIR=${LPUB3D}-git
+
+if [ "${TRAVIS}" != "true" ]; then
+    if [ -d "/in" ]; then
+        echo "2. copy input source to rpmbuild/SOURCES/${LPUB3D}..."
+        mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
-        echo "2. preserve ${LPUB3D} source in SOURCES/..."
-        if [ -d "${LPUB3D_REPO}" ]; then
-            mv -f ${LPUB3D_REPO} ${LPUB3D}
+        if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D}" ]]; then
+            if [ "$LOCAL" = "true" ]; then
+                echo "2. copy LOCAL ${LPUB3D} source to rpmbuild/SOURCES/..."
+                cp -rf ${LOCAL_RESOURCE_PATH}/${LPUB3D} ${LPUB3D}
+                echo "2a.copy LOCAL ${LPUB3D} renderer source to rpmbuild/SOURCES/..."
+                cp -rf ${LOCAL_RESOURCE_PATH}/povray.tar.gz .
+                cp -rf ${LOCAL_RESOURCE_PATH}/ldglite.tar.gz .
+                cp -rf ${LOCAL_RESOURCE_PATH}/ldview.tar.gz .
+            else
+                echo "2. download ${LPUB3D} source to rpmbuild/SOURCES/..."
+                if [ -d "${WORK_DIR}" ]; then
+                    rm -rf ${WORK_DIR}
+                fi
+                git clone https://github.com/trevorsandy/${LPUB3D}.git
+            fi
+        else
+            echo "2. preserve ${LPUB3D} source in rpmbuild/SOURCES/..."
+            if [ -d "${WORK_DIR}" ]; then
+                mv -f ${WORK_DIR} ${LPUB3D}
+            fi
         fi
     fi
+else
+    echo "2. copy ${LPUB3D} source to rpmbuild/SOURCES/..."
+    cp -rf "../../${LPUB3D}" .
 fi
 
 # For Docker build, check if there is a tag after the last commit
@@ -139,18 +206,23 @@ echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-WORK_DIR=${LPUB3D}-git
 if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
-    echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/..."
+    echo "4. move ${LPUB3D}/ to rpmbuild/SOURCES/${LPUB3D}-git..."
     if [ -d ${WORK_DIR} ]; then
         rm -rf ${WORK_DIR}
     fi
     mv -f ${LPUB3D} ${WORK_DIR}
 else
-    echo "4. preserve ${LPUB3D}/ in SOURCES/..."
+    if [ "$LOCAL" = "true" ]; then
+        echo "4. overwrite ${LPUB3D}-git/ with ${LPUB3D}/ in rpmbuild/SOURCES/..."
+        cp -TRf ${LPUB3D}/ ${WORK_DIR}/
+        rm -rf ${LPUB3D}
+    else
+        echo "4. preserve ${LPUB3D}-git/ in rpmbuild/SOURCES/..."
+    fi
 fi
 
-echo "6. copy lpub3d.xpm icon to SOURCES/"
+echo "6. copy lpub3d.xpm icon to rpmbuild/SOURCES/"
 cp -f ${WORK_DIR}/mainApp/resources/lpub3d.xpm .
 
 echo "7. copy ${LPUB3D}.spec to SPECS/"
@@ -159,26 +231,40 @@ cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ${BUILD_DIR}/SPECS
 echo "8. copy ${LPUB3D}-rpmlintrc to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}-rpmlintrc ${BUILD_DIR}/SPECS
 
-echo "9. download LDraw archive libraries to SOURCES/..."
-if [ ! -f lpub3dldrawunf.zip ]
-then
-    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip
-fi
-if [ ! -f complete.zip ]
-then
-    curl -O $curlopts https://library.ldraw.org/library/updates/complete.zip
-fi
-if [ ! -f tenteparts.zip ]
-then
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip
-fi
-if [ ! -f vexiqparts.zip ]
-then
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip
+if [ "$LOCAL" = "true" ]; then
+    echo "9. copy LOCAL LDraw archive libraries to rpmbuild/SOURCES/..."
+    [ ! -f lpub3dldrawunf.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip .
+
+    # Place a copy of the unofficial library at ./rpmbuild/BUILD
+    [ ! -f ../lpub3dldrawunf.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/lpub3dldrawunf.zip ../BUILD
+
+    [ ! -f complete.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/complete.zip .
+
+    [ ! -f tenteparts.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/tenteparts.zip .
+
+    [ ! -f vexiqparts.zip ] && \
+    cp -rf ${LOCAL_RESOURCE_PATH}/vexiqparts.zip .
+else
+    echo "9. download LDraw archive libraries to rpmbuild/SOURCES/..."
+    [ ! -f lpub3dldrawunf.zip ] && \
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip || :
+
+    [ ! -f complete.zip ] && \
+    curl -O $curlopts https://library.ldraw.org/library/updates/complete.zip || :
+
+    [ ! -f tenteparts.zip ] && \
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :
+
+    [ ! -f vexiqparts.zip ] && \
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip || :
 fi
 
 # file copy and downloads above must happen before we make the tarball
-echo "11. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
+echo "11. create tarball SOURCES/${WORK_DIR}.tar.gz from SOURCES/${WORK_DIR}/..."
 tar -czf ${WORK_DIR}.tar.gz \
         --exclude=".gitignore" \
         --exclude=".gitattributes" \
@@ -210,7 +296,7 @@ tar -czf ${WORK_DIR}.tar.gz \
         ${WORK_DIR}
 
 cd ${BUILD_DIR}/SPECS
-echo "12. Check ${LPUB3D}.spec..."
+echo "12. Check ${LPUB3D}.spec with rpmlint..."
 source /etc/os-release && if [ "$ID" = "fedora" ]; then sed 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' -i "${BUILD_DIR}/SPECS/${LPUB3D}.spec"; fi
 rpmlint ${LPUB3D}.spec
 
@@ -221,9 +307,31 @@ else
     sudo dnf builddep -y ${LPUB3D}.spec
 fi
 
-echo "    DEBUG - Checking for libXext..."
-ldconfig -p | grep libXext
-echo "    DEBUG END"
+echo -n "NOTICE: Check for libXext "
+libXextCheck=$(ldconfig -p | grep libXext)
+if test "$libXextCheck"; then
+    echo "found $libXextCheck"
+    if test "$LOCAL" = "true"; then
+        libXextPath=/usr/lib64
+        libXextCheck=$(find $libXextPath -name libXext.so -type l)
+        [ -z "$libXextCheck" ] && \
+        echo -n "PATCH - Create symlink " && \
+        for file in $(find $libXextPath -name 'libXext.*' -type f)
+        do
+        echo "for ${file##*/}" && shortlib=$file
+            while extn=$(echo $shortlib | sed -n '/\.[0-9][0-9]*$/s/.*\(\.[0-9][0-9]*\)$/\1/p')
+                [ -n "$extn" ]
+            do
+                shortlib=$(basename $shortlib $extn)
+                sudo ln -fs $file $libXextPath/$shortlib
+                echo "    $file $libXextPath/$shortlib"
+            done
+        done || \
+        echo "NOTICE: found symlink $libXextCheck"
+    fi
+else
+    echo "did not find it in the usual paths"
+fi
 
 echo "14-1. build the RPM package..."
 rpmbuild --define "_topdir ${BUILD_DIR}" -vv -bb ${LPUB3D}.spec
@@ -232,7 +340,8 @@ cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ]
 then
-    echo "14-2. Build package: $PWD/${DISTRO_FILE}"
+    RPM_EXTENSION="${DISTRO_FILE##*-}"
+    echo "15-1. Build package: $PWD/${DISTRO_FILE}"
 
     if [ "${LP3D_QEMU}" = "true" ]; then
         if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
@@ -294,7 +403,7 @@ then
             mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         fi
         if [ "${GITHUB}" != "true" ]; then
-            echo "16. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
+            echo "16. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
             rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
         fi
         exit 0
@@ -331,7 +440,7 @@ else
 fi
 
 if [ "${GITHUB}" != "true" ]; then
-    echo "16. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
+    echo "16. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
     rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 fi
 
