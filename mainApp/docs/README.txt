@@ -1,4 +1,4 @@
-LPub3D 2.4.7.192.3668 (12 10 2024 05:08:54)
+LPub3D 2.4.7.193.3669 (12 10 2024 05:10:00)
 
 Features, enhancements, fixes and changes
 ------------
@@ -21,6 +21,7 @@ Revisions:
 - Change - Difference in rendering with native renderer between versions #731
 - Change - MLCad Part unknown! PART line error after mpd file save #734
 - Change - Relative justify vertical axis on outside placement #729
+- Change - Set command editor highlight lines default to off #768
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
