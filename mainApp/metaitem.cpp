@@ -1452,35 +1452,41 @@ void MetaItem::setMeta(
   bool         askLocal,
   bool         global)
 {
-//#ifdef QT_DEBUG_MODE
-//    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
-//                << "\n PAGE WHERE - "
-//                << "\nPAGE- "
-//                << (useTop ? " \nUseTop: True=Single-Step Page" : " \nUseTop: False=Multi-Step Page")
-//                << "\n1. Page TopOf (Model Name):     "  << topOf.modelName
-//                << "\n1. Page TopOf (Line Number):    "  << topOf.lineNumber
-//                << "\n2. Page BottomOf (Model Name):  "  << bottomOf.modelName
-//                << "\n2. Page BottomOf (Line Number): "  << bottomOf.lineNumber
-//                << "\n FORMATTED META -               "
-//                << "\n3. Meta:                        "  << meta->format(local,global)
-//                << "\n META WHERE -                   "
-//                << "\n3. Meta Here (Model Name):      "  << meta->here().modelName
-//                << "\n3. Meta Here (Line Number):     "  << meta->here().lineNumber
-//                << "\n3. Meta String:                 "  << meta->format(local,global)
-//                << "\n PARAMETERS -                   "
-//                << "\n4. ~(UseTop)~:                  "  << useTop
-//                << "\n5. Append:                      "  << append
-//                << "\n6. Local:                       "  << local
-//                << "\n7. AskLocal:                    "  << askLocal
-//                << "\n8. Global:                      "  << global
-//              ;
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
+                << "\n PAGE WHERE - "
+                << "\nPAGE- "
+                << (useTop ? " \nUseTop: True=Single-Step Page" : " \nUseTop: False=Multi-Step Page")
+                << "\n1. Page TopOf (Model Name):     "  << topOf.modelName
+                << "\n1. Page TopOf (Line Number):    "  << topOf.lineNumber
+                << "\n2. Page BottomOf (Model Name):  "  << bottomOf.modelName
+                << "\n2. Page BottomOf (Line Number): "  << bottomOf.lineNumber
+                << "\n FORMATTED META -               "
+                << "\n3. Meta:                        "  << meta->format(local,global)
+                << "\n META WHERE -                   "
+                << "\n3. Meta Here (Model Name):      "  << meta->here().modelName
+                << "\n3. Meta Here (Line Number):     "  << meta->here().lineNumber
+                << "\n3. Meta String:                 "  << meta->format(local,global)
+                << "\n PARAMETERS -                   "
+                << "\n4. ~(UseTop)~:                  "  << useTop
+                << "\n5. Append:                      "  << append
+                << "\n6. Local:                       "  << local
+                << "\n7. AskLocal:                    "  << askLocal
+                << "\n8. Global:                      "  << global
+              ;
+#endif
+//*/
   if (useTop) {
     setMetaTopOf(topOf,bottomOf,meta,append,local,askLocal,global);
-//    logNotice() << "\n SET META - USE TOP OF - ";
+/*
+    logNotice() << "\n SET META - USE TOP OF - ";
+//*/
   } else {
     setMetaBottomOf(topOf,bottomOf,meta,append,local,askLocal,global);
-//    logNotice() << "\n SET META - USE BOTTOM OF - ";
+/*
+    logNotice() << "\n SET META - USE BOTTOM OF - ";
+//*/
   }
 }
 
@@ -1500,23 +1506,23 @@ void MetaItem::setMetaTopOf(
     metaInRange = meta->here().modelName == topOf.modelName
                   && lineNumber >= topOf.lineNumber
                   && lineNumber <= bottomOf.lineNumber;
-
-//#ifdef QT_DEBUG_MODE
-//  logTrace() << "\nSET META TOP OF PAGE WHERE:"
-//             << "\nPage TopOf Model Name:    " << topOf.modelName
-//             << "\nPage TopOf Line Number:   " << topOf.lineNumber
-//             << "\nPage BottomOf Model Name: " << bottomOf.modelName
-//             << "\nPage BottomOf Line Number:" << bottomOf.lineNumber
-//             << "\nHere Model Name:          " << meta->here().modelName
-//             << "\nHere Line Number:         " << meta->here().lineNumber
-//             << "\n --- "
-//             << "\nAppend:                   " << (append == 0 ? "NO" : "YES")
-//             << "\nMeta In Range:            " << (metaInRange ? "YES - Can replace Meta" : "NO")
-//             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
-//             << "\nLine:                     " <<  meta->format(local, global)
-//                ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  logTrace() << "\nSET META TOP OF PAGE WHERE:"
+             << "\nPage TopOf Model Name:    " << topOf.modelName
+             << "\nPage TopOf Line Number:   " << topOf.lineNumber
+             << "\nPage BottomOf Model Name: " << bottomOf.modelName
+             << "\nPage BottomOf Line Number:" << bottomOf.lineNumber
+             << "\nHere Model Name:          " << meta->here().modelName
+             << "\nHere Line Number:         " << meta->here().lineNumber
+             << "\n --- "
+             << "\nAppend:                   " << (append == 0 ? "NO" : "YES")
+             << "\nMeta In Range:            " << (metaInRange ? "YES - Can replace Meta" : "NO")
+             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
+             << "\nLine:                     " <<  meta->format(local, global)
+                ;
+#endif
+//*/
     if (metaInRange) {
         QString line = meta->format(meta->pushed,meta->global);
         replaceMeta(meta->here(),line);
@@ -1571,23 +1577,23 @@ void MetaItem::setMetaBottomOf(
   metaInRange = meta->here().modelName == topOf.modelName
                 && lineNumber >= topOf.lineNumber
                 && lineNumber <= bottomOf.lineNumber;
-
-//#ifdef QT_DEBUG_MODE
-//  logTrace() << "\nSET META BOTTOM OF PAGE WHERE:"
-//             << "\nPage TopOf Model Name:    " << topOf.modelName
-//             << "\nPage TopOf Line Number:   " << topOf.lineNumber
-//             << "\nPage BottomOf Model Name: " << bottomOf.modelName
-//             << "\nPage BottomOf Line Number:" << bottomOf.lineNumber
-//             << "\nHere Model Name:          " << meta->here().modelName
-//             << "\nHere Line Number:         " << meta->here().lineNumber
-//             << "\n --- "
-//             << "\nAppend:                   " << (append == 0 ? "NO" : "YES")
-//             << "\nMeta In Range:            " << (metaInRange ? "YES - Can replace Meta" : "NO")
-//             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
-//             << "\nLine:                     " <<  meta->format(local, global)
-//                ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  logTrace() << "\nSET META BOTTOM OF PAGE WHERE:"
+             << "\nPage TopOf Model Name:    " << topOf.modelName
+             << "\nPage TopOf Line Number:   " << topOf.lineNumber
+             << "\nPage BottomOf Model Name: " << bottomOf.modelName
+             << "\nPage BottomOf Line Number:" << bottomOf.lineNumber
+             << "\nHere Model Name:          " << meta->here().modelName
+             << "\nHere Line Number:         " << meta->here().lineNumber
+             << "\n --- "
+             << "\nAppend:                   " << (append == 0 ? "NO" : "YES")
+             << "\nMeta In Range:            " << (metaInRange ? "YES - Can replace Meta" : "NO")
+             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
+             << "\nLine:                     " <<  meta->format(local, global)
+                ;
+#endif
+//*/
   if (metaInRange) {
     QString line = meta->format(meta->pushed,meta->global);
     replaceMeta(meta->here(),line);
@@ -1705,30 +1711,34 @@ void MetaItem::changePlacementOffset(
   bool           global)
 {
 
-//#ifdef QT_DEBUG_MODE
-// qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
-//          << "\nPAGE WHERE -                 "
-//          << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
-//          << " \nDefaultWhere (Line Number): "   << defaultWhere.lineNumber
-//          << "\nPLACEMENT DATA -             "
-//          << " \nPlacement:                  "   << PlacNames[placement->value().placement]     << " (" << placement->value().placement << ")"
-//          << " \nJustification:              "   << PlacNames[placement->value().justification] << " (" << placement->value().justification << ")"
-//          << " \nRelativeTo:                 "   << RelNames[placement->value().relativeTo]     << " (" << placement->value().relativeTo << ")"
-//          << " \nPreposition:                "   << PrepNames[placement->value().preposition]   << " (" << placement->value().preposition << ")"
-//          << " \nRectPlacement:              "   << RectNames[placement->value().rectPlacement] << " (" << placement->value().rectPlacement << ")"
-//          << " \nOffset[0]:                  "   << placement->value().offsets[0]
-//          << " \nOffset[1]:                  "   << placement->value().offsets[1]
-//          << "\nPLACEMENT WHERE -            "
-//          << " \nPlacement Here(Model Name): "   << placement->here().modelName
-//          << " \nPlacement Here(Line Number):"   << placement->here().lineNumber
-//          << "\nOTHER DATA -                 "
-//          << " \n:Parent Relative Type:      "   << RelNames[type] << " (" << type << ")"
-//          << " \n:Local:                     "   << local
-//          << " \n:Global:                    "   << global
-//          << "\n FORMATTED META -            "
-//          << "\nMeta Format:                 "   << placement->format(local,global)
-//          ;
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+ qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
+          << "\nPREAMBLE:" << QString(placement->preamble).replace("0 !LPUB ","")
+          << "\nPAGE WHERE -                 "
+          << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
+          << " \nDefaultWhere (Line Number): "   << defaultWhere.lineNumber
+          << "\nPLACEMENT DATA -             "
+          << " \nPlacement:                  "   << PlacNames[placement->value().placement]     << " (" << placement->value().placement << ")"
+          << " \nJustification:              "   << PlacNames[placement->value().justification] << " (" << placement->value().justification << ")"
+          << " \nRelativeTo:                 "   << RelNames[placement->value().relativeTo]     << " (" << placement->value().relativeTo << ")"
+          << " \nPreposition:                "   << PrepNames[placement->value().preposition]   << " (" << placement->value().preposition << ")"
+          << " \nRectPlacement:              "   << RectNames[placement->value().rectPlacement] << " (" << placement->value().rectPlacement << ")"
+          << " \nOffset[0]:                  "   << placement->value().offsets[0]
+          << " \nOffset[1]:                  "   << placement->value().offsets[1]
+          << "\nPLACEMENT WHERE -            "
+          << " \nPlacement Here(Model Name): "   << placement->here().modelName
+          << " \nPlacement Here(Line Number):"   << placement->here().lineNumber
+          << "\nOTHER DATA -                 "
+          << " \n:Pushed:                   ["   << placement->pushed << "]"
+          << " \n:Parent Relative Type:      "   << RelNames[type] << " (" << type << ")"
+          << " \n:Local:                     "   << local
+          << " \n:Global:                    "   << global
+          << "\n FORMATTED META -            "
+          << "\nMeta Format:                "   << placement->format(local,global)
+          ;
+#endif
+//*/
 
   QString newMetaString = placement->format(local,global);
 
@@ -1745,88 +1755,88 @@ void MetaItem::changePlacementOffset(
     // now lets walk backward to see if we hit the end (top) of file.
     if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
       defaultWhere = firstLine(defaultWhere.modelName);
-
-//#ifdef QT_DEBUG_MODE
-//      logNotice() << " \nScanBackward[TOP]: EndOfFileRc (StepMask) - defaultLine is: "
-//                  << firstLine(defaultWhere.modelName).lineNumber
-//                  << " of model: "
-//                  << defaultWhere.modelName
-//                     ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      logNotice() << " \nScanBackward[TOP]: EndOfFileRc (StepMask) - defaultLine is: "
+                  << firstLine(defaultWhere.modelName).lineNumber
+                  << " of model: "
+                  << defaultWhere.modelName
+                     ;
+#endif
+//*/
     }
 
     if (type == StepGroupType) {
       scanForward(defaultWhere,StepGroupBeginMask);
-
-//#ifdef QT_DEBUG_MODE
-//      logNotice() << " \nScanForward[BOTTOM]: StepGroupType (StepGroupBeginMask) - file name is: "
-//                  << defaultWhere.modelName
-//                  << " \nStop at line: "
-//                  << defaultWhere.lineNumber
-//                  << " with line contents: \n"
-//                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
-//                     ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      logNotice() << " \nScanForward[BOTTOM]: StepGroupType (StepGroupBeginMask) - file name is: "
+                  << defaultWhere.modelName
+                  << " \nStop at line: "
+                  << defaultWhere.lineNumber
+                  << " with line contents: \n"
+                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
+                     ;
+#endif
+//*/
     } else if (type == CalloutType) {
       scanForward(defaultWhere,CalloutEndMask);
       --defaultWhere;
-
-//#ifdef QT_DEBUG_MODE
-//      logNotice() << " \nScanForward[BOTTOM]: CalloutType (CalloutEndMask) - file name is: "
-//                  << defaultWhere.modelName
-//                  << " \nStop at line: "
-//                  << defaultWhere.lineNumber
-//                  << " with line contents: \n"
-//                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
-//                     ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      logNotice() << " \nScanForward[BOTTOM]: CalloutType (CalloutEndMask) - file name is: "
+                  << defaultWhere.modelName
+                  << " \nStop at line: "
+                  << defaultWhere.lineNumber
+                  << " with line contents: \n"
+                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
+                     ;
+#endif
+//*/
     } else if (defaultWhere.modelName == lpub->ldrawFile.topLevelFile()) {
       scanPastGlobal(defaultWhere);
-
-//#ifdef QT_DEBUG_MODE
-//      logNotice() << " \nTopLevelFile[TOP]: ScanPastGlobal - file name is: "
-//                  << defaultWhere.modelName
-//                  << " \nStop at line: "
-//                  << defaultWhere.lineNumber
-//                  << " with line contents: \n"
-//                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
-//                     ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      logNotice() << " \nTopLevelFile[TOP]: ScanPastGlobal - file name is: "
+                  << defaultWhere.modelName
+                  << " \nStop at line: "
+                  << defaultWhere.lineNumber
+                  << " with line contents: \n"
+                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
+                     ;
+#endif
+//*/
     }
 
     if (defaultWhere.lineNumber == eof){
         insertMeta(defaultWhere,newMetaString);
-
-//#ifdef QT_DEBUG_MODE
-//        logNotice() << " \nLast line so insert Meta:  \n" << newMetaString << " \nat line: "
-//                    << defaultWhere.lineNumber
-//                       ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+        logNotice() << " \nLast line so insert Meta:  \n" << newMetaString << " \nat line: "
+                    << defaultWhere.lineNumber
+                       ;
+#endif
+//*/
     } else {
         appendMeta(defaultWhere,newMetaString);
-
-//#ifdef QT_DEBUG_MODE
-//        logNotice() << " \nNot last line so append Meta: \n" << newMetaString << " \nat line: "
-//                    << defaultWhere.lineNumber+1
-//                       ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+        logNotice() << " \nNot last line so append Meta: \n" << newMetaString << " \nat line: "
+                    << defaultWhere.lineNumber+1
+                       ;
+#endif
+//*/
     }
 
   } else {
     replaceMeta(placement->here(),newMetaString);
-
-//#ifdef QT_DEBUG_MODE
-//    logNotice() << " \nPlacement defined so replace Meta:  \n" << newMetaString << " \nat line: "
-//                << defaultWhere.lineNumber
-//                   ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    logNotice() << " \nPlacement defined so replace Meta:  \n" << newMetaString << " \nat line: "
+                << defaultWhere.lineNumber
+                   ;
+#endif
+//*/
   }
 }
 
@@ -1903,24 +1913,24 @@ void MetaItem::setPliPartGroupOffset(PliPartGroupMeta *groupMeta)
             }
         }
     }
-
-//#ifdef QT_DEBUG_MODE
-//    logDebug() << "\n"
-//    << "03 PLI PART GROUP ATTRIBUTES [" + groupMeta->value().type + "_" + groupMeta->value().color + "] - SET OFFSET"
-//    << "\n0. BOM:        " <<(groupMeta->value().bom ? "True" : "False")
-//    << "\n0. Bom Part:   " <<(groupMeta->value().bom ? groupMeta->value().bPart ? "Yes" : "No" : "N/A")
-//    << "\n1. Type:       " << groupMeta->value().type
-//    << "\n2. Color:      " << groupMeta->value().color
-//    << "\n3. ZValue:     " << groupMeta->value().zValue
-//    << "\n4. OffsetX:    " << groupMeta->value().offset[0]
-//    << "\n5. OffsetY:    " << groupMeta->value().offset[1]
-//    << "\n6. Group Model:" << groupMeta->value().group.modelName
-//    << "\n7. Group Line: " << groupMeta->value().group.lineNumber
-//    << "\n8. Meta Model: " << groupMeta->here().modelName
-//    << "\n9. Meta Line:  " << groupMeta->here().lineNumber
-//    ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    logDebug() << "\n"
+    << "03 PLI PART GROUP ATTRIBUTES [" + groupMeta->value().type + "_" + groupMeta->value().color + "] - SET OFFSET"
+    << "\n0. BOM:        " <<(groupMeta->value().bom ? "True" : "False")
+    << "\n0. Bom Part:   " <<(groupMeta->value().bom ? groupMeta->value().bPart ? "Yes" : "No" : "N/A")
+    << "\n1. Type:       " << groupMeta->value().type
+    << "\n2. Color:      " << groupMeta->value().color
+    << "\n3. ZValue:     " << groupMeta->value().zValue
+    << "\n4. OffsetX:    " << groupMeta->value().offset[0]
+    << "\n5. OffsetY:    " << groupMeta->value().offset[1]
+    << "\n6. Group Model:" << groupMeta->value().group.modelName
+    << "\n7. Group Line: " << groupMeta->value().group.lineNumber
+    << "\n8. Meta Model: " << groupMeta->here().modelName
+    << "\n9. Meta Line:  " << groupMeta->here().lineNumber
+    ;
+#endif
+//*/
     if (canReplace) {
         metaString = groupMeta->format(groupMeta->pushed,groupMeta->global);
         replaceMeta(groupMeta->here(),metaString);
@@ -2012,21 +2022,25 @@ void MetaItem::changeSizeAndOrientation(
 
   if (ok) {
     if (dataO != metaO->value()) {
-//#ifdef QT_DEBUG_MODE
-//      logDebug() << " SIZE (dialog return): Orientation: "
-//                 << (dataO == Portrait ? "Portrait" : "Landscape");
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      logDebug() << " SIZE (dialog return): Orientation: "
+                 << (dataO == Portrait ? "Portrait" : "Landscape");
+#endif
+//*/
       metaO->setValue(dataO);
       setMeta(topOfStep,bottomOfStep,metaO,useTop,append,local);
     }
 
     if (dataS.sizeW != metaS->value(0) || dataS.sizeID != metaS->valueSizeID() || dataS.sizeH != metaS->value(1)) {
-//#ifdef QT_DEBUG_MODE
-//      logDebug() << " SIZE (dialog return): Width: "
-//                 << metaS->value(0) << " Height: "
-//                 << metaS->value(1) << " SizeID: "
-//                 << metaS->valueSizeID();
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      logDebug() << " SIZE (dialog return): Width: "
+                 << metaS->value(0) << " Height: "
+                 << metaS->value(1) << " SizeID: "
+                 << metaS->valueSizeID();
+#endif
+//*/
       metaS->setValue(dataS);
       setMeta(topOfStep,bottomOfStep,metaS,useTop,append,local);
     }
@@ -2107,7 +2121,7 @@ void MetaItem::changeSubmodelRotStep(
     }
 }
 
-/*
+/* COMMENT TO ENABLE
 void MetaItem::changePageSize(
   QString         title,
   const Where    &topOfStep,
@@ -2162,7 +2176,7 @@ void MetaItem::changePageOrientation(
 
   }
 }
-*/
+//*/
 
 void MetaItem::changePliSort(
   QString        title,
@@ -2757,22 +2771,22 @@ void MetaItem::changeAlloc(
   metaInRange = lineNumber >= topOf.lineNumber &&
                 lineNumber <= bottomOfSteps.lineNumber &&
                 alloc.here().modelName == topOf.modelName;
-
-//#ifdef QT_DEBUG_MODE
-//  logInfo() << "\nCHANGE ALLOC SETTINGS - "
-//            << " \nHere Alloc     Model Name: " << alloc.here().modelName
-//            << " \nHere TopOf     Model Name: " << topOf.modelName
-//            << " \nHere Alloc    Line Number: " << alloc.here().lineNumber
-//            << " \nHere TopOf    Line Number: " << topOf.lineNumber
-//            << " \nHere BottomOf Line Number: " << bottomOfSteps.lineNumber
-//            << " \nCalled out:                " << (calledOut ? "YES" : "NO")
-//            << " \nAppend:                    " << (metaInRange ? "YES" : calledOut ? "NO" : append == 0 ? "NO" : "YES")
-//            << " \nMeta In Range:             " << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) :
-//                                                                  QString("NO - Line %1").arg(alloc.format(false,false)))
-//            << "\n -- "
-//            ;
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  logInfo() << "\nCHANGE ALLOC SETTINGS - "
+            << " \nHere Alloc     Model Name: " << alloc.here().modelName
+            << " \nHere TopOf     Model Name: " << topOf.modelName
+            << " \nHere Alloc    Line Number: " << alloc.here().lineNumber
+            << " \nHere TopOf    Line Number: " << topOf.lineNumber
+            << " \nHere BottomOf Line Number: " << bottomOfSteps.lineNumber
+            << " \nCalled out:                " << (calledOut ? "YES" : "NO")
+            << " \nAppend:                    " << (metaInRange ? "YES" : calledOut ? "NO" : append == 0 ? "NO" : "YES")
+            << " \nMeta In Range:             " << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) :
+                                                                  QString("NO - Line %1").arg(alloc.format(false,false)))
+            << "\n -- "
+            ;
+#endif
+//*/
   AllocEnc allocType = alloc.value();
   alloc.setValue(allocType == Vertical ? Horizontal : Vertical);
 
@@ -3364,9 +3378,11 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
       if (saveHere == Where())                                //if nothing saved perform save
         saveHere = here.lineNumber;
     } else if (rc == StepGroupEndRc || rc == CalloutEndRc) { //if StepGroup or Callout, return the line number
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG, QObject::tr("Insert Final Model - hit end of StepGroup or Callout - Ok to insert Model at line: %1").arg(here.lineNumber));
 #endif
+//*/
       return thisLine(here);                                 //reached a valid boundary so return line number
     } else if (rc == InsertFinalModelRc ) {                  //check for inserted final model
       emit lpub->messageSig(LOG_INFO, QObject::tr("Final model detected at line: %1").arg(here.lineNumber));
@@ -3379,15 +3395,19 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
       split(line,args);
       if (args.size() && args[0] >= "1" && args[0] <= "5") { //non-zero line detected so no back final model
         if (saveHere.lineNumber) {
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
           emit lpub->messageSig(LOG_DEBUG, QObject::tr("Insert Final Model - hit end of Step - Ok to insert model at line: %1").arg(saveHere.lineNumber));
 #endif
+//*/
           return thisLine(saveHere);
         } else {
           if (here.lineNumber >= bottom.lineNumber - 1) {    //check if 'here' is at the end of the file
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
             emit lpub->messageSig(LOG_DEBUG, QObject::tr("Insert Final Model - hit line type 1-5 - Ok to insert model at EOF, line: %1").arg(here.lineNumber));
 #endif
+//*/
             return thisLine(bottom - 1);                     //return last line adjust for zero-start index
           }
         }
@@ -3486,11 +3506,13 @@ bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
       int maxLines = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
       if (walk < maxLines)                                        //check if last line and adjust starting point for deletion
         rc = scanForwardNoParts(walk, StepMask);                  //scan to end of final model step
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
       emit lpub->messageSig(LOG_DEBUG, QObject::tr("Final model meta commands detected at lines %1 to %2")
                                                   .arg(here.lineNumber)
                                                   .arg(walk.lineNumber));
 #endif
+//*/
     } else return foundFinalModel;
   } else return foundFinalModel;
 
@@ -3509,12 +3531,14 @@ bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
 
     beginMacro("deleteFinalModelStep");
     for (; walk.lineNumber >= here.lineNumber ; walk-- ) {        //remove lines between model insert and model insert step
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
       emit lpub->messageSig(LOG_DEBUG, QObject::tr("Deleting inserted final model line %1 in '%2' [%3]")
                                                   .arg(walk.lineNumber)
                                                   .arg(walk.modelName)
                                                   .arg(lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber)));
 #endif
+//*/
       deleteMeta(walk);
     }
     endMacro();
@@ -3558,14 +3582,15 @@ QString MetaItem::viewerStepKeySuffix(const Where &top, Step *step, bool stepChe
             }
         }
     }
-
-//#ifdef QT_DEBUG_MODE
-//    qDebug() << qPrintable(QString("DEBUG: %1VIEWER STEP KEY ends with%2")
-//                           .arg(stepCheck ? "STEP_CHECK " : "")
-//                           .arg(hasDispModel ? " DISPLAY_MODEL (_dm)" :
-//                                hasBufExLoad ? " BUFEXCHG RETRIEVE (_bfx)" :
-//                                hasBuildModAct ? " BUILD_MOD ACTION (_bm)" : " STEP_NUMBER"));
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    qDebug() << qPrintable(QString("DEBUG: %1VIEWER STEP KEY ends with%2")
+                           .arg(stepCheck ? "STEP_CHECK " : "")
+                           .arg(hasDispModel ? " DISPLAY_MODEL (_dm)" :
+                                hasBufExLoad ? " BUFEXCHG RETRIEVE (_bfx)" :
+                                hasBuildModAct ? " BUILD_MOD ACTION (_bm)" : " STEP_NUMBER"));
+#endif
+//*/
     return hasDispModel ? QString("_dm") : hasBufExLoad ? QString("_bfx") : hasBuildModAct ? QString("_bm") : QString();
 }
 
@@ -4368,10 +4393,12 @@ void MetaItem::addCalloutMetas(
                                            modelName,
                                            i,
                                            lpub->ldrawFile.mirrored(argv));
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
                              .arg(QString::number(offset.y(),'f',6)));
 #endif
+//*/
         pointerLine = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
       }
 
@@ -4510,10 +4537,12 @@ int MetaItem::setCsiAnnotationMetas(Steps *steps)
                         if(step->setCsiAnnotationMetas(steps->groupStepMeta, adjust, false/*force*/)) {
                             trc = HitCsiAnnotation;
                         }
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
                         emit gui->messageSig(LOG_DEBUG, QObject::tr("Step %1 Line Adjustment %2")
                                                                     .arg(step->stepNumber.number).arg(adjust));
 #endif
+//*/
                     }
                 }
             }
@@ -4619,11 +4648,13 @@ void MetaItem::writeCsiAnnotationMeta(
             emit gui->messageSig(LOG_ERROR, QString("Could not generate meta for line [%1]").arg(line));
             return;
         }
-//#ifdef QT_DEBUG_MODE
-//        logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
-//                  << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
-                      ;
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+        logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
+                  << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
+                    ;
+#endif
+//*/
         if (update) {
             Where meta = here + 1;
             gui->replaceLine(meta,line);
@@ -4669,9 +4700,11 @@ bool MetaItem::offsetPoint(
       title           = "annotation";
   }
 
-//#ifdef QT_DEBUG_MODE
-//  label              += QString("_%1_").arg(partLineNum);
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  label              += QString("_%1_").arg(partLineNum);
+#endif
+//*/
 
   // line adjustment for custom color entry
   int colorLines      = 3; // transwhite
@@ -4813,7 +4846,7 @@ bool MetaItem::offsetPoint(
 
     partLoc [0] = left;
     partLoc [1] = top;
-
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QString("%1 for model [%2]:")
                                            .arg(partAnnotation ? "Part ["+partType+"] annotation" :
@@ -4828,6 +4861,7 @@ bool MetaItem::offsetPoint(
     emit gui->messageSig(LOG_DEBUG,QString(" -csiWidth  (sizeX): %1").arg(QString::number(width)));
     emit gui->messageSig(LOG_DEBUG,QString(" -csiHeight (sizeY): %1").arg(QString::number(height)));
 #endif
+//*/
     return true;
   }
   emit gui->messageSig(LOG_ERROR, QString("Render momo %1 image for %2 failed.")
@@ -5154,22 +5188,24 @@ QPointF MetaItem::defaultPointerTip(
         }
       }
     }
-//#ifdef QT_DEBUG_MODE
-//    else
-//    {
-//      // get the last ROTSTEP...
-//      if (argv.size() > 0 && argv[0] == "0") {
-//        Where here(modelName,i);
-//        Rc rc = meta.parse(line,here,false);
-//        if (rc == RotStepRc) {
-//
-//          gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
-//                          .arg(subModel)
-//                          .arg(renderer->getRotstepMeta(meta.rotStep)));
-//        }
-//      }
-//    }
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    else
+    {
+      // get the last ROTSTEP...
+      if (argv.size() > 0 && argv[0] == "0") {
+        Where here(modelName,i);
+        Rc rc = meta.parse(line,here,false);
+        if (rc == RotStepRc) {
+
+          gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
+                          .arg(subModel)
+                          .arg(renderer->getRotstepMeta(meta.rotStep)));
+        }
+      }
+    }
+#endif
+//*/
     csiParts << line;
   }
 
@@ -5295,31 +5331,32 @@ QPointF MetaItem::defaultPointerTip(
       left = width/2;
       top  = height/2;
     }
-//#ifdef QT_DEBUG_MODE
-//    emit gui->messageSig(LOG_DEBUG,QString("Called out submodel [%1] for parent model [%2] default pointer tip position:")
-//                                           .arg(subModel)
-//                                           .arg(modelName));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
-//    QPointF offset = QPointF(qreal(left)/width, qreal(top)/height);
-//    emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
-//                                                                   .arg(QString::number(left))
-//                                                                   .arg(QString::number(width))
-//                                                                   .arg(QString::number(offset.x(),'f',6)));
-//
-//    emit gui->messageSig(LOG_DEBUG,QString(" -Y (top[%1]/height[%2]): %3")
-//                                                                   .arg(QString::number(top))
-//                                                                   .arg(QString::number(height))
-//                                                                   .arg(QString::number(offset.y(),'f',6)));
-//    emit gui->messageSig(LOG_DEBUG,QString(" -Tip Point: (%1, %2)")
-//                                                 .arg(QString::number(offset.x(),'f',6))
-//                                                 .arg(QString::number(offset.y(),'f',6)));
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG,QString("Called out submodel [%1] for parent model [%2] default pointer tip position:")
+                                           .arg(subModel)
+                                           .arg(modelName));
+    emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
+    QPointF offset = QPointF(qreal(left)/width, qreal(top)/height);
+    emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
+                                                                   .arg(QString::number(left))
+                                                                   .arg(QString::number(width))
+                                                                   .arg(QString::number(offset.x(),'f',6)));
 
+    emit gui->messageSig(LOG_DEBUG,QString(" -Y (top[%1]/height[%2]): %3")
+                                                                   .arg(QString::number(top))
+                                                                   .arg(QString::number(height))
+                                                                   .arg(QString::number(offset.y(),'f',6)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -Tip Point: (%1, %2)")
+                                                 .arg(QString::number(offset.x(),'f',6))
+                                                 .arg(QString::number(offset.y(),'f',6)));
+#endif
+//*/
     return QPointF(qreal(left)/width, qreal(top)/height);
   }
   emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip location failed."));

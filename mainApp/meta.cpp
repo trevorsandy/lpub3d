@@ -89,21 +89,24 @@ BranchMeta::~BranchMeta()
 
 Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 {
-  //debug - capture line contents
-//#ifdef QT_DEBUG_MODE
-//    QStringList debugLine;
-//    for(int i=0;i<argv.size();i++){
-//        debugLine << argv[i];
-//        int size = argv.size();
-//        int incr = i;
-//        int result = size - incr;
-//        logDebug() << QString("LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
-//                       .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
-//    }
-//    debugLine << QString(", Index (%7)[%8], LineNum (%9), ModelName (%10)")
-//                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
-//    logTrace() << debugLine.join(" ");
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    QStringList debugLine;
+    qDebug() << "CAPTURE LINE CONTENTS"
+    for(int i=0;i<argv.size();i++){
+        debugLine << argv[i];
+        int size = argv.size();
+        int incr = i;
+        int result = size - incr;
+        qDebug() << QString("LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+                            .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i])
+                 ;
+    }
+    debugLine << QString(", Index (%7)[%8], LineNum (%9), ModelName (%10)")
+                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
+    qDebug() << debugLine.join(" ");
+#endif
+//*/
 
   Rc rc;
   int offset;
@@ -125,12 +128,6 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 
           if (size - index > 1) {
               if (i.value()) {
-//#ifdef QT_DEBUG_MODE
-//                  QString iVal = QString("argv[index+offset] (%1) [Index: %2, Offset: %3]")
-//                                         .arg(argv[index+offset]).arg(index).arg(offset);
-//                  logTrace() << "I.value():" << &i.value() << iVal
-//                                ;
-//#endif
                   if (argv[index+offset] == "LOCAL") {
                       i.value()->pushed = true;
                       offset++;
@@ -141,6 +138,23 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
                   if (index + offset >= size) {
                       rc = FailureRc;
                     }
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+                  QString iVal = QString("argv[index+offset] (%1) [Index: %2, Offset: 1]")
+                                         .arg(argv[index+1]).arg(index);
+                  qDebug() << "\nMETA.CPP: BRANCHMETA::PARSE -"
+                           << "\nPREAMBLE:" << QString(i.value()->preamble).replace("0 !LPUB ","")
+                           << "\nDATA -"
+                           << "\n ARGV:      " << argv.join(" ")
+                           << "\n I.VALUE(): " << iVal
+                           << "\nOTHER DATA -"
+                           << "\n Pushed:   [" << i.value()->pushed << "]"
+                           << "\n Global:    " << (i.value()->global ? "True" : "False")
+                           << "\n Index:     " << index
+                           << "\n Offset:    1"
+                                ;
+#endif
+//*/
                 }
             }
 
@@ -508,25 +522,25 @@ Rc Vector33Meta::parse(QStringList &argv, int index,Where &here)
       float x1 = argv[index  ].toFloat(&ok[0]);
       float y1 = argv[index+1].toFloat(&ok[1]);
       float z1 = argv[index+2].toFloat(&ok[2]);
-	  
+
       float x2 = argv[index+3].toFloat(&ok[3]);
       float y2 = argv[index+4].toFloat(&ok[4]);
       float z2 = argv[index+5].toFloat(&ok[5]);
-	  
+
       float x3 = argv[index+6].toFloat(&ok[6]);
       float y3 = argv[index+7].toFloat(&ok[7]);
       float z3 = argv[index+8].toFloat(&ok[8]);
-	  
+
       if (ok[0] && ok[1] && ok[2] &&
-	      ok[3] && ok[4] && ok[5] &&
-		  ok[6] && ok[7] && ok[8]) {
+          ok[3] && ok[4] && ok[5] &&
+          ok[6] && ok[7] && ok[8]) {
           if (x1 < _min || x1 > _max ||
               y1 < _min || y1 > _max ||
               z1 < _min || z1 > _max ||
-			  x2 < _min || x2 > _max ||
+              x2 < _min || x2 > _max ||
               y2 < _min || y2 > _max ||
               z2 < _min || z2 > _max ||
-			  x3 < _min || x3 > _max ||
+              x3 < _min || x3 > _max ||
               y3 < _min || y3 > _max ||
               z3 < _min || z3 > _max) {
               return RangeErrorRc;
@@ -546,8 +560,8 @@ Rc Vector33Meta::parse(QStringList &argv, int index,Where &here)
 
           _here[pushed] = here;
           _populated    = !(x1 == 0.0f && y1 == 0.0f && z1 == 0.0f &&
-		                    x2 == 0.0f && y2 == 0.0f && z2 == 0.0f &&
-							x3 == 0.0f && y3 == 0.0f && z3 == 0.0f);
+                            x2 == 0.0f && y2 == 0.0f && z2 == 0.0f &&
+                            x3 == 0.0f && y3 == 0.0f && z3 == 0.0f);
           return rc;
         }
     }
@@ -719,7 +733,7 @@ const QString placementOptions[][3] =
 
 int placementDecode[][3] =
 {
-  { TopLeft,     Center, Outside },	    //00
+  { TopLeft,     Center, Outside },     //00
   { Top,         Left,   Outside },     //01
   { Top,         Center, Outside },     //02
   { Top,         Right,  Outside },     //03
@@ -799,19 +813,40 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
   _offsets[0]    = 0;
   _offsets[1]    = 0;
 
-  //debug logging
-  //   for(int i=0;i<argv.size();i++){
-  //       int size = argv.size();
-  //       int incr = i;
-  //       int result = size - incr;
-  //       logNotice() << "\nPAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i];}
-  //       logNotice() << "\nWHERE: " << here.modelName << ", Line: " << here.lineNumber
-  //                   << "\nSIZE: " << argv.size() << ", INDEX: " << index
-  //                      ;
-  //       logInfo()   << "\nSTART - Value at index: " << argv[index]
-  //                      ;
-  //end debug logging only
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+     qDebug() << "\nMETA.CPP: PLACEMENT META PARSE -";
+     for(int i=0;i<argv.size();i++) {
+         int size = argv.size();
+         int incr = i;
+         int result = size - incr;
 
+        qDebug() << "\nPAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i]
+        ;
+     }
+        qDebug() << "\nWHERE: " << here.modelName << ", Line: " << here.lineNumber
+                 << "\nSIZE: " << argv.size() << ", INDEX: " << index
+                 << "\nSTART - Value at index: " << argv[index]
+                 ;
+#endif
+//*/
+
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  qDebug() << "\nMETA.CPP: PLACEMENTMETA::PARSE -"
+           << "\nPREAMBLE:" << QString(preamble).replace("0 !LPUB ","")
+           << "\nPLACEMENT WHERE -"
+           << "\n Here(Model Name): " << here.modelName
+           << "\n Here(Line Number):" << here.lineNumber
+           << "\nDATA -"
+           << "\n ARGV:             " << argv.join(" ")
+           << "\nOTHER DATA -"
+           << "\n Pushed:          [" << pushed << "]"
+           << "\n Global:           " << (global ? "True" : "False")
+           << "\n Index:            " << index
+              ;
+#endif
+  //*/
   if (argv[index] == "OFFSET") {
       index++;
       if (argc - index == 2) {
@@ -956,23 +991,6 @@ const QString prepositionNames[] =
 
 QString PlacementMeta::format(bool local, bool global)
 {
-  //debug logging
-//#ifdef QT_DEBUG_MODE
-//  logNotice() << " \nPLACEMENT META FORMAT: "
-//              << " \nPUSHED VALUES: "
-//              << " \nPlacement: "      << _value[pushed].placement
-//              << " \nJustification: "  << _value[pushed].justification
-//              << " \nRelativeTo: "     << _value[pushed].relativeTo
-//              << " \nPreposition(*): " << _value[pushed].preposition
-//              << " \nOffset[0]: "      << _value[pushed].offsets[0]
-//              << " \nOffset[0]: "      << _value[pushed].offsets[1]
-//              << " \nNAMES: "
-//              << " \nPlacement: "      << placementNames  [_value[pushed].placement]
-//              << " \nJustification: "  << placementNames  [_value[pushed].justification]
-//              << " \nRelativeTo: "     << relativeNames   [_value[pushed].relativeTo]
-//              << " \nPreposition(*): " << prepositionNames[_value[pushed].preposition]
-//                 ;
-//#endif
   QString foo;
 
   if (_value[pushed].preposition == Inside) {
@@ -1014,6 +1032,30 @@ QString PlacementMeta::format(bool local, bool global)
           .arg(double(_value[pushed].offsets[1]),0,'f',4);
       foo += bar;
     }
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  qDebug()  << "\nMETA.CPP: PLACEMENT META FORMAT: "
+            << "\nPREAMBLE:" << QString(preamble).replace("0 !LPUB ","")
+            << "\nPUSHED VALUES:"
+            << " \nPlacement:                  " << PlacNames[_value[pushed].placement]     << " (" << _value[pushed].placement << ")"
+            << " \nJustification:              " << PlacNames[_value[pushed].justification] << " (" << _value[pushed].justification << ")"
+            << " \nRelativeTo:                 " << RelNames[_value[pushed].relativeTo]     << " (" << _value[pushed].relativeTo << ")"
+            << " \nPreposition:                " << PrepNames[_value[pushed].preposition]   << " (" << _value[pushed].preposition << ")"
+            << " \nRectPlacement:              " << RectNames[_value[pushed].rectPlacement] << " (" << _value[pushed].rectPlacement << ")"
+            << " \nOffset[0]:                  " << _value[pushed].offsets[0]
+            << " \nOffset[0]:                  " << _value[pushed].offsets[1]
+            << "\nPLACEMENT WHERE -"
+            << " \nPlacement Here(Model Name): " << _here[pushed].modelName
+            << " \nPlacement Here(Line Number):" << _here[pushed].lineNumber
+            << "\nOTHER DATA -                 "
+            << " \n:Pushed:                   [" << pushed << "]"
+            << " \n:Local:                     " << (local ? "True" : "False")
+            << " \n:Global:                    " << (global ? "True" : "False")
+            << "\nFORMATTED META -"
+            << "\n Meta Format:               " << LeafMeta::format(local,global,foo)
+               ;
+#endif
+//*/
   return LeafMeta::format(local,global,foo);
 }
 
@@ -1905,13 +1947,14 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           else
               emit gui->messageSig(LOG_STATUS, parseMessage);
       }
-
-//#ifdef QT_DEBUG_MODE
-//      logTrace() << "\nPARSE LINE: " << argv.join(" ") <<
-//                    "\n||| [index-1]: " << argv[index-1] << ", [index]: " << argv[index] <<
-//                    ", argv[1]: " << argv[1] << ", argv[2]: " << argv[2];
-//#endif
-
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      qDebug() << "\nPARSE LINE: " << argv.join(" ") <<
+                  "\n||| [index-1]: " << argv[index-1] << ", [index]: " << argv[index] <<
+                  ", argv[1]: " << argv[1] << ", argv[2]: " << argv[2]
+                  ;
+#endif
+//*/
       QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
       // legacy single-segment pattern - base included
@@ -2040,29 +2083,31 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
       _value[pushed].segments   = _segments;
       if (pagePointer)
         _value[pushed].rectPlacement = _bRect; //Base Rect Placement
-//#ifdef QT_DEBUG_MODE
-//      if (/*argv[1] == "PAGE"*/ true) {
-//          logDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
-//                    << " \nPlacement:             "   << PlacNames[_value[pushed].placement] << " ("
-//                                                      << _value[pushed].placement << ") of Base"
-//                    << " \nLoc(fraction of side): "   << _value[pushed].loc
-//                    << " \nx1 (Tip.x):            "   << _value[pushed].x1
-//                    << " \ny1 (Tip.y):            "   << _value[pushed].y1
-//                    << " \nx2 (Base.x):           "   << _value[pushed].x2
-//                    << " \ny2 (Base.y):           "   << _value[pushed].y2
-//                    << " \nx3 (MidBase.x):        "   << _value[pushed].x3
-//                    << " \ny3 (MidBase.y):        "   << _value[pushed].y3
-//                    << " \nx4 (MidTip.x):         "   << _value[pushed].x4
-//                    << " \ny4 (MidTip.y):         "   << _value[pushed].y4
-//                    << " \nBase:                  "   << _value[pushed].base
-//                    << " \nSegments:              "   << _value[pushed].segments
-//                    << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2) of Page")
-//                                                                                .arg(RectNames[_value[pushed].rectPlacement])
-//                                                                                .arg(_value[pushed].rectPlacement) :
-//                                                                                "None - Not PagePointer")
-//                       ;
-//      }
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+      if (/ *argv[1] == "PAGE"* / true) {
+          qDebug()  << "\nPOINTER DATA " << argv[1] << " (Parsed)"
+                    << " \nPlacement:             "   << PlacNames[_value[pushed].placement] << " ("
+                                                      << _value[pushed].placement << ") of Base"
+                    << " \nLoc(fraction of side): "   << _value[pushed].loc
+                    << " \nx1 (Tip.x):            "   << _value[pushed].x1
+                    << " \ny1 (Tip.y):            "   << _value[pushed].y1
+                    << " \nx2 (Base.x):           "   << _value[pushed].x2
+                    << " \ny2 (Base.y):           "   << _value[pushed].y2
+                    << " \nx3 (MidBase.x):        "   << _value[pushed].x3
+                    << " \ny3 (MidBase.y):        "   << _value[pushed].y3
+                    << " \nx4 (MidTip.x):         "   << _value[pushed].x4
+                    << " \ny4 (MidTip.y):         "   << _value[pushed].y4
+                    << " \nBase:                  "   << _value[pushed].base
+                    << " \nSegments:              "   << _value[pushed].segments
+                    << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2) of Page")
+                                                                                .arg(RectNames[_value[pushed].rectPlacement])
+                                                                                .arg(_value[pushed].rectPlacement) :
+                                                                                "None - Not PagePointer")
+                       ;
+      }
+#endif
+//*/
       _here[pushed] = here;
 
       if ((argv[1] == "PAGE" && argv[2] == "POINTER") ||
@@ -2152,19 +2197,20 @@ QString PointerMeta::format(bool local, bool global)
                                         .arg(bRectPlacementNames[_value[pushed].rectPlacement]) : ""));
       break;
     }
-
-//#ifdef QT_DEBUG_MODE
-//  if (/*pagePointer*/ true) {
-//    qDebug() << "\nPOINTER META FORMAT"
-//                "\nPreamble:         " <<  preamble <<
-//                "\nMatch Test:       " << (preamble.contains(rx) ? "Success :)" : "Failed :(") <<
-//                "\nSegments:         " << _value[pushed].segments <<
-//                "\nPagePointer Rect: " << (pagePointer ? RectNames[_value[pushed].rectPlacement] + " (" +
-//                                           QString::number(_value[pushed].rectPlacement) + ") of Page" : "N/A") <<
-//                "\nNew Meta Line:" << preamble + foo
-//                  ;
-//  }
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  if (/ *pagePointer* / true) {
+    qDebug() << "\nPOINTER META FORMAT"
+                "\nPreamble:         " <<  preamble <<
+                "\nMatch Test:       " << (preamble.contains(rx) ? "Success :)" : "Failed :(") <<
+                "\nSegments:         " << _value[pushed].segments <<
+                "\nPagePointer Rect: " << (pagePointer ? RectNames[_value[pushed].rectPlacement] + " (" +
+                                           QString::number(_value[pushed].rectPlacement) + ") of Page" : "N/A") <<
+                "\nNew Meta Line:" << preamble + foo
+                  ;
+  }
+#endif
+//*/
   return LeafMeta::format(local,global,foo);
 }
 
@@ -2183,30 +2229,32 @@ void PointerMeta::metaKeywords(QStringList &out, QString preamble)
 //--------------
 Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 {
-//#ifdef QT_DEBUG_MODE
-//  QStringList debugLine = QStringList() << "[LINE:";
-//  for(int i=0;i<argv.size();i++){
-//      debugLine << argv[i];
-//      int size = argv.size();
-//      int incr = i;
-//      int result = size - incr;
-//      QString traceLine = QString("ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
-//                                  .arg(i+1)
-//                                  .arg(i)
-//                                  .arg(size)
-//                                  .arg(incr)
-//                                  .arg(result)
-//                                  .arg(argv[i]);
-//      logTrace() << "\nCSI ANNOTATION ICON META PARSE" << traceLine;  // ARGS DETAIL
-//  }
-//  debugLine << QString("], Index (%1)[%2], Size (%3), Valid (%4), LineNum (%5), ModelName (%6)")
-//                       .arg(index)
-//                       .arg(argv[index])
-//                       .arg(argv.size())
-//                       .arg(argv.size() - index)
-//                       .arg(here.modelName)
-//                       .arg(here.lineNumber);
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  QStringList debugLine = QStringList() << "[LINE:";
+  for(int i=0;i<argv.size();i++){
+      debugLine << argv[i];
+      int size = argv.size();
+      int incr = i;
+      int result = size - incr;
+      QString traceLine = QString("ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+                                  .arg(i+1)
+                                  .arg(i)
+                                  .arg(size)
+                                  .arg(incr)
+                                  .arg(result)
+                                  .arg(argv[i]);
+      qDebug() << "\nCSI ANNOTATION ICON META PARSE" << traceLine;  // ARGS DETAIL
+  }
+  debugLine << QString("], Index (%1)[%2], Size (%3), Valid (%4), LineNum (%5), ModelName (%6)")
+                       .arg(index)
+                       .arg(argv[index])
+                       .arg(argv.size())
+                       .arg(argv.size() - index)
+                       .arg(here.modelName)
+                       .arg(here.lineNumber);
+#endif
+//*/
   CsiAnnotationIconData annotationData;
   Rc rc = FailureRc;
   if (argv.size() - index == 1) {
@@ -2259,10 +2307,12 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
       }
     }
   }
-//#ifdef QT_DEBUG_MODE
-//  QString result = QString(", Result (%1)").arg(rc == 0 ? "OkRc" : "FailureRc");
-//  logDebug() << "\nCSI ANNOTATION ICON META PARSE DEBUG" << debugLine.join(" ") << result;
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+  QString result = QString(", Result (%1)").arg(rc == 0 ? "OkRc" : "FailureRc");
+  qDebug() << "\nCSI ANNOTATION ICON META PARSE DEBUG" << debugLine.join(" ") << result;
+#endif
+//*/
   if (rc == OkRc) {
     _value[pushed] = annotationData;
     _here[pushed]  = here;
@@ -2307,11 +2357,12 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
                      .arg(_value[pushed].typeBaseName);
       foo += bar;
   }
-
-//#ifdef QT_DEBUG_MODE
-//    logDebug() << "\nCSI ANNOTATION ICON META FORMAT" <<
-//                  "\nPreamble:" << preamble << "LINE DATA" << foo;
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    qDebug() << "\nCSI ANNOTATION ICON META FORMAT" <<
+                "\nPreamble:" << preamble << "LINE DATA" << foo;
+#endif
+//*/
   return LeafMeta::format(local,global,foo);
 }
 
@@ -5336,22 +5387,24 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
       _value   = gd;
       _here[0] = here;
 
-//#ifdef QT_DEBUG_MODE
-//    logTrace() << "\n"
-//    << "04 PLI PART GROUP ATTRIBUTES [" + _value.type + "_" + _value.color + "] - PARSE"
-//    << "\n0. BOM:        " <<(gd.bom ? "True" : "False")
-//    << "\n0. Bom Part:   " <<(gd.bom ? gd.bPart ? "Yes" : "No" : "N/A")
-//    << "\n1. Type:       " << gd.type
-//    << "\n2. Color:      " << gd.color
-//    << "\n3. ZValue:     " << gd.zValue
-//    << "\n4. OffsetX:    " << gd.offset[0]
-//    << "\n5. OffsetY:    " << gd.offset[1]
-//    << "\n6. Group Model:" << gd.group.modelName
-//    << "\n7. Group Line: " << gd.group.lineNumber
-//    << "\n8. Meta Model: " << _here[0].modelName
-//    << "\n9. Meta Line:  " << _here[0].lineNumber
-//    ;
-//#endif
+/* DEBUG - COMMENT TO ENABLE
+#ifdef QT_DEBUG_MODE
+    qDebug() << "\n"
+             << "04 PLI PART GROUP ATTRIBUTES [" + _value.type + "_" + _value.color + "] - PARSE"
+             << "\n0. BOM:        " <<(gd.bom ? "True" : "False")
+             << "\n0. Bom Part:   " <<(gd.bom ? gd.bPart ? "Yes" : "No" : "N/A")
+             << "\n1. Type:       " << gd.type
+             << "\n2. Color:      " << gd.color
+             << "\n3. ZValue:     " << gd.zValue
+             << "\n4. OffsetX:    " << gd.offset[0]
+             << "\n5. OffsetY:    " << gd.offset[1]
+             << "\n6. Group Model:" << gd.group.modelName
+             << "\n7. Group Line: " << gd.group.lineNumber
+             << "\n8. Meta Model: " << _here[0].modelName
+             << "\n9. Meta Line:  " << _here[0].lineNumber
+             ;
+#endif
+//*/
 
       if (bomItem)
           return BomPartGroupRc;
@@ -5814,8 +5867,8 @@ PageMeta::PageMeta() : BranchMeta()
    *  email.placement              (TopRightInsideCorner,PageType)           [LineEdit]
    *
    *  FOOTER
-   *  copyright.placement	   (BottomLeftInsideCorner,  PageType)           [LineEdit]
-   *  author.placement		   (LeftBottomOutside,       PageNumberType)     [LineEdit]
+   *  copyright.placement      (BottomLeftInsideCorner,  PageType)           [LineEdit]
+   *  author.placement         (LeftBottomOutside,       PageNumberType)     [LineEdit]
    *
    *  NOT PLACED
    *  category                     (TopLeftInsideCorner, PageType)
