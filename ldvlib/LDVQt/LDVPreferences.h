@@ -45,16 +45,8 @@ public:
 	void getRGB(int color, int &r, int &g, int &b);
 	void getRGBA(int color, int &r, int &g, int &b, int &a);
 	void getBackgroundColor(int &r, int &g, int &b);
-	bool getShowErrors(void);
 	void setAniso(int);
 
-	void setShowError(int errorNumber, bool value);
-	bool getShowError(int errorNumber);
-
-	bool getStatusBar(void) { return statusBar; }
-	void setStatusBar(bool value);
-	bool getToolBar(void) { return toolBar; }
-	void setToolBar(bool value);
 	void setButtonState(QCheckBox *button, bool state);
 	void setButtonState(QRadioButton *button, bool state);
 	void setWindowSize(int width, int height);
@@ -88,8 +80,6 @@ public:
 	bool getUseLighting(void);
 	bool getUseBFC(void);
 	void setUseBFC(bool);
-	bool getShowAxes(void);
-	void setShowAxes(bool);
 	void setAllowPrimitiveSubstitution(bool);
 	void setUseSeams(bool);
 	bool getUseSeams(void);
@@ -99,9 +89,6 @@ public:
 	static char *getLDrawDir(void);
 	static void setLDrawDir(const char *path);
 	static char *getLDrawZipPath(void);
-	static long getMaxRecentFiles(void);
-	static char *getRecentFile(int index);
-	static void setRecentFile(int index, char *filename);
 	static LDVPollMode getPollMode(void);
 	static void setPollMode(LDVPollMode value);
 	static LDInputHandler::ViewMode getViewMode(void);
@@ -206,8 +193,6 @@ protected:
 	void loadSettings(void);
 	void loadOtherSettings(void);
 
-	void loadDefaultOtherSettings(void);
-
 	void reflectSettings(void);
 	void reflectGeneralSettings(void);
 	void reflectGeometrySettings(void);
@@ -265,9 +250,6 @@ protected:
 	int getCurrentHotKey(void);
 	void saveCurrentHotKey(void);
 
-	char *getErrorKey(int errorNumber);
-	static const QString &getRecentFileKey(int index);
-
 	LDrawModelViewer *modelViewer;
 	LDPreferences    *ldPrefs;
 	LDVWidget        *ldvModelWidget;
@@ -281,8 +263,6 @@ protected:
 	bool listViewPopulated;
 
 	// Other Settings
-	bool statusBar;
-	bool toolBar;
 	int windowWidth;
 	int windowHeight;
 	QString snapshotDir, partsListDir, exportDir;

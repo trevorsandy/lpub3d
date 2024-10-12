@@ -1475,7 +1475,6 @@ void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
 		inputHandler->setViewMode(LDInputHandler::VMWalk);
 		modelViewer->setKeepRightSideUp(true);
 	}
-	LDVPreferences::setViewMode(viewMode);
 }
 
 void LDVWidget::displayGLExtensions()

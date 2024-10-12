@@ -120,11 +120,8 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	connect( highQualityLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( alwaysBlackLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( edgeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-	connect( showErrorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-	connect( frameRateButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-	connect( showAxesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( partBoundingBoxOnlyBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( qualityLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
 	connect( subduedLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
@@ -285,11 +282,6 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	iniFileEdit->setPalette(readOnlyPalette);
 	iniFileEdit->setText(iniFileMessage);
 
-	// Hide these
-	frameRateButton->hide();
-	showAxesButton->hide();
-	showErrorsButton->hide();
-
 	IniFlag iniFlag = ldvModelWidget->getIniFlag();
 	if (iniFlag == LDViewIni) {
 		usingLDView = true;
@@ -423,18 +415,11 @@ void LDVPreferences::doPrefSetsApply(void)
 		doEffectsApply();
 		doPrimitivesApply();
 		applyButton->setEnabled(false);
-//        if (modelWidget)
-//        {
-//        	modelWidget->reflectSettings();
-//        	modelWidget->doApply();
-//                setupDefaultRotationMatrix();
-//        }
 		if (modelViewer)
 		{
 			setupDefaultRotationMatrix();
 		}
 		checkAbandon = true;
-
 	}
 }
 
@@ -443,12 +428,6 @@ void LDVPreferences::doGeneralApply(void)
 	int r, g, b;
 
 	ldPrefs->setLineSmoothing(aaLinesButton->checkState());
-
-	ldPrefs->setShowFps(frameRateButton->checkState());
-	ldPrefs->setShowAxes(showAxesButton->checkState());
-//	if (modelWidget)
-//		modelWidget->setShowFPS(ldPrefs->getShowFps());
-	ldPrefs->setShowErrors(showErrorsButton->checkState());
 	ldPrefs->setProcessLdConfig(processLdconfigLdrButton->checkState());
 	ldPrefs->setRandomColors(randomColorsButton->checkState());
 
@@ -940,24 +919,6 @@ void LDVPreferences::setRangeValue(QSlider *rangeControl, int value)
 void LDVPreferences::loadSettings(void)
 {
 	ldPrefs->loadSettings();
-	//loadOtherSettings();
-}
-
-// not used
-void LDVPreferences::loadOtherSettings(void)
-{
-	loadDefaultOtherSettings();
-	statusBar = TCUserDefaults::longForKey(STATUS_BAR_KEY, (long)statusBar,	false) != 0;
-	toolBar  = TCUserDefaults::longForKey(TOOLBAR_KEY, (long)toolBar, false) != 0;
-	windowWidth = TCUserDefaults::longForKey(WINDOW_WIDTH_KEY, 640, false);
-	windowHeight = TCUserDefaults::longForKey(WINDOW_HEIGHT_KEY, 480, false);
-}
-
-// not used
-void LDVPreferences::loadDefaultOtherSettings(void)
-{
-	statusBar = true;
-	toolBar = true;
 }
 
 void LDVPreferences::setDrawWireframe(bool value)
@@ -1095,15 +1056,6 @@ void LDVPreferences::setUseBFC(bool value)
 	}
 }
 
-void LDVPreferences::setShowAxes(bool value)
-{
-	if (value != ldPrefs->getShowAxes())
-	{
-		ldPrefs->setShowAxes(value, true, true);
-		reflectGeneralSettings();
-	}
-}
-
 void LDVPreferences::setUseSeams(bool value)
 {
 	if (value != ldPrefs->getUseSeams())
@@ -1131,10 +1083,6 @@ void LDVPreferences::reflectGeneralSettings(void)
 	QPixmap pix(12, 12);
 
 	setButtonState(aaLinesButton, ldPrefs->getLineSmoothing());
-
-	setButtonState(frameRateButton, ldPrefs->getShowFps());
-	setButtonState(showAxesButton, ldPrefs->getShowAxes());
-	setButtonState(showErrorsButton, ldPrefs->getShowErrors());
 	setButtonState(processLdconfigLdrButton,
 		ldPrefs->getProcessLdConfig());
 	setButtonState(randomColorsButton,ldPrefs->getRandomColors());
@@ -1370,24 +1318,6 @@ void LDVPreferences::getRGB(int color, int &r, int &g, int &b)
 	getRGBA(color, r, g, b, dummy);
 }
 
-void LDVPreferences::setStatusBar(bool value)
-{
-	if (value != statusBar)
-	{
-		statusBar = value;
-		TCUserDefaults::setLongForKey(statusBar ? 1 : 0, STATUS_BAR_KEY, false);
-	}
-}
-
-void LDVPreferences::setToolBar(bool value)
-{
-	if (value != toolBar)
-	{
-		toolBar = value;
-		 TCUserDefaults::setLongForKey(toolBar ? 1 : 0, TOOLBAR_KEY, false);
-	}
-}
-
 char *LDVPreferences::getLastOpenPath(char *pathKey)
 {
 	char *path;
@@ -1442,36 +1372,6 @@ void LDVPreferences::setLDrawDir(const char *path)
 char *LDVPreferences::getLDrawZipPath(void)
 {
 	return TCUserDefaults::stringForKey(LDRAWZIP_KEY, nullptr, false);
-}
-
-long LDVPreferences::getMaxRecentFiles(void)
-{
-	return TCUserDefaults::longForKey(MAX_RECENT_FILES_KEY, 10, false);
-}
-
-const QString &LDVPreferences::getRecentFileKey(int index)
-{
-	static QString key;
-
-	key = QString("%1/File%2").arg(RECENT_FILES_KEY).arg(index,2,10,QLatin1Char('0'));
-	return key;
-}
-
-char *LDVPreferences::getRecentFile(int index)
-{
-	return TCUserDefaults::stringForKey(getRecentFileKey(index).toUtf8().constData(), nullptr, false);
-}
-
-void LDVPreferences::setRecentFile(int index, char *filename)
-{
-	if (filename)
-	{
-		TCUserDefaults::setStringForKey(filename, getRecentFileKey(index).toUtf8().constData(), false);
-	}
-	else
-	{
-		TCUserDefaults::removeValue(getRecentFileKey(index).toUtf8().constData(), false);
-	}
 }
 
 LDVPollMode LDVPreferences::getPollMode(void)
@@ -2433,25 +2333,6 @@ void LDVPreferences::disableProxyServer(void)
 	portEdit->setEnabled(false);
 }
 
-char *LDVPreferences::getErrorKey(int errorNumber)
-{
-	static char key[128];
-
-	sprintf(key, "%s/Error%02d", SHOW_ERRORS_KEY, errorNumber);
-	return key;
-}
-
-void LDVPreferences::setShowError(int errorNumber, bool value)
-{
-	TCUserDefaults::setLongForKey(value ? 1 : 0, getErrorKey(errorNumber),
-		false);
-}
-
-bool LDVPreferences::getShowError(int errorNumber)
-{
-	return TCUserDefaults::longForKey(getErrorKey(errorNumber), 1, false) != 0;
-}
-
 #ifdef WIN32
 
 int LDVPreferences::getFSAAFactor(void)
@@ -2654,11 +2535,6 @@ void LDVPreferences::getBackgroundColor(int &r, int &g, int &b)
 	ldPrefs->getBackgroundColor(r, g, b);
 }
 
-bool LDVPreferences::getShowErrors(void)
-{
-	return ldPrefs->getShowErrors();
-}
-
 bool LDVPreferences::getDrawWireframe(void)
 {
 	return ldPrefs->getDrawWireframe();
@@ -2692,11 +2568,6 @@ bool LDVPreferences::getUseLighting(void)
 bool LDVPreferences::getUseBFC(void)
 {
 	return ldPrefs->getBfc();
-}
-
-bool LDVPreferences::getShowAxes(void)
-{
-	return ldPrefs->getShowAxes();
 }
 
 bool LDVPreferences::getUseSeams(void)
