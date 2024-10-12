@@ -637,14 +637,12 @@ int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
       if (ldview.exitCode() != 0 || 1) {
-          QByteArray status = ldview.readAll();
-          QString str;
-          str.append(status);
+          const QString result(ldview.readAll());
           emit gui->messageSig(LOG_ERROR,QObject::tr("LDView %1 %2 render failed with code %2 %3")
                                .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
                                .arg(module == Options::CSI ? "CSI" : "PLI")
                                .arg(ldview.exitCode())
-                               .arg(str));
+                               .arg(result));
           return -1;
         }
     }
@@ -1003,10 +1001,8 @@ int POVRay::renderCsi(
       ldview.start(Preferences::ldviewExe,arguments);
       if ( ! ldview.waitForFinished(rendererTimeout())) {
           if (ldview.exitCode() != 0 || 1) {
-              QByteArray status = ldview.readAll();
-              QString str;
-              str.append(status);
-              emit gui->messageSig(LOG_ERROR,QObject::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+              const QString result(ldview.readAll());
+              emit gui->messageSig(LOG_ERROR,QObject::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(result));
               return -1;
           }
       }
@@ -1092,10 +1088,8 @@ int POVRay::renderCsi(
   povray.start(Preferences::povrayExe,povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
       if (povray.exitCode() != 0) {
-          QByteArray status = povray.readAll();
-          QString str;
-          str.append(status);
-          emit gui->messageSig(LOG_ERROR,QObject::tr("POVRay CSI render failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
+          const QString result(povray.readAll());
+          emit gui->messageSig(LOG_ERROR,QObject::tr("POVRay CSI render failed with code %1\n%2").arg(povray.exitCode()) .arg(result));
           return -1;
         }
     }
@@ -1373,10 +1367,8 @@ int POVRay::renderPli(
       ldview.start(Preferences::ldviewExe,arguments);
       if ( ! ldview.waitForFinished()) {
           if (ldview.exitCode() != 0) {
-              QByteArray status = ldview.readAll();
-              QString str;
-              str.append(status);
-              emit gui->messageSig(LOG_ERROR,QObject::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(str));
+              const QString result(ldview.readAll());
+              emit gui->messageSig(LOG_ERROR,QObject::tr("LDView POV file generation failed with exit code %1\n%2") .arg(ldview.exitCode()) .arg(result));
               return -1;
           }
       }
@@ -1465,10 +1457,8 @@ int POVRay::renderPli(
   povray.start(Preferences::povrayExe, povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
       if (povray.exitCode() != 0) {
-          QByteArray status = povray.readAll();
-          QString str;
-          str.append(status);
-          emit gui->messageSig(LOG_ERROR,QObject::tr("POVRay PLI render failed with code %1\n%2") .arg(povray.exitCode()) .arg(str));
+          const QString result(povray.readAll());
+          emit gui->messageSig(LOG_ERROR,QObject::tr("POVRay PLI render failed with code %1\n%2") .arg(povray.exitCode()) .arg(result));
           return -1;
       }
   }
@@ -1640,10 +1630,8 @@ int LDGLite::   renderCsi(
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(rendererTimeout())) {
     if (ldglite.exitCode() != 0) {
-      QByteArray status = ldglite.readAll();
-      QString str;
-      str.append(status);
-      emit gui->messageSig(LOG_ERROR,QObject::tr("LDGlite failed\n%1") .arg(str));
+      const QString result(ldglite.readAll());
+      emit gui->messageSig(LOG_ERROR,QObject::tr("LDGlite failed with error code\n%1").arg(result));
       return -1;
     }
   }
@@ -1813,10 +1801,8 @@ int LDGLite::renderPli(
   ldglite.start(Preferences::ldgliteExe,arguments);
   if (! ldglite.waitForFinished(rendererTimeout())) {
     if (ldglite.exitCode()) {
-      QByteArray status = ldglite.readAll();
-      QString str;
-      str.append(status);
-      emit gui->messageSig(LOG_ERROR,QObject::tr("LDGlite failed\n%1") .arg(str));
+      const QString result(ldglite.readAll());
+      emit gui->messageSig(LOG_ERROR,QObject::tr("LDGlite failedwith error code\n%1").arg(result));
       return -1;
     }
   }
