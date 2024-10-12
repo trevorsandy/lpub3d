@@ -1,4 +1,17 @@
 win32 {
+    BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
+    isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
+    !contains(LOAD_LDV_LIBS,True): \
+    message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
+    equals(BUILD_WORKER_VERSION, 2019) {
+        contains(QT_ARCH,i386): VSVER=vs2017
+        else: VSVER=vs2019
+    } else {
+        VSVER=vs2015
+    }
+    !contains(LOAD_LDV_LIBS,True): \
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS library version: $$VSVER ~~~")
+
     COPY_CMD = COPY /y /a /b
 } else:unix {
     COPY_CMD = cp -f
@@ -32,9 +45,11 @@ contains(LOAD_LDV_HEADERS,True) {
     equals(VER_USE_LDVIEW_DEV,True) {
         isEmpty(LDVHDRDIR):LDVHDRDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/include )
         isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $$system_path( $$LDVHDRDIR )
+        isEmpty(LDV3RDHDR):LDV3RDHDR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty)
     } else {
         isEmpty(LDVHDRDIR):LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
         isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $$system_path( $${LDVHDRDIR}/3rdParty )
+        isEmpty(LDV3RDHDR):LDV3RDHDR = $$system_path( $${LDV3RDHDRDIR} )
     }
 
     message("~~~ ADD LDVIEW 3RDPARTY HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR ) ~~~ ")
@@ -80,11 +95,14 @@ contains(LOAD_LDV_HEADERS,True) {
     } else {
         message("~~~ ERROR: Library header for 3ds not found ~~~")
     }
-    if (unix:macx:exists(/usr/include/zip.h)|exists(/usr/local/include/minizip/zip.h)) {
+    if (unix:macx:exists(/usr/include/minizip/unzip.h)|exists(/usr/local/include/minizip/unzip.h)) {
         message("~~~ lib$${TARGET} system library minizip found ~~~")
-    } else:exists($${LDV3RDHDRDIR}/zip.h) {
+        DEFINES += HAVE_MINIZIP
+    } else:exists($${LDV3RDHDR}/minizip/zip.h) {
         message("~~~ lib$${TARGET} local library header for minizip found ~~~")
-    } else:macx {
+        INCLUDEPATH += $${LDV3RDHDR}
+        DEFINES += HAVE_MINIZIP
+    } else {
         message("~~~ ERROR: Library header for minizip not found ~~~")
     }
     if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)) {
@@ -101,37 +119,31 @@ contains(LOAD_LDV_HEADERS,True) {
     } else {
         message("~~~ ERROR: Library header for jpeg not found ~~~")
     }
-}
-
-win32 {
-    BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
-    isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
-    !contains(LOAD_LDV_LIBS,True): \
-    message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
-    equals(BUILD_WORKER_VERSION, 2019) {
-        contains(QT_ARCH,i386): VSVER=vs2017
-        else: VSVER=vs2019
-    } else {
-        VSVER=vs2015
-    }
-    !contains(LOAD_LDV_LIBS,True): \
-    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS library version: $$VSVER ~~~")
-}
+} # LOAD_LDV_HEADERS,True
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
 contains(LOAD_LDV_LIBS,True) {
-    isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
     win32-msvc*:CONFIG(debug, debug|release) {
-        equals(VER_USE_LDVIEW_DEV,True): \
-        LDVLIBDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH )
-        else: \
-        LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
+        equals(VER_USE_LDVIEW_DEV,True) {
+            LDVLIBDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH )
+            LDV3RDLIBDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/lib )
+        } else {
+            LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
+            LDV3RDLIBDIR = $$system_path( $$LDVLIBDIR )
+        }
     } else {
         LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/bin/$$QT_ARCH )
+        LDV3RDLIBDIR = $$system_path( $$LDVLIBDIR )
     }
 
+    message("~~~ ADD LDVIEW LIBRARIES PATH TO LIBS: $$system_path( $$LDVLIBDIR ) ~~~ ")
+    LIBS        += -L$${LDVLIBDIR}
+
+    message("~~~ ADD LDVIEW 3RDPARTY LIBRARIES PATH TO LIBS: $$system_path( $$LDV3RDLIBDIR ) ~~~ ")
+    LIBS        += -L$${LDV3RDLIBDIR}
+
+#    isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
 #    message("~~~ lib$${TARGET} Library path: $$LDVLIBRARY ~~~ ")
-#    message("~~~ lib$${TARGET} Library source: $$LDVLIBDIR ~~~ ")
 
     # Set library names, source paths and local paths
     win32-msvc* {
@@ -144,8 +156,8 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml_STL
+        ZIP_LIB          = -lminizip
         3DS_LIB          = -llib3ds-$${VSVER}
-        ZIP_LIB          = -lunzip32-$${VSVER}
         PNG_LIB          = -llibpng16-$${VSVER}
         JPEG_LIB         = -llibjpeg-$${VSVER}
         ZLIB_LIB         = -lzlib-$${VSVER}
@@ -159,13 +171,12 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_SRC        = $$system_path( $${LDVLIBDIR}/gl2ps.lib )
         TINYXML_SRC      = $$system_path( $${LDVLIBDIR}/tinyxml_STL.lib )
-        3DS_SRC          = $$system_path( $${LDVLIBDIR}/lib3ds-$${VSVER}.lib )
-        MINIZIP_SRC      = $$system_path( $${LDVLIBDIR}/unzip32-$${VSVER}.lib )
-        PNG_SRC          = $$system_path( $${LDVLIBDIR}/libpng16-$${VSVER}.lib )
-        JPEG_SRC         = $$system_path( $${LDVLIBDIR}/libjpeg-$${VSVER}.lib )
-        ZLIB_SRC         = $$system_path( $${LDVLIBDIR}/zlib-$${VSVER}.lib )
+        MINIZIP_SRC      = $$system_path( $${LDVLIBDIR}/minizip.lib )
+        3DS_SRC          = $$system_path( $${LDV3RDLIBDIR}/lib3ds-$${VSVER}.lib )
+        PNG_SRC          = $$system_path( $${LDV3RDLIBDIR}/libpng16-$${VSVER}.lib )
+        JPEG_SRC         = $$system_path( $${LDV3RDLIBDIR}/libjpeg-$${VSVER}.lib )
+        ZLIB_SRC         = $$system_path( $${LDV3RDLIBDIR}/zlib-$${VSVER}.lib )
     } else {
-        unix:!macx: IS_LINUX = True
         # library name
         LDLIB_LIB        = -lLDraw-osmesa
         LDEXPORTER_LIB   = -lLDExporter-osmesa
@@ -176,8 +187,7 @@ contains(LOAD_LDV_LIBS,True) {
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml
         3DS_LIB          = -l3ds
-        macx:ZIP_LIB     = -lminizip
-        else:ZIP_LIB     =
+        ZIP_LIB          = -lminizip
         PNG_LIB          = -lpng16
         JPEG_LIB         = -ljpeg
 
@@ -190,10 +200,10 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_SRC        = $$system_path( $${LDVLIBDIR}/libgl2ps.a )
         TINYXML_SRC      = $$system_path( $${LDVLIBDIR}/libtinyxml.a )
-        3DS_SRC          = $$system_path( $${LDVLIBDIR}/lib3ds.a )
-        PNG_SRC          = $$system_path( $${LDVLIBDIR}/libpng16.a )
-        JPEG_SRC         = $$system_path( $${LDVLIBDIR}/libjpeg.a )
-        MINIZIP_SRC      =
+        MINIZIP_SRC      = $$system_path( $${LDVLIBDIR}/libminizip.a )
+        3DS_SRC          = $$system_path( $${LDV3RDLIBDIR}/lib3ds.a )
+        PNG_SRC          = $$system_path( $${LDV3RDLIBDIR}/libpng16.a )
+        JPEG_SRC         = $$system_path( $${LDV3RDLIBDIR}/libjpeg.a )
     }
 
     # Set 'use local' flags
@@ -222,20 +232,17 @@ contains(LOAD_LDV_LIBS,True) {
         # message("~~~ JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
     } else:message("~~~ JPEG LIBRARY $${JPEG_SRC} FOUND ~~~")
 
+    !exists($${MINIZIP_SRC}) {
+        USE_LOCAL_MINIZIP_LIB = False
+        # message("~~~ MINIZIP LIBRARY $${MINIZIP_SRC} NOT FOUND ~~~")
+    } else: message("~~~ MINIZIP LIBRARY $${MINIZIP_SRC} FOUND ~~~")
+
     win32-msvc* {
         !exists($${ZLIB_SRC}) {
             USE_LOCAL_ZLIB_LIB = False
             # message("~~~ Z LIBRARY $${ZLIB_SRC} NOT FOUND ~~~")
         } else:message("~~~ Z LIBRARY $${ZLIB_SRC} FOUND ~~~")
-    } else {
-        USE_LOCAL_MINIZIP_LIB = False
     }
-
-    # Copy libraries from LDView (Disabled)
-
-    message("~~~ ADD LDVIEW LIBRARIES PATH: $$system_path( $$LDVLIBDIR ) ~~~ ")
-    LIBS        += -L$${LDVLIBDIR}
-    # End copy libraries from LDView
 
     LIBS += \
         $${LDLIB_LIB} \
@@ -276,7 +283,8 @@ contains(LOAD_LDV_LIBS,True) {
 
     if (contains(USE_LOCAL_MINIZIP_LIB,False)) {
         macx:LIBS          += /usr/local/lib/libminizip.dylib
-    } else:!contains(IS_LINUX,True) {
+        else:LIBS          += -lminizip
+    } else {
         LIBS               += $$ZIP_LIB
     }
 
@@ -291,24 +299,25 @@ contains(LOAD_LDV_LIBS,True) {
         LIBS               += $$ZLIB_LIB
     }
 
+    # message("~~~ INFO - LDVQt LIBRARIES: $${LIBS} ~~~")
+
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    win32 {
+        PLUS_CMD     = +
+        REDIRECT_CMD =
+    } else:unix {
+        COPY_CMD     = cat
+        PLUS_CMD     =
+        REDIRECT_CMD = >
+    }
+
+    LDVMESSAGESINI = ldvMessages.ini
     isEmpty(LDVMESSAGESINI_DEP): \
     LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
     LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )
-
-#    message("~~~ lib$${TARGET} Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
-#    message("~~~ lib$${TARGET} Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
-
-    win32 {
-        PLUS_CMD      = +
-        REDIRECT_CMD  =
-    } else:unix {
-        COPY_CMD      = cat
-        PLUS_CMD      =
-        REDIRECT_CMD  = >
-    }
-
+    #message("~~~ lib$${TARGET} Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
+    #message("~~~ lib$${TARGET} Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
     LDVMSGINI_COPY_CMD = \
     $$COPY_CMD \
     $$system_path( $${LDVRESDIR}/LDViewMessages.ini ) $$PLUS_CMD \
@@ -317,10 +326,13 @@ contains(LOAD_LDV_LIBS,True) {
     $$system_path( $$LDVMESSAGESINI_DEP )
     # When compiling from QtCreator, add ldvMessages.ini to destination directory extras folder - except for macOS
     contains(DEVL_LDV_MESSAGES_INI,True) {
+        unix:COPY_CMD = cp -f
+        LDVMESSAGESINI_DEVL = $$system_path( $$OUT_PWD/$$DESTDIR/extras/$$LDVMESSAGESINI )
+        message("~~~ COPY LDVMESSAGES.INI TO: $$LDVMESSAGESINI_DEVL) ~~~ ")
         LDVMSGINI_COPY_CMD += \
         $$escape_expand(\n\t) \
         $$COPY_CMD \
-        $$system_path( $$LDVMESSAGESINI_DEP $$OUT_PWD/$$DESTDIR/extras/ )
+        $$system_path( $$LDVMESSAGESINI_DEP $$LDVMESSAGESINI_DEVL )
     }
 
     ldvmsg_copy.target       = $$LDVMESSAGESINI_DEP
@@ -334,4 +346,4 @@ contains(LOAD_LDV_LIBS,True) {
     QMAKE_EXTRA_TARGETS += ldvmsg_copy ldvmsg_copy_msg
     PRE_TARGETDEPS      += $$LDVMESSAGESINI_DEP
     QMAKE_CLEAN         += $$LDVMESSAGESINI_DEP
-}
+} # LOAD_LDV_LIBS,True

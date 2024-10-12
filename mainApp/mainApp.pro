@@ -9,17 +9,17 @@ QT     *= printsupport
 CONFIG += warn_on
 
 lessThan(QT_MAJOR_VERSION, 5) {
-  error("LPub3D requires Qt5.4 or later.")
+    error("LPub3D requires Qt5.4 or later.")
 }
 
 equals(  QT_MAJOR_VERSION, 5): \
 lessThan(QT_MINOR_VERSION, 4) {
-  error("LPub3D requires Qt5.4 or later.")
+    error("LPub3D requires Qt5.4 or later.")
 }
 
 greaterThan(QT_MAJOR_VERSION, 5) {
-  QT += core5compat openglwidgets
-  DEFINES += QOPENGLWIDGET
+    QT += core5compat openglwidgets
+    DEFINES += QOPENGLWIDGET
 }
 
 win32:macx: \
@@ -33,6 +33,13 @@ GAMEPAD {
 CONFIG += exceptions
 
 include(../gitversion.pri)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+unix:!macx: TARGET = lpub3d
+else:       TARGET = LPub3D
+STG_TARGET         = $$TARGET
+DIST_TARGET        = $$TARGET
 
 #~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -63,40 +70,20 @@ include(../gitversion.pri)
     3RD_DIR_SOURCE = LOCAL_DIR
 }
 
-VER_LDVIEW     = ldview-4.5
-VER_LDGLITE    = ldglite-1.3
-VER_POVRAY     = lpub3d_trace_cui-3.8
-DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
-DEFINES       += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
-DEFINES       += VER_POVRAY=\\\"$$VER_POVRAY\\\"
+VER_LDVIEW  = ldview-4.5
+VER_LDGLITE = ldglite-1.3
+VER_POVRAY  = lpub3d_trace_cui-3.8
+DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TARGET +=
-DEPENDPATH += .
+DEPENDPATH  += .
 INCLUDEPATH += .
-INCLUDEPATH += ../ldrawini ../waitingspinner ../lclib/common ../lclib/qt ../qsimpleupdater/include ../qsimpleupdater/src
-
-#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Copy LDView headers (Disabled)
-#INCLUDEPATH += ../ldvlib/LDVQt/include
-
-# Reference LDView headers
-INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+INCLUDEPATH += ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawini jsonconfig
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-INCLUDEPATH += ../ldvlib ../ldvlib/WPngImage
-
-#
-# JSON configuration library
-#
-INCLUDEPATH += jsonconfig
-
-win32-msvc* {
-    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
-}
 
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
@@ -107,9 +94,28 @@ quazipnobuild {
     INCLUDEPATH += ../quazip
 }
 
+#~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+VER_USE_LDVIEW_DEV = False
+CONFIG(debug, debug|release) {
+    # These lines requires a git extract of ldview at the same location as the lpub3d git extract
+    # and defines the ldview git extract folder name, you can set as you like
+    unix: VER_LDVIEW_DEV = ldview
+    else:win32: VER_LDVIEW_DEV = ldview_vs_build
+    # This line defines the path of the ldview git extract relative to this project file
+    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} ) )
+    exists($$VER_LDVIEW_DEV_REPOSITORY) {
+        VER_USE_LDVIEW_DEV = True
+        message("~~~ LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+    } else {
+        message("~~~ WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+    }
+}
+# Load LDView libraries for LDVQt
+LOAD_LDV_LIBS = True
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LDVMESSAGESINI = ldvMessages.ini
 HOST_VERSION   = $$(PLATFORM_VER)
 BUILD_TARGET   = $$(TARGET_VENDOR)
 BUILD_ARCH     = $$(TARGET_CPU)
@@ -148,52 +154,52 @@ CHIPSET = ARM
 else: \
 CHIPSET = AMD
 
-DEFINES     += VER_ARCH=\\\"$$ARCH\\\"
-DEFINES     += VER_CHIPSET=\\\"$$CHIPSET\\\"
+DEFINES += VER_ARCH=\\\"$$ARCH\\\"
+DEFINES += VER_CHIPSET=\\\"$$CHIPSET\\\"
 
 # special case for OpenSuse 1320
 contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): \
-DEFINES     += OPENSUSE_1320_ARM
+DEFINES += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # USE CPP 11
 contains(USE_CPP11,NO) {
-  message("NO CPP11")
+    message("NO CPP11")
 } else {
-  DEFINES += USE_CPP11
+    DEFINES += USE_CPP11
 }
 
 message("~~~ Building with Qt Version: $$QT_VERSION ~~~")
 
 contains(QT_VERSION, ^5\\..*) {
-  unix:!macx {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 4.8) {
-      QMAKE_CXXFLAGS += -std=c++11
+    unix:!macx {
+        GCC_VERSION = $$system(g++ -dumpversion)
+        greaterThan(GCC_VERSION, 4.8) {
+            QMAKE_CXXFLAGS += -std=c++11
+        } else {
+            QMAKE_CXXFLAGS += -std=c++0x
+        }
     } else {
-      QMAKE_CXXFLAGS += -std=c++0x
+        CONFIG += c++11
     }
-  } else {
-    CONFIG += c++11
-  }
 }
 
 contains(QT_VERSION, ^6\\..*) {
-  win32-msvc* {
-    QMAKE_CXXFLAGS += /std:c++17
-  }
-  macx {
-    QMAKE_CXXFLAGS+= -std=c++17
-  }
-  unix:!macx {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 5) {
-      QMAKE_CXXFLAGS += -std=c++17
-    } else {
-      QMAKE_CXXFLAGS += -std=c++0x
+    win32-msvc* {
+        QMAKE_CXXFLAGS += /std:c++17
     }
-  }
+    macx {
+        QMAKE_CXXFLAGS+= -std=c++17
+    }
+    unix:!macx {
+        GCC_VERSION = $$system(g++ -dumpversion)
+        greaterThan(GCC_VERSION, 5) {
+            QMAKE_CXXFLAGS += -std=c++17
+        } else {
+            QMAKE_CXXFLAGS += -std=c++0x
+        }
+    }
 }
 
 !freebsd: \
@@ -244,13 +250,6 @@ win32 {
     macx: \
     LIBS += -framework CoreFoundation -framework CoreServices
 }
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-unix:!macx: TARGET = lpub3d
-else:       TARGET = LPub3D
-STG_TARGET   = $$TARGET
-DIST_TARGET  = $$TARGET
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -352,21 +351,10 @@ CONFIG(debug, debug|release) {
 }
 BUILD += $$BUILD_CONF
 
-# build path component foo
-DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-
 #manpage
 MAN_PAGE = $$join(TARGET,,,.1)
 
 message("~~~ LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIPSET} Chipset ~~~")
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PRECOMPILED_DIR = $$DESTDIR/.pch
-OBJECTS_DIR     = $$DESTDIR/.obj
-MOC_DIR         = $$DESTDIR/.moc
-RCC_DIR         = $$DESTDIR/.qrc
-UI_DIR          = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -418,6 +406,33 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|con|contains(build_package, yes)) {
     }
 }
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# build path component
+DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+
+PRECOMPILED_DIR = $$DESTDIR/.pch
+OBJECTS_DIR     = $$DESTDIR/.obj
+MOC_DIR         = $$DESTDIR/.moc
+RCC_DIR         = $$DESTDIR/.qrc
+UI_DIR          = $$DESTDIR/.ui
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Specify LDView modules develpment or third party header paths
+equals(VER_USE_LDVIEW_DEV,True) {
+    INCLUDEPATH += $$system_path( $${VER_LDVIEW_DEV_REPOSITORY} ) $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/include )
+} else {
+    INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+}
+
+# Needed to access ui header from LDVQt
+INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
+
+win32-msvc* {
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+}
+
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32:include(winfiledistro.pri)
@@ -427,33 +442,26 @@ unix:!macx:include(linuxfiledistro.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 
-# Needed to access ui header from LDVQt
-INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
-
 #~~~ libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
-
-LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
-
-LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
-
-LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
-
-#~~~ LDView libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Load LDView libraries for LDVQt
-LOAD_LDV_LIBS = True
-
-include(../ldvlib/LDVQt/LDViewLibs.pri)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 quazipnobuild: \
 LIBS += -lquazip
 else: \
 LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
+
 LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+
+LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
+
+LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
+
+LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
+
+# WPngImage must follow LDVQT or else there will be compile errors
+LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
+
+# LDViewLibs uses minizip which must follow the QuaZip lib to avoid LNK4006 warnings
+include(../ldvlib/LDVQt/LDViewLibs.pri)
 
 win32 {
     DEFINES += _WIN_UTF8_PATHS
@@ -466,10 +474,6 @@ win32 {
 }
 
 #~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-contains(DEVL_LDV_MESSAGES_INI,True) {
-    message("~~~ ENABLE COPY LDVMESSAGES.INI TO: $$system_path($$OUT_PWD/extras) ~~~ ")
-}
 
 # set config to enable/disable initial update check
 # CONFIG+=update_check
