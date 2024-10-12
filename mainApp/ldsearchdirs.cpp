@@ -13,121 +13,74 @@
 ****************************************************************************/
 
 #include "ldsearchdirs.h"
-#include <TCFoundation/mystring.h>
+#include <LDLoader/LDLModel.h>
 #include <LDLoader/LDrawIni.h>
 #include <LDVQt/LDVWidget.h>
-#include "threadworkers.h"
 #include "lpub_preferences.h"
-
-#include <string.h>
 
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
 
-LDPartsDirs::LDPartsDirs(){}
-
 bool LDPartsDirs::initLDrawSearchDirs()
 {
-  // set default ldraw Directory
-  setLDrawDir(Preferences::ldrawLibPath.toLatin1().constData());
+    // set default ldraw Directory
+    LDLModel::setLDrawDir(Preferences::ldrawLibPath.toLatin1().constData());
 
-  LDLModel::setFileCaseCallback(LDVWidget::staticFileCaseCallback);
+    LDLModel::setFileCaseCallback(LDVWidget::staticFileCaseCallback);
 
-  // initialize ldrawIni and check for error
-  lDrawDir();
+    // initialize ldrawIni and check for error
+    LDLModel::lDrawDir();
 
-  if (sm_lDrawIni)
+    if (LDLModel::getlDrawIni())
     {
-      m_searchDirsOrigin = strdup(sm_lDrawIni->SearchDirsOrigin);
-      //qDebug() << "LDrawini Initialized - m_searchDirsOrigin: " << m_searchDirsOrigin;
-      return true;
-    } else {
-      //qDebug() << "Unable to initialize LDrawini: ";
-      return false;
+        m_searchDirsOrigin = strdup(LDLModel::getlDrawIni()->SearchDirsOrigin);
+        //qDebug() << "LDrawini Initialized - m_searchDirsOrigin: " << m_searchDirsOrigin;
+        return true;
     }
-}
 
-// NOTE: static function. (NOT USED)
-bool LDPartsDirs::verifyExtraDir(const char *value)
-{
-  char currentDir[1024];
-  bool retValue = false;
-
-  if (value && getcwd(currentDir, sizeof(currentDir)))
-    {
-      if (chdir(value) == 0)
-        {
-            retValue = true;
-        }
-      if (chdir(currentDir) != 0)
-        {
-          qDebug("Error going back to original directory.\n");
-          qDebug("currentDir before: <%s>\n", currentDir);
-          if (getcwd(currentDir, sizeof(currentDir)) != nullptr)
-            {
-              qDebug("currentDir  after: <%s>\n", currentDir);
-            }
-        }
-    }
-  return retValue;
+    //qDebug() << "Unable to initialize LDrawini: ";
+    return false;
 }
 
 bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbitrary file name
 {
-  bool retValue = false;
+    bool retValue = false;
 
-  if (!initLDrawSearchDirs()) {
-      qDebug() << "Could not initialize LDrawini ";
-      return retValue;
-    }
+    // initialize ldrawIni
+    if (!initLDrawSearchDirs())
+        return false;
 
-  if (sm_lDrawIni)
+    LDrawIniS  *lDrawIni = LDLModel::getlDrawIni();
+
+    if (lDrawIni)
+        LDrawIniComputeRealDirs(lDrawIni, 1, 0, filename);
+
+    if (!strlen(LDLModel::lDrawDir()))
+        return retValue;
+
+    //search dirs from ldraw.ini
+    if (lDrawIni && lDrawIni->nSearchDirs > 0)
     {
-      LDrawIniComputeRealDirs(sm_lDrawIni, 1, 0, filename);
-    }
+        int i;
 
-  if (!strlen(lDrawDir()))
-    {
-      return retValue;
-    }
-  // end initialize
+        qDebug() << "";
 
-  //search dirs from ldraw.ini
-  if (sm_lDrawIni && sm_lDrawIni->nSearchDirs > 0)
-    {
-      int i;
-
-      qDebug() << "";
-
-      for (i = 0; i < sm_lDrawIni->nSearchDirs; i++)
+        for (i = 0; i < lDrawIni->nSearchDirs; i++)
         {
-          LDrawSearchDirS *searchDir = &sm_lDrawIni->SearchDirs[i];
+            LDrawSearchDirS *searchDir = &lDrawIni->SearchDirs[i];
 
-          if ((searchDir->Flags & LDSDF_SKIP) == 0)  //Add function to verifyExcludedDirs()
+            if ((searchDir->Flags & LDSDF_SKIP) == 0)  //Add function to verifyExcludedDirs()
             {
-              m_ldrawSearchDirs.push_back(searchDir->Dir);
-              logInfo() << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
+                m_ldrawSearchDirs.push_back(searchDir->Dir);
+                LDVWidget::messageSig(LOG_INFO, QString("LDRAW SEARCH DIR PUSHED: %1").arg(searchDir->Dir));
             }
         }
 
-      qDebug() << "";
+        qDebug() << "";
 
-      //process extra seach directories (NOT USED)
-      bool found = false;
-      for (StringList::const_iterator it = m_extraSearchDirs.begin(); !found &&
-           it != m_extraSearchDirs.end(); it++)
-        {
-          const char *dir = it->c_str();
-
-          if (verifyLDrawDir(dir))
-            {
-              m_ldrawSearchDirs.push_back(dir);
-              qDebug() << "LDRAW EXTRA SEARCH DIR PUSHED: " << dir;
-              found = true;
-            }
-        }
-      retValue = chdir(Preferences::lpub3dPath.toLatin1().constData()) == 0;
+        retValue = chdir(Preferences::lpub3dPath.toLatin1().constData()) == 0;
     }
-  return retValue;
+
+    return retValue;
 }

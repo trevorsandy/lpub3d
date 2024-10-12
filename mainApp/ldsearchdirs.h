@@ -15,29 +15,22 @@
 #ifndef LDSEARCHDIRS_H
 #define LDSEARCHDIRS_H
 
-#include <LDLoader/LDLModel.h>
+#include <TCFoundation/mystring.h>
 
 #define LP3DExport
 
-typedef std::map<std::string, bool> StringBoolMap;
-
-class PartWorker;
-class LDLModel;
-
-class LDPartsDirs : public LDLModel
+class LDPartsDirs
 {
 public:
-  LDPartsDirs(void);
-  virtual const char *getSearchDirsOrigin(void) const { return m_searchDirsOrigin; }
-  virtual bool        loadLDrawSearchDirs(const char *filename);             //send default arbitrary file name
-  virtual bool        initLDrawSearchDirs();                                 //initialize ldrawini and check for errors
-  StringList          getLDrawSearchDirs(void) { return m_ldrawSearchDirs; }
-  static bool         verifyExtraDir(const char *value);
+    LDPartsDirs(void){};
+    virtual const char *getSearchDirsOrigin(void) const { return m_searchDirsOrigin; }
+    virtual bool        loadLDrawSearchDirs(const char *filename);             //send default arbitrary file name
+    virtual bool        initLDrawSearchDirs();                                 //initialize ldrawini and check for errors
+    StringList          getLDrawSearchDirs(void) { return m_ldrawSearchDirs; }
 
 protected:
-  StringList        m_ldrawSearchDirs;
-  StringList 	    m_extraSearchDirs;
-  char             *m_searchDirsOrigin;
+    char       *m_searchDirsOrigin;
+    StringList  m_ldrawSearchDirs;
 };
 
 #endif // LDSEARCHDIRS_H
