@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 02, 2023
+rem  Last Update: September 25, 2023
 rem  Copyright (C) 2018 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -48,7 +48,7 @@ IF "%CONFIGURATION%"=="release" (
   SET PKG_CONFIG_FILE=%PKG_TARGET_DIR%\config\LPub3D Software Maint\LPub3Dd.ini
 )
 IF "%LP3D_CONDA_TEST%" NEQ "True" (
-  IF NOT "%INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
+  IF NOT "%PKG_INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
   IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
 )
 IF "%LP3D_VALID_7ZIP%" =="" SET LP3D_VALID_7ZIP=0

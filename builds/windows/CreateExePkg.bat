@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 12, 2024
+rem  Last Update: September 25, 2024
 rem  Copyright (C) 2015 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -1762,7 +1762,7 @@ IF EXIST "%LP3D_RUNLOG_ASSETS%" (
       MOVE /Y "%%C" "%LP3D_DOWNLOADS_PATH%"
     )
   )
-  MOVE /Y "%LP3D_RUNLOG_ASSETS%\*.*" "%LP3D_DOWNLOADS_PATH%"
+  MOVE /Y "%LP3D_RUNLOG_ASSETS%\*.*" "%LP3D_LOG_PATH%"
   RD /S /Q "%LP3D_RUNLOG_ASSETS%"
 ) ELSE (
   ECHO.

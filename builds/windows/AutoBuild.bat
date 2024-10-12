@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 12, 2024
+rem  Last Update: September 25, 2024
 rem  Copyright (c) 2019 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -204,7 +204,7 @@ SET TenteCONTENT=tenteparts.zip
 SET VexiqCONTENT=vexiqparts.zip
 
 SET BUILD_THIRD=unknown
-SET INSTALL=unknown
+SET PKG_INSTALL=unknown
 SET INSTALL_32BIT=unknown
 SET INSTALL_64BIT=unknown
 SET PLATFORM_ARCH=unknown
@@ -311,13 +311,15 @@ IF NOT [%4]==[] (
   )
 )
 
+rem Initialize package install to - no install
 IF [%2]==[] (
-  SET INSTALL=0
+  SET PKG_INSTALL=0
   GOTO :BUILD
 )
 
+rem Set package install
 IF /I "%2"=="-ins" (
-  SET INSTALL=1
+  SET PKG_INSTALL=1
   GOTO :BUILD
 )
 
@@ -392,9 +394,9 @@ ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO   BUILD_OPT......................[%BUILD_OPT%]
 ECHO.
 
-rem Perform 3rd party content install
+rem Perform 3rd party package content install
 IF /I "%3"=="-ins" (
-  SET INSTALL=1
+  SET PKG_INSTALL=1
 )
 
 rem Perform build check
@@ -435,9 +437,9 @@ IF NOT EXIST "%DIST_DIR%\" (
   MKDIR "%DIST_DIR%\"
 )
 
-rem Stage Install prior to build check
+rem Stage package install prior to build check
 IF /I %CHECK%==1 (
-  SET INSTALL=1
+  SET PKG_INSTALL=1
 )
 
 rem set debug suffix
@@ -516,7 +518,7 @@ IF NOT EXIST "%EXE%" (
   GOTO :ERROR_END
 )
 rem Package 3rd party install content - this must come before check so check can use staged content for test
-IF %INSTALL%==1 CALL :STAGE_INSTALL
+IF %PKG_INSTALL%==1 CALL :STAGE_PKG_INSTALL
 CALL :ELAPSED_BUILD_TIME %platform_build_start%
 ECHO.
 ECHO -Elapsed %PACKAGE% %PLATFORM_ARCH% build time %LP3D_ELAPSED_BUILD_TIME%
@@ -566,7 +568,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
     ECHO -ERROR - !EXE! was not successfully built.
     GOTO :ERROR_END
   )
-  IF %INSTALL%==1 (CALL :STAGE_INSTALL)
+  IF %PKG_INSTALL%==1 (CALL :STAGE_PKG_INSTALL)
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
@@ -787,7 +789,7 @@ rem run build checks
 CALL builds\check\build_checks.bat
 EXIT /b
 
-:STAGE_INSTALL
+:STAGE_PKG_INSTALL
 ECHO.
 ECHO -Staging distribution files...
 ECHO.
