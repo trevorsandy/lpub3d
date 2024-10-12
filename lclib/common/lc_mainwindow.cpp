@@ -540,6 +540,7 @@ void lcMainWindow::CreateMenus()
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_MOVE]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_BUILD_MOD]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_PAINT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_COLOR_PICKER]);
@@ -801,6 +802,7 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_BUILD_MOD]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAINT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_COLOR_PICKER]);
@@ -4158,6 +4160,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 			ActiveModel->SelectAllPieces();
 /*** LPub3D Mod end ***/
 		break;
+/*** LPub3D Mod - Build Mod Menu ***/
+	case LC_EDIT_ACTION_BUILD_MOD:
+		SetTool(lcTool::Select);
+		break;
+/*** LPub3D Mod end ***/
 
 	case LC_EDIT_ACTION_DELETE:
 		SetTool(lcTool::Eraser);

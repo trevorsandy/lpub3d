@@ -178,6 +178,9 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setObjectName("EditRotateStepAct.4");
     lpub->actions.insert("EditRotateStepAct.4", Action(QStringLiteral("3DViewer.Tools.RotateStep.Apply ROTSTEP"), gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]));
 
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setObjectName("EditBuildModAct.4");
+    lpub->actions.insert("EditBuildModAct.4", Action(QStringLiteral("3DViewer.Tools.BuildMod"), gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]));
+
     gMainWindow->mActions[LC_EDIT_ACTION_INSERT]->setObjectName("EditInsertAct.4");
     lpub->actions.insert("EditInsertAct.4", Action(QStringLiteral("3DViewer.Tools.Insert"), gMainWindow->mActions[LC_EDIT_ACTION_INSERT]));
 
@@ -269,12 +272,6 @@ void Gui::create3DActions()
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
-    BuildModComboAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
-    BuildModComboAct->setObjectName("BuildModComboAct.4");
-    BuildModComboAct->setEnabled(false);
-    BuildModComboAct->setStatusTip(tr("Create or update a build modification for this step"));
-    //connect(BuildModComboAct, &QAction::triggered, [&]( ) { BuildModMenu->popup(QCursor::pos()); });
-
     CreateBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
     CreateBuildModAct->setObjectName("CreateBuildModAct.4");
     CreateBuildModAct->setEnabled(false);
@@ -648,7 +645,7 @@ void Gui::create3DMenus()
      BuildModMenu->addSeparator();
      BuildModMenu->addAction(LoadBuildModAct);
      BuildModMenu->addAction(DeleteBuildModAct);
-     BuildModComboAct->setMenu(BuildModMenu);
+     gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setMenu(BuildModMenu);
 
      LightMenu = new QMenu(tr("Lights"), this);
      LightMenu->addAction(ApplyLightAct);
@@ -712,7 +709,7 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-     gMainWindow->GetToolsMenu()->addAction(BuildModComboAct);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
      gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
@@ -793,7 +790,7 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-    gMainWindow->GetToolsToolBar()->addAction(BuildModComboAct);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
@@ -921,9 +918,10 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_EDIT_FIND_NEXT]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]->setEnabled(enable);
     //Tools
-    //mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enable);
-    gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(enable);
+    //gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enable);
+    //gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setEnabled(enable);
     //gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(enable);
     gMainWindow->mActions[LC_EDIT_ACTION_PAN]->setEnabled(enable);
@@ -2138,7 +2136,7 @@ void Gui::enableVisualBuildModification()
     EnableBuildModRotateAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
 
-    BuildModComboAct->setEnabled( false);
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setEnabled(false);
     CreateBuildModAct->setEnabled(false);
     UpdateBuildModAct->setEnabled(false);
 
@@ -2200,7 +2198,7 @@ void Gui::enableVisualBuildModActions()
 
     // build modification actions
     bool appliedMod = false, removedMod = false;
-    bool beginModStep = false, beginMod = false, buildModComboEnabled = false;
+    bool beginModStep = false, beginMod = false, buildModEnabled = false;
 
     // count build mods declared at or before the current page
     int modCount = buildModsCount();
@@ -2309,17 +2307,22 @@ void Gui::enableVisualBuildModActions()
                 text.append("...");
             action->setText(text);
         }
-        buildModComboEnabled |= action->isEnabled();
+        buildModEnabled |= action->isEnabled();
     }
 
-    buildModComboEnabled |= CreateBuildModAct->isEnabled();
-    buildModComboEnabled |= UpdateBuildModAct->isEnabled();
+    buildModEnabled |= CreateBuildModAct->isEnabled();
+    buildModEnabled |= UpdateBuildModAct->isEnabled();
 
     // enable build mod combo action
-    BuildModComboAct->setEnabled(buildModComboEnabled);
-    if (!buildModComboEnabled) {
-        BuildModComboAct->setText(tr("Build Modification"));
-        BuildModComboAct->setStatusTip(tr("Create update or manage build modifications"));
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setEnabled(buildModEnabled);
+    if (!buildModEnabled) {
+        QIcon BuildModIcon;
+        BuildModIcon.addFile(":/resources/buildmodcreate.png");
+        BuildModIcon.addFile(":/resources/buildmodcreate16.png");
+        gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setIcon(BuildModIcon);
+        gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setShortcut(QStringLiteral("Shift+J"));
+        gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setText(tr("Build Modification"));
+        gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setStatusTip(tr("Create update or manage build modifications"));
     }
 }
 
@@ -2346,23 +2349,34 @@ void Gui::enableVisualBuildModEditAction()
         }
     }
 
+    QIcon BuildModIcon;
+    QKeySequence BuildModShortcut;
+    QAction *BuildModAct = gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD];
     if (buildModStepAction == BuildModBeginRc) {
-        disconnect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
-        connect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
-        BuildModComboAct->setText(tr("Update Build Modification"));
-        BuildModComboAct->setStatusTip(tr("Update the existing build modification in this step"));
+        disconnect(BuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+        connect(BuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
+        BuildModShortcut = QKeySequence(Qt::SHIFT + Qt::Key_K);
+        BuildModIcon.addFile(":/resources/buildmodupdate.png");
+        BuildModIcon.addFile(":/resources/buildmodupdate16.png");
+        BuildModAct->setText(tr("Update Build Modification"));
+        BuildModAct->setStatusTip(tr("Update the existing build modification in this step"));
         UpdateBuildModAct->setEnabled(buildModEnabled);
     } else {
-        disconnect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
-        connect(BuildModComboAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
-        CreateBuildModAct->setEnabled(buildModEnabled);
+        disconnect(BuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
+        connect(BuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+        BuildModShortcut = QKeySequence(Qt::SHIFT + Qt::Key_J);
+        BuildModIcon.addFile(":/resources/buildmodcreate.png");
+        BuildModIcon.addFile(":/resources/buildmodcreate16.png");
         if (buildModEnabled) {
-            BuildModComboAct->setText(tr("Create Build Modification"));
-            BuildModComboAct->setStatusTip(tr("Create a new build modification for this step"));
+            BuildModAct->setText(tr("Create Build Modification"));
+            BuildModAct->setStatusTip(tr("Create a new build modification for this step"));
         }
+        CreateBuildModAct->setEnabled(buildModEnabled);
     }
 
-    BuildModComboAct->setEnabled(UpdateBuildModAct->isEnabled() || CreateBuildModAct->isEnabled());
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setIcon(BuildModIcon);
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setShortcut(BuildModShortcut);
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setEnabled(UpdateBuildModAct->isEnabled() || CreateBuildModAct->isEnabled());
 }
 
 void Gui::showDefaultCameraProperties()
@@ -3001,13 +3015,11 @@ void Gui::ReloadVisualEditor() {
  * build modificaitons
  *
  ********************************************/
+ QMutex createBuildModMutex;
 
  void Gui::createBuildModification()
  {
-     static bool actionTriggered = false;
-
-     if (actionTriggered)
-         return;
+     QMutexLocker createBuildModLocker(&createBuildModMutex);
 
      if (!Preferences::buildModEnabled)
          return;
@@ -3034,7 +3046,7 @@ void Gui::ReloadVisualEditor() {
          return;
      }
 
-     actionTriggered = true;
+     //actionTriggered = true;
 
      if (buildModificationKey.isEmpty() && ! mBuildModRange.first()) {
          statusMessage(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMsgBox);
@@ -4079,7 +4091,7 @@ void Gui::ReloadVisualEditor() {
 
          progressPermStatusRemove();
 
-         emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' created at step %1")
+         emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' created at step %2")
                                              .arg(BuildModKey).arg(lpub->currentStep->stepNumber.number));
      }
  }
@@ -4339,7 +4351,7 @@ void Gui::removeBuildModification()
 
         endMacro();
 
-        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' removed at step %1")
+        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' removed at step %2")
                                             .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
@@ -4870,13 +4882,11 @@ void Gui::deleteBuildModification()
  * save viewer model if modified
  *
  ********************************************/
+QMutex saveBuildModMutex;
 
 bool Gui::saveBuildModification()
 {
-    static bool actionTriggered = false;
-
-    if (actionTriggered)
-        return true;
+    QMutexLocker saveBuildModLocker(&saveBuildModMutex);
 
     Step *currentStep = lpub->currentStep;
 
@@ -4891,8 +4901,6 @@ bool Gui::saveBuildModification()
         return true;     // continue
 
     clearVisualEditUndoRedoText();
-
-    actionTriggered = true;
 
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBox box;

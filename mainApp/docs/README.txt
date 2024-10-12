@@ -1,4 +1,4 @@
-LPub3D 2.4.7.191.3667 (12 10 2024 05:07:45)
+LPub3D 2.4.7.192.3668 (12 10 2024 05:08:54)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,8 +25,9 @@ Revisions:
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
 - Fix - Caches are not cleared when exporting #750
-- Fix - Crash when opening "BOM Placement" applet. #754
+- Fix - Crash when opening "BOM Placement" applet #754
 - Fix - Crash when showing BOM #742
+- Fix - Create new Buildmod after one BM does not work #743
 - Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
 - Fix - LPub3D crashes on Mac #753

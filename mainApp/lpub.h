@@ -2061,7 +2061,6 @@ private:
   QAction *povrayRenderAct;
 
   QAction *ApplyCameraAct;
-  QAction *BuildModComboAct;
   QAction *CreateBuildModAct;
   QAction *ApplyBuildModAct;
   QAction *RemoveBuildModAct;

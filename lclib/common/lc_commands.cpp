@@ -697,6 +697,13 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Rotate selected pieces"),                                 /*** LPub3D Mod - LPub3D Menu update ***/
 		"Shift+L"
 	},
+// LC_EDIT_ACTION_BUILD_MOD
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.BuildMod"),
+		QT_TRANSLATE_NOOP("Menu", "BuildMod"),
+		QT_TRANSLATE_NOOP("Status", "Build Modifications"),                                    /*** LPub3D Mod - Build Mod Menu ***/
+		"Shift+J"
+	},
 	// LC_EDIT_ACTION_DELETE
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Delete"),
