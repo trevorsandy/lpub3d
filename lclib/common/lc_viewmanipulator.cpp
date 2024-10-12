@@ -185,11 +185,8 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 	lcMatrix33 RelativeRotation;
 	lcModel* ActiveModel = mView->GetActiveModel();
 	ActiveModel->GetMoveRotateTransform(OverlayCenter, RelativeRotation);
-	/*** LPub3D Mod - Selected Parts ***/
-	/***
 	bool AnyPiecesSelected = ActiveModel->AnyPiecesSelected();
-	***/
-	/*** LPub3D Mod end ***/
+
 	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
 
 	if (ActiveModel != mView->GetModel())
@@ -257,44 +254,46 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 		}
 	}
 
-/*** LPub3D Mod - Selected Parts ***/
-/***
-	if (gMainWindow->GetTool() == lcTool::Select && TrackButton == lcTrackButton::None && AnyPiecesSelected)
+/*** LPub3D Mod - BuildMod Enable Part Select Rotation ***/
+	const lcPreferences& Preferences = lcGetPreferences();
+	if (Preferences.mBuildModificationEnabled)
 	{
-		if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_X)
+		if (gMainWindow->GetTool() == lcTool::Select && TrackButton == lcTrackButton::None && AnyPiecesSelected)
 		{
-			if (TrackTool == lcTrackTool::RotateX)
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
-			else
-				Context->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
+			if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_X)
+			{
+				if (TrackTool == lcTrackTool::RotateX)
+					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+				else
+					Context->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
 
-			Context->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, 108 * 2);
-		}
+				Context->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, 108 * 2);
+			}
 
-		if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_Y)
-		{
-			if (TrackTool == lcTrackTool::RotateY)
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
-			else
-/ *** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction *** /
-				Context->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
-/ *** LPub3D Mod end *** /
-			Context->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 120) * 2);
-		}
+			if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_Y)
+			{
+				if (TrackTool == lcTrackTool::RotateY)
+					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+				else
+/*** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+					Context->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/*** LPub3D Mod end ***/
+				Context->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 120) * 2);
+			}
 
-		if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_Z)
-		{
-			if (TrackTool == lcTrackTool::RotateZ)
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
-			else
-/ *** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction *** /
-				Context->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
-/ *** LPub3D Mod end *** /
+			if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_Z)
+			{
+				if (TrackTool == lcTrackTool::RotateZ)
+					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+				else
+/*** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+					Context->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 
-			Context->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 240) * 2);
+				Context->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 240) * 2);
+			}
 		}
 	}
-***/
 /*** LPub3D Mod end ***/
 
 	if ((TrackTool == lcTrackTool::MoveXY) || (TrackTool == lcTrackTool::MoveXZ) || (TrackTool == lcTrackTool::MoveYZ))

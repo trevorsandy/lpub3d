@@ -1255,12 +1255,12 @@ public slots:
 
   bool VisualEditorRotateTransform()
   {
-    return EnableBuildModAct->isChecked();
+    return EnableBuildModRotateAct->isChecked();
   }
 
   void SetVisualEditorRotateTransform(bool b)
   {
-      EnableBuildModAct->setChecked(b);
+      EnableBuildModRotateAct->setChecked(b);
       EnableRotstepRotateAct->setChecked(!b);
   }
 
@@ -2069,7 +2069,7 @@ private:
   QAction *UpdateBuildModAct;
   QAction *DeleteBuildModAct;
   QAction *DeleteBuildModActionAct;
-  QAction *EnableBuildModAct;
+  QAction *EnableBuildModRotateAct;
   QAction *EnableRotstepRotateAct;
   QAction *UseImageSizeAct;
   QAction *AutoCenterSelectionAct;

@@ -344,16 +344,16 @@ void Gui::create3DActions()
     lpub->actions.insert(DeleteBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Build Modification.Delete"), DeleteBuildModAct));
     connect(DeleteBuildModAct, SIGNAL(triggered()), this, SLOT(deleteBuildModification()));
 
-    QIcon EnableBuildModIcon;
-    EnableBuildModIcon.addFile(":/resources/rotatebuildmod.png");
-    EnableBuildModIcon.addFile(":/resources/rotatebuildmod16.png");
-    EnableBuildModAct = new QAction(EnableBuildModIcon,tr("Rotate Build Modification"),this);
-    EnableBuildModAct->setObjectName("EnableBuildModAct.4");
-    EnableBuildModAct->setStatusTip(tr("This option allows you to choose your selection and will transform the rotated parts"));
-    EnableBuildModAct->setChecked(false);
-    EnableBuildModAct->setCheckable(true);
-    lpub->actions.insert(EnableBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.Build Modification Rotate"), EnableBuildModAct));
-    connect(EnableBuildModAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
+    QIcon EnableBuildModRotateIcon;
+    EnableBuildModRotateIcon.addFile(":/resources/rotatebuildmod.png");
+    EnableBuildModRotateIcon.addFile(":/resources/rotatebuildmod16.png");
+    EnableBuildModRotateAct = new QAction(EnableBuildModRotateIcon,tr("Rotate Build Modification"),this);
+    EnableBuildModRotateAct->setObjectName("EnableBuildModRotateAct.4");
+    EnableBuildModRotateAct->setStatusTip(tr("This option allows you to choose your part selection and will transform the rotated parts"));
+    EnableBuildModRotateAct->setChecked(false);
+    EnableBuildModRotateAct->setCheckable(true);
+    lpub->actions.insert(EnableBuildModRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.Build Modification Rotate"), EnableBuildModRotateAct));
+    connect(EnableBuildModRotateAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
 
     QIcon EnableRotstepRotateIcon;
     EnableRotstepRotateIcon.addFile(":/resources/rotaterotstep.png");
@@ -757,7 +757,7 @@ void Gui::create3DMenus()
 
      RotateStepActionMenu = new QMenu(tr("Rotate Step"),this);
      RotateStepActionMenu->addAction(EnableRotstepRotateAct);
-     RotateStepActionMenu->addAction(EnableBuildModAct);
+     RotateStepActionMenu->addAction(EnableBuildModRotateAct);
      gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setMenu(RotateStepActionMenu);
 
      CameraMenu = new QMenu(tr("Camera Settings"),this);
@@ -2110,10 +2110,12 @@ void Gui::enableVisualBuildModification()
     bool displayStep = lpub->currentStep->displayStep != DT_DEFAULT;
     bool buildModEnabled = Preferences::buildModEnabled && !displayStep;
 
-    if (sender() == EnableBuildModAct)
-        buildModEnabled &= EnableBuildModAct->isChecked();
+    if (sender() == EnableBuildModRotateAct)
+        buildModEnabled &= EnableBuildModRotateAct->isChecked();
     else if (sender() == EnableRotstepRotateAct)
         buildModEnabled &= !EnableRotstepRotateAct->isChecked();
+
+    gApplication->mPreferences.mBuildModificationEnabled = buildModEnabled;
 
     if (buildModEnabled && !curFile.isEmpty()) {
         using namespace Options;
@@ -2131,9 +2133,9 @@ void Gui::enableVisualBuildModification()
     if(!ContinuousPage())
         gMainWindow->UpdateDefaultCameraProperties();
 
-    EnableBuildModAct->setVisible(!displayStep);
-    EnableBuildModAct->setEnabled(Preferences::buildModEnabled && !displayStep);
-    EnableBuildModAct->setChecked(buildModEnabled);
+    EnableBuildModRotateAct->setVisible(!displayStep);
+    EnableBuildModRotateAct->setEnabled(Preferences::buildModEnabled && !displayStep);
+    EnableBuildModRotateAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
 
     BuildModComboAct->setEnabled( false);
@@ -2174,8 +2176,6 @@ void Gui::enableVisualBuildModification()
     gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]->setStatusTip(RelTranslateStatusTip);
     gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]->setEnabled(buildModEnabled);
     gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]->setStatusTip(AbsTranslateStatusTip);
-
-    gApplication->mPreferences.mBuildModificationEnabled = buildModEnabled;
 }
 
 void Gui::enableVisualBuildModActions()
