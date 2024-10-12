@@ -86,7 +86,6 @@ public:
 class lcPOVRayOptions
 {
 public:
-	lcPOVRayOptions();
 	void ParseLDrawLine(QTextStream& LineStream);
 	void SaveLDraw(QTextStream& Stream) const;
 /*** LPub3D Mod - LPUB meta command ***/
@@ -95,15 +94,15 @@ public:
 		LCMeta = Meta;
 	}
 /*** LPub3D Mod end ***/
-	bool UseLGEO;
-	bool ExcludeFloor;
-	bool ExcludeBackground;
-	bool NoReflection;
-	bool NoShadow;
-	int FloorAxis;
-	float FloorAmbient;
-	float FloorDiffuse;
-	lcVector3 FloorColor;
+	bool UseLGEO = false;
+	bool ExcludeFloor = false;
+	bool ExcludeBackground = false;
+	bool NoReflection = false;
+	bool NoShadow = false;
+	int FloorAxis = 1;
+	float FloorAmbient = 0.4f;
+	float FloorDiffuse = 0.4f;
+	lcVector3 FloorColor = lcVector3(0.8f,0.8f,0.8f);
 	QString HeaderIncludeFile;
 	QString FooterIncludeFile;
 

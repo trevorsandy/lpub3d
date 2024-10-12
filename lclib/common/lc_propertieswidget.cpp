@@ -280,150 +280,151 @@ void lcPropertiesWidget::FloatChanged()
 
 	// todo: mouse drag
 
-	if (Piece || Light)
+	if (PropertyId == lcObjectPropertyId::ObjectPositionX || PropertyId == lcObjectPropertyId::ObjectPositionY || PropertyId == lcObjectPropertyId::ObjectPositionZ)
 	{
-		if (PropertyId == lcObjectPropertyId::ObjectPositionX || PropertyId == lcObjectPropertyId::ObjectPositionY || PropertyId == lcObjectPropertyId::ObjectPositionZ)
-		{
-			lcVector3 Center;
-			lcMatrix33 RelativeRotation;
-			Model->GetMoveRotateTransform(Center, RelativeRotation);
-			lcVector3 Position = Center;
+		lcVector3 Center;
+		lcMatrix33 RelativeRotation;
+		Model->GetMoveRotateTransform(Center, RelativeRotation);
+		lcVector3 Position = Center;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (PropertyId == lcObjectPropertyId::ObjectPositionX)
-				Position[X] = Value;
-			else if (PropertyId == lcObjectPropertyId::ObjectPositionY)
-				Position[Z] = -Value;
-			else if (PropertyId == lcObjectPropertyId::ObjectPositionZ)
-				Position[Y] = Value;
+		if (PropertyId == lcObjectPropertyId::ObjectPositionX)
+			Position[X] = Value;
+		else if (PropertyId == lcObjectPropertyId::ObjectPositionY)
+			Position[Z] = -Value;
+		else if (PropertyId == lcObjectPropertyId::ObjectPositionZ)
+			Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
-			lcVector3 Distance = Position - Center;
+		lcVector3 Distance = Position - Center;
 
-			Model->MoveSelectedObjects(Distance, Distance, false, true, true, true);
-		}
-		else if (PropertyId == lcObjectPropertyId::ObjectRotationX || PropertyId == lcObjectPropertyId::ObjectRotationY || PropertyId == lcObjectPropertyId::ObjectRotationZ)
-		{
-			lcVector3 InitialRotation(0.0f, 0.0f, 0.0f);
+		Model->MoveSelectedObjects(Distance, Distance, false, true, true, true);
+	}
+	else if (PropertyId == lcObjectPropertyId::ObjectRotationX || PropertyId == lcObjectPropertyId::ObjectRotationY || PropertyId == lcObjectPropertyId::ObjectRotationZ)
+	{
+		lcVector3 InitialRotation(0.0f, 0.0f, 0.0f);
 
-			if (Piece)
-				InitialRotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
-			else if (Light)
-				InitialRotation = lcMatrix44ToEulerAngles(Light->GetWorldMatrix()) * LC_RTOD;
+		if (Piece)
+			InitialRotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
+		else if (Light)
+			InitialRotation = lcMatrix44ToEulerAngles(Light->GetWorldMatrix()) * LC_RTOD;
 
-			lcVector3 Rotation = InitialRotation;
+		lcVector3 Rotation = InitialRotation;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (PropertyId == lcObjectPropertyId::ObjectRotationX)
-				Rotation[X] = Value;
-			else if (PropertyId == lcObjectPropertyId::ObjectRotationY)
-				Rotation[Z] = -Value;
-			else if (PropertyId == lcObjectPropertyId::ObjectRotationZ)
-				Rotation[Y] = Value;
+		if (PropertyId == lcObjectPropertyId::ObjectRotationX)
+			Rotation[X] = Value;
+		else if (PropertyId == lcObjectPropertyId::ObjectRotationY)
+			Rotation[Z] = -Value;
+		else if (PropertyId == lcObjectPropertyId::ObjectRotationZ)
+			Rotation[Y] = Value;
 /*** LPub3D Mod end ***/
 
-			Model->RotateSelectedObjects(Rotation - InitialRotation, true, false, true, true);
-		}
+		Model->RotateSelectedObjects(Rotation - InitialRotation, true, false, true, true);
+	}
+	else if ( Piece || Light )
+	{
+		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
 	}
 
-	if (Camera)
-	{
 /*** LPub3D Mod - Camera Globe, camera name ***/
-		bool isDefault = Camera->GetName().isEmpty();
+	bool isDefault = Camera->GetName().isEmpty();
 /*** LPub3D Mod end ***/
 
-		if (PropertyId == lcObjectPropertyId::CameraPositionX || PropertyId == lcObjectPropertyId::CameraPositionY || PropertyId == lcObjectPropertyId::CameraPositionZ)
-		{
-			lcVector3 Center = Camera->mPosition;
-			lcVector3 Position = Center;
+	if (PropertyId == lcObjectPropertyId::CameraPositionX || PropertyId == lcObjectPropertyId::CameraPositionY || PropertyId == lcObjectPropertyId::CameraPositionZ)
+	{
+		lcVector3 Center = Camera->mPosition;
+		lcVector3 Position = Center;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (PropertyId == lcObjectPropertyId::CameraPositionX)
-				Position[X] = Value;
-			else if (PropertyId == lcObjectPropertyId::CameraPositionY)
-				Position[Z] = -Value;
-			else if (PropertyId == lcObjectPropertyId::CameraPositionZ)
-				Position[Y] = Value;
+		if (PropertyId == lcObjectPropertyId::CameraPositionX)
+			Position[X] = Value;
+		else if (PropertyId == lcObjectPropertyId::CameraPositionY)
+			Position[Z] = -Value;
+		else if (PropertyId == lcObjectPropertyId::CameraPositionZ)
+			Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
-			lcVector3 Distance = Position - Center;
+		lcVector3 Distance = Position - Center;
 
 /*** LPub3D Mod - Camera Globe  ***/
-			if (isDefault)
-				Model->MoveDefaultCamera(Camera, Distance);
-			else
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+		if (isDefault)
+			Model->MoveDefaultCamera(Camera, Distance);
+		else
+			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 /*** LPub3D Mod end ***/
-		}
-		else if (PropertyId == lcObjectPropertyId::CameraTargetX || PropertyId == lcObjectPropertyId::CameraTargetY || PropertyId == lcObjectPropertyId::CameraTargetZ)
-		{
-			lcVector3 Center = Camera->mTargetPosition;
-			lcVector3 Position = Center;
+	}
+	else if (PropertyId == lcObjectPropertyId::CameraTargetX || PropertyId == lcObjectPropertyId::CameraTargetY || PropertyId == lcObjectPropertyId::CameraTargetZ)
+	{
+		lcVector3 Center = Camera->mTargetPosition;
+		lcVector3 Position = Center;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (PropertyId == lcObjectPropertyId::CameraTargetX)
-				Position[X] = Value;
-			else if (PropertyId == lcObjectPropertyId::CameraTargetY)
-				Position[Z] = -Value;
-			else if (PropertyId == lcObjectPropertyId::CameraTargetZ)
-				Position[Y] = Value;
+		if (PropertyId == lcObjectPropertyId::CameraTargetX)
+			Position[X] = Value;
+		else if (PropertyId == lcObjectPropertyId::CameraTargetY)
+			Position[Z] = -Value;
+		else if (PropertyId == lcObjectPropertyId::CameraTargetZ)
+			Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
-			lcVector3 Distance = Position - Center;
+		lcVector3 Distance = Position - Center;
 
 /*** LPub3D Mod - Camera Globe  ***/
-			if (isDefault)
-				Model->MoveDefaultCamera(Camera, Distance);
-			else
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+		if (isDefault)
+			Model->MoveDefaultCamera(Camera, Distance);
+		else
+			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 /*** LPub3D Mod end ***/
-		}
-		else if (PropertyId == lcObjectPropertyId::CameraUpX || PropertyId == lcObjectPropertyId::CameraUpY || PropertyId == lcObjectPropertyId::CameraUpZ)
-		{
-			lcVector3 Center = Camera->mUpVector;
-			lcVector3 Position = Center;
+	}
+	else if (PropertyId == lcObjectPropertyId::CameraUpX || PropertyId == lcObjectPropertyId::CameraUpY || PropertyId == lcObjectPropertyId::CameraUpZ)
+	{
+		lcVector3 Center = Camera->mUpVector;
+		lcVector3 Position = Center;
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			if (PropertyId == lcObjectPropertyId::CameraUpX)
-				Position[X] = Value;
-			else if (PropertyId == lcObjectPropertyId::CameraUpY)
-				Position[Z] = -Value;
-			else if (PropertyId == lcObjectPropertyId::CameraUpZ)
-				Position[Y] = Value;
+		if (PropertyId == lcObjectPropertyId::CameraUpX)
+			Position[X] = Value;
+		else if (PropertyId == lcObjectPropertyId::CameraUpY)
+			Position[Z] = -Value;
+		else if (PropertyId == lcObjectPropertyId::CameraUpZ)
+			Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
-			lcVector3 Distance = Position - Center;
+		lcVector3 Distance = Position - Center;
 
 /*** LPub3D Mod - Camera Globe  ***/
-			if (isDefault)
-				Model->MoveDefaultCamera(Camera, Distance);
-			else
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+		if (isDefault)
+			Model->MoveDefaultCamera(Camera, Distance);
+		else
+			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+	}
+	else if (PropertyId == lcObjectPropertyId::CameraLatitude || PropertyId == lcObjectPropertyId::CameraLongitude /*|| PropertyId == lcObjectPropertyId::CameraDistance*/)
+	{
+		QStringList ValueList = QString(Widget->text()).trimmed().split(" ",SkipEmptyParts);
+		bool hasOther = ValueList.size() == 2;
+
+		float Value = lcParseValueLocalized(ValueList.first());
+		float OtherValue = hasOther ? lcParseValueLocalized(ValueList.last()) : 0.0f;
+
+		float Latitude, Longitude, Distance;
+		Camera->GetAngles(Latitude,Longitude,Distance);
+		if (PropertyId == lcObjectPropertyId::CameraLatitude) {
+			Latitude = Value;
+			if (hasOther)
+				Longitude = OtherValue;
+		} else if (PropertyId == lcObjectPropertyId::CameraLongitude) {
+			if (hasOther)
+				Latitude = OtherValue;
+			Longitude = Value;
 		}
-		else if (PropertyId == lcObjectPropertyId::CameraLatitude || PropertyId == lcObjectPropertyId::CameraLongitude /*|| PropertyId == lcObjectPropertyId::CameraDistance*/)
-		{
-			QStringList ValueList = QString(Widget->text()).trimmed().split(" ",SkipEmptyParts);
-			bool hasOther = ValueList.size() == 2;
 
-			float Value = lcParseValueLocalized(ValueList.first());
-			float OtherValue = hasOther ? lcParseValueLocalized(ValueList.last()) : 0.0f;
-
-			float Latitude, Longitude, Distance;
-			Camera->GetAngles(Latitude,Longitude,Distance);
-			if (PropertyId == lcObjectPropertyId::CameraLatitude) {
-				Latitude = Value;
-				if (hasOther)
-					Longitude = OtherValue;
-			} else if (PropertyId == lcObjectPropertyId::CameraLongitude) {
-				if (hasOther)
-					Latitude = OtherValue;
-				Longitude = Value;
-			}
-
-			Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
+		Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
 /*** LPub3D Mod end ***/
-		}
-		else if (PropertyId == lcObjectPropertyId::CameraFOV)
+	}
+	else if (Camera)
+	{
+		if (PropertyId == lcObjectPropertyId::CameraFOV)
 		{
 			Model->SetCameraFOV(Camera, Value);
 		}
@@ -435,11 +436,6 @@ void lcPropertiesWidget::FloatChanged()
 		{
 			Model->SetCameraZFar(Camera, Value);
 		}
-	}
-
-	if (Light)
-	{
-		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
 	}
 }
 
