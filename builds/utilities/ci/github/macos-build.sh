@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 04, 2022
+# Last Update September 02, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -90,7 +90,7 @@ brew install --cask xquartz
 echo "Install 'keg-only' instance of Qt..."
 brew install qt@5
 echo "Force linking to 'keg-only' instance of Qt..."
-brew link --force qt5
+brew link --force qt@5
 echo "Install coreutils..."
 brew install coreutils
 
