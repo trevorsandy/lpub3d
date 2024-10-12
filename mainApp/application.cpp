@@ -1306,19 +1306,7 @@ static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions
 
     if (Options.ParseOK && Options.AASamples > 1)
     {
-        QSurfaceFormat Format;
-#ifdef __APPLE__
-        // Set the OpenGL profile before constructing the MainWindow.
-        // This must be done on the mac so that it does not use the
-        // legacy profile.
-        Format.setMajorVersion(3);
-        Format.setMinorVersion(3);
-        Format.setDepthBufferSize(24);
-        Format.setProfile(QSurfaceFormat::CoreProfile);
-        QSurfaceFormat::setDefaultFormat(Format);
-#else
-        Format = QSurfaceFormat::defaultFormat();
-#endif
+        QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
         Format.setSamples(Options.AASamples);
         QSurfaceFormat::setDefaultFormat(Format);
     }
@@ -1336,9 +1324,6 @@ int main(int argc, char** argv)
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-//#if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-//    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-//#endif
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
