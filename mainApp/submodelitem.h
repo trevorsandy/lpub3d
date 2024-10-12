@@ -256,13 +256,19 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
   //-----------------------------------------
 
   virtual void resize(QPointF);
   virtual void change();
   virtual QRectF currentRect();
+
+  bool isHovered;
+  bool mouseIsDown;
 
 };
 

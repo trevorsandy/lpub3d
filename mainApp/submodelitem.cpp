@@ -1556,6 +1556,8 @@ SubModelBackgroundItem::SubModelBackgroundItem(
   PlacementType  _parentRelativeType,
   int            submodelLevel,
   QGraphicsItem *parent)
+    : isHovered(false)
+    , mouseIsDown(false)
 {
   subModel   = _subModel;
   grabHeight = height;
@@ -1596,6 +1598,8 @@ SubModelBackgroundItem::SubModelBackgroundItem(
   if (parentRelativeType != SingleStepType && subModel->perStep) {
     setFlag(QGraphicsItem::ItemIsMovable,false);
   }
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
 }
 
 void SubModelBackgroundItem::placeGrabbers()
@@ -1624,6 +1628,7 @@ void SubModelBackgroundItem::placeGrabbers()
 
 void SubModelBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = true;
   position = pos();
   positionChanged = false;
   // we only want to toggle the grabbers off on second left mouse click
@@ -1645,6 +1650,7 @@ void SubModelBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void SubModelBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -1940,4 +1946,28 @@ QRectF SubModelBackgroundItem::currentRect()
   } else {
     return sceneBoundingRect();
   }
+}
+
+void SubModelBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = !this->isSelected() && !mouseIsDown;
+  QGraphicsItem::hoverEnterEvent(event);
+}
+
+void SubModelBackgroundItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = false;
+  QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void SubModelBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPen pen;
+  pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+  pen.setWidth(0/*cosmetic*/);
+  pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+  painter->setPen(pen);
+  painter->setBrush(Qt::transparent);
+  painter->drawRect(this->boundingRect());
+  QGraphicsPixmapItem::paint(painter,option,widget);
 }
