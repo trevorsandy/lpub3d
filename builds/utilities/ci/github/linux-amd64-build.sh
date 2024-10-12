@@ -191,7 +191,7 @@ cd ~/ \\
 && mkdir -p ./debbuild/SOURCES \\
 && (cd debbuild && ln -sf /dist/${docker_base}_${docker_arch}/ lpub3d_linux_3rdparty) \\
 && (cd debbuild/SOURCES && cp -af /dist/*.zip .) \\
-&& sudo chown -R ${name}:${name} ./debbuild/.* \\
+&& (cd debbuild && sudo chown -R ${name}:${name} *) \\
 && chmod a+x CreateDeb.sh && ./CreateDeb.sh \\
 && if test -d /buildpkg; then \\
   cd ~/; \\
@@ -241,7 +241,7 @@ cd ~/ \\
 && mkdir -p ./rpmbuild/{BUILD,SOURCES} \\
 && (cd rpmbuild/BUILD && ln -sf /dist/${docker_base}_${docker_arch}/ lpub3d_linux_3rdparty) \\
 && (cd rpmbuild/SOURCES && cp -af /dist/*.zip .) \\
-&& sudo chown -R ${name}:${name} ./rpmbuild/.* \\
+&& (cd rpmbuild && sudo chown -R ${name}:${name} *) \\
 && sudo ln -s //lib64/libXext.so.6.4.0 /usr/lib/libXext.so 2>/dev/null || : \\
 && chmod a+x CreateRpm.sh && ./CreateRpm.sh \\
 && if test -d /buildpkg; then \\
@@ -286,7 +286,7 @@ cd ~/ \\
 && mkdir -p ./pkgbuild/src \\
 && (cd pkgbuild/src && ln -sf /dist/${docker_base}_${docker_arch}/ lpub3d_linux_3rdparty) \\
 && (cd pkgbuild && cp -af /dist/*.zip .) \\
-&& sudo chown -R ${name}:${name} ./pkgbuild/.* \\
+&& (cd pkgbuild && sudo chown -R ${name}:${name} *) \\
 && chmod a+x CreatePkg.sh && ./CreatePkg.sh \\
 && if test -d /buildpkg; then \\
     cd ~/; \\
