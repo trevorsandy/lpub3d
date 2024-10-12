@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 04, 2022
+rem  Last Update: September 09, 2023
 rem  Copyright (C) 2015 - 2023 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -829,9 +829,9 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
 >>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.tar.bz2",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_flp%",
+>>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_win_conda%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-conda": {}
->>%genLPub3DUpdates%     }
+>>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "macos-dmg": {
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
