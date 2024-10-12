@@ -217,7 +217,8 @@ win32 {
         DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
         DEFINES += QUAZIP_STATIC
-
+        
+        QMAKE_LFLAGS += -NODEFAULTLIB:LIBCMT
         QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
