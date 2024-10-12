@@ -365,10 +365,10 @@ int Gui::addGraphicsPageItems(
   plPage.loc[XX] = 0;
   plPage.loc[YY] = 0;
 
-  // Set up page header and footer //~~~~~~~~~~~~~~~~
+  // Set up page header and footer
 
   int which = page->meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
-  float _pW = page->meta.LPub.page.size.value(which);
+  float _pW = page->meta.LPub.page.size.value(which) - plPage.margin.value(YY)*2;
   page->meta.LPub.page.pageHeader.size.setValue(0,_pW);
   page->meta.LPub.page.pageFooter.size.setValue(0,_pW);
 
@@ -377,14 +377,14 @@ int Gui::addGraphicsPageItems(
       plPage.appendRelativeTo(pageHeader);
       plPage.placeRelative(pageHeader);
     }
-  pageHeader->setPos(pageHeader->loc[XX],pageHeader->loc[YY]);
+  pageHeader->setRect(pageHeader->loc[XX],pageHeader->loc[YY],pageHeader->size[XX],pageHeader->size[YY]);
 
   pageFooter = new PlacementFooter(page->meta.LPub.page.pageFooter,pageBg);
   if (pageFooter->placement.value().relativeTo == plPage.relativeType) {
       plPage.appendRelativeTo(pageFooter);
       plPage.placeRelative(pageFooter);
     }
-  pageFooter->setPos(pageFooter->loc[XX],pageFooter->loc[YY]);
+  pageFooter->setRect(pageFooter->loc[XX],pageFooter->loc[YY],pageFooter->size[XX],pageFooter->size[YY]);
 
   // Process Cover Page Attriutes
 
@@ -1996,7 +1996,7 @@ int Gui::addPliPerPageItems(
           plPage.placeRelative(pli);
       }
 
-      // For now, pli per page is shared with BOM so we setPos() is in formatpage
+      // For now, pli per page is shared with BOM so we setPos() in formatpage
   }
 
   if (validPageNumber){
