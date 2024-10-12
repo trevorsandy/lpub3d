@@ -71,8 +71,6 @@ if [ "${WRITE_LOG}" = "true" ]; then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
-export LP3D_LOG_PATH
-
 echo "Start $ME execution at $CWD..."
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
@@ -91,7 +89,7 @@ else
   echo "   BUILD OPTION...........[build package]"
 fi
 if [ "$GITHUB" = "true" ]; then
-  echo "   CPU CORES..............[${LP3D_CPU_CORES}]"
+  echo "   CPU CORES..............[$(echo $([ -n "${LP3D_CPU_CORES}" ] && echo ${LP3D_CPU_CORES} || echo $(nproc)))]"
 fi
 
 # tell curl to be silent, continue downloads and follow redirects
@@ -164,18 +162,20 @@ else
   echo "-  ${LPUB3D}/ exist. skipping download"
 fi
 
-echo "-  source update_config_files.sh..." && echo
-
-_PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
-source ${LPUB3D}/builds/utilities/update-config-files.sh
-SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
+if [ -z "$LDRAWDIR" ]; then
+  LDRAWDIR=${HOME}/Library/LDraw
+fi
 
 # set pwd before entering lpub3d root directory
-export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
-if [ -z "$LDRAWDIR" ]; then
-  LDRAWDIR=${HOME}/ldraw
-fi
-export LDRAWDIR=${LDRAWDIR}
+export WD=$PWD
+export OBS=false
+export LPUB3D=${LPUB3D}
+
+echo "-  source update_config_files.sh..." && echo
+
+_PRO_FILE_PWD_=${WD}/${LPUB3D}/mainApp
+source ${LPUB3D}/builds/utilities/update-config-files.sh
+SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
 
 case ${LP3D_ARCH} in
   "x86_64"|"aarch64"|"arm64")
@@ -414,7 +414,7 @@ POVRay:
 Homebrew
 ======================================
 LPub3D and its renderers are not yet compiled for the Apple silicon ARM processor.
-Consequently, running LPub3D on an Apple silicon PC will require Rosetta which, if not already 
+Consequently, running LPub3D on an Apple silicon PC will require Rosetta which, if not already
 installed on your PC will, you will be prompted to install it on your attempt to run LPub3D.
 If you wish to install Rosetta from the command line, the command is:
 
@@ -449,7 +449,7 @@ Optional - Check installed library (e.g. libpng)
         /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
         /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
 
-LPub3D Library Check Note: The default configuration of LPub3D will  
+LPub3D Library Check Note: The default configuration of LPub3D will
 look for Homebrew libraries at:
 - HomebrewLibPathPrefix: /usr/local/opt.
 
@@ -458,10 +458,10 @@ Additionally, LPub3D will check Homebrew x86_64 libraries using PATH entries:
 
 If you choose to place your x86_64 binaries and libraries in alternate locations.
 Consequetly, you can configure your personalized paths in the LPub3D plist at:
-- $HOME/Library/Preferences/com.lpub3d-software.LPub3D.plist. 
+- $HOME/Library/Preferences/com.lpub3d-software.LPub3D.plist.
 
 The Homebrew plist keys are:
-- HomebrewLibPathPrefix - the path prefix LPub3D will use to locate the Homebrew libraries. 
+- HomebrewLibPathPrefix - the path prefix LPub3D will use to locate the Homebrew libraries.
 - HomebrewPath - the PATH entries needed to help brew run the info command
 
 Cheers,

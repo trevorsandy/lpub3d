@@ -44,7 +44,7 @@ FinishElapsedTime() {
 trap FinishElapsedTime EXIT
 
 brew_install() {
-  # Usage: 
+  # Usage:
   # brew_install qt@5
   if brew list $1 &>/dev/null; then
     echo "${1} is already installed."
@@ -118,8 +118,8 @@ IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 export LPUB3D=${SLUG_PARTS[1]}
 export LP3D_ARCH=${LP3D_ARCH:-$(uname -m)}
 export LP3D_LDRAW_DIR="${LP3D_3RD_PARTY_PATH}/ldraw"
-export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-$HOME/}
-export LDRAWDIR=${LDRAWDIR:-$HOME/LDraw}
+export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-$HOME/Library}
+export LDRAWDIR=${LDRAWDIR:-$LDRAWDIR_ROOT/LDraw}
 export CI=${CI:-true}
 export GITHUB=${GITHUB:-true}
 export LP3D_CPU_CORES
@@ -138,16 +138,15 @@ fi
 
 # Setup ldraw parts library directory
 if [ ! -d "$LP3D_LDRAW_DIR" ]; then
-  mkdir -p "$LP3D_LDRAW_DIR"
-  if [ -d "$LP3D_LDRAW_DIR" ]; then
-    echo "Created LDraw library $LP3D_LDRAW_DIR"
-  fi
+  mkdir -p "$LP3D_LDRAW_DIR" && echo "Created LDraw library $LP3D_LDRAW_DIR"
 else
   echo "Using cached LDraw library $LP3D_LDRAW_DIR"
 fi
-if [ ! -d "$HOME/LDraw" ]; then
-  ln -sf "$LP3D_LDRAW_DIR" "$HOME/LDraw" && \
-  echo "$LP3D_LDRAW_DIR linked to $HOME/LDraw"
+
+# Setup LDraw parts test path link
+if [ ! -d "$LDRAWDIR" ]; then
+  ln -sf "$LP3D_LDRAW_DIR" "LDRAWDIR" && \
+  echo "$LP3D_LDRAW_DIR linked to $LDRAWDIR"
 fi
 
 # Make sure Qt is properly setup

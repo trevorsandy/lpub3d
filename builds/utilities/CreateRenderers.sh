@@ -554,7 +554,7 @@ CallDir=$PWD
 curlopts="-sL -C -"
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
-[ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]"
+[ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
 OS_NAME=$(uname)
 
 # Check for required 'WD' variable
@@ -766,7 +766,7 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
 elif [ "$OS_NAME" != "Darwin" ]; then
   Info "LDraw Library............[${LDRAWDIR}]"
 fi
-# Additional LDraw configuration for MacOS
+# QMake and additional LDraw configuration
 if [ "$OS_NAME" = "Darwin" ]; then
   Info "LDraw Library............[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."
