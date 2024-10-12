@@ -663,6 +663,7 @@ class LDrawFile {
     QVector<int>*getLineTypeRelativeIndexes(int submodelIndx);
 };
 
+int randomFour();
 int split(const QString &line, QStringList &argv);
 int validSoQ(const QString &line, int soq);
 int  getUnofficialFileType(QString &line);

@@ -74,19 +74,6 @@ const QString LDrawUnofficialType[UNOFFICIAL_NUM] =
     QLatin1String("Unofficial Other File")     // UNOFFICIAL_OTHER
 };
 
-int randomFour()
-{
-    int result=0;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 6);
-    for (int n=0; n<4; ++n)
-    {
-        result=result*10+dis(gen);
-    }
-    return result;
-}
-
 /********************************************
  *
  * routines for nested levels
@@ -6141,6 +6128,19 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical Colour)[^\n]*",Qt::CaseInsensitive)
               ;
   }
+}
+
+int randomFour()
+{
+    int result=0;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, 6);
+    for (int n=0; n<4; ++n)
+    {
+        result=result*10+dis(gen);
+    }
+    return result;
 }
 
 bool isHeader(const QString &line)
