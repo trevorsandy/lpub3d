@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jul 28, 2022
+# Last Update September 22, 2022
 # Copyright (C) 2018 - 2024 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -11,16 +11,16 @@
 #       $LPUB3D_EXE = <lpub3d executable path>
 
 # Startup
-HOME_DIR=$PWD
+BUILD_DIR=$PWD
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 if [ "${ME}" = "build_checks.sh" ]; then
     # not sourced
     SCRIPT_NAME=$0
     SCRIPT_ARGS=$*
-    echo && echo "Start $ME execution at $HOME_DIR..."
+    echo && echo "Start $ME execution at $BUILD_DIR..."
 else
     # sourced
-    echo && echo "Start build_checks.sh execution at $HOME_DIR..."
+    echo && echo "Start build_checks.sh execution at $BUILD_DIR..."
 fi
 
 # Initialize build check elapsed time
@@ -74,7 +74,7 @@ LP3D_TARGET_ARCH="$(uname -m)"
 if [[ "${LP3D_OS_NAME}" = "Darwin" ]]; then
     LP3D_PLATFORM=$(echo `sw_vers -productName`)
 else
-    LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
+    LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
 fi
 
 # Flatpak validate and set executable permissions
@@ -133,6 +133,9 @@ if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" || "${LP3D_OS_NAME}" != "D
         USE_XVFB="true"
     fi
 fi
+
+# Set the log output path
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$HOME || :
 
 show_settings
 
@@ -279,13 +282,13 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             [ -s "${LP3D_CHECK_STDLOG}" ] && \
             echo "- Standard Error Log Trace: ${LP3D_CHECK_STDLOG}" && \
             cat "${LP3D_CHECK_STDLOG}" || true
-            cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
             if [ -d "${LP3D_CHECK_PATH}" ]; then
+                cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
                 LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
                 if [ "${LP3D_CHECK_ASSETS}" ]; then
                     echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
-                    echo "- Archiving assets to ${HOME}/${LP3D_BUILD_CHECK}_assets.tar.gz"
-                    if tar -czvf "${HOME}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
+                    echo "- Archiving assets to ${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz"
+                    if tar -czvf "${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
                         echo "Success"
                     else
                         echo "Oops - tar failed!"
@@ -327,14 +330,14 @@ fi
 
 # move the run log to user folder for output capture
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    RUN_LOG=$(find ${HOME}/Library/Application\ Support -type f -name "*Log.txt")
+    RUN_LOG=$(find ${HOME}/Library/Application\ Support/LPub3D\ Software -type f -name "*Log.txt")
 else
     RUN_LOG=$(find ${HOME}/.local/share -type f -name "*Log.txt")
 fi
 if [ -n "${RUN_LOG}" ]; then
-    mv -f "${RUN_LOG}" "${HOME}/LPub3DRun.log" && \
-    echo "Moved ${RUN_LOG} to ${HOME}/LPub3DRun.log" || \
-    echo "WARNING - ${RUN_LOG} was not moved to ${HOME}/LPub3DRun.log"
+    mv -f "${RUN_LOG}" "${LP3D_LOG_PATH}/LPub3DRun.log" && \
+    echo "Moved ${RUN_LOG} to ${LP3D_LOG_PATH}/LPub3DRun.log" || \
+    echo "WARNING - ${RUN_LOG} was not moved to ${LP3D_LOG_PATH}/LPub3DRun.log"
 else
     echo "WARNING - ${RUN_LOG} was not found"
 fi

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 08, 2023
+# Last Update September 20, 2024
 # Copyright (C) 2016 - 2024 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -14,7 +14,7 @@
 # Optional argument:
 # _EXPORT_CONFIG_ONLY_ Do not update config files. Only export variables
 
-LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
+LP3D_ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 echo "   Start $LP3D_ME execution from $PWD ($([ -z "${_EXPORT_CONFIG_ONLY_}" ] && echo Update config files || echo Skip config files update))..."
 
@@ -29,7 +29,7 @@ LP3D_OS=`uname`
 LP3D_GIT_DEPTH=150000
 LP3D_CMD_COUNT=0
 
-if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
+if [ -z "$1" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
@@ -152,11 +152,13 @@ LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
 Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
-if test "${CI}" = "true"; then
-Info "   LP3D_BRANCH............${LP3D_BRANCH}"
-Info "   LP3D_COMMIT............${LP3D_COMMIT}"
-fi
 Info "   LPUB3D_DIR.............${LPUB3D}"
+if test "${CI}" = "true"; then
+Info "   CI.....................${CI}"
+[ -n "${GITHUB}" ] && Info "   GITHUB.................${GITHUB}" || :
+[ -n "${LP3D_BRANCH}" ] && Info "   LP3D_BRANCH............${LP3D_BRANCH}" || :
+[ -n "${LP3D_COMMIT}" ] && Info "   LP3D_COMMIT............${LP3D_COMMIT}" || :
+fi
 Info "   UPDATE_OBS_ALL_DEPS....${UPDATE_OBS_ALL_DEPS}"
 
 Info "   LP3D_PWD...............${LP3D_PWD}"
@@ -191,9 +193,8 @@ if test -n "${LP3D_COMMITTER_EMAIL}"; then
 Info "   LP3D_COMMITTER_EMAIL...${LP3D_COMMITTER_EMAIL}"
 fi
 
-LP3D_NO_CONFIG_DISPLAY=
-if [[ "${CI}" = "true" || "${GITHUB}" = "true" ]]; then
-    LP3D_NO_CONFIG_DISPLAY=1
+LP3D_NO_CONFIG_DISPLAY=$(if [[ "${CI}" = "true" || "${GITHUB}" = "true" ]]; then echo "1"; fi)
+if [ -n "${LP3D_NO_CONFIG_DISPLAY}" ]; then
     export LP3D_VER_MAJOR=${LP3D_VER_MAJOR}
     export LP3D_VER_MINOR=${LP3D_VER_MINOR}
     export LP3D_VER_PATCH=${LP3D_VER_PATCH}

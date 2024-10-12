@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 28, 2023
+# Last Update: September 22, 2024
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -373,6 +373,7 @@ for file in $(find . -type f \
               -not -path "./qsimpleupdater*" \
               -not -path "./waitingspinner*" \
               -not -path "./builds/utilities/icons/*" \
+              -not -path "./builds/utilities/ci/build_checks.sh" \
               -not -path "./builds/utilities/ci/travis/releases" \
               -not -path "./builds/utilities/ci/ci_cutover.sh" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
@@ -469,6 +470,7 @@ do
 done
 
 echo "$((COMMAND_COUNT += 1))-Change other line endings from CRLF to LF"
+dos2unix -k builds/utilities/create-dmg &>> $LOG
 dos2unix -k builds/utilities/hooks/* &>> $LOG
 dos2unix -k builds/utilities/json/* &>> $LOG
 dos2unix -k builds/utilities/dmg-utils/* &>> $LOG

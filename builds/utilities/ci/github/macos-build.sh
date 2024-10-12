@@ -1,11 +1,28 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 15, 2024
+# Last Update September 22, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
 # Run command:
 # bash -ex builds/utilities/ci/github/macos-build.sh
+#
+# LOCAL 'GITHUB' RUN - set parameters accordingly then cut and paste in console to run.
+: <<'BLOCK_COMMENT'
+export GITHUB=true
+export GITHUB_REPOSITORY=trevorsandy/lpub3d
+export GITHUB_REF=refs/heads/master # "refs/tags/v2.4.8" will BUILD_ALL
+export GITHUB_REF_NAME=master       # branch or Tag "v2.4.8" - Tag will trigger BUILD_ALL
+export GITHUB_EVENT_NAME=push
+export GITHUB_WORKSPACE=/Users/trevorsandy/Development/lpub3d
+export LP3D_COMMIT_MSG="LPub3D continuous development_build"     # release_build will trigger BUILD_ALL
+export LP3D_3RD_PARTY_PATH=/Users/trevorsandy/Development
+export LP3D_BUILDPKG_PATH=/Users/trevorsandy/Development/buildpkg
+[ ! -d "$LP3D_BUILDPKG_PATH" ] && mkdir -p "$LP3D_BUILDPKG_PATH" || :
+chmod +x lpub3d/builds/utilities/ci/github/macos-build.sh && \
+       ./lpub3d/builds/utilities/ci/github/macos-build.sh
+
+BLOCK_COMMENT
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
@@ -56,6 +73,32 @@ fi
 
 # Grab the script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+# automatic logging
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_BUILDPKG_PATH}" ] && LP3D_BUILDPKG_PATH=$(cd ../ && echo $PWD/buildpkg)
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$LP3D_BUILDPKG_PATH || :
+[ ! -d "${LP3D_LOG_PATH}" ] && mkdir -p ${LP3D_LOG_PATH} || :
+if [ "${WRITE_LOG}" = "true" ]; then
+    f="${LP3D_LOG_PATH}/$ME"
+    ext=".log"
+    if [[ -e "$f$ext" ]] ; then
+        i=1
+        f="${f%.*}";
+        while [[ -e "${f}_${i}${ext}" ]]; do
+            let i++
+        done
+        f="${f}_${i}${ext}"
+    else
+        f="${f}${ext}"
+    fi
+    # output log file
+    LOG="$f"
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
+fi
+
+export WRITE_LOG
+export LP3D_LOG_PATH
 
 # make sure we're in the repository root directory
 cd "${GITHUB_WORKSPACE}"
@@ -75,14 +118,15 @@ IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 export LPUB3D=${SLUG_PARTS[1]}
 export LP3D_ARCH=${LP3D_ARCH:-$(uname -m)}
 export LP3D_LDRAW_DIR="${LP3D_3RD_PARTY_PATH}/ldraw"
-export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-~/}
-export LDRAWDIR=${LDRAWDIR:-~/ldraw}
+export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-$HOME/}
+export LDRAWDIR=${LDRAWDIR:-$HOME/LDraw}
 export CI=${CI:-true}
 export GITHUB=${GITHUB:-true}
+export LP3D_CPU_CORES
 
 # Check commit for version tag
 if [[ "${GITHUB_REF}" == "refs/tags/"* ]] ; then
-  publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
+  publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')  #'
 fi
 export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
 if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
@@ -101,9 +145,9 @@ if [ ! -d "$LP3D_LDRAW_DIR" ]; then
 else
   echo "Using cached LDraw library $LP3D_LDRAW_DIR"
 fi
-if [ ! -f "~/ldraw" ]; then
-  ln -sf "$LP3D_LDRAW_DIR" "~/ldraw" && \
-  echo "$LP3D_LDRAW_DIR linked to ~/ldraw"
+if [ ! -d "$HOME/LDraw" ]; then
+  ln -sf "$LP3D_LDRAW_DIR" "$HOME/LDraw" && \
+  echo "$LP3D_LDRAW_DIR linked to $HOME/LDraw"
 fi
 
 # Make sure Qt is properly setup
@@ -177,7 +221,7 @@ rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
 
 # Build dmg file
-chmod a+x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
+source builds/macx/CreateDmg.sh;
 
 # Create hash file
 [ -d "$DmgBuildPath/DMGS" ] && \

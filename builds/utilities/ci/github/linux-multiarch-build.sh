@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 19, 2024
+# Last Update September 20, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -42,7 +42,19 @@ docker_base="${LP3D_BASE:-ubuntu}"
 docker_qemu="${LP3D_QEMU:-false}"
 docker_platform="--platform linux/${LP3D_ARCH}"
 
+# Format name and set WRITE_LOG - SOURCED if $1 is empty
+ME="linux-multiarch-build"
+[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
+
+# prepare output directory
+[ -z "${LP3D_BUILDPKG_PATH}" ] && LP3D_BUILDPKG_PATH=$(cd ../ && echo $PWD/buildpkg)
+[ ! -d "${LP3D_BUILDPKG_PATH}" ] && mkdir -p ${LP3D_BUILDPKG_PATH} || :
+out_path="${LP3D_BUILDPKG_PATH}"
+
 # automatic logging
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$out_path || :
 if [ "${WRITE_LOG}" = "true" ]; then
     f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
     [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
@@ -114,19 +126,8 @@ case "$LP3D_ARCH" in
         ;;
 esac
 
-# format the log name - SOURCED if $1 is empty
-WRITE_LOG=${WRITE_LOG:-true}
-ME="linux-multiarch-build"
-[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
-
 # make sure we're in the repository root directory
 cd ${GITHUB_WORKSPACE}
-
-# prepare output directory
-[ ! -d "${LP3D_BUILDPKG_PATH}" ] && \
-mkdir -p ${LP3D_BUILDPKG_PATH} || :
-out_path="${LP3D_BUILDPKG_PATH}"
 
 # prepare third-party distribution directory
 [ ! -d "${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}" ] && \
@@ -291,7 +292,10 @@ cd ~/ \\
   ls -al ./ 2>/dev/null || :; \\
   ls -al /out/ 2>/dev/null || :; \\
   ls -al /dist/ 2>/dev/null || :; \\
-fi
+fi; \\
+echo "----------------------------------------------------"; \\
+echo "docker-run-CMD Finished!"; \\
+echo "----------------------------------------------------"
 pbEOF
 
 # add Dockerfile to context
@@ -409,6 +413,7 @@ common_docker_opts=(
     -e LP3D_QEMU="${LP3D_QEMU}"
     -e LP3D_BASE="${LP3D_BASE}"
     -e LP3D_ARCH="${LP3D_ARCH}"
+    -e LP3D_LOG_PATH="/out"
     -e LP3D_APPIMAGE="${LP3D_APPIMAGE}"
     -e LP3D_NO_CLEANUP="${LP3D_NO_CLEANUP}"
     -e LP3D_AI_MAGIC_BYTES="${LP3D_AI_MAGIC_BYTES}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 06, 2022
+# Last Update September 19, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -61,10 +61,11 @@ case "${LP3D_APPIMAGE}" in
 esac
 
 # automatic logging
-WRITE_LOG=${WRITE_LOG:-true}
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_BUILDPKG_PATH}" ] && LP3D_BUILDPKG_PATH=$(cd ../ && echo $PWD/buildpkg)
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$LP3D_BUILDPKG_PATH || :
+[ ! -d "${LP3D_LOG_PATH}" ] && mkdir -p ${LP3D_LOG_PATH} || :
 if [ "${WRITE_LOG}" = "true" ]; then
-    [ ! -d "${LP3D_BUILDPKG_PATH}" ] && mkdir -p ${LP3D_BUILDPKG_PATH} || :
-    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$LP3D_BUILDPKG_PATH || :
     f="${0##*/}"; f="${f%.*}"; f="${f}-${build_base}-${build_arch}"
     [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
     f="${LP3D_LOG_PATH}/${f}"
@@ -91,10 +92,12 @@ case "${LP3D_BASE}" in
         export GITHUB=${GITHUB:-true}
         export BUILD_OPT="default"
         export BUILD="${LP3D_BASE}"
+        export WRITE_LOG
+        export LP3D_LOG_PATH
         export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
         # Check commit for version tag
         if [[ "${GITHUB_REF}" == "refs/tags/"* ]]; then
-            publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
+            publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')  #'
         fi
         if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
             export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} BUILD_ALL)"

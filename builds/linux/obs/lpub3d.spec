@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update November 24, 2022
+# Last Update September 19, 2024
 # Copyright © 2018 - 2024 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -82,7 +82,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.7.3608
+Version: 2.4.7.3609
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -249,6 +249,7 @@ echo "Build OSMesa from source.......yes"
 export build_osmesa="%{build_osmesa}"
 %endif
 # build 3rd-party renderers
+export LP3D_LOG_PATH="%{_lp3d_log_path}" ; \
 export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # Qt setup
@@ -313,10 +314,10 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3608
+* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3609
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
-* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3608
+* Sat Oct 12 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3609
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670

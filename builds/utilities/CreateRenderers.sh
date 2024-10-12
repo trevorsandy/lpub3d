@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update September 15, 2024
+# Last Update September 24, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -78,7 +78,7 @@ BuildMesaLibs() {
       Info "Fedora OSMesa Dependencies.[${mesaBuildDeps}]"
       Info "GLU Spec File.......[${mesaUtilsDir}/glu.spec]"
       Info
-      $useSudo dnf builddep -y mesa > $mesaDepsLog 2>&1
+      $useSudo dnf builddep -y mesa >> $mesaDepsLog 2>&1
       Info "Fedora Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
       $useSudo dnf builddep -y "${mesaUtilsDir}/glu.spec" >> $mesaDepsLog 2>&1
       Info "Fedora GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
@@ -90,7 +90,7 @@ BuildMesaLibs() {
       Info "Arch Linux OSMesa Dependencies.[${mesaBuildDeps}]"
       Info "PKGBUILD File.......[$pkgbuildFile]"
       Info
-      $useSudo pacman -S --noconfirm --needed $mesaBuildDeps > $mesaDepsLog 2>&1
+      $useSudo pacman -S --noconfirm --needed $mesaBuildDeps >> $mesaDepsLog 2>&1
       Info "Arch Linux OSMesa and GLU dependencies installed."  && DisplayLogTail $mesaDepsLog 15
       ;;
     esac
@@ -124,7 +124,7 @@ BuildMesaLibs() {
     env \
     OSMESA_VERSION=${osmesa_version} \
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
-    ${mesaUtilsDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
+    ${mesaUtilsDir}/build_osmesa.sh >> $mesaBuildLog 2>&1 &
     PID=$!
   fi
 
@@ -258,15 +258,17 @@ TreatLongProcess() {
 # args: 1 = <build folder>
 InstallDependencies() {
   if [ "$OS_NAME" = "Linux" ]; then
-    Info &&  Info "Install $1 build dependencies..."
+    Msg="Install $1 build dependencies for target platform: [$platform_id]..."
+    Info && Info $Msg && Info $Msg >> $depsLog 2>&1
     useSudo="sudo"
     Info "Using sudo..........[Yes]"
     case ${platform_id} in
     fedora|arch|ubuntu)
       true
       ;;
-    *)
-      Info "ERROR - Unable to process this target platform: [$platform_id]."
+    *) 
+      Msg="ERROR - Unable to process this target platform: [$platform_id]."
+      Info $Msg && Info $Msg >> $depsLog 2>&1
       ;;
     esac
     if [ "$LP3D_BUILD_OS" = "appimage" ]; then
@@ -299,11 +301,12 @@ InstallDependencies() {
       fi
       Info
       if [ "${platform_id}" = "fedora" ]; then
-        $useSudo dnf builddep -y $specFile > $depsLog 2>&1
+        $useSudo dnf builddep -y $specFile >> $depsLog 2>&1
       elif [ "${platform_id}" = "centos" ]; then
-        $useSudo yum builddep -y $specFile > $depsLog 2>&1
+        $useSudo yum builddep -y $specFile >> $depsLog 2>&1
       fi
-      Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
+      Msg="${1} dependencies installed."
+      Info $Msg && DisplayLogTail $depsLog 10 && Info $Msg >> $depsLog 2>&1
       ;;
     arch)
       case $1 in
@@ -328,13 +331,14 @@ InstallDependencies() {
       Info "PKGBUILD File.......[${pkgbuildFile}]"
       Info "Dependencies List...[${pkgbuildDeps}]"
       Info
-      $useSudo pacman -Syy --noconfirm --needed > $depsLog 2>&1
+      $useSudo pacman -Syy --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
       if [[ -n "$build_osmesa" && "$OSMesaBuildAttempt" != 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
-      Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
+      Msg="${1} dependencies installed."
+      Info $Msg && DisplayLogTail $depsLog 10 && Info $Msg >> $depsLog 2>&1
       ;;
     ubuntu)
       case $1 in
@@ -362,16 +366,19 @@ InstallDependencies() {
       Info "Control File........[${controlFile}]"
       Info "Dependencies List...[${controlDeps}]"
       Info
-      $useSudo apt-get update -qq > $depsLog 2>&1
+      $useSudo apt-get update -qq >> $depsLog 2>&1
       $useSudo apt-get install -y $controlDeps >> $depsLog 2>&1
-      Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
+      Msg="${1} dependencies installed."
+      Info $Msg && DisplayLogTail $depsLog 10 && Info $Msg >> $depsLog 2>&1
       ;;
       *)
-      Info "ERROR - Unknown platform [$platform_id]"
+      Msg="ERROR - Unknown platform [$platform_id]"
+      Info $Msg && Info $Msg >> $depsLog 2>&1
       ;;
     esac;
   else
-    Info "ERROR - Platform is undefined or invalid [$OS_NAME] - Cannot continue."
+    Msg="ERROR - Platform is undefined or invalid [$OS_NAME] - Cannot continue."
+    Info $Msg && Info $Msg >> $depsLog 2>&1
   fi
 }
 
@@ -584,17 +591,17 @@ if [ "$OS_NAME" = "Darwin" ]; then
   platform_id=macos
   platform_ver=$(echo `sw_vers -productVersion`)
 else
-  platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
+  platform_id=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
   platform_pretty=$(. /etc/os-release 2>/dev/null; [ -n "$PRETTY_NAME" ] && echo "$PRETTY_NAME" || echo $OS_NAME)
   platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
   if [ "${OBS}" = "true" ]; then
     if [ "$RPM_BUILD" = "true" ]; then
       Info "OBS Build Family.........[RPM_BUILD]"
       if [ -n "$TARGET_VENDOR" ]; then
-        platform_id=$(echo $TARGET_VENDOR | awk '{print tolower($0)}')
+        platform_id=$(echo $TARGET_VENDOR | awk '{print tolower($0)}') #'
       else
         Info "WARNING - Open Build Service did not provide a target platform."
-        platform_id=$(echo $OS_NAME | awk '{print tolower($0)}')
+        platform_id=$(echo $OS_NAME | awk '{print tolower($0)}') #'
       fi
       if [ -n "$PLATFORM_PRETTY_OBS" ]; then
         platform_pretty=$PLATFORM_PRETTY_OBS
@@ -692,22 +699,23 @@ Info "Dist Directory...........[${DIST_PKG_DIR}]"
 cd ${WD}
 
 # set log output path
-LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD}
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD} || :
 Info "Log Path.................[${LP3D_LOG_PATH}]"
 
 # expose GitHub Actions variables
 if [[ -n "$CD" || -n "${GITHUB}" ]]; then
     Info
-    Info "CI.......................${CI}"
-    Info "OBS......................${OBS}"
-    Info "QEMU.....................${LP3D_QEMU}"
-    Info "DOCKER...................${DOCKER}"
-    Info "GITHUB...................${GITHUB}"
-    Info "NO_DEPS..................${LP3D_NO_DEPS}"
-    Info "NO_CLEANUP...............${LP3D_NO_CLEANUP}"
-    Info "BUILD BASE...............${LP3D_BASE}"
-    Info "BUILD ARCH...............${LP3D_ARCH}"
-    Info "APPIMAGE.................${LP3D_APPIMAGE}"
+    [ -n "$CI" ] && Info "CI.......................${CI}" || :
+    [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
+    [ -n "$LP3D_QEMU" ] && Info "QEMU.....................${LP3D_QEMU}" || :
+    [ -n "$DOCKER" ] && Info "DOCKER...................${DOCKER}" || :
+    [ -n "$GITHUB" ] && Info "GITHUB...................${GITHUB}" || :
+    [ -n "$LP3D_CPU_CORES" ] && Info "CPU CORES................${LP3D_CPU_CORES}" || :
+    [ -z "$LP3D_NO_DEPS" ] && Info "LOAD LIB DEPENDENCY......true" || :
+    [ -n "$LP3D_NO_CLEANUP" ] && Info "NO CLEANUP...............${LP3D_NO_CLEANUP}" || :
+    [ -n "$LP3D_BASE" ] && Info "BUILD BASE...............${LP3D_BASE}" || :
+    [ -n "$LP3D_ARCH" ] && Info "BUILD ARCH...............${LP3D_ARCH}" || :
+    [ -n "$LP3D_APPIMAGE" ] && Info "APPIMAGE.................${LP3D_APPIMAGE}" || :
 fi
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
@@ -783,9 +791,13 @@ else
   # set dependency profiler and nubmer of CPUs
   LDD_EXEC=ldd
   if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
-      BUILD_CPUs=1
+    BUILD_CPUs=1
   else
+    if [ -n "${LP3D_CPU_CORES}" ]; then
+      BUILD_CPUs=${LP3D_CPU_CORES}
+    else
       BUILD_CPUs=$(nproc)
+    fi
   fi
 fi
 
@@ -827,7 +839,8 @@ LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui
 
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
-  Info &&  Info "Install $OS_NAME renderer build dependencies..."
+  Msg="Install $OS_NAME renderer build dependencies..."
+  Info && Info $Msg && Info $Msg > $depsLog 2>&1
   Info "----------------------------------------------------"
   Info "Platform.................[macos]"
   Info "Using sudo...............[No]"
@@ -848,7 +861,8 @@ if [ "$OS_NAME" = "Darwin" ]; then
   if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
     Info "Good to go - X11 found."
   else
-    Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
+    Msg="ERROR - Sorry to say friend, I cannot go on - X11 not found."
+    Info $Msg && Info $Msg > $depsLog 2>&1
     if [ "${CI}" != "true" ]; then
       Info "  You can install xquartz using homebrew:"
       Info "  \$ brew cask list"
@@ -868,15 +882,16 @@ if [ "$OS_NAME" = "Darwin" ]; then
      read -n 1 -p "Do you want to update brew? : " getoption
      if [ "$getoption" = "u" ] || [ "$getoption" = "U" ]; then
        Info "--- Updating brew - this may take a while..."
-       brew update > $depsLog 2>&1
+       brew update >> $depsLog 2>&1
      fi
     fi
     Info  "--- Install depenencies..."
     brew install $brewDeps >> $depsLog 2>&1
-    Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
+    Msg="$OS_NAME dependencies installed."
+    Info $Msg && DisplayLogTail $depsLog 10 && Info $Msg >> $depsLog 2>&1
   else
-    Info "Renderer artefacts exist, nothing to build. Install dependencies skipped" > $depsLog 2>&1
-    DisplayLogTail $depsLog 3
+    Msg="Renderer artefacts exist, nothing to build. Install dependencies skipped"
+    Info $Msg && DisplayLogTail $depsLog 3 && Info $Msg >> $depsLog 2>&1
   fi
   # Set povray --without-optimiz flag on macOS High Sierra 10.13
   [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || true
@@ -932,7 +947,8 @@ for buildDir in ldglite ldview povray; do
     if [ -f "${buildDir}.tar.gz" ]; then
       ExtractArchive ${buildDir} ${validSubDir}
     else
-      Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
+      Msg="ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
+      Info && Info $Msg && Info $Msg >> $buildLog 2>&1
     fi
     if [[ -n "$build_osmesa" && -z "$get_local_libs" && "$OSMesaBuildAttempt" != 1 ]]; then
 
@@ -940,7 +956,8 @@ for buildDir in ldglite ldview povray; do
 
       if [[ $? != 0 ]]; then
         OSMesaBuildAttempt=1
-        Info && Info "Build OSMesa failed with return code $?. $ME will terminate."
+        Msg="Build OSMesa failed with return code $?. $ME will terminate."
+        Info && Info $Msg && Info $Msg >> $buildLog 2>&1
         exit 1
       fi
     fi
@@ -991,18 +1008,20 @@ for buildDir in ldglite ldview povray; do
     if [ "${OBS}" != "true" ]; then
       if [ -f "${validExe}" ]; then
         Info && Info "Build check - ${buildDir}..."
-        DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}"
-        Info
+        DisplayCheckStatus "${buildLog}" "${checkString}" "${linesBefore}" "${linesAfter}" && Info
         DisplayLogTail ${buildLog} ${displayLogLines}
       else
-        Info && Info "ERROR - ${validExe} not found. Binary was not successfully built"
+        Msg="ERROR - ${validExe} not found. Binary was not successfully built"
+        Info && Info $Msg && Info $Msg >> $buildLog 2>&1
         Info "------------------Build Log-------------------------"
         cat ${buildLog}
       fi
     fi
-    Info && Info "Build ${buildDir} finished." && Info
+    Msg="Build ${buildDir} finished."
+    Info && Info $Msg && Info && Info $Msg >> $buildLog 2>&1
   else
-    Info && Info "Renderer artefact binary for ${!artefactVer} exists - build skipped." && Info
+    Msg="Renderer artefact binary for ${!artefactVer} exists - build skipped."
+    Info && Info $Msg && Info && Info $Msg >> $buildLog 2>&1
   fi
   cd ${WD}
 done

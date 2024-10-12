@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 19, 2024
+# Last Update September 22, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -61,12 +61,6 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
-# Format the log name - SOURCED if $1 is empty
-WRITE_LOG=${WRITE_LOG:-true}
-ME="CreateDeb"
-[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
-
 CWD=`pwd`
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
@@ -80,19 +74,18 @@ LP3D_ARCH=${LP3D_ARCH:-amd64}
 DEB_EXTENSION=${DEB_EXTENSION:-$LP3D_ARCH.deb}
 LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
 
-# OpenSUSE Build Service flag must be set for CreateRenderers.sh
-export OBS
-if [ "${XSERVER}" = "true" ]; then
-	if test "${LOCAL}" != "true"; then export XSERVER=; fi
-fi
+export OBS # OpenSUSE Build Service flag must be set for CreateRenderers.sh
 
-# tell curl to be silent, continue downloads and follow redirects
-curlopts="-sL -C -"
+# Format name and set WRITE_LOG - SOURCED if $1 is empty
+ME="CreateDeb"
+[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 
-# logging stuff - increment log file name
+# automatic logging
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
 if [ "${WRITE_LOG}" = "true" ]; then
     f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
-    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
     f="${LP3D_LOG_PATH}/${f}"
     ext=".log"
     if [[ -e "$f$ext" ]] ; then
@@ -111,6 +104,15 @@ if [ "${WRITE_LOG}" = "true" ]; then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
+export LP3D_LOG_PATH
+
+if [ "${XSERVER}" = "true" ]; then
+    if test "${LOCAL}" != "true"; then export XSERVER=; fi
+fi
+
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
 # when running on Travis-CI, use this block...
 if [ "${TRAVIS}" = "true"  ]; then
     # Travis starting point: /home/travis/build/trevorsandy/lpub3d
@@ -122,9 +124,10 @@ echo "Start $ME execution at $CWD..."
 
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo "   LPUB3D BUILD PLATFORM..$([ "$DOCKER" = "true" ] && echo "DOCKER" || echo "HOST RUNNER")"
 if [ "$LOCAL" = "true" ]; then
     echo "   LPUB3D BUILD TYPE......Local"
-	echo "   LPUB3D BUILD DISPLAY...$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
+    echo "   LPUB3D BUILD DISPLAY...$(if test "${XSERVER}" = "true"; then echo XSERVER; else echo XVFB; fi)"
     echo "   UPDATE BUILD SCRIPT....$(if test "${UPDATE_SH}" = "true"; then echo YES; else echo NO; fi)"
     echo "   PRESERVE BUILD REPO....$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
     if [ -n "$LOCAL_RESOURCE_PATH" ]; then
@@ -335,46 +338,49 @@ if [ -f ${DISTRO_FILE} ]
 then
     echo "11-1. Check (lintian) deb package..."
     lintian ${DISTRO_FILE} ${WORK_DIR}/${LPUB3D}.dsc
-
-    if [ "${LP3D_QEMU}" = "true" ]; then
-        if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-            echo "11-2. Pre-package build check LPub3D..."
-            export LP3D_BUILD_OS=
-            export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
-            export LP3D_CHECK_LDD="1"
-            export LP3D_CHECK_STATUS="--version --app-paths"
-            case ${LP3D_ARCH} in
-                "aarch64"|"arm64")
-                    LP3D_BUILD_ARCH="64bit_release" ;;
-                *)
-                    LP3D_BUILD_ARCH="32bit_release" ;;
-            esac
-            export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-            (cd ${SOURCE_DIR} && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh)
-        else
-            echo "11-2. Building in QEMU, skipping build check."
-        fi
+    if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
+        echo "11-2. Skipping ${DISTRO_FILE} build check."
     else
-        echo "11-2. Build check ${DISTRO_FILE}"
-        if [ ! -f "/usr/bin/update-desktop-database" ]; then
-            echo "      Program update-desktop-database not found. Installing..."
-            sudo apt-get install -y desktop-file-utils
-        fi
-        # Install package - here we use the distro file name
-        echo "      11-2. Build check install ${LPUB3D}..."
-        sudo dpkg -i ${DISTRO_FILE}
-        # Check if exe exist - here we use the executable name
-        LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
-        SOURCE_DIR=${WORK_DIR}
-        if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
-            # Check commands
-            LP3D_CHECK_LDD="1"
-            source ${WORK_DIR}/builds/check/build_checks.sh
-            # Cleanup - here we use the package name
-            echo "      11-2. Build check uninstall ${LPUB3D}..."
-            sudo dpkg -r ${LPUB3D}
+        if [ "${LP3D_QEMU}" = "true" ]; then
+            if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
+                echo "11-2. Pre-package build check LPub3D..."
+                export LP3D_BUILD_OS=
+                export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
+                export LP3D_CHECK_LDD="1"
+                export LP3D_CHECK_STATUS="--version --app-paths"
+                case ${LP3D_ARCH} in
+                    "aarch64"|"arm64")
+                        LP3D_BUILD_ARCH="64bit_release" ;;
+                    *)
+                        LP3D_BUILD_ARCH="32bit_release" ;;
+                esac
+                export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+                (cd ${SOURCE_DIR} && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh)
+            else
+                echo "11-2. Building in QEMU, skipping build check."
+            fi
         else
-            echo "11-2. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
+            echo "11-2. Build check ${DISTRO_FILE}"
+            if [ ! -f "/usr/bin/update-desktop-database" ]; then
+                echo "      Program update-desktop-database not found. Installing..."
+                sudo apt-get install -y desktop-file-utils
+            fi
+            # Install package - here we use the distro file name
+            echo "      11-2. Build check install ${LPUB3D}..."
+            sudo dpkg -i ${DISTRO_FILE}
+            # Check if exe exist - here we use the executable name
+            LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
+            SOURCE_DIR=${WORK_DIR}
+            if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+                # Check commands
+                LP3D_CHECK_LDD="1"
+                source ${WORK_DIR}/builds/check/build_checks.sh
+                # Cleanup - here we use the package name
+                echo "      11-2. Build check uninstall ${LPUB3D}..."
+                sudo dpkg -r ${LPUB3D}
+            else
+                echo "11-2. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
+            fi
         fi
     fi
 

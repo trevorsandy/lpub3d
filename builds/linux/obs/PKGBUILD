@@ -1,8 +1,8 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: September 17, 2024
+#  Last Update: September 19, 2024
 #  Copyright (C) 2017 - 2024 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.7.3608
+pkgver=2.4.7.3609
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -27,6 +27,7 @@ prepare() {
 	export PLATFORM_VER="2024"
 	export LPUB3D=${pkgname}
 	export TARGET_CPU="$(uname -m)"
+	export LP3D_LOG_PATH=
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh

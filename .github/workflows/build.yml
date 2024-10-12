@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 12, 2024
+# Last Update: September 24, 2024
 # Copyright (C) 2021 - 2024 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -41,10 +41,14 @@ jobs:
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-${{ matrix.BUILD }}-${{ secrets.THIRD_PARTY_CACHE }}
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - name: Build ${{ matrix.BUILD }}
         run: bash -ex builds/utilities/ci/github/linux-build.sh
         env:
           BUILD: ${{ matrix.BUILD }}
+          LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -84,9 +88,13 @@ jobs:
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - name: Build macOS
         run: bash -ex builds/utilities/ci/github/macos-build.sh
         env:
+          LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
       - name: List Artifacts
         if: always()

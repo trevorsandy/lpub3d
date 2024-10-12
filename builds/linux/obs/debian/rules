@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update November 06, 2022
+# Last Update September 19, 2024
 # Copyright 2017 - 2024 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -94,6 +94,7 @@ configure-stamp:
 	# build 3rd-party renderers
 	export LPUB3D=lpub3d; \
 	export WD=$$(readlink -e ../); \
+	export LP3D_LOG_PATH=${LP3D_LOG_PATH}; \
 	export LP3D_UCS_VER=${LP3D_UCS_5}; \
 	export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_10}" ]) && echo 1 || :); \
 	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh

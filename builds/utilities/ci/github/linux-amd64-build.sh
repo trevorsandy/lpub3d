@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 18, 2024
+# Last Update September 20, 2024
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -38,7 +38,19 @@ docker_base="$LP3D_BASE"
 docker_arch="amd64"
 docker_platform="--platform linux/${docker_arch}"
 
+# Format name and set WRITE_LOG - SOURCED if $1 is empty
+ME="linux-amd64-build"
+[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
+
+# prepare output directory
+[ -z "${LP3D_BUILDPKG_PATH}" ] && LP3D_BUILDPKG_PATH=$(cd ../ && echo $PWD/buildpkg)
+[ ! -d "${LP3D_BUILDPKG_PATH}" ] && mkdir -p ${LP3D_BUILDPKG_PATH} || :
+out_path="${LP3D_BUILDPKG_PATH}"
+
 # automatic logging
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$out_path || :
 if [ "${WRITE_LOG}" = "true" ]; then
     f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
     f="${out_path}/${f}"
@@ -81,19 +93,8 @@ case "${docker_base}" in
         ;;
 esac
 
-# format the log name - SOURCED if $1 is empty
-WRITE_LOG=${WRITE_LOG:-true}
-ME="linux-amd64-build"
-[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
-
 # make sure we're in the repository root directory
 cd ${GITHUB_WORKSPACE}
-
-# prepare output directory
-[ ! -d "${LP3D_BUILDPKG_PATH}" ] && \
-mkdir -p ${LP3D_BUILDPKG_PATH} || :
-out_path="${LP3D_BUILDPKG_PATH}"
 
 # prepare third-party distribution directory
 [ ! -d "${LP3D_3RD_PARTY_PATH}/${docker_base}_${docker_arch}" ] && \
@@ -203,8 +204,8 @@ cd ~/ \\
   sudo mv -f ./debbuild/*.buildinfo /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.dsc /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.changes /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./debbuild/*log /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+  sudo mv -f ./debbuild/*.log /buildpkg/ 2>/dev/null || :; \\
+  sudo mv -f ./*.log /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./*_assets.tar.gz /buildpkg/ 2>/dev/null || :; \\
   ls -al /buildpkg/; \\
 pbEOF
@@ -253,7 +254,7 @@ cd ~/ \\
     ls -al ./rpmbuild/BUILD/lpub3d_linux_3rdparty/; \\
     sudo mv -f ./rpmbuild/RPMS/$(uname -m)/*.rpm* /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./rpmbuild/BUILD/*.log /buildpkg/ 2>/dev/null || :; \\
-    sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./*.log /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./*_assets.tar.gz /buildpkg/ 2>/dev/null || :; \\
     ls -al /buildpkg; \\
 pbEOF
@@ -296,7 +297,7 @@ cd ~/ \\
     ls -al ./pkgbuild/src/lpub3d_linux_3rdparty/; \\
     sudo mv -f ./pkgbuild/*.zst* /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./pkgbuild/src/*.log /buildpkg/ 2>/dev/null || :; \\
-    sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./*.log /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./*_assets.tar.gz /buildpkg/ 2>/dev/null || :; \\
     ls -al /buildpkg/; \\
 pbEOF
@@ -308,7 +309,10 @@ pbEOF
 esac
 cat << pbEOF >>${out_path}/docker-run-CMD.sh
     sudo cp -af ./*.log /buildpkg/ 2>/dev/null || :; \\
-   fi
+   fi; \\
+   echo "----------------------------------------------------"; \\
+   echo "docker-run-CMD Finished!"; \\
+   echo "----------------------------------------------------"
 pbEOF
 
 # add Dockerfile to context
@@ -344,6 +348,8 @@ common_docker_opts+=(
     -e GITHUB="${GITHUB}"
     -e LPUB3D="${LPUB3D}"
     -e BUILD_OPT="${BUILD_OPT}"
+    -e WRITE_LOG="${WRITE_LOG}"
+    -e LP3D_LOG_PATH="/buildpkg"
     -e DOCKER="true"
     -v "${PWD}":/in
     -v "${out_path}":/buildpkg

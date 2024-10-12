@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 15, 2024
+# Last Update: September 22, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -42,17 +42,17 @@ realpath() {
   echo "$REALPATH_"
 }
 
-# Format the log name - SOURCED if $1 is empty
-WRITE_LOG=${WRITE_LOG:-true}
+CWD=`pwd`
+
+# Format name - SOURCED if $1 is empty
 ME="CreateDmg"
 [ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 
-CWD=`pwd`
-
-# logging stuff
+# automatic logging
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
 if [ "${WRITE_LOG}" = "true" ]; then
-    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
     f="${LP3D_LOG_PATH}/$ME"
     ext=".log"
     if [[ -e "$f$ext" ]] ; then
@@ -71,6 +71,8 @@ if [ "${WRITE_LOG}" = "true" ]; then
     exec 2> >(tee -a ${LOG} >&2)
 fi
 
+export LP3D_LOG_PATH
+
 echo "Start $ME execution at $CWD..."
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
@@ -87,6 +89,9 @@ elif [ "$BUILD_OPT" = "renderers" ]; then
   echo "   BUILD OPTION...........[renderers only]"
 else
   echo "   BUILD OPTION...........[build package]"
+fi
+if [ "$GITHUB" = "true" ]; then
+  echo "   CPU CORES..............[${LP3D_CPU_CORES}]"
 fi
 
 # tell curl to be silent, continue downloads and follow redirects
@@ -199,7 +204,7 @@ if [ ! -f "${LDVIEW_PATH}/LDView" ]; then
   BUILD_RENDERERS=ko && echo "ERROR - LDView not found at ${LDVIEW_PATH}/"
 fi
 if [ ! -f "${POVRAY_PATH}/lpub3d_trace_cui" ]; then
-  BUILD_RENDERERS=ko && echo "ERROR - POVRay not found at ${POVRAY_PATH}/"  
+  BUILD_RENDERERS=ko && echo "ERROR - POVRay not found at ${POVRAY_PATH}/"
 fi
 if [ "${BUILD_RENDERERS}" = "ko" ]; then
   echo "ERROR - all renderers were not successfully built, ${LPUB3D} build cannot continue."
@@ -269,8 +274,12 @@ fi
 echo && echo "-  configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 echo && qmake -v && echo
-qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
-/usr/bin/make
+qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=sdk_no_version_check CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
+if [ -n "${LP3D_CPU_CORES}" ]; then
+  /usr/bin/make -j${LP3D_CPU_CORES}
+else
+  /usr/bin/make -j$(nproc)
+fi
 
 # Check if build is OK or stop and return error.
 if [ ! -f "mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D" ]; then
@@ -317,10 +326,13 @@ echo "- change library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
-echo "- build checks..."
-# Check if exe exist - here we use the executable name
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
-if [ -f "${LPUB3D_EXE}" ]; then
+if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
+  echo "- skipping ${LPUB3D_EXE} build check."
+else
+  echo "- build checks..."
+  # Check if exe exist - here we use the executable name
+  if [ -f "${LPUB3D_EXE}" ]; then
     echo "- Build package: $PWD/${LPUB3D_EXE}"
     # Check commands
     SOURCE_DIR=../..
@@ -330,8 +342,9 @@ if [ -f "${LPUB3D_EXE}" ]; then
     if [ "$BUILD_OPT" = "verify" ]; then
       exit 0
     fi
-else
+  else
     echo "- ERROR - build-check failed. $(realpath ${LPUB3D_EXE}) not found."
+  fi
 fi
 
 echo "- setup dmg source dir $(realpath DMGSRC/)..."

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 18, 2024
+# Last Update September 22, 2024
 # Copyright (C) 2024 by Trevor SANDY
 # Build LPub3D Linux Deb distribution
 # You can run this script from the Docker image user HOME
@@ -38,7 +38,7 @@ BLOCK_COMMENT
 LOCAL=${LOCAL:-true}
 DOCKER=${DOCKER:-true}
 LPUB3D=${LPUB3D:-lpub3d}
-PRESERVE=${PRESERVE:-false}
+PRESERVE=${PRESERVE:-true}
 UPDATE_SH=${UPDATE_SH:-true}
 XSERVER=${XSERVER:-false}
 LP3D_ARCH=${LP3D_ARCH:-amd64}
@@ -49,16 +49,16 @@ if ! test "$1"; then
   os=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID | awk '{print tolower($0)}') #'
   case $os in
     ubuntu|debian) opt=Deb ;;
-	fedora|suse|centos) opt=Rpm ;;
-	arch) opt=Pkg ;;
-	*) echo "Could not identify the OS flavour as Debian, Redhat or Arch derived" && exit 1 ;;
+    fedora|suse|centos) opt=Rpm ;;
+    arch) opt=Pkg ;;
+    *) echo "Could not identify the OS flavour as Debian, Redhat or Arch derived" && exit 1 ;;
   esac
 else
   opt=$1
 fi
 
-case $opt in 
-  Deb|Rpm|Pkg) : ;; 
+case $opt in
+  Deb|Rpm|Pkg) : ;;
   *) echo "Invalid option specified. Valid argument is Deb, Rpm, or Pkg." && exit 1 ;;
 esac
 
@@ -72,38 +72,42 @@ case $opt in
   Pkg) buildFolder=$HOME/pkgbuild ;;
 esac
 
+SKIP_CLEANUP=
 if test "${PRESERVE}" = "true"; then
-  echo && echo -n "Cleaning up $buildFolder folder..."
-
-  case $opt in
-    Deb)
-    if test -d "$buildFolder/SOURCES"; then
-      ( cd $buildFolder && \
-        for dir in ldglite ldview povray; do if test -d "$dir"; then mv $dir SOURCES; fi; done && \
-        mv SOURCES $HOME && \
-        rm -rf ./* && \
-        mv $HOME/SOURCES . && \
-        for dir in ldglite ldview povray; do if test -d "SOURCES/$dir"; then mv SOURCES/$dir .; fi; done ) >$l.out 2>&1 && rm $l.out
-    fi
-    ;;
-    Rpm)
-    if test -d "$buildFolder/SOURCES"; then
-      ( cd $buildFolder && \
-        for dir in BUILDROOT RPMS SRPMS SPECS; do if test -d "$dir"; then rm -rf $dir; fi; done && \
-        if test -d "BUILD"; then rm -rf BUILD/*.log BUILD/lpub3d*; fi && \
-        cd SOURCES && if test -f "${LPUB3D}-git.tar.gz"; then tar -xf lpub3d-git.tar.gz; fi && \
-        if test -d "${LPUB3D}-git"; then mv ${LPUB3D}-git ${LPUB3D}; fi && \
-        rm -rf ${LPUB3D}-git.tar.gz ) >$l.out 2>&1 && rm $l.out
-    fi
-    ;;
-    Pkg)
-    if test -d "$buildFolder/src"; then
-      ( cd $HOME && rm -rf *.log *assets* && \
-	    cd $buildFolder && if test -f "PKGBUILD"; then rm -rf PKGBUILD; fi && rm -rf pkg *.zst* *.out lpub3d*  && \
-		cd $buildFolder/src && rm -rf *.log lpub3d* *.zip ) >$l.out 2>&1 && rm $l.out
-    fi
-    ;;
-  esac
+  if [ -n "$SKIP_CLEANUP" ]; then
+    echo -n "Skipping up $buildFolder folder..."
+  else
+    echo && echo -n "Cleaning up $buildFolder folder..."
+    case $opt in
+      Deb)
+      if test -d "$buildFolder/SOURCES"; then
+        dirs="ldglite ldview povray"
+        ( cd $buildFolder && \
+          for dir in $dirs; do if test -d "$dir"; then mv $dir SOURCES; fi; done && \
+          mv SOURCES $HOME && rm -rf ./* && mv $HOME/SOURCES . && \
+          for dir in $dirs; do if test -d "SOURCES/$dir"; then mv SOURCES/$dir .; fi; done && \
+          cd $HOME && rm -rf ./*.log ./*assets.tar.gz ) >$l.out 2>&1 && rm $l.out
+      fi
+      ;;
+      Rpm)
+      if test -d "$buildFolder/SOURCES"; then
+        ( cd $buildFolder && \
+          for dir in BUILDROOT RPMS SRPMS SPECS; do if test -d "$dir"; then rm -rf $dir; fi; done && \
+          if test -d "BUILD"; then rm -rf BUILD/*.log BUILD/lpub3d*; fi && \
+          cd SOURCES && if test -f "${LPUB3D}-git.tar.gz"; then tar -xf lpub3d-git.tar.gz; fi && \
+          if test -d "${LPUB3D}-git"; then mv ${LPUB3D}-git ${LPUB3D}; fi && \
+          rm -rf ${LPUB3D}-git.tar.gz ) >$l.out 2>&1 && rm $l.out
+      fi
+      ;;
+      Pkg)
+      if test -d "$buildFolder/src"; then
+        ( cd $HOME && rm -rf *.log *assets* && \
+          cd $buildFolder && if test -f "PKGBUILD"; then rm -rf PKGBUILD; fi && rm -rf pkg *.zst* *.out lpub3d*  && \
+          cd $buildFolder/src && rm -rf *.log lpub3d* *.zip ) >$l.out 2>&1 && rm $l.out
+      fi
+      ;;
+    esac
+  fi
 
   [ -f $l.out ] && \
   echo "ERROR - Could not clean up $buildFolder folder." && \

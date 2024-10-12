@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 19, 2024
+# Last Update September 20, 2024
 # Copyright (C) 2022 - 2024 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -58,11 +58,38 @@ Error () {
   Info "ERROR - $*" >&2
 }
 
-# Format the log name - SOURCED if $1 is empty
-WRITE_LOG=${WRITE_LOG:-true}
+# Format name and set WRITE_LOG - SOURCED if $1 is empty
 ME="CreateLinuxMulitArch"
 [ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
+
+# automatic logging
+[ -d "/out" ] && LP3D_LOG_PATH=/out
+[ -z "${WRITE_LOG}" ] && WRITE_LOG=${WRITE_LOG:-true} || :
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
+if [ "${WRITE_LOG}" = "true" ]; then
+  f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
+  [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage" || :
+  f="${LP3D_LOG_PATH}/${f}"
+  ext=".log"
+  if [[ -e "$f$ext" ]] ; then
+    i=1
+    f="${f%.*}";
+    while [[ -e "${f}_${i}${ext}" ]]; do
+      let i++
+    done
+    f="${f}_${i}${ext}"
+  else
+    f="${f}${ext}"
+  fi
+  # output log file
+  LOG="$f"
+  exec > >(tee -a ${LOG} )
+  exec 2> >(tee -a ${LOG} >&2)
+fi
+
+export WRITE_LOG
+export LP3D_LOG_PATH
 
 Info "Start $ME execution from $PWD..."
 
@@ -103,34 +130,26 @@ export OBS=${OBS:-false}
 export GITHUB=${GITHUB:-true}
 export DOCKER=${DOCKER:-true}
 export LP3D_QEMU=${LP3D_QEMU:-false}
-export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
+export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
 
-Info "BUILD OPTION.......${BUILD_OPT}"
-Info "SOURCE DIR.........${LPUB3D}"
-Info "BUILD DIR..........${BUILD_DIR}"
-Info "BUILD BASE.........${LP3D_BASE}"
-Info "BUILD ARCH.........${LP3D_ARCH}"
-Info "QEMU...............${LP3D_QEMU}"
-Info "CI.................${CI}"
-Info "GITHUB.............${GITHUB}"
-Info "APPIMAGE...........${LP3D_APPIMAGE}"
+[ -n "${BUILD_OPT}" ] && Info "BUILD OPTION.......${BUILD_OPT}" || :
+[ -n "${LPUB3D}" ] && Info "SOURCE DIR.........${LPUB3D}" || :
+[ -n "${BUILD_DIR}" ] && Info "BUILD DIR..........${BUILD_DIR}" || :
+[ -n "${LP3D_BASE}" ] && Info "BUILD BASE.........${LP3D_BASE}" || :
+[ -n "${LP3D_ARCH}" ] && Info "BUILD ARCH.........${LP3D_ARCH}" || :
+[ -n "${LP3D_QEMU}" ] && Info "QEMU...............${LP3D_QEMU}" || :
+[ -n "${CI}" ] && Info "CI.................${CI}" || :
+[ -n "${GITHUB}" ] && Info "GITHUB.............${GITHUB}" || :
+[ -n "${LP3D_APPIMAGE}" ] && Info "APPIMAGE...........${LP3D_APPIMAGE}" || :
 if [ "${LP3D_QEMU}" = "true" ]; then
-[ -n "${LP3D_PRE_PACKAGE_CHECK}" ] && \
-Info "PRE-PACKAGE CHECK..true" ||
-Info "PRE-PACKAGE CHECK..false"
+Info "PRE-PACKAGE CHECK..$([ -n "${LP3D_PRE_PACKAGE_CHECK}" ] && echo "true" || echo "false")"
 fi
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
-[ -n "${LP3D_AI_BUILD_TOOLS}" ] && \
-Info "BUILD AI TOOLS.....true" ||
-Info "BUILD AI TOOLS.....false"
-[ -n "${LP3D_AI_MAGIC_BYTES}" ] && \
-Info "PATCH MAGIC_BYTES..false" ||
-Info "PATCH MAGIC_BYTES..true"
-[ -n "${LP3D_AI_EXTRACT_PAYLOAD}" ] && \
-Info "EXTRACT AI PAYLOAD.true" ||
-Info "EXTRACT AI PAYLOAD.true"
+Info "BUILD AI TOOLS.....$([ -n "${LP3D_AI_BUILD_TOOLS}" ] && echo "true" || echo "false")"
+Info "PATCH MAGIC_BYTES..$([ -n "${LP3D_AI_MAGIC_BYTES}" ] && echo "true" || echo "false")"
+Info "EXTRACT AI PAYLOAD.$([ -n "${LP3D_AI_EXTRACT_PAYLOAD}" ] && echo "true" || echo "false")"
 fi
 
 # Download LDraw library archive files if not available
@@ -207,29 +226,6 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
 fi
 
 # ............Local Build Calls...................#
-
-# logging stuff - increment log file name
-if [ "${WRITE_LOG}" = "true" ]; then
-  f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
-  [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage" || :
-  [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
-  f="${LP3D_LOG_PATH}/${f}"
-  ext=".log"
-  if [[ -e "$f$ext" ]] ; then
-    i=1
-    f="${f%.*}";
-    while [[ -e "${f}_${i}${ext}" ]]; do
-      let i++
-    done
-    f="${f}_${i}${ext}"
-  else
-    f="${f}${ext}"
-  fi
-  # output log file
-  LOG="$f"
-  exec > >(tee -a ${LOG} )
-  exec 2> >(tee -a ${LOG} >&2)
-fi
 
 # Copy or download source
 if [ "${TRAVIS}" != "true" ]; then
