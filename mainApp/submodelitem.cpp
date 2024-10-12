@@ -1882,6 +1882,8 @@ void SubModelBackgroundItem::contextMenuEvent(
     } else if (selectedAction == refreshSubmodelCacheAction) {
         if (subModel->step)
             clearStepCache(subModel->step,Options::SMI);
+        else if (subModel->steps && !subModel->perStep)
+            clearPageCache(subModel->parentRelativeType,dynamic_cast<Page *>(subModel->steps), Options::SMI);
     } else if (selectedAction == copySmpImagePathAction) {
         QObject::connect(copySmpImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
         copySmpImagePathAction->setData(subModel->imageName);
