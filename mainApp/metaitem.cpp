@@ -1531,6 +1531,7 @@ void MetaItem::setMetaTopOf(
         Where topOfFile = topOf;
 
         if (topOf.lineNumber == 0) {
+            scanPastGlobal(topOfFile);
             QString line = lpub->ldrawFile.readLine(topOf.modelName,topOf.lineNumber);
             QStringList argv;
             split(line,argv);
