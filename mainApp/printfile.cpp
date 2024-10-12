@@ -81,7 +81,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
                     .arg(QString::number(pageWidthIn,'f',4),
                          QString::number(pageHeightIn,'f',4))
                     .arg(layoutOrientation == QPageLayout::Landscape ? "Landscape":"Portrait")
-                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
+                    .arg(lpub->page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
                     .arg(pageNum).arg(displayPageNum);
 #endif
       return QPageLayout(pageSize, layoutOrientation, QMarginsF(0,0,0,0));
@@ -122,7 +122,7 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
                          QString::number(pageHeight,'f',0),
                          QString::number(pageWidthIn,'f',4),
                          QString::number(pageHeightIn,'f',4))
-                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
+                    .arg(lpub->page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
                     .arg(displayPageNum);
 #endif
     } else {
