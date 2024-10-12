@@ -36,7 +36,7 @@
 #define VER_GITHUB_USER_STR                 "https://github.com/trevorsandy"
 #define VER_GITHUB_API_STR                  "https://api.github.com/repos/trevorsandy"
 #define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_COMMIT_STR
-#define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues"
+#define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues/new/choose"
 #define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
 #ifdef OPT_PREFIX
   #define VER_OPT_PREFIX_STR                OPT_PREFIX
