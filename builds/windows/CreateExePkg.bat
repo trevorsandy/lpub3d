@@ -115,16 +115,16 @@ ECHO.
 ECHO - Selected build options:
 ECHO.
 IF %RUN_NSIS%        == 0 ECHO - This configuration will allow you to test your NSIS scripts.
-IF /I "%GITHUB%"     == "True" ECHO   GITHUB BUILD...................[Yes]
-IF /I "%APPVEYOR%"   == "True" ECHO   APPVEYOR BUILD.................[Yes]
-IF %UNIVERSAL_BUILD% == 1 ECHO   MULTI-ARCH BUILD...............[Yes]
-IF %AUTO%            == 1 ECHO   AUTOMATIC BUILD................[Yes]
-IF %RUN_NSIS%        == 1 ECHO   RUN NSIS BUILD UTILITY.........[Yes]
-IF %SIGN_APP%        == 1 ECHO   SIGN INSTALL PACKAGES..........[Yes]
-IF %RUN_NSIS%        == 0 ECHO   RUN NSIS BUILD UTILITY.........[No]
-IF %SIGN_APP%        == 0 ECHO   SIGN INSTALL PACKAGES..........[No]
-IF %UNIVERSAL_BUILD% == 0 ECHO   MULTI-ARCH BUILD...............[No]
-IF %AUTO%            == 0 ECHO   AUTOMATIC BUILD................[No]
+IF /I "%GITHUB%"     == "True" ECHO   GITHUB BUILD.........................[Yes]
+IF /I "%APPVEYOR%"   == "True" ECHO   APPVEYOR BUILD.......................[Yes]
+IF %UNIVERSAL_BUILD% == 1 ECHO   MULTI-ARCH BUILD.....................[Yes]
+IF %AUTO%            == 1 ECHO   AUTOMATIC BUILD......................[Yes]
+IF %RUN_NSIS%        == 1 ECHO   RUN NSIS BUILD UTILITY...............[Yes]
+IF %SIGN_APP%        == 1 ECHO   SIGN INSTALL PACKAGES................[Yes]
+IF %RUN_NSIS%        == 0 ECHO   RUN NSIS BUILD UTILITY...............[No]
+IF %SIGN_APP%        == 0 ECHO   SIGN INSTALL PACKAGES................[No]
+IF %UNIVERSAL_BUILD% == 0 ECHO   MULTI-ARCH BUILD.....................[No]
+IF %AUTO%            == 0 ECHO   AUTOMATIC BUILD......................[No]
 
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...
@@ -274,14 +274,8 @@ SET LP3D_AVAILABLE_VERSIONS_flp=unknown
 SET LP3D_GITHUB_BASE=https://github.com/trevorsandy/%LPUB3D_DIR%
 SET LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net
 SET LP3D_SOURCEFORGE_UPDATE_BASE=https://lpub3d.sourceforge.io
-
-IF "%GITHUB%" EQU "True" (
-  SET LP3D_DEB=bionic
-  SET LP3D_FCV=fc33
-) ELSE (
-  SET LP3D_FCV=fc26
-  SET LP3D_DEB=bionic
-)
+SET LP3D_DEB=bionic
+SET LP3D_FCV=fc33
 
 ECHO.
 ECHO - Setting up release build parameters...
@@ -303,6 +297,10 @@ REM tokens=*  : all tokens in %%i                               - e.g. %%i
 REM tokens=2* : second token in %%i, rest in next token         - e.g. %%j
 REM tokens=1,2: first token in %%i, second in %%j               - e.g. %%i, %%j
 REM tokens=1-3: first token in %%i, second in %%j, third in %%k - e.g. %%i,%%j,%%k
+
+REM Available versions imported from update-config-files.bat
+REM LP3D_PAST_RELEASES=2.3.6,2.0.20,1.3.5,1.2.3,1.0.0
+REM LP3D_AVAILABLE_VERSIONS=%LP3D_VERSION%,%LP3D_PAST_RELEASES%
 
 REM available versions by platform, set tokens to select specific version or versions as appropriate
 FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_exe=%%i
@@ -382,65 +380,67 @@ DEL /Q "%PKG_UPDATE_DIR%\*.*"
 ECHO.
 ECHO - Building distribution package...
 ECHO.
-ECHO   LP3D_VER_MAJOR.................[%LP3D_VER_MAJOR%]
-ECHO   LP3D_VER_MINOR.................[%LP3D_VER_MINOR%]
-ECHO   LP3D_VER_PATCH.................[%LP3D_VER_PATCH%]
-ECHO   LP3D_VER_REVISION..............[%LP3D_VER_REVISION%]
-ECHO   LP3D_VER_BUILD.................[%LP3D_VER_BUILD%]
-ECHO   LP3D_VER_SHA_HASH..............[%LP3D_VER_SHA_HASH%]
+ECHO   LP3D_VER_MAJOR.......................[%LP3D_VER_MAJOR%]
+ECHO   LP3D_VER_MINOR.......................[%LP3D_VER_MINOR%]
+ECHO   LP3D_VER_PATCH.......................[%LP3D_VER_PATCH%]
+ECHO   LP3D_VER_REVISION....................[%LP3D_VER_REVISION%]
+ECHO   LP3D_VER_BUILD.......................[%LP3D_VER_BUILD%]
+ECHO   LP3D_VER_SHA_HASH....................[%LP3D_VER_SHA_HASH%]
 IF "%LP3D_VER_TAG_NAME%" NEQ "v%LP3D_VERSION%" (
-  ECHO   LP3D_VER_TAG_NAME..............[%LP3D_VER_TAG_NAME%]
+  ECHO   LP3D_VER_TAG_NAME....................[%LP3D_VER_TAG_NAME%]
 )
 ECHO.
-ECHO   LP3D_YEAR......................[%LP3D_YEAR%]
-ECHO   LP3D_MONTH.....................[%LP3D_MONTH%]
-ECHO   LP3D_DAY.......................[%LP3D_DAY%]
-ECHO   LP3D_TIME......................[%LP3D_TIME%]
+ECHO   LP3D_YEAR............................[%LP3D_YEAR%]
+ECHO   LP3D_MONTH...........................[%LP3D_MONTH%]
+ECHO   LP3D_DAY.............................[%LP3D_DAY%]
+ECHO   LP3D_TIME............................[%LP3D_TIME%]
 ECHO.
 
-ECHO   LP3D_VERSION...................[%LP3D_VERSION%]
-ECHO   LP3D_APP_VERSION_LONG..........[%LP3D_APP_VERSION_LONG%]
-ECHO   LP3D_AVAILABLE_VERSIONS........[%LP3D_AVAILABLE_VERSIONS%]
+ECHO   LP3D_VERSION.........................[%LP3D_VERSION%]
+ECHO   LP3D_APP_VERSION_LONG................[%LP3D_APP_VERSION_LONG%]
+ECHO   LP3D_AVAILABLE_VERSIONS..............[%LP3D_AVAILABLE_VERSIONS%]
 REM
 REM Vars above this line are sourced from update-config-files.bat and below are local
 ECHO.
-ECHO   LP3D_COMPANY...................[%LP3D_COMPANY%]
-ECHO   LP3D_PRODUCT...................["%LP3D_PRODUCT%"]
-ECHO   LP3D_PUBLISHER.................[%LP3D_PUBLISHER%]
-ECHO   LP3D_COMPANY_URL...............[%LP3D_COMPANY_URL%]
-ECHO   LP3D_SUPPORT...................[%LP3D_SUPPORT%]
-ECHO   LP3D_COMMENTS..................[%LP3D_COMMENTS%]
+ECHO   LP3D_COMPANY.........................[%LP3D_COMPANY%]
+ECHO   LP3D_PRODUCT.........................["%LP3D_PRODUCT%"]
+ECHO   LP3D_PUBLISHER.......................[%LP3D_PUBLISHER%]
+ECHO   LP3D_COMPANY_URL.....................[%LP3D_COMPANY_URL%]
+ECHO   LP3D_SUPPORT.........................[%LP3D_SUPPORT%]
+ECHO   LP3D_COMMENTS........................[%LP3D_COMMENTS%]
 ECHO.
-ECHO   LP3D_DATE_TIME.................[%LP3D_DATE_TIME%]
-ECHO   LP3D_DOWNLOAD_PRODUCT..........[%LP3D_DOWNLOAD_PRODUCT%]
-ECHO   LP3D_PRODUCT_DIR...............[%LP3D_PRODUCT_DIR%]
-ECHO   LP3D_BUILD_FILE................[%LP3D_BUILD_FILE%]
+ECHO   LP3D_DATE_TIME.......................[%LP3D_DATE_TIME%]
+ECHO   LP3D_DOWNLOAD_PRODUCT................[%LP3D_DOWNLOAD_PRODUCT%]
+ECHO   LP3D_PRODUCT_DIR.....................[%LP3D_PRODUCT_DIR%]
+ECHO   LP3D_BUILD_FILE......................[%LP3D_BUILD_FILE%]
 ECHO.
 IF /I "%GITHUB%" EQU "True" (
-ECHO   BUILD_WORKER_IMAGE.............[%GITHUB_RUNNER_IMAGE%]
+ECHO   BUILD_WORKER_IMAGE...................[%GITHUB_RUNNER_IMAGE%]
 )
 IF /I "%APPVEYOR%" EQU "True" (
-ECHO   BUILD_WORKER_IMAGE.............[%APPVEYOR_BUILD_WORKER_IMAGE%]
+ECHO   BUILD_WORKER_IMAGE...................[%APPVEYOR_BUILD_WORKER_IMAGE%]
 )
-ECHO.  OPEN_SSL_VERSION...............[%OPENSSL_VER%]
+ECHO.  OPEN_SSL_VERSION.....................[%OPENSSL_VER%]
 ECHO.
-ECHO   LP3D_AVAILABLE_VERSIONS_exe....[%LP3D_AVAILABLE_VERSIONS_exe%]
+ECHO   LP3D_AVAILABLE_VERSIONS_exe..........[%LP3D_AVAILABLE_VERSIONS_exe%]
 ECHO   LP3D_AVAILABLE_VERSIONS_win_conda....[%LP3D_AVAILABLE_VERSIONS_win_conda%]
-ECHO   LP3D_AVAILABLE_VERSIONS_deb....[%LP3D_AVAILABLE_VERSIONS_deb%]
-ECHO   LP3D_AVAILABLE_VERSIONS_rpm....[%LP3D_AVAILABLE_VERSIONS_rpm%]
-ECHO   LP3D_AVAILABLE_VERSIONS_pkg....[%LP3D_AVAILABLE_VERSIONS_pkg%]
-ECHO   LP3D_AVAILABLE_VERSIONS_api....[%LP3D_AVAILABLE_VERSIONS_api%]
-ECHO   LP3D_AVAILABLE_VERSIONS_snp....[%LP3D_AVAILABLE_VERSIONS_snp%]
-ECHO   LP3D_AVAILABLE_VERSIONS_flp....[%LP3D_AVAILABLE_VERSIONS_flp%]
+ECHO   LP3D_AVAILABLE_VERSIONS_dmg..........[%LP3D_AVAILABLE_VERSIONS_dmg%]
+ECHO   LP3D_AVAILABLE_VERSIONS_deb..........[%LP3D_AVAILABLE_VERSIONS_deb%]
+ECHO   LP3D_AVAILABLE_VERSIONS_rpm..........[%LP3D_AVAILABLE_VERSIONS_rpm%]
+ECHO   LP3D_AVAILABLE_VERSIONS_pkg..........[%LP3D_AVAILABLE_VERSIONS_pkg%]
+ECHO   LP3D_AVAILABLE_VERSIONS_api..........[%LP3D_AVAILABLE_VERSIONS_api%]
+ECHO   LP3D_AVAILABLE_VERSIONS_snp..........[%LP3D_AVAILABLE_VERSIONS_snp%]
+ECHO   LP3D_AVAILABLE_VERSIONS_flp..........[%LP3D_AVAILABLE_VERSIONS_flp%]
 ECHO.
-ECHO   LP3D_ALTERNATE_VERSIONS_exe....[%LP3D_ALTERNATE_VERSIONS_exe%]
+ECHO   LP3D_ALTERNATE_VERSIONS_exe..........[%LP3D_ALTERNATE_VERSIONS_exe%]
 ECHO   LP3D_ALTERNATE_VERSIONS_win_conda....[%LP3D_ALTERNATE_VERSIONS_win_conda%]
-ECHO   LP3D_ALTERNATE_VERSIONS_deb....[%LP3D_ALTERNATE_VERSIONS_deb%]
-ECHO   LP3D_ALTERNATE_VERSIONS_rpm....[%LP3D_ALTERNATE_VERSIONS_rpm%]
-ECHO   LP3D_ALTERNATE_VERSIONS_PKG....[%LP3D_ALTERNATE_VERSIONS_PKG%]
-ECHO   LP3D_ALTERNATE_VERSIONS_api....[%LP3D_ALTERNATE_VERSIONS_api%]
-ECHO   LP3D_ALTERNATE_VERSIONS_snp....[%LP3D_ALTERNATE_VERSIONS_snp%]
-ECHO   LP3D_ALTERNATE_VERSIONS_flp....[%LP3D_ALTERNATE_VERSIONS_flp%]
+ECHO   LP3D_ALTERNATE_VERSIONS_dmg..........[%LP3D_ALTERNATE_VERSIONS_dmg%]
+ECHO   LP3D_ALTERNATE_VERSIONS_deb..........[%LP3D_ALTERNATE_VERSIONS_deb%]
+ECHO   LP3D_ALTERNATE_VERSIONS_rpm..........[%LP3D_ALTERNATE_VERSIONS_rpm%]
+ECHO   LP3D_ALTERNATE_VERSIONS_PKG..........[%LP3D_ALTERNATE_VERSIONS_PKG%]
+ECHO   LP3D_ALTERNATE_VERSIONS_api..........[%LP3D_ALTERNATE_VERSIONS_api%]
+ECHO   LP3D_ALTERNATE_VERSIONS_snp..........[%LP3D_ALTERNATE_VERSIONS_snp%]
+ECHO   LP3D_ALTERNATE_VERSIONS_flp..........[%LP3D_ALTERNATE_VERSIONS_flp%]
 
 IF %UNIVERSAL_BUILD% NEQ 1 (
   REM SINGLE ARCH BUILD
@@ -958,10 +958,10 @@ ECHO - Generating latest.txt version input file (for backward compatability)...
 
 SET latestFile=%PKG_UPDATE_DIR%\latest.txt
 SET genLatest=%latestFile% ECHO
-
 :GENERATE latest.txt file
 >%genLatest% %LP3D_VERSION%
 EXIT /b
+
 :GENERATE_ALT_VERSION_INSERTS
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
@@ -974,7 +974,7 @@ SET "api=-%LP3D_ARCH%.AppImage"
 SET "snp=-%LP3D_ARCH%.snap"
 SET "flp=-%LP3D_ARCH%.flatpack"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
-REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension variable
+REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension - if %1 is 'api', %LP3D_DIST_SUFFIX% is '-api.AppImage'
 CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
 REM LP3D_ALT_VERS expands to the alternate version for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
@@ -990,6 +990,7 @@ IF "%1" EQU "api" (
       IF "%1" EQU "win_conda" (
         SET "LP3D_DIST_PREFIX=LPub3D-"
       ) ELSE (
+        REM Legacy naming convention
         SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
       )
     )
