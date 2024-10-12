@@ -91,7 +91,7 @@ void lcPreviewDockWidget::ClearPreview()
 		return;
 /*** LPub3D Mod end ***/
 
-	if (mPreview->GetModel()->GetPieces().GetSize())
+	if (mPreview->GetModel()->GetPieces().size())
 		mPreview->ClearPreview();
 
 	mLabel->setText(QString());
@@ -101,7 +101,7 @@ void lcPreviewDockWidget::SetPreviewLock()
 {
 	bool Locked = mLockAction->isChecked();
 
-	if (Locked && mPreview->GetModel()->GetPieces().IsEmpty())
+	if (Locked && mPreview->GetModel()->GetPieces().empty())
 	{
 		mLockAction->setChecked(false);
 		return;
@@ -133,7 +133,7 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 
 	if (Info)
 	{
-		for (lcPiece* ModelPiece : mModel->GetPieces())
+		for (const std::unique_ptr<lcPiece>& ModelPiece : mModel->GetPieces())
 		{
 			if (Info == ModelPiece->mPieceInfo)
 			{
@@ -198,7 +198,7 @@ void lcPreview::UpdatePreview()
 	QString PartType;
 	int ColorCode = -1;
 
-	for (lcPiece* ModelPiece : mModel->GetPieces())
+	for (const std::unique_ptr<lcPiece>& ModelPiece : mModel->GetPieces())
 	{
 		if (ModelPiece->mPieceInfo)
 		{

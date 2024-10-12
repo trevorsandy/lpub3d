@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include "lc_math.h"
-#include "lc_array.h"
 
 enum class lcPieceInfoType
 {
@@ -175,6 +174,7 @@ public:
 	void ZoomExtents(float FoV, float AspectRatio, lcMatrix44& ProjectionMatrix, lcMatrix44& ViewMatrix) const;
 	void AddRenderMesh(lcScene& Scene);
 	void AddRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
+
 	void CreatePlaceholder(const char* Name);
 
 	void SetPlaceholder();
@@ -195,7 +195,7 @@ public:
 
 public:
 	char mFileName[LC_PIECE_NAME_LEN];
-	char m_strDescription[128];
+	char m_strDescription[256];
 /*** LPub3D Mod 166 - part type check ***/
 	int m_iPartType;
 /*** LPub3D Mod end ***/

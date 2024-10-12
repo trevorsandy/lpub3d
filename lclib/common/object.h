@@ -1,50 +1,13 @@
 #pragma once
 
 #include "lc_math.h"
-#include "lc_array.h"
+#include "lc_objectproperty.h"
 
 enum class lcObjectType
 {
 	Piece,
 	Camera,
 	Light
-};
-
-template<typename T>
-struct lcObjectKey
-{
-	lcStep Step;
-	T Value;
-};
-
-template<typename T>
-class lcObjectKeyArray
-{
-public:
-	int GetSize() const
-	{
-		return static_cast<int>(mKeys.size());
-	}
-
-	bool IsEmpty() const
-	{
-		return mKeys.empty();
-	}
-
-	void RemoveAll()
-	{
-		mKeys.clear();
-	}
-
-	void SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-	void LoadKeysLDraw(QTextStream& Stream);
-	const T& CalculateKey(lcStep Step) const;
-	void ChangeKey(const T& Value, lcStep Step, bool AddKey);
-	void InsertTime(lcStep Start, lcStep Time);
-	void RemoveTime(lcStep Start, lcStep Time);
-
-protected:
-	std::vector<lcObjectKey<T>> mKeys;
 };
 
 struct lcObjectSection
@@ -76,18 +39,21 @@ struct lcObjectBoxTest
 {
 	lcCamera* ViewCamera;
 	lcVector4 Planes[6];
-	lcArray<lcObject*> Objects;
+	std::vector<lcObject*> Objects;
 };
 
-#define LC_OBJECT_TRANSFORM_MOVE_X   0x001
-#define LC_OBJECT_TRANSFORM_MOVE_Y   0x002
-#define LC_OBJECT_TRANSFORM_MOVE_Z   0x004
-#define LC_OBJECT_TRANSFORM_ROTATE_X 0x010
-#define LC_OBJECT_TRANSFORM_ROTATE_Y 0x020
-#define LC_OBJECT_TRANSFORM_ROTATE_Z 0x040
-#define LC_OBJECT_TRANSFORM_SCALE_X  0x100
-#define LC_OBJECT_TRANSFORM_SCALE_Y  0x200
-#define LC_OBJECT_TRANSFORM_SCALE_Z  0x400
+#define LC_OBJECT_TRANSFORM_MOVE_X    0x001
+#define LC_OBJECT_TRANSFORM_MOVE_Y    0x002
+#define LC_OBJECT_TRANSFORM_MOVE_Z    0x004
+#define LC_OBJECT_TRANSFORM_MOVE_XYZ (LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z)
+#define LC_OBJECT_TRANSFORM_ROTATE_X  0x010
+#define LC_OBJECT_TRANSFORM_ROTATE_Y  0x020
+#define LC_OBJECT_TRANSFORM_ROTATE_Z  0x040
+#define LC_OBJECT_TRANSFORM_ROTATE_XYZ (LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z)
+#define LC_OBJECT_TRANSFORM_SCALE_X   0x100
+#define LC_OBJECT_TRANSFORM_SCALE_Y   0x200
+#define LC_OBJECT_TRANSFORM_SCALE_Z   0x400
+#define LC_OBJECT_TRANSFORM_SCALE_XYZ (LC_OBJECT_TRANSFORM_SCALE_X | LC_OBJECT_TRANSFORM_SCALE_Y | LC_OBJECT_TRANSFORM_SCALE_Z)
 
 class lcObject
 {
@@ -130,13 +96,19 @@ public:
 	virtual void SetFocused(quint32 Section, bool Focused) = 0;
 	virtual quint32 GetFocusSection() const = 0;
 
+	virtual void UpdatePosition(lcStep Step) = 0;
 	virtual quint32 GetAllowedTransforms() const = 0;
 	virtual lcVector3 GetSectionPosition(quint32 Section) const = 0;
 	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const = 0;
 	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const = 0;
 	virtual void DrawInterface(lcContext* Context, const lcScene& Scene) const = 0;
+	virtual QVariant GetPropertyValue(lcObjectPropertyId PropertyId) const = 0;
+	virtual bool SetPropertyValue(lcObjectPropertyId PropertyId, lcStep Step, bool AddKey, QVariant Value) = 0;
+	virtual bool HasKeyFrame(lcObjectPropertyId PropertyId, lcStep Time) const = 0;
+	virtual bool SetKeyFrame(lcObjectPropertyId PropertyId, lcStep Time, bool KeyFrame) = 0;
 	virtual void RemoveKeyFrames() = 0;
 	virtual QString GetName() const = 0;
+	static QString GetCheckpointString(lcObjectPropertyId PropertyId);
 
 private:
 	lcObjectType mObjectType;

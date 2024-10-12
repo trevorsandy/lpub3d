@@ -1,5 +1,6 @@
 #include "lc_global.h"
 #include "lc_library.h"
+#include "lc_thumbnailmanager.h"
 #include "lc_zipfile.h"
 #include "lc_file.h"
 #include "pieceinf.h"
@@ -28,7 +29,7 @@
 #  define DEF_MEM_LEVEL	 MAX_MEM_LEVEL
 #endif
 
-#define LC_LIBRARY_CACHE_VERSION   0x0109
+#define LC_LIBRARY_CACHE_VERSION   0x0110
 #define LC_LIBRARY_CACHE_ARCHIVE   0x0001
 #define LC_LIBRARY_CACHE_DIRECTORY 0x0002
 /*** LPub3D Mod - part types ***/
@@ -38,6 +39,7 @@
 lcPiecesLibrary::lcPiecesLibrary()
 	: mLoadMutex(QMutex::Recursive)
 {
+	mThumbnailManager = std::unique_ptr<lcThumbnailManager>(new lcThumbnailManager(this));
 /*** LPub3D Mod - cache path ***/
 	mCachePath = Preferences::lpub3dCachePath;
 /*** LPub3D Mod end ***/
@@ -58,6 +60,7 @@ lcPiecesLibrary::lcPiecesLibrary()
 
 lcPiecesLibrary::~lcPiecesLibrary()
 {
+	mThumbnailManager.reset();
 	mLoadMutex.lock();
 	mLoadQueue.clear();
 	mLoadMutex.unlock();
@@ -170,18 +173,21 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 
 	const auto PieceIt = mPieces.find(CleanName);
 
-/*** LPub3D Mod - project piece ***/
-	bool IsPieceModified = false;
-/*** LPub3D Mod end ***/
-
 	if (PieceIt != mPieces.end())
 	{
 		PieceInfo* Info = PieceIt->second;
-
+		bool HasModel = false;
 /*** LPub3D Mod - project piece ***/
+		bool IsPieceModified = false;
+
 		if (CurrentProject && !CurrentProject->IsPreview())
+		{
+			const std::vector<std::unique_ptr<lcModel>>& Models = CurrentProject->GetModels();
+			HasModel = std::find_if(Models.begin(), Models.end(), [Model = Info->GetModel()](const std::unique_ptr<lcModel>& CheckModel) { return CheckModel.get() == Model; }) != Models.end();
 			IsPieceModified = CurrentProject->IsModified(Info->mFileName, true/*reset*/);
-		if ((!CurrentProject || !Info->IsModel() || CurrentProject->GetModels().FindIndex(Info->GetModel()) != -1) && ((!ProjectPath.isEmpty() && !IsPieceModified) || Info->IsProjectPiece() || !Info->IsProject()))
+		}
+
+		if ((!CurrentProject || !Info->IsModel() || HasModel) && ((!ProjectPath.isEmpty() && !IsPieceModified) || Info->IsProjectPiece() || !Info->IsProject()))
 /*** LPub3D Mod end ***/
 			return Info;
 	}
@@ -409,7 +415,8 @@ bool lcPiecesLibrary::OpenArchive(std::unique_ptr<lcFile> File, lcZipFileType Zi
 /*** LPub3D Mod - Split library source ***/
 	Source->Type = ZipFileType == lcZipFileType::Official ? lcLibrarySourceType::Official : ZipFileType == lcZipFileType::Unofficial ? lcLibrarySourceType::Unofficial : lcLibrarySourceType::StudStyle;
 /*** LPub3D Mod end ***/
-	for (int FileIdx = 0; FileIdx < ZipFile->mFiles.GetSize(); FileIdx++)
+
+	for (quint32 FileIdx = 0; FileIdx < ZipFile->mFiles.size(); FileIdx++)
 	{
 		lcZipFileInfo& FileInfo = ZipFile->mFiles[FileIdx];
 		char NameBuffer[LC_PIECE_NAME_LEN];
@@ -1839,16 +1846,16 @@ bool lcPiecesLibrary::PieceInCategory(PieceInfo* Info, const char* CategoryKeywo
 	return lcMatchCategory(PieceName, CategoryKeywords);
 }
 
-void lcPiecesLibrary::GetCategoryEntries(int CategoryIndex, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces)
+void lcPiecesLibrary::GetCategoryEntries(int CategoryIndex, bool GroupPieces, std::vector<PieceInfo*>& SinglePieces, std::vector<PieceInfo*>& GroupedPieces)
 {
 	if (CategoryIndex >= 0 && CategoryIndex < static_cast<int>(gCategories.size()))
 		GetCategoryEntries(gCategories[CategoryIndex].Keywords.constData(), GroupPieces, SinglePieces, GroupedPieces);
 }
 
-void lcPiecesLibrary::GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces)
+void lcPiecesLibrary::GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, std::vector<PieceInfo*>& SinglePieces, std::vector<PieceInfo*>& GroupedPieces)
 {
-	SinglePieces.RemoveAll();
-	GroupedPieces.RemoveAll();
+	SinglePieces.clear();
+	GroupedPieces.clear();
 
 	for (const auto& PieceIt : mPieces)
 	{
@@ -1859,7 +1866,7 @@ void lcPiecesLibrary::GetCategoryEntries(const char* CategoryKeywords, bool Grou
 
 		if (!GroupPieces)
 		{
-			SinglePieces.Add(Info);
+			SinglePieces.emplace_back(Info);
 			continue;
 		}
 
@@ -1879,73 +1886,36 @@ void lcPiecesLibrary::GetCategoryEntries(const char* CategoryKeywords, bool Grou
 			if (Parent)
 			{
 				// Check if the parent was added as a single piece.
-				int Index = SinglePieces.FindIndex(Parent);
+				auto ParentIt = std::find(SinglePieces.begin(), SinglePieces.end(), Parent);
 
-				if (Index != -1)
-					SinglePieces.RemoveIndex(Index);
+				if (ParentIt != SinglePieces.end())
+					SinglePieces.erase(ParentIt);
 
-				Index = GroupedPieces.FindIndex(Parent);
-
-				if (Index == -1)
-					GroupedPieces.Add(Parent);
+				if (std::find(GroupedPieces.begin(), GroupedPieces.end(), Parent) == GroupedPieces.end())
+					GroupedPieces.emplace_back(Parent);
 			}
 			else
 			{
 				// Patterned pieces should have a parent but in case they don't just add them anyway.
-				SinglePieces.Add(Info);
+				SinglePieces.emplace_back(Info);
 			}
 		}
 		else
 		{
 			// Check if this piece has already been added to this category by one of its children.
-			const int Index = GroupedPieces.FindIndex(Info);
-
-			if (Index == -1)
-				SinglePieces.Add(Info);
+			if (std::find(GroupedPieces.begin(), GroupedPieces.end(), Info) == GroupedPieces.end())
+				SinglePieces.emplace_back(Info);
 		}
 	}
 }
 
-void lcPiecesLibrary::GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>& Pieces) const
+void lcPiecesLibrary::GetParts(std::vector<PieceInfo*>& Parts) const
 {
-	char Name[LC_PIECE_NAME_LEN];
-	strcpy(Name, Parent->mFileName);
-	char* Ext = strchr(Name, '.');
-	if (Ext)
-		*Ext = 0;
-	strcat(Name, "P");
-	strupr(Name);
-
-	Pieces.RemoveAll();
-
-	for (const auto& PieceIt : mPieces)
-		if (strncmp(Name, PieceIt.first.c_str(), strlen(Name)) == 0)
-			Pieces.Add(PieceIt.second);
-
-	// Sometimes pieces with A and B versions don't follow the same convention (for example, 3040Pxx instead of 3040BPxx).
-	if (Pieces.GetSize() == 0)
-	{
-		strcpy(Name, Parent->mFileName);
-		Ext = strchr(Name, '.');
-		if (Ext)
-			*Ext = 0;
-		size_t Len = strlen(Name);
-		if (Name[Len-1] < '0' || Name[Len-1] > '9')
-			Name[Len-1] = 'P';
-
-		for (const auto& PieceIt : mPieces)
-			if (strncmp(Name, PieceIt.first.c_str(), strlen(Name)) == 0)
-				Pieces.Add(PieceIt.second);
-	}
-}
-
-void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts) const
-{
-	Parts.SetSize(0);
-	Parts.AllocGrow(mPieces.size());
+	Parts.clear();
+	Parts.reserve(mPieces.size());
 
 	for (const auto& PartIt : mPieces)
-		Parts.Add(PartIt.second);
+		Parts.emplace_back(PartIt.second);
 }
 
 std::vector<PieceInfo*> lcPiecesLibrary::GetPartsFromSet(const std::vector<std::string>& PartIds) const

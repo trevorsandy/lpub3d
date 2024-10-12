@@ -1,12 +1,12 @@
 #include "lc_global.h"
 #include "lc_findreplacewidget.h"
 #include "lc_colorpicker.h"
-#include "lc_library.h"
 #include "lc_mainwindow.h"
 #include "pieceinf.h"
 #include "piece.h"
 #include "lc_model.h"
 #include "lc_view.h"
+#include "lc_qutils.h"
 
 lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool Replace)
 	: QWidget(Parent)
@@ -20,13 +20,13 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 	Layout->setContentsMargins(5, 5, 5, 5);
 
 	Layout->addWidget(new QLabel(tr("Find:")), 0, 0);
+
 	lcColorPicker* FindColorPicker = new lcColorPicker(this, true);
-/*** LPub3D Mod - colour picker status ***/
-	FindColorPicker->setStatusTip(tr("Find pieces that match selected color"));
-/*** LPub3D Mod end ***/
+	FindColorPicker->setToolTip(tr("Search Color"));
 	Layout->addWidget(FindColorPicker, 0, 1);
 
 	mFindPartComboBox = new QComboBox(this);
+	mFindPartComboBox->setToolTip(tr("Search Part"));
 	mFindPartComboBox->setEditable(true);
 	mFindPartComboBox->setInsertPolicy(QComboBox::NoInsert);
 	Layout->addWidget(mFindPartComboBox, 0, 2);
@@ -60,9 +60,11 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 		Layout->addWidget(new QLabel(tr("Replace:")), 1, 0);
 
 		ReplaceColorPicker = new lcColorPicker(this, true);
+		ReplaceColorPicker->setToolTip(tr("Replacement Color"));
 		Layout->addWidget(ReplaceColorPicker, 1, 1);
 
 		mReplacePartComboBox = new QComboBox(this);
+		mReplacePartComboBox->setToolTip(tr("Replacement Part"));
 		Layout->addWidget(mReplacePartComboBox, 1, 2);
 
 		QToolButton* ReplaceNextButton = new QToolButton(this);
@@ -81,27 +83,19 @@ lcFindReplaceWidget::lcFindReplaceWidget(QWidget* Parent, lcModel* Model, bool R
 		mReplacePartComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
 		mReplacePartComboBox->setMinimumContentsLength(1);
 
-		lcPiecesLibrary* Library = lcGetPiecesLibrary();
-		std::vector<PieceInfo*> SortedPieces;
-		SortedPieces.reserve(Library->mPieces.size());
-
-		for (const auto& PartIt : Library->mPieces)
-			SortedPieces.push_back(PartIt.second);
-
-		auto PieceCompare = [](PieceInfo* Info1, PieceInfo* Info2)
-		{
-			return strcmp(Info1->m_strDescription, Info2->m_strDescription) < 0;
-		};
-
-		std::sort(SortedPieces.begin(), SortedPieces.end(), PieceCompare);
-
-		mReplacePartComboBox->addItem(QString(), QVariant::fromValue((void*)nullptr));
-		for (PieceInfo* Info : SortedPieces)
-			mReplacePartComboBox->addItem(QString::fromLatin1(Info->m_strDescription), QVariant::fromValue((void*)Info));
+		mReplacePartComboBox->setModel(new lcPieceIdStringModel(gMainWindow->GetActiveModel(), mReplacePartComboBox));
 
 		ReplaceColorPicker->SetCurrentColor(lcGetColorIndex(LC_COLOR_NOCOLOR));
 		mReplacePartComboBox->setCurrentIndex(0);
 	}
+
+	QToolButton* CloseButton = new QToolButton(this);
+	CloseButton->setAutoRaise(true);
+	CloseButton->setIcon(QIcon(":/stylesheet/close.png"));
+	CloseButton->setToolTip(tr("Close"));
+	Layout->addWidget(CloseButton, 0, 5);
+
+	connect(CloseButton, &QToolButton::clicked, this, &QObject::deleteLater);
 
 	lcPartsList PartsList;
 	Model->GetPartsList(gDefaultColor, false, true, PartsList);

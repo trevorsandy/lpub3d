@@ -20,15 +20,12 @@ constexpr float LC_PIECE_CONTROL_POINT_SIZE = 10.0f;
 lcPiece::lcPiece(PieceInfo* Info)
 	: lcObject(lcObjectType::Piece)
 {
-	mMesh = nullptr;
 	SetPieceInfo(Info, QString(), true);
-	mFocusedSection = LC_PIECE_SECTION_INVALID;
 	mColorIndex = gDefaultColor;
 	mColorCode = 16;
 	mStepShow = 1;
 	mStepHide = LC_STEP_MAX;
 	mGroup = nullptr;
-	mFileLine = -1;
 /*** LPub3D Mod - Selected Parts ***/
 	mLineTypeIndex = -1;
 /*** LPub3D Mod end ***/
@@ -45,17 +42,17 @@ lcPiece::lcPiece(PieceInfo* Info)
 lcPiece::lcPiece(const lcPiece& Other)
 	: lcObject(lcObjectType::Piece)
 {
-	mMesh = nullptr;
 	SetPieceInfo(Other.mPieceInfo, Other.mID, true);
 	mHidden = Other.mHidden;
 	mSelected = Other.mSelected;
-	mFocusedSection = LC_PIECE_SECTION_INVALID;
 	mColorIndex = Other.mColorIndex;
 	mColorCode = Other.mColorCode;
 	mStepShow = Other.mStepShow;
 	mStepHide = Other.mStepHide;
 	mGroup = Other.mGroup;
-	mFileLine = -1;
+/*** LPub3D Mod - LPUB meta properties ***/
+	mIsSubmodel = Other.mIsSubmodel;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 	mPieceModified = Other.mPieceModified;
 /*** LPub3D Mod end ***/
@@ -69,8 +66,8 @@ lcPiece::lcPiece(const lcPiece& Other)
 	mPivotMatrix = Other.mPivotMatrix;
 	mPivotPointValid = Other.mPivotPointValid;
 
-	mPositionKeys = Other.mPositionKeys;
-	mRotationKeys = Other.mRotationKeys;
+	mPosition = Other.mPosition;
+	mRotation = Other.mRotation;
 	mControlPoints = Other.mControlPoints;
 
 	UpdateMesh();
@@ -98,11 +95,17 @@ void lcPiece::SetPieceInfo(PieceInfo* Info, const QString& ID, bool Wait)
 	if (!ID.isEmpty())
 		mID = ID;
 	else if (mPieceInfo)
+/*** LPub3D Mod - LPUB meta properties ***/
+	{
 		mID = mPieceInfo->mFileName;
+		mIsSubmodel = mPieceInfo->IsModel();
+		SetPieceType(mPieceInfo->mZipFileType == lcZipFileType::Official ? lcPieceType::OfficialPart : lcPieceType::UnofficialPart);
+	}
+/*** LPub3D Mod end ***/
 	else
 		mID.clear();
 
-	mControlPoints.RemoveAll();
+	mControlPoints.clear();
 	delete mMesh;
 	mMesh = nullptr;
 
@@ -115,6 +118,62 @@ void lcPiece::SetPieceInfo(PieceInfo* Info, const QString& ID, bool Wait)
 	}
 }
 
+bool lcPiece::SetPieceId(PieceInfo* Info)
+{
+	if (mPieceInfo == Info)
+		return false;
+
+	lcPiecesLibrary* Library = lcGetPiecesLibrary();
+	Library->ReleasePieceInfo(mPieceInfo);
+	SetPieceInfo(Info, QString(), true);
+
+	return true;
+}
+
+/*** LPub3D Mod - LPUB meta properties ***/
+bool lcPiece::SetPieceType(lcPieceType PieceType)
+{
+	switch (PieceType)
+	{
+	case lcPieceType::OfficialPart:
+	case lcPieceType::UnofficialPart:
+		mPieceType = PieceType;
+		return true;
+	case lcPieceType::Count:
+		break;
+	}
+
+	return false;
+}
+
+bool lcPiece::SetFileID(const QString& FileID)
+{
+	if (mID == FileID)
+		return false;
+
+	mID = FileID;
+
+	return true;
+}
+
+bool lcPiece::SetIsSubmodel(bool Value)
+{
+	mIsSubmodel = Value;
+
+	return true;
+}
+
+bool lcPiece::SetModelName(const QString& ModelName)
+{
+	if (mModelName == ModelName)
+		return false;
+
+	mModelName = ModelName;
+
+	return true;
+}
+/*** LPub3D Mod end ***/
+
 void lcPiece::UpdateID()
 {
 	mID = mPieceInfo->mFileName;
@@ -123,15 +182,18 @@ void lcPiece::UpdateID()
 void lcPiece::SaveLDraw(QTextStream& Stream) const
 {
 	const QLatin1String LineEnding("\r\n");
+/*** LPub3D Mod - LPUB meta command ***/
+	const QByteArray Meta("0 !LPUB");
+/*** LPub3D Mod end ***/
 
 	if (mStepHide != LC_STEP_MAX)
 /*** LPub3D Mod - LPUB meta command ***/
-		Stream << QLatin1String("0 !LPUB PIECE STEP_HIDE ") << mStepHide << LineEnding;
+		Stream << QLatin1String(Meta + " PIECE STEP_HIDE ") << mStepHide << LineEnding;
 /*** LPub3D Mod end ***/
 
 	if (IsHidden())
 /*** LPub3D Mod - LPUB meta command ***/
-		Stream << QLatin1String("0 !LPUB PIECE HIDDEN") << LineEnding;
+		Stream << QLatin1String(Meta + " PIECE HIDDEN") << LineEnding;
 /*** LPub3D Mod end ***/
 
 	if (mPivotPointValid)
@@ -140,7 +202,7 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 		const float PivotNumbers[12] = { PivotMatrix[12], -PivotMatrix[14], PivotMatrix[13], PivotMatrix[0], -PivotMatrix[8], PivotMatrix[4], -PivotMatrix[2], PivotMatrix[10], -PivotMatrix[6], PivotMatrix[1], -PivotMatrix[9], PivotMatrix[5] };
 
 /*** LPub3D Mod - LPUB meta command ***/
-		Stream << QLatin1String("0 !LPUB PIECE PIVOT ");
+		Stream << QLatin1String(Meta + " PIECE PIVOT ");
 /*** LPub3D Mod end ***/
 
 		for (int NumberIdx = 0; NumberIdx < 12; NumberIdx++)
@@ -149,11 +211,8 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 		Stream << LineEnding;
 	}
 
-	if (mPositionKeys.GetSize() > 1)
-		mPositionKeys.SaveKeysLDraw(Stream, "PIECE POSITION_KEY ");
-
-	if (mRotationKeys.GetSize() > 1)
-		mRotationKeys.SaveKeysLDraw(Stream, "PIECE ROTATION_KEY ");
+	mPosition.Save(Stream, "PIECE", "POSITION", false);
+	mRotation.Save(Stream, "PIECE", "ROTATION", false);
 
 	Stream << "1 " << mColorCode << ' ';
 
@@ -189,10 +248,10 @@ bool lcPiece::ParseLDrawLine(QTextStream& Stream)
 			mPivotMatrix = PivotMatrix;
 			mPivotPointValid = true;
 		}
-		else if (Token == QLatin1String("POSITION_KEY"))
-			mPositionKeys.LoadKeysLDraw(Stream);
-		else if (Token == QLatin1String("ROTATION_KEY"))
-			mRotationKeys.LoadKeysLDraw(Stream);
+		else if (mPosition.Load(Stream, Token, "POSITION"))
+			continue;
+		else if (mRotation.Load(Stream, Token, "ROTATION"))
+			continue;
 	}
 
 	return false;
@@ -227,9 +286,9 @@ bool lcPiece::FileLoad(lcFile& file)
 			file.ReadU8(&type, 1);
 
 			if (type == 0)
-				mPositionKeys.ChangeKey(lcVector3(param[0], param[1], param[2]) * PositionScale, time, true);
+				mPosition.ChangeKey(lcVector3(param[0], param[1], param[2]) * PositionScale, time, true);
 			else if (type == 1)
-				mRotationKeys.ChangeKey(lcMatrix33FromAxisAngle(lcVector3(param[0], param[1], param[2]), param[3] * LC_DTOR), time, true);
+				mRotation.ChangeKey(lcMatrix33FromAxisAngle(lcVector3(param[0], param[1], param[2]), param[3] * LC_DTOR), time, true);
 		}
 
 		file.ReadU32(&n, 1);
@@ -259,9 +318,9 @@ bool lcPiece::FileLoad(lcFile& file)
 				file.ReadU8(&type, 1);
 
 				if (type == 0)
-					mPositionKeys.ChangeKey(lcVector3(param[0], param[1], param[2]) * PositionScale, time, true);
+					mPosition.ChangeKey(lcVector3(param[0], param[1], param[2]) * PositionScale, time, true);
 				else if (type == 1)
-					mRotationKeys.ChangeKey(lcMatrix33FromAxisAngle(lcVector3(param[0], param[1], param[2]), param[3] * LC_DTOR), time, true);
+					mRotation.ChangeKey(lcMatrix33FromAxisAngle(lcVector3(param[0], param[1], param[2]), param[3] * LC_DTOR), time, true);
 			}
 
 			file.ReadU32(&keys, 1);
@@ -300,8 +359,8 @@ bool lcPiece::FileLoad(lcFile& file)
 					file.ReadU8(&b, 1);
 					time = b;
 
-					mPositionKeys.ChangeKey(ModelWorld.GetTranslation() * PositionScale, 1, true);
-					mRotationKeys.ChangeKey(lcMatrix33(ModelWorld), time, true);
+					mPosition.ChangeKey(ModelWorld.GetTranslation() * PositionScale, 1, true);
+					mRotation.ChangeKey(lcMatrix33(ModelWorld), time, true);
 
 					qint32 bl;
 					file.ReadS32(&bl, 1);
@@ -316,8 +375,8 @@ bool lcPiece::FileLoad(lcFile& file)
 				lcMatrix44 ModelWorld = lcMatrix44Translation(Translation);
 				ModelWorld = lcMul(lcMatrix44RotationZ(Rotation[2] * LC_DTOR), lcMul(lcMatrix44RotationY(Rotation[1] * LC_DTOR), lcMul(lcMatrix44RotationX(Rotation[0] * LC_DTOR), ModelWorld)));
 
-				mPositionKeys.ChangeKey(lcVector3(ModelWorld.r[3][0], ModelWorld.r[3][1], ModelWorld.r[3][2]) * PositionScale, 1, true);
-				mRotationKeys.ChangeKey(lcMatrix33(ModelWorld), 1, true);
+				mPosition.ChangeKey(lcVector3(ModelWorld.r[3][0], ModelWorld.r[3][1], ModelWorld.r[3][2]) * PositionScale, 1, true);
+				mRotation.ChangeKey(lcMatrix33(ModelWorld), 1, true);
 			}
 		}
 	}
@@ -412,10 +471,8 @@ void lcPiece::Initialize(const lcMatrix44& WorldMatrix, lcStep Step)
 {
 	mStepShow = Step;
 
-	if (mPositionKeys.IsEmpty())
-		mPositionKeys.ChangeKey(WorldMatrix.GetTranslation(), 1, true);
-	if (mRotationKeys.IsEmpty())
-		mRotationKeys.ChangeKey(lcMatrix33(WorldMatrix), 1, true);
+	mPosition.SetValue(WorldMatrix.GetTranslation());
+	mRotation.SetValue(lcMatrix33(WorldMatrix));
 
 	UpdatePosition(Step);
 }
@@ -449,8 +506,8 @@ void lcPiece::InsertTime(lcStep Start, lcStep Time)
 		}
 	}
 
-	mPositionKeys.InsertTime(Start, Time);
-	mRotationKeys.InsertTime(Start, Time);
+	mPosition.InsertTime(Start, Time);
+	mRotation.InsertTime(Start, Time);
 }
 
 void lcPiece::RemoveTime(lcStep Start, lcStep Time)
@@ -482,8 +539,8 @@ void lcPiece::RemoveTime(lcStep Start, lcStep Time)
 		}
 	}
 
-	mPositionKeys.RemoveTime(Start, Time);
-	mRotationKeys.RemoveTime(Start, Time);
+	mPosition.RemoveTime(Start, Time);
+	mRotation.RemoveTime(Start, Time);
 }
 
 void lcPiece::RayTest(lcObjectRayTest& ObjectRayTest) const
@@ -516,9 +573,9 @@ void lcPiece::RayTest(lcObjectRayTest& ObjectRayTest) const
 		const lcVector3 Min(-LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE);
 		const lcVector3 Max(LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE);
 
-		for (int ControlPointIdx = 0; ControlPointIdx < mControlPoints.GetSize(); ControlPointIdx++)
+		for (quint32 ControlPointIndex = 0; ControlPointIndex < mControlPoints.size(); ControlPointIndex++)
 		{
-			const lcMatrix44 InverseTransform = lcMatrix44AffineInverse(mControlPoints[ControlPointIdx].Transform);
+			const lcMatrix44 InverseTransform = lcMatrix44AffineInverse(mControlPoints[ControlPointIndex].Transform);
 			const lcVector3 PointStart = lcMul31(Start, InverseTransform);
 			const lcVector3 PointEnd = lcMul31(End, InverseTransform);
 
@@ -528,7 +585,7 @@ void lcPiece::RayTest(lcObjectRayTest& ObjectRayTest) const
 			if (lcBoundingBoxRayIntersectDistance(Min, Max, PointStart, PointEnd, &Distance, nullptr, &Plane))
 			{
 				ObjectRayTest.ObjectSection.Object = const_cast<lcPiece*>(this);
-				ObjectRayTest.ObjectSection.Section = LC_PIECE_SECTION_CONTROL_POINT_FIRST + ControlPointIdx;
+				ObjectRayTest.ObjectSection.Section = LC_PIECE_SECTION_CONTROL_POINT_FIRST + ControlPointIndex;
 				ObjectRayTest.Distance = Distance;
 				ObjectRayTest.PieceInfoRayTest.Plane = Plane;
 			}
@@ -539,7 +596,7 @@ void lcPiece::RayTest(lcObjectRayTest& ObjectRayTest) const
 void lcPiece::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
 {
 	if (mPieceInfo->BoxTest(mModelWorld, ObjectBoxTest.Planes))
-		ObjectBoxTest.Objects.Add(const_cast<lcPiece*>(this));
+		ObjectBoxTest.Objects.emplace_back(const_cast<lcPiece*>(this));
 }
 
 void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
@@ -642,7 +699,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 0);
 	}
 
-	if (!mControlPoints.IsEmpty() && AreControlPointsVisible())
+	if (!mControlPoints.empty() && AreControlPointsVisible())
 	{
 		float Verts[8 * 3];
 		float* CurVert = Verts;
@@ -671,15 +728,15 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		const lcVector4 ControlPointColor = lcVector4FromColor(Preferences.mControlPointColor);
 		const lcVector4 ControlPointFocusedColor = lcVector4FromColor(Preferences.mControlPointFocusedColor);
 
-		for (int ControlPointIdx = 0; ControlPointIdx < mControlPoints.GetSize(); ControlPointIdx++)
+		for (quint32 ControlPointIndex = 0; ControlPointIndex < mControlPoints.size(); ControlPointIndex++)
 		{
-			Context->SetWorldMatrix(lcMul(mControlPoints[ControlPointIdx].Transform, WorldMatrix));
+			Context->SetWorldMatrix(lcMul(mControlPoints[ControlPointIndex].Transform, WorldMatrix));
 
 			Context->SetVertexBufferPointer(Verts);
 			Context->SetVertexFormatPosition(3);
 			Context->SetIndexBufferPointer(Indices);
 
-			if (IsFocused(LC_PIECE_SECTION_CONTROL_POINT_FIRST + ControlPointIdx))
+			if (IsFocused(LC_PIECE_SECTION_CONTROL_POINT_FIRST + ControlPointIndex))
 				Context->SetColor(ControlPointFocusedColor);
 			else
 				Context->SetColor(ControlPointColor);
@@ -692,13 +749,372 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	}
 }
 
+QVariant lcPiece::GetPropertyValue(lcObjectPropertyId PropertyId) const
+{
+	switch (PropertyId)
+	{
+	case lcObjectPropertyId::PieceId:
+		return QVariant::fromValue<void*>(mPieceInfo);
+
+	case lcObjectPropertyId::PieceColor:
+		return GetColorIndex();
+
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::PieceType:
+		return static_cast<int>(GetPieceType());
+
+	case lcObjectPropertyId::PieceFileID:
+		return GetID();
+
+	case lcObjectPropertyId::PieceModel:
+		return GetModelName();
+
+	case lcObjectPropertyId::PieceIsSubmodel:
+		return GetIsSubmodel();
+/*** LPub3D Mod end ***/
+
+	case lcObjectPropertyId::PieceStepShow:
+	case lcObjectPropertyId::PieceStepHide:
+	case lcObjectPropertyId::CameraName:
+	case lcObjectPropertyId::CameraType:
+	case lcObjectPropertyId::CameraFOV:
+	case lcObjectPropertyId::CameraNear:
+	case lcObjectPropertyId::CameraFar:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraLatitude:
+	case lcObjectPropertyId::CameraLongitude:
+	case lcObjectPropertyId::CameraDistance:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::CameraPositionX:
+	case lcObjectPropertyId::CameraPositionY:
+	case lcObjectPropertyId::CameraPositionZ:
+	case lcObjectPropertyId::CameraTargetX:
+	case lcObjectPropertyId::CameraTargetY:
+	case lcObjectPropertyId::CameraTargetZ:
+	case lcObjectPropertyId::CameraUpX:
+	case lcObjectPropertyId::CameraUpY:
+	case lcObjectPropertyId::CameraUpZ:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraImageScale:
+	case lcObjectPropertyId::CameraImageResolution:
+	case lcObjectPropertyId::CameraImageWidth:
+	case lcObjectPropertyId::CameraImageHeight:
+	case lcObjectPropertyId::CameraImagePageWidth:
+	case lcObjectPropertyId::CameraImagePageHeight:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightName:
+	case lcObjectPropertyId::LightType:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightFormat:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightColor:
+	case lcObjectPropertyId::LightBlenderPower:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightBlenderCutoffDistance:
+	case lcObjectPropertyId::LightBlenderDiffuse:
+	case lcObjectPropertyId::LightBlenderSpecular:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightPOVRayPower:
+	case lcObjectPropertyId::LightCastShadow:
+	case lcObjectPropertyId::LightPOVRayFadeDistance:
+	case lcObjectPropertyId::LightPOVRayFadePower:
+	case lcObjectPropertyId::LightPointBlenderRadius:
+	case lcObjectPropertyId::LightSpotBlenderRadius:
+	case lcObjectPropertyId::LightDirectionalBlenderAngle:
+	case lcObjectPropertyId::LightAreaSizeX:
+	case lcObjectPropertyId::LightAreaSizeY:
+	case lcObjectPropertyId::LightSpotConeAngle:
+	case lcObjectPropertyId::LightSpotPenumbraAngle:
+	case lcObjectPropertyId::LightSpotPOVRayTightness:
+	case lcObjectPropertyId::LightAreaShape:
+	case lcObjectPropertyId::LightAreaPOVRayGridX:
+	case lcObjectPropertyId::LightAreaPOVRayGridY:
+	case lcObjectPropertyId::ObjectPositionX:
+	case lcObjectPropertyId::ObjectPositionY:
+	case lcObjectPropertyId::ObjectPositionZ:
+	case lcObjectPropertyId::ObjectRotationX:
+	case lcObjectPropertyId::ObjectRotationY:
+	case lcObjectPropertyId::ObjectRotationZ:
+	case lcObjectPropertyId::Count:
+		break;
+	}
+
+	return QVariant();
+}
+
+bool lcPiece::SetPropertyValue(lcObjectPropertyId PropertyId, lcStep Step, bool AddKey, QVariant Value)
+{
+	Q_UNUSED(Step);
+	Q_UNUSED(AddKey);
+
+	switch (PropertyId)
+	{
+	case lcObjectPropertyId::PieceId:
+		return SetPieceId(static_cast<PieceInfo*>(Value.value<void*>()));
+
+	case lcObjectPropertyId::PieceColor:
+		return SetColorIndex(Value.toInt());
+
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::PieceType:
+		return SetPieceType(static_cast<lcPieceType>(Value.toInt()));
+
+	case lcObjectPropertyId::PieceFileID:
+		return SetFileID(Value.toString());
+
+	case lcObjectPropertyId::PieceModel:
+		return SetModelName(Value.toString());
+
+	case lcObjectPropertyId::PieceIsSubmodel:
+		return SetIsSubmodel(Value.toInt());
+/*** LPub3D Mod end ***/
+
+	case lcObjectPropertyId::PieceStepShow:
+	case lcObjectPropertyId::PieceStepHide:
+	case lcObjectPropertyId::CameraName:
+	case lcObjectPropertyId::CameraType:
+	case lcObjectPropertyId::CameraFOV:
+	case lcObjectPropertyId::CameraNear:
+	case lcObjectPropertyId::CameraFar:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraLatitude:
+	case lcObjectPropertyId::CameraLongitude:
+	case lcObjectPropertyId::CameraDistance:
+	case lcObjectPropertyId::CameraPositionX:
+	case lcObjectPropertyId::CameraPositionY:
+	case lcObjectPropertyId::CameraPositionZ:
+	case lcObjectPropertyId::CameraTargetX:
+	case lcObjectPropertyId::CameraTargetY:
+	case lcObjectPropertyId::CameraTargetZ:
+	case lcObjectPropertyId::CameraUpX:
+	case lcObjectPropertyId::CameraUpY:
+	case lcObjectPropertyId::CameraUpZ:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraImageScale:
+	case lcObjectPropertyId::CameraImageResolution:
+	case lcObjectPropertyId::CameraImageWidth:
+	case lcObjectPropertyId::CameraImageHeight:
+	case lcObjectPropertyId::CameraImagePageWidth:
+	case lcObjectPropertyId::CameraImagePageHeight:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightName:
+	case lcObjectPropertyId::LightType:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightFormat:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightColor:
+	case lcObjectPropertyId::LightBlenderPower:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightBlenderCutoffDistance:
+	case lcObjectPropertyId::LightBlenderDiffuse:
+	case lcObjectPropertyId::LightBlenderSpecular:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightPOVRayPower:
+	case lcObjectPropertyId::LightCastShadow:
+	case lcObjectPropertyId::LightPOVRayFadeDistance:
+	case lcObjectPropertyId::LightPOVRayFadePower:
+	case lcObjectPropertyId::LightPointBlenderRadius:
+	case lcObjectPropertyId::LightSpotBlenderRadius:
+	case lcObjectPropertyId::LightDirectionalBlenderAngle:
+	case lcObjectPropertyId::LightAreaSizeX:
+	case lcObjectPropertyId::LightAreaSizeY:
+	case lcObjectPropertyId::LightSpotConeAngle:
+	case lcObjectPropertyId::LightSpotPenumbraAngle:
+	case lcObjectPropertyId::LightSpotPOVRayTightness:
+	case lcObjectPropertyId::LightAreaShape:
+	case lcObjectPropertyId::LightAreaPOVRayGridX:
+	case lcObjectPropertyId::LightAreaPOVRayGridY:
+	case lcObjectPropertyId::ObjectPositionX:
+	case lcObjectPropertyId::ObjectPositionY:
+	case lcObjectPropertyId::ObjectPositionZ:
+	case lcObjectPropertyId::ObjectRotationX:
+	case lcObjectPropertyId::ObjectRotationY:
+	case lcObjectPropertyId::ObjectRotationZ:
+	case lcObjectPropertyId::Count:
+		break;
+	}
+
+	return false;
+}
+
+bool lcPiece::HasKeyFrame(lcObjectPropertyId PropertyId, lcStep Time) const
+{
+	switch (PropertyId)
+	{
+	case lcObjectPropertyId::PieceId:
+	case lcObjectPropertyId::PieceColor:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::PieceType:
+	case lcObjectPropertyId::PieceFileID:
+	case lcObjectPropertyId::PieceModel:
+	case lcObjectPropertyId::PieceIsSubmodel:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::PieceStepShow:
+	case lcObjectPropertyId::PieceStepHide:
+	case lcObjectPropertyId::CameraName:
+	case lcObjectPropertyId::CameraType:
+	case lcObjectPropertyId::CameraFOV:
+	case lcObjectPropertyId::CameraNear:
+	case lcObjectPropertyId::CameraFar:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraLatitude:
+	case lcObjectPropertyId::CameraLongitude:
+	case lcObjectPropertyId::CameraDistance:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::CameraPositionX:
+	case lcObjectPropertyId::CameraPositionY:
+	case lcObjectPropertyId::CameraPositionZ:
+	case lcObjectPropertyId::CameraTargetX:
+	case lcObjectPropertyId::CameraTargetY:
+	case lcObjectPropertyId::CameraTargetZ:
+	case lcObjectPropertyId::CameraUpX:
+	case lcObjectPropertyId::CameraUpY:
+	case lcObjectPropertyId::CameraUpZ:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraImageScale:
+	case lcObjectPropertyId::CameraImageResolution:
+	case lcObjectPropertyId::CameraImageWidth:
+	case lcObjectPropertyId::CameraImageHeight:
+	case lcObjectPropertyId::CameraImagePageWidth:
+	case lcObjectPropertyId::CameraImagePageHeight:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightName:
+	case lcObjectPropertyId::LightType:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightFormat:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightColor:
+	case lcObjectPropertyId::LightBlenderPower:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightBlenderCutoffDistance:
+	case lcObjectPropertyId::LightBlenderDiffuse:
+	case lcObjectPropertyId::LightBlenderSpecular:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightPOVRayPower:
+	case lcObjectPropertyId::LightCastShadow:
+	case lcObjectPropertyId::LightPOVRayFadeDistance:
+	case lcObjectPropertyId::LightPOVRayFadePower:
+	case lcObjectPropertyId::LightPointBlenderRadius:
+	case lcObjectPropertyId::LightSpotBlenderRadius:
+	case lcObjectPropertyId::LightDirectionalBlenderAngle:
+	case lcObjectPropertyId::LightAreaSizeX:
+	case lcObjectPropertyId::LightAreaSizeY:
+	case lcObjectPropertyId::LightSpotConeAngle:
+	case lcObjectPropertyId::LightSpotPenumbraAngle:
+	case lcObjectPropertyId::LightSpotPOVRayTightness:
+	case lcObjectPropertyId::LightAreaShape:
+	case lcObjectPropertyId::LightAreaPOVRayGridX:
+	case lcObjectPropertyId::LightAreaPOVRayGridY:
+		return false;
+
+	case lcObjectPropertyId::ObjectPositionX:
+	case lcObjectPropertyId::ObjectPositionY:
+	case lcObjectPropertyId::ObjectPositionZ:
+		return mPosition.HasKeyFrame(Time);
+
+	case lcObjectPropertyId::ObjectRotationX:
+	case lcObjectPropertyId::ObjectRotationY:
+	case lcObjectPropertyId::ObjectRotationZ:
+		return mRotation.HasKeyFrame(Time);
+
+	case lcObjectPropertyId::Count:
+		return false;
+	}
+
+	return false;
+}
+
+bool lcPiece::SetKeyFrame(lcObjectPropertyId PropertyId, lcStep Time, bool KeyFrame)
+{
+	switch (PropertyId)
+	{
+	case lcObjectPropertyId::PieceId:
+	case lcObjectPropertyId::PieceColor:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::PieceType:
+	case lcObjectPropertyId::PieceFileID:
+	case lcObjectPropertyId::PieceModel:
+	case lcObjectPropertyId::PieceIsSubmodel:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::PieceStepShow:
+	case lcObjectPropertyId::PieceStepHide:
+	case lcObjectPropertyId::CameraName:
+	case lcObjectPropertyId::CameraType:
+	case lcObjectPropertyId::CameraFOV:
+	case lcObjectPropertyId::CameraNear:
+	case lcObjectPropertyId::CameraFar:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraLatitude:
+	case lcObjectPropertyId::CameraLongitude:
+	case lcObjectPropertyId::CameraDistance:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::CameraPositionX:
+	case lcObjectPropertyId::CameraPositionY:
+	case lcObjectPropertyId::CameraPositionZ:
+	case lcObjectPropertyId::CameraTargetX:
+	case lcObjectPropertyId::CameraTargetY:
+	case lcObjectPropertyId::CameraTargetZ:
+	case lcObjectPropertyId::CameraUpX:
+	case lcObjectPropertyId::CameraUpY:
+	case lcObjectPropertyId::CameraUpZ:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraImageScale:
+	case lcObjectPropertyId::CameraImageResolution:
+	case lcObjectPropertyId::CameraImageWidth:
+	case lcObjectPropertyId::CameraImageHeight:
+	case lcObjectPropertyId::CameraImagePageWidth:
+	case lcObjectPropertyId::CameraImagePageHeight:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightName:
+	case lcObjectPropertyId::LightType:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightFormat:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightColor:
+	case lcObjectPropertyId::LightBlenderPower:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightBlenderCutoffDistance:
+	case lcObjectPropertyId::LightBlenderDiffuse:
+	case lcObjectPropertyId::LightBlenderSpecular:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::LightPOVRayPower:
+	case lcObjectPropertyId::LightCastShadow:
+	case lcObjectPropertyId::LightPOVRayFadeDistance:
+	case lcObjectPropertyId::LightPOVRayFadePower:
+	case lcObjectPropertyId::LightPointBlenderRadius:
+	case lcObjectPropertyId::LightSpotBlenderRadius:
+	case lcObjectPropertyId::LightDirectionalBlenderAngle:
+	case lcObjectPropertyId::LightAreaSizeX:
+	case lcObjectPropertyId::LightAreaSizeY:
+	case lcObjectPropertyId::LightSpotConeAngle:
+	case lcObjectPropertyId::LightSpotPenumbraAngle:
+	case lcObjectPropertyId::LightSpotPOVRayTightness:
+	case lcObjectPropertyId::LightAreaShape:
+	case lcObjectPropertyId::LightAreaPOVRayGridX:
+	case lcObjectPropertyId::LightAreaPOVRayGridY:
+		return false;
+
+	case lcObjectPropertyId::ObjectPositionX:
+	case lcObjectPropertyId::ObjectPositionY:
+	case lcObjectPropertyId::ObjectPositionZ:
+		return mPosition.SetKeyFrame(Time, KeyFrame);
+
+	case lcObjectPropertyId::ObjectRotationX:
+	case lcObjectPropertyId::ObjectRotationY:
+	case lcObjectPropertyId::ObjectRotationZ:
+		return mRotation.SetKeyFrame(Time, KeyFrame);
+
+	case lcObjectPropertyId::Count:
+		return false;
+	}
+
+	return false;
+}
+
 void lcPiece::RemoveKeyFrames()
 {
-	mPositionKeys.RemoveAll();
-	mPositionKeys.ChangeKey(mModelWorld.GetTranslation(), 1, true);
-
-	mRotationKeys.RemoveAll();
-	mRotationKeys.ChangeKey(lcMatrix33(mModelWorld), 1, true);
+	mPosition.RemoveAllKeys();
+	mRotation.RemoveAllKeys();
 }
 
 void lcPiece::AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade) const
@@ -788,11 +1204,11 @@ void lcPiece::MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance)
 
 		mModelWorld.SetTranslation(Position);
 	}
-	else
+	else if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST)
 	{
-		const int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+		const quint32 ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 
-		if (ControlPointIndex >= 0 && ControlPointIndex < mControlPoints.GetSize())
+		if (ControlPointIndex < mControlPoints.size())
 		{
 			const lcMatrix33 InverseWorldMatrix = lcMatrix33AffineInverse(lcMatrix33(mModelWorld));
 			lcMatrix44& Transform = mControlPoints[ControlPointIndex].Transform;
@@ -826,11 +1242,11 @@ void lcPiece::Rotate(lcStep Step, bool AddKey, const lcMatrix33& RotationMatrix,
 		SetPosition(Center + Distance, Step, AddKey);
 		SetRotation(NewLocalToWorldMatrix, Step, AddKey);
 	}
-	else
+	else if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST)
 	{
-		const int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+		const quint32 ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 
-		if (ControlPointIndex >= 0 && ControlPointIndex < mControlPoints.GetSize())
+		if (ControlPointIndex < mControlPoints.size())
 		{
 			lcMatrix44& Transform = mControlPoints[ControlPointIndex].Transform;
 			const lcMatrix33 PieceWorldMatrix(mModelWorld);
@@ -870,12 +1286,10 @@ void lcPiece::RotatePivotPoint(const lcMatrix33& RotationMatrix)
 
 quint32 lcPiece::GetAllowedTransforms() const
 {
-	constexpr quint32 Move = LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z;
-	constexpr quint32 Rotate = LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z;
 	const quint32 Section = GetFocusSection();
 
 	if (Section == LC_PIECE_SECTION_POSITION || Section == LC_PIECE_SECTION_INVALID)
-		return Move | Rotate;
+		return LC_OBJECT_TRANSFORM_MOVE_XYZ | LC_OBJECT_TRANSFORM_ROTATE_XYZ;
 
 	const lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
 
@@ -885,10 +1299,10 @@ quint32 lcPiece::GetAllowedTransforms() const
 			return LC_OBJECT_TRANSFORM_MOVE_Z;
 
 		if (SynthInfo->IsCurve())
-			return Move | Rotate | LC_OBJECT_TRANSFORM_SCALE_X;
+			return LC_OBJECT_TRANSFORM_MOVE_XYZ | LC_OBJECT_TRANSFORM_ROTATE_XYZ | LC_OBJECT_TRANSFORM_SCALE_X;
 
 		if (SynthInfo->IsNondirectional())
-			return Move;
+			return LC_OBJECT_TRANSFORM_MOVE_XYZ;
 	}
 
 	return 0;
@@ -896,7 +1310,7 @@ quint32 lcPiece::GetAllowedTransforms() const
 
 bool lcPiece::CanAddControlPoint() const
 {
-	if (mControlPoints.GetSize() >= LC_MAX_CONTROL_POINTS)
+	if (mControlPoints.size() >= LC_MAX_CONTROL_POINTS)
 		return false;
 
 	const lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
@@ -906,7 +1320,7 @@ bool lcPiece::CanAddControlPoint() const
 bool lcPiece::CanRemoveControlPoint() const
 {
 	const quint32 Section = GetFocusSection();
-	return Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST && mControlPoints.GetSize() > 2;
+	return Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST && mControlPoints.size() > 2;
 }
 
 bool lcPiece::InsertControlPoint(const lcVector3& WorldStart, const lcVector3& WorldEnd)
@@ -934,32 +1348,37 @@ bool lcPiece::InsertControlPoint(const lcVector3& WorldStart, const lcVector3& W
 
 bool lcPiece::RemoveFocusedControlPoint()
 {
-	const int ControlPointIndex = GetFocusSection() - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+	quint32 Section = GetFocusSection();
 
-	if (ControlPointIndex < 0 || ControlPointIndex >= mControlPoints.GetSize() || mControlPoints.GetSize() <= 2)
+	if( Section < LC_PIECE_SECTION_CONTROL_POINT_FIRST )
+		return false;
+
+	const quint32 ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+
+	if (ControlPointIndex >= mControlPoints.size() || mControlPoints.size() <= 2)
 		return false;
 
 	SetFocused(GetFocusSection(), false);
 	SetFocused(LC_PIECE_SECTION_POSITION, true);
-	mControlPoints.RemoveIndex(ControlPointIndex);
+	mControlPoints.erase(mControlPoints.begin() + ControlPointIndex);
 
 	UpdateMesh();
 
 	return true;
 }
 
-void lcPiece::VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcPiece::VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
 	const lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
 
 	if (!SynthInfo)
 	{
-		ControlPoints.RemoveAll();
+		ControlPoints.clear();
 	}
 	else
 	{
-		if (ControlPoints.GetSize() > LC_MAX_CONTROL_POINTS)
-			ControlPoints.SetSize(LC_MAX_CONTROL_POINTS);
+		if (ControlPoints.size() > LC_MAX_CONTROL_POINTS)
+			ControlPoints.resize(LC_MAX_CONTROL_POINTS);
 
 		SynthInfo->VerifyControlPoints(ControlPoints);
 	}
@@ -1031,10 +1450,10 @@ lcGroup* lcPiece::GetTopGroup()
 
 void lcPiece::UpdatePosition(lcStep Step)
 {
-	const lcVector3 Position = mPositionKeys.CalculateKey(Step);
-	const lcMatrix33 Rotation = mRotationKeys.CalculateKey(Step);
+	mPosition.Update(Step);
+	mRotation.Update(Step);
 
-	mModelWorld = lcMatrix44(Rotation, Position);
+	mModelWorld = lcMatrix44(mRotation, mPosition);
 }
 
 void lcPiece::UpdateMesh()
@@ -1043,3 +1462,32 @@ void lcPiece::UpdateMesh()
 	const lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
 	mMesh = SynthInfo ? SynthInfo->CreateMesh(mControlPoints) : nullptr;
 }
+
+/*** LPub3D Mod - LPUB meta properties ***/
+QString lcPiece::GetPieceTypeString(lcPieceType PieceType)
+{
+	switch (PieceType)
+	{
+	case lcPieceType::OfficialPart:
+		return QT_TRANSLATE_NOOP("Official Part", "OfficialPart");
+
+	case lcPieceType::UnofficialPart:
+		return QT_TRANSLATE_NOOP("Unofficial Part", "UnofficialPart");
+
+	case lcPieceType::Count:
+		break;
+	}
+
+	return QString();
+}
+
+QStringList lcPiece::GetPieceTypeStrings()
+{
+	QStringList PieceType;
+
+	for (int PieceTypeIndex = 0; PieceTypeIndex < static_cast<int>(lcPieceType::Count); PieceTypeIndex++)
+		PieceType.push_back(GetPieceTypeString(static_cast<lcPieceType>(PieceTypeIndex)));
+
+	return PieceType;
+}
+/*** LPub3D Mod end ***/

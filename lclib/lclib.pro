@@ -108,7 +108,7 @@ contains(QT_VERSION, ^6\\..*) {
   }
 }
 
-CONFIG += incremental force_debug_info
+CONFIG += incremental force_debug_info c++17
 
 win32 {
 

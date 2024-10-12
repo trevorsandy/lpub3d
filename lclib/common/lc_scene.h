@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lc_mesh.h"
-#include "lc_array.h"
 
 /*** LPub3D Mod - lpub fade highlight ***/
 enum lcLPubFade
@@ -96,12 +95,11 @@ public:
 
 	void Begin(const lcMatrix44& ViewMatrix);
 	void End();
-
 	void AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State);
 
 	void AddInterfaceObject(const lcObject* Object)
 	{
-		mInterfaceObjects.Add(Object);
+		mInterfaceObjects.emplace_back(Object);
 	}
 
 	void Draw(lcContext* Context) const;
@@ -128,8 +126,8 @@ protected:
 	bool mTranslucentFade;
 
 	std::function<void()> mPreTranslucentCallback;
-	lcArray<lcRenderMesh> mRenderMeshes;
-	lcArray<int> mOpaqueMeshes;
-	lcArray<lcTranslucentMeshInstance> mTranslucentMeshes;
-	lcArray<const lcObject*> mInterfaceObjects;
+	std::vector<lcRenderMesh> mRenderMeshes;
+	std::vector<int> mOpaqueMeshes;
+	std::vector<lcTranslucentMeshInstance> mTranslucentMeshes;
+	std::vector<const lcObject*> mInterfaceObjects;
 };

@@ -85,6 +85,8 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 
 		Color.Code = ~0U;
 		Color.Translucent = false;
+		Color.Chrome = false;
+		Color.Rubber = false;
 		Color.Group = LC_COLORGROUP_SOLID;
 		Color.Value[0] = FLT_MAX;
 		Color.Value[1] = FLT_MAX;
@@ -169,8 +171,17 @@ static std::vector<lcColor> lcParseColorFile(lcFile& File)
 				else if (Value != 0)
 					Color.Group = LC_COLORGROUP_SPECIAL;
 			}
-			else if (!strcmp(Token, "CHROME") || !strcmp(Token, "PEARLESCENT") || !strcmp(Token, "RUBBER") ||
-					 !strcmp(Token, "MATTE_METALIC") || !strcmp(Token, "METAL") || !strcmp(Token, "LUMINANCE"))
+			else if (!strcmp(Token, "CHROME"))
+			{
+				Color.Chrome = true;
+				Color.Group = LC_COLORGROUP_SPECIAL;
+			}
+			else if (!strcmp(Token, "RUBBER"))
+			{
+				Color.Rubber = true;
+				Color.Group = LC_COLORGROUP_SPECIAL;
+			}
+			else if (!strcmp(Token, "PEARLESCENT") || !strcmp(Token, "MATTE_METALIC") || !strcmp(Token, "METAL") || !strcmp(Token, "LUMINANCE"))
 			{
 				Color.Group = LC_COLORGROUP_SPECIAL;
 			}
@@ -274,6 +285,8 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 
 		MainColor.Code = 16;
 		MainColor.Translucent = false;
+		MainColor.Chrome = false;
+		MainColor.Rubber = false;
 		MainColor.Group = LC_COLORGROUP_SOLID;
 		MainColor.Value[0] = 1.0f;
 		MainColor.Value[1] = 1.0f;
@@ -295,6 +308,8 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 
 		EdgeColor.Code = 24;
 		EdgeColor.Translucent = false;
+		EdgeColor.Chrome = false;
+		EdgeColor.Rubber = false;
 		EdgeColor.Group = LC_NUM_COLORGROUPS;
 		EdgeColor.Value[0] = 0.5f;
 		EdgeColor.Value[1] = 0.5f;
@@ -317,6 +332,8 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 
 		StudCylinderColor.Code = LC_STUD_CYLINDER_COLOR_CODE;
 		StudCylinderColor.Translucent = false;
+		StudCylinderColor.Chrome = false;
+		StudCylinderColor.Rubber = false;
 		StudCylinderColor.Group = LC_NUM_COLORGROUPS;
 		StudCylinderColor.Value = lcVector4FromColor(Preferences.mStudCylinderColor);
 		StudCylinderColor.Edge = lcVector4FromColor(Preferences.mPartEdgeColor);
@@ -332,6 +349,8 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 
 		NoColor.Code = LC_COLOR_NOCOLOR;
 		NoColor.Translucent = false;
+		NoColor.Chrome = false;
+		NoColor.Rubber = false;
 		NoColor.Group = LC_NUM_COLORGROUPS;
 		NoColor.Value[0] = 0.5f;
 		NoColor.Value[1] = 0.5f;
@@ -419,6 +438,8 @@ int lcGetColorIndex(quint32 ColorCode)
 
 	Color.Code = ColorCode;
 	Color.Translucent = false;
+	Color.Chrome = false;
+	Color.Rubber = false;
 	Color.Edge[0] = 0.2f;
 	Color.Edge[1] = 0.2f;
 	Color.Edge[2] = 0.2f;

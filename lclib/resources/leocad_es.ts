@@ -4315,7 +4315,7 @@ Por favor, visita https://www.leocad.org para saber cómo descargar e instalar u
     </message>
     <message>
         <location filename="../common/lc_application.cpp" line="786"/>
-        <source>  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).
+        <source>  --highlight-color: Rendering color for highlighted parts (#AARRGGBB).
 </source>
         <translation>  --highlight-color: Color de renderizado para piezas resaltadas (#AARRGGBB).
 </translation>
@@ -5577,7 +5577,7 @@ Por favor, visita https://www.leocad.org para saber cómo descargar e instalar u
     </message>
     <message>
         <location filename="../common/lc_model.cpp" line="3957"/>
-        <source>New SpotLight</source>
+        <source>New Spotlight</source>
         <translation>nuevo foco</translation>
     </message>
     <message>
@@ -6313,17 +6313,17 @@ Anisotropic: %5
 <context>
     <name>lcGroupDialog</name>
     <message>
-        <location filename="../common/lc_groupdialog.ui" line="14"/>
+        <location filename="../qt/lc_qgroupdialog.ui" line="14"/>
         <source>Group</source>
         <translation>Grupo</translation>
     </message>
     <message>
-        <location filename="../common/lc_groupdialog.ui" line="22"/>
+        <location filename="../qt/lc_qgroupdialog.ui" line="22"/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../common/lc_groupdialog.cpp" line="26"/>
+        <location filename="../qt/lc_qgroupdialog.cpp" line="26"/>
         <source>Name cannot be empty.</source>
         <translation>El nombre no puede estar vacío.</translation>
     </message>
@@ -6606,52 +6606,52 @@ Anisotropic: %5
 <context>
     <name>lcModelListDialog</name>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="14"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="14"/>
         <source>Submodels</source>
         <translation>Submodelos</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="31"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="31"/>
         <source>&amp;New...</source>
         <translation>&amp;Nuevo...</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="38"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="38"/>
         <source>D&amp;elete...</source>
         <translation>Bo&amp;rrar...</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="45"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="45"/>
         <source>&amp;Rename...</source>
         <translation>&amp;Renombrar...</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="52"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="52"/>
         <source>Export...</source>
         <translation>Exportar...</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="59"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="59"/>
         <source>Duplicate...</source>
         <translation>Duplicar...</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="66"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="66"/>
         <source>Move &amp;Up</source>
         <translation>Mover arr&amp;iba</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="73"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="73"/>
         <source>Move &amp;Down</source>
         <translation>Mover aba&amp;jo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.ui" line="80"/>
+        <location filename="../qt/lc_qmodellistdialog.ui" line="80"/>
         <source>Set Active</source>
         <translation>Definir activo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="113"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="113"/>
         <source>New Submodel</source>
         <translation>Nuevo submodelo</translation>
     </message>
@@ -6660,74 +6660,74 @@ Anisotropic: %5
         <translation type="vanished">Error</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="127"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="127"/>
         <source>The model cannot be empty.</source>
         <translation>El modelo no puede estar vacío.</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="141"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="141"/>
         <source>Are you sure you want to delete the submodel &apos;%1&apos;?</source>
         <translation>¿Seguro que quieres borrar el submodelo &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="127"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="135"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="145"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="127"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="135"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="145"/>
         <source>Delete Submodel</source>
         <translation>Borrar submodelo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="135"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="165"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="189"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="248"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="135"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="165"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="189"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="248"/>
         <source>No submodel selected.</source>
         <translation>No hay ningún submodelo seleccionado.</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="143"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="143"/>
         <source>Are you sure you want to delete %1 submodels?</source>
         <translation>¿Seguro que quieres borrar %1 submodelos?</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="165"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="176"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="165"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="176"/>
         <source>Rename Submodel</source>
         <translation>Renombrar submodelo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="189"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="189"/>
         <source>Export Submodel</source>
         <translation>Exportar submodelo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="204"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="204"/>
         <source>LeoCAD</source>
         <translation>LeoCAD</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="204"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="204"/>
         <source>Nothing to export.</source>
         <translation>Nada que exportar.</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="211"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="211"/>
         <source>Export Model</source>
         <translation>Exportar modelo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="222"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="222"/>
         <source>Select Export Folder</source>
         <translation>Seleccionar Carpeta de Exportación</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="248"/>
-        <location filename="../common/lc_modellistdialog.cpp" line="266"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="248"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="266"/>
         <source>Duplicate Submodel</source>
         <translation>Duplicar submodelo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="263"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="263"/>
         <source>Copy of </source>
         <translation>Copia de </translation>
     </message>
@@ -6736,7 +6736,7 @@ Anisotropic: %5
         <translation type="vanished">Guardar modelo</translation>
     </message>
     <message>
-        <location filename="../common/lc_modellistdialog.cpp" line="211"/>
+        <location filename="../qt/lc_qmodellistdialog.cpp" line="211"/>
         <source>Supported Files (*.ldr *.dat);;All Files (*.*)</source>
         <translation>Archivos soportados (*.ldr *.dat);;Todos los archivos (*.*)</translation>
     </message>

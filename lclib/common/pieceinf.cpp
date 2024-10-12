@@ -92,7 +92,6 @@ void PieceInfo::SetModel(lcModel* Model, bool UpdateMesh, Project* CurrentProjec
 		}
 
 		lcLibraryMeshData MeshData;
-		lcArray<lcMeshLoaderTextureMap> TextureStack;
 		PieceFile.Seek(0, SEEK_SET);
 
 		lcMeshLoader MeshLoader(MeshData, true, CurrentProject, SearchProjectFolder);
@@ -166,7 +165,6 @@ bool PieceInfo::DisplayProjectAsPiece() const
 {
 	if (mProject)
 		return !strcmp(m_strDescription, mProject->GetFileName().toLatin1().data());
-
 	return false;
 }
 /*** LPub3D Mod end ***/

@@ -2,12 +2,12 @@
 
 #include "lc_context.h"
 #include "lc_math.h"
-#include "lc_array.h"
 #include "lc_meshloader.h"
 
 class PieceInfo;
 class lcZipFile;
 class lcLibraryMeshData;
+class lcThumbnailManager;
 
 enum class lcStudStyle
 {
@@ -130,6 +130,11 @@ public:
 	lcPiecesLibrary& operator=(const lcPiecesLibrary&) = delete;
 	lcPiecesLibrary& operator=(lcPiecesLibrary&&) = delete;
 
+	lcThumbnailManager* GetThumbnailManager() const
+	{
+		return mThumbnailManager.get();
+	}
+
 	bool Load(const QString& LibraryPath, bool ShowProgress);
 	void LoadColors();
 	void Unload();
@@ -163,10 +168,9 @@ public:
 	void ReleaseTexture(lcTexture* Texture);
 
 	bool PieceInCategory(PieceInfo* Info, const char* CategoryKeywords) const;
-	void GetCategoryEntries(int CategoryIndex, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
-	void GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
-	void GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>& Pieces) const;
-	void GetParts(lcArray<PieceInfo*>& Parts) const;
+	void GetCategoryEntries(int CategoryIndex, bool GroupPieces, std::vector<PieceInfo*>& SinglePieces, std::vector<PieceInfo*>& GroupedPieces);
+	void GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, std::vector<PieceInfo*>& SinglePieces, std::vector<PieceInfo*>& GroupedPieces);
+	void GetParts(std::vector<PieceInfo*>& Parts) const;
 
 	std::vector<PieceInfo*> GetPartsFromSet(const std::vector<std::string>& PartIds) const;
 	std::string GetPartId(const PieceInfo* Info) const;
@@ -258,6 +262,7 @@ protected:
 bool mPreferOfficialParts;
 /*** LPub3D Mod - ***/
 
+	std::unique_ptr<lcThumbnailManager> mThumbnailManager;
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
 	std::unique_ptr<lcZipFile> mZipFiles[static_cast<int>(lcZipFileType::Count)];

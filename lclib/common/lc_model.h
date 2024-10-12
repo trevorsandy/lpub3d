@@ -2,27 +2,27 @@
 
 #include "lc_math.h"
 #include "lc_commands.h"
-#include "lc_array.h"
+
+enum class lcObjectPropertyId;
 
 #define LC_SEL_NO_PIECES                0x0001 // No pieces in model
-#define LC_SEL_PIECE                    0x0002 // At last 1 piece selected
-#define LC_SEL_SELECTED                 0x0004 // At last 1 object selected
-#define LC_SEL_UNSELECTED               0x0008 // At least 1 piece unselected
-#define LC_SEL_HIDDEN                   0x0010 // At least one piece hidden
-#define LC_SEL_HIDDEN_SELECTED          0x0020 // At least one piece selected is hidden
-#define LC_SEL_VISIBLE_SELECTED         0x0040 // At least one piece selected is not hidden
-#define LC_SEL_GROUPED                  0x0080 // At least one piece selected is grouped
-#define LC_SEL_FOCUS_GROUPED            0x0100 // Focused piece is grouped
-#define LC_SEL_CAN_GROUP                0x0200 // Can make a new group
-#define LC_SEL_MODEL_SELECTED           0x0400 // At least one model reference is selected
-#define LC_SEL_CAN_ADD_CONTROL_POINT    0x0800 // Can add control points to focused piece
-#define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x1000 // Can remove control points from focused piece
+#define LC_SEL_PIECE                    0x0002 // At least 1 piece selected
+#define LC_SEL_CAMERA                   0x0004 // At least 1 camera selected
+#define LC_SEL_LIGHT                    0x0008 // At least 1 light selected
+#define LC_SEL_SELECTED                 0x0010 // At least 1 object selected
+#define LC_SEL_UNSELECTED               0x0020 // At least 1 piece unselected
+#define LC_SEL_HIDDEN                   0x0040 // At least one piece hidden
+#define LC_SEL_HIDDEN_SELECTED          0x0080 // At least one piece selected is hidden
+#define LC_SEL_VISIBLE_SELECTED         0x0100 // At least one piece selected is not hidden
+#define LC_SEL_GROUPED                  0x0200 // At least one piece selected is grouped
+#define LC_SEL_FOCUS_GROUPED            0x0400 // Focused piece is grouped
+#define LC_SEL_CAN_GROUP                0x0800 // Can make a new group
+#define LC_SEL_MODEL_SELECTED           0x1000 // At least one model reference is selected
+#define LC_SEL_CAN_ADD_CONTROL_POINT    0x2000 // Can add control points to focused piece
+#define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x4000 // Can remove control points from focused piece
 
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - enable lights ***/
-class lcLightProps;
 /*** LPub3D Mod end ***/
 
 enum class lcSelectionMode
@@ -83,6 +83,36 @@ public:
 /*** LPub3D Mod end ***/
 };
 
+class lcPOVRayOptions
+{
+public:
+	lcPOVRayOptions();
+	void ParseLDrawLine(QTextStream& LineStream);
+	void SaveLDraw(QTextStream& Stream) const;
+/*** LPub3D Mod - LPUB meta command ***/
+	void SetLCMeta(bool Meta)
+	{
+		LCMeta = Meta;
+	}
+/*** LPub3D Mod end ***/
+	bool UseLGEO;
+	bool ExcludeFloor;
+	bool ExcludeBackground;
+	bool NoReflection;
+	bool NoShadow;
+	int FloorAxis;
+	float FloorAmbient;
+	float FloorDiffuse;
+	lcVector3 FloorColor;
+	QString HeaderIncludeFile;
+	QString FooterIncludeFile;
+
+/*** LPub3D Mod - LPUB meta command ***/
+protected:
+	bool LCMeta = false;
+/*** LPub3D Mod end ***/
+};
+
 struct lcModelHistoryEntry
 {
 	QByteArray File;
@@ -127,22 +157,22 @@ public:
 		return mPieceInfo;
 	}
 
-	const lcArray<lcPiece*>& GetPieces() const
+	const std::vector<std::unique_ptr<lcPiece>>& GetPieces() const
 	{
 		return mPieces;
 	}
 
-	const lcArray<lcCamera*>& GetCameras() const
+	const std::vector<std::unique_ptr<lcCamera>>& GetCameras() const
 	{
 		return mCameras;
 	}
 
-	const lcArray<lcLight*>& GetLights() const
+	const std::vector<std::unique_ptr<lcLight>>& GetLights() const
 	{
 		return mLights;
 	}
 
-	const lcArray<lcGroup*>& GetGroups() const
+	const std::vector<std::unique_ptr<lcGroup>>& GetGroups() const
 	{
 		return mGroups;
 	}
@@ -158,6 +188,11 @@ public:
 		mProperties.mUnoffPartColorCode = ColorCode;
 	}
 /*** LPub3D Mod end ***/
+
+	const lcPOVRayOptions& GetPOVRayOptions() const
+	{
+		return mPOVRayOptions;
+	}
 
 	void SetFileName(const QString& FileName)
 	{
@@ -220,7 +255,7 @@ public:
 	void RemoveFocusedControlPoint();
 	void ShowSelectedPiecesEarlier();
 	void ShowSelectedPiecesLater();
-	void SetPieceSteps(const QList<QPair<lcPiece*, lcStep>>& PieceSteps);
+	void SetPieceSteps(const std::vector<std::pair<lcPiece*, lcStep>>& PieceSteps);
 	void RenamePiece(PieceInfo* Info);
 /*** LPub3D Mod - Apply Viewpoint zoom extent ***/
 	bool ApplyViewpointZoomExtent();
@@ -238,7 +273,7 @@ public:
 	void RemoveFocusPieceFromGroup();
 	void ShowEditGroupsDialog();
 
-	void SaveLDraw(QTextStream& Stream, bool SelectedOnly) const;
+	void SaveLDraw(QTextStream& Stream, bool SelectedOnly, lcStep LastStep) const;
 	void LoadLDraw(QIODevice& Device, Project* Project);
 	bool LoadBinary(lcFile* File);
 	bool LoadLDD(const QString& FileData);
@@ -279,14 +314,15 @@ public:
 
 	bool HasPieces() const
 	{
-		return !mPieces.IsEmpty();
+		return !mPieces.empty();
 	}
 
 	bool AnyPiecesSelected() const;
 	bool AnyObjectsSelected() const;
 	lcModel* GetFirstSelectedSubmodel() const;
-	void GetSubModels(lcArray<lcModel*>& SubModels) const;
+	void GetSubModels(std::set<lcModel*>& SubModels) const;
 	bool GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRotation) const;
+	bool CanRotateSelection() const;
 	bool GetPieceFocusOrSelectionCenter(lcVector3& Center) const;
 	lcVector3 GetSelectionOrModelCenter() const;
 	bool GetFocusPosition(lcVector3& Position) const;
@@ -296,18 +332,18 @@ public:
 	bool GetVisiblePiecesBoundingBox(lcVector3& Min, lcVector3& Max) const;
 	std::vector<lcVector3> GetPiecesBoundingBoxPoints() const;
 	void GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const;
-	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const;
+	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList, bool Cumulative) const;
 	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const;
-	void GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection, lcObject** Focus) const;
-	lcArray<lcObject*> GetSelectionModePieces(const lcPiece* SelectedPiece) const;
+	void GetSelectionInformation(int* Flags, std::vector<lcObject*>& Selection, lcObject** Focus) const;
+	std::vector<lcObject*> GetSelectionModePieces(const lcPiece* SelectedPiece) const;
 
 	void FocusOrDeselectObject(const lcObjectSection& ObjectSection);
 	void ClearSelection(bool UpdateInterface);
 	void ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool EnableSelectionMode);
 	void ClearSelectionAndSetFocus(const lcObjectSection& ObjectSection, bool EnableSelectionMode);
-	void SetSelectionAndFocus(const lcArray<lcObject*>& Selection, lcObject* Focus, quint32 Section, bool EnableSelectionMode);
-	void AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelectionMode, bool UpdateInterface);
-	void RemoveFromSelection(const lcArray<lcObject*>& Objects);
+	void SetSelectionAndFocus(const std::vector<lcObject*>& Selection, lcObject* Focus, quint32 Section, bool EnableSelectionMode);
+	void AddToSelection(const std::vector<lcObject*>& Objects, bool EnableSelectionMode, bool UpdateInterface);
+	void RemoveFromSelection(const std::vector<lcObject*>& Objects);
 	void RemoveFromSelection(const lcObjectSection& ObjectSection);
 	void SelectAllPieces();
 	void InvertSelection();
@@ -317,7 +353,7 @@ public:
 	void UnhideSelectedPieces();
 	void UnhideAllPieces();
 
-	void FindReplacePiece(bool SearchForward, bool FindAll);
+	void FindReplacePiece(bool SearchForward, bool FindAll, bool Replace);
 
 	void UndoAction();
 	void RedoAction();
@@ -337,18 +373,11 @@ public:
 		return mActive;
 	}
 
-	void AddCamera(lcCamera* camera)
-	{
-		mCameras.Add(camera);
-	}
-
-	void RemoveCameraIndex(int CameraIdx)
-	{
-		mCameras.RemoveIndex(CameraIdx);
-	}
-
+	void AddCamera(lcCamera* camera);
+	bool RemoveCameraIndex(size_t CameraIdx);
 	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved from protected) ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Build Modification ***/
 	bool GetModAction()
 	{
@@ -363,11 +392,7 @@ public:
 	void BeginMouseTool();
 	void EndMouseTool(lcTool Tool, bool Accept);
 	void InsertPieceToolClicked(const lcMatrix44& WorldMatrix);
-	void PointLightToolClicked(const lcVector3& Position);
-/*** LPub3D Mod - enable lights ***/
-	void BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, lcLightType LightType);
-	void UpdateDirectionalLightTool(const lcVector3& Position);
-/*** LPub3D Mod end ***/
+	void InsertLightToolClicked(const lcVector3& Position, lcLightType LightType);
 	void BeginCameraTool(const lcVector3& Position, const lcVector3& Target);
 	void UpdateCameraTool(const lcVector3& Position);
 	void UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag);
@@ -385,7 +410,6 @@ public:
 	void MoveCamera(lcCamera* Camera, const lcVector3& Direction);
 	void ZoomExtents(lcCamera* Camera, float Aspect);
 	void Zoom(lcCamera* Camera, float Amount);
-
 /*** LPub3D Mod - Camera Globe ***/
 	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
 	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
@@ -393,31 +417,28 @@ public:
 /*** LPub3D Mod - Selected Parts ***/
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
 /*** LPub3D Mod end ***/
-	void MoveSelectedObjects(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
+	void MoveSelectedObjects(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint, bool FirstMove)
 	{
-		MoveSelectedObjects(Distance, Distance, AllowRelative, AlternateButtonDrag, Update, Checkpoint);
+		MoveSelectedObjects(Distance, Distance, AllowRelative, AlternateButtonDrag, Update, Checkpoint, FirstMove);
 	}
 
-	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
-	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint);
+	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint, bool FirstMove);
+	void RotateSelectedObjects(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);
 /*** LPub3D Mod - transform command ***/
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform, bool PiecesSelected);
 /*** LPub3D Mod end ***/
+	void SetObjectsKeyFrame(const std::vector<lcObject*>& Objects, lcObjectPropertyId PropertyId, bool KeyFrame);
 	void SetSelectedPiecesColorIndex(int ColorIndex);
-	void SetSelectedPiecesPieceInfo(PieceInfo* Info);
 	void SetSelectedPiecesStepShow(lcStep Step);
 	void SetSelectedPiecesStepHide(lcStep Step);
+
+	void SetObjectsProperty(const std::vector<lcObject*>& Objects, lcObjectPropertyId PropertyId, QVariant Value);
 
 	void SetCameraOrthographic(lcCamera* Camera, bool Ortho);
 	void SetCameraFOV(lcCamera* Camera, float FOV);
 	void SetCameraZNear(lcCamera* Camera, float ZNear);
 	void SetCameraZFar(lcCamera* Camera, float ZFar);
-	void SetCameraName(lcCamera* Camera, const QString& Name);
-/*** LPub3D Mod - enable lights ***/
-	void SetLightName(lcLight* Light, const QString& Name);
-	void UpdateLight(lcLight* Light, const lcLightProperties Props, int Property);
-/*** LPub3D Mod end ***/
 
 	void ShowPropertiesDialog();
 	void ShowSelectByNameDialog();
@@ -444,8 +465,9 @@ protected:
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
 //	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
-	void InsertPiece(lcPiece* Piece, int Index);
+	void InsertPiece(lcPiece* Piece, size_t Index);
 
+	lcPOVRayOptions mPOVRayOptions;
 	lcModelProperties mProperties;
 	Project* const mProject;
 	PieceInfo* mPieceInfo;
@@ -457,11 +479,12 @@ protected:
 	bool mActive;
 	lcStep mCurrentStep;
 	lcVector3 mMouseToolDistance;
+	bool mMouseToolFirstMove;
 
-	lcArray<lcPiece*> mPieces;
-	lcArray<lcCamera*> mCameras;
-	lcArray<lcLight*> mLights;
-	lcArray<lcGroup*> mGroups;
+	std::vector<std::unique_ptr<lcPiece>> mPieces;
+	std::vector<std::unique_ptr<lcCamera>> mCameras;
+	std::vector<std::unique_ptr<lcLight>> mLights;
+	std::vector<std::unique_ptr<lcGroup>> mGroups;
 	QStringList mFileLines;
 
 	lcModelHistoryEntry* mSavedHistory;

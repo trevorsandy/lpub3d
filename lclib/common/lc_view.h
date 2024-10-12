@@ -17,10 +17,10 @@ enum class lcCursor
 	Hidden = First,
 	Default,
 	Brick,
-	Light,
-	Sunlight,     /*** LPub3D Mod - enable lights ***/
-	Arealight,    /*** LPub3D Mod - enable lights ***/
-	Spotlight,
+	PointLight,
+	SpotLight,
+	DirectionalLight,
+	AreaLight,
 	Camera,
 	Select,
 	SelectAdd,
@@ -54,9 +54,9 @@ enum class lcTrackTool
 	None,
 	Insert,
 	PointLight,
-	SunLight,      /*** LPub3D Mod - enable lights ***/
-	AreaLight,     /*** LPub3D Mod - enable lights ***/
 	SpotLight,
+	DirectionalLight,
+	AreaLight,
 	Camera,
 	Select,
 	MoveX,
@@ -261,7 +261,7 @@ public:
 	void SetDefaultCamera();
 	void SetCamera(lcCamera* Camera, bool ForceCopy);
 	void SetCamera(const QString& CameraName);
-	void SetCameraIndex(int Index);
+	void SetCameraIndex(size_t CameraIndex);
 
 	void SetProjection(bool Ortho);
 	void LookAt();
@@ -281,7 +281,7 @@ public:
 	void GetRayUnderPointer(lcVector3& Start, lcVector3& End) const;
 	lcObjectSection FindObjectUnderPointer(bool PiecesOnly, bool IgnoreSelected) const;
 	lcPieceInfoRayTest FindPieceInfoUnderPointer(bool IgnoreSelected) const;
-	lcArray<lcObject*> FindObjectsInBox(float x1, float y1, float x2, float y2) const;
+	std::vector<lcObject*> FindObjectsInBox(float x1, float y1, float x2, float y2) const;
 
 	lcVector3 ProjectPoint(const lcVector3& Point) const;
 	lcVector3 UnprojectPoint(const lcVector3& Point) const;
@@ -301,7 +301,6 @@ public:
 
 signals:
 	void FocusReceived();
-	void CameraChanged();
 
 protected:
 	void DrawBackground(int CurrentTileRow, int TotalTileRows, int CurrentTileHeight) const;
@@ -368,13 +367,13 @@ protected:
 	lcVertexBuffer mGridBuffer;
 	int mGridSettings[7];
 
-	static lcFindReplaceWidget* mFindWidget;
+	static QPointer<lcFindReplaceWidget> mFindWidget;
 	static lcFindReplaceParams mFindReplaceParams;
 
 	static lcView* mLastFocusedView;
 	static std::vector<lcView*> mViews;
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	bool mIsSubstituteView;
+	bool mIsSubstituteView = false;
 /*** LPub3D Mod end ***/
 };

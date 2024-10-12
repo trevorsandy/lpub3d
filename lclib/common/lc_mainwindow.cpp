@@ -3,10 +3,10 @@
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 #include "lc_partselectionwidget.h"
+#include "lc_propertieswidget.h"
 #include "lc_timelinewidget.h"
 #include "lc_viewwidget.h"
 #include "lc_colorlist.h"
-#include "lc_qpropertiestree.h"
 #include "lc_qutils.h"
 #include "lc_qupdatedialog.h"
 #include "lc_aboutdialog.h"
@@ -157,7 +157,9 @@ void lcMainWindow::CreateWidgets()
 /*** LPub3D Mod - disable 3D actions ***/
 	// disable menu itmes until model loaded
 	//File
-	mActions[LC_FILE_RENDER]->setDisabled(true);
+	mActions[LC_FILE_RENDER_POVRAY]->setDisabled(true);
+	mActions[LC_FILE_RENDER_BLENDER]->setDisabled(true);
+	mActions[LC_FILE_RENDER_OPEN_IN_BLENDER]->setDisabled(true);
 	//Export
 	mActions[LC_FILE_EXPORT_3DS]->setDisabled(true);
 	mActions[LC_FILE_EXPORT_BRICKLINK]->setDisabled(true);
@@ -265,22 +267,20 @@ void lcMainWindow::CreateActions()
 	EditActionLightIcon.addFile(":/resources/action_light_16.png");
 	mActions[LC_EDIT_ACTION_POINT_LIGHT]->setIcon(EditActionLightIcon);
 
-/*** LPub3D Mod - enable lights ***/
+	QIcon EditActionSpotLightIcon;
+	EditActionSpotLightIcon.addFile(":/resources/action_spotlight.png");
+	EditActionSpotLightIcon.addFile(":/resources/action_spotlight_16.png");
+	mActions[LC_EDIT_ACTION_SPOTLIGHT]->setIcon(EditActionSpotLightIcon);
+
 	QIcon EditActionSunlightIcon;
 	EditActionSunlightIcon.addFile(":/resources/action_sunlight.png");
 	EditActionSunlightIcon.addFile(":/resources/action_sunlight_16.png");
-	mActions[LC_EDIT_ACTION_SUN_LIGHT]->setIcon(EditActionSunlightIcon);
+	mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]->setIcon(EditActionSunlightIcon);
 
 	QIcon EditActionArealightIcon;
 	EditActionArealightIcon.addFile(":/resources/action_arealight.png");
 	EditActionArealightIcon.addFile(":/resources/action_arealight_16.png");
 	mActions[LC_EDIT_ACTION_AREA_LIGHT]->setIcon(EditActionArealightIcon);
-/*** LPub3D Mod end ***/
-
-	QIcon EditActionSpotLightIcon;
-	EditActionSpotLightIcon.addFile(":/resources/action_spotlight.png");
-	EditActionSpotLightIcon.addFile(":/resources/action_spotlight_16.png");
-	mActions[LC_EDIT_ACTION_SPOT_LIGHT]->setIcon(EditActionSpotLightIcon);
 
 	QIcon EditActionSelectIcon;
 	EditActionSelectIcon.addFile(":/resources/action_select.png");
@@ -321,6 +321,21 @@ void lcMainWindow::CreateActions()
 	EditActionPanIcon.addFile(":/resources/action_pan.png");
 	EditActionPanIcon.addFile(":/resources/action_pan_16.png");
 	mActions[LC_EDIT_ACTION_PAN]->setIcon(EditActionPanIcon);
+
+	QIcon FileRenderPOVRayIcon;
+	FileRenderPOVRayIcon.addFile(":/resources/file_render_povray.png");
+	FileRenderPOVRayIcon.addFile(":/resources/file_render_povray_16.png");
+	mActions[LC_FILE_RENDER_POVRAY]->setIcon(FileRenderPOVRayIcon);
+
+	QIcon FileRenderBlenderIcon;
+	FileRenderBlenderIcon.addFile(":/resources/file_render_blender.png");
+	FileRenderBlenderIcon.addFile(":/resources/file_render_blender_16.png");
+	mActions[LC_FILE_RENDER_BLENDER]->setIcon(FileRenderBlenderIcon);
+
+	QIcon FileOpenInBlenderIcon;
+	FileOpenInBlenderIcon.addFile(":/resources/file_render_open_in_blender.png");
+	FileOpenInBlenderIcon.addFile(":/resources/file_render_open_in_blender_16.png");
+	mActions[LC_FILE_RENDER_OPEN_IN_BLENDER]->setIcon(FileOpenInBlenderIcon);
 
 	mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setIcon(QIcon(":/resources/action_rotate_view.png"));
@@ -487,6 +502,8 @@ void lcMainWindow::CreateMenus()
 	for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
 		mCameraMenu->addAction(mActions[actionIdx]);
 
+	connect(mCameraMenu, &QMenu::aboutToShow, this, &lcMainWindow::CameraMenuAboutToShow);
+
 	mViewpointMenu = new QMenu(tr("&Viewpoints"), this);
 	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_FRONT]);
 	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BACK]);
@@ -503,6 +520,8 @@ void lcMainWindow::CreateMenus()
 	mProjectionMenu->addAction(mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
 	mProjectionMenu->addAction(mActions[LC_VIEW_PROJECTION_ORTHO]);
 
+	connect(mProjectionMenu, &QMenu::aboutToShow, this, &lcMainWindow::ProjectionMenuAboutToShow);
+
 	mShadingMenu = new QMenu(tr("Sh&ading"), this);
 	mShadingMenu->addAction(mActions[LC_VIEW_SHADING_WIREFRAME]);
 	mShadingMenu->addAction(mActions[LC_VIEW_SHADING_FLAT]);
@@ -513,9 +532,9 @@ void lcMainWindow::CreateMenus()
 /***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_POINT_LIGHT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SUN_LIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_AREA_LIGHT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOT_LIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsMenu->addSeparator();
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -555,7 +574,10 @@ void lcMainWindow::CreateMenus()
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_POVRAY]);
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 	FileMenu->addSeparator();
-	FileMenu->addAction(mActions[LC_FILE_RENDER]);
+	QMenu* RenderMenu = FileMenu->addMenu(tr("&Render"));
+	RenderMenu->addAction(mActions[LC_FILE_RENDER_POVRAY]);
+	RenderMenu->addAction(mActions[LC_FILE_RENDER_BLENDER]);
+	RenderMenu->addAction(mActions[LC_FILE_RENDER_OPEN_IN_BLENDER]);
 	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
@@ -771,9 +793,9 @@ void lcMainWindow::CreateToolBars()
 /***
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_POINT_LIGHT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SUN_LIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_AREA_LIGHT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOT_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsToolBar->addSeparator();
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -801,6 +823,11 @@ void lcMainWindow::CreateToolBars()
 	addDockWidget(Qt::RightDockWidgetArea, mPartsToolBar);
 ***/
 /*** LPub3D Mod end ***/
+
+	connect(mPartsToolBar, &QDockWidget::dockLocationChanged, mPartSelectionWidget, &lcPartSelectionWidget::DockLocationChanged);
+	connect(mPartSelectionWidget, &lcPartSelectionWidget::PartPicked, this, &lcMainWindow::PartListPicked);
+	connect(mPartSelectionWidget, &lcPartSelectionWidget::CurrentPartChanged, this, &lcMainWindow::SetCurrentPieceInfo);
+
 	mColorsToolBar = new QDockWidget(tr("Colors"), this);
 	mColorsToolBar->setObjectName("ColorsToolbar");
 	mColorsToolBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -838,8 +865,12 @@ void lcMainWindow::CreateToolBars()
 	QVBoxLayout* PropertiesLayout = new QVBoxLayout(PropertiesWidget);
 	PropertiesLayout->setContentsMargins(0, 0, 0, 0);
 
-	mPropertiesWidget = new lcQPropertiesTree(PropertiesWidget);
-	PropertiesLayout->addWidget(mPropertiesWidget);
+	QScrollArea* PropertiesScrollArea = new QScrollArea(PropertiesWidget);
+	PropertiesScrollArea->setWidgetResizable(true);
+	PropertiesLayout->addWidget(PropertiesScrollArea);
+
+	mPropertiesWidget = new lcPropertiesWidget(PropertiesScrollArea);
+	PropertiesScrollArea->setWidget(mPropertiesWidget);
 
 	QHBoxLayout* TransformLayout = new QHBoxLayout;
 	QWidget* TransformWidget = new QWidget();
@@ -919,9 +950,9 @@ void lcMainWindow::CreateToolBars()
 	tabifyDockWidget(mTimelineToolBar, mPreviewToolBar);
 
 	connect(mPropertiesToolBar, SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
-	connect(mTimelineToolBar,   SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
-	connect(mPartsToolBar,      SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
-	connect(mColorsToolBar,     SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
+	connect(mTimelineToolBar,	SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
+	connect(mPartsToolBar,		SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
+	connect(mColorsToolBar,		SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
 
 	mPartsToolBar->raise();
 ***/
@@ -946,7 +977,6 @@ lcView* lcMainWindow::CreateView(lcModel* Model)
 {
 	lcView* NewView = new lcView(lcViewType::View, Model);
 
-	connect(NewView, SIGNAL(CameraChanged()), this, SLOT(ViewCameraChanged()));
 	connect(NewView, SIGNAL(FocusReceived()), this, SLOT(ViewFocusReceived()));
 
 	AddView(NewView);
@@ -995,7 +1025,7 @@ Q_UNUSED(ShowPreview)
 
 void lcMainWindow::CreatePreviewWidget()
 {
-	mPreviewWidget  = new lcPreviewDockWidget();
+	mPreviewWidget	= new lcPreviewDockWidget();
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 /***
@@ -1492,7 +1522,7 @@ void lcMainWindow::ModelTabChanged(int Index)
 	Project* Project = lcGetActiveProject();
 	lcModelTabWidget* CurrentTab = (lcModelTabWidget*)mModelTabWidget->widget(Index);
 
-	Project->SetActiveModel(Project->GetModels().FindIndex(CurrentTab ? CurrentTab->GetModel() : nullptr));
+	Project->SetActiveModel(CurrentTab ? CurrentTab->GetModel() : nullptr);
 }
 
 void lcMainWindow::ClipboardChanged()
@@ -1524,6 +1554,16 @@ void lcMainWindow::ActionTriggered()
 void lcMainWindow::ColorChanged(int ColorIndex)
 {
 	SetColorIndex(ColorIndex);
+}
+
+void lcMainWindow::PartListPicked(PieceInfo* Info)
+{
+	if (!Info)
+		return;
+
+	quint32 ColorCode = lcGetColorCode(mPartSelectionWidget->GetColorIndex());
+
+	PreviewPiece(Info->mFileName, ColorCode, true);
 }
 
 void lcMainWindow::ColorButtonClicked()
@@ -1728,9 +1768,9 @@ void lcMainWindow::ShowHTMLDialog()
 	lcGetActiveProject()->ExportHTML(Options);
 }
 
-void lcMainWindow::ShowRenderDialog()
+void lcMainWindow::ShowRenderDialog(int Command)
 {
-	lcRenderDialog Dialog(this);
+	lcRenderDialog Dialog(this, Command);
 	Dialog.exec();
 }
 
@@ -1766,7 +1806,7 @@ void lcMainWindow::SetShadingMode(lcShadingMode ShadingMode)
 	lcView::UpdateAllViews();
 
 	if (mPartSelectionWidget)
-		mPartSelectionWidget->Redraw();
+		mPartSelectionWidget->UpdateThumbnails();
 }
 
 void lcMainWindow::SetSelectionMode(lcSelectionMode SelectionMode)
@@ -1946,9 +1986,9 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 							Camera->m_zFar = ZFar;
 						if (!Position.IsNan() && !TargetPosition.IsNan() && !UpVector.IsNan())
 						{
-							Camera->mPosition = Position;
-							Camera->mTargetPosition = TargetPosition;
-							Camera->mUpVector = UpVector;
+							Camera->SetPosition(Position, 1, false);
+							Camera->SetTargetPosition(TargetPosition, 1, false);
+							Camera->SetUpVector(UpVector, 1, false);
 						}
 						Camera->UpdatePosition(1);
 					}
@@ -2054,10 +2094,7 @@ void lcMainWindow::AddView(lcView* View)
 		return;
 
 	if (!TabWidget->GetActiveView())
-	{
 		TabWidget->SetActiveView(View);
-		UpdatePerspective();
-	}
 }
 
 void lcMainWindow::RemoveView(lcView* View)
@@ -2084,9 +2121,6 @@ void lcMainWindow::SetActiveView(lcView* ActiveView)
 		CurrentActiveView->SetTopSubmodelActive();
 
 	TabWidget->SetActiveView(ActiveView);
-
-	UpdateCameraMenu();
-	UpdatePerspective();
 }
 
 void lcMainWindow::SetTool(lcTool Tool)
@@ -2178,7 +2212,7 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 	int TransformIndex = static_cast<int>(TransformType);
 /*** LPub3D Mod - rotstep transform ***/
 	constexpr const char* StatusTips[][3] =
-	{   // EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
+	{	// EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
 		{"Enter %1 X angle value",
 		 "Enter %1 Y angle value",
 		 "Enter %1 Z angle value"},
@@ -2451,7 +2485,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 {
 	int Flags = 0;
 	bool ModAction = false;
-	lcArray<lcObject*> Selection;
+	std::vector<lcObject*> Selection;
 	lcObject* Focus = nullptr;
 
 	lcModel* ActiveModel = GetActiveModel();
@@ -2504,7 +2538,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			/*** LPub3D Mod - Select whole model if Rotate Tool selected and not build modification ***/
 			if (Tool == lcTool::Rotate && !BuildModEnabled)
 			{
-				for (lcPiece* Piece : ActiveModel->GetPieces())
+				for (const std::unique_ptr<lcPiece>& Piece : ActiveModel->GetPieces())
 					if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
 						Piece->SetSelected(true);
 
@@ -2521,7 +2555,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			{
 				QVector<TypeLine> LineTypeIndexes;
 
-				int Objects = Selection.GetSize();
+				int Objects = Selection.size();
 				if (Objects > 0)
 				{
 					QString Message;
@@ -2572,8 +2606,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 					}
 				}
 				if (SelectionType != VIEWER_LINE) {
-					PartSource Selection = ModAction || SelectionType == VIEWER_CLR ? PartSource(SelectionType) : VIEWER_SEL;
-					emit SelectedPartLinesSig(LineTypeIndexes, Selection);
+					PartSource PartSelection = ModAction || SelectionType == VIEWER_CLR ? PartSource(SelectionType) : VIEWER_SEL;
+					emit SelectedPartLinesSig(LineTypeIndexes, PartSelection);
 					ActiveModel->ResetModAction();
 				}
 			}
@@ -2632,22 +2666,31 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 
 	mPropertiesWidget->Update(Selection, Focus);
 
+	if (Focus && Focus->IsPiece())
+	{
+		lcPiece* Piece = (lcPiece*)Focus;
+		int ColorIndex = Piece->GetColorIndex();
+		quint32 ColorCode = lcGetColorCode(ColorIndex);
+
+		PreviewPiece(Piece->mPieceInfo->mFileName, ColorCode, false);
+	}
+
 	QString Message;
 
-	if ((Selection.GetSize() == 1) && Focus)
+	if ((Selection.size() == 1) && Focus)
 	{
 		if (Focus->IsPiece())
 			Message = tr("%1 (ID: %2)").arg(Focus->GetName(), ((lcPiece*)Focus)->GetID());
 		else
 			Message = Focus->GetName();
 	}
-	else if (Selection.GetSize() > 0)
+	else if (Selection.size() > 0)
 	{
-		Message = tr("%n Object(s) selected", "", Selection.GetSize());
+		Message = tr("%n Object(s) selected", "", static_cast<int>(Selection.size()));
 
 		if (Focus && Focus->IsPiece())
 		{
-/*** LPub3D Mod - add transformation focus part message    ***/
+/*** LPub3D Mod - add transformation focus part message	   ***/
 			QString focusPart = GetTool() == lcTool::Rotate ? ". Transform focus object: " : " -";
 			Message.append(tr("%1 %2 (ID: %3)").arg(focusPart).arg(Focus->GetName()).arg(((lcPiece*)Focus)->GetID()));
 /*** LPub3D Mod end ***/
@@ -2666,8 +2709,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - replace mStatusBarLabel ***/
-	 statusBar()->showMessage(Focus && Focus->IsPiece() && SelectionType == VIEWER_MOD ? Label : Selection.GetSize() == 1 ? Message.append(" " + Label) : Message);
-/*  mStatusPositionLabel->setText(Label);   */
+	 statusBar()->showMessage(Focus && Focus->IsPiece() && SelectionType == VIEWER_MOD ? Label : Selection.size() == 1 ? Message.append(" " + Label) : Message);
+/*	mStatusPositionLabel->setText(Label);	*/
 /*** LPub3D Mod end ***/
 }
 
@@ -2695,8 +2738,8 @@ void lcMainWindow::UpdateCurrentStep()
 	mActions[LC_VIEW_TIME_PREVIOUS]->setEnabled(CurrentStep > 1);
 	mActions[LC_VIEW_TIME_NEXT]->setEnabled(CurrentStep < LC_STEP_MAX);
 	mActions[LC_VIEW_TIME_LAST]->setEnabled(CurrentStep != LastStep);
-/*** LPub3D Mod 2121 - suppress time status                                                  ***/
-/***    mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep))); ***/
+/*** LPub3D Mod 2121 - suppress time status													 ***/
+/***	mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep))); ***/
 /*** LPub3D Mod end ***/
 }
 
@@ -2734,8 +2777,8 @@ void lcMainWindow::UpdateSnap()
 	mActions[LC_EDIT_SNAP_ANGLE0 + mAngleSnapIndex]->setChecked(true);
 
 /*** LPub3D Mod - suppress mStatusSnapLabel ***/
-//   QString Relative = mRelativeTransform ? tr("Rel") : tr("Abs");
-//   mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 %4 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText(), Relative));
+//	 QString Relative = mRelativeTransform ? tr("Rel") : tr("Abs");
+//	 mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 %4 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText(), Relative));
 /*** LPub3D Mod end ***/
 }
 
@@ -2745,7 +2788,7 @@ void lcMainWindow::UpdateColor()
 	Pixmap.fill(QColor::fromRgbF(gColorList[mColorIndex].Value[0], gColorList[mColorIndex].Value[1], gColorList[mColorIndex].Value[2]));
 
 	mColorButton->setIcon(Pixmap);
-	mColorButton->setText(QString("  ") + gColorList[mColorIndex].Name);
+	mColorButton->setText(QString("	 ") + gColorList[mColorIndex].Name);
 	mColorList->SetCurrentColor(mColorIndex);
 }
 
@@ -2787,16 +2830,6 @@ void lcMainWindow::ViewFocusReceived()
 	SetActiveView(qobject_cast<lcView*>(sender()));
 }
 
-void lcMainWindow::ViewCameraChanged()
-{
-	lcView* View = qobject_cast<lcView*>(sender());
-
-	if (!View || !View->IsLastFocused())
-		return;
-
-	UpdateCameraMenu();
-}
-
 /*** LPub3D Mod - Update Default Camera ***/
 void lcMainWindow::UpdateDefaultCameraProperties()
 {
@@ -2818,7 +2851,13 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 			{
 				if (!Camera->IsSimple())
 				{
-					if (ActiveModel->GetCameras().FindIndex(Camera) == -1) {
+					bool CameraFound = false;
+					for (auto CameraIt = ActiveModel->GetCameras().begin(); CameraIt != ActiveModel->GetCameras().end(); )
+						if (Camera == CameraIt->get())
+							CameraFound = true;
+
+					if (!CameraFound)
+					{
 						Camera = new lcCamera(true);
 						ActiveView->SetCamera(Camera, false);
 					}
@@ -2828,13 +2867,13 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 				if (Tool == lcTool::Select)
 				{
 					int Flags = 0;
-					lcArray<lcObject*> Selection;
+					std::vector<lcObject*> Selection;
 					lcObject* Focus = nullptr;
 					ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 
-					if (!Selection.GetSize() && !Focus)
+					if (!Selection.size() && !Focus)
 					{
-						Selection.Add(Camera);
+						Selection.emplace_back(Camera);
 						mPropertiesWidget->Update(Selection, Camera);
 					}
 				}
@@ -2844,27 +2883,27 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 }
 /*** LPub3D Mod end ***/
 
-void lcMainWindow::UpdateCameraMenu()
+void lcMainWindow::CameraMenuAboutToShow()
 {
-	const lcArray<lcCamera*>& Cameras = lcGetActiveModel()->GetCameras();
+	const std::vector<std::unique_ptr<lcCamera>>& Cameras = lcGetActiveModel()->GetCameras();
 	lcView* ActiveView = GetActiveView();
 	const lcCamera* CurrentCamera = ActiveView ? ActiveView->GetCamera() : nullptr;
 	bool CurrentSet = false;
 
-	for (int ActionIdx = LC_VIEW_CAMERA_FIRST; ActionIdx <= LC_VIEW_CAMERA_LAST; ActionIdx++)
+	for (size_t ActionIndex = LC_VIEW_CAMERA_FIRST; ActionIndex <= LC_VIEW_CAMERA_LAST; ActionIndex++)
 	{
-		QAction* Action = mActions[ActionIdx];
-		int CameraIdx = ActionIdx - LC_VIEW_CAMERA_FIRST;
+		QAction* Action = mActions[ActionIndex];
+		size_t CameraIndex = ActionIndex - LC_VIEW_CAMERA_FIRST;
 
-		if (CameraIdx < Cameras.GetSize())
+		if (CameraIndex < Cameras.size())
 		{
-			if (CurrentCamera == Cameras[CameraIdx])
+			if (CurrentCamera == Cameras[CameraIndex].get())
 			{
 				Action->setChecked(true);
 				CurrentSet = true;
 			}
 
-			Action->setText(Cameras[CameraIdx]->GetName());
+			Action->setText(Cameras[CameraIndex]->GetName());
 			Action->setVisible(true);
 		}
 		else
@@ -2873,11 +2912,9 @@ void lcMainWindow::UpdateCameraMenu()
 
 	if (!CurrentSet)
 		mActions[LC_VIEW_CAMERA_NONE]->setChecked(true);
-
-	UpdatePerspective();
 }
 
-void lcMainWindow::UpdatePerspective()
+void lcMainWindow::ProjectionMenuAboutToShow()
 {
 	lcView* ActiveView = GetActiveView();
 
@@ -2919,23 +2956,28 @@ void lcMainWindow::UpdateSelectionMode()
 
 void lcMainWindow::UpdateModels()
 {
-	const lcArray<lcModel*>& Models = lcGetActiveProject()->GetModels();
+	const std::vector<std::unique_ptr<lcModel>>& Models = lcGetActiveProject()->GetModels();
 	lcModel* CurrentModel = lcGetActiveModel();
 
-	for (int ActionIdx = LC_MODEL_FIRST; ActionIdx <= LC_MODEL_LAST; ActionIdx++)
+	for (size_t ActionIndex = LC_MODEL_FIRST; ActionIndex <= LC_MODEL_LAST; ActionIndex++)
 	{
-		QAction* Action = mActions[ActionIdx];
-		int ModelIdx = ActionIdx - LC_MODEL_FIRST;
+		QAction* Action = mActions[ActionIndex];
+		size_t ModelIndex = ActionIndex - LC_MODEL_FIRST;
 
-		if (ModelIdx < Models.GetSize())
+		if (ModelIndex < Models.size())
 		{
-			Action->setChecked(CurrentModel == Models[ModelIdx]);
-			Action->setText(QString::fromLatin1("%1%2 %3").arg(ModelIdx < 9 ? QString("&") : QString(), QString::number(ModelIdx + 1), Models[ModelIdx]->GetProperties().mFileName));
+			Action->setChecked(CurrentModel == Models[ModelIndex].get());
+			Action->setText(QString::fromLatin1("%1%2 %3").arg(ModelIndex < 9 ? QString("&") : QString(), QString::number(ModelIndex + 1), Models[ModelIndex]->GetProperties().mFileName));
 			Action->setVisible(true);
 		}
 		else
 			Action->setVisible(false);
 	}
+
+	auto HasModel = [&Models](lcModel* Model)
+	{
+		return std::find_if(Models.begin(), Models.end(), [Model](const std::unique_ptr<lcModel>& CheckModel) { return CheckModel.get() == Model; }) != Models.end();
+	};
 
 	for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); )
 	{
@@ -2944,7 +2986,7 @@ void lcMainWindow::UpdateModels()
 
 		if (!Model)
 			TabIdx++;
-		else if (Models.FindIndex(Model) != -1)
+		else if (HasModel(Model))
 		{
 			mModelTabWidget->setTabText(TabIdx, Model->GetProperties().mFileName);
 			TabIdx++;
@@ -2956,7 +2998,7 @@ void lcMainWindow::UpdateModels()
 	mPartSelectionWidget->UpdateModels();
 
 	if (mCurrentPieceInfo && mCurrentPieceInfo->IsModel())
-		if (Models.FindIndex(mCurrentPieceInfo->GetModel()) == -1)
+		if (!HasModel(mCurrentPieceInfo->GetModel()))
 			SetCurrentPieceInfo(nullptr);
 }
 
@@ -3082,14 +3124,16 @@ void lcMainWindow::MergeProject()
 
 	if (NewProject->Load(LoadFileName, true))
 	{
-		int NumModels = NewProject->GetModels().GetSize();
+		size_t ModelCount = NewProject->GetModels().size();
 
 		lcGetActiveProject()->Merge(NewProject);
 
-		if (NumModels == 1)
+		if (ModelCount == 1)
+/*** LPub3D Mod - set Visual Editor label ***/
 			QMessageBox::information(this, tr("Visual Editor"), tr("Merged 1 submodel."));
 		else
-			QMessageBox::information(this, tr("Visual Editor"), tr("Merged %1 submodels.").arg(NumModels));
+			QMessageBox::information(this, tr("Visual Editor"), tr("Merged %1 submodels.").arg(ModelCount));
+/*** LPub3D Mod end ***/
 
 		UpdateModels();
 	}
@@ -3148,7 +3192,7 @@ bool lcMainWindow::SaveProject(const QString& FileName)
 		if (SaveFileName.isEmpty())
 			SaveFileName = QFileInfo(QDir(lcGetProfileString(LC_PROFILE_PROJECTS_PATH)), Project->GetTitle()).absoluteFilePath();
 
-		QString Filter = (Project->GetModels().GetSize() > 1) ? tr("Supported Files (*.mpd);;All Files (*.*)") : tr("Supported Files (*.ldr *.dat *.mpd);;All Files (*.*)");
+		QString Filter = (Project->GetModels().size() > 1) ? tr("Supported Files (*.mpd);;All Files (*.*)") : tr("Supported Files (*.ldr *.dat *.mpd);;All Files (*.*)");
 
 		SaveFileName = QFileDialog::getSaveFileName(this, tr("Save Model"), SaveFileName, Filter);
 
@@ -3168,7 +3212,7 @@ bool lcMainWindow::SaveProject(const QString& FileName)
 		return false;
 
 /*** LPub3D Mod - suppress recent files dropdown ***/
-//    AddRecentFile(SaveFileName);
+//	  AddRecentFile(SaveFileName);
 /*** LPub3D Mod end ***/
 	UpdateTitle();
 
@@ -3215,7 +3259,7 @@ bool lcMainWindow::SetModelFromFocus()
 	if (Model)
 	{
 		Project* Project = lcGetActiveProject();
-		Project->SetActiveModel(Project->GetModels().FindIndex(Model));
+		Project->SetActiveModel(Model);
 		return true;
 	}
 
@@ -3232,7 +3276,7 @@ void lcMainWindow::SetModelFromSelection()
 	if (Model)
 	{
 		Project* Project = lcGetActiveProject();
-		Project->SetActiveModel(Project->GetModels().FindIndex(Model));
+		Project->SetActiveModel(Model);
 	}
 }
 
@@ -3326,8 +3370,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		lcGetActiveProject()->ExportWavefront(QString());
 		break;
 
-	case LC_FILE_RENDER:
-		ShowRenderDialog();
+	case LC_FILE_RENDER_POVRAY:
+	case LC_FILE_RENDER_BLENDER:
+	case LC_FILE_RENDER_OPEN_IN_BLENDER:
+		ShowRenderDialog(CommandId - LC_FILE_RENDER_POVRAY);
 		break;
 
 	case LC_FILE_INSTRUCTIONS:
@@ -3390,17 +3436,17 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_FIND_NEXT:
 		if (ActiveModel)
-			ActiveModel->FindReplacePiece(true, false);
+			ActiveModel->FindReplacePiece(true, false, false);
 		break;
 
 	case LC_EDIT_FIND_PREVIOUS:
 		if (ActiveModel)
-			ActiveModel->FindReplacePiece(false, false);
+			ActiveModel->FindReplacePiece(false, false, false);
 		break;
 
 	case LC_EDIT_FIND_ALL:
 		if (ActiveModel)
-			ActiveModel->FindReplacePiece(true, true);
+			ActiveModel->FindReplacePiece(true, true, false);
 		break;
 
 	case LC_EDIT_REPLACE:
@@ -3410,12 +3456,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_REPLACE_ALL:
 		if (ActiveModel)
-			ActiveModel->FindReplacePiece(true, true);
+			ActiveModel->FindReplacePiece(true, true, true);
 		break;
 
 	case LC_EDIT_REPLACE_NEXT:
 		if (ActiveModel)
-			ActiveModel->FindReplacePiece(true, false);
+			ActiveModel->FindReplacePiece(true, false, true);
 		break;
 
 	case LC_EDIT_SELECT_ALL:
@@ -3590,62 +3636,62 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_PIECE_MOVE_PLUSX:
 		if (ActiveModel)
-			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, false, true, true);
+			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, false, true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSX:
 		if (ActiveModel)
-			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, false, true, true);
+			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, false, true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSY:
 		if (ActiveModel)
-			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, false, true, true);
+			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, false, true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSY:
 		if (ActiveModel)
-			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, false, true, true);
+			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, false, true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSZ:
 		if (ActiveModel)
-			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.1f))), true, false, true, true);
+			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.1f))), true, false, true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSZ:
 		if (ActiveModel)
-			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.1f))), true, false, true, true);
+			ActiveModel->MoveSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.1f))), true, false, true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSX:
 		if (ActiveModel)
-			ActiveModel->RotateSelectedPieces(ActiveView->GetMoveDirection(lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, false, true, true);
+			ActiveModel->RotateSelectedObjects(ActiveView->GetMoveDirection(lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSX:
 		if (ActiveModel)
-			ActiveModel->RotateSelectedPieces(ActiveView->GetMoveDirection(-lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, false, true, true);
+			ActiveModel->RotateSelectedObjects(ActiveView->GetMoveDirection(-lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSY:
 		if (ActiveModel)
-			ActiveModel->RotateSelectedPieces(ActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, false, true, true);
+			ActiveModel->RotateSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSY:
 		if (ActiveModel)
-			ActiveModel->RotateSelectedPieces(ActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, false, true, true);
+			ActiveModel->RotateSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSZ:
 		if (ActiveModel)
-			ActiveModel->RotateSelectedPieces(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetAngleSnap(), 1.0f))), true, false, true, true);
+			ActiveModel->RotateSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetAngleSnap(), 1.0f))), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSZ:
 		if (ActiveModel)
-			ActiveModel->RotateSelectedPieces(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetAngleSnap(), 1.0f))), true, false, true, true);
+			ActiveModel->RotateSelectedObjects(ActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetAngleSnap(), 1.0f))), true, false, true, true);
 		break;
 
 	case LC_PIECE_MINIFIG_WIZARD:
@@ -4085,17 +4131,15 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetTool(lcTool::PointLight);
 		break;
 
-/*** LPub3D Mod - enable lights ***/
-		case LC_EDIT_ACTION_SUN_LIGHT:
-		SetTool(lcTool::SunLight);
-		break;
-
 	case LC_EDIT_ACTION_AREA_LIGHT:
 		SetTool(lcTool::AreaLight);
 		break;
-/*** LPub3D Mod end ***/
 
-	case LC_EDIT_ACTION_SPOT_LIGHT:
+	case LC_EDIT_ACTION_DIRECTIONAL_LIGHT:
+		SetTool(lcTool::DirectionalLight);
+		break;
+
+	case LC_EDIT_ACTION_SPOTLIGHT:
 		SetTool(lcTool::SpotLight);
 		break;
 

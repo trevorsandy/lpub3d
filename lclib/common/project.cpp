@@ -7,6 +7,7 @@
 #include "project.h"
 #include "lc_instructions.h"
 #include "image.h"
+#include "light.h"
 #include "lc_mainwindow.h"
 #include "lc_view.h"
 #include "lc_library.h"
@@ -99,7 +100,7 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 /*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
-	mModels.Add(mActiveModel);
+	mModels.emplace_back(mActiveModel);
 /*** LPub3D Mod - export ***/
 	mExportingHTML = false;
 /*** LPub3D Mod end ***/
@@ -113,7 +114,6 @@ Project::Project(bool IsPreview, bool IsRenderImage)
 
 Project::~Project()
 {
-	mModels.DeleteAll();
 }
 
 /*** LPub3D Mod - lpub fade highlight ***/
@@ -169,9 +169,9 @@ int Project::GetImageHeight() const
 
 lcModel* Project::GetModel(const QString& FileName) const
 {
-	for (lcModel* Model : mModels)
+	for (const std::unique_ptr<lcModel>& Model : mModels)
 		if (Model->GetProperties().mFileName == FileName)
-			return Model;
+			return Model.get();
 
 	return nullptr;
 }
@@ -181,8 +181,8 @@ bool Project::IsModified() const
 	if (mModified)
 		return true;
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		if (mModels[ModelIdx]->IsModified())
+	for (const std::unique_ptr<lcModel>& Model : mModels)
+		if (Model->IsModified())
 			return true;
 
 	return false;
@@ -200,7 +200,7 @@ QString Project::GetTitle() const
 	if (!mFileName.isEmpty())
 		return QFileInfo(mFileName).fileName();
 /*** LPub3D Mod - Default model name ***/
-	return mModels.GetSize() == 1 ? tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT) : tr("New Model.mpd");
+	return mModels.size() == 1 ? tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT) : tr("New Model.mpd");
 /*** LPub3D Mod end ***/
 }
 
@@ -229,21 +229,21 @@ QString Project::GetImageFileName(bool AllowCurrentFolder) const
 	return QDir::toNativeSeparators(FileName) + lcGetProfileString(LC_PROFILE_IMAGE_EXTENSION);
 }
 
-void Project::SetActiveModel(int ModelIndex)
+void Project::SetActiveModel(lcModel* ActiveModel)
 {
-	if (ModelIndex < 0 || ModelIndex >= mModels.GetSize())
+	if (!ActiveModel)
 		return;
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->SetActive(ModelIdx == ModelIndex);
+	for (const std::unique_ptr<lcModel> &Model : mModels)
+		Model->SetActive(Model.get() == ActiveModel);
 
 	std::vector<lcModel*> UpdatedModels;
-	UpdatedModels.reserve(mModels.GetSize());
+	UpdatedModels.reserve(mModels.size());
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
+	for (const std::unique_ptr<lcModel> &Model : mModels)
+		Model->UpdatePieceInfo(UpdatedModels);
 
-	mActiveModel = mModels[ModelIndex];
+	mActiveModel = ActiveModel;
 
 /*** LPub3D Mod - Render Image ***/
 	if (!mIsPreview && !mRenderImage && gMainWindow)
@@ -254,13 +254,21 @@ void Project::SetActiveModel(int ModelIndex)
 	}
 }
 
+void Project::SetActiveModel(int ModelIndex)
+{
+	if (ModelIndex < 0 || ModelIndex >= static_cast<int>(mModels.size()))
+		return;
+
+	SetActiveModel(mModels[ModelIndex].get());
+}
+
 void Project::SetActiveModel(const QString& FileName)
 {
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
+	for (const std::unique_ptr<lcModel>& Model : mModels)
 	{
-		if (FileName.compare(mModels[ModelIdx]->GetFileName(), Qt::CaseInsensitive) == 0)
+		if (FileName.compare(Model->GetFileName(), Qt::CaseInsensitive) == 0)
 		{
-			SetActiveModel(ModelIdx);
+			SetActiveModel(Model.get());
 			return;
 		}
 	}
@@ -337,8 +345,8 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 {
 	QStringList ModelNames;
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		ModelNames.append(mModels[ModelIdx]->GetProperties().mFileName);
+	for (const std::unique_ptr<lcModel> &Model : mModels)
+		ModelNames.append(Model->GetProperties().mFileName);
 
 	QString Name = GetNewModelName(gMainWindow, tr("New Submodel"), QString(), ModelNames);
 
@@ -349,11 +357,11 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 	lcModel* Model = new lcModel(Name, this, false);
 	Model->CreatePieceInfo(this);
 	Model->SetSaved();
-	mModels.Add(Model);
+	mModels.emplace_back(Model);
 
 	if (ShowModel)
 	{
-		SetActiveModel(mModels.GetSize() - 1);
+		SetActiveModel(mModels.back().get());
 
 		lcView* ActiveView = gMainWindow ? gMainWindow->GetActiveView() : nullptr;
 		if (ActiveView)
@@ -362,7 +370,7 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 		gMainWindow->UpdateTitle();
 	}
 	else
-		SetActiveModel(mModels.FindIndex(mActiveModel));
+		SetActiveModel(mActiveModel);
 
 	return Model;
 }
@@ -374,7 +382,7 @@ void Project::ShowModelListDialog()
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
 
-	lcArray<lcModel*> NewModels;
+	std::vector<std::unique_ptr<lcModel>> NewModels;
 	std::vector<lcModelListDialogEntry> Results = Dialog.GetResults();
 
 	for (const lcModelListDialogEntry& Entry : Results)
@@ -396,7 +404,7 @@ void Project::ShowModelListDialog()
 				QByteArray File;
 
 				QTextStream SaveStream(&File);
-				Source->SaveLDraw(SaveStream, false);
+				Source->SaveLDraw(SaveStream, false, 0);
 				SaveStream.flush();
 
 				QBuffer Buffer(&File);
@@ -417,27 +425,24 @@ void Project::ShowModelListDialog()
 			Model->SetFileName(Entry.Name);
 			lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), Entry.Name.toLatin1().constData());
 
-			for (lcModel* CheckModel : mModels)
+			for (const std::unique_ptr<lcModel> &CheckModel : mModels)
 				CheckModel->RenamePiece(Model->GetPieceInfo());
 
 			mModified = true;
 		}
 
-		NewModels.Add(Model);
+		NewModels.emplace_back(Model);
 	}
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
+	for (std::unique_ptr<lcModel>& Model : mModels)
 	{
-		lcModel* Model = mModels[ModelIdx];
-
-		if (NewModels.FindIndex(Model) == -1)
-		{
-			delete Model;
+		if (std::find(NewModels.begin(), NewModels.end(), Model) != NewModels.end())
+			Model.release();
+		else
 			mModified = true;
-		}
 	}
 
-	mModels = NewModels;
+	mModels = std::move(NewModels);
 
 	gMainWindow->UpdateTitle();
 	gMainWindow->UpdateModels();
@@ -469,12 +474,12 @@ void Project::SetFileName(const QString& FileName)
 /*** LPub3D Mod - viewer interface ***/
 void Project::AddModel(lcModel *Model)
 {
-	mModels.Add(Model);
+	mModels.emplace_back(Model);
 }
 
 void Project::DeleteAllModels()
 {
-	mModels.DeleteAll();
+	mModels.clear();
 }
 
 void Project::SetModified(bool value)
@@ -640,12 +645,12 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			emit lpub->messageSig(LOG_ERROR,tr("Error accessing model data - no valid input"));
 	}
 
-	mModels.DeleteAll();
+	mModels.clear();
 	SetFileName(FileName);
 	QFileInfo FileInfo(FileName);
 	QString Extension = FileInfo.suffix().toLower();
-
 /*** LPub3D Mod end ***/
+
 	bool LoadDAT;
 
 	if (Extension == QLatin1String("dat") || Extension == QLatin1String("ldr") || Extension == QLatin1String("mpd"))
@@ -675,7 +680,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 				if (std::find_if(Models.begin(), Models.end(), ModelCompare) == Models.end())
 				{
-					mModels.Add(Model);
+					mModels.emplace_back(Model);
 					Models.emplace_back(std::make_pair(Pos, Model));
 					Model->CreatePieceInfo(this);
 				}
@@ -704,7 +709,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 		if (Model->LoadBinary(&MemFile))
 		{
-			mModels.Add(Model);
+			mModels.emplace_back(Model);
 			Model->CreatePieceInfo(this);
 			Model->SetSaved();
 		}
@@ -712,16 +717,16 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			delete Model;
 	}
 
-	if (mModels.IsEmpty())
+	if (mModels.empty())
 	{
 		if (ShowErrors)
 			QMessageBox::warning(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
 		return false;
 	}
 
-	if (mModels.GetSize() == 1)
+	if (mModels.size() == 1)
 	{
-		lcModel* Model = mModels[0];
+		lcModel* Model = mModels.front().get();
 
 		if (Model->GetProperties().mFileName.isEmpty())
 		{
@@ -731,9 +736,9 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	}
 
 	std::vector<lcModel*> UpdatedModels;
-	UpdatedModels.reserve(mModels.GetSize());
+	UpdatedModels.reserve(mModels.size());
 
-	for (lcModel* Model : mModels)
+	for (const std::unique_ptr<lcModel>& Model : mModels)
 	{
 		Model->UpdateMesh();
 		Model->UpdatePieceInfo(UpdatedModels);
@@ -771,14 +776,14 @@ bool Project::Save(const QString& FileName)
 
 bool Project::Save(QTextStream& Stream)
 {
-	bool MPD = mModels.GetSize() > 1;
+	bool MPD = mModels.size() > 1;
 
-	for (lcModel* Model : mModels)
+	for (const std::unique_ptr<lcModel>& Model : mModels)
 	{
 		if (MPD)
 			Stream << QLatin1String("0 FILE ") << Model->GetProperties().mFileName << QLatin1String("\r\n");
 
-		Model->SaveLDraw(Stream, false);
+		Model->SaveLDraw(Stream, false, 0);
 		Model->SetSaved();
 
 		if (MPD)
@@ -790,7 +795,7 @@ bool Project::Save(QTextStream& Stream)
 
 void Project::Merge(Project* Other)
 {
-	for (lcModel* Model : Other->mModels)
+	for (std::unique_ptr<lcModel>& Model : Other->mModels)
 	{
 		QString FileName = Model->GetProperties().mFileName;
 
@@ -798,9 +803,9 @@ void Project::Merge(Project* Other)
 		{
 			bool Duplicate = false;
 
-			for (int SearchIdx = 0; SearchIdx < mModels.GetSize(); SearchIdx++)
+			for (const std::unique_ptr<lcModel>& ExistingModel : mModels)
 			{
-				if (mModels[SearchIdx]->GetProperties().mFileName == FileName)
+				if (ExistingModel->GetProperties().mFileName == FileName)
 				{
 					Duplicate = true;
 					break;
@@ -814,10 +819,10 @@ void Project::Merge(Project* Other)
 			Model->SetFileName(FileName);
 		}
 
-		mModels.Add(Model);
+		mModels.emplace_back(std::move(Model));
 	}
 
-	Other->mModels.RemoveAll();
+	Other->mModels.clear();
 	mModified = true;
 }
 
@@ -832,29 +837,25 @@ bool Project::ImportLDD(const QString& FileName)
 	if (!ZipFile.ExtractFile("IMAGE100.LXFML", XMLFile))
 		return false;
 
-	mModels.DeleteAll();
 	QString ModelName = QFileInfo(FileName).completeBaseName();
-	lcModel* Model = new lcModel(ModelName, this, false);
+	std::unique_ptr<lcModel> NewModel(new lcModel(ModelName, this, false));
 
-	if (Model->LoadLDD(QString::fromUtf8((const char*)XMLFile.mBuffer)))
-	{
-		mModels.Add(Model);
-		Model->SetSaved();
-	}
-	else
-	{
-		delete Model;
+	if (!NewModel->LoadLDD(QString::fromUtf8((const char*)XMLFile.mBuffer)))
 		return false;
-	}
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->CreatePieceInfo(this);
+	NewModel->SetSaved();
+
+	mModels.clear();
+	mModels.emplace_back(std::move(NewModel));
+
+	for (const std::unique_ptr<lcModel>& Model : mModels)
+		Model->CreatePieceInfo(this);
 
 	std::vector<lcModel*> UpdatedModels;
-	UpdatedModels.reserve(mModels.GetSize());
+	UpdatedModels.reserve(mModels.size());
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
+	for (const std::unique_ptr<lcModel>& Model : mModels)
+		Model->UpdatePieceInfo(UpdatedModels);
 
 	mModified = false;
 
@@ -866,30 +867,25 @@ bool Project::ImportInventory(const QByteArray& Inventory, const QString& Name, 
 	if (Inventory.isEmpty())
 		return false;
 
-	mModels.DeleteAll();
-	lcModel* Model = new lcModel(Name, this, false);
+	std::unique_ptr<lcModel> NewModel(new lcModel(Name, this, false));
 
-	if (Model->LoadInventory(Inventory))
-	{
-		mModels.Add(Model);
-		Model->SetSaved();
-	}
-	else
-	{
-		delete Model;
+	if (!NewModel->LoadInventory(Inventory))
 		return false;
-	}
 
-	Model->SetDescription(Description);
+	NewModel->SetSaved();
+	NewModel->SetDescription(Description);
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->CreatePieceInfo(this);
+	mModels.clear();
+	mModels.emplace_back(std::move(NewModel));
+
+	for (const std::unique_ptr<lcModel>& Model : mModels)
+		Model->CreatePieceInfo(this);
 
 	std::vector<lcModel*> UpdatedModels;
-	UpdatedModels.reserve(mModels.GetSize());
+	UpdatedModels.reserve(mModels.size());
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
+	for (const std::unique_ptr<lcModel>& Model : mModels)
+		Model->UpdatePieceInfo(UpdatedModels);
 
 	mModified = false;
 
@@ -900,17 +896,120 @@ std::vector<lcModelPartsEntry> Project::GetModelParts()
 {
 	std::vector<lcModelPartsEntry> ModelParts;
 
-	if (mModels.IsEmpty())
+	if (mModels.empty())
 		return ModelParts;
 
-	for (lcModel* Model : mModels)
+	for (const std::unique_ptr<lcModel>& Model : mModels)
 		Model->CalculateStep(LC_STEP_MAX);
 
 	mModels[0]->GetModelParts(lcMatrix44Identity(), gDefaultColor, ModelParts);
 
-	SetActiveModel(mModels.FindIndex(mActiveModel));
+	SetActiveModel(mActiveModel);
 
 	return ModelParts;
+}
+
+bool Project::ExportCurrentStep(const QString& FileName)
+{
+	QFile File(FileName);
+
+	if (!File.open(QIODevice::WriteOnly))
+	{
+		QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
+		return false;
+	}
+
+	QStringList Models;
+
+	Models.append(lcGetActiveModel()->GetProperties().mFileName);
+
+	std::function<void(const QString&)> ParseStepModel = [&](const QString& ModelName)
+	{
+		Models.append(ModelName);
+
+		for (const std::unique_ptr<lcModel>& Model : mModels)
+		{
+			if (Model->GetProperties().mFileName == ModelName)
+			{
+				lcPartsList ModelParts;
+
+				Model->GetPartsList(gDefaultColor, false, true, ModelParts);
+
+				for (const auto& PartIt : ModelParts)
+				{
+					const PieceInfo* PartInfo = PartIt.first;
+
+					if (PartInfo->IsModel())
+					{
+						ParseStepModel(PartInfo->mFileName);
+					}
+					else
+						continue;
+				}
+
+				break;
+			}
+		}
+	};
+
+	const lcStep CurrentStep = lcGetActiveModel()->GetCurrentStep();
+
+	bool MPD = mModels.size() > 1;
+
+	if (MPD)
+	{
+		lcPartsList StepParts;
+
+		lcGetActiveModel()->GetPartsListForStep(CurrentStep, gDefaultColor, StepParts, true);
+
+		if (!StepParts.empty())
+		{
+			for (const auto& PartIt : StepParts)
+			{
+				const PieceInfo *PartInfo = PartIt.first;
+
+				if (PartInfo->IsModel())
+				{
+					ParseStepModel(PartInfo->mFileName);
+				}
+				else
+					continue;
+			}
+		}
+	}
+
+	QTextStream Stream(&File);
+
+	for (const std::unique_ptr<lcModel>& Model : mModels)
+	{
+		if (!Models.contains(Model->GetProperties().mFileName))
+			continue;
+
+		const lcStep ModelStep = Model->GetCurrentStep();
+
+		if (!Model->IsActive())
+			Model->SetTemporaryStep(CurrentStep);
+
+		if (MPD)
+			Stream << QLatin1String("0 FILE ") << Model->GetProperties().mFileName << QLatin1String("\r\n");
+
+		Model->SaveLDraw(Stream, false, CurrentStep);
+
+		if (MPD)
+			Stream << QLatin1String("0 NOFILE\r\n");
+
+		if (!Model->IsActive())
+		{
+			Model->SetTemporaryStep(ModelStep);
+			Model->CalculateStep(LC_STEP_MAX);
+		}
+	}
+
+	File.close();
+
+	lcSetProfileString(LC_PROFILE_PROJECTS_PATH, QFileInfo(FileName).absolutePath());
+
+	return true;
 }
 
 bool Project::ExportModel(const QString& FileName, lcModel* Model) const
@@ -925,7 +1024,7 @@ bool Project::ExportModel(const QString& FileName, lcModel* Model) const
 
 	QTextStream Stream(&File);
 
-	Model->SaveLDraw(Stream, false);
+	Model->SaveLDraw(Stream, false, 0);
 
 	return true;
 }
@@ -1421,7 +1520,7 @@ bool Project::ExportBrickLink()
 {
 	lcPartsList PartsList;
 
-	if (!mModels.IsEmpty())
+	if (!mModels.empty())
 		mModels[0]->GetPartsList(gDefaultColor, true, false, PartsList);
 
 	if (PartsList.empty())
@@ -1748,7 +1847,7 @@ bool Project::ExportCSV(const QString& FileName)
 {
 	lcPartsList PartsList;
 
-	if (!mModels.IsEmpty())
+	if (!mModels.empty())
 		mModels[0]->GetPartsList(gDefaultColor, true, false, PartsList);
 
 	if (PartsList.empty())
@@ -1826,17 +1925,20 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 	QDir Dir(Options.PathName);
 	Dir.mkpath(QLatin1String("."));
 
-	lcArray<lcModel*> Models;
+	std::set<lcModel*> Models;
 
 	if (Options.CurrentOnly)
-		Models.Add(mActiveModel);
+		Models.insert(mActiveModel);
 	else if (Options.SubModels)
 	{
-		Models.Add(mActiveModel);
+		Models.insert(mActiveModel);
 		mActiveModel->GetSubModels(Models);
 	}
 	else
-		Models = mModels;
+	{
+		for (const std::unique_ptr<lcModel>& Model : mModels)
+			Models.insert(Model.get());
+	}
 
 	QString ProjectTitle = GetTitle();
 
@@ -1861,7 +1963,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 		lcStep LastStep = Model->GetLastStep();
 		QString PageTitle;
 
-		if (Models.GetSize() > 1)
+		if (Models.size() > 1)
 		{
 			BaseName += '-' + Model->GetProperties().mFileName;
 			PageTitle = Model->GetProperties().mFileName;
@@ -2003,7 +2105,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 		Model->SaveStepImages(StepImageBaseName, true, false, Options.StepImagesWidth, Options.StepImagesHeight, 1, LastStep);
 	}
 
-	if (Models.GetSize() > 1)
+	if (Models.size() > 1)
 	{
 		QString BaseName = ProjectTitle.left(ProjectTitle.length() - QFileInfo(ProjectTitle).suffix().length() - 1);
 		QString FileName = QFileInfo(Dir, BaseName + QLatin1String("-index.html")).absoluteFilePath();
@@ -2021,9 +2123,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 		Stream << QString::fromLatin1("<HTML>\r\n<HEAD>\r\n<TITLE>Instructions for %1</TITLE>\r\n</HEAD>\r\n<BR>\r\n<CENTER>\r\n").arg(ProjectTitle);
 
-		for (int ModelIdx = 0; ModelIdx < Models.GetSize(); ModelIdx++)
+		for (const lcModel* Model : Models)
 		{
-			lcModel* Model = Models[ModelIdx];
 			BaseName = ProjectTitle.left(ProjectTitle.length() - QFileInfo(ProjectTitle).suffix().length() - 1) + '-' + Model->GetProperties().mFileName;
 			BaseName.replace('#', '_');
 
@@ -2103,13 +2204,6 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	POVFile.WriteLine("#version 3.7;\n\nglobal_settings {\n  assumed_gamma 1.0\n}\n\n");
 
-	char Line[1024];
-
-	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN + 1], int>> PieceTable;
-	size_t NumColors = gColorList.size();
-	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
-
 	enum
 	{
 		LGEO_PIECE_LGEO  = 0x01,
@@ -2128,204 +2222,38 @@ bool Project::ExportPOVRay(const QString& FileName)
 		LGEO_COLOR_GLITTER     = 0x40
 	};
 
-	QString LGEOPath; // todo: load lgeo from registry and make sure it still works
-
-	if (!LGEOPath.isEmpty())
-	{
-		lcDiskFile TableFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_elements.lst")).absoluteFilePath());
-
-		if (!TableFile.Open(QIODevice::ReadOnly))
-		{
+	char Line[2048];
 /*** LPub3D Mod - set Visual Editor label ***/
-			emit gui->messageSig(LOG_ERROR, tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
-/*** LPub3D Mod end ***/
-			return false;
-		}
+	sprintf(Line, "// Generated By: Visual Editor %s\n// LDraw File: %s\n// Date: %s\n\n",
+			LC_VERSION_TEXT,
+			mModels[0]->GetProperties().mFileName.toLatin1().constData(),
+			QDateTime::currentDateTime().toString(Qt::ISODate).toLatin1().constData());
+/*** LPub3D Mod end ***/			
+	POVFile.WriteLine(Line);
 
-		while (TableFile.ReadLine(Line, sizeof(Line)))
-		{
-			char Src[129], Dst[129], Flags[11];
+	POVFile.WriteLine("#version 3.7;\n\n");
 
-			if (*Line == ';')
-				continue;
+	POVFile.WriteLine("global_settings { assumed_gamma 1.0 }\n\n");
 
-			if (sscanf(Line,"%128s%128s%10s", Src, Dst, Flags) != 3)
-				continue;
+	lcPiecesLibrary* Library = lcGetPiecesLibrary();
+	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN + 1], int>> PieceTable;
+	size_t NumColors = gColorList.size();
+	std::vector<std::array<char, LC_MAX_COLOR_NAME>> LgeoColorTable(NumColors);
+	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
 
-			strcat(Src, ".dat");
-
-			PieceInfo* Info = Library->FindPiece(Src, nullptr, false, false);
-			if (!Info)
-				continue;
-
-			if (strchr(Flags, 'L'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_LGEO;
-				sprintf(Entry.first, "lg_%s", Dst);
-			}
-
-			if (strchr(Flags, 'A'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_AR;
-				sprintf(Entry.first, "ar_%s", Dst);
-			}
-
-			if (strchr(Flags, 'S'))
-			{
-				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
-				Entry.second |= LGEO_PIECE_SLOPE;
-				Entry.first[0] = 0;
-			}
-		}
-
-		lcDiskFile ColorFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_colors.lst")).absoluteFilePath());
-
-		if (!ColorFile.Open(QIODevice::ReadOnly))
-		{
-/*** LPub3D Mod - set Visual Editor label ***/
-			emit gui->messageSig(LOG_ERROR, tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
-/*** LPub3D Mod end ***/
-			return false;
-		}
-
-		while (ColorFile.ReadLine(Line, sizeof(Line)))
-		{
-			char Name[1024], Flags[1024];
-			int Code;
-
-			if (*Line == ';')
-				continue;
-
-			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
-				continue;
-
-			size_t Color = lcGetColorIndex(Code);
-			if (Color >= NumColors)
-				continue;
-
-			strcpy(ColorTable[Color].data(), Name);
-		}
-	}
-
-	std::set<lcMesh*> AddedMeshes;
-
-	if (!LGEOPath.isEmpty())
-	{
-		POVFile.WriteLine("#include \"lg_defs.inc\"\n#include \"lg_color.inc\"\n\n");
-
-		for (const lcModelPartsEntry& ModelPart : ModelParts)
-		{
-			if (ModelPart.Mesh)
-				continue;
-
-			auto Search = PieceTable.find(ModelPart.Info);
-			if (Search == PieceTable.end())
-				continue;
-
-			lcMesh* Mesh = ModelPart.Info->GetMesh();
-
-			if (!Mesh)
-				continue;
-
-			if (!AddedMeshes.insert(Mesh).second)
-				continue;
-
-			const std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = Search->second;
-			if (Entry.first[0])
-			{
-				sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
-				POVFile.WriteLine(Line);
-			}
-		}
-
-		POVFile.WriteLine("\n");
-	}
-
-	for (size_t ColorIdx = 0; ColorIdx < gColorList.size(); ColorIdx++)
-	{
-		lcColor* Color = &gColorList[ColorIdx];
-
-		if (lcIsColorTranslucent(ColorIdx))
-		{
-			sprintf(Line, "#declare lc_%s = texture { pigment { rgb <%f, %f, %f> filter 0.9 } finish { ambient 0.3 diffuse 0.2 reflection 0.25 phong 0.3 phong_size 60 } }\n",
-					Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
-		}
-		else
-		{
-			sprintf(Line, "#declare lc_%s = texture { pigment { rgb <%f, %f, %f> } finish { ambient 0.1 phong 0.2 phong_size 20 } }\n",
-					Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
-		}
-
-		POVFile.WriteLine(Line);
-
-		if (!ColorTable[ColorIdx][0])
-			sprintf(ColorTable[ColorIdx].data(), "lc_%s", Color->SafeName);
-	}
-
-	POVFile.WriteLine("\n");
-
-	std::vector<const char*> ColorTablePointer;
-	ColorTablePointer.resize(NumColors);
-	for (size_t ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
-		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
-
-	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char (&Name)[LC_PIECE_NAME_LEN])
-	{
-		strcpy(Name, ModelPart.Info->mFileName);
-
-		for (char* c = Name; *c; c++)
-			if (*c == '-' || *c == '.')
-				*c = '_';
-
-		if (ModelPart.Mesh)
-		{
-			char Suffix[32];
-			sprintf(Suffix, "_%p", ModelPart.Mesh);
-			strncat(Name, Suffix, sizeof(Name) - 1);
-			Name[sizeof(Name) - 1] = 0;
-		}
-	};
-
-	for (const lcModelPartsEntry& ModelPart : ModelParts)
-	{
-		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
-
-		if (!AddedMeshes.insert(Mesh).second)
-			continue;
-
-		if (!Mesh)
-			continue;
-
-		char Name[LC_PIECE_NAME_LEN];
-		GetMeshName(ModelPart, Name);
-
-		if (!ModelPart.Mesh)
-		{
-			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
-			strcpy(Entry.first, "lc_");
-			strncat(Entry.first, Name, sizeof(Entry.first) - 1);
-			Entry.first[sizeof(Entry.first) - 1] = 0;
-		}
-
-		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
-
-		sprintf(Line, "#declare lc_%s_clear = lc_%s\n\n", Name, Name);
-		POVFile.WriteLine(Line);
-	}
-
+	const std::vector<std::unique_ptr<lcLight>>& Lights = gMainWindow->GetActiveModel()->GetLights();
 	const lcCamera* Camera = gMainWindow->GetActiveView()->GetCamera();
+	const QString CameraName = QString(Camera->GetName()).replace(" ","_");
 	const lcVector3& Position = Camera->mPosition;
 	const lcVector3& Target = Camera->mTargetPosition;
 	const lcVector3& Up = Camera->mUpVector;
-
-	sprintf(Line, "camera {\n  perspective\n  right x * image_width / image_height\n  sky<%1g,%1g,%1g>\n  location <%1g, %1g, %1g>\n  look_at <%1g, %1g, %1g>\n  angle %.0f * image_width / image_height\n}\n\n",
-			Up[1], Up[0], Up[2], Position[1] / 25.0f, Position[0] / 25.0f, Position[2] / 25.0f, Target[1] / 25.0f, Target[0] / 25.0f, Target[2] / 25.0f, Camera->m_fovy);
-	POVFile.WriteLine(Line);
-	lcVector3 BackgroundColor = lcVector3FromColor(lcGetPreferences().mBackgroundSolidColor);
-	sprintf(Line, "background { color rgb <%1g, %1g, %1g> }\n\n", BackgroundColor[0], BackgroundColor[1], BackgroundColor[2]);
-	POVFile.WriteLine(Line);
+	const lcVector3 BackgroundColor = lcVector3FromColor(lcGetPreferences().mBackgroundSolidColor);
+	const lcPOVRayOptions& POVRayOptions = mModels[0]->GetPOVRayOptions();
+	const QString TopModelName = QString("LC_%1").arg(QString(mModels[0]->GetFileName()).replace(" ","_").replace(".","_dot_"));
+	const QString LGEOPath = lcGetProfileString(LC_PROFILE_POVRAY_LGEO_PATH);
+	const bool UseLGEO = POVRayOptions.UseLGEO && !LGEOPath.isEmpty();
+	const int TopModelColorCode = 7;
+	QStringList ColorMacros, MaterialColors;
 
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX);
 	lcVector3 Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
@@ -2349,31 +2277,600 @@ bool Project::ExportPOVRay(const QString& FileName)
 	float Radius = (Max - Center).Length() / 25.0f;
 	Center = lcVector3(Center[1], Center[0], Center[2]) / 25.0f;
 
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.75\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 0.0f * Radius + Center.x, -1.5f * Radius + Center.y, -1.5f * Radius + Center.z);
+	lcVector3 FloorColor = POVRayOptions.FloorColor;
+	float FloorAmbient = POVRayOptions.FloorAmbient;
+	float FloorDiffuse = POVRayOptions.FloorDiffuse;
+	char FloorLocation[32];
+	char FloorAxis[16];
+	if (POVRayOptions.FloorAxis == 0)
+	{
+		sprintf(FloorAxis, "x");
+		sprintf(FloorLocation, "MaxX");
+	}
+	else if (POVRayOptions.FloorAxis == 1)
+	{
+		sprintf(FloorAxis, "y");
+		sprintf(FloorLocation, "MaxY");
+	}
+	else
+	{
+		sprintf(FloorAxis, "z");
+		sprintf(FloorLocation, "MaxZ");
+	}
+
+	for (const std::unique_ptr<lcLight>& Light : Lights)
+	{
+		if (Light->GetLightType() == lcLightType::Area)
+		{
+			if (FloorColor == lcVector3(0.8f,0.8f,0.8f))
+				FloorColor = {1.0f,1.0f,1.0f};
+			if (FloorAmbient == 0.4f)
+				FloorAmbient = 0.0f;
+			if (FloorDiffuse == 0.4f)
+				FloorDiffuse = 0.9f;
+			break;
+		}
+	}
+
+	if (!POVRayOptions.HeaderIncludeFile.isEmpty())
+	{
+		sprintf(Line, "#include \"%s\"\n\n", POVRayOptions.HeaderIncludeFile.toLatin1().constData());
+		POVFile.WriteLine(Line);
+	}
+
+	sprintf(Line,
+			"#ifndef (MinX) #declare MinX = %g; #end\n"
+			"#ifndef (MinY) #declare MinY = %g; #end\n"
+			"#ifndef (MinZ) #declare MinZ = %g; #end\n"
+			"#ifndef (MaxX) #declare MaxX = %g; #end\n"
+			"#ifndef (MaxY) #declare MaxY = %g; #end\n"
+			"#ifndef (MaxZ) #declare MaxZ = %g; #end\n"
+			"#ifndef (CenterX) #declare CenterX = %g; #end\n"
+			"#ifndef (CenterY) #declare CenterY = %g; #end\n"
+			"#ifndef (CenterZ) #declare CenterZ = %g; #end\n"
+			"#ifndef (Center) #declare Center = <CenterX,CenterY,CenterZ>; #end\n"
+			"#ifndef (Radius) #declare Radius = %g; #end\n",
+			Min[0], Min[1], Min[2], Max[0], -Max[1], Max[2], Center[0], Center[1], Center[2], Radius);
 	POVFile.WriteLine(Line);
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.75\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 1.5f * Radius + Center.x, -1.0f * Radius + Center.y, 0.866026f * Radius + Center.z);
+	sprintf(Line,
+			"#ifndef (CameraSky) #declare CameraSky = <%g,%g,%g>; #end\n"
+			"#ifndef (CameraLocation) #declare CameraLocation = <%g, %g, %g>; #end\n"
+			"#ifndef (CameraTarget) #declare CameraTarget = <%g, %g, %g>; #end\n"
+			"#ifndef (CameraAngle) #declare CameraAngle = %g; #end\n",
+			Up[1], Up[0], Up[2], Position[1] / 25.0f, Position[0] / 25.0f, Position[2] / 25.0f, Target[1] / 25.0f, Target[0] / 25.0f, Target[2] / 25.0f, Camera->m_fovy);
 	POVFile.WriteLine(Line);
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 0.0f * Radius + Center.x, -2.0f * Radius + Center.y, 0.0f * Radius + Center.z);
+	sprintf(Line,
+			"#ifndef (BackgroundColor) #declare BackgroundColor = <%1g, %1g, %1g>; #end\n"
+			"#ifndef (Background) #declare Background = %s; #end\n",
+			BackgroundColor[0], BackgroundColor[1], BackgroundColor[2], (POVRayOptions.ExcludeBackground ? "false" : "true"));
 	POVFile.WriteLine(Line);
-	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 2.0f * Radius + Center.x, 0.0f * Radius + Center.y, -2.0f * Radius + Center.z);
+	sprintf(Line,
+			"#ifndef (FloorAxis) #declare FloorAxis = %s; #end\n"
+			"#ifndef (FloorLocation) #declare FloorLocation = %s; #end\n"
+			"#ifndef (FloorColor) #declare FloorColor = <%1g, %1g, %1g>; #end\n"
+			"#ifndef (FloorAmbient) #declare FloorAmbient = %1g; #end\n"
+			"#ifndef (FloorDiffuse) #declare FloorDiffuse = %1g; #end\n"
+			"#ifndef (Floor) #declare Floor = %s; #end\n",
+			FloorAxis, FloorLocation, FloorColor[0], FloorColor[1], FloorColor[2], FloorAmbient, FloorDiffuse, (POVRayOptions.ExcludeFloor ? "false" : "true"));
+	POVFile.WriteLine(Line);
+	sprintf(Line,
+			"#ifndef (Ambient) #declare Ambient = 0.4; #end\n"
+			"#ifndef (Diffuse) #declare Diffuse = 0.4; #end\n"
+			"#ifndef (Reflection) #declare Reflection = 0.08; #end\n"
+			"#ifndef (Phong) #declare Phong = 0.5; #end\n"
+			"#ifndef (PhongSize) #declare PhongSize = 40; #end\n"
+			"#ifndef (TransReflection) #declare TransReflection = 0.2; #end\n"
+			"#ifndef (TransFilter) #declare TransFilter = 0.85; #end\n"
+			"#ifndef (TransIoR) #declare TransIoR = 1.25; #end\n"
+			"#ifndef (RubberReflection) #declare RubberReflection = 0; #end\n"
+			"#ifndef (RubberPhong) #declare RubberPhong = 0.1; #end\n"
+			"#ifndef (RubberPhongS) #declare RubberPhongS = 10; #end\n"
+			"#ifndef (ChromeReflection) #declare ChromeReflection = 0.85; #end\n"
+			"#ifndef (ChromeBrilliance) #declare ChromeBrilliance = 5; #end\n"
+			"#ifndef (ChromeSpecular) #declare ChromeSpecular = 0.8; #end\n"
+			"#ifndef (ChromeRough) #declare ChromeRough = 0.01; #end\n"
+			"#ifndef (OpaqueNormal) #declare OpaqueNormal = normal { bumps 0.001 scale 0.5 }; #end\n"
+			"#ifndef (TransNormal) #declare TransNormal = normal { bumps 0.001 scale 0.5 }; #end\n");
+	POVFile.WriteLine(Line);
+	sprintf(Line,
+			"#ifndef (Quality) #declare Quality = 3; #end\n"
+			"#ifndef (Studs) #declare Studs = 1; #end\n"
+			"#ifndef (LgeoLibrary) #declare LgeoLibrary = %s; #end\n"
+			"#ifndef (ModelReflection) #declare ModelReflection = %i; #end\n"
+			"#ifndef (ModelShadow) #declare ModelShadow = %i; #end\n\n",
+			(POVRayOptions.UseLGEO ? "true" : "false"), (POVRayOptions.NoReflection ? 0 : 1), (POVRayOptions.NoShadow ? 0 : 1));
+	POVFile.WriteLine(Line);
+
+	sprintf(Line,
+			"#ifndef (SkipWriteLightMacro)\n"
+			"#macro WriteLight(Type, Shadowless, Location, Target, Color, Power, FadeDistance, FadePower, SpotRadius, SpotFalloff, SpotTightness, AreaCircle, AreaWidth, AreaHeight, AreaRows, AreaColumns)\n"
+			"  #local PointLight = %i;\n"
+			"  #local Spotlight = %i;\n"
+			"  #local DirectionalLight = %i;\n"
+			"  #local AreaLight = %i;\n"
+			"  light_source {\n"
+			"    Location\n"
+			"    color rgb Color*Power\n"
+			"    #if (Shadowless > 0)\n"
+			"      shadowless\n"
+			"    #end\n"
+			"    #if (FadeDistance > 0)\n"
+			"    fade_distance FadeDistance\n"
+			"    #end\n"
+			"    #if (FadePower > 0)\n"
+			"    fade_power FadePower\n"
+			"    #end\n"
+			"    #if (Type = Spotlight)\n"
+			"      spotlight\n"
+			"      radius SpotRadius\n"
+			"      falloff SpotFalloff\n"
+			"      tightness SpotTightness\n"
+			"      point_at Target\n"
+			"    #elseif (Type = DirectionalLight)\n"
+			"      parallel\n"
+			"      point_at Target\n"
+			"    #elseif (Type = AreaLight)\n"
+			"      area_light AreaWidth, AreaHeight, AreaRows, AreaColumns\n"
+			"      jitter\n"
+			"      #if (AreaCircle > 0 & AreaWidth > 2 & AreaHeight > 2 & AreaRows > 1 & AreaColumns > 1 )\n"
+			"        circular \n"
+			"        #if (AreaWidth = AreaHeight & AreaRows = AreaColumns)\n"
+			"          orient\n"
+			"        #end\n"
+			"      #end\n"
+			"    #end\n"
+			"  }\n"
+			"#end\n"
+			"#end\n\n",
+			static_cast<int>(lcLightType::Point), static_cast<int>(lcLightType::Spot), static_cast<int>(lcLightType::Directional), static_cast<int>(lcLightType::Area));
 	POVFile.WriteLine(Line);
 
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		int Color = ModelPart.ColorIndex;
-		const char* Suffix = lcIsColorTranslucent(Color) ? "_clear" : "";
-		const float* f = ModelPart.WorldMatrix;
+		int ColorIdx = ModelPart.ColorIndex;
 
+		if (lcIsColorTranslucent(ColorIdx))
+		{
+			if (!ColorMacros.contains("TranslucentColor"))
+			{
+				sprintf(Line,
+						"#ifndef (SkipTranslucentColorMacro)\n"
+						"#macro TranslucentColor(r, g, b, f)\n"
+						"  material {\n"
+						"    texture {\n"
+						"      pigment { srgbf <r,g,b,f> }\n"
+						"      finish { emission 0 ambient Ambient diffuse Diffuse }\n"
+						"      finish { phong Phong phong_size PhongSize reflection TransReflection }\n"
+						"      normal { TransNormal }\n"
+						"    }\n"
+						"    interior { ior TransIoR }\n"
+						"  }\n"
+						"#end\n"
+						"#end\n\n");
+				POVFile.WriteLine(Line);
+				ColorMacros.append("TranslucentColor");
+			}
+		}
+		else if (lcIsColorChrome(ColorIdx))
+		{
+			if (!ColorMacros.contains("ChromeColor"))
+			{
+				sprintf(Line,
+						"#ifndef (SkipChromeColorMacro)\n"
+						"#macro ChromeColor(r, g, b)\n"
+						"#if (LgeoLibrary) material { #end\n"
+						"  texture {\n"
+						"    pigment { srgbf <r,g,b,0> }\n"
+						"    finish { emission 0 ambient Ambient diffuse Diffuse }\n"
+						"    finish { phong Phong phong_size PhongSize reflection ChromeReflection brilliance ChromeBrilliance metallic specular ChromeSpecular roughness ChromeRough }\n"
+						"  }\n"
+						"#if (LgeoLibrary) } #end\n"
+						"#end\n"
+						"#end\n\n");
+				POVFile.WriteLine(Line);
+				ColorMacros.append("ChromeColor");
+			}
+		}
+		else if (lcIsColorRubber(ColorIdx))
+		{
+			if (!ColorMacros.contains("RubberColor"))
+			{
+				sprintf(Line,
+						"#ifndef (SkipRubberColorMacro)\n"
+						"#macro RubberColor(r, g, b)\n"
+						"#if (LgeoLibrary) material { #end\n"
+						"  texture {\n"
+						"    pigment { srgbf <r,g,b,0> }\n"
+						"    finish { emission 0 ambient Ambient diffuse Diffuse }\n"
+						"    finish { phong RubberPhong phong_size RubberPhongS reflection RubberReflection }\n"
+						"  }\n"
+						"#if (LgeoLibrary) } #end\n"
+						"#end\n"
+						"#end\n\n");
+				POVFile.WriteLine(Line);
+				ColorMacros.append("RubberColor");
+			}
+		}
+		else
+		{
+			if (!ColorMacros.contains("OpaqueColor"))
+			{
+				sprintf(Line,
+						"#ifndef (SkipOpaqueColorMacro)\n"
+						"#macro OpaqueColor(r, g, b)\n"
+						"#if (LgeoLibrary) material { #end\n"
+						"  texture {\n"
+						"    pigment { srgbf <r,g,b,0> }\n"
+						"    finish { emission 0 ambient Ambient diffuse Diffuse }\n"
+						"    finish { phong Phong phong_size PhongSize reflection Reflection }\n"
+						"    normal { OpaqueNormal }\n"
+						"  }\n"
+						"#if (LgeoLibrary) } #end\n"
+						"#end\n"
+						"#end\n\n");
+				POVFile.WriteLine(Line);
+				ColorMacros.append("OpaqueColor");
+			}
+		}
+	}
+
+	sprintf(Line, "#if (Background)\n  background {\n    color rgb BackgroundColor\n  }\n#end\n\n");
+	POVFile.WriteLine(Line);
+
+	sprintf(Line, "#ifndef (Skip%s)\n  camera {\n    perspective\n    right x * image_width / image_height\n    sky CameraSky\n    location CameraLocation\n    look_at CameraTarget\n    angle CameraAngle * image_width / image_height\n  }\n#end\n\n",
+			(CameraName.isEmpty() ? "Camera" : CameraName.toLatin1().constData()));
+	POVFile.WriteLine(Line);
+
+	lcVector3 AreaX(1.0f, 0.0f, 0.0f), AreaY(0.0f, 1.0f, 0.0f);
+	lcVector2i AreaGrid(1, 1);
+	int AreaCircle = 0, Shadowless = 0;
+	lcLightType LightType = lcLightType::Area;
+	float Power = 0.0f, FadeDistance = 0.0f, FadePower = 0.0f, SpotRadius = 0.0f, SpotFalloff = 0.0f, SpotTightness = 0.0f;
+
+	if (Lights.empty())
+	{
+		const lcVector3 LightTarget(0.0f, 0.0f, 0.0f), LightColor(1.0f, 1.0f, 1.0f);
+		lcVector3 Location[4];
+
+		Location[0] = {0.0f * Radius + Center[0], -1.5f * Radius + Center[1], -1.5f * Radius + Center[2]};
+		Location[1] = {1.5f * Radius + Center[0], -1.0f * Radius + Center[1],  0.866026f * Radius + Center[2]};
+		Location[2] = {0.0f * Radius + Center[0], -2.0f * Radius + Center[1],  0.0f * Radius + Center[2]};
+		Location[3] = {2.0f * Radius + Center[0],  0.0f * Radius + Center[1], -2.0f * Radius + Center[2]};
+
+		for (int Idx = 0; Idx < 4; Idx++)
+		{
+			Power = Idx < 2 ? 0.75f : 0.5f;
+			sprintf(Line,"#ifndef (SkipLight%i)\nWriteLight(%i, %i, <%g, %g, %g>, <%g, %g, %g>, <%g, %g, %g>, %g, %g, %g, %g, %g, %g, %i, <%g, %g, %g>, <%g, %g, %g>, %i, %i)\n#end\n\n",
+					Idx,
+					static_cast<int>(LightType),
+					Shadowless,
+					Location[Idx][0], Location[Idx][1], Location[Idx][2],
+					LightTarget[0], LightTarget[1], LightTarget[2],
+					LightColor[0], LightColor[1], LightColor[2],
+					Power,
+					FadeDistance, FadePower,
+					SpotRadius, SpotFalloff, SpotTightness,
+					AreaCircle, AreaX[0], AreaX[1], AreaX[2], AreaY[0], AreaY[1], AreaY[2], AreaGrid.x, AreaGrid.y);
+			POVFile.WriteLine(Line);
+		}
+	}
+	else
+	{
+		for (const std::unique_ptr<lcLight>& Light : Lights)
+		{
+			const lcVector3 LightPosition = Light->GetPosition();
+			const lcVector3 LightTarget = LightPosition + Light->GetDirection();
+			const lcVector3 LightColor = Light->GetColor();
+			const QString LightName = QString(Light->GetName()).replace(" ", "_");
+			LightType = Light->GetLightType();
+			Shadowless = Light->GetCastShadow() ? 0 : 1;
+			Power = Light->GetPOVRayPower();
+			FadeDistance = Light->GetPOVRayFadeDistance();
+			FadePower = Light->GetPOVRayFadePower();
+
+			switch (LightType)
+			{
+			case lcLightType::Point:
+				break;
+
+			case lcLightType::Spot:
+				SpotFalloff = Light->GetSpotConeAngle() / 2.0f;
+				SpotRadius = SpotFalloff - Light->GetSpotPenumbraAngle();
+/*** LPub3D Mod - Update spotlight tightness ***/
+				SpotTightness = Light->GetSpotPOVRayTightness();
+/*** LPub3D Mod end ***/				
+				break;
+
+			case lcLightType::Directional:
+				break;
+
+			case lcLightType::Area:
+				AreaCircle = (Light->GetAreaShape() == lcLightAreaShape::Disk || Light->GetAreaShape() == lcLightAreaShape::Ellipse) ? 1 : 0;
+				AreaX = lcVector3(Light->GetWorldMatrix()[0]) * Light->GetAreaSizeX();
+				AreaY = lcVector3(Light->GetWorldMatrix()[1]) * Light->GetAreaSizeY();
+				AreaGrid = lcVector2i(Light->GetAreaPOVRayGridX(), Light->GetAreaPOVRayGridY());
+				break;
+
+			case lcLightType::Count:
+				break;
+			}
+
+			sprintf(Line,"#ifndef (Skip%s)\n  WriteLight(%i, %i, <%g, %g, %g>, <%g, %g, %g>, <%g, %g, %g>, %g, %g, %g, %g, %g, %g, %i, <%g, %g, %g>, <%g, %g, %g>, %i, %i)\n#end\n\n",
+					LightName.toLatin1().constData(),
+					static_cast<int>(LightType),
+					Shadowless,
+					LightPosition[1], LightPosition[0], LightPosition[2],
+					LightTarget[1], LightTarget[0], LightTarget[2],
+					LightColor[0], LightColor[1], LightColor[2],
+					Power,
+					FadeDistance, FadePower,
+					SpotRadius, SpotFalloff, SpotTightness,
+					AreaCircle, AreaX[0], AreaX[1], AreaX[2], AreaY[0], AreaY[1], AreaY[2], AreaGrid.x, AreaGrid.y);
+			POVFile.WriteLine(Line);
+		}
+	}
+
+	POVFile.WriteLine("#ifndef (lg_quality) #declare lg_quality = Quality; #end\n\n");
+
+	if (UseLGEO)
+	{
+		memset(Line, 0, 1024);
+
+		POVFile.WriteLine("#ifndef (lg_studs) #declare lg_studs = Studs; #end\n\n");
+
+		POVFile.WriteLine("#if (lg_quality = 3) #declare lg_quality = 4; #end\n\n");
+
+		POVFile.WriteLine("#include \"lg_defs.inc\"\n\n#include \"lg_color.inc\"\n\n");
+
+		lcDiskFile TableFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_elements.lst")).absoluteFilePath());
+
+		if (!TableFile.Open(QIODevice::ReadOnly))
+		{
+/*** LPub3D Mod - set Visual Editor label ***/
+			emit gui->messageSig(LOG_ERROR, tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+/*** LPub3D Mod end ***/
+			return false;
+		}
+
+		while (TableFile.ReadLine(Line, sizeof(Line)))
+		{
+
+			char Src[129], Dst[129], Flags[11];
+
+			if (*Line == ';')
+				continue;
+
+			if (sscanf(Line,"%128s%128s%10s", Src, Dst, Flags) != 3)
+				continue;
+
+			strncat(Src, ".dat", 4);
+
+			PieceInfo* Info = Library->FindPiece(Src, nullptr, false, false);
+			if (!Info)
+				continue;
+
+			bool LgeoPartFound = false;
+
+			if ((LgeoPartFound = strchr(Flags, 'L')))
+			{
+				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
+				Entry.second |= LGEO_PIECE_LGEO;
+				sprintf(Entry.first, "lg_%s", Dst);
+			}
+
+			if (strchr(Flags, 'A') && !LgeoPartFound)
+			{
+				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
+				Entry.second |= LGEO_PIECE_AR;
+				sprintf(Entry.first, "ar_%s", Dst);
+			}
+
+			if (strchr(Flags, 'S'))
+			{
+				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
+				Entry.second |= LGEO_PIECE_SLOPE;
+				Entry.first[0] = 0;
+			}
+		}
+
+		lcDiskFile LgeoColorFile(QFileInfo(QDir(LGEOPath), QLatin1String("lg_colors.lst")).absoluteFilePath());
+
+		if (!LgeoColorFile.Open(QIODevice::ReadOnly))
+		{
+/*** LPub3D Mod - set Visual Editor label ***/
+			emit gui->messageSig(LOG_ERROR, tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+/*** LPub3D Mod end ***/
+			return false;
+		}
+
+		while (LgeoColorFile.ReadLine(Line, sizeof(Line)))
+		{
+			char Name[1024], Flags[1024];
+			int Code;
+
+			if (*Line == ';')
+				continue;
+
+			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
+				continue;
+
+			size_t ColorIdx = lcGetColorIndex(Code);
+			if (ColorIdx >= NumColors)
+				continue;
+
+			strncpy(LgeoColorTable[ColorIdx].data(), Name, LC_MAX_COLOR_NAME);
+		}
+	}
+
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
+	{
+		size_t ColorIdx = ModelPart.ColorIndex;
+
+		if (!ColorTable[ColorIdx][0])
+		{
+			lcColor* Color = &gColorList[ColorIdx];
+
+			if (!LgeoColorTable[ColorIdx][0])
+			{
+				sprintf(ColorTable[ColorIdx].data(), "lc_%s", Color->SafeName);
+
+				if (lcIsColorTranslucent(ColorIdx))
+				{
+					if (!UseLGEO && !MaterialColors.contains(ColorTable[ColorIdx].data()))
+						MaterialColors.append(ColorTable[ColorIdx].data());
+
+					sprintf(Line, "#ifndef (lc_%s)\n#declare lc_%s = TranslucentColor(%g, %g, %g, TransFilter)\n#end\n\n",
+							Color->SafeName, Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
+				}
+				else
+				{
+					char MacroName[LC_MAX_COLOR_NAME];
+					if (lcIsColorChrome(ColorIdx))
+						sprintf(MacroName, "Chrome");
+					else if (lcIsColorRubber(ColorIdx))
+						sprintf(MacroName, "Rubber");
+					else
+						sprintf(MacroName, "Opaque");
+
+					sprintf(Line, "#ifndef (lc_%s)\n#declare lc_%s = %sColor(%g, %g, %g)\n#end\n\n",
+							Color->SafeName, Color->SafeName, MacroName, Color->Value[0], Color->Value[1], Color->Value[2]);
+				}
+			}
+			else
+			{
+				sprintf(ColorTable[ColorIdx].data(), "LDXColor%i", Color->Code);
+
+				sprintf(Line,"#ifndef (LDXColor%i) // %s\n#declare LDXColor%i = material { texture { %s } }\n#end\n\n",
+						Color->Code, Color->Name, Color->Code, LgeoColorTable[ColorIdx].data());
+			}
+
+			POVFile.WriteLine(Line);
+		}
+	}
+
+	if (!ColorTable[lcGetColorIndex(TopModelColorCode)][0])
+	{
+		size_t ColorIdx = lcGetColorIndex(TopModelColorCode);
+
+		lcColor* Color = &gColorList[ColorIdx];
+
+		sprintf(ColorTable[ColorIdx].data(), "LDXColor%i", Color->Code);
+
+		if (!LgeoColorTable[ColorIdx][0])
+			sprintf(Line, "#ifndef (lc_%s)\n#declare lc_%s = OpaqueColor(%g, %g, %g)\n#end\n\n",
+					Color->SafeName, Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
+		else
+			sprintf(Line,"#ifndef (LDXColor%i) // %s\n#declare LDXColor%i = material { texture { %s } }\n#end\n\n",
+					Color->Code, Color->Name, Color->Code, LgeoColorTable[ColorIdx].data());
+
+		POVFile.WriteLine(Line);
+	}
+
+	std::set<lcMesh*> AddedMeshes;
+
+	if (UseLGEO)
+	{
+		for (const lcModelPartsEntry& ModelPart : ModelParts)
+		{
+			if (ModelPart.Mesh)
+				continue;
+
+			auto Search = PieceTable.find(ModelPart.Info);
+			if (Search == PieceTable.end())
+				continue;
+
+			lcMesh* Mesh = ModelPart.Info->GetMesh();
+
+			if (!Mesh)
+				continue;
+
+			if (!AddedMeshes.insert(Mesh).second)
+				continue;
+
+			const std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = Search->second;
+			if (Entry.first[0])
+			{
+				sprintf(Line, "#include \"%s.inc\" // %s\n", Entry.first, ModelPart.Info->m_strDescription);
+				POVFile.WriteLine(Line);
+			}
+		}
+
+		POVFile.WriteLine("\n");
+	}
+
+	std::vector<const char*> ColorTablePointer;
+	ColorTablePointer.resize(NumColors);
+	for (size_t ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
+		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
+
+	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char (&Name)[LC_PIECE_NAME_LEN])
+	{
+		strncpy(Name, ModelPart.Info->mFileName, sizeof(Name));
+
+		for (char* c = Name; *c; c++)
+			if (*c == '-' || *c == '.')
+				*c = '_';
+
+		if (ModelPart.Mesh)
+		{
+			char Suffix[32];
+			sprintf(Suffix, "_%p", ModelPart.Mesh);
+			strncat(Name, Suffix, sizeof(Name) - strlen(Name) - 1);
+			Name[sizeof(Name) - 1] = 0;
+		}
+	};
+
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
+	{
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
+
+		if (!AddedMeshes.insert(Mesh).second)
+			continue;
+
+		if (!Mesh)
+			continue;
+
+		char Name[LC_PIECE_NAME_LEN];
+		GetMeshName(ModelPart, Name);
+
+		if (!ModelPart.Mesh)
+		{
+			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
+			strncpy(Entry.first, "lc_", 3);
+			strncat(Entry.first, Name, sizeof(Entry.first) - 1);
+			Entry.first[sizeof(Entry.first) - 1] = 0;
+		}
+
+		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
+
+		sprintf(Line, "#declare lc_%s_clear = lc_%s\n\n", Name, Name);
+		POVFile.WriteLine(Line);
+	}
+
+	sprintf(Line, "#declare %s = union {\n", TopModelName.toLatin1().constData());
+	POVFile.WriteLine(Line);
+
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
+	{
+		int ColorIdx = ModelPart.ColorIndex;
+		const char* Suffix = lcIsColorTranslucent(ColorIdx) ? "_clear" : "";
+		const float* f = ModelPart.WorldMatrix;
+		char Modifier[32];
+		if (UseLGEO || MaterialColors.contains(ColorTable[ColorIdx].data()))
+			sprintf(Modifier, "material");
+		else
+			sprintf(Modifier, "texture");
 		if (!ModelPart.Mesh)
 		{
 			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
 
 			if (Entry.second & LGEO_PIECE_SLOPE)
 			{
-				sprintf(Line, "merge {\n object {\n  %s%s\n  texture { %s }\n }\n"
-						" object {\n  %s_slope\n  texture { %s normal { bumps 0.3 scale 0.02 } }\n }\n"
-						" matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-						Entry.first, Suffix, ColorTable[Color].data(), Entry.first, ColorTable[Color].data(),
+				sprintf(Line,
+						"  merge {\n    object {\n      %s%s\n      %s { %s }\n    }\n"
+						"    object {\n      %s_slope\n      texture {\n        %s normal { bumps 0.3 scale 0.02 }\n      }\n    }\n"
+						"    matrix <%g, %g, %g, %g, %g, %g, %g, %g, %g, %g, %g, %g>\n  }\n",
+						Entry.first, Suffix, Modifier, ColorTable[ColorIdx].data(), Entry.first, ColorTable[ColorIdx].data(),
 						-f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
 			}
 			else
@@ -2381,8 +2878,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 				if (!ModelPart.Info || !ModelPart.Info->GetMesh())
 					continue;
 
-				sprintf(Line, "object {\n %s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-						Entry.first, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+				sprintf(Line, "  object {\n    %s%s\n    %s { %s }\n    matrix <%g, %g, %g, %g, %g, %g, %g, %g, %g, %g, %g, %g>\n  }\n",
+						Entry.first, Suffix, Modifier, ColorTable[ColorIdx].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
 
 			}
 		}
@@ -2391,10 +2888,26 @@ bool Project::ExportPOVRay(const QString& FileName)
 			char Name[LC_PIECE_NAME_LEN];
 			GetMeshName(ModelPart, Name);
 
-			sprintf(Line, "object {\n lc_%s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-					Name, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+			sprintf(Line, "  object {\n    lc_%s%s\n    %s { %s }\n    matrix <%g, %g, %g, %g, %g, %g, %g, %g, %g, %g, %g, %g>\n  }\n",
+					Name, Suffix, Modifier, ColorTable[ColorIdx].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
 		}
 
+		POVFile.WriteLine(Line);
+	}
+
+	sprintf(Line, "\n  #if (ModelReflection = 0)\n    no_reflection\n  #end\n  #if (ModelShadow = 0)\n    no_shadow\n  #end\n}\n\n");
+	POVFile.WriteLine(Line);
+
+	sprintf(Line, "object {\n  %s\n  %s { %s }\n}\n\n",
+			TopModelName.toLatin1().constData(), (UseLGEO ? "material" : "texture"), ColorTable[lcGetColorIndex(TopModelColorCode)].data());
+	POVFile.WriteLine(Line);
+
+	sprintf(Line, "#if (Floor)\n  object {\n    plane { FloorAxis, FloorLocation hollow }\n    texture {\n      pigment { color srgb FloorColor }\n      finish { emission 0 ambient FloorAmbient diffuse FloorDiffuse }\n    }\n  }\n#end\n");
+	POVFile.WriteLine(Line);
+
+	if (!POVRayOptions.FooterIncludeFile.isEmpty())
+	{
+		sprintf(Line, "\n#include \"%s\"\n", POVRayOptions.FooterIncludeFile.toLatin1().constData());
 		POVFile.WriteLine(Line);
 	}
 
@@ -2565,7 +3078,7 @@ void Project::SaveImage()
 
 void Project::UpdatePieceInfo(PieceInfo* Info) const
 {
-	if (!mModels.IsEmpty())
+	if (!mModels.empty())
 	{
 		std::vector<lcModel*> UpdatedModels;
 		mModels[0]->UpdatePieceInfo(UpdatedModels);

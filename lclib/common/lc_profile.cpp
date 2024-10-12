@@ -140,8 +140,16 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 	lcProfileEntry("POVRay", "POVRayPath", ""),                                                            // LC_PROFILE_POVRAY_PATH                                /*** LPub3D Mod - POV-ray remove default path ***/
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                                              // LC_PROFILE_POVRAY_LGEO_PATH
-	lcProfileEntry("POVRay", "Width", 1280),                                                               // LC_PROFILE_POVRAY_WIDTH
-	lcProfileEntry("POVRay", "Height", 720),                                                               // LC_PROFILE_POVRAY_HEIGHT
+	
+	lcProfileEntry("Render", "Width", 1280),                                                               // LC_PROFILE_RENDER_WIDTH
+	lcProfileEntry("Render", "Height", 720),                                                               // LC_PROFILE_RENDER_HEIGHT
+
+	lcProfileEntry("Blender", "Path", ""),                                                                 // LC_PROFILE_BLENDER_PATH
+	lcProfileEntry("Blender", "LDrawConfigPath", ""),                                                      // LC_PROFILE_BLENDER_LDRAW_CONFIG_PATH
+	lcProfileEntry("Blender", "Version", ""),                                                              // LC_PROFILE_BLENDER_VERSION
+	lcProfileEntry("Blender", "AddonVersion", ""),                                                         // LC_PROFILE_BLENDER_ADDON_VERSION
+	lcProfileEntry("Blender", "AddonVersionCheck", 1),                                                     // LC_PROFILE_BLENDER_ADDON_VERSION_CHECK
+	lcProfileEntry("Blender", "ImportModule", ""),                                                         // LC_PROFILE_BLENDER_IMPORT_MODULE
 
 	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                             // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED                /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                               // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE

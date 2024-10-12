@@ -22,6 +22,15 @@ struct lcPieceControlPoint
 	float Scale;
 };
 
+/*** LPub3D Mod - LPUB meta properties ***/
+enum class lcPieceType
+{
+	OfficialPart,
+	UnofficialPart,
+	Count
+};
+/*** LPub3D Mod end ***/
+
 class lcPiece : public lcObject
 {
 public:
@@ -48,6 +57,7 @@ public:
 	void SetSelected(bool Selected) override
 	{
 		mSelected = Selected;
+
 		if (!Selected)
 			mFocusedSection = LC_PIECE_SECTION_INVALID;
 	}
@@ -57,6 +67,7 @@ public:
 		Q_UNUSED(Section);
 
 		mSelected = Selected;
+
 		if (!Selected)
 			mFocusedSection = LC_PIECE_SECTION_INVALID;
 	}
@@ -98,11 +109,11 @@ public:
 			else
 				return mModelWorld.GetTranslation();
 		}
-		else
+		else if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST)
 		{
-			const int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+			const quint32 ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 
-			if (ControlPointIndex >= 0 && ControlPointIndex < mControlPoints.GetSize())
+			if (ControlPointIndex < mControlPoints.size())
 			{
 				const lcMatrix44& Transform = mControlPoints[ControlPointIndex].Transform;
 				return lcMul(Transform, mModelWorld).GetTranslation();
@@ -124,6 +135,11 @@ public:
 	{
 		return mFileLine;
 	}
+
+/*** LPub3D Mod - LPUB meta properties ***/
+	static QString GetPieceTypeString(lcPieceType PieceType);
+	static QStringList GetPieceTypeStrings();
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Selected Parts ***/
 	void SetLineTypeIndex(int Index)
@@ -172,6 +188,10 @@ public:
 	void RayTest(lcObjectRayTest& ObjectRayTest) const override;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
 	void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
+	QVariant GetPropertyValue(lcObjectPropertyId PropertyId) const override;
+	bool SetPropertyValue(lcObjectPropertyId PropertyId, lcStep Step, bool AddKey, QVariant Value) override;
+	bool HasKeyFrame(lcObjectPropertyId PropertyId, lcStep Time) const override;
+	bool SetKeyFrame(lcObjectPropertyId PropertyId, lcStep Time, bool KeyFrame) override;
 	void RemoveKeyFrames() override;
 
 	void AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade) const;
@@ -192,12 +212,12 @@ public:
 		mHidden = Hidden;
 	}
 
-	const lcArray<lcPieceControlPoint>& GetControlPoints() const
+	const std::vector<lcPieceControlPoint>& GetControlPoints() const
 	{
 		return mControlPoints;
 	}
 
-	void SetControlPoints(const lcArray<lcPieceControlPoint>& ControlPoints)
+	void SetControlPoints(const std::vector<lcPieceControlPoint>& ControlPoints)
 	{
 		mControlPoints = ControlPoints;
 		UpdateMesh();
@@ -208,6 +228,28 @@ public:
 		mControlPoints[ControlPointIndex].Scale = Scale;
 		UpdateMesh();
 	}
+
+/*** LPub3D Mod - LPUB meta properties ***/
+	bool SetPieceType(lcPieceType PieceType);
+	bool SetFileID(const QString& FileID);
+	bool SetIsSubmodel(bool Value);
+	bool SetModelName(const QString& ModelName);
+
+	lcPieceType GetPieceType() const
+	{
+		return mPieceType;
+	}
+
+	QString GetModelName() const
+	{
+		return mModelName;
+	}
+
+	bool GetIsSubmodel() const
+	{
+		return mIsSubmodel;
+	}
+/*** LPub3D Mod end ***/
 
 	const QString& GetID() const
 	{
@@ -224,9 +266,10 @@ public:
 	const lcBoundingBox& GetBoundingBox() const;
 	void CompareBoundingBox(lcVector3& Min, lcVector3& Max) const;
 	void SetPieceInfo(PieceInfo* Info, const QString& ID, bool Wait);
+	bool SetPieceId(PieceInfo* Info);
 	bool FileLoad(lcFile& file);
 
-	void UpdatePosition(lcStep Step);
+	void UpdatePosition(lcStep Step) override;
 	void MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance);
 	void Rotate(lcStep Step, bool AddKey, const lcMatrix33& RotationMatrix, const lcVector3& Center, const lcMatrix33& RotationFrame);
 	void MovePivotPoint(const lcVector3& Distance);
@@ -237,7 +280,7 @@ public:
 
 	bool InsertControlPoint(const lcVector3& WorldStart, const lcVector3& WorldEnd);
 	bool RemoveFocusedControlPoint();
-	void VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const;
+	void VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const;
 
 	lcGroup* GetTopGroup();
 
@@ -303,20 +346,25 @@ public:
 		return mColorIndex;
 	}
 
-	void SetColorIndex(int ColorIndex)
+	bool SetColorIndex(int ColorIndex)
 	{
+		if (mColorIndex == ColorIndex)
+			return false;
+
 		mColorIndex = ColorIndex;
 		mColorCode = lcGetColorCode(ColorIndex);
+
+		return true;
 	}
 
 	void SetPosition(const lcVector3& Position, lcStep Step, bool AddKey)
 	{
-		mPositionKeys.ChangeKey(Position, Step, AddKey);
+		mPosition.ChangeKey(Position, Step, AddKey);
 	}
 
 	void SetRotation(const lcMatrix33& Rotation, lcStep Step, bool AddKey)
 	{
-		mRotationKeys.ChangeKey(Rotation, Step, AddKey);
+		mRotation.ChangeKey(Rotation, Step, AddKey);
 	}
 
 	lcVector3 GetRotationCenter() const
@@ -327,21 +375,19 @@ public:
 		{
 			if (mPivotPointValid)
 				return lcMul31(mPivotMatrix.GetTranslation(), mModelWorld);
-			else
-				return mModelWorld.GetTranslation();
 		}
-		else
+		else if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST)
 		{
-			const int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+			const quint32 ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 
-			if (ControlPointIndex >= 0 && ControlPointIndex < mControlPoints.GetSize())
+			if (ControlPointIndex < mControlPoints.size())
 			{
 				const lcMatrix44& Transform = mControlPoints[ControlPointIndex].Transform;
 				return lcMul31(Transform.GetTranslation(), mModelWorld);
 			}
-
-			return mModelWorld.GetTranslation();
 		}
+
+		return mModelWorld.GetTranslation();
 	}
 
 	lcMatrix33 GetRelativeRotation() const
@@ -355,18 +401,18 @@ public:
 			else
 				return lcMatrix33(mModelWorld);
 		}
-		else
+		else if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST)
 		{
-			const int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+			const quint32 ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 
-			if (ControlPointIndex >= 0 && ControlPointIndex < mControlPoints.GetSize())
+			if (ControlPointIndex < mControlPoints.size())
 			{
 				const lcMatrix44& Transform = mControlPoints[ControlPointIndex].Transform;
 				return lcMatrix33(lcMul(Transform, mModelWorld));
 			}
-
-			return lcMatrix33Identity();
 		}
+
+		return lcMatrix33Identity();
 	}
 
 	void ResetPivotPoint()
@@ -394,19 +440,24 @@ protected:
 		return IsSelected();
 	}
 
-	lcObjectKeyArray<lcVector3> mPositionKeys;
-	lcObjectKeyArray<lcMatrix33> mRotationKeys;
+	lcObjectProperty<lcVector3> mPosition = lcObjectProperty<lcVector3>(lcVector3(0.0f, 0.0f, 0.0f));
+	lcObjectProperty<lcMatrix33> mRotation = lcObjectProperty<lcMatrix33>(lcMatrix33Identity());
 
-	int mFileLine;
+	int mFileLine = -1;
 /*** LPub3D Mod - Selected Parts ***/
-	int mLineTypeIndex;
+	int mLineTypeIndex = -1;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
-	int mPieceModified;
+	int mPieceModified = 0;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - lpub fade highlight ***/
-	bool mLPubFade;
-	bool mLPubHighlight;
+	bool mLPubFade = false;
+	bool mLPubHighlight = false;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - LPUB meta properties ***/
+	bool mIsSubmodel = false;
+	lcPieceType mPieceType = lcPieceType::OfficialPart;
+	QString mModelName;
 /*** LPub3D Mod end ***/
 	QString mID;
 
@@ -421,7 +472,7 @@ protected:
 	bool mPivotPointValid = false;
 	bool mHidden = false;
 	bool mSelected = false;
-	quint32 mFocusedSection;
-	lcArray<lcPieceControlPoint> mControlPoints;
-	lcMesh* mMesh;
+	quint32 mFocusedSection = LC_PIECE_SECTION_INVALID;
+	std::vector<lcPieceControlPoint> mControlPoints;
+	lcMesh* mMesh = nullptr;
 };

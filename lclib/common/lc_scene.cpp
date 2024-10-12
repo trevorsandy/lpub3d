@@ -8,9 +8,6 @@
 #include "object.h"
 
 lcScene::lcScene()
-/*** LPub3D Mod - use std::vector for lcArray ***/
-	: mRenderMeshes(0), mOpaqueMeshes(0), mTranslucentMeshes(0), mInterfaceObjects(0)
-/*** LPub3D Mod end ***/	
 {
 	mActiveSubmodelInstance = nullptr;
 	mDrawInterface = false;
@@ -18,7 +15,6 @@ lcScene::lcScene()
 	mAllowLOD = true;
 	mMeshLODDistance = 250.0f;
 	mHasFadedParts = false;
-
 	mPreTranslucentCallback = nullptr;
 }
 
@@ -27,10 +23,10 @@ void lcScene::Begin(const lcMatrix44& ViewMatrix)
 	mViewMatrix = ViewMatrix;
 	mActiveSubmodelInstance = nullptr;
 	mPreTranslucentCallback = nullptr;
-	mRenderMeshes.RemoveAll();
-	mOpaqueMeshes.RemoveAll();
-	mTranslucentMeshes.RemoveAll();
-	mInterfaceObjects.RemoveAll();
+	mRenderMeshes.clear();
+	mOpaqueMeshes.clear();
+	mTranslucentMeshes.clear();
+	mInterfaceObjects.clear();
 
 	const lcPreferences& Preferences = lcGetPreferences();
 	mHighlightColor = lcVector4FromColor(Preferences.mHighlightNewPartsColor);
@@ -67,7 +63,7 @@ void lcScene::End()
 
 void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State)
 {
-	lcRenderMesh& RenderMesh = mRenderMeshes.Add();
+	lcRenderMesh& RenderMesh = mRenderMeshes.emplace_back();
 
 	RenderMesh.WorldMatrix = WorldMatrix;
 	RenderMesh.Mesh = Mesh;
@@ -82,7 +78,7 @@ void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorInde
 	mHasFadedParts |= State == lcRenderMeshState::Faded;
 
 	if ((Flags & (lcMeshFlag::HasSolid | lcMeshFlag::HasLines)) || ((Flags & lcMeshFlag::HasDefault) && !Translucent))
-		mOpaqueMeshes.Add(mRenderMeshes.GetSize() - 1);
+		mOpaqueMeshes.emplace_back(static_cast<int>(mRenderMeshes.size()) - 1);
 
 	if ((Flags & lcMeshFlag::HasTranslucent) || ((Flags & lcMeshFlag::HasDefault) && Translucent))
 	{
@@ -106,10 +102,10 @@ void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorInde
 			const lcVector3 Center = (Section->BoundingBox.Min + Section->BoundingBox.Max) / 2;
 			const float InstanceDistance = fabsf(lcMul31(lcMul31(Center, WorldMatrix), mViewMatrix).z);
 
-			lcTranslucentMeshInstance& Instance = mTranslucentMeshes.Add();
+			lcTranslucentMeshInstance& Instance = mTranslucentMeshes.emplace_back();
 			Instance.Section = Section;
 			Instance.Distance = InstanceDistance;
-			Instance.RenderMeshIndex = mRenderMeshes.GetSize() - 1;
+			Instance.RenderMeshIndex = static_cast<int>(mRenderMeshes.size()) - 1;
 		}
 	}
 }
@@ -140,7 +136,7 @@ void lcScene::DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const
 
 void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes, bool DrawFaded, bool DrawNonFaded) const
 {
-	if (mOpaqueMeshes.IsEmpty())
+	if (mOpaqueMeshes.empty())
 		return;
 
 	lcMaterialType FlatMaterial, TexturedMaterial;
@@ -329,7 +325,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, lcLPubFade LPubFade) const
 /*** LPub3D Mod end ***/
 {
-	if (mTranslucentMeshes.IsEmpty())
+	if (mTranslucentMeshes.empty())
 		return;
 
 	lcMaterialType FlatMaterial, TexturedMaterial;
@@ -491,7 +487,7 @@ void lcScene::Draw(lcContext* Context) const
 // 03/22/2021 8039f5b Draw conditional lines on a separate pass.
 	const bool LPubFadeHighlight = gApplication->LPubFadeHighlight() &&
 								   gApplication->LPubFadeParts()     && // set to off during HTML Steps export
-								  !mTranslucentMeshes.IsEmpty();
+								  !mTranslucentMeshes.empty();
 /*** LPub3D Mod end ***/
 
 //	lcShadingMode ShadingMode = Preferences.mShadingMode;

@@ -12,13 +12,13 @@ class lcSynthInfoCurved : public lcSynthInfo
 public:
 	lcSynthInfoCurved(float Length, float DefaultScale, int NumSections, bool RigidEdges);
 
-	void GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
-	void VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
+	void GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
+	void VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
 
 protected:
 	float GetSectionTwist(const lcMatrix44& StartTransform, const lcMatrix44& EndTransform) const;
-	void CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
-	static void AddTubeParts(lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections, float Radius, bool IsInner);
+	void CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
+	static void AddTubeParts(lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections, float Radius, bool IsInner);
 
 	struct lcSynthComponent
 	{
@@ -30,7 +30,7 @@ protected:
 	lcSynthComponent mMiddle;
 	lcSynthComponent mEnd;
 	float mCenterLength = 0.0f;
-	int mNumSections;
+	size_t mSectionCount;
 	float mDefaultScale;
 	bool mRigidEdges;
 };
@@ -41,7 +41,7 @@ public:
 	lcSynthInfoFlexibleHose(float Length, int NumSections, const char* EdgePart2);
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 
 	const char* mEdgePart2;
 };
@@ -51,10 +51,10 @@ class lcSynthInfoFlexSystemHose : public lcSynthInfoCurved
 public:
 	lcSynthInfoFlexSystemHose(float Length, int NumSections);
 
-	void GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
+	void GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 };
 
 class lcSynthInfoPneumaticTube : public lcSynthInfoCurved
@@ -63,7 +63,7 @@ public:
 	lcSynthInfoPneumaticTube(float Length, int NumSections, const char* EndPart);
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 
 	const char* mEndPart;
 };
@@ -74,7 +74,7 @@ public:
 	lcSynthInfoRibbedHose(float Length, int NumSections);
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 };
 
 class lcSynthInfoFlexibleAxle : public lcSynthInfoCurved
@@ -83,7 +83,7 @@ public:
 	lcSynthInfoFlexibleAxle(float Length, int NumSections);
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 };
 
 class lcSynthInfoBraidedString : public lcSynthInfoCurved
@@ -92,8 +92,8 @@ public:
 	lcSynthInfoBraidedString(float Length, int NumSections);
 
 protected:
-	void CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 };
 
 class lcSynthInfoStraight : public lcSynthInfo
@@ -101,10 +101,10 @@ class lcSynthInfoStraight : public lcSynthInfo
 public:
 	explicit lcSynthInfoStraight(float Length);
 
-	void VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
+	void VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
 
 protected:
-	void CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
+	void CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
 };
 
 class lcSynthInfoShockAbsorber : public lcSynthInfoStraight
@@ -112,10 +112,10 @@ class lcSynthInfoShockAbsorber : public lcSynthInfoStraight
 public:
 	explicit lcSynthInfoShockAbsorber(const char* SpringPart);
 
-	void GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
+	void GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 
 	const char* mSpringPart;
 };
@@ -125,10 +125,10 @@ class lcSynthInfoActuator : public lcSynthInfoStraight
 public:
 	explicit lcSynthInfoActuator(const char* BodyPart, const char* PistonPart, const char* AxlePart, float Length, float AxleOffset);
 
-	void GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
+	void GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
 
 protected:
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 
 	const char* mBodyPart;
 	const char* mPistonPart;
@@ -141,12 +141,12 @@ class lcSynthInfoUniversalJoint : public lcSynthInfo
 public:
 	lcSynthInfoUniversalJoint(float Length, float EndOffset, const char* EndPart, const char* CenterPart);
 
-	void GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
-	void VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const override;
+	void GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
+	void VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const override;
 
 protected:
-	void CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
-	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const override;
+	void CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const override;
+	void AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const override;
 
 	float mEndOffset;
 	const char* mEndPart;
@@ -453,7 +453,7 @@ lcSynthInfo::lcSynthInfo(float Length)
 }
 
 lcSynthInfoCurved::lcSynthInfoCurved(float Length, float DefaultScale, int NumSections, bool RigidEdges)
-	: lcSynthInfo(Length), mNumSections(NumSections), mDefaultScale(DefaultScale), mRigidEdges(RigidEdges)
+	: lcSynthInfo(Length), mSectionCount(NumSections), mDefaultScale(DefaultScale), mRigidEdges(RigidEdges)
 {
 	mCurve = true;
 
@@ -538,9 +538,9 @@ lcSynthInfoUniversalJoint::lcSynthInfoUniversalJoint(float Length, float EndOffs
 	mNondirectional = true;
 }
 
-void lcSynthInfoCurved::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoCurved::GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	ControlPoints.SetSize(2);
+	ControlPoints.resize(2);
 
 	float HalfLength = mLength / 2.0f;
 	float Scale = lcMin(mDefaultScale, HalfLength);
@@ -552,13 +552,13 @@ void lcSynthInfoCurved::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& Co
 	ControlPoints[1].Scale = Scale;
 }
 
-void lcSynthInfoCurved::VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoCurved::VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	if (ControlPoints.GetSize() < 2)
+	if (ControlPoints.size() < 2)
 		GetDefaultControlPoints(ControlPoints);
 }
 
-void lcSynthInfoFlexSystemHose::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoFlexSystemHose::GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
 	lcSynthInfoCurved::GetDefaultControlPoints(ControlPoints);
 
@@ -566,17 +566,17 @@ void lcSynthInfoFlexSystemHose::GetDefaultControlPoints(lcArray<lcPieceControlPo
 	ControlPoints[1].Transform = lcMatrix44Translation(lcVector3(0.0f, 0.0f, 0.0f));
 }
 
-void lcSynthInfoStraight::VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoStraight::VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	if (ControlPoints.GetSize() < 2)
+	if (ControlPoints.size() < 2)
 		GetDefaultControlPoints(ControlPoints);
 	else
-		ControlPoints.SetSize(2);
+		ControlPoints.resize(2);
 }
 
-void lcSynthInfoShockAbsorber::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoShockAbsorber::GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	ControlPoints.SetSize(2);
+	ControlPoints.resize(2);
 
 	ControlPoints[0].Transform = lcMatrix44Translation(lcVector3(0.0f, 0.0f, -mLength));
 	ControlPoints[1].Transform = lcMatrix44Translation(lcVector3(0.0f, 0.0f, 0.0f));
@@ -585,9 +585,9 @@ void lcSynthInfoShockAbsorber::GetDefaultControlPoints(lcArray<lcPieceControlPoi
 	ControlPoints[1].Scale = 1.0f;
 }
 
-void lcSynthInfoActuator::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoActuator::GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	ControlPoints.SetSize(2);
+	ControlPoints.resize(2);
 
 	ControlPoints[0].Transform = lcMatrix44(lcMatrix33(lcVector3(1.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f, 1.0f, 0.0f)), lcVector3(0.0f, 0.0f, 0.0f));
 	ControlPoints[1].Transform = lcMatrix44(lcMatrix33(lcVector3(1.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f, 1.0f, 0.0f)), lcVector3(0.0f, mLength, 0.0f));
@@ -596,21 +596,21 @@ void lcSynthInfoActuator::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& 
 	ControlPoints[1].Scale = 1.0f;
 }
 
-void lcSynthInfoUniversalJoint::GetDefaultControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoUniversalJoint::GetDefaultControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	ControlPoints.SetSize(1);
+	ControlPoints.resize(1);
 	float HalfLength = mLength / 2;
 
 	ControlPoints[0].Transform = lcMatrix44Translation(lcVector3(0.0f, HalfLength, 0.0f));
 	ControlPoints[0].Scale = 1.0f;
 }
 
-void lcSynthInfoUniversalJoint::VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+void lcSynthInfoUniversalJoint::VerifyControlPoints(std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	if (ControlPoints.IsEmpty())
+	if (ControlPoints.empty())
 		GetDefaultControlPoints(ControlPoints);
 	else
-		ControlPoints.SetSize(1);
+		ControlPoints.resize(1);
 }
 
 float lcSynthInfoCurved::GetSectionTwist(const lcMatrix44& StartTransform, const lcMatrix44& EndTransform) const
@@ -658,19 +658,22 @@ float lcSynthInfoCurved::GetSectionTwist(const lcMatrix44& StartTransform, const
 	return 0.0f;
 }
 
-void lcSynthInfoCurved::CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
+void lcSynthInfoCurved::CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
 {
+	if (ControlPoints.empty())
+		return;
+
 	float SectionLength = 0.0f;
 
-	for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize() - 1 && Sections.GetSize() < mNumSections + 2; ControlPointIdx++)
+	for (quint32 ControlPointIndex = 0; ControlPointIndex < ControlPoints.size() - 1 && Sections.size() < mSectionCount + 2; ControlPointIndex++)
 	{
 		lcVector3 SegmentControlPoints[4];
 
-		lcMatrix44 StartTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIdx].Transform);
-		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIdx + 1].Transform);
+		lcMatrix44 StartTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIndex].Transform);
+		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIndex + 1].Transform);
 		StartTransform = lcMatrix44(lcMul(lcMul(lcMatrix33(mStart.Transform), lcMatrix33(StartTransform)), lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), StartTransform.GetTranslation());
 
-		if (ControlPointIdx == 0)
+		if (ControlPointIndex == 0)
 		{
 			if (mRigidEdges)
 			{
@@ -680,19 +683,19 @@ void lcSynthInfoCurved::CalculateSections(const lcArray<lcPieceControlPoint>& Co
 			else
 				SectionLength = mStart.Length;
 
-			Sections.Add(StartTransform);
+			Sections.emplace_back(StartTransform);
 		}
 
 		EndTransform = lcMatrix44(lcMul(lcMul(lcMatrix33(mEnd.Transform), lcMatrix33(EndTransform)), lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), EndTransform.GetTranslation());
 
 		SegmentControlPoints[0] = StartTransform.GetTranslation();
-		SegmentControlPoints[1] = lcMul31(lcVector3(0.0f, ControlPoints[ControlPointIdx].Scale, 0.0f), StartTransform);
-		SegmentControlPoints[2] = lcMul31(lcVector3(0.0f, -ControlPoints[ControlPointIdx + 1].Scale, 0.0f), EndTransform);
+		SegmentControlPoints[1] = lcMul31(lcVector3(0.0f, ControlPoints[ControlPointIndex].Scale, 0.0f), StartTransform);
+		SegmentControlPoints[2] = lcMul31(lcVector3(0.0f, -ControlPoints[ControlPointIndex + 1].Scale, 0.0f), EndTransform);
 		SegmentControlPoints[3] = EndTransform.GetTranslation();
 
-		const int NumCurvePoints = 8192;
-		lcArray<lcVector3> CurvePoints;
-		CurvePoints.AllocGrow(NumCurvePoints);
+		const int NumCurvePoints = 4096;
+		std::vector<lcVector3> CurvePoints;
+		CurvePoints.reserve(NumCurvePoints);
 
 		for (int PointIdx = 0; PointIdx < NumCurvePoints; PointIdx++)
 		{
@@ -700,20 +703,20 @@ void lcSynthInfoCurved::CalculateSections(const lcArray<lcPieceControlPoint>& Co
 			float it = 1.0f - t;
 
 			lcVector3 Position = it * it * it * SegmentControlPoints[0] + it * it * 3.0f * t * SegmentControlPoints[1] + it * 3.0 * t * t * SegmentControlPoints[2] + t * t * t * SegmentControlPoints[3];
-			CurvePoints.Add(Position);
+			CurvePoints.emplace_back(Position);
 		}
 
 		float CurrentSegmentLength = 0.0f;
 		float TotalSegmentLength = 0.0f;
 
-		for (int PointIdx = 0; PointIdx < CurvePoints.GetSize() - 1; PointIdx++)
+		for (size_t PointIdx = 0; PointIdx < CurvePoints.size() - 1; PointIdx++)
 			TotalSegmentLength += lcLength(CurvePoints[PointIdx] - CurvePoints[PointIdx + 1]);
 
 		lcVector3 StartUp = lcMul30(lcVector3(1.0f, 0.0f, 0.0f), StartTransform);
 		float Twist = GetSectionTwist(StartTransform, EndTransform);
-		int CurrentPointIndex = 0;
+		size_t CurrentPointIndex = 0;
 
-		while (CurrentPointIndex < CurvePoints.GetSize() - 1)
+		while (CurrentPointIndex < CurvePoints.size() - 1)
 		{
 			float Length = lcLength(CurvePoints[CurrentPointIndex + 1] - CurvePoints[CurrentPointIndex]);
 			CurrentSegmentLength += Length;
@@ -741,58 +744,61 @@ void lcSynthInfoCurved::CalculateSections(const lcArray<lcPieceControlPoint>& Co
 			Up = lcNormalize(lcCross(Side, Tangent));
 			StartUp = Up;
 
-			Sections.Add(lcMatrix44(lcMatrix33(Up, Tangent, Side), CurvePoints[CurrentPointIndex]));
+			Sections.emplace_back(lcMatrix44(lcMatrix33(Up, Tangent, Side), CurvePoints[CurrentPointIndex]));
 
 			if (SectionCallback)
-				SectionCallback(CurvePoints[CurrentPointIndex], ControlPointIdx, t);
+				SectionCallback(CurvePoints[CurrentPointIndex], ControlPointIndex, t);
 
-			if (Sections.GetSize() == mNumSections + 2)
+			if (Sections.size() == mSectionCount + 2)
 				break;
 
-			if (mCenterLength != 0.0f && (Sections.GetSize() == mNumSections / 2 + 1))
+			if (mCenterLength != 0.0f && (Sections.size() == mSectionCount / 2 + 1))
 				SectionLength += mCenterLength;
 			else
 				SectionLength += mMiddle.Length;
 
-			if (Sections.GetSize() == mNumSections + 1 && !mRigidEdges)
+			if (Sections.size() == mSectionCount + 1 && !mRigidEdges)
 				SectionLength += mEnd.Length;
 		}
 	}
 
-	while (Sections.GetSize() < mNumSections + 2)
+	while (Sections.size() < mSectionCount + 2)
 	{
-		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPoints.GetSize() - 1].Transform);
+		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints.back().Transform);
 		EndTransform = lcMatrix44(lcMul(lcMul(lcMatrix33(mEnd.Transform), lcMatrix33(EndTransform)), lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), EndTransform.GetTranslation());
 		lcVector3 Position = lcMul31(lcVector3(0.0f, SectionLength, 0.0f), EndTransform);
 		EndTransform.SetTranslation(Position);
-		Sections.Add(EndTransform);
+		Sections.emplace_back(EndTransform);
 
 		if (SectionCallback)
-			SectionCallback(Position, ControlPoints.GetSize() - 1, 1.0f);
+			SectionCallback(Position, static_cast<quint32>(ControlPoints.size()) - 1, 1.0f);
 
-		if (mCenterLength != 0.0f && (Sections.GetSize() == mNumSections / 2 + 1))
+		if (mCenterLength != 0.0f && (Sections.size() == mSectionCount / 2 + 1))
 			SectionLength += mCenterLength;
 		else
 			SectionLength += mMiddle.Length;
 
-		if (Sections.GetSize() == mNumSections + 1 && !mRigidEdges)
+		if (Sections.size() == mSectionCount + 1 && !mRigidEdges)
 			SectionLength += mEnd.Length;
 	}
 }
 
-void lcSynthInfoBraidedString::CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
+void lcSynthInfoBraidedString::CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
 {
+	if (ControlPoints.empty())
+		return;
+
 	float SectionLength = 0.0f;
 
-	for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize() - 1 && Sections.GetSize() < mNumSections + 2; ControlPointIdx++)
+	for (quint32 ControlPointIndex = 0; ControlPointIndex < ControlPoints.size() - 1 && Sections.size() < mSectionCount + 2; ControlPointIndex++)
 	{
 		lcVector3 SegmentControlPoints[4];
 
-		lcMatrix44 StartTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIdx].Transform);
-		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIdx + 1].Transform);
+		lcMatrix44 StartTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIndex].Transform);
+		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIndex + 1].Transform);
 		StartTransform = lcMatrix44(lcMul(lcMul(lcMatrix33(mStart.Transform), lcMatrix33(StartTransform)), lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), StartTransform.GetTranslation());
 
-		if (ControlPointIdx == 0)
+		if (ControlPointIndex == 0)
 		{
 			if (mRigidEdges)
 			{
@@ -802,19 +808,19 @@ void lcSynthInfoBraidedString::CalculateSections(const lcArray<lcPieceControlPoi
 			else
 				SectionLength = mStart.Length;
 
-			Sections.Add(StartTransform);
+			Sections.emplace_back(StartTransform);
 		}
 
 		EndTransform = lcMatrix44(lcMul(lcMul(lcMatrix33(mEnd.Transform), lcMatrix33(EndTransform)), lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), EndTransform.GetTranslation());
 
 		SegmentControlPoints[0] = StartTransform.GetTranslation();
-		SegmentControlPoints[1] = lcMul31(lcVector3(ControlPoints[ControlPointIdx].Scale, 0.0f, 0.0f), StartTransform);
-		SegmentControlPoints[2] = lcMul31(lcVector3(-ControlPoints[ControlPointIdx + 1].Scale, 0.0f, 0.0f), EndTransform);
+		SegmentControlPoints[1] = lcMul31(lcVector3(ControlPoints[ControlPointIndex].Scale, 0.0f, 0.0f), StartTransform);
+		SegmentControlPoints[2] = lcMul31(lcVector3(-ControlPoints[ControlPointIndex + 1].Scale, 0.0f, 0.0f), EndTransform);
 		SegmentControlPoints[3] = EndTransform.GetTranslation();
 
-		const int NumCurvePoints = 8192;
-		lcArray<lcVector3> CurvePoints;
-		CurvePoints.AllocGrow(NumCurvePoints);
+		const int NumCurvePoints = 4096;
+		std::vector<lcVector3> CurvePoints;
+		CurvePoints.reserve(NumCurvePoints);
 
 		for (int PointIdx = 0; PointIdx < NumCurvePoints; PointIdx++)
 		{
@@ -822,20 +828,20 @@ void lcSynthInfoBraidedString::CalculateSections(const lcArray<lcPieceControlPoi
 			float it = 1.0f - t;
 
 			lcVector3 Position = it * it * it * SegmentControlPoints[0] + it * it * 3.0f * t * SegmentControlPoints[1] + it * 3.0 * t * t * SegmentControlPoints[2] + t * t * t * SegmentControlPoints[3];
-			CurvePoints.Add(Position);
+			CurvePoints.emplace_back(Position);
 		}
 
 		float CurrentSegmentLength = 0.0f;
 		float TotalSegmentLength = 0.0f;
 
-		for (int PointIdx = 0; PointIdx < CurvePoints.GetSize() - 1; PointIdx++)
+		for (size_t PointIdx = 0; PointIdx < CurvePoints.size() - 1; PointIdx++)
 			TotalSegmentLength += lcLength(CurvePoints[PointIdx] - CurvePoints[PointIdx + 1]);
 
 		lcVector3 StartUp = lcMul30(lcVector3(0.0f, 1.0f, 0.0f), StartTransform);
 		float Twist = GetSectionTwist(StartTransform, EndTransform);
-		int CurrentPointIndex = 0;
+		size_t CurrentPointIndex = 0;
 
-		while (CurrentPointIndex < CurvePoints.GetSize() - 1)
+		while (CurrentPointIndex < CurvePoints.size() - 1)
 		{
 			float Length = lcLength(CurvePoints[CurrentPointIndex + 1] - CurvePoints[CurrentPointIndex]);
 			CurrentSegmentLength += Length;
@@ -863,71 +869,74 @@ void lcSynthInfoBraidedString::CalculateSections(const lcArray<lcPieceControlPoi
 			Up = lcNormalize(lcCross(Side, Tangent));
 			StartUp = Up;
 
-			Sections.Add(lcMatrix44(lcMatrix33(Tangent, Up, -Side), CurvePoints[CurrentPointIndex]));
+			Sections.emplace_back(lcMatrix44(lcMatrix33(Tangent, Up, -Side), CurvePoints[CurrentPointIndex]));
 
 			if (SectionCallback)
-				SectionCallback(CurvePoints[CurrentPointIndex], ControlPointIdx, t);
+				SectionCallback(CurvePoints[CurrentPointIndex], ControlPointIndex, t);
 
-			if (Sections.GetSize() == mNumSections + 2)
+			if (Sections.size() == mSectionCount + 2)
 				break;
 
-			if (mCenterLength != 0.0f && (Sections.GetSize() == mNumSections / 2 + 1))
+			if (mCenterLength != 0.0f && (Sections.size() == mSectionCount / 2 + 1))
 				SectionLength += mCenterLength;
 			else
 				SectionLength += mMiddle.Length;
 
-			if (Sections.GetSize() == mNumSections + 1 && !mRigidEdges)
+			if (Sections.size() == mSectionCount + 1 && !mRigidEdges)
 				SectionLength += mEnd.Length;
 		}
 	}
 
-	while (Sections.GetSize() < mNumSections + 2)
+	while (Sections.size() < mSectionCount + 2)
 	{
-		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPoints.GetSize() - 1].Transform);
+		lcMatrix44 EndTransform = lcMatrix44LeoCADToLDraw(ControlPoints.back().Transform);
 		EndTransform = lcMatrix44(lcMul(lcMul(lcMatrix33(mEnd.Transform), lcMatrix33(EndTransform)), lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), EndTransform.GetTranslation());
 		lcVector3 Position = lcMul31(lcVector3(SectionLength, 0.0f, 0.0f), EndTransform);
 		EndTransform.SetTranslation(Position);
-		Sections.Add(EndTransform);
+		Sections.emplace_back(EndTransform);
 
 		if (SectionCallback)
-			SectionCallback(Position, ControlPoints.GetSize() - 1, 1.0f);
+			SectionCallback(Position, static_cast<quint32>(ControlPoints.size()) - 1, 1.0f);
 
-		if (mCenterLength != 0.0f && (Sections.GetSize() == mNumSections / 2 + 1))
+		if (mCenterLength != 0.0f && (Sections.size() == mSectionCount / 2 + 1))
 			SectionLength += mCenterLength;
 		else
 			SectionLength += mMiddle.Length;
 
-		if (Sections.GetSize() == mNumSections + 1 && !mRigidEdges)
+		if (Sections.size() == mSectionCount + 1 && !mRigidEdges)
 			SectionLength += mEnd.Length;
 	}
 }
 
-void lcSynthInfoStraight::CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
+void lcSynthInfoStraight::CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
 {
-	for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
+	for (quint32 ControlPointIndex = 0; ControlPointIndex < ControlPoints.size(); ControlPointIndex++)
 	{
-		lcMatrix44 Transform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIdx].Transform);
-		Sections.Add(Transform);
+		lcMatrix44 Transform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIndex].Transform);
+		Sections.emplace_back(Transform);
 
 		if (SectionCallback)
-			SectionCallback(Transform.GetTranslation(), ControlPointIdx, 1.0f);
+			SectionCallback(Transform.GetTranslation(), ControlPointIndex, 1.0f);
 	}
 }
 
-void lcSynthInfoUniversalJoint::CalculateSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
+void lcSynthInfoUniversalJoint::CalculateSections(const std::vector<lcPieceControlPoint>& ControlPoints, std::vector<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const
 {
-	for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
+	for (quint32 ControlPointIndex = 0; ControlPointIndex < ControlPoints.size(); ControlPointIndex++)
 	{
-		lcMatrix44 Transform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIdx].Transform);
-		Sections.Add(Transform);
+		lcMatrix44 Transform = lcMatrix44LeoCADToLDraw(ControlPoints[ControlPointIndex].Transform);
+		Sections.emplace_back(Transform);
 
 		if (SectionCallback)
-			SectionCallback(Transform.GetTranslation(), ControlPointIdx, 1.0f);
+			SectionCallback(Transform.GetTranslation(), ControlPointIndex, 1.0f);
 	}
 }
 
-void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const std::vector<lcMatrix44>& Sections) const
 {
+	if (Sections.empty())
+		return;
+
 	char Line[256];
 	const int NumEdgeParts = 2;
 
@@ -944,9 +953,9 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 
 	for (int PartIdx = 0; PartIdx < NumEdgeParts; PartIdx++)
 	{
-		const int SectionIdx = 0;
-		lcMatrix33 Transform(lcMul(lcMul(EdgeTransforms[PartIdx], lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, -5.0f, 0.0f), Sections[SectionIdx]);
+		const int SectionIndex = 0;
+		lcMatrix33 Transform(lcMul(lcMul(EdgeTransforms[PartIdx], lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, -5.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
@@ -954,19 +963,19 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 		File.WriteBuffer(Line, strlen(Line));
 	}
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 	{
-		lcMatrix33 Transform = lcMatrix33(Sections[SectionIdx]);
-		lcVector3 Offset = Sections[SectionIdx].GetTranslation();
+		lcMatrix33 Transform = lcMatrix33(Sections[SectionIndex]);
+		lcVector3 Offset = Sections[SectionIndex].GetTranslation();
 
-		if (SectionIdx < Sections.GetSize() / 2)
+		if (SectionIndex < Sections.size() / 2)
 			Transform = lcMul(lcMatrix33(lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f, -1.0f, 0.0f), lcVector3(-1.0f, 0.0f, 0.0f)), Transform);
-		else if (SectionIdx != Sections.GetSize() / 2)
+		else if (SectionIndex != Sections.size() / 2)
 			Transform = lcMul(lcMatrix33(lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f,  1.0f, 0.0f), lcVector3( 1.0f, 0.0f, 0.0f)), Transform);
 		else
 			Transform = lcMul(lcMatrix33(lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f,  1.0f, 0.0f), lcVector3( 1.0f, 0.0f, 0.0f)), Transform);
 
-		const char* Part = SectionIdx != Sections.GetSize() / 2 ? "754.dat" : "756.dat";
+		const char* Part = SectionIndex != Sections.size() / 2 ? "754.dat" : "756.dat";
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], Part);
@@ -976,9 +985,9 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 
 	for (int PartIdx = 0; PartIdx < NumEdgeParts; PartIdx++)
 	{
-		const int SectionIdx = Sections.GetSize() - 1;
-		lcMatrix33 Transform(lcMul(EdgeTransforms[PartIdx], lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, 5.0f - 2.56f, 0.0f), Sections[SectionIdx]);
+		const size_t SectionIndex = Sections.size() - 1;
+		lcMatrix33 Transform(lcMul(EdgeTransforms[PartIdx], lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, 5.0f - 2.56f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
@@ -987,7 +996,7 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 	}
 }
 
-void lcSynthInfoCurved::AddTubeParts(lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections, float Radius, bool IsInner)
+void lcSynthInfoCurved::AddTubeParts(lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections, float Radius, bool IsInner)
 {
 	// a unit circle
 	static const lcVector3 Vertices[16] =
@@ -1014,22 +1023,22 @@ void lcSynthInfoCurved::AddTubeParts(lcLibraryMeshData& MeshData, const lcArray<
 	int BaseVertex;
 	lcMeshLoaderVertex* VertexBuffer;
 	quint32* IndexBuffer;
-	MeshData.AddVertices(LC_MESHDATA_SHARED, NumSectionVertices * (Sections.GetSize() - 1), &BaseVertex, &VertexBuffer);
+	MeshData.AddVertices(LC_MESHDATA_SHARED, NumSectionVertices * (Sections.size() - 1), &BaseVertex, &VertexBuffer);
 
 	float NormalDirection = IsInner ? -1.0f : 1.0f;
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize(); SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size(); SectionIndex++)
 	{
 		for (int VertexIdx = 0; VertexIdx < NumSectionVertices; VertexIdx++)
 		{
-			VertexBuffer->Position = lcMul31(Radius * Vertices[VertexIdx], Sections[SectionIdx]);
-			VertexBuffer->Normal = lcMul30(NormalDirection * Vertices[VertexIdx], Sections[SectionIdx]);
+			VertexBuffer->Position = lcMul31(Radius * Vertices[VertexIdx], Sections[SectionIndex]);
+			VertexBuffer->Normal = lcMul30(NormalDirection * Vertices[VertexIdx], Sections[SectionIndex]);
 			VertexBuffer->NormalWeight = 4.0f;
 			VertexBuffer++;
 		}
 	}
 
-	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_TRIANGLES, 16, 6 * NumSectionVertices * (Sections.GetSize() - 2), &IndexBuffer);
+	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_TRIANGLES, 16, 6 * NumSectionVertices * (Sections.size() - 2), &IndexBuffer);
 
 	int Offset1, Offset2;
 	if (IsInner)
@@ -1043,7 +1052,7 @@ void lcSynthInfoCurved::AddTubeParts(lcLibraryMeshData& MeshData, const lcArray<
 		Offset2 = 1;
 	}
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 	{
 		for (int VertexIdx = 0; VertexIdx < NumSectionVertices; VertexIdx++)
 		{
@@ -1061,14 +1070,17 @@ void lcSynthInfoCurved::AddTubeParts(lcLibraryMeshData& MeshData, const lcArray<
 	}
 }
 
-void lcSynthInfoFlexSystemHose::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoFlexSystemHose::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const
 {
+	if (Sections.empty())
+		return;
+
 	char Line[256];
 
 	{
-		const int SectionIdx = 0;
-		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(-1.0f, 1.0f, 1.0f)), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, -1.0f, 0.0f), Sections[SectionIdx]);
+		const size_t SectionIndex = 0;
+		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(-1.0f, 1.0f, 1.0f)), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, -1.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f u9053.dat\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1077,9 +1089,9 @@ void lcSynthInfoFlexSystemHose::AddParts(lcMemFile& File, lcLibraryMeshData& Mes
 	}
 
 	{
-		const int SectionIdx = Sections.GetSize() - 1;
-		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f)), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, 1.0f, 0.0f), Sections[SectionIdx]);
+		const size_t SectionIndex = Sections.size() - 1;
+		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f)), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, 1.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f u9053.dat\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1091,15 +1103,18 @@ void lcSynthInfoFlexSystemHose::AddParts(lcMemFile& File, lcLibraryMeshData& Mes
 	AddTubeParts(MeshData, Sections, 2.0f, true);
 }
 
-void lcSynthInfoPneumaticTube::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoPneumaticTube::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const
 {
+	if (Sections.empty())
+		return;
+
 	char Line[256];
 
 	{
-		const int SectionIdx = 0;
+		const size_t SectionIndex = 0;
 		lcMatrix33 EdgeTransform(lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f, -1.0f, 0.0f), lcVector3(1.0f, 0.0f, 0.0f));
-		lcMatrix33 Transform(lcMul(lcMul(EdgeTransform, lcMatrix33Scale(lcVector3(1.0f, 1.0f, 1.0f))), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, 0.0f, 0.0f), Sections[SectionIdx]);
+		lcMatrix33 Transform(lcMul(lcMul(EdgeTransform, lcMatrix33Scale(lcVector3(1.0f, 1.0f, 1.0f))), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, 0.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2],
@@ -1109,10 +1124,10 @@ void lcSynthInfoPneumaticTube::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 	}
 
 	{
-		const int SectionIdx = Sections.GetSize() - 1;
+		const size_t SectionIndex = Sections.size() - 1;
 		lcMatrix33 EdgeTransform(lcVector3(0.0f, 0.0f, -1.0f), lcVector3(0.0f, -1.0f, 0.0f), lcVector3(1.0f, 0.0f, 0.0f));
-		lcMatrix33 Transform(lcMul(lcMul(EdgeTransform, lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, 0.0f, 0.0f), Sections[SectionIdx]);
+		lcMatrix33 Transform(lcMul(lcMul(EdgeTransform, lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, 0.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2],
@@ -1125,14 +1140,17 @@ void lcSynthInfoPneumaticTube::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 	AddTubeParts(MeshData, Sections, 3.0f, true);
 }
 
-void lcSynthInfoRibbedHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoRibbedHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const std::vector<lcMatrix44>& Sections) const
 {
+	if (Sections.empty())
+		return;
+
 	char Line[256];
 
 	{
-		const int SectionIdx = 0;
-		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f)), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = Sections[SectionIdx].GetTranslation();
+		const int SectionIndex = 0;
+		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f)), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = Sections[SectionIndex].GetTranslation();
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f 79.dat\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1140,9 +1158,9 @@ void lcSynthInfoRibbedHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const 
 		File.WriteBuffer(Line, strlen(Line));
 	}
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 	{
-		const lcMatrix44& Transform = Sections[SectionIdx];
+		const lcMatrix44& Transform = Sections[SectionIndex];
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f 80.dat\n", Transform[3][0], Transform[3][1], Transform[3][2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1151,9 +1169,9 @@ void lcSynthInfoRibbedHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const 
 	}
 
 	{
-		const int SectionIdx = Sections.GetSize() - 1;
-		lcMatrix33 Transform(Sections[SectionIdx]);
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, -6.25f, 0.0f), Sections[SectionIdx]);
+		const size_t SectionIndex = Sections.size() - 1;
+		lcMatrix33 Transform(Sections[SectionIndex]);
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, -6.25f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f 79.dat\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1162,8 +1180,11 @@ void lcSynthInfoRibbedHose::AddParts(lcMemFile& File, lcLibraryMeshData&, const 
 	}
 }
 
-void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& Sections) const
 {
+	if (Sections.empty())
+		return;
+
 	char Line[256];
 	const int NumEdgeParts = 6;
 
@@ -1184,9 +1205,9 @@ void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshD
 
 	for (int PartIdx = 0; PartIdx < NumEdgeParts; PartIdx++)
 	{
-		const int SectionIdx = 0;
-		lcMatrix33 Transform(lcMul(lcMul(EdgeTransforms[PartIdx], lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, -4.0f * (5 - PartIdx), 0.0f), Sections[SectionIdx]);
+		const int SectionIndex = 0;
+		lcMatrix33 Transform(lcMul(lcMul(EdgeTransforms[PartIdx], lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f))), lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, -4.0f * (5 - PartIdx), 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
@@ -1196,9 +1217,9 @@ void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshD
 
 	for (int PartIdx = 0; PartIdx < NumEdgeParts; PartIdx++)
 	{
-		const int SectionIdx = Sections.GetSize() - 1;
-		lcMatrix33 Transform(lcMul(EdgeTransforms[PartIdx], lcMatrix33(Sections[SectionIdx])));
-		lcVector3 Offset = lcMul31(lcVector3(0.0f, 4.0f * (5 - PartIdx), 0.0f), Sections[SectionIdx]);
+		const size_t SectionIndex = Sections.size() - 1;
+		lcMatrix33 Transform(lcMul(EdgeTransforms[PartIdx], lcMatrix33(Sections[SectionIndex])));
+		lcVector3 Offset = lcMul31(lcVector3(0.0f, 4.0f * (5 - PartIdx), 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
@@ -1243,15 +1264,15 @@ void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshD
 	int BaseVertex;
 	lcMeshLoaderVertex* VertexBuffer;
 	quint32* IndexBuffer;
-	MeshData.AddVertices(LC_MESHDATA_SHARED, NumSectionVertices * (Sections.GetSize() - 1), &BaseVertex, &VertexBuffer);
-	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_LINES, 24, 2 * 12 * (Sections.GetSize() - 2), &IndexBuffer);
+	MeshData.AddVertices(LC_MESHDATA_SHARED, NumSectionVertices * (Sections.size() - 1), &BaseVertex, &VertexBuffer);
+	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_LINES, 24, 2 * 12 * (Sections.size() - 2), &IndexBuffer);
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize(); SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size(); SectionIndex++)
 	{
 		for (int VertexIdx = 0; VertexIdx < NumSectionVertices; VertexIdx++)
 		{
-			VertexBuffer->Position = lcMul31(SectionVertices[VertexIdx].Position, Sections[SectionIdx]);
-			VertexBuffer->Normal = lcMul30(SectionVertices[VertexIdx].Normal, Sections[SectionIdx]);
+			VertexBuffer->Position = lcMul31(SectionVertices[VertexIdx].Position, Sections[SectionIndex]);
+			VertexBuffer->Normal = lcMul30(SectionVertices[VertexIdx].Normal, Sections[SectionIndex]);
 			VertexBuffer->NormalWeight = SectionVertices[VertexIdx].NormalWeight;
 			VertexBuffer++;
 		}
@@ -1259,7 +1280,7 @@ void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshD
 
 	int BaseLinesVertex = BaseVertex;
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 	{
 		const int Indices[] = { 1, 3, 5, 8, 10, 12, 15, 17, 19, 22, 24, 26 };
 	
@@ -1272,9 +1293,9 @@ void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshD
 		BaseLinesVertex += NumSectionVertices;
 	}
 
-	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_TRIANGLES, 16, 6 * NumSectionVertices * (Sections.GetSize() - 2), &IndexBuffer);
+	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_TRIANGLES, 16, 6 * NumSectionVertices * (Sections.size() - 2), &IndexBuffer);
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 	{
 		for (int VertexIdx = 0; VertexIdx < NumSectionVertices; VertexIdx++)
 		{
@@ -1292,24 +1313,24 @@ void lcSynthInfoFlexibleAxle::AddParts(lcMemFile& File, lcLibraryMeshData& MeshD
 	}
 }
 
-void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& SectionsIn) const
+void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& MeshData, const std::vector<lcMatrix44>& SectionsIn) const
 {
-	lcArray<lcMatrix44> Sections;
-	Sections.SetSize(SectionsIn.GetSize());
+	std::vector<lcMatrix44> Sections;
+	Sections.resize(SectionsIn.size());
 
-	for (int SectionIdx = 0; SectionIdx < Sections.GetSize(); SectionIdx++)
+	for (size_t SectionIndex = 0; SectionIndex < Sections.size(); SectionIndex++)
 	{
-		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f)), lcMatrix33(SectionsIn[SectionIdx])));
-		lcVector3 Offset = SectionsIn[SectionIdx].GetTranslation();
-		Sections[SectionIdx] = lcMatrix44(Transform, Offset);
+		lcMatrix33 Transform(lcMul(lcMatrix33Scale(lcVector3(1.0f, -1.0f, 1.0f)), lcMatrix33(SectionsIn[SectionIndex])));
+		lcVector3 Offset = SectionsIn[SectionIndex].GetTranslation();
+		Sections[SectionIndex] = lcMatrix44(Transform, Offset);
 	}
 
 	char Line[256];
 
 	{
-		const int SectionIdx = 0;
-		lcMatrix33 Transform(Sections[SectionIdx]);
-		lcVector3 Offset = lcMul31(lcVector3(-8.0f, 0.0f, 0.0f), Sections[SectionIdx]);
+		const int SectionIndex = 0;
+		lcMatrix33 Transform(Sections[SectionIndex]);
+		lcVector3 Offset = lcMul31(lcVector3(-8.0f, 0.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f 572A.dat\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1317,7 +1338,7 @@ void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 		File.WriteBuffer(Line, strlen(Line));
 	}
 
-	const int NumSegments = 16;
+	const size_t NumSegments = 16;
 	const int NumBraids = 4;
 	const float PositionTable[16] =
 	{
@@ -1327,22 +1348,22 @@ void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 	int BaseVertex;
 	lcMeshLoaderVertex* VertexBuffer;
 	quint32* IndexBuffer;
-	MeshData.AddVertices(LC_MESHDATA_SHARED, NumBraids * ((Sections.GetSize() - 2) * NumSegments + 1), &BaseVertex, &VertexBuffer);
-	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_LINES, 24, NumBraids * (Sections.GetSize() - 2) * NumSegments * 2, &IndexBuffer);
+	MeshData.AddVertices(LC_MESHDATA_SHARED, NumBraids * ((Sections.size() - 2) * NumSegments + 1), &BaseVertex, &VertexBuffer);
+	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_LINES, 24, NumBraids * (Sections.size() - 2) * NumSegments * 2, &IndexBuffer);
 
 	for (int BraidIdx = 0; BraidIdx < NumBraids; BraidIdx++)
 	{
 		int BaseX = (BraidIdx == 0 || BraidIdx == 2) ? 0 : 8;
 		int BaseY = (BraidIdx == 0 || BraidIdx == 3) ? 12 : 4;
 
-		for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+		for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 		{
-			lcMatrix33 Transform1 = lcMatrix33(Sections[SectionIdx]);
-			lcMatrix33 Transform2 = lcMatrix33(Sections[SectionIdx + 1]);
-			lcVector3 Offset1 = Sections[SectionIdx].GetTranslation();
-			lcVector3 Offset2 = Sections[SectionIdx + 1].GetTranslation();
+			lcMatrix33 Transform1 = lcMatrix33(Sections[SectionIndex]);
+			lcMatrix33 Transform2 = lcMatrix33(Sections[SectionIndex + 1]);
+			lcVector3 Offset1 = Sections[SectionIndex].GetTranslation();
+			lcVector3 Offset2 = Sections[SectionIndex + 1].GetTranslation();
 
-			for (int SegmentIdx = 0; SegmentIdx < ((SectionIdx < Sections.GetSize() - 2) ? NumSegments : NumSegments + 1); SegmentIdx++)
+			for (size_t SegmentIdx = 0; SegmentIdx < ((SectionIndex < Sections.size() - 2) ? NumSegments : NumSegments + 1); SegmentIdx++)
 			{
 				float t = (float)SegmentIdx / (float)NumSegments;
 
@@ -1369,17 +1390,17 @@ void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 	}
 
 	int NumSlices = 16;
-	MeshData.AddVertices(LC_MESHDATA_SHARED, NumSlices * ((Sections.GetSize() - 2) * NumSegments + 1), &BaseVertex, &VertexBuffer);
-	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_TRIANGLES, 16, NumSlices * (Sections.GetSize() - 2) * NumSegments * 6, &IndexBuffer);
+	MeshData.AddVertices(LC_MESHDATA_SHARED, NumSlices * ((Sections.size() - 2) * NumSegments + 1), &BaseVertex, &VertexBuffer);
+	MeshData.AddIndices(LC_MESHDATA_SHARED, LC_MESH_TRIANGLES, 16, NumSlices * (Sections.size() - 2) * NumSegments * 6, &IndexBuffer);
 
-	for (int SectionIdx = 1; SectionIdx < Sections.GetSize() - 1; SectionIdx++)
+	for (size_t SectionIndex = 1; SectionIndex < Sections.size() - 1; SectionIndex++)
 	{
-		lcMatrix33 Transform1 = lcMatrix33(Sections[SectionIdx]);
-		lcMatrix33 Transform2 = lcMatrix33(Sections[SectionIdx + 1]);
-		lcVector3 Offset1 = Sections[SectionIdx].GetTranslation();
-		lcVector3 Offset2 = Sections[SectionIdx + 1].GetTranslation();
+		lcMatrix33 Transform1 = lcMatrix33(Sections[SectionIndex]);
+		lcMatrix33 Transform2 = lcMatrix33(Sections[SectionIndex + 1]);
+		lcVector3 Offset1 = Sections[SectionIndex].GetTranslation();
+		lcVector3 Offset2 = Sections[SectionIndex + 1].GetTranslation();
 
-		for (int SegmentIdx = 0; SegmentIdx < ((SectionIdx < Sections.GetSize() - 2) ? NumSegments : NumSegments + 1); SegmentIdx++)
+		for (size_t SegmentIdx = 0; SegmentIdx < ((SectionIndex < Sections.size() - 2) ? NumSegments : NumSegments + 1); SegmentIdx++)
 		{
 			float t1 = (float)SegmentIdx / (float)NumSegments;
 			int BaseX = 8;
@@ -1414,9 +1435,9 @@ void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 	}
 
 	{
-		const int SectionIdx = Sections.GetSize() - 1;
-		lcMatrix33 Transform(Sections[SectionIdx]);
-		lcVector3 Offset = lcMul31(lcVector3(8.0f, 0.0f, 0.0f), Sections[SectionIdx]);
+		const size_t SectionIndex = Sections.size() - 1;
+		lcMatrix33 Transform(Sections[SectionIndex]);
+		lcVector3 Offset = lcMul31(lcVector3(8.0f, 0.0f, 0.0f), Sections[SectionIndex]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f 572A.dat\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
 				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2]);
@@ -1425,7 +1446,7 @@ void lcSynthInfoBraidedString::AddParts(lcMemFile& File, lcLibraryMeshData& Mesh
 	}
 }
 
-void lcSynthInfoShockAbsorber::AddParts(lcMemFile& File, lcLibraryMeshData&, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoShockAbsorber::AddParts(lcMemFile& File, lcLibraryMeshData&, const std::vector<lcMatrix44>& Sections) const
 {
 	char Line[256];
 	lcVector3 Offset;
@@ -1446,7 +1467,7 @@ void lcSynthInfoShockAbsorber::AddParts(lcMemFile& File, lcLibraryMeshData&, con
 	File.WriteBuffer(Line, strlen(Line));
 }
 
-void lcSynthInfoActuator::AddParts(lcMemFile& File, lcLibraryMeshData&, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoActuator::AddParts(lcMemFile& File, lcLibraryMeshData&, const std::vector<lcMatrix44>& Sections) const
 {
 	char Line[256];
 	lcVector3 Offset;
@@ -1464,7 +1485,7 @@ void lcSynthInfoActuator::AddParts(lcMemFile& File, lcLibraryMeshData&, const lc
 	File.WriteBuffer(Line, strlen(Line));
 }
 
-void lcSynthInfoUniversalJoint::AddParts(lcMemFile& File, lcLibraryMeshData&, const lcArray<lcMatrix44>& Sections) const
+void lcSynthInfoUniversalJoint::AddParts(lcMemFile& File, lcLibraryMeshData&, const std::vector<lcMatrix44>& Sections) const
 {
 	char Line[256];
 	lcVector3 Offset = Sections[0].GetTranslation();
@@ -1497,9 +1518,9 @@ void lcSynthInfoUniversalJoint::AddParts(lcMemFile& File, lcLibraryMeshData&, co
 	File.WriteBuffer(Line, strlen(Line));
 }
 
-lcMesh* lcSynthInfo::CreateMesh(const lcArray<lcPieceControlPoint>& ControlPoints) const
+lcMesh* lcSynthInfo::CreateMesh(const std::vector<lcPieceControlPoint>& ControlPoints) const
 {
-	lcArray<lcMatrix44> Sections;
+	std::vector<lcMatrix44> Sections;
 
 	CalculateSections(ControlPoints, Sections, nullptr);
 
@@ -1509,8 +1530,6 @@ lcMesh* lcSynthInfo::CreateMesh(const lcArray<lcPieceControlPoint>& ControlPoint
 	AddParts(File, MeshData, Sections);
 
 	File.WriteU8(0);
-
-	lcArray<lcMeshLoaderTextureMap> TextureStack;
 	File.Seek(0, SEEK_SET);
 
 	lcMeshLoader MeshLoader(MeshData, false, nullptr, false);
@@ -1520,11 +1539,11 @@ lcMesh* lcSynthInfo::CreateMesh(const lcArray<lcPieceControlPoint>& ControlPoint
 	return nullptr;
 }
 
-int lcSynthInfo::InsertControlPoint(lcArray<lcPieceControlPoint>& ControlPoints, const lcVector3& Start, const lcVector3& End) const
+int lcSynthInfo::InsertControlPoint(std::vector<lcPieceControlPoint>& ControlPoints, const lcVector3& Start, const lcVector3& End) const
 {
-	lcArray<lcMatrix44> Sections;
+	std::vector<lcMatrix44> Sections;
 
-	int BestSegment = -1;
+	quint32 BestSegment = UINT32_MAX;
 	float BestTime;
 	float BestDistance = FLT_MAX;
 	lcVector3 BestPosition;
@@ -1532,7 +1551,7 @@ int lcSynthInfo::InsertControlPoint(lcArray<lcPieceControlPoint>& ControlPoints,
 	CalculateSections(ControlPoints, Sections,
 		[&](const lcVector3& CurvePoint, int SegmentIndex, float t)
 		{
-			float Distance = lcRayPointDistance(CurvePoint, Start, End);
+			float Distance = lcRayPointDistance(lcVector3LDrawToLeoCAD(CurvePoint), Start, End);
 			if (Distance < BestDistance)
 			{
 				BestSegment = SegmentIndex;
@@ -1543,18 +1562,18 @@ int lcSynthInfo::InsertControlPoint(lcArray<lcPieceControlPoint>& ControlPoints,
 		}
 	);
 
-	if (BestSegment != -1)
+	if (BestSegment != UINT32_MAX)
 	{
 		lcPieceControlPoint ControlPoint = ControlPoints[BestSegment];
 		ControlPoint.Transform.SetTranslation(BestPosition);
 
-		if (BestSegment != ControlPoints.GetSize() - 1)
+		if (BestSegment != ControlPoints.size() - 1)
 		{
 			lcPieceControlPoint NextControlPoint = ControlPoints[BestSegment + 1];
 			ControlPoint.Scale = ControlPoint.Scale * (1.0f - BestTime) + NextControlPoint.Scale * BestTime;
 		}
 
-		ControlPoints.InsertAt(BestSegment + 1, ControlPoint);
+		ControlPoints.insert(ControlPoints.begin() + BestSegment + 1, ControlPoint);
 	}
 
 	return BestSegment + 1;

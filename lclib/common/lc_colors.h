@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lc_array.h"
 #include "lc_math.h"
 
 #define LC_MAX_COLOR_NAME 64
@@ -13,6 +12,8 @@ struct lcColor
 	quint32 Code;
 	int Group;
 	bool Translucent = false;
+	bool Chrome = false;
+	bool Rubber = false;
 	bool Adjusted = false;
 	lcVector4 Value;
 	lcVector4 Edge;
@@ -69,4 +70,14 @@ inline quint32 lcGetColorCode(int ColorIndex)
 inline bool lcIsColorTranslucent(size_t ColorIndex)
 {
 	return gColorList[ColorIndex].Translucent;
+}
+
+inline bool lcIsColorChrome(size_t ColorIndex)
+{
+	return gColorList[ColorIndex].Chrome;
+}
+
+inline bool lcIsColorRubber(size_t ColorIndex)
+{
+	return gColorList[ColorIndex].Rubber;
 }

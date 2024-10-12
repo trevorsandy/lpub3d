@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lc_array.h"
 #include "lc_math.h"
 #include "lc_mesh.h"
 
@@ -55,15 +54,14 @@ class lcMeshLoaderSection
 {
 public:
 	lcMeshLoaderSection(lcMeshPrimitiveType PrimitiveType, lcMeshLoaderMaterial* Material)
-/*** LPub3D Mod - use std::vector for lcArray ***/	
-		: mMaterial(Material), mPrimitiveType(PrimitiveType), mIndices(1024)
-/*** LPub3D Mod end ***/		
+		: mMaterial(Material), mPrimitiveType(PrimitiveType)
 	{
+		mIndices.reserve(1024);
 	}
 
 	lcMeshLoaderMaterial* mMaterial;
 	lcMeshPrimitiveType mPrimitiveType;
-	lcArray<quint32> mIndices;
+	std::vector<quint32> mIndices;
 };
 
 struct lcMeshLoaderFinalSection
@@ -98,13 +96,7 @@ struct lcMeshLoaderTextureMap
 class lcMeshLoaderTypeData
 {
 public:
-	lcMeshLoaderTypeData()
-	{
-/*** LPub3D Mod - use std::vector for lcArray ***/		
-//		mVertices.SetGrow(1024);
-//		mConditionalVertices.SetGrow(1024);
-/*** LPub3D Mod end ***/		
-	}
+	lcMeshLoaderTypeData() = default;
 
 	lcMeshLoaderTypeData(const lcMeshLoaderTypeData&) = delete;
 	lcMeshLoaderTypeData& operator=(const lcMeshLoaderTypeData&) = delete;
@@ -117,8 +109,8 @@ public:
 	void Clear()
 	{
 		mSections.clear();
-		mVertices.RemoveAll();
-		mConditionalVertices.RemoveAll();
+		mVertices.clear();
+		mConditionalVertices.clear();
 	}
 
 	void SetMeshData(lcLibraryMeshData* MeshData)
@@ -138,8 +130,8 @@ public:
 	void AddMeshDataNoDuplicateCheck(const lcMeshLoaderTypeData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap);
 
 	std::vector<std::unique_ptr<lcMeshLoaderSection>> mSections;
-	lcArray<lcMeshLoaderVertex> mVertices;
-	lcArray<lcMeshLoaderConditionalVertex> mConditionalVertices;
+	std::vector<lcMeshLoaderVertex> mVertices;
+	std::vector<lcMeshLoaderConditionalVertex> mConditionalVertices;
 
 protected:
 	lcLibraryMeshData* mMeshData = nullptr;
@@ -184,8 +176,8 @@ public:
 	}
 
 	lcMesh* CreateMesh();
-	void AddVertices(lcMeshDataType MeshDataType, int VertexCount, int* BaseVertex, lcMeshLoaderVertex** VertexBuffer);
-	void AddIndices(lcMeshDataType MeshDataType, lcMeshPrimitiveType PrimitiveType, quint32 ColorCode, int IndexCount, quint32** IndexBuffer);
+	void AddVertices(lcMeshDataType MeshDataType, size_t VertexCount, int* BaseVertex, lcMeshLoaderVertex** VertexBuffer);
+	void AddIndices(lcMeshDataType MeshDataType, lcMeshPrimitiveType PrimitiveType, quint32 ColorCode, size_t IndexCount, quint32** IndexBuffer);
 	void AddMeshData(const lcLibraryMeshData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
 	void AddMeshDataNoDuplicateCheck(const lcLibraryMeshData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
 
@@ -199,7 +191,7 @@ public:
 protected:
 	lcMeshLoader* mMeshLoader = nullptr;
 	std::vector<std::unique_ptr<lcMeshLoaderMaterial>> mMaterials;
-	lcArray<lcMeshLoaderTexturedVertex> mTexturedVertices;
+	std::vector<lcMeshLoaderTexturedVertex> mTexturedVertices;
 
 	void GenerateTexturedVertices();
 	void GeneratePlanarTexcoords(lcMeshLoaderSection* Section, const lcMeshLoaderTypeData& Data);
@@ -208,7 +200,7 @@ protected:
 	quint32 AddTexturedVertex(const lcVector3& Position, const lcVector3& Normal, const lcVector2& TexCoords);
 
 	template<typename IndexType>
-	void WriteSections(lcMesh* Mesh, const lcArray<lcMeshLoaderFinalSection> (&FinalSections)[LC_NUM_MESH_LODS], int (&BaseVertices)[LC_NUM_MESHDATA_TYPES], int (&BaseConditionalVertices)[LC_NUM_MESHDATA_TYPES]);
+	void WriteSections(lcMesh* Mesh, const std::vector<lcMeshLoaderFinalSection> (&FinalSections)[LC_NUM_MESH_LODS], int (&BaseVertices)[LC_NUM_MESHDATA_TYPES], int (&BaseConditionalVertices)[LC_NUM_MESHDATA_TYPES]);
 
 	static void UpdateMeshBoundingBox(lcMesh* Mesh);
 	template<typename IndexType>

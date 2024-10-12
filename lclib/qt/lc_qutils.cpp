@@ -2,7 +2,9 @@
 #include "lc_qutils.h"
 #include "lc_application.h"
 #include "lc_library.h"
+#include "lc_model.h"
 #include "pieceinf.h"
+#include "lc_partselectionwidget.h"
 
 QString lcFormatValue(float Value, int Precision)
 {
@@ -101,4 +103,167 @@ bool lcQTreeWidgetColumnStretcher::eventFilter(QObject* Object, QEvent* Event)
 		}
 	}
 	return false;
+}
+
+lcPieceIdStringModel::lcPieceIdStringModel(lcModel* Model, QObject* Parent)
+	: QAbstractListModel(Parent)
+{
+	lcPiecesLibrary* Library = lcGetPiecesLibrary();
+	mSortedPieces.reserve(Library->mPieces.size());
+
+	for (const auto& PartIt : Library->mPieces)
+	{
+		PieceInfo* Info = PartIt.second;
+
+		if (!Info->IsModel() || !Info->GetModel()->IncludesModel(Model))
+			mSortedPieces.push_back(PartIt.second);
+	}
+
+	auto PieceCompare = [](PieceInfo* Info1, PieceInfo* Info2)
+	{
+		return strcmp(Info1->m_strDescription, Info2->m_strDescription) < 0;
+	};
+
+	std::sort(mSortedPieces.begin(), mSortedPieces.end(), PieceCompare);
+}
+
+QModelIndex lcPieceIdStringModel::Index(PieceInfo* Info) const
+{
+	for (size_t PieceInfoIndex = 0; PieceInfoIndex < mSortedPieces.size(); PieceInfoIndex++)
+		if (mSortedPieces[PieceInfoIndex] == Info)
+			return index(static_cast<int>(PieceInfoIndex), 0);
+
+	return QModelIndex();
+}
+
+std::vector<bool> lcPieceIdStringModel::GetFilteredRows(const QString& FilterText) const
+{
+	const std::string Text = FilterText.toStdString();
+	std::vector<bool> FilteredRows(mSortedPieces.size());
+
+	for (size_t PieceInfoIndex = 0; PieceInfoIndex < mSortedPieces.size(); PieceInfoIndex++)
+	{
+		const PieceInfo* Info = mSortedPieces[PieceInfoIndex];
+
+		FilteredRows[PieceInfoIndex] = (strcasestr(Info->m_strDescription, Text.c_str()) || strcasestr(Info->mFileName, Text.c_str()));
+	}
+
+	return FilteredRows;
+}
+
+int lcPieceIdStringModel::rowCount(const QModelIndex& Parent) const
+{
+	Q_UNUSED(Parent);
+
+	return static_cast<int>(mSortedPieces.size());
+}
+
+QVariant lcPieceIdStringModel::data(const QModelIndex& Index, int Role) const
+{
+	if (Index.row() < static_cast<int>(mSortedPieces.size()))
+	{
+		if (Role == Qt::DisplayRole)
+			return QString::fromLatin1(mSortedPieces[Index.row()]->m_strDescription);
+		else if (Role == Qt::UserRole)
+			return QVariant::fromValue(reinterpret_cast<void*>(mSortedPieces[Index.row()]));
+	}
+
+	return QVariant();
+}
+
+lcPieceIdPickerPopup::lcPieceIdPickerPopup(PieceInfo* Current, QWidget* Parent)
+	: QWidget(Parent), mInitialPart(Current)
+{
+	QVBoxLayout* Layout = new QVBoxLayout(this);
+
+	mPartSelectionWidget = new lcPartSelectionWidget(this);
+	Layout->addWidget(mPartSelectionWidget);
+
+	mPartSelectionWidget->setMinimumWidth(450);
+
+	connect(mPartSelectionWidget, &lcPartSelectionWidget::PartPicked, this, &lcPieceIdPickerPopup::PartPicked);
+
+	QDialogButtonBox* ButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, this);
+	Layout->addWidget(ButtonBox);
+
+	QObject::connect(ButtonBox, &QDialogButtonBox::accepted, this, &lcPieceIdPickerPopup::Accept);
+	QObject::connect(ButtonBox, &QDialogButtonBox::rejected, this, &lcPieceIdPickerPopup::Reject);
+}
+
+void lcPieceIdPickerPopup::showEvent(QShowEvent* ShowEvent)
+{
+	QWidget::showEvent(ShowEvent);
+
+	mPartSelectionWidget->SetOrientation(Qt::Horizontal);
+	mPartSelectionWidget->SetCurrentPart(mInitialPart);
+}
+
+void lcPieceIdPickerPopup::Accept()
+{
+	PieceInfo* Info = mPartSelectionWidget->GetCurrentPart();
+
+	emit PieceIdSelected(Info);
+
+	Close();
+}
+
+void lcPieceIdPickerPopup::Reject()
+{
+	Close();
+}
+
+void lcPieceIdPickerPopup::PartPicked(PieceInfo* Info)
+{
+	emit PieceIdSelected(Info);
+
+	Close();
+}
+
+void lcPieceIdPickerPopup::Close()
+{
+	QMenu* Menu = qobject_cast<QMenu*>(parent());
+
+	if (Menu)
+		Menu->close();
+}
+
+lcColorDialogPopup::lcColorDialogPopup(const QColor& InitialColor, QWidget* Parent)
+	: QWidget(Parent)
+{
+	QVBoxLayout* Layout = new QVBoxLayout(this);
+	Layout->setContentsMargins(0, 0, 0, 0);
+
+	mColorDialog = new QColorDialog(InitialColor, this);
+	mColorDialog->setWindowFlags(Qt::Widget);
+	mColorDialog->setOptions(QColorDialog::DontUseNativeDialog | QColorDialog::NoButtons);
+
+	Layout->addWidget(mColorDialog);
+
+	QDialogButtonBox* ButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, this);
+	Layout->addWidget(ButtonBox);
+
+	QObject::connect(ButtonBox, &QDialogButtonBox::accepted, this, &lcColorDialogPopup::Accept);
+	QObject::connect(ButtonBox, &QDialogButtonBox::rejected, this, &lcColorDialogPopup::Reject);
+}
+
+void lcColorDialogPopup::Accept()
+{
+	QColor Color = mColorDialog->currentColor();
+
+	emit ColorSelected(Color);
+
+	Close();
+}
+
+void lcColorDialogPopup::Reject()
+{
+	Close();
+}
+
+void lcColorDialogPopup::Close()
+{
+	QMenu* Menu = qobject_cast<QMenu*>(parent());
+
+	if (Menu)
+		Menu->close();
 }

@@ -104,12 +104,10 @@ void lcQUpdateDialog::DownloadFinished(lcHttpReply *reply)
 				}
 			}
 
-/*** LPub3D Mod - set Visual Editor label ***/
 			if (updateAvailable)
-				status = QString(tr("<p>There's a newer version of Visual Editor available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
+				status = QString(tr("<p>There's a newer version of LeoCAD available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
 			else
-				status = tr("<p>You are using the latest Visual Editor version.</p>");
-/*** LPub3D Mod end ***/
+				status = tr("<p>You are using the latest LeoCAD version.</p>");
 
 			lcPiecesLibrary* library = lcGetPiecesLibrary();
 

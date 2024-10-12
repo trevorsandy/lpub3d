@@ -108,11 +108,26 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Export the current model in Wavefront OBJ format"),
 		""
 	},
-	// LC_FILE_RENDER
+	// LC_FILE_RENDER_POVRAY
 	{
-		QT_TRANSLATE_NOOP("Action", "File.Render"),
-		QT_TRANSLATE_NOOP("Menu", "&Render..."),
+		QT_TRANSLATE_NOOP("Action", "File.Render.POVRay"),
+		QT_TRANSLATE_NOOP("Menu", "&POV-Ray Render..."),
 		QT_TRANSLATE_NOOP("Status", "Render the current model using POV-Ray"),
+		""
+	},
+	// LC_FILE_RENDER_BLENDER
+	{
+		QT_TRANSLATE_NOOP("Action", "File.Render.Blender"),
+		QT_TRANSLATE_NOOP("Menu", "&Blender Render..."),
+		QT_TRANSLATE_NOOP("Status", "Render the current model using Blender"),
+		""
+	},
+
+	// LC_FILE_RENDER_OPEN_IN_BLENDER
+	{
+		QT_TRANSLATE_NOOP("Action", "File.Render.OpenInBlender"),
+		QT_TRANSLATE_NOOP("Menu", "&Open In Blender..."),
+		QT_TRANSLATE_NOOP("Status", "Open the current model in Blender"),
 		""
 	},
 	// LC_FILE_INSTRUCTIONS
@@ -628,32 +643,30 @@ const lcCommand gCommands[] =
 	},
 	// LC_EDIT_ACTION_POINT_LIGHT
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
-		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.PointLight"),
+		QT_TRANSLATE_NOOP("Menu", "Point Light"),
+		QT_TRANSLATE_NOOP("Status", "Add new point light sources to the model"),
 		""
 	},
-/*** LPub3D Mod - enable lights ***/
-	// LC_EDIT_ACTION_SUN_LIGHT
+	// LC_EDIT_ACTION_SPOTLIGHT
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
-		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in Properties tab"),
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.SpotLight"),
+		QT_TRANSLATE_NOOP("Menu", "Spot Light"),
+		QT_TRANSLATE_NOOP("Status", "Add new spot lights to the model"),
+		""
+	},
+	// LC_EDIT_ACTION_DIRECTIONAL_LIGHT
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.DirectionalLight"),
+		QT_TRANSLATE_NOOP("Menu", "Directional Light"),
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional light sources to the model"),
 		""
 	},
 	// LC_EDIT_ACTION_AREA_LIGHT
 	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
-		QT_TRANSLATE_NOOP("Menu", "Arealight"),
-		QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in Properties tab"),
-		""
-	},
-/*** LPub3D Mod end ***/
-	// LC_EDIT_ACTION_SPOT_LIGHT
-	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
-		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in Properties tab"),  /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.AreaLight"),
+		QT_TRANSLATE_NOOP("Menu", "Area Light"),
+		QT_TRANSLATE_NOOP("Status", "Add new area light sources to the model"),
 		""
 	},
 	// LC_EDIT_ACTION_CAMERA
@@ -1386,7 +1399,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Status", "Make copies of the selected pieces"),
 		""
 	},
-	// 	LC_PIECE_VIEW_SELECTED_MODEL
+	//  LC_PIECE_VIEW_SELECTED_MODEL
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.ViewSelectedModel"),
 		QT_TRANSLATE_NOOP("Menu", "View Selected Model"),                                             /*** LPub3D Mod - LPub3D Menu update ***/
@@ -1882,24 +1895,24 @@ LC_ARRAY_SIZE_CHECK(gCommands, LC_NUM_COMMANDS);
 
 const char* gToolNames[] =
 {
-	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),      // lcTool::Insert
-	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // lcTool::PointLight
-	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),   // lcTool::NewSunLight  /*** LPub3D Mod - enable lights ***/
-	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // lcTool::NewAreaLight /*** LPub3D Mod - enable lights ***/
-	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),  // lcTool::SpotLight
-	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),     // lcTool::Camera
-	QT_TRANSLATE_NOOP("Mouse", "Select"),        // lcTool::Select
-	QT_TRANSLATE_NOOP("Mouse", "Move"),          // lcTool::Move
-	QT_TRANSLATE_NOOP("Mouse", "Rotate"),        // lcTool::Rotate
-	QT_TRANSLATE_NOOP("Mouse", "Delete"),        // lcTool::Eraser
-	QT_TRANSLATE_NOOP("Mouse", "Paint"),         // lcTool::Paint
-	QT_TRANSLATE_NOOP("Mouse", "ColorPicker"),   // lcTool::ColorPicker
-	QT_TRANSLATE_NOOP("Mouse", "Zoom"),          // lcTool::Zoom
-	QT_TRANSLATE_NOOP("Mouse", "Pan"),           // lcTool::Pan
-	QT_TRANSLATE_NOOP("Mouse", "Orbit"),         // lcTool::RotateView
-	QT_TRANSLATE_NOOP("Mouse", "Roll"),          // lcTool::Roll
-	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion"),    // lcTool::ZoomRegion
-	QT_TRANSLATE_NOOP("Mouse", "RotateStep")     // lcTool::RotateStep  /*** LPub3D Mod - Rotate Step Menu ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),            // lcTool::Insert
+	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"),       // lcTool::PointLight
+	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),        // lcTool::SpotLight
+	QT_TRANSLATE_NOOP("Mouse", "NewDirectionalLight"), // lcTool::DirectionalLight
+	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),        // lcTool::AreaLight
+	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),           // lcTool::Camera
+	QT_TRANSLATE_NOOP("Mouse", "Select"),              // lcTool::Select
+	QT_TRANSLATE_NOOP("Mouse", "Move"),                // lcTool::Move
+	QT_TRANSLATE_NOOP("Mouse", "Rotate"),              // lcTool::Rotate
+	QT_TRANSLATE_NOOP("Mouse", "Delete"),              // lcTool::Eraser
+	QT_TRANSLATE_NOOP("Mouse", "Paint"),               // lcTool::Paint
+	QT_TRANSLATE_NOOP("Mouse", "ColorPicker"),         // lcTool::ColorPicker
+	QT_TRANSLATE_NOOP("Mouse", "Zoom"),                // lcTool::Zoom
+	QT_TRANSLATE_NOOP("Mouse", "Pan"),                 // lcTool::Pan
+	QT_TRANSLATE_NOOP("Mouse", "Orbit"),               // lcTool::RotateView
+	QT_TRANSLATE_NOOP("Mouse", "Roll"),                // lcTool::Roll
+	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion"),          // lcTool::ZoomRegion
+	QT_TRANSLATE_NOOP("Mouse", "RotateStep")           // lcTool::RotateStep  /*** LPub3D Mod - Rotate Step Menu ***/
 };
 
 LC_ARRAY_SIZE_CHECK(gToolNames, lcTool::Count);

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lc_array.h"
-
 #ifdef DeleteFile
 #undef DeleteFile
 #endif
@@ -10,9 +8,8 @@ class lcFile;
 
 // Date/time info.
 /*** LPub3D Mod - resolve quazip\unzip conflict ***/
-//struct tm_unz
-struct tm_unz_lc_zip
-
+struct tm_unz_lc_zip // rename tm_unz
+/*** LPub3D Mod end ***/
 {
 	quint32 tm_sec;            // seconds after the minute - [0,59]
 	quint32 tm_min;            // minutes after the hour - [0,59]
@@ -21,8 +18,6 @@ struct tm_unz_lc_zip
 	quint32 tm_mon;            // months since January - [0,11]
 	quint32 tm_year;           // years - [1980..2044]
 };
-/*** LPub3D Mod end ***/
-
 
 // Information about a file in the zipfile.
 struct lcZipFileInfo
@@ -46,8 +41,7 @@ struct lcZipFileInfo
 	quint64 offset_curfile;       // relative offset of local header 8 bytes
 	char file_name[256];
 /*** LPub3D Mod - resolve quazip\unzip conflict ***/
-	//tm_unz tmu_date;
-	tm_unz_lc_zip tmu_date;
+	tm_unz_lc_zip tmu_date; // rename tm_unz
 /*** LPub3D Mod end ***/
 
 	lcMemFile* write_buffer;
@@ -69,10 +63,10 @@ public:
 	bool OpenRead(std::unique_ptr<lcFile> File);
 	bool OpenWrite(const QString& FileName);
 
-	bool ExtractFile(int FileIndex, lcMemFile& File, quint32 MaxLength = 0xffffffff);
+	bool ExtractFile(quint32 FileIndex, lcMemFile& File, quint32 MaxLength = 0xffffffff);
 	bool ExtractFile(const char* FileName, lcMemFile& File, quint32 MaxLength = 0xffffffff);
 
-	lcArray<lcZipFileInfo> mFiles;
+	std::vector<lcZipFileInfo> mFiles;
 
 protected:
 	bool Open();

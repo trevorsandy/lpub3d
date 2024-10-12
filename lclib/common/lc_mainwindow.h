@@ -2,7 +2,6 @@
 
 #include "lc_application.h"
 #include "lc_shortcuts.h"
-#include "lc_array.h"
 #include "lc_commands.h"
 #include "lc_model.h"
 
@@ -17,7 +16,7 @@ class lcPreviewDockWidget;
 class PiecePreview;
 class lcQPartsTree;
 class lcColorList;
-class lcQPropertiesTree;
+class lcPropertiesWidget;
 class lcTimelineWidget;
 class lcElidedLabel;
 #ifdef QT_NO_PRINTER
@@ -281,7 +280,6 @@ public:
 	void SetAngleSnapIndex(int Index);
 	void SetRelativeTransform(bool RelativeTransform);
 	void SetSeparateTransform(bool SelectionTransform);
-	void SetCurrentPieceInfo(PieceInfo* Info);
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
 	void ToggleViewSphere();
@@ -323,8 +321,6 @@ public:
 	void UpdateSnap();
 	void UpdateColor();
 	void UpdateUndoRedo(const QString& UndoText, const QString& RedoText);
-	void UpdatePerspective();
-	void UpdateCameraMenu();
 	void UpdateShadingMode();
 	void UpdateSelectionMode();
 	void UpdateModels();
@@ -366,6 +362,7 @@ public slots:
 	void ProjectFileChanged(const QString& Path);
 	void PreviewPiece(const QString& PartId, int ColorCode, bool ShowPreview);
 	void TogglePreviewWidget(bool Visible);
+	void SetCurrentPieceInfo(PieceInfo* Info);
 /*** LPub3D Mod - relocate new project ***/
 	void NewProject();               // move from public:
 /*** LPub3D Mod end ***/
@@ -408,8 +405,9 @@ signals:
 /*** LPub3D Mod end ***/
 
 protected slots:
+	void CameraMenuAboutToShow();
+	void ProjectionMenuAboutToShow();
 	void ViewFocusReceived();
-	void ViewCameraChanged();
 	void UpdateDockWidgetActions();
 	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);
@@ -419,6 +417,7 @@ protected slots:
 	void ClipboardChanged();
 	void ActionTriggered();
 	void ColorChanged(int ColorIndex);
+	void PartListPicked(PieceInfo* Info);
 	void ColorButtonClicked();
 	void Print(QPrinter* Printer);
 	void EnableWindowFlags(bool);
@@ -440,7 +439,7 @@ protected:
 	void ShowUpdatesDialog();
 	void ShowAboutDialog();
 	void ShowHTMLDialog();
-	void ShowRenderDialog();
+	void ShowRenderDialog(int Command);
 	void ShowInstructionsDialog();
 	void ShowPrintDialog();
 /*** LPub3D Mod - preview widget for LPub3D ***/
@@ -500,7 +499,7 @@ protected:
 	lcPartSelectionWidget* mPartSelectionWidget;
 	lcColorList* mColorList;
 	QToolButton* mColorButton;
-	lcQPropertiesTree* mPropertiesWidget;
+	lcPropertiesWidget* mPropertiesWidget;
 	lcTimelineWidget* mTimelineWidget;
 	QLineEdit* mTransformXEdit;
 	QLineEdit* mTransformYEdit;

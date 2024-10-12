@@ -80,6 +80,7 @@ public slots:
 /*** LPub3D Mod end ***/
 	void AutomateEdgeColor();
 	void on_AutomateEdgeColor_toggled();
+	void on_BlenderAddonSettingsButton_clicked();
 	void on_studStyleCombo_currentIndexChanged(int index);
 	void on_antiAliasing_toggled();
 	void on_edgeLines_toggled();

@@ -10,179 +10,141 @@ lcObject::~lcObject()
 {
 }
 
-template void lcObjectKeyArray<float>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<float>::LoadKeysLDraw(QTextStream& Stream);
-template const float& lcObjectKeyArray<float>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<float>::ChangeKey(const float& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<float>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<float>::RemoveTime(lcStep Start, lcStep Time);
+QString lcObject::GetCheckpointString(lcObjectPropertyId PropertyId)
+{
+	switch (PropertyId)
+	{
+	case lcObjectPropertyId::PieceId:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Piece Id");
 
-template void lcObjectKeyArray<lcVector3>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcVector3>::LoadKeysLDraw(QTextStream& Stream);
-template const lcVector3& lcObjectKeyArray<lcVector3>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcVector3>::ChangeKey(const lcVector3& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcVector3>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcVector3>::RemoveTime(lcStep Start, lcStep Time);
+	case lcObjectPropertyId::PieceColor:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Piece Color");
 
-template void lcObjectKeyArray<lcVector4>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcVector4>::LoadKeysLDraw(QTextStream& Stream);
-template const lcVector4& lcObjectKeyArray<lcVector4>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcVector4>::ChangeKey(const lcVector4& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcVector4>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcVector4>::RemoveTime(lcStep Start, lcStep Time);
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::PieceType:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Piece Type");
 
-template void lcObjectKeyArray<lcMatrix33>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcMatrix33>::LoadKeysLDraw(QTextStream& Stream);
-template const lcMatrix33& lcObjectKeyArray<lcMatrix33>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcMatrix33>::ChangeKey(const lcMatrix33& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcMatrix33>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcMatrix33>::RemoveTime(lcStep Start, lcStep Time);
+	case lcObjectPropertyId::PieceFileID:
+	case lcObjectPropertyId::PieceModel:
+	case lcObjectPropertyId::PieceIsSubmodel:
+/*** LPub3D Mod end ***/
+	case lcObjectPropertyId::PieceStepShow:
+	case lcObjectPropertyId::PieceStepHide:
+		break;
 
-/*** LPub3D Mod - enable lights ***/
-template void lcObjectKeyArray<int>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<int>::LoadKeysLDraw(QTextStream& Stream);
-template const int& lcObjectKeyArray<int>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<int>::ChangeKey(const int& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<int>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<int>::RemoveTime(lcStep Start, lcStep Time);
+	case lcObjectPropertyId::CameraName:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Renaming Camera");
 
-template void lcObjectKeyArray<lcVector2>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const;
-template void lcObjectKeyArray<lcVector2>::LoadKeysLDraw(QTextStream& Stream);
-template const lcVector2& lcObjectKeyArray<lcVector2>::CalculateKey(lcStep Step) const;
-template void lcObjectKeyArray<lcVector2>::ChangeKey(const lcVector2& Value, lcStep Step, bool AddKey);
-template void lcObjectKeyArray<lcVector2>::InsertTime(lcStep Start, lcStep Time);
-template void lcObjectKeyArray<lcVector2>::RemoveTime(lcStep Start, lcStep Time);
+	case lcObjectPropertyId::CameraType:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Camera Type");
+
+	case lcObjectPropertyId::CameraFOV:
+	case lcObjectPropertyId::CameraNear:
+	case lcObjectPropertyId::CameraFar:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraLatitude:
+	case lcObjectPropertyId::CameraLongitude:
+	case lcObjectPropertyId::CameraDistance:
+/*** LPub3D Mod end ***/	
+	case lcObjectPropertyId::CameraPositionX:
+	case lcObjectPropertyId::CameraPositionY:
+	case lcObjectPropertyId::CameraPositionZ:
+	case lcObjectPropertyId::CameraTargetX:
+	case lcObjectPropertyId::CameraTargetY:
+	case lcObjectPropertyId::CameraTargetZ:
+	case lcObjectPropertyId::CameraUpX:
+	case lcObjectPropertyId::CameraUpY:
+	case lcObjectPropertyId::CameraUpZ:
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::CameraImageScale:
+	case lcObjectPropertyId::CameraImageResolution:
+	case lcObjectPropertyId::CameraImageWidth:
+	case lcObjectPropertyId::CameraImageHeight:
+	case lcObjectPropertyId::CameraImagePageWidth:
+	case lcObjectPropertyId::CameraImagePageHeight:
+/*** LPub3D Mod end ***/	
+		break;
+
+	case lcObjectPropertyId::LightName:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Renaming Light");
+
+	case lcObjectPropertyId::LightType:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Type");
+
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightFormat:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Format");
 /*** LPub3D Mod end ***/
 
-template<typename T>
-void lcObjectKeyArray<T>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const
-{
-	constexpr int Count = sizeof(T) / sizeof(float);
+	case lcObjectPropertyId::LightColor:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Color");
 
-	for (const lcObjectKey<T>& Key : mKeys)
-	{
-/*** LPub3D Mod - LPUB meta command ***/
-		Stream << QLatin1String("0 !LPUB ") << KeyName << Key.Step << ' ';
-/*** LPub3D Mod end ***/	
+	case lcObjectPropertyId::LightBlenderPower:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Blender Power");
 
-		for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
-			Stream << ((float*)&Key.Value)[ValueIdx] << ' ';
+/*** LPub3D Mod - LPUB meta properties ***/
+	case lcObjectPropertyId::LightBlenderCutoffDistance:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Blender Cutoff Distance");
 
-		Stream << QLatin1String("\r\n");
-	}
-}
+	case lcObjectPropertyId::LightBlenderDiffuse:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Blender Diffuse Factor");
+		
+	case lcObjectPropertyId::LightBlenderSpecular:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Blender Specular Factor");
+/*** LPub3D Mod end ***/
+	
+	case lcObjectPropertyId::LightPOVRayPower:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light POV-Ray Power");
 
-template<typename T>
-void lcObjectKeyArray<T>::LoadKeysLDraw(QTextStream& Stream)
-{
-	QString Token;
-	Stream >> Token;
+	case lcObjectPropertyId::LightCastShadow:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Shadow");
 
-	const int Step = Token.toInt();
-	T Value;
+	case lcObjectPropertyId::LightPOVRayFadeDistance:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light POV-Ray Fade Distance");
 
-	constexpr int Count = sizeof(T) / sizeof(float);
+	case lcObjectPropertyId::LightPOVRayFadePower:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light POV-Ray Fade Power");
 
-	for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
-		Stream >> ((float*)&Value)[ValueIdx];
+	case lcObjectPropertyId::LightPointBlenderRadius:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Point Light Blender Radius");
 
-	ChangeKey(Value, Step, true);
-}
+	case lcObjectPropertyId::LightSpotBlenderRadius:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Spot Light Blender Radius");
 
-template<typename T>
-const T& lcObjectKeyArray<T>::CalculateKey(lcStep Step) const
-{
-	const lcObjectKey<T>* PreviousKey = &mKeys[0];
+	case lcObjectPropertyId::LightDirectionalBlenderAngle:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Directional Light Blender Angle");
 
-	for (const lcObjectKey<T>& Key : mKeys)
-	{
-		if (Key.Step > Step)
-			break;
+	case lcObjectPropertyId::LightAreaSizeX:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Area X Size");
 
-		PreviousKey = &Key;
-	}
+	case lcObjectPropertyId::LightAreaSizeY:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Light Area Y Size");
 
-	return PreviousKey->Value;
-}
+	case lcObjectPropertyId::LightSpotConeAngle:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Spot Light Cone Angle");
 
-template<typename T>
-void lcObjectKeyArray<T>::ChangeKey(const T& Value, lcStep Step, bool AddKey)
-{
-	for (typename std::vector<lcObjectKey<T>>::iterator KeyIt = mKeys.begin(); KeyIt != mKeys.end(); KeyIt++)
-	{
-		if (KeyIt->Step < Step)
-			continue;
+	case lcObjectPropertyId::LightSpotPenumbraAngle:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Spot Light Penumbra Angle");
 
-		if (KeyIt->Step == Step)
-			KeyIt->Value = Value;
-		else if (AddKey)
-			mKeys.insert(KeyIt, lcObjectKey<T>{ Step, Value });
-		else if (KeyIt == mKeys.begin())
-			KeyIt->Value = Value;
-		else
-		{
-			KeyIt = KeyIt - 1;
-			KeyIt->Value = Value;
-		}
+	case lcObjectPropertyId::LightSpotPOVRayTightness:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Spot Light POV-Ray Tightness");
 
-		return;
+	case lcObjectPropertyId::LightAreaShape:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Area Light Shape");
+
+	case lcObjectPropertyId::LightAreaPOVRayGridX:
+	case lcObjectPropertyId::LightAreaPOVRayGridY:
+		return QT_TRANSLATE_NOOP("Checkpoint", "Changing Area Light Grid");
+
+	case lcObjectPropertyId::ObjectPositionX:
+	case lcObjectPropertyId::ObjectPositionY:
+	case lcObjectPropertyId::ObjectPositionZ:
+	case lcObjectPropertyId::ObjectRotationX:
+	case lcObjectPropertyId::ObjectRotationY:
+	case lcObjectPropertyId::ObjectRotationZ:
+	case lcObjectPropertyId::Count:
+		break;
 	}
 
-	if (AddKey || mKeys.empty())
-		mKeys.emplace_back(lcObjectKey<T>{ Step, Value });
-	else
-		mKeys.back().Value = Value;
-}
-
-template<typename T>
-void lcObjectKeyArray<T>::InsertTime(lcStep Start, lcStep Time)
-{
-	bool EndKey = false;
-
-	for (typename std::vector<lcObjectKey<T>>::iterator KeyIt = mKeys.begin(); KeyIt != mKeys.end();)
-	{
-		if ((KeyIt->Step < Start) || (KeyIt->Step == 1))
-		{
-			KeyIt++;
-			continue;
-		}
-
-		if (EndKey)
-		{
-			KeyIt = mKeys.erase(KeyIt);
-			continue;
-		}
-
-		if (KeyIt->Step >= LC_STEP_MAX - Time)
-		{
-			KeyIt->Step = LC_STEP_MAX;
-			EndKey = true;
-		}
-		else
-			KeyIt->Step += Time;
-
-		KeyIt++;
-	}
-}
-
-template<typename T>
-void lcObjectKeyArray<T>::RemoveTime(lcStep Start, lcStep Time)
-{
-	for (typename std::vector<lcObjectKey<T>>::iterator KeyIt = mKeys.begin(); KeyIt != mKeys.end();)
-	{
-		if ((KeyIt->Step < Start) || (KeyIt->Step == 1))
-		{
-			KeyIt++;
-			continue;
-		}
-
-		if (KeyIt->Step < Start + Time)
-		{
-			KeyIt = mKeys.erase(KeyIt);
-			continue;
-		}
-
-		KeyIt->Step -= Time;
-		KeyIt++;
-	}
+	return QString();
 }

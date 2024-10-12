@@ -2,7 +2,6 @@
 
 #include "object.h"
 #include "lc_math.h"
-#include "lc_array.h"
 
 #define LC_CAMERA_HIDDEN            0x0001
 #define LC_CAMERA_SIMPLE            0x0002
@@ -32,6 +31,13 @@ enum class lcViewpoint
 	Count
 };
 
+enum class lcCameraType
+{
+	Perspective,
+	Orthographic,
+	Count
+};
+
 enum lcCameraSection
 {
 	LC_CAMERA_SECTION_POSITION,
@@ -42,9 +48,7 @@ enum lcCameraSection
 class lcCamera : public lcObject
 {
 public:
-/*** LPub3D Mod - LPUB meta command ***/
-	lcCamera(bool Simple, bool LPubMeta = true);
-/*** LPub3D Mod end ***/
+	lcCamera(bool Simple);
 	lcCamera(float ex, float ey, float ez, float tx, float ty, float tz);
 	~lcCamera();
 
@@ -53,6 +57,8 @@ public:
 	lcCamera& operator=(const lcCamera&) = delete;
 	lcCamera& operator=(lcCamera&&) = delete;
 
+	static QString GetCameraTypeString(lcCameraType CameraType);
+	static QStringList GetCameraTypeStrings();
 	static lcViewpoint GetViewpoint(const QString& ViewpointName);
 
 	QString GetName() const override
@@ -60,13 +66,20 @@ public:
 		return mName;
 	}
 
-	void SetName(const QString& Name);
-	void CreateName(const lcArray<lcCamera*>& Cameras);
+	bool SetName(const QString& Name);
+	void CreateName(const std::vector<std::unique_ptr<lcCamera>>& Cameras);
 
 	bool IsSimple() const
 	{
 		return (mState & LC_CAMERA_SIMPLE) != 0;
 	}
+
+	lcCameraType GetCameraType() const
+	{
+		return ((mState & LC_CAMERA_ORTHO) == 0) ? lcCameraType::Perspective : lcCameraType::Orthographic;
+	}
+
+	bool SetCameraType(lcCameraType CameraType);
 
 	bool IsOrtho() const
 	{
@@ -207,7 +220,7 @@ public:
 
 	quint32 GetAllowedTransforms() const override
 	{
-		return LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z;
+		return LC_OBJECT_TRANSFORM_MOVE_XYZ;
 	}
 
 	lcVector3 GetSectionPosition(quint32 Section) const override
@@ -226,6 +239,13 @@ public:
 
 		return lcVector3(0.0f, 0.0f, 0.0f);
 	}
+
+/*** LPub3D Mod - LeoCAD meta command ***/
+	void SetLCMeta(bool LCMeta)
+	{
+		mLCMeta = LCMeta;
+	}
+/*** LPub3D Mod end ***/
 
 	void SaveLDraw(QTextStream& Stream) const;
 	bool ParseLDrawLine(QTextStream& Stream);
@@ -249,17 +269,17 @@ public:
 
 	void SetPosition(const lcVector3& Position, lcStep Step, bool AddKey)
 	{
-		mPositionKeys.ChangeKey(Position, Step, AddKey);
+		mPosition.ChangeKey(Position, Step, AddKey);
 	}
 
 	void SetTargetPosition(const lcVector3& TargetPosition, lcStep Step, bool AddKey)
 	{
-		mTargetPositionKeys.ChangeKey(TargetPosition, Step, AddKey);
+		mTargetPosition.ChangeKey(TargetPosition, Step, AddKey);
 	}
 
 	void SetUpVector(const lcVector3& UpVector, lcStep Step, bool AddKey)
 	{
-		mPositionKeys.ChangeKey(UpVector, Step, AddKey);
+		mUpVector.ChangeKey(UpVector, Step, AddKey);
 	}
 
 	float GetOrthoHeight() const
@@ -276,6 +296,10 @@ public:
 	void RayTest(lcObjectRayTest& ObjectRayTest) const override;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
 	void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
+	QVariant GetPropertyValue(lcObjectPropertyId PropertyId) const override;
+	bool SetPropertyValue(lcObjectPropertyId PropertyId, lcStep Step, bool AddKey, QVariant Value) override;
+	bool HasKeyFrame(lcObjectPropertyId PropertyId, lcStep Time) const override;
+	bool SetKeyFrame(lcObjectPropertyId PropertyId, lcStep Time, bool KeyFrame) override;
 	void RemoveKeyFrames() override;
 
 	void InsertTime(lcStep Start, lcStep Time);
@@ -284,10 +308,7 @@ public:
 	static bool FileLoad(lcFile& file);
 
 	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
-/*** LPub3D Mod - Camera Globe ***/
-	void SetPosition(lcStep Step);
-/*** LPub3D Mod end ***/
-	void UpdatePosition(lcStep Step);
+	void UpdatePosition(lcStep Step) override;
 	void CopyPosition(const lcCamera* Camera);
 	void CopySettings(const lcCamera* Camera);
 
@@ -313,26 +334,20 @@ public:
 	float GetDDF() const;
 	float GetCDP() const;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - LPUB meta command ***/
-	bool mLPubMeta;
+/*** LPub3D Mod - LeoCAD meta command ***/
+	bool mLCMeta = false;
 /*** LPub3D Mod end ***/
-
 	float m_fovy;
 	float m_zNear;
 	float m_zFar;
 
 	lcMatrix44 mWorldView;
-	lcVector3 mPosition;
-	lcVector3 mTargetPosition;
-	lcVector3 mUpVector;
+	lcObjectProperty<lcVector3> mPosition = lcObjectProperty<lcVector3>(lcVector3(0.0f, 0.0f, 0.0f));
+	lcObjectProperty<lcVector3> mTargetPosition = lcObjectProperty<lcVector3>(lcVector3(0.0f, 0.0f, 0.0f));
+	lcObjectProperty<lcVector3> mUpVector = lcObjectProperty<lcVector3>(lcVector3(0.0f, 0.0f, 0.0f));
 
 protected:
-	lcObjectKeyArray<lcVector3> mPositionKeys;
-	lcObjectKeyArray<lcVector3> mTargetPositionKeys;
-	lcObjectKeyArray<lcVector3> mUpVectorKeys;
-
 	void Initialize();
-
 	QString mName;
 	quint32 mState;
 };

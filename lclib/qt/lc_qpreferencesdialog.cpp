@@ -9,6 +9,7 @@
 #include "lc_glextensions.h"
 #include "pieceinf.h"
 #include "lc_edgecolordialog.h"
+#include "lc_blenderpreferences.h"
 
 /*** LPub3D Mod - Native Renderer settings ***/
 #include "camera.h"
@@ -611,6 +612,23 @@ void lcQPreferencesDialog::on_partsArchiveBrowse_clicked()
 		ui->partsLibrary->setText(QDir::toNativeSeparators(result));
 }
 
+void lcQPreferencesDialog::on_BlenderAddonSettingsButton_clicked()
+{
+	int Width = 1280;
+	int Height = 720;
+	double Scale = 1.0f;
+
+	lcBlenderPreferencesDialog::GetBlenderPreferences(
+		Width,
+		Height,
+		Scale,
+		this);
+
+	Q_UNUSED(Width)
+	Q_UNUSED(Height)
+	Q_UNUSED(Scale)
+}
+
 void lcQPreferencesDialog::on_ColorConfigBrowseButton_clicked()
 {
 	QString Result = QFileDialog::getOpenFileName(this, tr("Select Color Configuration File"), ui->ColorConfigEdit->text(), tr("Settings Files (*.ldr);;All Files (*.*)"));
@@ -1030,16 +1048,14 @@ void lcQPreferencesDialog::updateParts()
 
 	if (categoryIndex != -1)
 	{
-		lcArray<PieceInfo*> singleParts, groupedParts;
+		std::vector<PieceInfo*> SingleParts, GroupedParts;
 
-		Library->GetCategoryEntries(mOptions->Categories[categoryIndex].Keywords.constData(), false, singleParts, groupedParts);
+		Library->GetCategoryEntries(mOptions->Categories[categoryIndex].Keywords.constData(), false, SingleParts, GroupedParts);
 
-		for (int partIndex = 0; partIndex < singleParts.GetSize(); partIndex++)
+		for (PieceInfo* Info : SingleParts)
 		{
-			PieceInfo *info = singleParts[partIndex];
-
-			QStringList rowList(info->m_strDescription);
-			rowList.append(info->mFileName);
+			QStringList rowList(Info->m_strDescription);
+			rowList.append(Info->mFileName);
 
 			new QTreeWidgetItem(tree, rowList);
 		}

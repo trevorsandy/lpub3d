@@ -149,12 +149,12 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 		StepItem->setExpanded(true);
 	}
 
-	const lcArray<lcPiece*>& Pieces = Model->GetPieces();
+	const std::vector<std::unique_ptr<lcPiece>>& Pieces = Model->GetPieces();
 	QTreeWidgetItem* StepItem = nullptr;
 	int PieceItemIndex = 0;
 	lcStep Step = 0;
 
-	for (lcPiece* Piece : Pieces)
+	for (const std::unique_ptr<lcPiece>& Piece : Pieces)
 	{
 		while (Step != Piece->GetStepShow())
 		{
@@ -164,8 +164,9 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 				{
 					QTreeWidgetItem* PieceItem = StepItem->child(PieceItemIndex);
 					lcPiece* RemovePiece = (lcPiece*)PieceItem->data(0, Qt::UserRole).value<uintptr_t>();
+					auto RemoveIt = std::find_if(Pieces.begin(), Pieces.end(), [RemovePiece](const std::unique_ptr<lcPiece>& CheckPiece){ return CheckPiece.get() == RemovePiece; });
 
-					if (Pieces.FindIndex(RemovePiece) == -1)
+					if (RemoveIt == Pieces.end())
 					{
 						mItems.remove(RemovePiece);
 						delete PieceItem;
@@ -183,7 +184,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			PieceItemIndex = 0;
 		}
 
-		QTreeWidgetItem* PieceItem = mItems.value(Piece);
+		QTreeWidgetItem* PieceItem = mItems.value(Piece.get());
 		bool UpdateItem = UpdateItems;
 
 		if (StepItem)
@@ -192,9 +193,9 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			{
 				PieceItem = new QTreeWidgetItem();
 				PieceItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled);
-				PieceItem->setData(0, Qt::UserRole, QVariant::fromValue<uintptr_t>((uintptr_t)Piece));
+				PieceItem->setData(0, Qt::UserRole, QVariant::fromValue<uintptr_t>((uintptr_t)Piece.get()));
 				StepItem->insertChild(PieceItemIndex, PieceItem);
-				mItems[Piece] = PieceItem;
+				mItems[Piece.get()] = PieceItem;
 
 				UpdateItem = true;
 			}
@@ -620,7 +621,7 @@ void lcTimelineWidget::CurrentItemChanged(QTreeWidgetItem* Current, QTreeWidgetI
 
 void lcTimelineWidget::ItemSelectionChanged()
 {
-	lcArray<lcObject*> Selection;
+	std::vector<lcObject*> Selection;
 	lcStep LastStep = 1;
 	QList<QTreeWidgetItem*> SelectedItems = selectedItems();
 
@@ -630,23 +631,26 @@ void lcTimelineWidget::ItemSelectionChanged()
 		if (Piece)
 		{
 			LastStep = lcMax(LastStep, Piece->GetStepShow());
-			Selection.Add(Piece);
+			Selection.emplace_back(Piece);
 		}
 	}
 
 	lcPiece* CurrentPiece = nullptr;
 	QTreeWidgetItem* CurrentItem = currentItem();
+
 	if (CurrentItem && CurrentItem->isSelected())
 		CurrentPiece = (lcPiece*)CurrentItem->data(0, Qt::UserRole).value<uintptr_t>();
 
 	bool Blocked = blockSignals(true);
 	mIgnoreUpdates = true;
 	lcModel* Model = gMainWindow->GetActiveModel();
+
 	if (LastStep > Model->GetCurrentStep())
 	{
 		Model->SetCurrentStep(LastStep);
 		UpdateCurrentStepItem();
 	}
+
 	Model->SetSelectionAndFocus(Selection, CurrentPiece, LC_PIECE_SECTION_POSITION, false);
 	mIgnoreUpdates = false;
 	blockSignals(Blocked);
@@ -738,7 +742,7 @@ void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* CurrentItem)
 
 void lcTimelineWidget::UpdateModel()
 {
-	QList<QPair<lcPiece*, lcStep>> PieceSteps;
+	std::vector<std::pair<lcPiece*, lcStep>> PieceSteps;
 
 	for (int TopLevelItemIdx = 0; TopLevelItemIdx < topLevelItemCount(); TopLevelItemIdx++)
 	{
@@ -749,7 +753,7 @@ void lcTimelineWidget::UpdateModel()
 			QTreeWidgetItem* PieceItem = StepItem->child(PieceItemIdx);
 			lcPiece* Piece = (lcPiece*)PieceItem->data(0, Qt::UserRole).value<uintptr_t>();
 
-			PieceSteps.append(QPair<lcPiece*, lcStep>(Piece, TopLevelItemIdx + 1));
+			PieceSteps.emplace_back(std::pair<lcPiece*, lcStep>(Piece, TopLevelItemIdx + 1));
 		}
 	}
 

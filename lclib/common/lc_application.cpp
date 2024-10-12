@@ -14,7 +14,9 @@
 /*** LPub3D Mod - moved to application.cpp ***/
 /***
 #ifdef Q_OS_WIN
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 #include <QtPlatformHeaders\QWindowsWindowFunctions>
+#endif
 #endif
 ***/
 /*** LPub3D Mod end ***/
@@ -1524,15 +1526,20 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 	if (!SaveAndExit)
 	{
 		gMainWindow->SetColorIndex(lcGetColorIndex(7));
+		/*** LPub3D Mod - moved to application.cpp ***/
 		/***
 		gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 		gMainWindow->UpdateRecentFiles();
 		gMainWindow->show();
-
+		***/
+/*** LPub3D Mod - moved to application.cpp ***/
+/***
 #ifdef Q_OS_WIN
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 		QWindowsWindowFunctions::setHasBorderInFullScreen(gMainWindow->windowHandle(), true);
 #endif
-		***/
+#endif
+***/
 	}
 
 	return SaveAndExit ? lcStartupMode::Success : lcStartupMode::ShowWindow;

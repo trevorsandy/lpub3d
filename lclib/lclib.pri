@@ -4,10 +4,17 @@ HEADERS += \
     $$PWD/common/camera.h \
     $$PWD/common/group.h \
     $$PWD/common/image.h \
+    $$PWD/common/light.h \
+    $$PWD/common/minifig.h \
+    $$PWD/common/object.h \
+    $$PWD/common/piece.h \
+    $$PWD/common/pieceinf.h \
+    $$PWD/common/project.h \
+    $$PWD/common/texfont.h \	
     $$PWD/common/lc_aboutdialog.h \
     $$PWD/common/lc_application.h \
     $$PWD/common/lc_arraydialog.h \
-    $$PWD/common/lc_array.h \
+	$$PWD/common/lc_blenderpreferences.h \
     $$PWD/common/lc_bricklink.h \
     $$PWD/common/lc_category.h \
     $$PWD/common/lc_categorydialog.h \
@@ -26,6 +33,7 @@ HEADERS += \
     $$PWD/common/lc_http.h \
     $$PWD/common/lc_instructions.h \
     $$PWD/common/lc_instructionsdialog.h \
+	$$PWD/common/lc_keyframewidget.h \
     $$PWD/common/lc_library.h \
     $$PWD/common/lc_lxf.h \
     $$PWD/common/lc_mainwindow.h \
@@ -35,35 +43,30 @@ HEADERS += \
     $$PWD/common/lc_minifigdialog.h \
     $$PWD/common/lc_model.h \
     $$PWD/common/lc_modellistdialog.h \
+	$$PWD/common/lc_objectproperty.h \
     $$PWD/common/lc_pagesetupdialog.h \
     $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
     $$PWD/common/lc_previewwidget.h \
     $$PWD/common/lc_profile.h \
+	$$PWD/common/lc_propertieswidget.h \
     $$PWD/common/lc_scene.h \
     $$PWD/common/lc_shortcuts.h \
     $$PWD/common/lc_stringcache.h \
     $$PWD/common/lc_synth.h \
     $$PWD/common/lc_texture.h \
+	$$PWD/common/lc_thumbnailmanager.h \
     $$PWD/common/lc_timelinewidget.h \
     $$PWD/common/lc_view.h \
     $$PWD/common/lc_viewmanipulator.h \
     $$PWD/common/lc_viewsphere.h \
     $$PWD/common/lc_viewwidget.h \
     $$PWD/common/lc_zipfile.h \
-    $$PWD/common/light.h \
-    $$PWD/common/minifig.h \
-    $$PWD/common/object.h \
-    $$PWD/common/piece.h \
-    $$PWD/common/pieceinf.h \
-    $$PWD/common/project.h \
-    $$PWD/common/texfont.h \
     $$PWD/qt/lc_qeditgroupsdialog.h \
     $$PWD/qt/lc_qhtmldialog.h \
     $$PWD/qt/lc_qimagedialog.h \
     $$PWD/qt/lc_qpreferencesdialog.h \
     $$PWD/qt/lc_qpropertiesdialog.h \
-    $$PWD/qt/lc_qpropertiestree.h \
     $$PWD/qt/lc_qselectdialog.h \
     $$PWD/qt/lc_qupdatedialog.h \
     $$PWD/qt/lc_qutils.h \
@@ -74,9 +77,17 @@ SOURCES += \
     $$PWD/common/camera.cpp \
     $$PWD/common/group.cpp \
     $$PWD/common/image.cpp \
+    $$PWD/common/light.cpp \
+    $$PWD/common/minifig.cpp \
+    $$PWD/common/object.cpp \
+    $$PWD/common/piece.cpp \
+    $$PWD/common/pieceinf.cpp \
+    $$PWD/common/project.cpp \
+    $$PWD/common/texfont.cpp \	
     $$PWD/common/lc_aboutdialog.cpp \
     $$PWD/common/lc_application.cpp \
     $$PWD/common/lc_arraydialog.cpp \
+	$$PWD/common/lc_blenderpreferences.cpp \
     $$PWD/common/lc_bricklink.cpp \
     $$PWD/common/lc_category.cpp \
     $$PWD/common/lc_categorydialog.cpp \
@@ -94,6 +105,7 @@ SOURCES += \
     $$PWD/common/lc_http.cpp \
     $$PWD/common/lc_instructions.cpp \
     $$PWD/common/lc_instructionsdialog.cpp \
+	$$PWD/common/lc_keyframewidget.cpp \
     $$PWD/common/lc_library.cpp \
     $$PWD/common/lc_lxf.cpp \
     $$PWD/common/lc_mainwindow.cpp \
@@ -102,35 +114,30 @@ SOURCES += \
     $$PWD/common/lc_minifigdialog.cpp \
     $$PWD/common/lc_model.cpp \
     $$PWD/common/lc_modellistdialog.cpp \
+	$$PWD/common/lc_objectproperty.cpp \
     $$PWD/common/lc_pagesetupdialog.cpp \
     $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
     $$PWD/common/lc_previewwidget.cpp \
     $$PWD/common/lc_profile.cpp \
+	$$PWD/common/lc_propertieswidget.cpp \
     $$PWD/common/lc_scene.cpp \
     $$PWD/common/lc_shortcuts.cpp \
     $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
     $$PWD/common/lc_texture.cpp \
+	$$PWD/common/lc_thumbnailmanager.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/common/lc_view.cpp \
     $$PWD/common/lc_viewmanipulator.cpp \
     $$PWD/common/lc_viewsphere.cpp \
     $$PWD/common/lc_viewwidget.cpp \
     $$PWD/common/lc_zipfile.cpp \
-    $$PWD/common/light.cpp \
-    $$PWD/common/minifig.cpp \
-    $$PWD/common/object.cpp \
-    $$PWD/common/piece.cpp \
-    $$PWD/common/pieceinf.cpp \
-    $$PWD/common/project.cpp \
-    $$PWD/common/texfont.cpp \
     $$PWD/qt/lc_qeditgroupsdialog.cpp \
     $$PWD/qt/lc_qhtmldialog.cpp \
     $$PWD/qt/lc_qimagedialog.cpp \
     $$PWD/qt/lc_qpreferencesdialog.cpp \
     $$PWD/qt/lc_qpropertiesdialog.cpp \
-    $$PWD/qt/lc_qpropertiestree.cpp \
     $$PWD/qt/lc_qselectdialog.cpp \
     $$PWD/qt/lc_qupdatedialog.cpp \
     $$PWD/qt/lc_qutils.cpp \

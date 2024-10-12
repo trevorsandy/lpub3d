@@ -16,6 +16,7 @@
 #include <vector>
 #include <array>
 #include <set>
+#include <deque>
 #include <functional>
 #include <memory>
 
@@ -58,6 +59,7 @@ typedef quint32 lcStep;
 
 #ifdef Q_OS_WIN
 char* strcasestr(const char *s, const char *find);
+int lcTerminateChildProcess(QWidget* Parent, const qint64 Pid, const qint64 Ppid);
 #else
 char* strupr(char* string);
 #endif
@@ -80,6 +82,7 @@ class lcPiece;
 class lcCamera;
 class lcLight;
 enum class lcLightType;
+enum class lcLightAreaShape;
 class lcGroup;
 class PieceInfo;
 typedef std::map<const PieceInfo*, std::map<int, int>> lcPartsList;
@@ -110,7 +113,6 @@ struct lcMeshSection;
 struct lcRenderMesh;
 struct lcObjectSection;
 struct lcPieceInfoRayTest;
-struct lcLightProperties;
 class lcTexture;
 class lcScene;
 class lcViewManipulator;

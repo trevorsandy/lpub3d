@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lc_array.h"
 #include "lc_application.h"
 
 #define LC_HTML_SINGLEPAGE    0x01
@@ -50,7 +49,7 @@ public:
 	Project& operator=(const Project&) = delete;
 	Project& operator=(Project&&) = delete;
 
-	const lcArray<lcModel*>& GetModels() const
+	const std::vector<std::unique_ptr<lcModel>>& GetModels() const
 	{
 		return mModels;
 	}
@@ -62,15 +61,11 @@ public:
 		return mActiveModel;
 	}
 
-	int GetActiveModelIndex() const
-	{
-		return mModels.FindIndex(mActiveModel);
-	}
-
 	lcModel* GetMainModel() const
 	{
-		return !mModels.IsEmpty() ? mModels[0] : nullptr;
+		return !mModels.empty() ? mModels[0].get() : nullptr;
 	}
+
 /*** LPub3D Mod - Render Image ***/
 	bool IsRenderImage()
 	{
@@ -181,6 +176,7 @@ public:
 
 	lcInstructions* GetInstructions();
 
+	void SetActiveModel(lcModel* Model);
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& FileName);
 
@@ -206,6 +202,7 @@ public:
 	bool ImportInventory(const QByteArray& Inventory, const QString& Name, const QString& Description);
 
 	void SaveImage();
+	bool ExportCurrentStep(const QString& FileName);
 	bool ExportModel(const QString& FileName, lcModel* Model) const;
 	bool Export3DStudio(const QString& FileName);
 /*** LPub3D Mod - export ***/
@@ -238,7 +235,7 @@ protected:
 	QString mFileName;
 	QFileSystemWatcher mFileWatcher;
 
-	lcArray<lcModel*> mModels;
+	std::vector<std::unique_ptr<lcModel>> mModels;
 	lcModel* mActiveModel;
 	std::unique_ptr<lcInstructions> mInstructions;
 
