@@ -1,19 +1,9 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 19, 2024
-#
-# This script is called from .github/workflows/build.yml
-#
-# Options:
-# BUILD=<ubuntu|fedora|archlinux>[-<amd64|amd32|arm64|arm32>-appimage]
-# ARCH=<amd64|amd32|arm64|arm32>
-# APPIMAGE=true|false
-#
-# Run command example:
-# bash -ex env BUILD=ubuntu ARCH=amd64 APPIMAGE=1 builds/utilities/ci/github/linux-build.sh
-#
+# Last Update September 27, 2024
 
-if [[ "$BUILD" == "" ]]; then
+function ShowHelp() {
+    echo
     echo "This script is called from .github/workflows/build.yml"
     echo
     echo "Options:"
@@ -26,35 +16,41 @@ if [[ "$BUILD" == "" ]]; then
     echo "env BUILD=ubuntu-amd64 bash -ex $0"
     echo "env BUILD=ubuntu-amd64-appimage bash -ex $0"
     echo "env BUILD=ubuntu ARCH=amd64 APPIMAGE=1 bash -ex $0"
-    exit 2
-fi
+    echo
+    echo "Run command example:"
+    echo "bash -ex env BUILD=ubuntu ARCH=amd64 APPIMAGE=1 builds/utilities/ci/github/$0"
+    echo
+}
 
-build_base="${BUILD%%-*}"
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -?|-h|--help) ShowHelp; exit 0 ;;
+        *) echo "Unknown parameter passed: '$1'. Use -? to show help."; exit 1 ;;
+    esac
+    shift
+done
+
+build_base="${BUILD:-$(. /etc/os-release 2>/dev/null && echo $ID)}"
 build_arch="${ARCH:-`uname -m`}"
 build_appimage="${APPIMAGE:-false}"
-IFS=- read LP3D_BASE LP3D_ARCH LP3D_APPIMAGE <<< $BUILD
 
-if [ -z "${LP3D_ARCH}" ]; then
-    export LP3D_ARCH=${build_arch}
-else
-    export LP3D_ARCH
-fi
+oldIFS=$IFS && IFS=- read LP3D_BASE LP3D_ARCH LP3D_APPIMAGE <<< $BUILD && IFS=$oldIFS
 
-if [ -z "${LP3D_APPIMAGE}" ]; then
-    LP3D_APPIMAGE=${build_appimage}
-fi
+[ -z "${LP3D_BASE}" ] && export LP3D_BASE=${build_base} || export LP3D_BASE
+[ -z "${LP3D_ARCH}" ] && export LP3D_ARCH=${build_arch} || export LP3D_ARCH
+[ -z "${LP3D_APPIMAGE}" ] && LP3D_APPIMAGE=${build_appimage} || :
 
 case "${LP3D_ARCH}" in
-    "amd64"|"x86_64")
+    amd64|x86_64)
         export LP3D_QEMU="false" ;;
     *)
         export LP3D_QEMU="true" ;;
 esac
 
 case "${LP3D_APPIMAGE}" in
-    "true"|"false")
+    true|false)
         export LP3D_APPIMAGE ;;
-    "appimage")
+    appimage)
         export LP3D_APPIMAGE="true" ;;
     *)
         export LP3D_APPIMAGE=${build_appimage} ;;
@@ -66,7 +62,7 @@ esac
 [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$LP3D_BUILDPKG_PATH || :
 [ ! -d "${LP3D_LOG_PATH}" ] && mkdir -p ${LP3D_LOG_PATH} || :
 if [ "${WRITE_LOG}" = "true" ]; then
-    f="${0##*/}"; f="${f%.*}"; f="${f}-${build_base}-${build_arch}"
+    f="${0##*/}"; f="${f%.*}"; f="${f}-${LP3D_BASE}-${LP3D_ARCH}"
     [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
     f="${LP3D_LOG_PATH}/${f}"
     ext=".log"

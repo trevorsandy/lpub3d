@@ -1,39 +1,53 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 22, 2024
+# Last Update September 27, 2024
 # Copyright (C) 2024 by Trevor SANDY
-# Build LPub3D Linux Deb distribution
-# You can run this script from the Docker image user HOME
-# To run:
-# $ chmod a+x RunCreate.sh
-# $ env [option option ...] ./builds/utilities/RunCreate.sh [Deb]
-# [optoinal arguments]:
-#  - Deb - run CreateDeb.sh build script
-#  - Rpm - run CreateRpm.sh build script
-#  - Pkg - run CreatePkg.sh build script
-# [options]:
-#  - LOCAL=false - local build - use local versus download renderer and library source
-#  - DOCKER=true - using Docker image
-#  - LPUB3D=lpub3d - repository name
-#  - LP3D_ARCH=amd64 - set build architecture
-#  - PRESERVE=false - clone remote repository
-#  - UPDATE_SH=false - overwrite Create script when building in local Docker
-#  - DEB_EXTENSION=amd64.Deb - distribution file suffix
-#  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
-#  - XSERVER=false - use Docker host XMing/XSrv XServer
-# NOTE: elevated access required for apt-get install, execute with sudo
-# or enable user with no password sudo if running noninteractive - see
-# docker-compose/dockerfiles for script example of sudo, no password user.
 
-: <<'BLOCK_COMMENT'
-To run:
-Configure, copy and paste the following 3 lines in the command console
+function ShowHelp() {
+    echo
+    echo "Build LPub3D Linux distribution"
+    echo
+    echo "You can run this script from the Docker image user HOME"
+    echo
+    echo "[optoinal arguments]:"
+    echo " - Deb - run CreateDeb.sh build script"
+    echo " - Rpm - run CreateRpm.sh build script"
+    echo " - Pkg - run CreatePkg.sh build script"
+    echo "[environment variable options]:"
+    echo " - LOCAL=false - local build - use local versus download renderer and library source"
+    echo " - DOCKER=true - using Docker image"
+    echo " - LPUB3D=lpub3d - repository name"
+    echo " - LP3D_ARCH=amd64 - set build architecture"
+    echo " - PRESERVE=false - clone remote repository"
+    echo " - UPDATE_SH=false - overwrite Create script when building in local Docker"
+    echo " - DEB_EXTENSION=amd64.Deb - distribution file suffix"
+    echo " - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located"
+    echo " - XSERVER=false - use Docker host XMing/XSrv XServer"
+    echo "NOTE: elevated access required for apt-get install, execute with sudo"
+    echo "or enable user with no password sudo if running noninteractive - see"
+    echo "docker-compose/dockerfiles for script example of sudo, no password user."
+    echo
+    echo "To run:"
+    echo "chmod a+x $0"
+    echo "env [option option ...] ./builds/utilities/$0 [Deb|Pkg|Rpm]"
+    echo
+    echo "Configure (set SCRIPT_DIR), copy and paste the following 3 lines"
+    echo "in the command console."
+    echo
+    echo "RUN_CREATE_DIR=\${SCRIPT_DIR:-$HOME/resources/lpub3d}"
+    echo "cd ~/ && cp -rf \${RUN_CREATE_DIR}/builds/utilities/$0 . \\"
+    echo "&& chmod a+x $0 && ./$0"
+    echo
+}
 
-RUN_CREATE_DIR=${SCRIPT_DIR:-$HOME/resources/lpub3d}
-cd ~/ && cp -rf ${RUN_CREATE_DIR}/builds/utilities/RunCreate.sh . \
-&& chmod a+x RunCreate.sh && ./RunCreate.sh
-
-BLOCK_COMMENT
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -?|-h|--help) ShowHelp; exit 0 ;;
+        Deb|Pkg|Rpm) continue ;;
+        *) echo "Unknown parameter passed: '$1'. Use -? to show help."; exit 1 ;;
+    esac
+    shift
+done
 
 LOCAL=${LOCAL:-true}
 DOCKER=${DOCKER:-true}
@@ -46,7 +60,7 @@ DEB_EXT=${DEB_EXTENSION:-$LP3D_ARCH.Deb}
 LOCAL_PATH=${LOCAL_RESOURCE_PATH:-$HOME/resources}
 
 if ! test "$1"; then
-  os=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID | awk '{print tolower($0)}') #'
+  os=$(. /etc/*-release 2>/dev/null; [ -n "$ID" ] && echo $ID)
   case $os in
     ubuntu|debian) opt=Deb ;;
     fedora|suse|centos) opt=Rpm ;;

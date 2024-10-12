@@ -1,28 +1,50 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 25, 2024
-#
-# This script is called from .github/workflows/build.yml
-#
-# Run command:
-# bash -ex builds/utilities/ci/github/macos-build.sh
-#
-# LOCAL 'GITHUB' RUN - set parameters accordingly then cut and paste in console to run.
-: <<'BLOCK_COMMENT'
-export GITHUB=true
-export GITHUB_REPOSITORY=trevorsandy/lpub3d
-export GITHUB_REF=refs/heads/master # "refs/tags/v2.4.8" will BUILD_ALL
-export GITHUB_REF_NAME=master       # branch or Tag "v2.4.8" - Tag will trigger BUILD_ALL
-export GITHUB_EVENT_NAME=push
-export GITHUB_WORKSPACE=/Users/trevorsandy/Development/lpub3d
-export LP3D_COMMIT_MSG="LPub3D continuous development_build"     # release_build will trigger BUILD_ALL
-export LP3D_3RD_PARTY_PATH=/Users/trevorsandy/Development
-export LP3D_BUILDPKG_PATH=/Users/trevorsandy/Development/buildpkg
-[ ! -d "$LP3D_BUILDPKG_PATH" ] && mkdir -p "$LP3D_BUILDPKG_PATH" || :
-chmod +x lpub3d/builds/utilities/ci/github/macos-build.sh && \
-       ./lpub3d/builds/utilities/ci/github/macos-build.sh
+# Last Update September 27, 2024
 
-BLOCK_COMMENT
+function ShowHelp() {
+    echo
+    echo "This script is called from .github/workflows/build.yml"
+    echo
+    echo "Run command:"
+    echo "bash -ex builds/utilities/ci/github/$0"
+    echo
+    echo "Reference:"
+    echo "Setting the follwing evnironment variables accordingly will trigger"
+    echo "a full build versus a verify build which does not perform the package operation"
+    echo
+    echo "GITHUB_REF set to \"refs/tags/v2.4.8\" will trigger a full build"
+    echo "GITHUB_REF_NAME use branch or tag \"v2.4.8\". A tag will trigger a full build"
+    echo "LP3D_COMMIT_MSG keyword \"release_build\" will trigger a full build"
+    echo
+    echo "To replicate a 'GITHUB' build locally:"
+    echo "Set the below variables accordingly"
+    echo "then cut and paste in your console to run."
+    echo
+    echo "LP3D_BUILDPKG_PATH=/Users/trevorsandy/Development/buildpkg \\"
+    echo "[ ! -d \"\$LP3D_BUILDPKG_PATH\" ] && mkdir -p \"\$LP3D_BUILDPKG_PATH\" || : \\"
+    echo "chmod +x lpub3d/builds/utilities/ci/github/$0 && \\"
+    echo "bash -ex env \\"
+    echo "GITHUB=true \\"
+    echo "GITHUB_REPOSITORY=trevorsandy/lpub3d \\"
+    echo "GITHUB_REF=refs/heads/master \\"
+    echo "GITHUB_REF_NAME=master \\"
+    echo "GITHUB_EVENT_NAME=push \\"
+    echo "GITHUB_WORKSPACE=/Users/trevorsandy/Development/lpub3d \\"
+    echo "LP3D_COMMIT_MSG=\"LPub3D continuous development_build\" \\"
+    echo "LP3D_3RD_PARTY_PATH=/Users/trevorsandy/Development \\"
+    echo "LP3D_BUILDPKG_PATH=\${LP3D_BUILDPKG_PATH} \\"
+    echo "./lpub3d/builds/utilities/ci/github/$0"
+    echo
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -?|-h|--help) ShowHelp; exit 0 ;;
+        *) echo "Unknown parameter passed: '$1'. Use -? to show help."; exit 1 ;;
+    esac
+    shift
+done
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
