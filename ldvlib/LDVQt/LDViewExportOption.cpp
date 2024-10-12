@@ -407,9 +407,9 @@ void LDViewExportOption::populateExportSettings(void)
 
 					label = new QLabel(TCObject::ls("PovLightOptColorR"),this);
 					grid->addWidget(label,4,1);
-					label = new QLabel(TCObject::ls("PovLightOptColorG"),this);
+					label = new QLabel(TCObject::ls("PovLightOptFadeDistance"),this);
 					grid->addWidget(label,4,2);
-					label = new QLabel(TCObject::ls("PovLightOptColorB"),this);
+					label = new QLabel(TCObject::ls("PovLightOptFadePower"),this);
 					grid->addWidget(label,4,3);
 
 					// row 5
@@ -422,19 +422,19 @@ void LDViewExportOption::populateExportSettings(void)
 					m_PovLightOptColorRDSpin->setToolTip(TCObject::ls("PovLightColorRTT"));
 					grid->addWidget(m_PovLightOptColorRDSpin,5,1);
 
-					m_PovLightOptColorGDSpin =  new QDoubleSpinBox(this);
-					m_PovLightOptColorGDSpin->setRange(0.0, 1.0);
-					m_PovLightOptColorGDSpin->setDecimals(1);
-					m_PovLightOptColorGDSpin->setSingleStep(1);
-					m_PovLightOptColorGDSpin->setToolTip(TCObject::ls("PovLightColorGTT"));
-					grid->addWidget(m_PovLightOptColorGDSpin,5,2);
+					m_PovLightOptFadeDistanceDSpin = new QDoubleSpinBox(this);
+					m_PovLightOptFadeDistanceDSpin->setRange(0.0, 1.0);
+					m_PovLightOptFadeDistanceDSpin->setDecimals(1);
+					m_PovLightOptFadeDistanceDSpin->setSingleStep(1);
+					m_PovLightOptFadeDistanceDSpin->setToolTip(TCObject::ls("PovLightFadeDistanceTT"));
+					grid->addWidget(m_PovLightOptFadeDistanceDSpin,5,2);
 
-					m_PovLightOptColorBDSpin =  new QDoubleSpinBox(this);
-					m_PovLightOptColorBDSpin->setRange(0.0, 1.0);
-					m_PovLightOptColorBDSpin->setDecimals(1);
-					m_PovLightOptColorBDSpin->setSingleStep(1);
-					m_PovLightOptColorBDSpin->setToolTip(TCObject::ls("PovLightColorBTT"));
-					grid->addWidget(m_PovLightOptColorBDSpin,5,3);
+					m_PovLightOptFadePowerDSpin = new QDoubleSpinBox(this);
+					m_PovLightOptFadePowerDSpin->setRange(0.0, 1.0);
+					m_PovLightOptFadePowerDSpin->setDecimals(1);
+					m_PovLightOptFadePowerDSpin->setSingleStep(1);
+					m_PovLightOptFadePowerDSpin->setToolTip(TCObject::ls("PovLightFadePowerTT"));
+					grid->addWidget(m_PovLightOptFadePowerDSpin,5,3);
 
 					// row 6
 					label = new QLabel(TCObject::ls("PovLightSpotOptionsLbl"),this);
@@ -571,8 +571,8 @@ void LDViewExportOption::populateExportSettings(void)
 					connect( m_PovLightOptTargetYDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptTargetZDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptShadowlessChk, SIGNAL( clicked(bool) ), this, SLOT( applyLights() ) );
-					connect( m_PovLightOptColorRDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
-					connect( m_PovLightOptColorGDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
+					connect( m_PovLightOptFadeDistanceDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
+					connect( m_PovLightOptFadePowerDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptColorBDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptSpotRadiusDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 					connect( m_PovLightOptSpotFalloffDSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
@@ -864,6 +864,8 @@ void LDViewExportOption::selectLight(int lightIndex)
 	m_PovLightOptColorGDSpin->setValue(m_PovLightMap[lightIndex].color[1]);
 	m_PovLightOptColorBDSpin->setValue(m_PovLightMap[lightIndex].color[2]);
 	m_PovLightOptIntensityDSpin->setValue(m_PovLightMap[lightIndex].intensity);
+	m_PovLightOptFadeDistanceDSpin->setValue(m_PovLightMap[lightIndex].fadeDistance);
+	m_PovLightOptFadePowerDSpin->setValue(m_PovLightMap[lightIndex].fadePower);
 	m_PovLightOptSpotRadiusDSpin->setValue(m_PovLightMap[lightIndex].radius);
 	m_PovLightOptSpotFalloffDSpin->setValue(m_PovLightMap[lightIndex].falloff);
 	m_PovLightOptSpotTightnessDSpin->setValue(m_PovLightMap[lightIndex].tightness);

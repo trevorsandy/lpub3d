@@ -50,6 +50,8 @@ public:
 	float target[3];
 	float color[3];
 	float intensity;
+	float fadeDistance;
+	float fadePower;
 	float radius;
 	float falloff;
 	float tightness;
@@ -131,8 +133,8 @@ protected:
 	QDoubleSpinBox    *m_PovLightOptTargetYDSpin;
 	QDoubleSpinBox    *m_PovLightOptTargetZDSpin;
 	QDoubleSpinBox    *m_PovLightOptColorRDSpin;
-	QDoubleSpinBox    *m_PovLightOptColorGDSpin;
-	QDoubleSpinBox    *m_PovLightOptColorBDSpin;
+	QDoubleSpinBox    *m_PovLightOptFadeDistanceDSpin;
+	QDoubleSpinBox    *m_PovLightOptFadePowerDSpin;
 	QDoubleSpinBox    *m_PovLightOptIntensityDSpin;
 	QDoubleSpinBox    *m_PovLightOptSpotRadiusDSpin;
 	QDoubleSpinBox    *m_PovLightOptSpotFalloffDSpin;
