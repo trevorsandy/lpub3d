@@ -50,6 +50,7 @@ Steps::Steps()
   pli.steps      = this;
   subModel.steps = this;
   isMirrored     = false;
+  placeSubModel  = false;
 }
 
 Steps::Steps(Meta &_meta,QGraphicsView *_view)

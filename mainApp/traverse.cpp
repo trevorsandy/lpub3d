@@ -457,7 +457,6 @@ int Gui::drawPage(
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
   bool     displayInstanceCount = false;
-  bool     previewNotPerStep = false;
   int      countInstances  = steps->meta.LPub.countInstance.value();
 
   // Build mod update flags
@@ -1052,7 +1051,7 @@ int Gui::drawPage(
               bool showStepOk   = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
               if (showStepOk && calloutOk && (!topModel || showTopModel)){
                   if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
-                      previewNotPerStep = !previewNotPerStep ? true : previewNotPerStep;
+                      steps->placeSubModel = true;
                   } else {
                       step->placeSubModel = true;
                   }
@@ -2028,7 +2027,7 @@ int Gui::drawPage(
 #endif
                           // if PLI and Submodel Preview are relative to StepNumber or PLI relative to CSI (default)
                           placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
-                          if (previewNotPerStep &&
+                          if (steps->placeSubModel &&
                              ((steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType &&
                                placementData.relativeTo == StepNumberType) || placementData.relativeTo == CsiType))
                           {
@@ -2044,7 +2043,7 @@ int Gui::drawPage(
                       else {
                           placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
                           // if Submodel Preview relative to StepNumber
-                          if (previewNotPerStep &&
+                          if (steps->placeSubModel &&
                                   steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType) {
                               // Redirect Submodel Preview relative to Page
                               steps->groupStepMeta.LPub.multiStep.subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
@@ -2052,7 +2051,7 @@ int Gui::drawPage(
                           // if Pli relative to StepNumber or CSI
                           if (steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo == StepNumberType ||
                               steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo == CsiType) {
-                              if (previewNotPerStep)
+                              if (steps->placeSubModel)
                               {
                                   // Redirect Pli relative to SubModel Preview
                                   steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,SubModelType);
@@ -2075,7 +2074,7 @@ int Gui::drawPage(
                           emit messageSig(LOG_ERROR, "Failed to set PLI (per Page) for " + topOfStep.modelName + "...");
 
                       // SubModel Preview
-                      if (previewNotPerStep) {
+                      if (steps->placeSubModel && steps->groupStepMeta.LPub.multiStep.subModel.show.value()) {
                           steps->groupStepMeta.LPub.subModel.instance.setValue(instances);
                           steps->subModel.margin = steps->groupStepMeta.LPub.subModel.margin;
                           steps->subModel.setSubModel(opts.current.modelName,steps->groupStepMeta);

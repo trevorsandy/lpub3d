@@ -75,6 +75,7 @@ class Steps : public Placement {
     Where                          top;                        // needed for non-step pages
     Where                          bottom;
     bool                           isMirrored;
+    bool                           placeSubModel;
 
     Steps();
     Steps(Meta &_meta,QGraphicsView *_view);
@@ -155,6 +156,7 @@ class Page : public Steps {
       frontCover           = false;
       backCover            = false;
       displayInstanceCount = false;
+      placeSubModel        = false;
       instances            = 1;
       stepNumber           = 0;
       for (int i = 0; i < insertPixmaps.size(); i++) {
