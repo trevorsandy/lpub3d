@@ -4052,6 +4052,7 @@ public:
   StringListMeta       subModelColor;
   FontListMeta         subModelFont;
   StringListMeta       subModelFontColor;
+  BoolMeta             individualParts;
   StringMeta           ldviewParms;
   StringMeta           ldgliteParms;
   StringMeta           povrayParms;

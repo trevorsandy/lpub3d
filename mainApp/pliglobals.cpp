@@ -269,6 +269,13 @@ GlobalPliDialog::GlobalPliDialog(
     data->children.append(child);
   }
 
+  box = new QGroupBox(tr("Part Instance"));
+  box->setWhatsThis(lpubWT(bom ? WT_SETUP_PART_MORE_OPTIONS_SHOW_INDIVIDUAL_BOM_PARTS
+                               : WT_SETUP_PART_MORE_OPTIONS_SHOW_INDIVIDUAL_PLI_PARTS,box->title()));
+  vlayout->addWidget(box);
+  child = new CheckBoxGui(tr("Show Individual Part Instance"),&pliMeta->individualParts,box);
+  data->children.append(child);
+
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);

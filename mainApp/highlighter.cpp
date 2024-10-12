@@ -522,6 +522,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bSHARP_TOP_LOGO\\b"),
         QStringLiteral("\\bSHOW\\b"),
         QStringLiteral("\\bSHOW_GROUP_STEP_NUMBER\\b"),
+        QStringLiteral("\\bSHOW_INDIVIDUAL_PARTS\\b"),
         QStringLiteral("\\bSHOW_INSTANCE_COUNT\\b"),
         QStringLiteral("\\bSHOW_STEP_NUM\\b"),
         QStringLiteral("\\bSHOW_STEP_NUMBER\\b"),

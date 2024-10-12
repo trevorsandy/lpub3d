@@ -6156,6 +6156,7 @@ PliMeta::PliMeta() : BranchMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");       // Deprecated - using Quality Settings, v2.3.7
   includeSubs.setValue(false);
+  individualParts.setValue(false);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
@@ -6235,6 +6236,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
   subModelFont    .init(this,"SUBMODEL_FONT");
   subModelFontColor.init(this,"SUBMODEL_FONT_COLOR");
+  individualParts .init(this,"SHOW_INDIVIDUAL_PARTS");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
   studStyle       .init(this,"STUD_STYLE");
@@ -6300,6 +6302,7 @@ BomMeta::BomMeta() : PliMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
+  individualParts.setValue(false);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
@@ -6383,6 +6386,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   povrayParms     .init(this,"POVRAY_PARMS");
   includeSubs     .init(this,"INCLUDE_SUBMODELS");
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
+  individualParts .init(this,"SHOW_INDIVIDUAL_PARTS");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
   studStyle       .init(this,"STUD_STYLE");

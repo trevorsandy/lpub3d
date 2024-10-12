@@ -3113,8 +3113,11 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  The following configuration setup are available in\n"
             "  the Part List Content dialog:\n"
-            "  - Configure the Part properties.\n\n"
-            "  - Configure part Sorting properties.%1\n")
+            "  - Configure Parts properties including part images.\n"
+            "    part camera orientation, groups and count\n"
+            "  - Configure More part properties including sort\n"
+            "    order and direction, stud style, submodel PLI\n"
+            "    display and show individual parts.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_SETUP_PART_CONTENTS")
@@ -3217,6 +3220,36 @@ void CommonMenus::setWhatsThis()
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_SETUP_PART_MORE_OPTIONS_SHOW_SUBMODELS")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_SETUP_PART_MORE_OPTIONS_SHOW_INDIVIDUAL_BOM_PARTS
+        {
+            QObject::tr(
+            "  When checked, individual parts will be displayed in\n"
+            "  the Bill Of Materials. This means parts will not show\n"
+            "  an instance (Nx) value. All other BOM behaviour will\n"
+            "  be preserved.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_MORE_OPTIONS_SHOW_INDIVIDUAL_BOM_PARTS")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_SETUP_PART_MORE_OPTIONS_SHOW_INDIVIDUAL_PLI_PARTS
+        {
+            QObject::tr(
+            "  When checked, individual parts will be displayed in\n"
+            "  the Parts List Instance. This means parts will not\n"
+            "  show an instance (Nx) value. All other PLI behaviour\n"
+            "  will be preserved.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_PART_MORE_OPTIONS_SHOW_INDIVIDUAL_PLI_PARTS")
 #else
                  ""
 #endif
