@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 25, 2024
+rem  Last Update: October 04, 2024
 rem  Copyright (C) 2015 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -238,8 +238,8 @@ IF NOT EXIST "%ZIP_UTILITY%" (
 )
 
 :MAIN
-SET LP3D_ARCH=unknown
-SET LP3D_ARCH_EXT=unknown
+SET LP3D_X86ARCH=unknown
+SET LP3D_X86ARCH_EXT=unknown
 
 SET LP3D_PRODUCT=unknown
 SET LP3D_COMPANY=unknown
@@ -254,6 +254,7 @@ SET LPUB3D_BUILD_FILE=unknown
 SET LP3D_ALTERNATE_VERSIONS_exe=unknown
 SET LP3D_ALTERNATE_VERSIONS_win_conda=unknown
 SET LP3D_ALTERNATE_VERSIONS_dmg=unknown
+SET LP3D_ALTERNATE_VERSIONS_arm_dmg=unknown
 SET LP3D_ALTERNATE_VERSIONS_x86_dmg=unknown
 SET LP3D_ALTERNATE_VERSIONS_deb=unknown
 SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
@@ -265,6 +266,7 @@ SET LP3D_ALTERNATE_VERSIONS_flp=unknown
 SET LP3D_AVAILABLE_VERSIONS_exe=unknown
 SET LP3D_AVAILABLE_VERSIONS_win_conda=unknown
 SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
+SET LP3D_AVAILABLE_VERSIONS_arm_dmg=unknown
 SET LP3D_AVAILABLE_VERSIONS_x86_dmg=unknown
 SET LP3D_AVAILABLE_VERSIONS_deb=unknown
 SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
@@ -308,6 +310,7 @@ REM available versions by platform, set tokens to select specific version or ver
 FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_exe=%%i
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_win_conda=%%i
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_dmg=%%i,%%j,%%k
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_arm_dmg=%%i
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_x86_dmg=%%i
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_deb=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_rpm=%%i,%%j,%%k
@@ -319,6 +322,7 @@ FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AV
 FOR /F "tokens=2*  delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_exe%") DO SET LP3D_ALTERNATE_VERSIONS_exe=%%i,%%j
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_win_conda%") DO SET LP3D_ALTERNATE_VERSIONS_win_conda=%%i
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_dmg=%%i,%%j
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_arm_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_arm_dmg=%%i
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_x86_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_x86_dmg=%%i
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_deb%") DO SET LP3D_ALTERNATE_VERSIONS_deb=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_rpm%") DO SET LP3D_ALTERNATE_VERSIONS_rpm=%%i,%%j
@@ -429,6 +433,7 @@ ECHO.
 ECHO   LP3D_AVAILABLE_VERSIONS_exe..........[%LP3D_AVAILABLE_VERSIONS_exe%]
 ECHO   LP3D_AVAILABLE_VERSIONS_win_conda....[%LP3D_AVAILABLE_VERSIONS_win_conda%]
 ECHO   LP3D_AVAILABLE_VERSIONS_dmg..........[%LP3D_AVAILABLE_VERSIONS_dmg%]
+ECHO   LP3D_AVAILABLE_VERSIONS_arm_dmg......[%LP3D_AVAILABLE_VERSIONS_arm_dmg%]
 ECHO   LP3D_AVAILABLE_VERSIONS_x86_dmg......[%LP3D_AVAILABLE_VERSIONS_x86_dmg%]
 ECHO   LP3D_AVAILABLE_VERSIONS_deb..........[%LP3D_AVAILABLE_VERSIONS_deb%]
 ECHO   LP3D_AVAILABLE_VERSIONS_rpm..........[%LP3D_AVAILABLE_VERSIONS_rpm%]
@@ -440,6 +445,7 @@ ECHO.
 ECHO   LP3D_ALTERNATE_VERSIONS_exe..........[%LP3D_ALTERNATE_VERSIONS_exe%]
 ECHO   LP3D_ALTERNATE_VERSIONS_win_conda....[%LP3D_ALTERNATE_VERSIONS_win_conda%]
 ECHO   LP3D_ALTERNATE_VERSIONS_dmg..........[%LP3D_ALTERNATE_VERSIONS_dmg%]
+ECHO   LP3D_ALTERNATE_VERSIONS_arm_dmg......[%LP3D_ALTERNATE_VERSIONS_arm_dmg%]
 ECHO   LP3D_ALTERNATE_VERSIONS_x86_dmg......[%LP3D_ALTERNATE_VERSIONS_x86_dmg%]
 ECHO   LP3D_ALTERNATE_VERSIONS_deb..........[%LP3D_ALTERNATE_VERSIONS_deb%]
 ECHO   LP3D_ALTERNATE_VERSIONS_rpm..........[%LP3D_ALTERNATE_VERSIONS_rpm%]
@@ -451,25 +457,25 @@ ECHO   LP3D_ALTERNATE_VERSIONS_flp..........[%LP3D_ALTERNATE_VERSIONS_flp%]
 IF %UNIVERSAL_BUILD% NEQ 1 (
   REM SINGLE ARCH BUILD
   IF /I "%GITHUB%" EQU "True" (
-    SET LP3D_ARCH=%CI_ARCH%
+  SET LP3D_X86ARCH=%CI_ARCH%
   )
   IF /I "%APPVEYOR%" EQU "True" (
-    SET LP3D_ARCH=%CI_ARCH%
+  SET LP3D_X86ARCH=%CI_ARCH%
   )
   IF /I "%GITHUB%" NEQ "True" (
     IF /I "%APPVEYOR%" NEQ "True" (
       IF NOT [%1] == [] (
-        SET LP3D_ARCH=%1
+      SET LP3D_X86ARCH=%1
       ) ELSE (
         IF %AUTO% EQU 1 (
           ECHO.
           ECHO * No valid architecture detected.
           GOTO :ERROR_END
         ) ELSE (
-          SET LP3D_ARCH=x86_64
-          SET /p LP3D_ARCH=  Enter build architecture [x86^|x86_64] or press enter to accept default [%LP3D_ARCH%]:
-          IF "%LP3D_ARCH%" NEQ "x86_64" (
-            IF "%LP3D_ARCH%" NEQ "x86" (
+	SET LP3D_X86ARCH=x86_64
+	  SET /p LP3D_X86ARCH=  Enter build architecture [x86^|x86_64] or press enter to accept default [%LP3D_X86ARCH%]:
+	  IF "%LP3D_X86ARCH%" NEQ "x86_64" (
+	  IF "%LP3D_X86ARCH%" NEQ "x86" (
               ECHO.
               ECHO * No valid architecture detected.
               GOTO :ERROR_END
@@ -479,17 +485,17 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
       )
     )
   )
-  IF "%LP3D_ARCH%" EQU "x86_64" (
-    SET LP3D_ARCH_EXT=x64
+  IF "%LP3D_X86ARCH%" EQU "x86_64" (
+  SET LP3D_X86ARCH_EXT=x64
   ) ELSE (
-    SET LP3D_ARCH_EXT=x32
+  SET LP3D_X86ARCH_EXT=x32
   )
-  SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%LP3D_ARCH%
-  SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%LP3D_ARCH%-%LP3D_APP_VERSION_LONG%
+  SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%LP3D_X86ARCH%
+  SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%LP3D_X86ARCH%-%LP3D_APP_VERSION_LONG%
   ECHO.
-  ECHO - Configuring %LP3D_PRODUCT% %LP3D_ARCH% build...
+  ECHO - Configuring %LP3D_PRODUCT% %LP3D_X86ARCH% build...
   ECHO.
-  ECHO   LP3D_ARCH......................[%LP3D_ARCH%]
+  ECHO   LP3D_X86ARCH......................[%LP3D_X86ARCH%]
   ECHO   PKG_DISTRO_DIR.................[%PKG_DISTRO_DIR%]
   CALL :DOWNLOADOPENSSLLIBS
   CALL :DOWNLOADMSVCREDIST
@@ -504,26 +510,26 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   ECHO.
   ECHO - Executing universal package build...
   FOR %%A IN ( x86_64, x86 ) DO (
-    SET LP3D_ARCH=%%A
+  SET LP3D_X86ARCH=%%A
     SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
 
     ECHO.
     ECHO - Configuring %LP3D_PRODUCT% %%A build...
     ECHO.
-    ECHO   LP3D_ARCH......................[%%A]
+    ECHO   LP3D_X86ARCH......................[%%A]
     ECHO   PKG_DISTRO_DIR.................[%LP3D_PRODUCT%_%%A]
     CALL :DOWNLOADOPENSSLLIBS
     CALL :DOWNLOADMSVCREDIST
     CALL :COPYFILES
   )
-  REM LP3D_ARCH_EXT is no longer used, it's just a placholder for AppVersion.nsh
-  SET LP3D_ARCH_EXT=x32
+  REM LP3D_X86ARCH_EXT is no longer used, it's just a placholder for AppVersion.nsh
+  SET LP3D_X86ARCH_EXT=x32
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
   IF %SIGN_APP% == 1 CALL :SIGNAPP
   FOR %%A IN ( x86_64, x86 ) DO (
-    SET LP3D_ARCH=%%A
+  SET LP3D_X86ARCH=%%A
     SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
     SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%%A-%LP3D_APP_VERSION_LONG%
     IF %CREATE_PORTABLE% == 1 CALL :CREATEPORTABLEDISTRO
@@ -551,7 +557,7 @@ REM Directory Structure Format:
 REM Windows                                                            - builds/windows
 REM   |_ Release                                                       - windows/release
 REM        |_PRODUCT_DIR          = LP3D_PRODUCT LP3D_APP_VERSION_LONG - LPub3D_2.0.20.106.752_20170929
-REM            |_PKG_DIST_DIR     = LP3D_PRODUCT LP3D_ARCH             - LPub3D_x86_64
+REM            |_PKG_DIST_DIR     = LP3D_PRODUCT LP3D_X86ARCH             - LPub3D_x86_64
 REM            |_PKG_DOWNLOAD_DIR = PRODUCT_Download                   - LPub3D_Download
 REM            |_PKG_UPDATE_DIR   = PRODUCT_Update                     - LPub3D_Update
 IF NOT EXIST "%PKG_DISTRO_DIR%" (
@@ -621,10 +627,10 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% !define UniversalBuild %UNIVERSAL_BUILD%
 >>%genVersion% ; ${UniversalBuild}
 >>%genVersion%.
->>%genVersion% !define Architecture %LP3D_ARCH%
+>>%genVersion% !define Architecture %LP3D_X86ARCH%
 >>%genVersion% ; ${Architecture}
 >>%genVersion%.
->>%genVersion% !define ArchExt %LP3D_ARCH_EXT%
+>>%genVersion% !define ArchExt %LP3D_X86ARCH_EXT%
 >>%genVersion% ; ${ArchExt}
 >>%genVersion%.
 >>%genVersion% !define ProductDir "..\..\windows\%CONFIGURATION%\%LP3D_PRODUCT_DIR%"
@@ -784,7 +790,7 @@ EXIT /b
 
 :CREATEPORTABLEDISTRO
 IF %CREATE_PORTABLE% == 1 ECHO.
-IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_ARCH% portable install archive package file...
+IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_X86ARCH% portable install archive package file...
 
 IF %CREATE_PORTABLE% == 0 ECHO.
 IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %LP3D_PRODUCT% portable install archive package file
@@ -795,9 +801,10 @@ EXIT /b
 :GENERATE_JSON
 ECHO.
 ECHO - Generating update package alternate version json inserts...
-SET LP3D_ARCH=x86_64
+SET LP3D_X86ARCH=x86_64
 SET LP3D_AMDARCH=amd64
-SET LP3D_DIST_EXTENSIONS=exe, win_conda, dmg, x86_dmg, deb, rpm, pkg, api, snp, flp
+SET LP3D_ARMARCH=arm64
+SET LP3D_DIST_EXTENSIONS=exe, win_conda, dmg, arm_dmg, x86_dmg, deb, rpm, pkg, api, snp, flp
 FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
  CALL :GENERATE_ALT_VERSION_INSERTS %%e
 )
@@ -818,7 +825,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
 >>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%.exe",
 >>%genLPub3DUpdates%       "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_x86-%LP3D_APP_VERSION_LONG%.zip",
->>%genLPub3DUpdates%       "x86_64-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_x86_64-%LP3D_APP_VERSION_LONG%.zip",
+>>%genLPub3DUpdates%       "%LP3D_X86ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_x86_64-%LP3D_APP_VERSION_LONG%.zip",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-exe": {}
@@ -837,7 +844,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.tar.bz2",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86ARCH%.tar.bz2",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_win_conda%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-conda": {}
@@ -851,14 +858,23 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_dmg%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-dmg": {}
 >>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "x86_64-macos.dmg": {
+>>%genLPub3DUpdates%     "%LP3D_ARMARCH%-macos.dmg": {
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-x86_64-macos.dmg",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARMARCH%-macos.dmg",
+>>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
+>>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_dmg%",
+>>%genLPub3DUpdates%       "alt-version-gen-placeholder-%LP3D_ARMARCH%-macos-dmg": {}
+>>%genLPub3DUpdates%     },
+>>%genLPub3DUpdates%     "%LP3D_X86ARCH%-macos.dmg": {
+>>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
+>>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
+>>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86ARCH%-macos.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_x86_dmg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-x86_64-macos-dmg": {}
+>>%genLPub3DUpdates%       "alt-version-gen-placeholder-%LP3D_X86ARCH%-macos-dmg": {}
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-deb": {
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
@@ -873,7 +889,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-1.%LP3D_FCV%.%LP3D_ARCH%.rpm",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-1.%LP3D_FCV%.%LP3D_X86ARCH%.rpm",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-rpm": {}
@@ -882,7 +898,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.pkg.tar.zst",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86ARCH%.pkg.tar.zst",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-pkg": {}
@@ -891,7 +907,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.AppImage",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86ARCH%.AppImage",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_api%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-api": {}
@@ -900,7 +916,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.snap",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86ARCH%.snap",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_snp%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-snp": {}
@@ -909,7 +925,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.flatpack",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86ARCH%.flatpack",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_flp%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-flp": {}
@@ -935,7 +951,10 @@ ECHO - Merging update package version inserts into lpub3dupdates.json...
     IF "%%i" EQU ""alt-version-gen-placeholder-macos-dmg": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_dmg.txt
     )
-    IF "%%i" EQU ""alt-version-gen-placeholder-x86_64-macos-dmg": {}" (
+    IF "%%i" EQU ""alt-version-gen-placeholder-%LP3D_ARMARCH%-macos-dmg": {}" (
+    TYPE %PKG_UPDATE_DIR%\versionInsert_arm_dmg.txt
+    )
+    IF "%%i" EQU ""alt-version-gen-placeholder-%LP3D_X86ARCH%-macos-dmg": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_x86_dmg.txt
     )
     IF "%%i" EQU ""alt-version-gen-placeholder-linux-deb": {}" (
@@ -983,15 +1002,16 @@ EXIT /b
 :GENERATE_ALT_VERSION_INSERTS
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
-SET "win_conda=-%LP3D_ARCH%.tar.bz2"
+SET "win_conda=-%LP3D_X86ARCH%.tar.bz2"
 SET "dmg=_macos.%LP3D_EXT%"
-SET "x86_dmg=_x86_64.macos.dmg"
+SET "x86_dmg=_%LP3D_X86ARCH%.macos.dmg"
+SET "arm_dmg=_%LP3D_ARMARCH%.macos.dmg"
 SET "deb=_0ubuntu1_%LP3D_AMDARCH%.%LP3D_EXT%"
-SET "rpm=_1fedora.%LP3D_ARCH%.%LP3D_EXT%"
-SET "pkg=.645_%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
-SET "api=-%LP3D_ARCH%.AppImage"
-SET "snp=-%LP3D_ARCH%.snap"
-SET "flp=-%LP3D_ARCH%.flatpack"
+SET "rpm=_1fedora.%LP3D_X86ARCH%.%LP3D_EXT%"
+SET "pkg=.645_%LP3D_X86ARCH%.%LP3D_EXT%.tar.xz"
+SET "api=-%LP3D_X86ARCH%.AppImage"
+SET "snp=-%LP3D_X86ARCH%.snap"
+SET "flp=-%LP3D_X86ARCH%.flatpack"
 SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
 REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension - if %1 is 'api', %LP3D_DIST_SUFFIX% is '-api.AppImage'
 CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
@@ -1001,14 +1021,17 @@ SET "LP3D_DIST_PREFIX=LPub3D-"
 IF NOT "%1"=="api" (
   IF NOT "%1"=="snp" (
     IF NOT "%1"=="flp" (
-	  IF NOT "%1"=="win_conda" (
-	    IF NOT "%1"=="x86_dmg" (
-		  SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
+    IF NOT "%1"=="win_conda" (
+      IF NOT "%1"=="arm_dmg" (
+	IF NOT "%1"=="x86_dmg" (
+	  SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
 	    )
 	  )
+      )
     )
   )
 )
+
 SET versionInsert=%PKG_UPDATE_DIR%\versionInsert_%LP3D_EXT%.txt
 SET genVersionInsert=%versionInsert% ECHO
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -1022,7 +1045,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
       IF "%1" EQU "exe" (
         SET LP3D_ALT_VERSION_LONG=2.0.20.0.645_20170208
         >>%genVersionInsert%   "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86-!LP3D_ALT_VERSION_LONG!.zip",
-        >>%genVersionInsert%   "x86_64-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86_64-!LP3D_ALT_VERSION_LONG!.zip",
+	>>%genVersionInsert%   "%LP3D_X86ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_%LP3D_X86ARCH%-!LP3D_ALT_VERSION_LONG!.zip",
       )
     )
     >>%genVersionInsert%   "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/change_log_%%V.txt"
@@ -1033,32 +1056,35 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
       SET LP3D_DIST_SUFFIX=.exe
     )
     IF "%1" EQU "win_conda" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARCH%.tar.bz2
+    SET LP3D_DIST_SUFFIX=-%LP3D_X86ARCH%.tar.bz2
     )
     IF "%1" EQU "dmg" (
       SET LP3D_DIST_SUFFIX=-macos.dmg
     )
+    IF "%1" EQU "arm_dmg" (
+    SET LP3D_DIST_SUFFIX=-%LP3D_ARMARCH%-macos.dmg
+    )
     IF "%1" EQU "x86_dmg" (
-      SET LP3D_DIST_SUFFIX=-x86_64-macos.dmg
-    )	
+    SET LP3D_DIST_SUFFIX=-%LP3D_X86ARCH%-macos.dmg
+    )
     IF "%1" EQU "deb" (
       SET LP3D_DIST_SUFFIX=-%LP3D_DEB%-%LP3D_AMDARCH%.deb
     )
     IF "%1" EQU "rpm" (
-      SET LP3D_DIST_SUFFIX=-1.%LP3D_FCV%.%LP3D_ARCH%.rpm
+    SET LP3D_DIST_SUFFIX=-1.%LP3D_FCV%.%LP3D_X86ARCH%.rpm
     )
     IF "%1" EQU "pkg" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARCH%.pkg.tar.zst
+    SET LP3D_DIST_SUFFIX=-%LP3D_X86ARCH%.pkg.tar.zst
     )
     IF "%1" EQU "api" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARCH%.AppImage
-    ))
+    SET LP3D_DIST_SUFFIX=-%LP3D_X86ARCH%.AppImage
+    )
     IF "%1" EQU "snp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARCH%.snap
+    SET LP3D_DIST_SUFFIX=-%LP3D_X86ARCH%.snap
     )
     IF "%1" EQU "flp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARCH%.flatpack
-    )
+    SET LP3D_DIST_SUFFIX=-%LP3D_X86ARCH%.flatpack
+    ))
     >>%genVersionInsert% "alternate-version-%%V-%LP3D_EXT%": {
     >>%genVersionInsert%   "open-url": "%LP3D_GITHUB_BASE%/releases/tag/v%%V/",
     >>%genVersionInsert%   "latest-version": "%%V",
@@ -1081,7 +1107,7 @@ EXIT /b
 
 :DOWNLOADOPENSSLLIBS
 ECHO.
-ECHO - Download Windows %OPENSSL_LIB% libraries for platform [%LP3D_ARCH%]...
+ECHO - Download Windows %OPENSSL_LIB% libraries for platform [%LP3D_X86ARCH%]...
 
 IF /I "%GITHUB%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -1101,7 +1127,7 @@ IF NOT EXIST "%DIST_DIR%\" (
   EXIT /b
 )
 
-SET OPENSSL_LIB_DIR=%DIST_DIR%\%OPENSSL_LIB%\%OPENSSL_VER%\%LP3D_ARCH%
+SET OPENSSL_LIB_DIR=%DIST_DIR%\%OPENSSL_LIB%\%OPENSSL_VER%\%LP3D_X86ARCH%
 
 IF NOT EXIST "%OPENSSL_LIB_DIR%\" (
   ECHO.
@@ -1119,7 +1145,7 @@ REM For libEAY
 IF "%OPENSSL_VER%" EQU "v1.0" (
   SET OpensslCONTENT=libeay32-x64.dll
   SET OpensslVERIFIED=libeay32.dll
-  IF "%LP3D_ARCH%" EQU "x86" (
+  IF "%LP3D_X86ARCH%" EQU "x86" (
     SET OpensslCONTENT=libeay32.dll
     SET OpensslVERIFIED=libeay32.dll
   )
@@ -1127,7 +1153,7 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
 IF "%OPENSSL_VER%" EQU "v1.1" (
   SET OpensslCONTENT=libcrypto-1_1-x64.dll
   SET OpensslVERIFIED=libcrypto-1_1-x64.dll
-  IF "%LP3D_ARCH%" EQU "x86" (
+  IF "%LP3D_X86ARCH%" EQU "x86" (
     SET OpensslCONTENT=libcrypto-1_1.dll
     SET OpensslVERIFIED=libcrypto-1_1.dll
   )
@@ -1140,7 +1166,7 @@ IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
   CALL :GET_OPENSSL_LIB
 )  ELSE (
   ECHO.
-  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_ARCH% library %OpensslVERIFIED% exist. Nothing to do.
+  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_X86ARCH% library %OpensslVERIFIED% exist. Nothing to do.
 )
 
 CALL :SET_OPENSSL_LIB
@@ -1149,7 +1175,7 @@ REM For libSSL
 IF "%OPENSSL_VER%" EQU "v1.0" (
   SET OpensslCONTENT=ssleay32-x64.dll
   SET OpensslVERIFIED=ssleay32.dll
-  IF "%LP3D_ARCH%" EQU "x86" (
+  IF "%LP3D_X86ARCH%" EQU "x86" (
     SET OpensslCONTENT=ssleay32.dll
     SET OpensslVERIFIED=ssleay32.dll
   )
@@ -1157,7 +1183,7 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
 IF "%OPENSSL_VER%" EQU "v1.1" (
   SET OpensslCONTENT=libssl-1_1-x64.dll
   SET OpensslVERIFIED=libssl-1_1-x64.dll
-  IF "%LP3D_ARCH%" EQU "x86" (
+  IF "%LP3D_X86ARCH%" EQU "x86" (
     SET OpensslCONTENT=libssl-1_1.dll
     SET OpensslVERIFIED=libssl-1_1.dll
   )
@@ -1170,7 +1196,7 @@ IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
   CALL :GET_OPENSSL_LIB
 )  ELSE (
   ECHO.
-  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_ARCH% library %OpensslVERIFIED% exist. Nothing to do.
+  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_X86ARCH% library %OpensslVERIFIED% exist. Nothing to do.
 )
 
 CALL :SET_OPENSSL_LIB
@@ -1185,26 +1211,26 @@ cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
 IF NOT EXIST "%OutputPATH%\%OpensslCONTENT%" (
   ECHO.
-  ECHO - ERROR - %OPENSSL_LIB% library %OpensslCONTENT% %OPENSSL_VER% %LP3D_ARCH% not downloaded
+  ECHO - ERROR - %OPENSSL_LIB% library %OpensslCONTENT% %OPENSSL_VER% %LP3D_X86ARCH% not downloaded
 )
 
 IF "%OPENSSL_VER%" EQU "v1.0" (
-  IF "%LP3D_ARCH%" EQU "x86_64" (
+IF "%LP3D_X86ARCH%" EQU "x86_64" (
     ECHO.
     ECHO - Renaming library file "%OpensslCONTENT%" to "%OpensslVERIFIED%"
     REN "%WebCONTENT%" %OpensslVERIFIED%
     ECHO.
     IF EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-      ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% is availble
+    ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_X86ARCH% is availble
     ) ELSE (
-      ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% not found
+    ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_X86ARCH% not found
     )
   )
 )
 EXIT /b
 
 :SET_OPENSSL_LIB
-SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_ARCH%
+SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_X86ARCH%
 
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
   ECHO.
@@ -1213,7 +1239,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\" (
 
 IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
   ECHO.
-  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% for Architecture %LP3D_ARCH%...
+  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% for Architecture %LP3D_X86ARCH%...
   ECHO - From: %OPENSSL_LIB_DIR%
   ECHO - To:   %PKG_TARGET_DIR%
   IF EXIST "%OPENSSL_LIB_DIR%\%OpensslVERIFIED%" (
@@ -1221,18 +1247,18 @@ IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
     ECHO - %OpensslVERIFIED% copied to "%PKG_TARGET_DIR%\%OpensslVERIFIED%"
   ) ELSE (
     ECHO.
-    ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% does not exist in %OPENSSL_LIB_DIR%\.
+    ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_X86ARCH% does not exist in %OPENSSL_LIB_DIR%\.
   )
 ) ELSE (
   ECHO.
-  ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% exist in %PKG_TARGET_DIR%. Nothing to do.
+  ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_X86ARCH% exist in %PKG_TARGET_DIR%. Nothing to do.
 )
 EXIT /b
 
 :DOWNLOADMSVCREDIST
-IF "%LP3D_ARCH%" EQU "x86_64" (SET "MSVCR_VER=") ELSE (SET MSVCR_VER=2015)
+IF "%LP3D_X86ARCH%" EQU "x86_64" (SET "MSVCR_VER=") ELSE (SET MSVCR_VER=2015)
 ECHO.
-ECHO - Download Microsoft Visual C++ %MSVCR_VER% %LP3D_ARCH% Redistributable...
+ECHO - Download Microsoft Visual C++ %MSVCR_VER% %LP3D_X86ARCH% Redistributable...
 
 IF /I "%GITHUB%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -1256,31 +1282,31 @@ SET MSVC_REDIST_DIR=%DIST_DIR%\vcredist%MSVCR_VER%
 
 IF NOT EXIST "%MSVC_REDIST_DIR%\" (
   ECHO.
-  ECHO - Create MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable store %MSVC_REDIST_DIR%
+  ECHO - Create MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable store %MSVC_REDIST_DIR%
   MKDIR "%MSVC_REDIST_DIR%\"
 )
 
 SET OutputPATH=%MSVC_REDIST_DIR%
 
 IF "%MSVCR_VER%" EQU "" (
-  SET RedistCONTENT=vcredist_%LP3D_ARCH%.exe
+SET RedistCONTENT=vcredist_%LP3D_X86ARCH%.exe
 ) ELSE (
-  SET RedistCONTENT=vcredist_%MSVCR_VER%_%LP3D_ARCH%.exe
+SET RedistCONTENT=vcredist_%MSVCR_VER%_%LP3D_X86ARCH%.exe
 )
 
 CALL :CREATEWEBCONTENTDOWNLOADVBS
 
 ECHO.
-ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable download path: [%OutputPATH%]
+ECHO - MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable download path: [%OutputPATH%]
 
 IF NOT EXIST "%OutputPATH%\%RedistCONTENT%" (
-  CALL :GET_MSVC_REDIST %LP3D_ARCH% %MSVCR_VER%
+CALL :GET_MSVC_REDIST %LP3D_X86ARCH% %MSVCR_VER%
 ) ELSE (
   ECHO.
-  ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable %RedistCONTENT% exist. Nothing to do.
+  ECHO - MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable %RedistCONTENT% exist. Nothing to do.
 )
 
-CALL :SET_MSVC_REDIST %LP3D_ARCH% %MSVCR_VER%
+CALL :SET_MSVC_REDIST %LP3D_X86ARCH% %MSVCR_VER%
 EXIT /b
 
 :GET_MSVC_REDIST
@@ -1288,33 +1314,33 @@ SET WebCONTENT="%OutputPATH%\%RedistCONTENT%"
 SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%RedistCONTENT%
 
 ECHO.
-ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable: %WebCONTENT%...
+ECHO - MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable: %WebCONTENT%...
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 IF "%MSVCR_VER%" NEQ "" (
   ECHO.
-  ECHO - Rename %WebCONTENT% to vcredist_%LP3D_ARCH%.exe
-  REN "%WebCONTENT%" vcredist_%LP3D_ARCH%.exe
-  SET RedistCONTENT=vcredist_%LP3D_ARCH%.exe
+  ECHO - Rename %WebCONTENT% to vcredist_%LP3D_X86ARCH%.exe
+  REN "%WebCONTENT%" vcredist_%LP3D_X86ARCH%.exe
+  SET RedistCONTENT=vcredist_%LP3D_X86ARCH%.exe
 )
 IF EXIST "%OutputPATH%\%RedistCONTENT%" (
   ECHO.
-  ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable %RedistCONTENT% is availble
+  ECHO - MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable %RedistCONTENT% is availble
 )
 EXIT /b
 
 :SET_MSVC_REDIST
-SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_ARCH%\vcredist
+SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_X86ARCH%\vcredist
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
   ECHO.
-  ECHO - Create MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable package path %MSVC_REDIST_DIR%...
+  ECHO - Create MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable package path %MSVC_REDIST_DIR%...
   MKDIR "%PKG_TARGET_DIR%\"
 )
 IF "%MSVCR_VER%" EQU "" (
   SET RedistTARGET=%RedistCONTENT%
 ) ELSE (
   rem Rename vcredist_2015_x86.exe
-  SET RedistTARGET=vcredist_%LP3D_ARCH%.exe
+  SET RedistTARGET=vcredist_%LP3D_X86ARCH%.exe
 )
 IF NOT EXIST "%PKG_TARGET_DIR%\%RedistTARGET%" (
   ECHO.
@@ -1323,7 +1349,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\%RedistTARGET%" (
     COPY /V /Y "%MSVC_REDIST_DIR%\%RedistCONTENT%" "%PKG_TARGET_DIR%\%RedistTARGET%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
+    ECHO -ERROR - MSVC %MSVCR_VER% %LP3D_X86ARCH% Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
   )
 ) ELSE (
   ECHO.
