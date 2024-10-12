@@ -34,7 +34,7 @@ jobs:
       - name: Work Paths
         run: |
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
-          echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+          echo "LP3D_BUILDPKG_PATH=$(cd ../ && mkdir buildpkg && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
         id: cache-third-party
         uses: actions/cache@v4
@@ -77,7 +77,7 @@ jobs:
       - name: Work Paths
         run: |
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
-          echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+          echo "LP3D_BUILDPKG_PATH=$(cd ../ && mkdir buildpkg && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
         id: cache-third-party
         uses: actions/cache@v4
@@ -119,6 +119,7 @@ jobs:
           Echo "LP3D_3RD_PARTY_PATH=$(Join-Path (resolve-path ..\) 'third_party')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           Echo "LP3D_BUILDPKG_PATH=$(Join-Path (resolve-path ..\) 'buildpkg')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           Echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          New-Item -Path ..\ -Name 'buildpkg' -ItemType 'directory'
       - name: Cache Third-party # distribution folder
         id: cache-third-party
         uses: actions/cache@v4
@@ -166,7 +167,7 @@ jobs:
           cache: true
           cache-key-prefix: install-qt-action
       - name: Build Windows
-        run: .\builds\utilities\ci\github\windows-build.bat
+        run: .\builds\utilities\ci\github\windows-build.bat | .\builds\utilities\win_tee.cmd "${{ env.LP3D_BUILDPKG_PATH }}\windows_build.log" append
         env:
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
         shell: cmd
