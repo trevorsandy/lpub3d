@@ -193,7 +193,7 @@ QAbstractItemModel *EditWindow::metaCommandModel(QObject *parent)
 
     QStandardItemModel *model = new QStandardItemModel(parent);
     QString commandIcon = QStringLiteral(":/resources/command16.png");
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         commandIcon = QStringLiteral(":/resources/command_dark16.png");
     foreach (const QString &keyword, lpub->metaKeywords)
         model->appendRow(new QStandardItem(QIcon(commandIcon), keyword));
@@ -207,7 +207,7 @@ QAbstractItemModel *EditWindow::metaCommandModel(QObject *parent)
 void EditWindow::setSelectionHighlighter()
 {
     QColor highlightColor;
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         highlightColor = QColor(Preferences::themeColors[THEME_DARK_LINE_SELECT]);
         highlightColor.setAlpha(50);
     } else {
@@ -658,7 +658,7 @@ void EditWindow::createActions()
     connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
     QIcon commandsDialogIcon;
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         commandsDialogIcon.addFile(":/resources/command_dark32.png");
         commandsDialogIcon.addFile(":/resources/command_dark16.png");
     } else {
@@ -1982,13 +1982,13 @@ void EditWindow::highlightSelectedLines(QVector<LineHighlight> &lines, bool isEd
             switch(action)
             {
                 case HIGHLIGHT_CLEAR:
-                    if (Preferences::displayTheme == THEME_DARK)
+                    if (Preferences::darkTheme)
                         color = QColor(Preferences::themeColors[THEME_DARK_PALETTE_BASE]);
                     else
                         color = QColor(Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
                     break;
                 case HIGHLIGHT_SELECTION:
-                    if (Preferences::displayTheme == THEME_DARK) {
+                    if (Preferences::darkTheme) {
                         color = QColor(isEditor ?
                                            Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT] :
                                            Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT]);
@@ -2001,7 +2001,7 @@ void EditWindow::highlightSelectedLines(QVector<LineHighlight> &lines, bool isEd
                     color = color.lighter(180);
                     break;
                 case HIGHLIGHT_CURRENT:
-                    if (Preferences::displayTheme == THEME_DARK)
+                    if (Preferences::darkTheme)
                         color = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
                     else
                         color = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
@@ -2113,7 +2113,7 @@ void EditWindow::highlightCurrentLine()
     QTextEdit::ExtraSelection selection;
 
     QColor lineColor;
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         if (showLineType == LINE_ERROR)
             lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_ERROR]).lighter(180);
         else
@@ -2493,7 +2493,7 @@ void EditWindow::waitingSpinnerStart()
     }
 
     QColor spinnerColor(
-           Preferences::displayTheme == THEME_DARK ?
+           Preferences::darkTheme ?
            Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
     _waitingSpinner = new WaitingSpinnerWidget(this);
     _waitingSpinner->setColor(QColor(spinnerColor));
@@ -2952,7 +2952,7 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     QPalette lineNumberPalette = lineNumberArea->palette();
     lineNumberPalette.setCurrentColorGroup(QPalette::Active);
     lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
         lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
     } else {
@@ -3197,7 +3197,7 @@ void TextEditor::drawLineEndMarker(QPaintEvent *e)
     int fontHeight = fontMetrics().height();
 
     QColor markerColor;
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         markerColor = QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_HEADER_VALUE]);
     else
         markerColor = QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_HEADER_VALUE]);

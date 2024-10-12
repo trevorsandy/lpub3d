@@ -106,7 +106,7 @@ void ParmsWindow::setSelectionHighlighter()
     QColor highlightColor;
     if (Preferences::displayTheme == THEME_DEFAULT)
         highlightColor = QColor(LPUB3D_DEFAULT_COLOUR);
-    else if (Preferences::displayTheme == THEME_DARK)
+    else if (Preferences::darkTheme)
         highlightColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_HILIGHT_TEXT]);
     highlightColor.setAlpha(30);
 
@@ -791,7 +791,7 @@ ParmEditor::ParmEditor(QWidget *parent) :
     lineNumberPalette.setCurrentColorGroup(QPalette::Active);
     lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
     lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
         lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
     } else
@@ -895,7 +895,7 @@ void ParmEditor::highlightCurrentLine()
             lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
           }
         else
-        if (Preferences::displayTheme == THEME_DARK) {
+        if (Preferences::darkTheme) {
             lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
         }
 

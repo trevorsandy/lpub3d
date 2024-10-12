@@ -449,7 +449,7 @@ int LPub::SetViewpointLatLonDialog(bool SetCamera)
     ActiveView->GetCamera()->GetAngles(mLatitude, mLongitude, Distance);
 
     QPalette ReadOnlyPalette = QApplication::palette();
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
     else
         ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));

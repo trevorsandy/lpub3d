@@ -3274,7 +3274,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
 
     if (Preferences::modeGUI) {
         QColor spinnerColor(
-               Preferences::displayTheme == THEME_DARK ?
+               Preferences::darkTheme ?
                Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
         waitingSpinner = new WaitingSpinnerWidget(KpageView);
         waitingSpinner->setColor(spinnerColor);
@@ -5970,7 +5970,7 @@ void Gui::createActions()
 
     // End Jaco's code
     QIcon commandsDialogIcon;
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         commandsDialogIcon.addFile(":/resources/command_dark32.png");
         commandsDialogIcon.addFile(":/resources/command_dark16.png");
     } else {
@@ -7806,7 +7806,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
 void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 {
   QPalette readOnlyPalette = QApplication::palette();
-  if (Preferences::displayTheme == THEME_DARK)
+  if (Preferences::darkTheme)
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
   else
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
@@ -8102,7 +8102,7 @@ TextEditSearchDirs::TextEditSearchDirs(QWidget *parent) :
   QPalette lineNumberPalette = lineNumberArea->palette();
   lineNumberPalette.setCurrentColorGroup(QPalette::Active);
   lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
-  if (Preferences::displayTheme == THEME_DARK) {
+  if (Preferences::darkTheme) {
     lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
     lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
   } else {
@@ -8172,7 +8172,7 @@ void TextEditSearchDirs::highlightCurrentLine()
     QTextEdit::ExtraSelection selection;
 
     QColor lineColor;
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
     else
         lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);

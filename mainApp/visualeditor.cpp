@@ -251,7 +251,7 @@ void Gui::create3DActions()
     QString ViewpointHome16    = QStringLiteral(":/resources/veiw_viewpoint_home_16.png");
     QString ViewpointLatLong   = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude.png");
     QString ViewpointLatLong16 = QStringLiteral(":/resources/veiw_viewpoint_latitude_longitude_16.png");
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         Front                  = QStringLiteral(":/resources/front_dark.png");
         Back                   = QStringLiteral(":/resources/back_dark.png");
         Left                   = QStringLiteral(":/resources/right_dark.png");

@@ -55,7 +55,7 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
         br07 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_DESCRIPTION]));
       }
     else
-    if (Preferences::displayTheme == THEME_DARK)  {
+    if (Preferences::darkTheme)  {
         br01 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_COMMENT]));
         br02 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_HEADER]));
         br03 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_EQUAL]));

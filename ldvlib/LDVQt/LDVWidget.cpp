@@ -116,7 +116,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		: QGLWidget(parent),
 		iniFlag(iniflag),
 		forceIni(forceIni),
-		darkTheme(Preferences::displayTheme == THEME_DARK),
+		darkTheme(Preferences::darkTheme),
 		ldvContext(nullptr),
 		ldvParent(parent),
 		ldPrefs(nullptr),

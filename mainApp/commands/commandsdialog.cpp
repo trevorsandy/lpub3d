@@ -79,7 +79,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   QGridLayout *widgetLayout;
 
   readOnlyPalette = QApplication::palette();
-  if (Preferences::displayTheme == THEME_DARK)
+  if (Preferences::darkTheme)
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
   else
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(140));

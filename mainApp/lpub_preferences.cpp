@@ -3891,8 +3891,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneBackgroundColorKey("SceneBackgroundColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey))) {
-      displayTheme == THEME_DARK ?
-                  sceneBackgroundColor = themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
+      darkTheme ? sceneBackgroundColor = themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
                   sceneBackgroundColor = themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR];
       Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
   } else {
@@ -3901,8 +3900,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneGridColorKey("SceneGridColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGridColorKey))) {
-      displayTheme == THEME_DARK ?
-                  sceneGridColor = themeColors[THEME_DARK_GRID_PEN] :
+      darkTheme ? sceneGridColor = themeColors[THEME_DARK_GRID_PEN] :
                   sceneGridColor = themeColors[THEME_DEFAULT_GRID_PEN];
       Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
   } else {
@@ -3911,8 +3909,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneRulerTickColorKey("SceneRulerTickColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey))) {
-      displayTheme == THEME_DARK ?
-                  sceneRulerTickColor = themeColors[THEME_DARK_RULER_TICK_PEN] :
+      darkTheme ? sceneRulerTickColor = themeColors[THEME_DARK_RULER_TICK_PEN] :
                   sceneRulerTickColor = themeColors[THEME_DEFAULT_RULER_TICK_PEN];
       Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
   } else {
@@ -3921,8 +3918,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey))) {
-      displayTheme == THEME_DARK ?
-                  sceneRulerTrackingColor = themeColors[THEME_DARK_RULER_TRACK_PEN] :
+      darkTheme ? sceneRulerTrackingColor = themeColors[THEME_DARK_RULER_TRACK_PEN] :
                   sceneRulerTrackingColor = themeColors[THEME_DEFAULT_RULER_TRACK_PEN];
       Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
   } else {
@@ -3931,8 +3927,7 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneGuideColorKey("SceneGuideColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey))) {
-      displayTheme == THEME_DARK ?
-                  sceneGuideColor = themeColors[THEME_DARK_GUIDE_PEN] :
+      darkTheme ? sceneGuideColor = themeColors[THEME_DARK_GUIDE_PEN] :
                   sceneGuideColor = themeColors[THEME_DEFAULT_GUIDE_PEN];
       Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
   } else {
@@ -4231,7 +4226,7 @@ void Preferences::updateViewerInterfaceColors()
         Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[t]);
     };
 
-    if (displayTheme == THEME_DARK) {
+    if (darkTheme) {
         setInterfaceColor(THEME_DARK_VIEWER_BACKGROUND_COLOR, lcGetProfileInt(LC_PROFILE_BACKGROUND_COLOR));
         setInterfaceColor(THEME_DARK_VIEWER_GRADIENT_COLOR_TOP, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP));
         setInterfaceColor(THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM));
@@ -5684,7 +5679,6 @@ bool Preferences::getPreferences()
                                   .arg(doNotShowPageProcessDlg ? On : Off));
         }
 
-        bool darkTheme = displayTheme == THEME_DARK;
         bool displayThemeChanged = false;
         bool useSystemThemeChanged = false;
         if ((displayThemeChanged = displayTheme != dialog->displayTheme())) {
@@ -5705,6 +5699,7 @@ bool Preferences::getPreferences()
             displayTheme = dialog->displayTheme();
 #endif
             darkTheme  = displayTheme == THEME_DARK;
+
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
 
             if (useSystemThemeChanged) {

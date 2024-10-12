@@ -371,10 +371,10 @@ BlenderPreferences::BlenderPreferences(
     mContent->setLayout(mForm);
 
     QPalette ReadOnlyPalette = QApplication::palette();
-    if (Preferences::displayTheme == THEME_DARK)
-      ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
+    if (Preferences::darkTheme)
+        ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
     else
-      ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
+        ReadOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
     ReadOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
 
     // Blender Executable
@@ -498,7 +498,7 @@ BlenderPreferences::BlenderPreferences(
         mBlenderVersionEdit->setText(mBlenderVersion);
         mBlenderVersionEdit->setVisible(true);
     } else {
-        QString const textColour = Preferences::displayTheme == THEME_DARK
+        QString const textColour = Preferences::darkTheme
                                        ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
                                        : QLatin1String("blue");
 
@@ -1524,7 +1524,7 @@ void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &mes
         label  = ! message.isEmpty() ? message : tr("%1 not configured").arg(which);
         colour = message.startsWith("Error:", Qt::CaseInsensitive)
                      ? QLatin1String("red")
-                     : Preferences::displayTheme == THEME_DARK
+                     : Preferences::darkTheme
                            ? Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT]
                            : QLatin1String("blue");
 

@@ -76,7 +76,7 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
     lineNumberPalette.setCurrentColorGroup(QPalette::Active);
     lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
     lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
         lineNumberPalette.setColor(QPalette::Window,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
     } else
@@ -353,7 +353,7 @@ QAbstractItemModel *CommandsTextEdit::metaCommandModel(QObject *parent)
 
     QStandardItemModel *model = new QStandardItemModel(parent);
     QString commandIcon = QStringLiteral(":/resources/command16.png");
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         commandIcon = QStringLiteral(":/resources/command_dark16.png");
     foreach (const QString &keyword, lpub->metaKeywords)
         model->appendRow(new QStandardItem(QIcon(commandIcon), keyword));
@@ -367,7 +367,7 @@ QAbstractItemModel *CommandsTextEdit::metaCommandModel(QObject *parent)
 void CommandsTextEdit::setSelectionHighlighter()
 {
     QColor highlightColor;
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         highlightColor = QColor(Preferences::themeColors[THEME_DARK_LINE_SELECT]);
         highlightColor.setAlpha(50);
     } else {
@@ -595,7 +595,7 @@ void CommandsTextEdit::drawLineEndMarker(QPaintEvent *e)
     int fontHeight = fontMetrics().height();
 
     QColor markerColor;
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         markerColor = QColor(Qt::darkGray).darker(150);
     else
         markerColor = QColor(Qt::darkGray);
@@ -724,7 +724,7 @@ void CommandsTextEdit::highlightCurrentLine()
             lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
           }
         else
-        if (Preferences::displayTheme == THEME_DARK) {
+        if (Preferences::darkTheme) {
             lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
         }
 

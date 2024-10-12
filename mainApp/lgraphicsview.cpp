@@ -65,10 +65,10 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
 }
 
 void LGraphicsView::setViewBorderStyleSheet(){
-  if (Preferences::displayTheme == THEME_DARK)
-    setStyleSheet(QString("QGraphicsView { border: 1px solid %1; }").arg(Preferences::themeColors[THEME_DARK_GRAPHICSVIEW_BORDER_COLOR]));
+  if (Preferences::darkTheme)
+      setStyleSheet(QString("QGraphicsView { border: 1px solid %1; }").arg(Preferences::themeColors[THEME_DARK_GRAPHICSVIEW_BORDER_COLOR]));
   else
-    setStyleSheet("");
+      setStyleSheet("");
 }
 
 void LGraphicsView::setSceneRuler(){

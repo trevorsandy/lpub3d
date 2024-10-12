@@ -324,7 +324,7 @@ void LDViewExportOption::populateExportSettings(void)
 					QLabel *label;
 
 					QPalette readOnlyPalette = QApplication::palette();
-					if (Preferences::displayTheme == THEME_DARK)
+					if (Preferences::darkTheme)
 						readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
 					else
 						readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));

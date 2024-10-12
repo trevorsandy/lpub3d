@@ -348,7 +348,7 @@ void PreferencesDialog::setPreferences()
 
   readOnlyPalette = QApplication::palette();
 
-  if (Preferences::displayTheme == THEME_DARK)
+  if (Preferences::darkTheme)
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
   else
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
@@ -1335,7 +1335,7 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
 {
     resetSceneColorsFlag = checked;
 
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Preferences::darkTheme) {
         sceneBackgroundColorStr    = Preferences::themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR];
         sceneGridColorStr          = Preferences::themeColors[THEME_DARK_GRID_PEN];
         sceneRulerTickColorStr     = Preferences::themeColors[THEME_DARK_RULER_TICK_PEN];
@@ -1687,7 +1687,7 @@ void PreferencesDialog::messageManagement()
     int cleared = 0;
     QString clearDetailText;
     const QString style = QString("QLabel { color : %1; }")
-            .arg(Preferences::displayTheme == THEME_DARK ? "#ff9999" : "#ff0000");
+                                  .arg(Preferences::darkTheme ? "#ff9999" : "#ff0000");
     if (sender() == parseErrorTBtn) {
         cleared = clearErrors(Preferences::ParseErrors);
         parseErrorLbl->setStyleSheet(style);
@@ -2496,7 +2496,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
     buttonBox.addButton(button,QDialogButtonBox::ActionRole);
     QObject::connect(button,SIGNAL(clicked()), this, SLOT(toggleDefaultsTab()));
 
-    bool themeDark = Preferences::displayTheme == THEME_DARK ;
+    bool themeDark = Preferences::darkTheme ;
 
     QMap<int, QString> editedColors;
 
@@ -2790,7 +2790,7 @@ QColor ThemeColorsDialog::getColor(const int index, const QString &name)
     default:
         break;
     }
-    if (Preferences::displayTheme == THEME_DARK && index == THEME_DARK_LINE_ERROR) {
+    if (Preferences::darkTheme && index == THEME_DARK_LINE_ERROR) {
         color = color.lighter(180);
     }
     return color;
@@ -2809,7 +2809,7 @@ void ThemeColorsDialog::toggleDefaultsTab()
         scrollArea->setWidget(container);
 
         QPalette readOnlyPalette = QApplication::palette();
-        if (Preferences::displayTheme == THEME_DARK)
+        if (Preferences::darkTheme)
             readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
         else
             readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
@@ -2860,7 +2860,7 @@ void ThemeColorsDialog::toggleDefaultsTab()
         tabs->setCurrentIndex(2);
     } else {
         tabs->removeTab(2);
-        tabs->setCurrentIndex(Preferences::displayTheme == THEME_DARK ? 1 : 0);
+        tabs->setCurrentIndex(Preferences::darkTheme ? 1 : 0);
     }
     dialog->adjustSize();
 }
@@ -3199,7 +3199,7 @@ void PreferencesDialog::updateCommandList(bool loadDefaultShortcuts)
 //#endif
 
         QColor textColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]);
-        if (Preferences::displayTheme == THEME_DARK)
+        if (Preferences::darkTheme)
             textColor = QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]);
         QBrush b (textColor);
         item->setForeground(0, b);

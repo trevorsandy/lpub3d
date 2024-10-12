@@ -166,7 +166,7 @@ QAbstractItemModel *FindReplace::metaCommandModel(QObject *parent)
 
     QStandardItemModel *model = new QStandardItemModel(parent);
     QString commandIcon = QStringLiteral(":/resources/command16.png");
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         commandIcon = QStringLiteral(":/resources/command_dark16.png");
     foreach (const QString &keyword, lpub->metaKeywords)
         model->appendRow(new QStandardItem(QIcon(commandIcon), keyword));

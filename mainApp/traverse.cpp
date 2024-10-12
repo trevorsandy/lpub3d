@@ -5492,8 +5492,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             }
             mpdCombo->addItem(includeFile, fileName);
             comboIndex++;
-            bool dark = Preferences::displayTheme == THEME_DARK;
-            mpdCombo->setItemData(comboIndex, QBrush(dark ? Qt::cyan : Qt::blue), Qt::TextColorRole);
+            mpdCombo->setItemData(comboIndex, QBrush(Preferences::darkTheme ? Qt::cyan : Qt::blue), Qt::TextColorRole);
             return true;
         }
         return false;

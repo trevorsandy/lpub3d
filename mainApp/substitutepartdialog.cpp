@@ -231,7 +231,7 @@ void SubstitutePartDialog::initialize()
     };
 
     QPalette readOnlyPalette = QApplication::palette();
-    if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::darkTheme)
         readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
     else
         readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
@@ -475,7 +475,7 @@ void SubstitutePartDialog::typeChanged(Which attribute)
             ui->substituteEdit->setText(newType);
         } else {
             ui->messageLbl->setText(QString("Part type %1 is the same as current type.").arg(currentType));
-            if (Preferences::displayTheme == THEME_DARK) {
+            if (Preferences::darkTheme) {
                 const QString themeColor = Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT];
                 ui->messageLbl->setStyleSheet("QLabel { color : " + themeColor + "; }");
             } else {
@@ -504,7 +504,7 @@ void SubstitutePartDialog::typeChanged(Which attribute)
             ui->ldrawEdit->setText(newType);
         } else {
             ui->messageLbl->setText(QString("Part type %1 is the same as substitute type.").arg(currentType));
-            if (Preferences::displayTheme == THEME_DARK) {
+            if (Preferences::darkTheme) {
                 const QString themeColor = Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT];
                 ui->messageLbl->setStyleSheet("QLabel { color : " + themeColor + "; }");
             } else {
