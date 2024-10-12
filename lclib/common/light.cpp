@@ -141,14 +141,13 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 
 	mPosition.Save(Stream, "LIGHT", "POSITION", true, !mLCMeta);
 	mRotation.Save(Stream, "LIGHT", "ROTATION", true, !mLCMeta);
+
 	if (POVRayLight && mLightType != lcLightType::Point)
 	{
 		const lcVector3 Target = !mLCMeta ? lcVector3LeoCADToLDraw(GetTargetPosition()) : GetTargetPosition();
 		Stream << QLatin1String(Meta + " LIGHT TARGET_POSITION ") << Target[0] << ' ' << Target[1] << ' ' << Target[2] << LineEnding;
 	}
 	mColor.Save(Stream, "LIGHT", "COLOR", true, !mLCMeta);
-	mAreaSizeX.Save(Stream, "LIGHT", "AREA_SIZE_X", true, !mLCMeta);
-	mAreaSizeY.Save(Stream, "LIGHT", "AREA_SIZE_Y", true, !mLCMeta);
 
 	if (POVRayLight)
 	{
@@ -159,9 +158,6 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 	else
 	{
 		mBlenderPower.Save(Stream, "LIGHT", "BLENDER_POWER", true, !mLCMeta);
-		mPointBlenderRadius.Save(Stream, "LIGHT", "BLENDER_POINT_RADIUS", true, !mLCMeta);
-		mSpotBlenderRadius.Save(Stream, "LIGHT", "BLENDER_SPOT_RADIUS", true, !mLCMeta);
-		mDirectionalBlenderAngle.Save(Stream, "LIGHT", "BLENDER_SUN_ANGLE", true, !mLCMeta);
 		mBlenderDiffuse.Save(Stream, "LIGHT", "BLENDER_DIFFUSE", true, !mLCMeta);
 		mBlenderSpecular.Save(Stream, "LIGHT", "BLENDER_SPECULAR", true, !mLCMeta);
 		if (mEnableBlenderCutoff)
@@ -172,25 +168,33 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 
 	switch (mLightType)
 	{
+/*** LPub3D Mod - LPUB meta properties ***/
 	case lcLightType::Count:
+		break;
+
 	case lcLightType::Point:
+		if (!POVRayLight)
+			mPointBlenderRadius.Save(Stream, "LIGHT", "BLENDER_POINT_RADIUS", true, !mLCMeta);
 		break;
 
 	case lcLightType::Spot:
-/*** LPub3D Mod - LeoCAD meta command ***/
 		mSpotConeAngle.Save(Stream, "LIGHT", "SPOT_CONE_ANGLE", true, !mLCMeta);
 		mSpotPenumbraAngle.Save(Stream, "LIGHT", "SPOT_PENUMBRA_ANGLE", true, !mLCMeta);
 		if (POVRayLight)
 			mSpotPOVRayTightness.Save(Stream, "LIGHT", "POVRAY_SPOT_TIGHTNESS", true, !mLCMeta);
+		else
+			mSpotBlenderRadius.Save(Stream, "LIGHT", "BLENDER_SPOT_RADIUS", true, !mLCMeta);
 		break;
-/*** LPub3D Mod end ***/
 
 	case lcLightType::Directional:
+		if (!POVRayLight)
+			mDirectionalBlenderAngle.Save(Stream, "LIGHT", "BLENDER_SUN_ANGLE", true, !mLCMeta);
 		break;
 
 	case lcLightType::Area:
-/*** LPub3D Mod - LeoCAD meta command ***/
 		Stream << QLatin1String(Meta + " LIGHT AREA_SHAPE ") << gLightAreaShapes[static_cast<int>(mAreaShape)] << LineEnding;
+		mAreaSizeX.Save(Stream, "LIGHT", "AREA_SIZE_X", true, !mLCMeta);
+		mAreaSizeY.Save(Stream, "LIGHT", "AREA_SIZE_Y", true, !mLCMeta);
 		if (POVRayLight)
 		{
 			mAreaPOVRayGridX.Save(Stream, "LIGHT", "POVRAY_AREA_GRID_X", true, !mLCMeta);
