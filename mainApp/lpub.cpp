@@ -5943,6 +5943,7 @@ void Gui::createActions()
     // Help
     QAction *aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
     aboutAct->setObjectName("aboutAct.1");
+	aboutAct->setShortcut(QStringLiteral("Ctrl+Alt+V"));
     aboutAct->setStatusTip(tr("Display version, system and build information"));
     lpub->actions.insert(aboutAct->objectName(), Action(QStringLiteral("Help.About"), aboutAct));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));

@@ -1,4 +1,4 @@
-LPub3D 2.4.7.147.3623 (12 10 2024 04:16:43)
+LPub3D 2.4.7.148.3624 (12 10 2024 04:17:53)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add shortcut to launch About LPub3D window #762
 - Enhancement - Apple silicon arm64 builds #761 
 - Change - Custom parts with underscore in the name #730
 - Change - Difference in rendering with native renderer between versions #731

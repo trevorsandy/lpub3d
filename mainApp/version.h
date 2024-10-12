@@ -226,10 +226,10 @@
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
     #define VER_IDE                     "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)"
   #elif __APPLE__
-    #define VER_COMPILED_ON             "Clang (x86 64bit) Apple"
+    #define VER_COMPILED_ON             "Clang (x86" VER_BUILD_ARCH_STR "bit) Apple"
     #define VER_COMPILED_FOR            "macOS " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
-    #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
-    #define VER_IDE                     "QtQt Creator 9.0.0 on Qt 6.3.1 (Clang 13.0, x64)"
+    #define VER_COMPILED_WITH           "Qt qtver (Clang " VER_BUILD_ARCH_STR "bit)"
+    #define VER_IDE                     "QtQt Creator 14.0.1 on Qt 6.7.2 (Clang 13.0, x64)"
   #elif __linux__
     #define VER_COMPILED_ON             "GCC (9.1 20220914)"
     #define VER_COMPILED_FOR            "Linux " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
@@ -244,10 +244,10 @@
     #error "Unknown compiler"
   #endif
 #elif _MSC_VER
-  #define VER_COMPILED_ON                "Micorsoft Visual C++ 2019"
+  #define VER_COMPILED_ON                "Micorsoft Visual C++ 2022"
   #define VER_COMPILED_FOR               "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2019 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 10.0.0 on Qt 6.4.2 (MSVC 2019, 64bit)"
+  #define VER_IDE                        "Qt Creator 14.0.82 on Qt 6.8.2 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
 #endif
 
 #endif // VERSION_H
