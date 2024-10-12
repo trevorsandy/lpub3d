@@ -544,18 +544,20 @@ void RenderDialog::on_RenderButton_clicked()
         QStringList povenv = QProcess::systemEnvironment();
         povenv.prepend("POV_IGNORE_SYSCONF_MSG=1");
 
-        mProcess = new RenderProcess(this);
-        mProcess->setEnvironment(povenv);
-        mProcess->setWorkingDirectory(QDir::currentPath() + QDir::separator() + Paths::tmpDir); // pov win console app will not write to dir different from cwd or source file dir
-        mProcess->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
-        mProcess->start(Preferences::povrayExe, Arguments);
-        if (mProcess->waitForStarted())
+        RenderProcess Process = new RenderProcess(this);
+        Process->setEnvironment(povenv);
+        Process->setWorkingDirectory(QDir::currentPath() + QDir::separator() + Paths::tmpDir); // pov win console app will not write to dir different from cwd or source file dir
+        Process->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
+        Process->start(Preferences::povrayExe, Arguments);
+        if (Process->waitForStarted())
         {
+            mProcess = Process;
             ui->RenderButton->setText(tr("Cancel"));
             ui->RenderProgress->setValue(ui->RenderProgress->minimum());
         }
         else
         {
+            delete Process;
             lpub->getAct("povrayRenderAct.4")->setEnabled(true);
             message = tr("Error starting POV-Ray.");
             emit gui->messageSig(LOG_ERROR, message);
@@ -646,7 +648,7 @@ void RenderDialog::on_RenderButton_clicked()
                 scriptCommand.append(QString(" > %1").arg(QDir::toNativeSeparators(GetLogFileName(true/*stdOut*/))));
 
             script.setFileName(QString("%1/%2").arg(scriptDir).arg(scriptName));
-            if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            if (script.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream stream(&script);
 #ifdef Q_OS_WIN
                 stream << QLatin1String("@ECHO OFF &SETLOCAL") << lpub_endl;
@@ -689,6 +691,7 @@ void RenderDialog::on_RenderButton_clicked()
         connect(mProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(ReadStdOut()));
 
         QStringList systemEnvironment = QProcess::systemEnvironment();
+
         systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
 
         mProcess->setEnvironment(systemEnvironment);
@@ -993,7 +996,7 @@ void RenderDialog::ShowResult()
         ui->RenderProgress->setRange(0,1);
         ui->RenderProgress->setValue(0);
         QString const &title = mRenderType == BLENDER_RENDER ? tr("Blender Render") : tr("POV-Ray Render");
-        QString const &body = tr ("An error occurred while rendering. See Show Details...");
+        QString const &body = tr("An error occurred while rendering. See Show Details...");
         BlenderPreferences::showMessage(body, title, QString(), StdErrLog, 0, QMessageBox::Critical);
         return;
     } else {
