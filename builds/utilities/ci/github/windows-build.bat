@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 15, 2023
+rem  Last Update: September 12, 2024
 rem  Copyright (C) 2021 - 2024 by Trevor SANDY
 rem --
 rem --
@@ -20,7 +20,8 @@ SET GITHUB_CONFIG=release
 SET BUILD_ARCH=-all
 SET BUILD_OPT=default
 SET UPDATE_LDRAW_LIBS=False
-SET LP3D_VSVERSION=2019
+SET LP3D_VSVERSION=2022
+SET LP3D_QTVCVERSION=2019
 SET LP3D_3RD_DIST_DIR=lpub3d_windows_3rdparty
 SET LP3D_DIST_DIR_PATH=%LP3D_3RD_PARTY_PATH%\windows
 SET LP3D_LDRAW_DIR_PATH=%LP3D_3RD_PARTY_PATH%\ldraw

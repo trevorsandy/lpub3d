@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 06, 2023
+# Last Update: September 12, 2024
 # Copyright (C) 2021 - 2024 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -108,7 +108,7 @@ jobs:
   build-windows:
     # if: ${{ false }} # uncomment to disable
     name: Build Windows
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -131,6 +131,20 @@ jobs:
         with:
           path: ${{ env.LP3D_BUILD_BASE }}\Qt
           key: qt-windows-${{ env.QT_CACHE }}
+      - name: VC 140 Build Tools
+        run: |
+          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+          $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          $ComponentsToAdd= @(
+            "Microsoft.VisualStudio.Component.VC.140"
+            "Microsoft.VisualStudio.Component.WinXP"
+          )
+          [string]$WorkloadArgs = $ComponentsToAdd | ForEach-Object {" --add " +  $_} # Use --remove to delete component
+          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$WorkloadArgs, '--quiet', '--norestart', '--nocache')
+          # should be run twice
+          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+        shell: powershell
       - name: Windows 8.1 SDK
         run: |
           Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing

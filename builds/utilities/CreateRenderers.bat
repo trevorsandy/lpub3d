@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 29, 2023
+rem  Last Update: September 02, 2024
 rem  Copyright (C) 2017 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -38,7 +38,7 @@ IF "%GITHUB%" EQU "True" SET BUILD_WORKER=True
 IF "%LP3D_CONDA_BUILD%" EQU "True" SET BUILD_WORKER=True
 
 IF "%LP3D_QTVERSION%" == "" SET LP3D_QTVERSION=5.15.2
-IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2019
+IF "%LP3D_QTVCVERSION%" == "" SET "LP3D_QTVCVERSION=2019"
 
 IF "%BUILD_WORKER%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
@@ -64,10 +64,10 @@ IF "%BUILD_WORKER%" NEQ "True" (
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
     IF "%LP3D_QT32_MSVC%" == "" (
-      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
+      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_QTVCVERSION%\bin
     )
     IF "%LP3D_QT64_MSVC%" == "" (
-      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
+      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_QTVCVERSION%_64\bin
     )
     IF "%LP3D_WIN_GIT%" == "" (
       SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
