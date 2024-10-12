@@ -2621,7 +2621,7 @@ void lcBlenderPreferences::SaveSettings()
 		Key = mBlenderPaths[LblIdx].key;
 		Value = QDir::toNativeSeparators(mBlenderPaths[LblIdx].value);
 
-		if (Settings.contains(Key))
+		if (!Key.isEmpty())
 			Settings.setValue(Key, QVariant(Value));
 	}
 
@@ -2645,7 +2645,7 @@ void lcBlenderPreferences::SaveSettings()
 
 		Key = mBlenderSettings[LblIdx].key;
 
-		if (Settings.contains(Key))
+		if (!Key.isEmpty())
 			Settings.setValue(Key, QVariant(Value));
 	}
 
@@ -2664,7 +2664,7 @@ void lcBlenderPreferences::SaveSettings()
 		Key = mBlenderPaths[LblIdx].key_mm;
 		Value = QDir::toNativeSeparators(mBlenderPaths[LblIdx].value);
 
-		if (Settings.contains(Key))
+		if (!Key.isEmpty())
 			Settings.setValue(Key, QVariant(Value));
 	}
 
@@ -2685,7 +2685,7 @@ void lcBlenderPreferences::SaveSettings()
 
 		Key = mBlenderSettingsMM[LblIdx].key;
 
-		if (Settings.contains(Key))
+		if (!Key.isEmpty())
 			Settings.setValue(Key, QVariant(Value));
 	}
 

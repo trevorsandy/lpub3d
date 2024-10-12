@@ -2452,7 +2452,7 @@ void BlenderPreferences::saveSettings()
             continue;
         QString const key = mBlenderPaths[i].key;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
-        if (Settings.contains(key))
+        if (!key.isEmpty())
             Settings.setValue(key, QVariant(value));
     }
 
@@ -2469,7 +2469,7 @@ void BlenderPreferences::saveSettings()
         }
 
         QString const key = mBlenderSettings[i].key;
-        if (Settings.contains(key))
+        if (!key.isEmpty())
             Settings.setValue(key, QVariant(value));
     }
 
@@ -2486,7 +2486,7 @@ void BlenderPreferences::saveSettings()
             continue;
         QString const key = mBlenderPaths[i].key_mm;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
-        if (Settings.contains(key))
+        if (!key.isEmpty())
             Settings.setValue(key, QVariant(value));
     }
 
@@ -2499,7 +2499,7 @@ void BlenderPreferences::saveSettings()
             value = mBlenderSettingsMM[i].value;
         }
         QString const key = mBlenderSettingsMM[i].key;
-        if (Settings.contains(key))
+        if (!key.isEmpty())
             Settings.setValue(key, QVariant(value));
     }
 
