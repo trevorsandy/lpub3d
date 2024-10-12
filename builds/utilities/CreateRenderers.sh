@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update September 24, 2024
+# Last Update September 25, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -546,6 +546,10 @@ else
   SOURCED="true"
   Info && Info "Start CreateRenderers execution at $PWD..."
 fi
+if [[ "${SOURCED}" = "false" && -f "rendererVars.sh" ]]; then
+  # Info && cat rendererVars.sh
+  source rendererVars.sh && importedRendererVars=1
+fi
 
 # Grab the calling dir
 CallDir=$PWD
@@ -555,6 +559,9 @@ curlopts="-sL -C -"
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
 [ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
+[ -n "$importedRendererVars" ] && Info "Renderer Build Variables.[rendererVars.sh]" || :
+
+# populate the OS Name
 OS_NAME=$(uname)
 
 # Check for required 'WD' variable

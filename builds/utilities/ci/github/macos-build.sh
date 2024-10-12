@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 22, 2024
+# Last Update September 25, 2024
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -114,8 +114,8 @@ LP3D_OUT_PATH="${LP3D_BUILDPKG_PATH}"
 mkdir -p ${LP3D_OUT_PATH} || :
 
 # Set variables
-IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
-export LPUB3D=${SLUG_PARTS[1]}
+oldIFS=$IFS; IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; IFS=$oldIFS;
+export LPUB3D=${LP3D_SLUGS[1]}
 export LP3D_ARCH=${LP3D_ARCH:-$(uname -m)}
 export LP3D_LDRAW_DIR="${LP3D_3RD_PARTY_PATH}/ldraw"
 export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-$HOME/Library}
@@ -220,7 +220,22 @@ rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
 
 # Build dmg file
-source builds/macx/CreateDmg.sh;
+chmod a+x builds/macx/CreateDmg.sh && \
+env BUILD_OPT="${BUILD_OPT}" \
+CI="${CI}" \
+GITHUB="${GITHUB}" \
+LDRAWDIR_ROOT="${LDRAWDIR_ROOT}" \
+LDRAWDIR="${LDRAWDIR}" \
+LP3D_3RD_DIST_DIR="${LP3D_3RD_DIST_DIR}" \
+LP3D_ARCH="${LP3D_ARCH}" \
+LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG}" \
+LP3D_CPU_CORES="${LP3D_CPU_CORES}" \
+LP3D_DIST_DIR_PATH="${LP3D_DIST_DIR_PATH}" \
+LP3D_LDRAW_DIR="${LP3D_LDRAW_DIR}" \
+LP3D_LOG_PATH="${LP3D_LOG_PATH}" \
+LPUB3D="${LPUB3D}" \
+WRITE_LOG="false" \
+./builds/macx/CreateDmg.sh
 
 # Create hash file
 [ -d "$DmgBuildPath/DMGS" ] && \

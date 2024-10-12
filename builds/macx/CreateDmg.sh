@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 24, 2024
+# Last Update: September 25, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -185,7 +185,17 @@ case ${LP3D_ARCH} in
 esac
 
 echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
+
 cd ${LPUB3D}
+
+cat <<EOF >rendererVars.sh
+export WD=${WD}
+export OBS=false
+export LPUB3D=${LPUB3D}
+export LDRAWDIR=${LDRAWDIR}
+export LP3D_LOG_PATH=${LP3D_LOG_PATH}
+export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR}
+EOF
 
 chmod +x builds/utilities/CreateRenderers.sh && \
 ./builds/utilities/CreateRenderers.sh
