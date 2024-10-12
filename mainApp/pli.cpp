@@ -3524,7 +3524,7 @@ void PliBackgroundItem::contextMenuEvent(
             if (pli->bom) {
                 pli->pliMeta.placement.setPartsListPerStep(pli->perStep);
                 changePlacement(parentRelativeType,
-                                PartsListType,
+                                BomType,
                                 QObject::tr("%1 Placement").arg(name),
                                 top,
                                 bottom,
