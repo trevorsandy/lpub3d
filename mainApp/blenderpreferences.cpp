@@ -166,7 +166,7 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
     /* 25 LBL_PREFER_UNOFFICIAL                   */ {"preferunofficial",              "0",          QObject::tr("Prefer Unofficial Parts"),  QObject::tr("Search for unofficial parts first")},
     /* 26 LBL_PROFILE                             */ {"profile",                       "0",          QObject::tr("Profile"),                  QObject::tr("Profile import performance")},
     /* 27 LBL_RECALCULATE_NORMALS                 */ {"recalculatenormals",            "0",          QObject::tr("Recalculate Normals"),      QObject::tr("Recalculate normals. Not recommended if BFC processing is active")},
-    /* 28 LBL_REMOVE_DOUBLES_MM                   */ {"removedoubles",                 "1",          QObject::tr("No Duplicate Vertices"),    QObject::tr("Merge vertices that are within a certain distance.")},
+    /* 28 LBL_REMOVE_DOUBLES_MM                   */ {"removedoubles",                 "0",          QObject::tr("No Duplicate Vertices"),    QObject::tr("Merge vertices that are within a certain distance.")},
     /* 29 LBL_RENDER_WINDOW_MM                    */ {"renderwindow",                  "1",          QObject::tr("Display Render Window"),    QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
     /* 30 LBL_SEARCH_ADDL_PATHS_MM                */ {"searchadditionalpaths",         "0",          QObject::tr("Search Additional Paths"),  QObject::tr("Specify whether to search additional LDraw paths")},
     /* 31 LBL_SETEND_FRAME                        */ {"setendframe",                   "1",          QObject::tr("Set Step End Frame"),       QObject::tr("Set the end frame to the last step")},
@@ -194,8 +194,8 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
 
     /* 52/00 LBL_CHOSEN_LOGO                      */ {"chosenlogo",                    "logo3",      QObject::tr("Chosen Logo"),              QObject::tr("Which logo to display. logo and logo2 aren't used and are only included for completeness")},
     /* 53/01 LBL_COLOUR_SCHEME_MM                 */ {"usecolourscheme",               "lgeo",       QObject::tr("Colour Scheme"),            QObject::tr("Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)")},
-    /* 54/02 LBL_COLOUR_STRATEGY                  */ {"colorstrategy",                 "material",   QObject::tr("How To Color Parts"),       QObject::tr("Colour strategy options - Material (Default - use if exporting), Vertex colors (slightly quicker to import)")},
-    /* 55/03 LBL_RESOLUTION_MM                    */ {"resolution",                    "Standard",   QObject::tr("Resolution"),               QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
+    /* 54/02 LBL_RESOLUTION_MM                    */ {"resolution",                    "Standard",   QObject::tr("Resolution"),               QObject::tr("Resolution of part primitives, ie. how much geometry they have")},
+    /* 55/03 LBL_SCALE_STRATEGY                   */ {"scalestrategy",                 "mesh",       QObject::tr("How To Scale Parts"),       QObject::tr("Apply import scaling to mesh - Recommended for rendering, Apply import scaling to object - Recommended for part editing")},
     /* 56/04 LBL_SMOOTH_TYPE                      */ {"smoothtype",                    "edge_split", QObject::tr("Smooth Type"),              QObject::tr("Use either autosmooth or an edge split modifier to smooth part faces")}
 };
 
@@ -204,8 +204,8 @@ BlenderPreferences::ComboItems  BlenderPreferences::mComboItemsMM [NUM_COMBO_ITE
     /*    FIRST item set as default        Data                                  Item: */
     /* 00 LBL_CHOSEN_LOGO              */ {"logo3|logo4|logo5",                  QObject::tr("Raised flattened logo geometry(3)|Raised rounded logo geometry(4)|Subtle rounded logo geometry(5)")},
     /* 01 LBL_COLOUR_SCHEME_MM         */ {"lgeo|ldraw|alt|custom",              QObject::tr("Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours")},
-    /* 02 LBL_COLOUR_STRATEGY          */ {"material|vertex_colors",             QObject::tr("Material|Vertex Colours")},
-    /* 03 LBL_RESOLUTION_MM            */ {"Low|Standard|High",                  QObject::tr("Low Resolution Primitives|Standard Primitives|High Resolution Primitives")},
+    /* 02 LBL_RESOLUTION_MM            */ {"Low|Standard|High",                  QObject::tr("Low Resolution Primitives|Standard Primitives|High Resolution Primitives")},
+    /* 03 LBL_SCALE_STRATEGY           */ {"mesh|object",                        QObject::tr("Scale Mesh|Scale Object")},
     /* 04 LBL_SMOOTH_TYPE              */ {"edge_split|auto_smooth|bmesh_split", QObject::tr("Smooth part faces with edge split modifier|Auto-smooth part faces|Split during initial mesh processing")}
 };
 
@@ -2452,8 +2452,8 @@ void BlenderPreferences::saveSettings()
             continue;
         QString const key = mBlenderPaths[i].key;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
-		if (Settings.contains(key))
-			Settings.setValue(key, QVariant(value));
+        if (Settings.contains(key))
+            Settings.setValue(key, QVariant(value));
     }
 
     for (int i = 0; i < numSettings(); i++) {
@@ -2469,8 +2469,8 @@ void BlenderPreferences::saveSettings()
         }
 
         QString const key = mBlenderSettings[i].key;
-		if (Settings.contains(key))
-			Settings.setValue(key, QVariant(value));
+        if (Settings.contains(key))
+            Settings.setValue(key, QVariant(value));
     }
 
     Settings.setValue(parameterFileKey, QVariant(QDir::toNativeSeparators(parameterFile)));
@@ -2486,8 +2486,8 @@ void BlenderPreferences::saveSettings()
             continue;
         QString const key = mBlenderPaths[i].key_mm;
         QString const value = QDir::toNativeSeparators(mBlenderPaths[i].value);
-		if (Settings.contains(key))
-			Settings.setValue(key, QVariant(value));
+        if (Settings.contains(key))
+            Settings.setValue(key, QVariant(value));
     }
 
     for (int i = 0; i < numSettingsMM(); i++) {
@@ -2499,8 +2499,8 @@ void BlenderPreferences::saveSettings()
             value = mBlenderSettingsMM[i].value;
         }
         QString const key = mBlenderSettingsMM[i].key;
-		if (Settings.contains(key))
-			Settings.setValue(key, QVariant(value));
+        if (Settings.contains(key))
+            Settings.setValue(key, QVariant(value));
     }
 
     searchDirectoriesKey = QLatin1String("additionalSearchPaths");
