@@ -205,13 +205,22 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 	lcObject* Focus = ActiveModel->GetFocusObject();
 	quint32 AllowedTransforms = Focus ? Focus->GetAllowedTransforms() : LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z | LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z;
 
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+	const lcPreferences& Preferences = lcGetPreferences();
+/*** LPub3D Mod end ***/
+
 	if (TrackButton == lcTrackButton::None || (TrackTool >= lcTrackTool::MoveX && TrackTool <= lcTrackTool::MoveXYZ))
 	{
 		if (AllowedTransforms & LC_OBJECT_TRANSFORM_MOVE_X)
 		{
 			if ((TrackTool == lcTrackTool::MoveX) || (TrackTool == lcTrackTool::MoveXY) || (TrackTool == lcTrackTool::MoveXZ))
 			{
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+				if (Preferences.mBuildModificationEnabled)
+					Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+				else
+					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				Context->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 			}
 			else if (TrackButton == lcTrackButton::None)
@@ -225,7 +234,12 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 		{
 			if (((TrackTool == lcTrackTool::MoveY) || (TrackTool == lcTrackTool::MoveXY) || (TrackTool == lcTrackTool::MoveYZ)) && (AllowedTransforms & LC_OBJECT_TRANSFORM_MOVE_Y))
 			{
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+				if (Preferences.mBuildModificationEnabled)
+					Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+				else
+					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				Context->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 36 * 2);
 			}
 			else if (TrackButton == lcTrackButton::None)
@@ -241,7 +255,12 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 		{
 			if (((TrackTool == lcTrackTool::MoveZ) || (TrackTool == lcTrackTool::MoveXZ) || (TrackTool == lcTrackTool::MoveYZ)) && (AllowedTransforms & LC_OBJECT_TRANSFORM_MOVE_Z))
 			{
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+				if (Preferences.mBuildModificationEnabled)
+					Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+				else
+					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				Context->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 72 * 2);
 			}
 			else if (TrackButton == lcTrackButton::None)
@@ -255,7 +274,6 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 	}
 
 /*** LPub3D Mod - BuildMod Enable Part Select Rotation ***/
-	const lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mBuildModificationEnabled)
 	{
 		if (gMainWindow->GetTool() == lcTool::Select && TrackButton == lcTrackButton::None && AnyPiecesSelected)
@@ -263,7 +281,9 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 			if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_X)
 			{
 				if (TrackTool == lcTrackTool::RotateX)
-					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+					Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				else
 					Context->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
 
@@ -273,7 +293,9 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 			if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_Y)
 			{
 				if (TrackTool == lcTrackTool::RotateY)
-					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+					Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				else
 /*** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 					Context->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
@@ -284,7 +306,9 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 			if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_Z)
 			{
 				if (TrackTool == lcTrackTool::RotateZ)
-					Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+					Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				else
 /*** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 					Context->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
@@ -300,7 +324,12 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 	{
 		Context->EnableColorBlend(true);
 
-		Context->SetColor(0.8f, 0.8f, 0.0f, 0.3f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+		if (Preferences.mBuildModificationEnabled)
+			Context->SetColor(1.0f, 0.0f, 1.0f, 0.3f);
+		else
+			Context->SetColor(0.8f, 0.8f, 0.0f, 0.3f);
+/*** LPub3D Mod end ***/
 
 		if (TrackTool == lcTrackTool::MoveXY)
 			Context->DrawIndexedPrimitives(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, (108 + 360 + 8) * 2);
@@ -359,7 +388,14 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 			}
 
 			if (TrackTool == lcTrackTool::ScalePlus || TrackTool == lcTrackTool::ScaleMinus)
-				Context->SetColor(0.8f, 0.8f, 0.0f, 0.3f);
+/*** LPub3D Mod - BuildMod Move Rest Colour ***/
+			{
+				if (Preferences.mBuildModificationEnabled)
+					Context->SetColor(1.0f, 0.0f, 1.0f, 0.3f);
+				else
+					Context->SetColor(0.8f, 0.8f, 0.0f, 0.3f);
+			}
+/*** LPub3D Mod end ***/
 			else
 				Context->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
 
@@ -502,6 +538,10 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 		}
 	}
 
+/*** LPub3D Mod - BuildMod Rotate Rest Colour ***/
+	const lcPreferences& Preferences = lcGetPreferences();
+/*** LPub3D Mod end ***/
+
 	// Draw the circles.
 	if (gMainWindow->GetTool() == lcTool::Rotate && !HasAngle && TrackButton == lcTrackButton::None)
 	{
@@ -520,8 +560,12 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 
 			Verts[j] = lcMul31(Pt, Mat);
 		}
-
-		Context->SetColor(0.1f, 0.1f, 0.1f, 1.0f);
+/*** LPub3D Mod - Enable Colour Theme Rotate Circle ***/
+		if (Preferences.mColorTheme == lcColorTheme::Dark)
+			Context->SetColor(0.8f, 0.8f, 0.8f, 1.0f);
+		else
+			Context->SetColor(0.1f, 0.1f, 0.1f, 1.0f);
+/*** LPub3D Mod end ***/
 		Context->SetWorldMatrix(lcMatrix44Identity());
 
 		Context->SetVertexBufferPointer(Verts);
@@ -543,7 +587,12 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 	{
 		if (static_cast<int>(TrackTool) == static_cast<int>(lcTrackTool::RotateX) + i)
 		{
-			Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Rotate Rest Colour ***/
+			if (Preferences.mBuildModificationEnabled)
+				Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+			else
+				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 		}
 		else
 		{
@@ -653,7 +702,12 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 		lcMatrix44 RotatedWorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
 		Context->SetWorldMatrix(RotatedWorldMatrix);
 
-		Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Rotate Rest Colour ***/
+		if (Preferences.mBuildModificationEnabled)
+			Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+		else
+			Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 
 		if (HasAngle)
 		{
@@ -708,7 +762,14 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 				Context->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
 				break;
 			default:
-				Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - BuildMod Rotate Rest Colour ***/
+				{
+					if (Preferences.mBuildModificationEnabled)
+						Context->SetColor(1.0f, 0.0f, 1.0f, 1.0f);
+					else
+						Context->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+				}
+/*** LPub3D Mod end ***/
 				break;
 		};
 /*** LPub3D Mod end ***/
