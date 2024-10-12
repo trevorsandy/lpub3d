@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 28, 2024
+# Last Update: October 10, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -380,7 +380,7 @@ Drag the LPub3D Application icon to the Applications folder.
 
 After installation, remove the mounted LPub3D disk image by dragging it to the Trash.
 
-Required LPub3D libraries for built distribution.
+Required LPub3D libraries for macOS distribution.
 Library versions for LPub3D built from source may differ.
 ========================
 LDView:
@@ -454,10 +454,12 @@ For an x86_64 brew installation on an Apple silicon arm64 processor:
 Optional - Check installed library (e.g. libpng)
 ============================================
 - \$ otool -L \$(brew list libpng | grep dylib\$)
-    /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
-    /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
-    /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
-    /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
+
+Object Tool (otool) output:
+  /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
+  /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
+  /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
+  /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
 
 LPub3D Library Check Note: On startup LPub3D will test for the /opt/homebrew/bin/brew binary.
 If found, the library check will use the Apple silicon path prefix:
@@ -469,8 +471,11 @@ Additionally, LPub3D will check Homebrew x86_64 libraries using PATH entries:
 - LibraryCheckPathInsert: PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin
 ...and Homebrew arm64 libraries using PATH entries:
 - LibraryCheckPathInsert: PATH=/opt/homebrew/bin:/opt/homebrew/sbin
+Of course, the assumption is you are running the appropriate macOS distribution for your processor.
 
-If you choose to place your x86_64 binaries and libraries in alternate locations.
+If you choose to run an Intel distribution of LPub3D on an Apple silicon PC, running Rosetta
+etc..., you are advised to configure the LPub3D plist with the appropriate Intel Homebrew path.
+Or, if you choose to place your Homebrew binaries and libraries in alternate locations,
 You can configure your personalized paths in the LPub3D plist at:
 - \$HOME/Library/Preferences/com.lpub3d-software.LPub3D.plist.
 
