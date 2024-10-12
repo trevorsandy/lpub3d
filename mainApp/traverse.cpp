@@ -3430,12 +3430,6 @@ int Gui::findPage(
                                   bool saveCallout2 = opts.flags.callout;
                                   bool saveStepGroup2 = opts.flags.stepGroup;
 
-                                  // set the group step number to the first step of the submodel
-                                  if (meta.LPub.multiStep.pli.perStep.value() == false &&
-                                      meta.LPub.multiStep.showGroupStepNumber.value()) {
-                                      opts.groupStepNumber = opts.stepNumber;
-                                  }
-
                                   // save Default pageSize information
                                   PageSizeData pageSize2;
                                   if (exporting()) {
@@ -3615,13 +3609,21 @@ int Gui::findPage(
                       }
                   }
 
-                  // New step group page so increment group step number and persisst to global
-                  if (opts.groupStepNumber && meta.LPub.multiStep.countGroupSteps.value()) {
-                      Where walk(opts.current.modelName);
-                      lpub->mi.scanForwardStepGroup(walk);
-                      if (opts.current.lineNumber > walk.lineNumber) {
-                          opts.groupStepNumber += 1 + sa;
-                          saveGroupStepNum = opts.groupStepNumber;
+                  // New step group page so increment group step number and persist to global
+                  // if show step group number and count group steps are enabled
+                  if (!meta.LPub.multiStep.pli.perStep.value()) {
+                      if (meta.LPub.multiStep.showGroupStepNumber.value()) {
+                          if (meta.LPub.multiStep.countGroupSteps.value()) {
+                              Where walk(opts.current.modelName);
+                              lpub->mi.scanForwardStepGroup(walk);
+                              if (opts.current.lineNumber > walk.lineNumber) {
+                                  opts.groupStepNumber += 1 + sa;
+                                  saveGroupStepNum = opts.groupStepNumber;
+                              }
+                          } else {
+                              opts.groupStepNumber = opts.stepNumber;
+                              saveGroupStepNum = opts.groupStepNumber;
+                          }
                       }
                   }
               }
@@ -3925,9 +3927,8 @@ int Gui::findPage(
                                 lpub->page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                                 saveStepNumber    = opts.contStepNumber;
                             }
-                            if (opts.groupStepNumber) { // pass group step number to drawPage and persist
+                            if (opts.groupStepNumber) { // persist group step number
                                 saveGroupStepNum  = opts.groupStepNumber;
-                                saveStepNumber    = opts.groupStepNumber;
                             }
                             lpub->page.meta.pop();
                             lpub->page.meta.LPub.buildMod.clear();

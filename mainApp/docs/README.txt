@@ -1,4 +1,4 @@
-LPub3D 2.4.7.177.3653 (12 10 2024 04:51:33)
+LPub3D 2.4.7.178.3654 (12 10 2024 04:52:44)
 
 Features, enhancements, fixes and changes
 ------------
@@ -23,6 +23,7 @@ Revisions:
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
 - Fix - LPub3D crashes on Mac #753
 - Fix - LPub3D unstable if 'Author:' value is empty in LDR-file #760
