@@ -423,8 +423,9 @@ POVRay:
 
 Homebrew
 ======================================
-LPub3D and its renderers are not yet compiled for the Apple silicon ARM processor.
-Consequently, running LPub3D on an Apple silicon PC will require Rosetta which, if not already
+LPub3D and its renderers are compiled for both the Apple silicon arm64 and Intel x86_64 processors.
+
+Running LPub3D x86_64 on an Apple silicon PC will require Rosetta which, if not already
 installed on your PC will, you will be prompted to install it on your attempt to run LPub3D.
 If you wish to install Rosetta from the command line, the command is:
 
@@ -435,44 +436,51 @@ Install brew (if not already installed)
 For an Apple Intel processor:
 - \$ /usr/bin/ruby -e "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-For an Apple silicon ARM processor:
+For an Apple silicon arm64 processor:
+- \$ /bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+For an x86_64 brew installation on an Apple silicon arm64 processor:
 - \$ arch -x86_64 zsh
 - \$ cd /usr/local && mkdir homebrew
 - \$ curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
 
 Install libraries
 =================
-For an Apple Intel processor:
+For an Apple silicon or Apple Intel processor:
 - \$ brew update
 - \$ brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
 - \$ brew install --cask xquartz
 
-For an Apple silicon ARM processor:
+For an x86_64 brew installation on an Apple silicon arm64 processor:
 - \$ arch -x86_64 /usr/local/homebrew/bin/brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
 - \$ arch -x86_64 /usr/local/homebrew/bin/brew install --cask xquartz
 
 Optional - Check installed library (e.g. libpng)
 ============================================
-- \$ otool -L $(brew list libpng | grep dylib$)
+- \$ otool -L \$(brew list libpng | grep dylib\$)
     /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
         /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
         /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
         /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
 
-LPub3D Library Check Note: The default configuration of LPub3D will
-look for Homebrew libraries at:
+LPub3D Library Check Note: On startup LPub3D will test for the /opt/homebrew/bin/brew binary.
+If found, the library check will use the Apple silicon path prefix:
+- HomebrewLibPathPrefix: /opt/homebrew/opt.
+...otherwise, it will use the Apple intel path prefix.
 - HomebrewLibPathPrefix: /usr/local/opt.
 
 Additionally, LPub3D will check Homebrew x86_64 libraries using PATH entries:
-- HomebrewPath: PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin
+- LibraryCheckPathInsert: PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin
+...and Homebrew arm64 libraries using PATH entries:
+- LibraryCheckPathInsert: PATH=/opt/homebrew/bin:/opt/homebrew/sbin
 
 If you choose to place your x86_64 binaries and libraries in alternate locations.
-Consequetly, you can configure your personalized paths in the LPub3D plist at:
-- $HOME/Library/Preferences/com.lpub3d-software.LPub3D.plist.
+You can configure your personalized paths in the LPub3D plist at:
+- \$HOME/Library/Preferences/com.lpub3d-software.LPub3D.plist.
 
 The Homebrew plist keys are:
 - HomebrewLibPathPrefix - the path prefix LPub3D will use to locate the Homebrew libraries.
-- HomebrewPath - the PATH entries needed to help brew run the info command
+- LibraryCheckPathInsert - the PATH entries needed to help brew run the info command
 
 Cheers,
 EOF

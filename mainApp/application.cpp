@@ -991,8 +991,8 @@ int Application::initialize(lcCommandLineOptions &Options)
     Preferences::printInfo(tr("%1 Config File Path......(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dConfigPath)));
     Preferences::printInfo(tr("%1 3D Editor Cache Path..(%2)").arg(VER_PRODUCTNAME_STR).arg(QDir::toNativeSeparators(Preferences::lpub3dCachePath)));
 #ifdef Q_OS_MAC
-    Preferences::printInfo(tr("%1 Homebrew Install Path.(Apple %2 Configuration)").arg(VER_PRODUCTNAME_STR)
-                                                                  .arg(Preferences::homebrewPathInsert.startsWith("PATH=/opt/homebrew/bin:") ? tr("Silicon") : tr("Intel")));
+    Preferences::printInfo(tr("%1 Homebrew Installation.(Apple %2)").arg(VER_PRODUCTNAME_STR)
+                                                                    .arg(Preferences::homebrewPathPrefix.startsWith("/opt/homebrew") ? tr("Silicon") : tr("Intel")));
     Preferences::printInfo(tr("%1 Homebrew Path Prefix..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::homebrewPathPrefix));
 #endif
     Preferences::printInfo(tr("%1 Loaded LDraw Library..(%2)").arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawPartsLibrary));

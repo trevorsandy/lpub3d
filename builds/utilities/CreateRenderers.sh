@@ -968,7 +968,7 @@ for buildDir in ldglite ldview povray; do
         exit 1
       fi
     fi
-    # Building POVRay on openSUSE Lead 42.1-3 or SLE-12 (old builds that may not longer be being built)
+    # Building POVRay on openSUSE Leap 42.1-3 or SLE-12 (old builds that may not longer be being built)
     if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" && $(echo "$platform_ver" | grep -E '1315') ]]; then
       OBS_RPM_BUILD_CFLAGS="$RPM_OPTFLAGS -fno-strict-aliasing -Wno-multichar"
       OBS_RPM_BUILD_CXXFLAGS="$OBS_RPM_BUILD_CFLAGS -std=c++11 -Wno-reorder -Wno-sign-compare -Wno-unused-variable \

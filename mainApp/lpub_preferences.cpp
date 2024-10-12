@@ -587,8 +587,7 @@ int     Preferences::submodelCameraLongitude    = DEFAULT_SUBMODEL_CAMERA_LONGIT
 
 #ifdef Q_OS_MAC
 QStringList Preferences::missingLibs;
-#endif
-#ifdef Q_OS_MAC
+
 int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_MACOS;
 #elif defined Q_OS_LINUX
 int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_LINUX;
@@ -1361,6 +1360,9 @@ void Preferences::lpubPreferences()
     modeGUI = Application::instance()->modeGUI();
     QDir cwd(QCoreApplication::applicationDirPath());
 
+#ifndef Q_OS_LINUX
+    QSettings Settings;
+#endif // Q_OS_MAC and Q_OS_WIN
 #ifdef Q_OS_MAC
 
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
@@ -1470,7 +1472,6 @@ void Preferences::lpubPreferences()
 #endif // DEBUG_MODE_USE_BUILD_FOLDERS
 
 #ifdef Q_OS_WIN
-    QSettings Settings;
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY))) {
         lpubDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,LPUB3D_DATA_PATH_KEY)).toString();
@@ -1607,14 +1608,16 @@ void Preferences::lpubPreferences()
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
 #ifdef Q_OS_MAC
-    QSettings Settings;
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HomebrewPath"))) {
+    bool homebrewSilicon = QFileInfo::exists("/opt/homebrew/bin/brew");
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LibraryCheckPathInsert"))) {
+        if (homebrewSilicon) homebrewPathInsert = QStringLiteral("PATH=/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}");
         QVariant eValue(homebrewPathInsert);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HomebrewPath"),eValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LibraryCheckPathInsert"),eValue);
     } else {
-        homebrewPathInsert = Settings.value(QString("%1/%2").arg(SETTINGS,"HomebrewPath")).toString();
+        homebrewPathInsert = Settings.value(QString("%1/%2").arg(SETTINGS,"LibraryCheckPathInsert")).toString();
     }
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HomebrewLibPathPrefix"))) {
+        if (homebrewSilicon) homebrewPathPrefix = QStringLiteral("/opt/homebrew/opt");
         QVariant eValue(homebrewPathPrefix);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"HomebrewLibPathPrefix"),eValue);
     } else {
