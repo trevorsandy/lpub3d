@@ -254,6 +254,7 @@ SET LPUB3D_BUILD_FILE=unknown
 SET LP3D_ALTERNATE_VERSIONS_exe=unknown
 SET LP3D_ALTERNATE_VERSIONS_win_conda=unknown
 SET LP3D_ALTERNATE_VERSIONS_dmg=unknown
+SET LP3D_ALTERNATE_VERSIONS_x86_dmg=unknown
 SET LP3D_ALTERNATE_VERSIONS_deb=unknown
 SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
 SET LP3D_ALTERNATE_VERSIONS_pkg=unknown
@@ -264,6 +265,7 @@ SET LP3D_ALTERNATE_VERSIONS_flp=unknown
 SET LP3D_AVAILABLE_VERSIONS_exe=unknown
 SET LP3D_AVAILABLE_VERSIONS_win_conda=unknown
 SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
+SET LP3D_AVAILABLE_VERSIONS_x86_dmg=unknown
 SET LP3D_AVAILABLE_VERSIONS_deb=unknown
 SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
 SET LP3D_AVAILABLE_VERSIONS_pkg=unknown
@@ -306,6 +308,7 @@ REM available versions by platform, set tokens to select specific version or ver
 FOR /F "tokens=*   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_exe=%%i
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_win_conda=%%i
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_dmg=%%i,%%j,%%k
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_x86_dmg=%%i
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_deb=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_rpm=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_pkg=%%i,%%j,%%k
@@ -316,6 +319,7 @@ FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AV
 FOR /F "tokens=2*  delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_exe%") DO SET LP3D_ALTERNATE_VERSIONS_exe=%%i,%%j
 FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_win_conda%") DO SET LP3D_ALTERNATE_VERSIONS_win_conda=%%i
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_dmg=%%i,%%j
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_x86_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_x86_dmg=%%i
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_deb%") DO SET LP3D_ALTERNATE_VERSIONS_deb=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_rpm%") DO SET LP3D_ALTERNATE_VERSIONS_rpm=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_pkg%") DO SET LP3D_ALTERNATE_VERSIONS_pkg=%%i,%%j
@@ -425,6 +429,7 @@ ECHO.
 ECHO   LP3D_AVAILABLE_VERSIONS_exe..........[%LP3D_AVAILABLE_VERSIONS_exe%]
 ECHO   LP3D_AVAILABLE_VERSIONS_win_conda....[%LP3D_AVAILABLE_VERSIONS_win_conda%]
 ECHO   LP3D_AVAILABLE_VERSIONS_dmg..........[%LP3D_AVAILABLE_VERSIONS_dmg%]
+ECHO   LP3D_AVAILABLE_VERSIONS_x86_dmg......[%LP3D_AVAILABLE_VERSIONS_x86_dmg%]
 ECHO   LP3D_AVAILABLE_VERSIONS_deb..........[%LP3D_AVAILABLE_VERSIONS_deb%]
 ECHO   LP3D_AVAILABLE_VERSIONS_rpm..........[%LP3D_AVAILABLE_VERSIONS_rpm%]
 ECHO   LP3D_AVAILABLE_VERSIONS_pkg..........[%LP3D_AVAILABLE_VERSIONS_pkg%]
@@ -435,6 +440,7 @@ ECHO.
 ECHO   LP3D_ALTERNATE_VERSIONS_exe..........[%LP3D_ALTERNATE_VERSIONS_exe%]
 ECHO   LP3D_ALTERNATE_VERSIONS_win_conda....[%LP3D_ALTERNATE_VERSIONS_win_conda%]
 ECHO   LP3D_ALTERNATE_VERSIONS_dmg..........[%LP3D_ALTERNATE_VERSIONS_dmg%]
+ECHO   LP3D_ALTERNATE_VERSIONS_x86_dmg......[%LP3D_ALTERNATE_VERSIONS_x86_dmg%]
 ECHO   LP3D_ALTERNATE_VERSIONS_deb..........[%LP3D_ALTERNATE_VERSIONS_deb%]
 ECHO   LP3D_ALTERNATE_VERSIONS_rpm..........[%LP3D_ALTERNATE_VERSIONS_rpm%]
 ECHO   LP3D_ALTERNATE_VERSIONS_PKG..........[%LP3D_ALTERNATE_VERSIONS_PKG%]
@@ -791,7 +797,7 @@ ECHO.
 ECHO - Generating update package alternate version json inserts...
 SET LP3D_ARCH=x86_64
 SET LP3D_AMDARCH=amd64
-SET LP3D_DIST_EXTENSIONS=exe, win_conda, dmg, deb, rpm, pkg, api, snp, flp
+SET LP3D_DIST_EXTENSIONS=exe, win_conda, dmg, x86_dmg, deb, rpm, pkg, api, snp, flp
 FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
  CALL :GENERATE_ALT_VERSION_INSERTS %%e
 )
@@ -844,6 +850,15 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_dmg%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-dmg": {}
+>>%genLPub3DUpdates%     },
+>>%genLPub3DUpdates%     "x86_64-macos.dmg": {
+>>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
+>>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
+>>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-x86_64-macos.dmg",
+>>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
+>>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_x86_dmg%",
+>>%genLPub3DUpdates%       "alt-version-gen-placeholder-x86_64-macos-dmg": {}
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-deb": {
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
@@ -920,6 +935,9 @@ ECHO - Merging update package version inserts into lpub3dupdates.json...
     IF "%%i" EQU ""alt-version-gen-placeholder-macos-dmg": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_dmg.txt
     )
+    IF "%%i" EQU ""alt-version-gen-placeholder-x86_64-macos-dmg": {}" (
+      TYPE %PKG_UPDATE_DIR%\versionInsert_x86_dmg.txt
+    )
     IF "%%i" EQU ""alt-version-gen-placeholder-linux-deb": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_deb.txt
     )
@@ -966,7 +984,8 @@ EXIT /b
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
 SET "win_conda=-%LP3D_ARCH%.tar.bz2"
-SET "dmg=_osx.%LP3D_EXT%"
+SET "dmg=_macos.%LP3D_EXT%"
+SET "x86_dmg=_x86_64.macos.dmg"
 SET "deb=_0ubuntu1_%LP3D_AMDARCH%.%LP3D_EXT%"
 SET "rpm=_1fedora.%LP3D_ARCH%.%LP3D_EXT%"
 SET "pkg=.645_%LP3D_ARCH%.%LP3D_EXT%.tar.xz"
@@ -978,21 +997,15 @@ REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension - if %1 is 'api', %LP3D_DIST_
 CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
 REM LP3D_ALT_VERS expands to the alternate version for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
-IF "%1" EQU "api" (
-  SET "LP3D_DIST_PREFIX=LPub3D-"
-) ELSE (
-  IF "%1" EQU "snp" (
-    SET "LP3D_DIST_PREFIX=LPub3D-"
-  ) ELSE (
-    IF "%1" EQU "flp" (
-      SET "LP3D_DIST_PREFIX=LPub3D-"
-    ) ELSE (
-      IF "%1" EQU "win_conda" (
-        SET "LP3D_DIST_PREFIX=LPub3D-"
-      ) ELSE (
-        REM Legacy naming convention
-        SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
-      )
+SET "LP3D_DIST_PREFIX=LPub3D-"
+IF NOT "%1"=="api" (
+  IF NOT "%1"=="snp" (
+    IF NOT "%1"=="flp" (
+	  IF NOT "%1"=="win_conda" (
+	    IF NOT "%1"=="x86_dmg" (
+		  SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
+	    )
+	  )
     )
   )
 )
@@ -1025,6 +1038,9 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
     IF "%1" EQU "dmg" (
       SET LP3D_DIST_SUFFIX=-macos.dmg
     )
+    IF "%1" EQU "x86_dmg" (
+      SET LP3D_DIST_SUFFIX=-x86_64-macos.dmg
+    )	
     IF "%1" EQU "deb" (
       SET LP3D_DIST_SUFFIX=-%LP3D_DEB%-%LP3D_AMDARCH%.deb
     )
