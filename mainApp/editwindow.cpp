@@ -953,28 +953,34 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
         lpub->setCurrentStep(stepKey);
 
         if (lpub->currentStep) {
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
             emit lpub->messageSig(LOG_DEBUG,tr("Loaded step for line %1 model: %2, page: %3, step: %4, line scope: %5-%6")
                                   .arg(here.lineIndex)
                                   .arg(lpub->ldrawFile.getSubmodelName(here.modelIndex,false))
                                   .arg(lpub->page.meta.LPub.page.number.number)
                                   .arg(lpub->currentStep->stepNumber.number)
-                                  .arg(top.lineNumber + 1/*adjust for 0-start index*/)
-                                  .arg(bottom.lineNumber + 1 /*adjust for 0-index*/));
+                                  .arg(top.lineNumber + 1)      // adjust for 0-start index
+                                  .arg(bottom.lineNumber + 1)); // adjust for 0-index
 #endif
+//*/
             return NEW_CURRENT_STEP;
         }
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
         else
             emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %2, model: %3")
                                   .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex,false)));
 #endif
+//*/
     }
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
     else
         emit lpub->messageSig(LOG_DEBUG,tr("Failed to get Viewer Step Key for line: %1, model: %2")
                               .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex,false)));
 #endif
+//*/
     return INVALID_CURRENT_STEP;
 }
 
@@ -990,8 +996,9 @@ bool EditWindow::setValidPartLine()
     bool colorOk = false;
     bool isSubstitute = false;
     bool isSubstituteAlt = false;
-    bool isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
+    bool isDisplayType = false;
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
+    if (lpub->currentStep) isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
 
     toolsToolBar->setEnabled(false);
     if (isReadOnly) {
@@ -1054,7 +1061,7 @@ bool EditWindow::setValidPartLine()
     QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
 
     // set substitute flag
-    if (stepSet && !isSubstitute) {
+    if (lpub->currentStep && stepSet && !isSubstitute) {
         const PliPart* pliPart = lpub->currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
         if (pliPart)
             isSubstituteAlt = pliPart->subType;
@@ -1066,11 +1073,13 @@ bool EditWindow::setValidPartLine()
 
     partType = partType.trimmed();
 
+/* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
     emit lpub->messageSig(LOG_DEBUG,
                                QString("Editor PartType: %1, ColorCode: %2, Line: %3")
                                .arg(partType).arg(colorCode).arg(selection));
 #endif
+//*/
 
     // partType is valid if we get here so check color to enable tools
     //toolsToolBar->setEnabled(true);
@@ -1155,7 +1164,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
 
     if (!fileName.isEmpty()) {
         bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
-        bool isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
+        bool isDisplayType = false;
+        if (lpub->currentStep) isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
         if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
@@ -1362,8 +1372,8 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
     box.setDefaultButton   (QMessageBox::Save);
     box.setWindowTitle("Substitute PLI Part");
 
-    Step* step = lpub->currentStep;
-    if (step) {
+    if (lpub->currentStep) {
+        Step* step = lpub->currentStep;
         const QString key = QString("%1_%2").arg(elements.at(sType)).arg(elements.at(sColorCode));
         const PliPart* pliPart = step->pli.getPart(key);
         if (pliPart) {
@@ -3045,7 +3055,7 @@ QStringList TextEditor::extractDistinctWordsFromDocument() const
 
 QStringList TextEditor::retrieveAllWordsFromDocument() const
 {
-    return toPlainText().split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    return toPlainText().split(QRegExp("\\W+"), Qt::SkipEmptyParts);
 }
 
 template <class UnaryPredicate>
@@ -3481,7 +3491,6 @@ void TextEditor::showCharacters(
     cursor.movePosition(QTextCursor::Start);
 
     QTextCursor newCursor = cursor;
-    quint64 count = 0;
 
     QTextDocument::FindFlags options;
 
@@ -3496,7 +3505,6 @@ void TextEditor::showCharacters(
                 if (newCursor.hasSelection())
                 {
                     newCursor.insertText(replaceString);
-                    count++;
                 }
             }
             else
