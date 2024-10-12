@@ -112,7 +112,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
        mkdir -p "${LP3D_DIST_DIR_PATH}"
     fi
-    wget https://library.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
+    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
     if [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ]; then
        wget https://library.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_PATH}/complete.zip
     fi
@@ -135,7 +135,7 @@ if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     brew link --force qt5
     echo "Downloading archive libraries..."
     wget https://library.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras
-    wget https://library.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
+    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
     wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip
     wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras/vexiqparts.zip
     if [ ! -d ${HOME}/Library/ldraw ]; then

@@ -184,7 +184,7 @@ cd ${BUILD_DIR}
 echo "6. download LDraw archive libraries to pkgbuild/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
-    curl $curlopts https://library.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o lpub3dldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then

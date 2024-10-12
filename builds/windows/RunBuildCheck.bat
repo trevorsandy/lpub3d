@@ -36,7 +36,6 @@ SET SEVEN_ZIP_WIN64=C:\program files\7-zip
 CALL :DIST_DIR_REL_TO_ABS ..\lpub3d_windows_3rdparty
 
 SET OfficialCONTENT=complete.zip
-SET UnOfficialCONTENT=ldrawunf.zip
 SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET TenteCONTENT=tenteparts.zip
 SET VexiqCONTENT=vexiqparts.zip
@@ -395,8 +394,8 @@ IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
 EXIT /b
 
 :GET_UNOFFICIAL_LIBRARY
-SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
-SET WebNAME=https://library.ldraw.org/library/unofficial/%UnofficialCONTENT%
+SET WebCONTENT="%OutputPATH%\%LPub3DCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%LPub3DCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...

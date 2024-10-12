@@ -221,7 +221,7 @@ then
     cp -f "${DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras/lpub3dldrawunf.zip"
   else
     echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
-    curl $curlopts https://library.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/lpub3dldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
   fi
 else
   echo "-  ldraw unofficial library exist. skipping download"

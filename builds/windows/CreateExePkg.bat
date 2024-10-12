@@ -1355,7 +1355,6 @@ IF NOT EXIST "%LDRAW_LIBS%\" (
 
 SET OutputPATH=%LDRAW_LIBS%
 SET OfficialCONTENT=complete.zip
-SET UnOfficialCONTENT=ldrawunf.zip
 SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET TenteCONTENT=tenteparts.zip
 SET VexiqCONTENT=vexiqparts.zip
@@ -1387,7 +1386,7 @@ IF NOT EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   CALL :GET_UNOFFICIAL_LIBRARY
 ) ELSE (
   ECHO.
-  ECHO - LDraw archive library %UnOfficialCONTENT% exist. Nothing to do.
+  ECHO - LDraw archive library %LPub3DCONTENT% exist. Nothing to do.
 )
 
 FOR %%A IN ( x86_64, x86 ) DO (
@@ -1438,8 +1437,8 @@ IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
 EXIT /b
 
 :GET_UNOFFICIAL_LIBRARY
-SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
-SET WebNAME=https://library.ldraw.org/library/unofficial/%UnofficialCONTENT%
+SET WebCONTENT="%OutputPATH%\%LPub3DCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%LPub3DCONTENT%
 
 ECHO.
 ECHO - Download archive file: %WebCONTENT%...
