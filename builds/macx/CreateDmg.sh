@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 06, 2021
+# Last Update: August 08, 2023
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -347,7 +347,7 @@ Library versions for LPub3D built from source may differ.
 ========================
 LDView:
 
-- XQuartz 11.0 (for OSMesa)
+- XQuartz version 2.7.11 or above (needed for OSMesa)
   https://www.xquartz.org
 
 - LibPNG version 1.6.37 or above
@@ -367,7 +367,7 @@ LDView:
 
 POVRay:
 
-- XQuartz 11.0 (for X11)
+- XQuartz version 2.7.11 or above (needed for X11)
   https://www.xquartz.org
 
 - LibTIFF version 4.0.10 or above
@@ -387,8 +387,7 @@ Install libraries
 =================
 - \$ brew update
 - \$ brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
-- Download XQuartz at https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.11.dmg
-- Double click the XQuartz-2.7.11.dmg and follow the dialogue instructions.
+- \$ brew install --cask xquartz
 
 Optional - Check installed lirary (e.g. libpng)
 ============================================
