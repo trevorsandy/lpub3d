@@ -123,7 +123,8 @@ OTHER_FILES += \
     $$PWD/../builds/windows/AutoBuild.bat \
     $$PWD/../builds/windows/CreateExePkg.bat \
     $$PWD/../builds/windows/RunBuildCheck.bat \
-    $$PWD/../.github/ISSUE_TEMPLATE.md \
+    $$PWD/../.github/ISSUE_TEMPLATE/1.issue_ticket.md \
+    $$PWD/../.github/ISSUE_TEMPLATE/2.feature_request_ticket.md \
     $$PWD/../.github/workflows/build.yml \
     $$PWD/../.github/workflows/codeql.yml
 
