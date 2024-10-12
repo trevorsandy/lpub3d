@@ -1,4 +1,4 @@
-LPub3D 2.4.7.196.3672 (12 10 2024 05:13:34)
+LPub3D 2.4.7.197.3673 (12 10 2024 05:14:42)
 
 Features, enhancements, fixes and changes
 ------------
@@ -37,6 +37,7 @@ Revisions:
 - Fix - LPub3D unstable if 'Author:' value is empty in LDR-file #760
 - Fix - Multi_step pli per_step false causes crash #755
 - Fix - Parse MPD description line on insert MULTI_STEP BEGIN command #738
+- Fix - Random crash when saving results in corrupt LDraw file #744
 - Fix - Refresh part list or sub-model images causes crash #765
 - Fix - Scrambled submodel when placed before ignore IGN command #732
 - Fix - Submodels shown in BOM when using INSERT DISPLAY_MODEL #739

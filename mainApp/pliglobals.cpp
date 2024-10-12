@@ -223,9 +223,9 @@ GlobalPliDialog::GlobalPliDialog(
   box = new QGroupBox(tr("Part Groups"));
   box->setWhatsThis(lpubWT(wtType,box->title()));
   vlayout->addWidget(box);
-  QString description = tr("Movable Part Groups (part image, instance count and annotation)");
+  QString description = tr("Movable Part Groups (Image, Instance Count and Annotation)");
   if (bom)
-    description = tr("Movable Part Proups (part image, instance count, annotation and element id)");
+    description = tr("Movable Part Groups (Image, Instance Count, Annotation and Element ID)");
   child = new CheckBoxGui(description,&pliMeta->enablePliPartGroup,box);
   data->children.append(child);
 
