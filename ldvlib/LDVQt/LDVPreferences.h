@@ -86,9 +86,6 @@ public:
 
 	static char *getLastOpenPath(char *pathKey = nullptr);
 	static void setLastOpenPath(const char *path, char *pathKey = nullptr);
-	static char *getLDrawDir(void);
-	static void setLDrawDir(const char *path);
-	static char *getLDrawZipPath(void);
 	static LDVPollMode getPollMode(void);
 	static void setPollMode(LDVPollMode value);
 	static LDInputHandler::ViewMode getViewMode(void);
@@ -100,6 +97,10 @@ public:
 	static bool getKeepRightSideUp(void);
 	static void setKeepRightSideUp(bool);
 	static bool getPovAspectRatio(void);
+	static char *getLDrawDir(void);
+	static void setLDrawDir(const char *path);
+	static char *getLDrawZipPath(void);
+	static void setLDrawZipPath(const char *path);
 	void performHotKey(int);
 	void setupPrefSetsList(void);
 	void userDefaultChangedAlertCallback(TCAlert *alert);

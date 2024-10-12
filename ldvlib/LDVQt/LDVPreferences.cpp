@@ -507,8 +507,14 @@ void LDVPreferences::doGeneralApply(void)
 
 void LDVPreferences::doLDrawApply(void)
 {
-	ldPrefs->setLDrawDir(ldrawDirEdit->text().toUtf8().constData());
-	ldPrefs->setLDrawZipPath(ldrawZipEdit->text().toUtf8().constData());
+	const char *lDrawDir = copyString(ldrawDirEdit->text().toUtf8().constData());
+	ldPrefs->setLDrawDir(lDrawDir);
+	if (lDrawDir)
+		LDVPreferences::setLDrawDir(lDrawDir);
+	const char *ldrawZip = copyString(ldrawZipEdit->text().toUtf8().constData());
+	ldPrefs->setLDrawZipPath(ldrawZip);
+	if (ldrawZip)
+		LDVPreferences::setLDrawZipPath(ldrawZip);
 	recordExtraSearchDirs();
 	ldPrefs->applyLDrawSettings();
 	ldPrefs->commitLDrawSettings();
@@ -1361,7 +1367,7 @@ void LDVPreferences::doLibraryCheckForUpdates()
 
 char *LDVPreferences::getLDrawDir(void)
 {
-	return TCUserDefaults::stringForKey(LDRAWDIR_KEY, nullptr, false);
+	return TCUserDefaults::stringForKey(LDRAWDIR_KEY, nullptr, false);;
 }
 
 void LDVPreferences::setLDrawDir(const char *path)
@@ -1371,7 +1377,12 @@ void LDVPreferences::setLDrawDir(const char *path)
 
 char *LDVPreferences::getLDrawZipPath(void)
 {
-	return TCUserDefaults::stringForKey(LDRAWZIP_KEY, nullptr, false);
+	return TCUserDefaults::stringForKey(LDRAWZIP_KEY, nullptr, false);;
+}
+
+void LDVPreferences::setLDrawZipPath(const char *path)
+{
+	TCUserDefaults::setStringForKey(path, LDRAWZIP_KEY, false);
 }
 
 LDVPollMode LDVPreferences::getPollMode(void)
@@ -1741,7 +1752,7 @@ int LDVPreferences::getHotKey(const char *currentPrefSetName)
 void LDVPreferences::performHotKey(int hotKeyIndex)
 {
 	char *hotKeyPrefSetName = getHotKey(hotKeyIndex);
-	bool retValue = false;
+	bool changed = false;
 	if (hotKeyPrefSetName)
 	{
 		const char *currentSessionName = TCUserDefaults::getSessionName();
@@ -1751,17 +1762,15 @@ void LDVPreferences::performHotKey(int hotKeyIndex)
 		{
 			if (strcmp(currentSessionName, hotKeyPrefSetName) == 0)
 			{
-				retValue = true;
+				changed = true;
 			}
 		}
 		else if (hotKeyIsDefault)
 		{
-			retValue = true;
+			changed = true;
 		}
-		if (!retValue)
+		if (!changed)
 		{
-			bool changed = false;
-
 			if (hotKeyIsDefault)
 			{
 				TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
@@ -1787,7 +1796,6 @@ void LDVPreferences::performHotKey(int hotKeyIndex)
 				loadSettings();
 				reflectSettings();
 				doApply();
-				retValue = true;
 			}
 		}
 	}

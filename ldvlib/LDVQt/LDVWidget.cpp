@@ -184,6 +184,17 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 	emit lpub->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
 							 .arg(prefSet.isEmpty() ? "Default" : prefSet));
 
+	if (!Preferences::ldrawLibPath.isEmpty())
+	{
+		const char *path = copyString(Preferences::ldrawLibPath.toUtf8().constData());
+		TCUserDefaults::setStringForKey(path, LDRAWDIR_KEY, false);
+	}
+	if (!Preferences::lpub3dLibFile.isEmpty())
+	{
+		const char *path = copyString(Preferences::lpub3dLibFile.toUtf8().constData());
+		TCUserDefaults::setStringForKey(path, LDRAWZIP_KEY, false);
+	}
+
 	ldvWidget = this;
 }
 
@@ -1147,9 +1158,13 @@ char *LDVWidget::getLDrawZipPath(void)
 {
 	char *ldrawZip = LDVPreferences::getLDrawZipPath();
 
-	if (!ldrawZip)
+	if (!QFileInfo(ldrawZip).exists())
 	{
-		ldrawZip = copyString("");
+		QString zipPath = QDir::toNativeSeparators("%1/complete.zip").arg(getLDrawDir());
+		if (QFileInfo(zipPath).exists())
+			ldrawZip = copyString(zipPath.toUtf8().constData());
+		else
+			ldrawZip = copyString("");
 	}
 	return ldrawZip;
 }
@@ -1158,12 +1173,27 @@ char *LDVWidget::getLDrawDir(void)
 {
 	char *lDrawDir = LDVPreferences::getLDrawDir();
 
-	if (!lDrawDir)
+	if (!QFileInfo(lDrawDir).exists())
 	{
 		lDrawDir = copyString(getenv("LDRAWDIR"));
-		if (!lDrawDir)
+		if (!QFileInfo(lDrawDir).exists())
 		{
+#ifdef WIN32
+			auto getWinDir = []() {
+				QString path = QDir::toNativeSeparators("%1/LDraw").arg(getenv("USERPROFILE"));
+				if (QFileInfo(path).exists())
+					return path.toUtf8().constData();
+				path = QDir::toNativeSeparators("%1/LDraw").arg(getenv("ALLUSERSPROFILE"));
+				if (QFileInfo(path).exists())
+					return path.toUtf8().constData();
+				path = QString("C:\\LDraw");
+				return path.toUtf8().constData();
+			};
+
+			lDrawDir = copyString(getWinDir());
+#else
 			lDrawDir = copyString("/usr/share/ldraw");
+#endif
 		}
 	}
 	stripTrailingPathSeparators(lDrawDir);
@@ -1193,10 +1223,11 @@ void LDVWidget::checkForLibraryUpdates(void)
 {
 #if !defined(_NO_BOOST) || defined(USE_CPP11)
 	bool showLDrawZipMsg = TCUserDefaults::boolForKey(LDRAW_ZIP_SHOW_WARNING_KEY, true, false);
-	if (LDVPreferences::getLDrawZipPath() && showLDrawZipMsg)
+	char *ldrawZip = getLDrawZipPath();
+	if (ldrawZip && showLDrawZipMsg)
 	{
 		QMessageBox mb;
-		QString title,message,zipPath=LDVPreferences::getLDrawZipPath();
+		QString title,message,zipPath=QString(ldrawZip);
 		message=QString::fromWCharArray(TCLocalStrings::get(L"ReplaceLDrawZipMessage"));
 		message.replace(QString("%s"),zipPath);
 		mb.setText(message);
@@ -1225,8 +1256,6 @@ void LDVWidget::checkForLibraryUpdates(void)
 		char *ldrawDir = getLDrawDir();
 		char *ldrawZip = getLDrawZipPath();
 		wchar_t *updateCheckError = NULL;
-		emit lpub->messageSig(LOG_INFO, QString("ldrawDir path (%1)").arg(ldrawDir));
-		emit lpub->messageSig(LOG_INFO, QString("ldrawZip path (%1)").arg(ldrawZip));
 
 		ldrawLibraryUpdateCanceled = false;
 		ldrawLibraryUpdateFinishNotified = false;
