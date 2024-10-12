@@ -16,6 +16,7 @@
 #include "LDVWidget.h"
 
 #include <TCFoundation/TCAlertManager.h>
+#include <TCFoundation/TCProgressAlert.h>
 #include <LDLib/LDrawModelViewer.h>
 #include <LDLib/LDSnapshotTaker.h>
 
@@ -25,7 +26,10 @@ LDVAlertHandler::LDVAlertHandler(LDVWidget *ldvw)
 
 	TCAlertManager::registerHandler(LDSnapshotTaker::alertClass(), this,
 		(TCAlertCallback)&LDVAlertHandler::snapshotTakerAlertCallback);
-		
+
+	TCAlertManager::registerHandler(TCProgressAlert::alertClass(), this,
+		(TCAlertCallback)&LDVAlertHandler::progressAlertCallback);
+
 	TCAlertManager::registerHandler(LDrawModelViewer::alertClass(), this,
 		(TCAlertCallback)&LDVAlertHandler::modelViewerAlertCallback);
 		
@@ -40,6 +44,14 @@ void LDVAlertHandler::dealloc(void)
 	TCAlertManager::unregisterHandler(LDrawModelViewer::alertClass(), this);
 
 	TCObject::dealloc();
+}
+
+void LDVAlertHandler::progressAlertCallback(TCProgressAlert *alert)
+{
+	if (m_ldvw)
+	{
+		m_ldvw->progressAlertCallback(alert);
+	}
 }
 
 void LDVAlertHandler::modelViewerAlertCallback(TCAlert *alert)

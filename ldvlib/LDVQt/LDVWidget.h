@@ -70,11 +70,12 @@ public:
 
 	void modelViewerAlertCallback(TCAlert *alert);
 	void snapshotTakerAlertCallback(TCAlert *alert);
-	bool setDirFromFilename(const char *filename);
+	void progressAlertCallback(TCProgressAlert *alert);
 
 	void showLDVExportOptions(void);
 	void showLDVPreferences(void);
 
+	bool setDirFromFilename(const char *filename);
 	bool doCommand(QStringList &arguments);
 
 	void doSetRebrickableParts(const QString &list);
@@ -121,25 +122,15 @@ protected:
 	bool loadModel(const char *filename);
 	void setupSnapshotBackBuffer(int width, int height);
 
+	void timerEvent(QTimerEvent *event);
+
 	char *getLDrawDir(void);
+	char *getLDrawZipPath(void);
 	bool verifyLDrawDir(bool forceChoose = false);
 	bool verifyLDrawDir(char *value);
 	bool promptForLDrawDir(QString prompt);
 	void libraryUpdateProgress(TCProgressAlert *alert);
 	void setLibraryUpdateProgress(float progress);
-
-#if !defined(_NO_BOOST) || defined(USE_CPP11)
-	LDLibraryUpdater *libraryUpdater;
-#endif
-	bool ldrawLibraryUpdateFinished;
-	bool ldrawLibraryUpdateCanceled;
-	bool ldrawLibraryUpdateFinishNotified;
-	QString libraryUpdateProgressMessage;
-	float libraryUpdateProgressValue;
-	bool libraryUpdateProgressReady;
-	int libraryUpdateFinishCode;
-	int libraryUpdateTimer;
-	QProgressDialog *libraryUpdateWindow;
 
 	IniFlag                iniFlag;
 	bool                   forceIni;
@@ -151,8 +142,8 @@ protected:
 	LDrawModelViewer      *modelViewer;
 	LDSnapshotTaker       *snapshotTaker;
 	LDVAlertHandler       *ldvAlertHandler;
-
 	LDInputHandler        *inputHandler;
+
 	char                  *modelFilename;
 	const char            *saveImageFilename;
 	const char            *imageInputFilename;
@@ -162,6 +153,19 @@ protected:
 	bool                   commandLineSnapshotSave;
 	bool                   showLDrawZipMsg;
 	LDInputHandler::ViewMode viewMode;
+
+	QProgressDialog  *libraryUpdateWindow;
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+	LDLibraryUpdater *libraryUpdater;
+#endif
+	bool ldrawLibraryUpdateFinished;
+	bool ldrawLibraryUpdateCanceled;
+	bool ldrawLibraryUpdateFinishNotified;
+	QString libraryUpdateProgressMessage;
+	float libraryUpdateProgressValue;
+	bool libraryUpdateProgressReady;
+	int libraryUpdateFinishCode;
+	int libraryUpdateTimer;
 
 	struct IniFile
 	{

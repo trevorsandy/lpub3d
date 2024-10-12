@@ -17,8 +17,10 @@
 
 #include <TCFoundation/TCObject.h>
 
-class TCAlert;
 class LDVWidget;
+class TCProgressAlert;
+class TCAlert;
+
 class LDVAlertHandler : public TCObject
 {
 public:
@@ -29,6 +31,7 @@ protected:
 
 	void snapshotTakerAlertCallback(TCAlert *alert);
 	void modelViewerAlertCallback(TCAlert *alert);
+	void progressAlertCallback(TCProgressAlert *alert);
 
 	LDVWidget *m_ldvw;
 };

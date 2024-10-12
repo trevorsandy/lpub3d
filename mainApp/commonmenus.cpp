@@ -2161,6 +2161,55 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
+        // WT_LDVIEW_PREFERENCES_LDRAW
+        {
+            QObject::tr(
+            "  Configure the LDView LDraw archive parts library,\n"
+            "  parts library directory and extra search directories.\n\n"
+            "  - LDraw Zip: This allows you to manually select a zip\n"
+            "    file containing the LDraw library to be used in\n"
+            "    preference to the LDraw Folder below. Each parts\n"
+            "    release from ldraw.org contains a file named complete.zip\n"
+            "    that you can use here. Additionally, if a file named\n"
+            "    lpub3dldrawunf.zip or ldrawunf.zip exists alongside this\n"
+            "    zip file, it will automatically be scanned for unofficial\n"
+            "    parts.\n\n"
+            "    You can enter a path, or hit the Browse... button.\n"
+            "    If you enter a path that doesn't resolve to a zip file,\n"
+            "    you will get an error when you apply your preferences\n"
+            "    changes.\n\n"
+            "  - LDraw Folder: Allows you to manually select the LDraw\n"
+            "    folder. You can enter a path, or hit the Browse... button.\n"
+            "    If you type in a path that isn't an LDraw folder, you will\n"
+            "    get an error when you apply your preferences changes.\n\n"
+            "    Note that if you specify an LDraw Zip, the LDraw Folder is\n"
+            "    no longer required to have parts and p subdirectories.\n"
+            "    It still must be valid, though, since that is where\n"
+            "    automatically downloaded unofficial parts will be placed.\n\n"
+            "  - Extra Search Folders/Directories: Allows you to specify\n"
+            "    and organize any number of extra search directories. When\n"
+            "    LDView loads a model, and the model references a part or\n"
+            "    sub-model, it searches for that part or sub-model in a\n"
+            "    number of locations. No matter what you enter here, it\n"
+            "    will search the directory the model is located in, as well\n"
+            "    as the P, PARTS, and MODELS directories inside the LDraw\n"
+            "    directory (in that order). If it doesn't find the file in\n"
+            "    any of those directories, it will then search all the\n"
+            "    directories listed in the Extra Search Dirs dialog accessed\n"
+            "    via this menu item. It searches them in the order they are\n"
+            "    listed in the box, so you can move directories in the box\n"
+            "    up and down to get them in the order you want them to\n"
+            "    be in.\n\n"
+            "  - Extra Search Folders/Directories: Allows you to specify\n"
+            "    and organize any number of extra search directories.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_LDVIEW_PREFERENCES_LDRAW")
+#else
+                 ""
+#endif
+                )
+        },
         // WT_LDVIEW_PREFERENCES_GEOMETRY
         {
             QObject::tr(
@@ -2216,8 +2265,14 @@ void CommonMenus::setWhatsThis()
         // WT_LDVIEW_PREFERENCES_UPDATES
         {
             QObject::tr(
-            "  Configure or reset the LDView internet proxy and\n"
-            "  missing parts download settings.\n\n"
+            "  Configure or reset the LDView internet proxy, missing parts\n"
+            "  download settings and check for LDraw library updates.\n\n"
+            "  - Internet Proxy: Configure your connection to the Internet\n"
+            "    with options to use a proxy server.\n\n."
+            "  - Missing Parts: Check LDraw.org for missing parts.\n\n"
+            "  - Check for Library Updates: Checks to see if there are any\n"
+            "    LDraw parts library updates on LDraw.org that aren't yet\n"
+            "    installed, and downloads and installs them if any are found.\n\n"
             "  - Reset: This resets all the General preferences to\n"
             "    their default values. As with all other preference\n"
             "    changes, you must hit OK or Apply for the reset\n"
@@ -6544,7 +6599,8 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART
         {
             QObject::tr(
-            "  Configure LDView preference sets settings.\n\n"
+            "  Configure LDView internet proxy, missing parts and\n"
+            "  check for LDraw library updates settings.\n\n"
             "  - Automatically check LDraw.org for missing parts: \n"
             "    Enabling this causes LDView to automatically check the\n"
             "    LDraw.org Parts Tracker when it can't find a file. If\n"
@@ -6570,6 +6626,50 @@ void CommonMenus::setWhatsThis()
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_SEARCH_DIRECTORIES
+        {
+            QObject::tr(
+            "  Allows you to specify and organize any number of extra\n"
+            "  LDraw parts search directories. When LDView loads a model,\n"
+            "  and the model references a part or sub-model, it searches\n"
+            "  for that part or sub-model in a number of locations. No\n"
+            "  matter what you enter here, it will search the directory\n"
+            "  the model is located in, as well as the P, PARTS, and\n"
+            "  MODELS directories inside the LDraw directory (in that\n"
+            "  order). If it doesn't find the file in any of those\n"
+            "  directories, it will then search all the directories\n"
+            "  listed in the Extra Search Dirs dialog accessed via this\n"
+            "  menu item. It searches them in the order they are listed\n"
+            "  in the box, so you can move directories in the box up and\n"
+            "  down to get them in the order you want them to be in."
+            "  - Add button: Add a search directory to the list.\n\n"
+            "  - Delete button: Remove a search directory from the list.\n\n"
+            "  - Up button: Move a search directory up in the list.\n\n"
+            "  - Down button: Move a search directory down in the list.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_SEARCH_DIRECTORIES")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_LIBRARY
+        {
+            QObject::tr(
+            "  Checks to see if there are any LDraw parts library updates on\n"
+            "  LDraw.org that aren't yet installed, and download and\n"
+            "  install them if any are found.\n\n"
+            "  - Browse... button: Allows you to launch the download and\n"
+            "    update dialog which shows the update progress.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_LIBRARY")
 #else
                  ""
 #endif

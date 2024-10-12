@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -3886,7 +3886,7 @@
        <item>
         <widget class="QGroupBox" name="updateLDrawLibraryBox">
          <property name="title">
-          <string>Check for Library Updates</string>
+          <string>Check for LDraw Library Updates</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>

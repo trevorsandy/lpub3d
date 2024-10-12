@@ -124,7 +124,13 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		modelExt(nullptr),
 		saveImageZoomToFit(false),
 		commandLineSnapshotSave(false),
-		viewMode(LDInputHandler::VMExamine)
+		viewMode(LDInputHandler::VMExamine),
+		libraryUpdateWindow(nullptr),
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+		libraryUpdater(nullptr),
+#endif
+		libraryUpdateProgressReady(false),
+		libraryUpdateTimer(0)
 {
 	iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
 	iniFiles[NativeSTLIni]   = { iniFlagNames[NativeSTLIni],   Preferences::nativeExportIni };
@@ -957,6 +963,17 @@ void LDVWidget::libraryUpdateProgress(TCProgressAlert *alert)
 	}
 }
 
+void LDVWidget::progressAlertCallback(TCProgressAlert *alert)
+{
+	if (alert)
+	{
+		if (strcmp(alert->getSource(), "LDLibraryUpdater") == 0)
+		{
+			libraryUpdateProgress(alert);
+		}
+	}
+}
+
 bool LDVWidget::staticFileCaseCallback(char *filename)
 {
 	char *shortName;
@@ -1121,6 +1138,17 @@ bool LDVWidget::verifyLDrawDir(bool forceChoose)
 	return found;
 }
 
+char *LDVWidget::getLDrawZipPath(void)
+{
+	char *ldrawZip = LDVPreferences::getLDrawZipPath();
+
+	if (!ldrawZip)
+	{
+		ldrawZip = copyString("");
+	}
+	return ldrawZip;
+}
+
 char *LDVWidget::getLDrawDir(void)
 {
 	char *lDrawDir = LDVPreferences::getLDrawDir();
@@ -1190,8 +1218,10 @@ void LDVWidget::checkForLibraryUpdates(void)
 	{
 		libraryUpdater = new LDLibraryUpdater;
 		char *ldrawDir = getLDrawDir();
-		char *ldrawZip = LDVPreferences::getLDrawZipPath();
+		char *ldrawZip = getLDrawZipPath();
 		wchar_t *updateCheckError = NULL;
+		emit lpub->messageSig(LOG_INFO, QString("ldrawDir path (%1)").arg(ldrawDir));
+		emit lpub->messageSig(LOG_INFO, QString("ldrawZip path (%1)").arg(ldrawZip));
 
 		ldrawLibraryUpdateCanceled = false;
 		ldrawLibraryUpdateFinishNotified = false;
@@ -1200,6 +1230,8 @@ void LDVWidget::checkForLibraryUpdates(void)
 		libraryUpdater->setLdrawDir(ldrawDir);
 		libraryUpdater->setLdrawZipPath(ldrawZip);
 		delete ldrawDir;
+		delete(ldrawZip);
+
 		if (libraryUpdater->canCheckForUpdates(updateCheckError))
 		{
 			showLibraryUpdateWindow(false);
@@ -1247,7 +1279,6 @@ bool LDVWidget::installLDraw(void)
 		ldrawLibraryUpdateCanceled = false;
 		ldrawLibraryUpdateFinishNotified = false;
 		ldrawLibraryUpdateFinished = false;
-		progressDialogClosed = false;
 		libraryUpdater->setLibraryUpdateKey(LAST_LIBRARY_UPDATE_KEY);
 		libraryUpdater->setLdrawDir(ldrawDir);
 		libraryUpdater->installLDraw();
@@ -1391,6 +1422,29 @@ void LDVWidget::setLibraryUpdateProgress(float progress)
 void LDVWidget::doLibraryUpdateCanceled(void)
 {
 	ldrawLibraryUpdateCanceled = true;
+}
+
+void LDVWidget::timerEvent(QTimerEvent* event)
+{
+	if (event->timerId() == libraryUpdateTimer)
+	{
+		if (ldrawLibraryUpdateFinishNotified)
+		{
+			killTimer(libraryUpdateTimer);
+			libraryUpdateTimer = 0;
+			libraryUpdateFinished(libraryUpdateFinishCode);
+		}
+		else if (!ldrawLibraryUpdateCanceled)
+		{
+			if (libraryUpdateProgressReady)
+			{
+				libraryUpdateProgressReady = false;
+				libraryUpdateWindow->setLabelText(libraryUpdateProgressMessage);
+				libraryUpdateProgressMessage = "";
+				setLibraryUpdateProgress(libraryUpdateProgressValue);
+			}
+		}
+	}
 }
 
 void LDVWidget::setViewMode(LDInputHandler::ViewMode value,

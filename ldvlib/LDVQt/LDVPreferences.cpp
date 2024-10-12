@@ -63,6 +63,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES,windowTitle()));
 
 	generalTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GENERAL, tr("General")));
+	ldrawTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_LDRAW, tr("LDraw")));
 	geometryTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_GEOMETRY, tr("Geometry")));
 	effectsTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_EFFECTS, tr("Effects")));
 	primitivesTab->setWhatsThis(lpubWT(WT_LDVIEW_PREFERENCES_PRIMITIVES, tr("Primitives")));
@@ -88,6 +89,8 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	primitivesMiscBox->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PRIMITIVE_MISC,primitivesMiscBox->title().replace("&","")));
 	updatesProxyBox->setWhatsThis(lpubWT(            WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_PROXY,updatesProxyBox->title().replace("&","")));
 	updatesMissingpartBox->setWhatsThis(lpubWT(      WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_MISSING_PART,updatesMissingpartBox->title().replace("&","")));
+	ExtraDirListView->setWhatsThis(lpubWT(           WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_SEARCH_DIRECTORIES, tr("Extra Search Directories")));
+	updateLDrawLibraryBox->setWhatsThis(lpubWT(      WT_CONTROL_LDVIEW_PREFERENCES_UPDATES_LDRAW_LIBRARY, updateLDrawLibraryBox->title().replace("&","")));
 	preferenceSetList->setWhatsThis(lpubWT(          WT_CONTROL_LDVIEW_PREFERENCES_PREFERENCE_SET,tr("Preferences Set List")));
 
 	connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
