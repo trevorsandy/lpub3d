@@ -108,7 +108,14 @@ contains(QT_VERSION, ^6\\..*) {
   }
 }
 
-CONFIG += incremental force_debug_info c++17
+versionAtLeast(QT_VERSION, 5.12.0) {
+    CONFIG += c++17
+} else {
+    win32-msvc*: QMAKE_CXXFLAGS += /std:c++17
+    unix: QMAKE_CXXFLAGS += -std=c++17
+}
+
+CONFIG += incremental force_debug_info
 
 win32 {
 
