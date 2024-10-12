@@ -1,4 +1,4 @@
-LPub3D 2.4.7.195.3671 (12 10 2024 05:12:24)
+LPub3D 2.4.7.196.3672 (12 10 2024 05:13:34)
 
 Features, enhancements, fixes and changes
 ------------
@@ -32,6 +32,7 @@ Revisions:
 - Fix - Create new Buildmod after one BM does not work #743
 - Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
+- Fix - Intel driver igxelpicd64.dll crash with dump #741
 - Fix - LPub3D crashes on Mac #753
 - Fix - LPub3D unstable if 'Author:' value is empty in LDR-file #760
 - Fix - Multi_step pli per_step false causes crash #755
