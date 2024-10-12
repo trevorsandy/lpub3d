@@ -41,11 +41,11 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     Q_ASSERT(mGridSize > 0);
 }
 
-void LGraphicsScene::updateGuidePos(){
+void LGraphicsScene::updateGuidePos() {
     if (!mSceneGuides)
         return;
 
-    if (mValidItem){
+    if (mValidItem) {
         if (mItemType == PointerGrabberObj ||
             mItemType == PliGrabberObj     ||
             mItemType == SubmodelGrabberObj||
@@ -69,7 +69,7 @@ void LGraphicsScene::updateGuidePos(){
                                 mBaseItem->sceneBoundingRect().bottom());
     }
     else
-    if (mPliPartGroup){
+    if (mPliPartGroup) {
         if (mGuidesPlacement == GUIDES_TOP_LEFT)
             mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().left(),
                                 mBaseItem->parentItem()->sceneBoundingRect().top());
@@ -92,7 +92,7 @@ void LGraphicsScene::updateGuidePos(){
     update();
 }
 
-bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
+bool LGraphicsScene::setSelectedItem(const QPointF &scenePos) {
     mBaseItem = itemAt(scenePos, QTransform());
 
     auto checkPliPartGroupSceneObject = [this]()
@@ -164,7 +164,7 @@ QMatrix LGraphicsScene::stableMatrix(const QMatrix &matrix, const QPointF &p)
     return newMatrix;
 }
 
-void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
+void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect) {
 
     QGraphicsScene::drawBackground(painter, rect);
 
@@ -176,8 +176,8 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
     qreal left = int(rect.left()) - (int(rect.left()) % mGridSize);
     qreal top = int(rect.top()) - (int(rect.top()) % mGridSize);
     QVector<QPointF> points;
-    for (qreal x = left; x < rect.right(); x += mGridSize){
-        for (qreal y = top; y < rect.bottom(); y += mGridSize){
+    for (qreal x = left; x < rect.right(); x += mGridSize) {
+        for (qreal y = top; y < rect.bottom(); y += mGridSize) {
             points.append(QPointF(x,y));
         }
     }
@@ -186,7 +186,7 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
     update();
 }
 
-void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
+void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
 
     QPen guidPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN])), 0, Qt::SolidLine));
     QPen rulerTrackingPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN])), 0, Qt::SolidLine));
@@ -327,7 +327,7 @@ void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
 }
 
 void LGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    if (event->button() == Qt::LeftButton){
+    if (event->button() == Qt::LeftButton) {
         updateGuidePos();
         snapToGrid();
     }
@@ -337,8 +337,8 @@ void LGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void LGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    if (setSelectedItem(event->scenePos())){
-        if (event->button() == Qt::LeftButton){
+    if (setSelectedItem(event->scenePos())) {
+        if (event->button() == Qt::LeftButton) {
             updateGuidePos();
         }
     }

@@ -1754,7 +1754,7 @@ bool EditWindow::saveFile()
         writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         rc = writer.write(_textEdit->document());
 
-        if (rc){
+        if (rc) {
             saveAct->setEnabled(false);
             _textEdit->document()->setModified(false);
             statusBar()->showMessage(tr("File %1 saved").arg(fileName), 2000);
@@ -2144,15 +2144,15 @@ void EditWindow::highlightCurrentLine()
     _textEdit->setExtraSelections(extraSelections);
 }
 
-void EditWindow::topOfDocument(){
+void EditWindow::topOfDocument() {
     _textEdit->moveCursor(QTextCursor::Start);
 }
 
-void EditWindow::bottomOfDocument(){
+void EditWindow::bottomOfDocument() {
     _textEdit->moveCursor(QTextCursor::End);
 }
 
-void EditWindow::showAllCharacters(){
+void EditWindow::showAllCharacters() {
     _textEdit->blockSignals(true);
     _textEdit->showAllCharacters(showAllCharsAct->isChecked());
     _textEdit->blockSignals(false);
@@ -3045,7 +3045,7 @@ QStringList TextEditor::extractDistinctWordsFromDocument() const
     QStringList allWords = retrieveAllWordsFromDocument();
     allWords.removeDuplicates();
 
-    QStringList words = filterWordList(allWords, [](const QString &word){
+    QStringList words = filterWordList(allWords, [](const QString &word) {
         return word.length() > EDITOR_FILTER_MIN_WORD_LENGTH;
     });
     words.sort(Qt::CaseInsensitive);
@@ -3288,7 +3288,7 @@ void TextEditor::mouseReleaseEvent(QMouseEvent *event)
   }
 }
 
-void TextEditor::toggleComment(){
+void TextEditor::toggleComment() {
 
     int current = 0;
     int selectedLines = 0;

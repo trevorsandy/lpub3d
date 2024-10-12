@@ -108,19 +108,19 @@ DividerPointerItem::DividerPointerItem(
   shaftPen.setWidth(pad->lineData.thickness);
   shaftPen.setCapStyle(Qt::RoundCap);
   shaftPen.setJoinStyle(Qt::RoundJoin);
-  if (pad->lineData.line == BorderData::BdrLnSolid){
+  if (pad->lineData.line == BorderData::BdrLnSolid) {
       shaftPen.setStyle(Qt::SolidLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDash){
+  else if (pad->lineData.line == BorderData::BdrLnDash) {
       shaftPen.setStyle(Qt::DashLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDot){
+  else if (pad->lineData.line == BorderData::BdrLnDot) {
       shaftPen.setStyle(Qt::DotLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDashDot){
+  else if (pad->lineData.line == BorderData::BdrLnDashDot) {
       shaftPen.setStyle(Qt::DashDotLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDashDotDot){
+  else if (pad->lineData.line == BorderData::BdrLnDashDotDot) {
       shaftPen.setStyle(Qt::DashDotDotLine);
   }
 
@@ -147,19 +147,19 @@ DividerPointerItem::DividerPointerItem(
   tipPen.setWidth(pad->borderData.thickness);
   tipPen.setCapStyle(Qt::RoundCap);
   tipPen.setJoinStyle(Qt::RoundJoin);
-  if (pad->borderData.line == BorderData::BdrLnSolid){
+  if (pad->borderData.line == BorderData::BdrLnSolid) {
       tipPen.setStyle(Qt::SolidLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDash){
+  else if (pad->borderData.line == BorderData::BdrLnDash) {
       tipPen.setStyle(Qt::DashLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDot){
+  else if (pad->borderData.line == BorderData::BdrLnDot) {
       tipPen.setStyle(Qt::DotLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDashDot){
+  else if (pad->borderData.line == BorderData::BdrLnDashDot) {
       tipPen.setStyle(Qt::DashDotLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDashDotDot){
+  else if (pad->borderData.line == BorderData::BdrLnDashDotDot) {
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
@@ -182,7 +182,7 @@ DividerPointerItem::DividerPointerItem(
   drawPointerPoly();
 }
 
-DividerPointerItem::~DividerPointerItem(){
+DividerPointerItem::~DividerPointerItem() {
     shaftSegments.clear();
 }
 
@@ -190,7 +190,7 @@ DividerPointerItem::~DividerPointerItem(){
  * Given the location of the Tip (as dragged around by the user)
  * calculate a reasonable placement and Loc for Base or MidTip points.
  */
-bool DividerPointerItem::autoLocFromTip(){
+bool DividerPointerItem::autoLocFromTip() {
   int width = divider->size[XX];
   int height = divider->size[YY];
   int left = 0;
@@ -211,7 +211,7 @@ bool DividerPointerItem::autoLocFromTip(){
       if (!resizeRequested)
           points[Base] = QPointF(pointerData.x2,pointerData.y2);
 
-      if (segments() == ThreeSegments){
+      if (segments() == ThreeSegments) {
           int mtx = pointerData.x3;
           points[MidTip].setY(ty);
           points[MidTip].setX(mtx);
@@ -271,7 +271,7 @@ bool DividerPointerItem::autoLocFromTip(){
   return true;
 }
 
-bool DividerPointerItem::autoLocFromMidBase(){
+bool DividerPointerItem::autoLocFromMidBase() {
   int width = divider->size[XX];
   int height = divider->size[YY];
   int left = 0;
@@ -339,7 +339,7 @@ bool DividerPointerItem::autoLocFromMidBase(){
 return true;
 }
 
-void DividerPointerItem::defaultPointer(){
+void DividerPointerItem::defaultPointer() {
   points[Tip] = QPointF(divider->parentStep->csiItem->loc[XX]+
                         divider->parentStep->csiItem->size[XX]/2,
                         divider->parentStep->csiItem->loc[YY]+
@@ -369,7 +369,7 @@ void DividerPointerItem::defaultPointer(){
   addPointerMeta();
 }
 
-void DividerPointerItem::calculatePointerMetaLoc(){
+void DividerPointerItem::calculatePointerMetaLoc() {
   float loc = 0;
 
   switch (placement) {

@@ -773,7 +773,7 @@ int Step::createCsi(
                                           .arg(gui->stepPageNum));
      }
 
-     if (Gui::exportingObjects() && gui->m_partListCSIFile){
+     if (Gui::exportingObjects() && gui->m_partListCSIFile) {
          pixmap->load(":/resources/placeholderimage.png");  // image placeholder
          csiPlacement.size[0] = pixmap->width();
          csiPlacement.size[1] = pixmap->height();
@@ -1251,13 +1251,13 @@ bool Step::loadTheViewer() {
     return true;
 }
 
-int Step::getLineTypeRelativeIndex(int lineTypeIndx){
+int Step::getLineTypeRelativeIndex(int lineTypeIndx) {
     if (lineTypeIndexes.size() > lineTypeIndx)
         return lineTypeIndexes.at(lineTypeIndx);
     return -1;
 }
 
-int Step::getLineTypeIndex(int relativeTypeIndx){
+int Step::getLineTypeIndex(int relativeTypeIndx) {
     for (int i = 0; i < lineTypeIndexes.size(); ++i)
         if (lineTypeIndexes.at(i) == relativeTypeIndx)
             return i;
@@ -1265,7 +1265,7 @@ int Step::getLineTypeIndex(int relativeTypeIndx){
 }
 
 void Step::getStepLocation(Where &top, Where &bottom) {
-  if (multiStep){
+  if (multiStep) {
         top = topOfSteps();
         bottom = bottomOfSteps();
    } else if (calledOut) {
@@ -1749,7 +1749,7 @@ int Step::sizeit(
 
   // size up the rotate icon
 
-  if (placeRotateIcon){
+  if (placeRotateIcon) {
       rotateIcon.sizeit();
     }
 
@@ -1786,7 +1786,7 @@ int Step::sizeit(
       subModelPlacement.relativeTo = CsiType;
     }
 
-  if (placeSubModel){
+  if (placeSubModel) {
     if (subModelPlacement.relativeTo == CsiType) {
         if (subModelPlacement.preposition == Outside) {
             subModel.tbl[XX] = subModelPlace[subModelPlacement.placement][XX];
@@ -1802,8 +1802,8 @@ int Step::sizeit(
 
   PlacementData rotateIconPlacement = rotateIcon.placement.value();
 
-  if (placeRotateIcon){
-      if (rotateIconPlacement.relativeTo == CsiType){
+  if (placeRotateIcon) {
+      if (rotateIconPlacement.relativeTo == CsiType) {
           if (rotateIconPlacement.preposition == Outside) {
               rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
               rotateIcon.tbl[YY] = rotateIconPlace[rotateIconPlacement.placement][YY];
@@ -2649,7 +2649,7 @@ int Step::maxMargin(int &top, int &bot, int y)
     }
   }
 
-  if (placeRotateIcon){
+  if (placeRotateIcon) {
     if (rotateIcon.tbl[YY] < TblCsi) {
       top = rotateIcon.margin.valuePixels(y);
       top_tbl = rotateIcon.tbl[y];
@@ -3055,7 +3055,7 @@ void Step::addGraphicsItems(
     }
 
   // Rotate Icon
-  if (placeRotateIcon){
+  if (placeRotateIcon) {
       RotateIconItem *ri;
       if (calledOut) {
 
@@ -3314,13 +3314,13 @@ void Step::sizeitFreeform(
 
   // size up the Submodel
 
-//  if (placeSubModel){
+//  if (placeSubModel) {
 //      subModel.sizeit();
 //    }
 
   // size up the rotateIcon
 
-  if (placeRotateIcon){
+  if (placeRotateIcon) {
       rotateIcon.sizeit();
     }
 

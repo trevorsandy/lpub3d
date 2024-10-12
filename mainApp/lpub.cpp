@@ -226,7 +226,7 @@ void Gui::appendCoverPage()
 
 void Gui::generateCoverPages()
 {
-    if (Preferences::generateCoverPages){
+    if (Preferences::generateCoverPages) {
         if (!lpub->mi.frontCoverPageExist())
             lpub->mi.insertCoverPage();
 
@@ -631,7 +631,7 @@ void Gui::nextPageContinuous()
     box.setInformativeText (message);
 
     // User wants to stop Previous page process
-    if (box.exec() == QMessageBox::Yes){
+    if (box.exec() == QMessageBox::Yes) {
       setPageContinuousIsRunning(false, PAGE_PREVIOUS);
       continuousPageDialog(PAGE_NEXT);
     }
@@ -741,7 +741,7 @@ void Gui::previousPageContinuous()
   }
 }
 
-void Gui::setPageContinuousIsRunning(bool b, PageDirection d){
+void Gui::setPageContinuousIsRunning(bool b, PageDirection d) {
 
     if (d != DIRECTION_NOT_SET) pageDirection = d;
 
@@ -823,7 +823,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               connect    (m_progressDialog, SIGNAL (cancelNextPageContinuous()),this, SLOT (nextPageContinuous()));
               connect    (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
 
-              if(dialog->allPages()){
+              if(dialog->allPages()) {
                   if (dialog->allPagesRange()) {
                       processOption = EXPORT_PAGE_RANGE;
                       pageRangeText = dialog->allPagesRangeText();
@@ -970,16 +970,16 @@ bool Gui::continuousPageDialog(PageDirection d)
       // Split page range values
       Q_FOREACH (QString ranges,pageRanges) {
           // If n-n range, split into start through end pages
-          if (ranges.contains("-")){
+          if (ranges.contains("-")) {
               QStringList range = ranges.split("-");
               int startPage = range[0].toInt();
               int endPage = range[1].toInt();
               if (d == PAGE_NEXT) {
-                  for(int i = startPage; i <= endPage; i++){
+                  for(int i = startPage; i <= endPage; i++) {
                       printPages.append(i);
                   }
               } else {
-                  for(int i = startPage; i >= endPage; i--){
+                  for(int i = startPage; i >= endPage; i--) {
                       printPages.append(i);
                   }
               }
@@ -1009,7 +1009,7 @@ bool Gui::continuousPageDialog(PageDirection d)
       }
 
       // process each page
-      Q_FOREACH (int printPage,printPages){
+      Q_FOREACH (int printPage,printPages) {
 
           displayPageNum = printPage;
 
@@ -1683,7 +1683,7 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
         return;
     }
     QStringList args;
-    if (! changeLibrary && ! getCurFile().isEmpty()){
+    if (! changeLibrary && ! getCurFile().isEmpty()) {
         args = QApplication::arguments();
         args.removeFirst();
         if (!args.contains(getCurFile(),Qt::CaseInsensitive))
@@ -2231,7 +2231,7 @@ bool Gui::removeDir(int &count, const QString & dirName)
                 result = removeDir(count,subDir);
             }
             else
-            if (fileInfo.isFile()){
+            if (fileInfo.isFile()) {
                 if ((result = QFile::remove(fileInfo.absoluteFilePath()))) {
 #ifdef QT_DEBUG_MODE
                     emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
@@ -2291,7 +2291,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
               } // validate step (StepType) and process...
           } // validate RangeType - to cast step
       } else if (relativeType == StepGroupType) {  // multi-step page
-          for (int i = 0; i < page->list.size(); i++){
+          for (int i = 0; i < page->list.size(); i++) {
               Range *range = dynamic_cast<Range *>(page->list[i]);
               for (int j = 0; j < range->list.size(); j++) {
                   if (range->relativeType == RangeType) {
@@ -2394,9 +2394,9 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
     for (int k = 0; k < step->list.size(); k++) {
         if (step->list[k]->relativeType == CalloutType) {
             Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-            for (int l = 0; l < callout->list.size(); l++){
+            for (int l = 0; l < callout->list.size(); l++) {
                 Range *range = dynamic_cast<Range *>(callout->list[l]);
-                for (int m = 0; m < range->list.size(); m++){
+                for (int m = 0; m < range->list.size(); m++) {
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[m]);
                         if (step && step->relativeType == StepType) {
@@ -3563,11 +3563,11 @@ void Gui::closeEvent(QCloseEvent *event)
   }
 }
 
-void Gui::workerJobResult(int value){
+void Gui::workerJobResult(int value) {
     m_workerJobResult = value;
 }
 
-void Gui::getRequireds(){
+void Gui::getRequireds() {
     // Check preferred renderer value is set before setting Renderer class
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
@@ -3700,7 +3700,7 @@ void Gui::getSubFileList()
 
 void Gui::loadBLCodes()
 {
-   if (!Annotations::loadBLCodes()){
+   if (!Annotations::loadBLCodes()) {
        QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
        lpub->downloadFile(URL, "BrickLink Elements");
        QByteArray Buffer = lpub->getDownloadedFile();
@@ -3805,7 +3805,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
 }
 
 // left side progress bar - no longer used
-void Gui::progressBarInit(){
+void Gui::progressBarInit() {
   if (okToInvokeProgressBar()) {
       progressBar->setMaximumHeight(15);
       statusBar()->addWidget(progressLabel);
@@ -3843,7 +3843,7 @@ void Gui::progressBarReset()
     }
 }
 
-void Gui::progressStatusRemove(){
+void Gui::progressStatusRemove() {
   if (okToInvokeProgressBar()) {
       statusBar()->removeWidget(progressBar);
       statusBar()->removeWidget(progressLabel);
@@ -3851,7 +3851,7 @@ void Gui::progressStatusRemove(){
 }
 
 // right side progress bar
-void Gui::progressBarPermInit(){
+void Gui::progressBarPermInit() {
   if (okToInvokeProgressBar()) {
       progressBarPerm->setMaximumHeight(15);
       statusBar()->addPermanentWidget(progressLabelPerm);
@@ -3887,14 +3887,14 @@ void Gui::progressBarPermReset()
     }
 }
 
-void Gui::progressPermStatusRemove(){
+void Gui::progressPermStatusRemove() {
   if (okToInvokeProgressBar()) {
       statusBar()->removeWidget(progressBarPerm);
       statusBar()->removeWidget(progressLabelPerm);
     }
 }
 
-void Gui::updateGoToPage(bool frontCoverPageExist, bool backCoverPageExist){
+void Gui::updateGoToPage(bool frontCoverPageExist, bool backCoverPageExist) {
   int pageNum = 0 + pa;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
@@ -4205,7 +4205,7 @@ bool Gui::installRenderer(int which)
         result = true;
 
 #if defined Q_OS_WIN
-    if (!Preferences::portableDistribution){
+    if (!Preferences::portableDistribution) {
         QSettings Settings;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"),Preferences::lpub3d3rdPartyAppDir);
     }
@@ -6944,7 +6944,7 @@ void Gui::createMenus()
     editorMenu->addAction(getAct("useSystemEditorAct.1"));
     editorMenu->addSeparator();
 #if defined Q_OS_WIN
-    if (Preferences::portableDistribution){
+    if (Preferences::portableDistribution) {
       editorMenu->addAction(getAct("editLPub3DIniFileAct.1"));
       editorMenu->addSeparator();
     }
@@ -7269,7 +7269,7 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(getAct("editLD2RBCodesXRefAct.1"));
     editParamsToolBar->addSeparator();
 #if defined Q_OS_WIN
-    if (Preferences::portableDistribution){
+    if (Preferences::portableDistribution) {
         editParamsToolBar->addAction(getAct("editLPub3DIniFileAct.1"));
         editParamsToolBar->addSeparator();
     }
@@ -7648,7 +7648,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
                 QMessageBox::information(this,tr("%1 Info Status").arg(VER_PRODUCTNAME_STR),message);
         }
     } else
-    if (logType == LOG_STATUS ){
+    if (logType == LOG_STATUS) {
 
          if (Preferences::loggingEnabled)
              logStatus() << qPrintable(message.replace("<br>"," "));

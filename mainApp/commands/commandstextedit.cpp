@@ -337,11 +337,11 @@ void CommandsTextEdit::lineWrap()
         setLineWrapMode(QPlainTextEdit::NoWrap);
 }
 
-void CommandsTextEdit::topOfDocument(){
+void CommandsTextEdit::topOfDocument() {
     moveCursor(QTextCursor::Start);
 }
 
-void CommandsTextEdit::bottomOfDocument(){
+void CommandsTextEdit::bottomOfDocument() {
     moveCursor(QTextCursor::End);
 }
 
@@ -441,7 +441,7 @@ QStringList CommandsTextEdit::extractDistinctWordsFromDocument() const
     QStringList allWords = retrieveAllWordsFromDocument();
     allWords.removeDuplicates();
 
-    QStringList words = filterWordList(allWords, [](const QString &word){
+    QStringList words = filterWordList(allWords, [](const QString &word) {
         return word.length() > EDITOR_FILTER_MIN_WORD_LENGTH;
     });
     words.sort(Qt::CaseInsensitive);

@@ -496,7 +496,7 @@ private slots:
   void lineEditReset();
 
 public slots:
-  void newIndex(int value){
+  void newIndex(int value) {
       selection = value;
   }
 
@@ -589,7 +589,7 @@ private slots:
   void spinReset(bool);
 
 public slots:
-  void selectionChanged(int value){
+  void selectionChanged(int value) {
       selection = value;
   }
   void imageFill(bool);

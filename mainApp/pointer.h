@@ -63,10 +63,10 @@ public:
         stepNum       = _stepNum;
         pointerMeta   = _pointerMeta;
     }
-    virtual PointerAttribData getPointerAttribInches(){
+    virtual PointerAttribData getPointerAttribInches() {
         return pointerAttrib.valueInches();
     }
-    virtual void setPointerAttribInches(PointerAttribMeta pam){
+    virtual void setPointerAttribInches(PointerAttribMeta pam) {
         pointerAttrib = pam;
         pointerAttrib.setPointerId(id);
     }

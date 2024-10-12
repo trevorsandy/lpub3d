@@ -75,7 +75,7 @@ SubstitutePartDialog::SubstitutePartDialog(
                           QStringList() << "type" << "color" << defaultList;
      mInitialAttributes = attributes;
 
-     if (mAction != sRemove){
+     if (mAction != sRemove) {
          mShowExtAttrsBtn = new QPushButton(tr("More..."));
          ui->buttonBox->addButton(mShowExtAttrsBtn, QDialogButtonBox::ActionRole);
          connect(mShowExtAttrsBtn,SIGNAL(clicked(bool)),
@@ -195,7 +195,7 @@ void SubstitutePartDialog::initialize()
     // extract valid type and adjust attributes
     QString type = mAttributes.at(sType);
     QString substituteType;
-    if (mAttributes.size() - 1 == sOriginalType/*has original type*/){
+    if (mAttributes.size() - 1 == sOriginalType/*has original type*/) {
         QString originalType = QStringList(mAttributes.last().split(":")).first();
         if (mAction == sUpdate) {
             substituteType = type;
@@ -256,7 +256,7 @@ void SubstitutePartDialog::initialize()
     ui->ldrawEdit->clear();
     ui->ldrawEdit->setClearButtonEnabled(true);
     ui->ldrawTitleLbl->clear();
-    if (!mLdrawType.isEmpty()){
+    if (!mLdrawType.isEmpty()) {
        ui->ldrawEdit->setText(mLdrawType);
        ui->ldrawTitleLbl->setText(Pli::titleDescription(mLdrawType));
     }
@@ -287,7 +287,7 @@ void SubstitutePartDialog::initialize()
     ui->scaleSpin->setDecimals(dec(val));
     ui->scaleSpin->setValue(val);
 
-    if (Preferences::preferredRenderer == RENDERER_NATIVE){
+    if (Preferences::preferredRenderer == RENDERER_NATIVE) {
         min = double(CAMERA_FOV_NATIVE_MIN_DEFAULT);
         max = double(CAMERA_FOV_NATIVE_MAX_DEFAULT);
     } else {
@@ -378,10 +378,10 @@ bool SubstitutePartDialog::getSubstitutePart(
     return ok;
 }
 
-void SubstitutePartDialog::showExtendedAttributes(bool clicked){
+void SubstitutePartDialog::showExtendedAttributes(bool clicked) {
     Q_UNUSED(clicked);
 
-    if (ui->extendedSettingsBox->isHidden()){
+    if (ui->extendedSettingsBox->isHidden()) {
         ui->extendedSettingsBox->show();
         mShowExtAttrsBtn->setText("Less...");
         this->adjustSize();
@@ -807,7 +807,7 @@ void SubstitutePartDialog::accept()
             }
 
             // Finally attached Ldraw Type if exist and other attribues also exist
-            if (mAttributes.size() && !mLdrawType.isEmpty()){
+            if (mAttributes.size() && !mLdrawType.isEmpty()) {
                 mAttributes.append(QString("LDRAW_TYPE %1").arg(mLdrawType));
             }
 

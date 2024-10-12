@@ -169,7 +169,7 @@ int Render::rotatePartsRD(
     good &= ok;
     rotStepData.rots[2] = rotStepList.at(2).toDouble(&ok);
     good &= ok;
-    if (!good){
+    if (!good) {
         emit gui->messageSig(LOG_NOTICE,QString("Malformed ROTSTEP values [%1], using '0 0 0'.").arg(rs));
         rotStepData.rots[0] = 0.0;
         rotStepData.rots[1] = 0.0;
@@ -183,7 +183,7 @@ int Render::rotatePartsRD(
     float latitude = caList.at(0).toFloat(&good);
     float longitude = caList.at(1).toFloat(&ok);
     good &= ok;
-    if (!good){
+    if (!good) {
         emit gui->messageSig(LOG_NOTICE,QString("Malformed Camera Angle values [%1], using 'latitude 30', 'longitude 45'.").arg(ca));
         latitude = 30.0;
         longitude = 45.0;
@@ -274,7 +274,7 @@ int Render::rotateParts(
   // Split Image Matte ldr file
   if (doFadeStep && doImageMatting) {
       QString csiKey,csiFile;
-      if (!useLDViewSCall()){
+      if (!useLDViewSCall()) {
           csiKey = modelName; // use modelName to pass in csiKey from LDView::renderCli when not SingleCall
         } else {
           csiFile = QString("%1/%2/%3")
@@ -726,7 +726,7 @@ int Render::splitIMParts(const QStringList &rotatedParts,
     }
 
    // add the header list
-   if (!headerList.isEmpty()){
+   if (!headerList.isEmpty()) {
        headerList.removeDuplicates(); // remove dupes
        if (headerList.count() > 1 && headerList[0] != "0") {
            for (int i = 0; i < headerList.size(); ++i)

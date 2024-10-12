@@ -149,7 +149,7 @@
 
       // This is a hack, but if not used the console doesn't know the application has returned.
       // The "enter" key only sent if the console window is in focus.
-      if ((GetConsoleWindow() == GetForegroundWindow())){
+      if ((GetConsoleWindow() == GetForegroundWindow())) {
         // Send "enter" to release application from the console
         INPUT keyInput;
         // Set up a generic keyboard event.
@@ -462,7 +462,7 @@ void Application::setTheme(bool appStarted)
       }
   };
 
-  if (setDarkTheme){
+  if (setDarkTheme) {
 
       if (!QApplication::setStyle("fusion"))
           return;
@@ -516,7 +516,7 @@ void Application::setTheme(bool appStarted)
       }
     }
   else
-  if (m_theme == THEME_DEFAULT){
+  if (m_theme == THEME_DEFAULT) {
       // Set default style settings
       QApplication::setStyle(QApplication::style()->objectName());
       QApplication::setPalette(qApp->style()->standardPalette());
@@ -1270,7 +1270,7 @@ void Application::mainApp()
 #endif
         if (!m_commandline_file.isEmpty())
             emit gui->loadFileSig(m_commandline_file);
-        else if (Preferences::loadLastOpenedFile){
+        else if (Preferences::loadLastOpenedFile) {
             gui->loadLastOpenedFile();
         }
 

@@ -1075,7 +1075,7 @@ void Gui::halt3DViewer(bool enable)
     if (!gMainWindow)
         return;
 
-    if(enable){
+    if(enable) {
         GetToolsToolBar()->setEnabled(false);
         gMainWindow->menuBar()->setEnabled(false);
     } else {
@@ -1383,7 +1383,7 @@ void Gui::applyLightSettings()
 
     Step *currentStep = lpub->currentStep;
 
-    if (currentStep){
+    if (currentStep) {
 
         Meta meta;
         LightData lightData = meta.LeoCad.light.value();
@@ -1731,7 +1731,7 @@ void Gui::applyCameraSettings()
 
     Step *currentStep = lpub->currentStep;
 
-    if (currentStep){
+    if (currentStep) {
 
         lcView* ActiveView = gMainWindow->GetActiveView();
 
@@ -1766,7 +1766,7 @@ void Gui::applyCameraSettings()
         QString imageFileName;
 
         int it = lcGetActiveProject()->GetImageType();
-        switch(it){
+        switch(it) {
         case PLI:
             cameraMeta.cameraAngles   = currentStep->pli.pliMeta.cameraAngles;
             cameraMeta.cameraDistance = currentStep->pli.pliMeta.cameraDistance;
@@ -2896,7 +2896,7 @@ void Gui::SetRotStepCommand()
             top = currentStep->topOfStep();
             QString line = gui->readLine(top);
             Rc rc = lpub->page.meta.parse(line,top);
-            if (rc == RotStepRc || rc == StepRc){
+            if (rc == RotStepRc || rc == StepRc) {
                 currentStep->mi(it)->replaceMeta(top, metaString);
             } else {
                 bool firstStep = top.modelName == gui->topLevelFile() &&
@@ -2932,7 +2932,7 @@ void Gui::ShowStepRotationStatus()
  *
  ********************************************/
 
-void Gui::loadTheme(){
+void Gui::loadTheme() {
   Application::instance()->setTheme();
   emit setTextEditHighlighterSig();
   ReloadVisualEditor();

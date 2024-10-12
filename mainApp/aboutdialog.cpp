@@ -215,12 +215,12 @@ void AboutDialog::updateChangelog () {
         ui->contentEdit->setHtml(LPub::m_releaseNotesContent);
 }
 
-void AboutDialog::showChangeLogDetails(bool clicked){
+void AboutDialog::showChangeLogDetails(bool clicked) {
     Q_UNUSED(clicked);
 
     updateChangelog ();
 
-    if (ui->contentGroupBox->isHidden()){
+    if (ui->contentGroupBox->isHidden()) {
         ui->contentGroupBox->show();
         this->adjustSize();
     } else {
@@ -229,7 +229,7 @@ void AboutDialog::showChangeLogDetails(bool clicked){
     }
 }
 
-void AboutDialog::showCreditDetails(bool clicked){
+void AboutDialog::showCreditDetails(bool clicked) {
     Q_UNUSED(clicked);
 
     //populate credits
@@ -244,7 +244,7 @@ void AboutDialog::showCreditDetails(bool clicked){
         ui->contentEdit->setPlainText(in.readAll());
     }
 
-    if (ui->contentGroupBox->isHidden()){
+    if (ui->contentGroupBox->isHidden()) {
         ui->contentGroupBox->show();
         this->adjustSize();
     } else {

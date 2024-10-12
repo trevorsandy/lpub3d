@@ -540,7 +540,7 @@ int Gui::drawPage(
       //QApplication::processEvents();
   };
 
-  auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage](){
+  auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage]() {
     QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
     if (!lpub->page.coverPage && partsAdded) {
       pageRenderMessage += QString("using %1 ").arg(rendererNames[Render::getRenderer()]);
@@ -850,7 +850,7 @@ int Gui::drawPage(
                       split(line,substituteToken);
                       QString substitutePart = type;
 
-                      if (PliSubstituteParts::getSubstitutePart(substitutePart)){
+                      if (PliSubstituteParts::getSubstitutePart(substitutePart)) {
                           substituteToken[substituteToken.size()-1] = substitutePart;
                       }
 
@@ -1049,7 +1049,7 @@ int Gui::drawPage(
               bool calloutOk    = (opts.calledOut ? opts.assembledCallout : true ) &&
                                   (opts.calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value() : true);
               bool showStepOk   = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
-              if (showStepOk && calloutOk && (!topModel || showTopModel)){
+              if (showStepOk && calloutOk && (!topModel || showTopModel)) {
                   if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
                       steps->placeSubModel = true;
                   } else {
@@ -1773,10 +1773,10 @@ int Gui::drawPage(
                           pagePointer->parentStep = step;
                           pagePointer->setTopOfPagePointer(opts.current);
                           pagePointer->setBottomOfPagePointer(opts.current);
-                          if (multiStep){
+                          if (multiStep) {
                               pagePointer->parentRelativeType = StepGroupType;
                           } else
-                            if (opts.calledOut){
+                            if (opts.calledOut) {
                               pagePointer->parentRelativeType = CalloutType;
                           } else {
                                 if (step)
@@ -2635,7 +2635,7 @@ int Gui::drawPage(
                               if (steps && steps->list.size() > 1) {
                                   int i = steps->list.size()-2;           // previous range index
                                   Range *previousRange = dynamic_cast<Range *>(steps->list[i]);
-                                  if (previousRange){
+                                  if (previousRange) {
                                       i = previousRange->list.size()-1;   // last step index in previous range
                                       Step *lastStep = dynamic_cast<Step *>(previousRange->list[i]);
                                       if (lastStep)
@@ -2791,7 +2791,7 @@ int Gui::drawPage(
                                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
 
                                           // SM
-                                          if (step->placeSubModel){
+                                          if (step->placeSubModel) {
                                               emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                                               steps->meta.LPub.subModel.instance.setValue(instances);
@@ -4287,7 +4287,7 @@ int Gui::findPage(
 
             case PageOrientationRc:
               {
-                if (exporting()){
+                if (exporting()) {
                     opts.flags.pageSizeUpdate = true;
 
                     if (opts.pageSize.sizeW == 0.0f)
@@ -4548,7 +4548,7 @@ int Gui::getBOMParts(
                           split(line,substituteToken);
                           QString substitutePart = type;
 
-                          if (PliSubstituteParts::getSubstitutePart(substitutePart)){
+                          if (PliSubstituteParts::getSubstitutePart(substitutePart)) {
                               substituteToken[substituteToken.size()-1] = substitutePart;
                             }
                           line = substituteToken.join(" ");
@@ -4769,7 +4769,7 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
                   case InsertRc:
                   {
                       InsertData insertData = meta.LPub.insert.value();
-                      if (insertData.type == InsertData::InsertBom){
+                      if (insertData.type == InsertData::InsertBom) {
 
                           QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
                           occurrenceNum++;
@@ -6557,7 +6557,7 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
 QStringList Gui::configureModelSubFile(const QStringList &contents, const QString &fadeColour, const PartType partType)
 {
   QString nameMod, colourPrefix;
-  if (partType == FADE_PART){
+  if (partType == FADE_PART) {
     nameMod = FADE_SFX;
     colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
   } else if (partType == HIGHLIGHT_PART) {
@@ -6585,12 +6585,12 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           split(contentLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
               // Insert opening fade meta
-              if (!FadeMetaAdded && doFadeStep && partType == FADE_PART){
+              if (!FadeMetaAdded && doFadeStep && partType == FADE_PART) {
                  configuredContents.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                  FadeMetaAdded = true;
               }
               // Insert opening silhouette meta
-              if (!SilhouetteMetaAdded && doHighlightStep && partType == HIGHLIGHT_PART){
+              if (!SilhouetteMetaAdded && doHighlightStep && partType == HIGHLIGHT_PART) {
                  configuredContents.insert(index,QString("0 !SILHOUETTE %1 %2")
                                                          .arg(Preferences::highlightStepLineWidth)
                                                          .arg(Preferences::highlightStepColour));
@@ -6615,7 +6615,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
               QString fileNameStr = QString(argv[argv.size()-1]).toLower();
               QString extension = QFileInfo(fileNameStr).suffix().toLower();
               // static color parts
-              if (LDrawColourParts::isLDrawColourPart(fileNameStr)){
+              if (LDrawColourParts::isLDrawColourPart(fileNameStr)) {
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
                   } else {
@@ -6638,11 +6638,11 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           configuredContents  << contentLine;
 
           // Insert closing fade and silhouette metas
-          if (index+1 == contents.size()){
-              if (FadeMetaAdded){
+          if (index+1 == contents.size()) {
+              if (FadeMetaAdded) {
                  configuredContents.append(QString("0 !FADE"));
               }
-              if (SilhouetteMetaAdded){
+              if (SilhouetteMetaAdded) {
                  configuredContents.append(QString("0 !SILHOUETTE"));
               }
           }
@@ -6654,7 +6654,7 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
 
   // add the color list to the header of the configuredContents
-  if (!subfileColourList.isEmpty()){
+  if (!subfileColourList.isEmpty()) {
       WriteToTmpMutex.lock();
 
       subfileColourList.removeDuplicates();  // remove dupes
@@ -6689,7 +6689,7 @@ bool Gui::colourEntryExist(
     QString const colourCode   = QString("%1%2").arg(colourPrefix).arg(code);
 
     QStringList colourComponents;
-    for (int i = 0; i < colourEntries.size(); ++i){
+    for (int i = 0; i < colourEntries.size(); ++i) {
         QString colourLine = colourEntries[i];
         split(colourLine,colourComponents);
         if (colourComponents.size() == 11 && colourComponents[4] == colourCode) {
@@ -6748,7 +6748,7 @@ void Gui::setSceneItemZValueDirection(
        if (selectedSceneItems->contains(here))
            selectedSceneItems->remove(here);
        selectedSceneItems->insert(here,soData);
-       if (Preferences::debugLogging){
+       if (Preferences::debugLogging) {
            emit gui->messageSig(LOG_DEBUG, QString("Selected item %1 (%2) added to the current page item list.")
                                .arg(soMap[SceneObject(soData.itemObj)])
                                .arg(soData.itemObj));

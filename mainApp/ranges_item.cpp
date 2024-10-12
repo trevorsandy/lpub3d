@@ -518,17 +518,17 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         lineNumbers << pointer->here.lineNumber;
         // load pointer attributes if any..
         Where lineAttribTop = Where(pad.lineHere.modelName,pad.lineHere.lineNumber);
-        if (lineAttribTop != undefined){
+        if (lineAttribTop != undefined) {
             hash.insert(lineAttribTop.lineNumber,Attribute);
             lineNumbers << lineAttribTop.lineNumber;
         }
         Where borderAttribTop = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
-        if (borderAttribTop != undefined){
+        if (borderAttribTop != undefined) {
             hash.insert(borderAttribTop.lineNumber,Attribute);
             lineNumbers << borderAttribTop.lineNumber;
         }
         Where tipAttribTop = Where(pad.tipHere.modelName,pad.tipHere.lineNumber);
-        if (tipAttribTop != undefined){
+        if (tipAttribTop != undefined) {
             hash.insert(tipAttribTop.lineNumber,Attribute);
             lineNumbers << tipAttribTop.lineNumber;
         }

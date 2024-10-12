@@ -80,7 +80,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     if ((! preview) &&
         (Gui::m_exportMode == EXPORT_POVRAY ||
          Gui::m_exportMode == EXPORT_STL    ||
-         Gui::m_exportMode == EXPORT_3DS_MAX)){
+         Gui::m_exportMode == EXPORT_3DS_MAX)) {
         flag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni :
                Gui::m_exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
 //        flag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
@@ -131,7 +131,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     else
         ui->radioButtonPageRange->setChecked(true);
 
-    switch(Gui::m_exportMode){
+    switch(Gui::m_exportMode) {
     case PRINT_FILE:
         setWindowTitle(preview ? tr("Print Preview File") : tr("Print To File"));
         ui->groupBoxPrintOptions->setTitle(preview ? tr("Print preview options") : tr("Print to file options"));
@@ -302,39 +302,39 @@ void DialogExportPages::getPixelRatioMsg(double value)
     ui->checkBoxPdfPageImage->setEnabled(value == 1.0);
 }
 
-QString const DialogExportPages::pageRangeText(){
+QString const DialogExportPages::pageRangeText() {
     return ui->lineEditPageRange->text();
 }
 
-QString const DialogExportPages::allPagesRangeText(){
+QString const DialogExportPages::allPagesRangeText() {
     return ui->labelAllPages->text().replace("to", "-");
 }
 
-bool DialogExportPages::allPages(){
+bool DialogExportPages::allPages() {
     return ui->radioButtonAllPages->isChecked();
 }
 
-bool DialogExportPages::allPagesRange(){
+bool DialogExportPages::allPagesRange() {
     return !allPagesInRange;
 }
 
-bool DialogExportPages::currentPage(){
+bool DialogExportPages::currentPage() {
     return ui->radioButtonCurrentPage->isChecked();
 }
 
-bool DialogExportPages::pageRange(){
+bool DialogExportPages::pageRange() {
     return ui->radioButtonPageRange->isChecked();
 }
 
-bool DialogExportPages::resetCache(){
+bool DialogExportPages::resetCache() {
     return ui->checkBoxResetCache->isChecked();
 }
 
-bool DialogExportPages::ignoreMixedPageSizesMsg(){
+bool DialogExportPages::ignoreMixedPageSizesMsg() {
     return ui->checkBoxIgnoreMixedPageSizes->isChecked();
 }
 
-bool DialogExportPages::doNotShowPageProcessDlg(){
+bool DialogExportPages::doNotShowPageProcessDlg() {
     return ui->doNotShowPageProcessDlgChk->isChecked();
 }
 
@@ -344,11 +344,11 @@ bool DialogExportPages::pdfPageImage()
     return ui->checkBoxPdfPageImage->isChecked() && ok;
 }
 
-qreal DialogExportPages::exportPixelRatio(){
+qreal DialogExportPages::exportPixelRatio() {
     return ui->spinPixelRatio->value();
 }
 
-int DialogExportPages::pageDisplayPause(){
+int DialogExportPages::pageDisplayPause() {
     return ui->pageDisplayPauseSpin->value();
 }
 

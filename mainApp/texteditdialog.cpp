@@ -199,7 +199,7 @@ void TextEditDialog::currentCharFormatChanged(const QTextCharFormat &format)
 void TextEditDialog::fontChanged(const QFont &f)
 {
     ui->actionBold->setChecked(f.bold());
-    if (richText){
+    if (richText) {
         ui->actionItalic->setChecked(f.italic());
         ui->actionUnderline->setChecked(f.underline());
     } else {
@@ -337,7 +337,7 @@ bool TextEditDialog::getText(
     QString unformattedGoods = goods;
     if (!goods.isEmpty()) {
         QStringList list;
-        Q_FOREACH (QString string, QStringList(goods.split("\\n"))){
+        Q_FOREACH (QString string, QStringList(goods.split("\\n"))) {
             string = string.trimmed();
             QRegExp rx2("\"");
             int pos = 0;
@@ -374,7 +374,7 @@ bool TextEditDialog::getText(
         goods    = lpub->textEdit->text;
         richText = lpub->textEdit->richText;
     }
-    if (!richText){
+    if (!richText) {
         editFont      = lpub->textEdit->font.toString();
         editFontColor = lpub->textEdit->fontColor.name();
     }

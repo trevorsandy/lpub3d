@@ -149,7 +149,7 @@ float PliPart::maxMargin()
                        csiMargin.valuePixels(XX));
 
   // Use style margin
-  if (styleMeta.style.value() != AnnotationStyle::none){
+  if (styleMeta.style.value() != AnnotationStyle::none) {
       float margin2 = styleMeta.margin.valuePixels(XX);
       margin1 = qMax(margin1,margin2);
   }
@@ -221,11 +221,11 @@ void PliPart::addPartGroupToScene(
  * Part List routines
  ***************************************************************************/
 
-int Pli::pageSizeP(Meta *meta, int which){
+int Pli::pageSizeP(Meta *meta, int which) {
   int _size;
 
   // flip orientation for landscape
-  if (meta->LPub.page.orientation.value() == Landscape){
+  if (meta->LPub.page.orientation.value() == Landscape) {
       which == 0 ? _size = 1 : _size = 0;
     } else {
       _size = which;
@@ -382,7 +382,7 @@ void Pli::setParts(
                   }
                   else
                   {
-                      if (!Annotations::loadBLCodes()){
+                      if (!Annotations::loadBLCodes()) {
                           QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
                           lpub->downloadFile(URL, "BrickLink Elements");
                           QByteArray Buffer = lpub->getDownloadedFile();
@@ -510,10 +510,10 @@ void Pli::setParts(
               subType = Rc(segments.at(sgSubType).toInt());
               if (segments.size() >= sgHasAttributes) {
                   QStringList attributes = segments.at(sgAttributes).split(";");
-                  if (subType > PliBeginSub2Rc){
+                  if (subType > PliBeginSub2Rc) {
                       modelScale = attributes.at(sModelScale+sAdj).toFloat();
                   }
-                  if (subType > PliBeginSub3Rc){
+                  if (subType > PliBeginSub3Rc) {
                       cameraFoV = attributes.at(sCameraFoV+sAdj).toDouble();
                   }
                   if (subType > PliBeginSub4Rc) {
@@ -672,7 +672,7 @@ void Pli::setParts(
       int startIndex  = 0;
       int partIndex   = 0;   // using 0-based index
 
-      if (gui->GetBOMOccurrence() == gui->GetBOMs()){
+      if (gui->GetBOMOccurrence() == gui->GetBOMs()) {
           maxParts = gui->GetBOMOccurrence() * quotient + remainder;
           startIndex = maxParts - quotient - remainder;
         } else {
@@ -758,7 +758,7 @@ void Pli::getAnnotation(
   // pick up annotations
   annotateStr = description;
 
-  if(title || titleAndFreeform){
+  if(title || titleAndFreeform) {
       if (titleAnnotations.size() == 0 && !titleAndFreeform) {
           qDebug() << "Annotations enabled but no annotation source found.";
           return;
@@ -1427,7 +1427,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
 
                     int elementMargin;
 
-                    if (pliMeta.annotation.elementStyle.value()){
+                    if (pliMeta.annotation.elementStyle.value()) {
                         font   = pliMeta.elementStyle.font.valueFoo();
                         color  = pliMeta.elementStyle.color.value();
                         elementMargin = pliMeta.elementStyle.margin.valuePixels(YY);
@@ -1528,7 +1528,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
             good &= ok;
             rotStepData.rots[2] = nameKeys.at(hr ? nRotZ : nRot_Z).toDouble(&ok);
             good &= ok;
-            if (!good){
+            if (!good) {
                 emit gui->messageSig(LOG_NOTICE,QObject::tr("Malformed ROTSTEP values from nameKey [%1], using '0 0 0'.")
                                      .arg(QString("%1_%2_%3")
                                      .arg(nameKeys.at(hr ? nRotX : nRot_X))
@@ -1548,7 +1548,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         float latitude  = nameKeys.at(nCameraAngleXX).toFloat(&good);
         float longitude = nameKeys.at(nCameraAngleYY).toFloat(&ok);
         good &= ok;
-        if (!good){
+        if (!good) {
             emit gui->messageSig(LOG_NOTICE,QObject::tr("Malformed Camera Angle values from nameKey [%1], using 'latitude 30', 'longitude -45'.")
                                  .arg(QString("%1 %2").arg(nameKeys.at(nCameraAngleXX)).arg(nameKeys.at(nCameraAngleYY))));
             latitude = 30.0; longitude = -45.0;
@@ -2027,7 +2027,7 @@ void Pli::getRightEdge(
     }
 }
 
-bool Pli::loadTheViewer(){
+bool Pli::loadTheViewer() {
     if (! Gui::exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("Could not load Visual Editor with Pli part key: %1")
@@ -2047,7 +2047,7 @@ void Pli::sortParts(QHash<QString, PliPart *> &parts, bool setSplit)
     // sort direction lambda
     auto setSortDirection = [this, &ascending](const int sort)
     {
-        switch (sort){
+        switch (sort) {
         case SortPrimary:
             ascending = tokenMap[pliMeta.sortOrder.primaryDirection.value()] != SortDescending;
             break;
@@ -2093,7 +2093,7 @@ void Pli::sortParts(QHash<QString, PliPart *> &parts, bool setSplit)
                 auto setPartValues = [this, &parts, &firstValue, &nextValue, &firstPart, &nextPart](
                         const int option)
                 {
-                    switch (option){
+                    switch (option) {
                     case PartColour:
                         firstValue = parts[sortedKeys[firstPart]]->sortColour;
                         nextValue = parts[sortedKeys[nextPart]]->sortColour;
@@ -2357,7 +2357,7 @@ int Pli::partSize()
 
                       int elementMargin;
 
-                      if (pliMeta.annotation.elementStyle.value()){
+                      if (pliMeta.annotation.elementStyle.value()) {
                           font   = pliMeta.elementStyle.font.valueFoo();
                           color  = pliMeta.elementStyle.color.value();
                           elementMargin = pliMeta.elementStyle.margin.valuePixels(YY);
@@ -3357,7 +3357,7 @@ void PliBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   mouseIsDown = true;
   positionChanged = false;
   // we only want to toggle the grabbers off on second left mouse click
-  if (event->button() != Qt::LeftButton){
+  if (event->button() != Qt::LeftButton) {
     grabbersVisible = false;
   }
   QGraphicsItem::mousePressEvent(event);
@@ -3634,7 +3634,7 @@ void PliBackgroundItem::contextMenuEvent(
             }
         } else if (selectedAction == deleteBomAction) {
             deleteBOM();
-        } else if (selectedAction == splitBomAction){
+        } else if (selectedAction == splitBomAction) {
             insertSplitBOM();
         }  else if (selectedAction == rendererArgumentsAction) {
             const QString rendererLabel = QObject::tr("Add %1 Arguments")
@@ -4264,7 +4264,7 @@ AnnotateTextItem::AnnotateTextItem(
   if (isElement) {
       bool enableStyle        = _pli->pliMeta.annotation.enableStyle.value();
       bool enableElementStyle = _pli->pliMeta.annotation.elementStyle.value();
-      if (enableStyle && enableElementStyle){
+      if (enableStyle && enableElementStyle) {
          border     = _pli->pliMeta.elementStyle.border;
          background = _pli->pliMeta.elementStyle.background;
          style      = _pli->pliMeta.elementStyle.style;
@@ -4427,22 +4427,22 @@ void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
     borderPen.setColor(borderPenColor);
     borderPen.setCapStyle(Qt::RoundCap);
     borderPen.setJoinStyle(Qt::RoundJoin);
-    if (borderData.line == BorderData::BdrLnNone){
+    if (borderData.line == BorderData::BdrLnNone) {
           borderPen.setStyle(Qt::NoPen);
     }
-    else if (borderData.line == BorderData::BdrLnSolid){
+    else if (borderData.line == BorderData::BdrLnSolid) {
         borderPen.setStyle(Qt::SolidLine);
     }
-    else if (borderData.line == BorderData::BdrLnDash){
+    else if (borderData.line == BorderData::BdrLnDash) {
         borderPen.setStyle(Qt::DashLine);
     }
-    else if (borderData.line == BorderData::BdrLnDot){
+    else if (borderData.line == BorderData::BdrLnDot) {
         borderPen.setStyle(Qt::DotLine);
     }
-    else if (borderData.line == BorderData::BdrLnDashDot){
+    else if (borderData.line == BorderData::BdrLnDashDot) {
         borderPen.setStyle(Qt::DashDotLine);
     }
-    else if (borderData.line == BorderData::BdrLnDashDotDot){
+    else if (borderData.line == BorderData::BdrLnDashDotDot) {
         borderPen.setStyle(Qt::DashDotDotLine);
     }
     borderPen.setWidth(int(borderData.thickness));

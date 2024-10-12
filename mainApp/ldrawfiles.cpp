@@ -861,7 +861,7 @@ QStringList LDrawFile::getSubFilePaths()
     if (!filePath.isEmpty())
         subFilesPaths << filePath;
   }
-  if (_includeFileOrder.size()){
+  if (_includeFileOrder.size()) {
       for (int i = 0; i < _includeFileOrder.size(); i++) {
         QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(_includeFileOrder[i]);
         if (f != _subFiles.end()) {
@@ -971,7 +971,7 @@ void LDrawFile::clearPrevStepPositions()
 
 /* Check the pngFile lastModified date against its submodel file */
 bool LDrawFile::older(const QString &fileName,
-                      const QDateTime &lastModified){
+                      const QDateTime &lastModified) {
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
     QDateTime fileDatetime = i.value()._datetime;
@@ -1123,7 +1123,7 @@ int LDrawFile::getLineTypeIndex(int submodelIndx, int relativeTypeIndx) {
 }
 
 // This function returns a pointer to the submodel Line Type Index vector
-QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx){
+QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx) {
 
     QString fileName = getSubmodelName(submodelIndx);
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
@@ -2245,13 +2245,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 fileInfo = QFileInfo(projectPath + QDir::separator() + subfile);
             } else
             // file path
-            if ((subfileFound = QFileInfo(subfile).isFile())){
+            if ((subfileFound = QFileInfo(subfile).isFile())) {
                 fileInfo = QFileInfo(subfile);
             }
             else
             // extended search - LDraw subfolder paths and extra search directorie paths
             if (Preferences::extendedSubfileSearch) {
-                for (QString const &subFilePath : searchPaths){
+                for (QString const &subFilePath : searchPaths) {
                     if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
                         fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
                         break;
@@ -2474,7 +2474,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
             // load LDCad groups
             if (!ldcadGroupsLoaded) {
-                if(smLine.contains(_fileRegExp[LDG_RX])){
+                if(smLine.contains(_fileRegExp[LDG_RX])) {
                     insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
                     insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
                 } else if (smLine.contains("0 STEP") || smLine.contains("0 ROTSTEP")) {
@@ -2798,13 +2798,13 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     fileInfo = QFileInfo(projectPath + QDir::separator() + subfile);
                 } else
                 // file path
-                if ((subfileFound = QFileInfo(subfile).isFile())){
+                if ((subfileFound = QFileInfo(subfile).isFile())) {
                     fileInfo = QFileInfo(subfile);
                 }
                 else
                 // extended search - LDraw subfolder paths and extra search directorie paths
                 if (Preferences::extendedSubfileSearch) {
-                    for (QString const &subFilePath : searchPaths){
+                    for (QString const &subFilePath : searchPaths) {
                         if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
                             fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
                             break;
@@ -2979,7 +2979,7 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
               // now lets check if the part has any sub parts
               addCustomColorParts(tokens[14],true/*autoadd*/);
             }
-          } else if (f->_contents[i] == "0 //Segments"){
+          } else if (f->_contents[i] == "0 //Segments") {
             // we have reached the custpm part segments so break
             break;
           }
@@ -3941,7 +3941,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
     return true;
 }
 
-bool LDrawFile::saveIncludeFile(const QString &fileName){
+bool LDrawFile::saveIncludeFile(const QString &fileName) {
     QString includeFileName = fileName.toLower();
 
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(includeFileName);
@@ -4089,7 +4089,7 @@ void LDrawFile::insertLDCadGroup(const QString &name, int lid)
 bool LDrawFile::ldcadGroupMatch(const QString &name, const QStringList &lids)
 {
   QList<int> values = _ldcadGroups.values(name);
-  for (QString lid : lids){
+  for (QString lid : lids) {
     if (values.contains(lid.toInt()))
       return true;
   }
@@ -4141,7 +4141,7 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   BuildMod buildMod(newAttributes, stepIndex);
 
   // Restore preserved actions
-  if (modActions.size()){
+  if (modActions.size()) {
     QMap<int,int>::const_iterator a = modActions.constBegin();
     while (a != modActions.constEnd()) {
       buildMod._modActions.insert(a.key(), a.value());
@@ -6014,13 +6014,13 @@ int split(const QString &line, QStringList &argv)
 }
 
 // check for escaped quotes
-int validSoQ(const QString &line, int soq){
+int validSoQ(const QString &line, int soq) {
 
   int nextq;
 //  logTrace() << "\n  A. START VALIDATE SoQ"
 //             << "\n SoQ (at Index):   " << soq
 //             << "\n Line Content:     " << line;
-  if(soq > 0 && line.at(soq-1) == '\\' ){
+  if(soq > 0 && line.at(soq-1) == '\\') {
       nextq = validSoQ(line,line.indexOf("\"",soq+1));
       soq = nextq;
     }
@@ -6153,7 +6153,7 @@ bool isHeader(const QString &line)
   return false;
 }
 
-bool isComment(const QString &line){
+bool isComment(const QString &line) {
   QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
   if (line.contains(commentLine))
       return true;
@@ -6216,7 +6216,7 @@ int getUnofficialFileType(QString &line)
   return UNOFFICIAL_UNKNOWN;
 }
 
-bool isGhost(const QString &line){
+bool isGhost(const QString &line) {
   QRegExp ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
   if (line.contains(ghostMeta))
       return true;

@@ -690,7 +690,7 @@ void GlobalPageDialog::enableTextPlacement(bool b) {
     textPlacementChild->setEnabled(b);
 }
 
-void GlobalPageDialog::indexChanged(int selection){
+void GlobalPageDialog::indexChanged(int selection) {
 
     sectionIndex = selection;
 
@@ -702,7 +702,7 @@ void GlobalPageDialog::indexChanged(int selection){
 //               << " Sender Object Name: " << sender()->objectName()
                   ;
     if (obj == authorChildFront || obj == authorChildBack || obj == authorChildHeaderFooter) {
-        switch(sectionIndex){
+        switch(sectionIndex) {
         case 0: //FrontCover
             logTrace() << " AUTHOR FRONT COVER: ";
             authorBoxFront->show();
@@ -724,8 +724,8 @@ void GlobalPageDialog::indexChanged(int selection){
             break;
         }
     }
-    else if (obj == titleChildFront || obj == titleChildBack){
-        switch(sectionIndex){
+    else if (obj == titleChildFront || obj == titleChildBack) {
+        switch(sectionIndex) {
         case 0: //FrontCover
             logTrace() << " TITLE FRONT COVER: ";
             titleBoxFront->show();            
@@ -739,7 +739,7 @@ void GlobalPageDialog::indexChanged(int selection){
         }
     }
     else if (obj == urlChildBack || obj == urlChildHeaderFooter) {
-        switch(sectionIndex){
+        switch(sectionIndex) {
         case 0: //BackCover
             urlBoxBack->show();
             urlBox->hide();
@@ -752,7 +752,7 @@ void GlobalPageDialog::indexChanged(int selection){
         }
     }
     else if (obj == emailChildBack || obj == emailChildHeaderFooter) {
-        switch(sectionIndex){
+        switch(sectionIndex) {
         case 0: //BackCover
             emailBoxBack->show();
             emailBox->hide();
@@ -765,7 +765,7 @@ void GlobalPageDialog::indexChanged(int selection){
         }
     }
     else if (obj == copyrightChildHeaderFooter || obj == copyrightChildBack) {
-        switch(sectionIndex){
+        switch(sectionIndex) {
         case 0: //BackCover
             copyrightBoxBack->show();
             copyrightBox->hide();
@@ -778,7 +778,7 @@ void GlobalPageDialog::indexChanged(int selection){
         }
     }
     else if (obj == documentLogoChildFront || obj == documentLogoChildBack) {
-        switch(sectionIndex){
+        switch(sectionIndex) {
         case 0: //FrontCover
             documentLogoBoxFront->show();
             documentLogoBoxBack->hide();
@@ -830,7 +830,7 @@ void GlobalPageDialog::accept()
           (child == emailChildBack && emailChildBack->modified) ||
           (child == disclaimerChildBack && disclaimerChildBack->modified) ||
           (child == lpub3dPlugChildBack && lpub3dPlugChildBack->modified) ||
-          (child == lpub3dLogoChildBack && lpub3dLogoChildBack->modified)){
+          (child == lpub3dLogoChildBack && lpub3dLogoChildBack->modified)) {
           if (!mi.backCoverPageExist())
               mi.appendCoverPage();
       }

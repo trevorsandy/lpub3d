@@ -64,14 +64,14 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
 
 }
 
-void LGraphicsView::setViewBorderStyleSheet(){
+void LGraphicsView::setViewBorderStyleSheet() {
   if (Preferences::darkTheme)
       setStyleSheet(QString("QGraphicsView { border: 1px solid %1; }").arg(Preferences::themeColors[THEME_DARK_GRAPHICSVIEW_BORDER_COLOR]));
   else
       setStyleSheet("");
 }
 
-void LGraphicsView::setSceneRuler(){
+void LGraphicsView::setSceneRuler() {
 
   if (Preferences::sceneRuler) {
 
@@ -127,7 +127,7 @@ void LGraphicsView::setSceneRuler(){
     }
 }
 
-void LGraphicsView::setSceneRulerTracking(){
+void LGraphicsView::setSceneRulerTracking() {
     if (!Preferences::sceneRuler)
         return;
 
@@ -155,12 +155,12 @@ void LGraphicsView::setSceneHorzRulerPosition(QPoint p)
     emit setSceneHorzRulerPositionSig(mapToScene(p));
 }
 
-void LGraphicsView::setGridSize(){
+void LGraphicsView::setGridSize() {
   if (Preferences::snapToGrid)
     emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
 }
 
-void LGraphicsView::setShowCoordinates(){
+void LGraphicsView::setShowCoordinates() {
   bool guides = Preferences::sceneGuides &&
                 Preferences::showGuidesCoordinates;
   bool tracking = Preferences::sceneRuler &&
@@ -169,7 +169,7 @@ void LGraphicsView::setShowCoordinates(){
   emit setShowCoordinates(guides,tracking);
 }
 
-void LGraphicsView::setSnapToGrid(){
+void LGraphicsView::setSnapToGrid() {
   emit setSnapToGridSig(Preferences::snapToGrid);
   if (Preferences::snapToGrid) {
     emit setGridPenSig(Preferences::sceneGridColor);
@@ -177,7 +177,7 @@ void LGraphicsView::setSnapToGrid(){
   }
 }
 
-void LGraphicsView::setSceneGuides(){
+void LGraphicsView::setSceneGuides() {
   emit setSceneGuidesSig(Preferences::sceneGuides);
   if (Preferences::sceneGuides) {
     emit setGuidePenSig(Preferences::sceneGuideColor,
@@ -188,24 +188,24 @@ void LGraphicsView::setSceneGuides(){
   }
 }
 
-void LGraphicsView::setSceneGuidesLine(){
+void LGraphicsView::setSceneGuidesLine() {
   if (Preferences::sceneGuides) {
     emit setSceneGuidesLineSig(Preferences::sceneGuidesLine);
   }
 }
 
-void LGraphicsView::setSceneGuidesPos(){
+void LGraphicsView::setSceneGuidesPos() {
   if (Preferences::sceneGuides)
     emit setSceneGuidesPosSig(Preferences::sceneGuidesPosition);
 }
 
-void LGraphicsView::setSceneBackgroundBrush(){
+void LGraphicsView::setSceneBackgroundBrush() {
   QColor color(Preferences::sceneBackgroundColor);
   QBrush brush(color);
   this->scene()->setBackgroundBrush(brush);
 }
 
-void LGraphicsView::setSceneTheme(){
+void LGraphicsView::setSceneTheme() {
   setViewBorderStyleSheet();
   setSceneBackgroundBrush();
   setSceneRuler();
@@ -215,7 +215,7 @@ void LGraphicsView::setSceneTheme(){
   setSnapToGrid();
 }
 
-void LGraphicsView::setResolution(float r){
+void LGraphicsView::setResolution(float r) {
   emit setResolutionSig(r);
 }
 
@@ -270,7 +270,7 @@ void LGraphicsView::fitScene(const QRectF rect)
   fitMode = FitNone;
 }
 
-void LGraphicsView::actualSize(){
+void LGraphicsView::actualSize() {
   resetMatrix();
   fitMode = FitNone;
 }
@@ -288,17 +288,17 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
   centerOn(viewport()->rect().center());
 }
 
-void LGraphicsView::zoomIn(){
+void LGraphicsView::zoomIn() {
   scale(1.1,1.1);
   fitMode = FitNone;
 }
 
-void LGraphicsView::zoomOut(){
+void LGraphicsView::zoomOut() {
   scale(1.0/1.1,1.0/1.1);
   fitMode = FitNone;
 }
 
-void LGraphicsView::wheelEvent(QWheelEvent *event){
+void LGraphicsView::wheelEvent(QWheelEvent *event) {
     if (event->delta() < 0) {
         scale(1.0/1.1,1.0/1.1);
     } else {
@@ -308,23 +308,23 @@ void LGraphicsView::wheelEvent(QWheelEvent *event){
 }
 
 /* drag and drop */
-void LGraphicsView::dragMoveEvent(QDragMoveEvent *event){
+void LGraphicsView::dragMoveEvent(QDragMoveEvent *event) {
   if (event->mimeData()->hasUrls()) {
       event->acceptProposedAction();
     }
 }
 
-void LGraphicsView::dragEnterEvent(QDragEnterEvent *event){
+void LGraphicsView::dragEnterEvent(QDragEnterEvent *event) {
   if (event->mimeData()->hasUrls()) {
       event->acceptProposedAction();
     }
 }
 
-void LGraphicsView::dragLeaveEvent(QDragLeaveEvent *event){
+void LGraphicsView::dragLeaveEvent(QDragLeaveEvent *event) {
   event->accept();
 }
 
-void LGraphicsView::dropEvent(QDropEvent *event){
+void LGraphicsView::dropEvent(QDropEvent *event) {
   const QMimeData* mimeData = event->mimeData();
   if (mimeData->hasUrls()) {
       QList<QUrl> urlList = mimeData->urls();
@@ -397,7 +397,7 @@ void LRuler::setRulerTrackingPen() {
   mRulerTrackingPen = QPen(QBrush(QColor(Preferences::sceneRulerTrackingColor)), 2, Qt::SolidLine);
 }
 
-void LRuler::setRulerBackgroundColor(){
+void LRuler::setRulerBackgroundColor() {
   mRulerBgColor = QColor(Preferences::sceneBackgroundColor);
 }
 

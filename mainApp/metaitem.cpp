@@ -467,7 +467,7 @@ int MetaItem::countInstances(Meta *meta, const QString &modelName, const QString
   return instanceCount;
 }
 
-int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
+int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName) {
 
     int   numLines;
     Where walk(modelName,0);
@@ -1425,7 +1425,7 @@ void MetaItem::convertToPart(Meta *meta)
   if (tokens.size() == 15) {
     //check for spaces in model name and wrap in quotes if yes
     QString modelName = tokens[14];
-    if (modelName.contains(QRegExp("\\s+"))){
+    if (modelName.contains(QRegExp("\\s+"))) {
         modelName = "\"" + modelName + "\"";
       }
     beginMacro("submodelIsPart");
@@ -1808,7 +1808,7 @@ void MetaItem::changePlacementOffset(
 //*/
     }
 
-    if (defaultWhere.lineNumber == eof){
+    if (defaultWhere.lineNumber == eof) {
         insertMeta(defaultWhere,newMetaString);
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
@@ -2053,7 +2053,7 @@ void MetaItem::hideSubmodel(
         BoolMeta *show,
         bool useTop,
         int append,
-        bool local){
+        bool local) {
     show->setValue(false);
     setMeta(topOfStep,bottomOfStep,show,useTop,append,local);
 }
@@ -2075,7 +2075,7 @@ void MetaItem::setRendererArguments(const Where &top,
         QStringList list = arguments.split("\n");
 
         QStringList list2;
-        Q_FOREACH (QString string, list){
+        Q_FOREACH (QString string, list) {
           string = string.trimmed();
           QRegExp rx2("\"");
           int pos = 0;
@@ -2110,7 +2110,7 @@ void MetaItem::changeSubmodelRotStep(
         RotStepMeta *rotStep,
         bool useTop,
         int append,
-        bool local){
+        bool local) {
 
     RotStepData rotStepData = rotStep->value();
     bool ok = RotStepDialog::getRotStep(rotStepData,title);
@@ -2246,19 +2246,19 @@ void MetaItem::changePliAnnotation(
 
   if (ok) {
       beginMacro("changePliAnnotation");
-      if(annotation.titleAndFreeformAnnotation.value() != pliAnnotationMeta->titleAndFreeformAnnotation.value()){
+      if(annotation.titleAndFreeformAnnotation.value() != pliAnnotationMeta->titleAndFreeformAnnotation.value()) {
           pliAnnotationMeta->titleAndFreeformAnnotation.setValue(annotation.titleAndFreeformAnnotation.value());
           setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAndFreeformAnnotation,append,local,true);
       }
-      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()){
+      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()) {
           pliAnnotationMeta->freeformAnnotation.setValue(annotation.freeformAnnotation.value());
           setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->freeformAnnotation,append,local,true);
       }
-      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()){
+      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()) {
           pliAnnotationMeta->titleAnnotation.setValue(annotation.titleAnnotation.value());
           setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAnnotation,append,local,true);
       }
-      if(annotation.display.value() != pliAnnotationMeta->display.value()){
+      if(annotation.display.value() != pliAnnotationMeta->display.value()) {
           pliAnnotationMeta->display.setValue(annotation.display.value());
           setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->display,append,local,true);
       }
@@ -3121,7 +3121,7 @@ void MetaItem::updateText(
     QString text     = _text;
     QString placementStr;
 
-    if (!text.isEmpty()){
+    if (!text.isEmpty()) {
       initialAdd      = false;
       QStringList pre = text.split("\\n");
       text = pre.join(" ");
@@ -3164,7 +3164,7 @@ void MetaItem::updateText(
         if (getStep) {
             // set step to insert
             Steps *steps = dynamic_cast<Steps *>(&lpub->page);
-            if (steps){
+            if (steps) {
                 /* foreach range */
                 stepFound = false;
                 for (int i = 0; i < steps->list.size() && !stepFound; i++) {
@@ -3221,7 +3221,7 @@ void MetaItem::updateText(
 
     QStringList list = text.split("\n");
     QStringList list2;
-    Q_FOREACH (QString string, list){
+    Q_FOREACH (QString string, list) {
       string = string.trimmed();
       QRegExp rx2("\"");
       int pos = 0;
@@ -3765,7 +3765,7 @@ void MetaItem::deleteBOMPartGroups()
     Meta mi;
     QString metaString = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     Rc rc = mi.parse(metaString,walk);
-    if (rc == PliPartGroupRc || rc == BomPartGroupRc){
+    if (rc == PliPartGroupRc || rc == BomPartGroupRc) {
         deleteMeta(walk);
     }
   }
@@ -3779,7 +3779,7 @@ void MetaItem::deletePLIPartGroups(
     Meta mi;
     QString metaString = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     Rc rc = mi.parse(metaString,walk);
-    if (rc == PliPartGroupRc || rc == BomPartGroupRc){
+    if (rc == PliPartGroupRc || rc == BomPartGroupRc) {
         deleteMeta(walk);
     }
   }
@@ -3792,7 +3792,7 @@ void MetaItem::resetPartGroup(
     Meta mi;
     QString metaString = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     Rc rc = mi.parse(metaString,here);
-    if (rc == PliPartGroupRc || rc == BomPartGroupRc){
+    if (rc == PliPartGroupRc || rc == BomPartGroupRc) {
         deleteMeta(here);
     }
 }
@@ -3825,7 +3825,7 @@ void MetaItem::changeImageItemSize(
   }
 }
 
-void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand){
+void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand) {
   Rc rc;
   Meta meta;
   Where walk = topOfStep + 1;                                     // advance past STEP meta
@@ -4696,7 +4696,7 @@ bool MetaItem::offsetPoint(
   QString title       = "pointer";
   QString label       = title;
 
-  if (partAnnotation){
+  if (partAnnotation) {
       title           = "annotation";
   }
 
@@ -5484,7 +5484,7 @@ void MetaItem::substitutePLIPart(
             deleteMeta(here+3);
             deleteMeta(here+1);
             deleteMeta(here);
-          } else if (_action == sUpdate){
+          } else if (_action == sUpdate) {
             replaceMeta(here,"0 !LPUB PLI BEGIN SUB " + attributes.join(" "));
           } else {
             appendMeta(here,"0 !LPUB PART END");
@@ -5637,7 +5637,7 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
 void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool newCommand, bool remove)
 {
     Where itemTopOf = itemTop;
-    if (newCommand){
+    if (newCommand) {
         if (itemTopOf.modelName == lpub->ldrawFile.topLevelFile())
             scanPastGlobal(itemTopOf);
         // place below item command unless end of file

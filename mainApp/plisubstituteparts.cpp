@@ -74,7 +74,7 @@ PliSubstituteParts::PliSubstituteParts()
                                           "# File: %1<br>"
                                           "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
                         .arg(QFileInfo(substitutePartsFile).fileName());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -95,7 +95,7 @@ const bool &PliSubstituteParts::hasSubstitutePart(QString part)
     }
 }
 
-const bool &PliSubstituteParts::getSubstitutePart(QString &part){
+const bool &PliSubstituteParts::getSubstitutePart(QString &part) {
     if (substituteParts.contains(part.toLower().toLower().trimmed())) {
         part = substituteParts.value(part.toLower());
 #ifdef QT_DEBUG_MODE
@@ -110,7 +110,7 @@ const bool &PliSubstituteParts::getSubstitutePart(QString &part){
     }
 }
 
-bool PliSubstituteParts::exportSubstitutePartsHeader(){
+bool PliSubstituteParts::exportSubstitutePartsHeader() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validPliSubstituteParts));
 
     if (!overwriteFile(file.fileName()))
@@ -170,7 +170,7 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
         QString message = QString("Finished Writing Substitute Part Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
         } else {
             logNotice() << message;
@@ -180,7 +180,7 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
     {
         QString message = QString("Failed to open PLI substitute parts file: %1:<br>%2")
                                   .arg(file.fileName(),file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
         } else {
             logError() << message.replace("<br>"," ");

@@ -682,7 +682,7 @@ int Gui::addGraphicsPageItems(
 
                   // populate page pixmaps - when using LDView Single Call
 
-                  if (renderer->useLDViewSCall()){
+                  if (renderer->useLDViewSCall()) {
                       addStepImageGraphics(step);
                     }
 
@@ -982,12 +982,12 @@ int Gui::addGraphicsPageItems(
       // qDebug() << "List relative type: " << RelNames[range->relativeType];
       // We've got a page that contains step groups, so add it
       if (page->list.size()) {
-          for (int i = 0; i < page->list.size(); i++){
+          for (int i = 0; i < page->list.size(); i++) {
               Range *range = dynamic_cast<Range *>(page->list[i]);
-              for (int j = 0; j < range->list.size(); j++){
+              for (int j = 0; j < range->list.size(); j++) {
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
-                      if (step && step->relativeType == StepType){
+                      if (step && step->relativeType == StepType) {
                           // // LDView single call load images and set size
                           if (renderer->useLDViewSCall())
                               addStepImageGraphics(step);
@@ -1104,7 +1104,7 @@ int Gui::addGraphicsPageItems(
 
   if ( ! printing) {
 
-      if (pageBg->background.value().type != BackgroundData::BgTransparent){
+      if (pageBg->background.value().type != BackgroundData::BgTransparent) {
 
           QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
           bodyShadow->setBlurRadius(9.0);
@@ -1174,12 +1174,12 @@ int Gui::addStepImageGraphics(Step *step) {
   for (int k = 0; k < step->list.size(); k++) {
       if (step->list[k]->relativeType == CalloutType) {
           Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-          for (int l = 0; l < callout->list.size(); l++){
+          for (int l = 0; l < callout->list.size(); l++) {
               Range *range = dynamic_cast<Range *>(callout->list[l]);
-              for (int m = 0; m < range->list.size(); m++){
+              for (int m = 0; m < range->list.size(); m++) {
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[m]);
-                      if (step && step->relativeType == StepType){
+                      if (step && step->relativeType == StepType) {
                           addStepImageGraphics(step);
                       } // 1.6 validate if Step relativeType is StepType - to add image, check for Callout
                   } // 1.5 validate if Range relativeType is RangeType - to cast as Step
@@ -1190,7 +1190,7 @@ int Gui::addStepImageGraphics(Step *step) {
   return 0;
 }
 
-int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
+int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene) {
     // add Pli part group to scene
     QHash<QString, PliPart*> pliParts;
     PliPart *part;
@@ -1213,12 +1213,12 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
     for (int k = 0; k < step->list.size(); k++) {
         if (step->list[k]->relativeType == CalloutType) {
             Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-            for (int l = 0; l < callout->list.size(); l++){
+            for (int l = 0; l < callout->list.size(); l++) {
                 Range *range = dynamic_cast<Range *>(callout->list[l]);
-                for (int m = 0; m < range->list.size(); m++){
+                for (int m = 0; m < range->list.size(); m++) {
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[m]);
-                        if (step && step->relativeType == StepType){
+                        if (step && step->relativeType == StepType) {
                             addStepPliPartGroupsToScene(step,scene);
                         }
                     }
@@ -1233,7 +1233,7 @@ int Gui::addPliPartGroupsToScene(
         Page           *page,
         LGraphicsScene *scene)
 {
-    if (page->list.size()){
+    if (page->list.size()) {
         // Single Step
         if (page->relativeType == SingleStepType) {
             if (page->list.size()) {
@@ -1307,11 +1307,11 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     else
         return false;
 
-    switch (itemObj){
+    switch (itemObj) {
     case AssemAnnotationObj:
     {
         CsiAnnotationItem *csiAnnotationItem = dynamic_cast<CsiAnnotationItem *>(selectedItem);
-        if (csiAnnotationItem){
+        if (csiAnnotationItem) {
             itemTop = csiAnnotationItem->topOf;
             stepNumber = csiAnnotationItem->stepNumber;
         }
@@ -1320,7 +1320,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case AssemAnnotationPartObj:
     {
         PlacementCsiPart *placementCsiPart = dynamic_cast<PlacementCsiPart *>(selectedItem);
-        if (placementCsiPart){
+        if (placementCsiPart) {
             itemTop = placementCsiPart->top;
             stepNumber = placementCsiPart->stepNumber;
         }
@@ -1329,7 +1329,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case AssemObj:
     {
         CsiItem *csiItem = dynamic_cast<CsiItem *>(selectedItem);
-        if (csiItem){
+        if (csiItem) {
             itemTop = csiItem->step->topOfStep();
             stepNumber = csiItem->step->stepNumber.number;
         }
@@ -1338,7 +1338,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case CalloutUnderpinningObj:
     {
         UnderpinningsItem *UnderpinningsItem = dynamic_cast<class UnderpinningsItem *>(selectedItem);
-        if (UnderpinningsItem){
+        if (UnderpinningsItem) {
             itemTop = UnderpinningsItem->top;
             stepNumber = UnderpinningsItem->stepNumber;
         }
@@ -1347,7 +1347,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case CalloutBackgroundObj:
     {
         CalloutBackgroundItem *calloutBackgroundItem = dynamic_cast<CalloutBackgroundItem *>(selectedItem);
-        if (calloutBackgroundItem){
+        if (calloutBackgroundItem) {
             itemTop = calloutBackgroundItem->callout->parentStep->topOfStep();
             stepNumber = calloutBackgroundItem->callout->parentStep->stepNumber.number;
         }
@@ -1356,7 +1356,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case CalloutPointerObj:
     {
         CalloutPointerItem *calloutPointerItem = dynamic_cast<CalloutPointerItem *>(selectedItem);
-        if (calloutPointerItem){
+        if (calloutPointerItem) {
             itemTop = calloutPointerItem->pointerTop;
             stepNumber = calloutPointerItem->stepNumber;
         }
@@ -1365,7 +1365,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case CalloutInstanceObj:
     {
         CalloutInstanceItem *calloutInstanceItem = dynamic_cast<CalloutInstanceItem *>(selectedItem);
-        if (calloutInstanceItem){
+        if (calloutInstanceItem) {
             itemTop = calloutInstanceItem->instanceTop;
             stepNumber = calloutInstanceItem->stepNumber;
         }
@@ -1374,7 +1374,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case DividerBackgroundObj:
     {
         DividerBackgroundItem *dividerBackgroundItem = dynamic_cast<DividerBackgroundItem *>(selectedItem);
-        if (dividerBackgroundItem){
+        if (dividerBackgroundItem) {
             itemTop = dividerBackgroundItem->top;
             stepNumber = dividerBackgroundItem->stepNumber;
         }
@@ -1383,7 +1383,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case DividerObj:
     {
         DividerItem *dividerItem = dynamic_cast<DividerItem *>(selectedItem);
-        if (dividerItem){
+        if (dividerItem) {
             itemTop = dividerItem->parentStep->topOfStep();
             stepNumber = dividerItem->parentStep->stepNumber.number;
         }
@@ -1392,7 +1392,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case DividerLineObj:
     {
         DividerLine *dividerLine = dynamic_cast<DividerLine *>(selectedItem);
-        if (dividerLine){
+        if (dividerLine) {
             itemTop = dividerLine->top;
             stepNumber = dividerLine->stepNumber;;
         }
@@ -1401,7 +1401,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case DividerPointerObj:
     {
         DividerPointerItem *dividerPointerItem = dynamic_cast<DividerPointerItem *>(selectedItem);
-        if (dividerPointerItem){
+        if (dividerPointerItem) {
             itemTop = dividerPointerItem->pointerTop;
             stepNumber = dividerPointerItem->stepNumber;
         }
@@ -1413,7 +1413,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case SubmodelGrabberObj:
     {
         Grabber *grabberItem = dynamic_cast<Grabber *>(selectedItem);
-        if (grabberItem){
+        if (grabberItem) {
             itemTop = grabberItem->top;
             stepNumber = grabberItem->stepNumber;
         }
@@ -1422,7 +1422,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case InsertPixmapObj:
     {
         InsertPixmapItem *insertPixmapItem = dynamic_cast<InsertPixmapItem *>(selectedItem);
-        if (insertPixmapItem){
+        if (insertPixmapItem) {
             itemTop = insertPixmapItem->meta.here();
             stepNumber = lpub->page.stepNumber;
         }
@@ -1431,7 +1431,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case InsertTextObj:
     {
         TextItem *textItem = dynamic_cast<TextItem *>(selectedItem);
-        if (textItem){
+        if (textItem) {
             itemTop = textItem->meta.here();
             stepNumber = lpub->page.stepNumber;
         }
@@ -1440,7 +1440,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PagePointerObj:
     {
         PagePointerItem *pagePointerItem = dynamic_cast<PagePointerItem *>(selectedItem);
-        if (pagePointerItem){
+        if (pagePointerItem) {
             itemTop = pagePointerItem->pointerTop;
             stepNumber = pagePointerItem->stepNumber;
         }
@@ -1449,7 +1449,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PartsListAnnotationObj:
     {
         AnnotateTextItem *annotateTextItem = dynamic_cast<AnnotateTextItem *>(selectedItem);
-        if (annotateTextItem){
+        if (annotateTextItem) {
             itemTop = annotateTextItem->pli->top;
             stepNumber = annotateTextItem->pli->step ? annotateTextItem->pli->step->stepNumber.number : 0;
         }
@@ -1458,7 +1458,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PartsListBackgroundObj:
     {
         PliBackgroundItem *pliBackgroundItem = dynamic_cast<PliBackgroundItem *>(selectedItem);
-        if (pliBackgroundItem){
+        if (pliBackgroundItem) {
             itemTop = pliBackgroundItem->pli->top;
             stepNumber = pliBackgroundItem->pli->step ? pliBackgroundItem->pli->step->stepNumber.number : 0;
         }
@@ -1467,7 +1467,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PartsListInstanceObj:
     {
         InstanceTextItem *instanceTextItem = dynamic_cast<InstanceTextItem *>(selectedItem);
-        if (instanceTextItem){
+        if (instanceTextItem) {
             itemTop = instanceTextItem->pli->top;
             stepNumber = instanceTextItem->pli->step ? instanceTextItem->pli->step->stepNumber.number : 0;
         }
@@ -1476,7 +1476,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PointerHeadObj:
     {
         PointerHeadItem *pointerHeadItem = dynamic_cast<PointerHeadItem *>(selectedItem);
-        if (pointerHeadItem){
+        if (pointerHeadItem) {
             itemTop = pointerHeadItem->top;
             stepNumber = pointerHeadItem->stepNumber;
         }
@@ -1488,7 +1488,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PointerThirdSegObj:
     {
         BorderedLineItem *borderedLineItem = dynamic_cast<BorderedLineItem *>(selectedItem);
-        if (borderedLineItem){
+        if (borderedLineItem) {
             itemTop = borderedLineItem->top;
             stepNumber = borderedLineItem->stepNumber;
         }
@@ -1497,7 +1497,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case RotateIconBackgroundObj:
     {
         RotateIconItem *rotateIconItem = dynamic_cast<RotateIconItem *>(selectedItem);
-        if (rotateIconItem){
+        if (rotateIconItem) {
             itemTop = rotateIconItem->step->topOfStep();
             stepNumber = rotateIconItem->step ? rotateIconItem->step->stepNumber.number : 0;
         }
@@ -1506,7 +1506,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case StepNumberObj:
     {
         StepNumberItem *stepNumberItem = dynamic_cast<StepNumberItem *>(selectedItem);
-        if (stepNumberItem){
+        if (stepNumberItem) {
             itemTop = stepNumberItem->top;
             stepNumber = stepNumberItem->value;
         }
@@ -1515,7 +1515,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case SubModelBackgroundObj:
     {
         SubModelBackgroundItem *subModelBackgroundItem = dynamic_cast<SubModelBackgroundItem *>(selectedItem);
-        if (subModelBackgroundItem){
+        if (subModelBackgroundItem) {
             itemTop = subModelBackgroundItem->subModel->topOfStep();
             stepNumber = subModelBackgroundItem->subModel->step ? subModelBackgroundItem->subModel->step->stepNumber.number : 0;
         }
@@ -1524,7 +1524,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case SubModelInstanceObj:
     {
         SMInstanceTextItem *sMInstanceTextItem = dynamic_cast<SMInstanceTextItem *>(selectedItem);
-        if (sMInstanceTextItem){
+        if (sMInstanceTextItem) {
             itemTop = sMInstanceTextItem->subModel->topOfStep();
             stepNumber = sMInstanceTextItem->subModel->step ? sMInstanceTextItem->subModel->step->stepNumber.number : 0;
         }
@@ -1533,7 +1533,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PartsListPixmapObj:
     {
         PGraphicsPixmapItem *pGraphicsPixmapItem = dynamic_cast<PGraphicsPixmapItem *>(selectedItem);
-        if (pGraphicsPixmapItem){
+        if (pGraphicsPixmapItem) {
             itemTop = pGraphicsPixmapItem->pli->topOfStep();
             stepNumber = pGraphicsPixmapItem->pli->step ? pGraphicsPixmapItem->pli->step->stepNumber.number : 0;
         }
@@ -1542,7 +1542,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case PartsListGroupObj:
     {
         PartGroupItem *partGroupItem = dynamic_cast<PartGroupItem *>(selectedItem);
-        if (partGroupItem){
+        if (partGroupItem) {
             itemTop = partGroupItem->top;
             stepNumber = partGroupItem->stepNumber;
         }
@@ -1552,7 +1552,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case ReserveBackgroundObj:
     {
         ReserveBackgroundItem *reserveBackgroundItem = dynamic_cast<ReserveBackgroundItem *>(selectedItem);
-        if (reserveBackgroundItem){
+        if (reserveBackgroundItem) {
             itemTop = reserveBackgroundItem->top;
         }
     }
@@ -1560,7 +1560,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     case StepBackgroundObj:
     {
         MultiStepStepBackgroundItem *multiStepStepBackgroundItem = dynamic_cast<MultiStepStepBackgroundItem *>(selectedItem);
-        if (multiStepStepBackgroundItem){
+        if (multiStepStepBackgroundItem) {
             itemTop = multiStepStepBackgroundItem->top;
             stepNumber = multiStepStepBackgroundItem->stepNumber;
         }
@@ -1690,8 +1690,8 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                 }
                 Q_FOREACH (QGraphicsItem *item, overlapItems) {
                     itemObjS = SceneObject(item->data(ObjectId).toInt());
-                    if (itemObjS == itemObjD){
-                        if (page->relativeType == StepGroupType){
+                    if (itemObjS == itemObjD) {
+                        if (page->relativeType == StepGroupType) {
                             int selectedItemStepNumber = 0;
                             if (getSceneObjectStep(item, selectedItemStepNumber)) {
                                 if (debugLogging)
@@ -1707,7 +1707,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                                     emit messageSig(LOG_NOTICE, QString("-- Failed to retrieve selected scene item %1 (%2) step number")
                                                     .arg(soMap[itemObjS]).arg(itemObjS));
                             }
-                        } else if (page->relativeType == SingleStepType){
+                        } else if (page->relativeType == SingleStepType) {
                             selectedItem = item;
                             overlapItems = selectedItem->collidingItems();
                             break;
@@ -1723,7 +1723,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             // callout pointer is related to the callout so the whole callout/pointer
             // assembly must be moved when a pointer move is triggered
             auto addRelatedItems = [this, &itemStepNumber, &debugLogging]
-                    (QGraphicsItem *item){
+                    (QGraphicsItem *item) {
                 QList<QGraphicsItem *>relatedItems;
                 int relatedItemStepNumber = 0;
                 SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
@@ -1732,13 +1732,13 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                         emit messageSig(LOG_TRACE, QString("-- Related scene item step number %1, data step number %2")
                                         .arg(itemStepNumber).arg(itemStepNumber));
                     if (relatedItemStepNumber == itemStepNumber) {
-                        if (!relatedItems.contains(item)){
+                        if (!relatedItems.contains(item)) {
                             if (debugLogging)
                                 emit messageSig(LOG_TRACE, QString("-- Add related scene item %1 (%2) for step (%3)...")
                                                 .arg(soMap[itemObjR]).arg(itemObjR).arg(relatedItemStepNumber));
                             relatedItems.append(item);
                             Q_FOREACH (QGraphicsItem *childItem, item->childItems()) {
-                                if (!relatedItems.contains(childItem)){
+                                if (!relatedItems.contains(childItem)) {
                                     SceneObject itemObjC = SceneObject(childItem->data(ObjectId).toInt());
                                     if (debugLogging)
                                         emit messageSig(LOG_TRACE, QString("-- Add child scene item %1 (%2) added for step (%3)...")
@@ -1759,7 +1759,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             // Check for and add related items
             // Callout Pointer
             QList<QGraphicsItem *>relatedItems;
-            if (itemObjS == CalloutPointerObj){
+            if (itemObjS == CalloutPointerObj) {
                 Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
@@ -1772,7 +1772,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                 }
             }
             // Callout
-            if (itemObjS == CalloutBackgroundObj){
+            if (itemObjS == CalloutBackgroundObj) {
                 Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
@@ -1786,7 +1786,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             }
 
             // Divider pointer
-            if (itemObjS == DividerPointerObj){
+            if (itemObjS == DividerPointerObj) {
                 Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
@@ -1799,7 +1799,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                 }
             }
             // Divider
-            if (itemObjS == DividerObj){
+            if (itemObjS == DividerObj) {
                 Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
@@ -1846,7 +1846,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                 }
             }
 
-            if (relatedItems.size()){
+            if (relatedItems.size()) {
                 qreal zValueR = zValue;
                 Q_FOREACH (QGraphicsItem *item, relatedItems) {
                     qreal itemZValueR = item->zValue() ;
@@ -1904,7 +1904,7 @@ int Gui::addPliPerPageItems(
   PlacementHeader *pageHeader,
   PlacementFooter *pageFooter,
   PageNumberItem  *pageNumber,
-  Placement       &plPage){
+  Placement       &plPage) {
 
   Pli                 *pli                    = &page->pli;
   SubModel            *subModel               = &page->subModel;
@@ -1943,7 +1943,7 @@ int Gui::addPliPerPageItems(
       groupStepNumber->setPos(groupStepNumber->loc[XX], groupStepNumber->loc[YY]);
   }
 
-  if (validSubModel){
+  if (validSubModel) {
       PlacementData pld = subModel->placement.value();
       if (pld.relativeTo == PageType) {
           plPage.appendRelativeTo(subModel);
@@ -1971,7 +1971,7 @@ int Gui::addPliPerPageItems(
       subModel->setPos(subModel->loc[XX],subModel->loc[YY]);
   }
 
-  if (pli){
+  if (pli) {
       PlacementData pld = pli->placement.value();
       if (pld.relativeTo == PageType) {
           plPage.appendRelativeTo(pli);
@@ -1999,7 +1999,7 @@ int Gui::addPliPerPageItems(
       // For now, pli per page is shared with BOM so we setPos() in formatpage
   }
 
-  if (validPageNumber){
+  if (validPageNumber) {
       PlacementData  pld = pageNumber->placement.value();
       if (pli && pld.relativeTo == PartsListType) {
           pli->appendRelativeTo(pageNumber);
@@ -2050,7 +2050,7 @@ int Gui::addContentPageAttributes(
       }
       //  Content Page Email (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
       bool displayEmail       = page->meta.LPub.page.email.display.value();
-      if (displayEmail){
+      if (displayEmail) {
           email->size[XX]     = int(email->document()->size().width());
           email->size[YY]     = int(email->document()->size().height());
       }else {
@@ -2059,7 +2059,7 @@ int Gui::addContentPageAttributes(
       }
       //  Content Page Copyright (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
       bool displayCopyright   = page->meta.LPub.page.copyright.display.value();
-      if (displayCopyright){
+      if (displayCopyright) {
           copyright->size[XX] = int(copyright->document()->size().width());
           copyright->size[YY] = int(copyright->document()->size().height());
       }else {
@@ -2246,7 +2246,7 @@ int Gui::addContentPageAttributes(
                       author->placeRelative(instanceCount);
 
                   }
-              } else if (displayEmail && icPld.relativeTo == PageEmailType){
+              } else if (displayEmail && icPld.relativeTo == PageEmailType) {
                   PlacementData pld = email->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2262,7 +2262,7 @@ int Gui::addContentPageAttributes(
                       email->appendRelativeTo(instanceCount);
                       email->placeRelative(instanceCount);
                   }
-              } else if (displayURL && icPld.relativeTo == PageURLType){
+              } else if (displayURL && icPld.relativeTo == PageURLType) {
                   PlacementData pld = url->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2278,7 +2278,7 @@ int Gui::addContentPageAttributes(
                       url->appendRelativeTo(instanceCount);
                       url->placeRelative(instanceCount);
                   }
-              } else if (displayCopyright && icPld.relativeTo == PageCopyrightType){
+              } else if (displayCopyright && icPld.relativeTo == PageCopyrightType) {
                   PlacementData pld = copyright->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2297,7 +2297,7 @@ int Gui::addContentPageAttributes(
               } else if (validPageNumber && icPld.relativeTo == PageNumberType) {
                   if (page->meta.LPub.page.togglePnPlacement.value() &&
                           ! (stepPageNum % 2 /* if page is odd */)) {
-                      switch (icPld.rectPlacement){
+                      switch (icPld.rectPlacement) {
                       case (TopLeftOutsideCorner):
                           instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);
                           break;
@@ -2389,7 +2389,7 @@ int Gui::addCoverPageAttributes(
       bool displayModelNameFront         = page->meta.LPub.page.modelName.display.value();
       bool breakModelNameFrontRelativeTo = !displayModelNameFront;
       PlacementData modelNameFrontPld;
-      if (displayModelNameFront){
+      if (displayModelNameFront) {
           modelNameFront->size[XX]       = int(modelNameFront->document()->size().width());
           modelNameFront->size[YY]       = int(modelNameFront->document()->size().height());
           modelNameFrontPld = modelNameFront->placement.value();
@@ -2666,7 +2666,7 @@ int Gui::addCoverPageAttributes(
   }
 
   // Back Cover Page Initializations and Placements...
-  if (page->coverPage && page->backCover){
+  if (page->coverPage && page->backCover) {
 
       // Initializations...
       PageAttributeTextItem   *titleBack      = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
@@ -2797,7 +2797,7 @@ int Gui::addCoverPageAttributes(
       // Author (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayAuthorBack) {
           if (authorBackPld.relativeTo == PageTitleType) {
-              if (displayTitleBack && !breakTitleBackRelativeTo){
+              if (displayTitleBack && !breakTitleBackRelativeTo) {
                   titleBack->appendRelativeTo(authorBack);
                   titleBack->placeRelative(authorBack);
               } else if (authorBackPld.relativeTo == PageTitleType) {
@@ -2815,7 +2815,7 @@ int Gui::addCoverPageAttributes(
       // Copyright (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayCopyrightBack) {
           if (copyrightBackPld.relativeTo == PageAuthorType) {
-              if (displayAuthorBack && !breakAuthorBackRelativeTo){
+              if (displayAuthorBack && !breakAuthorBackRelativeTo) {
                   authorBack->appendRelativeTo(copyrightBack);
                   authorBack->placeRelative(copyrightBack);
               } else if (copyrightBackPld.relativeTo == PageAuthorType) {
@@ -2834,7 +2834,7 @@ int Gui::addCoverPageAttributes(
       if (displayUrlBack) {
           urlBackPld = urlBack->placement.value();
           if (urlBackPld.relativeTo == PageCopyrightType) {
-              if (displayCopyrightBack && !breakCopyrightBackRelativeTo){
+              if (displayCopyrightBack && !breakCopyrightBackRelativeTo) {
                   copyrightBack->appendRelativeTo(urlBack);
                   copyrightBack->placeRelative(urlBack);
               } else if (urlBackPld.relativeTo == PageCopyrightType) {
@@ -2853,7 +2853,7 @@ int Gui::addCoverPageAttributes(
       if (displayEmailBack) {
           emailBackPld = emailBack->placement.value();
           if (emailBackPld.relativeTo == PageURLType) {
-              if (displayUrlBack && !breakURLBackRelativeTo){
+              if (displayUrlBack && !breakURLBackRelativeTo) {
                   urlBack->appendRelativeTo(emailBack);
                   urlBack->placeRelative(emailBack);
               } else if (emailBackPld.relativeTo == PageURLType) {
@@ -2889,7 +2889,7 @@ int Gui::addCoverPageAttributes(
       // Plug (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayPlugBack) {
           if (plugBackPld.relativeTo == PageDisclaimerType) {
-              if (displayDisclaimerBack && !breakDisclaimerBackRelativeTo){
+              if (displayDisclaimerBack && !breakDisclaimerBackRelativeTo) {
                   disclaimerBack->appendRelativeTo(plugBack);
                   disclaimerBack->placeRelative(plugBack);
               } else {

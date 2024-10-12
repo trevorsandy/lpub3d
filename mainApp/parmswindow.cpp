@@ -581,8 +581,8 @@ bool ParmsWindow::saveFile(bool force)
         writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         rc = writer.write(_textEdit->document());
 
-        if (rc){
-            if (!force){
+        if (rc) {
+            if (!force) {
               saveAct->setEnabled(false);
               _textEdit->document()->setModified(false);
               _fileModified = true;
@@ -644,14 +644,14 @@ void ParmsWindow::openFile()
     }
 }
 
-void ParmsWindow::refreshFile(){
+void ParmsWindow::refreshFile() {
   QFileInfo fileInfo(fileName);
   if (fileInfo.exists())
     displayParmsFile(fileName);
   _textEdit->moveCursor(QTextCursor::End);
 }
 
-void ParmsWindow::toggleClear(){
+void ParmsWindow::toggleClear() {
   if (_textEdit->document()->isModified())
     {
       delAct->setEnabled(true);
@@ -660,22 +660,22 @@ void ParmsWindow::toggleClear(){
     }
 }
 
-void ParmsWindow::topOfDocument(){
+void ParmsWindow::topOfDocument() {
     _textEdit->moveCursor(QTextCursor::Start);
 }
 
-void ParmsWindow::bottomOfDocument(){
+void ParmsWindow::bottomOfDocument() {
     _textEdit->moveCursor(QTextCursor::End);
 }
 
-void ParmsWindow::showAllCharacters(){
+void ParmsWindow::showAllCharacters() {
     _textEdit->blockSignals(true);
     _textEdit->showAllCharacters(showAllCharsAct->isChecked());
     _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
 }
 
-void ParmsWindow::viewLogWindowSettings(){
+void ParmsWindow::viewLogWindowSettings() {
   // customize the menu for logging
 
   if (! openAct->isVisible())
@@ -705,7 +705,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
       acceptEvent = true;
     }
 
-  if (_fileModified){
+  if (_fileModified) {
 
       // load LDGLite settings if modified
       QFileInfo fileInfo(fileName);
@@ -727,7 +727,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
           if (box.exec() == QMessageBox::Ok) {
               QStringList args = QApplication::arguments();
-              if (fileLoaded){
+              if (fileLoaded) {
                   if (!args.contains(gui->getCurFile(),Qt::CaseInsensitive))
                       args << QString("%1").arg(gui->getCurFile());
                   QSettings Settings;
@@ -746,7 +746,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
         }
     }
 
-  if (acceptEvent){
+  if (acceptEvent) {
       event->accept();
     } else {
       event->ignore();
@@ -774,7 +774,7 @@ void ParmsWindow::writeSettings()
     Settings.endGroup();
 }
 
-void ParmsWindow::setWindowTitle(const QString &title){
+void ParmsWindow::setWindowTitle(const QString &title) {
     QMainWindow::setWindowTitle(title);
 }
 
@@ -821,8 +821,8 @@ void ParmEditor::gotoLine(int line)
     this->setTextCursor(cursor);
 }
 
-void ParmEditor::showAllCharacters(bool enabled){
-    if (enabled){
+void ParmEditor::showAllCharacters(bool enabled) {
+    if (enabled) {
         showCharacters(" ","\u002E");
 #ifdef Q_OS_WIN
         showCharacters("\t","\u003E");

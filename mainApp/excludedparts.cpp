@@ -72,7 +72,7 @@ ExcludedParts::ExcludedParts()
                                   "# File: %1<br>"
                                   "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$")
                                   .arg(QFileInfo(excludedPartsFile).fileName());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -234,7 +234,7 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
 }
 
 
-bool ExcludedParts::exportExcludedParts(){
+bool ExcludedParts::exportExcludedParts() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validExcludedPliParts));
 
     if (!overwriteFile(file.fileName()))
@@ -284,7 +284,7 @@ bool ExcludedParts::exportExcludedParts(){
         QString message = QString("Finished Writing Excluded Part Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
         } else {
             logNotice() << message;
@@ -294,7 +294,7 @@ bool ExcludedParts::exportExcludedParts(){
     {
         QString message = QString("Failed to open excluded parts file: %1:\n%2")
                                   .arg(file.fileName(),file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
         } else {
             logError() << message;

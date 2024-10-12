@@ -84,7 +84,7 @@ void Gui::open()
   return;
 }
 
-void Gui::openDropFile(QString &fileName){
+void Gui::openDropFile(QString &fileName) {
 
   if (maybeSave() && saveBuildModification()) {
       QElapsedTimer timer;
@@ -520,7 +520,7 @@ int Gui::whichFile(int option) {
     bool includeChecked = option == OPT_SAVE;
     bool currentChecked = !includeChecked;
 
-    switch (option){
+    switch (option) {
     case OPT_SAVE:
         showDialog = curFileExists && includeFile && dirtyUndoStack;
         break;
@@ -696,7 +696,7 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
       box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
       box.setDefaultButton   (QMessageBox::Save);
 
-      if (saveSender){
+      if (saveSender) {
           QCheckBox *cb = new QCheckBox(tr("Do not show save changes on %1 message again.").arg(senderLabel));
           box.setCheckBox(cb);
           QObject::connect(cb, &QCheckBox::stateChanged, [&saveSender](int state) {

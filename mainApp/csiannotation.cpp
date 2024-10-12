@@ -401,22 +401,22 @@ void CsiAnnotationItem::setAnnotationStyle(QPainter *painter)
     borderPen.setColor(borderPenColor);
     borderPen.setCapStyle(Qt::RoundCap);
     borderPen.setJoinStyle(Qt::RoundJoin);
-    if (borderData.line == BorderData::BdrLnNone){
+    if (borderData.line == BorderData::BdrLnNone) {
           borderPen.setStyle(Qt::NoPen);
     }
-    else if (borderData.line == BorderData::BdrLnSolid){
+    else if (borderData.line == BorderData::BdrLnSolid) {
         borderPen.setStyle(Qt::SolidLine);
     }
-    else if (borderData.line == BorderData::BdrLnDash){
+    else if (borderData.line == BorderData::BdrLnDash) {
         borderPen.setStyle(Qt::DashLine);
     }
-    else if (borderData.line == BorderData::BdrLnDot){
+    else if (borderData.line == BorderData::BdrLnDot) {
         borderPen.setStyle(Qt::DotLine);
     }
-    else if (borderData.line == BorderData::BdrLnDashDot){
+    else if (borderData.line == BorderData::BdrLnDashDot) {
         borderPen.setStyle(Qt::DashDotLine);
     }
-    else if (borderData.line == BorderData::BdrLnDashDotDot){
+    else if (borderData.line == BorderData::BdrLnDashDotDot) {
         borderPen.setStyle(Qt::DashDotDotLine);
     }
      borderPen.setWidth(int(borderData.thickness));

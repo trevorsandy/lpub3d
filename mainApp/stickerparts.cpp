@@ -76,7 +76,7 @@ StickerParts::StickerParts()
                                           "# File: %1<br>"
                                           "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
                                   .arg(QFileInfo(stickerPartsFile).fileName());
-                if (Preferences::modeGUI){
+                if (Preferences::modeGUI) {
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
@@ -274,7 +274,7 @@ void StickerParts::loadStickerParts(QByteArray &Buffer)
 }
 
 
-bool StickerParts::exportStickerParts(){
+bool StickerParts::exportStickerParts() {
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validStickerPliParts));
 
     if (!overwriteFile(file.fileName()))
@@ -324,7 +324,7 @@ bool StickerParts::exportStickerParts(){
         QString message = QString("Finished Writing Sticker Part Entries, Processed %1 lines in file [%2]")
                                    .arg(counter)
                                    .arg(file.fileName());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),message);
         } else {
             logNotice() << message;
@@ -335,7 +335,7 @@ bool StickerParts::exportStickerParts(){
         QString message = QString("Failed to open sticker parts file: %1:\n%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),message);
         } else {
             logError() << message;

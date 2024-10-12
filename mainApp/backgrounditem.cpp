@@ -77,7 +77,7 @@ void BackgroundItem::setBackground(
 
   if (_parentRelativeType == PageType &&
       backgroundData.type == BackgroundData::BgTransparent &&
-      ! _exporting){
+      ! _exporting) {
       if (borderData.useDefault) {
           borderData.type       = BorderData::BdrSquare;
           borderData.line       = BorderData::BdrLnDash;
@@ -193,22 +193,22 @@ void BackgroundItem::setBackground(
   pen.setColor(penColor);
   pen.setCapStyle(Qt::RoundCap);
   pen.setJoinStyle(Qt::RoundJoin);
-  if (borderData.line == BorderData::BdrLnNone){
+  if (borderData.line == BorderData::BdrLnNone) {
         pen.setStyle(Qt::NoPen);
     }
-  else if (borderData.line == BorderData::BdrLnSolid){
+  else if (borderData.line == BorderData::BdrLnSolid) {
         pen.setStyle(Qt::SolidLine);
     }
-  else if (borderData.line == BorderData::BdrLnDash){
+  else if (borderData.line == BorderData::BdrLnDash) {
       pen.setStyle(Qt::DashLine);
     }
-  else if (borderData.line == BorderData::BdrLnDot){
+  else if (borderData.line == BorderData::BdrLnDot) {
       pen.setStyle(Qt::DotLine);
     }
-  else if (borderData.line == BorderData::BdrLnDashDot){
+  else if (borderData.line == BorderData::BdrLnDashDot) {
       pen.setStyle(Qt::DashDotLine);
     }
-  else if (borderData.line == BorderData::BdrLnDashDotDot){
+  else if (borderData.line == BorderData::BdrLnDashDotDot) {
       pen.setStyle(Qt::DashDotDotLine);
     }
   pen.setWidth(bt);
@@ -242,8 +242,8 @@ void BackgroundItem::setBackground(
       qreal left = int(rect.left()) - (int(rect.left()) % gridSize);
       qreal top = int(rect.top()) - (int(rect.top()) % gridSize);
       QVector<QPointF> points;
-      for (qreal x = left; x < rect.right(); x += gridSize){
-          for (qreal y = top; y < rect.bottom(); y += gridSize){
+      for (qreal x = left; x < rect.right(); x += gridSize) {
+          for (qreal y = top; y < rect.bottom(); y += gridSize) {
               points.append(QPointF(x,y));
           }
       }
@@ -257,11 +257,11 @@ void BackgroundItem::setBackground(
   setFlag(QGraphicsItem::ItemIsMovable,true);
 }
 
-int BackgroundItem::pageSizeP(int which){
+int BackgroundItem::pageSizeP(int which) {
  int _size;
 
  // flip orientation for landscape
- if (meta->LPub.page.orientation.value() == Landscape){
+ if (meta->LPub.page.orientation.value() == Landscape) {
      which == 0 ? _size = 1 : _size = 0;
    } else {
      _size = which;
@@ -295,7 +295,7 @@ void PlacementBackgroundItem::setBackground(
                                 toolTip);
 }
 
-QGradient BackgroundItem::setGradient(){
+QGradient BackgroundItem::setGradient() {
 
   BackgroundData backgroundData = background.value();
   QPolygonF pts;
@@ -307,7 +307,7 @@ QGradient BackgroundItem::setGradient(){
     pts.append(backgroundData.gpoints.at(i));
 
   QGradient::CoordinateMode mode = QGradient::LogicalMode;
-  switch (backgroundData.gmode){
+  switch (backgroundData.gmode) {
     case BackgroundData::LogicalMode:
       mode = QGradient::LogicalMode;
     break;
@@ -320,7 +320,7 @@ QGradient BackgroundItem::setGradient(){
     }
 
   QGradient::Spread spread = QGradient::RepeatSpread;
-  switch (backgroundData.gspread){
+  switch (backgroundData.gspread) {
     case BackgroundData::PadSpread:
       spread = QGradient::PadSpread;
     break;
@@ -336,14 +336,14 @@ QGradient BackgroundItem::setGradient(){
     }
 
   QGradient g = QLinearGradient(pts.at(0), pts.at(1));
-  switch (backgroundData.gtype){
+  switch (backgroundData.gtype) {
     case BackgroundData::LinearGradient:
       g = QLinearGradient(pts.at(0), pts.at(1));
     break;
     case BackgroundData::RadialGradient:
       {
         QLineF line(pts[0], pts[1]);
-        if (line.length() > 132){
+        if (line.length() > 132) {
             line.setLength(132);
           }
         g = QRadialGradient(line.p1(), qMin(gSize.width(), gSize.height()) / 3.0, line.p2());

@@ -28,15 +28,15 @@ public:
   bool setSelectedItem(const QPointF &);
 
 public slots:
-  void setGuidePen(QString color,int line){
+  void setGuidePen(QString color,int line) {
     guidePen = QPen(QBrush(QColor(color)), 2, Qt::PenStyle(line));
     update();
   }
-  void setGridPen(QString color){
+  void setGridPen(QString color) {
     gridPen =  QPen(QBrush(QColor(color)), 2, Qt::SolidLine);
     update();
   }
-  void setSceneGuides(bool b){
+  void setSceneGuides(bool b) {
     mSceneGuides = b;
     update();
   }
@@ -48,34 +48,34 @@ public slots:
     mGuidesPlacement = pos;
     update();
   }
-  void setSnapToGrid(bool b){
+  void setSnapToGrid(bool b) {
     mSnapToGrid = b;
     update();
   }
-  void setGridSize(int i){
+  void setGridSize(int i) {
     mGridSize = i;
     update();
   }
-  void setSceneRulerTrackingPen(QString color){
+  void setSceneRulerTrackingPen(QString color) {
     rulerTrackingPen = QPen(QBrush(QColor(color)), 2, Qt::SolidLine);
     update();
   }
-  void setSceneRulerTracking(bool b){
+  void setSceneRulerTracking(bool b) {
     mRulerTracking = b;
     update();
   }
-  void setSceneVertRulerPosition(QPointF p){
+  void setSceneVertRulerPosition(QPointF p) {
     mVertCursorPos = p;
     update();
   }
-  void setSceneHorzRulerPosition(QPointF p){
+  void setSceneHorzRulerPosition(QPointF p) {
     mHorzCursorPos = p;
     update();
   }
-  void setResolution(float r){
+  void setResolution(float r) {
     mResolution = r;
   }
-  qreal getResolution(){
+  qreal getResolution() {
     return double(mResolution);
   }
   qreal coordMargin()

@@ -1581,19 +1581,19 @@ public:
   }
   BorderData::Line setBorderLine(const QString argvIndex)
   {
-    if (argvIndex == "0"){
+    if (argvIndex == "0") {
         return BorderData::BdrLnNone;
       }
-    else if (argvIndex == "1"){
+    else if (argvIndex == "1") {
       return BorderData::BdrLnSolid;
       }
-    else if (argvIndex == "2"){
+    else if (argvIndex == "2") {
       return BorderData::BdrLnDash;
       }
-    else if (argvIndex == "3"){
+    else if (argvIndex == "3") {
       return BorderData::BdrLnDot;
       }
-    else if (argvIndex == "4"){
+    else if (argvIndex == "4") {
       return BorderData::BdrLnDashDot;
       }
     else {//"Dot-Dot-Dash Line"
@@ -1855,16 +1855,16 @@ public:
 
   BorderData::Line setBorderLine(const QString argvIndex)
   {
-    if (argvIndex == "1"){
+    if (argvIndex == "1") {
       return BorderData::BdrLnSolid;
       }
-    else if (argvIndex == "2"){
+    else if (argvIndex == "2") {
       return BorderData::BdrLnDash;
       }
-    else if (argvIndex == "3"){
+    else if (argvIndex == "3") {
       return BorderData::BdrLnDot;
       }
-    else if (argvIndex == "4"){
+    else if (argvIndex == "4") {
       return BorderData::BdrLnDashDot;
       }
     else {//"Dot-Dot-Dash Line"
@@ -3006,7 +3006,7 @@ public:
   {
     _value.bPart = b;
   }
-  void setKey(QString &_type, QString &_color){
+  void setKey(QString &_type, QString &_color) {
     _value.type  = _type;
     _value.color = _color;
   }

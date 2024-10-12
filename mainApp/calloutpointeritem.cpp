@@ -126,19 +126,19 @@ CalloutPointerItem::CalloutPointerItem(
   shaftPen.setWidth(pad->lineData.thickness);
   shaftPen.setCapStyle(Qt::RoundCap);
   shaftPen.setJoinStyle(Qt::RoundJoin);
-  if (pad->lineData.line == BorderData::BdrLnSolid){
+  if (pad->lineData.line == BorderData::BdrLnSolid) {
       shaftPen.setStyle(Qt::SolidLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDash){
+  else if (pad->lineData.line == BorderData::BdrLnDash) {
       shaftPen.setStyle(Qt::DashLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDot){
+  else if (pad->lineData.line == BorderData::BdrLnDot) {
       shaftPen.setStyle(Qt::DotLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDashDot){
+  else if (pad->lineData.line == BorderData::BdrLnDashDot) {
       shaftPen.setStyle(Qt::DashDotLine);
   }
-  else if (pad->lineData.line == BorderData::BdrLnDashDotDot){
+  else if (pad->lineData.line == BorderData::BdrLnDashDotDot) {
       shaftPen.setStyle(Qt::DashDotDotLine);
   }
 
@@ -165,19 +165,19 @@ CalloutPointerItem::CalloutPointerItem(
   tipPen.setWidth(pad->borderData.thickness);
   tipPen.setCapStyle(Qt::RoundCap);
   tipPen.setJoinStyle(Qt::RoundJoin);
-  if (pad->borderData.line == BorderData::BdrLnSolid){
+  if (pad->borderData.line == BorderData::BdrLnSolid) {
       tipPen.setStyle(Qt::SolidLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDash){
+  else if (pad->borderData.line == BorderData::BdrLnDash) {
       tipPen.setStyle(Qt::DashLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDot){
+  else if (pad->borderData.line == BorderData::BdrLnDot) {
       tipPen.setStyle(Qt::DotLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDashDot){
+  else if (pad->borderData.line == BorderData::BdrLnDashDot) {
       tipPen.setStyle(Qt::DashDotLine);
   }
-  else if (pad->borderData.line == BorderData::BdrLnDashDotDot){
+  else if (pad->borderData.line == BorderData::BdrLnDashDotDot) {
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
@@ -227,7 +227,7 @@ bool CalloutPointerItem::autoLocFromTip()
         if (!resizeRequested)
             points[Base] = QPointF(pointerData.x2,pointerData.y2);
 
-        if (segments() == ThreeSegments){
+        if (segments() == ThreeSegments) {
             int mtx = pointerData.x3;
             points[MidTip].setY(ty);
             points[MidTip].setX(mtx);

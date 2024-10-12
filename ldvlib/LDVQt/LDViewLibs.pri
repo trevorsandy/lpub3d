@@ -89,7 +89,7 @@ contains(LOAD_LDV_HEADERS,True) {
     } else {
         message("~~~ ERROR: Library header for gl2ps not found, using local ~~~")
     }
-    if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX}/include/lib3ds.h)){
+    if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX}/include/lib3ds.h)) {
         message("~~~ lib$${TARGET} system library 3ds found ~~~")
     } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
         message("~~~ lib$${TARGET} local library header for 3ds found ~~~")

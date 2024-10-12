@@ -806,7 +806,7 @@ public:
       return lpub->ldrawFile.deleteViewerStep(stepKey);
   }
 
-  void clearViewerSteps(){
+  void clearViewerSteps() {
       lpub->ldrawFile.clearViewerSteps();
   }
 

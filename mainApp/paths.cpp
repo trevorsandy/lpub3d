@@ -61,21 +61,21 @@ QString Paths::customPrim48Dir  = QString("%1custom%2p%248").arg(Preferences::va
 
 QStringList Paths::customDirs;
 
-void Paths::mkPovrayDir(){
+void Paths::mkPovrayDir() {
 
     QDir dir;
     dir.mkdir(povrayRenderDir);
 
 }
 
-void Paths::mkBlenderDir(){
+void Paths::mkBlenderDir() {
 
     QDir dir;
     dir.mkdir(blenderRenderDir);
 
 }
 
-void Paths::mkDirs(){
+void Paths::mkDirs() {
 
     QDir dir;
     dir.mkdir(lpubDir);

@@ -115,7 +115,7 @@ PointerItem::PointerItem(QGraphicsItem *parent)
     : QGraphicsItemGroup(parent)
 {}
 
-PointerItem::~PointerItem(){
+PointerItem::~PointerItem() {
   shaftSegments.clear();
 }
 
@@ -231,7 +231,7 @@ void PointerItem::drawPointerPoly()
       }
 
       // head
-      if (i == (segments()-1)){
+      if (i == (segments()-1)) {
 
           removeFromGroup(head);
 
@@ -304,7 +304,7 @@ void PointerItem::drawPointerPoly()
     view->updateSceneRect(sceneBoundingRect());
 }
 
-void PointerItem::addShaftSegment(){
+void PointerItem::addShaftSegment() {
 
     QLineF linefNew;
 
@@ -324,7 +324,7 @@ void PointerItem::addShaftSegment(){
         points[MidTip] = (QLineF(points[MidBase],points[Tip]).p1() * 0.5 +
                           QLineF(points[MidBase],points[Tip]).p2() * 0.5);
         linefNew       = QLineF(points[MidTip],points[Tip]);
-        if (points[MidTip].y() == points[MidBase].y()){
+        if (points[MidTip].y() == points[MidBase].y()) {
             emit gui->messageSig(LOG_ERROR, QObject::tr("Pointer segments are on the same line. Move an existing segment before creating a new one."));
             return;
         }
@@ -356,19 +356,19 @@ void PointerItem::addShaftSegment(){
     pen.setWidth(pad->lineData.thickness);
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
-    if (pad->lineData.line == BorderData::BdrLnSolid){
+    if (pad->lineData.line == BorderData::BdrLnSolid) {
         pen.setStyle(Qt::SolidLine);
     }
-    else if (pad->lineData.line == BorderData::BdrLnDash){
+    else if (pad->lineData.line == BorderData::BdrLnDash) {
         pen.setStyle(Qt::DashLine);
     }
-    else if (pad->lineData.line == BorderData::BdrLnDot){
+    else if (pad->lineData.line == BorderData::BdrLnDot) {
         pen.setStyle(Qt::DotLine);
     }
-    else if (pad->lineData.line == BorderData::BdrLnDashDot){
+    else if (pad->lineData.line == BorderData::BdrLnDashDot) {
         pen.setStyle(Qt::DashDotLine);
     }
-    else if (pad->lineData.line == BorderData::BdrLnDashDotDot){
+    else if (pad->lineData.line == BorderData::BdrLnDashDotDot) {
         pen.setStyle(Qt::DashDotDotLine);
     }
 
@@ -397,7 +397,7 @@ void PointerItem::addShaftSegment(){
     placeGrabbers();
 }
 
-void PointerItem::removeShaftSegment(){
+void PointerItem::removeShaftSegment() {
 
     int LastSegment = segments()-1;
     removeFromGroup(shaftSegments[LastSegment]);
@@ -422,7 +422,7 @@ bool PointerItem::autoLocFromBase(
   PlacementEnc tplacement;
 
   QPoint point;
-  if(segments() == OneSegment){
+  if(segments() == OneSegment) {
       point = QPoint(points[Tip].x() + 0.5, points[Tip].y() + 0.5);
   } else {
       point = QPoint(points[MidBase].x() + 0.5, points[MidBase].y() + 0.5);
@@ -535,7 +535,7 @@ void PointerItem::placeGrabbers()
 void PointerItem::mousePressEvent  (QGraphicsSceneMouseEvent *event)
 {
   // we only want to toggle the grabbers off on second left mouse click
-  if (event->button() != Qt::LeftButton){
+  if (event->button() != Qt::LeftButton) {
     grabbersVisible = false;
   }
   placeGrabbers();
@@ -661,7 +661,7 @@ void PointerItem::drawTip(QPoint delta, int type)
   auto tip = points[Tip];
   points[Tip] += delta;
   autoLocFromTip();
-  if (source){
+  if (source) {
     points[Base] -= delta;
 //    switch (segments()) {
 //    case TwoSegments:
@@ -762,7 +762,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   Where sceneObjTop, sceneObjBottom;
   SceneObjectMeta sdm;
-  switch (pointerParentType){
+  switch (pointerParentType) {
   case CalloutType:
       sdm = meta->LPub.page.scene.calloutPointer;
       break;

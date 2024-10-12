@@ -1757,7 +1757,7 @@ QString const PreferencesDialog::pliControlFile()
 
 QString const PreferencesDialog::lgeoPath()
 {
-  if (Preferences::povRayInstalled && ui.lgeoGrpBox->isChecked()){
+  if (Preferences::povRayInstalled && ui.lgeoGrpBox->isChecked()) {
     return ui.lgeoPath->displayText();
   }
   return "";
@@ -1872,7 +1872,7 @@ QString const PreferencesDialog::highlightStepColour()
 
 QString const PreferencesDialog::documentLogoFile()
 {
-  if (ui.publishLogoGrpBox->isChecked()){
+  if (ui.publishLogoGrpBox->isChecked()) {
     return ui.publishLogoPath->displayText();
   }
   return QString();
@@ -2209,7 +2209,7 @@ void PreferencesDialog::accept()
 
     lpub->getAct("LightGroupAct.4")->setEnabled(!Preferences::blenderImportModule.isEmpty());
 
-    if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
+    if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)) {
         fileInfo.setFile(ui.povrayPath->text());
         bool povRayExists = fileInfo.exists();
         if (povRayExists)
@@ -2256,7 +2256,7 @@ void PreferencesDialog::accept()
     if(ui.preferredRenderer->count() == 0 || ui.ldrawLibPathEdit->text().isEmpty())
     {
         missingParms = true;
-        if (ui.preferredRenderer->count() == 0){
+        if (ui.preferredRenderer->count() == 0) {
             ui.ldglitePath->setPlaceholderText(tr("At lease one renderer must be defined"));
             ui.ldviewPath->setPlaceholderText(tr("At lease one renderer must be defined"));
             ui.povrayPath->setPlaceholderText(tr("At lease one renderer must be defined"));
@@ -2296,7 +2296,7 @@ void PreferencesDialog::accept()
     {
         if (QMessageBox::Yes == QMessageBox::question(this, tr("Close Dialogue?"),
                                  tr("Required settings are missing.\n Are you sure you want to exit?"),
-                                 QMessageBox::Yes|QMessageBox::No)){
+                                 QMessageBox::Yes|QMessageBox::No)) {
             QDialog::reject(); //keep open
         }
     } else {

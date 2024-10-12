@@ -348,7 +348,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 		Context->EnableCullFace(true, true);
 
 		// Disable color writes
-		if (LPubFade == LC_DISABLE_COLOR_WRITES){
+		if (LPubFade == LC_DISABLE_COLOR_WRITES) {
 			Context->EnableColorBlend(false);
 			Context->EnableColorWrite(false);
 		}

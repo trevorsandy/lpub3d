@@ -434,13 +434,13 @@ void LDVPreferences::doGeneralApply(void)
 	ldPrefs->setRandomColors(randomColorsButton->checkState());
 
 	ldPrefs->getBackgroundColor(r, g, b);
-	if (backgroundColor.isValid() && backgroundColor != QColor(r,g,b)){
+	if (backgroundColor.isValid() && backgroundColor != QColor(r,g,b)) {
 	   backgroundColor.getRgb(&r, &g, &b);
 	   ldPrefs->setDefaultColor(r, g, b);
 	}
 
 	ldPrefs->getDefaultColor(r, g, b);
-	if (defaultColor.isValid() && defaultColor != QColor(r,g,b)){
+	if (defaultColor.isValid() && defaultColor != QColor(r,g,b)) {
 	   defaultColor.getRgb(&r, &g, &b);
 	   ldPrefs->setDefaultColor(r, g, b);
 	}

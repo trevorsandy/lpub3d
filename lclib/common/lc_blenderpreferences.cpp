@@ -3512,7 +3512,7 @@ int lcBlenderPreferences::ShowMessage(const QString& Header,  const QString& Tit
 
 	const bool DownloadRequest = Body.startsWith(tr("Do you want to download version "));
 
-	if (DownloadRequest){
+	if (DownloadRequest) {
 		QCheckBox* AddonVersionCheck = new QCheckBox(tr("Do not show download new addon version message again."));
 		Box.setCheckBox(AddonVersionCheck);
 		QObject::connect(AddonVersionCheck, &QCheckBox::stateChanged, [](int State)

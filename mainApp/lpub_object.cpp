@@ -916,9 +916,9 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
  * *****************************************************************/
 
 // flip orientation for landscape
-int LPub::pageSize(PageMeta &meta, int which){
+int LPub::pageSize(PageMeta &meta, int which) {
   int _which;
-  if (meta.orientation.value() == Landscape){
+  if (meta.orientation.value() == Landscape) {
       which == 0 ? _which = 1 : _which = 0;
     } else {
       _which = which;
@@ -1713,7 +1713,7 @@ void LPub::httpDownloadFinished()
                      .arg(mTitle).arg(mHttpReply->errorString());
         if (message.endsWith("not found."))
             message.append(tr("<br>Your internet connection may be interrupted."));
-        if (Preferences::modeGUI){
+        if (Preferences::modeGUI) {
             QMessageBox::warning(nullptr, messageTitle, message);
         } else {
             logError() << message;

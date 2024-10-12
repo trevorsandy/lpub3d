@@ -453,7 +453,7 @@ void RenderDialog::on_RenderButton_clicked()
         }
 
         // Set alternate target position or use specified image size
-        if (!m.isEmpty()){
+        if (!m.isEmpty()) {
             Arguments.removeAt(Arguments.indexOf(cg)); // remove camera globe
             QString dz = QString("-DefaultZoom=%1")
                     .arg(mCsiKeyList.at(K_MODELSCALE).toDouble());
@@ -519,20 +519,20 @@ void RenderDialog::on_RenderButton_clicked()
         bool hasPOVRayIni = Preferences::povrayIniPath != "";
         bool hasPOVRayInc = Preferences::povrayIncPath != "";
 
-        if(hasPOVRayInc){
+        if(hasPOVRayInc) {
             QString povinc = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
             Arguments << povinc;
         }
-        if(hasPOVRayIni){
+        if(hasPOVRayIni) {
             QString povini = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
             Arguments << povini;
         }
-        if(hasLGEO){
+        if(hasLGEO) {
             QString lgeoLg = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
             QString lgeoAr = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
             Arguments << lgeoLg;
             Arguments << lgeoAr;
-            if (hasSTL){
+            if (hasSTL) {
                 QString lgeoStl = QString("+L\"%1\"").arg(Render::fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
                 Arguments << lgeoStl;
             }
@@ -1141,7 +1141,7 @@ bool RenderDialog::PromptCancel()
 #endif
             mProcess->kill();
             CloseProcess();
-            if (mStdOutList.size()){
+            if (mStdOutList.size()) {
                 WriteStdOut();
                 ui->RenderOutputButton->setEnabled(true);
             }
@@ -1274,7 +1274,7 @@ void RenderDialog::resizeEvent(QResizeEvent* event)
     mPreviewHeight = ui->preview->geometry().height();
 }
 
-RenderProcess::~RenderProcess(){
+RenderProcess::~RenderProcess() {
     if(state() == QProcess::Running ||
        state() == QProcess::Starting)
     {

@@ -35,7 +35,7 @@ QMessageBoxResizable::QMessageBoxResizable(QWidget *parent)
     setSizeGripEnabled(true);
 }
 
-void QMessageBoxResizable::showDetails(bool clicked){
+void QMessageBoxResizable::showDetails(bool clicked) {
     Q_UNUSED(clicked);
     if (detailsPushButton && detailsTextBrowser) {
         detailsPushButton->setLabel(detailsTextBrowser->isHidden() ? HideLabel : ShowLabel);
@@ -44,7 +44,7 @@ void QMessageBoxResizable::showDetails(bool clicked){
     }
 }
 
-void QMessageBoxResizable::setInformativeText(const QString &text){
+void QMessageBoxResizable::setInformativeText(const QString &text) {
     autoSize = true;
     // number of the characters in text string
     int textWidth = text.size();
@@ -63,7 +63,7 @@ void QMessageBoxResizable::setInformativeText(const QString &text){
     QMessageBox::setInformativeText(text);
 }
 
-void QMessageBoxResizable::setDetailedText(const QString &text, bool html){
+void QMessageBoxResizable::setDetailedText(const QString &text, bool html) {
 
     if (text.isEmpty()) {
         if (detailsTextBrowser) {
@@ -123,7 +123,7 @@ void QMessageBoxResizable::resizeEvent(QResizeEvent *event)
     }
 }
 
-bool QMessageBoxResizable::event(QEvent *e){
+bool QMessageBoxResizable::event(QEvent *e) {
     bool res = QMessageBox::event(e);
     switch (e->type()) {
     case QEvent::MouseMove:

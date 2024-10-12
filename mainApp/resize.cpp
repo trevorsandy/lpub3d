@@ -203,7 +203,7 @@ void ResizePixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {     
   position = pos();
   positionChanged = false;
-  if (event->button() == Qt::LeftButton){
+  if (event->button() == Qt::LeftButton) {
     placeGrabbers();
   }
   QGraphicsItem::mousePressEvent(event);
@@ -221,7 +221,7 @@ void ResizePixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void ResizePixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   QGraphicsItem::mouseReleaseEvent(event);
-  if (event->button() == Qt::LeftButton){
+  if (event->button() == Qt::LeftButton) {
     if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
       change();
     }
@@ -269,7 +269,7 @@ void ResizeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   position = pos();
   positionChanged = false;
-  if (event->button() == Qt::LeftButton){
+  if (event->button() == Qt::LeftButton) {
     placeGrabbers();
   }
   QGraphicsItem::mousePressEvent(event);
@@ -286,7 +286,7 @@ void ResizeTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void ResizeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton){
+  if (event->button() == Qt::LeftButton) {
     if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
       change();
     }

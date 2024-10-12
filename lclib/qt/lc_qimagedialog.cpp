@@ -72,7 +72,7 @@ lcQImageDialog::~lcQImageDialog()
 void lcQImageDialog::valueChanged(int value)
 {
 	/* original height x new width / original width = new height */
-	if (ui->aspectRatio->isChecked()){
+	if (ui->aspectRatio->isChecked()) {
 		if (sender() == ui->width) {
 			disconnect(ui->height,SIGNAL(valueChanged(int)),
 					   this,SLOT  (valueChanged(int)));
@@ -82,7 +82,7 @@ void lcQImageDialog::valueChanged(int value)
 		}
 		else
 		{
-			if (sender() == ui->height){
+			if (sender() == ui->height) {
 				disconnect(ui->width,SIGNAL(valueChanged(int)),
 						   this, SLOT  (valueChanged(int)));
 				ui->width->setValue(qRound(double(value * mWidth / mHeight)));

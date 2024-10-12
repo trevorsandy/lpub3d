@@ -1635,13 +1635,13 @@ void PageAttributeTextGui::apply(
   if (marginsModified) {
     mi.setGlobalMeta(topLevelFile,&meta->margin);
   }
-  if (placementModified){
+  if (placementModified) {
       mi.setGlobalMeta(topLevelFile,&meta->placement);
   }
-  if (displayModified){
+  if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
   }
-  if (editModified){
+  if (editModified) {
       mi.setGlobalMeta(topLevelFile,&meta->content);
   }
 }
@@ -2015,13 +2015,13 @@ void PageAttributeImageGui::apply(QString &topLevelFile)
     if (marginsModified) {
       mi.setGlobalMeta(topLevelFile,&meta->margin);
     }
-    if (placementModified){
+    if (placementModified) {
         mi.setGlobalMeta(topLevelFile,&meta->placement);
     }
-    if (displayModified){
+    if (displayModified) {
         mi.setGlobalMeta(topLevelFile,&meta->display);
     }
-    if (fillModified){
+    if (fillModified) {
         mi.setGlobalMeta(topLevelFile,&meta->fill);
     }
 }
@@ -3275,7 +3275,7 @@ BackgroundGui::BackgroundGui(
       rotateIcon = parentDialog->windowTitle().contains("Rotate Icon");
   }
 
-  if (rotateIcon){
+  if (rotateIcon) {
       QDir extrasDir(Preferences::lpubDataPath + QDir::separator() + "extras");
       QFileInfo rotateIconFileInfo(extrasDir.absolutePath() + QDir::separator() + VER_ROTATE_ICON_FILE);
       if (rotateIconFileInfo.exists())
@@ -3453,7 +3453,7 @@ void BackgroundGui::imageChange(QString const &pic)
   modified = true;
 }
 
-void BackgroundGui::setGradient(bool){
+void BackgroundGui::setGradient(bool) {
 
   bool ok = true;
 
@@ -3467,7 +3467,7 @@ void BackgroundGui::setGradient(bool){
     pts.append(backgroundData.gpoints.at(i));
 
   QGradient::CoordinateMode mode = QGradient::LogicalMode;
-  switch (backgroundData.gmode){
+  switch (backgroundData.gmode) {
     case BackgroundData::LogicalMode:
       mode = QGradient::LogicalMode;
     break;
@@ -3480,7 +3480,7 @@ void BackgroundGui::setGradient(bool){
     }
 
   QGradient::Spread spread = QGradient::RepeatSpread;
-  switch (backgroundData.gspread){
+  switch (backgroundData.gspread) {
     case BackgroundData::PadSpread:
       spread = QGradient::PadSpread;
     break;
@@ -3493,14 +3493,14 @@ void BackgroundGui::setGradient(bool){
     }
 
   QGradient *g = nullptr;
-  switch (backgroundData.gtype){
+  switch (backgroundData.gtype) {
     case BackgroundData::LinearGradient:
       g = new QLinearGradient(pts.at(0), pts.at(1));
     break;
     case BackgroundData::RadialGradient:
       {
         QLineF line(pts[0], pts[1]);
-        if (line.length() > 132){
+        if (line.length() > 132) {
             line.setLength(132);
           }
         g = new QRadialGradient(line.p1(), qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
@@ -3530,7 +3530,7 @@ void BackgroundGui::setGradient(bool){
   GradientDialog *dialog = new GradientDialog(gSize,g);
 
   ok = dialog->exec() == QDialog::Accepted;
-  if (ok){
+  if (ok) {
 
       QGradient bgGradient = dialog->getGradient();
       backgroundData.gstops.clear();
@@ -3555,9 +3555,9 @@ void BackgroundGui::setGradient(bool){
           backgroundData.gangle = newbgGradient.angle();
         }
       //spread
-      if (bgGradient.spread() == QGradient::PadSpread){
+      if (bgGradient.spread() == QGradient::PadSpread) {
           backgroundData.gspread = BackgroundData::PadSpread;
-        } else if (bgGradient.spread() == QGradient::RepeatSpread){
+        } else if (bgGradient.spread() == QGradient::RepeatSpread) {
           backgroundData.gspread = BackgroundData::RepeatSpread;
         } else {
           backgroundData.gspread = BackgroundData::ReflectSpread;
@@ -3927,7 +3927,7 @@ void BorderGui::enable(bool rotateArrow)
     break;
   }
 
-  switch (border.line){
+  switch (border.line) {
     case BorderData::BdrLnNone:
       thicknessLabel->setEnabled(false);
       thicknessEdit->setEnabled(false);
@@ -3952,7 +3952,7 @@ void BorderGui::typeChange(QString const &type)
 
   if (type == "Square Corners") {
     _border.type = BorderData::BdrSquare;
-  } else if (type == "Round Corners"){
+  } else if (type == "Round Corners") {
     _border.type = BorderData::BdrRound;
   } else {
     _border.type = BorderData::BdrNone;
@@ -3975,7 +3975,7 @@ void BorderGui::lineChange(QString const &line)
     _border.line = BorderData::BdrLnDot;
   } else if (line == "Dot-Dash Line") {
     _border.line = BorderData::BdrLnDashDot;
-  } else if (line == "Dot-Dot-Dash Line"){
+  } else if (line == "Dot-Dot-Dash Line") {
     _border.line = BorderData::BdrLnDashDotDot;
   } else {
     _border.line = BorderData::BdrLnNone;
@@ -4379,7 +4379,7 @@ void PointerAttribGui::lineChange(QString const &_line)
     padLine = BorderData::BdrLnDot;
   } else if (_line == "Dot-Dash Line") {
     padLine = BorderData::BdrLnDashDot;
-  } else if (_line == "Dot-Dot-Dash Line"){
+  } else if (_line == "Dot-Dot-Dash Line") {
     padLine = BorderData::BdrLnDashDotDot;
   }
 
@@ -5819,7 +5819,7 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             changeMessage = QString("Show submodels is %1")
                     .arg(meta->show.value() ? "ON" : "OFF");
             emit gui->messageSig(LOG_INFO, changeMessage);
-            if (showSubmodelsDefaultBox->isChecked()){
+            if (showSubmodelsDefaultBox->isChecked()) {
                 changeMessage = QString("Show submodels added as application default.");
                 emit gui->messageSig(LOG_INFO, changeMessage);
                 Preferences::showSubmodels = meta->show.value();
@@ -5838,7 +5838,7 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             changeMessage = QString("Show top model is %1")
                     .arg(meta->showTopModel.value() ? "ON" : "OFF");
             emit gui->messageSig(LOG_INFO, changeMessage);
-            if (showTopModelDefaultBox->isChecked()){
+            if (showTopModelDefaultBox->isChecked()) {
                 changeMessage = QString("Show top model added as application default.");
                 emit gui->messageSig(LOG_INFO, changeMessage);
                 Preferences::showTopModel = meta->showTopModel.value();
@@ -5849,7 +5849,7 @@ void ShowSubModelGui::apply(QString &topLevelFile)
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
             }
 
-            if (showTopModelMetaBox->isChecked()){
+            if (showTopModelMetaBox->isChecked()) {
                 mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
             }
         }
@@ -5857,7 +5857,7 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             changeMessage = QString("Show submodel in callout is %1")
                     .arg(meta->showSubmodelInCallout.value() ? "ON" : "OFF");
             emit gui->messageSig(LOG_INFO, changeMessage);
-            if (showSubmodelInCalloutDefaultBox->isChecked()){
+            if (showSubmodelInCalloutDefaultBox->isChecked()) {
                 changeMessage = QString("Show submodel in callout added as application default.");
                 emit gui->messageSig(LOG_INFO, changeMessage);
                 Preferences::showSubmodelInCallout = meta->showSubmodelInCallout.value();
@@ -5868,7 +5868,7 @@ void ShowSubModelGui::apply(QString &topLevelFile)
                     Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
                 }
 
-            if (showSubmodelInCalloutMetaBox->isChecked()){
+            if (showSubmodelInCalloutMetaBox->isChecked()) {
                 mi.setGlobalMeta(topLevelFile,&meta->showSubmodelInCallout);
             }
         }
@@ -5876,7 +5876,7 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             changeMessage = QString("Show submodel instance count is %1")
                                     .arg(meta->showInstanceCount.value() ? "ON" : "OFF");
             emit gui->messageSig(LOG_INFO, changeMessage);
-            if (showInstanceCountDefaultBox->isChecked()){
+            if (showInstanceCountDefaultBox->isChecked()) {
                 changeMessage = QString("Show submodel instance count added as application default.");
                 emit gui->messageSig(LOG_INFO, changeMessage);
                 Preferences::showInstanceCount = meta->showInstanceCount.value();
@@ -5887,11 +5887,11 @@ void ShowSubModelGui::apply(QString &topLevelFile)
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
             }
 
-            if (showInstanceCountMetaBox->isChecked()){
+            if (showInstanceCountMetaBox->isChecked()) {
                 mi.setGlobalMeta(topLevelFile,&meta->showInstanceCount);
             }
         }
-        if (placementModified){
+        if (placementModified) {
             mi.setGlobalMeta(topLevelFile,&meta->placement);
         }
     }
@@ -6085,7 +6085,7 @@ PliSortOrderGui::PliSortOrderGui(
   }
 
   // adjust indices for missing PartElement option when not bom
-  auto OptionIndex = [this](const QString &value){
+  auto OptionIndex = [this](const QString &value) {
       int opt = tokenMap[value];
       return bom ? opt : opt == NoSort ? PartElement : opt;
   };
@@ -6105,15 +6105,15 @@ PliSortOrderGui::PliSortOrderGui(
           this,         SLOT(  orderChange(        int)));
   grid->addWidget(tertiaryCombo,1,2);
 
-  if (meta->tertiary.value()  == SortOptionName[NoSort]){
+  if (meta->tertiary.value()  == SortOptionName[NoSort]) {
       gbTertiary->setEnabled(false);
   }
-  if (meta->secondary.value() == SortOptionName[NoSort]){
+  if (meta->secondary.value() == SortOptionName[NoSort]) {
       tertiaryCombo->setEnabled(false);
       gbSecondary->setEnabled(false);
       gbTertiary->setEnabled(false);
   }
-  if (meta->primary.value()   == SortOptionName[NoSort]){
+  if (meta->primary.value()   == SortOptionName[NoSort]) {
       secondaryCombo->setEnabled(false);
       tertiaryCombo->setEnabled(false);
       gbPrimary->setEnabled(false);
@@ -6138,7 +6138,7 @@ void PliSortOrderGui::duplicateOption(
   bool resetOption,
   bool resetText)
 {
-    if (resetOption){
+    if (resetOption) {
         resetOption = false;
         if (primaryDuplicateOption) {
             primaryDuplicateOption = resetOption;
@@ -6156,7 +6156,7 @@ void PliSortOrderGui::duplicateOption(
     }
 
     QFont comboFont = combo->font();
-    if (resetText){
+    if (resetText) {
         comboFont.setBold(false);
         combo->setFont(comboFont);
         combo->setPalette(QApplication::palette(combo));
@@ -6394,7 +6394,7 @@ void PliPartElementGui::localLegoElements(bool checked)
 void PliPartElementGui::gbToggled(bool toggled)
 {
   meta->display.setValue(toggled);
-  if(toggled){
+  if(toggled) {
       bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
       legoElementsButton->setChecked(meta->legoElements.value());
       localLegoElementsCheck->setChecked(meta->localLegoElements.value());
@@ -6745,7 +6745,7 @@ void PliAnnotationGui::gbToggled(bool checked)
 {
     bool saveModified = meta->display.value();
     meta->display.setValue(checked);
-    if(checked){
+    if(checked) {
         bool titleAndFreeForm = meta->titleAndFreeformAnnotation.value();
         titleAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->titleAnnotation.value());
         freeformAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->freeformAnnotation.value());
@@ -6798,7 +6798,7 @@ void PliAnnotationGui::apply(QString &topLevelFile)
   if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
   }
-  if (enableStyleModified){
+  if (enableStyleModified) {
       mi.setGlobalMeta(topLevelFile, &meta->enableStyle);
   }
   if (titleModified) {
@@ -7055,7 +7055,7 @@ void CsiAnnotationGui::apply(QString &topLevelFile)
   if (panelDisplayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->panelDisplay);
   }
-  if (placementModified){
+  if (placementModified) {
       mi.setGlobalMeta(topLevelFile,&meta->placement);
   }
 }
@@ -7417,7 +7417,7 @@ void PageSizeGui::lineEditReset()
   }
 }
 
-int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
+int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg) {
 
   bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
   int  numPageTypes = PageSizes::numPageTypes();
@@ -7448,7 +7448,7 @@ int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
   return index;
 }
 
-void PageSizeGui::typeChange(const QString &pageType){
+void PageSizeGui::typeChange(const QString &pageType) {
 
   float pageWidth  = meta->value(0);
   float pageHeight = meta->value(1);;
@@ -7592,7 +7592,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
     typeCombo->addItem(type);
 
-    if (dataS.sizeID != QStringLiteral("Custom") && PageSizes::pageTypeSizeID(i) == dataS.sizeID){
+    if (dataS.sizeID != QStringLiteral("Custom") && PageSizes::pageTypeSizeID(i) == dataS.sizeID) {
         typeIndex = i;
     }
   }
@@ -8011,7 +8011,7 @@ void SubModelColorGui::apply(
  *
  **********************************************************************/
 
-void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
+void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList) {
 
     QDialog *dialog = new QDialog();
 
@@ -8457,7 +8457,7 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
                Preferences::systemEditor = systemEditorEdit->text();
                Settings.setValue(QString("%1/%2").arg(SETTINGS,systemEditorKey), Preferences::systemEditor);
                emit gui->messageSig(LOG_INFO,QString("System editor set to %1").arg(Preferences::systemEditor));
-            } else if (systemEditorEdit->text().isEmpty()){
+            } else if (systemEditorEdit->text().isEmpty()) {
                Preferences::systemEditor.clear();
                Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
             }
@@ -8486,7 +8486,7 @@ void OpenWithProgramDialogGui::maxProgramsValueChanged(int value)
     QTimer::singleShot(0, this, SLOT(adjustWidget()));
 }
 
-void OpenWithProgramDialogGui::browseSystemEditor(bool){
+void OpenWithProgramDialogGui::browseSystemEditor(bool) {
     QFileDialog dialog(nullptr);
     dialog.setWindowTitle(tr("Locate System Editor"));
     dialog.setFileMode(QFileDialog::ExistingFile);
@@ -8545,7 +8545,7 @@ void BuildModDialogGui::setBuildModActive(QListWidgetItem *item)
     activeBuildModItem = item;
 }
 
-void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
+void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action) {
 
     QString actionLabel;
     switch(action) {
@@ -8587,7 +8587,7 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
     activeBuildModItem = nullptr;
 
     if (gui->buildModsCount()) {
-        Q_FOREACH (QString buildMod, gui->getBuildModsList()){
+        Q_FOREACH (QString buildMod, gui->getBuildModsList()) {
            QListWidgetItem* buildModItem = new QListWidgetItem(buildMod);
            buildModList->addItem(buildModItem);
         }
@@ -8692,7 +8692,7 @@ void POVRayRenderDialogGui::getRenderSettings(
         label->setToolTip(povraySettings[i].tooltip);
         settingLabelList << label;
 
-        if (i < LBL_WIDTH){
+        if (i < LBL_WIDTH) {
             QCheckBox *checkBox = new QCheckBox(dialog);
             checkBox->setChecked(true);
             checkBox->setToolTip(povraySettings[i].tooltip);
@@ -8840,7 +8840,7 @@ void POVRayRenderDialogGui::editReset()
     }
 }
 
-int POVRayRenderDialogGui::numSettings(){
+int POVRayRenderDialogGui::numSettings() {
     int size = 0;
     if (!povraySettings[0].label.isEmpty())
         size = sizeof(povraySettings)/sizeof(povraySettings[0]);

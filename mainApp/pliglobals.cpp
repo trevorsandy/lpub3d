@@ -585,7 +585,7 @@ void GlobalPliDialog::clearCache(bool b)
   }
 }
 
-void GlobalPliDialog::styleOptionChanged(bool b){
+void GlobalPliDialog::styleOptionChanged(bool b) {
 
   Q_UNUSED(b)
 

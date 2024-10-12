@@ -241,22 +241,22 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   borderPen.setColor(borderPenColor);
   borderPen.setCapStyle(Qt::RoundCap);
   borderPen.setJoinStyle(Qt::RoundJoin);
-  if (borderData.line == BorderData::BdrLnNone){
+  if (borderData.line == BorderData::BdrLnNone) {
         borderPen.setStyle(Qt::NoPen);
   }
-  else if (borderData.line == BorderData::BdrLnSolid){
+  else if (borderData.line == BorderData::BdrLnSolid) {
     borderPen.setStyle(Qt::SolidLine);
   }
-  else if (borderData.line == BorderData::BdrLnDash){
+  else if (borderData.line == BorderData::BdrLnDash) {
     borderPen.setStyle(Qt::DashLine);
   }
-  else if (borderData.line == BorderData::BdrLnDot){
+  else if (borderData.line == BorderData::BdrLnDot) {
     borderPen.setStyle(Qt::DotLine);
   }
-  else if (borderData.line == BorderData::BdrLnDashDot){
+  else if (borderData.line == BorderData::BdrLnDashDot) {
     borderPen.setStyle(Qt::DashDotLine);
   }
-  else if (borderData.line == BorderData::BdrLnDashDotDot){
+  else if (borderData.line == BorderData::BdrLnDashDotDot) {
     borderPen.setStyle(Qt::DashDotDotLine);
   }
   borderPen.setWidth(ibt);
@@ -306,19 +306,19 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
       defaultArrowPen.setColor(arrowPenColor);
       defaultArrowPen.setCapStyle(Qt::SquareCap);
       defaultArrowPen.setJoinStyle(Qt::MiterJoin);
-      if (arrowData.line == BorderData::BdrLnSolid){
+      if (arrowData.line == BorderData::BdrLnSolid) {
           defaultArrowPen.setStyle(Qt::SolidLine);
         }
-      else if (arrowData.line == BorderData::BdrLnDash){
+      else if (arrowData.line == BorderData::BdrLnDash) {
           defaultArrowPen.setStyle(Qt::DashLine);
         }
-      else if (arrowData.line == BorderData::BdrLnDot){
+      else if (arrowData.line == BorderData::BdrLnDot) {
           defaultArrowPen.setStyle(Qt::DotLine);
         }
-      else if (arrowData.line == BorderData::BdrLnDashDot){
+      else if (arrowData.line == BorderData::BdrLnDashDot) {
           defaultArrowPen.setStyle(Qt::DashDotLine);
         }
-      else if (arrowData.line == BorderData::BdrLnDashDotDot){
+      else if (arrowData.line == BorderData::BdrLnDashDotDot) {
           defaultArrowPen.setStyle(Qt::DashDotDotLine);
         }
       defaultArrowPen.setWidth(defaultLineWidth);
@@ -370,7 +370,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   painter.end();
 }
 
-QGradient RotateIconItem::setGradient(){
+QGradient RotateIconItem::setGradient() {
 
   BackgroundData backgroundData = background.value();
   QPolygonF pts;
@@ -382,7 +382,7 @@ QGradient RotateIconItem::setGradient(){
       pts.append(backgroundData.gpoints.at(i));
 
   QGradient::CoordinateMode mode = QGradient::LogicalMode;
-  switch (backgroundData.gmode){
+  switch (backgroundData.gmode) {
     case BackgroundData::LogicalMode:
       mode = QGradient::LogicalMode;
     break;
@@ -395,7 +395,7 @@ QGradient RotateIconItem::setGradient(){
     }
 
   QGradient::Spread spread = QGradient::RepeatSpread;
-  switch (backgroundData.gspread){
+  switch (backgroundData.gspread) {
     case BackgroundData::PadSpread:
       spread = QGradient::PadSpread;
     break;
@@ -408,14 +408,14 @@ QGradient RotateIconItem::setGradient(){
     }
 
   QGradient g = QLinearGradient(pts.at(0), pts.at(1));
-  switch (backgroundData.gtype){
+  switch (backgroundData.gtype) {
     case BackgroundData::LinearGradient:
       g = QLinearGradient(pts.at(0), pts.at(1));
     break;
     case BackgroundData::RadialGradient:
       {
         QLineF line(pts[0], pts[1]);
-        if (line.length() > 132){
+        if (line.length() > 132) {
             line.setLength(132);
           }
         g = QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
@@ -551,7 +551,7 @@ void RotateIconItem::contextMenuEvent(
                     top,
                     bottom,
                     &margin);
-    } else if (selectedAction == displayAction){
+    } else if (selectedAction == displayAction) {
       changeBool(top,
                  bottom,
                  &display);

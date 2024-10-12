@@ -108,22 +108,22 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   pen.setColor(penColor);
   pen.setCapStyle(Qt::RoundCap);
   pen.setJoinStyle(Qt::RoundJoin);
-  if (borderData.line == BorderData::BdrLnNone){
+  if (borderData.line == BorderData::BdrLnNone) {
     pen.setStyle(Qt::NoPen);
   }
-  else if (borderData.line == BorderData::BdrLnSolid){
+  else if (borderData.line == BorderData::BdrLnSolid) {
     pen.setStyle(Qt::SolidLine);
   }
-  else if (borderData.line == BorderData::BdrLnDash){
+  else if (borderData.line == BorderData::BdrLnDash) {
     pen.setStyle(Qt::DashLine);
   }
-  else if (borderData.line == BorderData::BdrLnDot){
+  else if (borderData.line == BorderData::BdrLnDot) {
     pen.setStyle(Qt::DotLine);
   }
-  else if (borderData.line == BorderData::BdrLnDashDot){
+  else if (borderData.line == BorderData::BdrLnDashDot) {
     pen.setStyle(Qt::DashDotLine);
   }
-  else if (borderData.line == BorderData::BdrLnDashDotDot){
+  else if (borderData.line == BorderData::BdrLnDashDotDot) {
     pen.setStyle(Qt::DashDotDotLine);
   }
 
@@ -268,7 +268,7 @@ void PageAttributePixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   position = pos();
   positionChanged = false;
   if (fillMode == Aspect) {
-    if (event->button() == Qt::LeftButton){
+    if (event->button() == Qt::LeftButton) {
       placeGrabbers();
     }
   }
@@ -407,25 +407,25 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
                   bottomOfSteps,
                  &margin);
 
-  } else if (selectedAction == displayImageAction){
+  } else if (selectedAction == displayImageAction) {
     changeBool(topOfSteps,
                bottomOfSteps,
               &displayPicture,
                true,1,true/*allowLocal*/,false/*askLocal*/);
 
-  } else if (selectedAction == stretchImageAction){
+  } else if (selectedAction == stretchImageAction) {
     page->meta.LPub.page.coverImage.fill.setValue(Stretch);
     changeImageFill(topOfSteps,
                     bottomOfSteps,
                    &page->meta.LPub.page.coverImage.fill);
 
-  } else if (selectedAction == tileImageAction){
+  } else if (selectedAction == tileImageAction) {
     page->meta.LPub.page.coverImage.fill.setValue(Tile);
     changeImageFill(topOfSteps,
                     bottomOfSteps,
                    &page->meta.LPub.page.coverImage.fill);
 
-  } else if (selectedAction == deleteImageAction){
+  } else if (selectedAction == deleteImageAction) {
     deleteMeta(page->meta.LPub.page.coverImage.file.here());
   }
 }

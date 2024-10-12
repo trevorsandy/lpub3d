@@ -817,7 +817,7 @@ void BlenderPreferences::initPathsAndSettingsMM()
         } else if (i < LBL_CHOSEN_LOGO) { // QLineEdits
             QLineEdit *lineEdit = new QLineEdit(mSettingsBox);
             lineEdit->setProperty("ControlID",QVariant(i));
-            if (i == LBL_RESOLUTION_WIDTH || i == LBL_RESOLUTION_HEIGHT){
+            if (i == LBL_RESOLUTION_WIDTH || i == LBL_RESOLUTION_HEIGHT) {
                 connect(lineEdit,SIGNAL(textChanged(const QString &)),
                         this,    SLOT  (sizeChanged(const QString &)));
                 lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
@@ -1277,7 +1277,7 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
         gBlenderAddonPreferences->statusUpdate(true/*addon*/, false/*error*/, tr("Extract addon..."));
         QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
         QStringList addonList = JlCompress::extractDir(blenderAddonFile, blenderDir);
-        if (addonList.isEmpty()){
+        if (addonList.isEmpty()) {
             emit gui->messageSig(LOG_ERROR, tr("Failed to extract %1 to %2")
                                                 .arg(blenderAddonFile).arg(blenderDir));
             proceed = false;
@@ -1495,7 +1495,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
             status = tr("Download addon failed.");
             gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,status);
         }
-    } else if (!blenderAddonExists){
+    } else if (!blenderAddonExists) {
         emit gui->messageSig(LOG_ERROR, tr("Blender addon archive %1 was not found")
                                             .arg(blenderAddonFile));
     }
@@ -3091,7 +3091,7 @@ void BlenderPreferences::loadDefaultParameters(QByteArray& buffer, int which)
         buffer.append(DefaultLightedBricks, sizeof(DefaultLightedBricks));
 }
 
-bool BlenderPreferences::exportParameterFile(){
+bool BlenderPreferences::exportParameterFile() {
 
     QString const parameterFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
     QFile file(parameterFile);
@@ -3268,7 +3268,7 @@ int BlenderPreferences::showMessage(
     }
 
     const bool downloadRequest = body.startsWith(tr("Do you want to download version "));
-    if (downloadRequest){
+    if (downloadRequest) {
         QCheckBox* addonVersionCheck = new QCheckBox(tr("Do not show download new addon version message again."));
         box.setCheckBox(addonVersionCheck);
         QObject::connect(addonVersionCheck, &QCheckBox::stateChanged, [](int State)

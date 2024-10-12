@@ -226,11 +226,11 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    //return RenderFuture.result();
 }
 
-int SubModel::pageSizeP(Meta *meta, int which){
+int SubModel::pageSizeP(Meta *meta, int which) {
   int _size;
 
   // flip orientation for landscape
-  if (meta->LPub.page.orientation.value() == Landscape){
+  if (meta->LPub.page.orientation.value() == Landscape) {
       which == 0 ? _size = 1 : _size = 0;
     } else {
       _size = which;
@@ -1244,7 +1244,7 @@ void SubModel::getRightEdge(
   }
 }
 
-bool SubModel::loadTheViewer(){
+bool SubModel::loadTheViewer() {
     if (Preferences::modeGUI && ! Gui::exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("Could not load Visual Editor with Submodel key: %1")
@@ -1634,7 +1634,7 @@ void SubModelBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   position = pos();
   positionChanged = false;
   // we only want to toggle the grabbers off on second left mouse click
-  if (event->button() != Qt::LeftButton){
+  if (event->button() != Qt::LeftButton) {
     grabbersVisible = false;
   }
   QGraphicsItem::mousePressEvent(event);
@@ -1832,7 +1832,7 @@ void SubModelBackgroundItem::contextMenuEvent(
                          top,
                          bottom,
                          &subModel->subModelMeta.subModelColor);
-    } else if (selectedAction == scaleAction){
+    } else if (selectedAction == scaleAction) {
         changeFloatSpin(QObject::tr("%1 Scale").arg(name),
                         QObject::tr("Model Size"),
                         top,

@@ -164,7 +164,7 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
     update();
 }
 
-QPointF BorderedLineItem::getLineP1Offset(){
+QPointF BorderedLineItem::getLineP1Offset() {
 
     bool hideTip = pad->lineData.hideTip;
 
@@ -268,19 +268,19 @@ void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         borderPen.setWidth(pad->borderData.thickness);
         borderPen.setCapStyle(Qt::RoundCap);
         borderPen.setJoinStyle(Qt::RoundJoin);
-        if (pad->borderData.line == BorderData::BdrLnSolid){
+        if (pad->borderData.line == BorderData::BdrLnSolid) {
             borderPen.setStyle(Qt::SolidLine);
         }
-        else if (pad->borderData.line == BorderData::BdrLnDash){
+        else if (pad->borderData.line == BorderData::BdrLnDash) {
             borderPen.setStyle(Qt::DashLine);
         }
-        else if (pad->borderData.line == BorderData::BdrLnDot){
+        else if (pad->borderData.line == BorderData::BdrLnDot) {
             borderPen.setStyle(Qt::DotLine);
         }
-        else if (pad->borderData.line == BorderData::BdrLnDashDot){
+        else if (pad->borderData.line == BorderData::BdrLnDashDot) {
             borderPen.setStyle(Qt::DashDotLine);
         }
-        else if (pad->borderData.line == BorderData::BdrLnDashDotDot){
+        else if (pad->borderData.line == BorderData::BdrLnDashDotDot) {
             borderPen.setStyle(Qt::DashDotDotLine);
         }
         painter->setPen(borderPen);

@@ -1319,7 +1319,7 @@ LibFlag Preferences::validRendererLib(const QString &library, const QString &lib
             QStringList _installList = installStr.split(".");
             if (_minimumList.size() == _installList.size()) {
                 bool good = false, ok = false;
-                for(int i = 0; i < _minimumList.size(); i++){
+                for(int i = 0; i < _minimumList.size(); i++) {
                     minimumNum = _minimumList.at(i).toInt(&good);
                     installNum = _installList.at(i).toInt(&ok);
                     good &= ok;
@@ -1694,7 +1694,7 @@ void Preferences::lpub3dLibPreferences(bool browse)
     }
 
     // Request to open a dialogue to select library path
-    if (/*! lpub3dLibFile.isEmpty() && */ browse){
+    if (/*! lpub3dLibFile.isEmpty() && */ browse) {
 
         QString result = QFileDialog::getOpenFileName(nullptr,
                                                       QFileDialog::tr("Select LDraw Library Archive"),
@@ -2262,7 +2262,7 @@ void Preferences::ldrawPreferences(bool browse)
 #endif
 }
 
-void Preferences::lpub3dUpdatePreferences(){
+void Preferences::lpub3dUpdatePreferences() {
 
     emit Application::instance()->splashMsgSig(QObject::tr("15% - Selecting update settings..."));
 
@@ -2313,7 +2313,7 @@ void Preferences::lgeoPreferences()
     QSettings Settings;
     QString const lgeoDirKey("LGEOPath");
     QString lgeoDir = "";
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
+    if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))) {
         lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
     } else { // check in ldraw directory path for lgeo
         lgeoDir = QDir::toNativeSeparators(ldrawLibPath + "/lgeo");
@@ -3038,14 +3038,14 @@ void Preferences::setLDGLiteIniParams()
             resourceFile.absoluteDir().mkpath(".");
         confFileIn.setFileName(QDir::toNativeSeparators(inFileName));;
         confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName()));
-        if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text)){
+        if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream input(&confFileIn);
             QTextStream output(&confFileOut);
             while (!input.atEnd())
             {
                 QString line = input.readLine();
                 // Remove Template note from used instance
-                if (line.contains(QRegExp("^__NOTE:"))){
+                if (line.contains(QRegExp("^__NOTE:"))) {
                     continue;
                 }
                 output << line << lpub_endl;
@@ -3124,11 +3124,11 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
         {
             QString line = input.readLine();
             // Remove Template note from used instance
-            if (line.contains(QRegExp("^__NOTE:"))){
+            if (line.contains(QRegExp("^__NOTE:"))) {
                 continue;
             }
             // strip EdgeThickness because set in renderer parameters
-            if (line.contains(QRegExp("^EdgeThickness="))){
+            if (line.contains(QRegExp("^EdgeThickness="))) {
                 continue;
             }
             //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
@@ -3280,7 +3280,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
         {
             QString line = input.readLine();
             // strip EdgeThickness because set in renderer parameters
-            if (line.contains(QRegExp("^EdgeThickness="))){
+            if (line.contains(QRegExp("^EdgeThickness="))) {
               continue;
             }
             //logDebug() << qUtf8Printable(QObject::tr("Line INPUT: %1").arg(line));
@@ -3409,7 +3409,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
                 {
                     line.replace(QString("; read* = \"__LGEOARDIR__"), QString("read* = \"%1").arg(QDir::toNativeSeparators(lgeoPath)));
                     line.replace(QString("; read* = \"__LGEOLGDIR__"), QString("read* = \"%1").arg(QDir::toNativeSeparators(lgeoPath)));
-                    if (lgeoStlLib){
+                    if (lgeoStlLib) {
                         line.replace(QString("; read* = \"__LGEOSTLDIR__"), QString("read* = \"%1").arg(QDir::toNativeSeparators(lgeoPath)));
                     }
                 }
@@ -3441,7 +3441,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     updatePOVRayConfigFiles();
 }
 
-void Preferences::updatePOVRayConfigFiles(){
+void Preferences::updatePOVRayConfigFiles() {
 #if defined Q_OS_WIN
     if (preferredRenderer == RENDERER_POVRAY) {
         QString targetFolder, destFolder, dataPath, targetFile, destFile, saveFile;
@@ -4280,7 +4280,7 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     } else {
         result = Settings.value(QString("%1/%2").arg(MESSAGES,showMessageKey)).toBool();
     }
-    switch(key){
+    switch(key) {
     case ParseErrors:
         lineParseErrors = result;
         break;
@@ -5734,7 +5734,7 @@ bool Preferences::getPreferences()
         }
 
         bool sceneBackgroundColorChanged = false;
-        if ((sceneBackgroundColorChanged = sceneBackgroundColor != dialog->sceneBackgroundColor())){
+        if ((sceneBackgroundColorChanged = sceneBackgroundColor != dialog->sceneBackgroundColor())) {
             sceneBackgroundColor = dialog->sceneBackgroundColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
             bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
@@ -5786,7 +5786,7 @@ bool Preferences::getPreferences()
         }
 
         bool sceneGuideColorChanged = false;
-        if ((sceneGuideColorChanged = sceneGuideColor != dialog->sceneGuideColor())){
+        if ((sceneGuideColorChanged = sceneGuideColor != dialog->sceneGuideColor())) {
             sceneGuideColor = dialog->sceneGuideColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
             bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_DARK_GUIDE_PEN] :
@@ -5819,7 +5819,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
         }
 
-        if (moduleVersion != dialog->moduleVersion()){
+        if (moduleVersion != dialog->moduleVersion()) {
             moduleVersion = dialog->moduleVersion();
         }
 
@@ -6679,7 +6679,7 @@ bool Preferences::extractLDrawLib() {
             if (fileInfo.exists()) {
                 QString destination = QString("%1/unofficial").arg(ldrawLibPath);
                 QStringList result = JlCompress::extractDir(fileInfo.absoluteFilePath(),destination);
-                if (result.isEmpty()){
+                if (result.isEmpty()) {
                     logError() << qUtf8Printable(QObject::tr("Failed to extract %1 to %2").arg(fileInfo.absoluteFilePath()).arg(destination));
                 } else {
                     message = QObject::tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);

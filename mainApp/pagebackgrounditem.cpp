@@ -244,7 +244,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
       } else if (selectedAction == addPrevStepAction) {
         addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
-      } else if (selectedAction == refreshPageCacheAction){
+      } else if (selectedAction == refreshPageCacheAction) {
         clearPageCache(relativeType,page,Options::MON/*Clear All Page Images*/);
       }
   }
@@ -282,7 +282,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                page->bottom,
                                &page->meta.LPub.page.size,
                                &page->meta.LPub.page.orientation, useTop);
-    } else if (selectedAction == displayImageAction){
+    } else if (selectedAction == displayImageAction) {
       changeBool(page->top,
                  page->bottom,
                 &page->meta.LPub.page.coverImage.display,

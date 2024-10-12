@@ -81,7 +81,7 @@ bool ArchiveParts::Archive(
 
   QFileInfoList zipFiles;
 
-  if (zipFileInfo.exists()){
+  if (zipFileInfo.exists()) {
       if (!zip.open(QuaZip::mdAdd)) {
           result = tr("Could not open archive to add content. Return code %1.<br>"
                       "Archive file %2 may be open in another program.")
@@ -182,13 +182,13 @@ bool ArchiveParts::Archive(
       bool setPartsDir  = partsDirIndex != -1;
       bool setPrimDir   = primDirIndex  != -1;
 
-      if (setTexDir){
+      if (setTexDir) {
         fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
         //qDebug() << "Adjusted Texture fileNameWithRelativePath: " << fileNameWithRelativePath;
-      } else if (setPartsDir){
+      } else if (setPartsDir) {
         fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
         //qDebug() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;
-      } else if (setPrimDir){
+      } else if (setPrimDir) {
         fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, primDirIndex + 1);
         //qDebug() << "Adjusted Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
       } else {
@@ -198,7 +198,7 @@ bool ArchiveParts::Archive(
 
       QString fileNameWithCompletePath;
 
-      if (setTexDir || setPartsDir || setPrimDir){
+      if (setTexDir || setPartsDir || setPrimDir) {
           fileNameWithCompletePath = fileNameWithRelativePath;
           //qDebug() << "fileNameWithCompletePath (ROOT TEXTURE/PART/PRIMITIVE) " << fileNameWithCompletePath;
         } else {

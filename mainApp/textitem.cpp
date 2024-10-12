@@ -69,7 +69,7 @@ TextItem::TextItem(InsertMeta meta,
 
   QStringList list2;
 
-  Q_FOREACH (QString string, list){
+  Q_FOREACH (QString string, list) {
     string = string.trimmed();
     QRegExp rx2("\"");
     int pos = 0;
@@ -115,7 +115,7 @@ void TextItem::formatText(const QString &input, QString &output)
     QStringList list = input.split("\n");
 
     QStringList list2;
-    Q_FOREACH (QString string, list){
+    Q_FOREACH (QString string, list) {
       string = string.trimmed();
       QRegExp rx2("\"");
       int pos = 0;
@@ -163,7 +163,7 @@ void TextItem::contextMenuEvent(
 
   QAction *fontAction       = nullptr;
   QAction *colorAction      = nullptr;
-  if (!richText){
+  if (!richText) {
     fontAction              = lpub->getAct("fontAction.1");
     commonMenus.addAction(fontAction,menu,name);
 
@@ -288,7 +288,7 @@ void TextItem::focusOutEvent(QFocusEvent *event)
   if (textChanged) {
     InsertData insertData = meta.value();
     // remove offset from insertData if textPlacement enabled
-    if (textPlacement){
+    if (textPlacement) {
         insertData.offsets[XX] = 0.0f;
         insertData.offsets[YY] = 0.0f;
     }

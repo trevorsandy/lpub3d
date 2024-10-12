@@ -183,7 +183,7 @@ void  FindReplace::popUpClose()
     if (fr) {
         writeFindReplaceSettings(findReplace);
         writeFindReplaceSettings(find);
-        if (fr->_findall){
+        if (fr->_findall) {
             const bool wasBlocked = fr->_textEdit->blockSignals(true);
             fr->_textEdit->document()->undo();
             fr->_textEdit->blockSignals(wasBlocked);
@@ -264,7 +264,7 @@ FindReplaceCtrls::FindReplaceCtrls(QPlainTextEdit *textEdit, QWidget *parent)
     disableButtons();
 }
 
-void FindReplaceCtrls::findInText(){
+void FindReplaceCtrls::findInText() {
     find();
 }
 
@@ -357,7 +357,7 @@ void FindReplaceCtrls::find(int direction) {
     const QString &toSearch = textFind->text();
 
     // undo previous change (if any)
-    if (_findall){
+    if (_findall) {
         _textEdit->document()->undo();
         _findall = false;
     }

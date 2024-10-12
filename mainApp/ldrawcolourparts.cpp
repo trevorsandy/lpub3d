@@ -70,7 +70,7 @@ bool LDrawColourParts::isLDrawColourPart(QString part)
     }
 }
 
-QString LDrawColourParts::getLDrawColourPartInfo(QString part){
+QString LDrawColourParts::getLDrawColourPartInfo(QString part) {
     if (ldrawColourParts.contains(part.toLower())) {
         return ldrawColourParts[part.toLower()];
     } else {

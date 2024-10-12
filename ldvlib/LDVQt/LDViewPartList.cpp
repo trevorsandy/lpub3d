@@ -118,7 +118,7 @@ void LDVPartList::doOk()
 			 m_htmlInventory->setUserDefinedSnapshot(snapshotEdit->text().toUtf8().constData());
 	}
 	m_htmlInventory->setShowFileFlag(openDocument = showWebPageButton->isChecked());
-	if (openDocument){
+	if (openDocument) {
 		 m_htmlInventory->setGeneratePdfFlag(false); // not implemented
 	}
 

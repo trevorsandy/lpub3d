@@ -113,7 +113,7 @@ QString LDVImageMatte::getMatteCSIImage(QString key)
 		return csiKey2csiFile[key];
 	}
   else
-	if (QFileInfo(key).completeSuffix().toLower() == QString("png").toLower()){
+	if (QFileInfo(key).completeSuffix().toLower() == QString("png").toLower()) {
 		if (csiFile2csiKey.contains(key))
 		  return csiFile2csiKey[key];
 	  }
@@ -136,7 +136,7 @@ bool LDVImageMatte::validMatteCSIImage(QString key)
 		}
 	}
   else
-	if (QFileInfo(key).completeSuffix().toLower() == QString("png")){
+	if (QFileInfo(key).completeSuffix().toLower() == QString("png")) {
 		if (csiFile2csiKey.contains(key)) {
 			return true;
 		  }
@@ -147,7 +147,7 @@ bool LDVImageMatte::validMatteCSIImage(QString key)
 /*
  * This function clears the csiKey2csiFile QHash
  */
-void LDVImageMatte::clearMatteCSIImages(){
+void LDVImageMatte::clearMatteCSIImages() {
   csiKey2csiFile.clear();
   csiFile2csiKey.clear();
 }
@@ -155,7 +155,7 @@ void LDVImageMatte::clearMatteCSIImages(){
 // Generate PNG IM images...
 bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
 
-  if (!validMatteCSIImage(csiKey)){
+  if (!validMatteCSIImage(csiKey)) {
 	  emit lpub->messageSig(LOG_ERROR,QString("csiKey %1 does not exist.")
 								 .arg(csiKey));
 	  return false;
@@ -164,7 +164,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
   QString ext;
   QFileInfo csiIMFileInfo;
   QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
-  if (Render::useLDViewSCall()){
+  if (Render::useLDViewSCall()) {
 	  ext = ".png";
 	  csiIMFileInfo.setFile(QString("%1/%2").arg(tempPath).arg(QFileInfo(getMatteCSIImage(csiKey)).fileName()));
 	} else {

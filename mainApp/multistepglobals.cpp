@@ -321,7 +321,7 @@ void GlobalMultiStepDialog::pliPerStepStateChanged(int state)
     showGrpStepNumCheckBoxGui->getCheckBox()->isChecked());
 }
 
-void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state){
+void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state) {
     if (state && !data->meta.LPub.multiStep.pli.perStep.value()
               && data->meta.LPub.contStepNumbers.value()) {
         QMessageBox box;

@@ -134,7 +134,7 @@ class Step : public AbstractRangeElement
 
     MetaItem *mi(int which = -1)
     {
-        switch(which){
+        switch(which) {
         case Options::PLI:
             return static_cast<MetaItem *>(pli.background);
         case Options::CSI:

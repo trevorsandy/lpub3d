@@ -54,7 +54,7 @@ LDrawPartDialog::LDrawPartDialog(
      PartSelectorLayout->addWidget(mPartSelectionWidget);
 
      PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(partType.toLatin1().constData(), nullptr, false, false);
-     if (Info){
+     if (Info) {
          lcPiecesLibrary* Library = lcGetPiecesLibrary();
          int numCategories = gCategories.size();
          for (int categoryIndex = 0; categoryIndex < numCategories; categoryIndex++)

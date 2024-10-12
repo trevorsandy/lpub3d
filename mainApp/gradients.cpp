@@ -142,7 +142,7 @@ GradientDialog::GradientDialog(QSize bgSize,QGradient *bgGradient, QDialog *pare
     connect(default3Button, SIGNAL(clicked()), this, SLOT(setDefault3()));
     connect(default4Button, SIGNAL(clicked()), this, SLOT(setDefault4()));
 
-    if (bgGradient){
+    if (bgGradient) {
         m_gradient = bgGradient;
         QTimer::singleShot(50, this, SLOT(setGradient()));
       } else {
@@ -184,9 +184,9 @@ void GradientDialog::setGradient(QGradient *bgGradient)
       m_conicalButton->animateClick();
     }
 
-  if (bgGradient->spread() == QGradient::PadSpread){
+  if (bgGradient->spread() == QGradient::PadSpread) {
       m_padSpreadButton->animateClick();
-    } else if (bgGradient->spread() == QGradient::RepeatSpread){
+    } else if (bgGradient->spread() == QGradient::RepeatSpread) {
       m_repeatSpreadButton->animateClick();
     } else {
       m_reflectSpreadButton->animateClick();
@@ -336,7 +336,7 @@ QGradient GradientRenderer::getGradient()
 
    } else if (m_gradientType == Qt::RadialGradientPattern) {
        QLineF line(pts[0], pts[1]);
-       if (line.length() > 132){
+       if (line.length() > 132) {
            line.setLength(132);
          }
        g = QRadialGradient(line.p1(),  qMin(m_size.width(), m_size.height()) / 3.0, line.p2());

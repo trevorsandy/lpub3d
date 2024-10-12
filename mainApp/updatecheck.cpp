@@ -57,15 +57,15 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 
 }
 
-UpdateCheck::~UpdateCheck(){
+UpdateCheck::~UpdateCheck() {
 
     if(m_updater)
         m_updater->deleteLater();
 
 }
 
-void UpdateCheck::applyGeneralSettings(const QString &url){
-    if(url == DEFS_URL){
+void UpdateCheck::applyGeneralSettings(const QString &url) {
+    if(url == DEFS_URL) {
         QString moduleVersion = Preferences::moduleVersion;
         QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
         bool showRedirects = Preferences::showDownloadRedirects;
@@ -88,7 +88,7 @@ void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
 {
     if (url == DEFS_URL) {
         bool enabled  = true;
-        switch (m_option){
+        switch (m_option) {
         case LDrawOfficialLibraryDownload:
             DEFS_URL = VER_OFFICIAL_LIBRARY_JSON_URL;
             applyGeneralSettings(DEFS_URL);
@@ -196,7 +196,7 @@ AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
   availableVersions = this;
 }
 
-void AvailableVersions::setAvailableVersions(const QString &url){
+void AvailableVersions::setAvailableVersions(const QString &url) {
   if (url == DEFS_URL && m_updater->getVersionsRequested(url)) {
       QString versions = m_updater->getAvailableVersions(url);
       if (! versions.isEmpty())
@@ -206,7 +206,7 @@ void AvailableVersions::setAvailableVersions(const QString &url){
     }
 }
 
-AvailableVersions::~AvailableVersions(){
+AvailableVersions::~AvailableVersions() {
     if(m_updater)
         m_updater->deleteLater();
 

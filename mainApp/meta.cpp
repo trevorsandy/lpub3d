@@ -93,7 +93,7 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 #ifdef QT_DEBUG_MODE
     QStringList debugLine;
     qDebug() << "CAPTURE LINE CONTENTS"
-    for(int i=0;i<argv.size();i++){
+    for(int i=0;i<argv.size();i++) {
         debugLine << argv[i];
         int size = argv.size();
         int incr = i;
@@ -1107,9 +1107,9 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           _value[pushed].stretch = true;
           rc = OkRc;
         }
-    } else if (argv.size() - index == 9){
+    } else if (argv.size() - index == 9) {
 
-      if (argv[index] == "GRADIENT"){
+      if (argv[index] == "GRADIENT") {
 
           bool ok[6];
           bool pass = true;
@@ -1122,7 +1122,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
 
           const QStringList _gpoints = argv[index+7].split("|");
           QVector<QPointF> gpoints;
-          Q_FOREACH(const QString &gpoint, _gpoints){
+          Q_FOREACH(const QString &gpoint, _gpoints) {
               bool ok[2];
               int x = gpoint.section(',',0,0).toInt(&ok[0]);
               int y = gpoint.section(',',1,1).toInt(&ok[1]);
@@ -1134,7 +1134,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
 
           const QStringList _gstops  = argv[index+8].split("|");
           QVector<QPair<qreal,QColor> > gstops;
-          Q_FOREACH(const QString &_gstop, _gstops){
+          Q_FOREACH(const QString &_gstop, _gstops) {
               bool ok[2];
               qreal point  = _gstop.section(',',0,0).toDouble(&ok[0]);
               unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[1],16);
@@ -1153,7 +1153,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
 
               _value[pushed].type = BackgroundData::BgGradient;
 
-              switch (_gmode){
+              switch (_gmode) {
               case 0:
                   _value[pushed].gmode = BackgroundData::LogicalMode;
               break;
@@ -1164,7 +1164,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
                   _value[pushed].gmode = BackgroundData::ObjectBoundingMode;
               break;
                 }
-              switch (_gspread){
+              switch (_gspread) {
               case 0:
                   _value[pushed].gspread = BackgroundData::PadSpread;
               break;
@@ -1175,7 +1175,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
                   _value[pushed].gspread = BackgroundData::ReflectSpread;
               break;
                 }
-              switch (_gtype){
+              switch (_gtype) {
               case 0:
                   _value[pushed].gtype = BackgroundData::LinearGradient;
               break;
@@ -1228,7 +1228,7 @@ QString BackgroundMeta::format(bool local, bool global)
       {
         QString points;
         const QVector<QPointF> _points = _value[pushed].gpoints;
-        Q_FOREACH(const QPointF &point, _points){
+        Q_FOREACH(const QPointF &point, _points) {
             points += QString("%1,%2|")
                 .arg(point.x())
                 .arg(point.y());
@@ -1238,7 +1238,7 @@ QString BackgroundMeta::format(bool local, bool global)
         QString stops;
         const QVector<QPair<qreal,QColor> > _gstops = _value[pushed].gstops;
         typedef QPair<qreal,QColor> _gstop;
-        Q_FOREACH(const _gstop &gstop, _gstops){
+        Q_FOREACH(const _gstop &gstop, _gstops) {
 //            if (gstop.second.name() != "#000000")
 //            gstop.second.name().replace("#","0xff");
             stops += QString("%1,%2|")
@@ -1307,7 +1307,7 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
     }
   if (argv[index] == "NONE") {
       _value[pushed].type = BorderData::BdrNone;
-      if (newFormat){
+      if (newFormat) {
           _value[pushed].line = setBorderLine(argv[index+1]);
         } else {
           _value[pushed].line = BorderData::BdrLnSolid;
@@ -2232,7 +2232,7 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
   QStringList debugLine = QStringList() << "[LINE:";
-  for(int i=0;i<argv.size();i++){
+  for(int i=0;i<argv.size();i++) {
       debugLine << argv[i];
       int size = argv.size();
       int incr = i;
@@ -2331,7 +2331,7 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
 
   QString foo,bar;
 
-  if (_value[pushed].hidden){
+  if (_value[pushed].hidden) {
       foo = "HIDDEN";
   } else {
       if (_value[pushed].placements.size() == 2) {
@@ -2916,7 +2916,7 @@ QString JustifyStepMeta::format(bool local, bool global)
       foo = "JUSTIFY_CENTER_VERTICAL";
     }
   if (_value[pushed].spacing > STEP_SPACING_DEFAULT ||
-      _value[pushed].spacing < STEP_SPACING_DEFAULT){
+      _value[pushed].spacing < STEP_SPACING_DEFAULT) {
     foo += QString(" SPACING %1").arg(double(_value[pushed].spacing),4,'f',2);
   }
   return LeafMeta::format(local,global,foo);
@@ -3412,7 +3412,7 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
               rc = OkRc;
             }
       } else
-      if (argv[index].contains("THICKNESS")){
+      if (argv[index].contains("THICKNESS")) {
           argv[index+1 ].toFloat(&good);
           argv[index+4].toFloat(&ok);
           good &= ok;
@@ -3875,7 +3875,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           insertData.text   = argv[++index];
           ++index;
       }
-    } else if (argv[index] == "ROTATE_ICON"){
+    } else if (argv[index] == "ROTATE_ICON") {
       insertData.type = InsertData::InsertRotateIcon;
       ++index;
     } else if (argv.size() - index >= 8 && argv[index] == "ARROW") {
@@ -4887,8 +4887,8 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   int argc = argv.size() - index;
   QString originalColor;
   QString attributes = "undefined;";
-  if (argc > 0){
-     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")){
+  if (argc > 0) {
+     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")) {
           // the last item is an ldrawType - specified when substitute is a generated part
           attributes = argv[argv.size() - 1]+":1;";
           // recalculate argc
@@ -4938,7 +4938,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
          }
      }
   }
-  if (argc > 1){
+  if (argc > 1) {
       _value.part  = argv[index];
       _value.color = argv[index+1];
   }
@@ -5013,7 +5013,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   }
   if (rc != FailureRc) {
     // add attributes - advance past part and color +2
-    for (int i = index+2; i < argv.size(); i++){
+    for (int i = index+2; i < argv.size(); i++) {
         attributes.append(argv.at(i)+";");
     }
     // append line number to end of attributes - used by Pli::partLine()
@@ -5094,7 +5094,7 @@ QString SubMeta::format(bool local, bool global)
               .arg(_attributeList[sTransform]);
     }
 
-  if (_value.ldrawType){
+  if (_value.ldrawType) {
       foo += QString(" LDRAW_TYPE %1").arg(_attributeList.first());
   }
 
@@ -5265,7 +5265,7 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
     }
   }
 
-  if (rc == FailureRc){
+  if (rc == FailureRc) {
     if (reportErrors) {
       QString const message = QMessageBox::tr("Malformed build mod meta command \"%1\"") .arg(argv.join(" "));
       emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);

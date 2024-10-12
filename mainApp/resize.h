@@ -122,7 +122,7 @@ class Grabber : public QGraphicsRectItem
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *  event ) override
     {
         QApplication::restoreOverrideCursor();
-        if (event->button() == Qt::LeftButton){
+        if (event->button() == Qt::LeftButton) {
             resized->change();
         }
     }

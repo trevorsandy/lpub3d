@@ -118,7 +118,7 @@ bool notEqual(const double v1, const double v2, int p = 4)
 }
 
 // renderer timeout in milliseconds
-int Render::rendererTimeout(){
+int Render::rendererTimeout() {
     if (Preferences::rendererTimeout == -1)
         return -1;
     else
@@ -137,7 +137,7 @@ const QString Render::fixupDirname(const QString &dirNameIn) {
 
     length = GetShortPathName(dirNameWin, nullptr, 0);
 
-    if (length == 0){
+    if (length == 0) {
         QString message = QObject::tr("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
 #ifdef QT_DEBUG_MODE
         qDebug() << qPrintable(message);
@@ -155,7 +155,7 @@ const QString Render::fixupDirname(const QString &dirNameIn) {
 
     length = GetShortPathName(dirNameWin, buffer, length);
 
-    if (length == 0){
+    if (length == 0) {
         QString message = QObject::tr("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
 #ifdef QT_DEBUG_MODE
         qDebug() << qPrintable(message);
@@ -229,7 +229,7 @@ void Render::setRenderer(int id)
   }
 }
 
-const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/){
+const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/) {
   QString rotstepString;
   if (isKey) {
       rotstepString = QString("%1_%2_%3_%4")
@@ -424,7 +424,7 @@ void Render::addArgument(
             << "-vv" << "-q" << "-qq"
                ;
         }
-        for (int i = 0; i < flags.size(); i++){
+        for (int i = 0; i < flags.size(); i++) {
             if (newArg.startsWith(flags[i]) && oldArg.startsWith(flags[i]))
                return true;
         }
@@ -435,7 +435,7 @@ void Render::addArgument(
     for (int i = 0; i < _arguments.size(); i++) {
         if (_arguments[i] != "" && _arguments[i] != " ") {
             if (_argChk.isEmpty()) {
-                if (!(getRenderer() == RENDERER_POVRAY && !povGenerator)){
+                if (!(getRenderer() == RENDERER_POVRAY && !povGenerator)) {
                     if (isMatch(_arguments[i]) ||
                         _arguments[i].startsWith(newArg.left(newArg.indexOf("=")))) {
                         insertIndex = _arguments.indexOf(_arguments[i]);
@@ -482,7 +482,7 @@ float stdCameraDistance(Meta &meta, float scale) {
     return factor*LduDistance;
 }
 
-float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
+float Render::getPovrayRenderCameraDistance(const QString &cdKeys) {
     enum Cda {
        K_IMAGEWIDTH = 0,
        K_IMAGEHEIGHT,
@@ -648,7 +648,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
     }
 
   bool usingInputFileList = false;
-  Q_FOREACH (QString argument, arguments){
+  Q_FOREACH (QString argument, arguments) {
       if (argument.startsWith("-CommandLinesList=") ||
           argument.startsWith("-SaveSnapshotsList=")) {
           usingInputFileList = true;
@@ -866,7 +866,7 @@ int POVRay::renderCsi(
       QString _mc;
       if (target.isPopulated())
           _mc = QString("-ModelCenter=%1,%2,%3 ").arg(double(target.x)).arg(double(target.y)).arg(double(target.z));
-      if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())){
+      if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())) {
           // Set model center
           QString _dl = QString("-DefaultLatLong=%1,%2")
                                 .arg(double(cameraAngleX))
@@ -892,7 +892,7 @@ int POVRay::renderCsi(
       }
 
       // additional LDView parameters;
-      if (parmsArgs.size()){
+      if (parmsArgs.size()) {
           emit gui->messageSig(LOG_INFO,QObject::tr("LDView additional POV-Ray PLI renderer parameters: %1")
                                                     .arg(parmsArgs.join(" ")));
           cg.append(QString(" %1").arg(parmsArgs.join(" ")));
@@ -975,7 +975,7 @@ int POVRay::renderCsi(
 //        arguments <<  QString("-SaveZMap=1");
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
-      if(hasLDViewIni){
+      if(hasLDViewIni) {
           newArg  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
           addArgument(arguments, newArg, "-IniFile", 0/*POVGen*/, parmsArgs.size());
         }
@@ -1009,7 +1009,7 @@ int POVRay::renderCsi(
   }
 
   QStringList povArguments;
-  if (Preferences::povrayDisplay){
+  if (Preferences::povrayDisplay) {
       povArguments << QString("+d");
   } else {
       povArguments << QString("-d");
@@ -1030,20 +1030,20 @@ int POVRay::renderCsi(
   bool hasPOVRayIni = Preferences::povrayIniPath != "";
   bool hasPOVRayInc = Preferences::povrayIncPath != "";
 
-  if(hasPOVRayInc){
+  if(hasPOVRayInc) {
       QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
   }
-  if(hasPOVRayIni){
+  if(hasPOVRayIni) {
       QString povini = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
       povArguments << povini;
   }
-  if(hasLGEO){
+  if(hasLGEO) {
       QString lgeoLg = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
       QString lgeoAr = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
       povArguments << lgeoLg;
       povArguments << lgeoAr;
-      if (hasSTL){
+      if (hasSTL) {
           QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
           povArguments << lgeoStl;
       }
@@ -1232,7 +1232,7 @@ int POVRay::renderPli(
       QString _mc;
       if (target.isPopulated())
           _mc = QString("-ModelCenter=%1,%2,%3 ").arg(double(target.x)).arg(double(target.y)).arg(double(target.z));
-      if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())){
+      if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())) {
           // Set model center
           QString _dl = QString("-DefaultLatLong=%1,%2")
                                 .arg(double(cameraAngleX))
@@ -1258,7 +1258,7 @@ int POVRay::renderPli(
       }
 
       // additional LDView parameters;
-      if (parmsArgs.size()){
+      if (parmsArgs.size()) {
           emit gui->messageSig(LOG_INFO,QObject::tr("LDView additional POV-Ray PLI renderer parameters: %1")
                                                         .arg(parmsArgs.join(" ")));
           cg.append(QString(" %1").arg(parmsArgs.join(" ")));
@@ -1340,7 +1340,7 @@ int POVRay::renderPli(
       addArgument(arguments, v, "-vv", 0/*POVGen*/, parmsArgs.size());
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
-      if(hasLDViewIni){
+      if(hasLDViewIni) {
           newArg  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
           addArgument(arguments, newArg, "-IniFile", 0/*POVGen*/, parmsArgs.size());
         }
@@ -1375,7 +1375,7 @@ int POVRay::renderPli(
   }
 
   QStringList povArguments;
-  if (Preferences::povrayDisplay){
+  if (Preferences::povrayDisplay) {
       povArguments << QString("+d");
   } else {
       povArguments << QString("-d");
@@ -1396,20 +1396,20 @@ int POVRay::renderPli(
   bool hasPOVRayIni = Preferences::povrayIniPath != "";
   bool hasPOVRayInc = Preferences::povrayIncPath != "";
 
-  if(hasPOVRayInc){
+  if(hasPOVRayInc) {
       QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
   }
-  if(hasPOVRayIni){
+  if(hasPOVRayIni) {
       QString povini = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
       povArguments << povini;
   }
-  if(hasLGEO){
+  if(hasLGEO) {
       QString lgeoLg = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
       QString lgeoAr = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
       povArguments << lgeoLg;
       povArguments << lgeoAr;
-      if (hasSTL){
+      if (hasSTL) {
           QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
           povArguments << lgeoStl;
         }
@@ -1543,7 +1543,7 @@ int LDGLite::   renderCsi(
   QString CA = QString("-ca%1") .arg(pp ? double(meta.LPub.assem.cameraFoV.value()) : LP3D_CA);
 
   QString cg;
-  if (meta.LPub.assem.target.isPopulated()){
+  if (meta.LPub.assem.target.isPopulated()) {
       cg = QString("-co%1,%2,%3")
                .arg(double(meta.LPub.assem.target.x()))
                .arg(double(meta.LPub.assem.target.y()))
@@ -1781,7 +1781,7 @@ int LDGLite::renderPli(
   env << "LDRAWDIR=" + Preferences::ldrawLibPath;
   //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
 
-  if (!Preferences::ldgliteSearchDirs.isEmpty()){
+  if (!Preferences::ldgliteSearchDirs.isEmpty()) {
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
     //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
@@ -1889,7 +1889,7 @@ int LDView::renderCsi(
 
     // Assemble compareKey and test csiParts if Single Call
     QString compareKey;
-    if (useLDViewSCall()){
+    if (useLDViewSCall()) {
 
         // test first csiParts
         QFileInfo fileInfo(csiParts.first());
@@ -1986,7 +1986,7 @@ int LDView::renderCsi(
         QString _mc;
         if (target.isPopulated())
             _mc = QString("-ModelCenter=%1,%2,%3 ").arg(double(target.x)).arg(double(target.y)).arg(double(target.z));
-        if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())){
+        if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())) {
             // Set model center
             QString _dl = QString("-DefaultLatLong=%1,%2")
                                   .arg(double(cameraAngleX))
@@ -2114,7 +2114,7 @@ int LDView::renderCsi(
 
             // attributes are different from default
             usingSnapshotArgs = compareImageAttributes(attributes, compareKey, usingDefaultArgs);
-            if (usingSnapshotArgs){
+            if (usingSnapshotArgs) {
                 processAttributes(attributes, target, noCA, cd, CA, cg, ldviewParmsArgs,
                                   modelScale, cameraFoV, cameraAngleX, cameraAngleY);
                 snapshotArgsChanged = !usingDefaultArgs;
@@ -2243,7 +2243,7 @@ int LDView::renderCsi(
     QString v  = QString("-vv");
 
     QStringList arguments;
-    if (usingSingleSetArgs){
+    if (usingSingleSetArgs) {
         arguments << CA;             // Camera Angle (i.e. Field of Veiw)
         arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
     }
@@ -2324,14 +2324,14 @@ int LDView::renderCsi(
 
         removeEmptyStrings(arguments);
 
-        if (useLDViewSCall()){
+        if (useLDViewSCall()) {
 
             if (enableIM) {
                 if (haveLdrNamesIM) {
                     // IM each ldrNameIM file
                     emit gui->messageSig(LOG_STATUS, "Executing LDView render Image Matte CSI - please wait...");
 
-                    Q_FOREACH (QString ldrNameIM, ldrNamesIM){
+                    Q_FOREACH (QString ldrNameIM, ldrNamesIM) {
                         QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(ldrNameIM).replace(".ldr",".png")).fileName()));
                         QString csiKey = LDVImageMatte::getMatteCSIImage(pngFileInfo.absoluteFilePath());
                         if (!csiKey.isEmpty()) {
@@ -2355,8 +2355,8 @@ int LDView::renderCsi(
     }
 
     // move generated CSI images to assem subfolder
-    if (useLDViewSCall()){
-        Q_FOREACH (QString ldrName, ldrNames){
+    if (useLDViewSCall()) {
+        Q_FOREACH (QString ldrName, ldrNames) {
             QString pngFileTmpPath = ldrName.replace(".ldr",".png");
             QString pngFilePath = QString("%1/%2").arg(assemPath).arg(QFileInfo(pngFileTmpPath).fileName());
             QFile destinationFile(pngFilePath);
@@ -2420,7 +2420,7 @@ int LDView::renderPli(
 
   // Assemble compareKey if Single Call
   QString compareKey;
-  if (useLDViewSCall()){
+  if (useLDViewSCall()) {
       compareKey = QString("%1_%2_%3_%4")
                            .arg(double(modelScale))             // 1
                            .arg(double(cameraFoV))              // 2
@@ -2510,7 +2510,7 @@ int LDView::renderPli(
       QString _mc;
       if (target.isPopulated())
           _mc = QString("-ModelCenter=%1,%2,%3").arg(double(target.x)).arg(double(target.y)).arg(double(target.z));
-      if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())){
+      if ((!_mc.isEmpty() && !pl) || (useImageSize && _mc.isEmpty())) {
           // Set model center
           QString _dl = QString("-DefaultLatLong=%1,%2")
                                 .arg(double(cameraAngleX))
@@ -2608,7 +2608,7 @@ int LDView::renderPli(
 
           // attributes are different from default
           usingSnapshotArgs = compareImageAttributes(attributes, compareKey, usingDefaultArgs);
-          if (usingSnapshotArgs){
+          if (usingSnapshotArgs) {
               processAttributes(attributes, target, noCA, cd, CA, cg, modelScale, cameraFoV, cameraAngleX, cameraAngleY);
               snapshotArgsChanged = !usingDefaultArgs;
               usingDefaultArgs    = usingDefaultArgs ? false : usingDefaultArgs;
@@ -2736,7 +2736,7 @@ int LDView::renderPli(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  if (usingSingleSetArgs){
+  if (usingSingleSetArgs) {
       arguments << CA;             // Camera Angle (i.e. Field of Veiw)
       arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
   }
@@ -2766,7 +2766,7 @@ int LDView::renderPli(
   arguments << v;  // -vv (Verbose)
 
   QString newArg;
-  if(!Preferences::ldviewIni.isEmpty()){
+  if(!Preferences::ldviewIni.isEmpty()) {
       newArg = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       addArgument(arguments, newArg, "-IniFile", 0/*POVGen*/, ldviewParmsArgs.size());
   }
@@ -3943,17 +3943,17 @@ bool Render::NativeExport(const NativeOptions *Options) {
     return Exported;
 }
 
-void Render::showLdvExportSettings(int iniFlag){
+void Render::showLdvExportSettings(int iniFlag) {
     ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
     ldvWidget->showLDVExportOptions();
 }
 
-void Render::showLdvLDrawPreferences(int iniFlag){
+void Render::showLdvLDrawPreferences(int iniFlag) {
     ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
     ldvWidget->showLDVPreferences();
 }
 
-bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
+bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag) {
     QStringList arguments = args;
 
     if (exportMode == EXPORT_NONE && iniFlag == NumIniFiles) {
@@ -3961,7 +3961,7 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
         return false;
     }
 
-    switch (exportMode){
+    switch (exportMode) {
     case EXPORT_HTML_PARTS:
         iniFlag = NativePartList;
         break;
@@ -4058,7 +4058,7 @@ const QString Render::getRenderImageFile(int renderType)
 
     QString fileName = gui->getViewerConfigKey(gui->getViewerStepKey()).replace(";","_");
 
-    if (fileName.isEmpty()){
+    if (fileName.isEmpty()) {
         fileName = renderType == POVRAY_RENDER ? QLatin1String("povray_image_render") : QLatin1String("blender_image_render");
         emit gui->messageSig(LOG_NOTICE, QObject::tr("Failed to receive model file name - using [%1]").arg(fileName));
     }
@@ -4237,7 +4237,7 @@ int Render::createNativeModelFile(
       /* process extracted submodels and unofficial files */
       if (nativeSubfiles.size()) {
           nativeSubfiles.removeDuplicates();
-          if ((rc = mergeNativeSubfiles(nativeSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0){
+          if ((rc = mergeNativeSubfiles(nativeSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0) {
               emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to process viewer submodels"));
               return rc;
             }
@@ -4403,10 +4403,10 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
         }
 
       /* recurse and process any identified submodel files */
-      if (newSubfiles.size() > 0){
+      if (newSubfiles.size() > 0) {
           newSubfiles.removeDuplicates();
           int rc;
-          if ((rc = mergeNativeSubfiles(newSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0){
+          if ((rc = mergeNativeSubfiles(newSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0) {
               emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to recurse viewer submodels"));
               return rc;
             }

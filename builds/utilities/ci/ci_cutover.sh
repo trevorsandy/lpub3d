@@ -3,7 +3,7 @@
 # Last Update: September 22, 2024
 #
 # Purpose:
-# This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
+# This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d] repository commits, one at a time, to production.
 # However, commits can be moved between any of the receiving or sourced repositories.
 #
 # Note: Use the accompanying script: 'next_cutover.sh' to automate the 'cutover' of a range of commits.
@@ -11,7 +11,7 @@
 # Setup:
 # For successful execution it must be placed at the root of the repositories, for example:
 #   ./lpub3d
-#   ./lpub3d-ci
+#   ./lpub3d
 #   ./ci_cutover.sh
 #
 # Execution Steps:
@@ -24,7 +24,7 @@
 # Preq 2 of 3 Set 'Next' version number [execute once]
 # $ sed 's/2.4.5/<next version>/g' -i ci_cutover.sh
 #
-# Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d-ci repository at the
+# Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d repository at the
 #   last production commit. [execute once]
 #
 # Step 1 of 3 from the CUTOVER branch add your master/dev branch commit by executing
@@ -37,15 +37,15 @@
 #   change [BE CAREFUL - THIS ADDS A TAG]
 # $ env MSG="LPub3D v2.4.5" TAG=v2.4.5 REL=1  CFG=yes ./ci_cutover.sh
 #
-# Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d-ci'
-# $ cp -f lpub3d/mainApp/docs/README.txt lpub3d-ci/mainApp/docs/
-# $ cp -f lpub3d/mainApp/docs/RELEASE_NOTES.html lpub3d-ci/mainApp/docs/
+# Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d'
+# $ cp -f lpub3d/mainApp/docs/README.txt lpub3d/mainApp/docs/
+# $ cp -f lpub3d/mainApp/docs/RELEASE_NOTES.html lpub3d/mainApp/docs/
 #
 # Execution sequence:
-#   - copy lpub3d-ci content to lpub3d folder
+#   - copy lpub3d content to lpub3d folder
 #   - preserve lpub3d git database
-#   - rename all files with 'lpub3d-ci' in the name to 'lpub3d'
-#   - change all occurrences of 'lpub3d-ci' to 'lpub3d'
+#   - rename all files with 'lpub3d' in the name to 'lpub3d'
+#   - change all occurrences of 'lpub3d' to 'lpub3d'
 #   - update README.md Title - remove or change ' - Dev, CI, and Test'
 #   - create pre-commit githook
 #   - create .secrets.tar.unc file
@@ -54,7 +54,7 @@
 #
 # Environment variables:
 #   - REPO_BASE: Repository base URL [Default=https://github.com/trevorsandy]
-#   - FROM_REPO: Development repository [Default=lpub3d-ci]
+#   - FROM_REPO: Development repository [Default=lpub3d]
 #   - TO_REPO: Production or maintenance repository [Default=lpub3d]
 #   - MSG: Git commit message [Default="LPub3D ${TAG}"] - change as needed
 #   - TAG: Git tag [Default=null] - change as needed
@@ -77,10 +77,10 @@
 # $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="Issue template and renderer logging updates" CFG=yes ./ci_cutover.sh
 #
-# Move from lpub3d-ci to lpub3d-obs repository
+# Move from lpub3d to lpub3d-obs repository
 # $ env TO_REPO=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.4.5 ./ci_cutover.sh
 #
-# Move from lpub3d-ci to lpub3d repository
+# Move from lpub3d to lpub3d repository
 # Step 1 of 2 Production commits [execute for each commit except the final one for version change]
 # $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 ./ci_cutover.sh
 # Step 2 of 2 Final production commit version change [execute once]
@@ -91,9 +91,9 @@
 # Step 2 of 2 Final maintenance commit version change [execute once]
 # $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 REL=1 CFG=yes ./ci_cutover.sh
 #
-# Move from lpub3dnext to lpub3d-ci repository
-# Step 1 of 1 Maintenance commits [Change lpub3d-ci branch to NEXT_IN and execute for each commit except the final one for version change]
-# $ env TO_REPO=lpub3d-ci FROM_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
+# Move from lpub3dnext to lpub3d repository
+# Step 1 of 1 Maintenance commits [Change lpub3d branch to NEXT_IN and execute for each commit except the final one for version change]
+# $ env TO_REPO=lpub3d FROM_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
@@ -108,7 +108,7 @@ INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
 FORCE_CONFIG=${CFG:-no}
 TO_REPO_NAME=${TO_REPO:-lpub3d}
-FROM_REPO_NAME=${FROM_REPO:-lpub3d-ci}
+FROM_REPO_NAME=${FROM_REPO:-lpub3d}
 REPO_BASE_URL=${REPO_BASE:-https://github.com/trevorsandy}
 RELEASE_COMMIT=${REL:-}
 MIN_RN_LN_DEL=${MIN_RN_LINE_DEL:-}
@@ -235,13 +235,13 @@ if [ -n "$(git status -s)" ]; then
     echo "--INFO - Stashing uncommitted $FROM_REPO_NAME changes..."
     git stash
 fi
-if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then
+if [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     START_BRANCH=CUTOVER_CI;
-elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     START_BRANCH=CUTOVER_CI;
 elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     START_BRANCH=CUTOVER_NEXT;
-elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     START_BRANCH=CUTOVER_NEXT;
 else
     START_BRANCH=master;       # cutover production to development or maintenance
@@ -266,11 +266,11 @@ if [ -n "$(git status -s)" ]; then
 fi
 if [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]];then
     START_BRANCH=master
-elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     START_BRANCH=CUTOVER_CI
-elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]];then
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]];then
     START_BRANCH=CUTOVER_NEXT
-elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     START_BRANCH=CUTOVER_CI
 elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]];then
     START_BRANCH=CUTOVER_NEXT
@@ -331,21 +331,21 @@ for file in $(find . -type f -name "*${FROM_REPO_NAME}*" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               )
 do
-    if   [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/-ci//g);
-    elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then newFile=$(echo $file | sed s/-ci/next/g);
+    if   [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/-ci//g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then newFile=$(echo $file | sed s/-ci/next/g);
     elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/next//g);
-    elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then newFile=$(echo $file | sed s/next/-ci/g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/next/-ci/g);
     elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dNext" ]]; then newFile=$(echo $file | sed s/lpub3d/lpub3dnext/g);
-    elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then newFile=$(echo $file | sed s/lpub3d/lpub3d-ci/g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/lpub3d/lpub3d/g);
     fi
     mv -f "$file" "$newFile"
     [ -f "$newFile" ] && echo "  -file renamed: $newFile."
 done
 # rename project file with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..."
-if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+if [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     projFileName="LPub3D.pro"
     newProjFileName="LPub3DNext.pro"
-elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     projFileName="LPub3DNext.pro"
     newProjFileName="LPub3D.pro"
 elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
@@ -406,12 +406,12 @@ fi
 
 echo "$((COMMAND_COUNT += 1))-Update README.md Title"
 file=README.md
-if   [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Dev, CI, and Test'//g -i $file; echo "  -file $file updated.";
-elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo "  -file $file updated.";
+if   [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Dev, CI, and Test'//g -i $file; echo "  -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo "  -file $file updated.";
 elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Next Development'//g -i $file; echo "  -file $file updated.";
-elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s/' - Next Development'/' - Dev, CI, and Test'/g -i $file; echo "  -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then s/' - Next Development'/' - Dev, CI, and Test'/g -i $file; echo "  -file $file updated.";
 elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dNext" ]]; then s/'# LPub3D'/'# LPub3D - Next Development'/g -i $file; echo "  -file $file updated.";
-elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s/'# LPub3D'/'# LPub3D - Dev, CI, and Test'/g -i $file; echo "  -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d" ]]; then s/'# LPub3D'/'# LPub3D - Dev, CI, and Test'/g -i $file; echo "  -file $file updated.";
 else echo "  -ERROR - file $file NOT updated.";
 fi
 SED_OPTIONS=("-re" "s,v(([0-9]+\.)*[0-9]+)\.svg\?label=revision,${LOCAL_TAG}\.svg\?label=revision," \
@@ -544,9 +544,9 @@ fi
 
 echo "$((COMMAND_COUNT += 1))-Restore repository checked out state..."
 # Checkout master in source [in TO_REPO_NAME]
-if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+if [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     CHECKOUT_MASTER=1
-elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     CHECKOUT_MASTER=1
 elif [[ "$FROM_REPO_NAME" = "lpub3d" ]]; then
     CHECKOUT_MASTER=1

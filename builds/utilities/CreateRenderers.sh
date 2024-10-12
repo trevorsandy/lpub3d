@@ -383,7 +383,7 @@ InstallDependencies() {
 }
 
 # args: <none>
-ApplyLDViewStdlibHack(){
+ApplyLDViewStdlibHack() {
   Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
   sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
   Info

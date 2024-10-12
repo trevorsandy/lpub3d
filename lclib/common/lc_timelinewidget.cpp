@@ -334,7 +334,7 @@ void lcTimelineWidget::UpdateCurrentStepItem()
 }
 
 /*** LPub3D Mod - Timeline part icons ***/
-void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel){
+void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel) {
 
 	int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
 
@@ -356,7 +356,7 @@ void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel){
 	}
 }
 
-bool lcTimelineWidget::GetPieceIcon(int Size, QString ImageKey){
+bool lcTimelineWidget::GetPieceIcon(int Size, QString ImageKey) {
 
 	if (!mPieceIcons.contains(ImageKey))
 	{

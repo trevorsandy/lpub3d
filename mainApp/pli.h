@@ -561,7 +561,7 @@ protected:
     {
         QGraphicsItem::mouseReleaseEvent(event);
 
-        if (event->button() == Qt::LeftButton){
+        if (event->button() == Qt::LeftButton) {
             if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
                 change();
             }

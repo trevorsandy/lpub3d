@@ -695,7 +695,7 @@ void Steps::addGraphicsItems(
  * This is used to return the best adjusted size of a divider
  */
 
-int Steps::pageSizeDiv(int axis, bool adjusted/*false*/, bool forDivider/*true*/){
+int Steps::pageSizeDiv(int axis, bool adjusted/*false*/, bool forDivider/*true*/) {
   int which  = forDivider ? allocType() == Vertical ? YY : XX : axis;
   int pageSizeAdjust = lpub->pageSize(meta.LPub.page,which);
   if (adjusted) {
@@ -706,7 +706,7 @@ int Steps::pageSizeDiv(int axis, bool adjusted/*false*/, bool forDivider/*true*/
     for (int i = 0; i < list.size(); i++) {
       if (list[i]->relativeType == RangeType) {
         Range *range = dynamic_cast<Range *>(list[i]);
-        if (range && range->stepDividerPointerList.size()){
+        if (range && range->stepDividerPointerList.size()) {
           break;
         }
       }

@@ -71,7 +71,7 @@ struct pageSizeTypes
   { "Custom",      0.0000f,   0.0000f,   0.0000f,   0.0000f }
 };
 
-int PageSizes::numPageTypes(){
+int PageSizes::numPageTypes() {
   return sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
 }
 

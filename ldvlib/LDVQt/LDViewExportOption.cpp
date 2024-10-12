@@ -50,7 +50,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget, QWidget *parent)
 	IniFlag iniFlag = modelWidget->getIniFlag();
 
 	if (m_modelViewer) {
-		switch (iniFlag){
+		switch (iniFlag) {
 		case NativePOVIni:
 		case LDViewPOVIni:
 		case POVRayRender:

@@ -126,7 +126,7 @@ void CsiItem::partLine(
     // All Visual Editor (LeoCad) metas are written to csiParts
     // for group meta lines, substitute lineNumber with Rc
     int index;
-    switch (rc){
+    switch (rc) {
     case FadeRc:
     case SilhouetteRc:
     case TexMapRc:
@@ -195,7 +195,7 @@ void CsiItem::placeCsiPartAnnotations()
         CsiAnnotation *ca = step->csiAnnotations[i];
         if (!hiddenAnnotations)
             hiddenAnnotations = ca->caMeta.icon.value().hidden;
-        if (!ca->caMeta.icon.value().hidden){
+        if (!ca->caMeta.icon.value().hidden) {
             QString key       = QString("%1_%2")
                                         .arg(ca->caMeta.icon.value().typeBaseName)
                                         .arg(ca->caMeta.icon.value().typeColor);
@@ -205,7 +205,7 @@ void CsiItem::placeCsiPartAnnotations()
                 continue;
 
             for (int i = 0; i < part->instances.size(); ++i) {
-                if (ca->partLine == part->instances[i] && part->text.size()){
+                if (ca->partLine == part->instances[i] && part->text.size()) {
                     CsiAnnotationItem *caItem = new CsiAnnotationItem();
                     caItem->addGraphicsItems(ca,step,part,this,true);
                 }
@@ -917,7 +917,7 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                     callout->updatePointers(deltaI);
                 }
                 // page pointers
-                for (int i = 0; i < PP_POSITIONS; i++){
+                for (int i = 0; i < PP_POSITIONS; i++) {
                     Positions position = Positions(i);
                     PagePointer *pagePointer = step->page()->pagePointers.value(position);
                     if (pagePointer)
@@ -958,7 +958,7 @@ void CsiItem::change()
                 callout->updatePointers(deltaI);
             }
             // page pointers
-            for (int i = 0; i < PP_POSITIONS; i++){
+            for (int i = 0; i < PP_POSITIONS; i++) {
                 Positions position = Positions(i);
                 PagePointer *pagePointer = step->page()->pagePointers.value(position);
                 if (pagePointer)

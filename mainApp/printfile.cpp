@@ -54,16 +54,16 @@ bool lessThan(const int &v1, const int &v2)
     return v1 < v2;
 }
 
-QPageLayout Gui::getPageLayout(bool nextPage){
+QPageLayout Gui::getPageLayout(bool nextPage) {
 
   int pageNum = displayPageNum;
-  if (nextPage && displayPageNum < maxPages){
+  if (nextPage && displayPageNum < maxPages) {
       pageNum = displayPageNum + 1;            //next page
     }
 
 
   QMap<int,PageSizeData>::iterator i = pageSizes.find(pageNum);
-  if (i != pageSizes.end()){
+  if (i != pageSizes.end()) {
 
       // determine page orientation
       bool  ls = i.value().orientation == Landscape;
@@ -94,7 +94,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
 void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 {
   QMap<int,PageSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
-  if (i != pageSizes.end()){
+  if (i != pageSizes.end()) {
 
       float pageWidthIn, pageHeightIn;
 
@@ -103,7 +103,7 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
       pageHeightIn = i.value().sizeH;
 
       // flip orientation for exporting landscape
-      if (i.value().orientation == Landscape){
+      if (i.value().orientation == Landscape) {
           pageWidthIn  = i.value().sizeH;
           pageHeightIn = i.value().sizeW;
         }
@@ -133,12 +133,12 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 OrientationEnc Gui::getPageOrientation(bool nextPage)
 {
   int pageNum = displayPageNum;
-  if (nextPage && displayPageNum < maxPages){
+  if (nextPage && displayPageNum < maxPages) {
       pageNum = displayPageNum + 1;            //next page
     }
 
   QMap<int,PageSizeData>::iterator i = pageSizes.find(pageNum);   // this page
-  if (i != pageSizes.end()){
+  if (i != pageSizes.end()) {
 
 #ifdef PAGE_PRINT_DEBUG
       bool  ls = i.value().orientation == Landscape;
@@ -152,7 +152,7 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
   return InvalidOrientation;
 }
 
-void Gui::checkMixedPageSizeStatus(){
+void Gui::checkMixedPageSizeStatus() {
 
   QMessageBox box;
   QString title;
@@ -179,16 +179,16 @@ void Gui::checkMixedPageSizeStatus(){
   bool double_warning        = false;
   int key;
 
-  if (processOption == EXPORT_PAGE_RANGE){
+  if (processOption == EXPORT_PAGE_RANGE) {
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
-      Q_FOREACH (QString ranges,pageRanges){
-          if (ranges.contains("-")){
+      Q_FOREACH (QString ranges,pageRanges) {
+          if (ranges.contains("-")) {
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
               int maxPage = range[1].toInt();
-              for(int i = minPage; i <= maxPage; i++){
+              for(int i = minPage; i <= maxPage; i++) {
                   printPages.append(i);
                 }
             } else {
@@ -196,14 +196,14 @@ void Gui::checkMixedPageSizeStatus(){
             }
         }
 
-      if (printPages.size() > 1){
+      if (printPages.size() > 1) {
 
           bool defaultSizesUpdated = false;
 
           Q_FOREACH (key,printPages) {
 
               QMap<int,PageSizeData>::iterator i = pageSizes.find(key);   // this page
-              if (i != pageSizes.end()){
+              if (i != pageSizes.end()) {
 #ifdef PAGE_PRINT_DEBUG
                   logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")
                                            .arg(pageSizes[key].sizeW)
@@ -261,7 +261,7 @@ void Gui::checkMixedPageSizeStatus(){
                        .arg(pageSizes[DEF_SIZE].sizeID)
                        .arg(pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
 #endif
-      Q_FOREACH (key,pageSizes.keys()){
+      Q_FOREACH (key,pageSizes.keys()) {
 
           if (pageSizes[key].orientation != orientation && orientation_warning != true) {
               orientation_warning = true;
@@ -318,7 +318,7 @@ bool Gui::validatePageRange() {
   QString title;
   QString text;
 
-  if(pageRangeText.isEmpty()){
+  if(pageRangeText.isEmpty()) {
 
       title = "<b>" + tr ("Empty page range.") + "</b>";
       text = tr ("You must enter a page range");
@@ -337,14 +337,14 @@ bool Gui::validatePageRange() {
   bool validEntry = true;
   QString message;
   QStringList pageRanges = pageRangeText.split(",");
-  for (QString const &ranges: pageRanges){
-      if (ranges.contains("-")){
+  for (QString const &ranges: pageRanges) {
+      if (ranges.contains("-")) {
           bool ok[2];
           QStringList range = ranges.split("-");
 
           int startPage = QString(range[0].trimmed()).toInt(&ok[0]);
           int endPage = QString(range[1].trimmed()).toInt(&ok[1]);
-          if (!ok[0] || !ok[1]){
+          if (!ok[0] || !ok[1]) {
               message = QString("%1-%2").arg(startPage).arg(endPage);
               validEntry = false;
               break;
@@ -362,7 +362,7 @@ bool Gui::validatePageRange() {
         } else {
           bool ok;
           int pageNum = ranges.toInt(&ok);
-          if (!ok){
+          if (!ok) {
               message = QString("%1").arg(pageNum);
               validEntry = false;
               break;
@@ -422,39 +422,39 @@ void Gui::consoleCommandCurrentThread(int mode, int *value)
         emit consoleCommandFromOtherThreadSig(mode, value);
 }
 
-void Gui::exportAsPdfDialog(){
+void Gui::exportAsPdfDialog() {
   exportAsDialog(EXPORT_PDF);
 }
 
-void Gui::exportAsPngDialog(){
+void Gui::exportAsPngDialog() {
   exportAsDialog(EXPORT_PNG);
 }
 
-void Gui::exportAsJpgDialog(){
+void Gui::exportAsJpgDialog() {
   exportAsDialog(EXPORT_JPG);
 }
 
-void Gui::exportAsBmpDialog(){
+void Gui::exportAsBmpDialog() {
   exportAsDialog(EXPORT_BMP);
 }
 
-void Gui::exportAsStlDialog(){
+void Gui::exportAsStlDialog() {
   exportAsDialog(EXPORT_STL);
 }
 
-void Gui::exportAs3dsDialog(){
+void Gui::exportAs3dsDialog() {
   exportAsDialog(EXPORT_3DS_MAX);
 }
 
-void Gui::exportAsPovDialog(){
+void Gui::exportAsPovDialog() {
   exportAsDialog(EXPORT_POVRAY);
 }
 
-void Gui::exportAsColladaDialog(){
+void Gui::exportAsColladaDialog() {
   exportAsDialog(EXPORT_COLLADA);
 }
 
-void Gui::exportAsObjDialog(){
+void Gui::exportAsObjDialog() {
   exportAsDialog(EXPORT_WAVEFRONT);
 }
 
@@ -469,7 +469,7 @@ bool Gui::exportAsDialog(ExportMode m)
   if (Preferences::modeGUI) {
       DialogExportPages *dialog = new DialogExportPages();
       if (dialog->exec() == QDialog::Accepted) {
-          if(dialog->allPages()){
+          if(dialog->allPages()) {
               if (dialog->allPagesRange()) {
                 processOption = EXPORT_PAGE_RANGE;
                 pageRangeText = dialog->allPagesRangeText();
@@ -478,14 +478,14 @@ bool Gui::exportAsDialog(ExportMode m)
               }
             }
           else
-          if(dialog->currentPage()){
+          if(dialog->currentPage()) {
               processOption = EXPORT_CURRENT_PAGE;
             }
           else
-          if(dialog->pageRange()){
+          if(dialog->pageRange()) {
               processOption = EXPORT_PAGE_RANGE;
               pageRangeText = dialog->pageRangeText();
-              if (! validatePageRange()){
+              if (! validatePageRange()) {
                   return false;
                 }
             }
@@ -514,7 +514,7 @@ bool Gui::exportAsDialog(ExportMode m)
   if(resetCache)
       resetModelCache(QFileInfo(curFile).absoluteFilePath());
 
-  if (! m_previewDialog){
+  if (! m_previewDialog) {
       switch (m)
       {
       case EXPORT_PDF:
@@ -823,7 +823,7 @@ void Gui::exportAsPdf()
 
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
-  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
+  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0) {
       dpiInfo += QString("_%1x").arg(exportPixelRatio);
   }
 
@@ -964,12 +964,12 @@ void Gui::exportAsPdf()
 
   if (processOption != EXPORT_PAGE_RANGE) {
 
-      if(processOption == EXPORT_ALL_PAGES){
+      if(processOption == EXPORT_ALL_PAGES) {
           _displayPageNum = 1 + pa;
           _maxPages = maxPages;
         }
 
-      if (processOption == EXPORT_CURRENT_PAGE){
+      if (processOption == EXPORT_CURRENT_PAGE) {
           _displayPageNum = displayPageNum;
           _maxPages       = displayPageNum;
         }
@@ -1175,12 +1175,12 @@ void Gui::exportAsPdf()
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
-      Q_FOREACH (QString ranges,pageRanges){
-          if (ranges.contains("-")){
+      Q_FOREACH (QString ranges,pageRanges) {
+          if (ranges.contains("-")) {
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
               int maxPage = range[1].toInt();
-              for(int i = minPage; i <= maxPage; i++){
+              for(int i = minPage; i <= maxPage; i++) {
                   printPages.append(i);
                 }
             } else {
@@ -1531,7 +1531,7 @@ void Gui::exportAs(const QString &_suffix)
 
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
-  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
+  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0) {
       dpiInfo += QString("_%1x").arg(exportPixelRatio);
   }
 
@@ -1758,7 +1758,7 @@ void Gui::exportAs(const QString &_suffix)
 
       int _pageCount = 0;
 
-      Q_FOREACH (int printPage,printPages){
+      Q_FOREACH (int printPage,printPages) {
 
           if (! exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
@@ -2249,7 +2249,7 @@ void Gui::Print(QPrinter* Printer)
         {
           message = tr("%1 %2 terminated before completion.").arg(action, mode);
           emit messageSig(LOG_INFO_STATUS,message);
-          if (preview){
+          if (preview) {
             m_previewDialog = false;
             exportPdf = exportPreview = false;
           }
@@ -2383,7 +2383,7 @@ void Gui::Print(QPrinter* Printer)
     m_progressDialog->hide();
   }
 
-  if (preview){
+  if (preview) {
     m_previewDialog = false;
     exportPdf = exportPreview = false;
   }
@@ -2497,7 +2497,7 @@ void Gui::TogglePrintPreview(ExportMode m)
 {
     m_previewDialog = true;
 
-    if (! exportAsDialog(m)){
+    if (! exportAsDialog(m)) {
         m_previewDialog = false;
         return;
     }
