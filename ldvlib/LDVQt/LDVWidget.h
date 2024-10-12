@@ -17,7 +17,8 @@
 #ifndef LDVWIDGET_H
 #define LDVWIDGET_H
 
-#include <qgl.h>
+#include <QWindow>
+#include <QGLContext>
 #include <QGLWidget>
 #include <QGLFunctions>
 #include <QtGui>
@@ -88,7 +89,7 @@ public:
 	void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
 					const char *filename);
 	bool saveImage(char *filename, int imageWidth, int imageHeight);
-	bool grabImage(int &imageWidth, int &imageHeight, bool fromCommandLine = false);
+	bool grabImage(int &imageWidth, int &imageHeight);
 	void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
 					 bool keepRightSideUp, bool saveSettings=true);
 	void showDocument(QString &htmlFilename);
@@ -134,9 +135,6 @@ protected:
 	void libraryUpdateProgress(TCProgressAlert *alert);
 	void setLibraryUpdateProgress(float progress);
 	LDSnapshotTaker::ImageType getSaveImageType(void);
-
-	QOpenGLFramebufferObject *fbo;
-	bool isFboActive() { return fbo != NULL; }
 
 	IniFlag                iniFlag;
 	bool                   forceIni;

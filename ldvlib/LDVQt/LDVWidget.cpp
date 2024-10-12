@@ -95,8 +95,6 @@
 #define PNG_IMAGE_TYPE_INDEX 1
 #define BMP_IMAGE_TYPE_INDEX 2
 #define JPG_IMAGE_TYPE_INDEX 3
-#define IMAGE_WIDTH_DEFAULT 800
-#define IMAGE_HEIGHT_DEFAULT 600
 #define WINDOW_WIDTH_DEFAULT 640
 #define WINDOW_HEIGHT_DEFAULT 480
 #define LDRAW_ZIP_SHOW_WARNING_KEY "LDrawZipShowWarning"
@@ -496,109 +494,23 @@ void LDVWidget::setupLDVContext()
 }
 
 bool LDVWidget::grabImage(int &imageWidth,
-						  int &imageHeight,
-						  bool fromCommandLine)
+						  int &imageHeight)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-	if (fbo == NULL && (TCUserDefaults::longForKey(IGNORE_FRAMEBUFFER_OBJECT_KEY, 0, false)==0))
-	{
-		QOpenGLFramebufferObjectFormat fboFormat;
-		GLsizei fboSize = 1024;
-		fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-		fbo = new QOpenGLFramebufferObject(fboSize, fboSize, fboFormat);
-		if (fbo->isValid() && fbo->bind())
-		{
-			snapshotTaker->setUseFBO(false);
-			glViewport(0, 0, fboSize, fboSize);
-			if (modelViewer->getMainTREModel() == NULL && !modelViewer->getNeedsReload())
-			{
-				modelViewer->loadModel(true);
-			}
-			inputHandler->stopRotation();
-			bool retValue = snapshotTaker->saveImage(saveImageFilename, imageWidth, imageHeight, saveImageZoomToFit);
-			fbo->release();
-			delete fbo;
-			fbo = NULL;
-			return retValue;
-		}
-		else
-		{
-			delete fbo;
-		}
-	}
-#endif
-
-	if (!fromCommandLine)
-	{
-		makeCurrent();
-		if (modelViewer->getMainTREModel() == NULL && !modelViewer->getNeedsReload())
-		{
-			modelViewer->loadModel(true);
-		}
-		bool retValue = snapshotTaker->saveImage(saveImageFilename, imageWidth, imageHeight, saveImageZoomToFit);
-
-		return retValue;
-	}
-
-	int newWidth = IMAGE_WIDTH_DEFAULT;
-	int newHeight = IMAGE_HEIGHT_DEFAULT;
-	int origWidth = imageWidth;
-	int origHeight = imageHeight;
-	int numXTiles, numYTiles;
-	int saveImageWidth, saveImageHeight;
-	bool saveImageResult = false;
-	bool origSlowClear = modelViewer->getSlowClear();
-	int origMemoryUsage = modelViewer->getMemoryUsage();
+	bool ok = false;
 	modelViewer->setMemoryUsage(0);
 
 	if (snapshotTaker->getUseFBO())
 	{
-		newWidth = snapshotTaker->getFBOSize();
-		newHeight = snapshotTaker->getFBOSize();
-	}
-
-	snapshotTaker->calcTiling(imageWidth, imageHeight, newWidth, newHeight, numXTiles, numYTiles);
-
-	if (!snapshotTaker->getUseFBO())
-	{
-		setupSnapshotBackBuffer(newWidth, newHeight);
-	}
-
-	imageWidth = newWidth * numXTiles;
-	imageHeight = newHeight * numYTiles;
-	saveImageWidth = imageWidth;
-	saveImageHeight = imageHeight;
-
-	if (snapshotTaker->getUseFBO())
-	{
 		makeCurrent();
-		saveImageResult = snapshotTaker->saveImage(saveImageFilename,
-												   saveImageWidth, saveImageHeight, saveImageZoomToFit);
+		ok = snapshotTaker->saveImage(saveImageFilename,
+			imageWidth, imageHeight, saveImageZoomToFit);
 	}
 	else
 	{
-#if (QT_VERSION >= 0x50400) && defined(QOPENGLWIDGET)
-//      Need code for renderPixmap else saved snapshot image is garbage
-#else
-		renderPixmap(newWidth, newHeight);
-#endif
+		setupSnapshotBackBuffer(imageWidth, imageHeight);
+		renderPixmap(imageWidth, imageHeight);
 	}
-
-	makeCurrent();
-	TREGLExtensions::setup();
-
-	if (!snapshotTaker->getUseFBO())
-	{
-		modelViewer->openGlWillEnd();
-	}
-
-	modelViewer->setWidth(origWidth);
-	modelViewer->setHeight(origHeight);
-	modelViewer->setMemoryUsage(origMemoryUsage);
-	modelViewer->setSlowClear(origSlowClear);
-	modelViewer->setup();
-
-	return saveImageResult;
+	return ok;
 }
 
 void LDVWidget::setupSnapshotBackBuffer(int width, int height)
@@ -633,7 +545,7 @@ bool LDVWidget::saveImage(
 	saveImageFilename = filename;
 	saveImageZoomToFit = TCUserDefaults::longForKey(SAVE_ZOOM_TO_FIT_KEY, 1, false);
 
-	return grabImage(imageWidth, imageHeight, true);
+	return grabImage(imageWidth, imageHeight);
 }
 
 bool LDVWidget::loadModel(const char *filename)
@@ -673,19 +585,8 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
 	{
 		if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
 		{
-			if (isFboActive())
-			{
-				if (!fbo->isBound())
-				{
-					fbo->bind();
-				}
-			}
-			else
-			{
-				makeCurrent();
-			}
+			  makeCurrent();
 		}
-		else
 		if (strcmp(alert->getMessage(), "PreFbo") == 0)
 		{
 			if (getUseFBO())
@@ -871,14 +772,7 @@ void LDVWidget::doPartList(
 				emit lpub->messageSig(LOG_INFO_STATUS,
 									  QString::fromWCharArray(TCLocalStrings::get(L"SnapshotGenerateStatus")));
 
-				char *snapshotPath = copyString(htmlInventory->getSnapshotPath());
-				bool saveZoomToFit = modelViewer->getForceZoomToFit();
-				bool saveActualSize = TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false);
-				int saveWidth = TCUserDefaults::longForKey(SAVE_WIDTH_KEY, 1024, false);
-				int saveHeight = TCUserDefaults::longForKey(SAVE_HEIGHT_KEY, 768, false);
-				bool origSteps = TCUserDefaults::boolForKey(SAVE_STEPS_KEY, false, false);
-				bool seams = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
-				int origStep = modelViewer->getStep();
+				bool seams	   = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
 
 				TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
 				TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
@@ -904,14 +798,6 @@ void LDVWidget::doPartList(
 				saveImageType = PNG_IMAGE_TYPE_INDEX;
 				saveImage(snapshotPath, imageWidth, imageHeight);
 				delete snapshotPath;
-
-				htmlInventory->restoreAfterSnapshot(modelViewer);
-				modelViewer->setForceZoomToFit(saveZoomToFit);
-				TCUserDefaults::setLongForKey(saveActualSize, SAVE_ACTUAL_SIZE_KEY, false);
-				TCUserDefaults::setLongForKey(saveWidth, SAVE_WIDTH_KEY, false);
-				TCUserDefaults::setLongForKey(saveHeight, SAVE_HEIGHT_KEY, false);
-				modelViewer->setStep(origStep);
-				TCUserDefaults::setBoolForKey(origSteps, SAVE_STEPS_KEY, false);
 			}
 		}
 	}
