@@ -98,6 +98,7 @@ public:
 	static void setLastOpenPath(const char *path, char *pathKey = nullptr);
 	static char *getLDrawDir(void);
 	static void setLDrawDir(const char *path);
+	static char *getLDrawZipPath(void);
 	static long getMaxRecentFiles(void);
 	static char *getRecentFile(int index);
 	static void setRecentFile(int index, char *filename);
@@ -118,6 +119,10 @@ public:
 	void checkLightVector(void);
 	void browseForDir(QString prompt, QLineEdit *textField, QString &dir);
 	QString getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename) { return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str()); }
+	void populateExtraDirsListBox(void);
+	void recordExtraSearchDirs(void);
+	void populateExtraSearchDirs(void);
+	static TCStringArray* extraSearchDirs;
 
 #ifdef WIN32
 	int getFSAAFactor(void);
@@ -133,6 +138,7 @@ public slots:
 	void disableProxy(void);
 	void doCancel(void);
 	void doResetGeneral(void);
+	void doResetLDraw(void);
 	void doResetGeometry(void);
 	void doResetEffects(void);
 	void doResetPrimitives(void);
@@ -165,6 +171,8 @@ public slots:
 	void doAnisotropicSlider(int);
 	void doDrawLightDats();
 	void doSaveDefaultViewAngle();
+	void doLibraryCheckForUpdates();
+
 #ifdef WIN32
 	void fsaaModeBoxChanged(const QString&);
 #endif // WIN32
@@ -174,6 +182,14 @@ public slots:
 	void snapshotSaveDirBrowse();
 	void partsListsSaveDirBrowse();
 	void exportsSaveDirBrowse();
+	void doAddExtraDir(void);
+	void doDelExtraDir(void);
+	void doUpExtraDir(void);
+	void doDownExtraDir(void);
+	void doExtraDirSelected(void);
+	void doExtraDirSelected(QListWidgetItem *,QListWidgetItem *) {doExtraDirSelected();}
+	void doLDrawDir(void);
+	void doLDrawZip(void);
 	void enableStudStyleCombo();
 	void automateEdgeColor();
 	void enableAutomateEdgeColorButton();
@@ -182,6 +198,7 @@ public slots:
 protected:
 	void doGeneralApply(void);
 	void doGeometryApply(void);
+	void doLDrawApply(void);
 	void doEffectsApply(void);
 	void doPrimitivesApply(void);
 	void doUpdatesApply(void);
@@ -194,6 +211,7 @@ protected:
 	void reflectSettings(void);
 	void reflectGeneralSettings(void);
 	void reflectGeometrySettings(void);
+	void reflectLDrawSettings(void);
 	void reflectWireframeSettings(void);
 	void reflectBFCSettings(void);
 	void reflectEffectsSettings(void);
@@ -252,6 +270,7 @@ protected:
 
 	LDrawModelViewer *modelViewer;
 	LDPreferences    *ldPrefs;
+	LDVWidget        *ldvModelWidget;
 
 	QColor backgroundColor;
 	QColor defaultColor;
@@ -259,6 +278,7 @@ protected:
 	bool usingLDView;
 	bool checkAbandon;
 	int hotKeyIndex;
+	bool listViewPopulated;
 
 	// Other Settings
 	bool statusBar;

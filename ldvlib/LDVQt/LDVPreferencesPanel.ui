@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>487</width>
+    <width>534</width>
     <height>590</height>
    </rect>
   </property>
@@ -723,6 +723,219 @@
             <string>Reset</string>
            </property>
           </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="ldrawTab">
+      <attribute name="title">
+       <string>LDraw</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QGridLayout" name="_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="ldrawZipLabel">
+           <property name="text">
+            <string>LDraw zip:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="ldrawZipEdit"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="ldrawZipButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="ldrawDirLabel">
+           <property name="text">
+            <string>LDraw Dir:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="ldrawDirEdit"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="ldrawDirButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="ldrawExtraLabel">
+         <property name="text">
+          <string>Add and organize extra search directories below.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="_3">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QListWidget" name="ExtraDirListView">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="_4">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="addExtraDirButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="delExtraDirButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="upExtraDirButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Up</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="downExtraDirButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Down</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="SpacerAfterExtra">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -3671,6 +3884,35 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="updateLDrawLibraryBox">
+         <property name="title">
+          <string>Check for Library Updates</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QPushButton" name="updateLDrawLibraryButton">
+            <property name="text">
+             <string>Update...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="SpacerU4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -3975,6 +4217,15 @@ into effect until the next time a model is loaded.</string>
   <tabstop>exportsSaveDirButton</tabstop>
   <tabstop>iniFileEdit</tabstop>
   <tabstop>generalResetButton</tabstop>
+  <tabstop>ldrawZipEdit</tabstop>
+  <tabstop>ldrawZipButton</tabstop>
+  <tabstop>ldrawDirEdit</tabstop>
+  <tabstop>ldrawDirButton</tabstop>
+  <tabstop>ExtraDirListView</tabstop>
+  <tabstop>addExtraDirButton</tabstop>
+  <tabstop>delExtraDirButton</tabstop>
+  <tabstop>upExtraDirButton</tabstop>
+  <tabstop>downExtraDirButton</tabstop>
   <tabstop>seamWidthButton</tabstop>
   <tabstop>seamWidthDoubleSpin</tabstop>
   <tabstop>partBoundingBoxOnlyBox</tabstop>
@@ -3994,6 +4245,7 @@ into effect until the next time a model is loaded.</string>
   <tabstop>highQualityLinesButton</tabstop>
   <tabstop>alwaysBlackLinesButton</tabstop>
   <tabstop>edgeThicknessSlider</tabstop>
+  <tabstop>geometryResetButton</tabstop>
   <tabstop>lightingButton</tabstop>
   <tabstop>qualityLightingButton</tabstop>
   <tabstop>subduedLightingButton</tabstop>
@@ -4042,10 +4294,6 @@ into effect until the next time a model is loaded.</string>
   <tabstop>lowQualityStudsButton</tabstop>
   <tabstop>hiresPrimitivesButton</tabstop>
   <tabstop>primitvesResetButton</tabstop>
-  <tabstop>preferenceSetList</tabstop>
-  <tabstop>hotkeyPreferenceSetButton</tabstop>
-  <tabstop>delPreferenceSetButton</tabstop>
-  <tabstop>newPreferenceSetButton</tabstop>
   <tabstop>updatesNoproxyButton</tabstop>
   <tabstop>updatesWindowsproxyButton</tabstop>
   <tabstop>updatesProxyButton</tabstop>
@@ -4055,11 +4303,15 @@ into effect until the next time a model is loaded.</string>
   <tabstop>daymissingpartcheckText</tabstop>
   <tabstop>dayupdatedpartcheckText</tabstop>
   <tabstop>updatesResetTimesButton</tabstop>
+  <tabstop>updateLDrawLibraryButton</tabstop>
   <tabstop>updatesResetButton</tabstop>
+  <tabstop>preferenceSetList</tabstop>
+  <tabstop>hotkeyPreferenceSetButton</tabstop>
+  <tabstop>delPreferenceSetButton</tabstop>
+  <tabstop>newPreferenceSetButton</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>applyButton</tabstop>
-  <tabstop>geometryResetButton</tabstop>
  </tabstops>
  <resources>
   <include location="../../mainApp/lpub3d.qrc"/>

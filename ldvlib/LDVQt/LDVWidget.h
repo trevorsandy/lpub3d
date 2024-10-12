@@ -26,6 +26,7 @@
 #include <QtGui>
 
 #include <TCFoundation/TCAlertManager.h>
+#include <LDLib/LDLibraryUpdater.h>
 #include <LDLib/LDInputHandler.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDSnapshotTaker.h>
@@ -36,10 +37,16 @@
 
 #include "LDVHtmlInventory.h"
 
+#define LIBRARY_UPDATE_FINISHED 1
+#define LIBRARY_UPDATE_CANCELED 2
+#define LIBRARY_UPDATE_NONE 3
+#define LIBRARY_UPDATE_ERROR 4
+
 class LDrawModelViewer;
 class LDVAlertHandler;
 class LDSnapshotTaker;
 class LDVHtmlInventory;
+class TCProgressAlert;
 
 class lcHttpReply;
 class lcHttpManager;
@@ -87,11 +94,20 @@ public:
 	void showDocument(QString &htmlFilename);
 	bool getDarkTheme() { return darkTheme; }
 
+	bool installLDraw();
+	void createLibraryUpdateWindow(void);
+	void showLibraryUpdateWindow(bool initialInstall);
+	void libraryUpdateFinished(int finishType);
+	void checkForLibraryUpdates(void);
+
 signals:
 	void loadBLCodesSig();
 
 public slots:
 	void DownloadFinished(lcHttpReply* Reply);
+
+protected slots:
+	virtual void doLibraryUpdateCanceled(void);
 
 protected:
 	bool setIniFile(void);
@@ -104,6 +120,26 @@ protected:
 	bool getUseFBO(void);
 	bool loadModel(const char *filename);
 	void setupSnapshotBackBuffer(int width, int height);
+
+	char *getLDrawDir(void);
+	bool verifyLDrawDir(bool forceChoose = false);
+	bool verifyLDrawDir(char *value);
+	bool promptForLDrawDir(QString prompt);
+	void libraryUpdateProgress(TCProgressAlert *alert);
+	void setLibraryUpdateProgress(float progress);
+
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+	LDLibraryUpdater *libraryUpdater;
+#endif
+	bool ldrawLibraryUpdateFinished;
+	bool ldrawLibraryUpdateCanceled;
+	bool ldrawLibraryUpdateFinishNotified;
+	QString libraryUpdateProgressMessage;
+	float libraryUpdateProgressValue;
+	bool libraryUpdateProgressReady;
+	int libraryUpdateFinishCode;
+	int libraryUpdateTimer;
+	QProgressDialog *libraryUpdateWindow;
 
 	IniFlag                iniFlag;
 	bool                   forceIni;
@@ -123,6 +159,8 @@ protected:
 	const char            *partListKey;
 	const char            *modelExt;
 	bool                   saveImageZoomToFit;
+	bool                   commandLineSnapshotSave;
+	bool                   showLDrawZipMsg;
 	LDInputHandler::ViewMode viewMode;
 
 	struct IniFile

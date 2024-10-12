@@ -47,6 +47,7 @@
 #include <TCFoundation/TCLocalStrings.h>
 #include <TCFoundation/TCStringArray.h>
 #include <TCFoundation/TCAlertManager.h>
+#include <TCFoundation/TCProgressAlert.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 
 #include <LDLoader/LDLModel.h>
@@ -90,6 +91,7 @@
 #define PNG_IMAGE_TYPE_INDEX 1
 #define WINDOW_WIDTH_DEFAULT 640
 #define WINDOW_HEIGHT_DEFAULT 480
+#define LDRAW_ZIP_SHOW_WARNING_KEY "LDrawZipShowWarning"
 
 LDVWidget* ldvWidget;
 
@@ -120,6 +122,8 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		imageInputFilename(nullptr),
 		partListKey(nullptr),
 		modelExt(nullptr),
+		saveImageZoomToFit(false),
+		commandLineSnapshotSave(false),
 		viewMode(LDInputHandler::VMExamine)
 {
 	iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
@@ -220,6 +224,9 @@ bool LDVWidget::doCommand(QStringList &arguments)
 			}
 		}
 	}
+	char *snapshotFilename =
+		TCUserDefaults::stringForKey(SAVE_SNAPSHOT_KEY);
+	commandLineSnapshotSave = (snapshotFilename ? true : false);
 	return retValue;
 }
 
@@ -888,6 +895,68 @@ bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
 	return false;
 }
 
+void LDVWidget::libraryUpdateProgress(TCProgressAlert *alert)
+{
+	// NOTE: this gets called from inside one of the library update threads.  It
+	// does NOT happen in the app's main thread.
+
+
+	// Are we allowed to update widgets from outside the main thread? NOPE!
+	//lock();
+	//debugPrintf("Updater progress (%s): %f\n", alert->getMessage(),
+	//	alert->getProgress());
+	libraryUpdateProgressMessage = QString::fromWCharArray(alert->getWMessage());
+	libraryUpdateProgressValue = alert->getProgress();
+	libraryUpdateProgressReady = true;
+	//unlock();
+	if (alert->getProgress() == 1.0f)
+	{
+		// Progress of 1.0 means the library updater is done.
+		if (alert->getExtraInfo())
+		{
+			// We can't call doLibraryUpdateFinished directly, because we're
+			// executing from the library update thread.  The
+			// doLibraryUpdateFinished function waits for the library update
+			// thread to complete.  That will never happen if it's executing
+			// inside the library update thread.  So we record the finish code,
+			// tell ourselves we have done so, and the doLibraryUpdateTimer()
+			// slot will take care of the rest when running in non-modal mode,
+			// and the modal loop will take care of things when running in
+			// modal mode (during initial library install).
+			if (strcmp((*(alert->getExtraInfo()))[0], "None") == 0)
+			{
+				libraryUpdateFinishCode = LIBRARY_UPDATE_NONE;
+			}
+			else
+			{
+				libraryUpdateFinishCode = LIBRARY_UPDATE_FINISHED;
+			}
+		}
+		else
+		{
+			libraryUpdateFinishCode = LIBRARY_UPDATE_CANCELED;
+		}
+		// Just as a note, while I believe that assignment of an int is an
+		// atomic operation (and therefore doesn't require thread checking),
+		// I'm not 100% sure of this.  So set the code first, and then once
+		// it's definitely set, set the notification.  I really couldn't care
+		// less if the notification setting is atomic, since I'm only doing a
+		// boolean compare on it.
+		ldrawLibraryUpdateFinishNotified = true;
+	}
+	else if (alert->getProgress() == 2.0f)
+	{
+		// Progress of 2.0 means the library updater encountered an
+		// error.
+		libraryUpdateFinishCode = LIBRARY_UPDATE_ERROR;
+		ldrawLibraryUpdateFinishNotified = true;
+	}
+	if (ldrawLibraryUpdateCanceled)
+	{
+		alert->abort();
+	}
+}
+
 bool LDVWidget::staticFileCaseCallback(char *filename)
 {
 	char *shortName;
@@ -946,6 +1015,382 @@ void LDVWidget::setupSnapshotBackBuffer(int width, int height)
 	modelViewer->setHeight(height);
 	modelViewer->setup();
 	glReadBuffer(GL_BACK);
+}
+
+bool LDVWidget::verifyLDrawDir(char *value)
+{
+	QString currentDir = QDir::currentPath();
+	bool found = false;
+	char buf[128];
+
+	if (QDir::setCurrent(value))
+	{
+		strcpy(buf, "parts");
+		if (staticFileCaseCallback(buf) && QDir::current().cd(buf))
+		{
+			QDir::setCurrent(value);
+			strcpy(buf, "p");
+			if (staticFileCaseCallback(buf) && QDir::current().cd(buf))
+			{
+				LDLModel::setLDrawDir(value);
+				found = true;
+			}
+		}
+		QDir::setCurrent(currentDir);
+		if (LDVPreferences::getLDrawZipPath())
+		{
+			LDLModel::setLDrawDir(value);
+			return true;
+		}
+	}
+	return found;
+}
+
+bool LDVWidget::verifyLDrawDir(bool forceChoose)
+{
+	char *lDrawDir = getLDrawDir();
+	bool found = false;
+
+	if (!forceChoose &&
+		(!TCUserDefaults::longForKey(VERIFY_LDRAW_DIR_KEY, 1, false) ||
+		verifyLDrawDir(lDrawDir)))
+	{
+		delete lDrawDir;
+		found = true;
+	}
+	else
+	{
+		if (commandLineSnapshotSave) return true;
+		bool ans = true;
+		if (!verifyLDrawDir(lDrawDir))
+		{
+			ans = (QMessageBox::question(this, "LDView",
+				QString::fromWCharArray(TCLocalStrings::get(L"LDrawDirExistsPrompt")),
+#if QT_VERSION >= QT_VERSION_CHECK(6,2,0)
+					QMessageBox::Yes | QMessageBox::No , QMessageBox::No
+#else
+					QMessageBox::Yes, QMessageBox::No | QMessageBox::Default
+#endif
+				) == QMessageBox::Yes);
+		}
+		delete lDrawDir;
+		if (ans)
+		{
+			while (!found)
+			{
+				if (promptForLDrawDir(QString()))
+				{
+					lDrawDir = getLDrawDir();
+					if (verifyLDrawDir(lDrawDir))
+					{
+						found = true;
+					}
+					else
+					{
+						QMessageBox::warning(this,
+							QString::fromWCharArray(TCLocalStrings::get(L"InvalidDir")),
+							QString::fromWCharArray(TCLocalStrings::get(L"LDrawNotInDir")),
+							QMessageBox::Ok, QMessageBox::NoButton);
+					}
+					delete lDrawDir;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (QMessageBox::warning(this,
+				"LDView", QString::fromWCharArray(TCLocalStrings::get(L"WillDownloadLDraw")),
+				QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
+			{
+				LDLModel::setLDrawDir("/");
+				if (promptForLDrawDir(
+					QString::fromWCharArray(TCLocalStrings::get(L"LDrawInstallDirPrompt"))))
+				{
+					if (installLDraw())
+					{
+						found = true;
+					}
+				}
+			}
+		}
+	}
+	return found;
+}
+
+char *LDVWidget::getLDrawDir(void)
+{
+	char *lDrawDir = LDVPreferences::getLDrawDir();
+
+	if (!lDrawDir)
+	{
+		lDrawDir = copyString(getenv("LDRAWDIR"));
+		if (!lDrawDir)
+		{
+			lDrawDir = copyString("/usr/share/ldraw");
+		}
+	}
+	stripTrailingPathSeparators(lDrawDir);
+	return lDrawDir;
+}
+
+bool LDVWidget::promptForLDrawDir(QString prompt)
+{
+	char *initialDir = getLDrawDir();
+	bool retValue = false;
+
+	if (prompt.isEmpty())
+	{
+		prompt = QString::fromWCharArray(TCLocalStrings::get(L"LDrawDirPrompt"));
+	}
+	QDir::setCurrent(initialDir);
+	QString selectedfile=QFileDialog::getExistingDirectory(this,prompt,".");
+	if (!selectedfile.isEmpty())
+	{
+		LDVPreferences::setLDrawDir(selectedfile.toUtf8().constData());
+		retValue = true;
+	}
+	return retValue;
+}
+
+void LDVWidget::checkForLibraryUpdates(void)
+{
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+	bool showLDrawZipMsg = TCUserDefaults::boolForKey(LDRAW_ZIP_SHOW_WARNING_KEY, true, false);
+	if (LDVPreferences::getLDrawZipPath() && showLDrawZipMsg)
+	{
+		QMessageBox mb;
+		QString title,message,zipPath=LDVPreferences::getLDrawZipPath();
+		message=QString::fromWCharArray(TCLocalStrings::get(L"ReplaceLDrawZipMessage"));
+		message.replace(QString("%s"),zipPath);
+		mb.setText(message);
+		mb.setWindowTitle(QString::fromWCharArray(TCLocalStrings::get(L"ReplaceLDrawZipTitle")));
+		mb.addButton(QMessageBox::Yes);
+		mb.addButton(QMessageBox::No);
+		mb.setIcon(QMessageBox::Icon::Question);
+		mb.setDefaultButton(QMessageBox::No);
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+		QCheckBox *cb = new QCheckBox("In the future do not show this message");
+		mb.setCheckBox(cb);
+		QObject::connect(cb, &QCheckBox::stateChanged, [&](int state){
+		showLDrawZipMsg = (static_cast<Qt::CheckState>(state) != Qt::CheckState::Checked); });
+#endif
+		mb.exec();
+		TCUserDefaults::setBoolForKey(showLDrawZipMsg, LDRAW_ZIP_SHOW_WARNING_KEY, false);
+		if (mb.result()==QMessageBox::No) { return;}
+	}
+	if (libraryUpdater)
+	{
+		showLibraryUpdateWindow(false);
+	}
+	else
+	{
+		libraryUpdater = new LDLibraryUpdater;
+		char *ldrawDir = getLDrawDir();
+		char *ldrawZip = LDVPreferences::getLDrawZipPath();
+		wchar_t *updateCheckError = NULL;
+
+		ldrawLibraryUpdateCanceled = false;
+		ldrawLibraryUpdateFinishNotified = false;
+		ldrawLibraryUpdateFinished = false;
+		libraryUpdater->setLibraryUpdateKey(LAST_LIBRARY_UPDATE_KEY);
+		libraryUpdater->setLdrawDir(ldrawDir);
+		libraryUpdater->setLdrawZipPath(ldrawZip);
+		delete ldrawDir;
+		if (libraryUpdater->canCheckForUpdates(updateCheckError))
+		{
+			showLibraryUpdateWindow(false);
+			if (!libraryUpdateTimer)
+			{
+				libraryUpdateTimer = startTimer(50);
+			}
+			libraryUpdater->checkForUpdates();
+		}
+		else
+		{
+			QString qs;
+			wcstoqstring(qs, updateCheckError);
+			QMessageBox::warning(this,"LDView", qs,
+				QMessageBox::Ok, QMessageBox::NoButton);
+			delete updateCheckError;
+		}
+	}
+#endif // _NO_BOOST
+}
+
+bool LDVWidget::installLDraw(void)
+{
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+	if (libraryUpdater)
+	{
+		return false;
+	}
+	else
+	{
+		char *ldrawParentDir = getLDrawDir();
+		char *ldrawDir = copyString(ldrawParentDir, 255);
+		QDir originalDir = QDir::current();
+		bool progressDialogClosed = false;
+
+		ldrawLibraryUpdateFinished = false;
+		strcat(ldrawDir, "/ldraw");
+
+		QDir dir(ldrawDir);
+		if (!dir.exists())
+		{
+			dir.mkdir(ldrawDir);
+		}
+		libraryUpdater = new LDLibraryUpdater;
+		ldrawLibraryUpdateCanceled = false;
+		ldrawLibraryUpdateFinishNotified = false;
+		ldrawLibraryUpdateFinished = false;
+		progressDialogClosed = false;
+		libraryUpdater->setLibraryUpdateKey(LAST_LIBRARY_UPDATE_KEY);
+		libraryUpdater->setLdrawDir(ldrawDir);
+		libraryUpdater->installLDraw();
+		showLibraryUpdateWindow(true);
+		if (!libraryUpdateTimer)
+		{
+			libraryUpdateTimer = startTimer(50);
+		}
+		while (libraryUpdater || !progressDialogClosed)
+		{
+			// We want the update window to be modal, so process events in a
+			// tight modal loop.  (See modal section in QProgressDialog
+			// documentation.)
+			qApp->processEvents();
+			if (!progressDialogClosed && libraryUpdateWindow->wasCanceled())
+			{
+				progressDialogClosed = true;
+				// When the install finishes for real, we change the button
+				// title from "Cancel" to "OK".  However, it still acts like
+				// a cancel.  So check to se if the update really finished, and
+				// if it didn't, then note that the user canceled.
+				if (!ldrawLibraryUpdateFinished)
+				{
+					ldrawLibraryUpdateCanceled = true;
+					libraryUpdateFinished(LIBRARY_UPDATE_CANCELED);
+					//libraryUpdateCanceled = false;
+				}
+				break;
+			}
+			if (ldrawLibraryUpdateFinishNotified)
+			{
+				libraryUpdateFinished(libraryUpdateFinishCode);
+			}
+			// Sleep for 50ms.  Unlike the QProgressDialog example, we aren't
+			// doing anything inside this loop other than processing the
+			// events.  All the work is happening in other threads.  So sleep
+			// for a short time in order to avoid monopolizing the CPU.  Keep in
+			// mind that while 50ms is essentially unnoticable to a user, it's
+			// quite a long time to the computer.
+#ifdef WIN32
+			Sleep(50);
+#else // WIN32
+			usleep(50000);
+#endif // WIN32
+		}
+		if (ldrawLibraryUpdateFinished)
+		{
+			LDLModel::setLDrawDir(ldrawDir);
+			LDVPreferences::setLDrawDir(ldrawDir);
+		}
+		delete ldrawDir;
+		return ldrawLibraryUpdateFinished;
+	}
+#endif // _NO_BOOST
+}
+
+void LDVWidget::libraryUpdateFinished(int finishType)
+{
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+	if (libraryUpdater)
+	{
+		QString statusText;
+
+		libraryUpdateWindow->setCancelButtonText(QString::fromWCharArray(TCLocalStrings::get(L"OK")));
+		setLibraryUpdateProgress(1.0f);
+		if (libraryUpdater->getError() && ucstrlen(libraryUpdater->getError()))
+		{
+			QString qError;
+
+			statusText = QString::fromWCharArray(TCLocalStrings::get(L"LibraryUpdateError"));
+			statusText += ":\n";
+			ucstringtoqstring(qError, libraryUpdater->getError());
+			statusText += qError;
+		}
+		switch (finishType)
+		{
+		case LIBRARY_UPDATE_FINISHED:
+			ldrawLibraryUpdateFinished = true;
+			statusText = QString::fromWCharArray(TCLocalStrings::get(L"LibraryUpdateComplete"));
+			break;
+		case LIBRARY_UPDATE_CANCELED:
+			statusText = QString::fromWCharArray(TCLocalStrings::get(L"LibraryUpdateCanceled"));
+			break;
+		case LIBRARY_UPDATE_NONE:
+			statusText = QString::fromWCharArray(TCLocalStrings::get(L"LibraryUpdateUnnecessary"));
+			break;
+		}
+		debugPrintf("About to release library updater.\n");
+		libraryUpdater->release();
+		debugPrintf("Released library updater.\n");
+		libraryUpdater = nullptr;
+		if (statusText.length())
+		{
+			libraryUpdateWindow->setLabelText(statusText);
+		}
+	}
+#endif // _NO_BOOST
+}
+
+void LDVWidget::showLibraryUpdateWindow(bool initialInstall)
+{
+#if !defined(_NO_BOOST) || defined(USE_CPP11)
+	if (!libraryUpdateWindow)
+	{
+		createLibraryUpdateWindow();
+	}
+	libraryUpdateWindow->setCancelButtonText(QString::fromWCharArray(TCLocalStrings::get(L"Cancel")));
+	libraryUpdateWindow->reset();
+	libraryUpdateWindow->show();
+	if (initialInstall)
+	{
+		libraryUpdateWindow->setModal(true);
+	}
+	else
+	{
+		libraryUpdateWindow->setModal(false);
+		connect(libraryUpdateWindow, SIGNAL(canceled()), this,
+			SLOT(doLibraryUpdateCanceled()));
+	}
+#endif // _NO_BOOST
+}
+
+void LDVWidget::createLibraryUpdateWindow(void)
+{
+	if (!libraryUpdateWindow)
+	{
+		libraryUpdateWindow = new QProgressDialog(
+						QString::fromWCharArray(TCLocalStrings::get(L"CheckingForUpdates")),
+						QString::fromWCharArray(TCLocalStrings::get(L"Cancel")),
+						0,100,this);
+		libraryUpdateWindow->setMinimumDuration(0);
+		libraryUpdateWindow->setAutoReset(false);
+	}
+}
+
+void LDVWidget::setLibraryUpdateProgress(float progress)
+{
+	libraryUpdateWindow->setValue((int)(progress * 100));
+}
+
+void LDVWidget::doLibraryUpdateCanceled(void)
+{
+	ldrawLibraryUpdateCanceled = true;
 }
 
 void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
