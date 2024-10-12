@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: March 11, 2023
+# Last Update: September 06, 2023
 # Copyright (C) 2021 - 2024 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -28,7 +28,7 @@ jobs:
         BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64 ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -37,7 +37,7 @@ jobs:
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
         id: cache-third-party
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-${{ matrix.BUILD }}-${{ secrets.THIRD_PARTY_CACHE }}
@@ -71,7 +71,7 @@ jobs:
     runs-on: macos-11
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -80,7 +80,7 @@ jobs:
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
         id: cache-third-party
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
@@ -111,7 +111,7 @@ jobs:
     runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Work Paths
@@ -121,13 +121,13 @@ jobs:
           Echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       - name: Cache Third-party # distribution folder
         id: cache-third-party
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-windows-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Cache QtMSVC 2019
         id: cache-qt
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_BUILD_BASE }}\Qt
           key: qt-windows-${{ env.QT_CACHE }}
@@ -137,7 +137,7 @@ jobs:
           Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
         shell: powershell
       - name: Qt MSVC 2019 64bit # path: ..\Qt\5.15.2\msvc2019_64\bin
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: 5.15.2
           host: windows
@@ -146,7 +146,7 @@ jobs:
           cache: true
           cache-key-prefix: install-qt-action
       - name: Qt MSVC 2019 32bit # path: ..\Qt\5.15.2\msvc2019\bin
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: 5.15.2
           host: windows
@@ -196,13 +196,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Assets Path
         run: echo "LP3D_BUILD_ASSETS=$(cd ../ && echo "$PWD/assets")" >> ${GITHUB_ENV}
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with: # omit 'with: name:' to download all artifacts
           path: ${{ env.LP3D_BUILD_ASSETS }}
       - name: List Assets
