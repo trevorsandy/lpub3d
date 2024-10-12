@@ -312,7 +312,7 @@ contains(LOAD_LDV_LIBS,True) {
         REDIRECT_CMD = >
     }
 
-    LDVMESSAGESINI = ldvMessages.ini
+    #LDVMESSAGESINI defined in mainApp.pro
     isEmpty(LDVMESSAGESINI_DEP): \
     LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
     LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )

@@ -113,6 +113,7 @@ CONFIG(debug, debug|release) {
 }
 # Load LDView libraries for LDVQt
 LOAD_LDV_LIBS = True
+LDVMESSAGESINI = ldvMessages.ini
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
