@@ -1242,7 +1242,7 @@ QAction* CommonMenus::rendererArgumentsMenu(
   action->setParent(menu.parent());
   action->setObjectName(objectName.isEmpty() ? "rendererArgumentsAction.1" : objectName);
   action->setProperty("name", name);
-  action->setIcon(QIcon(":/resources/display.png"));
+  action->setIcon(QIcon(":/resources/rendererarguments.png"));
 
   formatted = QObject::tr("Add %1 arguments") .arg(renderer.toLower());
   action->setStatusTip(formatted);
@@ -3835,7 +3835,10 @@ void CommonMenus::setWhatsThis()
         // WT_DIALOG_DOUBLE_SPIN **
         {
             QObject::tr(
-            "  Set the value for this item using a decimal number.%1\n")
+            "  Set the value for this item using a decimal number.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_DIALOG_DOUBLE_SPIN")
@@ -3879,7 +3882,10 @@ void CommonMenus::setWhatsThis()
         // WT_DIALOG_FLOAT **
         {
             QObject::tr(
-            "  Set the value for this item using a decimal number.%1\n")
+            "  Set the value for this item using a decimal number.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_DIALOG_FLOAT")
@@ -3892,7 +3898,10 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Set the value pair for this item using decimal\n"
-            "  numbers.%1\n")
+            "  numbers.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_DIALOG_FLOAT_PAIR")
@@ -7501,7 +7510,10 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_CHECK_BOX
         {
             QObject::tr(
-            "  Check to enable property and uncheck to disable.%1\n")
+            "  Check to enable property and uncheck to disable.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_CHECK_BOX")
@@ -7518,7 +7530,10 @@ void CommonMenus::setWhatsThis()
             "  - Unit Value 1: set the second unit value.\n\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.%2\n")
+            "    Dot units are defined in Project Global Setup.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control%2\n")
             .arg(MetaDefaults::getPreferredUnits())
             .arg(
 #ifdef QT_DEBUG_MODE
@@ -7537,7 +7552,10 @@ void CommonMenus::setWhatsThis()
             "  - Margins: set the number margin area width/height.\n\n"
             "    Enter margin values using a decimal number\n"
             "    in %1.\n"
-            "    Dot units are defined in Project Global Setup.%2\n")
+            "    Dot units are defined in Project Global Setup.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control%2\n")
             .arg(MetaDefaults::getPreferredUnits())
             .arg(
 #ifdef QT_DEBUG_MODE
@@ -7552,7 +7570,10 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Select between the pair of option alternatives.\n"
             "  The selected option is set to true while the\n"
-            "  unselected option is false.%1\n")
+            "  unselected option is false.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_BOOL_RADIO_BUTTON")
@@ -7656,7 +7677,10 @@ void CommonMenus::setWhatsThis()
             "    accepted as input.\n\n"
             "  - SingleStep: the step by which the integer value is\n"
             "    increased and decreased.\n\n"
-            "  - Value: the current integer number accepted as input.%1\n")
+            "  - Value: the current integer number accepted as input\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_SPIN")
@@ -7670,7 +7694,10 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Configure a pair of floating point (decimal) numbers\n"
             "  with double precision.\n\n"
-            "  Three decimal places (e.g. 1.012) is a good example.%1\n")
+            "  Three decimal places (e.g. 1.012) is a good example.\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_FLOATS")
@@ -7686,7 +7713,10 @@ void CommonMenus::setWhatsThis()
             "  - Use PliSortOrderGui.\n\n"
             "  - Sort Attributes: part size, colorcategory.\n\n"
             "  - Direction: direction are ascending - from small\n"
-            "    to large.%1\n")
+            "    to large\n\n"
+            "  Select 'What's this' Help on this check box's\n"
+            "  parent group box to see additional details\n"
+            "  about the behaviour enabled by this control.%1\n")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_PART_SORT")
