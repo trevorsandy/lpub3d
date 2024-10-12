@@ -141,11 +141,13 @@ enum LDrawFileRegExpType {
     B64_RX,  // Base 64 Image Data Line
     EOF_RX,  // End of File
     LDR_RX,  // LDraw File
-    AUT_RX,  // Author Header
+    DES_RX,  // Model Description
     NAM_RX,  // Name Header
+    NAK_RX,  // Name Header Key
+    AUT_RX,  // Author Header
+    AUK_RX,  // Author Header Key
     CAT_RX,  // Category Header
     INC_RX,  // Include File
-    DES_RX,  // Model Description
     LDG_RX,  // LDCad Group
     LDC_RX,  // LDCad Generated Content
     EOH_RX,  // End of Header

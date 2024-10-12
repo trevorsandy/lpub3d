@@ -305,8 +305,12 @@ class LDrawFile {
     bool displayModel;
     bool topHeaderFinished;
     bool ldcadGroupsLoaded;
+    bool hdrNameKey;
+    bool hdrAuthorKey;
     int  unofficialPart;
-    int  descriptionLine;
+    int  hdrDescLine;
+    int  hdrNameLine;
+    int  hdrAuthorLine;
     int  buildModLevel;
 
     bool loadIncludeFile(const QString &mcFileName);
@@ -416,7 +420,8 @@ class LDrawFile {
     QStringList contents(const QString &fileName);
     QStringList smiContents(const QString &fileName);
     QString getSubFilePath(const QString &fileName);
-    void normalizeHeader(const QString &fileName,
+    void normalizeHeader(const QString &subfileName,
+                         const QString &fileName = QString(),
                          int missing = 0);
     void setUnofficialPart(const QString &mcFileName,
                            const int type = 1/*UNOFFICIAL_PART*/);
