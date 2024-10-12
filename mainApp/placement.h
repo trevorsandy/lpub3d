@@ -319,36 +319,68 @@ class PlacementNum : public Placement {
     int addStepNumber(Page *page, QGraphicsItem *parent);
 };
 
+//-----------------Page Header/Footer---------------------
+
 class PlacementHeader : public Placement,
                         public QGraphicsRectItem {
 public:
     PlacementHeader(){}
-    PlacementHeader(
-        PageHeaderMeta &_pageHeaderMeta,
-        QGraphicsItem  *_parent)
+    PlacementHeader(PageHeaderMeta &_pageHeaderMeta, QGraphicsItem  *_parent);
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-      relativeType = PageHeaderType;
-      placement    = _pageHeaderMeta.placement;
-      size[XX]     = _pageHeaderMeta.size.valuePixels(0);
-      size[YY]     = _pageHeaderMeta.size.valuePixels(1);
-      setParentItem(_parent);
+        mouseIsDown = true;
+        QGraphicsItem::mousePressEvent(event);
     }
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    {
+        mouseIsDown = false;
+        QGraphicsItem::mouseReleaseEvent(event);
+    }
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+    {
+        isHovered = !this->isSelected() && !mouseIsDown;
+        QGraphicsItem::hoverEnterEvent(event);
+    }
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+    {
+        isHovered = false;
+        QGraphicsItem::hoverLeaveEvent(event);
+    }
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    bool isHovered;
+    bool mouseIsDown;
 };
 
 class PlacementFooter : public Placement ,
                         public QGraphicsRectItem {
 public:
     PlacementFooter(){}
-    PlacementFooter(
-        PageFooterMeta &_pageFooterMeta,
-        QGraphicsItem  *_parent)
+    PlacementFooter(PageFooterMeta &_pageFooterMeta, QGraphicsItem  *_parent);
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-      relativeType = PageFooterType;
-      placement    = _pageFooterMeta.placement;
-      size[XX]     = _pageFooterMeta.size.valuePixels(0);
-      size[YY]     = _pageFooterMeta.size.valuePixels(1);
-      setParentItem(_parent);
+        mouseIsDown = true;
+        QGraphicsItem::mousePressEvent(event);
     }
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    {
+        mouseIsDown = false;
+        QGraphicsItem::mouseReleaseEvent(event);
+    }
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+    {
+        isHovered = !this->isSelected() && !mouseIsDown;
+        QGraphicsItem::hoverEnterEvent(event);
+    }
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+    {
+        isHovered = false;
+        QGraphicsItem::hoverLeaveEvent(event);
+    }
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    bool isHovered;
+    bool mouseIsDown;
 };
 
 // for debugging tables

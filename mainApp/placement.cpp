@@ -791,3 +791,66 @@ void Placement::calcOffsets(
   offset[0] /= relativeToSize[0];
   offset[1] /= relativeToSize[1];
 }
+
+//-----------------Page Header/Footer---------------------
+
+PlacementHeader::PlacementHeader(
+    PageHeaderMeta &_pageHeaderMeta,
+    QGraphicsItem  *_parent)
+    : isHovered(false)
+    , mouseIsDown(false)
+{
+    relativeType = PageHeaderType;
+    placement    = _pageHeaderMeta.placement;
+    size[XX]     = _pageHeaderMeta.size.valuePixels(0);
+    size[YY]     = _pageHeaderMeta.size.valuePixels(1);
+    setPen(Qt::NoPen);
+    setToolTip(QObject::tr("Page Header [%1 x %2 px]").arg(size[XX]).arg(size[YY]));
+    setParentItem(_parent);
+    setFlag(QGraphicsItem::ItemIsMovable,false);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setAcceptHoverEvents(true);
+}
+
+void PlacementHeader::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsRectItem::paint(painter,option,widget);
+}
+
+PlacementFooter::PlacementFooter(
+    PageFooterMeta &_pageFooterMeta,
+    QGraphicsItem  *_parent)
+    : isHovered(false)
+    , mouseIsDown(false)
+{
+    relativeType = PageFooterType;
+    placement    = _pageFooterMeta.placement;
+    size[XX]     = _pageFooterMeta.size.valuePixels(0);
+    size[YY]     = _pageFooterMeta.size.valuePixels(1);
+    setPen(Qt::NoPen);
+    setToolTip(QObject::tr("Page Footer [%1 x %2 px]").arg(size[XX]).arg(size[YY]));
+    setParentItem(_parent);
+    setFlag(QGraphicsItem::ItemIsMovable,false);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setAcceptHoverEvents(true);
+}
+
+void PlacementFooter::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsRectItem::paint(painter,option,widget);
+}
+
