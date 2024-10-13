@@ -1,99 +1,122 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 22, 2024
-#
-# Purpose:
-# This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d] repository commits, one at a time, to production.
-# However, commits can be moved between any of the receiving or sourced repositories.
-#
-# Note: Use the accompanying script: 'next_cutover.sh' to automate the 'cutover' of a range of commits.
-#
-# Setup:
-# For successful execution it must be placed at the root of the repositories, for example:
-#   ./lpub3d
-#   ./lpub3d
-#   ./ci_cutover.sh
-#
-# Execution Steps:
-#
-# Note: Use the accompanying script: 'next_cutover.sh' to automate the 'cutover' of a range of commits.
-#
-# Preq 1 of 3 Enable script execution [execute once]
-# $ chmod +x ci_cutover.sh && ./ci_cutover.sh
-#
-# Preq 2 of 3 Set 'Next' version number [execute once]
-# $ sed 's/2.4.5/<next version>/g' -i ci_cutover.sh
-#
-# Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d repository at the
-#   last production commit. [execute once]
-#
-# Step 1 of 3 from the CUTOVER branch add your master/dev branch commit by executing
-#   'reset to this commit' or 'cherrypick commit' [execute for each commit]
-#
-# Step 2 of 3 Production commits [execute for each commit except the final one for version change]
-# $ env MSG="<commit> #No" CFG=yes TAG=v2.4.5 ./ci_cutover.sh
-#
-# Step 3 of 3 Final commit and production version change [execute once for version
-#   change [BE CAREFUL - THIS ADDS A TAG]
-# $ env MSG="LPub3D v2.4.5" TAG=v2.4.5 REL=1  CFG=yes ./ci_cutover.sh
-#
-# Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d'
-# $ cp -f lpub3d/mainApp/docs/README.txt lpub3d/mainApp/docs/
-# $ cp -f lpub3d/mainApp/docs/RELEASE_NOTES.html lpub3d/mainApp/docs/
-#
-# Execution sequence:
-#   - copy lpub3d content to lpub3d folder
-#   - preserve lpub3d git database
-#   - rename all files with 'lpub3d' in the name to 'lpub3d'
-#   - change all occurrences of 'lpub3d' to 'lpub3d'
-#   - update README.md Title - remove or change ' - Dev, CI, and Test'
-#   - create pre-commit githook
-#   - create .secrets.tar.unc file
-#   - add version to config files (create new tag, run config-files...)
-#   - if standard commit, delete build tab
-#
-# Environment variables:
-#   - REPO_BASE: Repository base URL [Default=https://github.com/trevorsandy]
-#   - FROM_REPO: Development repository [Default=lpub3d]
-#   - TO_REPO: Production or maintenance repository [Default=lpub3d]
-#   - MSG: Git commit message [Default="LPub3D ${TAG}"] - change as needed
-#   - TAG: Git tag [Default=null] - change as needed
-#   - NEW_TAG: Next Git tag [Default=null] - change as needed
-#   - AUTO: Do not prompt to continue after pausing at options status [Default=null]
-#   - CFG: Set OBS config and README file updates [Default=no]
-#   - REL: Release build, do not delete build tag [Default=no]
-#   - REV: Increment revision [Default=yes]
-#   - CNT: Increment commit count [Default=yes]
-#   - NOSTAT: Do not show the options_status [Default=null]
-#   - MIN_RN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES [Default=null]
-#   - MAX_RN_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES [Default=null]
-#   - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [Default=no]
-#
-# Command Examples:
-# $ chmod +x ci_cutover.sh && ./ci_cutover.sh
-# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.4.5 ./ci_cutover.sh
-# $ env MSG="LPub3D version 2.4.5" REL=1 CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D version 2.4.5" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="Issue template and renderer logging updates" CFG=yes ./ci_cutover.sh
-#
-# Move from lpub3d to lpub3d-obs repository
-# $ env TO_REPO=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.4.5 ./ci_cutover.sh
-#
-# Move from lpub3d to lpub3d repository
-# Step 1 of 2 Production commits [execute for each commit except the final one for version change]
-# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 ./ci_cutover.sh
-# Step 2 of 2 Final production commit version change [execute once]
-# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 REL=1 MAX_RN_LINE_DEL=<number> MIN_RN_LINE_DEL=<number>  CFG=yes ./ci_cutover.sh
-#
-# Step 1 of 2 Maintenance commits [Change lpub3dnext branch to CUTOVER_CI and execute for each commit except the final one for version change]
-# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 ./ci_cutover.sh
-# Step 2 of 2 Final maintenance commit version change [execute once]
-# $ env TO_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 REL=1 CFG=yes ./ci_cutover.sh
-#
-# Move from lpub3dnext to lpub3d repository
-# Step 1 of 1 Maintenance commits [Change lpub3d branch to NEXT_IN and execute for each commit except the final one for version change]
-# $ env TO_REPO=lpub3d FROM_REPO=lpub3dnext MSG="<commit hash> <commit message>" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
+# Last Update: October 12, 2024
+# Copyright (C) 2024 by Trevor SANDY
+
+function ShowHelp() {
+    echo
+    echo $0
+	echo 
+	echo "Written by Trevor SANDY"
+    echo
+    echo "Purpose:"
+    echo "This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d] repository commits, one at a time, to production."
+    echo "However, commits can be moved between any of the receiving or sourced repositories."
+    echo
+    echo "Note: Use the accompanying script: 'next_cutover.sh' to automate the 'cutover' of a range of commits."
+    echo
+    echo "Setup:"
+    echo "For successful execution it must be placed at the root of the repositories, for example:"
+    echo "  ./lpub3d"
+    echo "  ./lpub3d"
+    echo "  $0"
+    echo
+    echo "Execution Steps:"
+    echo
+    echo "Note: Use the accompanying script: 'next_cutover.sh' to automate the 'cutover' of a range of commits."
+    echo
+    echo "Preq 1 of 3 Enable script execution [execute once]"
+    echo "  \$ chmod +x $0 && $0"
+    echo
+    echo "Preq 2 of 3 Set 'Next' version number [execute once]"
+    echo "  \$ sed 's/2.4.8/<next version>/g' -i $0"
+    echo
+    echo "Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d repository at the"
+    echo "  last production commit. [execute once]"
+    echo
+    echo "Step 1 of 3 from the CUTOVER branch add your master/dev branch commit by executing"
+    echo "  'reset to this commit' or 'cherrypick commit' [execute for each commit]"
+    echo
+    echo "Step 2 of 3 Production commits [execute for each commit except the final one for version change]"
+    echo "  \$ env MSG='<commit> echoNo' CFG=yes TAG=v2.4.8 $0"
+    echo
+    echo "Step 3 of 3 Final commit and production version change [execute once for version"
+    echo "  change [BE CAREFUL - THIS ADDS A TAG]"
+    echo "  \$ env MSG='LPub3D v2.4.8' TAG=v2.4.8 REL=1  CFG=yes $0"
+    echo
+    echo "Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d'"
+    echo "  \$ cp -f lpub3d/mainApp/docs/README.txt lpub3d/mainApp/docs/"
+    echo "  \$ cp -f lpub3d/mainApp/docs/RELEASE_NOTES.html lpub3d/mainApp/docs/"
+    echo
+    echo "Execution sequence:"
+    echo "  - copy lpub3d content to lpub3d folder"
+    echo "  - preserve lpub3d git database"
+    echo "  - rename all files with 'lpub3d' in the name to 'lpub3d'"
+    echo "  - change all occurrences of 'lpub3d' to 'lpub3d'"
+    echo "  - update README.md Title - remove or change ' - Dev, CI, and Test'"
+    echo "  - create pre-commit githook"
+    echo "  - create .secrets.tar.unc file"
+    echo "  - add version to config files (create new tag, run config-files...)"
+    echo "  - if standard commit, delete build tab"
+    echo
+    echo "Environment variables:"
+    echo "  - REPO_BASE: Repository base URL [Default=https://github.com/trevorsandy]"
+    echo "  - FROM_REPO: Development repository [Default=lpub3d]"
+    echo "  - TO_REPO: Production or maintenance repository [Default=lpub3d]"
+    echo "  - MSG: Git commit message [Default='LPub3D v2.4.8'] - change as needed"
+    echo "  - TAG: Git tag [Default=null] - change as needed"
+    echo "  - NEW_TAG: Next Git tag [Default=null] - change as needed"
+    echo "  - AUTO: Do not prompt to continue after pausing at options status [Default=null]"
+    echo "  - CFG: Set OBS config and README file updates [Default=no]"
+    echo "  - REL: Release build, do not delete build tag [Default=no]"
+    echo "  - REV: Increment revision [Default=yes]"
+    echo "  - CNT: Increment commit count [Default=yes]"
+    echo "  - NOSTAT: Do not show the options_status [Default=null]"
+    echo "  - MIN_RN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES [Default=null]"
+    echo "  - MAX_RN_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES [Default=null]"
+    echo "  - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [Default=no]"
+    echo
+    echo "Command Examples:"
+    echo "  \$ chmod +x $0 && $0"
+    echo "  \$ env MSG='LPub3D pre-release [build pkg]' TAG=v2.4.8 $0"
+    echo "  \$ env MSG='LPub3D version 2.4.8' REL=1 CFG=yes $0"
+    echo "  \$ env FRESH=yes MSG='LPub3D version 2.4.8' TAG=v2.4.8 CFG=yes $0"
+    echo "  \$ env FRESH=yes MSG='LPub3D pre-release [build pkg]' TAG=v2.4.8 CFG=yes $0"
+    echo "  \$ env FRESH=yes MSG='Issue template and renderer logging updates' CFG=yes $0"
+    echo
+    echo "Move from lpub3d to lpub3d-obs repository"
+    echo "  \$ env TO_REPO=lpub3d-obs MSG='Open Build Service Integration and Test' TAG=v2.4.8 $0"
+    echo
+    echo "Move from lpub3d to lpub3d repository"
+    echo "Step 1 of 2 Production commits [execute for each commit except the final one for version change]"
+    echo "  \$ env TO_REPO=lpub3dnext MSG='<commit hash> <commit message>' TAG=v2.4.8 $0"
+    echo
+    echo "Step 2 of 2 Final production commit version change [execute once]"
+    echo "  \$ env TO_REPO=lpub3dnext MSG='<commit hash> <commit message>' TAG=v2.4.8 REL=1 \\"
+    echo "        MAX_RN_LINE_DEL=<number> MIN_RN_LINE_DEL=<number>  CFG=yes $0"
+    echo
+    echo "Step 1 of 2 Maintenance commits [Change lpub3dnext branch to CUTOVER_CI and execute for each"
+    echo "commit except the final one for version change]"
+    echo "  \$ env TO_REPO=lpub3dnext MSG='<commit hash> <commit message>' TAG=v2.4.8 $0"
+    echo
+    echo "Step 2 of 2 Final maintenance commit version change [execute once]"
+    echo "  \$ env TO_REPO=lpub3dnext MSG='<commit hash> <commit message>' TAG=v2.4.8 REL=1 CFG=yes $0"
+    echo
+    echo "Move from lpub3dnext to lpub3d repository"
+    echo "Step 1 of 1 Maintenance commits [Change lpub3d branch to NEXT_IN and execute for each"
+    echo "commit except the final one for version change]"
+    echo "  \$ env TO_REPO=lpub3d FROM_REPO=lpub3dnext MSG='<commit hash> <commit message>' TAG=v2.4.8 CFG=yes $0"
+    echo
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -?|-h|--help) ShowHelp; exit 0 ;;
+        Deb|Pkg|Rpm) continue ;;
+        *) echo "Unknown parameter passed: '$1'. Use -? to show help."; exit 1 ;;
+    esac
+    shift
+done
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
@@ -113,7 +136,7 @@ REPO_BASE_URL=${REPO_BASE:-https://github.com/trevorsandy}
 RELEASE_COMMIT=${REL:-}
 MIN_RN_LN_DEL=${MIN_RN_LINE_DEL:-}
 MAX_RN_LN_DEL=${MAX_RN_LINE_DEL:-}
-COMMIT_MSG=${MSG:-"LPub3D ${TAG}"}
+COMMIT_MSG=${MSG:-LPub3D ${TAG}}
 NEXT_VER_TAG=${NEXT_VER_TAG:-}
 
 COMMAND_COUNT=0
@@ -163,16 +186,18 @@ function show_options_status
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 f="${CWD}/$ME"
+f="${f%.*}"
 ext=".log"
-if [[ -e "$f$ext" ]] ; then
+if [[ -e "${f}_0${ext}" ]]
+then
     i=1
-    f="${f%.*}";
-    while [[ -e "${f}_${i}${ext}" ]]; do
+    while [[ -e "${f}_${i}${ext}" ]]
+    do
       let i++
     done
     f="${f}_${i}${ext}"
-    else
-    f="${f}${ext}"
+else
+    f="${f}_0${ext}"
 fi
 # output log file
 LOG="$f"
@@ -375,7 +400,7 @@ for file in $(find . -type f \
               -not -path "./builds/utilities/icons/*" \
               -not -path "./builds/utilities/ci/build_checks.sh" \
               -not -path "./builds/utilities/ci/travis/releases" \
-              -not -path "./builds/utilities/ci/ci_cutover.sh" \
+              -not -path "./builds/utilities/ci/$0" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               -not -path './.github/workflows/build.yml' \
               -not -path "./gitversion.pri" \
@@ -470,23 +495,23 @@ do
 done
 
 echo "$((COMMAND_COUNT += 1))-Change other line endings from CRLF to LF"
-dos2unix -k builds/utilities/create-dmg &>> $LOG
-dos2unix -k builds/utilities/hooks/* &>> $LOG
-dos2unix -k builds/utilities/json/* &>> $LOG
-dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
 dos2unix -k builds/utilities/ci/github/* &>> $LOG
 dos2unix -k builds/utilities/ci/secure/* &>> $LOG
 dos2unix -k builds/utilities/ci/travis/* &>> $LOG
-dos2unix -k builds/utilities/ci/ci_cutover.sh &>> $LOG
+dos2unix -k builds/utilities/ci/$0 &>> $LOG
 dos2unix -k builds/utilities/ci/next_cutover.sh &>> $LOG
 dos2unix -k builds/utilities/ci/sfdeploy.sh &>> $LOG
+dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
+dos2unix -k builds/utilities/dmg-utils/support/* &>> $LOG
+dos2unix -k builds/utilities/hooks/* &>> $LOG
+dos2unix -k builds/utilities/json/* &>> $LOG
 dos2unix -k builds/utilities/mesa/* &>> $LOG
-dos2unix -k builds/utilities/create-dmg &>> $LOG
 dos2unix -k builds/utilities/CreateRenderers.sh &>> $LOG
 dos2unix -k builds/utilities/README.md &>> $LOG
+dos2unix -k builds/utilities/RunCreate.sh &>> $LOG
+dos2unix -k builds/utilities/set-ldrawdir.command &>> $LOG
 dos2unix -k builds/utilities/update-config-files.sh &>> $LOG
 dos2unix -k builds/utilities/version.info &>> $LOG
-dos2unix -k builds/utilities/set-ldrawdir.command &>> $LOG
 dos2unix -k builds/linux/docker-compose/* &>> $LOG
 dos2unix -k builds/linux/docker-compose/dockerfiles/* &>> $LOG
 dos2unix -k builds/linux/obs/* &>> $LOG
@@ -501,10 +526,11 @@ dos2unix -k gitversion.pri &>> $LOG
 
 echo "$((COMMAND_COUNT += 1))-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/* &>> $LOG
-unix2dos -k builds/utilities/CreateRenderers.bat &>> $LOG
-unix2dos -k builds/utilities/update-config-files.bat &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/* &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/Include/* &>> $LOG
+unix2dos -k builds/utilities/CreateRenderers.bat &>> $LOG
+unix2dos -k builds/utilities/update-config-files.bat &>> $LOG
+unix2dos -k builds/utilities/win_tee.cmd &>> $LOG
 
 echo "$((COMMAND_COUNT += 1))-Add new files..."
 rm -f *.log

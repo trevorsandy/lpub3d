@@ -1,92 +1,115 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 28, 2023
-#
-# Purpose:
-# This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
-# Commit range is processed from oldest to newest using either reset or cherry-pick as specified by user performing cutover.
-# The starting commit 'COMMIT' is exclusive, meaning it is not included in the commits passed to the receiving repository.
-#
-# Setup:
-# For successful execution it and ci_cutover.sh must be placed at the root of the repositories, for example:
-#   ./lpub3d                - production repository
-#   ./lpub3d-ci             - maintenance repository
-#   ./lpub3dnext            - development repository
-#   ./ci_cutover.sh         - single commit cutover script
-#   ./next_cutover.sh       - range of commits cutover script
-#
-# Environment variables:
-#   - DRY_RUN: Do not perform cutover [Default=null]
-#   - FROM_REPO: Development repository [default=lpub3dnext]
-#   - TO_REPO: Production or maintenance repository [default=lpub3d]
-#   - TAG: Release version [Default=2.4.7']
-#   - BRANCH: Working cutover development branch [Default=CUTOVER_CI]
-#   - RELEASE: Create a release commit, preserve build tag, on the last commit [Default=null]
-#   - RN_MIN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES on release commit [Default=null]
-#   - RN_MAX_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES on release commit [Default=null]
-#   - CLONE: Clone a new repository of TO_REPO at the first commit [Default=null]
-#   - CHERRYPICK: Cherry-pick commits as we process the range, otherwise use reset [Default=null]
-#   - STOP_AT_COMMIT: Stop at this number of commits instead of at the end of the generated list [Default=0]
-#   - COMMIT: Starting commit - exclusive (the next commit will be processed)[Default=null]
-#
-# Execution Steps:
-#
-# Add production remote to development repository
-# Determine version
-# Identify starting commit
-# Execute:
-#   $ chmod +x next_cutover.sh
-#   $ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.7 BRANCH=CUTOVER_CI RELEASE=1 RN_MAX_LINE_DEL=<number> RN_MIN_LINE_DEL=<number> COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
-#
-# NOTE: Set RELEASE=1 and TAG=<new tag> if this cutover will end with a new version tag
-#       You can set TAG=<current tag> (or no tag at all) if this cutover will not end in a new tagged version
-#
-# Command Examples:
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 CLONE=1 RELEASE=1 DRY_RUN=1 STOP_AT_COMMIT=3 COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d DRY_RUN=1 COMMIT=<commit hash> ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.7 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=<commit hash> ./next_cutover.sh
-#
-# Useful DEBUG Commands:
-# $ COMMIT_LIST_FILE="../cutover_commits.lst"
-# $ COMMIT_LIST=$(git rev-list --reverse $START_COMMIT..HEAD 2>&1 | tee $COMMIT_LIST_FILE)
-# $ COMMIT_LIST=$(git rev-list --reverse $START_COMMIT^..HEAD 2>&1 | tee $COMMIT_LIST_FILE) # includes START_COMMIT
-# $ echo "$COMMIT_LIST" 2>&1 | tee "$COMMIT_LIST_FILE"
-#
-# $ echo && echo "START COMMIT: $START_COMMIT"
-# $ COMMIT_LIST_FILE="../cutover_commits.lst"
-# $ echo "---------------------------"
-# $ [ -z "$COMMIT_LIST" ] && echo "   No commits found" || \
-# $ echo "$COMMIT_LIST" 2>&1 | tee "$COMMIT_LIST_FILE"
-#
-# $ COMMIT_DESCRIPTION_LIST_FILE="../cutover_commits_descriptions.lst"
-# $ COMMIT_DESCRIPTIONS=$(git log master --reverse --pretty=%B $START_COMMIT..HEAD | sed '/^$/d')
-# $ echo "$COMMIT_DESCRIPTIONS" 2>&1 | tee "$COMMIT_DESCRIPTION_LIST_FILE"
-#
-# $ echo && echo "START COMMIT: $START_COMMIT"
-# $ COMMIT_LIST_FILE="../cutover_commits.lst"
-# $ echo "---------------------------"
-# $ [ -z "$COMMIT_LIST" ] && echo "   No commits found" || \
-# $ echo "$COMMIT_LIST" 2>&1 | tee "$COMMIT_LIST_FILE"
-#
-#
+# Last Update: October 12, 2024
+# Copyright (C) 2024 by Trevor SANDY
+
+set +x
+
+VER_TAG=${TAG:-v2.4.8}
+START_COMMIT=${COMMIT:-5834953b48c5b7e00dd3c60c3e314170b4a73662}
+RELEASE_BUILD=${RELEASE:-}
+MIN_RN_LINE_DEL=${RN_MIN_LINE_DEL:-462}
+MAX_RN_LINE_DEL=${RN_MAX_LINE_DEL:-1014}
+
+function ShowHelp() {
+    echo
+    echo $0
+	echo 
+	echo "Written by Trevor SANDY"
+    echo
+    echo "Purpose:"
+    echo "This script will automate the 'cutover' of a range of commits from development [lpub3d-ci]"
+    echo "or maintenance [lpub3d-ci] repository to production [lpub3d]."
+    echo "Commit range is processed from oldest to newest using either reset or cherry-pick as specified"
+    echo "by user performing cutover. The starting commit 'COMMIT' is exclusive, meaning it is not included"
+    echo "in the commits passed to the receiving repository."
+    echo
+    echo "Setup:"
+    echo "For successful execution it and ci_cutover.sh must be placed at the root of the repositories, for example:"
+    echo "  ./lpub3d                - production repository"
+    echo "  ./lpub3d-ci             - maintenance repository"
+    echo "  ./lpub3dnext            - development repository"
+    echo "  ./ci_cutover.sh         - single commit cutover script"
+    echo "  $0       - range of commits cutover script"
+    echo
+    echo "Environment variables:"
+    echo "  - DRY_RUN: Do not perform cutover [Default=null]"
+    echo "  - FROM_REPO: Development repository [default=lpub3d-ci]"
+    echo "  - TO_REPO: Production or maintenance repository [default=lpub3d]"
+    echo "  - TAG: Release version [Default=2.4.8']"
+    echo "  - BRANCH: Working cutover development branch [Default=CUTOVER_CI]"
+    echo "  - RELEASE: Create a release commit, preserve build tag, on the last commit [Default=null]"
+    echo "  - RN_MIN_LINE_DEL: Start line to delete when truncating RELEASE_NOTES on release commit [Default=null]"
+    echo "  - RN_MAX_LINE_DEL: Stop Line to delete when truncating RELEASE_NOTES on release commit [Default=null]"
+    echo "  - CLONE: Clone a new repository of TO_REPO at the first commit [Default=null]"
+    echo "  - CHERRYPICK: Cherry-pick commits as we process the range, otherwise use reset [Default=null]"
+    echo "  - STOP_AT_COMMIT: Stop at this number of commits instead of at the end of the generated list [Default=0]"
+    echo "  - COMMIT: Starting commit - exclusive (the next commit will be processed)[Default=null]"
+    echo
+    echo "Execution Steps:"
+    echo
+    echo "Add production remote to development repository"
+    echo "Determine version"
+    echo "Identify starting commit"
+    echo "Execute:"
+    echo "  \$ chmod +x $0"
+    echo "  \$ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.8 BRANCH=CUTOVER_CI RELEASE=1 RN_MAX_LINE_DEL=<number> \\"
+    echo "        RN_MIN_LINE_DEL=<number> COMMIT=<commit hash> $0"
+    echo "  \$ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.8 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=<commit hash> $0"
+    echo
+    echo "NOTE: Set RELEASE=1 and TAG=<new tag> if this cutover will end with a new version tag"
+    echo "      You can set TAG=<current tag> (or no tag at all) if this cutover will not end in a new tagged version"
+    echo
+    echo "Command Examples:"
+    echo "  \$ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.8 CLONE=1 RELEASE=1 COMMIT=<commit hash> $0"
+    echo "  \$ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.8 CLONE=1 RELEASE=1 DRY_RUN=1 STOP_AT_COMMIT=3 COMMIT=<commit hash> $0"
+    echo "  \$ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d DRY_RUN=1 COMMIT=<commit hash> $0"
+    echo "  \$ env FROM_REPO=lpub3d-ci TO_REPO=lpub3d TAG=v2.4.8 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=<commit hash> $0"
+    echo
+    echo "Useful DEBUG Commands:"
+    echo "  \$ COMMIT_LIST_FILE=\"../cutover_commits.lst\""
+    echo "  \$ COMMIT_LIST=\$(git rev-list --reverse $START_COMMIT..HEAD 2>&1 | tee \$COMMIT_LIST_FILE)"
+    echo "  \$ COMMIT_LIST=\$(git rev-list --reverse $START_COMMIT^..HEAD 2>&1 | tee \$COMMIT_LIST_FILE) && echo \"includes START_COMMIT\""
+    echo "  \$ echo \"$COMMIT_LIST\" 2>&1 | tee \"$COMMIT_LIST_FILE\""
+    echo
+    echo "  \$ echo && echo \"START COMMIT: $START_COMMIT\""
+    echo "  \$ COMMIT_LIST_FILE=\"../cutover_commits.lst\""
+    echo "  \$ echo \"---------------------------\""
+    echo "  \$ [ -z \"\$COMMIT_LIST\" ] && echo \"   No commits found\" || \\"
+    echo "    echo \"\$COMMIT_LIST\" 2>&1 | tee \"\$COMMIT_LIST_FILE\""
+    echo
+    echo "  \$ COMMIT_DESCRIPTION_LIST_FILE=\"../cutover_commits_descriptions.lst\""
+    echo "  \$ COMMIT_DESCRIPTIONS=\$(git log master --reverse --pretty=%B \$START_COMMIT..HEAD | sed '/^\$/d')"
+    echo "  \$ echo \"\$COMMIT_DESCRIPTIONS\" 2>&1 | tee \"\$COMMIT_DESCRIPTION_LIST_FILE\""
+    echo
+    echo "  \$ echo && echo \"START COMMIT: \$START_COMMIT\""
+    echo "  \$ COMMIT_LIST_FILE=\"../cutover_commits.lst\""
+    echo "  \$ echo \"---------------------------\""
+    echo "  \$ [ -z \"\$COMMIT_LIST\" ] && echo \"   No commits found\" || \\"
+    echo "    echo \"\$COMMIT_LIST\" 2>&1 | tee \"\$COMMIT_LIST_FILE\""
+    echo
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -?|-h|--help) ShowHelp; exit 0 ;;
+        Deb|Pkg|Rpm) continue ;;
+        *) echo "Unknown parameter passed: '$1'. Use -? to show help."; exit 1 ;;
+    esac
+    shift
+done
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
 HOME_DIR=$PWD
 
-DO_DRY_RUN=${DRY_RUN:-}
-VER_TAG=${TAG:-}
-TO_REPO_NAME=${TO_REPO:-lpub3d-ci}
-FROM_REPO_NAME=${FROM_REPO:-lpub3dnext}
-START_COMMIT=${COMMIT:-}
 START_BRANCH=${BRANCH:-CUTOVER_CI}
-RELEASE_BUILD=${RELEASE:-}
+DO_DRY_RUN=${DRY_RUN:-}
+FROM_REPO_NAME=${FROM_REPO:-lpub3d-ci}
+TO_REPO_NAME=${TO_REPO:-lpub3d}
+
 FRESH_BUILD=${CLONE:-}
 USE_CHERRY_PICK=${CHERRYPICK:-}
-MIN_RN_LINE_DEL=${RN_MIN_LINE_DEL:-}
-MAX_RN_LINE_DEL=${RN_MAX_LINE_DEL:-}
 STOP_AT_COMMIT_COUNT=${STOP_AT_COMMIT:0}
 COMMIT_COUNT=0
 INC_REV=0
@@ -141,6 +164,10 @@ function get_commit_count()
 function options_status
 {
     echo
+    echo "------------------------------------------------------------------------------"
+    echo
+    echo "Next Cutover"
+    echo
     echo "--Next Command Options:"
     echo "--SCRIPT_NAME....$SCRIPT_NAME"
     echo "--REPO_PATH.......$HOME_DIR"
@@ -167,17 +194,18 @@ function options_status
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 f="${CWD}/$ME"
+f="${f%.*}"
 ext=".log"
-if [[ -e "$f$ext" ]]
+if [[ -e "${f}_0${ext}" ]]
 then
     i=1
-    f="${f%.*}";
-    while [[ -e "${f}_${i}${ext}" ]]; do
+    while [[ -e "${f}_${i}${ext}" ]]
+    do
       let i++
     done
     f="${f}_${i}${ext}"
-    else
-    f="${f}${ext}"
+else
+    f="${f}_0${ext}"
 fi
 # output log file
 LOG="$f"
@@ -299,7 +327,7 @@ do
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh >/dev/null 2>&1
         fi
     elif [[ "${FINAL_COMMIT}" == "true" ]] # Final commit - use VER_TAG and show status
     then
@@ -310,7 +338,7 @@ do
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL ./ci_cutover.sh >/dev/null 2>&1
             if [ -n "${CREATE_LOCAL_TAG}" ]
             then
                 echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
@@ -321,14 +349,6 @@ do
                 git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
                 GIT_TAG="$(git tag -l -n $VER_TAG)" && \
                 [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
-		    else
-                cd $HOME_DIR/$FROM_REPO_NAME
-				rm -f *.log
-                if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]
-				then
-					echo && echo "   -Checkout master branch in $FROM_REPO_NAME repository"
-					git checkout master &>> $LOG
-				fi
             fi
         fi
         if [[ $STOP_AT_COMMIT_COUNT > 0 ]]
@@ -353,7 +373,7 @@ do
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1 ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1 ./ci_cutover.sh >/dev/null 2>&1
         fi
     fi
     RETURN_CODE=$?
