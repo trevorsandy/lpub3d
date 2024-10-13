@@ -3055,7 +3055,7 @@ QStringList TextEditor::extractDistinctWordsFromDocument() const
 
 QStringList TextEditor::retrieveAllWordsFromDocument() const
 {
-    return toPlainText().split(QRegExp("\\W+"), Qt::SkipEmptyParts);
+    return toPlainText().split(QRegExp("\\W+"), SkipEmptyParts);
 }
 
 template <class UnaryPredicate>
