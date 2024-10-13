@@ -53,11 +53,9 @@ QHash<Rc, QRegExp> groupRegExMap;
 
 bool AbstractMeta::reportErrors = false;
 
-void AbstractMeta::init(
-    BranchMeta *parent,
-    QString name)
+void AbstractMeta::init(BranchMeta *parent, QString name)
 {
-  preamble           = parent->preamble + name + " ";
+  preamble = parent->preamble + name + " ";
   parent->list[name] = this;
 }
 
@@ -74,10 +72,10 @@ QString LeafMeta::format(
   QString result;
 
   if (local) {
-      result = "LOCAL ";
-    } else if (global) {
-      result = "GLOBAL ";
-    }
+    result = "LOCAL ";
+  } else if (global) {
+    result = "GLOBAL ";
+  }
 
   return preamble + result + suffix;
 }
@@ -114,82 +112,75 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 
   if (index < size) {
 
-      /* Find out if the current argv explicitly matches any of the
-     * keywords known to be valid at this point in the meta command */
+    /* Find out if the current argv explicitly matches any of the
+   * keywords known to be valid at this point in the meta command */
 
-      QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
+    QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
 
-      if (i != list.end()) {
+    if (i != list.end()) {
+      /* We found a match */
+      offset = 1;
+      rc = OkRc;
 
-          /* We found a match */
-
-          offset = 1;
-          rc = OkRc;
-
-          if (size - index > 1) {
-              if (i.value()) {
-                  if (argv[index+offset] == "LOCAL") {
-                      i.value()->pushed = true;
-                      offset++;
-                    } else if (argv[index+offset] == "GLOBAL") {
-                      i.value()->global = true;
-                      offset++;
-                    }
-                  if (index + offset >= size) {
-                      rc = FailureRc;
-                    }
+      if (size - index > 1) {
+        if (i.value()) {
+          if (argv[index+offset] == "LOCAL") {
+            i.value()->pushed = true;
+            offset++;
+          } else if (argv[index+offset] == "GLOBAL") {
+            i.value()->global = true;
+            offset++;
+          }
+          if (index + offset >= size) {
+            rc = FailureRc;
+          }
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-                  QString iVal = QString("argv[index+offset] (%1) [Index: %2, Offset: 1]")
-                                         .arg(argv[index+1]).arg(index);
-                  qDebug() << "\nMETA.CPP: BRANCHMETA::PARSE -"
-                           << "\nPREAMBLE:" << QString(i.value()->preamble).replace("0 !LPUB ","")
-                           << "\nDATA -"
-                           << "\n ARGV:      " << argv.join(" ")
-                           << "\n I.VALUE(): " << iVal
-                           << "\nOTHER DATA -"
-                           << "\n Pushed:   [" << i.value()->pushed << "]"
-                           << "\n Global:    " << (i.value()->global ? "True" : "False")
-                           << "\n Index:     " << index
-                           << "\n Offset:    1"
-                                ;
+          QString iVal = QString("argv[index+offset] (%1) [Index: %2, Offset: 1]")
+                                 .arg(argv[index+1]).arg(index);
+          qDebug() << "\nMETA.CPP: BRANCHMETA::PARSE -"
+                   << "\nPREAMBLE:" << QString(i.value()->preamble).replace("0 !LPUB ","")
+                   << "\nDATA -"
+                   << "\n ARGV:      " << argv.join(" ")
+                   << "\n I.VALUE(): " << iVal
+                   << "\nOTHER DATA -"
+                   << "\n Pushed:   [" << i.value()->pushed << "]"
+                   << "\n Global:    " << (i.value()->global ? "True" : "False")
+                   << "\n Index:     " << index
+                   << "\n Offset:    1"
+                        ;
 #endif
 //*/
-                }
-            }
-
-          /* Now parse the rest of the argvs */
-
-          if (rc == OkRc) {
-              return i.value()->parse(argv,index+offset,here);
-            }
-        } else if (size - index > 1) {
-
-          /* Failed an explicit match.  Lets try to see if the value
-           * matches any of the keywords through regular expressions */
-          bool local  = argv[index] == "LOCAL";
-          bool global = argv[index] == "GLOBAL";
-
-          // LPUB CALLOUT Vertical
-          // LPUB CALLOUT LOCAL Vertical
-
-          offset = local || global;
-
-          if (index + offset < size) {
-              for (i = list.begin(); i != list.end(); i++) {
-                  QRegExp rx(i.key());
-                  if (argv[index + offset].contains(rx)) {
-
-                      /* Now parse the rest of the argvs */
-
-                      i.value()->pushed = local;
-                      i.value()->global = global;
-                      return i.value()->parse(argv,index+offset,here);
-                    }
-                }
-            }
         }
+      }
+      /* Now parse the rest of the argvs */
+      if (rc == OkRc) {
+        return i.value()->parse(argv,index+offset,here);
+      }
+    } else if (size - index > 1) {
+      /* Failed an explicit match.  Lets try to see if the value
+       * matches any of the keywords through regular expressions */
+      bool local  = argv[index] == "LOCAL";
+      bool global = argv[index] == "GLOBAL";
+
+      // LPUB CALLOUT Vertical
+      // LPUB CALLOUT LOCAL Vertical
+
+      offset = local || global;
+
+      if (index + offset < size) {
+        for (i = list.begin(); i != list.end(); i++) {
+          QRegExp rx(i.key());
+          if (argv[index + offset].contains(rx)) {
+            /* Now parse the rest of the argvs */
+            i.value()->pushed = local;
+            i.value()->global = global;
+            return i.value()->parse(argv,index+offset,here);
+          }
+        }
+      }
     }
+  }
 
   // syntax error
   return FailureRc;
@@ -204,10 +195,10 @@ bool BranchMeta::preambleMatch(QStringList &argv, int index, QString &match)
 {
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      return false;
-    } else {
-      return i.value()->preambleMatch(argv,index,match);
-    }
+    return false;
+  } else {
+    return i.value()->preambleMatch(argv,index,match);
+  }
 }
 
 /*
@@ -221,8 +212,8 @@ void BranchMeta::doc(QStringList &out, QString preamble)
   QStringList keys = list.keys();
   keys.sort();
   Q_FOREACH (key, keys) {
-      list[key]->doc(out, preamble + " " + key);
-    }
+    list[key]->doc(out, preamble + " " + key);
+  }
 }
 
 /*
@@ -236,16 +227,16 @@ void BranchMeta::metaKeywords(QStringList &out, QString preamble)
   QStringList keys = list.keys();
   keys.sort();
   Q_FOREACH (key, keys) {
-      list[key]->metaKeywords(out, preamble + " " + key);
-    }
+    list[key]->metaKeywords(out, preamble + " " + key);
+  }
 }
 
 void BranchMeta::pop()
 {
   QString key;
   Q_FOREACH (key,list.keys()) {
-      list[key]->pop();
-    }
+    list[key]->pop();
+  }
 }
 
 /* ------------------ */
@@ -256,8 +247,8 @@ void RcMeta::init(BranchMeta *parent, const QString name, Rc _rc)
 }
 Rc RcMeta::parse(QStringList &argv, int index, Where &here)
 {
-  if (index != argv.size()) {
-    }
+  Q_UNUSED(argv)
+  Q_UNUSED(index)
   _here[pushed] = here;
   return rc;
 }
@@ -286,18 +277,18 @@ Rc IntMeta::parse(QStringList &argv, int index,Where &here)
 {
   int size = argv.size();
   if ((size - 1) >= index) { // changed from index == (size-1) to (size-1) >= index for LightMeta
-      bool ok;
-      int v;
-      v = argv[index].toInt(&ok);
-      if (ok) {
-          if (v < _min || v > _max) {
-              return RangeErrorRc;
-            }
-          _value[pushed] = v;
-          _here[pushed] = here;
-          return rc;
-        }
+    bool ok;
+    int v;
+    v = argv[index].toInt(&ok);
+    if (ok) {
+      if (v < _min || v > _max) {
+        return RangeErrorRc;
+      }
+      _value[pushed] = v;
+      _here[pushed] = here;
+      return rc;
     }
+  }
 
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected a whole number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
@@ -333,17 +324,17 @@ Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
 {
   int size = argv.size();
   if ((size - 1) >= index) { // changed from index == (size-1) to (size-1) >= index for LightMeta
-      bool ok;
-      float v = argv[index].toFloat(&ok);
-      if (ok) {
-          if (v < _min || v > _max) {
-              return RangeErrorRc;
-            }
-          _value[pushed] = v;
-          _here[pushed] = here;
-          return rc;
-        }
+    bool ok;
+    float v = argv[index].toFloat(&ok);
+    if (ok) {
+      if (v < _min || v > _max) {
+        return RangeErrorRc;
+      }
+      _value[pushed] = v;
+      _here[pushed] = here;
+      return rc;
     }
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected a floating point number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
@@ -418,20 +409,20 @@ void FloatPairMeta::init(
 Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 2) {
-      bool ok[2];
-      float v0 = argv[index  ].toFloat(&ok[0]);
-      float v1 = argv[index+1].toFloat(&ok[1]);
-      if (ok[0] && ok[1]) {
-          if (v0 < _min || v0 > _max ||
-              v1 < _min || v1 > _max) {
-              return RangeErrorRc;
-            }
-          _value[pushed][0] = v0;
-          _value[pushed][1] = v1;
-          _here[pushed] = here;
-          return rc;
-        }
+    bool ok[2];
+    float v0 = argv[index  ].toFloat(&ok[0]);
+    float v1 = argv[index+1].toFloat(&ok[1]);
+    if (ok[0] && ok[1]) {
+      if (v0 < _min || v0 > _max ||
+        v1 < _min || v1 > _max) {
+        return RangeErrorRc;
+      }
+      _value[pushed][0] = v0;
+      _value[pushed][1] = v1;
+      _here[pushed] = here;
+      return rc;
     }
+  }
 
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected two floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
@@ -465,24 +456,24 @@ void Vector3Meta::init(
 Rc Vector3Meta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 3) {
-      bool ok[3];
-      float x = argv[index  ].toFloat(&ok[0]);
-      float y = argv[index+1].toFloat(&ok[1]);
-      float z = argv[index+2].toFloat(&ok[2]);
-      if (ok[0] && ok[1] && ok[2]) {
-          if (x < _min || x > _max ||
-              y < _min || y > _max ||
-              z < _min || z > _max) {
-              return RangeErrorRc;
-            }
-          _x[pushed] = x;
-          _y[pushed] = y;
-          _z[pushed] = z;
-          _here[pushed] = here;
-          _populated    = !(x == 0.0f && y == 0.0f && z == 0.0f);
-          return rc;
+    bool ok[3];
+    float x = argv[index  ].toFloat(&ok[0]);
+    float y = argv[index+1].toFloat(&ok[1]);
+    float z = argv[index+2].toFloat(&ok[2]);
+    if (ok[0] && ok[1] && ok[2]) {
+      if (x < _min || x > _max ||
+          y < _min || y > _max ||
+          z < _min || z > _max) {
+          return RangeErrorRc;
         }
+      _x[pushed] = x;
+      _y[pushed] = y;
+      _z[pushed] = z;
+      _here[pushed] = here;
+      _populated    = !(x == 0.0f && y == 0.0f && z == 0.0f);
+      return rc;
     }
+  }
 
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
@@ -494,9 +485,9 @@ Rc Vector3Meta::parse(QStringList &argv, int index,Where &here)
 QString Vector3Meta::format(bool local, bool global)
 {
   QString foo = QString("%1 %2 %3")
-      .arg(double(_x[pushed]),_fieldWidth,'f',_precision)
-      .arg(double(_y[pushed]),_fieldWidth,'f',_precision)
-      .arg(double(_z[pushed]),_fieldWidth,'f',_precision);
+                        .arg(double(_x[pushed]),_fieldWidth,'f',_precision)
+                        .arg(double(_y[pushed]),_fieldWidth,'f',_precision)
+                        .arg(double(_z[pushed]),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo.trimmed());
 }
 void Vector3Meta::doc(QStringList &out, QString preamble)
@@ -506,10 +497,7 @@ void Vector3Meta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
-void Vector33Meta::init(
-    BranchMeta *parent,
-    const QString name,
-    Rc _rc)
+void Vector33Meta::init(BranchMeta *parent, const QString name, Rc _rc)
 {
   AbstractMeta::init(parent,name);
   rc = _rc;
@@ -517,54 +505,54 @@ void Vector33Meta::init(
 Rc Vector33Meta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 9) {
-      bool ok[9];
+    bool ok[9];
 
-      float x1 = argv[index  ].toFloat(&ok[0]);
-      float y1 = argv[index+1].toFloat(&ok[1]);
-      float z1 = argv[index+2].toFloat(&ok[2]);
+    float x1 = argv[index  ].toFloat(&ok[0]);
+    float y1 = argv[index+1].toFloat(&ok[1]);
+    float z1 = argv[index+2].toFloat(&ok[2]);
 
-      float x2 = argv[index+3].toFloat(&ok[3]);
-      float y2 = argv[index+4].toFloat(&ok[4]);
-      float z2 = argv[index+5].toFloat(&ok[5]);
+    float x2 = argv[index+3].toFloat(&ok[3]);
+    float y2 = argv[index+4].toFloat(&ok[4]);
+    float z2 = argv[index+5].toFloat(&ok[5]);
 
-      float x3 = argv[index+6].toFloat(&ok[6]);
-      float y3 = argv[index+7].toFloat(&ok[7]);
-      float z3 = argv[index+8].toFloat(&ok[8]);
+    float x3 = argv[index+6].toFloat(&ok[6]);
+    float y3 = argv[index+7].toFloat(&ok[7]);
+    float z3 = argv[index+8].toFloat(&ok[8]);
 
-      if (ok[0] && ok[1] && ok[2] &&
-          ok[3] && ok[4] && ok[5] &&
-          ok[6] && ok[7] && ok[8]) {
-          if (x1 < _min || x1 > _max ||
-              y1 < _min || y1 > _max ||
-              z1 < _min || z1 > _max ||
-              x2 < _min || x2 > _max ||
-              y2 < _min || y2 > _max ||
-              z2 < _min || z2 > _max ||
-              x3 < _min || x3 > _max ||
-              y3 < _min || y3 > _max ||
-              z3 < _min || z3 > _max) {
-              return RangeErrorRc;
-            }
+    if (ok[0] && ok[1] && ok[2] &&
+      ok[3] && ok[4] && ok[5] &&
+      ok[6] && ok[7] && ok[8]) {
+      if (x1 < _min || x1 > _max ||
+        y1 < _min || y1 > _max ||
+        z1 < _min || z1 > _max ||
+        x2 < _min || x2 > _max ||
+        y2 < _min || y2 > _max ||
+        z2 < _min || z2 > _max ||
+        x3 < _min || x3 > _max ||
+        y3 < _min || y3 > _max ||
+        z3 < _min || z3 > _max) {
+        return RangeErrorRc;
+      }
 
-          _x1[pushed] = x1;
-          _y1[pushed] = y1;
-          _z1[pushed] = z1;
+      _x1[pushed] = x1;
+      _y1[pushed] = y1;
+      _z1[pushed] = z1;
 
-          _x2[pushed] = x2;
-          _y2[pushed] = y2;
-          _z2[pushed] = z2;
+      _x2[pushed] = x2;
+      _y2[pushed] = y2;
+      _z2[pushed] = z2;
 
-          _x3[pushed] = x3;
-          _y3[pushed] = y3;
-          _z3[pushed] = z3;
+      _x3[pushed] = x3;
+      _y3[pushed] = y3;
+      _z3[pushed] = z3;
 
-          _here[pushed] = here;
-          _populated    = !(x1 == 0.0f && y1 == 0.0f && z1 == 0.0f &&
-                            x2 == 0.0f && y2 == 0.0f && z2 == 0.0f &&
-                            x3 == 0.0f && y3 == 0.0f && z3 == 0.0f);
-          return rc;
-        }
+      _here[pushed] = here;
+      _populated    = !(x1 == 0.0f && y1 == 0.0f && z1 == 0.0f &&
+                        x2 == 0.0f && y2 == 0.0f && z2 == 0.0f &&
+                        x3 == 0.0f && y3 == 0.0f && z3 == 0.0f);
+      return rc;
     }
+  }
 
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected three floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
@@ -607,12 +595,12 @@ void StringMeta::init(
 Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index >= 1) {  // changed operator from == to >= for LightMeta
-      //_value[pushed] = argv[index].replace("\\""","""");
-      QString foo = argv[index];
-      _value[pushed] = argv[index];
-      _here[pushed] = here;
-      return rc;
-    }
+    //_value[pushed] = argv[index].replace("\\""","""");
+    QString foo = argv[index];
+    _value[pushed] = argv[index];
+    _here[pushed] = here;
+    return rc;
+  }
 
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected a string after \"%1\"") .arg(argv.join(" "));
@@ -648,8 +636,8 @@ Rc StringListMeta::parse(QStringList &argv, int index,Where &here)
 {
   _value[pushed].clear();
   for (int i = index; i < argv.size(); i++) {
-      _value[pushed] << argv[i];
-    }
+    _value[pushed] << argv[i];
+  }
   _here[pushed] = here;
   return rc;
 }
@@ -657,8 +645,8 @@ QString StringListMeta::format(bool local, bool global)
 {
   QString foo;
   for (int i = 0; i < _value[pushed].size() ; i++) {
-      foo += delim + _value[pushed][i] + delim + " ";
-    }
+    foo += delim + _value[pushed][i] + delim + " ";
+  }
   return LeafMeta::format(local,global,foo);
 }
 
@@ -815,19 +803,19 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
 
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-     qDebug() << "\nMETA.CPP: PLACEMENT META PARSE -";
-     for(int i=0;i<argv.size();i++) {
-         int size = argv.size();
-         int incr = i;
-         int result = size - incr;
+  qDebug() << "\nMETA.CPP: PLACEMENT META PARSE -";
+  for(int i=0;i<argv.size();i++) {
+      int size = argv.size();
+      int incr = i;
+      int result = size - incr;
 
-        qDebug() << "\nPAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i]
-        ;
-     }
-        qDebug() << "\nWHERE: " << here.modelName << ", Line: " << here.lineNumber
-                 << "\nSIZE: " << argv.size() << ", INDEX: " << index
-                 << "\nSTART - Value at index: " << argv[index]
-                 ;
+     qDebug() << "\nPAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i]
+     ;
+  }
+  qDebug() << "\nWHERE: " << here.modelName << ", Line: " << here.lineNumber
+           << "\nSIZE: " << argv.size() << ", INDEX: " << index
+           << "\nSTART - Value at index: " << argv[index]
+           ;
 #endif
 //*/
 
@@ -848,19 +836,19 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
 #endif
   //*/
   if (argv[index] == "OFFSET") {
-      index++;
-      if (argc - index == 2) {
-          bool ok[2];
-          _value[pushed].offsets[0] = argv[index  ].toFloat(&ok[0]);
-          _value[pushed].offsets[1] = argv[index+1].toFloat(&ok[1]);
-          if (!ok[0] || !ok[1])
-              return rc;
-          _here[pushed] = here;
-          return OkRc;
-        } else if (argc - index < 2) {
+    index++;
+    if (argc - index == 2) {
+      bool ok[2];
+      _value[pushed].offsets[0] = argv[index  ].toFloat(&ok[0]);
+      _value[pushed].offsets[1] = argv[index+1].toFloat(&ok[1]);
+      if (!ok[0] || !ok[1])
           return rc;
-        }
+      _here[pushed] = here;
+      return OkRc;
+    } else if (argc - index < 2) {
+      return rc;
     }
+  }
 
   RectPlacement _placementR; //_value[pushed].rectPlacement;
   PlacementType _relativeTo; //_value[pushed].relativeTo;
@@ -868,94 +856,94 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
 
   QRegExp rx("^(TOP|BOTTOM)$");
   if (argv[index].contains(rx)) {
+    placement = argv[index++];
+
+    if (index < argc) {
+      rx.setPattern("^(LEFT|CENTER|RIGHT)$");
+      if (argv[index].contains(rx)) {
+        justification = argv[index++];
+        rc = OkRc;
+      } else {
+        rx.setPattern(relativeTos);
+        if (argv[index].contains(rx)) {
+          rc = OkRc;
+        }
+      }
+    }
+  } else {
+    rx.setPattern("^(LEFT|RIGHT)$");
+    if (argv[index].contains(rx)) {
       placement = argv[index++];
 
       if (index < argc) {
-          rx.setPattern("^(LEFT|CENTER|RIGHT)$");
-          if (argv[index].contains(rx)) {
-              justification = argv[index++];
-              rc = OkRc;
-            } else {
-              rx.setPattern(relativeTos);
-              if (argv[index].contains(rx)) {
-                  rc = OkRc;
-                }
-            }
-        }
-    } else {
-      rx.setPattern("^(LEFT|RIGHT)$");
-      if (argv[index].contains(rx)) {
-          placement = argv[index++];
-
-          if (index < argc) {
-              rx.setPattern("^(TOP|CENTER|BOTTOM)$");
-              if (argv[index].contains(rx)) {
-                  justification = argv[index++];
-                  rc = OkRc;
-                } else {
-                  rx.setPattern(relativeTos);
-                  if (argv[index].contains(rx)) {
-                      rc = OkRc;
-                    }
-                }
-            }
+        rx.setPattern("^(TOP|CENTER|BOTTOM)$");
+        if (argv[index].contains(rx)) {
+          justification = argv[index++];
+          rc = OkRc;
         } else {
-          rx.setPattern("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT|CENTER)$");
+          rx.setPattern(relativeTos);
           if (argv[index].contains(rx)) {
-              placement = argv[index++];
-              rc = OkRc;
-            } else {
-              return rc;
-            }
+            rc = OkRc;
+          }
         }
+      }
+    } else {
+      rx.setPattern("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT|CENTER)$");
+      if (argv[index].contains(rx)) {
+        placement = argv[index++];
+        rc = OkRc;
+      } else {
+        return rc;
+      }
     }
+  }
 
   if (rc == OkRc && index < argv.size()) {
-      rx.setPattern(relativeTos);
-      if (argv[index].contains(rx)) {
-          relativeTo = argv[index++];
-          if (index < argc) {
-              rx.setPattern("^(INSIDE|OUTSIDE)$");
-              if (argv[index].contains(rx)) {
-                  preposition = argv[index++];
-                }
-              if (argc - index >= 2) {
-                  if (argv[index] == "OFFSET")
-                      index++;
-                  bool ok[2];
-                  _offsets[0] = argv[index  ].toFloat(&ok[0]);
-                  _offsets[1] = argv[index+1].toFloat(&ok[1]);
-                  if (!ok[0] || !ok[1])
-                      return FailureRc;
-                }
-            }
+    rx.setPattern(relativeTos);
+    if (argv[index].contains(rx)) {
+      relativeTo = argv[index++];
+      if (index < argc) {
+        rx.setPattern("^(INSIDE|OUTSIDE)$");
+        if (argv[index].contains(rx)) {
+          preposition = argv[index++];
         }
-
-      int i;
-
-      if (preposition == "INSIDE" && justification == "CENTER") {
-          justification = "";
+        if (argc - index >= 2) {
+          if (argv[index] == "OFFSET")
+            index++;
+          bool ok[2];
+          _offsets[0] = argv[index  ].toFloat(&ok[0]);
+          _offsets[1] = argv[index+1].toFloat(&ok[1]);
+          if (!ok[0] || !ok[1])
+            return FailureRc;
         }
-
-      for (i = 0; i < NumSpots; i++) {
-          if (placementOptions[i][0] == placement &&
-              placementOptions[i][1] == justification &&
-              placementOptions[i][2] == preposition) {
-              break;
-            }
-        }
-
-      if (i == NumSpots) {
-          return FailureRc;
-        }
-
-      _placementR = RectPlacement(i);
-      _relativeTo = PlacementType(tokenMap[relativeTo]);
-      setValue(_placementR,_relativeTo);
-      _value[pushed].offsets[0] = _offsets[0];
-      _value[pushed].offsets[1] = _offsets[1];
-      _here[pushed] = here;
+      }
     }
+
+    int i;
+
+    if (preposition == "INSIDE" && justification == "CENTER") {
+      justification = "";
+    }
+
+    for (i = 0; i < NumSpots; i++) {
+      if (placementOptions[i][0] == placement &&
+        placementOptions[i][1] == justification &&
+        placementOptions[i][2] == preposition) {
+        break;
+      }
+    }
+
+    if (i == NumSpots) {
+      return FailureRc;
+    }
+
+    _placementR = RectPlacement(i);
+    _relativeTo = PlacementType(tokenMap[relativeTo]);
+    setValue(_placementR,_relativeTo);
+    _value[pushed].offsets[0] = _offsets[0];
+    _value[pushed].offsets[1] = _offsets[1];
+    _here[pushed] = here;
+  }
   return rc;
 }
 
@@ -994,44 +982,44 @@ QString PlacementMeta::format(bool local, bool global)
   QString foo;
 
   if (_value[pushed].preposition == Inside) {
-      switch (_value[pushed].placement) {
-        case Top:
-        case Bottom:
-        case Right:
-        case Left:
-          foo = placementNames[_value[pushed].placement] + " "
-              + relativeNames [_value[pushed].relativeTo] + " "
-              + prepositionNames[_value[pushed].preposition];
-          break;
-        default:
-          foo = placementNames[_value[pushed].placement] + " "
-              + relativeNames [_value[pushed].relativeTo] + " "
-              + prepositionNames[_value[pushed].preposition];
-        }
-    } else {
+    switch (_value[pushed].placement) {
+      case Top:
+      case Bottom:
+      case Right:
+      case Left:
+        foo = placementNames[_value[pushed].placement] + " "
+            + relativeNames [_value[pushed].relativeTo] + " "
+            + prepositionNames[_value[pushed].preposition];
+        break;
+      default:
+        foo = placementNames[_value[pushed].placement] + " "
+            + relativeNames [_value[pushed].relativeTo] + " "
+            + prepositionNames[_value[pushed].preposition];
+    }
+  } else {
 
-      switch (_value[pushed].placement) {
-        case Top:
-        case Bottom:
-        case Right:
-        case Left:
-          foo = placementNames[_value[pushed].placement] + " "
-              + placementNames[_value[pushed].justification] + " "
-              + relativeNames [_value[pushed].relativeTo] + " "
-              + prepositionNames[_value[pushed].preposition];
-          break;
-        default:
-          foo = placementNames[_value[pushed].placement] + " "
-              + relativeNames [_value[pushed].relativeTo] + " "
-              + prepositionNames[_value[pushed].preposition];
-        }
+    switch (_value[pushed].placement) {
+      case Top:
+      case Bottom:
+      case Right:
+      case Left:
+        foo = placementNames[_value[pushed].placement] + " "
+            + placementNames[_value[pushed].justification] + " "
+            + relativeNames [_value[pushed].relativeTo] + " "
+            + prepositionNames[_value[pushed].preposition];
+        break;
+      default:
+        foo = placementNames[_value[pushed].placement] + " "
+            + relativeNames [_value[pushed].relativeTo] + " "
+            + prepositionNames[_value[pushed].preposition];
     }
+  }
   if (_value[pushed].offsets[0] != 0.0f || _value[pushed].offsets[1] != 0.0f) {
-      QString bar = QString(" OFFSET %1 %2")
-          .arg(double(_value[pushed].offsets[0]),0,'f',4)
-          .arg(double(_value[pushed].offsets[1]),0,'f',4);
-      foo += bar;
-    }
+    QString bar = QString(" OFFSET %1 %2")
+                          .arg(double(_value[pushed].offsets[0]),0,'f',4)
+                          .arg(double(_value[pushed].offsets[1]),0,'f',4);
+    foo += bar;
+  }
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
   qDebug()  << "\nMETA.CPP: PLACEMENT META FORMAT: "
@@ -1077,138 +1065,137 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
   if (argv.size() - index == 1) {
-      if (argv[index] == "TRANS" || argv[index] == "TRANSPARENT") {
-          _value[pushed].type = BackgroundData::BgTransparent;
-          rc = OkRc;
-        } else if (argv[index] == "SUBMODEL_BACKGROUND_COLOR") {
-          _value[pushed].type = BackgroundData::BgSubmodelColor;
-          rc = OkRc;
-        } else {
-          _value[pushed].type = BackgroundData::BgImage;
-          _value[pushed].string = argv[index];
-          _value[pushed].stretch = false;
-          rc = OkRc;
-        }
-    } else if (argv.size() - index == 2) {
-      if (argv[index] == "COLOR") {
-          _value[pushed].type = BackgroundData::BgColor;
-          _value[pushed].string = argv[index+1];
-          rc = OkRc;
-        } else if (argv[index] == "PICTURE") {
-          _value[pushed].type = BackgroundData::BgImage;
-          _value[pushed].string = argv[index+1];
-          _value[pushed].stretch = false;
-          rc = OkRc;
-        }
-    } else if (argv.size() - index == 3) {
-      if (argv[index] == "PICTURE" && argv[index+2] == "STRETCH") {
-          _value[pushed].type = BackgroundData::BgImage;
-          _value[pushed].string = argv[index+1];
-          _value[pushed].stretch = true;
-          rc = OkRc;
-        }
-    } else if (argv.size() - index == 9) {
-
-      if (argv[index] == "GRADIENT") {
-
-          bool ok[6];
-          bool pass = true;
-          argv[index+1].toInt(&ok[0]);
-          argv[index+2].toInt(&ok[1]);
-          argv[index+3].toInt(&ok[2]);
-          argv[index+4].toFloat(&ok[3]);
-          argv[index+5].toFloat(&ok[4]);
-          argv[index+6].toFloat(&ok[5]);
-
-          const QStringList _gpoints = argv[index+7].split("|");
-          QVector<QPointF> gpoints;
-          Q_FOREACH(const QString &gpoint, _gpoints) {
-              bool ok[2];
-              int x = gpoint.section(',',0,0).toInt(&ok[0]);
-              int y = gpoint.section(',',1,1).toInt(&ok[1]);
-              if (ok[0] && ok[1])
-                  gpoints << QPointF(x, y);
-              else if (pass)
-                  pass = false;
-            }
-
-          const QStringList _gstops  = argv[index+8].split("|");
-          QVector<QPair<qreal,QColor> > gstops;
-          Q_FOREACH(const QString &_gstop, _gstops) {
-              bool ok[2];
-              qreal point  = _gstop.section(',',0,0).toDouble(&ok[0]);
-              unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[1],16);
-              if (ok[0] && ok[1])
-                  gstops.append(qMakePair(point, QColor::fromRgba(rgba)));
-              else if (pass)
-                  pass = false;
-            }
-
-          if (ok[0] && ok[1] && ok[2] &&
-              ok[3] && ok[4] && ok[5] && pass) {
-
-              int _gmode   = argv[index+1].toInt(&ok[0]);
-              int _gspread = argv[index+2].toInt(&ok[1]);
-              int _gtype   = argv[index+3].toInt(&ok[2]);
-
-              _value[pushed].type = BackgroundData::BgGradient;
-
-              switch (_gmode) {
-              case 0:
-                  _value[pushed].gmode = BackgroundData::LogicalMode;
-              break;
-              case 1:
-                  _value[pushed].gmode = BackgroundData::StretchToDeviceMode;
-              break;
-              case 2:
-                  _value[pushed].gmode = BackgroundData::ObjectBoundingMode;
-              break;
-                }
-              switch (_gspread) {
-              case 0:
-                  _value[pushed].gspread = BackgroundData::PadSpread;
-              break;
-              case 1:
-                  _value[pushed].gspread = BackgroundData::RepeatSpread;
-              break;
-              case 2:
-                  _value[pushed].gspread = BackgroundData::ReflectSpread;
-              break;
-                }
-              switch (_gtype) {
-              case 0:
-                  _value[pushed].gtype = BackgroundData::LinearGradient;
-              break;
-              case 1:
-                  _value[pushed].gtype = BackgroundData::RadialGradient;
-              break;
-              case 2:
-                  _value[pushed].gtype = BackgroundData::ConicalGradient;
-              break;
-              case 3:
-              break;
-                }
-              _value[pushed].gsize[0] = argv[index+4].toInt(&ok[3]);
-              _value[pushed].gsize[1] = argv[index+5].toInt(&ok[4]);
-              _value[pushed].gangle   = argv[index+6].toInt(&ok[5]);
-              _value[pushed].gpoints  = gpoints;
-              _value[pushed].gstops   = gstops;
-              rc = OkRc;
-            }
-        }
-    }
-  if (rc == OkRc) {
-      _here[pushed] = here;
-      return rc;
+    if (argv[index] == "TRANS" || argv[index] == "TRANSPARENT") {
+      _value[pushed].type = BackgroundData::BgTransparent;
+      rc = OkRc;
+    } else if (argv[index] == "SUBMODEL_BACKGROUND_COLOR") {
+      _value[pushed].type = BackgroundData::BgSubmodelColor;
+      rc = OkRc;
     } else {
+      _value[pushed].type = BackgroundData::BgImage;
+      _value[pushed].string = argv[index];
+      _value[pushed].stretch = false;
+      rc = OkRc;
+    }
+  } else if (argv.size() - index == 2) {
+    if (argv[index] == "COLOR") {
+      _value[pushed].type = BackgroundData::BgColor;
+      _value[pushed].string = argv[index+1];
+      rc = OkRc;
+    } else if (argv[index] == "PICTURE") {
+      _value[pushed].type = BackgroundData::BgImage;
+      _value[pushed].string = argv[index+1];
+      _value[pushed].stretch = false;
+      rc = OkRc;
+    }
+  } else if (argv.size() - index == 3) {
+    if (argv[index] == "PICTURE" && argv[index+2] == "STRETCH") {
+      _value[pushed].type = BackgroundData::BgImage;
+      _value[pushed].string = argv[index+1];
+      _value[pushed].stretch = true;
+      rc = OkRc;
+    }
+  } else if (argv.size() - index == 9) {
 
-      if (reportErrors) {
-        QString const message = QMessageBox::tr("Malformed background \"%1\"") .arg(argv.join(" "));
-        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+    if (argv[index] == "GRADIENT") {
+
+      bool ok[6];
+      bool pass = true;
+      argv[index+1].toInt(&ok[0]);
+      argv[index+2].toInt(&ok[1]);
+      argv[index+3].toInt(&ok[2]);
+      argv[index+4].toFloat(&ok[3]);
+      argv[index+5].toFloat(&ok[4]);
+      argv[index+6].toFloat(&ok[5]);
+
+      const QStringList _gpoints = argv[index+7].split("|");
+      QVector<QPointF> gpoints;
+      Q_FOREACH(const QString &gpoint, _gpoints) {
+        bool ok[2];
+        int x = gpoint.section(',',0,0).toInt(&ok[0]);
+        int y = gpoint.section(',',1,1).toInt(&ok[1]);
+        if (ok[0] && ok[1])
+          gpoints << QPointF(x, y);
+        else if (pass)
+          pass = false;
+      }
+      const QStringList _gstops  = argv[index+8].split("|");
+      QVector<QPair<qreal,QColor> > gstops;
+      Q_FOREACH(const QString &_gstop, _gstops) {
+        bool ok[2];
+        qreal point  = _gstop.section(',',0,0).toDouble(&ok[0]);
+        unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[1],16);
+        if (ok[0] && ok[1])
+          gstops.append(qMakePair(point, QColor::fromRgba(rgba)));
+        else if (pass)
+          pass = false;
       }
 
-      return FailureRc;
+      if (ok[0] && ok[1] && ok[2] &&
+        ok[3] && ok[4] && ok[5] && pass) {
+
+        int _gmode   = argv[index+1].toInt(&ok[0]);
+        int _gspread = argv[index+2].toInt(&ok[1]);
+        int _gtype   = argv[index+3].toInt(&ok[2]);
+
+        _value[pushed].type = BackgroundData::BgGradient;
+
+        switch (_gmode) {
+          case 0:
+            _value[pushed].gmode = BackgroundData::LogicalMode;
+          break;
+          case 1:
+            _value[pushed].gmode = BackgroundData::StretchToDeviceMode;
+          break;
+          case 2:
+            _value[pushed].gmode = BackgroundData::ObjectBoundingMode;
+          break;
+        }
+        switch (_gspread) {
+          case 0:
+            _value[pushed].gspread = BackgroundData::PadSpread;
+          break;
+          case 1:
+            _value[pushed].gspread = BackgroundData::RepeatSpread;
+          break;
+          case 2:
+            _value[pushed].gspread = BackgroundData::ReflectSpread;
+          break;
+        }
+        switch (_gtype) {
+          case 0:
+            _value[pushed].gtype = BackgroundData::LinearGradient;
+          break;
+          case 1:
+            _value[pushed].gtype = BackgroundData::RadialGradient;
+          break;
+          case 2:
+            _value[pushed].gtype = BackgroundData::ConicalGradient;
+          break;
+          case 3:
+          break;
+        }
+        _value[pushed].gsize[0] = argv[index+4].toInt(&ok[3]);
+        _value[pushed].gsize[1] = argv[index+5].toInt(&ok[4]);
+        _value[pushed].gangle   = argv[index+6].toInt(&ok[5]);
+        _value[pushed].gpoints  = gpoints;
+        _value[pushed].gstops   = gstops;
+        rc = OkRc;
+      }
     }
+  }
+  if (rc == OkRc) {
+    _here[pushed] = here;
+    return rc;
+  } else {
+
+    if (reportErrors) {
+      QString const message = QMessageBox::tr("Malformed background \"%1\"") .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+    }
+
+    return FailureRc;
+  }
 }
 
 QString BackgroundMeta::format(bool local, bool global)
@@ -1229,22 +1216,20 @@ QString BackgroundMeta::format(bool local, bool global)
         QString points;
         const QVector<QPointF> _points = _value[pushed].gpoints;
         Q_FOREACH(const QPointF &point, _points) {
-            points += QString("%1,%2|")
-                .arg(point.x())
-                .arg(point.y());
-          }
+          points += QString("%1,%2|").arg(point.x()).arg(point.y());
+        }
         points = points.remove(points.size()-1,1);
 
         QString stops;
         const QVector<QPair<qreal,QColor> > _gstops = _value[pushed].gstops;
         typedef QPair<qreal,QColor> _gstop;
         Q_FOREACH(const _gstop &gstop, _gstops) {
-//            if (gstop.second.name() != "#000000")
-//            gstop.second.name().replace("#","0xff");
-            stops += QString("%1,%2|")
-                .arg(gstop.first)
-                .arg(gstop.second.name().replace("#","0xff"));
-          }
+//          if (gstop.second.name() != "#000000")
+//          gstop.second.name().replace("#","0xff");
+          stops += QString("%1,%2|")
+                           .arg(gstop.first)
+                           .arg(gstop.second.name().replace("#","0xff"));
+        }
         stops = stops.remove(stops.size()-1,1);
 
         foo = QString("GRADIENT %1 %2 %3 %4 %5 %6 \"%7\" \"%8\"")
@@ -1294,7 +1279,7 @@ QString BackgroundMeta::text()
       return "Gradient " + background.string;
     default:
       break;
-    }
+  }
   return "Submodel Level Color";
 }
 
@@ -1303,118 +1288,118 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
   Rc rc = FailureRc;
   bool newFormat   = false;
   if (argv.size() - index >= 1) {
-      argv[index+1].toInt(&newFormat);
-    }
+    argv[index+1].toInt(&newFormat);
+  }
   if (argv[index] == "NONE") {
-      _value[pushed].type = BorderData::BdrNone;
-      if (newFormat) {
-          _value[pushed].line = setBorderLine(argv[index+1]);
-        } else {
-          _value[pushed].line = BorderData::BdrLnSolid;
-        }
-      index++;
+    _value[pushed].type = BorderData::BdrNone;
+    if (newFormat) {
+      _value[pushed].line = setBorderLine(argv[index+1]);
+    } else {
+      _value[pushed].line = BorderData::BdrLnSolid;
+    }
+    index++;
+    rc = OkRc;
+  } else if (newFormat && argv[index] == "HIDDEN" && argv.size() - index >= 4) {
+    rc = FailureRc;
+    bool ok[2];
+    argv[index+1].toInt(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    if (ok[0] && ok[1]) {
+      _value[pushed].hideTip    = true;
+      _value[pushed].type       = BorderData::BdrSquare;
+      _value[pushed].line       = setBorderLine(argv[index+1]);
+      _value[pushed].color      = argv[index+2];
+      _value[pushed].thickness  = argv[index+3].toFloat(&ok[1]);
+      index += 4;
       rc = OkRc;
-    } else if (newFormat && argv[index] == "HIDDEN" && argv.size() - index >= 4) {
-      rc = FailureRc;
-      bool ok[2];
-      argv[index+1].toInt(&ok[0]);
-      argv[index+3].toFloat(&ok[1]);
-      if (ok[0] && ok[1]) {
-          _value[pushed].hideTip    = true;
-          _value[pushed].type       = BorderData::BdrSquare;
-          _value[pushed].line       = setBorderLine(argv[index+1]);
-          _value[pushed].color      = argv[index+2];
-          _value[pushed].thickness  = argv[index+3].toFloat(&ok[1]);
-          index += 4;
-          rc = OkRc;
-        }
-    } else if (argv[index] == "HIDDEN" && argv.size() - index >= 3) {
-      rc = FailureRc;
-      bool ok;
-      argv[index+2].toFloat(&ok);
-      if (ok) {
-          _value[pushed].hideTip = true;
-          _value[pushed].type       = BorderData::BdrSquare;
-          _value[pushed].line       = BorderData::BdrLnSolid;
-          _value[pushed].color      = argv[index+1];
-          _value[pushed].thickness  = argv[index+2].toFloat(&ok);
-          index += 3;
-          rc = OkRc;
-        }
-    } else if (newFormat && argv[index] == "SQUARE" && argv.size() - index >= 4) {
-      rc = FailureRc;
-      bool ok[2];
-      argv[index+1].toInt(&ok[0]);
-      argv[index+3].toFloat(&ok[1]);
-      if (ok[0] && ok[1]) {
-          _value[pushed].type      = BorderData::BdrSquare;
-          _value[pushed].line      = setBorderLine(argv[index+1]);
-          _value[pushed].color     = argv[index+2];
-          _value[pushed].thickness = argv[index+3].toFloat(&ok[1]);
-          index += 4;
-          rc = OkRc;
-        }
-    } else if (argv[index] == "SQUARE" && argv.size() - index >= 3) {
-      rc = FailureRc;
-      bool ok;
-      argv[index+2].toFloat(&ok);
-      if (ok) {
-          _value[pushed].type      = BorderData::BdrSquare;
-          _value[pushed].line      = BorderData::BdrLnSolid;
-          _value[pushed].color     = argv[index+1];
-          _value[pushed].thickness = argv[index+2].toFloat(&ok);
-          index += 3;
-          rc = OkRc;
-        }
-    } else if (newFormat && argv[index] == "ROUND" && argv.size() - index >= 5) {
-      rc = FailureRc;
-      bool ok[3];
-      argv[index+1].toInt(&ok[0]);
-      argv[index+3].toFloat(&ok[1]);
-      argv[index+4].toFloat(&ok[2]);
-      if (ok[0] && ok[1] && ok[2]) {
-          _value[pushed].type      = BorderData::BdrRound;
-          _value[pushed].line      = setBorderLine(argv[index+1]);
-          _value[pushed].color     = argv[index+2];
-          _value[pushed].thickness = argv[index+3].toFloat(&ok[0]);
-          _value[pushed].radius    = argv[index+4].toFloat(&ok[1]);
-          index += 5;
-          rc = OkRc;
-        }
-    } else if (argv[index] == "ROUND" && argv.size() - index >= 4) {
-      rc = FailureRc;
-      bool ok[2];
-      argv[index+2].toFloat(&ok[0]);
-      argv[index+3].toFloat(&ok[1]);
-      if (ok[0] && ok[1]) {
-          _value[pushed].type  = BorderData::BdrRound;
-          _value[pushed].line  = BorderData::BdrLnSolid;
-          _value[pushed].color = argv[index+1];
-          _value[pushed].thickness = argv[index+2].toFloat(&ok[0]);
-          _value[pushed].radius    = argv[index+3].toFloat(&ok[1]);
-          index += 4;
-          rc = OkRc;
-        }
     }
+  } else if (argv[index] == "HIDDEN" && argv.size() - index >= 3) {
+    rc = FailureRc;
+    bool ok;
+    argv[index+2].toFloat(&ok);
+    if (ok) {
+      _value[pushed].hideTip = true;
+      _value[pushed].type       = BorderData::BdrSquare;
+      _value[pushed].line       = BorderData::BdrLnSolid;
+      _value[pushed].color      = argv[index+1];
+      _value[pushed].thickness  = argv[index+2].toFloat(&ok);
+      index += 3;
+      rc = OkRc;
+    }
+  } else if (newFormat && argv[index] == "SQUARE" && argv.size() - index >= 4) {
+    rc = FailureRc;
+    bool ok[2];
+    argv[index+1].toInt(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    if (ok[0] && ok[1]) {
+      _value[pushed].type      = BorderData::BdrSquare;
+      _value[pushed].line      = setBorderLine(argv[index+1]);
+      _value[pushed].color     = argv[index+2];
+      _value[pushed].thickness = argv[index+3].toFloat(&ok[1]);
+      index += 4;
+      rc = OkRc;
+    }
+  } else if (argv[index] == "SQUARE" && argv.size() - index >= 3) {
+    rc = FailureRc;
+    bool ok;
+    argv[index+2].toFloat(&ok);
+    if (ok) {
+      _value[pushed].type      = BorderData::BdrSquare;
+      _value[pushed].line      = BorderData::BdrLnSolid;
+      _value[pushed].color     = argv[index+1];
+      _value[pushed].thickness = argv[index+2].toFloat(&ok);
+      index += 3;
+      rc = OkRc;
+    }
+  } else if (newFormat && argv[index] == "ROUND" && argv.size() - index >= 5) {
+    rc = FailureRc;
+    bool ok[3];
+    argv[index+1].toInt(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    argv[index+4].toFloat(&ok[2]);
+    if (ok[0] && ok[1] && ok[2]) {
+        _value[pushed].type      = BorderData::BdrRound;
+        _value[pushed].line      = setBorderLine(argv[index+1]);
+        _value[pushed].color     = argv[index+2];
+        _value[pushed].thickness = argv[index+3].toFloat(&ok[0]);
+        _value[pushed].radius    = argv[index+4].toFloat(&ok[1]);
+        index += 5;
+        rc = OkRc;
+      }
+  } else if (argv[index] == "ROUND" && argv.size() - index >= 4) {
+    rc = FailureRc;
+    bool ok[2];
+    argv[index+2].toFloat(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    if (ok[0] && ok[1]) {
+      _value[pushed].type  = BorderData::BdrRound;
+      _value[pushed].line  = BorderData::BdrLnSolid;
+      _value[pushed].color = argv[index+1];
+      _value[pushed].thickness = argv[index+2].toFloat(&ok[0]);
+      _value[pushed].radius    = argv[index+3].toFloat(&ok[1]);
+      index += 4;
+      rc = OkRc;
+    }
+  }
   if (rc == OkRc && argv.size() - index == 3) {
-      if (argv[index] == "MARGINS") {
-          bool ok[2];
-          argv[index + 1].toFloat(&ok[0]);
-          argv[index + 2].toFloat(&ok[1]);
-          if (ok[0] && ok[1]) {
-              _value[pushed].margin[0] = argv[index + 1].toFloat(&ok[0]);
-              _value[pushed].margin[1] = argv[index + 2].toFloat(&ok[1]);
-            } else {
-              rc = FailureRc;
-            }
-        } else {
-          rc = FailureRc;
-        }
+    if (argv[index] == "MARGINS") {
+      bool ok[2];
+      argv[index + 1].toFloat(&ok[0]);
+      argv[index + 2].toFloat(&ok[1]);
+      if (ok[0] && ok[1]) {
+        _value[pushed].margin[0] = argv[index + 1].toFloat(&ok[0]);
+        _value[pushed].margin[1] = argv[index + 2].toFloat(&ok[1]);
+      } else {
+        rc = FailureRc;
+      }
+    } else {
+      rc = FailureRc;
     }
+  }
   if (rc == OkRc) {
-      _value[pushed].useDefault = false;
-      _here[pushed] = here;
-    }
+    _value[pushed].useDefault = false;
+    _here[pushed] = here;
+  }
   return rc;
 }
 
@@ -1425,30 +1410,30 @@ QString BorderMeta::format(bool local, bool global)
   switch (_value[pushed].type) {
     case BorderData::BdrNone:
       foo = QString("NONE %1")
-          .arg(_value[pushed].line);
+                    .arg(_value[pushed].line);
       break;
     case BorderData::BdrSquare:
       border = _value[pushed].hideTip ? "HIDDEN" : "SQUARE";
       colour = _value[pushed].color[0] == '#' ? _value[pushed].color : "\"" + _value[pushed].color + "\"";
       foo = QString("%1 %2 %3 %4")
-          .arg(border)
-          .arg(_value[pushed].line)
-          .arg(colour)
-          .arg(double(_value[pushed].thickness),0,'f',3);
+                    .arg(border)
+                    .arg(_value[pushed].line)
+                    .arg(colour)
+                    .arg(double(_value[pushed].thickness),0,'f',3);
       break;
     case BorderData::BdrRound:
       colour = _value[pushed].color[0] == '#' ? _value[pushed].color : "\"" + _value[pushed].color + "\"";
       foo = QString("ROUND %1 %2 %3 %4")
-          .arg(_value[pushed].line)
-          .arg(colour)
-          .arg(double(_value[pushed].thickness),0,'f',3)
-          .arg(double(_value[pushed].radius),0,'f',3);
+                    .arg(_value[pushed].line)
+                    .arg(colour)
+                    .arg(double(_value[pushed].thickness),0,'f',3)
+                    .arg(double(_value[pushed].radius),0,'f',3);
       break;
-    }
-    QString bar = QString(" MARGINS %1 %2")
-                .arg(double(_value[pushed].margin[0]),0,'f',3)
-                .arg(double(_value[pushed].margin[1]),0,'f',3);
-    foo += bar;
+  }
+  QString bar = QString(" MARGINS %1 %2")
+              .arg(double(_value[pushed].margin[0]),0,'f',3)
+              .arg(double(_value[pushed].margin[1]),0,'f',3);
+  foo += bar;
   return LeafMeta::format(local,global,foo);
 }
 
@@ -1490,193 +1475,177 @@ QString BorderMeta::text()
 
 Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 {
-    int id = 0;
-    Rc rc = FailureRc;
-    QRegExp rx("^(GLOBAL|LOCAL)$");
-    bool scoped = argv[index-1].contains(rx);
-    rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
-    bool valid  = argv[index-(scoped ? 2 : 1)].contains(rx);
-    bool tip    = argv[index] == "TIP";
-    bool line   = argv[index] == "LINE";
-    bool border = argv[index] == "BORDER";
-    valid &= line || border || tip;
-
-    if (valid) {
-        bool ok = false;
-        bool widthKey = false;
-        int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
-        bool noParent = argv[index-(scoped ? 3 : 2)] == "CALLOUT" || argv[index-(scoped ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
-
-        BorderData::Line lineType = BorderData::BdrLnNone;
-
-        if (tip) {
-            bool ok[2];
-            widthKey = argv[index+1] == "WIDTH";
-            widthIndex = widthKey ? index+2 : index+1;
-            argv[widthIndex].toFloat(&ok[0]);                          // width
-            bool heightKey = argv[widthIndex+1] == "HEIGHT";
-            heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
-            argv[heightIndex].toFloat(&ok[1]);                         // height
-            if (ok[0] && ok[1]) {
-                sizeIndex = heightIndex;
-                rc = OkRc;
-            }
-        } else {
-            if (_value[pushed].lineData.map.contains(argv[index+1])) { // line type word
-                lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
-            } else {
-                int value = argv[index+1].toInt(&ok);                  // line type integer
-                if (ok) {
-                    lineType = BorderData::Line(value);
-                    rc = OkRc;
-                }
-            }
-
-            bool colorKey = argv[index+2] == "COLOR";
-            colorIndex = colorKey ? index+3 : index+2;
-            widthKey = argv[colorIndex+1] == "WIDTH";
-            widthIndex = widthKey ? colorIndex+2 : colorIndex+1;
-            argv[widthIndex].toFloat(&ok);                             // thickness
-            if (ok) {
-                sizeIndex = widthIndex;
-                rc = OkRc;
-            }
+  int id = 0;
+  Rc rc = FailureRc;
+  QRegExp rx("^(GLOBAL|LOCAL)$");
+  bool scoped = argv[index-1].contains(rx);
+  rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
+  bool valid  = argv[index-(scoped ? 2 : 1)].contains(rx);
+  bool tip    = argv[index] == "TIP";
+  bool line   = argv[index] == "LINE";
+  bool border = argv[index] == "BORDER";
+  valid &= line || border || tip;
+  if (valid) {
+    bool ok = false;
+    bool widthKey = false;
+    int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
+    bool noParent = argv[index-(scoped ? 3 : 2)] == "CALLOUT" || argv[index-(scoped ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
+    BorderData::Line lineType = BorderData::BdrLnNone;
+    if (tip) {
+      bool ok[2];
+      widthKey = argv[index+1] == "WIDTH";
+      widthIndex = widthKey ? index+2 : index+1;
+      argv[widthIndex].toFloat(&ok[0]);                          // width
+      bool heightKey = argv[widthIndex+1] == "HEIGHT";
+      heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
+      argv[heightIndex].toFloat(&ok[1]);                         // height
+      if (ok[0] && ok[1]) {
+        sizeIndex = heightIndex;
+        rc = OkRc;
+      }
+    } else {
+      if (_value[pushed].lineData.map.contains(argv[index+1])) { // line type word
+        lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
+      } else {
+        int value = argv[index+1].toInt(&ok);                  // line type integer
+        if (ok) {
+          lineType = BorderData::Line(value);
+          rc = OkRc;
         }
-
-        bool haveId = false;
-        int tip_idIndex = -1, idIndex = -1;
-        if (argv.size() > sizeIndex+1) {
-            rx.setPattern("^(HIDE_TIP|ID)$");
-            bool tip_idKey = argv[sizeIndex+1].contains(rx);
-            tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
-            rx.setPattern("^(TRUE|FALSE)$");
-            if (!argv[tip_idIndex].contains(rx))   // if line (show/hide tip or id), else if border or tip (id)
-                id = argv[tip_idIndex].toInt(&ok); // hide tip/id integer
-            else
-                ok = true;
-            if (argv[sizeIndex+1] == "ID") {
-                idIndex = tip_idIndex;
-                haveId = true;
-            }
-            rc = ok ? OkRc : FailureRc;
-        }
-
-        if ((line || tip) && !haveId && !scoped && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
-            bool idKey = argv[tip_idIndex+1] == "ID";
-            idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;
-            id = argv[idIndex].toInt(&ok);        // if line id
-            rc = ok ? OkRc : FailureRc;
-            haveId = true;
-        }
-
-        bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
-
-        if (rc == OkRc) {
-            if (scoped) {
-                _result = _value[pushed];
-                if (tip) {
-                    _result.attribType            = PointerAttribData::Tip;
-                    _result.tipData.tipWidth      = argv[widthIndex].toFloat();
-                    _result.tipData.tipHeight     = argv[heightIndex].toFloat();
-                    _result.tipHere.modelName     = here.modelName;
-                    _result.tipHere.lineNumber    = here.lineNumber;
-                    _result.tipData.useDefault    = false;
-                    _result.tipData.parametricTip = false;
-                } else if (line || border) {
-                    float tipHeight               = DEFAULT_TIP_HEIGHT;
-                    float lineThickness           = DEFAULT_LINE_THICKNESS;
-                    float borderThickness         = DEFAULT_BORDER_THICKNESS;
-                    const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
-                    const float tipRatio          = DEFAULT_TIP_RATIO;
-                    const double epsilon          = 0.0001;
-                    if (line) {
-                        lineThickness                 = argv[widthIndex].toFloat();
-                        _result.attribType            = PointerAttribData::Line;
-                        _result.lineData.line         = lineType;
-                        _result.lineData.color        = argv[colorIndex];
-                        _result.lineData.thickness    = lineThickness;
-                        if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
-                            _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
-                        else
-                            _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to show/hide arrow tip
-                        _result.lineHere.modelName    = here.modelName;
-                        _result.lineHere.lineNumber   = here.lineNumber;
-                        _result.lineData.useDefault   = false;
-                    } else if (border) {
-                        borderThickness               = argv[widthIndex].toFloat();
-                        _result.attribType            = PointerAttribData::Border;
-                        _result.borderData.line       = lineType;
-                        _result.borderData.color      = argv[colorIndex];
-                        _result.borderData.thickness  = borderThickness;
-                        _result.borderHere.modelName  = here.modelName;
-                        _result.borderHere.lineNumber = here.lineNumber;
-                        _result.borderData.useDefault = false;
-                    }
-                    float delta = (lineThickness  + borderThickness) - defaultThickness;
-                    if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
-                        tipHeight                += delta;
-                        _result.tipData.thickness = borderThickness;
-                        _result.tipData.tipWidth  = tipHeight * tipRatio;
-                        _result.tipData.tipHeight = tipHeight;
-                    }
-                }
-
-                if (_result.attribType == PointerAttribData::Tip) {
-                    _result.lineData    = _value[pushed].lineData;
-                    _result.lineHere    = _value[pushed].lineHere;
-                    _result.borderData  = _value[pushed].borderData;
-                    _result.borderHere  = _value[pushed].borderHere;
-                } else {
-                    if (_result.attribType == PointerAttribData::Line) {
-                        _result.borderData  = _value[pushed].borderData;
-                        _result.borderHere  = _value[pushed].borderHere;
-                    }
-                    else if (_result.attribType == PointerAttribData::Border) {
-                        _result.lineData    = _value[pushed].lineData;
-                        _result.lineHere    = _value[pushed].lineHere;
-                    }
-                    if (_result.tipData.thickness == DEFAULT_BORDER_THICKNESS)
-                        _result.tipData.thickness  = _value[pushed].tipData.thickness;
-                    if (_result.tipData.tipWidth  == DEFAULT_TIP_WIDTH)
-                        _result.tipData.tipWidth   = _value[pushed].tipData.tipWidth;
-                    if (_result.tipData.tipHeight == DEFAULT_TIP_HEIGHT)
-                        _result.tipData.tipHeight  = _value[pushed].tipData.tipHeight;
-                }
-
-                _result.id     = haveId ? argv[idIndex].toInt() : 0;
-                _result.parent = haveParent ? argv[idIndex+1] : "";
-
-                _value[pushed] = _result;
-                _here[pushed] = here;
-
-                return rc;
-
-            } // scoped (GLOBAL or LOCAL)
-
-            if (argv[index-2] == "CALLOUT") {
-                if (argv[index-1] == "POINTER_ATTRIBUTE")
-                    rc = CalloutPointerAttribRc;
-                else if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
-                    rc = CalloutDividerPointerAttribRc;
-            }
-            else if (argv[index-2] == "MULTI_STEP" && argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE") {
-                rc = StepGroupDividerPointerAttribRc;
-            }
-            else if (argv[index-2] == "PAGE" && argv[index-1] == "POINTER_ATTRIBUTE") {
-                rc = PagePointerAttribRc;
-            }
-            _here[pushed] = here;
-        }
-
-        if (!id && !scoped)
-        {
-          QString const message = QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" "));
-          emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
-          rc = FailureRc;
-        }
+      }
+      bool colorKey = argv[index+2] == "COLOR";
+      colorIndex = colorKey ? index+3 : index+2;
+      widthKey = argv[colorIndex+1] == "WIDTH";
+      widthIndex = widthKey ? colorIndex+2 : colorIndex+1;
+      argv[widthIndex].toFloat(&ok);                             // thickness
+      if (ok) {
+        sizeIndex = widthIndex;
+        rc = OkRc;
+      }
     }
-
-    return rc;
+    bool haveId = false;
+    int tip_idIndex = -1, idIndex = -1;
+    if (argv.size() > sizeIndex+1) {
+      rx.setPattern("^(HIDE_TIP|ID)$");
+      bool tip_idKey = argv[sizeIndex+1].contains(rx);
+      tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
+      rx.setPattern("^(TRUE|FALSE)$");
+      if (!argv[tip_idIndex].contains(rx))   // if line (show/hide tip or id), else if border or tip (id)
+          id = argv[tip_idIndex].toInt(&ok); // hide tip/id integer
+      else
+          ok = true;
+      if (argv[sizeIndex+1] == "ID") {
+        idIndex = tip_idIndex;
+        haveId = true;
+      }
+      rc = ok ? OkRc : FailureRc;
+    }
+    if ((line || tip) && !haveId && !scoped && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
+      bool idKey = argv[tip_idIndex+1] == "ID";
+      idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;
+      id = argv[idIndex].toInt(&ok);        // if line id
+      rc = ok ? OkRc : FailureRc;
+      haveId = true;
+    }
+    bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
+    if (rc == OkRc) {
+      if (scoped) {
+        _result = _value[pushed];
+        if (tip) {
+          _result.attribType            = PointerAttribData::Tip;
+          _result.tipData.tipWidth      = argv[widthIndex].toFloat();
+          _result.tipData.tipHeight     = argv[heightIndex].toFloat();
+          _result.tipHere.modelName     = here.modelName;
+          _result.tipHere.lineNumber    = here.lineNumber;
+          _result.tipData.useDefault    = false;
+          _result.tipData.parametricTip = false;
+        } else if (line || border) {
+          float tipHeight               = DEFAULT_TIP_HEIGHT;
+          float lineThickness           = DEFAULT_LINE_THICKNESS;
+          float borderThickness         = DEFAULT_BORDER_THICKNESS;
+          const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
+          const float tipRatio          = DEFAULT_TIP_RATIO;
+          const double epsilon          = 0.0001;
+          if (line) {
+            lineThickness                 = argv[widthIndex].toFloat();
+            _result.attribType            = PointerAttribData::Line;
+            _result.lineData.line         = lineType;
+            _result.lineData.color        = argv[colorIndex];
+            _result.lineData.thickness    = lineThickness;
+            if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
+              _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
+            else
+              _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to show/hide arrow tip
+            _result.lineHere.modelName    = here.modelName;
+            _result.lineHere.lineNumber   = here.lineNumber;
+            _result.lineData.useDefault   = false;
+          } else if (border) {
+            borderThickness               = argv[widthIndex].toFloat();
+            _result.attribType            = PointerAttribData::Border;
+            _result.borderData.line       = lineType;
+            _result.borderData.color      = argv[colorIndex];
+            _result.borderData.thickness  = borderThickness;
+            _result.borderHere.modelName  = here.modelName;
+            _result.borderHere.lineNumber = here.lineNumber;
+            _result.borderData.useDefault = false;
+          }
+          float delta = (lineThickness  + borderThickness) - defaultThickness;
+          if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
+            tipHeight                += delta;
+            _result.tipData.thickness = borderThickness;
+            _result.tipData.tipWidth  = tipHeight * tipRatio;
+            _result.tipData.tipHeight = tipHeight;
+          }
+        }
+        if (_result.attribType == PointerAttribData::Tip) {
+          _result.lineData    = _value[pushed].lineData;
+          _result.lineHere    = _value[pushed].lineHere;
+          _result.borderData  = _value[pushed].borderData;
+          _result.borderHere  = _value[pushed].borderHere;
+        } else {
+          if (_result.attribType == PointerAttribData::Line) {
+            _result.borderData  = _value[pushed].borderData;
+            _result.borderHere  = _value[pushed].borderHere;
+          }
+          else if (_result.attribType == PointerAttribData::Border) {
+            _result.lineData    = _value[pushed].lineData;
+            _result.lineHere    = _value[pushed].lineHere;
+          }
+          if (_result.tipData.thickness == DEFAULT_BORDER_THICKNESS)
+            _result.tipData.thickness  = _value[pushed].tipData.thickness;
+          if (_result.tipData.tipWidth  == DEFAULT_TIP_WIDTH)
+            _result.tipData.tipWidth   = _value[pushed].tipData.tipWidth;
+          if (_result.tipData.tipHeight == DEFAULT_TIP_HEIGHT)
+           _result.tipData.tipHeight  = _value[pushed].tipData.tipHeight;
+        }
+        _result.id     = haveId ? argv[idIndex].toInt() : 0;
+        _result.parent = haveParent ? argv[idIndex+1] : "";
+        _value[pushed] = _result;
+        _here[pushed] = here;
+        return rc;
+      } // scoped (GLOBAL or LOCAL)
+      if (argv[index-2] == "CALLOUT") {
+        if (argv[index-1] == "POINTER_ATTRIBUTE")
+          rc = CalloutPointerAttribRc;
+        else if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
+          rc = CalloutDividerPointerAttribRc;
+      }
+      else if (argv[index-2] == "MULTI_STEP" && argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE") {
+        rc = StepGroupDividerPointerAttribRc;
+      }
+      else if (argv[index-2] == "PAGE" && argv[index-1] == "POINTER_ATTRIBUTE") {
+        rc = PagePointerAttribRc;
+      }
+      _here[pushed] = here;
+    }
+    if (!id && !scoped)
+    {
+      QString const message = QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+      rc = FailureRc;
+    }
+  }
+  return rc;
 }
 
 PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Where &here)
@@ -1695,94 +1664,94 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
   BorderData::Line lineType = BorderData::BdrLnNone;
 
   if (tip) {
-      widthKey = argv[index+1] == "WIDTH";
-      widthIndex = widthKey ? index+2 : index+1;
-      bool heightKey = argv[widthIndex+1] == "HEIGHT";
-      heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
-      sizeIndex = heightIndex;
+    widthKey = argv[index+1] == "WIDTH";
+    widthIndex = widthKey ? index+2 : index+1;
+    bool heightKey = argv[widthIndex+1] == "HEIGHT";
+    heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
+    sizeIndex = heightIndex;
   } else {
-      if (_result.lineData.map.contains(argv[index+1])) { // line type word
-          lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
-      } else {
-          bool ok = false;
-          int value = argv[index+1].toInt(&ok);                  // line type integer
-          if (ok) {
-              lineType = BorderData::Line(value);
-          }
+    if (_result.lineData.map.contains(argv[index+1])) { // line type word
+      lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
+    } else {
+      bool ok = false;
+      int value = argv[index+1].toInt(&ok);                  // line type integer
+      if (ok) {
+        lineType = BorderData::Line(value);
       }
+    }
 
-      bool colorKey = argv[index+2] == "COLOR";
-      colorIndex = colorKey ? index+3 : index+2;
-      widthKey = argv[colorIndex+1] == "WIDTH";
-      widthIndex = widthKey ? colorIndex+2 : colorIndex+1;
-      sizeIndex  = widthIndex;
+    bool colorKey = argv[index+2] == "COLOR";
+    colorIndex = colorKey ? index+3 : index+2;
+    widthKey = argv[colorIndex+1] == "WIDTH";
+    widthIndex = widthKey ? colorIndex+2 : colorIndex+1;
+    sizeIndex  = widthIndex;
   }
 
   bool haveId = false;
   int tip_idIndex = -1, idIndex = -1;
   if (argv.size() > sizeIndex+1) {
-      rx.setPattern("^(HIDE_TIP|ID)$");
-      bool tip_idKey = argv[sizeIndex+1].contains(rx);
-      tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;       // if line (show/hide tip or id), else if border or tip (id)
-      if (argv[sizeIndex+1] == "ID") {
-          idIndex = tip_idIndex;
-          haveId = true;
-      }
+    rx.setPattern("^(HIDE_TIP|ID)$");
+    bool tip_idKey = argv[sizeIndex+1].contains(rx);
+    tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;       // if line (show/hide tip or id), else if border or tip (id)
+    if (argv[sizeIndex+1] == "ID") {
+      idIndex = tip_idIndex;
+      haveId = true;
+    }
   }
 
   if ((line || tip) && !haveId && tip_idIndex > -1 && argv.size() >= tip_idIndex+1) {
-      bool idKey = argv[tip_idIndex+1] == "ID";
-      idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;           // if line id
-      haveId = true;
+    bool idKey = argv[tip_idIndex+1] == "ID";
+    idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;           // if line id
+    haveId = true;
   }
 
   bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
 
   if (tip) {
-      _result.attribType            = PointerAttribData::Tip;
-      _result.tipData.tipWidth      = argv[widthIndex].toFloat();
-      _result.tipData.tipHeight     = argv[heightIndex].toFloat();
-      _result.tipHere.modelName     = here.modelName;
-      _result.tipHere.lineNumber    = here.lineNumber;
-      _result.tipData.useDefault    = false;
-      _result.tipData.parametricTip = false;
+     _result.attribType            = PointerAttribData::Tip;
+     _result.tipData.tipWidth      = argv[widthIndex].toFloat();
+     _result.tipData.tipHeight     = argv[heightIndex].toFloat();
+     _result.tipHere.modelName     = here.modelName;
+     _result.tipHere.lineNumber    = here.lineNumber;
+     _result.tipData.useDefault    = false;
+     _result.tipData.parametricTip = false;
   } else if (line || border) {
-      float tipHeight               = DEFAULT_TIP_HEIGHT;
-      float lineThickness           = DEFAULT_LINE_THICKNESS;
-      float borderThickness         = DEFAULT_BORDER_THICKNESS;
-      const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
-      const float tipRatio          = DEFAULT_TIP_RATIO;
-      const double epsilon          = 0.0001;
-      if (line) {
-          lineThickness              = argv[widthIndex].toFloat();
-          _result.attribType         = PointerAttribData::Line;
-          _result.lineData.line      = lineType;
-          _result.lineData.color     = argv[colorIndex];
-          _result.lineData.thickness = lineThickness;
-          if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
-              _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
-          else
-              _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to hide tip
-          _result.lineHere.modelName    = here.modelName;
-          _result.lineHere.lineNumber   = here.lineNumber;
-          _result.lineData.useDefault   = false;
-      } else if (border) {
-          borderThickness               = argv[widthIndex].toFloat();
-          _result.attribType            = PointerAttribData::Border;
-          _result.borderData.line       = lineType;
-          _result.borderData.color      = argv[colorIndex];
-          _result.borderData.thickness  = borderThickness;
-          _result.borderData.useDefault = false;
-          _result.borderHere.modelName  = here.modelName;
-          _result.borderHere.lineNumber = here.lineNumber;
-      }
-      float delta = (lineThickness  + borderThickness) - defaultThickness;
-      if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
-          tipHeight                += delta;
-          _result.tipData.thickness = borderThickness;
-          _result.tipData.tipWidth  = tipHeight * tipRatio;
-          _result.tipData.tipHeight = tipHeight;
-      }
+    float tipHeight               = DEFAULT_TIP_HEIGHT;
+    float lineThickness           = DEFAULT_LINE_THICKNESS;
+    float borderThickness         = DEFAULT_BORDER_THICKNESS;
+    const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
+    const float tipRatio          = DEFAULT_TIP_RATIO;
+    const double epsilon          = 0.0001;
+    if (line) {
+      lineThickness              = argv[widthIndex].toFloat();
+      _result.attribType         = PointerAttribData::Line;
+      _result.lineData.line      = lineType;
+      _result.lineData.color     = argv[colorIndex];
+      _result.lineData.thickness = lineThickness;
+      if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
+        _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
+      else
+        _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to hide tip
+      _result.lineHere.modelName    = here.modelName;
+      _result.lineHere.lineNumber   = here.lineNumber;
+      _result.lineData.useDefault   = false;
+    } else if (border) {
+      borderThickness               = argv[widthIndex].toFloat();
+      _result.attribType            = PointerAttribData::Border;
+      _result.borderData.line       = lineType;
+      _result.borderData.color      = argv[colorIndex];
+      _result.borderData.thickness  = borderThickness;
+      _result.borderData.useDefault = false;
+      _result.borderHere.modelName  = here.modelName;
+      _result.borderHere.lineNumber = here.lineNumber;
+    }
+    float delta = (lineThickness  + borderThickness) - defaultThickness;
+    if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
+      tipHeight                += delta;
+      _result.tipData.thickness = borderThickness;
+      _result.tipData.tipWidth  = tipHeight * tipRatio;
+      _result.tipData.tipHeight = tipHeight;
+    }
   }
 
   _result.id     = haveId ? argv[idIndex].toInt() : 0;
@@ -1794,73 +1763,63 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
 void PointerAttribMeta::setOtherDataInches(PointerAttribData pointerAttribData)
 {
   if (_value[pushed].attribType == PointerAttribData::Tip) {
-      _value[pushed].lineData    = pointerAttribData.lineData;
-      _value[pushed].lineHere    = pointerAttribData.lineHere;
+    _value[pushed].lineData    = pointerAttribData.lineData;
+    _value[pushed].lineHere    = pointerAttribData.lineHere;
+    _value[pushed].borderData  = pointerAttribData.borderData;
+    _value[pushed].borderHere  = pointerAttribData.borderHere;
+  } else {
+    if (_value[pushed].attribType == PointerAttribData::Line) {
       _value[pushed].borderData  = pointerAttribData.borderData;
       _value[pushed].borderHere  = pointerAttribData.borderHere;
-  } else {
-      if (_value[pushed].attribType == PointerAttribData::Line) {
-          _value[pushed].borderData  = pointerAttribData.borderData;
-          _value[pushed].borderHere  = pointerAttribData.borderHere;
-      }
-      else if (_value[pushed].attribType == PointerAttribData::Border) {
-          _value[pushed].lineData    = pointerAttribData.lineData;
-          _value[pushed].lineHere    = pointerAttribData.lineHere;
-      }
-      if (_value[pushed].tipData.thickness == DEFAULT_BORDER_THICKNESS)
-          _value[pushed].tipData.thickness  = pointerAttribData.tipData.thickness;
-      if (_value[pushed].tipData.tipWidth  == DEFAULT_TIP_WIDTH)
-          _value[pushed].tipData.tipWidth   = pointerAttribData.tipData.tipWidth;
-      if (_value[pushed].tipData.tipHeight == DEFAULT_TIP_HEIGHT)
-          _value[pushed].tipData.tipHeight  = pointerAttribData.tipData.tipHeight;
+    }
+    else if (_value[pushed].attribType == PointerAttribData::Border) {
+      _value[pushed].lineData    = pointerAttribData.lineData;
+      _value[pushed].lineHere    = pointerAttribData.lineHere;
+    }
+    if (_value[pushed].tipData.thickness == DEFAULT_BORDER_THICKNESS)
+      _value[pushed].tipData.thickness  = pointerAttribData.tipData.thickness;
+    if (_value[pushed].tipData.tipWidth  == DEFAULT_TIP_WIDTH)
+      _value[pushed].tipData.tipWidth   = pointerAttribData.tipData.tipWidth;
+    if (_value[pushed].tipData.tipHeight == DEFAULT_TIP_HEIGHT)
+      _value[pushed].tipData.tipHeight  = pointerAttribData.tipData.tipHeight;
   }
 }
 
 QString PointerAttribMeta::format(bool local, bool global)
 {
-    QString foo,bar;
-    switch (_value[pushed].attribType)
-    {
-    case PointerAttribData::Tip:
-        foo = QString("TIP WIDTH %1 HEIGHT %2")
-                .arg(double(_value[pushed].tipData.tipWidth),0,'f',3)
-                .arg(double(_value[pushed].tipData.tipHeight),0,'f',3);
-        break;
-    case PointerAttribData::Line:
-        foo = QString("LINE %1")
-                      .arg(LineTypeNames[_value[pushed].lineData.line]);
-        if (_value[pushed].lineData.color[0] == '#')
-            foo += QString(" COLOR %1")
-                      .arg(_value[pushed].lineData.color);
-        else
-            foo += QString(" COLOR \"%1\"")
-                      .arg(_value[pushed].lineData.color);
-        foo += QString(" WIDTH %1")
-                      .arg(double(_value[pushed].lineData.thickness),0,'f',3);
-        if (_value[pushed].lineData.hideTip)
-            foo += QString(" HIDE_TIP TRUE");
-        break;
-    case PointerAttribData::Border:
-        foo = QString("BORDER %1")
-                     .arg(LineTypeNames[_value[pushed].borderData.line]);
-        if (_value[pushed].borderData.color[0] == '#')
-            foo += QString(" COLOR %1")
-                     .arg(_value[pushed].borderData.color);
-        else
-            foo += QString(" COLOR \"%1\"")
-                     .arg(_value[pushed].borderData.color);
-        foo += QString(" WIDTH %1")
-                .arg(double(_value[pushed].borderData.thickness),0,'f',3);
-        break;
-    }
-
-    if (_value[pushed].id || !_value[pushed].parent.isEmpty()) {
-        foo += QString(" ID %1").arg(_value[pushed].id);
-        if (!_value[pushed].parent.isEmpty())
-            foo += QString(" %1").arg(_value[pushed].parent);
-    }
-
-    return LeafMeta::format(local,global,foo);
+  QString foo,bar;
+  switch (_value[pushed].attribType)
+  {
+  case PointerAttribData::Tip:
+    foo = QString("TIP WIDTH %1 HEIGHT %2")
+                  .arg(double(_value[pushed].tipData.tipWidth),0,'f',3)
+                  .arg(double(_value[pushed].tipData.tipHeight),0,'f',3);
+    break;
+  case PointerAttribData::Line:
+    foo = QString("LINE %1").arg(LineTypeNames[_value[pushed].lineData.line]);
+    if (_value[pushed].lineData.color[0] == '#')
+      foo += QString(" COLOR %1").arg(_value[pushed].lineData.color);
+    else
+      foo += QString(" COLOR \"%1\"").arg(_value[pushed].lineData.color);
+    foo += QString(" WIDTH %1").arg(double(_value[pushed].lineData.thickness),0,'f',3);
+    if (_value[pushed].lineData.hideTip)
+      foo += QString(" HIDE_TIP TRUE");
+    break;
+  case PointerAttribData::Border:
+    foo = QString("BORDER %1").arg(LineTypeNames[_value[pushed].borderData.line]);
+    if (_value[pushed].borderData.color[0] == '#')
+      foo += QString(" COLOR %1").arg(_value[pushed].borderData.color);
+    else
+      foo += QString(" COLOR \"%1\"").arg(_value[pushed].borderData.color);
+    foo += QString(" WIDTH %1").arg(double(_value[pushed].borderData.thickness),0,'f',3);
+    break;
+  }
+  if (_value[pushed].id || !_value[pushed].parent.isEmpty()) {
+    foo += QString(" ID %1").arg(_value[pushed].id);
+    if (!_value[pushed].parent.isEmpty())
+      foo += QString(" %1").arg(_value[pushed].parent);
+  }
+  return LeafMeta::format(local,global,foo);
 }
 
 void PointerAttribMeta::doc(QStringList &out, QString preamble)
@@ -1930,224 +1889,224 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 
   if (argv.size() - index > 0) {
 
-      pagePointer = (argv[1] == "PAGE" && argv[2] == "POINTER");
+    pagePointer = (argv[1] == "PAGE" && argv[2] == "POINTER");
 
-      // pagePointer legacy
-      if (argv[1] == "PAGE_POINTER") {
-          pagePointer     = true;
-          index += 1;
-          n_tokens = argv.size() - index;
+    // pagePointer legacy
+    if (argv[1] == "PAGE_POINTER") {
+      pagePointer     = true;
+      index += 1;
+      n_tokens = argv.size() - index;
 
-          QString message = QString("'%1' meta is deprecated. Use 'PAGE POINTER'").arg(argv[1]);
-          QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber);
-          if (Preferences::modeGUI)
-              QMessageBox::warning(nullptr,
-                                   QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                   parseMessage);
-          else
-              emit gui->messageSig(LOG_STATUS, parseMessage);
-      }
+      QString message = QString("'%1' meta is deprecated. Use 'PAGE POINTER'").arg(argv[1]);
+      QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber);
+      if (Preferences::modeGUI)
+        QMessageBox::warning(nullptr,
+                             QMessageBox::tr(VER_PRODUCTNAME_STR),
+                             parseMessage);
+      else
+        emit gui->messageSig(LOG_STATUS, parseMessage);
+    }
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-      qDebug() << "\nPARSE LINE: " << argv.join(" ") <<
-                  "\n||| [index-1]: " << argv[index-1] << ", [index]: " << argv[index] <<
-                  ", argv[1]: " << argv[1] << ", argv[2]: " << argv[2]
-                  ;
+    qDebug() << "\nPARSE LINE: " << argv.join(" ") <<
+                "\n||| [index-1]: " << argv[index-1] << ", [index]: " << argv[index] <<
+                ", argv[1]: " << argv[1] << ", argv[2]: " << argv[2]
+                ;
 #endif
 //*/
-      QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
+    QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
-      // legacy single-segment pattern - base included
-      if (argv[index].contains(rx) && n_tokens == 4) {
-          _loc = 0;
-          bool ok[3];
-          _x1   = argv[index+1].toFloat(&ok[0]);
-          _y1   = argv[index+2].toFloat(&ok[1]);
-          _base = argv[index+3].toFloat(&ok[2]);
-          fail  = ! (ok[0] && ok[1] && ok[2]);
-        }
-      // legacy single-segment pattern - no base
-      if (argv[index].contains(rx) && n_tokens == 3) {
-          _loc = 0;
-          bool ok[2];
-          _x1   = argv[index+1].toFloat(&ok[0]);
-          _y1   = argv[index+2].toFloat(&ok[1]);
-          fail  = ! (ok[0] && ok[1]);
-        }
-      // new multi-segment patterns (addl tokens: x2,y2,x3,y3,x4,y4,segments,[baseRect])
-      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
-          _loc = 0;
-          bool ok[10];
-          _x1       = argv[index+1].toFloat(&ok[0]);
-          _y1       = argv[index+2].toFloat(&ok[1]);
-          _x2       = argv[index+3].toFloat(&ok[2]);
-          _y2       = argv[index+4].toFloat(&ok[3]);
-          _x3       = argv[index+5].toFloat(&ok[4]);
-          _y3       = argv[index+6].toFloat(&ok[5]);
-          _x4       = argv[index+7].toFloat(&ok[6]);
-          _y4       = argv[index+8].toFloat(&ok[7]);
-          _base     = argv[index+9].toFloat(&ok[8]);
-          _segments = argv[index+10].toInt(&ok[9]);
-          if (pagePointer)
-            _bRect  = RectPlacement(tokenMap[argv[index+11]]);
-          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-                         ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
-        }
-      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 11 : n_tokens == 10)) {
-          _loc = 0;
-          bool ok[9];
-          _x1       = argv[index+1].toFloat(&ok[0]);
-          _y1       = argv[index+2].toFloat(&ok[1]);
-          _x2       = argv[index+3].toFloat(&ok[2]);
-          _y2       = argv[index+4].toFloat(&ok[3]);
-          _x3       = argv[index+5].toFloat(&ok[4]);
-          _y3       = argv[index+6].toFloat(&ok[5]);
-          _x4       = argv[index+7].toFloat(&ok[6]);
-          _y4       = argv[index+8].toFloat(&ok[7]);
-          _segments = argv[index+9].toInt(&ok[8]);
-          if (pagePointer)
-            _bRect  = RectPlacement(tokenMap[argv[index+10]]);
-          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-                         ok[5] && ok[6] && ok[7] && ok[8]);
-        }
-      rx.setPattern("^(TOP|BOTTOM|LEFT|RIGHT|CENTER)$");
-      if (argv[index].contains(rx) && n_tokens == 5) {
-          bool ok[4];
-          _loc  = argv[index+1].toFloat(&ok[0]);
-          _x1    = argv[index+2].toFloat(&ok[1]);
-          _y1    = argv[index+3].toFloat(&ok[2]);
-          _base = argv[index+4].toFloat(&ok[3]);
-          fail  = ! (ok[0] && ok[1] && ok[2] && ok[3]);
-        }
-      // legacy single-segment pattern - no base
-      if (argv[index].contains(rx) && n_tokens == 4) {
-          bool ok[3];
-          _loc  = argv[index+1].toFloat(&ok[0]);
-          _x1    = argv[index+2].toFloat(&ok[1]);
-          _y1    = argv[index+3].toFloat(&ok[2]);
-          fail  = ! (ok[0] && ok[1] && ok[2]);
-        }
-      // new multi-segment pattern (addl tokens: x2,y2,x3,y3,x4,y4,segments,[baseRect])
-      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 13 : n_tokens == 12)) {
-          bool ok[11];
-          _loc      = argv[index+1].toFloat(&ok[0]);
-          _x1       = argv[index+2].toFloat(&ok[1]);
-          _y1       = argv[index+3].toFloat(&ok[2]);
-          _x2       = argv[index+4].toFloat(&ok[3]);
-          _y2       = argv[index+5].toFloat(&ok[4]);
-          _x3       = argv[index+6].toFloat(&ok[5]);
-          _y3       = argv[index+7].toFloat(&ok[6]);
-          _x4       = argv[index+8].toFloat(&ok[7]);
-          _y4       = argv[index+9].toFloat(&ok[8]);
-          _base     = argv[index+10].toFloat(&ok[9]);
-          _segments = argv[index+11].toInt(&ok[10]);
-          if (pagePointer)
-            _bRect  = RectPlacement(tokenMap[argv[index+12]]);
-          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] && ok[5] &&
-                         ok[6] && ok[7] && ok[8] && ok[9] && ok[10]);
-        }
-      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
-          bool ok[10];
-          _loc      = argv[index+1].toFloat(&ok[0]);
-          _x1       = argv[index+2].toFloat(&ok[1]);
-          _y1       = argv[index+3].toFloat(&ok[2]);
-          _x2       = argv[index+4].toFloat(&ok[3]);
-          _y2       = argv[index+5].toFloat(&ok[4]);
-          _x3       = argv[index+6].toFloat(&ok[5]);
-          _y3       = argv[index+7].toFloat(&ok[6]);
-          _x4       = argv[index+8].toFloat(&ok[7]);
-          _y4       = argv[index+9].toFloat(&ok[8]);
-          _segments = argv[index+10].toInt(&ok[9]);
-          if (pagePointer)
-            _bRect  = RectPlacement(tokenMap[argv[index+11]]);
-          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-                         ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
-        }
+    // legacy single-segment pattern - base included
+    if (argv[index].contains(rx) && n_tokens == 4) {
+      _loc = 0;
+      bool ok[3];
+      _x1   = argv[index+1].toFloat(&ok[0]);
+      _y1   = argv[index+2].toFloat(&ok[1]);
+      _base = argv[index+3].toFloat(&ok[2]);
+      fail  = ! (ok[0] && ok[1] && ok[2]);
     }
-  if ( ! fail) {
-      _value[pushed].placement = PlacementEnc(tokenMap[argv[index]]);
-      _value[pushed].loc        = _loc;
-      _value[pushed].x1         = _x1;  //Tip.x
-      _value[pushed].y1         = _y1;  //Tip.y
-      _value[pushed].x2         = _x2;  //Base.x
-      _value[pushed].y2         = _y2;  //Base.y
-      _value[pushed].x3         = _x3;  //MidBase.x
-      _value[pushed].y3         = _y3;  //MidBase.y
-      _value[pushed].x4         = _x4;  //MidTip.x
-      _value[pushed].y4         = _y4;  //MidTip.y
-      if (_base > 0) {
-          _value[pushed].base = _base;
-        } else if (_value[pushed].base == 0.0f) {
-          _value[pushed].base = 1.0/8;
-        }
-      _value[pushed].segments   = _segments;
+    // legacy single-segment pattern - no base
+    if (argv[index].contains(rx) && n_tokens == 3) {
+      _loc = 0;
+      bool ok[2];
+      _x1   = argv[index+1].toFloat(&ok[0]);
+      _y1   = argv[index+2].toFloat(&ok[1]);
+      fail  = ! (ok[0] && ok[1]);
+    }
+    // new multi-segment patterns (addl tokens: x2,y2,x3,y3,x4,y4,segments,[baseRect])
+    if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
+      _loc = 0;
+      bool ok[10];
+      _x1       = argv[index+1].toFloat(&ok[0]);
+      _y1       = argv[index+2].toFloat(&ok[1]);
+      _x2       = argv[index+3].toFloat(&ok[2]);
+      _y2       = argv[index+4].toFloat(&ok[3]);
+      _x3       = argv[index+5].toFloat(&ok[4]);
+      _y3       = argv[index+6].toFloat(&ok[5]);
+      _x4       = argv[index+7].toFloat(&ok[6]);
+      _y4       = argv[index+8].toFloat(&ok[7]);
+      _base     = argv[index+9].toFloat(&ok[8]);
+      _segments = argv[index+10].toInt(&ok[9]);
       if (pagePointer)
-        _value[pushed].rectPlacement = _bRect; //Base Rect Placement
+        _bRect  = RectPlacement(tokenMap[argv[index+11]]);
+      fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+                     ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
+    }
+    if (argv[index].contains(rx) && (pagePointer ? n_tokens == 11 : n_tokens == 10)) {
+      _loc = 0;
+      bool ok[9];
+      _x1       = argv[index+1].toFloat(&ok[0]);
+      _y1       = argv[index+2].toFloat(&ok[1]);
+      _x2       = argv[index+3].toFloat(&ok[2]);
+      _y2       = argv[index+4].toFloat(&ok[3]);
+      _x3       = argv[index+5].toFloat(&ok[4]);
+      _y3       = argv[index+6].toFloat(&ok[5]);
+      _x4       = argv[index+7].toFloat(&ok[6]);
+      _y4       = argv[index+8].toFloat(&ok[7]);
+      _segments = argv[index+9].toInt(&ok[8]);
+      if (pagePointer)
+        _bRect  = RectPlacement(tokenMap[argv[index+10]]);
+      fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+                     ok[5] && ok[6] && ok[7] && ok[8]);
+    }
+    rx.setPattern("^(TOP|BOTTOM|LEFT|RIGHT|CENTER)$");
+    if (argv[index].contains(rx) && n_tokens == 5) {
+      bool ok[4];
+      _loc  = argv[index+1].toFloat(&ok[0]);
+      _x1    = argv[index+2].toFloat(&ok[1]);
+      _y1    = argv[index+3].toFloat(&ok[2]);
+      _base = argv[index+4].toFloat(&ok[3]);
+      fail  = ! (ok[0] && ok[1] && ok[2] && ok[3]);
+    }
+    // legacy single-segment pattern - no base
+    if (argv[index].contains(rx) && n_tokens == 4) {
+      bool ok[3];
+      _loc  = argv[index+1].toFloat(&ok[0]);
+      _x1    = argv[index+2].toFloat(&ok[1]);
+      _y1    = argv[index+3].toFloat(&ok[2]);
+      fail  = ! (ok[0] && ok[1] && ok[2]);
+    }
+    // new multi-segment pattern (addl tokens: x2,y2,x3,y3,x4,y4,segments,[baseRect])
+    if (argv[index].contains(rx) && (pagePointer ? n_tokens == 13 : n_tokens == 12)) {
+      bool ok[11];
+      _loc      = argv[index+1].toFloat(&ok[0]);
+      _x1       = argv[index+2].toFloat(&ok[1]);
+      _y1       = argv[index+3].toFloat(&ok[2]);
+      _x2       = argv[index+4].toFloat(&ok[3]);
+      _y2       = argv[index+5].toFloat(&ok[4]);
+      _x3       = argv[index+6].toFloat(&ok[5]);
+      _y3       = argv[index+7].toFloat(&ok[6]);
+      _x4       = argv[index+8].toFloat(&ok[7]);
+      _y4       = argv[index+9].toFloat(&ok[8]);
+      _base     = argv[index+10].toFloat(&ok[9]);
+      _segments = argv[index+11].toInt(&ok[10]);
+      if (pagePointer)
+        _bRect  = RectPlacement(tokenMap[argv[index+12]]);
+      fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] && ok[5] &&
+                     ok[6] && ok[7] && ok[8] && ok[9] && ok[10]);
+    }
+    if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
+      bool ok[10];
+      _loc      = argv[index+1].toFloat(&ok[0]);
+      _x1       = argv[index+2].toFloat(&ok[1]);
+      _y1       = argv[index+3].toFloat(&ok[2]);
+      _x2       = argv[index+4].toFloat(&ok[3]);
+      _y2       = argv[index+5].toFloat(&ok[4]);
+      _x3       = argv[index+6].toFloat(&ok[5]);
+      _y3       = argv[index+7].toFloat(&ok[6]);
+      _x4       = argv[index+8].toFloat(&ok[7]);
+      _y4       = argv[index+9].toFloat(&ok[8]);
+      _segments = argv[index+10].toInt(&ok[9]);
+      if (pagePointer)
+        _bRect  = RectPlacement(tokenMap[argv[index+11]]);
+      fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+                     ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
+    }
+  }
+  if ( ! fail) {
+    _value[pushed].placement = PlacementEnc(tokenMap[argv[index]]);
+    _value[pushed].loc        = _loc;
+    _value[pushed].x1         = _x1;  //Tip.x
+    _value[pushed].y1         = _y1;  //Tip.y
+    _value[pushed].x2         = _x2;  //Base.x
+    _value[pushed].y2         = _y2;  //Base.y
+    _value[pushed].x3         = _x3;  //MidBase.x
+    _value[pushed].y3         = _y3;  //MidBase.y
+    _value[pushed].x4         = _x4;  //MidTip.x
+    _value[pushed].y4         = _y4;  //MidTip.y
+    if (_base > 0) {
+      _value[pushed].base = _base;
+    } else if (_value[pushed].base == 0.0f) {
+      _value[pushed].base = 1.0/8;
+    }
+    _value[pushed].segments   = _segments;
+    if (pagePointer)
+      _value[pushed].rectPlacement = _bRect; //Base Rect Placement
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-      if (/ *argv[1] == "PAGE"* / true) {
-          qDebug()  << "\nPOINTER DATA " << argv[1] << " (Parsed)"
-                    << " \nPlacement:             "   << PlacNames[_value[pushed].placement] << " ("
-                                                      << _value[pushed].placement << ") of Base"
-                    << " \nLoc(fraction of side): "   << _value[pushed].loc
-                    << " \nx1 (Tip.x):            "   << _value[pushed].x1
-                    << " \ny1 (Tip.y):            "   << _value[pushed].y1
-                    << " \nx2 (Base.x):           "   << _value[pushed].x2
-                    << " \ny2 (Base.y):           "   << _value[pushed].y2
-                    << " \nx3 (MidBase.x):        "   << _value[pushed].x3
-                    << " \ny3 (MidBase.y):        "   << _value[pushed].y3
-                    << " \nx4 (MidTip.x):         "   << _value[pushed].x4
-                    << " \ny4 (MidTip.y):         "   << _value[pushed].y4
-                    << " \nBase:                  "   << _value[pushed].base
-                    << " \nSegments:              "   << _value[pushed].segments
-                    << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2) of Page")
-                                                                                .arg(RectNames[_value[pushed].rectPlacement])
-                                                                                .arg(_value[pushed].rectPlacement) :
-                                                                                "None - Not PagePointer")
-                       ;
-      }
+    if (/ *argv[1] == "PAGE"* / true) {
+      qDebug()  << "\nPOINTER DATA " << argv[1] << " (Parsed)"
+                << " \nPlacement:             "   << PlacNames[_value[pushed].placement] << " ("
+                                                  << _value[pushed].placement << ") of Base"
+                << " \nLoc(fraction of side): "   << _value[pushed].loc
+                << " \nx1 (Tip.x):            "   << _value[pushed].x1
+                << " \ny1 (Tip.y):            "   << _value[pushed].y1
+                << " \nx2 (Base.x):           "   << _value[pushed].x2
+                << " \ny2 (Base.y):           "   << _value[pushed].y2
+                << " \nx3 (MidBase.x):        "   << _value[pushed].x3
+                << " \ny3 (MidBase.y):        "   << _value[pushed].y3
+                << " \nx4 (MidTip.x):         "   << _value[pushed].x4
+                << " \ny4 (MidTip.y):         "   << _value[pushed].y4
+                << " \nBase:                  "   << _value[pushed].base
+                << " \nSegments:              "   << _value[pushed].segments
+                << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2) of Page")
+                                                                            .arg(RectNames[_value[pushed].rectPlacement])
+                                                                            .arg(_value[pushed].rectPlacement) :
+                                                                            "None - Not PagePointer")
+                   ;
+    }
 #endif
 //*/
-      _here[pushed] = here;
+    _here[pushed] = here;
 
-      if ((argv[1] == "PAGE" && argv[2] == "POINTER") ||
-          (argv[1] == "PAGE_POINTER")) {
-//          logTrace() << "Return PagePointerRc";
-          return PagePointerRc;
-      }
-      else
-      if (argv[1] == "CALLOUT" && argv[2] == "POINTER") {
-//          logTrace() << "Return CalloutPointerRc";
-          return CalloutPointerRc;
-      }
-      else
-      if (argv[1] == "CALLOUT" && argv[2] == "DIVIDER_POINTER") {
-//        logTrace() << "Return CalloutDividerPointerRc";
-          return CalloutDividerPointerRc;
-      }
-      else
-      if (argv[1] == "MULTI_STEP" && argv[2] == "DIVIDER_POINTER") {
-//        logTrace() << "Return StepGroupDividerPointerRc";
-          return StepGroupDividerPointerRc;
-      }
-      else
-      if (argv[1] == "ILLUSTRATION" && argv[2] == "POINTER") {
-//          logTrace() << "Return IllustrationPointerRc";
-          return IllustrationPointerRc;
-      }
-
-      emit gui->messageSig(LOG_ERROR,"Pointer type not defined. Returning 0.");
-
-      return OkRc; // this should never fire.
-
-    } else {
-
-      if (reportErrors) {
-        QString const message = QMessageBox::tr("Malformed pointer \"%1\"") .arg(argv.join(" "));
-        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
-      }
-      return FailureRc;
+    if ((argv[1] == "PAGE" && argv[2] == "POINTER") ||
+      (argv[1] == "PAGE_POINTER")) {
+//      logTrace() << "Return PagePointerRc";
+      return PagePointerRc;
     }
+    else
+    if (argv[1] == "CALLOUT" && argv[2] == "POINTER") {
+//      logTrace() << "Return CalloutPointerRc";
+      return CalloutPointerRc;
+    }
+    else
+    if (argv[1] == "CALLOUT" && argv[2] == "DIVIDER_POINTER") {
+//    logTrace() << "Return CalloutDividerPointerRc";
+      return CalloutDividerPointerRc;
+    }
+    else
+    if (argv[1] == "MULTI_STEP" && argv[2] == "DIVIDER_POINTER") {
+//    logTrace() << "Return StepGroupDividerPointerRc";
+      return StepGroupDividerPointerRc;
+    }
+    else
+    if (argv[1] == "ILLUSTRATION" && argv[2] == "POINTER") {
+//      logTrace() << "Return IllustrationPointerRc";
+      return IllustrationPointerRc;
+    }
+
+    emit gui->messageSig(LOG_ERROR,"Pointer type not defined. Returning 0.");
+
+    return OkRc; // this should never fire.
+
+  } else {
+
+    if (reportErrors) {
+      QString const message = QMessageBox::tr("Malformed pointer \"%1\"") .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+    }
+    return FailureRc;
+  }
 }
 
 QString PointerMeta::format(bool local, bool global)
@@ -2334,28 +2293,28 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
   if (_value[pushed].hidden) {
       foo = "HIDDEN";
   } else {
-      if (_value[pushed].placements.size() == 2) {
-         foo = QString("%1 %2 ")
-                 .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
-                 .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(1).toInt())]);
-      }
-      else
-      if (_value[pushed].placements.size() == 3) {
-         foo = QString("%1 %2 %3 ")
-                 .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
-                 .arg(placementNames[PlacementEnc(_value[pushed].placements.at(1).toInt())])
-                 .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
-      }
-      bar = QString("%1 %2 %3 %4 %5 %6 %7 %8")
-                     .arg(double(_value[pushed].iconOffset[0]),0,'f',0)
-                     .arg(double(_value[pushed].iconOffset[1]),0,'f',0)
-                     .arg(double(_value[pushed].partOffset[0]),0,'f',4)
-                     .arg(double(_value[pushed].partOffset[1]),0,'f',4)
-                     .arg(_value[pushed].partSize[0])
-                     .arg(_value[pushed].partSize[1])
-                     .arg(_value[pushed].typeColor)
-                     .arg(_value[pushed].typeBaseName);
-      foo += bar;
+    if (_value[pushed].placements.size() == 2) {
+      foo = QString("%1 %2 ")
+              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
+              .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(1).toInt())]);
+    }
+    else
+    if (_value[pushed].placements.size() == 3) {
+      foo = QString("%1 %2 %3 ")
+              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(0).toInt())])
+              .arg(placementNames[PlacementEnc(_value[pushed].placements.at(1).toInt())])
+              .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
+    }
+    bar = QString("%1 %2 %3 %4 %5 %6 %7 %8")
+                   .arg(double(_value[pushed].iconOffset[0]),0,'f',0)
+                   .arg(double(_value[pushed].iconOffset[1]),0,'f',0)
+                   .arg(double(_value[pushed].partOffset[0]),0,'f',4)
+                   .arg(double(_value[pushed].partOffset[1]),0,'f',4)
+                   .arg(_value[pushed].partSize[0])
+                   .arg(_value[pushed].partSize[1])
+                   .arg(_value[pushed].typeColor)
+                   .arg(_value[pushed].typeBaseName);
+    foo += bar;
   }
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
@@ -2523,34 +2482,34 @@ Rc FreeFormMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
   if (argv.size() - index == 1 && argv[index] == "FALSE") {
-      _value[pushed].mode = false;
-      rc = OkRc;
-    } else if (argv.size() - index == 2) {
-      _value[pushed].mode = true;
-      QRegExp rx("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
-      if (argv[index].contains(rx)) {
-          rx.setPattern("^(LEFT|RIGHT|TOP|BOTTOM|CENTER)$");
-          if (argv[index+1].contains(rx)) {
-              _value[pushed].base = PlacementEnc(tokenMap[argv[index]]);
-              _value[pushed].justification = PlacementEnc(tokenMap[argv[index+1]]);
-              rc = OkRc;
-            }
-        }
+    _value[pushed].mode = false;
+    rc = OkRc;
+  } else if (argv.size() - index == 2) {
+    _value[pushed].mode = true;
+    QRegExp rx("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
+    if (argv[index].contains(rx)) {
+      rx.setPattern("^(LEFT|RIGHT|TOP|BOTTOM|CENTER)$");
+      if (argv[index+1].contains(rx)) {
+        _value[pushed].base = PlacementEnc(tokenMap[argv[index]]);
+        _value[pushed].justification = PlacementEnc(tokenMap[argv[index+1]]);
+        rc = OkRc;
+      }
     }
+  }
   if (rc == OkRc) {
-      _here[pushed] = here;
-    }
+    _here[pushed] = here;
+  }
   return rc;
 }
 QString FreeFormMeta::format(bool local, bool global)
 {
   QString foo;
   if (_value[pushed].mode) {
-      foo = relativeNames[_value[pushed].base] + " " +
-          placementNames[_value[pushed].justification];
-    } else {
-      foo = "FALSE";
-    }
+    foo = relativeNames[_value[pushed].base] + " " +
+         placementNames[_value[pushed].justification];
+  } else {
+    foo = "FALSE";
+  }
   return LeafMeta::format(local,global,foo);
 }
 
@@ -2580,26 +2539,26 @@ Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
     case 1:
       rx.setPattern("^(AREA|SQUARE)$");
       if (argv[index].contains(rx)) {
-          _value[pushed].type = ConstrainData::PliConstrain(tokenMap[argv[index]]);
-          rc = OkRc;
-        }
+        _value[pushed].type = ConstrainData::PliConstrain(tokenMap[argv[index]]);
+        rc = OkRc;
+      }
       break;
     case 2:
       argv[index+1].toFloat(&ok);
       if (ok) {
-          rx.setPattern("^(WIDTH|HEIGHT|COLS)$");
-          if (argv[index].contains(rx)) {
-              _value[pushed].type = ConstrainData::PliConstrain(tokenMap[argv[index]]);
-              _value[pushed].constraint = argv[index+1].toFloat(&ok);
-              rc = OkRc;
-            }
+        rx.setPattern("^(WIDTH|HEIGHT|COLS)$");
+        if (argv[index].contains(rx)) {
+          _value[pushed].type = ConstrainData::PliConstrain(tokenMap[argv[index]]);
+          _value[pushed].constraint = argv[index+1].toFloat(&ok);
+          rc = OkRc;
         }
+      }
       break;
     }
   if (rc == OkRc) {
-      _here[pushed] = here;
-      _default = false;
-    }
+    _here[pushed] = here;
+    _default = false;
+  }
   return rc;
 }
 QString ConstrainMeta::format(bool local, bool global)
@@ -2621,7 +2580,7 @@ QString ConstrainMeta::format(bool local, bool global)
     default:
       foo = QString("COLS %1") .arg(double(_value[pushed].constraint),0,'f',4);
       break;
-    }
+  }
   return LeafMeta::format(local,global,foo);
 }
 void ConstrainMeta::doc(QStringList &out, QString preamble)
@@ -2659,10 +2618,10 @@ QString AllocMeta::format(bool local, bool global)
 {
   QString foo;
   if (type[pushed] == Horizontal) {
-      foo = "HORIZONTAL";
-    } else {
-      foo = "VERTICAL";
-    }
+    foo = "HORIZONTAL";
+  } else {
+    foo = "VERTICAL";
+  }
   return LeafMeta::format(local,global,foo);
 }
 void AllocMeta::doc(QStringList &out, QString preamble)
@@ -2853,13 +2812,13 @@ QString FillMeta::format(bool local, bool global)
 {
   QString foo;
   if (type[pushed] == Stretch) {
-      foo = "STRETCH";
-    } else
-    if (type[pushed] == Tile) {
-      foo = "TILE";
-    } else {
-      foo = "ASPECT";
-    }
+    foo = "STRETCH";
+  } else
+  if (type[pushed] == Tile) {
+    foo = "TILE";
+  } else {
+    foo = "ASPECT";
+  }
   return LeafMeta::format(local,global,foo);
 }
 void FillMeta::doc(QStringList &out, QString preamble)
@@ -2884,18 +2843,18 @@ Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)$");
   if (argv[index].contains(rx)) {
-      if (argv.size() - index >= 1)
-          _value[pushed].type = JustifyStepEnc(tokenMap[argv[index]]);
-      if (argv.size() - index == 3 && argv[index+1].contains("SPACING")) {
-          bool ok;
-          float spacing = argv[index+2].toFloat(&ok);
-          if (!ok)
-              return FailureRc;
-          _value[pushed].spacing = spacing;
-      }
-      _here[pushed] = here;
-      return OkRc;
+    if (argv.size() - index >= 1)
+      _value[pushed].type = JustifyStepEnc(tokenMap[argv[index]]);
+    if (argv.size() - index == 3 && argv[index+1].contains("SPACING")) {
+      bool ok;
+      float spacing = argv[index+2].toFloat(&ok);
+      if (!ok)
+          return FailureRc;
+      _value[pushed].spacing = spacing;
     }
+    _here[pushed] = here;
+    return OkRc;
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
@@ -2907,14 +2866,14 @@ QString JustifyStepMeta::format(bool local, bool global)
 {
   QString foo;
   if (_value[pushed].type == JustifyLeft) {
-      foo = "JUSTIFY_LEFT";
-    } else if (_value[pushed].type == JustifyCenter) {
-      foo = "JUSTIFY_CENTER";
-    } else if (_value[pushed].type == JustifyCenterHorizontal) {
-      foo = "JUSTIFY_CENTER_HORIZONTAL";
-    } else {
-      foo = "JUSTIFY_CENTER_VERTICAL";
-    }
+    foo = "JUSTIFY_LEFT";
+  } else if (_value[pushed].type == JustifyCenter) {
+    foo = "JUSTIFY_CENTER";
+  } else if (_value[pushed].type == JustifyCenterHorizontal) {
+    foo = "JUSTIFY_CENTER_HORIZONTAL";
+  } else {
+    foo = "JUSTIFY_CENTER_VERTICAL";
+  }
   if (_value[pushed].spacing > STEP_SPACING_DEFAULT ||
       _value[pushed].spacing < STEP_SPACING_DEFAULT) {
     foo += QString(" SPACING %1").arg(double(_value[pushed].spacing),4,'f',2);
@@ -2940,10 +2899,10 @@ Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(PORTRAIT|LANDSCAPE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
-      type[pushed] = OrientationEnc(tokenMap[argv[index]]);
-      _here[pushed] = here;
-      return PageOrientationRc;
-    }
+    type[pushed] = OrientationEnc(tokenMap[argv[index]]);
+    _here[pushed] = here;
+    return PageOrientationRc;
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected PORTRAIT or LANDSCAPE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
@@ -2955,10 +2914,10 @@ QString PageOrientationMeta::format(bool local, bool global)
 {
   QString foo;
   if (type[pushed] == Portrait) {
-      foo = "PORTRAIT";
-    } else {
-      foo = "LANDSCAPE";
-    }
+    foo = "PORTRAIT";
+  } else {
+    foo = "LANDSCAPE";
+  }
   return LeafMeta::format(local,global,foo);
 }
 void PageOrientationMeta::doc(QStringList &out, QString preamble)
@@ -3000,25 +2959,25 @@ Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
 
 QString CountInstanceMeta::format(bool local, bool global)
 {
-    QString foo;
-    switch (type[pushed])
-    {
-    case CountAtTop:
-        foo = "AT_TOP";
-        break;
-    case CountAtModel:
-        foo = "AT_MODEL";
-        break;
-    case CountAtStep:
-        foo = "AT_STEP";
-        break;
-    case CountTrue:
-        foo = "TRUE";
-        break;
-    default: /*CountFalse*/
-        foo = "FALSE";
-        break;
-    }
+  QString foo;
+  switch (type[pushed])
+  {
+  case CountAtTop:
+    foo = "AT_TOP";
+    break;
+  case CountAtModel:
+    foo = "AT_MODEL";
+    break;
+  case CountAtStep:
+    foo = "AT_STEP";
+    break;
+  case CountTrue:
+    foo = "TRUE";
+    break;
+  default: /*CountFalse*/
+    foo = "FALSE";
+    break;
+  }
   return LeafMeta::format(local,global,foo);
 }
 void CountInstanceMeta::doc(QStringList &out, QString preamble)
@@ -3044,10 +3003,10 @@ Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
-      type[pushed]  = ContStepNumEnc(contStepNumMap[argv[index]]);;
-      _here[pushed] = here;
-      return ContStepNumRc;
-    }
+    type[pushed]  = ContStepNumEnc(contStepNumMap[argv[index]]);;
+    _here[pushed] = here;
+    return ContStepNumRc;
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
@@ -3057,16 +3016,16 @@ Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
 
 QString ContStepNumMeta::format(bool local, bool global)
 {
-    QString foo;
-    switch (type[pushed])
-    {
-    case ContStepNumTrue:
-        foo = "TRUE";
-        break;
-    default: /*ContStepNumFalse*/
-        foo = "FALSE";
-        break;
-    }
+  QString foo;
+  switch (type[pushed])
+  {
+  case ContStepNumTrue:
+    foo = "TRUE";
+    break;
+  default: /*ContStepNumFalse*/
+    foo = "FALSE";
+    break;
+  }
   return LeafMeta::format(local,global,foo);
 }
 void ContStepNumMeta::doc(QStringList &out, QString preamble)
@@ -3094,10 +3053,10 @@ Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
-      type[pushed]  = BuildModEnabledEnc(buildModEnabledMap[argv[index]]);
-      _here[pushed] = here;
-      return BuildModEnableRc;
-    }
+    type[pushed]  = BuildModEnabledEnc(buildModEnabledMap[argv[index]]);
+    _here[pushed] = here;
+    return BuildModEnableRc;
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
@@ -3107,16 +3066,16 @@ Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
 
 QString BuildModEnabledMeta::format(bool local, bool global)
 {
-    QString foo;
-    switch (type[pushed])
-    {
-    case BuildModEnabledFalse:
-        foo = "FALSE";
-        break;
-    default: /*BuildModEnabledTrue*/
-        foo = "TRUE";
-        break;
-    }
+  QString foo;
+  switch (type[pushed])
+  {
+  case BuildModEnabledFalse:
+    foo = "FALSE";
+    break;
+  default: /*BuildModEnabledTrue*/
+    foo = "TRUE";
+    break;
+  }
   return LeafMeta::format(local,global,foo);
 }
 
@@ -3159,16 +3118,16 @@ Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
 
 QString FinalModelEnabledMeta::format(bool local, bool global)
 {
-    QString foo;
-    switch (type[pushed])
-    {
-    case FinalModelEnabledFalse:
-        foo = "FALSE";
-        break;
-    default: /*FinalModelEnabledTrue*/
-        foo = "TRUE";
-        break;
-    }
+  QString foo;
+  switch (type[pushed])
+  {
+  case FinalModelEnabledFalse:
+    foo = "FALSE";
+    break;
+  default: /*FinalModelEnabledTrue*/
+    foo = "TRUE";
+    break;
+  }
   return LeafMeta::format(local,global,foo);
 }
 
@@ -3335,97 +3294,97 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
   Rc rc = FailureRc;
   bool good, ok;
   if (argv.size() - index == 4) {
-      argv[index  ].toFloat(&good);
-      argv[index+2].toFloat(&ok);
-      good &= ok;
-      argv[index+3].toFloat(&ok);
-      good &= ok;
-      if (good) {
-          _value[pushed].thickness = argv[index].toFloat();
-          _value[pushed].color     = argv[index+1];
-          _value[pushed].margin[0] = argv[index+2].toFloat();
-          _value[pushed].margin[1] = argv[index+3].toFloat();
-          _here[pushed] = here;
-          rc = OkRc;
-        }
-    } else
+    argv[index  ].toFloat(&good);
+    argv[index+2].toFloat(&ok);
+    good &= ok;
+    argv[index+3].toFloat(&ok);
+    good &= ok;
+    if (good) {
+      _value[pushed].thickness = argv[index].toFloat();
+      _value[pushed].color     = argv[index+1];
+      _value[pushed].margin[0] = argv[index+2].toFloat();
+      _value[pushed].margin[1] = argv[index+3].toFloat();
+      _here[pushed] = here;
+      rc = OkRc;
+    }
+  } else
   if (argv.size() - index == 5) {       // legacy
+    argv[index+1].toFloat(&good);
+    argv[index+3].toFloat(&ok);
+    good &= ok;
+    argv[index+4].toFloat(&ok);
+    good &= ok;
+    if (good) {
+      // backward compatibility - ticket #193
+      QString sepLen = argv[index];
+      if (argv[index] == "PAGE")
+        sepLen = "PAGE_LENGTH";
+      _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
+      // end backward compatibility
+      _value[pushed].thickness = argv[index+1].toFloat();
+      _value[pushed].color     = argv[index+2];
+      _value[pushed].margin[0] = argv[index+3].toFloat();
+      _value[pushed].margin[1] = argv[index+4].toFloat();
+      _here[pushed] = here;
+      rc = OkRc;
+    }
+  } else // PAGE_LENGTH
+  if (argv.size() - index == 7) {
+    argv[index+2].toFloat(&good);
+    argv[index+5].toFloat(&ok);
+    good &= ok;
+    argv[index+6].toFloat(&ok);
+    good &= ok;
+    if (good) {
+      _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
+      _value[pushed].thickness = argv[index+2].toFloat();
+      _value[pushed].color     = argv[index+3];
+      _value[pushed].margin[0] = argv[index+5].toFloat();
+      _value[pushed].margin[1] = argv[index+6].toFloat();
+      _here[pushed] = here;
+      rc = OkRc;
+    }
+  } else
+  if (argv.size() - index == 6) {
+    QRegExp rx("CUSTOM|CUSTOM_LENGTH"); // legacy
+    if (argv[index].contains(rx)) {
       argv[index+1].toFloat(&good);
-      argv[index+3].toFloat(&ok);
+      argv[index+2].toFloat(&ok);
       good &= ok;
       argv[index+4].toFloat(&ok);
       good &= ok;
-      if (good) {
-          // backward compatibility - ticket #193
-          QString sepLen = argv[index];
-          if (argv[index] == "PAGE")
-              sepLen = "PAGE_LENGTH";
-          _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
-          // end backward compatibility
-          _value[pushed].thickness = argv[index+1].toFloat();
-          _value[pushed].color     = argv[index+2];
-          _value[pushed].margin[0] = argv[index+3].toFloat();
-          _value[pushed].margin[1] = argv[index+4].toFloat();
-          _here[pushed] = here;
-          rc = OkRc;
-        }
-    } else // PAGE_LENGTH
-  if (argv.size() - index == 7) {
-      argv[index+2].toFloat(&good);
       argv[index+5].toFloat(&ok);
       good &= ok;
-      argv[index+6].toFloat(&ok);
-      good &= ok;
       if (good) {
-          _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
-          _value[pushed].thickness = argv[index+2].toFloat();
-          _value[pushed].color     = argv[index+3];
-          _value[pushed].margin[0] = argv[index+5].toFloat();
-          _value[pushed].margin[1] = argv[index+6].toFloat();
+        // backward compatibility - ticket #193
+        QString sepLen = argv[index];
+        if (argv[index] == "CUSTOM")
+          sepLen = "CUSTOM_LENGTH";
+        _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
+        // end backward compatibility
+        _value[pushed].length    = argv[index+1].toFloat();
+        _value[pushed].thickness = argv[index+2].toFloat();
+        _value[pushed].color     = argv[index+3];
+        _value[pushed].margin[0] = argv[index+4].toFloat();
+        _value[pushed].margin[1] = argv[index+5].toFloat();
+        _here[pushed] = here;
+        rc = OkRc;
+      }
+    } else
+      if (argv[index].contains("THICKNESS")) {
+        argv[index+1 ].toFloat(&good);
+        argv[index+4].toFloat(&ok);
+        good &= ok;
+        argv[index+5].toFloat(&ok);
+        good &= ok;
+        if (good) {
+          _value[pushed].thickness = argv[index+1].toFloat();
+          _value[pushed].color     = argv[index+2];
+          _value[pushed].margin[0] = argv[index+4].toFloat();
+          _value[pushed].margin[1] = argv[index+5].toFloat();
           _here[pushed] = here;
           rc = OkRc;
         }
-    } else
-  if (argv.size() - index == 6) {
-      QRegExp rx("CUSTOM|CUSTOM_LENGTH"); // legacy
-      if (argv[index].contains(rx)) {
-          argv[index+1].toFloat(&good);
-          argv[index+2].toFloat(&ok);
-          good &= ok;
-          argv[index+4].toFloat(&ok);
-          good &= ok;
-          argv[index+5].toFloat(&ok);
-          good &= ok;
-          if (good) {
-              // backward compatibility - ticket #193
-              QString sepLen = argv[index];
-              if (argv[index] == "CUSTOM")
-                  sepLen = "CUSTOM_LENGTH";
-              _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
-              // end backward compatibility
-              _value[pushed].length    = argv[index+1].toFloat();
-              _value[pushed].thickness = argv[index+2].toFloat();
-              _value[pushed].color     = argv[index+3];
-              _value[pushed].margin[0] = argv[index+4].toFloat();
-              _value[pushed].margin[1] = argv[index+5].toFloat();
-              _here[pushed] = here;
-              rc = OkRc;
-            }
-      } else
-      if (argv[index].contains("THICKNESS")) {
-          argv[index+1 ].toFloat(&good);
-          argv[index+4].toFloat(&ok);
-          good &= ok;
-          argv[index+5].toFloat(&ok);
-          good &= ok;
-          if (good) {
-              _value[pushed].thickness = argv[index+1].toFloat();
-              _value[pushed].color     = argv[index+2];
-              _value[pushed].margin[0] = argv[index+4].toFloat();
-              _value[pushed].margin[1] = argv[index+5].toFloat();
-              _here[pushed] = here;
-              rc = OkRc;
-            }
       }
     } else // CUSTOM_LENGTH
     if (argv.size() - index == 8) {
@@ -3643,9 +3602,9 @@ void StudStyleMeta::metaKeywords(QStringList &out, QString preamble)
 
 ColorMeta::ColorMeta() : LeafMeta()
 {
-    _value[0] = 0;
-    _value[1] = 0;
-    _format   = 2; // String: 0-255,0-255,0-255,0-255
+  _value[0] = 0;
+  _value[1] = 0;
+  _format   = 2; // String: 0-255,0-255,0-255,0-255
 }
 
 Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
@@ -3687,36 +3646,36 @@ QString ColorMeta::format(bool local, bool global)
 
 void ColorMeta::getRGBA(quint32 color, int& r, int& g, int& b, int& a)
 {
-    // Colors are stored in RGBA format.
-    r = color & 0xFF;
-    g = (color >> 8) & 0xFF;
-    b = (color >> 16) & 0xFF;
-    a = (color >> 24) & 0xFF;
+  // Colors are stored in RGBA format.
+  r = color & 0xFF;
+  g = (color >> 8) & 0xFF;
+  b = (color >> 16) & 0xFF;
+  a = (color >> 24) & 0xFF;
 }
 
 quint32 ColorMeta::getRGBA(int r, int g, int b, int a)
 {
-    return (r & 0xFF) | ((g & 0xFF) << 8) | ((b & 0xFF) << 16) | ((a & 0xFF) << 24);
+  return (r & 0xFF) | ((g & 0xFF) << 8) | ((b & 0xFF) << 16) | ((a & 0xFF) << 24);
 }
 
 quint32 ColorMeta::getRGBAFromString(const QString &value)
 {
-    if (!value.isEmpty()) {
-        int n, r, g, b, a;
-        n = sscanf(value.toLatin1().constData(), "%d,%d,%d,%d", &r, &g, &b, &a);
-        if (n == 3 || n == 4)
-            return getRGBA(r, g, b, (n == 3 ? 255 : a));
-    }
-    return 0;
+  if (!value.isEmpty()) {
+    int n, r, g, b, a;
+    n = sscanf(value.toLatin1().constData(), "%d,%d,%d,%d", &r, &g, &b, &a);
+    if (n == 3 || n == 4)
+      return getRGBA(r, g, b, (n == 3 ? 255 : a));
+  }
+  return 0;
 }
 
 QString ColorMeta::getRGBAString(const quint32 rgba)
 {
-    int r, g, b, a;
-    getRGBA(rgba, r, g, b, a);
-    char v[128];
-    sprintf(v, "%d,%d,%d,%d", r, g, b, a);
-    return QString(v);
+  int r, g, b, a;
+  getRGBA(rgba, r, g, b, a);
+  char v[128];
+  sprintf(v, "%d,%d,%d,%d", r, g, b, a);
+  return QString(v);
 }
 
 void ColorMeta::doc(QStringList &out, QString preamble)
@@ -3761,184 +3720,184 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   Rc rc = OkRc;
 
   if (argv.size() - index == 1) {
-      if (argv[index] == "PAGE") {
-          rc = InsertPageRc;
-      } else if (argv[index] == "MODEL") {
-          rc = InsertFinalModelRc;
-      } else if ((displayModel = argv[index] == "DISPLAY_MODEL")) {
-          rc = InsertDisplayModelRc;
-      } else if (argv[index] == "COVER_PAGE") {
-          rc = InsertCoverPageRc;
-      }
+    if (argv[index] == "PAGE") {
+      rc = InsertPageRc;
+    } else if (argv[index] == "MODEL") {
+      rc = InsertFinalModelRc;
+    } else if ((displayModel = argv[index] == "DISPLAY_MODEL")) {
+      rc = InsertDisplayModelRc;
+    } else if (argv[index] == "COVER_PAGE") {
+      rc = InsertCoverPageRc;
+    }
   } else if (argv.size() - index == 2) {
-      if (argv[index] == "COVER_PAGE") {
-          rc = InsertCoverPageRc;
-      }
+    if (argv[index] == "COVER_PAGE") {
+      rc = InsertCoverPageRc;
+    }
   }
 
   if (rc != OkRc && !Gui::abortProcess()) {
-      if (Gui::pageProcessRunning != PROC_NONE) {
-          QString line;
-          bool errorFound = false;
-          here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-          Where start(here.modelName,here.modelIndex,here.lineNumber);
-          Where top(here.modelName,here.modelIndex,0);
-          lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
-          QRegExp errorRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
-          for (; start.lineNumber > top.lineNumber; start--) {
-              line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
-              if (line.contains(errorRx)) {
-                  errorFound = !errorRx.cap(3).contains(QRegExp("0 STEP|0 ROTSTEP"));
-                  break;
-              }
-          }
-
-          if (!errorFound) {
-              start = here;
-              errorRx.setPattern("^[1-5]\\s+|(\\bBEGIN SUB\\b)");
-              if (lpub->ldrawFile.size(here.modelName) > here.lineNumber) {
-                  start++;                                            // advance past current line
-              }
-              if (displayModel) {                                     // check for substitute command
-                  errorFound = Gui::stepContains(start, errorRx, line, 1, displayModel/*allow type 1-5 lines if display model*/);
-              } else {
-                  top = start;
-                  QRegExp dispModRx("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
-                  if (! Gui::stepContains(top,dispModRx)) {           // Check if step contain display model
-                      line = QObject::tr("type 1-5 line");
-                      errorFound = Gui::stepContains(start, errorRx); // check for type 1-5 parts
-                  }
-              }
-          }
-
-          if (errorFound) {
-              rc = FailureRc;
-              QString const message = QObject::tr("Step with INSERT %1 meta command cannot contain %2. Invalid type at line %3")
-                                                  .arg(argv[index]).arg(line).arg(start.lineNumber+1);
-              emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false/*option*/, false/*override*/, 3/*critical*/);
-          }
+    if (Gui::pageProcessRunning != PROC_NONE) {
+      QString line;
+      bool errorFound = false;
+      here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
+      Where start(here.modelName,here.modelIndex,here.lineNumber);
+      Where top(here.modelName,here.modelIndex,0);
+      lpub->ldrawFile.skipHeader(top.modelName,top.lineNumber);
+      QRegExp errorRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)|(\\b0 STEP\\b|\\b0 ROTSTEP\\b)");
+      for (; start.lineNumber > top.lineNumber; start--) {
+        line = lpub->ldrawFile.readLine(start.modelName,start.lineNumber);
+        if (line.contains(errorRx)) {
+          errorFound = !errorRx.cap(3).contains(QRegExp("0 STEP|0 ROTSTEP"));
+          break;
+        }
       }
-      return rc;
+
+      if (!errorFound) {
+        start = here;
+        errorRx.setPattern("^[1-5]\\s+|(\\bBEGIN SUB\\b)");
+        if (lpub->ldrawFile.size(here.modelName) > here.lineNumber) {
+          start++;                                            // advance past current line
+        }
+        if (displayModel) {                                     // check for substitute command
+          errorFound = Gui::stepContains(start, errorRx, line, 1, displayModel/*allow type 1-5 lines if display model*/);
+        } else {
+          top = start;
+          QRegExp dispModRx("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*");
+          if (! Gui::stepContains(top,dispModRx)) {           // Check if step contain display model
+            line = QObject::tr("type 1-5 line");
+            errorFound = Gui::stepContains(start, errorRx); // check for type 1-5 parts
+          }
+        }
+      }
+
+      if (errorFound) {
+        rc = FailureRc;
+        QString const message = QObject::tr("Step with INSERT %1 meta command cannot contain %2. Invalid type at line %3")
+                                            .arg(argv[index]).arg(line).arg(start.lineNumber+1);
+        emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false/*option*/, false/*override*/, 3/*critical*/);
+      }
+    }
+    return rc;
   }
 
   if (argv.size() - index > 1 && argv[index] == "PICTURE") {
-      insertData.type = InsertData::InsertPicture;
-      insertData.picName = argv[++index];
-      ++index;
-      if (argv.size() - index >= 2 && argv[index] == "SCALE") {
-          bool good;
-          insertData.picScale = double(argv[++index].toFloat(&good));
-          ++index;
-
-          if (! good) {
-              rc = FailureRc;
-            }
-        }
-    } else if (argv.size() - index > 3 && argv[index] == "TEXT") {
-      insertData.type = InsertData::InsertText;
-      insertData.placementCommand = argv[index+1] == "PLACEMENT";
-      if (insertData.placementCommand) {
-          bool local = argv[index+2] == "LOCAL";
-          PlacementMeta plm;
-          plm.parse(argv,local ? index+3 : index+2,here);
-          insertData.defaultPlacement = false;
-          insertData.placement     = plm.value().placement;
-          insertData.justification = plm.value().justification;
-          insertData.relativeTo    = plm.value().relativeTo;
-          insertData.preposition   = plm.value().preposition;
-          insertData.rectPlacement = plm.value().rectPlacement;
-          insertData.offsets[0]    = plm.value().offsets[XX];
-          insertData.offsets[1]    = plm.value().offsets[YY];
-      } else {
-          insertData.text       = argv[++index];
-          insertData.textFont   = argv[++index];
-          insertData.textColor  = argv[++index];
-          ++index;
-      }
-
-    } else if (argv.size() - index >= 2 && (argv[index] == "RICH_TEXT" || argv[index] == "HTML_TEXT")) {
-      insertData.type = InsertData::InsertRichText;
-      insertData.placementCommand = argv[index+1] == "PLACEMENT";
-      if (insertData.placementCommand) {
-          bool local = argv[index+2] == "LOCAL";
-          PlacementMeta plm;
-          plm.parse(argv,local ? index+3 : index+2,here);
-          insertData.defaultPlacement = false;
-          insertData.placement     = plm.value().placement;
-          insertData.justification = plm.value().justification;
-          insertData.relativeTo    = plm.value().relativeTo;
-          insertData.preposition   = plm.value().preposition;
-          insertData.rectPlacement = plm.value().rectPlacement;
-          insertData.offsets[0]    = plm.value().offsets[XX];
-          insertData.offsets[1]    = plm.value().offsets[YY];
-      } else {
-          insertData.text   = argv[++index];
-          ++index;
-      }
-    } else if (argv[index] == "ROTATE_ICON") {
-      insertData.type = InsertData::InsertRotateIcon;
-      ++index;
-    } else if (argv.size() - index >= 8 && argv[index] == "ARROW") {
-      insertData.type = InsertData::InsertArrow;
-      bool good, ok;
-      insertData.arrowHead.setX(argv[++index] .toDouble(&good));
-      insertData.arrowHead.setY(argv[++index] .toDouble(&ok));
-      good &= ok;
-      insertData.arrowTail.setX(argv[++index] .toDouble(&ok));
-      good &= ok;
-      insertData.arrowTail.setY(argv[++index] .toDouble(&ok));
-      good &= ok;
-      insertData.haftingDepth = argv[++index] .toDouble(&ok);
-      good &= ok;
-      insertData.haftingTip.setX(argv[++index].toDouble(&ok));
-      good &= ok;
-      insertData.haftingTip.setY(argv[++index].toDouble(&ok));
-      good &= ok;
-      if ( ! good) {
-          rc = FailureRc;
-        }
+    insertData.type = InsertData::InsertPicture;
+    insertData.picName = argv[++index];
+    ++index;
+    if (argv.size() - index >= 2 && argv[index] == "SCALE") {
+      bool good;
+      insertData.picScale = double(argv[++index].toFloat(&good));
       ++index;
 
-    } else if (argv[index] == "BOM") {
-      if (argv.size() - index >= 2) {
-          insertData.bomToEndOfSubmodel = argv[index + 1] == "FOR_SUBMODEL";
-          index++;
-        }
-      insertData.type = InsertData::InsertBom;
-      insertData.where.modelName = here.modelName;
-      insertData.where.lineNumber = here.lineNumber;
-      ++index; // move index to end for next block
-    }
-
-  if (rc == OkRc) {
-      if (!insertData.placementCommand) {
-        if (argv.size() - index == 3) {
-          if (argv[index] == "OFFSET") {
-            bool ok[2];
-            insertData.offsets[0] = argv[++index].toFloat(&ok[0]);
-            insertData.offsets[1] = argv[++index].toFloat(&ok[1]);
-            if ( ! ok[0] || ! ok[1]) {
-              rc = FailureRc;
-            }
-          }
-        } else if (argv.size() - index > 0) {
-          rc = FailureRc;
-        }
+      if (! good) {
+        rc = FailureRc;
       }
     }
-
-  if (rc == OkRc) {
-      _value   = insertData;
-      _here[0] = here;
-
-      return InsertRc;
+  } else if (argv.size() - index > 3 && argv[index] == "TEXT") {
+    insertData.type = InsertData::InsertText;
+    insertData.placementCommand = argv[index+1] == "PLACEMENT";
+    if (insertData.placementCommand) {
+      bool local = argv[index+2] == "LOCAL";
+      PlacementMeta plm;
+      plm.parse(argv,local ? index+3 : index+2,here);
+      insertData.defaultPlacement = false;
+      insertData.placement     = plm.value().placement;
+      insertData.justification = plm.value().justification;
+      insertData.relativeTo    = plm.value().relativeTo;
+      insertData.preposition   = plm.value().preposition;
+      insertData.rectPlacement = plm.value().rectPlacement;
+      insertData.offsets[0]    = plm.value().offsets[XX];
+      insertData.offsets[1]    = plm.value().offsets[YY];
     } else {
-      if (reportErrors) {
-        QString const message = QMessageBox::tr("Malformed Insert metacommand \"%1\"\n").arg(argv.join(" "));
-        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
-      }
-      return FailureRc;
+      insertData.text       = argv[++index];
+      insertData.textFont   = argv[++index];
+      insertData.textColor  = argv[++index];
+      ++index;
     }
+
+  } else if (argv.size() - index >= 2 && (argv[index] == "RICH_TEXT" || argv[index] == "HTML_TEXT")) {
+    insertData.type = InsertData::InsertRichText;
+    insertData.placementCommand = argv[index+1] == "PLACEMENT";
+    if (insertData.placementCommand) {
+        bool local = argv[index+2] == "LOCAL";
+        PlacementMeta plm;
+        plm.parse(argv,local ? index+3 : index+2,here);
+        insertData.defaultPlacement = false;
+        insertData.placement     = plm.value().placement;
+        insertData.justification = plm.value().justification;
+        insertData.relativeTo    = plm.value().relativeTo;
+        insertData.preposition   = plm.value().preposition;
+        insertData.rectPlacement = plm.value().rectPlacement;
+        insertData.offsets[0]    = plm.value().offsets[XX];
+        insertData.offsets[1]    = plm.value().offsets[YY];
+    } else {
+        insertData.text   = argv[++index];
+        ++index;
+    }
+  } else if (argv[index] == "ROTATE_ICON") {
+    insertData.type = InsertData::InsertRotateIcon;
+    ++index;
+  } else if (argv.size() - index >= 8 && argv[index] == "ARROW") {
+    insertData.type = InsertData::InsertArrow;
+    bool good, ok;
+    insertData.arrowHead.setX(argv[++index] .toDouble(&good));
+    insertData.arrowHead.setY(argv[++index] .toDouble(&ok));
+    good &= ok;
+    insertData.arrowTail.setX(argv[++index] .toDouble(&ok));
+    good &= ok;
+    insertData.arrowTail.setY(argv[++index] .toDouble(&ok));
+    good &= ok;
+    insertData.haftingDepth = argv[++index] .toDouble(&ok);
+    good &= ok;
+    insertData.haftingTip.setX(argv[++index].toDouble(&ok));
+    good &= ok;
+    insertData.haftingTip.setY(argv[++index].toDouble(&ok));
+    good &= ok;
+    if ( ! good) {
+        rc = FailureRc;
+      }
+    ++index;
+
+  } else if (argv[index] == "BOM") {
+    if (argv.size() - index >= 2) {
+        insertData.bomToEndOfSubmodel = argv[index + 1] == "FOR_SUBMODEL";
+        index++;
+      }
+    insertData.type = InsertData::InsertBom;
+    insertData.where.modelName = here.modelName;
+    insertData.where.lineNumber = here.lineNumber;
+    ++index; // move index to end for next block
+  }
+
+  if (rc == OkRc) {
+    if (!insertData.placementCommand) {
+      if (argv.size() - index == 3) {
+        if (argv[index] == "OFFSET") {
+          bool ok[2];
+          insertData.offsets[0] = argv[++index].toFloat(&ok[0]);
+          insertData.offsets[1] = argv[++index].toFloat(&ok[1]);
+          if ( ! ok[0] || ! ok[1]) {
+            rc = FailureRc;
+          }
+        }
+      } else if (argv.size() - index > 0) {
+        rc = FailureRc;
+      }
+    }
+  }
+
+  if (rc == OkRc) {
+    _value   = insertData;
+    _here[0] = here;
+
+    return InsertRc;
+  } else {
+    if (reportErrors) {
+      QString const message = QMessageBox::tr("Malformed Insert metacommand \"%1\"\n").arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+    }
+    return FailureRc;
+  }
 }
 
 QString InsertMeta::format(bool local, bool global)
@@ -3978,10 +3937,10 @@ QString InsertMeta::format(bool local, bool global)
     }
 
   if (_value.offsets[0] != 0.0f || _value.offsets[1] != 0.0f) {
-      foo += QString(" OFFSET %1 %2")
-          .arg(double(_value.offsets[0]),0,'f',4)
-          .arg(double(_value.offsets[1]),0,'f',4);
-    }
+    foo += QString(" OFFSET %1 %2")
+                   .arg(double(_value.offsets[0]),0,'f',4)
+                   .arg(double(_value.offsets[1]),0,'f',4);
+  }
 
   return LeafMeta::format(local,global,foo);
 }
@@ -4003,18 +3962,18 @@ void InsertMeta::metaKeywords(QStringList &out, QString preamble)
 Rc AlignmentMeta::parse(QStringList &argv, int index, Where &here)
 {
   if (argv.size() - index == 1) {
-      if (argv[index] == "LEFT") {
-          _value[pushed] = Qt::AlignLeft;
-        } else if (argv[index] == "CENTER") {
-          _value[pushed] = Qt::AlignCenter;
-        } else if (argv[index] == "RIGHT") {
-          _value[pushed] = Qt::AlignRight;
-        }
-      _here[pushed] = here;
-      return OkRc;
-    } else {
-      return FailureRc;
+    if (argv[index] == "LEFT") {
+      _value[pushed] = Qt::AlignLeft;
+    } else if (argv[index] == "CENTER") {
+      _value[pushed] = Qt::AlignCenter;
+    } else if (argv[index] == "RIGHT") {
+      _value[pushed] = Qt::AlignRight;
     }
+    _here[pushed] = here;
+    return OkRc;
+  } else {
+    return FailureRc;
+  }
 }
 
 QString AlignmentMeta::format(bool local, bool global)
@@ -4049,8 +4008,8 @@ void AlignmentMeta::metaKeywords(QStringList &out, QString preamble)
 void TextMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent,name);
-  font.init(     this,"FONT");
-  color.init(    this,"COLOR");
+  font     .init(this,"FONT");
+  color    .init(this,"COLOR");
   alignment.init(this,"ALIGNMENT");
 }
 
@@ -4059,29 +4018,29 @@ void TextMeta::init(BranchMeta *parent, QString name)
 Rc ArrowHeadMeta::parse(QStringList &argv, int index, Where &here)
 {
   if (argv.size() - index == 4) {
-      qreal head[4];
-      bool  good, ok;
+    qreal head[4];
+    bool  good, ok;
 
-      head[0] = argv[index  ].toDouble(&good);
-      head[1] = argv[index+1].toDouble(&ok);
-      good &= ok;
-      head[2] = argv[index+2].toDouble(&ok);
-      good &= ok;
-      head[3] = argv[index+3].toDouble(&ok);
-      good &= ok;
+    head[0] = argv[index  ].toDouble(&good);
+    head[1] = argv[index+1].toDouble(&ok);
+    good &= ok;
+    head[2] = argv[index+2].toDouble(&ok);
+    good &= ok;
+    head[3] = argv[index+3].toDouble(&ok);
+    good &= ok;
 
-      if ( ! good) {
-          return FailureRc;
-        }
-
-      _value[pushed][0] = head[0];
-      _value[pushed][1] = head[1];
-      _value[pushed][2] = head[2];
-      _value[pushed][3] = head[3];
-      _here[pushed] = here;
-
-      return OkRc;
+    if ( ! good) {
+      return FailureRc;
     }
+
+    _value[pushed][0] = head[0];
+    _value[pushed][1] = head[1];
+    _value[pushed][2] = head[2];
+    _value[pushed][3] = head[3];
+    _here[pushed] = here;
+
+    return OkRc;
+  }
   return FailureRc;
 }
 
@@ -4110,16 +4069,16 @@ void ArrowHeadMeta::metaKeywords(QStringList &out, QString preamble)
 Rc ArrowEndMeta::parse(QStringList &argv, int index, Where &here)
 {
   if (argv.size() - index == 1) {
-      if (argv[0] == "SQUARE") {
-          _value[pushed] = false;
-        } else if (argv[0] == "ROUND") {
-          _value[pushed] = true;
-        } else {
-          return FailureRc;
-        }
-      _here[pushed] = here;
-      return OkRc;
+    if (argv[0] == "SQUARE") {
+      _value[pushed] = false;
+    } else if (argv[0] == "ROUND") {
+      _value[pushed] = true;
+    } else {
+      return FailureRc;
     }
+    _here[pushed] = here;
+    return OkRc;
+  }
   return FailureRc;
 }
 
@@ -4181,11 +4140,11 @@ HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
 void HighContrastColorMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  lightDarkIndex     .init(this,"COLOR_LIGHT_DARK_INDEX");
-  studCylinderColor  .init(this,"STUD_CYLINDER_COLOR");
-  partEdgeColor      .init(this,"EDGE_COLOR");
-  blackEdgeColor     .init(this,"BLACK_EDGE_COLOR");
-  darkEdgeColor      .init(this,"DARK_EDGE_COLOR");
+  lightDarkIndex    .init(this,"COLOR_LIGHT_DARK_INDEX");
+  studCylinderColor .init(this,"STUD_CYLINDER_COLOR");
+  partEdgeColor     .init(this,"EDGE_COLOR");
+  blackEdgeColor    .init(this,"BLACK_EDGE_COLOR");
+  darkEdgeColor     .init(this,"DARK_EDGE_COLOR");
 }
 
 /*------------------------*/
@@ -4222,29 +4181,29 @@ SettingsMeta::SettingsMeta() : BranchMeta()
 void SettingsMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement.init        (this,"PLACEMENT");
-  margin.init           (this,"MARGINS");
-  studStyle.init        (this,"STUD_STYLE");
-  highContrast.init     (this,"HIGH_CONTRAST");
-  autoEdgeColor.init    (this,"AUTOMATE_EDGE_COLOR");
-  fadeSteps.init        (this,"FADE_STEPS");
-  highlightStep.init    (this,"HIGHLIGHT_STEP");
+  placement        .init(this,"PLACEMENT");
+  margin           .init(this,"MARGINS");
+  studStyle        .init(this,"STUD_STYLE");
+  highContrast     .init(this,"HIGH_CONTRAST");
+  autoEdgeColor    .init(this,"AUTOMATE_EDGE_COLOR");
+  fadeSteps        .init(this,"FADE_STEPS");
+  highlightStep    .init(this,"HIGHLIGHT_STEP");
   preferredRenderer.init(this,"PREFERRED_RENDERER");
 
   // assem image scale
-  modelScale.init       (this,"MODEL_SCALE");
+  modelScale.init(this,"MODEL_SCALE");
   // assem native camera position
-  imageSize.init        (this,"IMAGE_SIZE");
-  cameraDistance.init   (this,"CAMERA_DISTANCE");
-  cameraFoV.init        (this,"CAMERA_FOV");
-  cameraZNear.init      (this,"CAMERA_ZNEAR");
-  cameraZFar.init       (this,"CAMERA_ZFAR");
-  cameraAngles.init     (this,"CAMERA_ANGLES");
-  isOrtho.init          (this,"CAMERA_ORTHOGRAPHIC");
-  cameraName.init       (this,"CAMERA_NAME");
-  target.init           (this,"CAMERA_TARGET");
-  position.init         (this,"CAMERA_POSITION");
-  upvector.init         (this,"CAMERA_UPVECTOR");
+  imageSize     .init(this,"IMAGE_SIZE");
+  cameraDistance.init(this,"CAMERA_DISTANCE");
+  cameraFoV     .init(this,"CAMERA_FOV");
+  cameraZNear   .init(this,"CAMERA_ZNEAR");
+  cameraZFar    .init(this,"CAMERA_ZFAR");
+  cameraAngles  .init(this,"CAMERA_ANGLES");
+  isOrtho       .init(this,"CAMERA_ORTHOGRAPHIC");
+  cameraName    .init(this,"CAMERA_NAME");
+  target        .init(this,"CAMERA_TARGET");
+  position      .init(this,"CAMERA_POSITION");
+  upvector      .init(this,"CAMERA_UPVECTOR");
 }
 
 void SettingsMeta::resetCameraFoV()
@@ -4267,8 +4226,8 @@ void StepsPliMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   placement.init(this,"PLACEMENT");
-  margin.init(   this,"MARGINS");
-  perStep.init  (this,"PER_STEP");
+  margin   .init(this,"MARGINS");
+  perStep  .init(this,"PER_STEP");
 }
 
 /* ------------------ */
@@ -4281,7 +4240,7 @@ StepPliMeta::StepPliMeta() : BranchMeta()
 void StepPliMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  perStep.init  (this,"PER_STEP");
+  perStep.init(this,"PER_STEP");
 }
 
 /* ------------------ */
@@ -4290,7 +4249,7 @@ void PliBeginMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   ignore.init(this, "IGN",    PliBeginIgnRc);
-  sub.init   (this, "SUB");
+  sub.init(this, "SUB");
 }
 
 /* ------------------ */
@@ -4317,14 +4276,12 @@ NumberMeta::NumberMeta() : BranchMeta()
   // font - default
 }
 
-void NumberMeta::init(
-    BranchMeta *parent,
-    QString name)
+void NumberMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  color.init    (this, "FONT_COLOR");
-  font.init     (this, "FONT",OkRc, "\"");
-  margin.init   (this, "MARGINS");
+  color.init(this, "FONT_COLOR");
+  font.init(this, "FONT",OkRc, "\"");
+  margin.init(this, "MARGINS");
 }
 
 NumberPlacementMeta::NumberPlacementMeta() : NumberMeta()
@@ -4340,9 +4297,9 @@ void NumberPlacementMeta::init(
 {
   AbstractMeta::init(parent, name);
   placement.init(this, "PLACEMENT");
-  color.init    (this, "FONT_COLOR");
-  font.init     (this, "FONT",OkRc, "\"");
-  margin.init   (this, "MARGINS");
+  color.init(this, "FONT_COLOR");
+  font.init(this, "FONT",OkRc, "\"");
+  margin.init(this, "MARGINS");
 }
 
 /* ------------------ */
@@ -4360,17 +4317,15 @@ PageAttributeTextMeta::PageAttributeTextMeta() : BranchMeta()
   placement.value().offsets[1]    = 0.0f;
 }
 
-void PageAttributeTextMeta::init(
-    BranchMeta *parent,
-    QString name)
+void PageAttributeTextMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  textFont.init         (this, "FONT",OkRc, "\"");
-  textColor.init        (this, "COLOR");
-  margin.init           (this, "MARGINS");
-  placement.init        (this, "PLACEMENT");
-  content.init          (this, "CONTENT");
-  display.init          (this, "DISPLAY");
+  textFont.init(this, "FONT",OkRc, "\"");
+  textColor.init(this, "COLOR");
+  margin.init(this, "MARGINS");
+  placement.init(this, "PLACEMENT");
+  content.init(this, "CONTENT");
+  display.init(this, "DISPLAY");
 }
 
 /* ------------------ */
@@ -4395,18 +4350,16 @@ PageAttributeImageMeta::PageAttributeImageMeta() : BranchMeta()
   fill.setValue(Aspect);
 }
 
-void PageAttributeImageMeta::init(
-    BranchMeta *parent,
-    QString name)
+void PageAttributeImageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement.init        (this, "PLACEMENT");
-  border.init           (this, "BORDER");
-  margin.init           (this, "MARGINS");
-  picScale.init         (this, "SCALE");
-  file.init             (this, "FILE");
-  display.init          (this, "DISPLAY");
-  fill.init             (this, "FILL");
+  placement.init(this, "PLACEMENT");
+  border.init(this, "BORDER");
+  margin.init(this, "MARGINS");
+  picScale.init(this, "SCALE");
+  file.init(this, "FILE");
+  display.init(this, "DISPLAY");
+  fill.init(this, "FILL");
 }
 
 /* ------------------ */
@@ -4422,8 +4375,8 @@ PageHeaderMeta::PageHeaderMeta() : BranchMeta()
 void PageHeaderMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement.init        (this, "PLACEMENT");
-  size.init             (this, "SIZE");
+  placement.init(this, "PLACEMENT");
+  size.init(this, "SIZE");
 }
 
 /* ------------------ */
@@ -4439,8 +4392,8 @@ PageFooterMeta::PageFooterMeta() : BranchMeta()
 void PageFooterMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement.init        (this, "PLACEMENT");
-  size.init             (this, "SIZE");
+  placement.init(this, "PLACEMENT");
+  size.init(this, "SIZE");
 }
 
 /* ------------------ */
@@ -4450,91 +4403,89 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 
 SceneItemMeta::SceneItemMeta() : BranchMeta()
 {
-    assemAnnotation      .setItemObj(AssemAnnotationObj);      //  0
-    assemAnnotationPart  .setItemObj(AssemAnnotationPartObj);  //  1
-    assem                .setItemObj(AssemObj);                //  2
-    calloutBackground    .setItemObj(CalloutBackgroundObj);    //  4
-    calloutInstance      .setItemObj(CalloutInstanceObj);      //  5
-    calloutPointer       .setItemObj(CalloutPointerObj);       //  6
-    calloutUnderpinning  .setItemObj(CalloutUnderpinningObj);  //  7
-    dividerBackground    .setItemObj(DividerBackgroundObj);    //  8
-    divider              .setItemObj(DividerObj);              //  9
-    dividerLine          .setItemObj(DividerLineObj);          // 10
-    dividerPointer       .setItemObj(DividerPointerObj);       // 11
-    pointerGrabber       .setItemObj(PointerGrabberObj);       // 12
-    pliGrabber           .setItemObj(PliGrabberObj);           // 13
-    submodelGrabber      .setItemObj(SubmodelGrabberObj);      // 14
-    insertPicture        .setItemObj(InsertPixmapObj);         // 15
-    insertText           .setItemObj(InsertTextObj);           // 16
-    multiStepBackground  .setItemObj(MultiStepBackgroundObj);  // 17
-    multiStepsBackground .setItemObj(MultiStepsBackgroundObj); // 18
-    pageAttributePixmap  .setItemObj(PageAttributePixmapObj);  // 19
-    pageAttributeText    .setItemObj(PageAttributeTextObj);    // 20
-    pageBackground       .setItemObj(PageBackgroundObj);       // 21
-    pageNumber           .setItemObj(PageNumberObj);           // 22
-    pagePointer          .setItemObj(PagePointerObj);          // 23
-    partsListAnnotation  .setItemObj(PartsListAnnotationObj);  // 24
-    partsListBackground  .setItemObj(PartsListBackgroundObj);  // 25
-    partsListInstance    .setItemObj(PartsListInstanceObj);    // 26
-    pointerFirstSeg      .setItemObj(PointerFirstSegObj);      // 27
-    pointerHead          .setItemObj(PointerHeadObj);          // 28
-    pointerSecondSeg     .setItemObj(PointerSecondSegObj);     // 29
-    pointerThirdSeg      .setItemObj(PointerThirdSegObj);      // 30
-    rotateIconBackground .setItemObj(RotateIconBackgroundObj); // 31
-    reserveBackground    .setItemObj(ReserveBackgroundObj);    // 32
-    stepNumber           .setItemObj(StepNumberObj);           // 33
-    subModelBackground   .setItemObj(SubModelBackgroundObj);   // 34
-    subModelInstance     .setItemObj(SubModelInstanceObj);     // 35
-    submodelInstanceCount.setItemObj(SubmodelInstanceCountObj);// 36
-    partsListPixmap      .setItemObj(PartsListPixmapObj);      // 37
-    partsListGroup       .setItemObj(PartsListGroupObj);       // 38
-    stepBackground       .setItemObj(StepBackgroundObj);       // 39
+  assemAnnotation      .setItemObj(AssemAnnotationObj);      //  0
+  assemAnnotationPart  .setItemObj(AssemAnnotationPartObj);  //  1
+  assem                .setItemObj(AssemObj);                //  2
+  calloutBackground    .setItemObj(CalloutBackgroundObj);    //  4
+  calloutInstance      .setItemObj(CalloutInstanceObj);      //  5
+  calloutPointer       .setItemObj(CalloutPointerObj);       //  6
+  calloutUnderpinning  .setItemObj(CalloutUnderpinningObj);  //  7
+  dividerBackground    .setItemObj(DividerBackgroundObj);    //  8
+  divider              .setItemObj(DividerObj);              //  9
+  dividerLine          .setItemObj(DividerLineObj);          // 10
+  dividerPointer       .setItemObj(DividerPointerObj);       // 11
+  pointerGrabber       .setItemObj(PointerGrabberObj);       // 12
+  pliGrabber           .setItemObj(PliGrabberObj);           // 13
+  submodelGrabber      .setItemObj(SubmodelGrabberObj);      // 14
+  insertPicture        .setItemObj(InsertPixmapObj);         // 15
+  insertText           .setItemObj(InsertTextObj);           // 16
+  multiStepBackground  .setItemObj(MultiStepBackgroundObj);  // 17
+  multiStepsBackground .setItemObj(MultiStepsBackgroundObj); // 18
+  pageAttributePixmap  .setItemObj(PageAttributePixmapObj);  // 19
+  pageAttributeText    .setItemObj(PageAttributeTextObj);    // 20
+  pageBackground       .setItemObj(PageBackgroundObj);       // 21
+  pageNumber           .setItemObj(PageNumberObj);           // 22
+  pagePointer          .setItemObj(PagePointerObj);          // 23
+  partsListAnnotation  .setItemObj(PartsListAnnotationObj);  // 24
+  partsListBackground  .setItemObj(PartsListBackgroundObj);  // 25
+  partsListInstance    .setItemObj(PartsListInstanceObj);    // 26
+  pointerFirstSeg      .setItemObj(PointerFirstSegObj);      // 27
+  pointerHead          .setItemObj(PointerHeadObj);          // 28
+  pointerSecondSeg     .setItemObj(PointerSecondSegObj);     // 29
+  pointerThirdSeg      .setItemObj(PointerThirdSegObj);      // 30
+  rotateIconBackground .setItemObj(RotateIconBackgroundObj); // 31
+  reserveBackground    .setItemObj(ReserveBackgroundObj);    // 32
+  stepNumber           .setItemObj(StepNumberObj);           // 33
+  subModelBackground   .setItemObj(SubModelBackgroundObj);   // 34
+  subModelInstance     .setItemObj(SubModelInstanceObj);     // 35
+  submodelInstanceCount.setItemObj(SubmodelInstanceCountObj);// 36
+  partsListPixmap      .setItemObj(PartsListPixmapObj);      // 37
+  partsListGroup       .setItemObj(PartsListGroupObj);       // 38
+  stepBackground       .setItemObj(StepBackgroundObj);       // 39
 }
 
-void SceneItemMeta::init(
-   BranchMeta *parent,
-   QString name)
+void SceneItemMeta::init(BranchMeta *parent, QString name)
 {
-   AbstractMeta::init(parent, name);
-   assemAnnotation      .init(this, "CSI_ANNOTATION");       //  0 CsiAnnotationType
-   assemAnnotationPart  .init(this, "CSI_ANNOTATION_PART");  //  1 CsiPartType
-   assem                .init(this, "ASSEM");                //  2 CsiType
-   calloutBackground    .init(this, "CALLOUT");              //  4 CalloutType
-   calloutInstance      .init(this, "CALLOUT_INSTANCE");     //  5
-   calloutPointer       .init(this, "CALLOUT_POINTER");      //  6
-   calloutUnderpinning  .init(this, "CALLOUT_UNDERPINNING"); //  7
-   dividerBackground    .init(this, "DIVIDER");              //  8
-   divider              .init(this, "DIVIDER_ITEM");         //  9
-   dividerLine          .init(this, "DIVIDER_LINE");         // 10
-   dividerPointer       .init(this, "DIVIDER_POINTER");      // 11 DividerPointerType
-   pointerGrabber       .init(this, "POINTER_GRABBER");      // 12
-   pliGrabber           .init(this, "PLI_GRABBER");          // 13
-   submodelGrabber      .init(this, "SUBMODEL_GRABBER");     // 14
-   insertPicture        .init(this, "PICTURE");              // 15
-   insertText           .init(this, "TEXT");                 // 16 TextType
-   multiStepBackground  .init(this, "MULTI_STEP");           // 17 StepGroupType
-   multiStepsBackground .init(this, "MULTI_STEPS");          // 18
-   pageAttributePixmap  .init(this, "ATTRIBUTE_PIXMAP");     // 19
-   pageAttributeText    .init(this, "ATTRIBUTE_TEXT");       // 20
-   pageBackground       .init(this, "PAGE");                 // 21 PageType
-   pageNumber           .init(this, "PAGE_NUMBER");          // 22 PageNumberType
-   pagePointer          .init(this, "PAGE_POINTER");         // 23 PagePointerType
-   partsListAnnotation  .init(this, "PLI_ANNOTATION");       // 24
-   partsListBackground  .init(this, "PLI");                  // 25 PartsListType
-   partsListInstance    .init(this, "PLI_INSTANCE");         // 26
-   pointerFirstSeg      .init(this, "POINTER_SEG_FIRST");    // 27
-   pointerHead          .init(this, "POINTER_HEAD");         // 28
-   pointerSecondSeg     .init(this, "POINTER_SEG_SECOND");   // 29
-   pointerThirdSeg      .init(this, "POINTER_SEG_THIRD");    // 30
-   rotateIconBackground .init(this, "ROTATE_ICON");          // 31 RotateIconType
-   reserveBackground    .init(this, "RESERVE");              // 32 ReserveType
-   stepNumber           .init(this, "STEP_NUMBER");          // 33 StepNumberType
-   subModelBackground   .init(this, "SUBMODEL_DISPLAY");     // 34 SubModelType
-   subModelInstance     .init(this, "SUBMODEL_INSTANCE");    // 35
-   submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 36 SubmodelInstanceCountType
-   partsListPixmap      .init(this, "PLI_PART");             // 37
-   partsListGroup       .init(this, "PLI_PART_GROUP");       // 38
-   stepBackground       .init(this, "STEP_RECTANGLE");       // 39 [StepType]
+  AbstractMeta::init(parent, name);
+  assemAnnotation      .init(this, "CSI_ANNOTATION");       //  0 CsiAnnotationType
+  assemAnnotationPart  .init(this, "CSI_ANNOTATION_PART");  //  1 CsiPartType
+  assem                .init(this, "ASSEM");                //  2 CsiType
+  calloutBackground    .init(this, "CALLOUT");              //  4 CalloutType
+  calloutInstance      .init(this, "CALLOUT_INSTANCE");     //  5
+  calloutPointer       .init(this, "CALLOUT_POINTER");      //  6
+  calloutUnderpinning  .init(this, "CALLOUT_UNDERPINNING"); //  7
+  dividerBackground    .init(this, "DIVIDER");              //  8
+  divider              .init(this, "DIVIDER_ITEM");         //  9
+  dividerLine          .init(this, "DIVIDER_LINE");         // 10
+  dividerPointer       .init(this, "DIVIDER_POINTER");      // 11 DividerPointerType
+  pointerGrabber       .init(this, "POINTER_GRABBER");      // 12
+  pliGrabber           .init(this, "PLI_GRABBER");          // 13
+  submodelGrabber      .init(this, "SUBMODEL_GRABBER");     // 14
+  insertPicture        .init(this, "PICTURE");              // 15
+  insertText           .init(this, "TEXT");                 // 16 TextType
+  multiStepBackground  .init(this, "MULTI_STEP");           // 17 StepGroupType
+  multiStepsBackground .init(this, "MULTI_STEPS");          // 18
+  pageAttributePixmap  .init(this, "ATTRIBUTE_PIXMAP");     // 19
+  pageAttributeText    .init(this, "ATTRIBUTE_TEXT");       // 20
+  pageBackground       .init(this, "PAGE");                 // 21 PageType
+  pageNumber           .init(this, "PAGE_NUMBER");          // 22 PageNumberType
+  pagePointer          .init(this, "PAGE_POINTER");         // 23 PagePointerType
+  partsListAnnotation  .init(this, "PLI_ANNOTATION");       // 24
+  partsListBackground  .init(this, "PLI");                  // 25 PartsListType
+  partsListInstance    .init(this, "PLI_INSTANCE");         // 26
+  pointerFirstSeg      .init(this, "POINTER_SEG_FIRST");    // 27
+  pointerHead          .init(this, "POINTER_HEAD");         // 28
+  pointerSecondSeg     .init(this, "POINTER_SEG_SECOND");   // 29
+  pointerThirdSeg      .init(this, "POINTER_SEG_THIRD");    // 30
+  rotateIconBackground .init(this, "ROTATE_ICON");          // 31 RotateIconType
+  reserveBackground    .init(this, "RESERVE");              // 32 ReserveType
+  stepNumber           .init(this, "STEP_NUMBER");          // 33 StepNumberType
+  subModelBackground   .init(this, "SUBMODEL_DISPLAY");     // 34 SubModelType
+  subModelInstance     .init(this, "SUBMODEL_INSTANCE");    // 35
+  submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 36 SubmodelInstanceCountType
+  partsListPixmap      .init(this, "PLI_PART");             // 37
+  partsListGroup       .init(this, "PLI_PART_GROUP");       // 38
+  stepBackground       .init(this, "STEP_RECTANGLE");       // 39 [StepType]
 }
 
 /* ------------------ */
@@ -4733,55 +4684,53 @@ FadeStepsMeta::FadeStepsMeta() : BranchMeta()
 
 void FadeStepsMeta::setPreferences(bool reset)
 {
-   FadeColorData fdata = color.value();
-   bool displayPreference = false;
-   if (reset) {
-     Preferences::fadestepPreferences();
-     displayPreference = Preferences::enableFadeSteps != enable.value();
-     setup.setValue(false);
-     enable.setValue(Preferences::enableFadeSteps);
-     fdata.color = Preferences::validFadeStepsColour;
-     fdata.useColor = Preferences::fadeStepsUseColour;
-     color.setValue(fdata);
-     opacity.setValue(Preferences::fadeStepsOpacity);
-     lpubFade.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
-   } else {
-     if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
-       Preferences::enableFadeSteps    = enable.value();
-     Preferences::validFadeStepsColour = fdata.color;
-     Preferences::fadeStepsUseColour   = fdata.useColor;
-     Preferences::fadeStepsOpacity     = opacity.value();
-     if (Preferences::enableFadeSteps && lpubFade.value())
-       gui->setupFadeOrHighlight(true, Preferences::enableFadeSteps);
-     if (enable.global) {
-       Preferences::fadestepPreferences(enable.global);
-       if (Preferences::enableFadeSteps != enable.value())
-         gui->clearCSICache();
-     }
-   }
+  FadeColorData fdata = color.value();
+  bool displayPreference = false;
+  if (reset) {
+    Preferences::fadestepPreferences();
+    displayPreference = Preferences::enableFadeSteps != enable.value();
+    setup.setValue(false);
+    enable.setValue(Preferences::enableFadeSteps);
+    fdata.color = Preferences::validFadeStepsColour;
+    fdata.useColor = Preferences::fadeStepsUseColour;
+    color.setValue(fdata);
+    opacity.setValue(Preferences::fadeStepsOpacity);
+    lpubFade.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
+  } else {
+    if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
+      Preferences::enableFadeSteps    = enable.value();
+    Preferences::validFadeStepsColour = fdata.color;
+    Preferences::fadeStepsUseColour   = fdata.useColor;
+    Preferences::fadeStepsOpacity     = opacity.value();
+    if (Preferences::enableFadeSteps && lpubFade.value())
+      gui->setupFadeOrHighlight(true, Preferences::enableFadeSteps);
+    if (enable.global) {
+      Preferences::fadestepPreferences(enable.global);
+      if (Preferences::enableFadeSteps != enable.value())
+        gui->clearCSICache();
+    }
+  }
 
-   QString const message = QObject::tr("Fade previous steps %1 %2%3.")
-                               .arg(reset
-                                        ? QObject::tr("reset to") : enable.global
-                                              ? QObject::tr("save as") : Preferences::enableFadeSteps != enable.value()
-                                                    ? QObject::tr("changed to") : QObject::tr("is"))
-                               .arg(Preferences::enableFadeSteps
-                                        ? QObject::tr("ON") : QObject::tr("OFF"))
-                               .arg(Preferences::enableFadeSteps
-                                        ? QObject::tr(" Opacity %1%2")
-                                              .arg(Preferences::fadeStepsOpacity)
-                                              .arg(Preferences::enableFadeSteps && Preferences::fadeStepsUseColour && !Preferences::validFadeStepsColour.isEmpty()
-                                                       ? QObject::tr(" Use Fade Color %1").arg(Preferences::validFadeStepsColour) : "")
-                                        : "");
-   if (displayPreference)
-     emit gui->messageSig(LOG_INFO, message);
+  QString const message = QObject::tr("Fade previous steps %1 %2%3.")
+                              .arg(reset
+                                       ? QObject::tr("reset to") : enable.global
+                                             ? QObject::tr("save as") : Preferences::enableFadeSteps != enable.value()
+                                                   ? QObject::tr("changed to") : QObject::tr("is"))
+                              .arg(Preferences::enableFadeSteps
+                                       ? QObject::tr("ON") : QObject::tr("OFF"))
+                              .arg(Preferences::enableFadeSteps
+                                       ? QObject::tr(" Opacity %1%2")
+                                             .arg(Preferences::fadeStepsOpacity)
+                                             .arg(Preferences::enableFadeSteps && Preferences::fadeStepsUseColour && !Preferences::validFadeStepsColour.isEmpty()
+                                                      ? QObject::tr(" Use Fade Color %1").arg(Preferences::validFadeStepsColour) : "")
+                                       : "");
+  if (displayPreference)
+    emit gui->messageSig(LOG_INFO, message);
 
-   //qDebug() << qUtf8Printable("DEBUG: "+message);
+  //qDebug() << qUtf8Printable("DEBUG: "+message);
 }
 
-void FadeStepsMeta::init(
-    BranchMeta *parent,
-    QString name)
+void FadeStepsMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   enable.init(  this, "ENABLED");
@@ -4805,47 +4754,45 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
 
 void HighlightStepMeta::setPreferences(bool reset)
 {
-   bool displayPreference = false;
-   if (reset) {
-     Preferences::highlightstepPreferences();
-     displayPreference = Preferences::enableHighlightStep != enable.value();
-     setup.setValue(false);
-     enable.setValue(Preferences::enableHighlightStep);
-     color.setValue(Preferences::highlightStepColour);
-     lineWidth.setValue(Preferences::highlightStepLineWidth);
-     lpubHighlight.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
-   } else {
-     if ((displayPreference = Preferences::enableHighlightStep != enable.value() || enable.global))
-       Preferences::enableHighlightStep  = enable.value();
-     Preferences::highlightStepColour    = color.value();
-     Preferences::highlightStepLineWidth = lineWidth.value();
-     if (Preferences::enableHighlightStep && lpubHighlight.value())
-       gui->setupFadeOrHighlight(Preferences::enableFadeSteps, true);
-     if (enable.global) {
-       Preferences::highlightstepPreferences(enable.global);
-       if (Preferences::enableHighlightStep != enable.value())
-         gui->clearCSICache();
-     }
-   }
+  bool displayPreference = false;
+  if (reset) {
+    Preferences::highlightstepPreferences();
+    displayPreference = Preferences::enableHighlightStep != enable.value();
+    setup.setValue(false);
+    enable.setValue(Preferences::enableHighlightStep);
+    color.setValue(Preferences::highlightStepColour);
+    lineWidth.setValue(Preferences::highlightStepLineWidth);
+    lpubHighlight.setValue(Preferences::preferredRenderer != RENDERER_NATIVE);
+  } else {
+    if ((displayPreference = Preferences::enableHighlightStep != enable.value() || enable.global))
+      Preferences::enableHighlightStep  = enable.value();
+    Preferences::highlightStepColour    = color.value();
+    Preferences::highlightStepLineWidth = lineWidth.value();
+    if (Preferences::enableHighlightStep && lpubHighlight.value())
+      gui->setupFadeOrHighlight(Preferences::enableFadeSteps, true);
+    if (enable.global) {
+      Preferences::highlightstepPreferences(enable.global);
+      if (Preferences::enableHighlightStep != enable.value())
+        gui->clearCSICache();
+    }
+  }
 
-   QString const message = QObject::tr("Highlight current step %1 %2%3.")
-                               .arg(reset
-                                        ? QObject::tr("reset to") : enable.global
-                                              ? QObject::tr("save as") : Preferences::enableHighlightStep != enable.value()
-                                                    ? QObject::tr("changed to") : QObject::tr("is"))
-                               .arg(Preferences::enableFadeSteps
-                                     ? QObject::tr("ON") : QObject::tr("OFF"))
-                               .arg(Preferences::enableHighlightStep && !Preferences::highlightStepColour.isEmpty()
-                                     ? QObject::tr(" Highlight Color %1").arg(Preferences::highlightStepColour) : "");
-   if (displayPreference)
-     emit gui->messageSig(LOG_INFO, message);
+  QString const message = QObject::tr("Highlight current step %1 %2%3.")
+                              .arg(reset
+                                       ? QObject::tr("reset to") : enable.global
+                                             ? QObject::tr("save as") : Preferences::enableHighlightStep != enable.value()
+                                                   ? QObject::tr("changed to") : QObject::tr("is"))
+                              .arg(Preferences::enableFadeSteps
+                                    ? QObject::tr("ON") : QObject::tr("OFF"))
+                              .arg(Preferences::enableHighlightStep && !Preferences::highlightStepColour.isEmpty()
+                                    ? QObject::tr(" Highlight Color %1").arg(Preferences::highlightStepColour) : "");
+  if (displayPreference)
+    emit gui->messageSig(LOG_INFO, message);
 
-   //qDebug() << qUtf8Printable("DEBUG: "+message);
+  //qDebug() << qUtf8Printable("DEBUG: "+message);
 }
 
-void HighlightStepMeta::init(
-    BranchMeta *parent,
-    QString name)
+void HighlightStepMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   enable.init(       this, "ENABLED");
@@ -4888,55 +4835,55 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   QString originalColor;
   QString attributes = "undefined;";
   if (argc > 0) {
-     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")) {
-          // the last item is an ldrawType - specified when substitute is a generated part
-          attributes = argv[argv.size() - 1]+":1;";
-          // recalculate argc
-          argc = argv.size() - (index + 2);
+    if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")) {
+      // the last item is an ldrawType - specified when substitute is a generated part
+      attributes = argv[argv.size() - 1]+":1;";
+      // recalculate argc
+      argc = argv.size() - (index + 2);
+    }
+    if ((ldrawType && argc == 1) || !ldrawType) {
+      // lets try to get the original type
+      bool validLine  = false;
+      bool subEnd     = false;
+      bool newStep    = false;
+      bool configured = false;
+      if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+        QFileInfo modelInfo(here.modelName);
+        configured = modelInfo.completeBaseName().endsWith(FADE_SFX) ||
+                     modelInfo.completeBaseName().endsWith(HIGHLIGHT_SFX);
       }
-     if ((ldrawType && argc == 1) || !ldrawType) {
-         // lets try to get the original type
-         bool validLine  = false;
-         bool subEnd     = false;
-         bool newStep    = false;
-         bool configured = false;
-         if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-             QFileInfo modelInfo(here.modelName);
-             configured = modelInfo.completeBaseName().endsWith(FADE_SFX) ||
-                          modelInfo.completeBaseName().endsWith(HIGHLIGHT_SFX);
-         }
-         Where lineBelow = here + 1;          // start at 1 line below PLI BEGIN SUB meta
-         int numLines = configured ? lpub->ldrawFile.configuredSubFileSize(here.modelName) :
-                                     lpub->ldrawFile.size(here.modelName);
-         QString originalTypeLine = configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
-                                                 lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
-         // read each line looking for type 1 line or end of step
-         for (; !validLine && !subEnd && !newStep && lineBelow <= numLines; lineBelow++) {
-             validLine = originalTypeLine[0] == '1';
-             subEnd    = originalTypeLine.endsWith("PLI END");
-             newStep   = originalTypeLine.endsWith("STEP") ||
-                         originalTypeLine.contains("ROTSTEP");
-             // do we have reason to stop checking?
-             if (!validLine && !subEnd && !newStep) {
-                originalTypeLine =  configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
-                                                 lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
-             }
-         }
+      Where lineBelow = here + 1;          // start at 1 line below PLI BEGIN SUB meta
+      int numLines = configured ? lpub->ldrawFile.configuredSubFileSize(here.modelName) :
+                                  lpub->ldrawFile.size(here.modelName);
+      QString originalTypeLine = configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
+                                              lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
+      // read each line looking for type 1 line or end of step
+      for (; !validLine && !subEnd && !newStep && lineBelow <= numLines; lineBelow++) {
+        validLine = originalTypeLine[0] == '1';
+        subEnd    = originalTypeLine.endsWith("PLI END");
+        newStep   = originalTypeLine.endsWith("STEP") ||
+                    originalTypeLine.contains("ROTSTEP");
+        // do we have reason to stop checking?
+        if (!validLine && !subEnd && !newStep) {
+          originalTypeLine =  configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
+                                           lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
+        }
+      }
 
-         QStringList tokens;
-         split(originalTypeLine,tokens);
-         if (tokens.size() == 15 && tokens[0] == "1") {
-             if(!ldrawType)
-                 attributes = tokens[14]+":0;";    // originalType
-             originalColor  = tokens[1];
-         } else if (Gui::pageProcessRunning != PROC_NONE) {
-             here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-             QString message = QString("Invalid substitute meta command.<br>"
-                                       "No valid parts between %1 and PLI END.<br>Got %2.")
-                     .arg(argv.join(" ")).arg(originalTypeLine);
-             emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
-         }
-     }
+      QStringList tokens;
+      split(originalTypeLine,tokens);
+      if (tokens.size() == 15 && tokens[0] == "1") {
+        if(!ldrawType)
+          attributes = tokens[14]+":0;";    // originalType
+        originalColor  = tokens[1];
+      } else if (Gui::pageProcessRunning != PROC_NONE) {
+        here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
+        QString message = QString("Invalid substitute meta command.<br>"
+                                  "No valid parts between %1 and PLI END.<br>Got %2.")
+                                  .arg(argv.join(" ")).arg(originalTypeLine);
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+      }
+    }
   }
   if (argc > 1) {
       _value.part  = argv[index];
@@ -5014,7 +4961,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   if (rc != FailureRc) {
     // add attributes - advance past part and color +2
     for (int i = index+2; i < argv.size(); i++) {
-        attributes.append(argv.at(i)+";");
+      attributes.append(argv.at(i)+";");
     }
     // append line number to end of attributes - used by Pli::partLine()
     attributes.append(QString::number(here.lineNumber));
@@ -5078,21 +5025,21 @@ QString SubMeta::format(bool local, bool global)
               .arg(_attributeList[sRotY])
               .arg(_attributeList[sRotZ])
               .arg(_attributeList[sTransform]);
-    } else { /*PliBeginSub8Rc */
-      foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13")
-              .arg(_value.part).arg(_value.color)
-              .arg(_attributeList[sModelScale])
-              .arg(_attributeList[sCameraFoV])
-              .arg(_attributeList[sCameraAngleXX])
-              .arg(_attributeList[sCameraAngleYY])
-              .arg(_attributeList[sTargetX])
-              .arg(_attributeList[sTargetY])
-              .arg(_attributeList[sTargetZ])
-              .arg(_attributeList[sRotX])
-              .arg(_attributeList[sRotY])
-              .arg(_attributeList[sRotZ])
-              .arg(_attributeList[sTransform]);
-    }
+  } else { /*PliBeginSub8Rc */
+    foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13")
+            .arg(_value.part).arg(_value.color)
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY])
+            .arg(_attributeList[sTargetX])
+            .arg(_attributeList[sTargetY])
+            .arg(_attributeList[sTargetZ])
+            .arg(_attributeList[sRotX])
+            .arg(_attributeList[sRotY])
+            .arg(_attributeList[sRotZ])
+            .arg(_attributeList[sTransform]);
+  }
 
   if (_value.ldrawType) {
       foo += QString(" LDRAW_TYPE %1").arg(_attributeList.first());
@@ -5133,32 +5080,33 @@ void PartIgnMeta::init(BranchMeta *parent, QString name)
 Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() >= index+3 ) {
-      bool ok[3];
-      double rotX = argv[index+0].toDouble(&ok[0]);
-      double rotY = argv[index+1].toDouble(&ok[1]);
-      double rotZ = argv[index+2].toDouble(&ok[2]);
-      if (ok[0] && ok[1] && ok[2]) {
-          _value.rots[0] = rotX;
-          _value.rots[1] = rotY;
-          _value.rots[2] = rotZ;
-          QRegExp rx("^(ABS|REL|ADD)$");
-          if (argv.size() == index+4 && argv[index+3].contains(rx))
-             _value.type   = argv[index+3];
-          _value.populated = !(_value.rots[0] == 0 && _value.rots[1] == 0 && _value.rots[2] == 0);
-          _here[0] = here;
-          _here[1] = here;
-          return index == 1 ? RotStepRc : OkRc;
-        }
-    } else if (argv.size() - index == 1 && argv[index] == "END") {
-      _value.type.clear();
-      _value.rots[0] = 0;
-      _value.rots[1] = 0;
-      _value.rots[2] = 0;
-      _value.populated = false;
+    bool ok[3];
+    double rotX = argv[index+0].toDouble(&ok[0]);
+    double rotY = argv[index+1].toDouble(&ok[1]);
+    double rotZ = argv[index+2].toDouble(&ok[2]);
+    if (ok[0] && ok[1] && ok[2]) {
+      _value.rots[0] = rotX;
+      _value.rots[1] = rotY;
+      _value.rots[2] = rotZ;
+      QRegExp rx("^(ABS|REL|ADD)$");
+      if (argv.size() == index+4 && argv[index+3].contains(rx))
+         _value.type   = argv[index+3];
+      _value.populated = !(_value.rots[0] == 0 && _value.rots[1] == 0 && _value.rots[2] == 0);
       _here[0] = here;
       _here[1] = here;
-      return RotStepRc;
+      return index == 1 ? RotStepRc : OkRc;
     }
+  } else if (argv.size() - index == 1 && argv[index] == "END") {
+    _value.type.clear();
+    _value.rots[0] = 0;
+    _value.rots[1] = 0;
+    _value.rots[2] = 0;
+    _value.populated = false;
+    _here[0] = here;
+    _here[1] = here;
+
+    return RotStepRc;
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Malformed ROTSETP meta \"%1\"") .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
@@ -5187,19 +5135,19 @@ void RotStepMeta::metaKeywords(QStringList &out, QString preamble)
 Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (index + 2 == argv.size()) {
-      QRegExp b("^[A-Z]$");
-      QRegExp t("^(STORE|RETRIEVE)$");
-      if (argv[index].contains(b) && argv[index+1].contains(t)) {
-          _value.buffer = argv[index];
-          _here[0] = here;
-          _here[1] = here;
-          if (argv[index+1] == "RETRIEVE") {
-              return BufferLoadRc;
-            } else {
-              return BufferStoreRc;
-            }
-        }
+    QRegExp b("^[A-Z]$");
+    QRegExp t("^(STORE|RETRIEVE)$");
+    if (argv[index].contains(b) && argv[index+1].contains(t)) {
+      _value.buffer = argv[index];
+      _here[0] = here;
+      _here[1] = here;
+      if (argv[index+1] == "RETRIEVE") {
+        return BufferLoadRc;
+      } else {
+        return BufferStoreRc;
+      }
     }
+  }
   if (reportErrors) {
     QString const message = QMessageBox::tr("Malformed buffer exchange \"%1\"") .arg(argv.join(" "));
     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
@@ -5343,13 +5291,13 @@ AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
 void AnnotationStyleMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  margin          .init(this,"MARGINS");
-  border          .init(this,"BORDER");
-  background      .init(this,"BACKGROUND");
-  font            .init(this,"FONT",OkRc, "\"");
-  color           .init(this,"FONT_COLOR");
-  size            .init(this,"SIZE");
-  style           .init(this,"STYLE");
+  margin     .init(this,"MARGINS");
+  border     .init(this,"BORDER");
+  background .init(this,"BACKGROUND");
+  font       .init(this,"FONT",OkRc, "\"");
+  color      .init(this,"FONT_COLOR");
+  size       .init(this,"SIZE");
+  style      .init(this,"STYLE");
 }
 
 /* ------------------ */
@@ -5361,31 +5309,31 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
   bool bomItem = false;
 
   if (argv.size() - index > 1 &&
-      argv[index] == "ITEM") {
-      if ((bomItem = argv[index - 2] == "BOM"))
-          gd.bom = true;
-      gd.type  = argv[++index];
-      gd.color = argv[++index];
-   }
+    argv[index] == "ITEM") {
+    if ((bomItem = argv[index - 2] == "BOM"))
+      gd.bom = true;
+    gd.type  = argv[++index];
+    gd.color = argv[++index];
+  }
 
-   if (rc == OkRc) {
-      if (argv.size() - index == 4 && argv[++index] == "OFFSET") {
-          bool ok[2];
-          gd.offset[0] = argv[++index].toDouble(&ok[0]);
-          gd.offset[1] = argv[++index].toDouble(&ok[1]);
-          if ( ! ok[0] || ! ok[1]) {
-              rc = FailureRc;
-            }
-        } else if (argv.size() - index > 0) {
-          rc = FailureRc;
-        }
+  if (rc == OkRc) {
+    if (argv.size() - index == 4 && argv[++index] == "OFFSET") {
+      bool ok[2];
+      gd.offset[0] = argv[++index].toDouble(&ok[0]);
+      gd.offset[1] = argv[++index].toDouble(&ok[1]);
+      if ( ! ok[0] || ! ok[1]) {
+        rc = FailureRc;
+      }
+    } else if (argv.size() - index > 0) {
+      rc = FailureRc;
     }
+  }
 
-    if (rc == OkRc) {
-      gd.group.modelName  = here.modelName;
-      gd.group.lineNumber = here.lineNumber;
-      _value   = gd;
-      _here[0] = here;
+  if (rc == OkRc) {
+    gd.group.modelName  = here.modelName;
+    gd.group.lineNumber = here.lineNumber;
+    _value   = gd;
+    _here[0] = here;
 
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
@@ -5405,18 +5353,17 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
              ;
 #endif
 //*/
-
-      if (bomItem)
-          return BomPartGroupRc;
-      else
-          return PliPartGroupRc;
-    } else {
-      if (reportErrors) {
-        QString const message = QMessageBox::tr("Malformed PLI Group metacommand \"%1\"\n").arg(argv.join(" "));
-        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
-      }
-      return FailureRc;
+    if (bomItem)
+      return BomPartGroupRc;
+    else
+      return PliPartGroupRc;
+  } else {
+    if (reportErrors) {
+      QString const message = QMessageBox::tr("Malformed PLI Group metacommand \"%1\"\n").arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
+    return FailureRc;
+  }
 }
 
 
@@ -5455,12 +5402,12 @@ PliSortOrderMeta::PliSortOrderMeta() : BranchMeta()
 void PliSortOrderMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  primary.init           (this, "PRIMARY");
-  secondary.init         (this, "SECONDARY");
-  tertiary.init          (this, "TERTIARY");
-  primaryDirection.init  (this, "PRIMARY_DIRECTION");
+  primary.init(this, "PRIMARY");
+  secondary.init(this, "SECONDARY");
+  tertiary.init(this, "TERTIARY");
+  primaryDirection.init(this, "PRIMARY_DIRECTION");
   secondaryDirection.init(this, "SECONDARY_DIRECTION");
-  tertiaryDirection.init (this, "TERTIARY_DIRECTION");
+  tertiaryDirection.init(this, "TERTIARY_DIRECTION");
 }
 
 PliSortMeta::PliSortMeta() : BranchMeta()
@@ -5471,7 +5418,7 @@ PliSortMeta::PliSortMeta() : BranchMeta()
 void PliSortMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  sortOption.init    (this, "SORT_OPTION");
+  sortOption.init(this, "SORT_OPTION");
 }
 
 /* ------------------ */
@@ -5487,10 +5434,10 @@ PliPartElementMeta::PliPartElementMeta() : BranchMeta()
 void PliPartElementMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  display.init                   (this, "DISPLAY");
-  bricklinkElements.init         (this, "BRICKLINK");
-  legoElements.init              (this, "LEGO");
-  localLegoElements.init         (this, "LOCAL_LEGO_ELEMENTS_FILE");
+  display.init(this, "DISPLAY");
+  bricklinkElements.init(this, "BRICKLINK");
+  legoElements.init(this, "LEGO");
+  localLegoElements.init(this, "LOCAL_LEGO_ELEMENTS_FILE");
 }
 
 /* ------------------ */
@@ -5516,20 +5463,20 @@ PliAnnotationMeta::PliAnnotationMeta() : BranchMeta()
 void PliAnnotationMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  titleAnnotation.init            (this, "USE_TITLE");
-  freeformAnnotation.init         (this, "USE_FREE_FORM");
-  titleAndFreeformAnnotation.init (this, "USE_TITLE_AND_FREE_FORM");
-  fixedAnnotations.init           (this, "FIXED_ANNOTATIONS");
-  display.init                    (this, "DISPLAY");
-  enableStyle.init                (this, "ENABLE_STYLE");
-  axleStyle.init                  (this, "AXLE");
-  beamStyle.init                  (this, "BEAM");
-  cableStyle.init                 (this, "CABLE");
-  connectorStyle.init             (this, "CONNECTOR");
-  elementStyle.init               (this, "ELEMENT");
-  extendedStyle.init              (this, "EXTENDED");
-  hoseStyle.init                  (this, "HOSE");
-  panelStyle.init                 (this, "PANEL");
+  titleAnnotation.init(this, "USE_TITLE");
+  freeformAnnotation.init(this, "USE_FREE_FORM");
+  titleAndFreeformAnnotation.init(this, "USE_TITLE_AND_FREE_FORM");
+  fixedAnnotations.init(this, "FIXED_ANNOTATIONS");
+  display.init(this, "DISPLAY");
+  enableStyle.init(this, "ENABLE_STYLE");
+  axleStyle.init(this, "AXLE");
+  beamStyle.init(this, "BEAM");
+  cableStyle.init(this, "CABLE");
+  connectorStyle.init(this, "CONNECTOR");
+  elementStyle.init(this, "ELEMENT");
+  extendedStyle.init(this, "EXTENDED");
+  hoseStyle.init(this, "HOSE");
+  panelStyle.init(this, "PANEL");
 }
 
 /* ------------------ */
@@ -5550,16 +5497,16 @@ CsiAnnotationMeta::CsiAnnotationMeta() : BranchMeta()
 void CsiAnnotationMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement.init                 (this, "PLACEMENT");
-  display.init                   (this, "DISPLAY");
-  axleDisplay.init               (this, "AXLE");
-  beamDisplay.init               (this, "BEAM");
-  cableDisplay.init              (this, "CABLE");
-  connectorDisplay.init          (this, "CONNECTOR");
-  extendedDisplay.init           (this, "EXTENDED");
-  hoseDisplay.init               (this, "HOSE");
-  panelDisplay.init              (this, "PANEL");
-  icon.init                      (this, "ICON");
+  placement.init(this, "PLACEMENT");
+  display.init(this, "DISPLAY");
+  axleDisplay.init(this, "AXLE");
+  beamDisplay.init(this, "BEAM");
+  cableDisplay.init(this, "CABLE");
+  connectorDisplay.init(this, "CONNECTOR");
+  extendedDisplay.init(this, "EXTENDED");
+  hoseDisplay.init(this, "HOSE");
+  panelDisplay.init(this, "PANEL");
+  icon.init(this, "ICON");
 }
 
 /* ------------------ */
@@ -5579,10 +5526,10 @@ CsiPartMeta::CsiPartMeta() : BranchMeta()
 void CsiPartMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement.init        (this, "PLACEMENT");
-  margin.init           (this, "MARGINS");
-  loc.init              (this, "LOC");
-  size.init             (this, "SIZE");
+  placement.init(this, "PLACEMENT");
+  margin.init(this, "MARGINS");
+  loc.init(this, "LOC");
+  size.init(this, "SIZE");
 }
 
 /* ------------------ */
@@ -5596,8 +5543,8 @@ LoadUnoffPartsMeta::LoadUnoffPartsMeta() : BranchMeta()
 void LoadUnoffPartsMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  enableSetting.init  (this, "ENABLE_SETTING");
-  enabled.init        (this, "ENABLED");
+  enableSetting.init(this, "ENABLE_SETTING");
+  enabled.init(this, "ENABLED");
 }
 
 /* ------------------ */
@@ -6012,49 +5959,49 @@ PageMeta::PageMeta() : BranchMeta()
 void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  size.init               (this, "SIZE", PageSizeRc);
-  orientation.init        (this, "ORIENTATION");
-  margin.init             (this, "MARGINS");
-  border.init             (this, "BORDER");
-  background.init         (this, "BACKGROUND");
-  dpn.init                (this, "DISPLAY_PAGE_NUMBER");
-  togglePnPlacement.init  (this, "TOGGLE_PAGE_NUMBER_PLACEMENT");
-  number.init             (this, "NUMBER");
-  instanceCount.init      (this, "SUBMODEL_INSTANCE_COUNT");
-  subModelColor.init      (this, "SUBMODEL_BACKGROUND_COLOR");
-  pointer.init            (this, "POINTER");
-  pointerAttrib.init      (this, "POINTER_ATTRIBUTE");
-  textPlacement.init      (this, "TEXT_PLACEMENT");
-  textPlacementMeta.init  (this, "ENABLE_TEXT_PLACEMENT");
+  size.init(this, "SIZE", PageSizeRc);
+  orientation.init(this, "ORIENTATION");
+  margin.init(this, "MARGINS");
+  border.init(this, "BORDER");
+  background.init(this, "BACKGROUND");
+  dpn.init(this, "DISPLAY_PAGE_NUMBER");
+  togglePnPlacement.init(this, "TOGGLE_PAGE_NUMBER_PLACEMENT");
+  number.init(this, "NUMBER");
+  instanceCount.init(this, "SUBMODEL_INSTANCE_COUNT");
+  subModelColor.init(this, "SUBMODEL_BACKGROUND_COLOR");
+  pointer.init(this, "POINTER");
+  pointerAttrib.init(this, "POINTER_ATTRIBUTE");
+  textPlacement.init(this, "TEXT_PLACEMENT");
+  textPlacementMeta.init(this, "ENABLE_TEXT_PLACEMENT");
 
-  scene.init              (this, "SCENE");
+  scene.init(this, "SCENE");
   countInstanceOverride.init(this,"SUBMODEL_INSTANCE_COUNT_OVERRIDE");
 
-  pageHeader.init         (this, "PAGE_HEADER");
-  pageFooter.init         (this, "PAGE_FOOTER");
+  pageHeader.init(this, "PAGE_HEADER");
+  pageFooter.init(this, "PAGE_FOOTER");
 
-  titleFront.init         (this, "DOCUMENT_TITLE_FRONT");
-  titleBack.init          (this, "DOCUMENT_TITLE_BACK");
-  modelName.init          (this, "MODEL_ID");
-  modelDesc.init          (this, "MODEL_DESCRIPTION");
-  parts.init              (this, "MODEL_PARTS");
-  authorFront.init        (this, "DOCUMENT_AUTHOR_FRONT");
-  authorBack.init         (this, "DOCUMENT_AUTHOR_BACK");
-  author.init             (this, "DOCUMENT_AUTHOR");
-  publishDesc.init        (this, "PUBLISH_DESCRIPTION");
-  url.init                (this, "PUBLISH_URL");
-  urlBack.init            (this, "PUBLISH_URL_BACK");
-  email.init              (this, "PUBLISH_EMAIL");
-  emailBack.init          (this, "PUBLISH_EMAIL_BACK");
-  copyrightBack.init      (this, "PUBLISH_COPYRIGHT_BACK");
-  copyright.init          (this, "PUBLISH_COPYRIGHT");
-  documentLogoFront.init  (this, "DOCUMENT_LOGO_FRONT");
-  documentLogoBack.init   (this, "DOCUMENT_LOGO_BACK");
-  coverImage.init         (this, "DOCUMENT_COVER_IMAGE");
-  disclaimer.init         (this, "LEGO_DISCLAIMER");
-  plug.init               (this, "APP_PLUG");
-  plugImage.init          (this, "APP_PLUG_IMAGE");
-  category.init           (this, "MODEL_CATEGORY" );
+  titleFront.init(this, "DOCUMENT_TITLE_FRONT");
+  titleBack.init(this, "DOCUMENT_TITLE_BACK");
+  modelName.init(this, "MODEL_ID");
+  modelDesc.init(this, "MODEL_DESCRIPTION");
+  parts.init(this, "MODEL_PARTS");
+  authorFront.init(this, "DOCUMENT_AUTHOR_FRONT");
+  authorBack.init(this, "DOCUMENT_AUTHOR_BACK");
+  author.init(this, "DOCUMENT_AUTHOR");
+  publishDesc.init(this, "PUBLISH_DESCRIPTION");
+  url.init(this, "PUBLISH_URL");
+  urlBack.init(this, "PUBLISH_URL_BACK");
+  email.init(this, "PUBLISH_EMAIL");
+  emailBack.init(this, "PUBLISH_EMAIL_BACK");
+  copyrightBack.init(this, "PUBLISH_COPYRIGHT_BACK");
+  copyright.init(this, "PUBLISH_COPYRIGHT");
+  documentLogoFront.init(this, "DOCUMENT_LOGO_FRONT");
+  documentLogoBack.init(this, "DOCUMENT_LOGO_BACK");
+  coverImage.init(this, "DOCUMENT_COVER_IMAGE");
+  disclaimer.init(this, "LEGO_DISCLAIMER");
+  plug.init(this, "APP_PLUG");
+  plugImage.init(this, "APP_PLUG_IMAGE");
+  category.init(this, "MODEL_CATEGORY" );
 }
 
 /* ------------------ */
@@ -6103,30 +6050,30 @@ void AssemMeta::resetCameraFoV()
 void AssemMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  margin.init         (this,"MARGINS");
-  placement.init      (this,"PLACEMENT");
-  modelScale.init     (this,"MODEL_SCALE");
-  ldviewParms.init    (this,"LDVIEW_PARMS");
-  ldgliteParms.init   (this,"LDGLITE_PARMS");
-  povrayParms .init   (this,"POVRAY_PARMS");
-  studStyle.init      (this,"STUD_STYLE");
-  highContrast.init   (this,"HIGH_CONTRAST");
-  autoEdgeColor.init  (this,"AUTOMATE_EDGE_COLOR");
-  fadeSteps.init      (this,"FADE_STEPS");
-  highlightStep.init  (this,"HIGHLIGHT_STEP");
-  showStepNumber.init (this,"SHOW_STEP_NUMBER");
-  annotation.init     (this,"ANNOTATION");
-  imageSize.init      (this,"IMAGE_SIZE");
-  cameraFoV.init      (this,"CAMERA_FOV");
-  cameraZNear.init    (this,"CAMERA_ZNEAR");
-  cameraZFar.init     (this,"CAMERA_ZFAR");
-  cameraAngles.init   (this,"CAMERA_ANGLES");
-  cameraDistance.init (this,"CAMERA_DISTANCE");
-  isOrtho.init        (this,"CAMERA_ORTHOGRAPHIC");
-  cameraName.init     (this,"CAMERA_NAME");
-  target.init         (this,"CAMERA_TARGET");
-  position.init       (this,"CAMERA_POSITION");
-  upvector.init       (this,"CAMERA_UPVECTOR");
+  margin.init(this,"MARGINS");
+  placement.init(this,"PLACEMENT");
+  modelScale.init(this,"MODEL_SCALE");
+  ldviewParms.init(this,"LDVIEW_PARMS");
+  ldgliteParms.init(this,"LDGLITE_PARMS");
+  povrayParms .init(this,"POVRAY_PARMS");
+  studStyle.init(this,"STUD_STYLE");
+  highContrast.init(this,"HIGH_CONTRAST");
+  autoEdgeColor.init(this,"AUTOMATE_EDGE_COLOR");
+  fadeSteps.init(this,"FADE_STEPS");
+  highlightStep.init(this,"HIGHLIGHT_STEP");
+  showStepNumber.init(this,"SHOW_STEP_NUMBER");
+  annotation.init(this,"ANNOTATION");
+  imageSize.init(this,"IMAGE_SIZE");
+  cameraFoV.init(this,"CAMERA_FOV");
+  cameraZNear.init(this,"CAMERA_ZNEAR");
+  cameraZFar.init(this,"CAMERA_ZFAR");
+  cameraAngles.init(this,"CAMERA_ANGLES");
+  cameraDistance.init(this,"CAMERA_DISTANCE");
+  isOrtho.init(this,"CAMERA_ORTHOGRAPHIC");
+  cameraName.init(this,"CAMERA_NAME");
+  target.init(this,"CAMERA_TARGET");
+  position.init(this,"CAMERA_POSITION");
+  upvector.init(this,"CAMERA_UPVECTOR");
   preferredRenderer.init(this,"PREFERRED_RENDERER");
 }
 
@@ -6425,15 +6372,15 @@ Rc CalloutBeginMeta::parse(QStringList &argv, int index,Where &here)
   int argc = argv.size() - index;
 
   if (argc == 0) {
-      rc = CalloutBeginRc;
-      mode = Unassembled;
-    } else if (argc == 1 && argv[index] == "ASSEMBLED") {
-      rc = CalloutBeginRc;
-      mode = Assembled;
-    } else if (argc == 1 && argv[index] == "ROTATED") {
-      rc = CalloutBeginRc;
-      mode = Rotated;
-    }
+    rc = CalloutBeginRc;
+    mode = Unassembled;
+  } else if (argc == 1 && argv[index] == "ASSEMBLED") {
+    rc = CalloutBeginRc;
+    mode = Assembled;
+  } else if (argc == 1 && argv[index] == "ROTATED") {
+    rc = CalloutBeginRc;
+    mode = Rotated;
+  }
   if (rc != FailureRc) {
       _here[0] = here;
       _here[1] = here;
@@ -6446,10 +6393,10 @@ QString CalloutBeginMeta::format(bool local, bool global)
   QString foo;
 
   if (mode == Assembled) {
-      foo = "ASSEMBLED";
-    } else if (mode == Rotated) {
-      foo = "ROTATED";
-    }
+    foo = "ASSEMBLED";
+  } else if (mode == Rotated) {
+    foo = "ROTATED";
+  }
   return LeafMeta::format(local,global,foo);
 }
 
@@ -6509,7 +6456,7 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   stepNum    .init(this,      "STEP_NUMBER");
   sep        .init(this,      "SEPARATOR");
   border     .init(this,      "BORDER");
-  subModelFont.init (this,    "SUBMODEL_FONT");
+  subModelFont.init(this,    "SUBMODEL_FONT");
   instance   .init(this,      "INSTANCE_COUNT");
   background .init(this,      "BACKGROUND");
   subModelColor.init(this,    "SUBMODEL_BACKGROUND_COLOR");
@@ -6593,42 +6540,38 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
 void MultiStepMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  margin   .init(this,    "MARGINS");
-  stepNum  .init(this,    "STEP_NUMBER");
-  placement.init(this,    "PLACEMENT");
-  sep      .init(this,    "SEPARATOR");
-  justifyStep.init(this,  "STEPS");
+  margin.init(this,"MARGINS");
+  stepNum.init(this,"STEP_NUMBER");
+  placement.init(this,"PLACEMENT");
+  sep.init(this,"SEPARATOR");
+  justifyStep.init(this,"STEPS");
 
-  divPointer.init(this,   "DIVIDER_POINTER");
-  divPointerAttrib.init(this,
-                          "DIVIDER_POINTER_ATTRIBUTE");
+  divPointer.init(this,"DIVIDER_POINTER");
+  divPointerAttrib.init(this,"DIVIDER_POINTER_ATTRIBUTE");
 
-  subModelFont.init (this,"SUBMODEL_FONT");
-  subModelFontColor.init(this,
-                          "SUBMODEL_FONT_COLOR");
-  freeform .init(this,    "FREEFORM");
-  alloc    .init(this,    "ALLOC");
-  csi      .init(this,    "ASSEM");
-  pli      .init(this,    "PLI");
-  showGroupStepNumber .init(this, "SHOW_GROUP_STEP_NUMBER");
-  countGroupSteps .init(this,  "COUNT_GROUP_STEPS");
-  subModel .init(this,    "SUBMODEL_DISPLAY");
-  rotateIcon .init(this,  "ROTATE_ICON");
+  subModelFont.init(this,"SUBMODEL_FONT");
+  subModelFontColor.init(this,"SUBMODEL_FONT_COLOR");
+  freeform.init(this,"FREEFORM");
+  alloc.init(this,"ALLOC");
+  csi.init(this,"ASSEM");
+  pli.init(this,"PLI");
+  showGroupStepNumber.init(this,"SHOW_GROUP_STEP_NUMBER");
+  countGroupSteps.init(this, "COUNT_GROUP_STEPS");
+  subModel.init(this,"SUBMODEL_DISPLAY");
+  rotateIcon.init(this,"ROTATE_ICON");
 
-  adjustOnItemOffset.init(this, "ADJUST_ON_ITEM_OFFSET");
-  justifyYAxisOutsidePlacement.init(this, "JUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT_MULTIPLE_RANGES");
-  stepSize .init(this,    "STEP_SIZE");
+  adjustOnItemOffset.init(this,"ADJUST_ON_ITEM_OFFSET");
+  justifyYAxisOutsidePlacement.init(this,"JUSTIFY_Y_AXIS_OUTSIDE_PLACEMENT_MULTIPLE_RANGES");
+  stepSize.init(this,"STEP_SIZE");
 
-  begin    .init(this,    "BEGIN",  StepGroupBeginRc);
-  divider  .init(this,    "DIVIDER",StepGroupDividerRc);
-  end      .init(this,    "END",    StepGroupEndRc);
+  begin.init(this,"BEGIN",  StepGroupBeginRc);
+  divider.init(this,"DIVIDER",StepGroupDividerRc);
+  end.init(this,"END",    StepGroupEndRc);
 }
 
 /* ------------------ */
 
-void ResolutionMeta::init(
-    BranchMeta *parent,
-    const QString name)
+void ResolutionMeta::init(BranchMeta *parent, const QString name)
 {
   AbstractMeta::init(parent,name);
 }
@@ -6638,19 +6581,19 @@ Rc ResolutionMeta::parse(QStringList &argv, int index, Where &here)
   int tokens = argv.size();
   tokens -= index;
   if (tokens == 0) {
-      return FailureRc;
-    }
+    return FailureRc;
+  }
   if (tokens == 2 && argv[index+1] == "DPI") {
-      _here[0] = here;
-      setResolution(argv[index].toFloat());
-      setResolutionType(DPI);
-    } else if (tokens == 2 && argv[index+1] == "DPCM") {
-      _here[0] = here;
-      setResolution(argv[index].toFloat());
-      setResolutionType(DPCM);
-    } else {
-      return FailureRc;
-    }
+    _here[0] = here;
+    setResolution(argv[index].toFloat());
+    setResolutionType(DPI);
+  } else if (tokens == 2 && argv[index+1] == "DPCM") {
+    _here[0] = here;
+    setResolution(argv[index].toFloat());
+    setResolutionType(DPCM);
+  } else {
+    return FailureRc;
+  }
   setIsDefaultResolution(false);
   return ResolutionRc;
 }
@@ -6669,7 +6612,7 @@ void ResolutionMeta::doc(QStringList &out, QString preamble)
 
 void ResolutionMeta::metaKeywords(QStringList &out, QString preamble)
 {
-    out << preamble + " DPI DPCM";
+  out << preamble + " DPI DPCM";
 }
 /* ------------------ */
 
@@ -6767,73 +6710,62 @@ void LightMeta::setLatLong()
   longitude = acos(lcDot(axisXY, axisY)) * LC_RTOD;
 
   if (lcDot(axisXY, axisX) > 0)
-      longitude = -longitude;
+    longitude = -longitude;
 }
 
 void LightMeta::init(BranchMeta *parent, QString _name)
 {
   AbstractMeta::init(parent, _name);
-  type.init             (this,"TYPE",                    LeoCadLightTypeRc);  // Light NAME and TYPE written on same line, Convert string TYPE to type
-  name.init             (this,"NAME",                    LeoCadLightRc);
-  areaShape.init        (this,"AREA_SHAPE",              LeoCadLightRc);
-  specular.init         (this,"BLENDER_SPECULAR",        LeoCadLightRc);
-  spotConeAngle.init    (this,"SPOT_CONE_ANGLE",         LeoCadLightRc);
-  cutoffDistance.init   (this,"BLENDER_CUTOFF_DISTANCE", LeoCadLightRc);
+  type.init(this,"TYPE",                    LeoCadLightTypeRc);  // Light NAME and TYPE written on same line, Convert string TYPE to type
+  name.init(this,"NAME",                    LeoCadLightRc);
+  areaShape.init(this,"AREA_SHAPE",              LeoCadLightRc);
+  specular.init(this,"BLENDER_SPECULAR",        LeoCadLightRc);
+  spotConeAngle.init(this,"SPOT_CONE_ANGLE",         LeoCadLightRc);
+  cutoffDistance.init(this,"BLENDER_CUTOFF_DISTANCE", LeoCadLightRc);
 
-  povrayPower.init      (this,"POVRAY_POWER",            LeoCadLightRc);
-  blenderPower.init     (this,"BLENDER_POWER",           LeoCadLightRc);
-  diffuse.init          (this,"BLENDER_DIFFUSE",         LeoCadLightRc);
+  povrayPower.init(this,"POVRAY_POWER",            LeoCadLightRc);
+  blenderPower.init(this,"BLENDER_POWER",           LeoCadLightRc);
+  diffuse.init(this,"BLENDER_DIFFUSE",         LeoCadLightRc);
 
-  sunAngle.init         (this,"BLENDER_SUN_ANGLE",       LeoCadLightRc);
-  pointRadius.init      (this,"BLENDER_POINT_RADIUS",    LeoCadLightRc);
-  spotRadius.init       (this,"BLENDER_SPOT_RADIUS",     LeoCadLightRc);
-  areaSizeX.init        (this,"AREA_SIZE_X",             LeoCadLightRc);
-  areaSizeY.init        (this,"AREA_SIZE_Y",             LeoCadLightRc);
-  areaSize.init         (this,"AREA_SIZE",               LeoCadLightRc);
-  spotBlend.init        (this,"SPOT_BLEND",              LeoCadLightRc);
-  fadePower.init        (this,"POVRAY_FADE_POWER",       LeoCadLightRc);
-  fadeDistance.init     (this,"POVRAY_FADE_DISTANCE",    LeoCadLightRc);
-  spotTightness.init    (this,"POVRAY_SPOT_TIGHTNESS",   LeoCadLightRc);
+  sunAngle.init(this,"BLENDER_SUN_ANGLE",       LeoCadLightRc);
+  pointRadius.init(this,"BLENDER_POINT_RADIUS",    LeoCadLightRc);
+  spotRadius.init(this,"BLENDER_SPOT_RADIUS",     LeoCadLightRc);
+  areaSizeX.init(this,"AREA_SIZE_X",             LeoCadLightRc);
+  areaSizeY.init(this,"AREA_SIZE_Y",             LeoCadLightRc);
+  areaSize.init(this,"AREA_SIZE",               LeoCadLightRc);
+  spotBlend.init(this,"SPOT_BLEND",              LeoCadLightRc);
+  fadePower.init(this,"POVRAY_FADE_POWER",       LeoCadLightRc);
+  fadeDistance.init(this,"POVRAY_FADE_DISTANCE",    LeoCadLightRc);
+  spotTightness.init(this,"POVRAY_SPOT_TIGHTNESS",   LeoCadLightRc);
   spotPenumbraAngle.init(this,"SPOT_PENUMBRA_ANGLE",     LeoCadLightRc);
 
-  areaGridX.init        (this,"POVRAY_AREA_GRID_X",      LeoCadLightRc);
-  areaGridY.init        (this,"POVRAY_AREA_GRID_Y",      LeoCadLightRc);
-  areaWidth.init        (this,"POVRAY_AREA_SIZE_X",      LeoCadLightRc);
-  areaHeight.init       (this,"POVRAY_AREA_SIZE_Y",      LeoCadLightRc);
+  areaGridX.init(this,"POVRAY_AREA_GRID_X",      LeoCadLightRc);
+  areaGridY.init(this,"POVRAY_AREA_GRID_Y",      LeoCadLightRc);
+  areaWidth.init(this,"POVRAY_AREA_SIZE_X",      LeoCadLightRc);
+  areaHeight.init(this,"POVRAY_AREA_SIZE_Y",      LeoCadLightRc);
 
-  _povrayLight.init     (this,"POV_RAY",                 LeoCadLightPOVRayRc);
-  _shadowless.init      (this,"SHADOWLESS",              LeoCadLightShadowless);
+  _povrayLight.init(this,"POV_RAY",                 LeoCadLightPOVRayRc);
+  _shadowless.init(this,"SHADOWLESS",              LeoCadLightShadowless);
 
-  color.init            (this,"COLOR",                   LeoCadLightRc);
-  target.init           (this,"TARGET_POSITION",         LeoCadLightRc);
-  position.init         (this,"POSITION",                LeoCadLightRc);
-  rotation.init         (this,"ROTATION",                LeoCadLightRc);
+  color.init(this,"COLOR",                   LeoCadLightRc);
+  target.init(this,"TARGET_POSITION",         LeoCadLightRc);
+  position.init(this,"POSITION",                LeoCadLightRc);
+  rotation.init(this,"ROTATION",                LeoCadLightRc);
 }
 
 /* ------------------ */
 
-void NoStepMeta::init(
-    BranchMeta *parent,
-    const QString name,
-    Rc _rc)
-{
-  AbstractMeta::init(parent,name);
-  rc = _rc;
-}
-
 Rc NoStepMeta::parse(QStringList &argv, int index,Where &here )
 {
   if (index == argv.size()) {
-      return rc;
-    } else {
-
-      if (reportErrors) {
-        QString const message = QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
-        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
-      }
-
-      return FailureRc;
+    return rc;
+  } else {
+    if (reportErrors) {
+      QString const message = QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
     }
+    return FailureRc;
+  }
 }
 QString NoStepMeta::format(bool local, bool global)
 {
@@ -6949,10 +6881,10 @@ Rc PartTypeMeta::parse(QStringList &argv, int index,Where &here)
 
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      rc = OkRc;
-    } else {
-      rc = i.value()->parse(argv,index+1,here);
-    }
+    rc = OkRc;
+  } else {
+    rc = i.value()->parse(argv,index+1,here);
+  }
   return rc;
 }
 
@@ -6972,10 +6904,10 @@ Rc PartNameMeta::parse(QStringList &argv, int index,Where &here)
 
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      rc = OkRc;
-    } else {
-      rc = i.value()->parse(argv,index+1,here);
-    }
+    rc = OkRc;
+  } else {
+    rc = i.value()->parse(argv,index+1,here);
+  }
   return rc;
 }
 
@@ -6995,10 +6927,10 @@ Rc MLCadMeta::parse(QStringList &argv, int index,Where &here)
 
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      rc = OkRc;
-    } else {
-      rc = i.value()->parse(argv,index+1,here);
-    }
+    rc = OkRc;
+  } else {
+    rc = i.value()->parse(argv,index+1,here);
+  }
   return rc;
 }
 
@@ -7018,10 +6950,10 @@ Rc LDCadMeta::parse(QStringList &argv, int index,Where &here)
 
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      rc = OkRc;
-    } else {
-      rc = i.value()->parse(argv,index+1,here);
-    }
+    rc = OkRc;
+  } else {
+    rc = i.value()->parse(argv,index+1,here);
+  }
   return rc;
 }
 
@@ -7046,10 +6978,10 @@ Rc LeoCadMeta::parse(QStringList &argv, int index,Where &here)
 
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      rc = OkRc;
-    } else {
-      rc = i.value()->parse(argv,index+1,here);
-    }
+    rc = OkRc;
+  } else {
+    rc = i.value()->parse(argv,index+1,here);
+  }
   return rc;
 }
 
@@ -7070,10 +7002,10 @@ Rc LeoCadGroupMeta::parse(QStringList &argv, int index,Where &here)   //
 
   QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
   if (i == list.end() || index == argv.size()) {
-      rc = OkRc;
-    } else {
-      rc = i.value()->parse(argv,index+1,here);
-    }
+    rc = OkRc;
+  } else {
+    rc = i.value()->parse(argv,index+1,here);
+  }
   return rc;
 }
 
@@ -7082,8 +7014,8 @@ Rc LeoCadGroupMeta::parse(QStringList &argv, int index,Where &here)   //
 void LSynthMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  begin      .init(this, "BEGIN",       SynthBeginRc);
-  end        .init(this, "END",         SynthEndRc);
+  begin      .init(this, "BEGIN", SynthBeginRc);
+  end        .init(this, "END",   SynthEndRc);
   show       .init(this, "SHOW");
   hide       .init(this, "HIDE");
   inside     .init(this, "INSIDE");
@@ -7098,10 +7030,6 @@ Meta::Meta() : BranchMeta()
 {
   QString empty;
   init(nullptr,empty);
-}
-
-Meta::~Meta()
-{
 }
 
 void Meta::init(BranchMeta * /* unused */, QString /* unused */)
@@ -7128,212 +7056,206 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
    */
 
   if (tokenMap.size() == 0) {
-      tokenMap["TOP_LEFT"]             = TopLeft;
-      tokenMap["TOP"]                  = Top;
-      tokenMap["TOP_RIGHT"]            = TopRight;
-      tokenMap["RIGHT"]                = Right;
-      tokenMap["BOTTOM_RIGHT"]         = BottomRight;
-      tokenMap["BOTTOM"]               = Bottom;
-      tokenMap["BOTTOM_LEFT"]          = BottomLeft;
-      tokenMap["LEFT"]                 = Left;
-      tokenMap["CENTER"]               = Center;
+    tokenMap["TOP_LEFT"]             = TopLeft;
+    tokenMap["TOP"]                  = Top;
+    tokenMap["TOP_RIGHT"]            = TopRight;
+    tokenMap["RIGHT"]                = Right;
+    tokenMap["BOTTOM_RIGHT"]         = BottomRight;
+    tokenMap["BOTTOM"]               = Bottom;
+    tokenMap["BOTTOM_LEFT"]          = BottomLeft;
+    tokenMap["LEFT"]                 = Left;
+    tokenMap["CENTER"]               = Center;
 
-      tokenMap["INSIDE"]               = Inside;
-      tokenMap["OUTSIDE"]              = Outside;
+    tokenMap["INSIDE"]               = Inside;
+    tokenMap["OUTSIDE"]              = Outside;
 
-      tokenMap["PAGE"]                 = PageType;
-      tokenMap["ASSEM"]                = CsiType;
-      tokenMap["MULTI_STEP"]           = StepGroupType;
-      tokenMap["STEP_GROUP"]           = StepGroupType;
-      tokenMap["STEP_NUMBER"]          = StepNumberType;
-      tokenMap["PLI"]                  = PartsListType;
-      tokenMap["PAGE_NUMBER"]          = PageNumberType;
-      tokenMap["CALLOUT"]              = CalloutType;
-      tokenMap["SUBMODEL_INST_COUNT"]  = SubmodelInstanceCountType;
-      tokenMap["SUBMODEL_DISPLAY"]     = SubModelType;
-      tokenMap["ROTATE_ICON"]          = RotateIconType;
-      tokenMap["PAGE_POINTER"]         = PagePointerType;
-      tokenMap["DIVIDER_POINTER"]      = DividerPointerType;
-      tokenMap["CSI_ANNOTATION"]       = AssemAnnotationObj;
-      tokenMap["CSI_ANNOTATION_PART"]  = AssemAnnotationPartObj;
-      tokenMap["CALLOUT_INSTANCE"]     = CalloutInstanceObj;
-      tokenMap["CALLOUT_POINTER"]      = CalloutPointerObj;
-      tokenMap["CALLOUT_UNDERPINNING"] = CalloutUnderpinningObj;
-      tokenMap["DIVIDER"]              = DividerObj;
-      tokenMap["DIVIDER_ITEM"]         = DividerBackgroundObj;
-      tokenMap["DIVIDER_LINE"]         = DividerLineObj;
-      tokenMap["MULTI_STEPS"]          = MultiStepsBackgroundObj;
-      tokenMap["POINTER_GRABBER"]      = PointerGrabberObj;
-      tokenMap["PLI_GRABBER"]          = PliGrabberObj;
-      tokenMap["SUBMODEL_GRABBER"]     = SubmodelGrabberObj;
-      tokenMap["PICTURE"]              = InsertPixmapObj;
-      tokenMap["ATTRIBUTE_PIXMAP"]     = PageAttributePixmapObj;
-      tokenMap["ATTRIBUTE_TEXT"]       = PageAttributeTextObj;
-      tokenMap["PLI_ANNOTATION"]       = PartsListAnnotationObj;
-      tokenMap["PLI_INSTANCE"]         = PartsListInstanceObj;
-      tokenMap["POINTER_SEG_FIRST"]    = PointerFirstSegObj;
-      tokenMap["POINTER_HEAD"]         = PointerHeadObj;
-      tokenMap["POINTER_SEG_SECOND"]   = PointerSecondSegObj;
-      tokenMap["POINTER_SEG_THIRD"]    = PointerThirdSegObj;
-      tokenMap["SUBMODEL_INSTANCE"]    = SubModelInstanceObj;
-      tokenMap["PLI_PART"]             = PartsListPixmapObj;
-      tokenMap["PLI_PART_GROUP"]       = PartsListGroupObj;
-      tokenMap["STEP_RECTANGLE"]       = StepBackgroundObj;
+    tokenMap["PAGE"]                 = PageType;
+    tokenMap["ASSEM"]                = CsiType;
+    tokenMap["MULTI_STEP"]           = StepGroupType;
+    tokenMap["STEP_GROUP"]           = StepGroupType;
+    tokenMap["STEP_NUMBER"]          = StepNumberType;
+    tokenMap["PLI"]                  = PartsListType;
+    tokenMap["PAGE_NUMBER"]          = PageNumberType;
+    tokenMap["CALLOUT"]              = CalloutType;
+    tokenMap["SUBMODEL_INST_COUNT"]  = SubmodelInstanceCountType;
+    tokenMap["SUBMODEL_DISPLAY"]     = SubModelType;
+    tokenMap["ROTATE_ICON"]          = RotateIconType;
+    tokenMap["PAGE_POINTER"]         = PagePointerType;
+    tokenMap["DIVIDER_POINTER"]      = DividerPointerType;
+    tokenMap["CSI_ANNOTATION"]       = AssemAnnotationObj;
+    tokenMap["CSI_ANNOTATION_PART"]  = AssemAnnotationPartObj;
+    tokenMap["CALLOUT_INSTANCE"]     = CalloutInstanceObj;
+    tokenMap["CALLOUT_POINTER"]      = CalloutPointerObj;
+    tokenMap["CALLOUT_UNDERPINNING"] = CalloutUnderpinningObj;
+    tokenMap["DIVIDER"]              = DividerObj;
+    tokenMap["DIVIDER_ITEM"]         = DividerBackgroundObj;
+    tokenMap["DIVIDER_LINE"]         = DividerLineObj;
+    tokenMap["MULTI_STEPS"]          = MultiStepsBackgroundObj;
+    tokenMap["POINTER_GRABBER"]      = PointerGrabberObj;
+    tokenMap["PLI_GRABBER"]          = PliGrabberObj;
+    tokenMap["SUBMODEL_GRABBER"]     = SubmodelGrabberObj;
+    tokenMap["PICTURE"]              = InsertPixmapObj;
+    tokenMap["ATTRIBUTE_PIXMAP"]     = PageAttributePixmapObj;
+    tokenMap["ATTRIBUTE_TEXT"]       = PageAttributeTextObj;
+    tokenMap["PLI_ANNOTATION"]       = PartsListAnnotationObj;
+    tokenMap["PLI_INSTANCE"]         = PartsListInstanceObj;
+    tokenMap["POINTER_SEG_FIRST"]    = PointerFirstSegObj;
+    tokenMap["POINTER_HEAD"]         = PointerHeadObj;
+    tokenMap["POINTER_SEG_SECOND"]   = PointerSecondSegObj;
+    tokenMap["POINTER_SEG_THIRD"]    = PointerThirdSegObj;
+    tokenMap["SUBMODEL_INSTANCE"]    = SubModelInstanceObj;
+    tokenMap["PLI_PART"]             = PartsListPixmapObj;
+    tokenMap["PLI_PART_GROUP"]       = PartsListGroupObj;
+    tokenMap["STEP_RECTANGLE"]       = StepBackgroundObj;
 
-      tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
-      tokenMap["MODEL_ID"]             = PageModelNameType;
-      tokenMap["DOCUMENT_AUTHOR"]      = PageAuthorType;
-      tokenMap["PUBLISH_URL"]          = PageURLType;
-      tokenMap["MODEL_DESCRIPTION"]    = PageModelDescType;
-      tokenMap["PUBLISH_DESCRIPTION"]  = PagePublishDescType;
-      tokenMap["PUBLISH_COPYRIGHT"]    = PageCopyrightType;
-      tokenMap["PUBLISH_EMAIL"]        = PageEmailType;
-      tokenMap["LEGO_DISCLAIMER"]      = PageDisclaimerType;
-      tokenMap["MODEL_PARTS"]          = PagePartsType;
-      tokenMap["APP_PLUG"]             = PagePlugType;
-      tokenMap["DOCUMENT_LOGO"]        = PageDocumentLogoType;
-      tokenMap["DOCUMENT_COVER_IMAGE"] = PageCoverImageType;
-      tokenMap["APP_PLUG_IMAGE"]       = PagePlugImageType;
-      tokenMap["PAGE_HEADER"]          = PageHeaderType;
-      tokenMap["PAGE_FOOTER"]          = PageFooterType;
-      tokenMap["MODEL_CATEGORY"]       = PageCategoryType;
+    tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
+    tokenMap["MODEL_ID"]             = PageModelNameType;
+    tokenMap["DOCUMENT_AUTHOR"]      = PageAuthorType;
+    tokenMap["PUBLISH_URL"]          = PageURLType;
+    tokenMap["MODEL_DESCRIPTION"]    = PageModelDescType;
+    tokenMap["PUBLISH_DESCRIPTION"]  = PagePublishDescType;
+    tokenMap["PUBLISH_COPYRIGHT"]    = PageCopyrightType;
+    tokenMap["PUBLISH_EMAIL"]        = PageEmailType;
+    tokenMap["LEGO_DISCLAIMER"]      = PageDisclaimerType;
+    tokenMap["MODEL_PARTS"]          = PagePartsType;
+    tokenMap["APP_PLUG"]             = PagePlugType;
+    tokenMap["DOCUMENT_LOGO"]        = PageDocumentLogoType;
+    tokenMap["DOCUMENT_COVER_IMAGE"] = PageCoverImageType;
+    tokenMap["APP_PLUG_IMAGE"]       = PagePlugImageType;
+    tokenMap["PAGE_HEADER"]          = PageHeaderType;
+    tokenMap["PAGE_FOOTER"]          = PageFooterType;
+    tokenMap["MODEL_CATEGORY"]       = PageCategoryType;
 
-      tokenMap["SINGLE_STEP"]          = SingleStepType;
-      tokenMap["TEXT"]                 = TextType;
-      tokenMap["STEP"]                 = StepType;
-      tokenMap["RANGE"]                = RangeType;
-      tokenMap["RESERVE"]              = ReserveType;
-      tokenMap["COVER_PAGE"]           = CoverPageType;
+    tokenMap["SINGLE_STEP"]          = SingleStepType;
+    tokenMap["TEXT"]                 = TextType;
+    tokenMap["STEP"]                 = StepType;
+    tokenMap["RANGE"]                = RangeType;
+    tokenMap["RESERVE"]              = ReserveType;
+    tokenMap["COVER_PAGE"]           = CoverPageType;
 
-      tokenMap["AREA"]                 = ConstrainData::PliConstrainArea;
-      tokenMap["SQUARE"]               = ConstrainData::PliConstrainSquare;
-      tokenMap["WIDTH"]                = ConstrainData::PliConstrainWidth;
-      tokenMap["HEIGHT"]               = ConstrainData::PliConstrainHeight;
-      tokenMap["COLS"]                 = ConstrainData::PliConstrainColumns;
+    tokenMap["AREA"]                 = ConstrainData::PliConstrainArea;
+    tokenMap["SQUARE"]               = ConstrainData::PliConstrainSquare;
+    tokenMap["WIDTH"]                = ConstrainData::PliConstrainWidth;
+    tokenMap["HEIGHT"]               = ConstrainData::PliConstrainHeight;
+    tokenMap["COLS"]                 = ConstrainData::PliConstrainColumns;
 
-      tokenMap["HORIZONTAL"]           = Horizontal;
-      tokenMap["VERTICAL"]             = Vertical;
+    tokenMap["HORIZONTAL"]           = Horizontal;
+    tokenMap["VERTICAL"]             = Vertical;
 
-      tokenMap["ASPECT"]               = Aspect;
-      tokenMap["STRETCH"]              = Stretch;
-      tokenMap["TILE"]                 = Tile;
+    tokenMap["ASPECT"]               = Aspect;
+    tokenMap["STRETCH"]              = Stretch;
+    tokenMap["TILE"]                 = Tile;
 
-      tokenMap["PORTRAIT"]             = Portrait;
-      tokenMap["LANDSCAPE"]            = Landscape;
+    tokenMap["PORTRAIT"]             = Portrait;
+    tokenMap["LANDSCAPE"]            = Landscape;
 
-      tokenMap["SORT_BY"]              = SortByOptions;
+    tokenMap["SORT_BY"]              = SortByOptions;
 
-      tokenMap["BASE_TOP_LEFT"]        = TopLeftInsideCorner;
-      tokenMap["BASE_TOP"]             = TopInside;
-      tokenMap["BASE_TOP_RIGHT"]       = TopRightInsideCorner;
-      tokenMap["BASE_LEFT"]            = LeftInside;
-      tokenMap["BASE_CENTER"]          = CenterCenter;
-      tokenMap["BASE_RIGHT"]           = RightInside;
-      tokenMap["BASE_BOTTOM_LEFT"]     = BottomLeftInsideCorner;
-      tokenMap["BASE_BOTTOM"]          = BottomInside;
-      tokenMap["BASE_BOTTOM_RIGHT"]    = BottomRightInsideCorner;
+    tokenMap["BASE_TOP_LEFT"]        = TopLeftInsideCorner;
+    tokenMap["BASE_TOP"]             = TopInside;
+    tokenMap["BASE_TOP_RIGHT"]       = TopRightInsideCorner;
+    tokenMap["BASE_LEFT"]            = LeftInside;
+    tokenMap["BASE_CENTER"]          = CenterCenter;
+    tokenMap["BASE_RIGHT"]           = RightInside;
+    tokenMap["BASE_BOTTOM_LEFT"]     = BottomLeftInsideCorner;
+    tokenMap["BASE_BOTTOM"]          = BottomInside;
+    tokenMap["BASE_BOTTOM_RIGHT"]    = BottomRightInsideCorner;
 
-      tokenMap["PAGE_LENGTH"]          = SepData::LenPage;
-      tokenMap["CUSTOM_LENGTH"]        = SepData::LenCustom;
+    tokenMap["PAGE_LENGTH"]          = SepData::LenPage;
+    tokenMap["CUSTOM_LENGTH"]        = SepData::LenCustom;
 
-      tokenMap["PRIMARY"]              = SortPrimary;
-      tokenMap["SECONDARY"]            = SortSecondary;
-      tokenMap["TERTIARY"]             = SortTetriary;
-      tokenMap["PRIMARY_DIRECTION"]    = PrimaryDirection;
-      tokenMap["SECONDARY_DIRECTION"]  = SecondaryDirection;
-      tokenMap["TERTIARY_DIRECTION"]   = TertiaryDirection;
+    tokenMap["PRIMARY"]              = SortPrimary;
+    tokenMap["SECONDARY"]            = SortSecondary;
+    tokenMap["TERTIARY"]             = SortTetriary;
+    tokenMap["PRIMARY_DIRECTION"]    = PrimaryDirection;
+    tokenMap["SECONDARY_DIRECTION"]  = SecondaryDirection;
+    tokenMap["TERTIARY_DIRECTION"]   = TertiaryDirection;
 
-      tokenMap["Part Size"]            = PartSize;
-      tokenMap["Part Color"]           = PartColour;
-      tokenMap["Part Category"]        = PartCategory;
-      tokenMap["Part Element"]         = PartElement;
-      tokenMap["No Sort"]              = NoSort;
-      tokenMap["Ascending"]            = SortAscending;
-      tokenMap["Descending"]           = SortDescending;
+    tokenMap["Part Size"]            = PartSize;
+    tokenMap["Part Color"]           = PartColour;
+    tokenMap["Part Category"]        = PartCategory;
+    tokenMap["Part Element"]         = PartElement;
+    tokenMap["No Sort"]              = NoSort;
+    tokenMap["Ascending"]            = SortAscending;
+    tokenMap["Descending"]           = SortDescending;
 
-      tokenMap["BRING_TO_FRONT"]       = BringToFront;
-      tokenMap["SEND_TO_BACK"]         = SendToBack;
+    tokenMap["BRING_TO_FRONT"]       = BringToFront;
+    tokenMap["SEND_TO_BACK"]         = SendToBack;
 
-      tokenMap["JUSTIFY_CENTER"]            = JustifyCenter;
-      tokenMap["JUSTIFY_CENTER_HORIZONTAL"] = JustifyCenterHorizontal;
-      tokenMap["JUSTIFY_CENTER_VERTICAL"]   = JustifyCenterVertical;
-      tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
-    }
+    tokenMap["JUSTIFY_CENTER"]            = JustifyCenter;
+    tokenMap["JUSTIFY_CENTER_HORIZONTAL"] = JustifyCenterHorizontal;
+    tokenMap["JUSTIFY_CENTER_VERTICAL"]   = JustifyCenterVertical;
+    tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
+  }
 
-    if (groupRegExMap.size() == 0)
-    {
-        groupRegExMap[MLCadGroupRc] = QRegExp("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
-        groupRegExMap[LDCadGroupRc] = QRegExp("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
-        groupRegExMap[LeoCadGroupBeginRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
-        groupRegExMap[LeoCadGroupEndRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$");
-    }
+  if (groupRegExMap.size() == 0)
+  {
+    groupRegExMap[MLCadGroupRc] = QRegExp("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
+    groupRegExMap[LDCadGroupRc] = QRegExp("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
+    groupRegExMap[LeoCadGroupBeginRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
+    groupRegExMap[LeoCadGroupEndRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$");
+  }
 }
 
-Rc Meta::parse(
-        QString  &line,
-        Where    &here,
-        bool      reportErrors)
+Rc Meta::parse( QString &line,Where &here, bool reportErrors)
 {
+  AbstractMeta::reportErrors = reportErrors;
 
-    AbstractMeta::reportErrors = reportErrors;
-
-    auto parseGroupMeta = [&line]()
-    {
-        QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
-        while (i != groupRegExMap.constEnd()) {
-            QRegExp rx(i.value());
-            if (line.contains(rx))
-                return QStringList() << rx.cap(1) << rx.cap(2) << rx.cap(3);
-            ++i;
-        }
-        return QStringList();
-    };
-
-    QStringList argv = parseGroupMeta();
-
-    if (argv.isEmpty()) {
-
-        processSpecialCases(line,here);
-
-        /* Parse the input line into argv[] */
-
-        split(line,argv);
-
-        if (argv.size() > 0) {
-            argv.removeFirst();
-        }
-        if (argv.size()) {
-            if (argv[0] == "LPUB") {
-                argv[0] = "!LPUB";
-            }
-
-            if (argv[0] == "PLIST") {
-                return  LPub.pli.parse(argv,1,here);
-            }
-        }
+  auto parseGroupMeta = [&line]()
+  {
+    QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
+    while (i != groupRegExMap.constEnd()) {
+      QRegExp rx(i.value());
+      if (line.contains(rx))
+        return QStringList() << rx.cap(1) << rx.cap(2) << rx.cap(3);
+      ++i;
     }
+    return QStringList();
+  };
 
-    if (argv.size() > 0 && list.contains(argv[0])) {
+  QStringList argv = parseGroupMeta();
 
-        /* parse it up */
+  if (argv.isEmpty()) {
 
-        Rc rc = this->BranchMeta::parse(argv,0,here);
+    processSpecialCases(line,here);
 
-        if (rc == FailureRc) {
-            if (reportErrors) {
-                QString const message = QMessageBox::tr("Parse failed %1:%2\n%3").arg(here.modelName) .arg(here.lineNumber) .arg(line);
-                emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
-            }
-        }
-        return rc;
+    /* Parse the input line into argv[] */
+
+    split(line,argv);
+
+    if (argv.size() > 0) {
+      argv.removeFirst();
     }
+    if (argv.size()) {
+      if (argv[0] == "LPUB") {
+        argv[0] = "!LPUB";
+      }
 
-    return OkRc;
+      if (argv[0] == "PLIST") {
+        return  LPub.pli.parse(argv,1,here);
+      }
+    }
+  }
+
+  if (argv.size() > 0 && list.contains(argv[0])) {
+
+    /* parse it up */
+
+    Rc rc = this->BranchMeta::parse(argv,0,here);
+
+    if (rc == FailureRc) {
+      if (reportErrors) {
+        QString const message = QMessageBox::tr("Parse failed %1:%2\n%3").arg(here.modelName) .arg(here.lineNumber) .arg(line);
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+      }
+    }
+    return rc;
+  }
+
+  return OkRc;
 }
 
-bool Meta::preambleMatch(
-    QString &line,
-    QString &preamble)
+bool Meta::preambleMatch(QString &line, QString &preamble)
 {
   QStringList argv;
 
@@ -7342,14 +7264,14 @@ bool Meta::preambleMatch(
   split(line,argv);
 
   if (argv.size() > 0) {
-      argv.removeFirst();
-    }
+    argv.removeFirst();
+  }
 
   if (argv.size() && list.contains(argv[0])) {
-      return BranchMeta::preambleMatch(argv,0,preamble);
-    } else {
-      return false;
-    }
+    return BranchMeta::preambleMatch(argv,0,preamble);
+  } else {
+    return false;
+  }
 }
 
 void Meta::pop()
@@ -7364,15 +7286,15 @@ void Meta::doc(QStringList &out)
   keys.sort();
   Q_FOREACH (key, keys) {
     if (key == "!COLOUR") {
-        out << "0 !COLOUR \n0 // Fade previous steps custom colour command\n0 !COLOUR \"LPub3D_Fade_<LDraw_colour_name>\" CODE <100 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 0-255>\n"
-               "0 // Highlight current step custom colour command\n0 !COLOUR \"LPub3D_Highlight_<LDraw_colour_name>\" CODE <110 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 255>";
-        continue;
+      out << "0 !COLOUR \n0 // Fade previous steps custom colour command\n0 !COLOUR \"LPub3D_Fade_<LDraw_colour_name>\" CODE <100 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 0-255>\n"
+             "0 // Highlight current step custom colour command\n0 !COLOUR \"LPub3D_Highlight_<LDraw_colour_name>\" CODE <110 + LDraw colour code> VALUE <\"#RRGGBB\"> EDGE <\"#RRGGBB\"> ALPHA <opacity 255>";
+      continue;
     } else if (key == "!FADE") {
-        out << "0 !FADE \n0 // Fade previous steps block opening command\n0 !FADE <fade percent integer> <LDraw colour code>\n0 // Block closing command\n0 !FADE";
-        continue;
+      out << "0 !FADE \n0 // Fade previous steps block opening command\n0 !FADE <fade percent integer> <LDraw colour code>\n0 // Block closing command\n0 !FADE";
+      continue;
     } else if (key == "!SILHOUETTE") {
-        out << "0 !SILHOUETTE \n0 // Highlight current step block opening command\n0 !SILHOUETTE <edge line width decimal> <LDraw colour code>\n0 // Block closing command\n0 !SILHOUETTE";
-        continue;
+      out << "0 !SILHOUETTE \n0 // Highlight current step block opening command\n0 !SILHOUETTE <edge line width decimal> <LDraw colour code>\n0 // Block closing command\n0 !SILHOUETTE";
+      continue;
     }
     list[key]->doc(out, "0 " + key);
   }
@@ -7421,10 +7343,10 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
   keys.sort();
   QStringList metaKeywords, cleanedKeywords;
   Q_FOREACH (const QString &key, keys) {
-      list[key]->metaKeywords(metaKeywords, key);
+    list[key]->metaKeywords(metaKeywords, key);
   }
   if (highlighter)
-      metaKeywords << highlighterKeyWords;
+    metaKeywords << highlighterKeyWords;
   else
       metaKeywords
       << ldrawKeywords
@@ -7435,7 +7357,7 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
       << miscellaneousKeyWords
       ;
   Q_FOREACH (const QString &keywordString, metaKeywords) {
-      cleanedKeywords << keywordString.split(" ");
+    cleanedKeywords << keywordString.split(" ");
   }
   cleanedKeywords.removeDuplicates();
   cleanedKeywords.sort();
@@ -7449,45 +7371,45 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {
-    /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
-    QRegExp parseRx("\\s+(VIEW_ANGLE)\\s+");
-    if (line.contains(parseRx)) {
-        line.replace(parseRx.cap(1),"CAMERA_ANGLES");
-        return;
-    }
+  /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
+  QRegExp parseRx("\\s+(VIEW_ANGLE)\\s+");
+  if (line.contains(parseRx)) {
+    line.replace(parseRx.cap(1),"CAMERA_ANGLES");
+    return;
+  }
 
-    /* LPub LeoCAD light compatibilty. Replace _DIRECTIONAL_ with _SUN_ */
-    parseRx.setPattern("\\s+(BLENDER_DIRECTIONAL_ANGLE)\\s+");
-    if (line.contains(parseRx)) {
-        line.replace(parseRx.cap(1),"BLENDER_SUN_ANGLE");
-        return;
-    }
+  /* LPub LeoCAD light compatibilty. Replace _DIRECTIONAL_ with _SUN_ */
+  parseRx.setPattern("\\s+(BLENDER_DIRECTIONAL_ANGLE)\\s+");
+  if (line.contains(parseRx)) {
+    line.replace(parseRx.cap(1),"BLENDER_SUN_ANGLE");
+    return;
+  }
 
-    /* LPub LeoCAD light compatibilty. Replace COLOR_RGB with COLOR */
-    parseRx.setPattern("\\s+(COLOR_RGB)\\s+");
-    if (line.contains(parseRx)) {
-        line.replace(parseRx.cap(1),"COLOR");
-        return;
-    }
+  /* LPub LeoCAD light compatibilty. Replace COLOR_RGB with COLOR */
+  parseRx.setPattern("\\s+(COLOR_RGB)\\s+");
+  if (line.contains(parseRx)) {
+    line.replace(parseRx.cap(1),"COLOR");
+    return;
+  }
 
-    /* Native camera distance deprecated. Command ignored if not GLOBAL */
-    if (line.contains("CAMERA_DISTANCE_NATIVE")) {
-        if (Gui::parsedMessages.contains(here)) {
-            line = "0 // IGNORED";
-        } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
-            here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-            parseRx.setPattern("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
-            if (line.contains(parseRx)) {
-                QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
-                                          "Only application at GLOBAL scope is permitted. "
-                                          "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
-                                          "This command will be ignored. %2")
-                                          .arg(parseRx.cap(1))
-                                          .arg(line);
-                emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
-                line = "0 // IGNORED";
-            }
-        }
-        return;
+  /* Native camera distance deprecated. Command ignored if not GLOBAL */
+  if (line.contains("CAMERA_DISTANCE_NATIVE")) {
+    if (Gui::parsedMessages.contains(here)) {
+      line = "0 // IGNORED";
+    } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
+      here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
+      parseRx.setPattern("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
+      if (line.contains(parseRx)) {
+        QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
+                                  "Only application at GLOBAL scope is permitted. "
+                                  "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
+                                  "This command will be ignored. %2")
+                                  .arg(parseRx.cap(1))
+                                  .arg(line);
+        emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+        line = "0 // IGNORED";
+      }
     }
+    return;
+  }
 }
