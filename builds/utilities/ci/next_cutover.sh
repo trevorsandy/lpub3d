@@ -14,8 +14,8 @@ MAX_RN_LINE_DEL=${RN_MAX_LINE_DEL:-1014}
 function ShowHelp() {
     echo
     echo $0
-	echo 
-	echo "Written by Trevor SANDY"
+    echo
+    echo "Written by Trevor SANDY"
     echo
     echo "Purpose:"
     echo "This script will automate the 'cutover' of a range of commits from development [lpub3d-ci]"

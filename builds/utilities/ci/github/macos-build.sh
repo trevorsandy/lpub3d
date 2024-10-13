@@ -4,7 +4,7 @@
 
 function ShowHelp() {
     echo
-    echo "This script is called from .github/workflows/build.yml"
+    echo "This script is called from .github/workflows/prod_ci_build.yml"
     echo
     echo "Run command:"
     echo "bash -ex builds/utilities/ci/github/$0"

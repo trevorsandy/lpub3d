@@ -10,7 +10,7 @@ rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 rem
-rem This script is called from .github/workflows/build.yml
+rem This script is called from .github/workflows/prod_ci_build.yml
 rem
 rem Run command:
 rem .\builds\utilities\ci\github\windows-build.bat

@@ -4,7 +4,7 @@
 
 function ShowHelp() {
     echo
-    echo "This script is called from .github/workflows/build.yml"
+    echo "This script is called from .github/workflows/prod_ci_build.yml"
     echo
     echo "Options:"
     echo "BUILD=<ubuntu|fedora|archlinux>[-<amd64|amd32|arm64|arm32>-appimage]"

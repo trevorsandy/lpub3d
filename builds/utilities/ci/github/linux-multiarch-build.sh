@@ -2,7 +2,7 @@
 # Trevor SANDY
 # Last Update September 20, 2024
 #
-# This script is called from .github/workflows/build.yml
+# This script is called from .github/workflows/prod_ci_build.yml
 #
 # Run command:
 # bash -ex builds/utilities/ci/github/linux-miltiarch-build.sh

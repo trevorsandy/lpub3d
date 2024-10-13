@@ -125,7 +125,7 @@ OTHER_FILES += \
     $$PWD/../builds/windows/RunBuildCheck.bat \
     $$PWD/../.github/ISSUE_TEMPLATE/1.issue_ticket.md \
     $$PWD/../.github/ISSUE_TEMPLATE/2.feature_request_ticket.md \
-    $$PWD/../.github/workflows/build.yml \
+    $$PWD/../.github/workflows/prod_ci_build.yml \
     $$PWD/../.github/workflows/codeql.yml
 
 DISTFILES += \

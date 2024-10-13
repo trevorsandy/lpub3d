@@ -6,8 +6,8 @@
 function ShowHelp() {
     echo
     echo $0
-	echo 
-	echo "Written by Trevor SANDY"
+    echo
+    echo "Written by Trevor SANDY"
     echo
     echo "Purpose:"
     echo "This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d] repository commits, one at a time, to production."
@@ -342,7 +342,29 @@ find . -not -name '*.log*' \
        -type f -exec cp -f --parents -t ../$TO_REPO_NAME {} +
 cp -f ./.gitignore ../$TO_REPO_NAME
 
-echo "$((COMMAND_COUNT += 1))-Rename all files with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..." && cd ../$TO_REPO_NAME
+cd ../$TO_REPO_NAME
+
+devops_build_yml=devops_ci_build.yml
+prod_build_yml=prod_ci_build.yml
+echo -n "$((COMMAND_COUNT += 1))-Rename actions file from '$devops_build_yml' to '$prod_build_yml'..."
+(cd .github/workflows && mv -f "$devops_build_yml" "$prod_build_yml") && echo OK
+
+echo "$((COMMAND_COUNT += 1))-Change occurrences of '$devops_build_yml' to '$prod_build_yml' in files..."
+for file in \
+README.md \
+builds/utilities/ci/github/build-deploy.sh \
+builds/utilities/ci/github/linux-build.sh \
+builds/utilities/ci/github/linux-multiarch-build.sh \
+builds/utilities/ci/github/macos-build.sh \
+builds/utilities/ci/github/windows-build.bat \
+mainApp/otherfiles.pri
+do
+    cat $file | grep -qE "$devops_build_yml" \
+    && sed "s/$devops_build_yml/$prod_build_yml/g" -i $file \
+    && echo "  -file updated: $file" || true
+done
+
+echo "$((COMMAND_COUNT += 1))-Rename all files with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..."
 for file in $(find . -type f -name "*${FROM_REPO_NAME}*" \
               -not -path "./.git*" \
               -not -path "./lclib*" \
@@ -377,7 +399,7 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     projFileName="LPub3D.pro"
     newProjFileName="LPub3DNext.pro"
 fi
-if [[ -f $projFileName && -n $newProjFileName && ($projFileName != $newProjFileName)]]; then
+if [[ -f "$projFileName" && -n "$newProjFileName" && ($projFileName != $newProjFileName) ]]; then
     mv -f "$projFileName" "$newProjFileName"
     [ -f "$newProjFileName" ] && echo "  -file changed: $newProjFileName." || echo "  -ERROR - $newProjFileName was not renamed."
 fi
@@ -402,7 +424,7 @@ for file in $(find . -type f \
               -not -path "./builds/utilities/ci/travis/releases" \
               -not -path "./builds/utilities/ci/$0" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
-              -not -path './.github/workflows/build.yml' \
+              -not -path './.github/workflows/$prod_build_yml' \
               -not -path "./gitversion.pri" \
               -not -path "./snapcraft.yaml" \
               -not -path "./appveyor.yml" \
