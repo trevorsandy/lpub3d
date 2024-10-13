@@ -2864,9 +2864,16 @@ void MetaItem::insertCoverPage()
 
 bool MetaItem::frontCoverPageExist()
 {
-  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
-  Where here(lpub->ldrawFile.topLevelFile(),0);
-  return Gui::stepContains(here, rx);
+  Where top(lpub->ldrawFile.topLevelFile(),0,0); //start at top of file
+  return scanForwardNoParts(top, CoverPageMask | StepMask | StepGroupMask) == InsertCoverPageRc;
+}
+
+bool MetaItem::backCoverPageExist()
+{
+  Where bottom(lpub->ldrawFile.topLevelFile(), 0, lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile())); //start at bottom of file
+  if (!bottom.lineNumber)
+    return false;
+  return scanBackwardNoParts(bottom, CoverPageMask | StepMask | StepGroupMask) == InsertCoverPageRc;
 }
 
 void MetaItem::appendCoverPage()
@@ -2893,15 +2900,6 @@ void MetaItem::appendCoverPage()
       appendMeta(here,meta);
    }
    endMacro();
-}
-
-bool MetaItem::backCoverPageExist()
-{
-  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
-  Where here(lpub->ldrawFile.topLevelFile(), lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile())); //start at bottom of file
-  if (here.lineNumber)
-      scanBackward(here, StepMask | StepGroupMask);
-  return Gui::stepContains(here, rx);
 }
 
 bool MetaItem::okToInsertNumberedPage()
@@ -3906,8 +3904,8 @@ Rc  MetaItem::scanForward(
 
   for ( ; here < numLines; here++) {
     QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-    QStringList tokens;
 
+    QStringList tokens;
     split(line,tokens);
 
     bool token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5";
@@ -3918,9 +3916,12 @@ Rc  MetaItem::scanForward(
     } else {
       Rc rc = tmpMeta.parse(line,here);
 
-      if (rc == InsertRc && ((mask >> rc) & 1)) {
-         //return rc;
+      if (rc == InsertPageRc && ((mask >> rc) & 1)) {
 
+         return rc;
+      } else if (rc == InsertCoverPageRc && ((mask >> rc) & 1)) {
+
+         return rc;
       } else if (rc == StepRc || rc == RotStepRc) {
 
         if (((mask >> rc) & 1) && partsAdded) {
@@ -3965,13 +3966,15 @@ Rc MetaItem::scanBackward(
   for ( ; here >= 0; here--) {
 
     QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-    QStringList tokens;
+    if (line.isEmpty())
+        continue;
 
     if (isHeader(line)) {
       scanPastGlobal(here);
-
       return EndOfFileRc;
     }
+
+    QStringList tokens;
     split(line,tokens);
 
     bool token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5";
@@ -3982,15 +3985,16 @@ Rc MetaItem::scanBackward(
     } else {
       Rc rc = tmpMeta.parse(line,here);
 
-// TODO - InsertPageRc and InsertCoverPageRc if blocks are hacks
-//        to allow the scan to terminate on these metas if no parts are added
-//        I'm not sure of the impact on reversing it as it was done so long
-//        ago. But it should be refersed.
+// TODO - Check all scanBackward calls to ensure InsertPageRc and/or
+//        InsertCoverPageRc is not the expected result eventhough
+//        the appropriate mask was not provided. As the mask
+//        will be enabled, the control will be more strict and
+//        will fail when no mask is provided.
 
-      if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) {
+      if (rc == InsertPageRc && ((mask >> rc) & 1)) {
 
          return rc;
-      } else if (rc == InsertCoverPageRc /*&& ((mask >> rc) & 1)*/) {
+      } else if (rc == InsertCoverPageRc && ((mask >> rc) & 1)) {
 
          return rc;
       } else if (rc == StepRc || rc == RotStepRc) {

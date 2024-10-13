@@ -49,6 +49,7 @@ enum ScanMask {
   StepGroupMask = StepGroupBeginMask|StepGroupDividerMask|StepGroupEndMask,
 
   PageMask = (1 << InsertPageRc) | (1 << InsertCoverPageRc),
+  CoverPageMask = (1 << InsertCoverPageRc),
   InsertMask = (1 << InsertRc)
 };
 
