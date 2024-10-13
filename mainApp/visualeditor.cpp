@@ -341,28 +341,6 @@ void Gui::create3DActions()
     lpub->actions.insert(DeleteBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Build Modification.Delete"), DeleteBuildModAct));
     connect(DeleteBuildModAct, SIGNAL(triggered()), this, SLOT(deleteBuildModification()));
 
-    QIcon EnableBuildModRotateIcon;
-    EnableBuildModRotateIcon.addFile(":/resources/rotatebuildmod.png");
-    EnableBuildModRotateIcon.addFile(":/resources/rotatebuildmod16.png");
-    EnableBuildModRotateAct = new QAction(EnableBuildModRotateIcon,tr("Rotate Build Modification"),this);
-    EnableBuildModRotateAct->setObjectName("EnableBuildModRotateAct.4");
-    EnableBuildModRotateAct->setStatusTip(tr("This option allows you to choose your part selection and will transform the rotated parts"));
-    EnableBuildModRotateAct->setChecked(false);
-    EnableBuildModRotateAct->setCheckable(true);
-    lpub->actions.insert(EnableBuildModRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.Build Modification Rotate"), EnableBuildModRotateAct));
-    connect(EnableBuildModRotateAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
-
-    QIcon EnableRotstepRotateIcon;
-    EnableRotstepRotateIcon.addFile(":/resources/rotaterotstep.png");
-    EnableRotstepRotateIcon.addFile(":/resources/rotaterotstep16.png");
-    EnableRotstepRotateAct = new QAction(EnableRotstepRotateIcon,tr("Rotate LPub ROTSTEP"),this);
-    EnableRotstepRotateAct->setObjectName("EnableRotstepRotateAct.4");
-    EnableRotstepRotateAct->setStatusTip(tr("This option will rotate the entire model and populate the LPub ROTSTEP command"));
-    EnableRotstepRotateAct->setChecked(false);
-    EnableRotstepRotateAct->setCheckable(true);
-    lpub->actions.insert(EnableRotstepRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.ROTSTEP Rotate"), EnableRotstepRotateAct));
-    connect(EnableRotstepRotateAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
-
     QIcon ApplyLightIcon;
     ApplyLightIcon.addFile(":/resources/applylightsettings.png");
     ApplyLightIcon.addFile(":/resources/applylightsettings_16.png");
@@ -407,6 +385,25 @@ void Gui::create3DActions()
     DefaultCameraPropertiesAct->setChecked(GetPreferences().mDefaultCameraProperties);
     lpub->actions.insert(DefaultCameraPropertiesAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Display Properties"), DefaultCameraPropertiesAct));
     connect(DefaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
+
+    QActionGroup* EnableRotateGroup = new QActionGroup(this);
+    EnableBuildModRotateAct = new QAction(tr("Rotate Build Modification"),this);
+    EnableBuildModRotateAct->setObjectName("EnableBuildModRotateAct.4");
+    EnableBuildModRotateAct->setStatusTip(tr("This option allows you to choose your part selection and will transform the rotated parts"));
+    EnableBuildModRotateAct->setChecked(false);
+    EnableBuildModRotateAct->setCheckable(true);
+    EnableRotateGroup->addAction(EnableBuildModRotateAct);
+    lpub->actions.insert(EnableBuildModRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.Build Modification Rotate"), EnableBuildModRotateAct));
+    connect(EnableBuildModRotateAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
+
+    EnableRotstepRotateAct = new QAction(tr("Rotate LPub ROTSTEP"),this);
+    EnableRotstepRotateAct->setObjectName("EnableRotstepRotateAct.4");
+    EnableRotstepRotateAct->setStatusTip(tr("This option will rotate the entire model and populate the LPub ROTSTEP command"));
+    EnableRotstepRotateAct->setChecked(false);
+    EnableRotstepRotateAct->setCheckable(true);
+    EnableRotateGroup->addAction(EnableRotstepRotateAct);
+    lpub->actions.insert(EnableRotstepRotateAct->objectName(), Action(QStringLiteral("3DViewer.Tools.RotateStep.ROTSTEP Rotate"), EnableRotstepRotateAct));
+    connect(EnableRotstepRotateAct, SIGNAL(triggered()), this, SLOT(enableVisualBuildModification()));
 
     TransformAct = new QAction(tr("Transform"), this);
     TransformAct->setObjectName("TransformAct.4");
@@ -548,11 +545,11 @@ void Gui::create3DActions()
     connect(LightGroupAct, SIGNAL(triggered()),
             this,          SLOT(  groupActionTriggered()));
 
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT],     SIGNAL(triggered()),
-            this,                                            SLOT(groupActionTriggered()));
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_POINT_LIGHT], SIGNAL(triggered()),
+            this,                                              SLOT(groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_EDIT_ACTION_DIRECTIONAL_LIGHT],  SIGNAL(triggered()),
-            this,                                            SLOT(groupActionTriggered()));
+            this,                                                     SLOT(groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT], SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
@@ -566,8 +563,7 @@ void Gui::create3DActions()
     FindAndReplaceGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_FIND]->icon());
     FindAndReplaceGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_FIND]->statusTip());
     lpub->actions.insert(FindAndReplaceGroupAct->objectName(), Action(QStringLiteral("3DViewer.FindAndReplaceGroup"), FindAndReplaceGroupAct));
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT], SIGNAL(triggered()),
-            this, SIGNAL(gMainWindow->mActions[LC_EDIT_FIND]->triggered()));
+    connect(FindAndReplaceGroupAct, SIGNAL(triggered()), gMainWindow->mActions[LC_EDIT_FIND], SIGNAL(triggered()));
 
     SelectGroupAct =  new QAction(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->text(), this);
     SelectGroupAct->setObjectName("SelectGroupAct.4");
@@ -575,8 +571,7 @@ void Gui::create3DActions()
     SelectGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->icon());
     SelectGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->statusTip());
     lpub->actions.insert(SelectGroupAct->objectName(), Action(QStringLiteral("3DViewer.SelectGroup"), SelectGroupAct));
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT], SIGNAL(triggered()),
-            this, SIGNAL(gMainWindow->mActions[LC_EDIT_SELECT_ALL]->triggered()));
+    connect(SelectGroupAct, SIGNAL(triggered()), gMainWindow->mActions[LC_EDIT_SELECT_ALL], SIGNAL(triggered()));
 
     ViewpointGroupAct = new QAction(tr("Viewpoints"), this);
     ViewpointGroupAct->setObjectName("ViewpointGroupAct.4");
@@ -865,8 +860,6 @@ void Gui::create3DMenus()
      CameraMenu->addAction(AutoCenterSelectionAct);
      CameraMenu->addAction(DefaultCameraPropertiesAct);
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(CameraMenu);
-
-
 }
 
 void Gui::create3DToolBars()
@@ -2222,6 +2215,9 @@ void Gui::enableVisualBuildModification()
     bool displayStep = lpub->currentStep->displayStep != DT_DEFAULT;
     bool buildModEnabled = Preferences::buildModEnabled && !displayStep;
 
+    EnableBuildModRotateAct->setVisible(!displayStep);
+    EnableBuildModRotateAct->setEnabled(buildModEnabled);
+
     if (sender() == EnableBuildModRotateAct)
         buildModEnabled &= EnableBuildModRotateAct->isChecked();
     else if (sender() == EnableRotstepRotateAct)
@@ -2245,8 +2241,6 @@ void Gui::enableVisualBuildModification()
     if(!ContinuousPage())
         gMainWindow->UpdateDefaultCameraProperties();
 
-    EnableBuildModRotateAct->setVisible(!displayStep);
-    EnableBuildModRotateAct->setEnabled(Preferences::buildModEnabled && !displayStep);
     EnableBuildModRotateAct->setChecked(buildModEnabled);
     EnableRotstepRotateAct->setChecked(!buildModEnabled);
 
@@ -2490,7 +2484,7 @@ void Gui::enableVisualBuildModEditAction()
 
     gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setIcon(BuildModIcon);
     gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setShortcut(BuildModShortcut);
-    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setEnabled(UpdateBuildModAct->isEnabled() || CreateBuildModAct->isEnabled());
+    gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]->setEnabled(buildModEnabled);
 }
 
 void Gui::showDefaultCameraProperties()
