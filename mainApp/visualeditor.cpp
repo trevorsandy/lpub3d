@@ -269,6 +269,11 @@ void Gui::create3DActions()
 
     gMainWindow->mActions[LC_EDIT_CANCEL]->setIcon(QIcon(":/resources/action_edit_cancel.png"));
 
+    QIcon PaintSelectedIcon;
+    PaintSelectedIcon.addFile(":/resources/action_paint_selected.png");
+    PaintSelectedIcon.addFile(":/resources/action_paint_selected_16.png");
+    gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]->setIcon(PaintSelectedIcon);
+
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");

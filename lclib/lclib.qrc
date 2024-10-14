@@ -17,6 +17,8 @@
         <file alias="action_next.png">resources/action_next.png</file>
         <file alias="action_paint.png">resources/action_paint.png</file>
         <file alias="action_paint_16.png">resources/action_paint_16.png</file>
+        <file alias="action_paint_selected.png">resources/action_paint_selected.png</file>
+        <file alias="action_paint_selected_16.png">resources/action_paint_selected_16.png</file>
         <file alias="action_pan.png">resources/action_pan.png</file>
         <file alias="action_pan_16.png">resources/action_pan_16.png</file>
         <file alias="action_preview_locked.png">resources/action_preview_locked.png</file>
