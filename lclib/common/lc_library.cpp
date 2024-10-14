@@ -179,15 +179,18 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 		bool HasModel = false;
 /*** LPub3D Mod - project piece ***/
 		bool IsPieceModified = false;
-
-		if (CurrentProject && !CurrentProject->IsPreview())
+/*** LPub3D Mod end ***/
+		if (CurrentProject)
 		{
 			const std::vector<std::unique_ptr<lcModel>>& Models = CurrentProject->GetModels();
 			HasModel = std::find_if(Models.begin(), Models.end(), [Model = Info->GetModel()](const std::unique_ptr<lcModel>& CheckModel) { return CheckModel.get() == Model; }) != Models.end();
-			IsPieceModified = CurrentProject->IsModified(Info->mFileName, true/*reset*/);
+/*** LPub3D Mod - project piece ***/
+			if (!CurrentProject->IsPreview())
+				IsPieceModified = CurrentProject->IsModified(Info->mFileName, true/*reset*/);
+/*** LPub3D Mod end ***/
 		}
-
-		if ((!CurrentProject || !Info->IsModel() || HasModel) && ((!ProjectPath.isEmpty() && !IsPieceModified) || Info->IsProjectPiece() || !Info->IsProject()))
+/*** LPub3D Mod - project piece ***/
+		if ((!CurrentProject || !Info->IsModel() || HasModel) && ((!ProjectPath.isEmpty() && !IsPieceModified) || !Info->IsProject() || Info->IsProjectPiece()))
 /*** LPub3D Mod end ***/
 			return Info;
 	}
