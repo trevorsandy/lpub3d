@@ -2864,16 +2864,19 @@ void MetaItem::insertCoverPage()
 
 bool MetaItem::frontCoverPageExist()
 {
-  Where top(lpub->ldrawFile.topLevelFile(),0,0); //start at top of file
-  return scanForwardNoParts(top, CoverPageMask | StepMask | StepGroupMask) == InsertCoverPageRc;
+  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: FRONT)?$");
+  Where here(lpub->ldrawFile.topLevelFile(), 0, 0); //start at top of file 
+  return Gui::stepContains(here, rx);
 }
 
 bool MetaItem::backCoverPageExist()
 {
-  Where bottom(lpub->ldrawFile.topLevelFile(), 0, lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile())); //start at bottom of file
-  if (!bottom.lineNumber)
-    return false;
-  return scanBackwardNoParts(bottom, CoverPageMask | StepMask | StepGroupMask) == InsertCoverPageRc;
+  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE(?: BACK)?$");
+  int end = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
+  Where here(lpub->ldrawFile.topLevelFile(), 0, end); //start at bottom of file
+  if (!here.lineNumber)
+      return false;
+  return Gui::stepContains(here, rx);
 }
 
 void MetaItem::appendCoverPage()
