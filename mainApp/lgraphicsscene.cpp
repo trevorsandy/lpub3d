@@ -201,7 +201,7 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
     qreal h = fm.height();
 
     if (mRulerTracking) {
-        painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+        painter->setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
         painter->setOpacity(0.6);
         painter->setPen(rulerTrackingPen);
         starPt = mHorzCursorPos;
@@ -263,7 +263,7 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
         return;
 
     painter->setClipRect(rect);
-    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
     painter->setPen(guidePen);
     starPt.setX(mGuidePos.x());
     starPt.setY(rect.top());
