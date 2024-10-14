@@ -35,6 +35,8 @@
 #include <QtGui>
 #endif
 
+#include <random>
+
 #include <QMessageBox>
 #include <QFile>
 #include <QRegExp>
