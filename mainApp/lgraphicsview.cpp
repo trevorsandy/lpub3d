@@ -225,12 +225,12 @@ void LGraphicsView::fitVisible(const QRectF rect)
   scale(1.0,1.0);
   mPageRect = rect;
 
-  QRectF unity = matrix().mapRect(QRectF(0,0,1,1));
+  QRectF unity = transform().mapRect(QRectF(0,0,1,1));
   scale(1/unity.width(), 1 / unity.height());
 
   int margin = 2;
   QRectF viewRect = viewport()->rect().adjusted(margin, margin, -margin, -margin);
-  QRectF sceneRect = matrix().mapRect(mPageRect);
+  QRectF sceneRect = transform().mapRect(mPageRect);
   qreal xratio = viewRect.width() / sceneRect.width();
   qreal yratio = viewRect.height() / sceneRect.height();
 
@@ -247,12 +247,12 @@ void LGraphicsView::fitWidth(const QRectF rect)
   scale(1.0,1.0);
   mPageRect = rect;
 
-  QRectF unity = matrix().mapRect(QRectF(0,0,1,1));
+  QRectF unity = transform().mapRect(QRectF(0,0,1,1));
   scale(1 / unity.width(), 1 / unity.height());
 
   int margin = 2;
   QRectF viewRect = viewport()->rect().adjusted(margin, margin, -margin, -margin);
-  QRectF sceneRect = matrix().mapRect(mPageRect);
+  QRectF sceneRect = transform().mapRect(mPageRect);
   qreal xratio = viewRect.width() / sceneRect.width();
 
   scale(xratio,xratio);
@@ -271,7 +271,7 @@ void LGraphicsView::fitScene(const QRectF rect)
 }
 
 void LGraphicsView::actualSize() {
-  resetMatrix();
+  resetTransform();
   fitMode = FitNone;
 }
 
@@ -523,7 +523,6 @@ void LRuler::drawAScaleMeter(QPainter* painter, QRectF rulerRect, qreal scaleMet
 void LRuler::drawFromOriginTo(QPainter* painter, QRectF rulerRect, qreal startMark, qreal endMark, int startTickNo, qreal step, qreal startPosition)
 {
   bool isHorzRuler = Horizontal == mRulerType;
-  int iterate = 0;
 
   for (qreal current = startMark;
       (step < 0 ? current >= endMark : current <= endMark); current += step)
@@ -538,7 +537,6 @@ void LRuler::drawFromOriginTo(QPainter* painter, QRectF rulerRect, qreal startMa
       QPainterPath txtPath;
       txtPath.addText(x1 + 1,y1 + (isHorzRuler ? 7 : -2),this->font(),QString::number(qAbs(int(step) * startTickNo++)));
       painter->drawPath(txtPath);
-      iterate++;
     }
   }
 }

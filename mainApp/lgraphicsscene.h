@@ -101,7 +101,7 @@ protected:
   virtual void drawBackground(QPainter *painter, const QRectF &rect);
   void snapToGrid();
   void updateGuidePos();
-  QMatrix stableMatrix(const QMatrix &matrix, const QPointF &p);
+  QTransform stableTransform(const QTransform &transform, const QPointF &p);
 
 private:
   // guides

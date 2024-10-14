@@ -147,21 +147,21 @@ void LGraphicsScene::snapToGrid()
     }
 }
 
-QMatrix LGraphicsScene::stableMatrix(const QMatrix &matrix, const QPointF &p)
+QTransform LGraphicsScene::stableTransform(const QTransform &transform, const QPointF &p)
 {
-    QMatrix newMatrix = matrix;
+    QTransform newTransform = transform;
 
     qreal scaleX, scaleY;
-    scaleX = newMatrix.m11();
-    scaleY = newMatrix.m22();
-    newMatrix.scale(1.0/scaleX, 1.0/scaleY);
+    scaleX = newTransform.m11();
+    scaleY = newTransform.m22();
+    newTransform.scale(1.0/scaleX, 1.0/scaleY);
 
     qreal offsetX, offsetY;
     offsetX = p.x()*(scaleX-1.0);
     offsetY = p.y()*(scaleY-1.0);
-    newMatrix.translate(offsetX, offsetY);
+    newTransform.translate(offsetX, offsetY);
 
-    return newMatrix;
+    return newTransform;
 }
 
 void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect) {
@@ -248,7 +248,7 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
             }
             QRectF r = QRectF(p.x(), p.y(), w + 5, h);
             painter->save();
-            painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
+            painter->setTransform(stableTransform(painter->worldTransform(),p));
             painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
             painter->setPen(rulerTrackingPosPen);
             painter->setOpacity(0.6);
@@ -310,7 +310,7 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
 
         painter->setPen(savedPen);
         painter->save();
-        painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
+        painter->setTransform(stableTransform(painter->worldTransform(),p));
         painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
         savedPen = painter->pen();
         painter->setPen(guidPosPen);
