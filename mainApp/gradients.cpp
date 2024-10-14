@@ -419,7 +419,7 @@ void GradientRenderer::paintEvent(QPaintEvent *e)
 
         int o = 10;
 
-        QBrush bg = palette().brush(QPalette::Background);
+        QBrush bg = palette().brush(QPalette::Window);
         painter.fillRect(0, 0, o, o, bg);
         painter.fillRect(width() - o, 0, o, o, bg);
         painter.fillRect(0, height() - o, o, o, bg);
