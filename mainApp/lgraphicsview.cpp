@@ -534,9 +534,7 @@ void LRuler::drawFromOriginTo(QPainter* painter, QRectF rulerRect, qreal startMa
     painter->drawLine(QLineF(x1,y1,x2,y2));
     if (mDrawText)
     {
-      QPainterPath txtPath;
-      txtPath.addText(x1 + 1,y1 + (isHorzRuler ? 7 : -2),this->font(),QString::number(qAbs(int(step) * startTickNo++)));
-      painter->drawPath(txtPath);
+      painter->drawText(x1 + 1,y1 + (isHorzRuler ? 7 : -2),QString::number(qAbs(int(step) * startTickNo++)));
     }
   }
 }
