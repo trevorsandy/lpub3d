@@ -207,7 +207,9 @@
         <file alias="openwithsetup.png">resources/openwithsetup.png</file>
         <file alias="openworkingfolder.png">resources/openworkingfolder.png</file>
         <file alias="pageguides.png">resources/pageguides.png</file>
+        <file alias="pageguidescheck.png">resources/pageguidescheck.png</file>
         <file alias="pageruler.png">resources/pageruler.png</file>
+        <file alias="pagerulercheck.png">resources/pagerulercheck.png</file>
         <file alias="pagesetup.png">resources/pagesetup.png</file>
         <file alias="pagesizeandorientation.png">resources/pagesizeandorientation.png</file>
         <file alias="partslist.png">resources/partslist.png</file>
@@ -279,6 +281,7 @@
         <file alias="savemetacommands.png">resources/savemetacommands.png</file>
         <file alias="scale.png">resources/scale.png</file>
         <file alias="scenegrid.png">resources/scenegrid.png</file>
+        <file alias="scenegridcheck.png">resources/scenegridcheck.png</file>
         <file alias="searchdirectories.png">resources/searchdirectories.png</file>
         <file alias="select_all.png">resources/select_all.png</file>
         <file alias="select_all16.png">resources/select_all16.png</file>

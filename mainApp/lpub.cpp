@@ -1301,10 +1301,15 @@ void Gui::zoomSlider(int value)
 
 void Gui::sceneGuides()
 {
-  Preferences::setSceneGuidesPreference(getAct("sceneGuidesComboAct.1")->isChecked());
-  SceneGuidesLineGroup->setEnabled(Preferences::sceneGuides);
-  SceneGuidesPosGroup->setEnabled(Preferences::sceneGuides);
-  getAct("showGuidesCoordinatesAct.1")->setEnabled(Preferences::sceneGuides);
+  bool isChecked = getAct("sceneGuidesComboAct.1")->isChecked();
+  QIcon pageGuidesIcon;
+  if (isChecked) pageGuidesIcon.addFile(":/resources/pageguidescheck.png");
+  else pageGuidesIcon.addFile(":/resources/pageguides.png");
+  getAct("sceneGuidesComboAct.1")->setIcon(pageGuidesIcon);
+  Preferences::setSceneGuidesPreference(isChecked);
+  SceneGuidesLineGroup->setEnabled(isChecked);
+  SceneGuidesPosGroup->setEnabled(isChecked);
+  getAct("showGuidesCoordinatesAct.1")->setEnabled(isChecked);
   KpageView->setSceneGuides();
 }
 
@@ -1339,9 +1344,14 @@ void Gui::sceneGuidesPosition()
 
 void Gui::sceneRuler()
 {
-  Preferences::setSceneRulerPreference(getAct("sceneRulerComboAct.1")->isChecked());
-  getAct("hideRulerPageBackgroundAct.1")->setEnabled(Preferences::sceneRuler);
-  SceneRulerGroup->setEnabled(Preferences::sceneRuler);
+  bool isChecked = getAct("sceneRulerComboAct.1")->isChecked();
+  QIcon sceneRulerIcon;
+  if (isChecked) sceneRulerIcon.addFile(":/resources/pagerulercheck.png");
+  else sceneRulerIcon.addFile(":/resources/pageruler.png");
+  getAct("sceneRulerComboAct.1")->setIcon(sceneRulerIcon);
+  Preferences::setSceneRulerPreference(isChecked);
+  getAct("hideRulerPageBackgroundAct.1")->setEnabled(isChecked);
+  SceneRulerGroup->setEnabled(isChecked);
   KpageView->setSceneRuler();
 }
 
@@ -1362,13 +1372,16 @@ void Gui::sceneRulerTracking()
 
 void Gui::snapToGrid()
 {
-  bool checked = getAct("snapToGridComboAct.1")->isChecked();
-  if (Preferences::snapToGrid == checked)
+  bool isChecked = getAct("snapToGridComboAct.1")->isChecked();
+  if (Preferences::snapToGrid == isChecked)
       return;
-
-  Preferences::setSnapToGridPreference(checked);
-  getAct("hideGridPageBackgroundAct.1")->setEnabled(Preferences::snapToGrid);
-  GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
+  QIcon snapToGridIcon;
+  if (isChecked) snapToGridIcon.addFile(":/resources/scenegridcheck.png");
+  else snapToGridIcon.addFile(":/resources/scenegrid.png");
+  getAct("snapToGridComboAct.1")->setIcon(snapToGridIcon);
+  Preferences::setSnapToGridPreference(isChecked);
+  getAct("hideGridPageBackgroundAct.1")->setEnabled(isChecked);
+  GridStepSizeGroup->setEnabled(isChecked);
   KpageView->setSnapToGrid();
   reloadCurrentPage();
 }
@@ -5339,7 +5352,10 @@ void Gui::createActions()
     lpub->actions.insert(zoomOutComboAct->objectName(), Action(QStringLiteral("View.Zoom Out"), zoomOutComboAct));
     connect(zoomOutComboAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
-    QAction *sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
+    QIcon sceneRulerIcon;
+    if (Preferences::sceneRuler) sceneRulerIcon.addFile(":/resources/pagerulercheck.png");
+    else sceneRulerIcon.addFile(":/resources/pageruler.png");
+    QAction *sceneRulerComboAct = new QAction(sceneRulerIcon, tr("Scene &Ruler"), this);
     sceneRulerComboAct->setObjectName("sceneRulerComboAct.1");
     sceneRulerComboAct->setShortcut(QStringLiteral("Alt+U"));
     sceneRulerComboAct->setStatusTip(tr("Toggle the scene ruler"));
@@ -5397,7 +5413,10 @@ void Gui::createActions()
     sceneRulerTrackingLineAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_LINE));
     SceneRulerGroup->addAction(sceneRulerTrackingLineAct);
 
-    QAction *sceneGuidesComboAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
+    QIcon pageGuidesIcon;
+    if (Preferences::sceneGuides) pageGuidesIcon.addFile(":/resources/pageguidescheck.png");
+    else pageGuidesIcon.addFile(":/resources/pageguides.png");
+    QAction *sceneGuidesComboAct = new QAction(pageGuidesIcon, tr("Scene &Guides"), this);
     sceneGuidesComboAct->setObjectName("sceneGuidesComboAct.1");
     sceneGuidesComboAct->setShortcut(QStringLiteral("Alt+G"));
     sceneGuidesComboAct->setStatusTip(tr("Toggle horizontal and vertical scene guides"));
@@ -5485,7 +5504,10 @@ void Gui::createActions()
     sceneGuidesPosCentreAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_CENTRE));
     SceneGuidesPosGroup->addAction(sceneGuidesPosCentreAct);
 
-    QAction *snapToGridComboAct = new QAction(QIcon(":/resources/scenegrid.png"),tr("&Snap To Grid"),this);
+    QIcon snapToGridIcon;
+    if (Preferences::snapToGrid) snapToGridIcon.addFile(":/resources/scenegridcheck.png");
+    else snapToGridIcon.addFile(":/resources/scenegrid.png");
+    QAction *snapToGridComboAct = new QAction(snapToGridIcon,tr("&Snap To Grid"),this);
     snapToGridComboAct->setObjectName("snapToGridComboAct.1");
     snapToGridComboAct->setShortcut(QStringLiteral("Alt+K"));
     snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid"));
