@@ -28,6 +28,7 @@
 #include "backgrounditem.h"
 #include "placement.h"
 #include "meta.h"
+#include <QtConcurrent>
 #include <QFileInfo>
 #include <QColor>
 #include <QPixmap>
@@ -212,26 +213,25 @@ void BackgroundItem::setBackground(
 
   // Draw grid on page background
   if (_parentRelativeType == PageType &&
-      Preferences::snapToGrid &&
+        Preferences::snapToGrid &&
       ! Preferences::hidePageBackground &&
       !_exporting) {
-
-      QPen pen(QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine));
-      painter.setPen(pen);
-
-      int gridSize = GridSizeTable[Preferences::gridSizeIndex];
-
-      QRectF rect = pixmap->rect();
-
-      qreal left = int(rect.left()) - (int(rect.left()) % gridSize);
-      qreal top = int(rect.top()) - (int(rect.top()) % gridSize);
-      QVector<QPointF> points;
-      for (qreal x = left; x < rect.right(); x += gridSize) {
-          for (qreal y = top; y < rect.bottom(); y += gridSize) {
-              points.append(QPointF(x,y));
+      QFuture<void> future = QtConcurrent::run([&]() {
+          QPen pen(QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine));
+          painter.setPen(pen);
+          int gridSize = GridSizeTable[Preferences::gridSizeIndex];
+          QRectF rect = pixmap->rect();
+          qreal left = int(rect.left()) - (int(rect.left()) % gridSize);
+          qreal top = int(rect.top()) - (int(rect.top()) % gridSize);
+          QVector<QPointF> points;
+          for (qreal x = left; x < rect.right(); x += gridSize) {
+              for (qreal y = top; y < rect.bottom(); y += gridSize) {
+                  points.append(QPointF(x,y));
+              }
           }
-      }
-      painter.drawPoints(points.data(), points.size());
+          painter.drawPoints(points.data(), points.size());
+      });
+      future.waitForFinished();
   }
 
   painter.end();
