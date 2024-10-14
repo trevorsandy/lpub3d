@@ -282,7 +282,7 @@ QString LDrawColor::name(const QString &codeorvalue)
     return color2name[codeorvalue];
   }
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve NAME for %1 [%3]").arg(isHexRGB ? "VALUE" : "CODE").arg(codeorvalue));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color NAME for %1 [%3]").arg(isHexRGB ? "VALUE" : "CODE").arg(codeorvalue));
   return QString();
 }
 
@@ -312,7 +312,7 @@ int LDrawColor::alpha(const QString& code)
   if (color2alpha.contains(code))
     return color2alpha[code];
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve ALPHA for CODE [%1] - RETURNED [255]").arg(code));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color ALPHA for CODE [%1] - RETURNED [255]").arg(code));
   return 255;
 }
 
@@ -329,7 +329,7 @@ QString LDrawColor::value(const QString& code)
     return color2value[code];
   }
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve VALUE for CODE [%1] - RETURNED [#FFFF80]").arg(code));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color VALUE for CODE [%1] - RETURNED [#FFFF80]").arg(code));
   return QLatin1String("#FFFF80");
 }
 
@@ -381,7 +381,7 @@ QString LDrawColor::code(const QString& name)
     }
   }
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve CODE for %1 [%2] - RETURNED [-1]").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color CODE for %1 [%2] - RETURNED [-1]").arg(isHexRGB ? "VALUE" : "NAME").arg(name));
   return QLatin1String("-1");
 }
 
@@ -396,7 +396,7 @@ QString LDrawColor::edge(const QString& code)
   if (color2edge.contains(code))
     return color2edge[code];
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve EDGE for CODE [%1] - RETURNED [#333333]").arg(code));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color EDGE for CODE [%1] - RETURNED [#333333]").arg(code));
   return QLatin1String("#333333");
 }
 
@@ -410,6 +410,6 @@ bool LDrawColor::exist(const QString &code)
   if (name2QColor.contains(code))
     return true;
 
-  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve CODE [%1]").arg(code));
+  emit lpub->messageSig(LOG_WARNING, QObject::tr("Could not resolve Color CODE [%1]").arg(code));
   return false;
 }
