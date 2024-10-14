@@ -23,3 +23,4 @@ private:
 	lcHTMLExportOptions* mOptions;
 	Ui::lcQHTMLDialog *ui;
 };
+
