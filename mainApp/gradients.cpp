@@ -342,9 +342,12 @@ QGradient GradientRenderer::getGradient()
        g = QRadialGradient(line.p1(),  qMin(m_size.width(), m_size.height()) / 3.0, line.p2());
 
    } else {
-       QLineF l(pts.at(0), pts.at(1));
-       qreal angle = l.angle(QLineF(0, 0, 1, 0));
-       if (l.dy() > 0)
+       QLineF l1(pts.at(0), pts.at(1));
+       QLineF l2(0, 0, 1, 0);
+       // l1.angle deprecated, use qMin(l1.angleTo(l2), l2.angleTo(l1)) instead
+       // qreal angle = l1.angle(QLineF(0, 0, 1, 0));
+       qreal angle = qMin(l1.angleTo(l2), l2.angleTo(l1));
+       if (l1.dy() > 0)
            angle = 360 - angle;
        g = QConicalGradient(pts.at(0), angle);
    }
@@ -370,9 +373,11 @@ void GradientRenderer::paint(QPainter *p)
         g = QRadialGradient(pts.at(0), qMin(width(), height()) / 3.0, pts.at(1));
 
     } else {
-        QLineF l(pts.at(0), pts.at(1));
-        qreal angle = l.angle(QLineF(0, 0, 1, 0));
-        if (l.dy() > 0)
+        QLineF l1(pts.at(0), pts.at(1));
+        //qreal angle = l1.angle(QLineF(0, 0, 1, 0));
+        QLineF l2(0, 0, 1, 0);
+        qreal angle = qMin(l1.angleTo(l2), l2.angleTo(l1));
+        if (l1.dy() > 0)
             angle = 360 - angle;
         g = QConicalGradient(pts.at(0), angle);
     }
