@@ -166,23 +166,6 @@ void BackgroundItem::setBackground(
       break;
     }
 
-  // Set border
-  qreal rx = borderData.radius;
-  qreal ry = borderData.radius;
-  qreal dx = pixmap->width();
-  qreal dy = pixmap->height();
-
-  if (dx && dy) {
-      if (dx > dy) {
-          // the rx is going to appear larger that ry, so decrease rx based on ratio
-          rx *= dy;
-          rx /= dx;
-        } else {
-          ry *= dx;
-          ry /= dy;
-        }
-    }
-
   if (borderData.type == BorderData::BdrNone) {
       penColor = Qt::transparent;
    } else {
@@ -219,9 +202,10 @@ void BackgroundItem::setBackground(
   painter.setBrush(brushColor);
 
   if (borderData.type == BorderData::BdrRound) {
-// TODO - investigate why drawRoundedRect does not behave as expected
-//      painter.drawRoundedRect(prect,int(rx),int(ry));
-      painter.drawRoundRect(prect,int(rx),int(ry));
+      // Set border
+      qreal rx = borderData.radius;
+      qreal ry = borderData.radius;
+      painter.drawRoundedRect(prect, rx, ry);
     } else {
       painter.drawRect(prect);
     }

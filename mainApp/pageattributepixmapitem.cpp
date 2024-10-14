@@ -81,21 +81,6 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   // Set border
   BorderData  borderData = pageAttributeImageMeta.border.valuePixels();
 
-  qreal rx = double(borderData.radius);
-  qreal ry = double(borderData.radius);
-  qreal dx = pixmap.width();
-  qreal dy = pixmap.height();
-
-  if (dx > 0 && dy > 0) {
-    if (dx > dy) {
-      rx *= dy;
-      rx /= dx;
-    } else {
-      ry *= dx;
-      ry /= dy;
-    }
-  }
-
   QColor penColor;
   QColor brushColor = Qt::transparent;
   if (borderData.type == BorderData::BdrNone) {
@@ -137,7 +122,9 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   painter.setBrush(brushColor);
 
   if (borderData.type == BorderData::BdrRound) {
-    painter.drawRoundRect(prect,int(rx),int(ry));
+    qreal rx = borderData.radius;
+    qreal ry = borderData.radius;
+    painter.drawRoundedRect(prect, rx, ry);
   } else {
     painter.drawRect(prect);
   }
