@@ -256,11 +256,6 @@ public:
 	}
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - part selection widget state ***/
-	void PartSelectionWidgetLoadState(QSettings &Settings);
-	void PartSelectionWidgetSaveState(QSettings &Settings);
-/*** LPub3D Mod end ***/
-
 	QByteArray GetTabLayout();
 	void RestoreTabLayout(const QByteArray& TabLayout);
 	void RemoveAllModelTabs();

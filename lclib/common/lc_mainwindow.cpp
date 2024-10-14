@@ -1457,18 +1457,6 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 }
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - part selection widget state ***/
-void lcMainWindow::PartSelectionWidgetLoadState(QSettings &Settings)
-{
-	mPartSelectionWidget->LoadState(Settings);
-}
-
-void lcMainWindow::PartSelectionWidgetSaveState(QSettings &Settings)
-{
-	mPartSelectionWidget->SaveState(Settings);
-}
-/*** LPub3D Mod end ***/
-
 void lcMainWindow::ModelTabContextMenuRequested(const QPoint& Point)
 {
 	QMenu* Menu = new QMenu;

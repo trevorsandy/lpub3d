@@ -2515,28 +2515,16 @@ void Gui::createStatusBar()
         connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
 }
 
-void Gui::readNativeSettings()
+void Gui::readVisualEditorSettings(QSettings &Settings)
 {
-    if (!gMainWindow)
-        return;
-
-    QSettings Settings;
-    Settings.beginGroup(MAINWINDOW);
-    gMainWindow->PartSelectionWidgetLoadState(Settings);
-    Settings.endGroup();
+    if (gMainWindow)
+        gMainWindow->mPartSelectionWidget->LoadState(Settings);
 }
 
-void Gui::writeNativeSettings()
+void Gui::writeVisualEditorSettings(QSettings& Settings)
 {
-    if (!gMainWindow)
-        return;
-
-    QSettings Settings;
-    Settings.beginGroup(MAINWINDOW);
-    gMainWindow->PartSelectionWidgetSaveState(Settings);
-    Settings.endGroup();
-
-    gApplication->SaveTabLayout();
+    if (gMainWindow)
+        gMainWindow->mPartSelectionWidget->SaveState(Settings);
 }
 
 void Gui::SetActiveModel(const QString &modelName)

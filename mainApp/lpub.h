@@ -2007,8 +2007,8 @@ private:
   void create3DDockWindows();
   void readSettings();
   void writeSettings();
-  void readNativeSettings();
-  void writeNativeSettings();
+  void readVisualEditorSettings(QSettings &Settings);
+  void writeVisualEditorSettings(QSettings &Settings);
   bool createPreviewWidget();
 
   bool eventFilter(QObject *object, QEvent *event) override;

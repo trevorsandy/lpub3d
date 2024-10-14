@@ -794,6 +794,7 @@ enum ThemeColorType {
 #define MAINWINDOW                             "MainWindow"
 #define PARMSWINDOW                            "ParmsWindow"
 #define EDITWINDOW                             "EditWindow"
+#define VISUALEDITWINDOW                       "VisualEditorWindow"
 #define COMMANDSWINDOW                         "CommandsWindow"
 #define FINDREPLACEWINDOW                      "FindReplaceWindow"
 #define UPDATES                                "Updates"

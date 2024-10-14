@@ -7464,10 +7464,9 @@ void Gui::readSettings()
     } else {
         restoreGeometry(geometry);
     }
+    readVisualEditorSettings(Settings);
     resize(size);
     Settings.endGroup();
-
-    readNativeSettings();
 
     Settings.beginGroup(MESSAGES);
     QByteArray data = Settings.value("MessagesNotShown", QByteArray()).toByteArray();
@@ -7484,10 +7483,11 @@ void Gui::writeSettings()
     Settings.beginGroup(MAINWINDOW);
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
+    writeVisualEditorSettings(Settings);
     Settings.setValue("Size", size());
     Settings.endGroup();
 
-    writeNativeSettings();
+    gApplication->SaveTabLayout();
 
     Settings.beginGroup(MESSAGES);
     QByteArray data;
