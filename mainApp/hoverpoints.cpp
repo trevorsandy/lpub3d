@@ -173,7 +173,7 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
                     case Qt::TouchPointPressed:
                         {
                             // find the point, move it
-                            QSet<int> activePoints = QSet<int>::fromList(m_fingerPointMapping.values());
+                            QSet<int> activePoints = QSet<int>(m_fingerPointMapping.begin(), m_fingerPointMapping.end());
                             int activePoint = -1;
                             qreal distance = -1;
                             const int pointsCount = m_points.size();
