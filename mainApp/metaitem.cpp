@@ -3919,18 +3919,13 @@ Rc  MetaItem::scanForward(
     } else {
       Rc rc = tmpMeta.parse(line,here);
 
-      if (rc == InsertPageRc && ((mask >> rc) & 1)) {
-
-         return rc;
-      } else if (rc == InsertCoverPageRc && ((mask >> rc) & 1)) {
-
-         return rc;
-      } else if (rc == StepRc || rc == RotStepRc) {
+      if (rc == StepRc || rc == RotStepRc) {
 
         if (((mask >> rc) & 1) && partsAdded) {
 
           return rc;
         }
+
         partsAdded = false;
       } else {
         if (rc < ClearRc && ((mask >> rc) & 1)) {
@@ -3988,18 +3983,21 @@ Rc MetaItem::scanBackward(
     } else {
       Rc rc = tmpMeta.parse(line,here);
 
-// TODO - Check all scanBackward calls to ensure InsertPageRc and/or
-//        InsertCoverPageRc is not the expected result eventhough
-//        the appropriate mask was not provided. As the mask
-//        will be enabled, the control will be more strict and
-//        will fail when no mask is provided.
+// TODO - InsertPageRc and InsertCoverPageRc if blocks are hacks 
+//        to allow the scan to terminate on these metas if no parts are added 
+//        I'm not sure of the impact on reversing it as it was done so long 
+//        ago. But it should be reversed. 
 
-      if (rc == InsertPageRc && ((mask >> rc) & 1)) {
-
-         return rc;
-      } else if (rc == InsertCoverPageRc && ((mask >> rc) & 1)) {
-
-         return rc;
+//        Check all scanBackward calls to ensure InsertPageRc or 
+//        InsertCoverPageRc is not the expected result when 
+//        the respective page mask was not provided. 
+ 
+      if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) { 
+ 
+         return rc; 
+      } else if (rc == InsertCoverPageRc /*&& ((mask >> rc) & 1)*/) { 
+ 
+         return rc; 
       } else if (rc == StepRc || rc == RotStepRc) {
 
         if (((mask >> rc) & 1) && partsAdded) {
