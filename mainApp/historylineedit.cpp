@@ -114,7 +114,7 @@ void HistoryLineEdit::keyPressEvent(QKeyEvent * ev)
 
 void HistoryLineEdit::wheelEvent(QWheelEvent *ev)
 {
-    if ( ev->delta() > 0 )
+    if ( ev->angleDelta().y() > 0 )
         previous_line();
     else
         next_line();

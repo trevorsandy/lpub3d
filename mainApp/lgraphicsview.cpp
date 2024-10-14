@@ -299,7 +299,7 @@ void LGraphicsView::zoomOut() {
 }
 
 void LGraphicsView::wheelEvent(QWheelEvent *event) {
-    if (event->delta() < 0) {
+    if (event->angleDelta().y() < 0) {
         scale(1.0/1.1,1.0/1.1);
     } else {
         scale(1.1,1.1);
