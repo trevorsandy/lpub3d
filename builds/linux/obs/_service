@@ -3,7 +3,6 @@
       <param name="url">https://github.com/trevorsandy/lpub3d</param>
       <param name="scm">git</param>
       <param name="exclude">lclib/tools</param>
-      <param name="exclude">builds/utilities/cert</param>
       <param name="exclude">builds/utilities/ci</param>
       <param name="exclude">builds/utilities/dmg-utils</param>
       <param name="exclude">builds/utilities/hooks</param>
@@ -12,11 +11,12 @@
       <param name="exclude">builds/utilities/nsis-scripts</param>
       <param name="exclude">builds/utilities/cleanup.bat</param>
       <param name="exclude">builds/utilities/Copyright-Source-Header.txt</param>
-      <param name="exclude">builds/utilities/create-dmg</param>
       <param name="exclude">builds/utilities/CreateRenderers.bat</param>
+      <param name="exclude">builds/utilities/RunCreate.sh</param>
       <param name="exclude">builds/utilities/README.md</param>
       <param name="exclude">builds/utilities/set-ldrawdir.command</param>
       <param name="exclude">builds/utilities/update-config-files.bat</param>
+      <param name="exclude">builds/utilities/win_tee.cmd</param>
       <param name="exclude">builds/linux/docker-compose</param>
       <param name="exclude">builds/linux/standard</param>
       <param name="exclude">builds/windows</param>

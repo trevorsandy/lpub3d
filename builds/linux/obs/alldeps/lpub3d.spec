@@ -33,7 +33,7 @@
 # set target platform id
 # distinguish between SLE, openSUSE Leap and openSUSE
 # SUSE Linux Enterprise Server
-%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150400 && !0%{?is_opensuse})
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && !0%{?is_opensuse})
 %define dist .SLE%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
@@ -43,7 +43,7 @@
 %define build_sdl2 1
 %else
 # openSUSE Leap
-%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150400 && 0%{?is_opensuse})
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150600 && 0%{?is_opensuse})
 %define dist .openSUSELeap%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo openSUSE Leap)
 %define suse_dist_label %(echo %{suse_dist_name}..................%{sle_version})
@@ -53,7 +53,7 @@
 %define build_sdl2 1
 %else
 # openSUSE
-%if (0%{?suse_version}>=1320 && 0%{?suse_version}<=1550)
+%if (0%{?suse_version}>=1320 && 0%{?suse_version}<=1560)
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %define suse_dist_name %(echo openSUSE)
 %define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
@@ -120,7 +120,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.7.3710
+Version: 2.4.7.3711
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -175,7 +175,7 @@ BuildRequires: git
 %if 0%{?scientificlinux_version} || 0%{?openeuler_version}
 BuildRequires: gnu-free-sans-fonts
 %endif
-%if 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{?centos_version}==800 || 0%{?scientificlinux_version}==700
 BuildRequires: mesa-libwayland-egl
 %endif
 BuildRequires: libjpeg-turbo-devel
@@ -282,65 +282,65 @@ BuildRequires: libopenssl-devel
 %define build_osmesa 1
 %endif
 %if 0%{?buildservice}
-BuildRequires:  -post-build-checks
+BuildRequires: -post-build-checks
 %endif
 Requires(post): desktop-file-utils
 %endif
 %if 0%{?scientificlinux_version}
-BuildRequires:  python-gobject
-BuildRequires:  python-gobject-base
+BuildRequires: python-gobject
+BuildRequires: python-gobject-base
 %endif
 
 # -----minizip dependency------
-%if ( 0%{?centos_version}>=700 || 0%{?rhel_version}>=700 || 0%{?rhel} > 7 || 0%{?scientificlinux_version}>=700 || 0%{?oraclelinux}>=7 || 0%{?fedora} || 0%{?openeuler_version} || 0%{?almalinux})
-BuildRequires:  minizip-compat-devel
+%if ( 0%{?fedora} || 0%{?centos_version}>=700 || ( 0%{?rhel_version}>=700 && !0%{?scientificlinux_version} ) || 0%{?almalinux})
+BuildRequires: minizip-compat-devel
 %endif
 
-%if 0%{?suse_version}
-BuildRequires:  minizip-devel
+%if ( 0%{?suse_version} || 0%{?openeuler_version} || 0%{?scientificlinux_version}>=700 )
+BuildRequires: minizip-devel
 %endif
 
 %if 0%{?mageia}
 %ifarch x86_64
-BuildRequires:  lib64minizip-devel
+BuildRequires: lib64minizip-devel
 %else
-BuildRequires:  libminizip-devel
+BuildRequires: libminizip-devel
 %endif
 %endif
 # -----------------------------
 
 # POV-Ray dependencies - SUSE/CentOS builds
 %if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version} || 0%{?almalinux_version}
-BuildRequires:  autoconf
-BuildRequires:  automake
-BuildRequires:  gcc-c++
-BuildRequires:  dos2unix
-BuildRequires:  libjpeg-devel
-BuildRequires:  libpng-devel
-BuildRequires:  libtiff-devel
-BuildRequires:  libSM-devel
-BuildRequires:  pkgconfig(zlib)
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: dos2unix
+BuildRequires: libjpeg-devel
+BuildRequires: libpng-devel
+BuildRequires: libtiff-devel
+BuildRequires: libSM-devel
+BuildRequires: pkgconfig(zlib)
 %if 0%{?suse_version} || 0%{?sle_version}
-BuildRequires:  fdupes
+BuildRequires: fdupes
 %endif
 %if 0%{?suse_version}>1325
-BuildRequires:  libboost_system-devel
-BuildRequires:  libboost_thread-devel
+BuildRequires: libboost_system-devel
+BuildRequires: libboost_thread-devel
 %else
-BuildRequires:  boost-devel
+BuildRequires: boost-devel
 %endif
 %if 0%{?suse_version}
-BuildRequires:  xorg-x11-libX11-devel
-BuildRequires:  xorg-x11-libXpm-devel
+BuildRequires: xorg-x11-libX11-devel
+BuildRequires: xorg-x11-libXpm-devel
 %else
-BuildRequires:  libXpm-devel
+BuildRequires: libXpm-devel
 %endif
 %if !0%{?rhel_version}
-BuildRequires:  pkgconfig(OpenEXR)
+BuildRequires: pkgconfig(OpenEXR)
 %endif
 # We are building sdl2 for these instances, so do not load here
 %if (0%{?suse_version}!=1315 && !0%{?rhel_version} && !0%{?scientificlinux_version} && 0%{?centos_version}>700)
-BuildRequires:  pkgconfig(sdl2)
+BuildRequires: pkgconfig(sdl2)
 %endif
 %endif
 
@@ -351,142 +351,142 @@ BuildRequires:  pkgconfig(sdl2)
 %if 0%{?build_osmesa}
 %define buildosmesa yes
 # libGLU build-from-source dependencies
-BuildRequires:  gcc-c++
-BuildRequires:  libtool
-BuildRequires:  pkgconfig
-BuildRequires:  pkgconfig(gl)
+BuildRequires: gcc-c++
+BuildRequires: libtool
+BuildRequires: pkgconfig
+BuildRequires: pkgconfig(gl)
 # libMesa build-from-source dependencies
 %define _name_archive mesa
 %define _version 17.2.6
-BuildRequires:  autoconf >= 2.60
-BuildRequires:  automake
-BuildRequires:  bison
+BuildRequires: autoconf >= 2.60
+BuildRequires: automake
+BuildRequires: bison
 %if !0%{?rhel_version}
-BuildRequires:  fdupes
+BuildRequires: fdupes
 %endif
-BuildRequires:  flex
-BuildRequires:  gcc-c++
-BuildRequires:  imake
-BuildRequires:  libtool
-BuildRequires:  pkgconfig
+BuildRequires: flex
+BuildRequires: gcc-c++
+BuildRequires: imake
+BuildRequires: libtool
+BuildRequires: pkgconfig
 %if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-BuildRequires:  python
-BuildRequires:  python-libs
-BuildRequires:  pkgconfig(libdrm)
+BuildRequires: python
+BuildRequires: python-libs
+BuildRequires: pkgconfig(libdrm)
 %else
-BuildRequires:  python-xml
-BuildRequires:  python-base
-BuildRequires:  pkgconfig(libdrm) >= 2.4.75
+BuildRequires: python-xml
+BuildRequires: python-base
+BuildRequires: pkgconfig(libdrm) >= 2.4.75
 %endif
-BuildRequires:  python-mako
-BuildRequires:  pkgconfig(dri2proto)
-BuildRequires:  pkgconfig(dri3proto)
-BuildRequires:  pkgconfig(expat)
-BuildRequires:  pkgconfig(glproto)
-BuildRequires:  pkgconfig(libkms) >= 1.0.0
-BuildRequires:  pkgconfig(libudev) > 151
-BuildRequires:  pkgconfig(openssl)
-BuildRequires:  pkgconfig(presentproto)
+BuildRequires: python-mako
+BuildRequires: pkgconfig(dri2proto)
+BuildRequires: pkgconfig(dri3proto)
+BuildRequires: pkgconfig(expat)
+BuildRequires: pkgconfig(glproto)
+BuildRequires: pkgconfig(libkms) >= 1.0.0
+BuildRequires: pkgconfig(libudev) > 151
+BuildRequires: pkgconfig(openssl)
+BuildRequires: pkgconfig(presentproto)
 %if !0%{?rhel_version}
-BuildRequires:  pkgconfig(libva)
-BuildRequires:  pkgconfig(vdpau) >= 1.1
-BuildRequires:  pkgconfig(xcb-dri3)
-BuildRequires:  pkgconfig(xcb-present)
-BuildRequires:  pkgconfig(xshmfence)
-BuildRequires:  pkgconfig(xvmc)
+BuildRequires: pkgconfig(libva)
+BuildRequires: pkgconfig(vdpau) >= 1.1
+BuildRequires: pkgconfig(xcb-dri3)
+BuildRequires: pkgconfig(xcb-present)
+BuildRequires: pkgconfig(xshmfence)
+BuildRequires: pkgconfig(xvmc)
 %endif
-BuildRequires:  pkgconfig(x11)
-BuildRequires:  pkgconfig(x11-xcb)
-BuildRequires:  pkgconfig(xcb-dri2)
-BuildRequires:  pkgconfig(xcb-glx)
-BuildRequires:  pkgconfig(xdamage)
-BuildRequires:  pkgconfig(xext)
-BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  pkgconfig(xxf86vm)
-BuildRequires:  pkgconfig(zlib)
+BuildRequires: pkgconfig(x11)
+BuildRequires: pkgconfig(x11-xcb)
+BuildRequires: pkgconfig(xcb-dri2)
+BuildRequires: pkgconfig(xcb-glx)
+BuildRequires: pkgconfig(xdamage)
+BuildRequires: pkgconfig(xext)
+BuildRequires: pkgconfig(xfixes)
+BuildRequires: pkgconfig(xxf86vm)
+BuildRequires: pkgconfig(zlib)
 %ifarch x86_64 %ix86
 %if 0%{?fedora_version} || 0%{?rhel_version}
-BuildRequires:  elfutils
-BuildRequires:  elfutils-libelf-devel
-BuildRequires:  libdrm-devel
+BuildRequires: elfutils
+BuildRequires: elfutils-libelf-devel
+BuildRequires: libdrm-devel
 %else
-BuildRequires:  libelf-devel
-BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
+BuildRequires: libelf-devel
+BuildRequires: pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %else
 %endif
 %if 0%{?suse_version}>1320 || (0%{?sle_version}>=120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version}==700
 # needed by gtk3
 %if 0%{?scientificlinux_version}==700
-BuildRequires:  wayland-devel
+BuildRequires: wayland-devel
 %endif
-BuildRequires:  pkgconfig(wayland-client) >= 1.11
-BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
-BuildRequires:  pkgconfig(wayland-server) >= 1.11
+BuildRequires: pkgconfig(wayland-client) >= 1.11
+BuildRequires: pkgconfig(wayland-protocols) >= 1.8
+BuildRequires: pkgconfig(wayland-server) >= 1.11
 %endif
 %ifarch %ix86 x86_64
 %if !0%{?rhel_version} && !0%{?centos_version}
-BuildRequires:  llvm-devel
+BuildRequires: llvm-devel
 %endif
-BuildRequires:  ncurses-devel
+BuildRequires: ncurses-devel
 %endif
 %endif
 
 # SDL2 debendencies
 %if 0%{?build_sdl2}
 %define builsdl2 yes
-BuildRequires:  cmake
-BuildRequires:  dos2unix
-BuildRequires:  gcc-c++
+BuildRequires: cmake
+BuildRequires: dos2unix
+BuildRequires: gcc-c++
 %if 0%{?rhel_version}!=800
-BuildRequires:  nasm
+BuildRequires: nasm
 %endif
-BuildRequires:  pkg-config
-BuildRequires:  pkgconfig(alsa) >= 0.9.0
-BuildRequires:  pkgconfig(dbus-1)
+BuildRequires: pkg-config
+BuildRequires: pkgconfig(alsa) >= 0.9.0
+BuildRequires: pkgconfig(dbus-1)
 %if 0%{?fedora_version}
-BuildRequires:  pkgconfig(fcitx)
+BuildRequires: pkgconfig(fcitx)
 %endif
 %if 0%{?rhel_version}!=600
-BuildRequires:  pkgconfig(egl)
+BuildRequires: pkgconfig(egl)
 %endif
-BuildRequires:  pkgconfig(gl)
+BuildRequires: pkgconfig(gl)
 %if !0%{?centos_version}
 %if !0%{?rhel_version} && !0%{?scientificlinux_version}
-BuildRequires:  pkgconfig(glesv1_cm)
-BuildRequires:  pkgconfig(wayland-server)
+BuildRequires: pkgconfig(glesv1_cm)
+BuildRequires: pkgconfig(wayland-server)
 %endif
 %if !0%{?rhel_version} && 0%{?scientificlinux_version}!=600
-BuildRequires:  pkgconfig(glesv2)
+BuildRequires: pkgconfig(glesv2)
 %endif
 %endif
-BuildRequires:  pkgconfig(glib-2.0)
-BuildRequires:  pkgconfig(glu)
-BuildRequires:  pkgconfig(ice)
+BuildRequires: pkgconfig(glib-2.0)
+BuildRequires: pkgconfig(glu)
+BuildRequires: pkgconfig(ice)
 # KMS/DRM driver needs libdrm and libgbm
 %if !0%{?rhel_version}
-BuildRequires:  pkgconfig(ibus-1.0)
-BuildRequires:  pkgconfig(gbm) >= 9.0.0
+BuildRequires: pkgconfig(ibus-1.0)
+BuildRequires: pkgconfig(gbm) >= 9.0.0
 %endif
 %if 0%{?rhel_version}==600 || 0%{?scientificlinux_version}==600
-BuildRequires:  pkgconfig(libdrm)
+BuildRequires: pkgconfig(libdrm)
 %else
-BuildRequires:  pkgconfig(libdrm) >= 2.4.46
+BuildRequires: pkgconfig(libdrm) >= 2.4.46
 %endif
 %if 0%{?suse_version}>1220
-BuildRequires:  pkgconfig(tslib)
+BuildRequires: pkgconfig(tslib)
 %endif
-BuildRequires:  pkgconfig(libpulse-simple) >= 0.9
-BuildRequires:  pkgconfig(libudev)
-BuildRequires:  pkgconfig(udev)
-BuildRequires:  pkgconfig(x11)
-BuildRequires:  pkgconfig(xcursor)
-BuildRequires:  pkgconfig(xext)
-BuildRequires:  pkgconfig(xi)
-BuildRequires:  pkgconfig(xinerama)
-BuildRequires:  pkgconfig(xrandr)
-BuildRequires:  pkgconfig(xscrnsaver)
-BuildRequires:  pkgconfig(xxf86vm)
+BuildRequires: pkgconfig(libpulse-simple) >= 0.9
+BuildRequires: pkgconfig(libudev)
+BuildRequires: pkgconfig(udev)
+BuildRequires: pkgconfig(x11)
+BuildRequires: pkgconfig(xcursor)
+BuildRequires: pkgconfig(xext)
+BuildRequires: pkgconfig(xi)
+BuildRequires: pkgconfig(xinerama)
+BuildRequires: pkgconfig(xrandr)
+BuildRequires: pkgconfig(xscrnsaver)
+BuildRequires: pkgconfig(xxf86vm)
 %endif
 
 # configuration settings
@@ -816,11 +816,11 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Wed Oct 16 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3710
-- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+* Wed Oct 16 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3711
+- LPub3D 2.3.8 enhancements and fixes - see RELEASE_NOTES for details
 
-* Wed Oct 16 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3710
-- LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
+* Wed Oct 16 2024 - trevor.dot.sandy.at.gmail.dot.com 2.4.7.3711
+- LPub3D 2.3.7 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
