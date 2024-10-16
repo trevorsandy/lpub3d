@@ -1309,7 +1309,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
     QString const addonVersionFile = QDir::toNativeSeparators(QString("%1/%2/__version__.py").arg(blenderAddonDir).arg(BLENDER_RENDER_ADDON_FOLDER));
     bool extractedAddon            = QFileInfo(addonVersionFile).isReadable();
-    bool blenderAddonExists        = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
+    bool blenderAddonValidated     = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
     QString status                 = tr("Installing Blender addon...");
     AddonEnc addonAction           = ADDON_DOWNLOAD;
     QString localVersion, onlineVersion;
@@ -1410,7 +1410,7 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
         return true;
     };
 
-    if (blenderAddonExists) {
+    if (blenderAddonValidated) {
         if (getBlenderAddonVersionMatch()) {
             addonAction = ADDON_RELOAD;
         } else if (Preferences::modeGUI) {
@@ -1446,61 +1446,122 @@ bool BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     }
 
     // Remove old extracted addon if exist
-    if (QFileInfo(blenderAddonDir).exists()) {
-        bool result = true;
-        QDir dir(blenderAddonDir);
-        Q_FOREACH(QFileInfo const &info, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::DirsFirst)) {
-            if (info.isDir())
-                result &= QDir(info.absoluteFilePath()).removeRecursively();
-            else
-                result &= QFile::remove(info.absoluteFilePath());
-            if (result)
-                emit gui->messageSig(LOG_INFO, tr("Removed addon: [%1]").arg(info.absoluteFilePath()));
-            else
-                emit gui->messageSig(LOG_NOTICE, tr("Failed to remove addon: %1").arg(info.absoluteFilePath()));
+    auto revoveBlenderAddonsDir = [&] (const QString oldBlenderAddonFile) {
+        if (QFileInfo(blenderAddonDir).exists()) {
+            bool result = true;
+            QDir dir(blenderAddonDir);
+            Q_FOREACH(QFileInfo const &info, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::DirsFirst)) {
+                if (info.isDir())
+                    result &= QDir(info.absoluteFilePath()).removeRecursively();
+                else
+                    result &= QFile::remove(info.absoluteFilePath());
+                if (result)
+                    emit gui->messageSig(LOG_INFO, tr("Removed addon: [%1]").arg(info.absoluteFilePath()));
+                else
+                    emit gui->messageSig(LOG_NOTICE, tr("Failed to remove addon: %1").arg(info.absoluteFilePath()));
+            }
+            result &= dir.rmdir(blenderAddonDir);
+            if (!result)
+                emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon: %1")
+                                                    .arg(blenderAddonDir));
         }
-        result &= dir.rmdir(blenderAddonDir);
-        if (!result)
-            emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon: %1")
-                                                .arg(blenderAddonDir));
-    }
+        if (QFileInfo(oldBlenderAddonFile).exists()) {
+            if (!QFile::remove(oldBlenderAddonFile))
+                emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon archive:<br>%1")
+                                     .arg(oldBlenderAddonFile));
+        }
+    };
 
     // Download Blender addon
     if (addonAction == ADDON_DOWNLOAD) {
-        blenderAddonExists = false;
+        blenderAddonValidated = false;
         lpub->downloadFile(VER_BLENDER_ADDON_URL, tr("Blender Addon"),false/*promptRedirect*/,false/*showProgress*/);
         QByteArray Buffer = lpub->getDownloadedFile();
+
         if (!Buffer.isEmpty()) {
+            QString const oldBlenderAddonFile = QString("%1.hold").arg(blenderAddonFile);
             if (QFileInfo(blenderAddonFile).exists()) {
-                QDir dir(blenderDir);
-                if (!dir.remove(blenderAddonFile))
-                    emit gui->messageSig(LOG_NOTICE, tr("Failed to remove Blender addon archive:<br>%1")
-                                                         .arg(blenderAddonFile));
+                if (!QFile::rename(blenderAddonFile,oldBlenderAddonFile))
+                    emit gui->messageSig(LOG_NOTICE, tr("Failed to rename existing Blender addon archive file %1.").arg(blenderAddonFile));
             }
+            QString archiveFileName, oldArchiveFileName = QFileInfo(oldBlenderAddonFile).fileName();
             QFile file(blenderAddonFile);
             if (file.open(QIODevice::WriteOnly)) {
                 file.write(Buffer);
                 file.close();
-                blenderAddonExists = true;
+
+                if (file.open(QIODevice::ReadOnly)) {
+                    QCryptographicHash sha256Hash(QCryptographicHash::Sha256);
+                    qint64 imageSize = file.size();
+                    const qint64 bufferSize = Q_INT64_C(1000);
+                    char buf[bufferSize];
+                    int bytesRead;
+                    int readSize = qMin(imageSize, bufferSize);
+                    while (readSize > 0 && (bytesRead = file.read(buf, readSize)) > 0) {
+                        imageSize -= bytesRead;
+                        sha256Hash.addData(buf, bytesRead);
+                        readSize = qMin(imageSize, bufferSize);
+                    }
+                    file.close();
+                    QString const hexCalculated = sha256Hash.result().toHex();
+                    lpub->downloadFile(VER_BLENDER_ADDON_SHA_HASH_URL, tr("Addon SHA Hash"),false/*promptRedirect*/,false/*showProgress*/);
+                    QByteArray response_data = lpub->getDownloadedFile();
+
+                    if (!response_data.isEmpty()) {
+                        QStringList const hexReceived = QString(response_data).trimmed().split(" ", SkipEmptyParts);
+                        if (hexReceived.first() == hexCalculated) {
+                            archiveFileName = QFileInfo(blenderAddonFile).fileName();
+                            if (archiveFileName == hexReceived.last()) {
+                                emit gui->messageSig(LOG_INFO, tr("Blender addon %1 validated - SHA<br>Calculated:%2<br>Received:%3")
+                                                                  .arg(archiveFileName, hexCalculated, hexReceived.first()));
+                                blenderAddonValidated = true;
+                                revoveBlenderAddonsDir(oldBlenderAddonFile);
+                            } else {
+                                emit gui->messageSig(LOG_ERROR, tr("Failed to validate Blender addon archive name"
+                                                                "<br>Downloaded:%1<br>Received:%2")
+                                                                .arg(archiveFileName, hexReceived.last()));
+                            }
+                        } else {
+                            emit gui->messageSig(LOG_ERROR, tr("Failed to validate Blender addon archive SHA Hex"
+                                                               "<br>Calculated:%1<br>Received:%2")
+                                                               .arg(hexCalculated, hexReceived.first()));
+                        }
+                    } else {
+                        emit gui->messageSig(LOG_NOTICE, tr("Failed to receive SHA hash for Blender addon %1.sha256.")
+                                                            .arg(VER_BLENDER_ADDON_FILE));
+                    }
+                } else {
+                    emit gui->messageSig(LOG_ERROR, tr("Failed to read Blender addon archive:<br>%1:<br>%2")
+                                                       .arg(blenderAddonFile).arg(file.errorString()));
+                }
             } else {
-                emit gui->messageSig(LOG_ERROR, tr("Failed to open Blender addon file:<br>%1:<br>%2")
-                                                    .arg(blenderAddonFile)
-                                                    .arg(file.errorString()));
+                emit gui->messageSig(LOG_ERROR, tr("Failed to write Blender addon archive:<br>%1<br>%2")
+                                                   .arg(blenderAddonFile).arg(file.errorString()));
+            }
+            if (!blenderAddonValidated) {
+                if (QFileInfo(blenderAddonFile).exists())
+                    if (!QFile::remove(blenderAddonFile))
+                        emit gui->messageSig(LOG_NOTICE, tr("Failed to remove invalid Blender addon archive:<br>%1")
+                                                             .arg(blenderAddonFile));
+                if (QFileInfo(oldBlenderAddonFile).exists())
+                    if (!QFile::rename(oldBlenderAddonFile, blenderAddonFile))
+                        emit gui->messageSig(LOG_NOTICE, tr("Failed to restore Blender addon archive:<br>%1 from %2")
+                                                             .arg(archiveFileName, oldArchiveFileName));
             }
         } else {
             emit gui->messageSig(LOG_ERROR, tr("Failed to download Blender addon archive:<br>%1")
                                                .arg(blenderAddonFile));
         }
-        if (!blenderAddonExists) {
+        if (!blenderAddonValidated) {
             status = tr("Download addon failed.");
             gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/,status);
         }
-    } else if (!blenderAddonExists) {
-        emit gui->messageSig(LOG_ERROR, tr("Blender addon archive %1 was not found")
+    } else if (!blenderAddonValidated) {
+        emit gui->messageSig(LOG_NOTICE, tr("Blender addon archive %1 was not found")
                                             .arg(blenderAddonFile));
     }
 
-    return blenderAddonExists;
+    return blenderAddonValidated;
 }
 
 void BlenderPreferences::statusUpdate(bool addon, bool error, const QString &message)

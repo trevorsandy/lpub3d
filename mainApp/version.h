@@ -211,6 +211,7 @@
 #define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_HOMEPAGE_GITHUB_STR "assets/resources/missingimage.png"
 #define VER_BLENDER_ADDON_URL               VER_BLENDER_ADDON_STR "releases/latest/download/" VER_BLENDER_ADDON_FILE
 #define VER_BLENDER_ADDON_LATEST_URL        VER_BLENDER_ADDON_API_STR "releases/latest"
+#define VER_BLENDER_ADDON_SHA_HASH_URL      VER_BLENDER_ADDON_URL ".sha256"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
