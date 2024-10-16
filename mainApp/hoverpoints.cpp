@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include <QtGlobal>
+#include <QSet>
 #ifdef QT_OPENGL_SUPPORT
 #include <QOpenGLWidget>
 #endif
@@ -173,7 +174,11 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
                     case Qt::TouchPointPressed:
                         {
                             // find the point, move it
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
                             QSet<int> activePoints = QSet<int>(m_fingerPointMapping.begin(), m_fingerPointMapping.end());
+#else
+                            QSet<int> activePoints = QSet<int>::fromList(m_fingerPointMapping.values());
+#endif
                             int activePoint = -1;
                             qreal distance = -1;
                             const int pointsCount = m_points.size();
