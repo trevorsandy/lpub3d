@@ -208,6 +208,8 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.KeyboardFilterEdit->setClearButtonEnabled(true);
 
   ui.shortcutEdit->installEventFilter(this);
+  ui.preferredRenderer->view()->viewport()->installEventFilter(this);
+
   QAction *setShortcutEditResetAct = ui.shortcutEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
   setShortcutEditResetAct->setText(tr("Shortcut Reset"));
   setShortcutEditResetAct->setObjectName("setShortcutEditResetAct.8");
@@ -650,7 +652,7 @@ void PreferencesDialog::setRenderers()
     int povRayIndex = -1;
     int ldgliteIndex = -1;
     int ldviewIndex = -1;
-    int nativeIndex = -1;
+    nativeRendererIndex = -1;
 
     QFileInfo fileInfo;
 
@@ -691,7 +693,7 @@ void PreferencesDialog::setRenderers()
       connect(ui.ldviewInstall, SIGNAL(clicked()), this, SLOT(installRenderer()));
     }
 
-    nativeIndex = ui.preferredRenderer->count();
+    nativeRendererIndex = ui.preferredRenderer->count();
     ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
 
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
@@ -714,7 +716,7 @@ void PreferencesDialog::setRenderers()
     } else {
         ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
         if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-          ui.preferredRenderer->setCurrentIndex(nativeIndex);
+          ui.preferredRenderer->setCurrentIndex(nativeRendererIndex);
           ui.preferredRenderer->setEnabled(true);
         } else {
           ui.preferredRenderer->setEnabled(false);
@@ -726,6 +728,8 @@ void PreferencesDialog::setRenderers()
         ui.highlightStepLabel->setVisible(false);
         //ui.highlightStepSpacer->setVisible(false);
     }
+
+    previousRendererIndex = ui.preferredRenderer->currentIndex();
 }
 
 void PreferencesDialog::installRenderer()
@@ -1246,10 +1250,51 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
     ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
 
   if (ldgliteEnabled) {
-    ui.highlightStepLineWidthSpin->setVisible(true);
-    ui.highlightStepLabel->setVisible(true);
-    //ui.highlightStepSpacer->setVisible(true);
-    ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
+    bool selectLDGLite = true;
+#ifdef Q_OS_WIN
+    Where msgKey = Where(0,25968728,0);
+    const QString LDGLite = rendererNames[RENDERER_LDGLITE];
+    const QString Native = rendererNames[RENDERER_NATIVE];
+    bool showMessage = true;
+    for (const QString &messageNotShown : Preferences::messagesNotShown)
+        if (messageNotShown.startsWith(msgKey.toString()))
+            showMessage = false;
+    if (showMessage) {
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (QPixmap(":/icons/lpub96.png"));
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(tr ("%1 Renderer Notice").arg(LDGLite));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        box.setStandardButtons (QMessageBox::Ok | QMessageBox::Ignore | QMessageBox::Cancel);
+        box.setDefaultButton   (QMessageBox::Ok);
+        const QString message = tr("On Windows 11, the %1 renderer is beginning to show its 26 year-old age.<br>"
+                                   "Users have reported random crashes and unstable behavoiur.<br>"
+                                   "If you care about this, consider using the %2 Renderer.<br>"
+                                   "Select <b>OK</b> to use the %2 renderer, <b>Ignore</b> to keep the "
+                                   "previous renderer or <b>Cancel</b> to continue.").arg(LDGLite, Native);
+        box.setText (message);
+        QCheckBox *cb = new QCheckBox(QString("Do not show this renderer message again."));
+        box.setCheckBox(cb);
+        QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
+            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                Preferences::messagesNotShown.append(QString(msgKey.toString() + "|" + message));
+        });
+
+        int selection = box.exec();
+        if (selection == QMessageBox::Ok)
+            ui.preferredRenderer->setCurrentIndex(nativeRendererIndex);
+        else if (selection == QMessageBox::Ignore)
+            ui.preferredRenderer->setCurrentIndex(previousRendererIndex);
+    }
+#endif
+    if (selectLDGLite) {
+        ui.highlightStepLineWidthSpin->setVisible(true);
+        ui.highlightStepLabel->setVisible(true);
+        //ui.highlightStepSpacer->setVisible(true);
+        ui.highlightStepLineWidthSpin->setEnabled(Preferences::enableHighlightStep);
+    }
+
   } else {
     ui.highlightStepLineWidthSpin->setVisible(false);
     ui.highlightStepLabel->setVisible(false);
@@ -1261,7 +1306,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
   ui.applyCARendererRadio->setChecked(applyCARenderer);
 
   /* [Experimental] LDView Image Matting */
-  ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
+  //ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
 }
 
 void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
@@ -2866,47 +2911,55 @@ void ThemeColorsDialog::toggleDefaultsTab()
 }
 
 /***********************************
- * SHORTCUTS
+ * SHARED FILTER
  ***********************************/
 
 bool PreferencesDialog::eventFilter(QObject *object, QEvent *event)
 {
-    Q_UNUSED(object);
+    if (object == ui.shortcutEdit) {
+        if (event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
 
-    if (event->type() == QEvent::KeyPress)
-    {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            int nextKey = keyEvent->key();
+            if (nextKey == Qt::Key_Control || nextKey == Qt::Key_Shift || nextKey == Qt::Key_Meta || nextKey == Qt::Key_Alt)
+                return true;
 
-        int nextKey = keyEvent->key();
-        if (nextKey == Qt::Key_Control || nextKey == Qt::Key_Shift || nextKey == Qt::Key_Meta || nextKey == Qt::Key_Alt)
+            Qt::KeyboardModifiers state = keyEvent->modifiers();
+            QString text = QKeySequence(nextKey).toString();
+            if ((state & Qt::ShiftModifier) && (text.isEmpty() || !text.at(0).isPrint() || text.at(0).isLetter() || text.at(0).isSpace()))
+                nextKey |= Qt::SHIFT;
+            if (state & Qt::ControlModifier)
+                nextKey |= Qt::CTRL;
+            if (state & Qt::MetaModifier)
+                nextKey |= Qt::META;
+            if (state & Qt::AltModifier)
+                nextKey |= Qt::ALT;
+
+            QKeySequence ks(nextKey);
+            ui.shortcutEdit->setText(ks.toString(QKeySequence::NativeText));
+            keyEvent->accept();
+
             return true;
+        }
 
-        Qt::KeyboardModifiers state = keyEvent->modifiers();
-        QString text = QKeySequence(nextKey).toString();
-        if ((state & Qt::ShiftModifier) && (text.isEmpty() || !text.at(0).isPrint() || text.at(0).isLetter() || text.at(0).isSpace()))
-            nextKey |= Qt::SHIFT;
-        if (state & Qt::ControlModifier)
-            nextKey |= Qt::CTRL;
-        if (state & Qt::MetaModifier)
-            nextKey |= Qt::META;
-        if (state & Qt::AltModifier)
-            nextKey |= Qt::ALT;
-
-        QKeySequence ks(nextKey);
-        ui.shortcutEdit->setText(ks.toString(QKeySequence::NativeText));
-        keyEvent->accept();
-
-        return true;
-    }
-
-    if (event->type() == QEvent::Shortcut || event->type() == QEvent::KeyRelease || event->type() == QEvent::ShortcutOverride)
-    {
-        event->accept();
-        return true;
+        if (event->type() == QEvent::Shortcut || event->type() == QEvent::KeyRelease || event->type() == QEvent::ShortcutOverride)
+        {
+            event->accept();
+            return true;
+        }
+    } else if (object == ui.preferredRenderer->view()->viewport()) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            previousRendererIndex = ui.preferredRenderer->currentIndex();
+        }
     }
 
     return QDialog::eventFilter(object, event);
 }
+
+/***********************************
+ * SHORTCUTS
+ ***********************************/
 
 void PreferencesDialog::on_shortcutAssign_clicked()
 {

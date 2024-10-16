@@ -1,4 +1,4 @@
-LPub3D 2.4.7.232.3708 (16 10 2024 11:50:03)
+LPub3D 2.4.7.233.3709 (16 10 2024 11:51:01)
 
 Features, enhancements, fixes and changes
 ------------
@@ -19,6 +19,7 @@ Revisions:
 - Enhancement - Warning when image path exceeds renderer max path #763
 - Change - Custom parts with underscore in the name #730
 - Change - Difference in rendering with native renderer between versions #731
+- Change - LDGLite unstable on Windows 11 #751
 - Change - MLCad Part unknown! PART line error after mpd file save #734
 - Change - Relative justify vertical axis on outside placement #729
 - Change - Set command editor highlight lines default to off #768

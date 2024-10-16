@@ -326,6 +326,9 @@ private:
 
     QMap<int, QString> editedThemeColors;
 
+    int  nativeRendererIndex;
+    int  previousRendererIndex;
+
     bool mShowLineParseErrors;
     bool mShowInsertErrors;
     bool mShowBuildModErrors;
