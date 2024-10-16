@@ -647,7 +647,7 @@ void Updater::setUpdateAvailable (const bool available)
     }
 
     // Get the application icon as a pixmap
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    QPixmap _icon = QPixmap(LPUB3D_MESSAGE_ICON);
     if (_icon.isNull())
         _icon = QPixmap (":/icons/update.png");
 

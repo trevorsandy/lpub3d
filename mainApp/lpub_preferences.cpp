@@ -772,11 +772,9 @@ void Preferences::setDistribution() {
             }
 
             if (modeGUI) {               // GUI mode - select data folder
-                // Get the application icon as a pixmap
-                QPixmap _icon = QPixmap(":/icons/lpub96.png");
                 QMessageBoxResizable box;
                 box.setWindowIcon(QIcon());
-                box.setIconPixmap (_icon);
+                box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                 box.setTextFormat (Qt::RichText);
                 box.setWindowTitle(QMessageBox::tr ("%1 Installation Folder").arg(VER_PRODUCTNAME_STR));
                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -1754,10 +1752,9 @@ void Preferences::lpub3dLibPreferences(bool browse)
             if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
                 Application::instance()->splash->hide();
 #endif
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
             QMessageBoxResizable box;
             box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
+            box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
             box.setTextFormat (Qt::RichText);
             box.setWindowTitle(QMessageBox::tr ("Library Selection"));
             box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2020,10 +2017,9 @@ void Preferences::ldrawPreferences(bool browse)
                                     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
                                         Application::instance()->splash->hide();
 #endif
-                                    QPixmap _icon = QPixmap(":/icons/lpub96.png");
                                     QMessageBoxResizable box;
                                     box.setWindowIcon(QIcon());
-                                    box.setIconPixmap (_icon);
+                                    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                                     box.setTextFormat (Qt::RichText);
                                     box.setWindowTitle(QMessageBox::tr ("LDraw Library"));
                                     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2125,10 +2121,9 @@ void Preferences::ldrawPreferences(bool browse)
                     if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                         Application::instance()->splash->hide();
 #endif
-                    QPixmap _icon = QPixmap(":/icons/lpub96.png");
                     QMessageBoxResizable box;
                     box.setWindowIcon(QIcon());
-                    box.setIconPixmap (_icon);
+                    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                     box.setTextFormat (Qt::RichText);
                     box.setWindowTitle(QMessageBox::tr ("LDraw Directory"));
                     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2188,10 +2183,9 @@ void Preferences::ldrawPreferences(bool browse)
                 if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
 #endif
-                QPixmap _icon = QPixmap(":/icons/lpub96.png");
                 QMessageBoxResizable box;
                 box.setWindowIcon(QIcon());
-                box.setIconPixmap (_icon);
+                box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                 box.setTextFormat (Qt::RichText);
                 box.setWindowTitle(QMessageBox::tr ("Alternate LDraw LDConfig"));
                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2640,10 +2634,9 @@ void Preferences::rendererPreferences()
 
 #ifdef Q_OS_MAC
     emit Application::instance()->splashMsgSig(QObject::tr("25% - %1 macOS Required Library Check...").arg(VER_PRODUCTNAME_STR));
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(QMessageBox::tr ("Missing Libraries"));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -6721,10 +6714,9 @@ bool Preferences::extractLDrawLib() {
         }
 
         if (modeGUI) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
             QMessageBox box;
             box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
+            box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
             box.setTextFormat (Qt::RichText);
             box.setWindowTitle(QMessageBox::tr ("LDraw Library"));
             box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

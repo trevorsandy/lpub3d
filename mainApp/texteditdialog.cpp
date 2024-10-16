@@ -390,11 +390,9 @@ bool TextEditDialog::maybeSave()
 
   if (!ui->textEdit->document()->isEmpty()) {
 
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(tr ("%1 Text Editor").arg(VER_PRODUCTNAME_STR));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

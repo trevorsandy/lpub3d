@@ -677,14 +677,10 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 
   if ( ! undoStack->isClean() && proceed) {
     if (Preferences::modeGUI && prompt) {
-      // Get the application icon as a pixmap
-      QPixmap _icon = QPixmap(":/icons/lpub96.png");
-      if (_icon.isNull())
-          _icon = QPixmap (":/icons/update.png");
 
       QMessageBoxResizable box;
       box.setWindowIcon(QIcon());
-      box.setIconPixmap (_icon);
+      box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
       box.setTextFormat (Qt::RichText);
       box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -879,10 +875,9 @@ bool Gui::openFile(const QString &fileName)
   getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
   getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(fileInfo.fileName()));
   if (lpub->ldrawFile.getHelperPartsNotInArchive()) {
-      QPixmap _icon = QPixmap(":/icons/lpub96.png");
       QMessageBoxResizable box;
       box.setWindowIcon(QIcon());
-      box.setIconPixmap (_icon);
+      box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
       box.setTextFormat (Qt::RichText);
       box.setWindowTitle(tr ("Update LDraw Unofficial Archive Library"));
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -1102,14 +1097,9 @@ void Gui::fileChanged(const QString &path)
 
   changeAccepted = false;
 
-  // Get the application icon as a pixmap
-  QPixmap _icon = QPixmap(":/icons/lpub96.png");
-  if (_icon.isNull())
-      _icon = QPixmap (":/icons/update.png");
-
   QMessageBoxResizable box;
   box.setWindowIcon(QIcon());
-  box.setIconPixmap (_icon);
+  box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
   box.setTextFormat (Qt::RichText);
   box.setWindowTitle(tr ("%1 File Change").arg(VER_PRODUCTNAME_STR));
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

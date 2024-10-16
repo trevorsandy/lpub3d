@@ -3731,10 +3731,9 @@ void Gui::ldrawColorPartsLoad()
             emit messageSig(LOG_NOTICE, message);
             bool prompt = false;
             if (Preferences::modeGUI) {
-                QPixmap _icon = QPixmap(":/icons/lpub96.png");
                 QMessageBoxResizable box;
                 box.setWindowIcon(QIcon());
-                box.setIconPixmap (_icon);
+                box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                 box.setTextFormat (Qt::RichText);
 
                 box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::validLDrawLibrary));
@@ -3760,10 +3759,9 @@ void Gui::ldrawColorPartsLoad()
 
 void Gui::reloadModelFileAfterColorFileGen() {
     if (Preferences::modeGUI) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
         QMessageBoxResizable box;
         box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
+        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
         box.setTextFormat (Qt::RichText);
         box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::validLDrawLibrary));
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -4739,10 +4737,9 @@ void Gui::exportMetaCommands()
       return;
 
   //display completion message
-  QPixmap _icon = QPixmap(":/icons/lpub96.png");
   QMessageBoxResizable box;
   box.setWindowIcon(QIcon());
-  box.setIconPixmap (_icon);
+  box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
   box.setTextFormat (Qt::RichText);
   box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);

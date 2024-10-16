@@ -888,10 +888,9 @@ void LDVWidget::doPartList(void)
 					{
 						if (QFileInfo(htmlFilename).exists())
 						{
-							QPixmap _icon = QPixmap(":/icons/lpub96.png");
 							QMessageBoxResizable box;
 							box.setWindowIcon(QIcon());
-							box.setIconPixmap (_icon);
+							box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
 							box.setTextFormat (Qt::RichText);
 							box.setStandardButtons (QMessageBox::Close);
 							box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -937,10 +936,9 @@ void LDVWidget::showDocument(QString &htmlFilename)
 	{
 
 		//display completion message
-		QPixmap _icon = QPixmap(":/icons/lpub96.png");
 		QMessageBoxResizable box;
 		box.setWindowIcon(QIcon());
-		box.setIconPixmap (_icon);
+		box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
 		box.setTextFormat (Qt::RichText);
 		box.setStandardButtons (QMessageBox::Close);
 		box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

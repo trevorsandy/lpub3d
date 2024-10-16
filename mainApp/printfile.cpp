@@ -1434,9 +1434,8 @@ void Gui::exportAsPdf()
                             .arg(messageList.join(" ")));
       }
 
-      QPixmap _icon = QPixmap(":/icons/lpub96.png");
       box.setWindowIcon(QIcon());
-      box.setIconPixmap (_icon);
+      box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
 
@@ -1915,14 +1914,13 @@ void Gui::exportAs(const QString &_suffix)
                              .arg(messageList.join(" ")));
       }
 
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-        box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
-        box.setDefaultButton   (QMessageBox::Yes);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setWindowTitle(tr ("Export %1 %2").arg(suffix).arg(type));
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
+      box.setTextFormat (Qt::RichText);
+      box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
+      box.setDefaultButton   (QMessageBox::Yes);
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      box.setWindowTitle(tr ("Export %1 %2").arg(suffix).arg(type));
 
       QString title = "<b>" + tr ("Export %1 %2 completed.").arg(suffix).arg(type) + "</b>";
       QString text = tr ("%1<br><br>Do you want to open the %2 folder ?<br><br>%3")
@@ -2424,10 +2422,9 @@ void Gui::showExportedFile()
     }
 
     //display completion message
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setStandardButtons (QMessageBox::Close);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

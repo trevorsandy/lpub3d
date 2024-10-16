@@ -1262,7 +1262,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
     if (showMessage) {
         QMessageBoxResizable box;
         box.setWindowIcon(QIcon());
-        box.setIconPixmap (QPixmap(":/icons/lpub96.png"));
+        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
         box.setTextFormat (Qt::RichText);
         box.setWindowTitle(tr ("%1 Renderer Notice").arg(LDGLite));
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2375,12 +2375,9 @@ bool PreferencesDialog::maybeSave()
   }
 
   if (changed) {
-
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(tr ("%1 Preferences").arg(VER_PRODUCTNAME_STR));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -3030,10 +3027,9 @@ void PreferencesDialog::on_shortcutsExport_clicked()
     }
 
     //display completion message
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
     box.setDefaultButton   (QMessageBox::Yes);

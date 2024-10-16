@@ -1004,6 +1004,7 @@ enum ThemeColorType {
 #define LPUB3D_IM_OVERLAY_LDR_EXT               "overlay.ldr" // Image Matte LDraw working file extension
 #define LPUB3D_IM_BASE_PNG_EXT                  "base.png"    // Image Matte Png working file extension
 #define LPUB3D_IM_OVERLAY_PNG_EXT               "overlay.png" // Image Matte Png working file extension
+#define LPUB3D_MESSAGE_ICON                     ":/icons/lpub96.png"
 
 #define HIGHLIGHT_COLOUR_DEFAULT                "#C0FFFF00"   // Bright Yellow (alpha 192 - hex CO)
 #define HIGHLIGHT_LINE_WIDTH_DEFAULT            1             // line width 1 - 5

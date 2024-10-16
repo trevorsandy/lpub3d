@@ -3296,8 +3296,7 @@ int BlenderPreferences::showMessage(
     QMessageBox box;
     box.setWindowIcon(QIcon());
     if (!icon) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        box.setIconPixmap (_icon);
+        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     } else {
         box.setIcon (static_cast<QMessageBox::Icon>(icon));
     }

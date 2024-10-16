@@ -2058,14 +2058,9 @@ bool Annotations::overwriteFile(const QString &file)
     if (!fileInfo.exists())
         return true;
 
-    // Get the application icon as a pixmap
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
-
     QMessageBox box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     QString title = "<b>" + QMessageBox::tr ("Export %1").arg(fileInfo.fileName()) + "</b>";

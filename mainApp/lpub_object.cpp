@@ -1496,7 +1496,7 @@ void LPub::removeLPubFormatting(int option)
 {
   QMessageBoxResizable box;
   box.setWindowIcon(QIcon());
-  box.setIconPixmap (QPixmap(":/icons/lpub96.png"));
+  box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
   box.setTextFormat (Qt::RichText);
   box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);

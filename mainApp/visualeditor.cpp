@@ -3270,14 +3270,9 @@ void Gui::ReloadVisualEditor() {
              QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
              if (stepContains(currentStep->top, lineRx) && !Update) {
 
-                 // Get the application icon as a pixmap
-                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
-                 if (_icon.isNull())
-                     _icon = QPixmap (":/icons/update.png");
-
                  QMessageBox box;
                  box.setWindowIcon(QIcon());
-                 box.setIconPixmap (_icon);
+                 box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                  box.setTextFormat (Qt::RichText);
                  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
                  QString title = "<b>" + tr ("You specified create action for an existing Build Modification") + "</b>";
@@ -4844,10 +4839,9 @@ void Gui::deleteBuildModification()
     const int pageNum = getBuildModDisplayPageNumber(buildModKey);
 
     // Delete options
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     const QString title = tr("Build Modification Image");
@@ -5005,10 +4999,9 @@ bool Gui::saveBuildModification()
 
     clearVisualEditUndoRedoText();
 
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBox box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

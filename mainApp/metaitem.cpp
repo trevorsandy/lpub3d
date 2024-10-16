@@ -3189,10 +3189,9 @@ void MetaItem::updateText(
          }
 
         if (!placementOk || !stepOk ||!stepFound) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
             QMessageBoxResizable box;
             box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
+            box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
             box.setTextFormat (Qt::RichText);
 
             box.setWindowTitle(QMessageBox::tr ("Text Placement Select"));
@@ -3297,10 +3296,9 @@ void MetaItem::insertText()
         isRichText = textFormat.contains(textFormatOptions.last());
 
     if (!ok) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
         QMessageBoxResizable box;
         box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
+        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
         box.setTextFormat (Qt::RichText);
 
         box.setWindowTitle(QMessageBox::tr ("Text Format Select"));

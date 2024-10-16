@@ -552,13 +552,11 @@ bool CommandsDialog::maybeSave()
 
   if (commandEditModified || snippetEditModified) {
 
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-
     const QString which = snippetEditModified && commandEditModified ? "Command" : snippetEditModified ? "Snippet" : "Command";
 
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(tr ("%1 %2s").arg(VER_PRODUCTNAME_STR, which));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

@@ -413,7 +413,7 @@ void Downloader::installUpdate()
     // Get the application icon as a pixmap
     QPixmap _icon = QPixmap(":/icons/setup96.png");
     if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
+        _icon = QPixmap(":/icons/update.png");
 
     /* Ask the user to install the download */
     QMessageBox box;

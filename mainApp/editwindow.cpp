@@ -1430,7 +1430,7 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
             const QString colorName = gColorList[lcGetColorIndex(colorCode)].Name;
             if (_textEdit->document()->isModified()) {
                 box.setWindowIcon(QIcon());
-                box.setIconPixmap (QPixmap(":/icons/lpub96.png"));
+                box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
                 const QString title = "<b>" + QMessageBox::tr ("Unsaved substitute part unpdates detected.") + "</b>";
                 const QString text = QMessageBox::tr("<br>Do you want to save your updates for part [%1], color %2 (%3)...")
                                                      .arg(type).arg(colorName).arg(colorCode);
@@ -1688,14 +1688,9 @@ bool EditWindow::maybeSave()
   bool rc = true;
 
   if (_textEdit->document()->isModified()) {
-    // Get the application icon as a pixmap
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
-
     QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
+    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2639,13 +2634,9 @@ void EditWindow::preferences()
     bool editorPreviewOnDoubleClick = Preferences::editorPreviewOnDoubleClick;
 
     auto showMessage = [&windowTitle] (const QString change) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        if (_icon.isNull())
-            _icon = QPixmap (":/icons/update.png");
-
         QMessageBoxResizable box;
         box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
+        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
         box.setTextFormat (Qt::RichText);
         box.setWindowTitle(windowTitle);
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
