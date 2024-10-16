@@ -357,16 +357,16 @@ int Step::createCsi(
       QString const message = QObject::tr("Your complete model file path %1 the maximum "
                                           "number of characters [%2] supported by %3.<br><br>"
                                           "%4 LDraw file path and/or model names to avoid "
-                                          "undefined renderer behaviour.")
+                                          "undefined renderer behaviour or switch to the %5 renderer.")
                                           .arg(imagePathMessage).arg(LP3D_MAX_IMAGE_RENDER_PATH)
                                           .arg(rendererNames[Preferences::preferredRenderer])
-                                          .arg(imagePathRequest);
+                                          .arg(imagePathRequest).arg(rendererNames[RENDERER_NATIVE]);
       emit gui->parseErrorSig(message, here, Preferences::ParseErrors,
                               false/*messageOption*/, false/*messageOverride*/, messageIcon,
                               QObject::tr("Renderer Path Control"),
                               QObject::tr("renderer image path length warning"));
       if (imagePathCritical)
-          return 0;
+          return HitAbortProcess;
   }
 
   // add csiKey and pngName to ImageMatte repository - exclude first step

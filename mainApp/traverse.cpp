@@ -2490,6 +2490,9 @@ int Gui::drawPage(
                                                                         opts.lineTypeIndexes,
                                                                        &step->csiPixmap,
                                                                         steps->meta));
+                  if (returnValue == HitAbortProcess || Gui::abortProcess()) {
+                      return returnValue;
+                  }
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       opts.ldrStepFiles << step->ldrName;
@@ -2572,6 +2575,9 @@ int Gui::drawPage(
                                                                                 opts.lineTypeIndexes,
                                                                                &step->csiPixmap,
                                                                                 steps->meta));
+                          if (returnValue == HitAbortProcess || Gui::abortProcess()) {
+                              return returnValue;
+                          }
 
                           step->lightList = lightList;
 

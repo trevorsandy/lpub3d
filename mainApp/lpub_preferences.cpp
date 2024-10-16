@@ -4380,7 +4380,8 @@ int  Preferences::showMessage(
                 messagesNotShown.append(QString(msgID.toString() + "|" + message));
         });
     }
-    box.adjustSize();
+    //box.adjustSize();
+    Preferences::messageBoxAdjustWidth(qobject_cast<QMessageBox*>(&box), title, message);
 
     return box.exec();
 }
