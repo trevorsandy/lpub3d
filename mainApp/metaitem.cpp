@@ -5701,9 +5701,9 @@ void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option
     emit gui->clearPageCacheSig(relativeType, page, option);
 }
 
-void MetaItem::clearAndReloadModelFile(bool fileReload, bool savePrompt) const
+void MetaItem::clearAndReloadModelFile(bool fileReload, bool savePrompt, bool keepWork) const
 {
-    emit gui->clearAndReloadModelFileSig(fileReload, savePrompt);
+    emit gui->clearAndReloadModelFileSig(fileReload, savePrompt, keepWork);
 }
 
 void MetaItem::clearPliCache() const

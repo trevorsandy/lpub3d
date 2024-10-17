@@ -561,7 +561,7 @@ public:
   void clearAllCaches() const;
   void clearStepCache(Step *, int) const;
   void clearPageCache(PlacementType relativeType, Page *page, int option) const;
-  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false) const;
+  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false, bool keepWork = false) const;
   void clearCustomPartCache(bool silent = true) const;
   void clearCsiCache() const;
   void clearSMICache() const;

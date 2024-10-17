@@ -1883,7 +1883,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndReloadModelFile(bool fileReload, bool savePrompt) { // EditWindow Redraw
+void Gui::clearAndReloadModelFile(bool fileReload, bool savePrompt, bool keepWork) { // EditWindow Redraw
     if (sender() == editWindow || savePrompt) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
@@ -1895,7 +1895,8 @@ void Gui::clearAndReloadModelFile(bool fileReload, bool savePrompt) { // EditWin
             return;
     }
 
-    clearAllCaches();
+    if (!keepWork)
+        clearAllCaches();
 
     cyclePageDisplay(displayPageNum, !savePrompt/*silent*/, fileReload);
 }
@@ -3433,8 +3434,8 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
             this,           SLOT(  clearPageCache(PlacementType, Page*, int)));
 
-    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool, bool)),   // reloadModelFile
-            this,           SLOT(  clearAndReloadModelFile(bool, bool)));
+    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool, bool, bool)),   // reloadModelFile
+            this,           SLOT(  clearAndReloadModelFile(bool, bool, bool)));
 
     connect(this,           SIGNAL(clearCustomPartCacheSig(bool)),
             this,           SLOT(  clearCustomPartCache(bool)));

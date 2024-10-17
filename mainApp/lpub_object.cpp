@@ -1797,9 +1797,9 @@ PartWorker& LPub::partWorkerLDSearchDirs()
 }
 
 // the next four calls are used when setting Visual Editor preferences
-void LPub::clearAndReloadModelFile(bool fileReload, bool savePrompt)
+void LPub::clearAndReloadModelFile(bool fileReload, bool savePrompt, bool keepWork)
 {
-    emit gui->clearAndReloadModelFileSig(fileReload, savePrompt);
+    emit gui->clearAndReloadModelFileSig(fileReload, savePrompt, keepWork);
 }
 
 void LPub::reloadCurrentPage(bool savePrompt)

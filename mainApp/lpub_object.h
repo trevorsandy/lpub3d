@@ -126,7 +126,7 @@ public:
   bool CurrentStepIsDisplayModel();
 
   /// Visual Editor restart and reload calls
-  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false);
+  void clearAndReloadModelFile(bool fileReload = false, bool savePrompt = false, bool keepWork = false);
   void reloadCurrentPage(bool savePrompt = false);
   void restartApplication(bool changeLibrary = false, bool prompt = false);
 

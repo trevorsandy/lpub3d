@@ -2378,7 +2378,7 @@ void PreferredRendererMeta::setPreferences(bool reset)
     if (global) {
       Preferences::preferredRendererPreferences(global);
       if (Preferences::preferredRenderer != data.renderer)
-        emit gui->clearAndReloadModelFileSig(false/*fileReload*/, true/*savePrompt*/);
+        emit gui->clearAndReloadModelFileSig(false/*fileReload*/, true/*savePrompt*/, false/*keepWork*/);
     }
   }
   Preferences::updatePOVRayConfigFiles();
