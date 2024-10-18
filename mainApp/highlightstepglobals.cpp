@@ -46,12 +46,13 @@ public:
   QString    topLevelFile;
   QList<MetaGui *> children;
   bool  reloadFile;
+  bool  keepWork;
 
   GlobalHighlightStepPrivate(QString &_topLevelFile, Meta &_meta)
+  : reloadFile(false), keepWork(false)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
-    reloadFile   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -86,21 +87,23 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   layout->addWidget(box);
   highlightStepChild = new HighlightStepGui(highlightStepMeta,box);
   data->children.append(highlightStepChild);
-  connect (highlightStepChild->getHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
-  connect (highlightStepChild->getHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  connect (highlightStepChild->getSetupCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  connect (highlightStepChild->getLPubHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox(tr("Final Model Step"));
   box->setToolTip(tr("Automatically, append an un-faded and/or un-highlighted final step "
                      "to the top level model file. This step will not be saved."));
   layout->addWidget(box);
   finalModelEnabledChild = new FinalModelEnabledGui(tr("Enable Final Model Step"),&lpubMeta->finalModelEnabled,box);
+  finalModelEnabledChild->getCheckBox()->setObjectName("EnableFinalModel");
   data->children.append(finalModelEnabledChild);
-  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   // enable final model dialog
+  connect (highlightStepChild->getHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   emit highlightStepChild->getHighlightCheckBox()->clicked(highlightStepChild->getHighlightCheckBox()->isChecked());
+  // ...then wire-up the rest of the connections
+  connect (highlightStepChild->getHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (highlightStepChild->getSetupCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (highlightStepChild->getLPubHighlightCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
@@ -119,6 +122,9 @@ void GlobalHighlightStepDialog::enableControls(bool b)
 
 void GlobalHighlightStepDialog::reloadDisplayPage(bool b)
 {
+  if (QObject *obj = sender())
+    if (obj->objectName() == QStringLiteral("EnableFinalModel"))
+      data->keepWork = true;
   if (!data->reloadFile)
     data->reloadFile = b;
 }
@@ -151,7 +157,7 @@ void GlobalHighlightStepDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile)
-    mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/);
+    mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/, data->keepWork);
 
   QDialog::accept();
 }

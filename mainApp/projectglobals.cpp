@@ -35,6 +35,7 @@ public:
   bool     clearCache;
   bool     reloadFile;
   bool     reloadWhatsThis;
+  bool     keepWork;
 
   GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta)
   {
@@ -43,6 +44,7 @@ public:
     clearCache      = false;
     reloadFile      = false;
     reloadWhatsThis = false;
+    keepWork        = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -198,6 +200,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   LoadUnoffPartsEnabledGui *childLoadUnoffPartsEnabled = new LoadUnoffPartsEnabledGui(tr("Enable unofficial parts load in command editor"),&lpubMeta->loadUnoffPartsInEditor,box);
   box->setToolTip(tr("Enable loading unofficial parts in the command editor - setting enabled when unofficial parts are detected."));
   data->children.append(childLoadUnoffPartsEnabled);
+  childLoadUnoffPartsEnabled->getCheckBox()->setObjectName("EnableUnofficialPartsLoad");
   connect (childLoadUnoffPartsEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox(tr("Start Numbers"));
@@ -279,15 +282,18 @@ void GlobalProjectDialog::getProjectGlobals(
 void GlobalProjectDialog::reloadDisplayPage(bool b)
 {
   Q_UNUSED(b)
+  if (QObject *obj = sender())
+    if (obj->objectName() == QStringLiteral("EnableUnofficialPartsLoad"))
+      data->keepWork = true;
   if (!data->reloadFile)
-    data->reloadFile = b;
+    data->reloadFile = true;
 }
 
 void GlobalProjectDialog::clearCache(bool b)
 {
   Q_UNUSED(b)
   if (!data->clearCache)
-    data->clearCache = b;
+    data->clearCache = true;
 }
 
 void GlobalProjectDialog::reloadWhatsThis(int value)
@@ -359,7 +365,7 @@ void GlobalProjectDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile)
-    mi.clearAndReloadModelFile(false, true);      // if true, close and reload file, if true, prompt to save - clear all caches
+    mi.clearAndReloadModelFile(false, true, data->keepWork);   // if true, close and reload file | if true, prompt to save | if true, do not clear caches,
 
   if (data->reloadWhatsThis)
     mi.reloadWhatsThis();

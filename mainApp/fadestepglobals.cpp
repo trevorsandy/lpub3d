@@ -44,12 +44,13 @@ public:
   QString    topLevelFile;
   QList<MetaGui *> children;
   bool  reloadFile;
+  bool  keepWork;
 
   GlobalFadeStepPrivate(QString &_topLevelFile, Meta &_meta)
+  : reloadFile(false), keepWork(false)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
-    reloadFile   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -84,20 +85,22 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   layout->addWidget(box);
   fadeStepsChild = new FadeStepsGui(fadeStepsMeta,box);
   data->children.append(fadeStepsChild);
-  connect (fadeStepsChild->getFadeCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
-  connect (fadeStepsChild->getFadeCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  connect (fadeStepsChild->getSetupCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
-  connect (fadeStepsChild->getLPubFadeCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox("Final Model Step");
   box->setToolTip(tr("Automatically, append an un-faded final step to the top level model file."));
   layout->addWidget(box);
   finalModelEnabledChild = new FinalModelEnabledGui(tr("Enable Final Model Step"),&lpubMeta->finalModelEnabled,box);
+  finalModelEnabledChild->getCheckBox()->setObjectName("EnableFinalModel");
   data->children.append(finalModelEnabledChild);
-  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   // enable final model dialog
+  connect (fadeStepsChild->getFadeCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   emit fadeStepsChild->getFadeCheckBox()->clicked(fadeStepsChild->getFadeCheckBox()->isChecked());
+  // ...then wire-up the rest of the connections
+  connect (fadeStepsChild->getFadeCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (fadeStepsChild->getSetupCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (fadeStepsChild->getLPubFadeCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
+  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
@@ -116,8 +119,12 @@ void GlobalFadeStepDialog::enableControls(bool b)
 
 void GlobalFadeStepDialog::reloadDisplayPage(bool b)
 {
+  Q_UNUSED(b)
+  if (QObject *obj = sender())
+    if (obj->objectName() == QStringLiteral("EnableFinalModel"))
+      data->keepWork = true;
   if (!data->reloadFile)
-    data->reloadFile = b;
+    data->reloadFile = true;
 }
 
 void GlobalFadeStepDialog::getFadeStepGlobals(
@@ -148,7 +155,7 @@ void GlobalFadeStepDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile)
-    mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/);
+      mi.clearAndReloadModelFile(false/*closeAndOpen*/, true/*savePrompt*/, data->keepWork);
 
   QDialog::accept();
 }
