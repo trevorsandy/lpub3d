@@ -1164,7 +1164,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
                     }
                     mAddonUpdateButton->setEnabled(mConfigured);
                     if (mProgressBar) {
-                        mExeGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
+                        mAddonGridLayout->replaceWidget(mProgressBar, mAddonVersionEdit);
                         mAddonVersionLabel->setText(tr("Blender Addon"));
                         mProgressBar->close();
                     }
@@ -1175,12 +1175,12 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             // Main installation script
             if (!QFileInfo(blenderInstallFile).exists()) {
                 gui->messageSig(LOG_ERROR, tr("Could not find addon install file: %1").arg(blenderInstallFile));
-                statusUpdate(true/*addon*/,true/*error*/,tr("Addon file not found."));
+                statusUpdate(true/*addon*/,true/*error*/,tr("Not found."));
                 return;
             }
 
             // Install Blender addon
-            statusUpdate(true/*addon*/, false/*error*/, tr("Installing addon..."));
+            statusUpdate(true/*addon*/, false/*error*/, tr("Installing..."));
 
             // Create Blender config directory
             QDir configDir(Preferences::blenderConfigDir);
@@ -1270,7 +1270,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         emit gui->messageSig(result == PR_OK ? LOG_INFO : LOG_ERROR, message);
 
         if (result != PR_OK)
-            statusUpdate(true/*addon*/, true/*error*/, tr("Addon install failed."));
+            statusUpdate(true/*addon*/, true/*error*/, tr("Install failed."));
 
     } else {
         emit gui->messageSig(LOG_ERROR, tr("Blender executable not found at [%1]").arg(blenderExe), true);
@@ -1279,7 +1279,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
 
 bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
 {
-    bool proceed = true;
+    bool extracted = false;
 
     QDir dir(blenderDir);
     if (!dir.exists())
@@ -1291,20 +1291,15 @@ bool BlenderPreferences::extractBlenderAddon(const QString &blenderDir)
         gBlenderAddonPreferences->statusUpdate(true/*addon*/, false/*error*/, tr("Extracting..."));
         QString const blenderAddonFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE));
         QStringList addonList = JlCompress::extractDir(blenderAddonFile, blenderDir);
-        if (addonList.isEmpty()) {
+        extracted = addonList.size();
+        if (!extracted)
             emit gui->messageSig(LOG_ERROR, tr("Failed to extract %1 to %2")
                                                .arg(blenderAddonFile).arg(blenderDir));
-            proceed = false;
-        }
         emit gui->messageSig(LOG_INFO, tr("%1 items archive extracted to %2")
                                           .arg(addonList.size()).arg(blenderDir));
-    } else
-        proceed = false;
+    }
 
-    if (addonAction == ADDON_FAIL && !proceed)
-        gBlenderAddonPreferences->statusUpdate(true/*addon*/, true/*error*/, tr("Extract addon failed."));
-
-    return proceed;
+    return extracted;
 }
 
 int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
@@ -1314,7 +1309,6 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
     QString const addonVersionFile = QDir::toNativeSeparators(QString("%1/%2/__version__.py").arg(blenderAddonDir).arg(BLENDER_RENDER_ADDON_FOLDER));
     bool extractedAddon            = QFileInfo(addonVersionFile).isReadable();
     bool blenderAddonValidated     = extractedAddon || QFileInfo(blenderAddonFile).isReadable();
-    QString status                 = tr("Installing Blender addon...");
     AddonEnc addonAction           = ADDON_DOWNLOAD;
     QString localVersion, onlineVersion;
 
@@ -1428,7 +1422,6 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 QString const &body  = tr ("Do you want to download version %1 ?").arg(onlineVersion);
                 int exec = showMessage(header, title, body, QString(), MBB_YES, QMessageBox::NoIcon);
                 if (exec == QMessageBox::Cancel) {
-                    status = tr("Blender addon setup cancelled");
                     addonAction = ADDON_CANCELED;
                     gBlenderAddonPreferences->mDialogCancelled = true;
                 } else if (exec == QMessageBox::No) {
@@ -1438,13 +1431,6 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
                 addonAction = ADDON_NO_ACTION;
             }
         }
-
-        if (addonAction == ADDON_DOWNLOAD)
-            status = tr("Downloading...");
-        else if (addonAction == ADDON_NO_ACTION)
-            status = tr("No action");
-
-        gBlenderAddonPreferences->statusUpdate(true/*addon*/, false/*error*/,status);
 
         if (addonAction != ADDON_DOWNLOAD)
             return addonAction;
@@ -1628,11 +1614,8 @@ void BlenderPreferences::showResult()
     {
         QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
         message = tr("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
-        statusUpdate(true/*addon*/, true/*error*/,tr("%1: Addon install failed.").arg("Error"));
+        statusUpdate(true/*addon*/, true/*error*/, tr("Error: Addon install failed."));
         mConfigured = false;
-
-        // emit gui->messageSig(LOG_BLENDER_ADDON, StdErrLog, true);
-
         QString const &title = tr ("%1 Blender Addon Install").arg(VER_PRODUCTNAME_STR);
         QString const &header =  "<b>" + tr ("Addon install failed.") + "</b>";
         QString const &body = tr ("LDraw addon install encountered one or more errors. See Show Details...");
