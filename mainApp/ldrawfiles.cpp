@@ -5435,7 +5435,7 @@ void LDrawFile::setBuildModsCount(const QString &mcFileName, const int value)
 bool LDrawFile::getBuildModExists(const QString &mcFileName, const QString &buildModKey)
 {
     QString fileName = mcFileName.toLower();
-    QRegExp buildModBeginRx("^0 !LPUB BUILD_MOD BEGIN ");
+    QRegExp buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
     for(const QString &line : lpub->ldrawFile.contents(fileName)) {
         if (line[0] == '1')
             continue;

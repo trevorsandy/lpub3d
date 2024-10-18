@@ -3408,7 +3408,7 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
       split(line,args);
       bool validLine = args.size() && args[0] >= '0' && args[0] <= '1';
       bool partLine = validLine && args[0] >= '1';
-      bool substitutePartLine = validLine && line.contains(QRegExp("^0 LPUB PLI END\\s*$"));
+      bool substitutePartLine = validLine && line.contains(QRegExp("^0 !?LPUB PLI END\\s*$"));
       if (partLine || substitutePartLine) {                 //part line detected so no back final model
         if (saveHere.lineNumber) {
 /* DEBUG - COMMENT TO ENABLE

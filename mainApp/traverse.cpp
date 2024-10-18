@@ -5982,7 +5982,7 @@ int Gui::setBuildModForNextStep(
                         } else {
                             bool buildModFound = false;
                             if (walk.modelIndex == topOfNextStep.modelIndex) {
-                                QRegExp buildModBeginRx("^0 !LPUB BUILD_MOD BEGIN ");
+                                QRegExp buildModBeginRx("^0 !?LPUB BUILD_MOD BEGIN ");
                                 if ((buildModFound = Gui::stepContains(walk, buildModBeginRx)))
                                     walk--; // Adjust for line increment
                             }

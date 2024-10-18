@@ -3267,7 +3267,7 @@ void Gui::ReloadVisualEditor() {
              }
 
              // Check if there is an existing build modification in this Step
-             QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
+             QRegExp lineRx("^0 !?LPUB BUILD_MOD BEGIN ");
              if (stepContains(currentStep->top, lineRx) && !Update) {
 
                  QMessageBox box;
