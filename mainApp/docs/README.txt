@@ -1,4 +1,4 @@
-LPub3D 2.4.7.236.3712 (17 10 2024 06:59:19)
+LPub3D 2.4.7.237.3713 (18 10 2024 06:16:32)
 
 Features, enhancements, fixes and changes
 ------------
@@ -31,6 +31,7 @@ Revisions:
 - Fix - Crash when opening "BOM Placement" applet #754
 - Fix - Crash when showing BOM #742
 - Fix - Create new Buildmod after one BM does not work #743
+- Fix - Final INSERT MODEL - command placed after BOM - should be before #770
 - Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
 - Fix - Incorrect preview image in the preview window #769

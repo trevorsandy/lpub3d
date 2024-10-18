@@ -3370,11 +3370,14 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
 
   auto thisLine = [&] (const Where &here) { return deleteStep ? 0 : here.lineNumber; };
 
+  emit lpub->messageSig(LOG_INFO, QObject::tr("Final model check starting at line: %1...").arg(here.lineNumber));
+
   for ( ; here >= 0; here--) {                               //scan from bottom to top of file
     QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     rc = lpub->meta.parse(line,here);
+
     if (rc == StepRc || rc == RotStepRc || rc == NoStepRc) { //if Step, RotStep, save the line number to perform insert (place before) later
-      if (saveHere == Where())                                //if nothing saved perform save
+      if (saveHere == Where())                               //if nothing saved perform save
         saveHere = here.lineNumber;
     } else if (rc == StepGroupEndRc || rc == CalloutEndRc) { //if StepGroup or Callout, return the line number
 /* DEBUG - COMMENT TO ENABLE
@@ -3389,10 +3392,24 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
     } else if (rc == InsertDisplayModelRc ) {                //check for inserted display model
       emit lpub->messageSig(LOG_INFO, QObject::tr("Display model detected at line: %1").arg(here.lineNumber));
       return thisLine(here)  /*DT_DISPLAY_MODEL*/;
-    } else {                                                 //else keep walking back until 1_5 line
+    } else if (rc == InsertCoverPageRc ) {                   //check for inserted cover page
+      emit lpub->messageSig(LOG_INFO, QObject::tr("Cover page detected at line: %1").arg(here.lineNumber));
+      saveHere = Where();                                    // this step is occupied so clear saveHere
+    } else if (rc == InsertPageRc ) {                        //check inserted page
+      emit lpub->messageSig(LOG_INFO, QObject::tr("Inserted page detected at line: %1").arg(here.lineNumber));
+      saveHere = Where();                                    // this step is occupied so clear saveHere
+    } else if (rc == InsertRc ) {
+      if (lpub->meta.LPub.insert.value().type == InsertData::InsertBom) {
+        emit lpub->messageSig(LOG_INFO, QObject::tr("Bill of materials detected at line: %1").arg(here.lineNumber));
+        saveHere = Where();
+      }
+    } else {                                                 //else keep walking back until 1_5 or substitute line
       QStringList args;
       split(line,args);
-      if (args.size() && args[0] >= "1" && args[0] <= "5") { //non-zero line detected so no back final model
+      bool validLine = args.size() && args[0] >= '0' && args[0] <= '1';
+      bool partLine = validLine && args[0] >= '1';
+      bool substitutePartLine = validLine && line.contains(QRegExp("^0 LPUB PLI END\\s*$"));
+      if (partLine || substitutePartLine) {                 //part line detected so no back final model
         if (saveHere.lineNumber) {
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE

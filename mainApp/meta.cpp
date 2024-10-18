@@ -3777,6 +3777,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
         emit gui->parseErrorSig(message, here, Preferences::InsertErrors, false/*option*/, false/*override*/, 3/*critical*/);
       }
     }
+    _here[0] = here;
     return rc;
   }
 
