@@ -1451,7 +1451,7 @@ public slots:
   void generateCoverPages();
   void ldrawColorPartsLoad();
   void insertFinalModelStep();
-  void deleteFinalModelStep();
+  void deleteFinalModelStep(bool force = false);
 
   void pageSetup();
   void assemSetup();

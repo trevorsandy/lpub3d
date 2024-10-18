@@ -3794,7 +3794,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                          .arg(writeFileName));
 
     Gui::suspendFileDisplay = true;
-    gui->deleteFinalModelStep();
+    gui->deleteFinalModelStep(true);
 
     bool newLineIinserted = false;
 

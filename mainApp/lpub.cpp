@@ -239,8 +239,8 @@ void Gui::insertFinalModelStep() {
   lpub->mi.insertFinalModelStep();
 }
 
-void Gui::deleteFinalModelStep() {
-  lpub->mi.deleteFinalModelStep();
+void Gui::deleteFinalModelStep(bool force) {
+  lpub->mi.deleteFinalModelStep(force);
 }
 
 //void Gui::insertCoverPage()

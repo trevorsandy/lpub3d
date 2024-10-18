@@ -3507,13 +3507,13 @@ void MetaItem::insertFinalModelStep(int atLine)
   emit lpub->messageSig(LOG_INFO, QMessageBox::tr("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
 }
 
-bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
+bool MetaItem::deleteFinalModelStep(bool force) {
 
   bool foundFinalModel = false;
   Where walk,here;
   Rc rc = OkRc;
 
-  if (currentFile() && (fromPreferences || (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)))) {
+  if (currentFile() && (force || (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)))) {
     int finalModelLine = displayModelStepExists(rc, true/*deleteStep*/);
     if ((foundFinalModel = finalModelLine && rc == InsertFinalModelRc)) {
       emit lpub->messageSig(LOG_INFO, QObject::tr("Removing fade/highlight final model step at line %1...").arg(finalModelLine));
@@ -3522,7 +3522,7 @@ bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
       int maxLines = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
       if (walk < maxLines)                                        //check if last line and adjust starting point for deletion
         rc = scanForwardNoParts(walk, StepMask);                  //scan to end of final model step
-/* DEBUG - COMMENT TO ENABLE
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
       emit lpub->messageSig(LOG_DEBUG, QObject::tr("Final model meta commands detected at lines %1 to %2")
                                                   .arg(here.lineNumber)
@@ -3547,7 +3547,7 @@ bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
 
     beginMacro("deleteFinalModelStep");
     for (; walk.lineNumber >= here.lineNumber ; walk-- ) {        //remove lines between model insert and model insert step
-/* DEBUG - COMMENT TO ENABLE
+//* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
       emit lpub->messageSig(LOG_DEBUG, QObject::tr("Deleting inserted final model line %1 in '%2' [%3]")
                                                   .arg(walk.lineNumber)
