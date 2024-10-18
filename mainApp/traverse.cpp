@@ -1623,7 +1623,7 @@ int Gui::drawPage(
                     displayType = DT_MODEL_FINAL;
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
                     lpub->mi.scanBackwardNoParts(top, StepMask);
-                    QString message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5) at line %1");
+                    QString const message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5)");
                     parseError(message, opts.current, Preferences::InsertErrors);
                 } else {                        /*InsertDisplayModelRc*/
                     curMeta.LPub.assem.showStepNumber.setValue(false);
