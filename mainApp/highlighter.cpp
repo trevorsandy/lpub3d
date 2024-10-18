@@ -612,7 +612,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br29);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegularExpression(QStringLiteral("^(?!0 !LPUB|0 !LEOCAD|0 !LDCAD|0 MLCAD|0 GROUP|0 SYNTH|0 !COLOUR|0 !FADE|0 !SILHOUETTE|0 ROTSTEP|0 BUFEXCHG|0 PLIST|[1-5]).*$"));
+    rule.pattern = QRegularExpression(QStringLiteral("^(?!0 !?LPUB|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GROUP|0 SYNTH|0 !?COLOUR|0 !?FADE|0 !?SILHOUETTE|0 ROTSTEP|0 BUFEXCHG|0 PLIST|[1-5])\\s+.*$"));
     rule.format = LDrawHeaderValueFormat;
     highlightingRules.append(rule);
 
@@ -637,7 +637,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("!?\\bLDRAW_ORG\\b"),
         QStringLiteral("!?\\bLICENSE\\b"),
         QStringLiteral("\\bNAME\\b:"),
-        QStringLiteral("^(?!0 !LPUB|1).*\\bFILE\\b"),
+        QStringLiteral("^(?!0 !?LPUB|1).*\\bFILE\\b"),
         QStringLiteral("\\bFALLBACK\\b"),
         QStringLiteral("\\bNEXT\\b"),
         QStringLiteral("\\bNOFILE\\b"),
@@ -710,12 +710,12 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bABS\\b"),
         QStringLiteral("\\bADD\\b"),
         QStringLiteral("\\bMLCAD ARROW\\b"),
-        QStringLiteral("^(?!0 !LPUB|0 !LEOCAD).*\\bBACKGROUND\\b"),
+        QStringLiteral("^(?!0 !?LPUB|0 !?LEOCAD).*\\bBACKGROUND\\b"),
         QStringLiteral("\\bBTG\\b"),
         QStringLiteral("\\bBUFEXCHG\\b"),
         QStringLiteral("\\bFLEXHOSE\\b"),
         QStringLiteral("\\bGHOST\\b"),
-        QStringLiteral("^(?!0 !LPUB|0 !LEOCAD).*\\bGROUP\\b"),
+        QStringLiteral("^(?!0 !?LPUB|0 !?LEOCAD).*\\bGROUP\\b"),
         QStringLiteral("\\bHIDE\\b"),
         QStringLiteral("\\bREL\\b"),
         QStringLiteral("\\bRETRIEVE\\b"),
