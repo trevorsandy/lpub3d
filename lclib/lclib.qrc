@@ -126,8 +126,6 @@
         <file alias="leocad_pt.ts">resources/leocad_pt.ts</file>
         <file alias="library.zip">resources/library.zip</file>
         <file alias="minifig.ini">resources/minifig.ini</file>
-        <file alias="parts_cancel.png">resources/parts_cancel.png</file>
-        <file alias="parts_search.png">resources/parts_search.png</file>
         <file alias="piece_show_earlier.png">resources/piece_show_earlier.png</file>
         <file alias="piece_show_later.png">resources/piece_show_later.png</file>
         <file alias="remove_view.png">resources/remove_view.png</file>
