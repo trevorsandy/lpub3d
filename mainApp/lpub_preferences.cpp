@@ -444,6 +444,7 @@ bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorHighlightLines       = false;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
+bool    Preferences::editorTabLock              = false;
 bool    Preferences::inlineNativeContent        = true;
 bool    Preferences::useSystemTheme             = true;
 bool    Preferences::darkTheme                  = false;
@@ -4201,6 +4202,13 @@ void Preferences::userInterfacePreferences()
   QString const autoUpdateChangeLogKey("AutoUpdateChangeLog");
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,autoUpdateChangeLogKey))) {
       autoUpdateChangeLog = Settings.value(QString("%1/%2").arg(SETTINGS,autoUpdateChangeLogKey)).toBool();
+  }
+
+  QString const editorTabLockKey("EditorTabLock");
+  if (!Settings.contains(QString("%1/%2").arg(SETTINGS,editorTabLockKey))) {
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,editorTabLockKey), QVariant(editorTabLock));
+  } else {
+      editorTabLock = Settings.value(QString("%1/%2").arg(SETTINGS,editorTabLockKey)).toBool();
   }
 }
 

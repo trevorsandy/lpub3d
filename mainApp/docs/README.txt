@@ -1,4 +1,4 @@
-LPub3D 2.4.7.240.3716 (18 10 2024 06:19:36)
+LPub3D 2.4.7.241.3717 (18 10 2024 06:20:40)
 
 Features, enhancements, fixes and changes
 ------------
@@ -16,6 +16,7 @@ Revisions:
 - Feature - Show individual part instance in BOM and PLI #766
 - Enhancement - Add shortcut to launch About LPub3D window #762
 - Enhancement - Apple silicon arm64 builds #761
+- Enhancement - Keep command editor tab on top #771
 - Enhancement - Warning when image path exceeds renderer max path #763
 - Change - Custom parts with underscore in the name #730
 - Change - Difference in rendering with native renderer between versions #731

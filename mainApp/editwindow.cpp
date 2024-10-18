@@ -283,6 +283,27 @@ void EditWindow::previewLine()
     emit lpub->messageSig(LOG_ERROR, tr("Part preview for %1 failed.").arg(partType));
 }
 
+void EditWindow::editorTabLock()
+{
+    Preferences::editorTabLock = editorTabLockAct->isChecked();
+
+    QSettings Settings;
+    QString const editorTabLockKey("EditorTabLock");
+    Settings.setValue(QString("%1/%2").arg(SETTINGS, editorTabLockKey), QVariant(Preferences::editorTabLock));
+
+    QIcon editorTabLockIcon(Preferences::editorTabLock
+        ? ":/resources/editortablocked.png"
+        : ":/resources/editortabunlocked.png");
+    QString StatusTip(Preferences::editorTabLock
+        ? tr("Keep the command editor tab on top. Do not raise visual editor on image load")
+        : tr("Allow the visual editor and preview tabs to automatically raise on image load"));
+    editorTabLockAct->setToolTip(Preferences::editorTabLock
+        ? tr("Unlock Command Editor")
+        : tr("Lock Command Editor"));
+    editorTabLockAct->setIcon(editorTabLockIcon);
+    editorTabLockAct->setStatusTip(StatusTip);
+}
+
 #ifdef QT_DEBUG_MODE
 void EditWindow::previewViewerFile()
 {
@@ -479,6 +500,20 @@ void EditWindow::createActions()
     previewLineAct->setStatusTip(tr("Display the part on the highlighted line in a popup 3D viewer"));
     lpub->actions.insert(previewLineAct->objectName(), Action(QStringLiteral("Edit.Preview Highlighted Line"), previewLineAct));
     connect(previewLineAct, SIGNAL(triggered()), this, SLOT(previewLine()));
+
+    QIcon editorTabLockIcon(Preferences::editorTabLock
+        ? ":/resources/editortablocked.png"
+        : ":/resources/editortabunlocked.png");
+    QString StatusTip(Preferences::editorTabLock
+        ? tr("Keep the command editor tab on top. Do not raise visual editor on image load")
+        : tr("Allow the visual editor and preview tabs to automatically raise on image load"));
+    editorTabLockAct = new QAction(editorTabLockIcon,tr("Lock Command Editor"), this);
+    editorTabLockAct->setCheckable(true);
+    editorTabLockAct->setChecked(Preferences::editorTabLock);
+    editorTabLockAct->setObjectName("editorTabLockAct.2");
+    editorTabLockAct->setStatusTip(tr("Keep command editor tab on top. Do not raise the viaual editor on image load"));
+    lpub->actions.insert(editorTabLockAct->objectName(), Action(QStringLiteral("Edit.Editor Tab Lock"), editorTabLockAct));
+    connect(editorTabLockAct, SIGNAL(triggered()), this, SLOT(editorTabLock()));
 
 #ifdef QT_DEBUG_MODE
     previewViewerFileAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview Current Model..."), this);
@@ -868,6 +903,9 @@ void EditWindow::createToolBars()
             }
         }
         editToolBar->addAction(openWithToolbarAct);
+        editToolBar->addSeparator();
+    } else {
+        editToolBar->addAction(editorTabLockAct);
         editToolBar->addSeparator();
     }
     editToolBar->addAction(updateAct);

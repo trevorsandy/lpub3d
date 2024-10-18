@@ -979,9 +979,9 @@ void Gui::enable3DActions(bool enable)
     if (enable) {
         enableVisualBuildModification();
         enableVisualBuildModActions();
-        gui->visualEditDockWindow->raise();
+        gui->RaiseVisualEditDockWindow();
     } else if (lpub->page.coverPage && lpub->page.meta.LPub.coverPageViewEnabled.value()) {
-        gui->previewDockWindow->raise();
+        gui->RaisePreviewDockWindow();
     }
 
     LightGroupAct->setEnabled(enable);
@@ -1227,7 +1227,7 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
     // Load preview
     if (/*gMainWindow->GetPreviewWidget() && */Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
         gMainWindow->PreviewPiece(QFileInfo(type).fileName(), colorCode, false/*UNUSED*/);
-        gui->previewDockWindow->raise();
+        gui->RaisePreviewDockWindow();
     }
     // Or load visual editor if preview is floating
     else {
@@ -1239,7 +1239,7 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
         if (!gMainWindow->OpenProject(type))
             return false;
         else
-            gui->visualEditDockWindow->raise();
+            gui->RaiseVisualEditDockWindow();
     }
     return true;
 }

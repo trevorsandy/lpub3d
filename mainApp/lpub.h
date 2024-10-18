@@ -1299,15 +1299,30 @@ public slots:
       return bomOccurrence;
   }
 
+  bool OkToRaiseVisualEditorOrPreview()
+  {
+      bool commandEditIsVisible = false;
+      if (Preferences::editorTabLock) {
+          commandEditIsVisible = !commandEditDockWindow->visibleRegion().isEmpty();
+          commandEditIsVisible &= !commandEditDockWindow->isFloating();
+      }
+
+      return !commandEditIsVisible;
+  }
+
   void RaiseVisualEditDockWindow()
   {
-      if (visualEditDockWindow && visualEditDockWindow->visibleRegion().isEmpty())
+      if (visualEditDockWindow &&
+          visualEditDockWindow->visibleRegion().isEmpty() &&
+          OkToRaiseVisualEditorOrPreview())
           visualEditDockWindow->raise();
   }
 
   void RaisePreviewDockWindow()
   {
-      if (previewDockWindow && previewDockWindow->visibleRegion().isEmpty())
+      if (previewDockWindow &&
+          previewDockWindow->visibleRegion().isEmpty() &&
+          OkToRaiseVisualEditorOrPreview())
           previewDockWindow->raise();
   }
 

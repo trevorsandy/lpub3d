@@ -125,6 +125,8 @@
         <file alias="editldraw.png">resources/editldraw.png</file>
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editldviewconf.png">resources/editldviewconf.png</file>
+        <file alias="editortablocked.png">resources/editortablocked.png</file>
+        <file alias="editortabunlocked.png">resources/editortabunlocked.png</file>
         <file alias="editparameterfiles.png">resources/editparameterfiles.png</file>
         <file alias="editpart.png">resources/editpart.png</file>
         <file alias="editplisubstituteparts.png">resources/editplisubstituteparts.png</file>

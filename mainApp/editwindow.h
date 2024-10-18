@@ -152,6 +152,7 @@ private slots:
     void topOfDocument();
     void editLineItem();
     void previewLine();
+    void editorTabLock();
 #ifdef QT_DEBUG_MODE
     void previewViewerFile();
 #endif
@@ -269,6 +270,7 @@ protected:
     QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;
     QAction  *gotoLineAct;
+    QAction  *editorTabLockAct;
     QAction  *preferencesAct;
     QAction  *openFolderAct;
     QAction  *copyFullPathToClipboardAct;
