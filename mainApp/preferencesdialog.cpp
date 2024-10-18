@@ -599,8 +599,9 @@ void PreferencesDialog::setPreferences()
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
   ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && Preferences::enableFadeSteps);
 
+  int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
   QString version = qApp->applicationVersion();
-  QString revision = QString::fromLatin1(VER_REVISION_STR);
+  QString revision = REV ? QString("Revision %1 ").arg(VER_REVISION_STR) : QString();
   QStringList updatableVersions = Preferences::availableVersions.split(",",SkipEmptyParts);
 #ifdef QT_DEBUG_MODE
   updatableVersions.prepend(version);
@@ -612,10 +613,9 @@ void PreferencesDialog::setPreferences()
 
   QString versionInfo;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-  versionInfo = tr("Change Log for version %1 revision %2 (%3)").arg(version, revision, QString::fromLatin1(VER_BUILD_TYPE_STR));
+  versionInfo = tr("Change Log for Version %1%2 (%3)").arg(version, revision, QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-  int revisionNumber = revision.toInt();
-  versionInfo = tr("Change Log for version %1%2").arg(version, revisionNumber ? QString(" revision %1").arg(revision) : "");
+  versionInfo = tr("Change Log for Version %1%2").arg(version, revision);
 #endif
   ui.changeLogGrpBox->setTitle(versionInfo);
 

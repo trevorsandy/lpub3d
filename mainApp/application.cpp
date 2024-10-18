@@ -659,13 +659,14 @@ int Application::initialize(lcCommandLineOptions &Options)
     QString hdr, args, ldrawLibrary;
     const int NumArgsIdx = arguments().size() - 1;
 
+int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-    hdr = QString("%1 v%2 r%3 (%4) for %5")
-                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR), QString::fromLatin1(VER_COMPILED_FOR));
+    hdr = QString("%1 v%2%3 (%4) for %5")
+                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR), QString::fromLatin1(VER_COMPILED_FOR));
 #else
-    int rev = QString::fromLatin1(VER_REVISION_STR).toInt();
+
     hdr = QString("%1 v%2%3 for %4")
-                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), rev ? QString(" r%1").arg(VER_REVISION_STR) : "", QString::fromLatin1(VER_COMPILED_FOR));
+                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_COMPILED_FOR));
 #endif
 
     for (int i = 1; i < arguments().size(); i++)

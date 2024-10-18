@@ -812,14 +812,15 @@ void Gui::closeModelFile()
     if (!topModel.isEmpty())
         emit lpub->messageSig(LOG_INFO, tr("Model unloaded. File closed - %1.").arg(topModel));
     QString windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
+    int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     QString versionInfo;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-    versionInfo = QString("%1 v%2 r%3 (%4)")
-                          .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
+    versionInfo = QString("%1 v%2%3 (%4)")
+                          .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-    int revisionNumber = QString::fromLatin1(VER_REVISION_STR).toInt();
+
     versionInfo = QString("%1 v%2%3")
-                          .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), revisionNumber ? QString(" r%1").arg(VER_REVISION_STR) : "");
+                          .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
 
     setWindowTitle(QString("%1[*] - %2").arg(windowTitle).arg(versionInfo));
@@ -1041,14 +1042,15 @@ void Gui::setCurrentFile(const QString &fileName)
     QFileInfo fileInfo(fileName);
     windowTitle = fileInfo.fileName();
   }
+
   QString versionInfo;
+  int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-  versionInfo = QString("%1 v%2 r%3 (%4)")
-                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
+  versionInfo = QString("%1 v%2%3 (%4)")
+                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-  int revisionNumber = QString::fromLatin1(VER_REVISION_STR).toInt();
   versionInfo = QString("%1 v%2%3")
-                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), revisionNumber ? QString(" r%1").arg(VER_REVISION_STR) : "");
+                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
 
   setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));

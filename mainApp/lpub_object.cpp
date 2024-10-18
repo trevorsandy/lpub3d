@@ -1970,18 +1970,18 @@ void LPub::updateChangelog (const QString &url)
     {
         if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
             if (!m_updaterCancelled) {
+                int REV = m_updater->getLatestRevision(DEFS_URL).toInt(); Q_UNUSED(REV)
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
 #ifdef QT_DEBUG_MODE
-                m_versionInfo = tr("Change Log for version %1 revision %2 (%3)")
-                                 .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
+                m_versionInfo = tr("Change Log for Version %1%2 (%3)")
+                                 .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR).toInt() ? tr(" Revision %1").arg(QString::fromLatin1(VER_REVISION_STR)) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-                m_versionInfo = tr("Change Log for version %1 revision %2 (%3)")
-                                 .arg(m_updater->getLatestVersion(url), m_updater->getLatestRevision(DEFS_URL), QString::fromLatin1(VER_BUILD_TYPE_STR));
+                m_versionInfo = tr("Change Log for Version %1%2 (%3)")
+                                 .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #endif
 #else
-                int revisionNumber = m_updater->getLatestRevision(DEFS_URL).toInt();
-                m_versionInfo = tr("Change Log for version %1%2")
-                                 .arg(m_updater->getLatestVersion(url), revisionNumber ? QString(" revision %1").arg(m_updater->getLatestRevision(DEFS_URL)) : "");
+                m_versionInfo = tr("Change Log for Version %1%2")
+                                 .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString());
 #endif
                 m_setReleaseNotesAsText = m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION);
                 m_releaseNotesContent = m_updater->getChangelog(url);
@@ -1993,12 +1993,14 @@ void LPub::updateChangelog (const QString &url)
     if (url == DEFS_URL)
         processRequest();
     else {
+
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-        m_versionInfo = tr("Change Log for version %1 revision %2 (%3)")
-                .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
+        m_versionInfo = tr("Change Log for Version %1%2 (%3)")
+                           .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR).toInt() ? tr(" Revision %1").arg(QString::fromLatin1(VER_REVISION_STR)) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-        m_versionInfo = tr("Change Log for version %1%2")
-                .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR));
+        int REV = m_updater->getLatestRevision(DEFS_URL).toInt();
+        m_versionInfo = tr("Change Log for Version %1%2")
+                           .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString());
 #endif
         //populate releaseNotes
         QString releaseNotesFile = QString("%1/%2/RELEASE_NOTES.html").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath);

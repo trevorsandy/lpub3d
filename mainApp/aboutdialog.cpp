@@ -31,18 +31,19 @@
 #include "qsimpleupdater.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::AboutDialog)
+    QDialog(parent),
+    ui(new Ui::AboutDialog)
 {
-	ui->setupUi(this);
+    ui->setupUi(this);
 
     ui->contentGroupBox->hide();
 
     ui->version->setTextFormat(Qt::RichText);
-    ui->version->setText(tr("%1 <b>%2</b> Revision <b>%3</b> Build <b>%4</b> SHA <b>%5</b>")
+
+    ui->version->setText(tr("%1 <b>%2</b> %3Build <b>%4</b> SHA <b>%5</b>")
                          .arg(QString::fromLatin1(VER_BUILD_TYPE_STR))
                          .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
-                         .arg(QString::fromLatin1(VER_REVISION_STR))
+                         .arg(QString::fromLatin1(VER_REVISION_STR).toInt() ? tr("Revision <b>%1</b> ").arg(QString::fromLatin1(VER_REVISION_STR)) : QString())
                          .arg(QString::fromLatin1(VER_COMMIT_STR))
                          .arg(QString::fromLatin1(VER_GIT_SHA_STR)));
     ui->description->setTextFormat(Qt::RichText);
