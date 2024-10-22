@@ -1,4 +1,4 @@
-LPub3D 2.4.7.75.3551 (04 09 2023 20:10:15)
+LPub3D 2.4.8.0.3723 (18 10 2024 06:26:50)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,14 +13,36 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Feature - Show individual part instance in BOM and PLI #766
+- Enhancement - Add shortcut to launch About LPub3D window #762
+- Enhancement - Apple silicon arm64 builds #761
+- Enhancement - Keep command editor tab on top #771
+- Enhancement - Warning when image path exceeds renderer max path #763
 - Change - Custom parts with underscore in the name #730
+- Change - Difference in rendering with native renderer between versions #731
+- Change - LDGLite unstable on Windows 11 #751
 - Change - MLCad Part unknown! PART line error after mpd file save #734
 - Change - Relative justify vertical axis on outside placement #729
+- Change - Set command editor highlight lines default to off #768
 - Change - Set submodel substitute part as unofficial part #733
 - Fix - Abnormal rendering behaviour #726
 - Fix - Add LDView Assembly Rendered Arguments conflated #727
+- Fix - Caches are not cleared when exporting #750
+- Fix - Crash when clicking in the Command Editor #767
+- Fix - Crash when opening "BOM Placement" applet #754
+- Fix - Crash when showing BOM #742
+- Fix - Create new Buildmod after one BM does not work #743
+- Fix - Final INSERT MODEL - command placed after BOM - should be before #770
+- Fix - Group step number not displayed when enabled in global settings #764
 - Fix - Include file meta commands not always applied #735
+- Fix - Incorrect preview image in the preview window #769
+- Fix - Intel driver igxelpicd64.dll crash with dump #741
+- Fix - LPub3D crashes on Mac #753
+- Fix - LPub3D unstable if 'Author:' value is empty in LDR-file #760
+- Fix - Multi_step pli per_step false causes crash #755
 - Fix - Parse MPD description line on insert MULTI_STEP BEGIN command #738
+- Fix - Random crash when saving results in corrupt LDraw file #744
+- Fix - Refresh part list or sub-model images causes crash #765
 - Fix - Scrambled submodel when placed before ignore IGN command #732
 - Fix - Submodels shown in BOM when using INSERT DISPLAY_MODEL #739
 
