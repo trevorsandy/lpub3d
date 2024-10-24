@@ -233,7 +233,7 @@ bool lcMatchCategory(const char* PieceName, const char* Expression)
 		}
 		else if ((*p == '|') || (*p == '&'))
 		{
-			std::string LeftStr(Expression, (p - Expression) - 1);
+			std::string LeftStr(Expression, std::max(p - Expression, static_cast<ptrdiff_t>(1)) - 1);
 			std::string RightStr(p + 1);
 
 			if (*p == '|')
@@ -306,6 +306,9 @@ bool lcMatchCategory(const char* PieceName, const char* Expression)
 
 		Word++;
 	}
+
+	if (!Word[0])
+		return false;
 
 	const char* Result = strcasestr(PieceName, Word);
 
