@@ -112,6 +112,9 @@ private:
     /// Print details flag
     bool m_print_output;
 
+    /// Enable available versions and available update online queries
+    bool m_enable_update_check;
+
     /// File specified on via commandline
     QString m_commandline_file;
 

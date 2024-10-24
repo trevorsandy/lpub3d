@@ -901,7 +901,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
             if (Param == QLatin1String("-ap") || Param == QLatin1String("--app-paths")) {
                 // Set loaded library flags and variables
                 Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
-                // initialize directories
+                // Initialize directories
                 Preferences::lpubPreferences();
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
@@ -914,13 +914,18 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
         }
     }
 
+    // Enable available versions and available update online queries
+    char *env_update_check;
+    env_update_check = getenv("LPUB3D_DISABLE_UPDATE_CHECK");
+    m_enable_update_check = !env_update_check && env_update_check[0];
+
     // Set loaded library flags and variables
     Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
 
-    // initialize directories
+    // Initialize directories
     Preferences::lpubPreferences();
 
-    // initialize the logger
+    // Initialize the logger
     Preferences::loggingPreferences();
 
     // Do not log to standard output (fprint) - usually disabled on Windows and enabled on Unix when logging is enabled
@@ -928,7 +933,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
 
     Preferences::printInfo(tr("Initializing application %1...").arg(VER_PRODUCTNAME_STR));
 
-    // application version information
+    // Application version information
     Preferences::printInfo("-----------------------------");
     Preferences::printInfo(hdr);
     Preferences::printInfo("=============================");
@@ -1003,12 +1008,15 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     Preferences::printInfo(tr("%1 Logging Level.........(%2 (%3), Levels: [%4])").arg(VER_PRODUCTNAME_STR).arg(Preferences::loggingLevel)
                                                                   .arg(QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0))
                                                                   .arg(QString(VER_LOGGING_LEVELS_STR).toLower()));
-    Preferences::printInfo(tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled")));
-    Preferences::printInfo(tr("Log To Standard Output.......(%1)").arg(Preferences::suppressFPrint ? tr("Disabled") : tr("Enabled")));
+    QString const enabled = tr("Enabled");
+    QString const disabled = tr("Disabled");
+    Preferences::printInfo(tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? enabled : disabled));
+    Preferences::printInfo(tr("Log To Standard Output.......(%1)").arg(Preferences::suppressFPrint ? disabled : enabled));
 #ifdef Q_OS_WIN
     if (consoleRedirectTreated)
-        Preferences::printInfo(tr("Redirect Output To Console...(%1)").arg(consoleRedirect ? tr("Enabled") : tr("Disabled")));
+        Preferences::printInfo(tr("Redirect Output To Console...(%1)").arg(consoleRedirect ? enabled : disabled));
 #endif
+    Preferences::printInfo(tr("Check for Updates............(%1)").arg(m_enable_update_check ? enabled : disabled));
 #ifndef QT_NO_SSL
     Preferences::printInfo(tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
                                                                   .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
@@ -1253,11 +1261,8 @@ void Application::mainApp()
 
     emit splashMsgSig(tr("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
 
-    char *env_update_check;
-    env_update_check = getenv("LPUB3D_DISABLE_UPDATE_CHECK");
-    bool enable_update_check = !(env_update_check && env_update_check[0]);
 #ifndef DISABLE_UPDATE_CHECK
-    if (enable_update_check)
+    if (m_enable_update_check)
         availableVersions = new AvailableVersions(this);
 #endif
 
@@ -1283,7 +1288,7 @@ void Application::mainApp()
         }
 
 #ifndef DISABLE_UPDATE_CHECK
-        if (enable_update_check)
+        if (m_enable_update_check)
             DoInitialUpdateCheck();
 #endif
 
