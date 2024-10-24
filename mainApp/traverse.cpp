@@ -1619,21 +1619,20 @@ int Gui::drawPage(
                 Where top = opts.current;
                 DisplayType displayType = DT_MODEL_DEFAULT;
                 bool proceed = true;
-                if (rc == InsertFinalModelRc) { /*InsertFinalModelRc*/
+                if (rc == InsertFinalModelRc) {
                     displayType = DT_MODEL_FINAL;
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
-                    lpub->mi.scanBackwardNoParts(top, StepMask);
-                    QString const message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5)");
-                    parseError(message, opts.current, Preferences::InsertErrors);
-                } else {                        /*InsertDisplayModelRc*/
+                    if (stepContains(top,partTypeLineRx)) {
+                        QString const message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5)");
+                        parseError(message, opts.current, Preferences::InsertErrors);
+                    }
+                } else { /*InsertDisplayModelRc*/
                     curMeta.LPub.assem.showStepNumber.setValue(false);
                     opts.displayModel = true;
-                    bool partsAdded = false;
-                    lpub->mi.scanForward(top, StepMask, partsAdded);
-                    if (partsAdded) {
+                    if (stepContains(top,partTypeLineRx)) {
+                        displayType = DT_MODEL_CUSTOM; // Is this here to distinguish parts added ?
                         opts.csiParts.clear();
                         opts.lineTypeIndexes.clear();
-                        displayType = DT_MODEL_CUSTOM;
                     }
                     saveRotStep = curMeta.rotStep.value();
                 }
@@ -1662,7 +1661,6 @@ int Gui::drawPage(
                 // Note scan forward and back checks here are partially redundant
                 // Similar check (does not start form top of step) performed in parse command.
                 Where top = opts.current;
-
                 coverPage = true;
                 partsAdded = true;
                 lpub->page.coverPage = true;
@@ -1671,21 +1669,18 @@ int Gui::drawPage(
                     message = message.arg(QLatin1String("INCLUDE command containing %1"));
                 QRegExp rx("^0 !?LPUB INSERT COVER_PAGE (FRONT|BACK)?$");
                 if (line.contains(rx) && rx.cap(1) == "BACK") {
-                  lpub->page.backCover  = true;
-                  lpub->page.frontCover = false;
-                  lpub->mi.scanBackwardNoParts(top, StepMask);
+                    lpub->page.backCover  = true;
+                    lpub->page.frontCover = false;
                   message = message.arg(QLatin1String("INSERT COVER_PAGE BACK"));
                 } else if (line.contains(rx) && rx.cap(1) == "FRONT") {
-                  lpub->page.frontCover = true;
-                  lpub->page.backCover  = false;
-                  lpub->mi.scanForwardNoParts(top, StepMask);
-                  message = message.arg(QLatin1String("INSERT COVER_PAGE FRONT"));
+                    lpub->page.frontCover = true;
+                    lpub->page.backCover  = false;
+                    message = message.arg(QLatin1String("INSERT COVER_PAGE FRONT"));
                 } else {
-                  message = message.arg(QLatin1String("INSERT COVER_PAGE"));
+                    message = message.arg(QLatin1String("INSERT COVER_PAGE"));
                 }
-
                 if (stepContains(top,partTypeLineRx)) {
-                  parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/);
+                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/);
                 }
               }
               break;
