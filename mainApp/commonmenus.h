@@ -658,7 +658,7 @@ extern CommonMenus commonMenus;
 
 inline QString lpubWT(WT_Type type, const QString &title)
 {
-    return QString("%1:\n%2").arg(title,CommonMenus::WT[type].text);
+    return QString("<b>%1:</b><br><br>%2").arg(title,CommonMenus::WT[type].text); 
 }
 
 #endif
