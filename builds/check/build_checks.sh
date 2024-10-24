@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 22, 2022
+# Last Update October 20, 2024
 # Copyright (C) 2018 - 2024 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -339,7 +339,7 @@ if [ -n "${RUN_LOG}" ]; then
     echo "Moved ${RUN_LOG} to ${LP3D_LOG_PATH}/LPub3DRun.log" || \
     echo "WARNING - ${RUN_LOG} was not moved to ${LP3D_LOG_PATH}/LPub3DRun.log"
 else
-    echo "WARNING - ${RUN_LOG} was not found"
+    echo "WARNING - RunLog [${RUN_LOG}] was not found"
 fi
 
 SUMMARY_MSG=''
