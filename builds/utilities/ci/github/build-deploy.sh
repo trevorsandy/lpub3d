@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update February 02, 2023
+# Last Update October 18, 2024
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -91,7 +91,7 @@ if [ "$TRAVIS" = "true" ]; then
 elif [ "$APPVEYOR" = "True" ]; then
   LP3D_REPOSITORY=$APPVEYOR_REPO_NAME
 fi
-IFS='/' read -ra LP3D_SLUGS <<< "${LP3D_REPOSITORY}"; unset IFS;
+oldIFS=$IFS; IFS='/' read -ra LP3D_SLUGS <<< "${LP3D_REPOSITORY}"; IFS=$oldIFS;
 export LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
 export LP3D_GREP=grep
 if [[ "$OSTYPE" == "darwin"* ]]; then export LP3D_GREP=ggrep; fi
@@ -100,7 +100,7 @@ curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/
 export LP3D_REMOTE=$(${LP3D_GREP} -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
 export LP3D_LOCAL=$(git rev-parse HEAD)
 if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
-  echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting upload."
+  echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting build deploy."
   [ -f "repo.txt" ] && echo "Repo response:" && cat repo.txt || :
   exit 0
 fi

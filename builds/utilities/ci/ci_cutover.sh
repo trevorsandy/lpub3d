@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 12, 2024
+# Last Update: October 19, 2024
 # Copyright (C) 2024 by Trevor SANDY
 
 function ShowHelp() {
@@ -618,6 +618,14 @@ then
         git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
         git_tag="$(git tag -l -n $LOCAL_TAG)" && \
         [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
+		# Update config files with version from new tag
+		./builds/utilities/hooks/pre-commit -ro && \
+		./builds/utilities/hooks/pre-commit -rf && \
+		rm -f *.log
+		# Git append to amend the last commit to update config files with new version
+		git add . &>> $LOG
+		git commit --amend --no-edit &>> $LOG
+		git log --stat &>> $LOG
     fi
     cd $HOME_DIR;
 fi

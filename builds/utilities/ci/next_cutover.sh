@@ -1,15 +1,15 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 12, 2024
+# Last Update: October 19, 2024
 # Copyright (C) 2024 by Trevor SANDY
 
 set +x
 
-VER_TAG=${TAG:-v2.4.8}
-START_COMMIT=${COMMIT:-5834953b48c5b7e00dd3c60c3e314170b4a73662}
+VER_TAG=${TAG:-}
+START_COMMIT=${COMMIT:-}
 RELEASE_BUILD=${RELEASE:-}
-MIN_RN_LINE_DEL=${RN_MIN_LINE_DEL:-462}
-MAX_RN_LINE_DEL=${RN_MAX_LINE_DEL:-1014}
+MIN_RN_LINE_DEL=${RN_MIN_LINE_DEL:-}
+MAX_RN_LINE_DEL=${RN_MAX_LINE_DEL:-}
 
 function ShowHelp() {
     echo
@@ -349,6 +349,14 @@ do
                 git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
                 GIT_TAG="$(git tag -l -n $VER_TAG)" && \
                 [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
+                # Update config files with version from new tag
+				./builds/utilities/hooks/pre-commit -ro && \
+				./builds/utilities/hooks/pre-commit -rf && \
+				rm -f *.log
+                # Git append to amend the last commit to update config files with new version
+                git add . &>> $LOG
+                git commit --amend --no-edit &>> $LOG
+                git log --stat &>> $LOG
             fi
         fi
         if [[ $STOP_AT_COMMIT_COUNT > 0 ]]

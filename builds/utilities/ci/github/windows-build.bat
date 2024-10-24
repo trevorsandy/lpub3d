@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 19, 2024
+rem  Last Update: October 19, 2024
 rem  Copyright (C) 2021 - 2024 by Trevor SANDY
 rem --
 rem --
@@ -30,6 +30,26 @@ SET LP3D_UPDATES_PATH=%LP3D_BUILDPKG_PATH%\Updates
 SET LP3D_LOG_PATH=%LP3D_BUILDPKG_PATH%
 
 CD %GITHUB_WORKSPACE%
+
+:: Check if build is on stale commit
+SET GH_AUTH=Authorization: Bearer %GITHUB_TOKEN%
+IF NOT EXIST "repo.txt" (
+  curl -s -H "%GH_AUTH%" https://api.github.com/repos/%GITHUB_REPOSITORY%/commits/master -o repo.txt
+)
+IF NOT EXIST "repo.txt" (
+  ECHO "WARNING - Failed to get repository response."
+  GOTO :CONTINUE
+)
+FOR /F "delims=" %%q IN ('TYPE repo.txt ^| jq .sha') DO SET "LP3D_REMOTE=%%q"
+SET LP3D_REMOTE=%LP3D_REMOTE:"=%
+FOR /F "delims=" %%c IN ('git rev-parse HEAD') DO SET "LP3D_LOCAL=%%c"
+IF "%LP3D_REMOTE%" NEQ "%LP3D_LOCAL%" (
+  ECHO "WARNING - Build no longer current. Rmote: '%LP3D_REMOTE%', Local: '%LP3D_LOCAL%' - aborting build."
+  IF EXIST "repo.txt" ( ECHO "Repo response:" && TYPE repo.txt )
+  GOTO :END
+)
+
+:CONTINUE
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
   ECHO.
