@@ -108,7 +108,7 @@ contains(QT_VERSION, ^6\\..*) {
   }
 }
 
-versionAtLeast(QT_VERSION, 5.12.0) {
+greaterThan(QT_VERSION, 5.11.3) {
     CONFIG += c++17
 } else {
     win32-msvc*: QMAKE_CXXFLAGS += /std:c++17
