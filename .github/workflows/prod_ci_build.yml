@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 26, 2024
+# Last Update: October 21, 2024
 # Copyright (C) 2021 - 2024 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -47,6 +47,7 @@ jobs:
       - name: Build ${{ matrix.BUILD }}
         run: bash -ex builds/utilities/ci/github/linux-build.sh
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           BUILD: ${{ matrix.BUILD }}
           LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
@@ -98,6 +99,7 @@ jobs:
       - name: Build macOS ${{ matrix.runner-version }}
         run: bash -ex builds/utilities/ci/github/macos-build.sh
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
       - name: List Artifacts
@@ -181,6 +183,7 @@ jobs:
       - name: Build Windows
         run: .\builds\utilities\ci\github\windows-build.bat | .\builds\utilities\win_tee.cmd "${{ env.LP3D_BUILDPKG_PATH }}\windows_build.log" append
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
         shell: cmd
       - name: List Artifacts
