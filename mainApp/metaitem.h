@@ -479,10 +479,10 @@ public:
 
   void insertPage(QString &meta);
   bool appendPage(QString &meta, Where &where, int = 0/*option*/);
-  void insertFinalModelStep(int atLine);
+  bool insertFinalModelStep(int atLine);
   void insertDisplayModelStep(Where &here, bool = false);
   bool deleteFinalModelStep(bool = false);
-  void insertFinalModelStep();
+  bool insertFinalModelStep();
 
   void insertPicture();
   void insertText();

@@ -236,7 +236,8 @@ void Gui::generateCoverPages()
 }
 
 void Gui::insertFinalModelStep() {
-  lpub->mi.insertFinalModelStep();
+  if (lpub->mi.insertFinalModelStep())
+    undoStack->setClean();
 }
 
 void Gui::deleteFinalModelStep(bool force) {

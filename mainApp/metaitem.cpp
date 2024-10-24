@@ -3483,7 +3483,7 @@ void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
     endMacro();
 }
 
-void MetaItem::insertFinalModelStep()
+bool MetaItem::insertFinalModelStep()
 {
   if (currentFile() && Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
     Rc rc = OkRc;
@@ -3491,20 +3491,22 @@ void MetaItem::insertFinalModelStep()
     if (lineNumber) {
       if (rc != InsertFinalModelRc && rc != InsertDisplayModelRc) {
         emit lpub->messageSig(LOG_INFO, QObject::tr("Inserting fade/highlight final model step at line %1...").arg(lineNumber));
-        insertFinalModelStep(lineNumber);
+        return insertFinalModelStep(lineNumber);
       }
     }
   }
+  return false;
 }
 
-void MetaItem::insertFinalModelStep(int atLine)
+bool MetaItem::insertFinalModelStep(int atLine)
 {
   if (atLine <= 0) // final model already installed so exit.
-    return;
+    return false;
 
   Where here(lpub->ldrawFile.topLevelFile(),atLine);
   insertDisplayModelStep(here, true /*Final Model*/);
   emit lpub->messageSig(LOG_INFO, QMessageBox::tr("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
+  return true;
 }
 
 bool MetaItem::deleteFinalModelStep(bool force) {
