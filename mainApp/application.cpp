@@ -752,7 +752,8 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
             {
                 m_console_mode = true;
                 m_print_output = true;
-                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1, %2 %3, Revision %4, Commit %5, SHA %6\n").arg(VER_PRODUCTNAME_STR).arg(VER_BUILD_TYPE_STR).arg(VER_PRODUCTVERSION_STR).arg(VER_REVISION_STR).arg(VER_COMMIT_STR).arg(VER_GIT_SHA_STR)));
+                int rev = QString::fromLatin1(VER_REVISION_STR).toInt();
+                fprintf(stdout, "%s", qUtf8Printable(tr("\n%1, %2 %3%4, Commit %5, SHA %6\n").arg(VER_PRODUCTNAME_STR).arg(VER_BUILD_TYPE_STR).arg(VER_PRODUCTVERSION_STR).arg(rev ? tr(", Revision %1").arg(VER_REVISION_STR) : "").arg(VER_COMMIT_STR).arg(VER_GIT_SHA_STR)));
                 fprintf(stdout, "%s", qUtf8Printable(tr("Compiled on %1\n").arg(__DATE__)));
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {

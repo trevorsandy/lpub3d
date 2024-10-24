@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3725" date="2024-10-24">
+            <release version="2.4.8.3726" date="2024-10-24">
                 <description>
-                    <p>LPub3D 24.10.2024 v2.4.8 r2 Continuous Build.
+                    <p>LPub3D 24.10.2024 v2.4.8 r3 Continuous Build.
                         Feature - Show individual part instance in BOM and PLI #766
                         Enhancement - Add shortcut to launch About LPub3D window #762
                         Enhancement - Apple silicon arm64 builds #761
