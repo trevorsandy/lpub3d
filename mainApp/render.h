@@ -58,7 +58,7 @@ public:
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
   static QString const   getPovrayRenderQuality(int quality = -1);
-  static int             executeLDViewProcess(QStringList &, Options::Mt);
+  static int             executeLDViewProcess(QStringList &, QStringList &, Options::Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getRenderImageFile(int);
   static QString const   getRenderModelFile(int, bool = true);

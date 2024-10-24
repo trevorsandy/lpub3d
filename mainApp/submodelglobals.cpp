@@ -264,6 +264,43 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
+  widget = new QWidget();
+  widget->setObjectName(tr("More..."));
+  widget->setWhatsThis(lpubWT(WT_SETUP_ASSEM_MORE_OPTIONS,widget->objectName()));
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  StringMeta *parmsMeta = nullptr;
+  StringMeta *parmsPovMeta = nullptr;
+  StringMeta *envVarsMeta = nullptr;
+  bool showParmsBox = true;
+  switch (Preferences::preferredRenderer) {
+    case RENDERER_LDVIEW:
+    envVarsMeta = &subModelMeta->ldviewEnvVars;
+    parmsMeta = &subModelMeta->ldviewParms;
+    break;
+    case RENDERER_LDGLITE:
+    envVarsMeta = &subModelMeta->ldgliteEnvVars;
+    parmsMeta = &subModelMeta->ldgliteParms;
+    break;
+    case RENDERER_POVRAY:
+    envVarsMeta = &subModelMeta->povrayEnvVars;
+    parmsPovMeta = &subModelMeta->povrayParms;
+    parmsMeta = &subModelMeta->ldviewParms;
+    break;
+    default:
+    showParmsBox = false;
+  }
+  if (showParmsBox) {
+    QString const renderer = rendererNames[Preferences::preferredRenderer];
+    QString const title = tr("Submodel Additional %1 Parameters").arg(renderer);
+    box = new QGroupBox(tr("Additional %1 Renderer Parameters").arg(renderer));
+    vlayout->addWidget(box);
+    child = new RendererParamsGui(title,envVarsMeta,parmsMeta,parmsPovMeta,Preferences::preferredRenderer,box);
+    child->setToolTip(tr("Set your specific %1 renderer parameters and environment variables.").arg(renderer));
+    data->children.append(child);
+  }
+
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 

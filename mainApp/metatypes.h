@@ -1024,7 +1024,7 @@ public:
   static float getPartCameraLatitude();
   static float getSubmodelCameraLongitude();
   static float getSubmodelCameraLatitude();
-  static QString getPreferredRenderer();
+  static QString getPreferredRenderer(int=-1);
   static QString getPreferredUnits();
   static QString getDefaultCSIKeys();
 };

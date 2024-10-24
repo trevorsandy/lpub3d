@@ -3573,8 +3573,11 @@ public:
   StringListMeta       subModelFontColor;
   BoolMeta             individualParts;
   StringMeta           ldviewParms;
+  StringMeta           ldviewEnvVars;
   StringMeta           ldgliteParms;
+  StringMeta           ldgliteEnvVars;
   StringMeta           povrayParms;
+  StringMeta           povrayEnvVars;
   BoolMeta             pack;
   BoolMeta             sort;
   PliSortMeta          sortBy;  //deprecated
@@ -3621,8 +3624,13 @@ public:
   PlacementMeta         placement;
   FloatMeta             modelScale;
   StringMeta            ldviewParms;
+  StringMeta            ldviewEnvVars;
   StringMeta            ldgliteParms;
+  StringMeta            ldgliteEnvVars;
   StringMeta            povrayParms;
+  StringMeta            povrayEnvVars;
+  StringMeta            blenderParms;
+  StringMeta            blenderEnvVars;
   BoolMeta              showStepNumber;
   CsiAnnotationMeta     annotation;
   StudStyleMeta         studStyle;

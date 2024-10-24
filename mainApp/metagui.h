@@ -1254,6 +1254,53 @@ public slots:
 
 /***********************************************************************
  *
+ * RendererParameters
+ *
+ **********************************************************************/
+
+class RendererParamsMeta;
+class RendererParamsGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+    RendererParamsGui(QString const &heading,
+                      StringMeta   *envVarsMeta,
+                      StringMeta   *parmsMeta,
+                      StringMeta   *parmsPovMeta = nullptr,
+                      int           renderer = 0,
+                      QGroupBox    *parent = nullptr);
+  ~RendererParamsGui() {}
+
+  virtual void apply(QString &modelName);
+
+private slots:
+  void lineEditReset();
+
+private:
+  StringMeta  *parmsMeta;
+  StringMeta  *parmsPovMeta;
+  StringMeta  *envVarsMeta;
+  QLineEdit   *parameterEdit;
+  QLineEdit   *parameterPovEdit;
+  QLineEdit   *enviromentEdit;
+  QAction     *resetParameterEditAct;
+  QAction     *resetParameterPovEditAct;
+  QAction     *resetEnviromentEditAct;
+  QString      defaultParams;
+  QString      defaultPovParams;
+  QString      defaultEnvVars;
+  bool         parametersModified;
+  bool         parametersPovModified;
+  bool         enviromentModified;
+  bool         useLDViewPovGen;
+
+public slots:
+  void editChange(QString const &);
+};
+
+/***********************************************************************
+ *
  * Separator/Divider
  *
  **********************************************************************/

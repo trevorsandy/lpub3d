@@ -541,11 +541,14 @@ void RenderDialog::on_RenderButton_clicked()
         message = tr("POV-Ray CSI Render Arguments: %1 %2").arg(Preferences::povrayExe).arg(Arguments.join(" "));
         emit gui->messageSig(LOG_INFO, message);
 
-        QStringList povenv = QProcess::systemEnvironment();
-        povenv.prepend("POV_IGNORE_SYSCONF_MSG=1");
+        QStringList povrayEnv = Render::splitParms(lpub->page.meta.LPub.assem.povrayEnvVars.value());
+        povrayEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
+        emit gui->messageSig(LOG_INFO,QObject::tr("POVRay Model Renderer Environment Variables: %1")
+                                                  .arg(povrayEnv.join(" ")));
 
         RenderProcess *Process = new RenderProcess(this);
-        Process->setEnvironment(povenv);
+        povrayEnv << QProcess::systemEnvironment();
+        Process->setEnvironment(povrayEnv);
         Process->setWorkingDirectory(QDir::currentPath() + QDir::separator() + Paths::tmpDir); // pov win console app will not write to dir different from cwd or source file dir
         Process->setStandardErrorFile(GetLogFileName(false/*stdOut*/));
         Process->start(Preferences::povrayExe, Arguments);
@@ -690,11 +693,16 @@ void RenderDialog::on_RenderButton_clicked()
 
         connect(mProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(ReadStdOut()));
 
-        QStringList systemEnvironment = QProcess::systemEnvironment();
+        QStringList blenderEnvironment = Render::splitParms(lpub->page.meta.LPub.assem.blenderEnvVars.value());
 
-        systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
+        blenderEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
 
-        mProcess->setEnvironment(systemEnvironment);
+        emit gui->messageSig(LOG_INFO,QObject::tr("Blender Model Renderer Environment Variables: %1")
+                                                  .arg(blenderEnvironment.join(" ")));
+
+        blenderEnvironment << QProcess::systemEnvironment();
+
+        mProcess->setEnvironment(blenderEnvironment);
 
         mProcess->setWorkingDirectory(QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::blenderRenderDir)));
 

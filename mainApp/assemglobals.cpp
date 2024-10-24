@@ -82,16 +82,31 @@ GlobalAssemDialog::GlobalAssemDialog(
   MetaGui *child;
   QGroupBox *box;
 
-  AssemMeta *assem = &data->meta.LPub.assem;
+  AssemMeta *assemMeta = &data->meta.LPub.assem;
 
   /*
    * Contents tab
    */
 
   widget = new QWidget(nullptr);
-  widget->setObjectName(tr("Contents"));
+  widget->setObjectName(tr("Content"));
   widget->setWhatsThis(lpubWT(WT_SETUP_ASSEM_CONTENTS,widget->objectName()));
   vlayout  = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  QTabWidget *childtabwidget = new QTabWidget();
+  vlayout->addWidget(childtabwidget);
+
+  tabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * Assembly Tab
+   */
+
+  widget = new QWidget(nullptr);
+  widget->setObjectName(tr("Assemblies"));
+  widget->setWhatsThis(lpubWT(WT_SETUP_ASSEM_ASSEMBLIES,widget->objectName()));
+  vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Assembly Image"));
@@ -100,12 +115,12 @@ GlobalAssemDialog::GlobalAssemDialog(
   box->setLayout(boxGrid);
 
   // scale
-  child = new ScaleGui(tr("Scale"),&assem->modelScale);
+  child = new ScaleGui(tr("Scale"),&assemMeta->modelScale);
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,0,0);
 
-  child = new UnitsGui(tr("Margins L/R|T/B"),&assem->margin);
+  child = new UnitsGui(tr("Margins L/R|T/B"),&assemMeta->margin);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
@@ -117,28 +132,28 @@ GlobalAssemDialog::GlobalAssemDialog(
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new CameraFOVGui(tr("FOV"),&assem->cameraFoV);
+  child = new CameraFOVGui(tr("FOV"),&assemMeta->cameraFoV);
   child->setToolTip(tr("Camera field of view"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,0,0);
 
   // camera z near
-  child = new CameraZPlaneGui(tr("Z Near"),&assem->cameraZNear);
+  child = new CameraZPlaneGui(tr("Z Near"),&assemMeta->cameraZNear);
   child->setToolTip(tr("Camera Z near plane"));
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
   boxGrid->addWidget(child,0,1);
 
   // camera z far
-  child = new CameraZPlaneGui(tr("Z Far"),&assem->cameraZFar,true/*ZFar*/);
+  child = new CameraZPlaneGui(tr("Z Far"),&assemMeta->cameraZFar,true/*ZFar*/);
   child->setToolTip(tr("Camera Z far plane"));
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
   boxGrid->addWidget(child,0,2);
 
   // view angles
-  child = new CameraAnglesGui(tr("Camera Angles"),&assem->cameraAngles);
+  child = new CameraAnglesGui(tr("Camera Angles"),&assemMeta->cameraAngles);
   child->setToolTip(tr("Camera Latitude and Longitude angles"));
   data->children.append(child);
   connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
@@ -151,7 +166,72 @@ GlobalAssemDialog::GlobalAssemDialog(
   child = new NumberGui("",stepNumber,box);
   data->children.append(child);
 
-  tabwidget->addTab(widget,widget->objectName());
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtabwidget->addTab(widget,widget->objectName());
+
+  /*
+   * More... Tab
+   */
+
+  widget = new QWidget();
+  widget->setObjectName(tr("More..."));
+  widget->setWhatsThis(lpubWT(WT_SETUP_ASSEM_MORE_OPTIONS,widget->objectName()));
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  StringMeta *parmsMeta = nullptr;
+  StringMeta *parmsPovMeta = nullptr;
+  StringMeta *envVarsMeta = nullptr;
+  bool showParmsBox = true;
+  switch (Preferences::preferredRenderer) {
+    case RENDERER_LDVIEW:
+    envVarsMeta = &assemMeta->ldviewEnvVars;
+    parmsMeta = &assemMeta->ldviewParms;
+    break;
+    case RENDERER_LDGLITE:
+    envVarsMeta = &assemMeta->ldgliteEnvVars;
+    parmsMeta = &assemMeta->ldgliteParms;
+    break;
+    case RENDERER_POVRAY:
+    envVarsMeta = &assemMeta->povrayEnvVars;
+    parmsPovMeta = &assemMeta->povrayParms;
+    parmsMeta = &assemMeta->ldviewParms;
+    break;
+    default:
+    showParmsBox = false;
+  }
+  if (showParmsBox) {
+    QString const renderer = rendererNames[Preferences::preferredRenderer];
+    QString const title = tr("Assembly Additional %1 Renderer Parameters").arg(renderer);
+    box = new QGroupBox(title);
+    vlayout->addWidget(box);
+    child = new RendererParamsGui(title,envVarsMeta,parmsMeta,parmsPovMeta,Preferences::preferredRenderer,box);
+    child->setToolTip(tr("Set your Assembly %1 renderer parameters and environment variables.").arg(renderer));
+    data->children.append(child);
+  }
+  if (Preferences::preferredRenderer != RENDERER_POVRAY) {
+    QString const title = tr("Additional Render with POVRay Parameters");
+    box = new QGroupBox(title);
+    vlayout->addWidget(box);
+    child = new RendererParamsGui(title,&assemMeta->povrayEnvVars,&assemMeta->povrayParms,nullptr,RENDERER_POVRAY,box);
+    child->setToolTip(tr("Set your Render with %1 parameters and environment variables.").arg(rendererNames[RENDERER_POVRAY]));
+    data->children.append(child);
+  }
+
+  QString const title = tr("Additional Render with Blender Parameters");
+  box = new QGroupBox(title);
+  vlayout->addWidget(box);
+  child = new RendererParamsGui(title,&assemMeta->blenderEnvVars,&assemMeta->blenderParms,nullptr,RENDERER_BLENDER,box);
+  child->setToolTip(tr("Set your Render with %1 parameters and environment variables.").arg(rendererNames[RENDERER_BLENDER]));
+  data->children.append(child);
+
+    //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtabwidget->addTab(widget,widget->objectName());
 
   /*
    * Display tab
@@ -166,12 +246,14 @@ GlobalAssemDialog::GlobalAssemDialog(
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
+  tabwidget->addTab(widget,widget->objectName());
+
   box = new QGroupBox(tr("Step"));
   box->setWhatsThis(lpubWT(WT_SETUP_ASSEM_DISPLAY_STEP,box->title()));
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  child = new CheckBoxGui(tr("Step Number"),&assem->showStepNumber);
+  child = new CheckBoxGui(tr("Step Number"),&assemMeta->showStepNumber);
   data->children.append(child);
   childlayout->addWidget(child);
 
@@ -181,7 +263,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   childlayout = new QVBoxLayout();
   box->setLayout(childlayout);
 
-  child = new CsiAnnotationGui("",&assem->annotation,nullptr,fixedAnnotations);
+  child = new CsiAnnotationGui("",&assemMeta->annotation,nullptr,fixedAnnotations);
   data->children.append(child);
   childlayout->addWidget(child);
   box->setEnabled(enableAnnotations);
@@ -190,7 +272,7 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   box = new QGroupBox("Stud Style And Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
+  child = new StudStyleGui(&assemMeta->autoEdgeColor,&assemMeta->studStyle,&assemMeta->highContrast, box);
   child->setToolTip(tr("Select stud style, High Contrast styles repaint stud cylinders and part edges."));
   data->children.append(child);
   connect(child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));

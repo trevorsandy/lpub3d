@@ -70,11 +70,13 @@ enum WT_Type
     //*************************************
     //*  GLOBAL SETUP ENTRIES
     //*************************************
+    WT_SETUP_ASSEM_ANNOTATION,
     WT_SETUP_ASSEM,
+    WT_SETUP_ASSEM_ASSEMBLIES,
     WT_SETUP_ASSEM_CONTENTS,
     WT_SETUP_ASSEM_DISPLAY,
     WT_SETUP_ASSEM_DISPLAY_STEP,
-    WT_SETUP_ASSEM_ANNOTATION,
+    WT_SETUP_ASSEM_MORE_OPTIONS,
     WT_SETUP_CALLOUT,
     WT_SETUP_CALLOUT_ASSEMBLY,
     WT_SETUP_CALLOUT_BACKGROUND_BORDER,
@@ -382,6 +384,9 @@ enum WT_Type
     WT_GUI_STEP_ROTATION,
     WT_GUI_SUBMODEL_PREVIEW_DISPLAY,
     WT_GUI_ROTATE_ICON_SIZE,
+    WT_GUI_RENDERER_PARAMETERS,
+    WT_GUI_RENDERER_PARAMETERS_BLENDER,
+    WT_GUI_RENDERER_PARAMETERS_POVRAY,
     WT_NUM_ENTRIES
 };
 
@@ -391,9 +396,6 @@ class QMenu;
 class CommonMenus
 {
 public:
-  CommonMenus(void);
-  ~CommonMenus(void);
-
   QAction *addAction(
                 QMenu &menu,
           const QIcon &icon,

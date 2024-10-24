@@ -28,14 +28,6 @@
 #define WT_ARRAY_COUNT(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 #define WT_ARRAY_SIZE_CHECK(a,s) static_assert(WT_ARRAY_COUNT(a) == static_cast<int>(s), QT_STRINGIFY(a) " size mismatch.")
 
-CommonMenus::CommonMenus(void)
-{
-}
-
-CommonMenus::~CommonMenus(void)
-{
-}
-
 CommonMenus commonMenus;
 
 QAction* CommonMenus::addAction(
@@ -2329,12 +2321,50 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
-        // WT_SETUP_ASSEM_CONTENTS
+        // WT_SETUP_ASSEM_ANNOTATION
+        {
+            QObject::tr(
+            "  The following configuration setup are available for\n"
+            "  assembly part annotations:\n"
+            "  - Display Assembly (CSI) Part Annotation: turn on or\n"
+            "    off CSI part annotation.\n\n"
+            "  - CSI Part Annotation Placement: change CSI part\n"
+            "    annotation placement.\n"
+            "    You can also drag part annotations from their\n"
+            "    placed location to your desired location.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_ANNOTATION")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_SETUP_ASSEM_ASSEMBLIES
         {
             QObject::tr(
             "  Configure your instruction document assembly\n"
-            "  sizing,\n"
-            "  assembly orientation and step number properties.%1\n")
+            "  images default scale, margins, camera and\n"
+            "  step number settings.%1\n")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_ASSEMBLIES")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_SETUP_ASSEM_CONTENTS
+        {
+            QObject::tr(
+            "  Configure your instruction document assembly sizing,\n"
+            "  image camera orientation and step number settings.\n\n"
+            "  You can also configure the %1 renderer\n"
+            "  additional parameters and environment variables\n"
+            "  and, only for assemblies, additional parameters and\n"
+            "  environment variables for Blender photo-realistic\n"
+            "  image rendering.%2\n")
+            .arg(MetaDefaults::getPreferredRenderer())
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_SETUP_ASSEM_CONTENTS")
@@ -2371,20 +2401,15 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
-        // WT_SETUP_ASSEM_ANNOTATION
+        // WT_SETUP_ASSEM_MORE_OPTIONS
         {
             QObject::tr(
-            "  The following configuration setup are available for\n"
-            "  assembly part annotations:\n"
-            "  - Display Assembly (CSI) Part Annotation: turn on or\n"
-            "    off CSI part annotation.\n\n"
-            "  - CSI Part Annotation Placement: change CSI part\n"
-            "    annotation placement.\n"
-            "    You can also drag part annotations from their\n"
-            "    placed location to your desired location.%1\n")
+            "  Configure your instruction document\n"
+            "  %1 default additional arguments.%2\n")
+            .arg(MetaDefaults::getPreferredRenderer())
             .arg(
 #ifdef QT_DEBUG_MODE
-                 QLatin1String("\n\n  WT_SETUP_ASSEM_ANNOTATION")
+                 QLatin1String("\n\n  WT_SETUP_ASSEM_MORE_OPTIONS")
 #else
                  ""
 #endif
@@ -8499,6 +8524,79 @@ void CommonMenus::setWhatsThis()
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("\n\n  WT_GUI_ROTATE_ICON_SIZE")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_GUI_RENDERER_PARAMETERS
+        {
+            QObject::tr(
+            "  Configure your instruction document %1\n"
+            "  additional parameters and environment variables.\n\n"
+            "  Both %1 parameters and environment variables\n"
+            "  must be space delimited and can be either single ' or\n"
+            "  double \" qouted. So if you want to use a value that\n"
+            "  contains at least one space, this value must be quoted.\n\n"
+            "  Environment variables must respect the system environment\n"
+            "  format which usually is key, value separated by an\n"
+            "  equal sign.%2%3\n")
+            .arg(MetaDefaults::getPreferredRenderer())
+            .arg(MetaDefaults::getPreferredRenderer() ==
+                 QLatin1String("POVRay") && !Preferences::useNativePovGenerator
+                 ? QObject::tr("\n\n"
+            "  The current configuration is using %1 as the POV file\n"
+            "  generator so dialogues for %1 additional parameters\n"
+            "  and environment variables are present.\n"
+            "  These configuration settings should only target the\n"
+            "  POV file generator parameters and environment dialogues.\n")
+            .arg(MetaDefaults::getPreferredRenderer(RENDERER_LDVIEW))
+            : "")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_RENDERER_PARAMETERS")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_GUI_RENDERER_PARAMETERS_BLENDER
+        {
+            QObject::tr(
+            "  Configure your %1 photo-realistic image render\n"
+            "  additional parameters and environment variables.\n\n"
+            "  Both %1 parameters and environment variables\n"
+            "  must be space delimited and can be either single ' or\n"
+            "  double \" qouted. So if you want to use a value that\n"
+            "  contains at least one space, this value must be quoted.\n\n"
+            "  Environment variables must respect the system environment\n"
+            "  format which usually is key, value separated by an\n"
+            "  equal sign.%2\n")
+            .arg(MetaDefaults::getPreferredRenderer(RENDERER_BLENDER))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_RENDERER_PARAMETERS_BLENDER")
+#else
+                 ""
+#endif
+                )
+        },
+        // WT_GUI_RENDERER_PARAMETERS_POVRAY
+        {
+            QObject::tr(
+            "  Configure your %1 photo-realistic image render\n"
+            "  additional parameters and environment variables.\n\n"
+            "  Both %1 parameters and environment variables\n"
+            "  must be space delimited and can be either single ' or\n"
+            "  double \" qouted. So if you want to use a value that\n"
+            "  contains at least one space, this value must be quoted.\n\n"
+            "  Environment variables must respect the system environment\n"
+            "  format which usually is key, value separated by an\n"
+            "  equal sign.%2\n")
+            .arg(MetaDefaults::getPreferredRenderer(RENDERER_POVRAY))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("\n\n  WT_GUI_RENDERER_PARAMETERS_POVRAY")
 #else
                  ""
 #endif

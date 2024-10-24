@@ -68,7 +68,8 @@ const QString rendererNames[NUM_RENDERERS] =
     "Native",  // RENDERER_NATIVE
     "LDView",  // RENDERER_LDVIEW
     "LDGLite", // RENDERER_LDGLITE
-    "POVRay"   // RENDERER_POVRAY
+    "POVRay",  // RENDERER_POVRAY
+    "Blender"  // RENDERER_BLENDER
 };
 
 const QString MsgKeys[Preferences::NumKeys] =

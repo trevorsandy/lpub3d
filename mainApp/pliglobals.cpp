@@ -276,6 +276,37 @@ GlobalPliDialog::GlobalPliDialog(
   child = new CheckBoxGui(tr("Show Individual Part Instance"),&pliMeta->individualParts,box);
   data->children.append(child);
 
+  StringMeta *parmsMeta = nullptr;
+  StringMeta *parmsPovMeta = nullptr;
+  StringMeta *envVarsMeta = nullptr;
+  bool showParmsBox = true;
+  switch (Preferences::preferredRenderer) {
+    case RENDERER_LDVIEW:
+    envVarsMeta = &pliMeta->ldviewEnvVars;
+    parmsMeta = &pliMeta->ldviewParms;
+    break;
+    case RENDERER_LDGLITE:
+    envVarsMeta = &pliMeta->ldgliteEnvVars;
+    parmsMeta = &pliMeta->ldgliteParms;
+    break;
+    case RENDERER_POVRAY:
+    envVarsMeta = &pliMeta->povrayEnvVars;
+    parmsPovMeta = &pliMeta->povrayParms;
+    parmsMeta = &pliMeta->ldviewParms;
+    break;
+    default:
+    showParmsBox = false;
+  }
+  if (showParmsBox) {
+    QString const renderer = rendererNames[Preferences::preferredRenderer];
+    QString const title = tr("%1 Additional %2 Parameters").arg(bom ? tr("Bom") : tr("Pli")).arg(renderer);
+    box = new QGroupBox(tr("Additional %1 Renderer Parameters").arg(renderer));
+    vlayout->addWidget(box);
+    child = new RendererParamsGui(title,envVarsMeta,parmsMeta,parmsPovMeta,Preferences::preferredRenderer,box);
+    child->setToolTip(tr("Set your specific %1 renderer parameters and environment variables.").arg(renderer));
+    data->children.append(child);
+  }
+
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);

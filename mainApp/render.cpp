@@ -615,21 +615,28 @@ bool Render::createSnapshotsList(
     return true;
 }
 
-int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
+int Render::executeLDViewProcess(QStringList &arguments, QStringList &environment, Options::Mt module) {
 
-  QString message = QObject::tr("LDView %1 %2 Arguments: %3 %4")
-                                .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
-                                .arg(module == Options::CSI ? "CSI" : "PLI")
-                                .arg(Preferences::ldviewExe)
-                                .arg(arguments.join(" "));
+  QString const render = module == Options::CSI ? "CSI" : "PLI";
+  QString const message = QObject::tr("LDView %1 %2 Arguments: %3 %4")
+                                      .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
+                                      .arg(render)
+                                      .arg(Preferences::ldviewExe)
+                                      .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
   emit gui->messageSig(LOG_INFO, message);
 #endif
 
+  QStringList ldviewEnvVars = environment;
+  if (ldviewEnvVars.size())
+  emit gui->messageSig(LOG_INFO,QObject::tr("LDView CSI POV file generation environment variables: %1")
+                                            .arg(ldviewEnvVars.join(" ")));
+
   QProcess ldview;
-  ldview.setEnvironment(QProcess::systemEnvironment());
+  ldviewEnvVars << QProcess::systemEnvironment();
+  ldview.setEnvironment(ldviewEnvVars);
   ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
@@ -640,7 +647,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
           const QString result(ldview.readAll());
           emit gui->messageSig(LOG_ERROR,QObject::tr("LDView %1 %2 render failed with code %2 %3")
                                .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
-                               .arg(module == Options::CSI ? "CSI" : "PLI")
+                               .arg(render)
                                .arg(ldview.exitCode())
                                .arg(result));
           return -1;
@@ -787,6 +794,7 @@ int POVRay::renderCsi(
 
   // Populate render attributes
   QStringList ldviewParmslist = splitParms(meta.LPub.assem.ldviewParms.value());
+  QStringList ldviewEnvVars = splitParms(meta.LPub.assem.ldviewEnvVars.value());
   QString transform  = meta.rotStep.value().type.toUpper();
   bool customViewpoint = meta.LPub.assem.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && (Preferences::applyCALocally || transform == QLatin1String("ABS"));
@@ -986,15 +994,19 @@ int POVRay::renderCsi(
 
       emit gui->messageSig(LOG_STATUS, QObject::tr("LDView CSI POV file generation..."));
 
-      message = QObject::tr("LDView CSI POV File Generation CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      message = QObject::tr("LDView CSI POV file generation CSI arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
       emit gui->messageSig(LOG_INFO, message);
 #endif
+      if (ldviewEnvVars.size())
+        emit gui->messageSig(LOG_INFO,QObject::tr("POV-Ray CSI POV file generation environment variables: %1")
+                                                .arg(ldviewEnvVars.join(" ")));
 
-      QProcess    ldview;
-      ldview.setEnvironment(QProcess::systemEnvironment());
+      QProcess ldview;
+      ldviewEnvVars << QProcess::systemEnvironment();
+      ldview.setEnvironment(ldviewEnvVars);
       ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
       ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
       ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
@@ -1078,10 +1090,14 @@ int POVRay::renderCsi(
   emit gui->messageSig(LOG_INFO, message);
 #endif
 
+  QStringList povEnvVars = splitParms(meta.LPub.assem.povrayEnvVars.value());
+  povEnvVars.prepend("POV_IGNORE_SYSCONF_MSG=1");
+  emit gui->messageSig(LOG_INFO,QObject::tr("POV-Ray CSI renderer environment variables: %1")
+                                            .arg(povEnvVars.join(" ")));
+
   QProcess povray;
-  QStringList povEnv = QProcess::systemEnvironment();
-  povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
-  povray.setEnvironment(povEnv);
+  povEnvVars << QProcess::systemEnvironment();
+  povray.setEnvironment(povEnvVars);
   povray.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::assemDir); // pov win console app will not write to dir different from cwd or source file dir
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
@@ -1125,6 +1141,7 @@ int POVRay::renderPli(
 
   // Populate render attributes
   QStringList ldviewParmslist = splitParms(metaType.ldviewParms.value());
+  QStringList ldviewEnvVars = splitParms(metaType.ldviewEnvVars.value());
   QString transform  = metaType.rotStep.value().type.toUpper();
   bool customViewpoint = metaType.cameraAngles.customViewpoint();
   bool noCA          = !customViewpoint && pliType == SUBMODEL ? Preferences::applyCALocally || transform == QLatin1String("ABS") : transform == QLatin1String("ABS");
@@ -1357,9 +1374,13 @@ int POVRay::renderPli(
 #else
       emit gui->messageSig(LOG_INFO, message);
 #endif
+      if (ldviewEnvVars.size())
+        emit gui->messageSig(LOG_INFO,QObject::tr("POV-Ray additional PLI POV file generation environment variables: %1")
+                                                  .arg(ldviewEnvVars.join(" ")));
 
       QProcess    ldview;
-      ldview.setEnvironment(QProcess::systemEnvironment());
+      ldviewEnvVars << QProcess::systemEnvironment();
+      ldview.setEnvironment(ldviewEnvVars);
       ldview.setWorkingDirectory(QDir::currentPath());
       ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
       ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
@@ -1444,12 +1465,16 @@ int POVRay::renderPli(
   emit gui->messageSig(LOG_INFO, message);
 #endif
 
+  QStringList povEnvVars = splitParms(meta.LPub.assem.povrayEnvVars.value());
+  povEnvVars.prepend("POV_IGNORE_SYSCONF_MSG=1");
+  emit gui->messageSig(LOG_INFO,QObject::tr("POV-Ray PLI renderer environment variables: %1")
+                                            .arg(povEnvVars.join(" ")));
+
   QProcess povray;
-  QStringList povEnv = QProcess::systemEnvironment();
-  povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
+  povEnvVars << QProcess::systemEnvironment();
+  povray.setEnvironment(povEnvVars);
   QString partsDir = pliType == BOM ? Paths::bomDir : Paths::partsDir;
   QString workingDirectory = pliType == SUBMODEL ? Paths::submodelDir : partsDir;
-  povray.setEnvironment(povEnv);
   povray.setWorkingDirectory(QDir::currentPath()+ "/" + workingDirectory); // pov win console app will not write to dir different from cwd or source file dir
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
@@ -1603,17 +1628,19 @@ int LDGLite::   renderCsi(
   emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Executing LDGLite %1 CSI render - please wait...")
                                                     .arg(pp ? "Perspective" : "Orthographic"));
 
-  QProcess    ldglite;
-  QStringList env = QProcess::systemEnvironment();
-  env << "LDRAWDIR=" + Preferences::ldrawLibPath;
+  QStringList ldgliteEnvVars = splitParms(meta.LPub.assem.ldgliteEnvVars.value());
+  ldgliteEnvVars << "LDRAWDIR=" + Preferences::ldrawLibPath;
   //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
-
   if (!Preferences::ldgliteSearchDirs.isEmpty()) {
-    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+    ldgliteEnvVars << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
     //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
+  emit gui->messageSig(LOG_INFO,QObject::tr("LDGLite CSI renderer environment variables: %1")
+                                            .arg(ldgliteEnvVars.join(" ")));
 
-  ldglite.setEnvironment(env);
+  QProcess ldglite;
+  ldgliteEnvVars << QProcess::systemEnvironment();
+  ldglite.setEnvironment(ldgliteEnvVars);
   //emit gui->messageSig(LOG_DEBUG,qPrintable("ENV: " + env.join(" ")));
 
   ldglite.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
@@ -1776,17 +1803,19 @@ int LDGLite::renderPli(
   emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Executing LDGLite %1 PLI render - please wait...")
                                                     .arg(pp ? "Perspective" : "Orthographic"));
 
-  QProcess    ldglite;
-  QStringList env = QProcess::systemEnvironment();
-  env << "LDRAWDIR=" + Preferences::ldrawLibPath;
+  QStringList ldgliteEnvVars = splitParms(meta.LPub.assem.ldgliteEnvVars.value());
+  ldgliteEnvVars << "LDRAWDIR=" + Preferences::ldrawLibPath;
   //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
-
   if (!Preferences::ldgliteSearchDirs.isEmpty()) {
-    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+    ldgliteEnvVars << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
     //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
+  emit gui->messageSig(LOG_INFO,QObject::tr("LDGLite additional CSI renderer environment variables: %1")
+                                            .arg(ldgliteEnvVars.join(" ")));
 
-  ldglite.setEnvironment(env);
+  QProcess ldglite;
+  ldgliteEnvVars << QProcess::systemEnvironment();
+  ldglite.setEnvironment(ldgliteEnvVars);
   ldglite.setWorkingDirectory(QDir::currentPath());
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
@@ -2293,7 +2322,8 @@ int LDView::renderCsi(
                                                           .arg(pp ? "Perspective" : "Orthographic"));
 
         // execute LDView process
-        if (executeLDViewProcess(arguments, Options::CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
+        QStringList environment = splitParms(meta.LPub.assem.ldviewEnvVars.value());
+        if (executeLDViewProcess(arguments, environment, Options::CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
             return -1;
     }
 
@@ -2793,7 +2823,8 @@ int LDView::renderPli(
                                                     .arg(pp ? "Perspective" : "Orthographic"));
 
   // execute LDView process
-  if (executeLDViewProcess(arguments, Options::PLI) != 0)
+  QStringList environment = splitParms(meta.LPub.assem.ldviewEnvVars.value());
+  if (executeLDViewProcess(arguments, environment, Options::PLI) != 0)
       return -1;
 
   // move generated PLI images to parts subfolder

@@ -5485,16 +5485,20 @@ float MetaDefaults::getCameraDDF()
     return gApplication ? lcGetPreferences().mDDF : CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 }
 
-QString MetaDefaults::getPreferredRenderer()
+QString MetaDefaults::getPreferredRenderer(int which)
 {
+    int preferredRenderer = which < 0
+        ? Preferences::preferredRenderer
+        : which;
     const QString rendererNames[NUM_RENDERERS] =
     {
         QLatin1String("Native"),  // RENDERER_NATIVE
         QLatin1String("LDView"),  // RENDERER_LDVIEW
         QLatin1String("LDGLite"), // RENDERER_LDGLITE
-        QLatin1String("POVRay")   // RENDERER_POVRAY
+        QLatin1String("POVRay"),  // RENDERER_POVRAY
+        QLatin1String("Blender")  // RENDERER_BLENDER
     };
-    return rendererNames[Preferences::preferredRenderer];
+    return rendererNames[preferredRenderer];
 }
 
 QString MetaDefaults::getPreferredUnits()

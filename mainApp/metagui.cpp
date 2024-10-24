@@ -1071,6 +1071,152 @@ void ConstrainGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * RendererParams
+ *
+ **********************************************************************/
+
+RendererParamsGui::RendererParamsGui(QString const &heading,
+                                     StringMeta    *_envVarsMeta,
+                                     StringMeta    *_parmsMeta,
+                                     StringMeta    *_parmsPovMeta,
+                                     int            renderer,
+                                     QGroupBox     *parent)
+{
+  useLDViewPovGen = renderer == RENDERER_POVRAY && !Preferences::useNativePovGenerator;
+  parmsMeta = _parmsMeta;
+  defaultParams = parmsMeta->value();
+  if (useLDViewPovGen) {
+    parmsPovMeta = _parmsPovMeta;
+    defaultPovParams = parmsPovMeta->value();
+  }
+  envVarsMeta = _envVarsMeta;
+  defaultEnvVars = _envVarsMeta->value();
+
+  QGridLayout *grid;
+
+  grid = new QGridLayout(parent);
+
+  WT_Type wtType = renderer == RENDERER_BLENDER
+    ? WT_GUI_RENDERER_PARAMETERS_BLENDER
+    : _parmsPovMeta == nullptr   /* document renderer = empty string, image renderer = nullptr */
+        ? WT_GUI_RENDERER_PARAMETERS_POVRAY
+        : WT_GUI_RENDERER_PARAMETERS;
+  if (parent) {
+    parent->setLayout(grid);
+    parent->setWhatsThis(lpubWT(wtType, parent->title()));
+  } else {
+    setLayout(grid);
+    setWhatsThis(lpubWT(wtType, heading.isEmpty() ? tr("Renderer Parameters") : heading));
+  }
+
+  int row = 0;
+
+  QLabel *label = new QLabel(tr("Parameters"), this);
+  grid->addWidget(label,row,0);
+
+  parameterEdit = new QLineEdit(parent);
+  parameterEdit->setText(parmsMeta->value());
+  parameterEdit->setToolTip(tr("Set additional %1 image generation parameters").arg(rendererNames[renderer]));
+  resetParameterEditAct = parameterEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetParameterEditAct->setText(tr("Reset"));
+  resetParameterEditAct->setEnabled(false);
+  connect(resetParameterEditAct, SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
+  connect(parameterEdit,SIGNAL(textEdited(QString const &)),
+          this,         SLOT(  editChange(QString const &)));
+  grid->addWidget(parameterEdit,row,1,1,3);
+
+  if (useLDViewPovGen) {
+      label = new QLabel(tr("POV Gen Parameters"), this);
+      grid->addWidget(label,++row,0);
+
+      parameterPovEdit = new QLineEdit(parent);
+      parameterPovEdit->setText(parmsPovMeta->value());
+      parameterEdit->setToolTip(tr("Set addtional LDView parameters for POV file generation"));
+      resetParameterPovEditAct = parameterPovEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+      resetParameterPovEditAct->setText(tr("Reset"));
+      resetParameterPovEditAct->setEnabled(false);
+      connect(resetParameterPovEditAct, SIGNAL(triggered()),
+              this,         SLOT(  lineEditReset()));
+      connect(parameterPovEdit,SIGNAL(textEdited(QString const &)),
+              this,         SLOT(  editChange(QString const &)));
+      grid->addWidget(parameterPovEdit,row,1,1,3);
+  }
+
+  label = new QLabel(tr("Environment"), this);
+  grid->addWidget(label,++row,0);
+
+  enviromentEdit = new QLineEdit(parent);
+  enviromentEdit->setText(envVarsMeta->value());
+  enviromentEdit->setToolTip(tr("Set additional %1 image generation environment variables").arg(rendererNames[renderer]));
+  resetEnviromentEditAct = enviromentEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetEnviromentEditAct->setText(tr("Reset"));
+  resetEnviromentEditAct->setEnabled(false);
+  connect(resetEnviromentEditAct, SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
+  connect(enviromentEdit,SIGNAL(textEdited(QString const &)),
+          this,         SLOT(  editChange(QString const &)));
+  grid->addWidget(enviromentEdit,row,1,1,3);
+
+  parametersModified = false;
+  parametersPovModified = false;
+  enviromentModified = false;
+}
+
+void RendererParamsGui::editChange(QString const &string)
+{
+  if (sender() == parameterEdit) {
+    parmsMeta->setValue(string);
+    parametersModified = string != defaultParams;
+    resetParameterEditAct->setEnabled(parametersModified);
+  } else
+  if (sender() == parameterPovEdit) {
+    parmsPovMeta->setValue(string);
+    parametersPovModified = string != defaultPovParams;
+    resetParameterPovEditAct->setEnabled(parametersPovModified);
+  } else
+  if (sender() == enviromentEdit) {
+    envVarsMeta->setValue(string);
+    enviromentModified = string != defaultEnvVars;
+    resetEnviromentEditAct->setEnabled(enviromentModified);
+  }
+  modified = parametersPovModified || parametersModified || enviromentModified;
+}
+
+void RendererParamsGui::lineEditReset()
+{
+  if (sender() == resetParameterEditAct) {
+    resetParameterEditAct->setEnabled(false);
+    if (parameterEdit)
+      parameterEdit->setText(defaultParams);
+  } else
+  if (sender() == resetParameterPovEditAct) {
+    resetParameterPovEditAct->setEnabled(false);
+    if (parameterPovEdit)
+      parameterPovEdit->setText(defaultPovParams);
+  } else
+  if (sender() == resetEnviromentEditAct) {
+    resetEnviromentEditAct->setEnabled(false);
+    if (enviromentEdit)
+      enviromentEdit->setText(defaultEnvVars);
+  }
+}
+
+void RendererParamsGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    if (parametersModified)
+        mi.setGlobalMeta(modelName,parmsMeta);
+    if (parametersPovModified)
+        mi.setGlobalMeta(modelName,parmsPovMeta);
+    if (enviromentModified)
+        mi.setGlobalMeta(modelName,envVarsMeta);
+  }
+}
+
+/***********************************************************************
+ *
  * Stud Style
  *
  **********************************************************************/
