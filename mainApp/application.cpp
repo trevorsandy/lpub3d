@@ -787,11 +787,11 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
             {
                 m_console_mode = true;
                 m_print_output = true;
-                fprintf(stdout, "%s", qUtf8Printable(tr("Usage: %1 [options] [LDraw file]\n").arg(qApp->applicationName())));
+                fprintf(stdout, "%s", qUtf8Printable(tr("Usage: %1 [Options] [LDraw file]\n").arg(qApp->applicationName())));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  [LDraw file]:\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  Use absolute file path and file name with .ldr, .mpd or .dat extension.\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  [options]:\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  Options preceded by '+/++' are only applicable to GUI mode. They have no effect in Console mode.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  Use absolute file path and, although no extension is required, consider using file names with .ldr, .mpd or .dat extension.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  [Options]:\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  Options preceded by '+/++' are only applicable when starting in Interactive (GUI) mode. They have no effect in Console mode.\n")));
                 fprintf(stdout, "\n");
                 fprintf(stdout, "%s", qUtf8Printable(tr("[%1 commands]\n").arg(qApp->applicationName())));
 #ifdef Q_OS_WIN
@@ -819,7 +819,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -lt, --libtente: Load the LDraw TENTE archive parts library in command console mode.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -lv, --libvexiq: Load the LDraw VEXIQ archive parts library in command console mode.\n")));
 #ifdef Q_OS_WIN
-                fprintf(stdout, "%s", qUtf8Printable(tr("..-ncr, --no-console-redirect: Do not automatically redirect output and errors to console. Useful when running headless. Default is off.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -ncr, --no-console-redirect: Do not automatically redirect output and errors to console. Useful when running headless. Default is off.\n")));
 #endif
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful to prevent double (stdout and QSLog) output. Default is off.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -nbec, --disable-black-edge-color: Disable high contrast edge color for black parts.\n")));
@@ -840,9 +840,20 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -v, --version: Output LPub3D version information and exit.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -x, --clear-cache: Reset the LDraw file and image caches. Used with export-option change. Default is off.\n")));
                 fprintf(stdout, "\n");
+                fprintf(stdout, "%s", qUtf8Printable(tr("[Environment Variables]\n")));
+                QString const ldrawDir =
+#ifdef Q_OS_WIN
+                QString("%1\\LDraw").arg(getenv("USERPROFILE"));
+#else
+                QString("%1/ldraw").arg(getenv("HOME"));
+#endif
+                fprintf(stdout, "%s", qUtf8Printable(tr("  LDRAWDIR: Path the LDraw part library. %1\n").arg(ldrawDir)));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  LPUB3D_DISABLE_UPDATE_CHECK: Disable automatic available versions and update check. LPUB3D_DISABLE_UPDATE_CHECK=1.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  LPUB3D_MILLISECONDS_SLEEP: Pause at launch (before doing anything). Useful for headless/console debugging. LPUB3D_MILLISECONDS_SLEEP=10000 (10 seconds).\n")));
+                fprintf(stdout, "\n");
                 fprintf(stdout, "%s", qUtf8Printable(tr("[Visual Editor commands]\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -c, --camera <camera>: Set the active camera.\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("..-cl, --draw-conditional-lines: Enable draw conditional lines.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -cl, --draw-conditional-lines: Enable draw conditional lines.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -f, --from <step>: Set the first step to save pictures.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -h, --height <height>: Set the picture height.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n")));

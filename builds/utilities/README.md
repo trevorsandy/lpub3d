@@ -115,7 +115,9 @@ However, you may choose to download and install [Qt][qtwebsite] elsewhere, in wh
 - [ ] 1. set your desired build path  
 `> SET %APP_INSTANCE_PATH%=%USERPROFILE%\Projects`
 - [ ] 2. cut and paste the following script code to the command line  
-```
+<details>
+
+```batch
 CLS
 rem Setup paths
 IF "%APP_INSTANCE%" == "" SET APP_INSTANCE=lpub3d
@@ -165,6 +167,8 @@ SET GITHUB_REF=refs/tags/%GITHUB_REF_NAME%
 SET LP3D_LOCAL_CI_BUILD=1
 CD %APP_INSTANCE_PATH%
 ```
+
+</details>
 - [ ] 3. run the following at the command line  
 `> CALL .\%APP_INSTANCE%\builds\utilities\ci\github\windows-build.bat > %APP_INSTANCE%_windows-build_log.txt 2>&1`
 - [ ] 4. Review the build log `lpub3d_windows-build_log.txt` as necessary.

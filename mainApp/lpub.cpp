@@ -5987,11 +5987,11 @@ void Gui::createActions()
     lpub->actions.insert(visitHomepageAct->objectName(), Action(QStringLiteral("Help.Visit Homepage"), visitHomepageAct));
     connect(visitHomepageAct, SIGNAL(triggered()), this, SLOT(visitHomepage()));
 
-    QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug or Issue..."), this);
-    reportBugAct->setObjectName("reportBugAct.1");
-    reportBugAct->setStatusTip(tr("Create an online ticket to report a bug or issue."));
-    lpub->actions.insert(reportBugAct->objectName(), Action(QStringLiteral("Help.Report Bug"), reportBugAct));
-    connect(reportBugAct, SIGNAL(triggered()), this, SLOT(reportBug()));
+    QAction *openTicketAct = new QAction(QIcon(":/resources/bug.png"),tr("Open Issue or Request..."), this);
+    openTicketAct->setObjectName("openTicketAct.1");
+    openTicketAct->setStatusTip(tr("Create a GitHub ticket to report an issue or requst an enhancement."));
+    lpub->actions.insert(openTicketAct->objectName(), Action(QStringLiteral("Help.Open A Ticket"), openTicketAct));
+    connect(openTicketAct, SIGNAL(triggered()), this, SLOT(openTicket()));
 
     // Begin Jaco's code
 
@@ -6950,6 +6950,7 @@ void Gui::createMenus()
     configMenu->setObjectName("configMenu");
     menus.insert(configMenu->objectName(), configMenu);
     configMenu->addAction(getAct("preferencesAct.1"));
+    configMenu->addSeparator();
 
     QMenu *setupMenu = configMenu->addMenu("Build &Instructions Setup...");
     setupMenu->setObjectName("setupMenu");
@@ -7059,10 +7060,11 @@ void Gui::createMenus()
     helpMenu->addAction(getAct("updateAppAct.1"));
 #endif
     helpMenu->addAction(getAct("visitHomepageAct.1"));
-    helpMenu->addAction(getAct("reportBugAct.1"));
+    helpMenu->addAction(getAct("openTicketAct.1"));
     // Begin Jaco's code
     helpMenu->addAction(getAct("onlineManualAct.1"));
     // End Jaco's code
+    helpMenu->addSeparator();
     helpMenu->addAction(getAct("commandsDialogAct.1"));
     helpMenu->addAction(getAct("exportMetaCommandsAct.1"));
     helpMenu->addSeparator();

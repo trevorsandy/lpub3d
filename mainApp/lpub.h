@@ -1893,7 +1893,7 @@ private slots:
         QDesktopServices::openUrl(QUrl(VER_HOMEPAGE_GITHUB_STR));
     }
 
-    void reportBug()
+    void openTicket()
     {
        QDesktopServices::openUrl(QUrl(VER_PUBLISHER_SUPPORT_STR));
     }
