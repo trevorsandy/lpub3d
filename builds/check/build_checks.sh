@@ -197,6 +197,9 @@ if [ "${LP3D_QEMU}" != "true" ]; then
 fi
 NUM_CHECKS=${#LP3D_BUILD_CHECK_LIST[@]}
 
+# disable available versions and update check
+export LPUB3D_DISABLE_UPDATE_CHECK=1
+
 echo && echo "------------Build Checks Start--------------" && echo
 
 for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do

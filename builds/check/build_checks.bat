@@ -135,6 +135,8 @@ CALL :SET_VALID_7ZIP
 
 SET overall_check_start=%time%
 
+SET LPUB3D_DISABLE_UPDATE_CHECK=1
+
 ECHO.
 ECHO ------------Build Checks Start--------------
 ECHO.

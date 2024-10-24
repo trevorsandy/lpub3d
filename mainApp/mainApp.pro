@@ -487,8 +487,8 @@ win32 {
 #~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # set config to enable/disable initial update check
-# CONFIG+=update_check
-update_check: DEFINES += DISABLE_UPDATE_CHECK
+# CONFIG+=disable_update_check
+disable_update_check: DEFINES += DISABLE_UPDATE_CHECK
 
 #~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

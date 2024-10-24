@@ -1253,7 +1253,13 @@ void Application::mainApp()
 
     emit splashMsgSig(tr("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
 
-    availableVersions = new AvailableVersions(this);
+    char *env_update_check;
+    env_update_check = getenv("LPUB3D_DISABLE_UPDATE_CHECK");
+    bool enable_update_check = !(env_update_check && env_update_check[0]);
+#ifndef DISABLE_UPDATE_CHECK
+    if (enable_update_check)
+        availableVersions = new AvailableVersions(this);
+#endif
 
     if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep))
         gui->ldrawColorPartsLoad();
@@ -1277,8 +1283,10 @@ void Application::mainApp()
         }
 
 #ifndef DISABLE_UPDATE_CHECK
-        DoInitialUpdateCheck();
+        if (enable_update_check)
+            DoInitialUpdateCheck();
 #endif
+
     }
 }
 

@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3729" date="2024-10-24">
+            <release version="2.4.8.3730" date="2024-10-24">
                 <description>
-                    <p>LPub3D 24.10.2024 v2.4.8 r6 Continuous Build.
+                    <p>LPub3D 24.10.2024 v2.4.8 r7 Continuous Build.
                         Fix - Abnormal end on app close after view preference dialogue #773
                         See RELEASE_NOTES for full details.
                     </p>
