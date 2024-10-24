@@ -497,6 +497,7 @@ public:
   static int          maxPages;
 
   static int          pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
+  static int          pageProcessParent; // the page process that triggers another process - e.g. drawPage -> writeToTmp
   qreal           exportPixelRatio;     // export resolution pixel density
 
   bool            submodelIconsLoaded;  // load submodel images
@@ -1269,9 +1270,16 @@ public slots:
       return previewDockWindow;
   }
 
-  void setPageProcessRunning(int p)
+  static void setPageProcessRunning(int p)
   {
+      if (pageProcessRunning != p)
+        pageProcessParent = pageProcessRunning;
       pageProcessRunning = p;
+  }
+
+  static void revertPageProcess()
+  {
+      pageProcessRunning = pageProcessParent;
   }
 
   static void insertPageSize(int i, const PageSizeData &pgSizeData)

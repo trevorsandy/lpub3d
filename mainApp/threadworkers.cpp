@@ -2159,7 +2159,7 @@ int CountPageWorker::countPage(
 {
   QMutexLocker countLocker(&countMutex);
 
-  Gui::pageProcessRunning = PROC_COUNT_PAGE;
+  Gui::setPageProcessRunning(PROC_COUNT_PAGE);
 
   opts.flags.countInstances = meta->LPub.countInstance.value();
 

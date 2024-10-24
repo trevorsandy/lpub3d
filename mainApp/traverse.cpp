@@ -429,7 +429,7 @@ int Gui::drawPage(
     QString const   &addLine,
     DrawPageOptions &opts)
 {
-  pageProcessRunning = PROC_DRAW_PAGE;
+  Gui::setPageProcessRunning(PROC_DRAW_PAGE);
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();
 
@@ -559,7 +559,7 @@ int Gui::drawPage(
                                  .arg(QString("%1%2").arg(displayPageNum).arg(coverPage ? " (Cover Page)" : ""))
                                  .arg(elapsedTime(pageRenderTimer.elapsed()));
     emit messageSig(LOG_TRACE, pageRenderMessage);
-    pageProcessRunning = PROC_COUNT_PAGE;
+    Gui::revertPageProcess();
     //QApplication::processEvents();
   };
 
@@ -2281,7 +2281,7 @@ int Gui::drawPage(
                       if (! exportingObjects() && (multiStep || opts.calledOut))
                           lpub->mi.setCsiAnnotationMetas(steps);
                       // Rerun to findPage() to regenerate parts and options for buildMod action
-                      pageProcessRunning = PROC_FIND_PAGE;
+                      Gui::revertPageProcess();
                       return static_cast<int>(HitBuildModAction);
                   } // buildMod action != rc
               } // buildModChange
@@ -3083,7 +3083,7 @@ int Gui::drawPage(
   drawPageElapsedTime();
 
   if (Gui::abortProcess()) {
-      pageProcessRunning = PROC_FIND_PAGE;
+      Gui::revertPageProcess();
       if (returnValue != HitInvalidLDrawLine && returnValue != HitRangeError)
           returnValue = HitAbortProcess;
   }
@@ -3104,7 +3104,7 @@ int Gui::findPage(
 
   opts.pageDisplayed    = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
 
-  pageProcessRunning    = PROC_FIND_PAGE;
+  Gui::setPageProcessRunning(PROC_FIND_PAGE);
 
   emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
@@ -3471,7 +3471,7 @@ int Gui::findPage(
                                   const TraverseRc frc = static_cast<TraverseRc>(findPage(view, scene, meta, line, modelOpts));
                                   if (frc == HitBuildModAction || frc == HitCsiAnnotation || frc == HitAbortProcess) {
                                       // Set processing state and return to parent findPage
-                                      pageProcessRunning = PROC_DISPLAY_PAGE;
+                                      Gui::revertPageProcess();
                                       return static_cast<int>(frc);
                                   }
 
@@ -3705,7 +3705,7 @@ int Gui::findPage(
                       const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, &lpub->page, addLine, pageOptions));
                       if (drc == HitBuildModAction || drc == HitCsiAnnotation || drc == HitAbortProcess) {
                           // Set processing state and return to init drawPage
-                          pageProcessRunning = PROC_DISPLAY_PAGE;
+                          Gui::revertPageProcess();
                           return static_cast<int>(drc);;
                       }
 
@@ -3972,7 +3972,7 @@ int Gui::findPage(
                             const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, &lpub->page, addLine, pageOptions));
                             if (drc == HitBuildModAction || drc == HitCsiAnnotation || drc == HitAbortProcess) {
                                 // Set processing state and return to init drawPage
-                                pageProcessRunning = PROC_DISPLAY_PAGE;
+                                Gui::revertPageProcess();
                                 return static_cast<int>(drc);
                             }
 
@@ -4392,7 +4392,7 @@ int Gui::findPage(
           const TraverseRc drc = static_cast<TraverseRc>(drawPage(view, scene, &lpub->page, addLine, pageOptions));
           if (drc == HitBuildModAction || drc == HitCsiAnnotation || drc == HitAbortProcess) {
               // Set processing state and return to init drawPage
-              pageProcessRunning = PROC_DISPLAY_PAGE;
+              Gui::revertPageProcess();
               return static_cast<int>(drc);
           }
 
@@ -4446,7 +4446,7 @@ int Gui::findPage(
     }  // Last Step in Submodel
 
   // Set processing state
-  pageProcessRunning = PROC_DISPLAY_PAGE;
+  Gui::revertPageProcess();
   return Gui::abortProcess() ? static_cast<int>(HitAbortProcess) : static_cast<int>(HitNothing);
 }
 
@@ -4914,8 +4914,7 @@ void Gui::attitudeAdjustment()
 void Gui::countPages()
 {
   if (maxPages < 1 + pa || buildModJumpForward) {
-      pageProcessRunning = PROC_COUNT_PAGE;
-
+      Gui::setPageProcessRunning(PROC_COUNT_PAGE);
       Meta meta;
       QString empty;
       FindPageFlags fpFlags;
@@ -4973,6 +4972,8 @@ void Gui::drawPage(
     LGraphicsScene *scene,
     DrawPageFlags  &dpFlags)
 {
+  Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
+
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   if (Preferences::modeGUI && ! exporting() && ! ContinuousPage())
@@ -4995,10 +4996,12 @@ void Gui::drawPage(
     bool adjustTopOfStep = false;
     Where topOfStep      = current;
     lpub->meta           = Meta();
+/*
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
     emit messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(displayPageNum));
 #endif
+//*/
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {
       displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
@@ -5034,8 +5037,11 @@ void Gui::drawPage(
         const QList<Where> saveJumpTopOfPages = topOfPages;
         const Where saveJumpCurrent = current;
 
-        if (static_cast<TraverseRc>(setBuildModForNextStep(topOfStep)) == HitAbortProcess)
+        if (static_cast<TraverseRc>(setBuildModForNextStep(topOfStep)) == HitAbortProcess) {
+          QApplication::restoreOverrideCursor();
+          setAbortProcess(true);
           return;
+        }
 
         // revert registers to pre jump forward count page settings
         buildModJumpForward = false;
@@ -5047,8 +5053,11 @@ void Gui::drawPage(
         lpub->ldrawFile.unrendered();
 
       } else {
-        if (static_cast<TraverseRc>(setBuildModForNextStep(topOfStep)) == HitAbortProcess)
+        if (static_cast<TraverseRc>(setBuildModForNextStep(topOfStep)) == HitAbortProcess) {
+          QApplication::restoreOverrideCursor();
+          setAbortProcess(true);
           return;
+        }
       }
     } // buildModEnabled
 
@@ -5067,9 +5076,11 @@ void Gui::drawPage(
 
   // this call is used primarily by the undo/redo calls when editing BuildMods
   if (!buildModClearStepKey.isEmpty()) {
+/*
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_DEBUG, QString("Reset BuildMod images from step key %1...").arg(buildModClearStepKey));
 #endif
+//*/
 
     QStringList keys = buildModClearStepKey.split("_");
     QString key      = keys.first();
@@ -5095,6 +5106,9 @@ void Gui::drawPage(
   }
 
   writeToTmp();
+
+  if (Gui::abortProcess())
+    return;
 
   firstStepPageNum     = -1;
   lastStepPageNum      = -1;
@@ -5144,12 +5158,11 @@ void Gui::drawPage(
 
   const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
   if (frc == HitAbortProcess) {
-
     if (m_exportMode == GENERATE_BOM) {
         emit clearViewerWindowSig();
         m_exportMode = m_saveExportMode;
     }
-    pageProcessRunning = PROC_NONE;
+    setAbortProcess(true);
     QApplication::restoreOverrideCursor();
     return;
 
@@ -5157,7 +5170,7 @@ void Gui::drawPage(
 
     dpFlags.buildModActionChange = frc == HitBuildModAction;
     dpFlags.csiAnnotation = frc == HitCsiAnnotation;
-    pageProcessRunning = PROC_DISPLAY_PAGE;
+    Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
     clearPage(KpageView,KpageScene);
     QApplication::restoreOverrideCursor();
     drawPage(view,scene,dpFlags);
@@ -5167,14 +5180,18 @@ void Gui::drawPage(
     int modelStackCount = opts.modelStack.size();
     bool parentStepGrpup = opts.flags.parentStepGroup;
     bool parentCallout = opts.flags.parentCallout;
+
+/*
 #ifdef QT_DEBUG_MODE
     QString message;
 #endif
+//*/
 
     auto countPage = [&] (int modelStackCount)
     {
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts, empty);
       if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
+/*
 #ifdef QT_DEBUG_MODE
           if (modelStackCount) {
             message = QString(" COUNTING  - FutureWatcher WaitForFinsished modelStackCount [%1] WAIT YES").arg(modelStackCount);
@@ -5189,21 +5206,24 @@ void Gui::drawPage(
             qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
           }
 #endif
+//*/
         future.waitForFinished();
         if (static_cast<TraverseRc>(future.result()) == HitAbortProcess)
           return static_cast<int>(HitAbortProcess);
         if (!modelStackCount)
           pagesCounted();
       } else {
+/*
 #ifdef QT_DEBUG_MODE
         message = QString(" COUNTING  - FutureWatcher SetFuture WAIT NO");
         qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
+//*/
         futureWatcher.setFuture(future);
       }
       return static_cast<int>(HitNothing);
     };
-
+/*
 #ifdef QT_DEBUG_MODE
     message = QString(" COUNTING  - Submodel Page (Normal Count) LineNumber %1, ModelName %2, PageNum %3")
                       .arg(opts.current.lineNumber, 3, 10, QChar('0'))
@@ -5211,6 +5231,7 @@ void Gui::drawPage(
                       .arg(opts.pageNum, 3, 10, QChar('0'));
     qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
+//*/
 
     // global meta settings from findPage that went out of scope
     lpub->meta.LPub.countInstance.setValue(opts.flags.countInstances);
@@ -5218,7 +5239,7 @@ void Gui::drawPage(
     // pass buildMod settings to parent model
     if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
       opts.flags.buildMod.setCountPage(opts.flags.buildModStack.last());
-//*
+/*
 #ifdef QT_DEBUG_MODE
       const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
       const QString bms [ ] = {"BM_NONE [-1]","BM_BEGIN [0]","BM_END_MOD [1]","BM_END [2]"};
@@ -5237,11 +5258,14 @@ void Gui::drawPage(
       opts.flags.buildModStack.pop_back();
     }
 
-    if (static_cast<TraverseRc>(countPage(modelStackCount)) == HitAbortProcess)
+    if (static_cast<TraverseRc>(countPage(modelStackCount)) == HitAbortProcess) {
+        setAbortProcess(true);
+        QApplication::restoreOverrideCursor();
         return;
+    }
 
     // if we start counting from a child submodel, load where findPage stopped in the parent model
-    for (int i = 0; i < modelStackCount; i++) {
+    for (int i = 0; i < modelStackCount && !Gui::abortProcess(); i++) {
       // set the step number where the submodel will be rendered
       opts.current = Where(opts.modelStack.last().modelName,
                      getSubmodelIndex(opts.modelStack.last().modelName),
@@ -5250,7 +5274,7 @@ void Gui::drawPage(
       // set parent model of the submodel being rendered
       opts.renderParentModel = QString(opts.modelStack.last().modelName == topLevelFile() ?
                                QString() : opts.modelStack.last().modelName);
-
+/*
 #ifdef QT_DEBUG_MODE
       message = QString(" COUNTING  - Submodel Page (Model Stack Entry %1%2) LineNumber %3, ModelName %4, PageNum %5")
                         .arg(modelStackCount, 2, 10, QChar('0'))
@@ -5260,11 +5284,12 @@ void Gui::drawPage(
                         .arg(opts.pageNum, 3, 10, QChar('0'));
       qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
+//*/
 
       // pass buildMod settings to parent model
       if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
         opts.flags.buildMod.setCountPage(opts.flags.buildModStack.last());
-//*
+/*
 #ifdef QT_DEBUG_MODE
         const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
         const QString bms [ ] = {"BM_NONE [-1]","BM_BEGIN [0]","BM_END_MOD [1]","BM_END [2]"};
@@ -5303,6 +5328,7 @@ void Gui::drawPage(
               opts.flags.partsAdded++;
             // increment to the next line
             opts.current++;
+/*
 #ifdef QT_DEBUG_MODE
             bool increment  = !opts.flags.stepGroup && !opts.flags.callout && opts.flags.partsAdded;
             message = QString(" COUNTING  - Submodel Page (Parent Adjust%1) LineNumber %2, ModelName %3, PageNum %4, Line [%5]")
@@ -5313,6 +5339,7 @@ void Gui::drawPage(
                               .arg(line);
             qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
+//*/
           }
         }
       }
@@ -5322,8 +5349,11 @@ void Gui::drawPage(
           opts.modelStack.pop_back();
 
       // let's go
-      if (static_cast<TraverseRc>(countPage(opts.modelStack.size())) == HitAbortProcess)
+      if (static_cast<TraverseRc>(countPage(opts.modelStack.size())) == HitAbortProcess) {
+          setAbortProcess(true);
+          QApplication::restoreOverrideCursor();
           return;
+      }
     } // iterate the model stack
 
     if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
@@ -5341,8 +5371,10 @@ void Gui::drawPage(
 
 void Gui::finishedCountingPages()
 {
-    if (static_cast<TraverseRc>(futureWatcher.result()) == HitAbortProcess)
+    if (static_cast<TraverseRc>(futureWatcher.result()) == HitAbortProcess) {
+        setAbortProcess(true);
         return;
+    }
     pagesCounted();
 }
 
@@ -5353,30 +5385,27 @@ void Gui::pagesCounted()
     if (maxPages > 1)
         maxPages--;
 
-    pageProcessRunning = PROC_NONE;
-
+/*
 #ifdef QT_DEBUG_MODE
-//*
     emit messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
                     .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     if (!saveDisplayPageNum) {
         emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
         emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(maxPages));
         emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-/*
-        for (int i = 0; i < topOfPages.size(); i++)
-        {
-            Where top = topOfPages.at(i);
-            emit messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                            .arg(i, 3, 10, QChar('0'))               // index
-                            .arg(top.modelIndex, 3, 10, QChar('0'))  // modelIndex
-                            .arg(top.lineNumber, 3, 10, QChar('0'))  // lineNumber
-                            .arg(top.modelName)); // modelName
-        }
-//*/
+
+//        for (int i = 0; i < topOfPages.size(); i++)
+//        {
+//            Where top = topOfPages.at(i);
+//            emit messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+//                            .arg(i, 3, 10, QChar('0'))               // index
+//                            .arg(top.modelIndex, 3, 10, QChar('0'))  // modelIndex
+//                            .arg(top.lineNumber, 3, 10, QChar('0'))  // lineNumber
+//                            .arg(top.modelName)); // modelName
+//        }
     }
 #endif
-
+//*/
     if (Preferences::modeGUI && ! exporting()) {
         QString message;
         if (saveDisplayPageNum)
@@ -5448,6 +5477,8 @@ void Gui::pagesCounted()
     // reset countPage future wait on last drawPage call from export 'printfile' where exporting() is reset to false
     if (!exporting() && countWaitForFinished())
         setCountWaitForFinished(false);
+
+    Gui::revertPageProcess();
 
     QApplication::restoreOverrideCursor();
 }
@@ -6243,7 +6274,7 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
-  pageProcessRunning = PROC_WRITE_TO_TMP;
+  Gui::setPageProcessRunning(PROC_WRITE_TO_TMP);
   QList<QFuture<void>> writeToTmpFutures;
   QElapsedTimer writeToTmpTimer;
   writeToTmpTimer.start();
@@ -6410,7 +6441,7 @@ void Gui::writeToTmp()
 
   writeToTmpFutures.clear();
 
-  if (Preferences::modeGUI && !exporting() && !ContinuousPage()) {
+  if (Preferences::modeGUI && !exporting() && !ContinuousPage() && !Gui::abortProcess()) {
       if (lcGetPreferences().mViewPieceIcons && !submodelIconsLoaded) {
           // complete previous progress
           emit progressPermSetValueSig(subFileCount);
@@ -6429,12 +6460,19 @@ void Gui::writeToTmp()
           emit progressPermStatusRemoveSig();
       }
   }
+
+  if (Gui::abortProcess()) {
+      // complete and close progress
+      emit progressPermSetValueSig(subFileCount);
+      emit progressPermStatusRemoveSig();
+  }
+
   QString writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
   emit gui->messageSig(LOG_INFO_STATUS, QString("%1 %2 written to temp folder. %3")
                                         .arg(writtenFiles ? QString::number(writtenFiles) : "No")
                                         .arg(writtenFiles == 1 ? "file" : "files")
                                         .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
-  pageProcessRunning = PROC_NONE;
+  Gui::revertPageProcess();
 }
 
 void Gui::writeSmiContent(QStringList *content, const QString &fileName)

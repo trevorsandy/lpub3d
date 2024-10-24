@@ -121,6 +121,7 @@ int          Gui::processOption;          // export Option
 int          Gui::pageDirection;          // page processing direction
 int          Gui::savePrevStepPosition;   // indicate the previous step position amongst current and previous steps
 int          Gui::pageProcessRunning;     // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
+int          Gui::pageProcessParent;      // the page process that triggers another process - e.g. drawPage -> writeToTmp
 int          Gui::firstStepPageNum;       // the first Step page number - used to specify frontCover page
 int          Gui::lastStepPageNum;        // the last Step page number - used to specify backCover page
 int          Gui::saveRenderer;           // saved renderer when temporarily switching to Native renderer
@@ -373,16 +374,17 @@ void Gui::updateClipboard()
 void Gui::displayPage()
 {
   if (macroNesting == 0) {
-    pageProcessRunning = PROC_DISPLAY_PAGE;
+    Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
     emit messageSig(LOG_STATUS, "Display page...");
     displayPageTimer.start();
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
-    setAbortProcess(false);
+    Gui::setAbortProcess(false);
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,dpFlags);
     pageProcessRunning = PROC_NONE;
-    if (abortProcess()) {
+    if (Gui::abortProcess()) {
+      QApplication::restoreOverrideCursor();
       if (Preferences::modeGUI) {
         if (displayPageNum > (1 + pa)) {
           restorePreviousPage();
@@ -502,7 +504,6 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   }
 
   Preferences::setCyclePageDisplay(saveCycleEachPage);
-  pageProcessRunning = PROC_NONE;
 
   if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
     enableEditActions();
@@ -510,6 +511,8 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       enableNavigationActions(true);
     QApplication::restoreOverrideCursor();
   }
+
+  pageProcessRunning = PROC_NONE;
 }
 
 void Gui::cycleEachPage()
@@ -605,6 +608,8 @@ void Gui::nextPageContinuous()
   QString title = tr ("<b> Next page continuous processing </b>");
   QString message = tr ("Continuous processing is running.\n");
 
+  Gui::setPageProcessRunning(PROC_NONE);
+
   // Request to terminate Next page process while it is still running
   if (!nextPageContinuousIsRunning) {
     box.setIcon (QMessageBox::Warning);
@@ -698,6 +703,8 @@ void Gui::previousPageContinuous()
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   QString title = tr ("<b> Previous page continuous processing </b>");
   QString message = tr ("Continuous processing is running.\n");
+
+  Gui::setPageProcessRunning(PROC_NONE);
 
   // Request to terminate Previous page process while it is still running
   if (!previousPageContinuousIsRunning) {
@@ -793,6 +800,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 
   m_exportMode = PAGE_PROCESS;
 
+  Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
+
   QString message = tr("%1 Page Processing...").arg(direction);
 
   if (Preferences::modeGUI) {
@@ -801,7 +810,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
-              pageProcessRunning = PROC_NONE;
+              Gui::revertPageProcess();
               return false;
           }
       }
@@ -855,7 +864,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
-              pageProcessRunning = PROC_NONE;
+              Gui::revertPageProcess();
               return false;
           }
       }
@@ -877,7 +886,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           emit messageSig(LOG_STATUS,message);
           setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
-          pageProcessRunning = PROC_NONE;
+          Gui::revertPageProcess();
           return false;
       }
   }
@@ -932,7 +941,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                 disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
                 connect    (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
-              pageProcessRunning = PROC_NONE;
+              Gui::revertPageProcess();
               return false;
           }
 
@@ -1041,7 +1050,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                   disconnect (m_progressDialog, SIGNAL (cancelPreviousPageContinuous()),this, SLOT (previousPageContinuous()));
                   connect    (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
               }
-              pageProcessRunning = PROC_NONE;
+              Gui::revertPageProcess();
               return false;
           }
 
@@ -1112,6 +1121,8 @@ bool Gui::continuousPageDialog(PageDirection d)
   }
 
   emit setContinuousPageSig(false);
+
+  Gui::setPageProcessRunning(PROC_NONE);
 
   return true;
 }
@@ -3243,6 +3254,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     previewDockWindow  = nullptr;
 
     pageProcessRunning              = PROC_NONE;        // display page process
+    pageProcessParent               = PROC_NONE;        // display page porcess
     processOption                   = EXPORT_ALL_PAGES; // export process
     m_exportMode                    = EXPORT_PDF;
     pageRangeText                   = "1";

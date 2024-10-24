@@ -747,6 +747,7 @@ void Gui::closeFile()
   pa = sa = 0;
   buildModJumpForward = false;
   pageDirection = PAGE_NEXT;
+  pageProcessParent = PROC_NONE;
   pageProcessRunning = PROC_NONE;
   lpub->ldrawFile.empty();
   editWindow->clearWindow();

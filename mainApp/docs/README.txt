@@ -1,4 +1,4 @@
-LPub3D 2.4.8.7.3730 (24 10 2024 23:03:15)
+LPub3D 2.4.8.8.3731 (24 10 2024 23:04:23)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Fix - Abnormal end on app close after view preference dialogue #773
+- Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
 
 --------------------------------------------------------------------------------------------------
 
