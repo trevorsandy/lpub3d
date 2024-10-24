@@ -147,12 +147,8 @@ export GITHUB=${GITHUB:-true}
 export LP3D_CPU_CORES
 
 # Check if build is on stale commit
-oldIFS=$IFS; IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; IFS=$oldIFS;
-export LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
-export LP3D_GREP=grep
-[ ! -f "repo.txt" ] && \
 curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
-export LP3D_REMOTE=$(${LP3D_GREP} -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
+export LP3D_REMOTE=$(cat repo.txt | jq -r '.sha')
 export LP3D_LOCAL=$(git rev-parse HEAD)
 if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
   echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting build."

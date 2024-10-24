@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 24, 2021
+# Last Update October 21, 2024
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -30,6 +30,16 @@ FinishRenderers () {
   FinishElapsedTime
 }
 
+# check if build is on stale commit
+curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
+LP3D_REMOTE=$(cat repo.txt | jq -r '.sha')
+LP3D_LOCAL=$(git rev-parse HEAD)
+if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
+  echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting build."
+  [ -f "repo.txt" ] && echo "Repo response:" && cat repo.txt || :
+  exit 0
+fi
+
 # Grab the script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
@@ -52,8 +62,8 @@ if [ -z "${LP3D_ANALYZE}" ]; then
 else
   # Make sure we're in the repository root directory
   export WD="${GITHUB_WORKSPACE}"
-  
-  trap FinishElapsedTime EXIT  
+
+  trap FinishElapsedTime EXIT
 fi
 
 # Move to working directory
@@ -65,7 +75,8 @@ LP3D_OUT_PATH="${LP3D_BUILDPKG_PATH}"
 mkdir -p ${LP3D_OUT_PATH} || :
 
 # Prepare exported variables
-IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
+oldIFS=$IFS; IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; IFS=$oldIFS;
+
 export LPUB3D=${LPUB3D:-${LP3D_SLUGS[1]}}
 export LP3D_ARCH=${LP3D_ARCH:-amd64}
 export LP3D_BASE=${LP3D_BASE:-ubuntu}
@@ -167,20 +178,20 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
       exit 3
       ;;
   esac
-  
+
   # Source update_config_files.sh"
   echo "Source update_config_files.sh..."
   export _EXPORT_CONFIG_ONLY_=1
   export _PRO_FILE_PWD_=${WD}/mainApp
   set +x && source builds/utilities/update-config-files.sh && set -x
-  
+
   # List 'LP3D_*' environment variables
   set +x && echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done && set -x
-  
+
   # Make sure we have the distribution output paths
   [ ! -d "${LP3D_DIST_DIR_PATH}" ] && \
   mkdir -p "${LP3D_DIST_DIR_PATH}" || :
-  
+
   # Download LDraw library archive files
   echo "Downloading archive libraries..."
   [ ! -f "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" ] && \
@@ -188,25 +199,25 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   [ ! -f "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip" ] && \
   ( cd ${LP3D_DIST_DIR_PATH} && ln -sf "${LP3D_3RD_PARTY_PATH}/lpub3dldrawunf.zip" lpub3dldrawunf.zip ) || \
   echo "${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip exists. Nothing to do."
-  
+
   [ ! -f "${LP3D_3RD_PARTY_PATH}/complete.zip" ] && \
   wget -q https://library.ldraw.org/library/updates/complete.zip -O ${LP3D_3RD_PARTY_PATH}/complete.zip || :
   [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ] && \
   ( cd ${LP3D_DIST_DIR_PATH} && ln -sf "${LP3D_3RD_PARTY_PATH}/complete.zip" complete.zip ) || \
   echo "${LP3D_DIST_DIR_PATH}/complete.zip exists. Nothing to do."
-  
+
   [ ! -f "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" ] && \
   wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_3RD_PARTY_PATH}/tenteparts.zip || :
   [ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ] && \
   ( cd ${LP3D_DIST_DIR_PATH} && ln -sf "${LP3D_3RD_PARTY_PATH}/tenteparts.zip" tenteparts.zip ) || \
   echo "${LP3D_DIST_DIR_PATH}/tenteparts.zip exists. Nothing to do."
-  
+
   [ ! -f "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" ] && \
   wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip || :
   [ ! -f "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" ] && \
   ( cd ${LP3D_DIST_DIR_PATH} && ln -sf "${LP3D_3RD_PARTY_PATH}/vexiqparts.zip" vexiqparts.zip ) || \
   echo "${LP3D_DIST_DIR_PATH}/vexiqparts.zip exists. Nothing to do."
-  
+
   # Setup ldraw parts library directory
   if [ ! -d "${LP3D_LDRAW_DIR}/parts" ]; then
     [ ! -d "${LP3D_LDRAW_DIR}" ] && mkdir -p ${LP3D_LDRAW_DIR} || :
@@ -219,7 +230,7 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   else
     echo "Directory ${LP3D_LDRAW_DIR} exists. Nothing to do."
   fi
-  
+
   # Link $HOME/ldraw directory to shared ldraw path
   if [[ ! -L "${LDRAWDIR}" && ! -d "${LDRAWDIR}" ]]; then
     ( cd ~ && ln -sf "${LP3D_LDRAW_DIR}" ldraw ) && \

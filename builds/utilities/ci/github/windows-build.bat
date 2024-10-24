@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 19, 2024
+rem  Last Update October 21, 2024
 rem  Copyright (C) 2021 - 2024 by Trevor SANDY
 rem --
 rem --
@@ -40,8 +40,7 @@ IF NOT EXIST "repo.txt" (
   ECHO "WARNING - Failed to get repository response."
   GOTO :CONTINUE
 )
-FOR /F "delims=" %%q IN ('TYPE repo.txt ^| jq .sha') DO SET "LP3D_REMOTE=%%q"
-SET LP3D_REMOTE=%LP3D_REMOTE:"=%
+FOR /F "delims=" %%q IN ('TYPE repo.txt ^| jq -r .sha') DO SET "LP3D_REMOTE=%%q"
 FOR /F "delims=" %%c IN ('git rev-parse HEAD') DO SET "LP3D_LOCAL=%%c"
 IF "%LP3D_REMOTE%" NEQ "%LP3D_LOCAL%" (
   ECHO "WARNING - Build no longer current. Rmote: '%LP3D_REMOTE%', Local: '%LP3D_LOCAL%' - aborting build."
