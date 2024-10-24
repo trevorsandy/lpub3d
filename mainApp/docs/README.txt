@@ -1,4 +1,23 @@
-LPub3D 2.4.8.5.3728 (24 10 2024 23:00:56)
+LPub3D 2.4.8.6.3729 (24 10 2024 23:02:07)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Fix - Abnormal end on app close after view preference dialogue #773
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.8.0.3953 (19 10 2024 08:45:39)
 
 Features, enhancements, fixes and changes
 ------------

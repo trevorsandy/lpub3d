@@ -189,15 +189,11 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
 LDVWidget::~LDVWidget(void)
 {
-	makeCurrent();
 	TCAutoreleasePool::processReleases();
-	doneCurrent();
-
-	if (m_KeyListReply)
-	{
-		m_KeyListReply->abort();
-		m_KeyListReply->deleteLater();
-	}
+	TCObject::release(snapshotTaker);
+	TCObject::release(modelViewer);
+	TCObject::release(ldvAlertHandler);
+	ldvAlertHandler = NULL;
 
 	ldvWidget = nullptr;
 }
