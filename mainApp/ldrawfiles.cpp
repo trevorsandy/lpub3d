@@ -6134,15 +6134,15 @@ LDrawFile::LDrawFile() : ldrawMutex(QMutex::Recursive)
 
 int randomFour()
 {
-    int result=0;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 6);
-    for (int n=0; n<4; ++n)
-    {
-        result=result*10+dis(gen);
-    }
-    return result;
+  int result=0;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(1, 6);
+  for (int n=0; n<4; ++n)
+  {
+    result=result*10+dis(gen);
+  }
+  return result;
 }
 
 bool isHeader(const QString &line)
@@ -6158,8 +6158,20 @@ bool isHeader(const QString &line)
 bool isComment(const QString &line) {
   QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
   if (line.contains(commentLine))
-      return true;
+    return true;
   return false;
+}
+
+QString joinLine(const QStringList &argv)
+{
+  QString line;
+  for (int i = 0; i < argv.size(); i++) {
+     QString item = argv.at(i);
+     if (item.contains(" "))
+       item = "\""+item+"\"";
+     line += (i+1 == argv.size() ? item : item+" ");
+  }
+  return line;
 }
 
 /*

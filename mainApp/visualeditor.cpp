@@ -3371,7 +3371,7 @@ void Gui::ReloadVisualEditor() {
                              argv[argv.size()-1] = NewFileName;
                          }
 
-                         PartLine = argv.join(" ");
+                         PartLine = joinLine(argv);
 
                          ModLines.removeLast();
                          ModLines.append(PartLine);

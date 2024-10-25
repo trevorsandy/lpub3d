@@ -672,5 +672,6 @@ bool isComment(const QString &line);
 bool isGhost(const QString &line);
 bool isSubstitute(const QString &line);
 bool isSubstitute(const QString &line, QString &lineOut);
+QString joinLine(const QStringList &argv);
 
 #endif
