@@ -149,28 +149,35 @@
 
       // This is a hack, but if not used the console doesn't know the application has returned.
       // The "enter" key only sent if the console window is in focus.
-      if ((GetConsoleWindow() == GetForegroundWindow())) {
+      BOOL sendEnterKey = false;
+      HWND foregroundWindow = GetForegroundWindow();
+      if (foregroundWindow)
+        sendEnterKey = m_parent_console || (foregroundWindow == GetConsoleWindow());
+      if (sendEnterKey) {
         // Send "enter" to release application from the console
         INPUT keyInput;
         // Set up a generic keyboard event.
         keyInput.type = INPUT_KEYBOARD;
-        keyInput.ki.wScan = 0; // hardware scan code for key
+        keyInput.ki.wScan = 0;    // hardware scan code for key
         keyInput.ki.time = 0;
         keyInput.ki.dwExtraInfo = 0;
-
         // Send the "Enter" key
-        keyInput.ki.wVk = 0x0D; // virtual-key code for the "Enter" key
+        keyInput.ki.wVk = 0x0D;  // virtual-key code for the "Enter" key
         keyInput.ki.dwFlags = 0; // 0 for key press
         SendInput(1, &keyInput, sizeof(INPUT));
-
         // Release the "Enter" key
         keyInput.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
         SendInput(1, &keyInput, sizeof(INPUT));
       }
 
-      // Functions used are compatible with Win2000 or greater
-      if (QSysInfo::windowsVersion() >= QSysInfo::WV_2000)
+      // Functions used are compatible with Windows 7 or greater
+#if (QT_VERSION > QT_VERSION_CHECK(5, 9, 0))
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Windows, 7)) {
+#else
+    if (QSysInfo::windowsVersion() >= QSysInfo::WV_WINDOWS7) {
+#endif
         FreeConsole();
+    }
 
       m_allocate_new_console = false;
       m_parent_console = false;
