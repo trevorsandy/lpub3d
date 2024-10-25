@@ -244,7 +244,7 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update, bool LPub
 				lcColor& Color = Colors.front();
 				snprintf(Code, sizeof(Code), "%d", Color.Code);
 				LPubHighlightColor  = strncmp(LPUB3D_COLOUR_HIGHLIGHT_PREFIX, Code, 3) == 0;
-				LPubHighlightColor &= strncmp(LPUB3D_COLOUR_NAME_PREFIX, Color.SafeName, 7) == 0;
+				LPubHighlightColor &= strncmp(LPUB3D_COLOUR_HIGHLIGHT_NAME_PREFIX, Color.SafeName, 7) == 0;
 			}
 		}
 

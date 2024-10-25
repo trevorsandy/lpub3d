@@ -6753,6 +6753,7 @@ QString Gui::createColourEntry(
   int _fadeStepsOpacity        = Preferences::fadeStepsOpacity;
   bool _fadeStepsUseColour     = Preferences::fadeStepsUseColour;
   bool fadePartType            = partType == FADE_PART;
+  const char *colourNamePrefix = fadePartType ? LPUB3D_COLOUR_FADE_NAME_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_NAME_PREFIX;
 
   if (fadeStepsUseColour      != _fadeStepsUseColour)
       _fadeStepsUseColour      = fadeStepsUseColour;
@@ -6768,7 +6769,7 @@ QString Gui::createColourEntry(
   QString const _colourCode        = _colourPrefix + (fadePartType ? _fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString const _mainColourValue   = LDrawColor::value(colourCode);
   QString const _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) + QString("%1").arg(_alphaValue,0,16).toUpper() : _highlightStepColour;
-  QString const _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
+  QString const _colourDescription = colourNamePrefix + LDrawColor::name(colourCode);
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")
                  .arg(_colourDescription)   // description

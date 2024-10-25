@@ -998,7 +998,8 @@ enum ThemeColorType {
 #define LPUB3D_COLOUR_FADE_PREFIX               "100"
 #define LPUB3D_COLOUR_HIGHLIGHT_SUFFIX          "highlight"
 #define LPUB3D_COLOUR_HIGHLIGHT_PREFIX          "110"
-#define LPUB3D_COLOUR_NAME_PREFIX               "LPub3D_"
+#define LPUB3D_COLOUR_FADE_NAME_PREFIX          "LPub3D_Fade_"
+#define LPUB3D_COLOUR_HIGHLIGHT_NAME_PREFIX     "LPub3D_Highlight_"
 #define LPUB3D_COLOUR_FILE_PREFIX               "colours_" //Not used
 
 #define LPUB3D_IM_BASE_LDR_EXT                  "base.ldr"    // Image Matte LDraw working file extension
