@@ -504,9 +504,11 @@ public:
 
   static bool     buildModJumpForward;  // parse build mods in countPage call - special case for jump forward
 
+  static bool      doFadeStep;
+  static bool      doHighlightStep;
+
   static bool      m_fadeStepsSetup;    // enable fade previous steps locally
   static bool      m_highlightStepSetup;// enable highlight current step locally
-
   static int       m_exportMode;        // export mode
   static int       m_saveExportMode;    // saved export mode used when exporting BOM
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]

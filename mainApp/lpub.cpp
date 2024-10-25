@@ -143,6 +143,9 @@ bool         Gui::m_countWaitForFinished; // indicate wait for countPage to fini
 bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage()
 bool         Gui::m_abort;                // set to true when response to critcal error is abort
 
+bool         Gui::doFadeStep;
+bool         Gui::doHighlightStep;
+
 bool         Gui::m_fadeStepsSetup;       // enable fade previous steps locally
 bool         Gui::m_highlightStepSetup;   // enable highlight current step locally
 
@@ -3268,6 +3271,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     m_contPageProcessing            = false;
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
+
+    doFadeStep                      = false;
+    doHighlightStep                 = false;
 
     m_fadeStepsSetup                = Preferences::enableFadeSteps;
     m_highlightStepSetup            = Preferences::enableHighlightStep;

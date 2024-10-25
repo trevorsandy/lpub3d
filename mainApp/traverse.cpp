@@ -6275,8 +6275,8 @@ void Gui::writeToTmp()
   writeToTmpTimer.start();
   int writtenFiles = 0;
   int subFileCount = lpub->ldrawFile._subFileOrder.size();
-  bool doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
-  bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
+  doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
+  doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
 
   QString fadeColor = LDrawColor::code(Preferences::validFadeStepsColour);
 
@@ -6605,8 +6605,6 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
 
   QStringList configuredContents, subfileColourList;
-  bool doFadeStep = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
-  bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
 

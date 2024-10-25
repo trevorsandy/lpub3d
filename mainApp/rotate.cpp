@@ -206,8 +206,8 @@ int Render::rotateParts(
           int                type)
 {
   bool ldvFunction     = option == DT_LDV_FUNCTION || gui->m_partListCSIFile;
-  bool doFadeStep      = Preferences::enableFadeSteps;
-  bool doHighlightStep = Preferences::enableHighlightStep;
+  bool doFadeStep      = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
+  bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !Gui::suppressColourMeta();
   bool doImageMatting  = Preferences::enableImageMatting;
   bool nativeRenderer  = option == DT_MODEL_COVER_PAGE_PREVIEW || (Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction);
   bool singleSubfile   = isSingleSubfile(parts);
