@@ -119,7 +119,7 @@ int          Gui::prevDisplayPageNum;     // previously displayed page - used to
 int          Gui::prevMaxPages;           // previous page count - used by continuousPageDialog to roll back after encountering an error.
 int          Gui::processOption;          // export Option
 int          Gui::pageDirection;          // page processing direction
-int          Gui::savePrevStepPosition;   // indicate the previous step position amongst current and previous steps
+int          Gui::savePrevStepPosition;   // indicate the previous step position between current and previous steps  - used for fade/highlight steps and to roll back after exporting or an error.
 int          Gui::pageProcessRunning;     // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
 int          Gui::pageProcessParent;      // the page process that triggers another process - e.g. drawPage -> writeToTmp
 int          Gui::firstStepPageNum;       // the first Step page number - used to specify frontCover page

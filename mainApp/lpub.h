@@ -481,7 +481,7 @@ public:
   static int      prevMaxPages;         // previous page count - used by continuousPageDialog to roll back after encountering an error.
   static int      processOption;        // export Option
   static int      pageDirection;        // page processing direction
-  static int      savePrevStepPosition; // previously displayed page - used to roll back after exporting or an error.
+  static int      savePrevStepPosition; // indicate the previous step position between current and previous steps  - used for fade/highlight steps and to roll back after exporting or an error.
   static bool     resetCache;           // reset model, fade and highlight parts
   static QString  saveFileName;         // user specified output file Name [commandline only]
 
@@ -1811,9 +1811,7 @@ private:
   bool generateBOMPartsFile(
           const QString &);
 
-  void writeToTmp(
-    const QString &fileName,
-    const QStringList &);
+  QStringList writeToTmp(const QString &fileName, const QStringList &, bool = true);
 
   void writeToTmp();
 

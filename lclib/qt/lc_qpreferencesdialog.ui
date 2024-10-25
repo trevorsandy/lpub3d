@@ -619,7 +619,7 @@
            <string>Enable visual editor fade parts behaviour</string>
           </property>
           <property name="text">
-           <string>Fade Parts:</string>
+           <string>Native Fade Parts:</string>
           </property>
          </widget>
         </item>
@@ -646,7 +646,7 @@
            <string>Enable visual editor highlight parts behaviour</string>
           </property>
           <property name="text">
-           <string>Highlight Parts:</string>
+           <string>Native Highlight Parts:</string>
           </property>
          </widget>
         </item>
@@ -694,13 +694,13 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3" colspan="2">
+        <item row="0" column="3" colspan="3">
          <widget class="QCheckBox" name="LPubFadeHighlight">
           <property name="toolTip">
-           <string>Make faded parts translucent but do not draw back faces or highlight part edges using LPub3D behaviour</string>
+           <string>Make faded parts translucent but do not draw back faces or highlight part edges</string>
           </property>
           <property name="text">
-           <string>LPub Fade and Highlight</string>
+           <string>LPub3D Fade and Highlight Parts</string>
           </property>
          </widget>
         </item>

@@ -717,6 +717,9 @@ int Gui::drawPage(
        * Funct 1. Capture the appropriate 'block' of lines to be written to the csiPart list (partIgnore).
        * Funct 2. Write the appropriate part lines to the pliPart list. (pliIgnore)
        *
+       * Of course BuildMods in drawPage() are only processed for Called out submodels,
+       * other cases are processed in findPage() - and countPage() accordingly.
+       *
        * The buildModLevel flag is enabled for the lines between BUILD_MOD BEGIN and BUILD_MOD END
        * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD represent the modified content
        * Lines between BUILD_MOD END_MOD and BUILD_MOD END represent the original content
@@ -2554,6 +2557,8 @@ int Gui::drawPage(
 
                           if (opts.displayModel)
                               step->showStepNumber = curMeta.LPub.assem.showStepNumber.value();
+                          else if (multiStep || opts.calledOut)
+                              lpub->ldrawFile.setPrevStepPosition(opts.current.modelName, opts.stepNum, opts.csiParts.size());
 
                           step->updateViewer = opts.updateViewer;
 
@@ -6063,23 +6068,27 @@ int Gui::setBuildModForNextStep(
  * exchange
  */
 
-void Gui::writeToTmp(const QString &fileName,
-                     const QStringList &contents)
+QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents, bool parseContent)
 {
   QMutexLocker writeLocker(&writeMutex);
 
   QFileInfo fileInfo(fileName);
-  QString filePath = QDir::toNativeSeparators(QString("%1/%2/%3").arg(QDir::currentPath(), Paths::tmpDir, fileInfo.fileName()));
+  QString const filePath = QDir::toNativeSeparators(QString("%1/%2/%3").arg(QDir::currentPath(), Paths::tmpDir, fileInfo.fileName()));
   fileInfo.setFile(filePath);
   if(!fileInfo.dir().exists()) {
      fileInfo.dir().mkpath(".");
     }
   QFile file(filePath);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-      emit gui->messageSig(LOG_ERROR, QString("Failed to open %1 for writing:<br>%2")
-                                          .arg(filePath)
-                                          .arg(file.errorString()));
-      return;
+      emit gui->messageSig(LOG_ERROR, tr("Failed to open %1 for writing:<br>%2")
+                                              .arg(filePath).arg(file.errorString()));
+      return QStringList();
+    } else if (!parseContent) {
+      QTextStream out(&file);
+      for (int i = 0; i < contents.size(); i++) {
+          out << contents[i] << lpub_endl;
+        }
+      file.close();
     } else {
 
       LDrawFile::_currentLevels.clear();
@@ -6179,7 +6188,7 @@ void Gui::writeToTmp(const QString &fileName,
                           break;
                       if (buildModApplicable) {
                           if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
-                              emit gui->parseErrorSig("Key required for nested build mod meta command",
+                              emit gui->parseErrorSig(tr("Key required for nested build mod meta command"),
                                                  here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
                           if (buildModActions.value(buildModLevel) == BuildModApplyRc)
                               buildModIgnore = true;
@@ -6264,7 +6273,10 @@ void Gui::writeToTmp(const QString &fileName,
           out << csiParts[i] << lpub_endl;
         }
       file.close();
+      return csiParts;
     }
+
+    return QStringList();
 }
 
 void Gui::writeToTmp()
@@ -6277,32 +6289,30 @@ void Gui::writeToTmp()
   int subFileCount = lpub->ldrawFile._subFileOrder.size();
   doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
+  QString const fadeColor = LDrawColor::code(Preferences::validFadeStepsColour);
 
-  QString fadeColor = LDrawColor::code(Preferences::validFadeStepsColour);
-
-  QString message;
-  QString fileName;
-  QString fileType;
-  QStringList fileContent;
-
-  std::function<QStringList()> getFileContent;
-  getFileContent = [&fileName] ()
+  auto getExternalFileContent = [] (QString const &fileName)
   {
+      QStringList externalFileContents = lpub->ldrawFile.contents(fileName);
+
+      if (externalFileContents.size())
+          return externalFileContents;
+
       QFile file(fileName);
       if (!file.open(QFile::ReadOnly | QFile::Text)) {
-          emit gui->messageSig(LOG_ERROR, QString("Cannot read external file %1<br>%2")
+          emit gui->messageSig(LOG_ERROR, tr("Cannot read external file %1<br>%2")
                                .arg(fileName)
                                .arg(file.errorString()));
           return QStringList();
       }
 
-      QStringList externalFileContents;
       QTextStream in(&file);
       while ( ! in.atEnd()) {
           QString sLine = in.readLine(0);
           externalFileContents << sLine.trimmed();
       }
       file.close();
+
       return externalFileContents;
   };
 
@@ -6313,38 +6323,37 @@ void Gui::writeToTmp()
 
   for (int i = 0; i < subFileCount && !Gui::abortProcess(); i++) {
 
-      fileName = lpub->ldrawFile._subFileOrder[i].toLower();
+      QString const fileName = lpub->ldrawFile._subFileOrder[i].toLower();
 
-      // write normal submodels...
       if (lpub->ldrawFile.changedSinceLastWrite(fileName)) {
 
           writtenFiles++;
 
           int numberOfLines = lpub->ldrawFile.size(fileName);
 
-          QString sourceFilePath = QDir::toNativeSeparators(lpub->ldrawFile.getSubFilePath(fileName));
+          QString const sourceFilePath = QDir::toNativeSeparators(lpub->ldrawFile.getSubFilePath(fileName));
 
           bool externalFile = !sourceFilePath.isEmpty();
 
           bool displayModel = lpub->ldrawFile.isDisplayModel(fileName);
 
-          fileType = externalFile ? tr("external ") : " ";
+          QString fileType = externalFile ? tr("external ") : QString(" ");
           fileType += lpub->ldrawFile.isUnofficialPart(fileName)
-                          ? tr("unofficial %1part ").arg(displayModel ? tr("display ") : "")
-                          : tr("%1submodel ").arg(displayModel ? tr("display ") : "");
+                          ? tr("unofficial %1part ").arg(displayModel ? tr("display ") : QString())
+                          : tr("%1submodel ").arg(displayModel ? tr("display ") : QString());
 
-          message = QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileName);
+          QString message = QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileName);
 
           emit messageSig(LOG_INFO_STATUS, message);
 
           if (Gui::suspendFileDisplay) {
-              message = QString("Writing %1%2 of %3 files (%4 lines)...")
-                      .arg(fileType)
-                      .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
-                      .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
-                      .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
+              message = tr("Writing %1%2 of %3 files (%4 lines)...")
+                           .arg(fileType)
+                           .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
+                           .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
+                           .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
           } else {
-              message = QString("Writing %1%2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
+              message = tr("Writing %1%2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
           }
 
           if (!ContinuousPage()) {
@@ -6358,76 +6367,53 @@ void Gui::writeToTmp()
                  QFile::remove(destinationPath);
              }
              if(!QFile::copy(sourceFilePath, destinationPath)) {
-                 emit messageSig(LOG_ERROR, QString("Could not write %1file '%2' to temp folder...").arg(fileType).arg(fileName));
+                 emit messageSig(LOG_ERROR, tr("Could not write %1file '%2' to temp folder...").arg(fileType).arg(fileName));
              }
-          } else {
-              writeToTmpFutures.append(QtConcurrent::run([this, fileName]() {
-                  QStringList *modelContent = new QStringList;
-                  modelContent->append(lpub->ldrawFile.contents(fileName));
-                  writeSmiContent(modelContent, fileName);
-                  writeToTmp(fileName, *modelContent);
-              }));
           }
 
-          QString fileNameStr = fileName;
-          QString extension = QFileInfo(fileNameStr).suffix().toLower();
-
-          // Write faded version of submodels - except display model
-          if (externalFile && (doFadeStep || doHighlightStep)) {
-              fileContent.clear();
-              fileContent = getFileContent();
+          QStringList modelContent;
+          QString const extension = QFileInfo(fileName).suffix().toLower();
+          QString fadeFileNameStr, highlightFileNameStr;
+          if (Gui::doFadeStep || Gui::doHighlightStep) {
+              if (externalFile)
+                  modelContent = getExternalFileContent(fileName);
+              if (!displayModel) {
+                  if (Gui::doFadeStep) {
+                      if (extension.isEmpty())
+                        fadeFileNameStr = QString(fileName).append(QString("%1.ldr").arg(FADE_SFX));
+                      else
+                        fadeFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+                      emit messageSig(LOG_INFO_STATUS, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fadeFileNameStr));
+                  }
+                  if (Gui::doHighlightStep) {
+                      if (extension.isEmpty())
+                        highlightFileNameStr = QString(fileName).append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
+                      else
+                        highlightFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+                      emit messageSig(LOG_INFO_STATUS, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(highlightFileNameStr));
+                  }
+              }
           }
 
-          if (doFadeStep && !displayModel) {
-            if (extension.isEmpty())
-              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
-            else
-              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-
-            emit messageSig(LOG_INFO_STATUS, QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileNameStr));
-
-            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor, externalFile, fileContent]() {
-                QStringList *modelContent = new QStringList;
-                externalFile ? modelContent->append(fileContent) : modelContent->append(lpub->ldrawFile.contents(fileName));
-                QStringList *configuredContent = new QStringList;
-                configuredContent->append(configureModelSubFile(*modelContent, fadeColor, FADE_PART));
-                insertConfiguredSubFile(fileNameStr, *configuredContent);
-                writeToTmp(fileNameStr, *configuredContent);
-            }));
-          }
-
-          // Write highlighted version of submodels - except display model
-          if (doHighlightStep&& !displayModel) {
-            if (extension.isEmpty())
-              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
-            else
-              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-
-            emit messageSig(LOG_INFO_STATUS, QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileNameStr));
-
-            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor, externalFile, fileContent]() {
-                QStringList *modelContent = new QStringList;
-                externalFile ? modelContent->append(fileContent) : modelContent->append(lpub->ldrawFile.contents(fileName));
-                QStringList *configuredContent = new QStringList;
-                configuredContent->append(configureModelSubFile(*modelContent, fadeColor, HIGHLIGHT_PART));
-                insertConfiguredSubFile(fileNameStr, *configuredContent);
-                writeToTmp(fileNameStr, *configuredContent);
-            }));
-          }
-
-          // Write children on Buld Modification jump forward - deprecated. Setting submodels in stack to 'modified'at setBuildModAction
-          //if (Preferences::buildModEnabled && pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD) {
-          //    Q_FOREACH (int modelIndex, lpub->ldrawFile.getSubmodelIndexes(fileName)) {
-          //        const QString modelFile = lpub->ldrawFile.getSubmodelName(modelIndex);
-          //        emit messageSig(LOG_TRACE, QString("Writing submodel '%1' subfile '%2' to temp folder...").arg(fileName).arg(modelFile));
-          //        writtenFiles++;
-          //        writeToTmpFutures.append(QtConcurrent::run([this, modelFile]() {
-          //            QStringList *modelContent = new QStringList;
-          //            modelContent->append(lpub->ldrawFile.contents(modelFile));
-          //            writeToTmp(modelFile, *modelContent);
-          //        }));
-          //    }
-          //} // BuildMod jump forward
+          writeToTmpFutures.append(QtConcurrent::run([ this,
+              fileName, fadeFileNameStr, highlightFileNameStr,
+              externalFile, modelContent, fadeColor, displayModel ] () {
+              QStringList *futureContent = new QStringList(externalFile ? modelContent : lpub->ldrawFile.contents(fileName));
+              writeSmiContent(futureContent, fileName);
+              QStringList *cleanContent = new QStringList(writeToTmp(fileName, *futureContent));
+              if (!displayModel) {
+                  if (Gui::doFadeStep) {
+                      QStringList *fadeContent = new QStringList(configureModelSubFile(*cleanContent, fadeColor, FADE_PART));
+                      insertConfiguredSubFile(fadeFileNameStr, *fadeContent);
+                      writeToTmp(fadeFileNameStr, *fadeContent, false/*parseContent*/);
+                  }
+                  if (Gui::doHighlightStep) {
+                      QStringList *highlightContent = new QStringList(configureModelSubFile(*cleanContent, fadeColor, HIGHLIGHT_PART));
+                      insertConfiguredSubFile(highlightFileNameStr, *highlightContent);
+                      writeToTmp(highlightFileNameStr, *highlightContent, false/*parseContent*/);
+                  }
+              }
+          }));
       } // ChangedSinceLastWrite
   } // Parse _subFileOrder
 
@@ -6442,12 +6428,12 @@ void Gui::writeToTmp()
           emit progressPermSetValueSig(subFileCount);
 
           // generate submodel icons...
-          emit messageSig(LOG_INFO_STATUS, "Creating submodel icons...");
+          emit messageSig(LOG_INFO_STATUS, tr("Creating submodel icons..."));
           Pli pli;
           if (pli.createSubModelIcons() == 0)
               SetSubmodelIconsLoaded(submodelIconsLoaded = true);
           else
-              emit messageSig(LOG_ERROR, "Could not create submodel icons...");
+              emit messageSig(LOG_ERROR, tr("Could not create submodel icons..."));
           emit progressPermStatusRemoveSig();
       } else {
           // complete and close progress
@@ -6462,11 +6448,11 @@ void Gui::writeToTmp()
       emit progressPermStatusRemoveSig();
   }
 
-  QString writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
-  emit gui->messageSig(LOG_INFO_STATUS, QString("%1 %2 written to temp folder. %3")
-                                        .arg(writtenFiles ? QString::number(writtenFiles) : "No")
-                                        .arg(writtenFiles == 1 ? "file" : "files")
-                                        .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
+  QString const writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
+  emit gui->messageSig(LOG_INFO_STATUS, tr("%1 %2 written to temp folder. %3")
+                                           .arg(writtenFiles ? QString::number(writtenFiles) : tr("No"))
+                                           .arg(writtenFiles == 1 ? tr("file") : tr("files"))
+                                           .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
   Gui::revertPageProcess();
 }
 
@@ -6622,12 +6608,12 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           split(contentLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
               // Insert opening fade meta
-              if (!FadeMetaAdded && doFadeStep && partType == FADE_PART) {
+              if (!FadeMetaAdded && Gui::doFadeStep && partType == FADE_PART) {
                  configuredContents.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                  FadeMetaAdded = true;
               }
               // Insert opening silhouette meta
-              if (!SilhouetteMetaAdded && doHighlightStep && partType == HIGHLIGHT_PART) {
+              if (!SilhouetteMetaAdded && Gui::doHighlightStep && partType == HIGHLIGHT_PART) {
                  configuredContents.insert(index,QString("0 !SILHOUETTE %1 %2")
                                                          .arg(Preferences::highlightStepLineWidth)
                                                          .arg(Preferences::highlightStepColour));
@@ -6669,9 +6655,12 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                 }
               argv[argv.size()-1] = fileNameStr;
             }
+
           if (isGhost(contentLine))
               argv.prepend(GHOST_META);
-          contentLine = argv.join(" ");
+
+          contentLine = joinLine(argv);
+
           configuredContents  << contentLine;
 
           // Insert closing fade and silhouette metas
@@ -6787,7 +6776,7 @@ void Gui::setSceneItemZValueDirection(
            selectedSceneItems->remove(here);
        selectedSceneItems->insert(here,soData);
        if (Preferences::debugLogging) {
-           emit gui->messageSig(LOG_DEBUG, QString("Selected item %1 (%2) added to the current page item list.")
+           emit gui->messageSig(LOG_DEBUG, tr("Selected item %1 (%2) added to the current page item list.")
                                .arg(soMap[SceneObject(soData.itemObj)])
                                .arg(soData.itemObj));
        }

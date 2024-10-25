@@ -4274,6 +4274,7 @@ void ShowSubModelMeta::init(BranchMeta *parent, QString name)
 
 NumberMeta::NumberMeta() : BranchMeta()
 {
+  number = 0;
   color.setValue("black");
   // font - default
 }

@@ -888,60 +888,48 @@ void LDrawFile::setModelStartPageNumber(
 
 /* return the last fade position value */
 
-int LDrawFile::getPrevStepPosition(
-        const QString &mcFileName,
-        const int     &mcLineNumber,
-        const int     &mcStepNumber)
+int LDrawFile::getPrevStepPosition(const QString &mcFileName,
+                                   const int     &mcLineNumber,
+                                   const int     &mcStepNumber)
 {
+#ifdef QT_DEBUG_MODE
+  bool lastPosition = false;
+#endif
   int position = 0;
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-      if (mcStepNumber == i.value()._prevStepPosition.at(PS_STEP_NUM))
+      if (mcStepNumber == i.value()._prevStepPosition.at(PS_STEP_NUM)) {
           position = i.value()._prevStepPosition.at(PS_LAST_POS);
-      else
+#ifdef QT_DEBUG_MODE
+          lastPosition = true;
+#endif
+      } else {
           position = i.value()._prevStepPosition.at(PS_POS);
+      }
   }
 
   if (position && Preferences::buildModEnabled) {
       QVector<int> indexKey = { getSubmodelIndex(mcFileName), mcLineNumber };
-      const int currentStepIndex = _buildModStepIndexes.indexOf(indexKey);
-
-      if (currentStepIndex == BM_INVALID_INDEX) {
-          emit gui->messageSig(LOG_ERROR, QString("Could not find an index for TopOfStep fileName: %1 and lineNumber: %2")
-                               .arg(mcFileName).arg(mcLineNumber));
-          return position;
-      }
-
-      for (const QString &modKey : _buildMods.keys()) {
-          const QMap<int,int> &modActions = _buildMods[modKey]._modActions;
-          for (int stepIndex : modActions.keys()) {
-              if (currentStepIndex == stepIndex) {
-                  const QVector<int> &modAttributes = _buildMods[modKey]._modAttributes;
-                  const int action = modActions.last();
+      int stepIndex = _buildModStepIndexes.indexOf(indexKey);
+      if (stepIndex == BM_INVALID_INDEX)
+          emit gui->messageSig(LOG_WARNING, QString("GetPrevStepPosition (StepNumber %3)\n"
+                                                    " - Could not find PrevStepPosition index for fileName: %1 and lineNumber: %2")
+                                                    .arg(mcFileName).arg(mcLineNumber).arg(mcStepNumber));
 #ifdef QT_DEBUG_MODE
-                  const int oldPosition = position;
-                  emit gui->messageSig(LOG_TRACE, QString("%1 BuildMod Last Action: %2, ActionStepIndex: %3, ModKey: '%4'")
-                                                          .arg(action == BuildModApplyRc ? "Check" : "Adjust")
-                                                          .arg(action == BuildModApplyRc ? "Apply(64)" : "Remove(65)")
-                                                          .arg(modActions.lastKey()).arg(modKey));
+      else
+          emit gui->messageSig(LOG_DEBUG, QString("GetPrevStepPosition (StepNumber %6)\n"
+                                                  " - %1, StepIndex: %2, SubmodelIndex: %3,"
+                                                  " LineNumber: %4, ModelName: %5, %7")
+                                                  .arg(QString("StepPosition (%1): %2")
+                                                  .arg(lastPosition ? "Last" : "Prev")
+                                                  .arg(position, 3, 10, QChar('0')))          // position
+                                                  .arg(stepIndex, 3, 10, QChar('0'))          // stepIndex
+                                                  .arg(indexKey.at(0), 3, 10, QChar('0'))     // modelIndex
+                                                  .arg(indexKey.at(1), 3, 10, QChar('0'))     // lineNumber
+                                                  .arg(getSubmodelName(indexKey.at(0),false)) // modelName
+                                                  .arg(mcStepNumber, 3, 10, QChar('0')));     // stepNumber
 #endif
-                  if (action == BuildModRemoveRc && modAttributes.size() > BM_ACTION_LINE_NUM) {
-                      const int modBegin      = modAttributes.at(BM_BEGIN_LINE_NUM);
-                      const int modAction     = modAttributes.at(BM_ACTION_LINE_NUM);
-                      const int modEnd        = modAttributes.at(BM_END_LINE_NUM);
-                      const int modAdjustment = (modAction - modBegin) - (modEnd - modAction);
-                      position                -= modAdjustment;
-#ifdef QT_DEBUG_MODE
-                      emit gui->messageSig(LOG_TRACE, QString("Adjust BuildMod Step %1 Position, (Action [%3] - Begin [%2]) - (End [%4] - Action [%3]) = Adjustment: [%5], "
-                                                              "New Pos: [%6], Old Pos: [%7]")
-                                                              .arg(mcStepNumber).arg(modBegin).arg(modAction).arg(modEnd).arg(modAdjustment)
-                                                              .arg(position).arg(oldPosition));
-#endif
-                  }
-              }
-          }
-      }
   }
   return position;
 }
@@ -959,6 +947,17 @@ void LDrawFile::setPrevStepPosition(
         QVector<int> stepPositions = { prevStepPosition, lastStepPosition, mcStepNumber };
         i.value()._prevStepPosition = stepPositions;
     }
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG, QString("SetPrevStepPosition (StepNumber %3)\n"
+                                            " - PrevStepPosition: %1, LastStepPosition: %2,"
+                                            " StepNumber: %3, SubmodelIndex: %4, ModelName: %5, Inserted: %6")
+                                            .arg(prevStepPosition, 3, 10, QChar('0'))                  // prevStepPosition
+                                            .arg(lastStepPosition , 3, 10, QChar('0'))                 // lastStepPosition
+                                            .arg(mcStepNumber)                                         // stepNumber
+                                            .arg(getSubmodelIndex(fileName), 3, 10, QChar('0'))        // modelIndex
+                                            .arg(fileName)                                             // modelName
+                                            .arg(lastStepPosition != prevStepPosition ? "YES" : "NO"));// added
+#endif
   }
 }
 
