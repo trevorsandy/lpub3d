@@ -112,4 +112,3 @@ lcTexture* lcLoadTexture(const QString& FileName, int Flags);
 void lcReleaseTexture(lcTexture* Texture);
 
 extern lcTexture* gGridTexture;
-

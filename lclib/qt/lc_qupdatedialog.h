@@ -34,4 +34,3 @@ private:
 	QByteArray versionData;
 	bool mInitialUpdate;
 };
-

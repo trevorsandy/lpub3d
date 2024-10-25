@@ -30,4 +30,3 @@ public slots:
 private:
 	Ui::lcQPropertiesDialog* ui;
 };
-

@@ -50,4 +50,3 @@ protected:
 	QToolButton* ResetBlackEdgeColorButton;
 	QToolButton* ResetDarkEdgeColorButton;
 };
-

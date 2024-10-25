@@ -18,4 +18,3 @@ public:
 	lcGroup* mGroup;
 	QString mName;
 };
-

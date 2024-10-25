@@ -226,7 +226,7 @@ LDrawSubFile::LDrawSubFile(
 
 /* Only used to store fade or highlight content */
 
-CfgSubFile::CfgSubFile(
+ConfiguredSubFile::ConfiguredSubFile(
   const QStringList &contents,
   const QString     &subFilePath)
 {
@@ -466,12 +466,12 @@ void LDrawFile::insertConfiguredSubFile(const QString &mcFileName,
                                         const QString  &subFilePath)
 {
   QString    fileName = mcFileName.toLower();
-  QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
+  QMap<QString, ConfiguredSubFile>::iterator i = _configuredSubFiles.find(fileName);
 
   if (i != _configuredSubFiles.end()) {
     _configuredSubFiles.erase(i);
   }
-  CfgSubFile subFile(contents,subFilePath);
+  ConfiguredSubFile subFile(contents,subFilePath);
   _configuredSubFiles.insert(fileName,subFile);
 }
 
@@ -525,7 +525,7 @@ int LDrawFile::configuredSubFileSize(const QString &mcFileName)
 {
   QString fileName = mcFileName.toLower();
 
-  QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
+  QMap<QString, ConfiguredSubFile>::iterator i = _configuredSubFiles.find(fileName);
 
   if (i != _configuredSubFiles.end()) {
     return i.value()._contents.size();
@@ -1224,7 +1224,7 @@ void LDrawFile::changeContents(
 QString LDrawFile::readConfiguredLine(const QString &mcFileName, int lineNumber)
 {
   QString fileName = mcFileName.toLower();
-  QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
+  QMap<QString, ConfiguredSubFile>::iterator i = _configuredSubFiles.find(fileName);
 
   if (i != _configuredSubFiles.end()) {
       if (lineNumber < i.value()._contents.size())

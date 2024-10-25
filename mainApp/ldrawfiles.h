@@ -49,15 +49,14 @@ extern QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
 extern QList<QRegExp> LDrawUnofficialOtherRegExp;
 extern const QString  LDrawUnofficialType[];
 
-class CfgSubFile {
+class ConfiguredSubFile {
   public:
     QStringList  _contents;
     QString      _subFilePath;
-    CfgSubFile(){}
-    CfgSubFile(
+    ConfiguredSubFile(
             const QStringList &contents,
             const QString     &subFilePath = QString());
-    ~CfgSubFile()
+    ~ConfiguredSubFile()
     {
       _contents.clear();
     }
@@ -267,7 +266,7 @@ public:
 class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
-    QMap<QString, CfgSubFile>   _configuredSubFiles;
+    QMap<QString, ConfiguredSubFile>   _configuredSubFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, MissingItem>  _missingItems;
     QMap<QString, BuildMod>     _buildMods;

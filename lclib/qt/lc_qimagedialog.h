@@ -31,4 +31,3 @@ public slots:
 private:
 	Ui::lcQImageDialog *ui;
 };
-

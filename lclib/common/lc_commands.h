@@ -325,4 +325,3 @@ enum class lcTool
 };
 
 extern const char* gToolNames[];
-

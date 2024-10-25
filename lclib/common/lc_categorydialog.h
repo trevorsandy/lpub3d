@@ -22,4 +22,3 @@ public slots:
 private:
 	Ui::lcCategoryDialog* ui;
 };
-

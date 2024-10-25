@@ -136,5 +136,3 @@ public:
 	int mConditionalVertexCount;
 	int mIndexType;
 };
-
-
