@@ -83,16 +83,16 @@ The following steps are using LPub3D Windows release hosted on [GitHub][github_r
 These steps can be applied to any LPub3D release where a GPG signature file is available.
 - Get the hash file [LPub3D-2.4.8.0.3723_20241019.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019.exe.sha512)
 - Open a PowerShell session
-- Add the package download path to `> PkgUrl`
-- Add the hash file sha512 hash to `> PublishedHash`.
+- Add the package download path to `PkgUrl`{:.posh}
+- Add the hash file sha512 hash to `PublishedHash`.{:.posh}
 ```posh
-> WebClient = [System.Net.WebClient]::new()
-> PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019.exe'
-> PublishedHash = '457845f9267c8cd0bf0a93ab7e210a8ab085fcab73cea42072f1a356ddf9c260c709c8af045a5bd54ff0c4451dfd5b24be9f70a695f9758d51b789ee1122f384'
-> FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
-> FileHash.Hash -eq $PublishedHash
+WebClient = [System.Net.WebClient]::new()
+PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019.exe'
+PublishedHash = '457845f9267c8cd0bf0a93ab7e210a8ab085fcab73cea42072f1a356ddf9c260c709c8af045a5bd54ff0c4451dfd5b24be9f70a695f9758d51b789ee1122f384'
+FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
+FileHash.Hash -eq $PublishedHash
 ```
-- Cut and paste this code snippet into Powershell, a valid return value is `True`.
+- Cut and paste this code snippet into Powershell, a valid return value is `True`{:.sh}.
 
 ### Verify GPG Signature using Bash Unix Shell
 The following steps are using LPub3D AppImage release hosted on [GitHub][github_releases].
@@ -101,13 +101,13 @@ These steps can be applied to any LPub3D release where a GPG signature file is a
 - Get the release: [LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage)
 - Get the hash file: [LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512)
 - Get the GPG hash file signature: [LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig)
-- Ensure GPG is installed and configured: `$> which gpg`
-- Import the public key file into GPG: `$> gpg --import pubring.auto`
-- Verify the against its hash file: `$> sha512sum -c LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512`
-- Verify the GPG hash file signature: `$> gpg --verify LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig`
+- Ensure GPG is installed and configured: `which gpg`{:.sh}
+- Import the public key file into GPG: `gpg --import pubring.auto`{:.sh}
+- Verify the against its hash file: `sha512sum -c LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512`{:.sh}
+- Verify the GPG hash file signature: `gpg --verify LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig`{:.sh}
 
 ### Quick Links
- - [Build and package LPub3D from source][buildfromsource]
+ - [Build and package LPub3D from source][build-from-source]
  - [Release notes][docs-lpub3d-release-notes]
  - [Change log (Deprecated - use Release notes)][docs-lpub3d-changelog]
  - [Questions and discussion][sf-gen-discussion]
@@ -221,7 +221,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - All features from legacy LPub - enhanced and stabilized
  - Linux, Linux AppImage, macOS and Microsoft Windows distributions
  - Windows automated installer and portable distributions available
- - Full capabilities to [build and package from source][buildfromsource] or Cloud Continuous Integration Service
+ - Full capabilities to [build and package from source][build-from-source] or Cloud Continuous Integration Service
  - Automated build and deploy from Cloud CI Service: [GitHub Actions][gh-actions-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Ubuntu][dockerubuntu] and [Fedora][dockerfedora] Linux distros
 
@@ -363,7 +363,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [appimage-site-url]:   https://appimage.github.io/LPub3D/
 
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
-[buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
+[build-from-source]:   https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 [qt-url]:              https://www.qt.io
 
 [github_releases]:     https://github.com/trevorsandy/lpub3d/releases
