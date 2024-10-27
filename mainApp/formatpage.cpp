@@ -620,30 +620,26 @@ int Gui::addGraphicsPageItems(
               {
                 Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : lpub->ldrawFile.topLevelFile(),0);
                 QString const message = tr("Processing Bill Of Material...");
-                emit messageSig(LOG_INFO, message);
-                if (Preferences::modeGUI && !exporting()) {
-                    emit progressBarPermInitSig();
-                    emit progressPermMessageSig(message);
-                    emit progressPermRangeSig(0, 100);
-                    emit progressPermSetValueSig(0);
-                    m_saveExportMode = m_exportMode;
-                    m_exportMode = GENERATE_BOM;
-                    emit setGeneratingBomSig(true);
-                    QApplication::processEvents();
+                emit gui->messageSig(LOG_INFO, message);
+                if (Preferences::modeGUI && !Gui::exporting()) {
+                    emit gui->progressBarPermInitSig();
+                    emit gui->progressPermMessageSig(message);
+                    emit gui->progressPermRangeSig(0, 100);
+                    emit gui->progressPermSetValueSig(0);
+                    Gui::m_saveExportMode = Gui::m_exportMode;
+                    Gui::m_exportMode = GENERATE_BOM;
+                    emit gui->setGeneratingBomSig(true);
                 }
                 QFuture<void> future = QtConcurrent::run([&]() {
-                    bomParts.clear();
-                    bomPartGroups.clear();
-                    getBOMParts(current, QString());
+                    Gui::bomParts.clear();
+                    Gui::bomPartGroups.clear();
+                    gui->getBOMParts(current, QString());
+                    gui->getBOMOccurrence(current);
                 });
-                future.waitForFinished();
-                future = QtConcurrent::run([&]() {
-                    getBOMOccurrence(current);
-                });
-                future.waitForFinished();
+                asynchronous(future);
                 page->pli.steps = steps;
-                page->pli.setParts(bomParts,bomPartGroups,page->meta,true/*isBOM*/,(boms > 1/*Split BOM Parts*/));
-                if (Preferences::modeGUI && !exporting()) {
+                page->pli.setParts(Gui::bomParts,Gui::bomPartGroups,page->meta,true/*isBOM*/,(Gui::boms > 1/*Split BOM Parts*/));  
+                if (Preferences::modeGUI && !Gui::exporting()) {
                     int partCount = page->pli.getPartCount();
                     if (Render::useLDViewSCall()) {
                         partCount++; // normal parts
@@ -652,13 +648,13 @@ int Gui::addGraphicsPageItems(
                         if (Preferences::enableHighlightStep)
                             partCount++;
                     }
-                    emit progressPermRangeSig(0, partCount);
+                    emit gui->progressPermRangeSig(0, partCount);
                 }
-                page->pli.sizePli(&page->meta,page->relativeType,false);
+                page->pli.sizePli(&page->meta,page->relativeType,false); // must run on UI thread
                 page->pli.relativeToSize[0] = plPage.size[XX];
                 page->pli.relativeToSize[1] = plPage.size[YY];
-                if (Preferences::modeGUI && !exporting())
-                    emit progressPermStatusRemoveSig();
+                if (Preferences::modeGUI && !Gui::exporting())
+                    emit gui->progressPermStatusRemoveSig();
               }
               break;
             case InsertData::InsertRotateIcon:
