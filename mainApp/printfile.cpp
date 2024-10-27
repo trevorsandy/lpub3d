@@ -56,14 +56,14 @@ bool lessThan(const int &v1, const int &v2)
 
 QPageLayout Gui::getPageLayout(bool nextPage) {
 
-  int pageNum = displayPageNum;
-  if (nextPage && displayPageNum < maxPages) {
-      pageNum = displayPageNum + 1;            //next page
+  int pageNum = Gui::displayPageNum;
+  if (nextPage && (Gui::displayPageNum < Gui::maxPages)) {
+      pageNum = Gui::displayPageNum + 1;            //next page
     }
 
 
-  QMap<int,PageSizeData>::iterator i = pageSizes.find(pageNum);
-  if (i != pageSizes.end()) {
+  QMap<int,PageSizeData>::iterator i = Gui::pageSizes.find(pageNum);
+  if (i != Gui::pageSizes.end()) {
 
       // determine page orientation
       bool  ls = i.value().orientation == Landscape;
@@ -93,8 +93,8 @@ QPageLayout Gui::getPageLayout(bool nextPage) {
 
 void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 {
-  QMap<int,PageSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
-  if (i != pageSizes.end()) {
+  QMap<int,PageSizeData>::iterator i = Gui::pageSizes.find(Gui::displayPageNum);   // this page
+  if (i != Gui::pageSizes.end()) {
 
       float pageWidthIn, pageHeightIn;
 
@@ -132,13 +132,13 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 
 OrientationEnc Gui::getPageOrientation(bool nextPage)
 {
-  int pageNum = displayPageNum;
-  if (nextPage && displayPageNum < maxPages) {
-      pageNum = displayPageNum + 1;            //next page
+  int pageNum = Gui::displayPageNum;
+  if (nextPage && (displayPageNum < Gui::maxPages)) {
+      pageNum = Gui::displayPageNum + 1;            //next page
     }
 
-  QMap<int,PageSizeData>::iterator i = pageSizes.find(pageNum);   // this page
-  if (i != pageSizes.end()) {
+  QMap<int,PageSizeData>::iterator i = Gui::pageSizes.find(pageNum);   // this page
+  if (i != Gui::pageSizes.end()) {
 
 #ifdef PAGE_PRINT_DEBUG
       bool  ls = i.value().orientation == Landscape;
@@ -170,18 +170,18 @@ void Gui::checkMixedPageSizeStatus() {
               "a mixed size and orientation document using the Export pdf\n"
               "or image (PNG, JPG, BMP) functions.\n").arg(VER_PRODUCTNAME_STR);
 
-  float pageWidthIn          = pageSizes[DEF_SIZE].sizeW;
-  float pageHeightIn         = pageSizes[DEF_SIZE].sizeH;
-  QString sizeID             = pageSizes[DEF_SIZE].sizeID;
-  OrientationEnc orientation = pageSizes[DEF_SIZE].orientation;
+  float pageWidthIn          = Gui::pageSizes[DEF_SIZE].sizeW;
+  float pageHeightIn         = Gui::pageSizes[DEF_SIZE].sizeH;
+  QString sizeID             = Gui::pageSizes[DEF_SIZE].sizeID;
+  OrientationEnc orientation = Gui::pageSizes[DEF_SIZE].orientation;
   bool orientation_warning   = false;
   bool size_warning          = false;
   bool double_warning        = false;
   int key;
 
-  if (processOption == EXPORT_PAGE_RANGE) {
+  if (Gui::processOption == EXPORT_PAGE_RANGE) {
 
-      QStringList pageRanges = pageRangeText.split(",");
+      QStringList pageRanges = Gui::pageRangeText.split(",");
       QList<int> printPages;
       Q_FOREACH (QString ranges,pageRanges) {
           if (ranges.contains("-")) {
@@ -202,40 +202,40 @@ void Gui::checkMixedPageSizeStatus() {
 
           Q_FOREACH (key,printPages) {
 
-              QMap<int,PageSizeData>::iterator i = pageSizes.find(key);   // this page
-              if (i != pageSizes.end()) {
+              QMap<int,PageSizeData>::iterator i = Gui::pageSizes.find(key);   // this page
+              if (i != Gui::pageSizes.end()) {
 #ifdef PAGE_PRINT_DEBUG
                   logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")
-                                           .arg(pageSizes[key].sizeW)
-                                           .arg(pageSizes[key].sizeH)
+                                           .arg(Gui::pageSizes[key].sizeW)
+                                           .arg(Gui::pageSizes[key].sizeH)
                                            .arg(key)
                                            .arg(printPages.count())
-                                           .arg(pageSizes[key].orientation == Landscape ? "Landscape" : "Portrait")
+                                           .arg(Gui::pageSizes[key].orientation == Landscape ? "Landscape" : "Portrait")
                                            .arg("Checking")
                                            .arg(pageRanges.join(" "))
-                                           .arg(pageSizes[key].sizeID);
+                                           .arg(Gui::pageSizes[key].sizeID);
 #endif
                   if (! defaultSizesUpdated) {
-                      pageWidthIn  = pageSizes[key].sizeW;
-                      pageHeightIn = pageSizes[key].sizeH;
-                      sizeID       = pageSizes[key].sizeID;
-                      orientation  = pageSizes[key].orientation;
+                      pageWidthIn  = Gui::pageSizes[key].sizeW;
+                      pageHeightIn = Gui::pageSizes[key].sizeH;
+                      sizeID       = Gui::pageSizes[key].sizeID;
+                      orientation  = Gui::pageSizes[key].orientation;
                       defaultSizesUpdated = true;
                       continue;
                     }
 
-                  if (pageSizes[key].orientation != orientation && orientation_warning != true) {
+                  if (Gui::pageSizes[key].orientation != orientation && orientation_warning != true) {
                       orientation_warning = true;
                       text = text1;
                       title = "<b>" + tr ("Mixed page orientation detected.") + "</b>";
                       box.setIcon (QMessageBox::Information);
                     }
 
-                  if ((pageSizes[key].sizeID != sizeID      ||
-                      (pageSizes[key].sizeW  < pageWidthIn  ||
-                       pageSizes[key].sizeW  > pageWidthIn) ||
-                      (pageSizes[key].sizeH  < pageHeightIn ||
-                       pageSizes[key].sizeH  > pageHeightIn)) && size_warning != true) {
+                  if ((Gui::pageSizes[key].sizeID != sizeID      ||
+                      (Gui::pageSizes[key].sizeW  < pageWidthIn  ||
+                       Gui::pageSizes[key].sizeW  > pageWidthIn) ||
+                      (Gui::pageSizes[key].sizeH  < pageHeightIn ||
+                       Gui::pageSizes[key].sizeH  > pageHeightIn)) && size_warning != true) {
                       size_warning = true;
                       text = text2;
                       title = "<b>" + tr ("Mixed page size detected.") + "</b>";
@@ -253,26 +253,26 @@ void Gui::checkMixedPageSizeStatus() {
             }
         }
 
-    } else if (processOption == EXPORT_ALL_PAGES) {
+    } else if (Gui::processOption == EXPORT_ALL_PAGES) {
 #ifdef PAGE_PRINT_DEBUG
       logDebug() << tr("Default  page         size(Inches) W %1 x H %2, ID %3, orientation %4")
-                       .arg(pageSizes[DEF_SIZE].sizeW)
-                       .arg(pageSizes[DEF_SIZE].sizeH)
-                       .arg(pageSizes[DEF_SIZE].sizeID)
-                       .arg(pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
+                       .arg(Gui::pageSizes[DEF_SIZE].sizeW)
+                       .arg(Gui::pageSizes[DEF_SIZE].sizeH)
+                       .arg(Gui::pageSizes[DEF_SIZE].sizeID)
+                       .arg(Gui::pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
 #endif
-      Q_FOREACH (key,pageSizes.keys()) {
+      Q_FOREACH (key,Gui::pageSizes.keys()) {
 
-          if (pageSizes[key].orientation != orientation && orientation_warning != true) {
+          if (Gui::pageSizes[key].orientation != orientation && orientation_warning != true) {
               orientation_warning = true;
               text = text1;
               title = "<b>" + tr ("Mixed page orientation detected.") + "</b>";
               box.setIcon (QMessageBox::Information);
             }
 
-          if ((pageSizes[key].sizeID != sizeID      ||
-               pageSizes[key].sizeW  != pageWidthIn ||
-               pageSizes[key].sizeH  != pageHeightIn) && size_warning != true) {
+          if ((Gui::pageSizes[key].sizeID != sizeID      ||
+               Gui::pageSizes[key].sizeW  != pageWidthIn ||
+               Gui::pageSizes[key].sizeH  != pageHeightIn) && size_warning != true) {
               size_warning = true;
               text = text2;
               title = "<b>" + tr ("Mixed page size detected.") + "</b>";
@@ -319,7 +319,7 @@ bool Gui::validatePageRange()
   QString title;
   QString text;
 
-  if(pageRangeText.isEmpty()) {
+  if(Gui::pageRangeText.isEmpty()) {
 
       title = "<b>" + tr ("Empty page range.") + "</b>";
       text = tr ("You must enter a page range");
@@ -337,7 +337,7 @@ bool Gui::validatePageRange()
 
   bool validEntry = true;
   QString message;
-  QStringList pageRanges = pageRangeText.split(",");
+  QStringList pageRanges = Gui::pageRangeText.split(",");
   for (QString const &ranges: pageRanges) {
       if (ranges.contains("-")) {
           bool ok[2];
@@ -350,12 +350,12 @@ bool Gui::validatePageRange()
               validEntry = false;
               break;
           }
-          if ((pageDirection == PAGE_NEXT) && (startPage > endPage)) {
+          if ((Gui::pageDirection == PAGE_NEXT) && (startPage > endPage)) {
               message = QString("%1-%2").arg(startPage).arg(endPage);
               validEntry = false;
               break;
           } else
-            if ((pageDirection == PAGE_PREVIOUS) && (endPage > startPage)) {
+            if ((Gui::pageDirection == PAGE_PREVIOUS) && (endPage > startPage)) {
                 message = QString("%1-%2").arg(startPage).arg(endPage);
                 validEntry = false;
                 break;
@@ -461,31 +461,31 @@ void Gui::exportAsObjDialog() {
 
 bool Gui::exportAsDialog(ExportMode m)
 {
-  messageList.clear();
-  m_exportMode = m;
+  Gui::messageList.clear();
+  Gui::m_exportMode = m;
 
- if (m_exportMode != PAGE_PROCESS)
-     pageDirection = PAGE_NEXT;
+ if (Gui::m_exportMode != PAGE_PROCESS)
+     Gui::pageDirection = PAGE_NEXT;
 
   if (Preferences::modeGUI) {
       DialogExportPages *dialog = new DialogExportPages();
       if (dialog->exec() == QDialog::Accepted) {
           if(dialog->allPages()) {
               if (dialog->allPagesRange()) {
-                processOption = EXPORT_PAGE_RANGE;
-                pageRangeText = dialog->allPagesRangeText();
+                Gui::processOption = EXPORT_PAGE_RANGE;
+                Gui::pageRangeText = dialog->allPagesRangeText();
               } else {
-                processOption = EXPORT_ALL_PAGES;
+                Gui::processOption = EXPORT_ALL_PAGES;
               }
             }
           else
           if(dialog->currentPage()) {
-              processOption = EXPORT_CURRENT_PAGE;
+              Gui::processOption = EXPORT_CURRENT_PAGE;
             }
           else
           if(dialog->pageRange()) {
-              processOption = EXPORT_PAGE_RANGE;
-              pageRangeText = dialog->pageRangeText();
+              Gui::processOption = EXPORT_PAGE_RANGE;
+              Gui::pageRangeText = dialog->pageRangeText();
               if (! validatePageRange()) {
                   return false;
                 }
@@ -496,7 +496,7 @@ bool Gui::exportAsDialog(ExportMode m)
 
       exportPixelRatio = dialog->exportPixelRatio();
 
-      resetCache = dialog->resetCache();
+      Gui::resetCache = dialog->resetCache();
 
       QSettings Settings;
       if (Preferences::ignoreMixedPageSizesMsg != dialog->ignoreMixedPageSizesMsg())
@@ -505,15 +505,15 @@ bool Gui::exportAsDialog(ExportMode m)
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg "),Preferences::ignoreMixedPageSizesMsg);
       }
 
-      if (m_exportMode == EXPORT_PDF && Preferences::pdfPageImage != dialog->pdfPageImage())
+      if (Gui::m_exportMode == EXPORT_PDF && Preferences::pdfPageImage != dialog->pdfPageImage())
       {
         Preferences::pdfPageImage = dialog->pdfPageImage();
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"),Preferences::pdfPageImage);
       }
     }
 
-  if(resetCache)
-      resetModelCache(QFileInfo(curFile).absoluteFilePath());
+  if(Gui::resetCache)
+      resetModelCache(QFileInfo(Gui::curFile).absoluteFilePath());
 
   if (! m_previewDialog) {
       switch (m)
@@ -565,18 +565,18 @@ bool Gui::exportAsDialog(ExportMode m)
 
 void Gui::exportAsHtmlSteps()
 {
-    messageList.clear();
+    Gui::messageList.clear();
     lpub->Options                     = new NativeOptions();
     lpub->Options->ExportMode         = EXPORT_HTML_STEPS;
     lpub->Options->ImageType          = Options::CSI;
-    lpub->Options->InputFileName      = curFile;
+    lpub->Options->InputFileName      = Gui::curFile;
     if (!Gui::m_saveDirectoryName.isEmpty())
         lpub->Options->ExportFileName = QDir::toNativeSeparators(
                                         Gui::m_saveDirectoryName + "/" +
                                         Paths::htmlStepsDir);
     else
         lpub->Options->ExportFileName = QDir::toNativeSeparators(
-                                        QFileInfo(curFile).absolutePath() + "/" +
+                                        QFileInfo(Gui::curFile).absolutePath() + "/" +
                                         Paths::htmlStepsDir);
 
     bool saveFadeStepsFlag = Preferences::enableFadeSteps;
@@ -596,7 +596,7 @@ void Gui::exportAsHtmlSteps()
 }
 void Gui::exportAsHtml()
 {
-    messageList.clear();
+    Gui::messageList.clear();
     lpub->Options              = new NativeOptions();
     lpub->Options->ExportMode  = EXPORT_HTML_PARTS;
     // Visual Editor only
@@ -604,7 +604,7 @@ void Gui::exportAsHtml()
     if (!Gui::m_saveDirectoryName.isEmpty())
         lpub->Options->ExportFileName = QDir::toNativeSeparators(Gui::m_saveDirectoryName);
     else
-        lpub->Options->ExportFileName = QDir::toNativeSeparators(QFileInfo(curFile).absolutePath());
+        lpub->Options->ExportFileName = QDir::toNativeSeparators(QFileInfo(Gui::curFile).absolutePath());
     // LDV only
     lpub->Options->IniFlag            = NativePartList;
 
@@ -615,7 +615,7 @@ void Gui::exportAsHtml()
     setNativeRenderer();
 
     // store current display page number
-    prevDisplayPageNum = displayPageNum;
+    Gui::prevDisplayPageNum = Gui::displayPageNum;
 
     // start at the last page moving backward until we find a valid CSI
     Meta meta;
@@ -623,7 +623,7 @@ void Gui::exportAsHtml()
     DrawPageFlags dpFlags;
     m_partListCSIFile  = true;
     bool modelFound    = false;
-    int pageNum        = maxPages;
+    int pageNum        = Gui::maxPages;
 
     // start at the bottom of the page's last step
     Where pagePos = Gui::topOfPages[pageNum];
@@ -666,7 +666,7 @@ void Gui::exportAsHtml()
         }
     }
 
-    displayPageNum = pageNum;
+    Gui::displayPageNum = pageNum;
 
     // setup and export the last CSI on the page
     LGraphicsScene scene;
@@ -683,13 +683,13 @@ void Gui::exportAsHtml()
 
     // return to whatever page we were viewing before capturing the CSI
     m_partListCSIFile = false;
-    displayPageNum    = prevDisplayPageNum;
+    Gui::displayPageNum  = Gui::prevDisplayPageNum;
     displayPage();
 
     // create partList key
     bool noCA = Preferences::applyCALocally || meta.rotStep.value().type.toUpper() == QLatin1String("ABS");
     float partListModelScale = meta.LPub.bom.modelScale.value();
-    bool suffix = QFileInfo(getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
+    bool suffix = QFileInfo(Gui::getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
     QString partListKey = QString("%1_%2_%3_%4_%5_%6_%7.%8")
                                   .arg(lpub->pageSize(meta.LPub.page, 0))
                                   .arg(double(resolution()))
@@ -698,10 +698,10 @@ void Gui::exportAsHtml()
                                   .arg(double(meta.LPub.bom.cameraFoV.value()))
                                   .arg(noCA ? double(0.0f) : double(meta.LPub.bom.cameraAngles.value(0)))
                                   .arg(noCA ? double(0.0f) : double(meta.LPub.bom.cameraAngles.value(1)))
-                                  .arg(suffix ? QFileInfo(getCurFile()).suffix() : "ldr");
+                                  .arg(suffix ? QFileInfo(Gui::getCurFile()).suffix() : "ldr");
 
     // generate HTML parts list
-    QString ldrBaseFile = QDir::currentPath()+QDir::separator()+Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName();
+    QString ldrBaseFile = QDir::currentPath()+QDir::separator()+Paths::tmpDir+QDir::separator()+QFileInfo(Gui::curFile).completeBaseName();
     QString partListFile = QDir::toNativeSeparators(ldrBaseFile+"_parts.ldr");
     if (! generateBOMPartsFile(partListFile))
         return;
@@ -740,17 +740,17 @@ void Gui::exportAsHtml()
 
 void Gui::exportAsCsv()
 {
-    messageList.clear();
+    Gui::messageList.clear();
     lpub->Options             = new NativeOptions();
     lpub->Options->ImageType  = Options::CSI;
     lpub->Options->ExportMode = EXPORT_CSV;
-    if (!saveFileName.isEmpty()) // command line user specified file name
-        lpub->Options->OutputFileName = saveFileName;
+    if (!Gui::saveFileName.isEmpty()) // command line user specified file name
+        lpub->Options->OutputFileName = Gui::saveFileName;
     else
-        lpub->Options->OutputFileName = QDir::toNativeSeparators(QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"cvs")));
+        lpub->Options->OutputFileName = QDir::toNativeSeparators(QDir::toNativeSeparators(QString(Gui::curFile).replace(QFileInfo(Gui::curFile).suffix(),"cvs")));
     if (Preferences::modeGUI) {
         // determine location for output file
-        QFileInfo fileInfo(curFile);
+        QFileInfo fileInfo(Gui::curFile);
         QString baseName = fileInfo.completeBaseName();
         QString fileName = QFileDialog::getSaveFileName(
               this,
@@ -761,7 +761,7 @@ void Gui::exportAsCsv()
             lpub->Options->OutputFileName = fileName;
     }
     lpub->Options->InputFileName = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
-                                   Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
+                                   Paths::tmpDir+QDir::separator()+QFileInfo(Gui::curFile).completeBaseName()+"_parts.ldr");
     if (! generateBOMPartsFile(lpub->Options->InputFileName))
         return;
     if (! renderer->NativeExport(lpub->Options)) {
@@ -773,17 +773,17 @@ void Gui::exportAsCsv()
 
 void Gui::exportAsBricklinkXML()
 {
-    messageList.clear();
+    Gui::messageList.clear();
     lpub->Options             = new NativeOptions();
     lpub->Options->ImageType  = Options::CSI;
     lpub->Options->ExportMode = EXPORT_BRICKLINK;
-    if (!saveFileName.isEmpty()) // command line user specified file name
-        lpub->Options->OutputFileName = saveFileName;
+    if (!Gui::saveFileName.isEmpty()) // command line user specified file name
+        lpub->Options->OutputFileName = Gui::saveFileName;
     else
-        lpub->Options->OutputFileName = QDir::toNativeSeparators(QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml")));
+        lpub->Options->OutputFileName = QDir::toNativeSeparators(QDir::toNativeSeparators(QString(Gui::curFile).replace(QFileInfo(Gui::curFile).suffix(),"xml")));
     if (Preferences::modeGUI) {
         // determine location for output file
-        QFileInfo fileInfo(curFile);
+        QFileInfo fileInfo(Gui::curFile);
         QString baseName = fileInfo.completeBaseName();
         QString fileName = QFileDialog::getSaveFileName(
               this,
@@ -794,7 +794,7 @@ void Gui::exportAsBricklinkXML()
             lpub->Options->OutputFileName = fileName;
     }
     lpub->Options->InputFileName = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
-                                   Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
+                                   Paths::tmpDir+QDir::separator()+QFileInfo(Gui::curFile).completeBaseName()+"_parts.ldr");
     if (! generateBOMPartsFile(lpub->Options->InputFileName))
         return;
     if (! renderer->NativeExport(lpub->Options)) {
@@ -810,13 +810,13 @@ void Gui::exportAsPdf()
   DrawPageFlags dpFlags;
 
   // store current display page number
-  prevDisplayPageNum = displayPageNum;
+  Gui::prevDisplayPageNum = Gui::displayPageNum;
 
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&](bool restoreKpage = true)
   {
-      displayPageNum = prevDisplayPageNum;
-      if (abortProcess())
+      Gui::displayPageNum = Gui::prevDisplayPageNum;
+      if (Gui::abortProcess())
           restorePreviousPage();
       else if (restoreKpage)
           displayPage();
@@ -829,7 +829,7 @@ void Gui::exportAsPdf()
   }
 
   // determine location for output file
-  QFileInfo fileInfo(curFile);
+  QFileInfo fileInfo(Gui::curFile);
   QString baseName = fileInfo.completeBaseName();
   baseName += dpiInfo;
   QString fileName = QDir::currentPath() + QDir::separator() + baseName;
@@ -847,8 +847,8 @@ void Gui::exportAsPdf()
           restoreCurrentPage(false);
           return;
       }
-  } else if (!saveFileName.isEmpty()) { // command line user specified file name
-      fileName = saveFileName;
+  } else if (!Gui::saveFileName.isEmpty()) { // command line user specified file name
+      fileName = Gui::saveFileName;
   }
 
   // want info about output file now, not model file
@@ -928,11 +928,11 @@ void Gui::exportAsPdf()
   LGraphicsView view(&scene);
 
   // initialize page sizes
-  displayPageNum = 0;
+  Gui::displayPageNum = 0;
   dpFlags.printing = true;
   drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
-  displayPageNum = prevDisplayPageNum;
+  Gui::displayPageNum = Gui::prevDisplayPageNum;
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
@@ -963,16 +963,16 @@ void Gui::exportAsPdf()
   };
   QMap<int, PdfPage> pages;
 
-  if (processOption != EXPORT_PAGE_RANGE) {
+  if (Gui::processOption != EXPORT_PAGE_RANGE) {
 
-      if(processOption == EXPORT_ALL_PAGES) {
-          _displayPageNum = 1 + pa;
-          _maxPages = maxPages;
+      if(Gui::processOption == EXPORT_ALL_PAGES) {
+          _displayPageNum = 1 + Gui::pa;
+          _maxPages = Gui::maxPages;
         }
 
-      if (processOption == EXPORT_CURRENT_PAGE) {
-          _displayPageNum = displayPageNum;
-          _maxPages       = displayPageNum;
+      if (Gui::processOption == EXPORT_CURRENT_PAGE) {
+          _displayPageNum = Gui::displayPageNum;
+          _maxPages       = Gui::displayPageNum;
         }
 
       message = tr("Export %1 pages to pdf").arg(_maxPages);
@@ -985,7 +985,7 @@ void Gui::exportAsPdf()
       }
 
       // set displayPageNum so we can send the correct index to retrieve page size data
-      displayPageNum = _displayPageNum;
+      Gui::displayPageNum = _displayPageNum;
 
       // set initial pdfWriter page layout
       pdfWriter.setPageLayout(getPageLayout());
@@ -997,13 +997,13 @@ void Gui::exportAsPdf()
       }
 
       // step 1. generate page pixmaps
-      for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
+      for (Gui::displayPageNum = _displayPageNum; Gui::displayPageNum <= _maxPages; Gui::displayPageNum++) {
 
-          if (! exporting()) {
+          if (! Gui::exporting()) {
               if (exportPdfElements)
                   painter.end();
               message = tr("Export to pdf terminated before completion. %1 pages of %2 processed%3.")
-                           .arg(displayPageNum - 1).arg(_maxPages).arg(gui->elapsedTime(exportTimer.elapsed()));
+                           .arg(Gui::displayPageNum - 1).arg(_maxPages).arg(gui->elapsedTime(exportTimer.elapsed()));
               emit messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1017,13 +1017,13 @@ void Gui::exportAsPdf()
 
           message = tr("%1 %2 of %3...")
                         .arg(messageIntro)
-                        .arg(displayPageNum)
+                        .arg(Gui::displayPageNum)
                         .arg(_maxPages);
           emit messageSig(LOG_INFO_STATUS,message);
 
           if (Preferences::modeGUI) {
               m_progressDialog->setLabelText(message);
-              m_progressDialog->setValue(displayPageNum);
+              m_progressDialog->setValue(Gui::displayPageNum);
               QApplication::processEvents();
           }
 
@@ -1037,7 +1037,7 @@ void Gui::exportAsPdf()
           message = tr("                  %8 %3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
                        .arg(adjPageWidthPx)
                        .arg(adjPageHeightPx)
-                       .arg(displayPageNum)
+                       .arg(Gui::displayPageNum)
                        .arg(_maxPages)
                        .arg(ls ? tr("Landscape") : tr("Portrait"))
                        .arg(int(resolution()))
@@ -1081,7 +1081,7 @@ void Gui::exportAsPdf()
 
           if (exportPdfElements) {
               // prepare pdfWriter to render next page
-              if(displayPageNum < _maxPages) {
+              if(Gui::displayPageNum < _maxPages) {
                   bool nextPage = true;
                   pdfWriter.setPageLayout(getPageLayout(nextPage));
                   pdfWriter.newPage();
@@ -1095,16 +1095,16 @@ void Gui::exportAsPdf()
               pdfPage.pageHeightIn = pageHeightIn;
 
               // store pdfWriter next page layout
-              if(displayPageNum < _maxPages) {
+              if(Gui::displayPageNum < _maxPages) {
                   bool nextPage = true;
                   pdfPage.pageLayout = getPageLayout(nextPage);
               }
 
               // store the rendered page
-              QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
+              QMap<int, PdfPage>::iterator i = pages.find(Gui::displayPageNum);
               if (i != pages.end())
                   pages.erase(i);
-              pages.insert(displayPageNum,pdfPage);
+              pages.insert(Gui::displayPageNum,pdfPage);
 
               // wrap up paint to image
               painter.end();
@@ -1136,7 +1136,7 @@ void Gui::exportAsPdf()
                   QApplication::processEvents();
               }
 
-              if (! exporting()) {
+              if (! Gui::exporting()) {
                   painter.end();
                   message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
                                 .arg(page).arg(pages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
@@ -1174,7 +1174,7 @@ void Gui::exportAsPdf()
 
   } else {
 
-      QStringList pageRanges = pageRangeText.split(",");
+      QStringList pageRanges = Gui::pageRangeText.split(",");
       QList<int> printPages;
       Q_FOREACH (QString ranges,pageRanges) {
           if (ranges.contains("-")) {
@@ -1203,7 +1203,7 @@ void Gui::exportAsPdf()
       int _pageCount = 0;
 
       // set displayPageNum so we can send the correct index to retrieve page size data
-      displayPageNum = printPages.first();
+      Gui::displayPageNum = printPages.first();
 
       // set initial pdfWriter page layout
       pdfWriter.setPageLayout(getPageLayout());
@@ -1219,7 +1219,7 @@ void Gui::exportAsPdf()
 
           _pageCount++;
 
-          if (! exporting()) {
+          if (! Gui::exporting()) {
               if (exportPdfElements)
                   painter.end();
               message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
@@ -1235,11 +1235,11 @@ void Gui::exportAsPdf()
               return;
           }
 
-          displayPageNum = printPage;
+          Gui::displayPageNum = printPage;
 
           message = tr("%1 %2 (%3 of %4) from the range of %5...")
                        .arg(messageIntro)
-                       .arg(displayPageNum)
+                       .arg(Gui::displayPageNum)
                        .arg(_pageCount)
                        .arg(printPages.count())
                        .arg(pageRanges.join(" "));
@@ -1259,7 +1259,7 @@ void Gui::exportAsPdf()
           bool  ls = getPageOrientation() == Landscape;
           message = tr("%1 %2 (%3 of %4) from the range of %5, size(in pixels) W %6 x H %7, orientation %8, DPI %9")
                        .arg(messageIntro)                    //1
-                       .arg(displayPageNum)                  //2
+                       .arg(Gui::displayPageNum)             //2
                        .arg(_pageCount)                      //3
                        .arg(printPages.count())              //4
                        .arg(pageRanges.join(" "))            //5
@@ -1325,10 +1325,10 @@ void Gui::exportAsPdf()
               }
 
               // store the rendered page
-              QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
+              QMap<int, PdfPage>::iterator i = pages.find(Gui::displayPageNum);
               if (i != pages.end())
                   pages.erase(i);
-              pages.insert(displayPageNum,pdfPage);
+              pages.insert(Gui::displayPageNum,pdfPage);
 
               // wrap up
               painter.end();
@@ -1360,7 +1360,7 @@ void Gui::exportAsPdf()
                   QApplication::processEvents();
               }
 
-              if (! exporting()) {
+              if (! Gui::exporting()) {
                   painter.end();
                   message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
                                 .arg(page).arg(pages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
@@ -1423,16 +1423,16 @@ void Gui::exportAsPdf()
           QRegExp errorRx(">ERROR<");
           QRegExp fatalRx(">FATAL<");
           QRegExp warnRx(">WARNING<");
-          for (const QString &item : messageList)
+          for (const QString &item : Gui::messageList)
               if (item.contains(errorRx) || item.contains(fatalRx))
                   errorSet++;
               else if (! warnSet && item.contains(warnRx))
                   warnSet++;
           message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                            .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                            .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
                             .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
                             .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                            .arg(messageList.join(" ")));
+                            .arg(Gui::messageList.join(" ")));
       }
 
       box.setWindowIcon(QIcon());
@@ -1473,7 +1473,7 @@ void Gui::exportAsPdf()
 void Gui::exportAs(const QString &_suffix)
 {
   QString suffix = QString(_suffix).replace(".","").toUpper();
-  QString directoryName = m_saveDirectoryName.isEmpty() ? QDir::currentPath() : m_saveDirectoryName;
+  QString directoryName = Gui::m_saveDirectoryName.isEmpty() ? QDir::currentPath() : Gui::m_saveDirectoryName;
 
   QString type;
   if (suffix == "PNG" ||
@@ -1494,7 +1494,7 @@ void Gui::exportAs(const QString &_suffix)
   }
 
   // store current display page number
-  prevDisplayPageNum = displayPageNum;
+  Gui::prevDisplayPageNum = Gui::displayPageNum;
 
   // init drawPage flags
   DrawPageFlags dpFlags;
@@ -1502,32 +1502,32 @@ void Gui::exportAs(const QString &_suffix)
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&]()
   {
-      displayPageNum = prevDisplayPageNum;
-      if (abortProcess())
+      Gui::displayPageNum = Gui::prevDisplayPageNum;
+      if (Gui::abortProcess())
           restorePreviousPage();
       else
           displayPage();
   };
 
   // Switch to Native Renderer for fast processing
-  if (exportingObjects()) {
+  if (Gui::exportingObjects()) {
 
-      setNativeRenderer();
+      Gui::setNativeRenderer();
 
-      if (m_saveDirectoryName.isEmpty()) {
+      if (Gui::m_saveDirectoryName.isEmpty()) {
           char *exportsDir = LDVWidget::getExportsDir();
           if (exportsDir) {
               stripTrailingPathSeparators(exportsDir);
-              m_saveDirectoryName = exportsDir;
+              Gui::m_saveDirectoryName = exportsDir;
           } else {
-              m_saveDirectoryName = directoryName;
+              Gui::m_saveDirectoryName = directoryName;
           }
           delete[] exportsDir;
       }
   }
 
   // determine location to output images
-  QFileInfo fileInfo(curFile);
+  QFileInfo fileInfo(Gui::curFile);
 
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
@@ -1547,26 +1547,26 @@ void Gui::exportAs(const QString &_suffix)
   QList<int> printPages;
 
   // initialize page sizes
-  displayPageNum = 0;
+  Gui::displayPageNum = 0;
   dpFlags.printing = true;
   drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
-  displayPageNum = prevDisplayPageNum;
+  Gui::displayPageNum = Gui::prevDisplayPageNum;
 
-  if (processOption != EXPORT_PAGE_RANGE) {
+  if (Gui::processOption != EXPORT_PAGE_RANGE) {
 
-      if(processOption == EXPORT_ALL_PAGES) {
-          _displayPageNum = 1 + pa;
-          _maxPages = maxPages;
+      if(Gui::processOption == EXPORT_ALL_PAGES) {
+          _displayPageNum = 1 + Gui::pa;
+          _maxPages = Gui::maxPages;
       }
-      if (processOption == EXPORT_CURRENT_PAGE) {
-          _displayPageNum = displayPageNum;
-          _maxPages       = displayPageNum;
+      if (Gui::processOption == EXPORT_CURRENT_PAGE) {
+          _displayPageNum = Gui::displayPageNum;
+          _maxPages       = Gui::displayPageNum;
       }
 
   } else {
 
-      pageRanges = pageRangeText.split(",");
+      pageRanges = Gui::pageRangeText.split(",");
       for (QString const &ranges : pageRanges) {
           if (ranges.contains("-")) {
               QStringList range = ranges.split("-");
@@ -1587,7 +1587,7 @@ void Gui::exportAs(const QString &_suffix)
   QString baseName = fileInfo.completeBaseName();
   baseName += dpiInfo;
 
-  if (Preferences::modeGUI && m_saveDirectoryName.isEmpty()) {
+  if (Preferences::modeGUI && Gui::m_saveDirectoryName.isEmpty()) {
       directoryName = QFileDialog::getExistingDirectory(
           this,
           tr("Save %1 %2 to folder").arg(suffix).arg(type),
@@ -1599,10 +1599,10 @@ void Gui::exportAs(const QString &_suffix)
           restoreCurrentPage();
           return;
       }
-      m_saveDirectoryName = directoryName;
+      Gui::m_saveDirectoryName = directoryName;
   } else
-  if (!m_saveDirectoryName.isEmpty()) {
-      directoryName = m_saveDirectoryName;
+  if (!Gui::m_saveDirectoryName.isEmpty()) {
+      directoryName = Gui::m_saveDirectoryName;
   }
 
   QElapsedTimer exportTimer;
@@ -1628,7 +1628,7 @@ void Gui::exportAs(const QString &_suffix)
   }
   emit messageSig(LOG_INFO_STATUS,tr("Starting export %1").arg(message));
 
-  if (processOption != EXPORT_PAGE_RANGE) {
+  if (Gui::processOption != EXPORT_PAGE_RANGE) {
 
       message = tr("Export %1 %2 to %3").arg(_maxPages).arg(type).arg(suffix);
       emit messageSig(LOG_INFO_STATUS,message);
@@ -1639,11 +1639,11 @@ void Gui::exportAs(const QString &_suffix)
           QCoreApplication::processEvents();
       }
 
-      for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
+      for (Gui::displayPageNum = _displayPageNum; Gui::displayPageNum <= _maxPages; Gui::displayPageNum++) {
 
-          if (! exporting()) {
+          if (! Gui::exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
-                            .arg(displayPageNum - 1).arg(_maxPages).arg(type).arg(gui->elapsedTime(exportTimer.elapsed()));
+                            .arg(Gui::displayPageNum - 1).arg(_maxPages).arg(type).arg(gui->elapsedTime(exportTimer.elapsed()));
               emit messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1657,13 +1657,13 @@ void Gui::exportAs(const QString &_suffix)
 
           message = tr("Exporting %1 %2: %3 of %4...")
                        .arg(suffix).arg(type)
-                       .arg(displayPageNum)
+                       .arg(Gui::displayPageNum)
                        .arg(_maxPages);
           emit messageSig(LOG_INFO_STATUS,message);
 
           if (Preferences::modeGUI) {
               m_progressDialog->setLabelText(message);
-              m_progressDialog->setValue(displayPageNum);
+              m_progressDialog->setValue(Gui::displayPageNum);
               QApplication::processEvents();
           }
 
@@ -1684,7 +1684,7 @@ void Gui::exportAs(const QString &_suffix)
               message = tr("Exporting %1 %2 %3 of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8, pixel ratio %9")
                            .arg(suffix)
                            .arg(type)
-                           .arg(displayPageNum)
+                           .arg(Gui::displayPageNum)
                            .arg(_maxPages)
                            .arg(adjPageWidthPx)
                            .arg(adjPageHeightPx)
@@ -1731,7 +1731,7 @@ void Gui::exportAs(const QString &_suffix)
 
               // save the image to the selected directory
               // internationalization of "_page_"?
-              QString pn = QString::number(displayPageNum);
+              QString pn = QString::number(Gui::displayPageNum);
               QString const imageFile = QDir::toNativeSeparators(directoryName + QDir::separator() + baseName + "_page_" + pn + "." + suffix.toLower());
               QImageWriter Writer(imageFile);
               if (Writer.format().isEmpty())
@@ -1760,7 +1760,7 @@ void Gui::exportAs(const QString &_suffix)
 
       Q_FOREACH (int printPage,printPages) {
 
-          if (! exporting()) {
+          if (! Gui::exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
                            .arg(_pageCount).arg(printPages.count()).arg(type).arg(gui->elapsedTime(exportTimer.elapsed()));
               emit messageSig(LOG_INFO_STATUS,message);
@@ -1774,7 +1774,7 @@ void Gui::exportAs(const QString &_suffix)
               return;
           }
 
-          displayPageNum = printPage;
+          Gui::displayPageNum = printPage;
 
           message = tr("Exporting %1 %2 %3 of range %4...")
                        .arg(suffix).arg(type)
@@ -1805,7 +1805,7 @@ void Gui::exportAs(const QString &_suffix)
               message = tr("Exporting %1 %2 %3 of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8, pixel ratio %9")
                             .arg(suffix)
                             .arg(type)
-                            .arg(displayPageNum)
+                            .arg(Gui::displayPageNum)
                             .arg(_maxPages)
                             .arg(adjPageWidthPx)
                             .arg(adjPageHeightPx)
@@ -1851,7 +1851,7 @@ void Gui::exportAs(const QString &_suffix)
 
               // save the image to the selected directory
               // internationalization of "_page_"?
-              QString pn = QString::number(displayPageNum);
+              QString pn = QString::number(Gui::displayPageNum);
               QString const imageFile = QDir::toNativeSeparators(directoryName + QDir::separator() + baseName + "_page_" + pn + "." + suffix.toLower());
               QImageWriter Writer(imageFile);
               if (Writer.format().isEmpty())
@@ -1897,22 +1897,22 @@ void Gui::exportAs(const QString &_suffix)
 
       message = tr("Your %1 export completed. %2").arg(type).arg(exportTime);
 
-      if (messageList.size()) {
+      if (Gui::messageList.size()) {
           int errorSet = 0;
           int warnSet  = 0;
           QRegExp errorRx(">ERROR<");
           QRegExp fatalRx(">FATAL<");
           QRegExp warnRx(">WARNING<");
-          for (const QString &item : messageList)
+          for (const QString &item : Gui::messageList)
             if (item.contains(errorRx) || item.contains(fatalRx))
                 errorSet++;
             else if (! warnSet && item.contains(warnRx))
                 warnSet++;
           message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                             .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                             .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
                              .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
                              .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                             .arg(messageList.join(" ")));
+                             .arg(Gui::messageList.join(" ")));
       }
 
       box.setWindowIcon(QIcon());
@@ -1945,7 +1945,7 @@ void Gui::exportAs(const QString &_suffix)
                                    .arg(directoryName));
     }
 
-    m_saveDirectoryName.clear();
+    Gui::m_saveDirectoryName.clear();
 }
 
 //-----------------PRINT FUNCTIONS------------------------//
@@ -1969,8 +1969,8 @@ void Gui::Print(QPrinter* Printer)
   int DocCopies;
   int PageCopies;
 
-  int PageCount = maxPages;
-  prevDisplayPageNum = displayPageNum;
+  int PageCount = Gui::maxPages;
+  Gui::prevDisplayPageNum = Gui::displayPageNum;
 
   // set drawPage flags
   DrawPageFlags dpFlags;
@@ -1978,8 +1978,8 @@ void Gui::Print(QPrinter* Printer)
   // return to whatever page we were viewing before printing
   auto restoreCurrentPage = [&]()
   {
-    displayPageNum = prevDisplayPageNum;
-    if (abortProcess())
+    Gui::displayPageNum = Gui::prevDisplayPageNum;
+    if (Gui::abortProcess())
       restorePreviousPage();
     else
       displayPage();
@@ -2002,7 +2002,7 @@ void Gui::Print(QPrinter* Printer)
 
   if (FromPage == 0 && ToPage == 0)
   {
-    FromPage = 1 + pa;
+    FromPage = 1 + Gui::pa;
     ToPage = PageCount;
   }
 
@@ -2029,7 +2029,7 @@ void Gui::Print(QPrinter* Printer)
   LGraphicsView view(&scene);
 
   // initialize page sizes
-  displayPageNum = 0;
+  Gui::displayPageNum = 0;
   dpFlags.printing = true;
   drawPage(&view,&scene,dpFlags);
   clearPage(&view,&scene);
@@ -2041,7 +2041,7 @@ void Gui::Print(QPrinter* Printer)
   Printer->setFullPage(true);
 
   // set displayPageNum so we can send the correct index to retrieve page size data
-  displayPageNum = FromPage;
+  Gui::displayPageNum = FromPage;
 
   // set initial page layout using first page as default
   Printer->setPageLayout(getPageLayout());
@@ -2077,21 +2077,21 @@ void Gui::Print(QPrinter* Printer)
           QCoreApplication::processEvents();
     }
 
-    if (processOption != EXPORT_PAGE_RANGE) {
+    if (Gui::processOption != EXPORT_PAGE_RANGE) {
 
-      if (processOption == EXPORT_CURRENT_PAGE) {
+      if (Gui::processOption == EXPORT_CURRENT_PAGE) {
           // reset display page from saved page
-          displayPageNum = prevDisplayPageNum;
+          Gui::displayPageNum = Gui::prevDisplayPageNum;
           // reset page layout using display page
           Printer->setPageLayout(getPageLayout());
           // set range to display page
-          Page   = displayPageNum;
-          ToPage = displayPageNum;
+          Page   = Gui::displayPageNum;
+          ToPage = Gui::displayPageNum;
       }
 
-      for (displayPageNum = Page; displayPageNum <= ToPage; displayPageNum++)
+      for (Gui::displayPageNum = Page; Gui::displayPageNum <= ToPage; Gui::displayPageNum++)
       {
-        if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+        if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! Gui::exporting())
         {
           message = tr("%1 %2 terminated before completion.").arg(action, mode);
           emit messageSig(LOG_INFO_STATUS,message);
@@ -2129,7 +2129,7 @@ void Gui::Print(QPrinter* Printer)
         message = tr("%1 %2 page %3 of %4, size(in pixels) W %5 x H %6, orientation %7")
                      .arg(action)
                      .arg(mode)
-                     .arg(displayPageNum)
+                     .arg(Gui::displayPageNum)
                      .arg(ToPage)
                      .arg(double(pageWidthPx))
                      .arg(double(pageHeightPx))
@@ -2153,7 +2153,7 @@ void Gui::Print(QPrinter* Printer)
 
         for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
         {
-          if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+          if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! Gui::exporting())
           {
             message = tr("%1 %2 terminated before completion.").arg(action, mode);
             emit messageSig(LOG_INFO_STATUS,message);
@@ -2216,9 +2216,9 @@ void Gui::Print(QPrinter* Printer)
     } else {
 
       // page range
-      QStringList pageRanges = pageRangeText.split(",");
+      QStringList pageRanges = Gui::pageRangeText.split(",");
       QList<int> printPages;
-      Q_FOREACH (QString ranges,pageRanges)
+      for (QString &ranges : pageRanges)
       {
         if (ranges.contains("-")) {
           QStringList range = ranges.split("-");
@@ -2241,10 +2241,10 @@ void Gui::Print(QPrinter* Printer)
 
       int _pageCount = 0;
 
-      Q_FOREACH (int printPage,printPages)
+      for (int printPage : printPages)
       {
 
-        if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+        if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! Gui::exporting())
         {
           message = tr("%1 %2 terminated before completion.").arg(action, mode);
           emit messageSig(LOG_INFO_STATUS,message);
@@ -2262,7 +2262,7 @@ void Gui::Print(QPrinter* Printer)
           return;
         }
 
-        displayPageNum = Page = printPage;
+        Gui::displayPageNum = Page = printPage;
 
         message = tr("%1 %2 %3 of %4 for range %5 ")
                      .arg(action)
@@ -2311,7 +2311,7 @@ void Gui::Print(QPrinter* Printer)
 
         for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
           {
-            if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
+            if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! Gui::exporting())
             {
               message = tr("%1 %2 terminated before completion.").arg(action, mode);
               emit messageSig(LOG_INFO_STATUS,message);
@@ -2372,7 +2372,7 @@ void Gui::Print(QPrinter* Printer)
   setExportingSig(false);
 
   // return to whatever page we were viewing before output
-  displayPageNum = prevDisplayPageNum;
+  Gui::displayPageNum = Gui::prevDisplayPageNum;
   dpFlags.printing = false;
   drawPage(KpageView,KpageScene,dpFlags);
 
@@ -2404,22 +2404,22 @@ void Gui::showExportedFile()
 
     QString message = tr("Your %1 %2 completed. %3").arg(mode,action.toLower(),exportTime);
 
-    if (messageList.size()) {
+    if (Gui::messageList.size()) {
       int errorSet = 0;
       int warnSet  = 0;
       QRegExp errorRx(">ERROR<");
       QRegExp fatalRx(">FATAL<");
       QRegExp warnRx(">WARNING<");
-      for (const QString &item : messageList)
+      for (const QString &item : Gui::messageList)
         if (item.contains(errorRx) || item.contains(fatalRx))
             errorSet++;
         else if (! warnSet && item.contains(warnRx))
             warnSet++;
       message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                         .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                         .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
                          .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
                          .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                         .arg(messageList.join(" ")));
+                         .arg(Gui::messageList.join(" ")));
     }
 
     //display completion message
@@ -2466,10 +2466,10 @@ void Gui::showExportedFile()
 
 void Gui::ShowPrintDialog()
 {
-    int PageCount = maxPages;
+    int PageCount = Gui::maxPages;
 
     QPrinter Printer(QPrinter::HighResolution);
-    Printer.setFromTo(1 + pa, PageCount + 1);
+    Printer.setFromTo(1 + Gui::pa, PageCount + 1);
 
     QPrintDialog PrintDialog(&Printer, this);
 
@@ -2503,18 +2503,18 @@ void Gui::TogglePrintPreview(ExportMode m)
     exportPreview = true;
     exportPdf    = m == EXPORT_PDF;
 
-    int PageCount = maxPages;
+    int PageCount = Gui::maxPages;
 
     QPrinter Printer(QPrinter::ScreenResolution);
 
     //set page parameters
-    Printer.setFromTo(1 + pa, PageCount + 1);
+    Printer.setFromTo(1 + Gui::pa, PageCount + 1);
 
     QPrintPreviewDialog Preview(&Printer, this);
 
     if (exportPdf) {
         // determine location for output file
-        QFileInfo fileInfo(curFile);
+        QFileInfo fileInfo(Gui::curFile);
         QString baseName = fileInfo.completeBaseName();
         QString fileName = QDir::currentPath() + "/" + baseName;
         fileInfo.setFile(fileName);

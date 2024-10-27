@@ -135,7 +135,7 @@ int LPub::processCommandLine()
 
       if (Param[0] != '-')
       {
-          commandlineFile = Param;
+          LPub::commandlineFile = Param;
           continue;
       }
 
@@ -738,9 +738,9 @@ int LPub::processCommandLine()
           lcGetPiecesLibrary()->LoadColors();
   }
 
-  if (!commandlineFile.isEmpty() )
+  if (!LPub::commandlineFile.isEmpty() )
   {
-      if (QFileInfo(commandlineFile).isFile())
+      if (QFileInfo(LPub::commandlineFile).isFile())
       {
           QElapsedTimer commandTimer;
           commandTimer.start();
@@ -771,7 +771,7 @@ int LPub::processCommandLine()
               else
               {
                   message = tr("File '%1' load exceeded the allotted time of %2 minutes. %3")
-                               .arg(QFileInfo(commandlineFile).fileName())
+                               .arg(QFileInfo(LPub::commandlineFile).fileName())
                                .arg(Preferences::fileLoadWaitTime/60000)
                                .arg(LPub::elapsedTime(commandTimer.elapsed()));
                   emit messageSig(LOG_ERROR,message);
@@ -834,14 +834,14 @@ int LPub::processCommandLine()
               result = 1;
           }
           emit messageSig(LOG_INFO,tr("Model file '%1' process %2 (result code %3). %4.")
-                          .arg(QFileInfo(commandlineFile).fileName())
+                          .arg(QFileInfo(LPub::commandlineFile).fileName())
                           .arg(result ? tr("failed") : tr("succeeded"))
                           .arg(result)
                           .arg(LPub::elapsedTime(commandTimer.elapsed())));
       }
       else
       {
-          emit messageSig(LOG_ERROR,tr("Specified model file is not valid: %1.").arg(commandlineFile));
+          emit messageSig(LOG_ERROR,tr("Specified model file is not valid: %1.").arg(LPub::commandlineFile));
           result = 1;
       }
   }

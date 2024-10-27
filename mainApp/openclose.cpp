@@ -75,7 +75,7 @@ void Gui::open()
       enableActions();
       emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                            .arg(fileInfo.fileName())
-                                           .arg(maxPages)
+                                           .arg(Gui::maxPages)
                                            .arg(lpub->ldrawFile.getPartCount())
                                            .arg(elapsedTime(timer.elapsed())));
       return;
@@ -104,7 +104,7 @@ void Gui::openDropFile(QString &fileName) {
           enableActions();
           emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                                .arg(fileInfo.fileName())
-                                               .arg(maxPages)
+                                               .arg(Gui::maxPages)
                                                .arg(lpub->ldrawFile.getPartCount())
                                                .arg(elapsedTime(timer.elapsed())));
         } else {
@@ -210,8 +210,8 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
 
 void Gui::openWorkingFolder() {
     if (sender() == getAct("openWorkingFolderAct.1")) {
-        if (!getCurFile().isEmpty())
-            openFolderSelect(getCurFile());
+        if (!Gui::getCurFile().isEmpty())
+            openFolderSelect(Gui::getCurFile());
     } else if (sender() == getAct("openParameterFileFolderAct.1")) {
         openFolderSelect(QDir::toNativeSeparators(Preferences::pliControlFile));
     }
@@ -396,7 +396,7 @@ void Gui::openWith(const QString &filePath)
 
 void Gui::openWith()
 {
-    QString file = curFile;
+    QString file = Gui::curFile;
     if (whichFile(OPT_OPEN_WITH) == OPT_USE_INCLUDE)
         file = curSubFile;
     openWith(file);
@@ -417,7 +417,7 @@ void Gui::openRecentFile()
     enableActions();
     emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                          .arg(fileInfo.fileName())
-                                         .arg(maxPages)
+                                         .arg(Gui::maxPages)
                                          .arg(lpub->ldrawFile.getPartCount())
                                          .arg(elapsedTime(timer.elapsed())));
   }
@@ -467,7 +467,7 @@ bool Gui::loadFile(const QString &file, bool console)
         enableActions();
         emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                              .arg(fileInfo.fileName())
-                                             .arg(maxPages)
+                                             .arg(Gui::maxPages)
                                              .arg(lpub->ldrawFile.getPartCount())
                                              .arg(elapsedTime(timer.elapsed())));
         emit fileLoadedSig(true);
@@ -482,8 +482,8 @@ bool Gui::loadFile(const QString &file, bool console)
 void Gui::enableWatcher()
 {
 #ifdef WATCHER
-    if (curFile != "") {
-      watcher.addPath(curFile);
+    if (Gui::curFile != "") {
+      watcher.addPath(Gui::curFile);
       QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
@@ -498,8 +498,8 @@ void Gui::enableWatcher()
 void Gui::disableWatcher()
 {
 #ifdef WATCHER
-    if (curFile != "") {
-      watcher.removePath(curFile);
+    if (Gui::curFile != "") {
+      watcher.removePath(Gui::curFile);
       QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
@@ -514,7 +514,7 @@ void Gui::disableWatcher()
 int Gui::whichFile(int option) {
     bool includeFile    = lpub->ldrawFile.isIncludeFile(curSubFile);
     bool dirtyUndoStack = ! undoStack->isClean();
-    bool curFileExists    = ! curFile.isEmpty();
+    bool curFileExists    = ! Gui::curFile.isEmpty();
     bool showDialog     = false;
 
     bool includeChecked = option == OPT_SAVE;
@@ -547,7 +547,7 @@ int Gui::whichFile(int option) {
         QRadioButton * currentButton = new QRadioButton("", dialog);
         currentButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         QFontMetrics currentMetrics(currentButton->font());
-        QString elidedText = currentMetrics.elidedText(QFileInfo(curFile).fileName(),
+        QString elidedText = currentMetrics.elidedText(QFileInfo(Gui::curFile).fileName(),
                                                        Qt::ElideRight, currentButton->width());
         currentButton->setText(tr("Current file: %1").arg(elidedText));
         currentButton->setChecked(currentChecked);
@@ -585,7 +585,7 @@ void Gui::save()
 {
   disableWatcher();
 
-  QString file = curFile;
+  QString file = Gui::curFile;
   if (whichFile(OPT_SAVE) == OPT_USE_INCLUDE)
       file = curSubFile;
 
@@ -602,7 +602,7 @@ void Gui::saveAs()
 {
   disableWatcher();
 
-  QString file = curFile;
+  QString file = Gui::curFile;
   if (whichFile(OPT_SAVE_AS) == OPT_USE_INCLUDE)
       file = curSubFile;
 
@@ -637,7 +637,7 @@ void Gui::saveAs()
 
 void Gui::saveCopy()
 {
-    QString file = curFile;
+    QString file = Gui::curFile;
     if (whichFile(OPT_SAVE_COPY) == OPT_USE_INCLUDE)
         file = curSubFile;
 
@@ -740,15 +740,15 @@ bool Gui::saveFile(const QString &fileName)
   return rc;
 }
 
-// This call performs LPub3D file close operations - does not clear curFile
+// This call performs LPub3D file close operations - does not clear Gui::curFile
 // use closeModelFile() to definitively close the current file in LPub3D
 void Gui::closeFile()
 {
-  pa = sa = 0;
-  buildModJumpForward = false;
-  pageDirection = PAGE_NEXT;
-  pageProcessParent = PROC_NONE;
-  pageProcessRunning = PROC_NONE;
+  Gui::pa = Gui::sa = 0;
+  Gui::buildModJumpForward = false;
+  Gui::pageDirection = PAGE_NEXT;
+  Gui::pageProcessParent = PROC_NONE;
+  Gui::pageProcessRunning = PROC_NONE;
   lpub->ldrawFile.empty();
   editWindow->clearWindow();
   mpdCombo->clear();
@@ -758,12 +758,12 @@ void Gui::closeFile()
   setPageLineEdit->clear();
   setPageLineEdit->setEnabled(false);
   openWithMenu->setEnabled(false);
-  topOfPages.clear();
-  pageSizes.clear();
+  Gui::topOfPages.clear();
+  Gui::pageSizes.clear();
   undoStack->clear();
-  pageDirection = PAGE_NEXT;
-  buildModJumpForward = false;
-  setAbortProcess(false);
+  Gui::pageDirection = PAGE_NEXT;
+  Gui::buildModJumpForward = false;
+  Gui::setAbortProcess(false);
   Preferences::resetFadeSteps();
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
@@ -773,8 +773,8 @@ void Gui::closeFile()
   if (Preferences::modeGUI) {
       enableVisualBuildModification();
       enable3DActions(false);
-      emit clearViewerWindowSig();
-      emit updateAllViewsSig();
+      emit gui->clearViewerWindowSig();
+      emit gui->updateAllViewsSig();
   }
   lpub->SetStudStyle(nullptr, true/*reload*/);
   lpub->SetAutomateEdgeColor(nullptr);
@@ -787,19 +787,19 @@ void Gui::closeFile()
   }
   submodelIconsLoaded = false;
   SetSubmodelIconsLoaded(submodelIconsLoaded);
-  if (!curFile.isEmpty())
-      emit lpub->messageSig(LOG_DEBUG, tr("File closed - %1.").arg(curFile));
+  if (!Gui::curFile.isEmpty())
+      emit lpub->messageSig(LOG_DEBUG, tr("File closed - %1.").arg(Gui::curFile));
   getAct("loadStatusAct.1")->setEnabled(false);
   ReloadVisualEditor();
 }
 
-// This call definitively closes and clears from curFile, the current model file
+// This call definitively closes and clears from Gui::curFile, the current model file
 void Gui::closeModelFile()
 {
   if (maybeSave()) {
     disableWatcher();
-    QString topModel = lpub->ldrawFile.topLevelFile();
-    curFile.clear();       // clear file from curFile here...
+    QString const topModel = lpub->ldrawFile.topLevelFile();
+    Gui::curFile.clear();       // clear file from Gui::curFile here...
     // Editor
     emit clearEditorWindowSig();
     // Gui
@@ -844,9 +844,9 @@ bool Gui::openFile(const QString &fileName)
 
   disableWatcher();
 
-  setCountWaitForFinished(false);
-  suspendFileDisplay = true;
-  parsedMessages.clear();
+  Gui::setCountWaitForFinished(false);
+  Gui::suspendFileDisplay = true;
+  Gui::parsedMessages.clear();
   Preferences::unsetBuildModifications();
   Preferences::setInitFadeSteps();
   Preferences::setInitHighlightStep();
@@ -870,8 +870,8 @@ bool Gui::openFile(const QString &fileName)
           waitingSpinner->stop();
       return false;
   }
-  displayPageNum = 1 + pa;
-  prevDisplayPageNum = displayPageNum;
+  Gui::displayPageNum = 1 + Gui::pa;
+  Gui::prevDisplayPageNum = Gui::displayPageNum;
   Paths::mkDirs();
   getAct("loadStatusAct.1")->setEnabled(true);
   getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
@@ -947,7 +947,7 @@ int Gui::setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep)
   if (!setupFadeSteps && !setupHighlightStep)
     return 0;
 
-  if (!m_fadeStepsSetup || !m_highlightStepSetup) {
+  if (!Gui::m_fadeStepsSetup || !Gui::m_highlightStepSetup) {
     QString const message = setupFadeSteps && setupHighlightStep
         ? tr("Setup and load fade and highlight color parts...")
         : setupFadeSteps
@@ -956,31 +956,31 @@ int Gui::setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep)
     emit lpub->messageSig(LOG_INFO_STATUS, message);
   }
 
-  if (!m_fadeStepsSetup && !m_highlightStepSetup) {
+  if (!Gui::m_fadeStepsSetup && !Gui::m_highlightStepSetup) {
     ldrawColorPartsLoad();
     writeGeneratedColorPartsToTemp();
     partWorkerLDSearchDirs.addCustomDirs();
   }
 
-  if (setupFadeSteps && !m_fadeStepsSetup) {
+  if (setupFadeSteps && !Gui::m_fadeStepsSetup) {
     if (Preferences::enableImageMatting)
       LDVImageMatte::clearMatteCSIImages();
     partWorkerLDSearchDirs.setDoFadeStep(true);
     processFadeColourParts(true/*overwrite*/, setupFadeSteps);
-    m_fadeStepsSetup = true;
+    Gui::m_fadeStepsSetup = true;
   }
 
-  if (setupHighlightStep && !m_highlightStepSetup) {
+  if (setupHighlightStep && !Gui::m_highlightStepSetup) {
     partWorkerLDSearchDirs.setDoHighlightStep(true);
     processHighlightColourParts(false/*overwrite*/, setupHighlightStep);
-    m_highlightStepSetup = true;
+    Gui::m_highlightStepSetup = true;
   }
   return 0;
 }
 
 void Gui::enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep ,bool waitForFinish)
 {
-  if (m_fadeStepsSetup && m_highlightStepSetup)
+  if (Gui::m_fadeStepsSetup && Gui::m_highlightStepSetup)
     return;
 
   if (enableFadeSteps)
@@ -989,8 +989,8 @@ void Gui::enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightSt
     emit lpub->messageSig(LOG_INFO_STATUS,tr("LPub Highlight Step is ENABLED."));
 
   QFuture<int> future = QtConcurrent::run([&]()->int{
-      bool enableFade = (m_fadeStepsSetup || enableFadeSteps) ? true : lpub->setFadeStepsFromCommand();
-      bool enableHighlight = (m_highlightStepSetup || enableHighlightStep) ? true : lpub->setHighlightStepFromCommand();
+      bool enableFade = (Gui::m_fadeStepsSetup || enableFadeSteps) ? true : lpub->setFadeStepsFromCommand();
+      bool enableHighlight = (Gui::m_highlightStepSetup || enableHighlightStep) ? true : lpub->setHighlightStepFromCommand();
       return gui->setupFadeOrHighlight(enableFade, enableHighlight);
   });
   if (waitForFinish)
@@ -1037,7 +1037,7 @@ void Gui::updateRecentFileActions()
 
 void Gui::setCurrentFile(const QString &fileName)
 {
-  curFile = fileName;
+  Gui::curFile = fileName;
   QString windowTitle;
   if (fileName.size() == 0) {
     windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
@@ -1086,12 +1086,12 @@ void Gui::loadLastOpenedFile() {
 
 void Gui::reloadFromDisk()
 {
-  if (!QFileInfo(curFile).isReadable())
+  if (!QFileInfo(Gui::curFile).isReadable())
     return;
-  int goToPage = displayPageNum;
-  if (!openFile(curFile))
+  int goToPage = Gui::displayPageNum;
+  if (!openFile(Gui::curFile))
     return;
-  displayPageNum = goToPage;
+  Gui::displayPageNum = goToPage;
   displayPage();
 }
 
@@ -1119,14 +1119,14 @@ void Gui::fileChanged(const QString &path)
 
   if (box.exec() == QMessageBox::Yes) {
     changeAccepted = true;
-    int goToPage = displayPageNum;
+    int goToPage = Gui::displayPageNum;
     QString absoluteFilePath = path;
     QString fileName = QFileInfo(path).fileName();
     if (lpub->ldrawFile.isIncludeFile(fileName) || static_cast<bool>(lpub->ldrawFile.isUnofficialPart(fileName)))
-      absoluteFilePath = curFile;
+      absoluteFilePath = Gui::curFile;
     if (!openFile(absoluteFilePath))
       return;
-    displayPageNum = goToPage;
+    Gui::displayPageNum = goToPage;
     displayPage();
   }
 }

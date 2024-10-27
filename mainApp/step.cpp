@@ -289,7 +289,7 @@ int Step::createCsi(
   QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
   QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?
-                               QFileInfo(gui->getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
+                               QFileInfo(Gui::getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber.number)
@@ -345,7 +345,7 @@ int Step::createCsi(
   bool imagePathControl = imagePathLength + 5 > LP3D_MAX_IMAGE_RENDER_PATH;
   if (imagePathControl && Preferences::preferredRenderer == RENDERER_LDVIEW) {
       QMessageBox::Icon messageIcon = QMessageBox::Warning;
-      Where here(QFileInfo(gui->getCurFile()).completeBaseName(),1);
+      Where here(QFileInfo(Gui::getCurFile()).completeBaseName(),1);
       QString imagePathMessage = QObject::tr("is [%1] characters, which is approaching<br>").arg(imagePathLength);
       QString imagePathRequest = QObject::tr("Please consider revising your");
       bool imagePathCritical = imagePathLength > LP3D_MAX_IMAGE_RENDER_PATH;
@@ -595,7 +595,7 @@ int Step::createCsi(
       HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
       bool lpubFadeHighlight  = csiStepMeta.fadeSteps.lpubFade.value() || csiStepMeta.highlightStep.lpubHighlight.value();
       viewerOptions                 = new NativeOptions();
-      viewerOptions->HighlightNewParts = false; // gui->suppressColourMeta();
+      viewerOptions->HighlightNewParts = false; // Gui::suppressColourMeta();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
       viewerOptions->CameraName     = csiStepMeta.cameraName.value();
       viewerOptions->FoV            = csiStepMeta.cameraFoV.value();

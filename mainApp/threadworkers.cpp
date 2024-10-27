@@ -61,7 +61,7 @@ PartWorker::PartWorker(bool onDemand, QObject *parent) : QObject(parent)
     }
 
     setDoFadeStep(Preferences::enableFadeSteps);
-    setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
+	setDoHighlightStep(Preferences::enableHighlightStep && !Gui::suppressColourMeta());
   }
 }
 
@@ -71,7 +71,7 @@ PartWorker::PartWorker(bool onDemand, QObject *parent) : QObject(parent)
 void PartWorker::ldsearchDirPreferences() {
 
   setDoFadeStep(Preferences::enableFadeSteps);
-  setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
+  setDoHighlightStep(Preferences::enableHighlightStep && !Gui::suppressColourMeta());
 
   if (!_resetSearchDirSettings && !Preferences::lpub3dLoaded) {
     emit Application::instance()->splashMsgSig(tr("50% - Search directory preferences loading..."));
@@ -1147,8 +1147,8 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
                         // generate custom color entry
                         QString const colourCode = tokens[1];
                         // add color line to local list - always request to create entry
-                        if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
-                            customPartColourList << gui->createColourEntry(colourCode,partType);
+						if (!Gui::colourEntryExist(customPartColourList,colourCode,partType))
+							customPartColourList << Gui::createColourEntry(colourCode,partType);
                         // set custom color - if fadeStepsUseColour, do not add custom color prefix
                         tokens[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
                     }

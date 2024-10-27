@@ -1038,8 +1038,8 @@ QString Project::GetExportFileName(const QString& FileName, const QString& Defau
 	QString SaveFileName;
 
 /*** LPub3D Mod - Use LPub3D current file ***/
-	if (!gui->getCurFile().isEmpty())
-		SaveFileName = gui->getCurFile();
+	if (!Gui::getCurFile().isEmpty())
+		SaveFileName = Gui::getCurFile();
 	else if (!mFileName.isEmpty())
 /*** LPub3D Mod end ***/
 		SaveFileName = mFileName;
@@ -1079,8 +1079,8 @@ bool Project::Export3DStudio(const QString& FileName)
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.3ds");
+						QFileInfo(LPub::getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(LPub::getCmdLineFile()).baseName() + "-export.3ds");
 	}
 /*** LPub3D Mod end ***/
 

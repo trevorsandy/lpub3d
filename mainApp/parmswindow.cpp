@@ -625,7 +625,7 @@ void ParmsWindow::enableSave()
 
 void ParmsWindow::openFile()
 {
-    QFileInfo fileInfo(gui->getCurFile());
+    QFileInfo fileInfo(Gui::getCurFile());
     qDebug() << fileInfo.absoluteFilePath();
     QString filter(QFileDialog::tr("log (LPub3DLog*);;stderr (stderr-*);;stdout (stdout-*)"));
     if (maybeSave()) {
@@ -708,7 +708,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
           Preferences::setLDGLiteIniParams();
 
       // is there anything loaded - to take advantage of our change?
-      bool fileLoaded = !gui->getCurFile().isEmpty();
+      bool fileLoaded = !Gui::getCurFile().isEmpty();
       if ((fileLoaded || _fadeStepFile) && _restartRequired) {
 
           QMessageBox box;
@@ -723,8 +723,8 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
           if (box.exec() == QMessageBox::Ok) {
               QStringList args = QApplication::arguments();
               if (fileLoaded) {
-                  if (!args.contains(gui->getCurFile(),Qt::CaseInsensitive))
-                      args << QString("%1").arg(gui->getCurFile());
+                  if (!args.contains(Gui::getCurFile(),Qt::CaseInsensitive))
+                      args << QString("%1").arg(Gui::getCurFile());
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),Gui::displayPageNum);
                 } else {

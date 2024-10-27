@@ -1205,9 +1205,9 @@ public:
       QStringList  &out,    // newCSIParts
       QVector<int> &tiout); // newCSIParts
 
-  void restorePreferredRenderer();
+  static void restorePreferredRenderer();
 
-  void setNativeRenderer();
+  static void setNativeRenderer();
 
   bool compareVersionStr(const QString &first, const QString &second);
 
@@ -1714,7 +1714,7 @@ private:
 
   bool                   okToInvokeProgressBar()
   {
-    return               (Preferences::lpub3dLoaded && Preferences::modeGUI && !exporting());
+    return               (Preferences::lpub3dLoaded && Preferences::modeGUI && !Gui::exporting());
   }
 
 #ifdef WATCHER

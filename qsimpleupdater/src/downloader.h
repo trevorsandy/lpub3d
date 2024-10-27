@@ -93,7 +93,7 @@ private slots:
 // LPub3D Mod
     void httpReadyRead();
     void startRequest(const QUrl& url);
-    void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
+    void cancelExporting() { m_exportingContent = m_exportingObjects = false; }
     void workerJobResult(int value){ m_workerJobResult = value; }
 // Mod End
 

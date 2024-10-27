@@ -157,7 +157,7 @@ int          Gui::m_saveExportMode;       // saved export mode used when exporti
 QString      Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
 
 RendererData Gui::savedRendererData;      // store current renderer data when temporarily switching renderer;
-QMap<int, PageSizeData>  Gui::pageSizes;  // page size and orientation object
+QMap<int, PageSizeData> Gui::pageSizes;  // page size and orientation object
 
 /***********************************************************************
  * set Native renderer for fast processing
@@ -165,8 +165,8 @@ QMap<int, PageSizeData>  Gui::pageSizes;  // page size and orientation object
 
 void Gui::setNativeRenderer() {
     if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-        saveRenderer   = Preferences::preferredRenderer;
-        saveProjection = Preferences::perspectiveProjection;
+        Gui::saveRenderer   = Preferences::preferredRenderer;
+        Gui::saveProjection = Preferences::perspectiveProjection;
         Preferences::preferredRenderer     = RENDERER_NATIVE;
         Preferences::perspectiveProjection = true;
         Render::setRenderer(Preferences::preferredRenderer);
@@ -174,11 +174,11 @@ void Gui::setNativeRenderer() {
 }
 
 void Gui::restorePreferredRenderer() {
-    if (saveRenderer != RENDERER_INVALID) {
-        Preferences::preferredRenderer      = saveRenderer;
-        Preferences::perspectiveProjection  = saveProjection;
+    if (Gui::saveRenderer != RENDERER_INVALID) {
+        Preferences::preferredRenderer      = Gui::saveRenderer;
+        Preferences::perspectiveProjection  = Gui::saveProjection;
         Render::setRenderer(Preferences::preferredRenderer);
-        saveRenderer = RENDERER_INVALID;
+        Gui::saveRenderer = RENDERER_INVALID;
     }
 }
 
@@ -194,12 +194,12 @@ void Gui::setPliIconPath(QString& key, QString& value)
 {
     if (!mPliIconsPath.contains(key)) {
         mPliIconsPath.insert(key,value);
-        emit messageSig(LOG_NOTICE, QString("Icon Inserted: Key [%1] Value [%2]")
-                                            .arg(key).arg(value));
+        emit gui->messageSig(LOG_NOTICE, QString("Icon Inserted: Key [%1] Value [%2]")
+                                                 .arg(key).arg(value));
         return;
     }
-//      emit messageSig(LOG_DEBUG, QString("Icon Exist (Insert Ignored): Key [%1] Value [%2]")
-//                                         .arg(key).arg(value));
+//      emit gui->messageSig(LOG_DEBUG, QString("Icon Exist (Insert Ignored): Key [%1] Value [%2]")
+//                                              .arg(key).arg(value));
 }
 
 void Gui::fullScreenView()
@@ -227,7 +227,7 @@ void Gui::appendCoverPage()
 {
   lpub->mi.appendCoverPage();
   countPages();
-  displayPageNum = maxPages;
+  Gui::displayPageNum = Gui::maxPages;
   displayPage();
 }
 
@@ -260,7 +260,7 @@ void Gui::deleteFinalModelStep(bool force) {
 //{
 //  lpub->mi.appendCoverPage();
 //  countPages();
-//  ++displayPageNum;
+//  ++Gui::displayPageNum;
 //  displayPage();  // display the page we just added
 //}
 
@@ -273,7 +273,7 @@ void Gui::appendNumberedPage()
 {
   lpub->mi.appendNumberedPage();
 //countPages();
-//++displayPageNum;
+//++Gui::displayPageNum;
 //displayPage();    // display the page we just added
 }
 
@@ -312,16 +312,16 @@ void Gui::removeChildSubmodelFormat()
 void Gui::removeLPubFormatting()
 {
     int option = RLPF_DOCUMENT;
-    int saveDisplayPageNum = displayPageNum;
-    displayPageNum = 1 + pa;
+    int saveDisplayPageNum = Gui::displayPageNum;
+    Gui::displayPageNum = 1 + Gui::pa;
     if (sender() == getAct("removeLPubFormatSubmodelAct.1")) {
         option = RLPF_SUBMODEL;
     } else if (sender() == getAct("removeLPubFormatPageAct.1")) {
         option = RLPF_PAGE;
-        displayPageNum = saveDisplayPageNum;
+        Gui::displayPageNum = saveDisplayPageNum;
     } else if (sender() == getAct("removeLPubFormatStepAct.1")) {
         option = RLPF_STEP;
-        displayPageNum = saveDisplayPageNum;
+        Gui::displayPageNum = saveDisplayPageNum;
     } else if (sender() == getAct("removeLPubFormatBomAct.1")) {
         option = RLPF_BOM;
     }
@@ -338,18 +338,18 @@ void Gui::updateClipboard()
         bool fullPath = false;
         QString data;
         if (action == getAct("copyFileNameToClipboardAct.1")) {
-            data = QFileInfo(getCurFile()).fileName();
+            data = QFileInfo(Gui::getCurFile()).fileName();
         } else if (action == getAct("copyFilePathToClipboardAct.1")) {
             fullPath = true;
-            data = QDir::toNativeSeparators(getCurFile());
+            data = QDir::toNativeSeparators(Gui::getCurFile());
         } else {
             isImage = true;
             data = action->data().toString();
         }
 
         if (data.isEmpty()) {
-            emit messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
-                                               .arg(sender()->metaObject()->className()));
+            emit gui->messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
+                                                    .arg(sender()->metaObject()->className()));
             return;
         }
 
@@ -372,7 +372,7 @@ void Gui::updateClipboard()
                                         efn.right(3) : efn)
                                .arg(fullPath ? tr("full path") : tr("name"));
 
-        emit messageSig(LOG_INFO_STATUS, QString("'%1' copied to clipboard.").arg(fileName));
+        emit gui->messageSig(LOG_INFO_STATUS, QString("'%1' copied to clipboard.").arg(fileName));
     }
 }
 #endif
@@ -381,18 +381,18 @@ void Gui::displayPage()
 {
   if (macroNesting == 0) {
     Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
-    emit messageSig(LOG_STATUS, "Display page...");
+    emit gui->messageSig(LOG_STATUS, "Display page...");
     displayPageTimer.start();
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     Gui::setAbortProcess(false);
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,dpFlags);
-    pageProcessRunning = PROC_NONE;
+    Gui::pageProcessRunning = PROC_NONE;
     if (Gui::abortProcess()) {
       QApplication::restoreOverrideCursor();
       if (Preferences::modeGUI) {
-        if (displayPageNum > (1 + pa)) {
+        if (Gui::displayPageNum > (1 + Gui::pa)) {
           restorePreviousPage();
         } else {
           Gui::setAbortProcess(false);
@@ -401,8 +401,8 @@ void Gui::displayPage()
             waitingSpinner->stop();
         }
       }
-    } else if (!exporting()) {
-      prevDisplayPageNum = displayPageNum;
+    } else if (!Gui::exporting()) {
+      Gui::prevDisplayPageNum = Gui::displayPageNum;
     }
   }
 }
@@ -414,30 +414,27 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
 
   auto setDirection = [&] (int &move)
   {
-    move = goToPageNum - displayPageNum;
+    move = goToPageNum - Gui::displayPageNum;
     if (move == 1)
-      pageDirection = PAGE_NEXT;
+      Gui::pageDirection = PAGE_NEXT;
     else if (move > 1)
-      pageDirection = PAGE_JUMP_FORWARD;
+      Gui::pageDirection = PAGE_JUMP_FORWARD;
     else if (move == -1)
-      pageDirection = PAGE_PREVIOUS;
+      Gui::pageDirection = PAGE_PREVIOUS;
     else if (move < -1)
-      pageDirection = PAGE_JUMP_BACKWARD;
+      Gui::pageDirection = PAGE_JUMP_BACKWARD;
   };
 
   auto cycleDisplay = [&] ()
   {
-    if (Preferences::modeGUI && ! exporting())
-      enableNavigationActions(false);
-    setContinuousPage(displayPageNum);
-    if (pageDirection < PAGE_BACKWARD)
-      while (displayPageNum < goToPageNum) {
-        ++displayPageNum;
-        displayPage();
-        QTime waiting = QTime::currentTime().addSecs(PAGE_CYCLE_DISPLAY_DEFAULT);
-        while (QTime::currentTime() < waiting)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-      }
+    if (Preferences::modeGUI && !Gui::exporting())
+        enableNavigationActions(false);
+    bool savedDlgOpt = Preferences::doNotShowPageProcessDlg;
+    int savedProc = Gui::pageProcessRunning;
+    Gui::pageProcessRunning = PROC_NONE;
+    Preferences::doNotShowPageProcessDlg = true;
+    if (Gui::pageDirection < PAGE_BACKWARD)
+        nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
     else
         previousPageContinuousIsRunning = !previousPageContinuousIsRunning;
     continuousPageDialog(Gui::pageDirection < PAGE_BACKWARD ? PAGE_NEXT : PAGE_PREVIOUS);
@@ -451,7 +448,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   if (!silent || fileReload) {
     // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
     int cycleEachPage = Preferences::cycleEachPage || fileReload;
-    if (!cycleEachPage && (displayPageNum > 1 + pa || inputPageNum > 1 + pa)) {
+    if (!cycleEachPage && (Gui::displayPageNum > 1 + Gui::pa || inputPageNum > 1 + Gui::pa)) {
       const QString directionName[] = {
         tr("Next"),
         tr("Jump Forward"),
@@ -460,10 +457,10 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       };
       setDirection(move);
       // On page update, (move = 0), subtract first page from displayPageNum.
-      int pages = move ? qAbs(move) : displayPageNum - (1 + pa);
+      int pages = move ? qAbs(move) : Gui::displayPageNum - (1 + Gui::pa);
       const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
                                  .arg(pages)
-                                 .arg(directionName[pageDirection-1].toLower())
+                                 .arg(directionName[Gui::pageDirection-1].toLower())
                                  .arg(fileReload ? tr("reload") : tr("load"));
       int result = CycleDialog::getCycle(tr("%1 Page %2")
                                             .arg(VER_PRODUCTNAME_STR)
@@ -488,17 +485,17 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   QElapsedTimer t;
   t.start();
   if (operation == FILE_RELOAD) {
-    int savePage = displayPageNum;
-    if (openFile(curFile)) {
-      goToPageNum = pa ? savePage + pa : savePage;
-      displayPageNum = 1 + pa;
+    int savePage = Gui::displayPageNum;
+    if (openFile(Gui::curFile)) {
+      goToPageNum = Gui::pa ? savePage + Gui::pa : savePage;
+      Gui::displayPageNum = 1 + Gui::pa;
       if (!move)
         setDirection(move);
       if (move > 1) {
         cycleDisplay();
         enableActions();
       } else {
-        displayPageNum = goToPageNum;
+        Gui::displayPageNum = goToPageNum;
         displayPage();
       }
     }
@@ -508,21 +505,21 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
     if (move > 1 && Preferences::cycleEachPage) {
       cycleDisplay();
     } else {
-      displayPageNum = goToPageNum;
+      Gui::displayPageNum = goToPageNum;
       displayPage();
     }
   }
 
   Preferences::setCyclePageDisplay(saveCycleEachPage);
 
-  if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
+  if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
     enableEditActions();
-    if (!ContinuousPage())
+    if (!Gui::ContinuousPage())
       enableNavigationActions(true);
     QApplication::restoreOverrideCursor();
   }
 
-  pageProcessRunning = PROC_NONE;
+  Gui::pageProcessRunning = PROC_NONE;
 }
 
 void Gui::cycleEachPage()
@@ -535,7 +532,7 @@ void Gui::cycleEachPage()
         QSettings Settings;
         QString const cycleEachPageKey("CycleEachPage");
         Settings.setValue(QString("%1/%2").arg(SETTINGS,cycleEachPageKey), Preferences::cycleEachPage);
-        emit messageSig(LOG_INFO,tr("Cycle each page step(s) when navigating forward by more than one page is %1").arg(Preferences::cycleEachPage? "ON" : "OFF"));
+        emit gui->messageSig(LOG_INFO,tr("Cycle each page step(s) when navigating forward by more than one page is %1").arg(Preferences::cycleEachPage? "ON" : "OFF"));
     }
 }
 
@@ -567,7 +564,7 @@ void Gui::enableNavigationActions(bool enable)
 
 void Gui::pageProcessUpdate()
 {
-    if (!exporting() && !ContinuousPage())
+    if (!Gui::exporting() && !Gui::ContinuousPage())
         return;
     QCoreApplication::processEvents();
 }
@@ -579,9 +576,9 @@ void Gui::nextPage()
   if (string.contains(rx)) {
     bool ok;
     int inputPageNum = rx.cap(1).toInt(&ok);
-    if (ok && (inputPageNum != displayPageNum)) { // numbers are different so jump to page
+    if (ok && (inputPageNum != Gui::displayPageNum)) { // numbers are different so jump to page
       countPages();
-      if (inputPageNum <= maxPages) {
+      if (inputPageNum <= Gui::maxPages) {
         if (!saveBuildModification())
           return;
         cyclePageDisplay(inputPageNum, !Preferences::buildModEnabled);
@@ -589,16 +586,16 @@ void Gui::nextPage()
       } else {
         statusBarMsg("Page number entered is higher than total pages");
       }
-      string = tr("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      string = tr("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
       setPageLineEdit->setText(string);
       return;
   } else {   // numbers are same so goto next page
       countPages();
-      if (displayPageNum < maxPages) {
+      if (Gui::displayPageNum < Gui::maxPages) {
         if (!saveBuildModification())
           return;
-        pageDirection = PAGE_NEXT;
-        ++displayPageNum;
+        Gui::pageDirection = PAGE_NEXT;
+        ++Gui::displayPageNum;
         displayPage();
       } else {
         statusBarMsg(tr("You are on the last page"));
@@ -633,7 +630,7 @@ void Gui::nextPageContinuous()
     box.setInformativeText (message);
 
     if (box.exec() == QMessageBox::Yes) { // Yes, let's terminate
-      cancelContinuousPage();
+      Gui::cancelContinuousPage();
       return;
     } else {                              // Oops, do not want to terminate
       setPageContinuousIsRunning(true, PAGE_NEXT);
@@ -673,28 +670,28 @@ void Gui::previousPage()
     bool ok;
     int inputPageNum;
     inputPageNum = rx.cap(1).toInt(&ok);
-    if (ok && (inputPageNum != displayPageNum)) { // numbers are different so jump to page
+    if (ok && (inputPageNum != Gui::displayPageNum)) { // numbers are different so jump to page
       countPages();
-      if (inputPageNum >= 1 + pa && inputPageNum != displayPageNum) {
+      if (inputPageNum >= 1 + Gui::pa && inputPageNum != Gui::displayPageNum) {
         if (!saveBuildModification())
           return;
-        const int move = inputPageNum - displayPageNum;
-        pageDirection  = move < -1 ? PAGE_JUMP_BACKWARD : PAGE_PREVIOUS;
-        displayPageNum = inputPageNum;
+        const int move = inputPageNum - Gui::displayPageNum;
+        Gui::pageDirection  = move < -1 ? PAGE_JUMP_BACKWARD : PAGE_PREVIOUS;
+        Gui::displayPageNum = inputPageNum;
         displayPage();
         return;
       } else {
         statusBarMsg(tr("Page number entered is invalid"));
       }
-      string = tr("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      string = tr("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
       setPageLineEdit->setText(string);
       return;
     } else {               // numbers are same so goto previous page
-      if (displayPageNum > 1 + pa) {
+      if (Gui::displayPageNum > 1 + Gui::pa) {
         if (!saveBuildModification())
           return;
-        pageDirection = PAGE_PREVIOUS;
-        displayPageNum--;
+        Gui::pageDirection = PAGE_PREVIOUS;
+        Gui::displayPageNum--;
         displayPage();
       } else {
         statusBarMsg("You are on the first page");
@@ -730,7 +727,7 @@ void Gui::previousPageContinuous()
     box.setInformativeText (message);
 
     if (box.exec() == QMessageBox::Yes) {   // Yes, let's terminate
-      cancelContinuousPage();
+      Gui::cancelContinuousPage();
       return;
     } else {                                // Oops, do not want to terminate
       setPageContinuousIsRunning(true, PAGE_PREVIOUS);
@@ -764,9 +761,9 @@ void Gui::previousPageContinuous()
 
 void Gui::setPageContinuousIsRunning(bool b, PageDirection d) {
 
-    if (d != DIRECTION_NOT_SET) pageDirection = d;
+    if (d != DIRECTION_NOT_SET) Gui::pageDirection = d;
 
-    if (pageDirection == PAGE_NEXT) {
+    if (Gui::pageDirection == PAGE_NEXT) {
         nextPageContinuousIsRunning = b;
     } else {
         previousPageContinuousIsRunning = b;
@@ -775,7 +772,7 @@ void Gui::setPageContinuousIsRunning(bool b, PageDirection d) {
 
 void Gui::setContinuousPageAct(PageActType p) {
     if (p == SET_STOP_ACTION) {
-        if (pageDirection == PAGE_NEXT) {
+        if (Gui::pageDirection == PAGE_NEXT) {
             getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
             getAct("nextPageContinuousAct.1")->setStatusTip(tr("Stop continuous next page processing"));
             getAct("nextPageContinuousAct.1")->setText(tr("Stop Continuous Next Page"));
@@ -785,7 +782,7 @@ void Gui::setContinuousPageAct(PageActType p) {
             getAct("previousPageContinuousAct.1")->setText(tr("Stop Continuous Previous Page"));
         }
     } else { // SET_DEFAULT_ACTION
-        if (pageDirection == PAGE_NEXT) {
+        if (Gui::pageDirection == PAGE_NEXT) {
             getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
             getAct("nextPageContinuousAct.1")->setStatusTip(tr("Continuously process next document page"));
             getAct("nextPageContinuousAct.1")->setText(tr("Continuous Next Page"));
@@ -801,18 +798,18 @@ void Gui::setContinuousPageAct(PageActType p) {
 
 bool Gui::continuousPageDialog(PageDirection d)
 {
-  messageList.clear();
-  pageDirection = d;
+  Gui::messageList.clear();
+  Gui::pageDirection = d;
   int pageCount = 0;
   int _maxPages = 0;
-  prevMaxPages  = maxPages;
+  Gui::prevMaxPages  = Gui::maxPages;
   bool terminateProcess = false;
   emit setContinuousPageSig(true);
   QElapsedTimer continuousTimer;
   const QString direction = d == PAGE_NEXT ? tr("Next") : tr("Previous");
   QString const pageRangeDisplayText = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
 
-  m_exportMode = PAGE_PROCESS;
+  Gui::m_exportMode = PAGE_PROCESS;
 
   Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
 
@@ -821,7 +818,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   if (Preferences::modeGUI) {
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
-              emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
+              emit gui->messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               setPageLineEdit->setText(pageRangeDisplayText);
@@ -851,19 +848,19 @@ bool Gui::continuousPageDialog(PageDirection d)
 
               if(dialog->allPages()) {
                   if (dialog->allPagesRange()) {
-                      processOption = EXPORT_PAGE_RANGE;
-                      pageRangeText = dialog->allPagesRangeText();
+                      Gui::processOption = EXPORT_PAGE_RANGE;
+                      Gui::pageRangeText = dialog->allPagesRangeText();
                   } else {
-                      processOption = EXPORT_ALL_PAGES;
+                      Gui::processOption = EXPORT_ALL_PAGES;
                   }
               }
               else
               if(dialog->pageRange()) {
-                  processOption  = EXPORT_PAGE_RANGE;
-                  pageRangeText = dialog->pageRangeText();
+                  Gui::processOption  = EXPORT_PAGE_RANGE;
+                  Gui::pageRangeText = dialog->pageRangeText();
               }
 
-              resetCache = dialog->resetCache();
+              Gui::resetCache = dialog->resetCache();
 
               QSettings Settings;
               if (Preferences::doNotShowPageProcessDlg != dialog->doNotShowPageProcessDlg()) {
@@ -877,7 +874,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PageDisplayPause"),Preferences::pageDisplayPause);
               }
           } else {
-              emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
+              emit gui->messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               Gui::revertPageProcess();
@@ -894,12 +891,12 @@ bool Gui::continuousPageDialog(PageDirection d)
   }
 
   // Validate the page range
-  if (processOption == EXPORT_PAGE_RANGE) {
+  if (Gui::processOption == EXPORT_PAGE_RANGE) {
       if (! validatePageRange()) {
           message = tr("Continuous %1 page processing terminated.").arg(direction);
           m_progressDialog->setBtnToClose();
           m_progressDialog->setLabelText(message, true/*alert*/);
-          emit messageSig(LOG_STATUS,message);
+          emit gui->messageSig(LOG_STATUS,message);
           setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
           setPageLineEdit->setText(pageRangeDisplayText);
@@ -911,14 +908,14 @@ bool Gui::continuousPageDialog(PageDirection d)
   // Process is running - configure to stop
   setContinuousPageAct(SET_STOP_ACTION);
 
-  if(resetCache)
+  if(Gui::resetCache)
       resetModelCache();
 
-  emit messageSig(LOG_STATUS,tr("Starting %1").arg(message));
+  emit gui->messageSig(LOG_STATUS,tr("Starting %1").arg(message));
 
-  if (processOption == EXPORT_ALL_PAGES) {
+  if (Gui::processOption == EXPORT_ALL_PAGES) {
 
-      _maxPages = maxPages;
+      _maxPages = Gui::maxPages;
 
       if (Preferences::modeGUI) {
           m_progressDialog->setWindowTitle(tr("Continuous %1 Page Processing").arg(direction));
@@ -929,9 +926,9 @@ bool Gui::continuousPageDialog(PageDirection d)
 
       int progress = 0;
 
-      for (d == PAGE_NEXT ? displayPageNum = 1 + pa : displayPageNum = maxPages ; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 + pa ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
+      for (d == PAGE_NEXT ? Gui::displayPageNum = 1 + Gui::pa : Gui::displayPageNum = Gui::maxPages ; d == PAGE_NEXT ? Gui::displayPageNum <= Gui::maxPages : Gui::displayPageNum >= 1 + Gui::pa ; d == PAGE_NEXT ? Gui::displayPageNum++ : Gui::displayPageNum--) {
 
-          if (! ContinuousPage()) {
+          if (! Gui::ContinuousPage())
               setPageContinuousIsRunning(false,d);
 
           if (d == PAGE_NEXT) {
@@ -943,10 +940,10 @@ bool Gui::continuousPageDialog(PageDirection d)
           if (terminateProcess) {
               message = tr("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
                            .arg(direction)
-                           .arg(d == PAGE_NEXT ? (displayPageNum - 1) : (maxPages - (displayPageNum - 1)))
-                           .arg(maxPages)
+                           .arg(d == PAGE_NEXT ? (Gui::displayPageNum - 1) : (Gui::maxPages - (Gui::displayPageNum - 1)))
+                           .arg(Gui::maxPages)
                            .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
-              emit messageSig(LOG_STATUS,message);
+              emit gui->messageSig(LOG_STATUS,message);
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
               if (Preferences::modeGUI) {
@@ -970,14 +967,14 @@ bool Gui::continuousPageDialog(PageDirection d)
           message = tr("%1 Page Processing - Processed page %2 of %3.")
                        .arg(direction)
                        .arg(pageCount)
-                       .arg(maxPages);
-          emit messageSig(LOG_STATUS,message);
+                       .arg(Gui::maxPages);
+          emit gui->messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
               m_progressDialog->setLabelText(message);
-              m_progressDialog->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
-              if (d == PAGE_NEXT ? displayPageNum < maxPages : displayPageNum > 1 + pa) {
+              m_progressDialog->setValue(d == PAGE_NEXT ? Gui::displayPageNum : ++progress);
+              if (d == PAGE_NEXT ? Gui::displayPageNum < Gui::maxPages : Gui::displayPageNum > 1 + Gui::pa) {
                   QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
                   while (QTime::currentTime() < waiting)
                       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
@@ -993,10 +990,10 @@ bool Gui::continuousPageDialog(PageDirection d)
   // Processing page range
   if (processOption == EXPORT_PAGE_RANGE) {
 
-      QStringList pageRanges = pageRangeText.split(",");
+      QStringList pageRanges = Gui::pageRangeText.split(",");
       QList<int> printPages;
       // Split page range values
-      Q_FOREACH (QString ranges,pageRanges) {
+      for (QString &ranges : pageRanges) {
           // If n-n range, split into start through end pages
           if (ranges.contains("-")) {
               QStringList range = ranges.split("-");
@@ -1025,7 +1022,7 @@ bool Gui::continuousPageDialog(PageDirection d)
       else
           std::sort(printPages.begin(),printPages.end(),gt);    // Previous - large to small
 
-      displayPageNum = printPages.first();
+      Gui::displayPageNum = printPages.first();
 
       _maxPages = printPages.count();
 
@@ -1037,11 +1034,11 @@ bool Gui::continuousPageDialog(PageDirection d)
       }
 
       // process each page
-      Q_FOREACH (int printPage,printPages) {
+      for (int printPage : printPages) {
 
-          displayPageNum = printPage;
+          Gui::displayPageNum = printPage;
 
-          if (! ContinuousPage()) {
+          if (! Gui::ContinuousPage()) {
               setPageContinuousIsRunning(false,d);
           }
 
@@ -1057,7 +1054,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                            .arg(d == PAGE_NEXT ? pageCount : (_maxPages - pageCount))
                            .arg(_maxPages)
                            .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
-              emit messageSig(LOG_STATUS,message);
+              emit gui->messageSig(LOG_STATUS,message);
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
               if (Preferences::modeGUI) {
@@ -1080,17 +1077,17 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           message = tr("%1 Page Processing - Processed page %2 (%3 of %4) from the range of %5")
                        .arg(direction)
-                       .arg(displayPageNum)
+                       .arg(Gui::displayPageNum)
                        .arg(pageCount)
                        .arg(_maxPages)
                        .arg(pageRanges.join(" "));
-          emit messageSig(LOG_STATUS,message);
+          emit gui->messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
               enableNavigationActions(true);
               m_progressDialog->setLabelText(message);
               m_progressDialog->setValue(pageCount);
-              if (displayPageNum < _maxPages) {
+              if (Gui::displayPageNum < _maxPages) {
                   QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
                   while (QTime::currentTime() < waiting)
                       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
@@ -1110,26 +1107,26 @@ bool Gui::continuousPageDialog(PageDirection d)
                    .arg(_maxPages)
                    .arg(_maxPages > 1 ? tr("pages") : tr("page"))
                    .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
-      emit messageSig(LOG_INFO_STATUS,message);
+      emit gui->messageSig(LOG_INFO_STATUS,message);
 
       if (Preferences::modeGUI) {
-          if (messageList.size()) {
+          if (Gui::messageList.size()) {
               int errorSet = 0;
               int warnSet  = 0;
               QRegExp errorRx(">ERROR<");
               QRegExp fatalRx(">FATAL<");
               QRegExp warnRx(">WARNING<");
-              for (const QString &item : messageList)
+              for (const QString &item : Gui::messageList)
                   if (item.contains(errorRx) || item.contains(fatalRx))
                       errorSet++;
                   else if (! warnSet && item.contains(warnRx))
                       warnSet++;
 
               message.append(tr("<br><br>There %1 %2%3 :<br>%4")
-                             .arg(messageList.size() == 1 ? tr("was") : tr("were"))
+                             .arg(Gui::messageList.size() == 1 ? tr("was") : tr("were"))
                              .arg(errorSet ? QString("%1 %2").arg(QString::number(errorSet)).arg(errorSet == 1 ? tr("error") : tr("errors")) : "")
                              .arg(warnSet  ? QString("%1%2 %3").arg(errorSet ? tr(" and ") : "").arg(QString::number(warnSet )).arg(warnSet  == 1 ? tr("warning") : tr("warnings")) : "")
-                             .arg(messageList.join(" ")));
+                             .arg(Gui::messageList.join(" ")));
           }
           m_progressDialog->setBtnToClose();
           m_progressDialog->setLabelText(message);
@@ -1190,7 +1187,7 @@ bool Gui::processPageRange(const QString &range)
       }
       return true;
     } else {
-      processOption = EXPORT_ALL_PAGES;
+      Gui::processOption = EXPORT_ALL_PAGES;
       return true;
     }
   return false;
@@ -1201,37 +1198,37 @@ void Gui::restorePreviousPage()
     if (!Preferences::modeGUI)
         return;
 
-    displayPageNum = 1 + pa;
-    maxPages = prevMaxPages != displayPageNum ? prevMaxPages : displayPageNum;
+    Gui::displayPageNum = 1 + Gui::pa;
+    Gui::maxPages = Gui::prevMaxPages != Gui::displayPageNum ? Gui::prevMaxPages : Gui::displayPageNum;
     countPages();
-    cyclePageDisplay(prevDisplayPageNum != displayPageNum ? prevDisplayPageNum : displayPageNum);
+    cyclePageDisplay(Gui::prevDisplayPageNum != Gui::displayPageNum ? Gui::prevDisplayPageNum : Gui::displayPageNum);
 }
 
 void Gui::firstPage()
 {
-  if (displayPageNum == 1 + pa) {
+  if (Gui::displayPageNum == 1 + Gui::pa) {
     statusBarMsg("You are on the first page");
   } else {
     if (!saveBuildModification())
         return;
-    if ((1 + pa) - displayPageNum < -1)
-        pageDirection = PAGE_JUMP_BACKWARD;
-    else if ((1 + pa) - displayPageNum == -1)
-        pageDirection = PAGE_PREVIOUS;
-    displayPageNum = 1 + pa;
+    if ((1 + Gui::pa) - Gui::displayPageNum < -1)
+        Gui::pageDirection = PAGE_JUMP_BACKWARD;
+    else if ((1 + Gui::pa) - Gui::displayPageNum == -1)
+        Gui::pageDirection = PAGE_PREVIOUS;
+    Gui::displayPageNum = 1 + Gui::pa;
     displayPage();
   }
 }
 
 void Gui::lastPage()
 {
-  if (displayPageNum == maxPages) {
+  if (Gui::displayPageNum == Gui::maxPages) {
     statusBarMsg("You are on the last page");
   } else {
     countPages();
     if (!saveBuildModification())
       return;
-    cyclePageDisplay(maxPages, !Preferences::buildModEnabled);
+    cyclePageDisplay(Gui::maxPages, !Preferences::buildModEnabled);
   }
 }
 
@@ -1244,7 +1241,7 @@ void Gui::setPage()
     const int inputPageNum = rx.cap(1).toInt(&ok);
     if (ok) {
       countPages();
-      if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
+      if (inputPageNum <= Gui::maxPages && inputPageNum != Gui::displayPageNum) {
         if (!saveBuildModification())
           return;
         cyclePageDisplay(inputPageNum, !Preferences::buildModEnabled);
@@ -1254,7 +1251,7 @@ void Gui::setPage()
       }
     }
   }
-  string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+  string = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
   setPageLineEdit->setText(string);
 }
 
@@ -1262,13 +1259,13 @@ void Gui::setGoToPage(int index)
 {
   const int goToPageNum = index+1;
   countPages();
-  if (goToPageNum <= maxPages && goToPageNum != displayPageNum) {
+  if (goToPageNum <= Gui::maxPages && goToPageNum != displayPageNum) {
     if (!saveBuildModification())
       return;
     cyclePageDisplay(goToPageNum, !Preferences::buildModEnabled);
   }
 
-  QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+  QString string = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
   setPageLineEdit->setText(string);
 }
 
@@ -1276,14 +1273,14 @@ void Gui::pageLineEditReset()
 {
     if (setPageLineEdit) {
         getAct("setPageLineEditResetAct.1")->setEnabled(false);
-        setPageLineEdit->setText(QString("%1 of %2").arg(displayPageNum).arg(maxPages));
+        setPageLineEdit->setText(QString("%1 of %2").arg(Gui::displayPageNum).arg(Gui::maxPages));
     }
 }
 
 void Gui::enablePageLineReset(const QString &displayText)
 {
     if (setPageLineEdit)
-        getAct("setPageLineEditResetAct.1")->setEnabled(displayText != QString("%1 of %2").arg(displayPageNum).arg(maxPages));
+        getAct("setPageLineEditResetAct.1")->setEnabled(displayText != QString("%1 of %2").arg(Gui::displayPageNum).arg(Gui::maxPages));
 }
 
 void Gui::fitWidth()
@@ -1544,7 +1541,7 @@ void Gui::displayFile(
     bool         displayStartPage/*false*/,
     bool         cycleSilent     /*false*/)
 {
-    if (! exporting()) {
+    if (! Gui::exporting()) {
 #ifdef QT_DEBUG_MODE
         QElapsedTimer t;
         t.start();
@@ -1591,8 +1588,8 @@ void Gui::displayFile(
             emit displayFileSig(ldrawFile, modelName, lineScope);
 
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_DEBUG,tr("Editor loaded page: %1, step: %2, model: %3, line scope: %4-%5 - %6")
-                                .arg(displayPageNum)
+                emit gui->messageSig(LOG_DEBUG,tr("Editor loaded page: %1, step: %2, model: %3, line scope: %4-%5 - %6")
+                                .arg(Gui::displayPageNum)
                                 .arg(lpub->currentStep ? lpub->currentStep->stepNumber.number : 0)
                                 .arg(modelName)
                                 .arg(top.lineNumber + 1    /*adjust for 0-index*/)
@@ -1606,7 +1603,7 @@ void Gui::displayFile(
                    countPages();
                    inputPageNum = ldrawFile->getModelStartPageNumber(modelName);
                }
-               if (!cycleSilent && inputPageNum && displayPageNum != inputPageNum)
+               if (!cycleSilent && inputPageNum && Gui::displayPageNum != inputPageNum)
                    cyclePageDisplay(inputPageNum);
             }
 
@@ -1649,11 +1646,11 @@ void Gui::editModelFile()
 
 void Gui::editModelFile(bool saveBefore, bool subModel)
 {
-    if (getCurFile().isEmpty())
+    if (Gui::getCurFile().isEmpty())
         return;
     if (saveBefore)
         save();
-    QString file = getCurFile();
+    QString file = Gui::getCurFile();
     if (lpub->ldrawFile.isIncludeFile(curSubFile))
         file = curSubFile;
     else if (subModel) {
@@ -1671,7 +1668,7 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
 void Gui::deployBanner(bool b)
 {
     if (b)
-        lpub->loadBanner(Gui::m_exportMode);
+        LPub::loadBanner(Gui::m_exportMode);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -1699,7 +1696,7 @@ void Gui::mpdComboChanged(int index)
       const int modelPageNum = lpub->ldrawFile.getModelStartPageNumber(newSubFile);
       if (cycleSilent)
         countPages();
-      if (modelPageNum && displayPageNum != modelPageNum) {
+      if (modelPageNum && Gui::displayPageNum != modelPageNum) {
         if (!saveBuildModification())
           return;
         messageSig(LOG_INFO, tr( "Select subModel: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
@@ -1734,13 +1731,13 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
         return;
     }
     QStringList args;
-    if (! changeLibrary && ! getCurFile().isEmpty()) {
+    if (! changeLibrary && ! Gui::getCurFile().isEmpty()) {
         args = QApplication::arguments();
         args.removeFirst();
-        if (!args.contains(getCurFile(),Qt::CaseInsensitive))
-            args << getCurFile();
+        if (!args.contains(Gui::getCurFile(),Qt::CaseInsensitive))
+            args << Gui::getCurFile();
         QSettings Settings;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),displayPageNum);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),Gui::displayPageNum);
     } else {
         args << (Preferences::validLDrawLibraryChange == LEGO_LIBRARY  ? "++liblego" :
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
@@ -1764,8 +1761,8 @@ void Gui::insertConfiguredSubFile(const QString &name,
 }
 
 void Gui::reloadCurrentPage(bool prompt) {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("No model file page to redisplay."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("No model file page to redisplay."));
         return;
     }
 
@@ -1784,17 +1781,15 @@ void Gui::reloadCurrentPage(bool prompt) {
     timer.start();
 
     // displayPage();
-    cyclePageDisplay(displayPageNum, false/*silent*/);
+    cyclePageDisplay(Gui::displayPageNum, false/*silent*/);
 
-    emit messageSig(LOG_STATUS, tr("Page %1 reloaded. %2")
-                                   .arg(displayPageNum)
-                                   .arg(elapsedTime(timer.elapsed())));
+    emit gui->messageSig(LOG_STATUS, tr("Page %1 reloaded. %2").arg(Gui::displayPageNum).arg(elapsedTime(timer.elapsed())));
 
 }
 
 void Gui::reloadCurrentModelFile() { // EditModeWindow Update
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("No model file to reopen."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("No model file to reopen."));
         return;
     }
 
@@ -1813,17 +1808,17 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     timer.start();
 
     //reload current model
-    cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
+    cyclePageDisplay(Gui::displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-    emit messageSig(LOG_STATUS, tr("Model file reloaded (%1 parts). %2")
+    emit gui->messageSig(LOG_STATUS, tr("Model file reloaded (%1 parts). %2")
                                    .arg(lpub->ldrawFile.getPartCount())
                                    .arg(elapsedTime(timer.elapsed())));
 }
 
 void Gui::clearWorkingFiles(const QStringList &filePaths)
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."));
         return;
     }
 
@@ -1833,18 +1828,18 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
         QFile     file(filePaths.at(i));
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+                emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1")
                                 .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.completeBaseName()));
+                emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.completeBaseName()));
 #endif
                 count++;
             }
         }
     }
     if (count)
-        emit messageSig(LOG_INFO_STATUS,tr("Parts content cache cleaned. %1 %2 removed.")
+        emit gui->messageSig(LOG_INFO_STATUS,tr("Parts content cache cleaned. %1 %2 removed.")
                                            .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")));
 }
 
@@ -1855,25 +1850,25 @@ void Gui::resetModelCache(QString file, bool commandLine)
         if (commandLine)
             timer.start();
 
-        emit messageSig(LOG_TRACE, tr("Reset parts cache is destructive!"));
-        curFile = file;
+        emit gui->messageSig(LOG_TRACE, tr("Reset parts cache is destructive!"));
+        Gui::curFile = file;
         QString fileDir = QFileInfo(file).absolutePath();
-        emit messageSig(LOG_INFO, tr("Reset parts cache directory %1").arg(fileDir));
+        emit gui->messageSig(LOG_INFO, tr("Reset parts cache directory %1").arg(fileDir));
         QString saveCurrentDir = QDir::currentPath();
         if (! QDir::setCurrent(fileDir))
-            emit messageSig(LOG_ERROR, tr("Reset cache failed to set current directory %1").arg(fileDir));
+            emit gui->messageSig(LOG_ERROR, tr("Reset cache failed to set current directory %1").arg(fileDir));
 
         if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
             clearCustomPartCache(true);
         clearAllCaches();
 
         if (! QDir::setCurrent(saveCurrentDir))
-            emit messageSig(LOG_ERROR, tr("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
+            emit gui->messageSig(LOG_ERROR, tr("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
 
         Gui::resetCache = false;
 
         if (commandLine)
-            emit messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
+            emit gui->messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
                                          .arg(lpub->ldrawFile.getSubModels().size())
                                          .arg(lpub->ldrawFile.getPartCount())
                                          .arg(elapsedTime(timer.elapsed())));
@@ -1882,8 +1877,8 @@ void Gui::resetModelCache(QString file, bool commandLine)
 
 void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
 
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS, tr("A model must be open to reset its caches - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS, tr("A model must be open to reset its caches - no action taken."));
         return;
     }
 
@@ -1911,9 +1906,9 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     clearAllCaches();
 
     //reload current model
-    cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
+    cyclePageDisplay(Gui::displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-    emit messageSig(LOG_INFO_STATUS, tr("All caches reset and model file reloaded (%1 models, %2 parts). %3")
+    emit gui->messageSig(LOG_INFO_STATUS, tr("All caches reset and model file reloaded (%1 models, %2 parts). %3")
                                         .arg(lpub->ldrawFile.getSubModels().size())
                                         .arg(lpub->ldrawFile.getPartCount())
                                         .arg(elapsedTime(timer.elapsed())));
@@ -1936,13 +1931,13 @@ void Gui::clearAndReloadModelFile(bool fileReload, bool savePrompt, bool keepWor
     if (!keepWork)
         clearAllCaches();
 
-    cyclePageDisplay(displayPageNum, !savePrompt/*silent*/, fileReload);
+    cyclePageDisplay(Gui::displayPageNum, !savePrompt/*silent*/, fileReload);
 }
 
 void Gui::clearAllCaches()
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to reset its caches - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to reset its caches - no action taken."));
         return;
     }
 
@@ -1961,7 +1956,7 @@ void Gui::clearAllCaches()
     clearSMICache();
     clearTempCache();
 
-    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+    emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                     tr("Parts, bill of material, assembly, submodel and temporary LDraw file caches reset (%1 models, %2 parts).%3")
                                  .arg(lpub->ldrawFile.getSubModels().size())
                                  .arg(lpub->ldrawFile.getPartCount())
@@ -1992,7 +1987,7 @@ void Gui::clearCustomPartCache(bool silent)
                        .arg(Paths::customDir)
                        .arg(Preferences::validLDrawCustomArchive);
   if (silent || !Preferences::modeGUI) {
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
                                  tr("%1 Do you want to delete the custom file cache?").arg(message),
@@ -2005,14 +2000,14 @@ void Gui::clearCustomPartCache(bool silent)
   QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
 
   int count = 0;
-  emit messageSig(LOG_INFO,tr("-Removing folder %1").arg(dirName));
+  emit gui->messageSig(LOG_INFO,tr("-Removing folder %1").arg(dirName));
   if (removeDir(count, dirName)) {
-      emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+      emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                       tr("Custom parts cache cleaned.  %1 %2 removed.")
                                          .arg(count)
                                          .arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
   } else {
-      emit messageSig(LOG_ERROR,tr("Unable to remove custom parts cache directory: %1").arg(dirName));
+      emit gui->messageSig(LOG_ERROR,tr("Unable to remove custom parts cache directory: %1").arg(dirName));
       return;
   }
 
@@ -2023,18 +2018,18 @@ void Gui::clearCustomPartCache(bool silent)
       processFadeColourParts(overwrite, setup);       // (re)generate and archive fade parts based on the loaded model file
   if (Preferences::enableHighlightStep)
       processHighlightColourParts(overwrite, setup);  // (re)generate and archive highlight parts based on the loaded model file
-  if (!getCurFile().isEmpty() && Preferences::modeGUI) {
+  if (!Gui::getCurFile().isEmpty() && Preferences::modeGUI) {
       bool cycleEachPage = Preferences::cycleEachPage;
-      if (!cycleEachPage && displayPageNum > 1)
+      if (!cycleEachPage && Gui::displayPageNum > 1)
         cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, tr("Cycle each page on model file reload ?"),nullptr);
-      cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
+      cyclePageDisplay(Gui::displayPageNum, PageDirection(cycleEachPage));
   }
 }
 
 void Gui::clearPLICache()
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to clean its parts cache - no action taken."));
         return;
     }
 
@@ -2061,25 +2056,25 @@ void Gui::clearPLICache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(fileInfo.absoluteFilePath()));
+                emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1").arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
         }
     }
 
-    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+    emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                     tr("Parts content cache cleaned. %1 %2 removed.")
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 void Gui::clearCSICache()
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its assembly cache - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to clean its assembly cache - no action taken."));
         return;
     }
 
@@ -2106,26 +2101,26 @@ void Gui::clearCSICache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+                emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1")
                                 .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
         }
     }
 
-    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+    emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                     tr("Assembly content cache cleaned. %1 %2 removed.")
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")), showMsg);
 }
 
 void Gui::clearBOMCache()
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its bill of material cache - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to clean its bill of material cache - no action taken."));
         return;
     }
 
@@ -2152,25 +2147,25 @@ void Gui::clearBOMCache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(fileInfo.absoluteFilePath()));
+                emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1").arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
         }
     }
 
-    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+    emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                     tr("Bill of material content cache cleaned. %1 %2 removed.")
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 void Gui::clearSMICache(const QString &key)
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its Submodel cache - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to clean its Submodel cache - no action taken."));
         return;
     }
 
@@ -2203,11 +2198,11 @@ void Gui::clearSMICache(const QString &key)
         if (key.isEmpty() || deleteSpecificFile) {
             if (file.exists()) {
                 if (!file.remove()) {
-                    emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+                    emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1")
                                                  .arg(fileInfo.absoluteFilePath()));
                 } else {
 #ifdef QT_DEBUG_MODE
-                    emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                    emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                     count++;
                     if (deleteSpecificFile)
@@ -2217,15 +2212,15 @@ void Gui::clearSMICache(const QString &key)
         }
     }
 
-    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+    emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                     tr("Submodel content cache cleaned. %1 %2 removed.")
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
 
 void Gui::clearTempCache()
 {
-    if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,tr("A model must be open to clean its 3D cache - no action taken."));
+    if (Gui::getCurFile().isEmpty()) {
+        emit gui->messageSig(LOG_STATUS,tr("A model must be open to clean its 3D cache - no action taken."));
         return;
     }
 
@@ -2252,11 +2247,11 @@ void Gui::clearTempCache()
         QFile     file(fileInfo.absoluteFilePath());
         if (file.exists()) {
             if (!file.remove()) {
-                emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+                emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1")
                                 .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                 count++;
             }
@@ -2265,7 +2260,7 @@ void Gui::clearTempCache()
 
     lpub->ldrawFile.tempCacheCleared();
 
-    emit messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
+    emit gui->messageSig(showMsg ? LOG_INFO : LOG_INFO_STATUS,
                     tr("Temporary model file cache cleaned. %1 %2 removed.")
                                        .arg(count).arg(count == 1 ? QLatin1String("item") : QLatin1String("items")),showMsg);
 }
@@ -2286,7 +2281,7 @@ bool Gui::removeDir(int &count, const QString & dirName)
             if (fileInfo.isFile()) {
                 if ((result = QFile::remove(fileInfo.absoluteFilePath()))) {
 #ifdef QT_DEBUG_MODE
-                    emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                    emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
                     count++;
                 }
@@ -2296,7 +2291,7 @@ bool Gui::removeDir(int &count, const QString & dirName)
             }
         }
         if ((result = dir.rmdir(dir.absolutePath())))
-            emit messageSig(LOG_TRACE,tr("-Folder %1 cleaned").arg(dir.absolutePath()));
+            emit gui->messageSig(LOG_TRACE,tr("-Folder %1 cleaned").arg(dir.absolutePath()));
     }
     return result;
 }
@@ -2309,11 +2304,11 @@ void Gui::clearStepCSICache(QString &pngName) {
     QFile file(assemDirName + QDir::separator() + fileInfo.fileName());
     if (file.exists()) {
         if (!file.remove())
-            emit messageSig(LOG_ERROR,tr("Unable to remove %1")
+            emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1")
                                          .arg(assemDirName + QDir::separator() + fileInfo.fileName()));
 #ifdef QT_DEBUG_MODE
         else
-            emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.fileName()));
+            emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.fileName()));
 #endif
     }
     if (Render::useLDViewSCall())
@@ -2321,15 +2316,15 @@ void Gui::clearStepCSICache(QString &pngName) {
     file.setFileName(ldrName);
     if (file.exists()) {
         if (!file.remove())
-            emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(file.fileName()));
+            emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1").arg(file.fileName()));
 #ifdef QT_DEBUG_MODE
         else
-            emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(file.fileName()));
+            emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(file.fileName()));
 #endif
     }
     if (Preferences::enableFadeSteps)
         clearPrevStepPositions();
-    cyclePageDisplay(displayPageNum);
+    cyclePageDisplay(Gui::displayPageNum);
 }
 
 void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
@@ -2358,7 +2353,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
       if (Preferences::enableFadeSteps && option != Options::PLI) {
           clearPrevStepPositions();
       }
-      cyclePageDisplay(displayPageNum);
+      cyclePageDisplay(Gui::displayPageNum);
    }
 }
 
@@ -2367,7 +2362,7 @@ void Gui::clearStepCache(Step *step, int option) {
     if (Preferences::enableFadeSteps && option != Options::PLI) {
         clearPrevStepPositions();
     }
-    cyclePageDisplay(displayPageNum);
+    cyclePageDisplay(Gui::displayPageNum);
 }
 
 /*
@@ -2434,10 +2429,10 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
         file.setFileName(fileName);
         if (file.exists()) {
             if (!file.remove())
-                emit messageSig(LOG_ERROR,tr("Unable to remove %1").arg(file.fileName()));
+                emit gui->messageSig(LOG_ERROR,tr("Unable to remove %1").arg(file.fileName()));
 #ifdef QT_DEBUG_MODE
             else
-                emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(file.fileName()));
+                emit gui->messageSig(LOG_TRACE,tr("-File %1 removed").arg(file.fileName()));
 #endif
         }
     }
@@ -2540,7 +2535,7 @@ void Gui::editLDrawColourParts()
 {
     QFileInfo fileInfo(Preferences::ldrawColourPartsFile);
     if (!fileInfo.exists()) {
-        emit messageSig(LOG_ERROR, QString("Static colour part list does not exist. Generate from the Configuration menu."));
+        emit gui->messageSig(LOG_ERROR, QString("Static colour part list does not exist. Generate from the Configuration menu."));
     } else {
         if (Preferences::useSystemEditor) {
 #ifndef Q_OS_MACOS
@@ -2562,7 +2557,7 @@ void Gui::editPliControlFile()
 {
     QFileInfo fileInfo(Preferences::pliControlFile);
     if (!fileInfo.exists()) {
-        emit messageSig(LOG_ERROR, QString("PLI control parts file does not exist."));
+        emit gui->messageSig(LOG_ERROR, QString("PLI control parts file does not exist."));
     } else {
         if (Preferences::useSystemEditor) {
 #ifndef Q_OS_MACOS
@@ -2587,7 +2582,7 @@ void Gui::editAnnotationStyle()
     QFileInfo fileInfo(Preferences::stickerPartsFile);
     if (!fileInfo.exists()) {
         if (!Annotations::exportAnnotationStyleFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(Preferences::annotationStyleFile));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(Preferences::annotationStyleFile));
             return;
         }
     }
@@ -2615,7 +2610,7 @@ void Gui::editTitleAnnotations()
     QFileInfo fileInfo(Preferences::titleAnnotationsFile);
     if (!fileInfo.exists()) {
         if (!Annotations::exportTitleAnnotationsFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -2642,7 +2637,7 @@ void Gui::editFreeFormAnnitations()
     QFileInfo fileInfo(Preferences::freeformAnnotationsFile);
     if (!fileInfo.exists()) {
         if (!Annotations::exportfreeformAnnotationsHeader()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -2669,7 +2664,7 @@ void Gui::editPliBomSubstituteParts()
     QFileInfo fileInfo(Preferences::pliSubstitutePartsFile);
     if (!fileInfo.exists()) {
         if (!PliSubstituteParts::exportSubstitutePartsHeader()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -2696,7 +2691,7 @@ void Gui::editExcludedParts()
     QFileInfo fileInfo(Preferences::excludedPartsFile);
     if (!fileInfo.exists()) {
         if (!ExcludedParts::exportExcludedParts()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -2723,7 +2718,7 @@ void Gui::editStickerParts()
    QFileInfo fileInfo(Preferences::stickerPartsFile);
    if (!fileInfo.exists()) {
        if (!StickerParts::exportStickerParts()) {
-           emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+           emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
            return;
        }
    }
@@ -2865,11 +2860,11 @@ void Gui::editBlenderParameters()
     QFileInfo fileInfo(blenderConfigFile);
     if (blenderParameters && !fileInfo.exists()) {
         if (!BlenderPreferences::exportParameterFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     } else if (blenderPreferences && !fileInfo.exists()) {
-        emit messageSig(LOG_ERROR, QString("File %1 was not found.").arg(fileInfo.absoluteFilePath()));
+        emit gui->messageSig(LOG_ERROR, QString("File %1 was not found.").arg(fileInfo.absoluteFilePath()));
         return;
     }
 
@@ -2942,7 +2937,7 @@ void Gui::editLD2BLCodesXRef()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportLD2BLCodesXRefFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -2967,7 +2962,7 @@ void Gui::editLD2BLColorsXRef()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2BLCOLORSXREF_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportLD2BLColorsXRefFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -2992,7 +2987,7 @@ void Gui::editBLColors()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCOLORS_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportBLColorsFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -3017,7 +3012,7 @@ void Gui::editLD2RBCodesXRef()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportLD2RBCodesXRefFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -3042,7 +3037,7 @@ void Gui::editLD2RBColorsXRef()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportLD2RBColorsXRefFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
     }
@@ -3131,7 +3126,7 @@ void Gui::preferences()
         if (Preferences::setSceneTheme)
             setSceneTheme();
 
-        if (!getCurFile().isEmpty()) {
+        if (!Gui::getCurFile().isEmpty()) {
             if (Preferences::reloadPage) {
                 lpub->ldrawFile.clearViewerSteps();
                 reloadCurrentPage(true);
@@ -3773,7 +3768,7 @@ void Gui::ldrawColorPartsLoad()
         if (!LDrawColourParts::LDrawColorPartsLoad(result)) {
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
                     .arg(Preferences::validLDrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
-            emit messageSig(LOG_NOTICE, message);
+            emit gui->messageSig(LOG_NOTICE, message);
             bool prompt = false;
             if (Preferences::modeGUI) {
                 QMessageBoxResizable box;
@@ -3818,15 +3813,15 @@ void Gui::reloadModelFileAfterColorFileGen() {
                                   .arg(Preferences::validLDrawLibrary).arg(entries);
         box.setText (message);
 
-        bool enableFadeSteps = m_fadeStepsSetup || Preferences::enableFadeSteps;
-        bool enableHighlightSttep = m_highlightStepSetup || Preferences::enableHighlightStep;
+        bool enableFadeSteps = Gui::m_fadeStepsSetup || Preferences::enableFadeSteps;
+        bool enableHighlightSttep = Gui::m_highlightStepSetup || Preferences::enableHighlightStep;
 
         if (enableFadeSteps || enableHighlightSttep) {
             QString body = QMessageBox::tr ("The color file list and current model must be reloaded.<br>Do you want to continue ?");
             box.setInformativeText (body);
 
             box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
-            if (box.exec() == QMessageBox::Ok && ! getCurFile().isEmpty()) {
+            if (box.exec() == QMessageBox::Ok && ! Gui::getCurFile().isEmpty()) {
                 bool _continue;
                 if (Preferences::saveOnRedraw) {
                     _continue = maybeSave(false); // No prompt
@@ -3846,9 +3841,9 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 clearTempCache();
 
                 //reload current model file
-                cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
+                cyclePageDisplay(Gui::displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-                emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 models, %2 parts). %3")
+                emit gui->messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 models, %2 parts). %3")
                                                     .arg(lpub->ldrawFile.getSubModels().size())
                                                     .arg(lpub->ldrawFile.getPartCount())
                                                     .arg(elapsedTime(timer.elapsed())));
@@ -3951,24 +3946,24 @@ void Gui::progressPermStatusRemove() {
 }
 
 void Gui::updateGoToPage(bool frontCoverPageExist, bool backCoverPageExist) {
-  int pageNum = 0 + pa;
+  int pageNum = 0 + Gui::pa;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
 
-  for(int i=1 + pa;i <= maxPages;i++) {
+  for(int i=1 + Gui::pa;i <= Gui::maxPages;i++) {
       pageNum++;
       if (frontCoverPageExist && i == 1) {
           pageNum--;
           setGoToPageCombo->addItem(QString("Front Cover"));
       }
-      else if (backCoverPageExist && i == maxPages) {
+      else if (backCoverPageExist && i == Gui::maxPages) {
           setGoToPageCombo->addItem(QString("Back Cover"));
       }
       else
           setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
   }
 
-  setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
+  setGoToPageCombo->setCurrentIndex(Gui::displayPageNum - 1 - Gui::pa);
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
 }
 
@@ -4005,7 +4000,7 @@ void Gui::archivePartsOnLaunch() {
         QSettings Settings;
         QString const archivePartsOnLaunchKey("ArchivePartsOnLaunch");
         Settings.setValue(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey), Preferences::archivePartsOnLaunch);
-        emit messageSig(LOG_INFO,QString("Archive search files on launch is %1").arg(Preferences::archivePartsOnLaunch? "ON" : "OFF"));
+        emit gui->messageSig(LOG_INFO,QString("Archive search files on launch is %1").arg(Preferences::archivePartsOnLaunch? "ON" : "OFF"));
     }
 }
 
@@ -4025,7 +4020,7 @@ void Gui::generateCustomColourPartsList(bool prompt)
     }
 
     if (ret == QMessageBox::Yes || ! prompt || !Preferences::lpub3dLoaded) {
-        emit messageSig(LOG_INFO,message);
+        emit gui->messageSig(LOG_INFO,message);
 
         QThread *listThread   = new QThread();
         colourPartListWorker  = new ColourPartListWorker();
@@ -4165,7 +4160,7 @@ bool Gui::installRenderer(int which)
 #endif
 
     // Download 3rd party renderer
-    emit messageSig(LOG_STATUS, QString("Download renderer %1...").arg(renderer));
+    emit gui->messageSig(LOG_STATUS, QString("Download renderer %1...").arg(renderer));
     QTemporaryDir tempDir;
     QString downloadPath = tempDir.path();
     UpdateCheck *rendererDownload;
@@ -4204,7 +4199,7 @@ bool Gui::installRenderer(int which)
 
     // Automatically extract renderer archive
     QString message   = tr("Extracting renderer %1. Please wait...").arg(renderer);
-    emit messageSig(LOG_STATUS,message);
+    emit gui->messageSig(LOG_STATUS,message);
 
     QStringList items = JlCompress::getFileList(rendererArchive);
     m_progressDialog = new ProgressDialog(nullptr);
@@ -4256,7 +4251,7 @@ bool Gui::installRenderer(int which)
                      .arg(items.count())
                      .arg(renderer)
                      .arg(destination);
-        emit messageSig(LOG_INFO,message);
+        emit gui->messageSig(LOG_INFO,message);
 
         result = true;
 
@@ -4275,7 +4270,7 @@ bool Gui::installRenderer(int which)
         message = tr("Failed to extract %1 %2 renderer files")
                      .arg(QFileInfo(rendererArchive).fileName()
                      .arg(renderer));
-        emit messageSig(LOG_ERROR,message);
+        emit gui->messageSig(LOG_ERROR,message);
     }
 
     connect (m_progressDialog, SIGNAL(cancelClicked()),
@@ -4283,7 +4278,7 @@ bool Gui::installRenderer(int which)
 
     m_progressDialog->hide();
 
-    emit messageSig(LOG_STATUS, QString("Download renderer %1 completed.").arg(renderer));
+    emit gui->messageSig(LOG_STATUS, QString("Download renderer %1 completed.").arg(renderer));
 
     return result;
 }
@@ -4298,7 +4293,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
   QString message;
   if (items.count()) {
       message = tr("Archiving search directory parts. Please wait...");
-      emit messageSig(LOG_INFO_STATUS,message);
+      emit gui->messageSig(LOG_INFO_STATUS,message);
       m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
       m_progressDialog->setWindowTitle(QString("LDraw Archive Library Update"));
       m_progressDialog->setLabelText(QString("Archiving search directory parts..."));
@@ -4368,10 +4363,10 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
                    .arg(m_workerJobResult)
                    .arg(partsLabel)
                    .arg(Preferences::validLDrawCustomArchive);
-      emit messageSig(LOG_INFO_STATUS,message);
+      emit gui->messageSig(LOG_INFO_STATUS,message);
   }
 
-  if (! getCurFile().isEmpty()) {
+  if (! Gui::getCurFile().isEmpty()) {
       bool _continue;
       if (Preferences::saveOnRedraw) {
           _continue = maybeSave(false); // No prompt
@@ -4391,11 +4386,11 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       clearTempCache();
 
       //reload current model file
-      cyclePageDisplay(displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
+      cyclePageDisplay(Gui::displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
 
-      emit messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
+      emit gui->messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
                       .arg(message)
-                      .arg(QFileInfo(getCurFile()).fileName())
+                      .arg(QFileInfo(Gui::getCurFile()).fileName())
                       .arg(elapsedTime(timer.elapsed())));
   }
 }
@@ -4403,7 +4398,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
 void Gui::refreshLDrawUnoffParts() {
 
     // Download unofficial archive
-    emit messageSig(LOG_STATUS,"Refresh LDraw Unofficial Library archive...");
+    emit gui->messageSig(LOG_STATUS,"Refresh LDraw Unofficial Library archive...");
     QTemporaryDir tempDir;
     QString downloadPath = tempDir.path();
     UpdateCheck *libraryDownload;
@@ -4425,7 +4420,7 @@ void Gui::refreshLDrawUnoffParts() {
     // Automatically extract Unofficial archive
     QString destination = QDir::toNativeSeparators(tr("%1/unofficial").arg(Preferences::ldrawLibPath));
     QString message     = tr("Extracting Unofficial archive library. Please wait...");
-    emit messageSig(LOG_STATUS,message);
+    emit gui->messageSig(LOG_STATUS,message);
 
     QStringList items = JlCompress::getFileList(newarchive);
     m_progressDialog = new ProgressDialog(nullptr);
@@ -4475,18 +4470,18 @@ void Gui::refreshLDrawUnoffParts() {
                      .arg(m_workerJobResult)
                      .arg(items.count())
                      .arg(destination);
-        emit messageSig(LOG_INFO,message);
+        emit gui->messageSig(LOG_INFO,message);
     } else {
         message = tr("Failed to extract %1 library files")
                      .arg(QFileInfo(newarchive).fileName());
-        emit messageSig(LOG_ERROR,message);
+        emit gui->messageSig(LOG_ERROR,message);
     }
 
    // Process custom and color parts if any
     items = Preferences::ldSearchDirs;
     if (items.count()) {
         QString message = tr("Archiving custom parts. Please wait...");
-        emit messageSig(LOG_STATUS,message);
+        emit gui->messageSig(LOG_STATUS,message);
         m_progressDialog->setLabelText(QString("Archiving custom parts..."));
         m_progressDialog->setRange(0,items.count());
         m_progressDialog->show();
@@ -4528,7 +4523,7 @@ void Gui::refreshLDrawUnoffParts() {
                      .arg(m_workerJobResult)
                      .arg(partsLabel)
                      .arg(QFileInfo(newarchive).fileName());
-        emit messageSig(LOG_INFO,message);
+        emit gui->messageSig(LOG_INFO,message);
 
         if (m_workerJobResult) {
             QSettings Settings;
@@ -4552,11 +4547,11 @@ void Gui::refreshLDrawUnoffParts() {
     QFile newFile(newarchive);
     if (! newFile.exists()) {
         message = tr("Could not find file %1").arg(newFile.fileName());
-        emit messageSig(LOG_ERROR,message);
+        emit gui->messageSig(LOG_ERROR,message);
     } else if (! oldFile.exists() || oldFile.remove()) {
         if (! newFile.rename(archive)) {
             message = tr("Could not rename file %1").arg(newFile.fileName());
-            emit messageSig(LOG_ERROR,message);
+            emit gui->messageSig(LOG_ERROR,message);
         }
     } else {
         message = tr("Could not remove old file %1").arg(oldFile.fileName());
@@ -4570,7 +4565,7 @@ void Gui::refreshLDrawUnoffParts() {
 void Gui::refreshLDrawOfficialParts() {
 
     // Download official archive
-    emit messageSig(LOG_STATUS,"Refresh LDraw Official Library archive...");
+    emit gui->messageSig(LOG_STATUS,"Refresh LDraw Official Library archive...");
     QTemporaryDir tempDir;
     QString downloadPath = tempDir.path();
     UpdateCheck *libraryDownload;
@@ -4593,7 +4588,7 @@ void Gui::refreshLDrawOfficialParts() {
     QString destination = QDir::toNativeSeparators(Preferences::ldrawLibPath);
     destination         = destination.remove(destination.size() - 6,6);
     QString message = tr("Extracting Official archive library. Please wait...");
-    emit messageSig(LOG_INFO_STATUS,message);
+    emit gui->messageSig(LOG_INFO_STATUS,message);
 
     QStringList items = JlCompress::getFileList(newarchive);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
@@ -4642,11 +4637,11 @@ void Gui::refreshLDrawOfficialParts() {
                      .arg(m_workerJobResult)
                      .arg(items.count())
                      .arg(destination);
-        emit messageSig(LOG_INFO,message);
+        emit gui->messageSig(LOG_INFO,message);
     } else {
         message = tr("Failed to extract %1 library files")
                      .arg(QFileInfo(newarchive).fileName());
-        emit messageSig(LOG_ERROR,message);
+        emit gui->messageSig(LOG_ERROR,message);
     }
 
     connect (m_progressDialog, SIGNAL (cancelClicked()),
@@ -4664,11 +4659,11 @@ void Gui::refreshLDrawOfficialParts() {
     QFile newFile(newarchive);
     if (! newFile.exists()) {
         message = tr("Could not find file %1").arg(newFile.fileName());
-        emit messageSig(LOG_ERROR,message);
+        emit gui->messageSig(LOG_ERROR,message);
     } else if (! oldFile.exists() || oldFile.remove()) {
         if (! newFile.rename(archive)) {
             message = tr("Could not rename file %1").arg(newFile.fileName());
-            emit messageSig(LOG_ERROR,message);
+            emit gui->messageSig(LOG_ERROR,message);
         }
     } else {
         message = tr("Could not remove old file %1").arg(oldFile.fileName());
@@ -4817,7 +4812,7 @@ void Gui::exportMetaCommands()
     }
 #endif
   } else {
-      emit messageSig(LOG_INFO_STATUS, result);
+      emit gui->messageSig(LOG_INFO_STATUS, result);
   }
 }
 
@@ -7557,7 +7552,7 @@ void Gui::writeSettings()
 
 void Gui::showLine(const Where &here, int type)
 {
-  if (Preferences::modeGUI && ! exporting()) {
+  if (Preferences::modeGUI && ! Gui::exporting()) {
     if (macroNesting == 0) {
       displayFile(&lpub->ldrawFile, here);
       emit showLineSig(here.lineNumber, type);
@@ -7600,8 +7595,8 @@ void Gui::parseError(const QString &message,
     bool abort = (messageIcon == QMessageBox::Icon::Critical || messageIcon == QMessageBox::Icon::NoIcon) && msgKey < Preferences::BuildModEditErrors;
 
     if (guiEnabled && !abortInProgress) {
-        if ((!exporting() && !ContinuousPage()) || ((exporting() || ContinuousPage()) && Preferences::displayPageProcessingErrors)) {
-            if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE)
+        if ((!Gui::exporting() && !Gui::ContinuousPage()) || ((Gui::exporting() || Gui::ContinuousPage()) && Preferences::displayPageProcessingErrors)) {
+            if (Gui::pageProcessRunning == PROC_FIND_PAGE || Gui::pageProcessRunning == PROC_DRAW_PAGE)
                 showLine(here, LINE_ERROR);
             bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
             if (okToShowMessage) {
@@ -7615,7 +7610,7 @@ void Gui::parseError(const QString &message,
                     Gui::setAbortProcess(abortProcess);
             } else
                 Gui::setAbortProcess(abort);
-            if (pageProcessRunning == PROC_WRITE_TO_TMP)
+            if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP)
                 emit progressPermMessageSig(tr("Writing submodel [Parse Error%1")
                                                .arg(okToShowMessage ? "]...          " : " - see log]... " ));
         } else {
@@ -7631,7 +7626,7 @@ void Gui::parseError(const QString &message,
     }
 
     if (!abortProcess && !abortInProgress) {
-        parsedMessages.append(here);
+        Gui::parsedMessages.append(here);
         abortProcess = abort;
         if (messageIcon == QMessageBox::Icon::NoIcon)
             messageIcon = QMessageBox::Icon::Critical;
@@ -7659,12 +7654,12 @@ void Gui::parseError(const QString &message,
         if (Preferences::loggingEnabled)
             logError() << qPrintable(parseMessage.replace("<br>"," "));
         if (abortProcess) {
-            displayPageNum = prevDisplayPageNum;
-            if (exporting()) {             // exporting
+            Gui::displayPageNum = Gui::prevDisplayPageNum;
+            if (Gui::exporting()) {             // exporting
                 emit setExportingSig(false);
-            } else if (ContinuousPage()) { // continuous page processing
+            } else if (Gui::ContinuousPage()) { // continuous page processing
                 emit setContinuousPageSig(false);
-                while (pageProcessRunning != PROC_NONE) {
+                while (Gui::pageProcessRunning != PROC_NONE) {
                     QTime waiting = QTime::currentTime().addMSecs(500);
                     while (QTime::currentTime() < waiting)
                         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
@@ -7710,7 +7705,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
 
         if (guiEnabled) {
             statusBarMsg(message);
-            if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
+            if (msgBox && !abortInProgress && !Gui::ContinuousPage() && !Gui::exporting())
                 QMessageBox::information(this,tr("%1 Info Status").arg(VER_PRODUCTNAME_STR),message);
         }
     } else
@@ -7721,7 +7716,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
 
          if (guiEnabled) {
              statusBarMsg(message);
-             if (msgBox && !abortInProgress && !ContinuousPage() && !exporting())
+             if (msgBox && !abortInProgress && !Gui::ContinuousPage() && !Gui::exporting())
                  QMessageBox::information(this,tr("%1 Status").arg(VER_PRODUCTNAME_STR),message);
          }
     } else
@@ -7731,7 +7726,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             logInfo() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
-            if (ContinuousPage() || exporting()) {
+            if (Gui::ContinuousPage() || Gui::exporting()) {
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("INFO: "));
             } else if (!abortInProgress) {
                 QMessageBox::information(this,tr("%1 Information").arg(VER_PRODUCTNAME_STR),message);
@@ -7744,7 +7739,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             logNotice() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
-            if (ContinuousPage() || exporting()) {
+            if (Gui::ContinuousPage() || Gui::exporting()) {
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("NOTICE: "));
             } else if (!abortInProgress) {
                 QMessageBox::information(this,tr("%1 Notice").arg(VER_PRODUCTNAME_STR),message);
@@ -7757,7 +7752,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             logTrace() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
-            if (ContinuousPage() || exporting()) {
+            if (Gui::ContinuousPage() || Gui::exporting()) {
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("TRACE: "));
             } else if (!abortInProgress) {
                 QMessageBox::information(this,tr("%1 Trace").arg(VER_PRODUCTNAME_STR),message);
@@ -7770,7 +7765,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             logDebug() << qPrintable(message.replace("<br>"," "));
 
         if (guiEnabled && msgBox) {
-            if (ContinuousPage() || exporting()) {
+            if (Gui::ContinuousPage() || Gui::exporting()) {
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("DEBUG: "));
             } else if (!abortInProgress) {
                 QMessageBox::information(this,tr("%1 Debug").arg(VER_PRODUCTNAME_STR),message);
@@ -7783,10 +7778,10 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             logWarning() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
-            if (ContinuousPage() || exporting() || msgBox == 0/*false*/) {
+            if (Gui::ContinuousPage() || Gui::exporting() || msgBox == 0/*false*/) {
                 Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
-            } else if (((!exporting() && !ContinuousPage()) || Preferences::displayPageProcessingErrors) && msgBox != 2 && !abortInProgress) {
+            } else if (((!Gui::exporting() && !Gui::ContinuousPage()) || Preferences::displayPageProcessingErrors) && msgBox != 2 && !abortInProgress) {
                 QMessageBox::warning(this,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
             }
         }
@@ -7797,12 +7792,12 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             logError() << qPrintable(QString(message).replace("<br>"," "));
 
         if (guiEnabled) {
-            if ((ContinuousPage() || exporting()) && ! Preferences::displayPageProcessingErrors) {
+            if ((Gui::ContinuousPage() || Gui::exporting()) && ! Preferences::displayPageProcessingErrors) {
                 Gui::messageList << QString("<FONT COLOR='#FF0000'>ERROR</FONT>: %1<br>").arg(message);
                 statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
             } else if (!abortInProgress) {
                 Gui::setAbortProcess(true);
-                if (pageProcessRunning == PROC_NONE) {
+                if (Gui::pageProcessRunning == PROC_NONE) {
                     QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,QMessageBox::Ok,QMessageBox::Ok);
                 } else {
                     abortProcess = QMessageBox::critical(this,tr("%1 Error").arg(VER_PRODUCTNAME_STR),message,
@@ -7826,7 +7821,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             QApplication::restoreOverrideCursor();
             if (QMessageBox::critical(this,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message.append(tr("<br><br>Restart %1 ? ").arg(VER_PRODUCTNAME_STR)),
                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
-                displayPageNum = 1;
+                Gui::displayPageNum = 1;
                 restartApplication(false, false);
             }
         }
@@ -7836,32 +7831,32 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
     Preferences::setMessageLogging();
 
     if (logType == LOG_ERROR && abortProcess) {
-        displayPageNum = prevDisplayPageNum;
-        if (exporting()) {             // exporting
+        Gui::displayPageNum = Gui::prevDisplayPageNum;
+        if (Gui::exporting()) {             // exporting
             emit setExportingSig(false);
-        } else if (ContinuousPage()) { // continuous page processing
+        } else if (Gui::ContinuousPage()) { // continuous page processing
             emit setContinuousPageSig(false);
-            while (pageProcessRunning != PROC_NONE) {
+            while (Gui::pageProcessRunning != PROC_NONE) {
                 QTime waiting = QTime::currentTime().addMSecs(500);
                 while (QTime::currentTime() < waiting)
                     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
             }
-            if (pageProcessRunning == PROC_NONE) {
+            if (Gui::pageProcessRunning == PROC_NONE) {
                 Gui::setAbortProcess(false);
-                current = topOfPages.last();
-                buildModJumpForward = false;
-                maxPages = prevMaxPages;
+                current = Gui::topOfPages.last();
+                Gui::buildModJumpForward = false;
+                Gui::maxPages = Gui::prevMaxPages;
                 pagesCounted();
             }
         } else {                     // processing a page
-            if (pageProcessRunning == PROC_NONE) {
-                if (displayPageNum > (1 + pa)) {
+            if (Gui::pageProcessRunning == PROC_NONE) {
+                if (Gui::displayPageNum > (1 + Gui::pa)) {
                     restorePreviousPage();
                 } else {
                     Gui::setAbortProcess(false);
                     current  = Where(lpub->ldrawFile.topLevelFile(),0,0);
-                    buildModJumpForward = false;
-                    maxPages = 1 + pa;
+                    Gui::buildModJumpForward = false;
+                    Gui::maxPages = 1 + Gui::pa;
                     pagesCounted();
                 }
             }

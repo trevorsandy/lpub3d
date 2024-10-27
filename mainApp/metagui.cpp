@@ -8669,7 +8669,7 @@ void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
     if (!programPath.isEmpty())
         dialog.setDirectory(QFileInfo(programPath).absolutePath());
     else
-        dialog.setDirectory(QFileInfo(gui->getCurFile()).absolutePath());
+        dialog.setDirectory(QFileInfo(Gui::getCurFile()).absolutePath());
     if (dialog.exec()) {
         QStringList selectedFiles = dialog.selectedFiles();
         if (selectedFiles.size()) {

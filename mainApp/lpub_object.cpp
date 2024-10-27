@@ -1941,7 +1941,7 @@ void LPub::loadBanner(const int &type)
 void LPub::setupChangeLogUpdate()
 {
     // QSimpleUpdater start
-    m_updaterCancelled = false;
+    LPub::m_updaterCancelled = false;
     m_updater = QSimpleUpdater::getInstance();
     connect (m_updater, SIGNAL(checkingFinished (QString)),
              this,      SLOT(  updateChangelog (QString)));
@@ -1961,7 +1961,7 @@ void LPub::setupChangeLogUpdate()
 
 void LPub::updaterCancelled()
 {
-  m_updaterCancelled = true;
+  LPub::m_updaterCancelled = true;
 }
 
 void LPub::updateChangelog (const QString &url)
@@ -1969,37 +1969,37 @@ void LPub::updateChangelog (const QString &url)
     auto processRequest = [&] ()
     {
         if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
-            if (!m_updaterCancelled) {
-                int REV = m_updater->getLatestRevision(DEFS_URL).toInt(); Q_UNUSED(REV)
+            if (!LPub::m_updaterCancelled) {
+                int REV = m_updater->getLatestRevision(LPub::DEFS_URL).toInt(); Q_UNUSED(REV)
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
 #ifdef QT_DEBUG_MODE
-                m_versionInfo = tr("Change Log for Version %1%2 (%3)")
+                LPub::m_versionInfo = tr("Change Log for Version %1%2 (%3)")
                                  .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR).toInt() ? tr(" Revision %1").arg(QString::fromLatin1(VER_REVISION_STR)) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-                m_versionInfo = tr("Change Log for Version %1%2 (%3)")
+                LPub::LPub::m_versionInfo = tr("Change Log for Version %1%2 (%3)")
                                  .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #endif
 #else
-                m_versionInfo = tr("Change Log for Version %1%2")
+                LPub::m_versionInfo = tr("Change Log for Version %1%2")
                                  .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString());
 #endif
-                m_setReleaseNotesAsText = m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION);
-                m_releaseNotesContent = m_updater->getChangelog(url);
+                LPub::m_setReleaseNotesAsText = m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION);
+                LPub::m_releaseNotesContent = m_updater->getChangelog(url);
             }
         }
         emit checkForUpdatesFinished();
     };
 
-    if (url == DEFS_URL)
+    if (url == LPub::DEFS_URL)
         processRequest();
     else {
 
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-        m_versionInfo = tr("Change Log for Version %1%2 (%3)")
+        LPub::m_versionInfo = tr("Change Log for Version %1%2 (%3)")
                            .arg(qApp->applicationVersion(), QString::fromLatin1(VER_REVISION_STR).toInt() ? tr(" Revision %1").arg(QString::fromLatin1(VER_REVISION_STR)) : QString(), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-        int REV = m_updater->getLatestRevision(DEFS_URL).toInt();
-        m_versionInfo = tr("Change Log for Version %1%2")
+        int REV = m_updater->getLatestRevision(LPub::DEFS_URL).toInt();
+        LPub::m_versionInfo = tr("Change Log for Version %1%2")
                            .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString());
 #endif
         //populate releaseNotes
@@ -2007,17 +2007,17 @@ void LPub::updateChangelog (const QString &url)
 
         QFile file(releaseNotesFile);
         if (! file.open(QFile::ReadOnly | QFile::Text)) {
-            m_setReleaseNotesAsText = true;
-            m_releaseNotesContent = tr("Failed to open Release Notes file: \n%1:\n%2")
+            LPub::m_setReleaseNotesAsText = true;
+            LPub::m_releaseNotesContent = tr("Failed to open Release Notes file: \n%1:\n%2")
                                              .arg(releaseNotesFile)
                                              .arg(file.errorString());
         } else {
-            m_releaseNotesContent = QString::fromStdString(file.readAll().toStdString());
+            LPub::m_releaseNotesContent = QString::fromStdString(file.readAll().toStdString());
         }
     }
 
-    if (m_versionInfo.isEmpty())
-        m_versionInfo = tr("Undefined");
+    if (LPub::m_versionInfo.isEmpty())
+        LPub::m_versionInfo = tr("Undefined");
 }
 
 void LPub::saveVisualEditorTransformSettings()

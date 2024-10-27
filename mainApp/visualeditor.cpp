@@ -1234,7 +1234,7 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
         // Create empty project
         Project* NewProject = new Project();
         gApplication->SetProject(NewProject);
-        UpdateAllViews();
+        Gui::UpdateAllViews();
 
         if (!gMainWindow->OpenProject(type))
             return false;
@@ -2207,7 +2207,7 @@ void Gui::restoreLightAndViewpointDefaults() {
 
 void Gui::enableVisualBuildModification()
 {
-    if (!lpub->currentStep || !Preferences::modeGUI || exporting())
+    if (!lpub->currentStep || !Preferences::modeGUI || Gui::exporting())
         return;
 
 #ifdef QT_DEBUG_MODE
@@ -2230,7 +2230,7 @@ void Gui::enableVisualBuildModification()
 
     gApplication->mPreferences.mBuildModificationEnabled = buildModEnabled;
 
-    if (buildModEnabled && !curFile.isEmpty()) {
+    if (buildModEnabled && !Gui::curFile.isEmpty()) {
         using namespace Options;
         switch (lcGetActiveProject()->GetImageType())
         {
@@ -2243,7 +2243,7 @@ void Gui::enableVisualBuildModification()
         }
     }
 
-    if(!ContinuousPage())
+    if(!Gui::ContinuousPage())
         gMainWindow->UpdateDefaultCameraProperties();
 
     EnableBuildModRotateAct->setChecked(buildModEnabled);
@@ -2293,7 +2293,7 @@ void Gui::enableVisualBuildModActions()
 {
     Step *currentStep = lpub->currentStep;
 
-    if (!currentStep || !Preferences::buildModEnabled || !Preferences::modeGUI || exporting())
+    if (!currentStep || !Preferences::buildModEnabled || !Preferences::modeGUI || Gui::exporting())
         return;
 
     if (currentStep)
@@ -2532,22 +2532,22 @@ void Gui::SetActiveModel(const QString &modelName)
     QString const &stepKey = lcGetActiveProject()->GetStepKey();
 
     if (!stepKey.isEmpty()) {
-        if (stepKey == getCurrentStep()->viewerStepKey)
+        if (stepKey == Gui::getCurrentStep()->viewerStepKey)
             return;
         lpub->setCurrentStep(stepKey);
     } else {
         if (modelName == VIEWER_MODEL_DEFAULT)
             return;
-        if (getCurrentStep()) {
-            if (modelName == getCurrentStep()->topOfStep().modelName)
+        if (Gui::getCurrentStep()) {
+            if (modelName == Gui::getCurrentStep()->topOfStep().modelName)
                 return;
         } else {
-            emit messageSig(LOG_WARNING, QString("Model '%1' could not be set active.").arg(modelName));
+            emit gui->messageSig(LOG_WARNING, QString("Model '%1' could not be set active.").arg(modelName));
             return;
         }
     }
 
-    displayFile(&lpub->ldrawFile, getCurrentStep()->topOfStep());
+    displayFile(&lpub->ldrawFile, Gui::getCurrentStep()->topOfStep());
 }
 
 int Gui::GetImageWidth()
@@ -2832,7 +2832,7 @@ void Gui::SetRotStepCommand()
 
         RotStepData rotStepData = currentStep->rotStepMeta.value();
 
-        if (! exporting() && Preferences::modeGUI) {
+        if (! Gui::exporting() && Preferences::modeGUI) {
             const QString type = it == static_cast<int>(CSI) ? QLatin1String("Step") :
                                  it == static_cast<int>(PLI) ? QLatin1String("Part") :
                                  it == static_cast<int>(SMI) ? QLatin1String("Submodel Preview") :
@@ -2887,7 +2887,7 @@ void Gui::SetRotStepCommand()
                 currentStep->mi(it)->replaceMeta(top, metaString);
             } else {
                 bool firstStep = top.modelName == gui->topLevelFile() &&
-                                 currentStep->stepNumber.number == 1 + sa;
+                                 currentStep->stepNumber.number == 1 + Gui::sa;
                 if (firstStep)
                     currentStep->mi(it)->scanPastLPubMeta(top);
                 currentStep->mi(it)->insertMeta(top, metaString);
@@ -2926,7 +2926,7 @@ void Gui::loadTheme() {
 }
 
 void Gui::ReloadVisualEditor() {
-  Step *currentStep = getCurrentStep();
+  Step *currentStep = Gui::getCurrentStep();
   if (currentStep) {
     if (currentStep->displayStep == DT_MODEL_COVER_PAGE_PREVIEW) {
       Where topOfStep = currentStep->topOfStep();
@@ -2941,7 +2941,7 @@ void Gui::ReloadVisualEditor() {
   } else {
     Project* NewProject = new Project();
     gApplication->SetProject(NewProject);
-    UpdateAllViews();
+    Gui::UpdateAllViews();
   }
 }
 
@@ -3186,7 +3186,7 @@ void Gui::ReloadVisualEditor() {
                           ModStepKeys;
 
              bool FadeSteps        = Preferences::enableFadeSteps;
-             bool HighlightStep    = Preferences::enableHighlightStep && !suppressColourMeta();
+			 bool HighlightStep    = Preferences::enableHighlightStep && !Gui::suppressColourMeta();
 
              int CurrentStep       = 1;
              int AddedPieces       = 0;
@@ -3268,7 +3268,7 @@ void Gui::ReloadVisualEditor() {
 
              // Check if there is an existing build modification in this Step
              QRegExp lineRx("^0 !?LPUB BUILD_MOD BEGIN ");
-             if (stepContains(currentStep->top, lineRx) && !Update) {
+             if (Gui::stepContains(currentStep->top, lineRx) && !Update) {
 
                  QMessageBox box;
                  box.setWindowIcon(QIcon());
@@ -4198,7 +4198,7 @@ void Gui::applyBuildModification()
 {
     Step *currentStep = lpub->currentStep;
 
-    if (!currentStep || exporting())
+    if (!currentStep || Gui::exporting())
         return;
 
 //* DEBUG - COMMENT TO ENABLE
@@ -4327,7 +4327,7 @@ void Gui::removeBuildModification()
 {
     Step *currentStep = lpub->currentStep;
 
-    if (!currentStep || exporting())
+    if (!currentStep || Gui::exporting())
         return;
 
 //* local ldrawFile and step used for debugging
@@ -4458,7 +4458,7 @@ void Gui::deleteBuildModificationAction()
 {
     Step *currentStep = lpub->currentStep;
 
-    if (!currentStep || exporting())
+    if (!currentStep || Gui::exporting())
         return;
 
 //* local ldrawFile and step used for debugging
@@ -4577,7 +4577,7 @@ void Gui::loadBuildModification()
 {
     Step *currentStep = lpub->currentStep;
 
-    if (!currentStep || exporting())
+    if (!currentStep || Gui::exporting())
         return;
 
     QString buildModKey;
@@ -5064,7 +5064,7 @@ void Gui::clearVisualEditUndoRedoText()
 
 void Gui::setStepForLine()
 {
-    if (!lpub->currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
+    if (!lpub->currentStep || !gMainWindow || !gMainWindow->isVisible() || Gui::exporting())
         return;
 
     if (lpub->page.coverPage)
@@ -5160,7 +5160,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
 void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
 {
-    if (! exporting() && Preferences::modeGUI) {
+    if (! Gui::exporting() && Preferences::modeGUI) {
         Step *currentStep = lpub->currentStep;
 
         if (!currentStep || (source == EDITOR_LINE && !indexes.size()))
@@ -5403,7 +5403,7 @@ void Gui::resetViewerImage(bool zoomExtents)
 {
     Step *currentStep = lpub->currentStep;
 
-    if (!currentStep || !Preferences::modeGUI || exporting())
+    if (!currentStep || !Preferences::modeGUI || Gui::exporting())
         return;
 
     gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setEnabled(false);

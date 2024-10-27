@@ -2965,7 +2965,7 @@ int Native::renderCsi(
     Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
     Options->CameraName        = cameraName;
     Options->FoV               = cameraFoV;
-    Options->HighlightNewParts = false; // gui->suppressColourMeta();
+	Options->HighlightNewParts = false; // Gui::suppressColourMeta();
     Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
     Options->ImageType         = Options::CSI;
     Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);

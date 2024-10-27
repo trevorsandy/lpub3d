@@ -49,7 +49,7 @@
 const Where &SubModel::topOfStep()
 {
   if (step == nullptr || steps == nullptr) {
-    return gui->topOfPage();
+    return Gui::topOfPage();
   } else {
     if (step) {
       return step->topOfStep();
@@ -62,7 +62,7 @@ const Where &SubModel::topOfStep()
 const Where &SubModel::bottomOfStep()
 {
   if (step == nullptr || steps == nullptr) {
-    return gui->bottomOfPage();
+    return Gui::bottomOfPage();
   } else {
     if (step) {
       return step->bottomOfStep();
@@ -207,7 +207,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
                 subModelMeta.rotStep,
                 rotatedModel,
                 ldrName,
-                step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
+                step ? step->top.modelName : steps ? steps->topOfSteps().modelName : Gui::topOfPage().modelName,
                 cameraAngles,
                 coverPagePreview ? DT_MODEL_COVER_PAGE_PREVIEW : DT_DEFAULT,
                 Options::SMI);

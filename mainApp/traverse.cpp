@@ -531,7 +531,7 @@ int Gui::drawPage(
       Where where = topOfStep;
       bool fin = status == end;
       QRegExp multiStepRx(" MULTI_STEP BEGIN$");
-      bool stepGroup = fin ? multiStep : stepContains(where, multiStepRx);
+      bool stepGroup = fin ? multiStep : Gui::stepContains(where, multiStepRx);
       QString message = QString("%1 %2 draw-page for page %3, step %4, model '%5'%6")
                                 .arg(fin ? "Processed" : "Processing").arg(stepGroup ? "multi-step" : opts.calledOut ? "called out" : coverPage ? "cover page" : "single-step")
                                 .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
@@ -1025,10 +1025,10 @@ int Gui::drawPage(
                       steps->placement = steps->meta.LPub.assem.placement;
                       if (returnValue == HitBuildModAction || returnValue == HitCsiAnnotation)
                           // return to init drawPage to rerun findPage to regenerate content
-                          pageProcessRunning = PROC_DISPLAY_PAGE;
+                          Gui::pageProcessRunning = PROC_DISPLAY_PAGE;
                       else
                           // return to init findPage
-                          pageProcessRunning = PROC_FIND_PAGE;
+                          Gui::pageProcessRunning = PROC_FIND_PAGE;
                       return static_cast<int>(returnValue);
                   }
               } else {
@@ -1191,7 +1191,7 @@ int Gui::drawPage(
             case EnableFadeStepsAssemRc:
               if (!step)
                 break;
-              if (!m_fadeStepsSetup &&
+              if (!Gui::m_fadeStepsSetup &&
                   (rc == EnableFadeStepsCalloutAssemRc ?
                         !curMeta.LPub.callout.csi.fadeSteps.enable.global &&
                         !curMeta.LPub.callout.csi.fadeSteps.setup.value() :
@@ -1248,7 +1248,7 @@ int Gui::drawPage(
             case EnableHighlightStepAssemRc:
               if (!step)
                 break;
-              if (!m_highlightStepSetup &&
+              if (!Gui::m_highlightStepSetup &&
                   (rc == EnableHighlightStepCalloutAssemRc ?
                         !curMeta.LPub.callout.csi.highlightStep.enable.global &&
                         !curMeta.LPub.callout.csi.highlightStep.setup.value() :
@@ -1462,12 +1462,12 @@ int Gui::drawPage(
                                 break;
                             case QMessageBox::Abort:
                                 Gui::setAbortProcess(true);
-                                displayPageNum = prevDisplayPageNum;
-                                if (exporting()) {             // exporting
+                                Gui::displayPageNum = Gui::prevDisplayPageNum;
+                                if (Gui::exporting()) {             // exporting
                                     emit setExportingSig(false);
-                                } else if (ContinuousPage()) { // continuous page processing
+                                } else if (Gui::ContinuousPage()) { // continuous page processing
                                     emit setContinuousPageSig(false);
-                                    while (pageProcessRunning != PROC_NONE) {
+                                    while (Gui::pageProcessRunning != PROC_NONE) {
                                         QTime waiting = QTime::currentTime().addMSecs(500);
                                         while (QTime::currentTime() < waiting)
                                             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
@@ -1563,11 +1563,11 @@ int Gui::drawPage(
                 QStringList newCSIParts;
                 QVector<int> newLineTypeIndexes;
                 if (rc == RemoveGroupRc) {
-                    remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&curMeta);
+                    Gui::remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&curMeta);
                 } else if (rc == RemovePartTypeRc) {
-                    remove_parttype(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                    Gui::remove_parttype(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                 } else {
-                    remove_partname(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                    Gui::remove_partname(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
                 }
                 opts.csiParts = newCSIParts;
                 opts.lineTypeIndexes = newLineTypeIndexes;
@@ -1625,14 +1625,14 @@ int Gui::drawPage(
                 if (rc == InsertFinalModelRc) {
                     displayType = DT_MODEL_FINAL;
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
-                    if (stepContains(top,partTypeLineRx)) {
+                    if (Gui::stepContains(top,partTypeLineRx)) {
                         QString const message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5)");
                         parseError(message, opts.current, Preferences::InsertErrors);
                     }
                 } else { /*InsertDisplayModelRc*/
                     curMeta.LPub.assem.showStepNumber.setValue(false);
                     opts.displayModel = true;
-                    if (stepContains(top,partTypeLineRx)) {
+                    if (Gui::stepContains(top,partTypeLineRx)) {
                         displayType = DT_MODEL_CUSTOM; // Is this here to distinguish parts added ?
                         opts.csiParts.clear();
                         opts.lineTypeIndexes.clear();
@@ -1682,7 +1682,7 @@ int Gui::drawPage(
                 } else {
                     message = message.arg(QLatin1String("INSERT COVER_PAGE"));
                 }
-                if (stepContains(top,partTypeLineRx)) {
+                if (Gui::stepContains(top,partTypeLineRx)) {
                     parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/);
                 }
               }
@@ -1693,7 +1693,7 @@ int Gui::drawPage(
                 partsAdded = true;
 
                 // nothing to display in 3D Window
-                if (! exporting())
+                if (! Gui::exporting())
                   emit clearViewerWindowSig();
               }
               break;
@@ -1706,7 +1706,7 @@ int Gui::drawPage(
                  }
                  if (insertData.type == InsertData::InsertBom) {
                      // nothing to display in 3D Window
-                     //if (! exporting())
+                     //if (! Gui::exporting())
                      //    emit clearViewerWindowSig();
                  }
                  if (insertData.type == InsertData::InsertText ||
@@ -1889,7 +1889,7 @@ int Gui::drawPage(
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
                   dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
-                  set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,CalloutDividerRc);
+                  Gui::set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,CalloutDividerRc);
                   if (dividerType != StepDivider) {
                       range = nullptr;
                       step = nullptr;
@@ -1943,7 +1943,7 @@ int Gui::drawPage(
               if (multiStep && range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
                   dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
-                  set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,StepGroupDividerRc);
+                  Gui::set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,StepGroupDividerRc);
                   if (dividerType != StepDivider) {
                       range = nullptr;
                       step = nullptr;
@@ -3102,7 +3102,7 @@ int Gui::findPage(
   bool isDisplayPage    = false;
   bool isLocalMeta      = false;
 
-  opts.pageDisplayed    = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
+  opts.pageDisplayed    = (opts.pageNum > Gui::displayPageNum) && (opts.printing ? Gui::displayPageNum : true);
 
   Gui::setPageProcessRunning(PROC_FIND_PAGE);
 
@@ -3110,15 +3110,15 @@ int Gui::findPage(
 
   skipHeader(opts.current);
 
-  opts.stepNumber = 1 + sa;
+  opts.stepNumber = 1 + Gui::sa;
 
-  if (opts.pageNum == 1 + pa) {
+  if (opts.pageNum == 1 + Gui::pa) {
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_NOTICE, QString("FINDPAGE  - Page 000 topOfPage First Page Start   (ops) - LineNumber %1, ModelName %2")
                       .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
-      topOfPages.clear();
-      topOfPages.append(opts.current);
+      Gui::topOfPages.clear();
+      Gui::topOfPages.append(opts.current);
       LDrawFile::_currentLevels.clear();
   }
 
@@ -3198,7 +3198,7 @@ int Gui::findPage(
       }
       modAttributes = i.value();
 
-      modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+      modAttributes[BM_DISPLAY_PAGE_NUM] = Gui::displayPageNum;
       modAttributes[BM_STEP_PIECES]      = opts.flags.partsAdded;
       modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
       modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
@@ -3330,8 +3330,8 @@ int Gui::findPage(
       }
 
       // Set display vars
-      isPreDisplayPage  = opts.pageNum < displayPageNum;
-      isDisplayPage     = opts.pageNum == displayPageNum;
+      isPreDisplayPage  = opts.pageNum < Gui::displayPageNum;
+      isDisplayPage     = opts.pageNum == Gui::displayPageNum;
 
       QStringList tokens, addTokens;
 
@@ -3353,10 +3353,10 @@ int Gui::findPage(
 
               // csiParts << line;
 
-              if (firstStepPageNum == -1) {
-                  firstStepPageNum = opts.pageNum;
+              if (Gui::firstStepPageNum == -1) {
+                  Gui::firstStepPageNum = opts.pageNum;
               }
-              lastStepPageNum = opts.pageNum;
+              Gui::lastStepPageNum = opts.pageNum;
 
               QStringList tokens;
 
@@ -3438,8 +3438,8 @@ int Gui::findPage(
 
                                   // save Default pageSize information
                                   PageSizeData pageSize2;
-                                  if (exporting()) {
-                                      pageSize2       = pageSizes[DEF_SIZE];
+                                  if (Gui::exporting()) {
+                                      pageSize2       = Gui::pageSizes[DEF_SIZE];
                                       opts.flags.pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
                                       logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
@@ -3538,14 +3538,14 @@ int Gui::findPage(
                                       saveMeta = meta;
                                   }
 
-                                  if (exporting()) {
-                                      pageSizes.remove(DEF_SIZE);
-                                      pageSizes.insert(DEF_SIZE,pageSize2); // restore old Default pageSize information
+                                  if (Gui::exporting()) {
+                                      Gui::pageSizes.remove(DEF_SIZE);
+                                      Gui::pageSizes.insert(DEF_SIZE,pageSize2); // restore old Default pageSize information
 #ifdef PAGE_SIZE_DEBUG
                                       logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                                 << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                                 << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                                 << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                                 << "W:"    << Gui::pageSizes[DEF_SIZE].sizeW << "H:"    << Gui::pageSizes[DEF_SIZE].sizeH
+                                                 << "O:"    << (Gui::pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                                 << "ID:"   << Gui::pageSizes[DEF_SIZE].sizeID
                                                  << "Model:" << opts.current.modelName;
 #endif
                                   } // Exporting
@@ -3605,9 +3605,9 @@ int Gui::findPage(
               stepGroupCurrent = topOfStep;
               if (! opts.pageDisplayed) {
                   if (opts.contStepNumber) {    // save starting step group continuous step number to pass to drawPage for submodel preview
-                      if (opts.stepNumber == 1 + sa) {
-                          int showStepNum = opts.contStepNumber == 1 + sa ? opts.stepNumber : opts.contStepNumber;
-                          if (opts.pageNum == 1 + pa) {
+                      if (opts.stepNumber == 1 + Gui::sa) {
+                          int showStepNum = opts.contStepNumber == 1 + Gui::sa ? opts.stepNumber : opts.contStepNumber;
+                          if (opts.pageNum == 1 + Gui::pa) {
                               meta.LPub.subModel.showStepNum.setValue(showStepNum);
                           } else {
                               saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
@@ -3623,7 +3623,7 @@ int Gui::findPage(
                               Where walk(opts.current.modelName);
                               lpub->mi.scanForwardStepGroup(walk);
                               if (opts.current.lineNumber > walk.lineNumber) {
-                                  opts.groupStepNumber += 1 + sa;
+                                  opts.groupStepNumber += 1 + Gui::sa;
                                   saveGroupStepNum = opts.groupStepNumber;
                               }
                           } else {
@@ -3658,9 +3658,9 @@ int Gui::findPage(
 #endif
                   } else if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
                       // ignored when processing a buildModDisplay
-                      savePrevStepPosition = saveCsiParts.size();
+                      Gui::savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
-                      if (opts.pageNum == 1 + pa) {
+                      if (opts.pageNum == 1 + Gui::pa) {
                           lpub->page.meta = meta;
                       } else {
                           lpub->page.meta = saveMeta;
@@ -3721,11 +3721,11 @@ int Gui::findPage(
                   } // IsDisplayPage /*opts.pageNum == displayPageNum*/
 
                   // ignored when processing buildMod display
-                  if (exporting()) {
-                      pageSizes.remove(opts.pageNum);
+                  if (Gui::exporting()) {
+                      Gui::pageSizes.remove(opts.pageNum);
                       if (opts.flags.pageSizeUpdate) {
                           opts.flags.pageSizeUpdate = false;
-                          pageSizes.insert(opts.pageNum,opts.pageSize);
+                          Gui::pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                      << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -3734,12 +3734,12 @@ int Gui::findPage(
                                      << "Model:" << opts.current.modelName;
 #endif
                       } else {
-                          pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+                          Gui::pageSizes.insert(opts.pageNum,Gui::pageSizes[DEF_SIZE]);
 #ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                     << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                     << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                     << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                     << "W:"    << Gui::pageSizes[DEF_SIZE].sizeW << "H:"    << Gui::pageSizes[DEF_SIZE].sizeH
+                                     << "O:"    << (Gui::pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                     << "ID:"   << Gui::pageSizes[DEF_SIZE].sizeID
                                      << "Model:" << opts.current.modelName;
 #endif
                       }
@@ -3750,7 +3750,7 @@ int Gui::findPage(
                                   .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
-                  topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
+                  Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
                   opts.flags.noStep2 = false;
@@ -3758,7 +3758,7 @@ int Gui::findPage(
                 } // StepGroup && ! NoStep2 (StepGroupEndRc)
 
                 if (opts.current.modelName == topLevelFile())
-                   opts.pageDisplayed = opts.pageNum > displayPageNum;
+                   opts.pageDisplayed = opts.pageNum > Gui::displayPageNum;
 
                 opts.flags.noStep2 = false;
                 opts.displayModel = false;
@@ -3862,11 +3862,11 @@ int Gui::findPage(
                   if (! buildMod.ignore) {
                     if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                         if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-                           (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
+                           (opts.stepNumber > FIRST_STEP + Gui::sa || displayPageNum > FIRST_PAGE + Gui::sa)) { // skip the first step
                             opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                         }
-                        if (! opts.flags.stepGroup && opts.stepNumber == 1 + sa) {
-                            if (opts.pageNum == 1 + pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
+                        if (! opts.flags.stepGroup && opts.stepNumber == 1 + Gui::sa) {
+                            if (opts.pageNum == 1 + Gui::pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
                                 meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
                             } else {
                                 saveMeta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
@@ -3924,9 +3924,9 @@ int Gui::findPage(
                         if (isDisplayPage) {
                             lineTypeIndexes.clear();
                             csiParts.clear();
-                            savePrevStepPosition = saveCsiParts.size();
+                            Gui::savePrevStepPosition = saveCsiParts.size();
                             stepPageNum = saveStepPageNum;
-                            if (opts.pageNum == 1 + pa) {
+                            if (opts.pageNum == 1 + Gui::pa) {
                                 lpub->page.meta = meta;
                             } else {
                                 lpub->page.meta = saveMeta;
@@ -3987,11 +3987,11 @@ int Gui::findPage(
                           } // IsDisplayPage /*opts.pageNum == displayPageNum*/
 
                         if (! opts.flags.noStep) {
-                            if (exporting() && ! opts.flags.noStep) {
-                                pageSizes.remove(opts.pageNum);
+                            if (Gui::exporting() && ! opts.flags.noStep) {
+                                Gui::pageSizes.remove(opts.pageNum);
                                 if (opts.flags.pageSizeUpdate) {
                                     opts.flags.pageSizeUpdate = false;
-                                    pageSizes.insert(opts.pageNum,opts.pageSize);
+                                    Gui::pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                                     logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                                << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -4000,12 +4000,12 @@ int Gui::findPage(
                                                << "Model:" << opts.current.modelName;
 #endif
                                 } else {
-                                    pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+                                    Gui::pageSizes.insert(opts.pageNum,Gui::pageSizes[DEF_SIZE]);
 #ifdef PAGE_SIZE_DEBUG
                                     logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                               << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                               << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                               << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                               << "W:"    << Gui::pageSizes[DEF_SIZE].sizeW << "H:"    << Gui::pageSizes[DEF_SIZE].sizeH
+                                               << "O:"    << (Gui::pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                               << "ID:"   << Gui::pageSizes[DEF_SIZE].sizeID
                                                << "Model:" << opts.current.modelName;
 #endif
                                 }
@@ -4016,7 +4016,7 @@ int Gui::findPage(
                                             .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                             ++opts.pageNum;
-                            topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
+                            Gui::topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
                         } // ! opts.flags.noStep && ! StepGroup (StepRc,RotStepRc)
 
                         // insert build Mods when processing single step
@@ -4178,11 +4178,11 @@ int Gui::findPage(
                     QStringList newCSIParts;
                     QVector<int> newLineTypeIndexes;
                     if (rc == RemoveGroupRc) {
-                        remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&meta);
+                        Gui::remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&meta);
                     } else if (rc == RemovePartTypeRc) {
-                        remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                        Gui::remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                     } else {
-                        remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                        Gui::remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
                     }
                     csiParts = newCSIParts;
                     lineTypeIndexes = newLineTypeIndexes;
@@ -4203,7 +4203,7 @@ int Gui::findPage(
 
             case PageSizeRc:
               {
-                if (exporting()) {
+                if (Gui::exporting()) {
                     opts.flags.pageSizeUpdate  = true;
 
                     opts.pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
@@ -4215,8 +4215,8 @@ int Gui::findPage(
                       meta.LPub.page.orientation.setValue(opts.pageSize.orientation);
                     }
 
-                    pageSizes.remove(DEF_SIZE);
-                    pageSizes.insert(DEF_SIZE,opts.pageSize);
+                    Gui::pageSizes.remove(DEF_SIZE);
+                    Gui::pageSizes.insert(DEF_SIZE,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -4238,7 +4238,7 @@ int Gui::findPage(
               {
                   if (meta.LPub.contStepNumbers.value()) {
                       if (! opts.contStepNumber)
-                          opts.contStepNumber += 1 + sa;
+                          opts.contStepNumber += 1 + Gui::sa;
                   } else {
                       opts.contStepNumber = 0;
                   }
@@ -4261,7 +4261,7 @@ int Gui::findPage(
                   if ((opts.current.modelName == lpub->ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                           opts.current.modelName != lpub->ldrawFile.topLevelFile())
                       parseError("Start page number must be specified in the top model header.", opts.current);
-                  pa = meta.LPub.startPageNumber.value() - 1;
+                  Gui::pa = meta.LPub.startPageNumber.value() - 1;
               }
               break;
 
@@ -4293,19 +4293,19 @@ int Gui::findPage(
 
             case PageOrientationRc:
               {
-                if (exporting()) {
+                if (Gui::exporting()) {
                     opts.flags.pageSizeUpdate = true;
 
                     if (opts.pageSize.sizeW == 0.0f)
-                      opts.pageSize.sizeW    = pageSizes[DEF_SIZE].sizeW;
+                      opts.pageSize.sizeW    = Gui::pageSizes[DEF_SIZE].sizeW;
                     if (opts.pageSize.sizeH == 0.0f)
-                      opts.pageSize.sizeH    = pageSizes[DEF_SIZE].sizeH;
+                      opts.pageSize.sizeH    = Gui::pageSizes[DEF_SIZE].sizeH;
                     if (opts.pageSize.sizeID.isEmpty())
-                      opts.pageSize.sizeID   = pageSizes[DEF_SIZE].sizeID;
+                      opts.pageSize.sizeID   = Gui::pageSizes[DEF_SIZE].sizeID;
                     opts.pageSize.orientation= meta.LPub.page.orientation.value();
 
-                    pageSizes.remove(DEF_SIZE);
-                    pageSizes.insert(DEF_SIZE,opts.pageSize);
+                    Gui::pageSizes.remove(DEF_SIZE);
+                    Gui::pageSizes.insert(DEF_SIZE,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -4361,7 +4361,7 @@ int Gui::findPage(
           if (opts.groupStepNumber) {                   // pass group step number to drawPage
               saveStepNumber = saveGroupStepNum;
           }
-          savePrevStepPosition = saveCsiParts.size();
+          Gui::savePrevStepPosition = saveCsiParts.size();
           lpub->page.meta = saveMeta;
           QStringList pliParts;
           DrawPageOptions pageOptions(
@@ -4401,10 +4401,10 @@ int Gui::findPage(
       } // IsDisplayPage
 
       if (! opts.flags.noStep) {
-          if (exporting()) {
-              pageSizes.remove(opts.pageNum);
+          if (Gui::exporting()) {
+              Gui::pageSizes.remove(opts.pageNum);
               if (opts.flags.pageSizeUpdate) {
-                  pageSizes.insert(opts.pageNum,opts.pageSize);
+                  Gui::pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                   logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                              << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -4413,12 +4413,12 @@ int Gui::findPage(
                              << "Model:" << opts.current.modelName;
 #endif
               } else {
-                  pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+                  Gui::pageSizes.insert(opts.pageNum,Gui::pageSizes[DEF_SIZE]);
 #ifdef PAGE_SIZE_DEBUG
                   logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                             << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                             << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                             << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                             << "W:"    << Gui::pageSizes[DEF_SIZE].sizeW << "H:"    << Gui::pageSizes[DEF_SIZE].sizeH
+                             << "O:"    << (Gui::pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:"   << Gui::pageSizes[DEF_SIZE].sizeID
                              << "Model:" << opts.current.modelName;
 #endif
               }
@@ -4562,7 +4562,7 @@ int Gui::getBOMParts(
 
                       QString newLine = Pli::partLine(line,current,meta);
 
-                      bomParts << newLine;
+                      Gui::bomParts << newLine;
                     }
                 }
 
@@ -4595,7 +4595,7 @@ int Gui::getBOMParts(
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
                                             .arg(meta.LPub.pli.begin.sub.value().color)
                                             .arg(meta.LPub.pli.begin.sub.value().part);
-                  bomParts << Pli::partLine(addPart,current,meta);
+                  Gui::bomParts << Pli::partLine(addPart,current,meta);
                   pliIgnore = true;
                 }
               break;
@@ -4643,14 +4643,14 @@ int Gui::getBOMParts(
             case BomPartGroupRc:
               meta.LPub.bom.pliPartGroup.setWhere(current);
               meta.LPub.bom.pliPartGroup.setBomPart(true);
-              bomPartGroups.append(meta.LPub.bom.pliPartGroup);
+              Gui::bomPartGroups.append(meta.LPub.bom.pliPartGroup);
               break;
 
               // Any of the metas that can change pliParts needs
               // to be processed here
 
             case ClearRc:
-              bomParts.empty();
+              Gui::bomParts.empty();
               break;
 
               /*
@@ -4691,7 +4691,7 @@ int Gui::getBOMParts(
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
               if (! displayModel)
-                  bomParts << Pli::partLine(line,current,meta);
+                  Gui::bomParts << Pli::partLine(line,current,meta);
               break;
 
               /* remove a group or all instances of a part type */
@@ -4702,13 +4702,13 @@ int Gui::getBOMParts(
                   QStringList newBOMParts;
                   QVector<int> dummy;
                   if (rc == RemoveGroupRc) {
-                      remove_group(bomParts,dummy,meta.LPub.remove.group.value(),newBOMParts,dummy,&meta);
+                      Gui::remove_group(Gui::bomParts,dummy,meta.LPub.remove.group.value(),newBOMParts,dummy,&meta);
                   } else if (rc == RemovePartTypeRc) {
-                      remove_parttype(bomParts,dummy,meta.LPub.remove.parttype.value(),newBOMParts,dummy);
+                      Gui::remove_parttype(Gui::bomParts,dummy,meta.LPub.remove.parttype.value(),newBOMParts,dummy);
                   } else {
-                      remove_partname(bomParts,dummy,meta.LPub.remove.partname.value(),newBOMParts,dummy);
+                      Gui::remove_partname(Gui::bomParts,dummy,meta.LPub.remove.partname.value(),newBOMParts,dummy);
                   }
-                  bomParts = newBOMParts;
+                  Gui::bomParts = newBOMParts;
               }
               break;
 
@@ -4746,8 +4746,8 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
 
   int numLines        = lpub->ldrawFile.size(current.modelName);
   int occurrenceNum   = 0;
-  boms                = 0;
-  bomOccurrence       = 0;
+  Gui::boms           = 0;
+  Gui::bomOccurrence  = 0;
   Rc rc;
   Meta meta;
 
@@ -4793,7 +4793,7 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
 
   if (occurrenceNum > 1) {
       // now set the bom occurrance based on our current position
-      Where here = topOfPages[displayPageNum-1];
+      Where here = Gui::topOfPages[Gui::displayPageNum-1];
       for (++here; here.lineNumber < lpub->ldrawFile.size(here.modelName); here++) {
           QString line = readLine(here);
           rc = meta.parse(line,here);
@@ -4801,8 +4801,8 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
               InsertData insertData = meta.LPub.insert.value();
               if (insertData.type == InsertData::InsertBom) {
                   QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
-                  bomOccurrence   = bom_Occurrence[bomID];
-                  boms            = bom_Occurrence.size();
+                  Gui::bomOccurrence = bom_Occurrence[bomID];
+                  Gui::boms          = bom_Occurrence.size();
                   break;
               }
           }
@@ -4815,28 +4815,28 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
     QString addLine;
     Where current(lpub->ldrawFile.topLevelFile(),0);
     QFuture<void> future = QtConcurrent::run([current]() {
-        bomParts.clear();
-        bomPartGroups.clear();
+        Gui::bomParts.clear();
+        Gui::bomPartGroups.clear();
         gui->getBOMParts(current, QString());
     });
     asynchronous(future);
-    if (! bomParts.size()) {
+    if (! Gui::bomParts.size()) {
         emit lpub->messageSig(LOG_ERROR,QMessageBox::tr("No BOM parts were detected."));
         return false;
     }
 
-    QStringList tempParts = bomParts;
+    QStringList tempParts = Gui::bomParts;
 
-    bomParts.clear();
+    Gui::bomParts.clear();
 
-    Q_FOREACH (QString bomPartsString, tempParts) {
+    for (QString &bomPartsString : tempParts) {
         if (bomPartsString.startsWith("1")) {
             QStringList partComponents = bomPartsString.split(";");
-            bomParts << partComponents.at(0);
+            Gui::bomParts << partComponents.at(0);
             emit lpub->messageSig(LOG_DEBUG,QMessageBox::tr("%1 added to export list.").arg(partComponents.at(0)));
         }
     }
-    emit messageSig(LOG_INFO,QMessageBox::tr("%1 BOM parts processed.").arg(bomParts.size()));
+    emit messageSig(LOG_INFO,QMessageBox::tr("%1 BOM parts processed.").arg(Gui::bomParts.size()));
 
     // create a BOM parts file
     QFile bomFile(bomFileName);
@@ -4849,7 +4849,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
 
     QTextStream out(&bomFile);
     out << QString("0 Name: %1").arg(QFileInfo(bomFileName).fileName()) << lpub_endl;
-    Q_FOREACH (QString bomPart, bomParts)
+    for (QString &bomPart : Gui::bomParts)
         out << bomPart << lpub_endl;
     bomFile.close();
     return true;
@@ -4913,7 +4913,7 @@ void Gui::attitudeAdjustment()
 
 void Gui::countPages()
 {
-  if (maxPages < 1 + pa || buildModJumpForward) {
+  if (Gui::maxPages < 1 + Gui::pa || Gui::buildModJumpForward) {
       Gui::setPageProcessRunning(PROC_COUNT_PAGE);
       Meta meta;
       QString empty;
@@ -4921,21 +4921,21 @@ void Gui::countPages()
       PageSizeData emptyPageSize;
       QList<SubmodelStack> modelStack;
 
-      current              =  Where(lpub->ldrawFile.topLevelFile(),0,0);
-      saveDisplayPageNum   =  displayPageNum;
-      displayPageNum       =  1 << 24; // really large number: 16777216
-      firstStepPageNum     = -1;       // for front cover page
-      lastStepPageNum      = -1;       // for back cover page
-      maxPages             =  1 + pa;
-      stepPageNum          =  1 + pa;
+      current               =  Where(lpub->ldrawFile.topLevelFile(),0,0);
+      saveDisplayPageNum    =  Gui::displayPageNum;
+      Gui::displayPageNum   =  1 << 24; // really large number: 16777216
+      Gui::firstStepPageNum = -1;       // for front cover page
+      Gui::lastStepPageNum  = -1;       // for back cover page
+      Gui::maxPages         =  1 + Gui::pa;
+      stepPageNum           =  1 + Gui::pa;
 
       skipHeader(current);
 
       // set model start page - used to enable mpd combo to jump to start page
-      lpub->ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
+      lpub->ldrawFile.setModelStartPageNumber(current.modelName,Gui::maxPages);
 
       QString message = tr("Counting pages...");
-      if (buildModJumpForward) {
+      if (Gui::buildModJumpForward) {
           fpFlags.parseBuildMods = true;
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
       }
@@ -4943,7 +4943,7 @@ void Gui::countPages()
       emit messageSig(LOG_TRACE, message);
 
       FindPageOptions opts(
-                  maxPages,      /*pageNum*/
+                  Gui::maxPages,      /*pageNum*/
                   current,
                   emptyPageSize,
                   fpFlags,
@@ -4974,13 +4974,13 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  if (Preferences::modeGUI && ! exporting() && ! ContinuousPage())
+  if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::ContinuousPage())
     enableNavigationActions(false);
 
   current      = Where(lpub->ldrawFile.topLevelFile(),0,0);
-  saveMaxPages = maxPages;
-  maxPages     = 1 + pa;
-  stepPageNum  = maxPages;
+  saveMaxPages = Gui::maxPages;
+  Gui::maxPages     = 1 + Gui::pa;
+  stepPageNum  = Gui::maxPages;
   lpub->page.relativeType = SingleStepType;
 
   // set submodels unrendered
@@ -5002,14 +5002,14 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 //*/
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {
-      displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
-      firstPage       = ! topOfPages.size() || topOfPages.size() < displayPageIndx;
+      displayPageIndx = Gui::exporting() ? Gui::displayPageNum : Gui::displayPageNum - 1;
+      firstPage       = ! Gui::topOfPages.size() || Gui::topOfPages.size() < displayPageIndx;
 
       if (!firstPage) {
-        if (topOfPages.size() > displayPageIndx) {
-            topOfStep     = topOfPages[displayPageIndx];
+        if (Gui::topOfPages.size() > displayPageIndx) {
+            topOfStep     = Gui::topOfPages[displayPageIndx];
         } else {
-            topOfStep     = topOfPages.takeLast();
+            topOfStep     = Gui::topOfPages.takeLast();
         }
       }
 
@@ -5027,34 +5027,34 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 
       if (adjustTopOfStep)
         if (! getBuildModStepIndexWhere(nextStepIndex, topOfStep))
-          topOfStep = firstPage ? current : topOfPages[displayPageIndx];
+          topOfStep = firstPage ? current : Gui::topOfPages[displayPageIndx];
 
       QFuture<int> future = QtConcurrent::run([&](){ return setBuildModForNextStep(topOfStep);});
 
       // if page direction is jump forward, reset vars that may be updated by the count page call
-      if ((buildModJumpForward = pageDirection == PAGE_JUMP_FORWARD)) {
-        const int saveJumpDisplayPageNum = displayPageNum;
-        const QList<Where> saveJumpTopOfPages = topOfPages;
+      if ((Gui::buildModJumpForward = Gui::pageDirection == PAGE_JUMP_FORWARD)) {
+        const int saveJumpDisplayPageNum = Gui::displayPageNum;
+        const QList<Where> saveJumpTopOfPages = Gui::topOfPages;
         const Where saveJumpCurrent = current;
         if (static_cast<TraverseRc>(asynchronous(future)) == HitAbortProcess) {
           QApplication::restoreOverrideCursor();
-          setAbortProcess(true);
+          Gui::setAbortProcess(true);
           return;
         }
 
         // revert registers to pre jump forward count page settings
-        buildModJumpForward = false;
-        displayPageNum = saveJumpDisplayPageNum;
+        Gui::buildModJumpForward = false;
+        Gui::displayPageNum = saveJumpDisplayPageNum;
         current     = saveJumpCurrent;
-        maxPages    = 1 + pa;
-        stepPageNum = maxPages;
-        topOfPages  = saveJumpTopOfPages;
+        Gui::maxPages    = 1 + Gui::pa;
+        stepPageNum = Gui::maxPages;
+        Gui::topOfPages  = saveJumpTopOfPages;
         lpub->ldrawFile.unrendered();
 
       } else {
         if (static_cast<TraverseRc>(asynchronous(future)) == HitAbortProcess) {
           QApplication::restoreOverrideCursor();
-          setAbortProcess(true);
+          Gui::setAbortProcess(true);
           return;
         }
       }
@@ -5066,7 +5066,7 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 
     // set model start page - used to enable mpd combo to jump to start page
     if (firstPage)
-        lpub->ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
+        lpub->ldrawFile.setModelStartPageNumber(current.modelName,Gui::maxPages);
 
   } // not build mod action change
   else if (dpFlags.csiAnnotation) {
@@ -5109,11 +5109,11 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
   if (Gui::abortProcess())
     return;
 
-  firstStepPageNum     = -1;
-  lastStepPageNum      = -1;
-  savePrevStepPosition =  0;
-  saveGroupStepNum     =  1 + sa;
-  saveContStepNum      =  1 + sa;
+  Gui::firstStepPageNum     = -1;
+  Gui::lastStepPageNum      = -1;
+  Gui::savePrevStepPosition =  0;
+  saveGroupStepNum          =  1 + Gui::sa;
+  saveContStepNum           =  1 + Gui::sa;
 
   // reset buildModActionChange
   dpFlags.buildModActionChange = false;
@@ -5123,14 +5123,14 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
   QList<SubmodelStack> modelStack;
 
   PageSizeData pageSize;
-  if (exporting()) {
+  if (Gui::exporting()) {
     pageSize.sizeW      = lpub->meta.LPub.page.size.valueInches(0);
     pageSize.sizeH      = lpub->meta.LPub.page.size.valueInches(1);
     pageSize.sizeID     = lpub->meta.LPub.page.size.valueSizeID();
     pageSize.orientation= lpub->meta.LPub.page.orientation.value();
-    pageSizes.insert(     DEF_SIZE,pageSize);
+    Gui::pageSizes.insert(     DEF_SIZE,pageSize);
 #ifdef PAGE_SIZE_DEBUG
-    logTrace() << "0. Inserting INIT page size info at PageNumber:" << maxPages
+    logTrace() << "0. Inserting INIT page size info at PageNumber:" << Gui::maxPages
                << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
                << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
                << "ID:" << pageSize.sizeID
@@ -5139,7 +5139,7 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
   }
 
   FindPageOptions opts(
-              maxPages,    /*pageNum*/
+              Gui::maxPages,    /*pageNum*/
               current,
               pageSize,
               fpFlags,
@@ -5157,11 +5157,11 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 
   const TraverseRc frc = static_cast<TraverseRc>(findPage(view,scene,lpub->meta,empty/*addLine*/,opts));
   if (frc == HitAbortProcess) {
-    if (m_exportMode == GENERATE_BOM) {
+    if (Gui::m_exportMode == GENERATE_BOM) {
         emit clearViewerWindowSig();
-        m_exportMode = m_saveExportMode;
+        Gui::m_exportMode = Gui::m_saveExportMode;
     }
-    setAbortProcess(true);
+    Gui::setAbortProcess(true);
     QApplication::restoreOverrideCursor();
     return;
 
@@ -5189,14 +5189,14 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
     auto countPage = [&] (int modelStackCount)
     {
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &lpub->meta, &lpub->ldrawFile, opts, empty);
-      if (exporting() || ContinuousPage() || countWaitForFinished() || suspendFileDisplay || modelStackCount) {
+      if (Gui::exporting() || Gui::ContinuousPage() || Gui::countWaitForFinished() || Gui::suspendFileDisplay || modelStackCount) {
 /*
 #ifdef QT_DEBUG_MODE
           if (modelStackCount) {
             message = QString(" COUNTING  - FutureWatcher WaitForFinsished modelStackCount [%1] WAIT YES").arg(modelStackCount);
             qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
           }
-          if (countWaitForFinished()) {
+          if (Gui::countWaitForFinished()) {
             message = QString(" COUNTING  - FutureWatcher WaitForFinsished countWaitForFinished WAIT YES");
             qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
           }
@@ -5257,7 +5257,7 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
     }
 
     if (static_cast<TraverseRc>(countPage(modelStackCount)) == HitAbortProcess) {
-        setAbortProcess(true);
+        Gui::setAbortProcess(true);
         QApplication::restoreOverrideCursor();
         return;
     }
@@ -5348,14 +5348,14 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 
       // let's go
       if (static_cast<TraverseRc>(countPage(opts.modelStack.size())) == HitAbortProcess) {
-          setAbortProcess(true);
+          Gui::setAbortProcess(true);
           QApplication::restoreOverrideCursor();
           return;
       }
     } // iterate the model stack
 
-    if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
-        bool enable =  m_exportMode != GENERATE_BOM &&
+    if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
+        bool enable =  Gui::m_exportMode != GENERATE_BOM &&
                      (!lpub->page.coverPage || (lpub->page.coverPage &&
                       !lpub->page.meta.LPub.coverPageViewEnabled.value()));
         enable3DActions(enable);
@@ -5370,7 +5370,7 @@ void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &
 void Gui::finishedCountingPages()
 {
     if (static_cast<TraverseRc>(futureWatcher.result()) == HitAbortProcess) {
-        setAbortProcess(true);
+        Gui::setAbortProcess(true);
         return;
     }
     pagesCounted();
@@ -5386,15 +5386,15 @@ void Gui::pagesCounted()
 /*
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
-                    .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
+                    .arg(Gui::maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     if (!saveDisplayPageNum) {
         emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-        emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(maxPages));
+        emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(Gui::maxPages));
         emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
 
-//        for (int i = 0; i < topOfPages.size(); i++)
+//        for (int i = 0; i < Gui::topOfPages.size(); i++)
 //        {
-//            Where top = topOfPages.at(i);
+//            Where top = Gui::topOfPages.at(i);
 //            emit messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
 //                            .arg(i, 3, 10, QChar('0'))               // index
 //                            .arg(top.modelIndex, 3, 10, QChar('0'))  // modelIndex
@@ -5436,10 +5436,10 @@ void Gui::pagesCounted()
                                     tr("Load LDraw file %1 aborted.").arg(fileInfo.fileName()) :
                                     tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                        .arg(fileInfo.fileName())
-                                       .arg(maxPages)
+                                       .arg(Gui::maxPages)
                                        .arg(lpub->ldrawFile.getPartCount())
                                        .arg(elapsedTime(displayPageTimer.elapsed())));
-                if (!maxPages && !lpub->ldrawFile.getPartCount()) {
+                if (!Gui::maxPages && !lpub->ldrawFile.getPartCount()) {
                     emit gui->messageSig(LOG_ERROR,tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
                     closeModelFile();
@@ -5634,9 +5634,9 @@ static Where dummy;
 
 Where &Gui::topOfPage()
 {
-  int pageNum = displayPageNum - 1;
-  if (pageNum < topOfPages.size()) {
-      return topOfPages[pageNum];
+  int pageNum = Gui::displayPageNum - 1;
+  if (pageNum < Gui::topOfPages.size()) {
+      return Gui::topOfPages[pageNum];
     } else {
       return dummy;
     }
@@ -5644,8 +5644,8 @@ Where &Gui::topOfPage()
 
 Where &Gui::bottomOfPage()
 {
-  if (displayPageNum < topOfPages.size()) {
-      return topOfPages[displayPageNum];
+  if (Gui::displayPageNum < Gui::topOfPages.size()) {
+      return Gui::topOfPages[Gui::displayPageNum];
     } else {
       return dummy;
     }
@@ -5725,7 +5725,7 @@ int Gui::setBuildModForNextStep(
         }
         modAttributes = i.value();
 
-        modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+        modAttributes[BM_DISPLAY_PAGE_NUM] = Gui::displayPageNum;
         modAttributes[BM_STEP_PIECES]      = partsAdded;
         modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
         modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
@@ -5830,7 +5830,7 @@ int Gui::setBuildModForNextStep(
         startLine = topOfStep.lineNumber;           // set starting line number
 
         int startIndex = buildModNextStepIndex;     // when navigating forward, set the delete index to the next step index
-        if (pageDirection > PAGE_JUMP_FORWARD)
+        if (Gui::pageDirection > PAGE_JUMP_FORWARD)
             startIndex =
                getStartIndex(topOfStep,startIndex,false); // when navigating backward, set the delete index to the index after the next step index
 
@@ -5842,16 +5842,16 @@ int Gui::setBuildModForNextStep(
                                                 .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
 
-        if (buildModJumpForward)                    // jump forward by more than one step/page
+        if (Gui::buildModJumpForward)                    // jump forward by more than one step/page
             emit gui->countPagesSig();              // set build mods in countPages call
-        else if (pageDirection != PAGE_FORWARD)     // jump backward by one or more steps/pages
+        else if (Gui::pageDirection != PAGE_FORWARD)     // jump backward by one or more steps/pages
             setBuildModNavBackward();               // set build mod last action for mods up to next step index
 
-        if (pageDirection != PAGE_FORWARD) {
+        if (Gui::pageDirection != PAGE_FORWARD) {
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_TRACE, QString("BuildMod Next Jump %1 - Amount: %2 (Steps), StartModel: %3, "
                                                     "StartLine: %4, ModelName: %5, LineNumber: %6")
-                                                    .arg(buildModJumpForward ? "Forward" : "Backward")
+                                                    .arg(Gui::buildModJumpForward ? tr("Forward") : tr("Backward"))
                                                     .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
                                                     .arg(startModel).arg(startLine)
                                                     .arg(topOfNextStep.modelName)
@@ -6245,11 +6245,11 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
                           QStringList newCSIParts;
                           QVector<int> newLineTypeIndexes;
                           if (rc == RemoveGroupRc) {
-                              remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&meta);
+                              Gui::remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&meta);
                           } else if (rc == RemovePartTypeRc) {
-                              remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                              Gui::remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                           } else {
-                              remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                              Gui::remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
                           }
                           csiParts = newCSIParts;
                           lineTypeIndexes = newLineTypeIndexes;
@@ -6285,8 +6285,8 @@ void Gui::writeToTmp()
   writeToTmpTimer.start();
   int writtenFiles = 0;
   int subFileCount = lpub->ldrawFile._subFileOrder.size();
-  doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
-  doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
+  Gui::doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
+  Gui::doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !Gui::suppressColourMeta();
   QString const fadeColor = LDrawColor::code(Preferences::validFadeStepsColour);
 
   auto getExternalFileContent = [] (QString const &fileName)
@@ -6390,7 +6390,7 @@ void Gui::writeToTmp()
                       else
                         fadeFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
                       emit gui->messageSig(LOG_INFO_STATUS, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fadeFileNameStr));
-                      QStringList *fadeContent = new QStringList(gui->configureModelSubFile(*cleanContent, fadeColor, FADE_PART));
+                      QStringList *fadeContent = new QStringList(Gui::configureModelSubFile(*cleanContent, fadeColor, FADE_PART));
                       gui->insertConfiguredSubFile(fadeFileNameStr, *fadeContent);
                       gui->writeToTmp(fadeFileNameStr, *fadeContent, false/*parseContent*/);
                   }
@@ -6401,7 +6401,7 @@ void Gui::writeToTmp()
                       else
                         highlightFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
                       emit gui->messageSig(LOG_INFO_STATUS, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(highlightFileNameStr));
-                      QStringList *highlightContent = new QStringList(gui->configureModelSubFile(*cleanContent, fadeColor, HIGHLIGHT_PART));
+                      QStringList *highlightContent = new QStringList(Gui::configureModelSubFile(*cleanContent, fadeColor, HIGHLIGHT_PART));
                       gui->insertConfiguredSubFile(highlightFileNameStr, *highlightContent);
                       gui->writeToTmp(highlightFileNameStr, *highlightContent, false/*parseContent*/);
                   }
@@ -6544,11 +6544,11 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
                       QStringList newFileContent;
                       QVector<int> dummy;
                       if (rc == RemoveGroupRc) {
-                          gui->remove_group(fileContent,dummy,meta.LPub.remove.group.value(),newFileContent,dummy,&meta);
+                          Gui::remove_group(fileContent,dummy,meta.LPub.remove.group.value(),newFileContent,dummy,&meta);
                       } else if (rc == RemovePartTypeRc) {
-                          gui->remove_parttype(fileContent,dummy,meta.LPub.remove.parttype.value(),newFileContent,dummy);
+                          Gui::remove_parttype(fileContent,dummy,meta.LPub.remove.parttype.value(),newFileContent,dummy);
                       } else {
-                          gui->remove_partname(fileContent,dummy,meta.LPub.remove.partname.value(),newFileContent,dummy);
+                          Gui::remove_partname(fileContent,dummy,meta.LPub.remove.partname.value(),newFileContent,dummy);
                       }
                       fileContent = newFileContent;
               }
@@ -6617,8 +6617,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                   if (partType == HIGHLIGHT_PART)
                       colourCode = argv[1];
                   // generate fade color entry
-                  if (!colourEntryExist(subfileColourList,argv[1], partType))
-                      subfileColourList << createColourEntry(colourCode, partType);
+                  if (!Gui::colourEntryExist(subfileColourList,argv[1], partType))
+                      subfileColourList << Gui::createColourEntry(colourCode, partType);
                   // set color code - fade, highlight or both
                   argv[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
               }

@@ -5711,7 +5711,7 @@ void MetaItem::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) co
 
 bool MetaItem::currentFile()
 {
-    return !gui->getCurFile().isEmpty();
+    return !Gui::getCurFile().isEmpty();
 }
 
 void MetaItem::setSuspendFileDisplayFlag(bool b) const

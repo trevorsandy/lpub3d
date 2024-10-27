@@ -666,17 +666,17 @@ void Pli::setParts(
 
       sortParts(tempParts, true);
 
-      int quotient    = tempParts.size() / gui->GetBOMs();
-      int remainder   = tempParts.size() % gui->GetBOMs();
+	  int quotient    = tempParts.size() / Gui::GetBOMs();
+	  int remainder   = tempParts.size() % Gui::GetBOMs();
       int maxParts    = 0;
       int startIndex  = 0;
       int partIndex   = 0;   // using 0-based index
 
-      if (gui->GetBOMOccurrence() == gui->GetBOMs()) {
-          maxParts = gui->GetBOMOccurrence() * quotient + remainder;
+	  if (Gui::GetBOMOccurrence() == Gui::GetBOMs()) {
+		  maxParts = Gui::GetBOMOccurrence() * quotient + remainder;
           startIndex = maxParts - quotient - remainder;
         } else {
-          maxParts = gui->GetBOMOccurrence() * quotient;
+		  maxParts = Gui::GetBOMOccurrence() * quotient;
           startIndex = maxParts - quotient;
         }
 
@@ -977,7 +977,7 @@ int Pli::createPartImage(
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = lcGetPreferences().mViewPieceIcons;
     fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
-    highlightStep = Preferences::enableHighlightStep /*&& !gui->suppressColourMeta()*/;
+	highlightStep = Preferences::enableHighlightStep /*&& !Gui::suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     bool isColorPart = LDrawColourParts::isLDrawColourPart(type);
@@ -1503,13 +1503,13 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
     if (fadeSteps && (pT == FADE_PART)) {
         updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
-        out << gui->createColourEntry(ia.partColor[pT], PartType(pT));
+		out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
     }
     if (highlightStep && (pT == HIGHLIGHT_PART)) {
         updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
-        out << gui->createColourEntry(ia.partColor[pT], PartType(pT));
+		out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !SILHOUETTE %1 %2")
                        .arg(Preferences::highlightStepLineWidth)
                        .arg(Preferences::highlightStepColour);
@@ -2210,7 +2210,7 @@ int Pli::partSize()
       widestPart = 0;
       tallestPart = 0;
 
-      bool populateBomProgress = bom && Preferences::modeGUI && !gui->exporting();
+      bool populateBomProgress = bom && Preferences::modeGUI && !Gui::exporting();
       int partCounter = 0;
 
       Q_FOREACH (const QString &key, parts.keys()) {
@@ -2447,11 +2447,11 @@ int Pli::partSizeLDViewSCall() {
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = lcGetPreferences().mViewPieceIcons;
     fadeColour = LDrawColor::code(Preferences::validFadeStepsColour);
-    highlightStep = Preferences::enableHighlightStep /*&& !gui->suppressColourMeta()*/;
+	highlightStep = Preferences::enableHighlightStep /*&& !Gui::suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
-    bool populateBomProgress = bom && Preferences::modeGUI && !gui->exporting();
+    bool populateBomProgress = bom && Preferences::modeGUI && !Gui::exporting();
     int partCounter = 0;
 
     // 1. generate ldr files
