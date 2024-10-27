@@ -74,13 +74,13 @@
 void Gui::clearPage(
     LGraphicsView *view,
     LGraphicsScene *scene,
-    bool clearViewPageBg)
+    bool clearViewPageBackgroundItem)
 {
   lpub->page.freePage();
   lpub->page.pli.clear();
   lpub->page.subModel.clear();
 
-  if (clearViewPageBg) {
+  if (clearViewPageBackgroundItem) {
     //  Moved to end of GraphicsPageItems()
     if (view->pageBackgroundItem) {
       delete view->pageBackgroundItem;
@@ -321,7 +321,7 @@ int Gui::addGraphicsPageItems(
   Placement                plPage;
   PlacementHeader         *pageHeader;
   PlacementFooter         *pageFooter;
-  PageBackgroundItem      *pageBg;
+  PageBackgroundItem      *pageBkGrndItem;
   PageNumberItem          *pageNumber    = nullptr;
   TextItem                *textItem      = nullptr;
 
@@ -348,11 +348,11 @@ int Gui::addGraphicsPageItems(
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
 //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
 
-  pageBg = new PageBackgroundItem(page, pW, pH, exporting());
+  pageBkGrndItem = new PageBackgroundItem(page, pW, pH, Gui::exporting());
 
 //  Moved to end of GraphicsPageItems()
-//  view->pageBackgroundItem = pageBg;
-//  pageBg->setPos(0,0);
+//  view->pageBackgroundItem = pageBkGrndItem;
+//  pageBkGrndItem->setPos(0,0);
 
   bool textPlacement     = false;
 
@@ -372,14 +372,14 @@ int Gui::addGraphicsPageItems(
   page->meta.LPub.page.pageHeader.size.setValue(0,_pW);
   page->meta.LPub.page.pageFooter.size.setValue(0,_pW);
 
-  pageHeader = new PlacementHeader(page->meta.LPub.page.pageHeader,pageBg);
+  pageHeader = new PlacementHeader(page->meta.LPub.page.pageHeader,pageBkGrndItem);
   if (pageHeader->placement.value().relativeTo == plPage.relativeType) {
       plPage.appendRelativeTo(pageHeader);
       plPage.placeRelative(pageHeader);
     }
   pageHeader->setRect(pageHeader->loc[XX],pageHeader->loc[YY],pageHeader->size[XX],pageHeader->size[YY]);
 
-  pageFooter = new PlacementFooter(page->meta.LPub.page.pageFooter,pageBg);
+  pageFooter = new PlacementFooter(page->meta.LPub.page.pageFooter,pageBkGrndItem);
   if (pageFooter->placement.value().relativeTo == plPage.relativeType) {
       plPage.appendRelativeTo(pageFooter);
       plPage.placeRelative(pageFooter);
@@ -388,7 +388,7 @@ int Gui::addGraphicsPageItems(
 
   // Process Cover Page Attriutes
 
-  addCoverPageAttributes(page,pageBg,pageHeader,pageFooter,plPage);
+  addCoverPageAttributes(page,pageBkGrndItem,pageHeader,pageFooter,plPage);
 
   // Display the page number
 
@@ -403,7 +403,7 @@ int Gui::addGraphicsPageItems(
             page->meta.LPub.page.number,
             "%d",
             stepPageNum,
-            pageBg);
+            pageBkGrndItem);
 
       pageNumber->relativeType = PageNumberType;
       pageNumber->size[XX]     = (int) pageNumber->document()->size().width();
@@ -474,7 +474,7 @@ int Gui::addGraphicsPageItems(
 
   // Process last page instance count and page attributes
 
-  addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,endOfSubmodel);
+  addContentPageAttributes(page,pageBkGrndItem,pageHeader,pageFooter,pageNumber,plPage,endOfSubmodel);
 
   /* Create any graphics items in the insert list */
 
@@ -496,7 +496,7 @@ int Gui::addGraphicsPageItems(
 
                     QPixmap qpixmap;
                     qpixmap.load(insert.picName);
-                    InsertPixmapItem *pixmap = new InsertPixmapItem(qpixmap,page->inserts[i],pageBg);
+                    InsertPixmapItem *pixmap = new InsertPixmapItem(qpixmap,page->inserts[i],pageBkGrndItem);
 
                     page->addInsertPixmap(pixmap);
                     pixmap->setTransformationMode(Qt::SmoothTransformation);
@@ -541,7 +541,7 @@ int Gui::addGraphicsPageItems(
                                                    "RICH_TEXT" : "TEXT");
                 } else {
                     // create a new text instance and insert into list
-                    textItem = new TextItem(page->inserts[i],DefaultPage,textPlacement,pageBg);
+                    textItem = new TextItem(page->inserts[i],DefaultPage,textPlacement,pageBkGrndItem);
                     textItem->setSize(int(textItem->document()->size().width()),
                                       int(textItem->document()->size().height()));
                     if (textPlacement)
@@ -766,7 +766,7 @@ int Gui::addGraphicsPageItems(
                         &page->meta,
                         step->csiPixmap,
                         step->submodelLevel,
-                        pageBg,
+                        pageBkGrndItem,
                         page->relativeType);
 
                   if (step->csiItem == nullptr) {
@@ -779,7 +779,7 @@ int Gui::addGraphicsPageItems(
                   // add the SM graphically to the scene
 
                   if (step->placeSubModel) {
-                      step->subModel.addSubModel(step->submodelLevel, pageBg);
+                      step->subModel.addSubModel(step->submodelLevel, pageBkGrndItem);
                   }
 
                   // add the RotateIcon graphically to the scene
@@ -792,12 +792,12 @@ int Gui::addGraphicsPageItems(
                                   step,
                                   page->relativeType,
                                   step->rotateIconMeta,
-                                  pageBg);
+                                  pageBkGrndItem);
                   }
 
                   // add the PLI graphically to the scene
 
-                  step->pli.addPli(step->submodelLevel, pageBg);
+                  step->pli.addPli(step->submodelLevel, pageBkGrndItem);
 
                   // Place the step relative to the page.
 
@@ -889,7 +889,7 @@ int Gui::addGraphicsPageItems(
                                              page->meta.LPub.stepNumber,
                                              "%d",
                                              step->stepNumber.number,
-                                             pageBg);;
+                                             pageBkGrndItem);;
                       stepNumber->setPos(step->stepNumber.loc[XX],
                                          step->stepNumber.loc[YY]);
                       stepNumber->relativeToSize[0] = step->stepNumber.relativeToSize[0];
@@ -911,7 +911,7 @@ int Gui::addGraphicsPageItems(
                                        step->csiItem->size[YY]);
 
                       // add the callout's graphics items to the scene
-                      callout->addGraphicsItems(0,0,csiRect,pageBg,true);
+                      callout->addGraphicsItems(0,0,csiRect,pageBkGrndItem,true);
 
                       // foreach pointer
                       //   add the pointer to the graphics scene
@@ -939,7 +939,7 @@ int Gui::addGraphicsPageItems(
                       pp->sizeIt();
 
                       // add the pagePointer origin (hidden base rectangle) to the graphics scene
-                      pp->addGraphicsItems(0,0,pageBg,true); // set true to make movable
+                      pp->addGraphicsItems(0,0,pageBkGrndItem,true); // set true to make movable
 
                       //   add the pagePointer pointers to the graphics scene
                       for (int i = 0; i < pp->pointerList.size(); i++) {
@@ -953,7 +953,7 @@ int Gui::addGraphicsPageItems(
                   if (page->pli.tsize()) {
                       if (page->pli.bom) {
                           page->pli.relativeType = BomType;
-                          page->pli.addPli(0,pageBg);
+                          page->pli.addPli(0,pageBkGrndItem);
                           page->pli.setFlag(QGraphicsItem::ItemIsSelectable,true);
                           page->pli.setFlag(QGraphicsItem::ItemIsMovable,true);
 
@@ -1026,7 +1026,7 @@ int Gui::addGraphicsPageItems(
 
       page->relativeToSg(page);           // place callouts relative to MULTI_STEP
 
-      page->addGraphicsItems(0,0,pageBg); // place all multi-step graphics items (e.g. RotateIcon...)
+      page->addGraphicsItems(0,0,pageBkGrndItem); // place all multi-step graphics items (e.g. RotateIcon...)
 
       // add page pointers to the scene
 
@@ -1046,7 +1046,7 @@ int Gui::addGraphicsPageItems(
           pp->sizeIt();
 
           // add the pagePointer origin (page rectangle) to the graphics scene
-          pp->addGraphicsItems(0,0,pageBg,true); // set true to make movable
+          pp->addGraphicsItems(0,0,pageBkGrndItem,true); // set true to make movable
 
           //   add the pagePointer pointers to the graphics scene
           for (int i = 0; i < pp->pointerList.size(); i++) {
@@ -1066,7 +1066,7 @@ int Gui::addGraphicsPageItems(
 
           if (page->pli.bom) {
               page->pli.relativeType = BomType;
-              page->pli.addPli(0,pageBg);
+              page->pli.addPli(0,pageBkGrndItem);
               page->pli.setFlag(QGraphicsItem::ItemIsSelectable,true);
               page->pli.setFlag(QGraphicsItem::ItemIsMovable,true);
 
@@ -1099,19 +1099,19 @@ int Gui::addGraphicsPageItems(
 
   // Moved from beginning of GraphicsPageItems() to reduce page update lag
 
-  view->pageBackgroundItem = pageBg;
-  pageBg->setPos(0,0);
+  view->pageBackgroundItem = pageBkGrndItem;
+  pageBkGrndItem->setPos(0,0);
 
   if ( ! printing) {
 
-      if (pageBg->background.value().type != BackgroundData::BgTransparent) {
+      if (pageBkGrndItem->background.value().type != BackgroundData::BgTransparent) {
 
           QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
           bodyShadow->setBlurRadius(9.0);
           bodyShadow->setColor(QColor(0, 0, 0, 160));
           bodyShadow->setOffset(4.0);
 
-          pageBg->setGraphicsEffect(bodyShadow);
+          pageBkGrndItem->setGraphicsEffect(bodyShadow);
       }
 
       view->horizontalScrollBar()->setRange(0,pW);
@@ -1119,11 +1119,11 @@ int Gui::addGraphicsPageItems(
 
     }
 
-  scene->addItem(pageBg);
+  scene->addItem(pageBkGrndItem);
 
   addPliPartGroupsToScene(page, scene);
 
-  view->setSceneRect(pageBg->sceneBoundingRect());
+  view->setSceneRect(pageBkGrndItem->sceneBoundingRect());
 
   QRectF pageRect = QRectF(0,0,pW,pH);
   if (printing) {
@@ -2020,7 +2020,7 @@ int Gui::addPliPerPageItems(
 
 int Gui::addContentPageAttributes(
     Page                *page,
-    PageBackgroundItem  *pageBg,
+    PageBackgroundItem  *pageBkGrndItem,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
     PageNumberItem      *pageNumber,
@@ -2032,10 +2032,10 @@ int Gui::addContentPageAttributes(
     {
       // Initializations ...
 
-      PageAttributeTextItem   *url       = new PageAttributeTextItem(page,page->meta.LPub.page.url,pageBg);
-      PageAttributeTextItem   *email     = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
-      PageAttributeTextItem   *copyright = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
-      PageAttributeTextItem   *author    = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
+      PageAttributeTextItem   *url       = new PageAttributeTextItem(page,page->meta.LPub.page.url,pageBkGrndItem);
+      PageAttributeTextItem   *email     = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBkGrndItem);
+      PageAttributeTextItem   *copyright = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBkGrndItem);
+      PageAttributeTextItem   *author    = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBkGrndItem);
       bool displayPageNumber             = page->meta.LPub.page.dpn.value();;
       bool validPageNumber               = displayPageNumber && pageNumber && pageNumber->value;
 
@@ -2211,7 +2211,7 @@ int Gui::addContentPageAttributes(
                       page->meta.LPub.page.instanceCount,
                       "x%d ",
                       page->instances,
-                      pageBg);
+                      pageBkGrndItem);
 
           if (instanceCount) {
               instanceCount->setSize(int(instanceCount->document()->size().width()),
@@ -2352,7 +2352,7 @@ int Gui::addContentPageAttributes(
 
 int Gui::addCoverPageAttributes(
     Page                *page,
-    PageBackgroundItem  *pageBg,
+    PageBackgroundItem  *pageBkGrndItem,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
     Placement           &plPage)
@@ -2361,15 +2361,15 @@ int Gui::addCoverPageAttributes(
   if (page->coverPage && page->frontCover) {
 
       // Initializations...
-      PageAttributeTextItem   *titleFront            = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
-      PageAttributeTextItem   *modelNameFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBg);
-      PageAttributeTextItem   *authorFront           = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
-      PageAttributeTextItem   *partsFront            = new PageAttributeTextItem(page,page->meta.LPub.page.parts,pageBg);
-      PageAttributeTextItem   *modelDescFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
-      PageAttributeTextItem   *publishDescFront      = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBg);
+      PageAttributeTextItem   *titleFront            = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBkGrndItem);
+      PageAttributeTextItem   *modelNameFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBkGrndItem);
+      PageAttributeTextItem   *authorFront           = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBkGrndItem);
+      PageAttributeTextItem   *partsFront            = new PageAttributeTextItem(page,page->meta.LPub.page.parts,pageBkGrndItem);
+      PageAttributeTextItem   *modelDescFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBkGrndItem);
+      PageAttributeTextItem   *publishDescFront      = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBkGrndItem);
       PageAttributePixmapItem *pixmapLogoFront;
       PageAttributePixmapItem *pixmapCoverImageFront;
-      //PageAttributeTextItem   *categoryFront       = new PageAttributeTextItem(page,page->meta.LPub.page.category,pageBg);
+      //PageAttributeTextItem   *categoryFront       = new PageAttributeTextItem(page,page->meta.LPub.page.category,pageBkGrndItem);
 
       // Title (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayTitleFront         = page->meta.LPub.page.titleFront.display.value();
@@ -2611,7 +2611,7 @@ int Gui::addCoverPageAttributes(
                             page,
                             qpixmap,
                             page->meta.LPub.page.documentLogoFront,
-                            pageBg);
+                            pageBkGrndItem);
                 page->addPageAttributePixmap(pixmapLogoFront);
                 pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
                 pixmapLogoFront->setScale(picScale,picScale);
@@ -2651,7 +2651,7 @@ int Gui::addCoverPageAttributes(
                               page,
                               qpixmap,
                               page->meta.LPub.page.coverImage,
-                              pageBg);
+                              pageBkGrndItem);
                   page->addPageAttributePixmap(pixmapCoverImageFront);
                   pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
                   pixmapCoverImageFront->setScale(picScale,picScale);
@@ -2669,13 +2669,13 @@ int Gui::addCoverPageAttributes(
   if (page->coverPage && page->backCover) {
 
       // Initializations...
-      PageAttributeTextItem   *titleBack      = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
-      PageAttributeTextItem   *authorBack     = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
-      PageAttributeTextItem   *copyrightBack  = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
-      PageAttributeTextItem   *urlBack        = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
-      PageAttributeTextItem   *emailBack      = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
-      PageAttributeTextItem   *disclaimerBack = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
-      PageAttributeTextItem   *plugBack       = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);;
+      PageAttributeTextItem   *titleBack      = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBkGrndItem);
+      PageAttributeTextItem   *authorBack     = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBkGrndItem);
+      PageAttributeTextItem   *copyrightBack  = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBkGrndItem);
+      PageAttributeTextItem   *urlBack        = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBkGrndItem);
+      PageAttributeTextItem   *emailBack      = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBkGrndItem);
+      PageAttributeTextItem   *disclaimerBack = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBkGrndItem);
+      PageAttributeTextItem   *plugBack       = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBkGrndItem);;
       PageAttributePixmapItem *pixmapLogoBack;
       PageAttributePixmapItem *pixmapPlugImageBack;
 
@@ -2918,7 +2918,7 @@ int Gui::addCoverPageAttributes(
                               page,
                               qpixmap,
                               page->meta.LPub.page.documentLogoBack,
-                              pageBg);
+                              pageBkGrndItem);
                   page->addPageAttributePixmap(pixmapLogoBack);
                   pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
                   pixmapLogoBack->setScale(picScale,picScale);
@@ -2958,7 +2958,7 @@ int Gui::addCoverPageAttributes(
                               page,
                               qpixmap,
                               page->meta.LPub.page.plugImage,
-                              pageBg);
+                              pageBkGrndItem);
                   page->addPageAttributePixmap(pixmapPlugImageBack);;
                   pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
                   pixmapPlugImageBack->setScale(picScale,picScale);

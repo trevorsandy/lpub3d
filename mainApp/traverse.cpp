@@ -5380,10 +5380,10 @@ void Gui::finishedCountingPages()
 
 void Gui::pagesCounted()
 {
-    topOfPages.append(current);
+    Gui::topOfPages.append(current);
 
-    if (maxPages > 1)
-        maxPages--;
+    if (Gui::maxPages > 1)
+        Gui::maxPages--;
 
 /*
 #ifdef QT_DEBUG_MODE
@@ -5406,12 +5406,12 @@ void Gui::pagesCounted()
     }
 #endif
 //*/
-    if (Preferences::modeGUI && ! exporting()) {
+    if (Preferences::modeGUI && ! Gui::exporting()) {
         QString message;
         if (saveDisplayPageNum)
             message = QString("%1 of %2") .arg(saveDisplayPageNum) .arg(saveMaxPages);
         else
-            message = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+            message = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
 
         getAct("setPageLineEditResetAct.1")->setEnabled(false);
         setPageLineEdit->setText(message);
@@ -5419,22 +5419,22 @@ void Gui::pagesCounted()
 
     // countPage
     if (saveDisplayPageNum) {
-        if (displayPageNum > maxPages)
-            displayPageNum = maxPages;
+        if (Gui::displayPageNum > Gui::maxPages)
+            Gui::displayPageNum = Gui::maxPages;
         else
-            displayPageNum = saveDisplayPageNum;
+            Gui::displayPageNum = saveDisplayPageNum;
 
         saveDisplayPageNum = 0;
 
-        emit messageSig(LOG_STATUS,QString());
+        emit gui->messageSig(LOG_STATUS,QString());
     }
     // drawPage
     else
     {
-        if (suspendFileDisplay) {
-            if (Preferences::modeGUI && ! exporting()) {
-                QFileInfo fileInfo(getCurFile());
-                emit messageSig(LOG_INFO_STATUS, lpub->ldrawFile._loadAborted ?
+        if (Gui::suspendFileDisplay) {
+            if (Preferences::modeGUI && ! Gui::exporting()) {
+                QFileInfo fileInfo(Gui::getCurFile());
+                emit gui->messageSig(LOG_INFO_STATUS, lpub->ldrawFile._loadAborted ?
                                     tr("Load LDraw file %1 aborted.").arg(fileInfo.fileName()) :
                                     tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                        .arg(fileInfo.fileName())
@@ -5442,41 +5442,41 @@ void Gui::pagesCounted()
                                        .arg(lpub->ldrawFile.getPartCount())
                                        .arg(elapsedTime(displayPageTimer.elapsed())));
                 if (!maxPages && !lpub->ldrawFile.getPartCount()) {
-                    emit messageSig(LOG_ERROR,tr("LDraw file '%1' is invalid - nothing loaded.")
+                    emit gui->messageSig(LOG_ERROR,tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
                     closeModelFile();
                     if (waitingSpinner->isSpinning())
                         waitingSpinner->stop();
                 }
             } // modeGUI and not exporting
-        } else if (! ContinuousPage()) {
-            emit messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
-                            .arg(exporting() && displayPageNum < maxPages ? displayPageNum + 1 : displayPageNum)
-                            .arg(exporting() ? tr("exported") : tr("loaded"))
+        } else if (! Gui::ContinuousPage()) {
+            emit gui->messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
+                            .arg(Gui::exporting() && Gui::displayPageNum < Gui::maxPages ? Gui::displayPageNum + 1 : Gui::displayPageNum)
+                            .arg(Gui::exporting() ? tr("exported") : tr("loaded"))
                             .arg(gui->elapsedTime(displayPageTimer.elapsed())));
         }
 
-        if (Preferences::modeGUI && ! exporting() && ! Gui::abortProcess()) {
+        if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
             enableEditActions();
-            if (!ContinuousPage())
+            if (!Gui::ContinuousPage())
                 enableNavigationActions(true);
-            if (m_exportMode == GENERATE_BOM) {
-                emit clearViewerWindowSig();
-                m_exportMode = m_saveExportMode;
+            if (Gui::m_exportMode == GENERATE_BOM) {
+                emit gui->clearViewerWindowSig();
+                Gui::m_exportMode = Gui::m_saveExportMode;
             }
             if (waitingSpinner->isSpinning())
                 waitingSpinner->stop();
         } // modeGUI and not exporting
     } // drawPage
 
-    if (suspendFileDisplay) {
-        suspendFileDisplay = false;
+    if (Gui::suspendFileDisplay) {
+        Gui::suspendFileDisplay = false;
         enableActions();
     }
 
     // reset countPage future wait on last drawPage call from export 'printfile' where exporting() is reset to false
-    if (!exporting() && countWaitForFinished())
-        setCountWaitForFinished(false);
+    if (!Gui::exporting() && Gui::countWaitForFinished())
+        Gui::setCountWaitForFinished(false);
 
     Gui::revertPageProcess();
 
@@ -5845,7 +5845,7 @@ int Gui::setBuildModForNextStep(
 #endif
 
         if (buildModJumpForward)                    // jump forward by more than one step/page
-            countPages();                           // set build mods in countPages call
+            emit gui->countPagesSig();              // set build mods in countPages call
         else if (pageDirection != PAGE_FORWARD)     // jump backward by one or more steps/pages
             setBuildModNavBackward();               // set build mod last action for mods up to next step index
 

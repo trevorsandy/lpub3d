@@ -1478,6 +1478,7 @@ public slots:
   void insertFinalModelStep();
   void deleteFinalModelStep(bool force = false);
 
+  void countPages();
   void pageSetup();
   void assemSetup();
   void pliSetup();
@@ -1596,6 +1597,7 @@ signals:
   void showExportedFileSig(int);
   void visualEditorVisibleSig(bool);
   void setGeneratingBomSig(bool);
+  void countPagesSig();
 
   // cache management
   void clearStepCacheSig(Step *, int);
@@ -1732,8 +1734,6 @@ private:
   bool     nextPageContinuousIsRunning;      // stop the continuous next page action
 
   bool isUserSceneObject(const int so);
-
-  void countPages();
 
   int findPage(                     // traverse the hierarchy until we get to the
     LGraphicsView   *view,          // page of interest, let traverse process the

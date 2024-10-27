@@ -3619,6 +3619,8 @@ void Gui::initialize()
           this, SLOT(  consoleCommandCurrentThread(int, int*)), Qt::DirectConnection);
   connect(this, SIGNAL(consoleCommandFromOtherThreadSig(int, int*)),
           this, SLOT(  consoleCommand(int, int*)), Qt::BlockingQueuedConnection);
+  connect(this, SIGNAL(countPagesSig()),
+          this, SLOT(countPages()));
   connect(this, SIGNAL(setGeneratingBomSig(bool)),
           this, SLOT(  deployBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
