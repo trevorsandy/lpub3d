@@ -75,7 +75,8 @@ sudo pacman -U --needed --noconfirm pkgbuild/LPub3D-2.4.8.0.3723_20241019-x86_64
 **Steps:**
 - [ ] 1. enter directory  
 ```sh
-cd ~/`
+cd ~/
+```
 - [ ] 2. get [CreateDeb.sh][createdeb] build and packaging script  
 ```sh
 wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreateDeb.sh
@@ -111,7 +112,7 @@ sudo rpm -U rpmbuild/RPMS/x86_64/LPub3D-2.4.8.0.3723_20241019-1.fc36.x86_64.rpm
 ```
 - [ ] 5. have a :beer:
 
-#### ___________ MICROSOFT WINDOWS PORTABLE (UNPACKED) PACKAGE ___________
+#### ___________ MICROSOFT WINDOWS PORTABLE (ZIP ARCHIVE) PACKAGE ___________
 
 **Platform-specific Dependencies:**
 * [Git-For-Windows][git-for-windows]: Git Software Configuration Management for Windows
@@ -157,7 +158,7 @@ XCOPY /Q /S /I /E /V /Y builds\windows\release\LPub3D-Any-2.4.8.0.3723_20241019\
 ```batch
 SET %APP_INSTANCE_PATH%=%USERPROFILE%\Projects
 ```
-- [ ] 2. cut and paste the following script code to the command line  
+- [ ] 2. cut and paste the following script code in your command console  
     <details>
     <summary>GitHub Simulation Script</summary>
 
@@ -214,7 +215,7 @@ SET %APP_INSTANCE_PATH%=%USERPROFILE%\Projects
 
     </details>  
     <br />
-- [ ] 3. run the following at the command line  
+- [ ] 3. run the following at the command console  
 ```batch
 CALL .\%APP_INSTANCE%\builds\utilities\ci\github\windows-build.bat > %APP_INSTANCE%_windows-build_log.txt 2>&1
 ```
@@ -234,7 +235,7 @@ CALL .\%APP_INSTANCE%\builds\utilities\ci\github\windows-build.bat > %APP_INSTAN
 **Note:** You can substitue [Fedora 36][dockerfedora] with [archlinux][dockerarch] or [Ubuntu][dockerubuntu] in the steps below.
 
 **Steps:**
-- [ ] 1. make and enter build direcories  
+- [ ] 1. make and enter build directories  
 ```sh
 cd $home; md dockerbuild; cd dockerbuild; md dockerfiles; md lpub3d_linux_3rdparty
 ```
