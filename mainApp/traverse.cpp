@@ -4968,10 +4968,7 @@ void Gui::countPages()
    }
 }
 
-void Gui::drawPage(
-    LGraphicsView  *view,
-    LGraphicsScene *scene,
-    DrawPageFlags  &dpFlags)
+void Gui::drawPage(LGraphicsView  *view, LGraphicsScene *scene, DrawPageFlags  &dpFlags)
 {
   Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
 

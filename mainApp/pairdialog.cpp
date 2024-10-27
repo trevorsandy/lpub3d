@@ -459,6 +459,70 @@ bool LocalDialog::getLocal(
   }
 }
 
+int CycleDialog::cycleResult = CycleNone;
+
+CycleDialog::CycleDialog(
+  QString  title,
+  QString  question,
+  QWidget *parent)
+{
+  QLabel *label = new QLabel(question,parent);
+
+  QVBoxLayout *grid = new QVBoxLayout(parent);
+
+  setWindowTitle(title);
+
+  setWhatsThis(lpubWT(WT_DIALOG_CYCLE,windowTitle()));
+
+  grid->addWidget(label);
+
+  QDialogButtonBox *buttonBox;
+
+  buttonBox = new QDialogButtonBox(parent);
+  buttonBox->addButton(QDialogButtonBox::Yes);
+  connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
+  buttonBox->addButton(QDialogButtonBox::No);
+  connect(buttonBox,SIGNAL(rejected()), this, SLOT(reject()));
+  buttonBox->addButton(QDialogButtonBox::Cancel);
+  connect(buttonBox,SIGNAL(rejected()), this, SLOT(cancel()));
+
+  grid->addWidget(buttonBox);
+
+  setLayout(grid);
+
+  setModal(true);
+  setMinimumSize(40,20);
+}
+
+CycleDialog::~CycleDialog()
+{
+}
+
+int CycleDialog::getCycle(
+  QString  title,
+  QString  question,
+  QWidget *parent)
+{
+  CycleDialog *dialog = new CycleDialog(title,question,parent);
+  if (dialog->exec() == QDialog::Accepted) {
+    cycleResult = CycleYes;
+  }
+  qDebug() << "DEBUG: Cycle Resule" << (cycleResult == CycleYes ? "Yes" : cycleResult == CycleNo ? "No" : "Cancel");
+  return cycleResult;
+}
+
+void CycleDialog::cancel()
+{
+  cycleResult = CycleCancel;
+  QDialog::reject();
+}
+
+void CycleDialog::reject()
+{
+  cycleResult = CycleNo;
+  QDialog::reject();
+}
+
 
 OptionDialog::OptionDialog(
   QString  titles,

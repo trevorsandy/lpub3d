@@ -131,6 +131,7 @@ enum PageActType { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOptionType { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum RecentFilesType { MAX_RECENT_FILES = 8 };
 enum RendererParamObjType { RPO_ASSEM, RPO_PLI, RPO_BOM, RPO_MODEL };
+enum CyclePageDlgType { CycleNone = -1, CycleYes, CycleNo, CycleCancel };
 
 enum SceneObjectInfo { ObjectId };
 enum CamFlag { DefFoV, DefZNear, DefZFar };

@@ -411,7 +411,6 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
 {
   int move = 0;
   int goToPageNum = inputPageNum;
-  QElapsedTimer t;
 
   auto setDirection = [&] (int &move)
   {
@@ -440,14 +439,10 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
       }
     else
-      while (displayPageNum > goToPageNum) {
-        --displayPageNum;
-        displayPage();
-        QTime waiting = QTime::currentTime().addSecs(PAGE_CYCLE_DISPLAY_DEFAULT);
-        while (QTime::currentTime() < waiting)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-      }
-    cancelContinuousPage();
+        previousPageContinuousIsRunning = !previousPageContinuousIsRunning;
+    continuousPageDialog(Gui::pageDirection < PAGE_BACKWARD ? PAGE_NEXT : PAGE_PREVIOUS);
+    Preferences::doNotShowPageProcessDlg = savedDlgOpt;
+    Gui::pageProcessRunning = savedProc;
   };
 
   bool saveCycleEachPage = Preferences::cycleEachPage;
@@ -470,18 +465,27 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
                                  .arg(pages)
                                  .arg(directionName[pageDirection-1].toLower())
                                  .arg(fileReload ? tr("reload") : tr("load"));
-      cycleEachPage = LocalDialog::getLocal(tr("%1 Page %2")
-                                               .arg(VER_PRODUCTNAME_STR)
-                                               .arg(directionName[pageDirection-1]), message, nullptr);
+      int result = CycleDialog::getCycle(tr("%1 Page %2")
+                                            .arg(VER_PRODUCTNAME_STR)
+                                            .arg(directionName[Gui::pageDirection-1]), message, nullptr);
+      if (result == CycleYes)
+        cycleEachPage = 1; // FILE_RELOAD
+      else if (result == CycleNo)
+        cycleEachPage = 0; // FILE_DEFAULT
+      else if (result == CycleCancel)
+        return;
     }
+
     if (cycleEachPage) {
       Preferences::setCyclePageDisplay(cycleEachPage);
       if (Preferences::buildModEnabled)
         cycleEachPage = PAGE_JUMP_FORWARD;
     }
+
     operation = PageDirection(cycleEachPage);
   }
 
+  QElapsedTimer t;
   t.start();
   if (operation == FILE_RELOAD) {
     int savePage = displayPageNum;
@@ -537,25 +541,28 @@ void Gui::cycleEachPage()
 
 void Gui::enableNavigationActions(bool enable)
 {
-  setPageLineEdit->setEnabled(enable);
-  setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enable);
-  mpdCombo->setEnabled(mpdCombo->count() && enable);
+  bool enabled = !Preferences::doNotShowPageProcessDlg && enable;
+  bool nextEnabled = Gui::pageDirection < PAGE_BACKWARD ? enable : enabled;
+  bool previousEnabled = Gui::pageDirection >= PAGE_BACKWARD ? enable : enabled;
+  bool atStart = Gui::displayPageNum == (1 + Gui::pa);
+  bool atEnd = Gui::displayPageNum == Gui::maxPages;
 
-  bool atStart = displayPageNum == (1 + pa);
-  bool atEnd = displayPageNum == maxPages;
+  setPageLineEdit->setEnabled(enabled);
+  setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enabled);
+  mpdCombo->setEnabled(mpdCombo->count() && enabled);
 
-  getAct("firstPageAct.1")->setEnabled(!atStart && enable);
+  getAct("firstPageAct.1")->setEnabled(!atStart && enabled);
 
-  getAct("lastPageAct.1")->setEnabled(!atEnd && enable);
+  getAct("lastPageAct.1")->setEnabled(!atEnd && enabled);
 
-  getAct("nextPageAct.1")->setEnabled(!atEnd && enable);
-  getAct("previousPageAct.1")->setEnabled(!atStart && enable);
+  getAct("nextPageAct.1")->setEnabled(!atEnd && enabled);
+  getAct("previousPageAct.1")->setEnabled(!atStart && enabled);
 
-  getAct("nextPageComboAct.1")->setEnabled(!atEnd && enable);
-  getAct("previousPageComboAct.1")->setEnabled(!atStart && enable);
+  getAct("nextPageComboAct.1")->setEnabled(!atEnd && nextEnabled);
+  getAct("previousPageComboAct.1")->setEnabled(!atStart && previousEnabled);
 
-  getAct("nextPageContinuousAct.1")->setEnabled(!atEnd && enable);
-  getAct("previousPageContinuousAct.1")->setEnabled(!atStart && enable);
+  getAct("nextPageContinuousAct.1")->setEnabled(!atEnd && nextEnabled);
+  getAct("previousPageContinuousAct.1")->setEnabled(!atStart && previousEnabled);
 }
 
 void Gui::pageProcessUpdate()
@@ -803,6 +810,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   emit setContinuousPageSig(true);
   QElapsedTimer continuousTimer;
   const QString direction = d == PAGE_NEXT ? tr("Next") : tr("Previous");
+  QString const pageRangeDisplayText = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
 
   m_exportMode = PAGE_PROCESS;
 
@@ -816,9 +824,11 @@ bool Gui::continuousPageDialog(PageDirection d)
               emit messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
+              setPageLineEdit->setText(pageRangeDisplayText);
               Gui::revertPageProcess();
               return false;
           }
+          continuousTimer.start();
       }
       else
       {
@@ -892,6 +902,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           emit messageSig(LOG_STATUS,message);
           setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
+          setPageLineEdit->setText(pageRangeDisplayText);
           Gui::revertPageProcess();
           return false;
       }
@@ -922,7 +933,6 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           if (! ContinuousPage()) {
               setPageContinuousIsRunning(false,d);
-          }
 
           if (d == PAGE_NEXT) {
               terminateProcess =  !nextPageContinuousIsRunning;
@@ -950,6 +960,8 @@ bool Gui::continuousPageDialog(PageDirection d)
               Gui::revertPageProcess();
               return false;
           }
+
+          setPageLineEdit->setText(QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages));
 
           pageCount = displayPageNum;
 
@@ -1060,6 +1072,8 @@ bool Gui::continuousPageDialog(PageDirection d)
               return false;
           }
 
+          setPageLineEdit->setText(QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages));
+
           pageCount++;
 
           displayPage();
@@ -1138,35 +1152,41 @@ bool Gui::processPageRange(const QString &range)
   if (!range.isEmpty()) {
       int rangeMin = 0, rangeMax = 0;
       bool ok[2] = {false, false};
-      QRegExp rx("^(\\d+)(?:[^0-9]*|[a-zA-Z\\s]*)(\\d+)?$", Qt::CaseInsensitive);
-      if (range.trimmed().contains(rx)) {
-          rangeMin = rx.cap(1).toInt(&ok[0]);
-          rangeMax = rx.cap(2).toInt(&ok[1]);
-          if (rangeMin > rangeMax)
-              pageDirection = PAGE_BACKWARD;
+      bool multiRange = range.contains(',');
+      bool ofPages = range.contains("of",Qt::CaseInsensitive);
+      QRegExp startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", Qt::CaseInsensitive);
+      QRegExp endRx("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
+      QString cleanRange = range.trimmed().replace(QRegExp("of|to",Qt::CaseInsensitive),"-").replace(" ", "");
+      if (cleanRange.contains(startRx)) {
+          rangeMin = startRx.cap(1).toInt(&ok[0]);
+          if (cleanRange.contains(endRx))
+              rangeMax = endRx.cap(1).toInt(&ok[1]);
+          if (ok[0] && ok[1] && rangeMin > rangeMax)
+              Gui::pageDirection = PAGE_BACKWARD;
       }
 
-      if (pageDirection < PAGE_BACKWARD) {
-          if (ok[0] && rangeMin > displayPageNum && rangeMax == 0) {
+      bool stdRange = !multiRange && (!rangeMax || ofPages);
+      if (Gui::pageDirection < PAGE_BACKWARD) {
+          if (ok[0] && rangeMin > Gui::displayPageNum && stdRange) {
               rangeMax = rangeMin;
-              rangeMin = displayPageNum;
+              rangeMin = Gui::displayPageNum;
               ok[1]    = true;
           }
       } else {
-          if (ok[0] && rangeMin < displayPageNum && rangeMax == 0) {
-              rangeMax = displayPageNum;
+          if (ok[0] && rangeMin < Gui::displayPageNum && stdRange) {
+              rangeMax = Gui::displayPageNum;
               ok[1]    = true;
           }
       }
 
-      const QString lineAllPages = QString("%1-%2").arg(1 + pa).arg(maxPages);
-      const QString linePageRange = QString("%1-%2").arg(rangeMax).arg(rangeMin);
+      const QString allPages = QString("%1-%2").arg(1 + Gui::pa).arg(Gui::maxPages);
+      const QString pageRange = QString("%1-%2").arg(rangeMin).arg(rangeMax);
 
-      if (lineAllPages == linePageRange) {
-          processOption = EXPORT_ALL_PAGES;
+      if ((allPages == pageRange) && !multiRange) {
+          Gui::processOption = EXPORT_ALL_PAGES;
       } else {
-          processOption = EXPORT_PAGE_RANGE;
-          pageRangeText = range;
+          Gui::processOption = EXPORT_PAGE_RANGE;
+          Gui::pageRangeText = stdRange ? pageRange : cleanRange;
       }
       return true;
     } else {
@@ -5631,7 +5651,7 @@ void Gui::createActions()
     size.setWidth(size.width()/3);
     setPageLineEdit->setMinimumSize(size);
     setPageLineEdit->setToolTip("Current Page");
-    setPageLineEdit->setStatusTip("Enter the desired page number and hit enter to go to page");
+    setPageLineEdit->setStatusTip("Enter desired page(s) in the format 'page', 'page of pages', or 'page to pages'.");
     setPageLineEdit->setEnabled(false);
     QAction *setPageLineEditResetAct = setPageLineEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     setPageLineEditResetAct->setText(tr("Current Page Edit Reset"));

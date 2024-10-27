@@ -306,7 +306,8 @@ void Gui::checkMixedPageSizeStatus() {
     }
 }
 
-bool Gui::validatePageRange() {
+bool Gui::validatePageRange()
+{
 
   QMessageBox box;
   box.setTextFormat (Qt::RichText);

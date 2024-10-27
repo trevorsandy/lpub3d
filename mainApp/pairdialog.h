@@ -223,7 +223,29 @@ public:
                 QString  title, 
                 QString  question,
                 QWidget *parent);
+};
+
+class CycleDialog : public QDialog
+{
+
+  Q_OBJECT
+
+public:
+  CycleDialog(
+              QString  title,
+              QString  question,
+              QWidget *parent);
+ ~CycleDialog();
+  static int getCycle(
+                QString  title,
+                QString  question,
+                QWidget *parent);
+private slots:
+  virtual void cancel();
+  virtual void reject();
+
 private:
+  static int cycleResult;
 };
 
 class OptionDialog : public QDialog

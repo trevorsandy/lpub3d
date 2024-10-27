@@ -37,27 +37,34 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       tr("Backward")     //PAGE_JUMP_BACKWARD
     };
 
-    bool ok[2] = {false, false};
     bool preview = gui->m_previewDialog;
     setLineEditResetAct = ui->lineEditPageRange->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     setLineEditResetAct->setEnabled(false);
     connect(ui->lineEditPageRange, SIGNAL(textEdited(const QString &)), this, SLOT(enableLineEditPageRangeReset(const QString &)));
     connect(setLineEditResetAct, SIGNAL(triggered()), this, SLOT(lineEditPageRangeReset()));
-
-    QRegExp rx("^(\\d+)(?:[^0-9]*|[a-zA-Z\\s]*)(\\d+)?$", Qt::CaseInsensitive);
-    if (gui->setPageLineEdit->displayText().trimmed().contains(rx)) {
-        rangeMin = rx.cap(1).toInt(&ok[0]);
-        rangeMax = rx.cap(2).toInt(&ok[1]);
+    bool ok[2] = {false, false};
+    QString const cleanRange = gui->setPageLineEdit->displayText().trimmed().replace(" ", "");
+    QRegExp startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", Qt::CaseInsensitive);
+    QRegExp endRx("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
+    bool multiRange = cleanRange.contains(',');
+    bool ofPages = cleanRange.contains("of",Qt::CaseInsensitive);
+    if (cleanRange.contains(startRx)) {
+        rangeMin = startRx.cap(1).toInt(&ok[0]);
+        if (cleanRange.contains(endRx))
+            rangeMax = endRx.cap(1).toInt(&ok[1]);
+        if (ok[0] && ok[1] && rangeMin > rangeMax)
+            Gui::pageDirection = PAGE_BACKWARD;
     }
 
+    bool stdRange = !multiRange && (!rangeMax || ofPages);
     if (Gui::pageDirection < PAGE_BACKWARD) {
-        if (ok[0] && rangeMin > Gui::displayPageNum && rangeMax == 0) {
+        if (ok[0] && rangeMin > Gui::displayPageNum && stdRange) {
             rangeMax = rangeMin;
             rangeMin = Gui::displayPageNum;
-            ok[1]    = true;
+            ok[1] = true;
         }
     } else {
-        if (ok[0] && rangeMin < Gui::displayPageNum && rangeMax == 0) {
+        if (ok[0] && rangeMin < Gui::displayPageNum && stdRange) {
             rangeMax = Gui::displayPageNum;
             ok[1]    = true;
         }

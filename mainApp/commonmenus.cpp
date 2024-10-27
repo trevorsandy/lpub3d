@@ -3851,6 +3851,23 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
+        // WT_DIALOG_CYCLE **
+        {
+            QObject::tr(
+            "  Cycle each page when navigating forward by more than <br>"
+            "  one page.<br><br>"
+            "  Select Yes to perform the cycle behaviour across the<br>"
+            "  specified pages<br>Select No to perform a direct jump<br>"
+            "  to the the specified page. Select Cancel to abort the<br>"
+            "  navigation action altogether.%1<br>")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("<br><br>  WT_DIALOG_CYCLE")
+#else
+                 ""
+#endif
+                )
+        },
         // WT_DIALOG_EDITOR_PREFERENCES
         {
             QObject::tr(
