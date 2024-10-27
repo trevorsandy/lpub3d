@@ -200,30 +200,25 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
        cameraAngles.setValues(subModelMeta.cameraAngles.value(0),
                               subModelMeta.cameraAngles.value(1));
 
-   //QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&rotatedModel,&ldrName,&cameraAngles] () {
-   //    int rcf = true;
-   //    QStringList futureModel = rotatedModel;
-
    // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
-   if ((renderer->rotateParts(
-            addLine,
-            subModelMeta.rotStep,
-            rotatedModel,
-            ldrName,
-            step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
-            cameraAngles,
-            coverPagePreview ? DT_MODEL_COVER_PAGE_PREVIEW : DT_DEFAULT,
-            Options::SMI)) != 0) {
+   QFuture<int> future = QtConcurrent::run([&]() {
+       return Render::rotateParts(
+                addLine,
+                subModelMeta.rotStep,
+                rotatedModel,
+                ldrName,
+                step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
+                cameraAngles,
+                coverPagePreview ? DT_MODEL_COVER_PAGE_PREVIEW : DT_DEFAULT,
+                Options::SMI);
+   });
+
+   if (asynchronous(future) != 0) {
        emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
        imageName = QString(":/resources/missingimage.png");
-   //    rcf = false
        return false;
    }
-   //    return rcf;
-       return true;
-   //});
-
-   //return RenderFuture.result();
+   return true;
 }
 
 int SubModel::pageSizeP(Meta *meta, int which) {
@@ -381,7 +376,7 @@ int SubModel::createSubModelImage(
               unrotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(modelName);
 
           // set rotated parts - input is unrotatedModel
-          QFuture<QStringList> RenderFuture = QtConcurrent::run([this,&addLine,&unrotatedModel,&cameraAngles] () {
+          QFuture<QStringList> future = QtConcurrent::run([this,&addLine,&unrotatedModel,&cameraAngles] () {
               QStringList futureModel = unrotatedModel;
               // RotateParts #3 - 5 parms, submodel for Visual Editor, apply ROTSTEP without camera angles - this routine updates the parts list
               if (renderer->rotateParts(
@@ -401,7 +396,8 @@ int SubModel::createSubModelImage(
               return futureModel;
           });
 
-          rotatedModel = RenderFuture.result();
+          rotatedModel = asynchronous(future);
+
           rc = rotatedModel.isEmpty();
 
           // rotated model without header or consolidation
@@ -409,7 +405,7 @@ int SubModel::createSubModelImage(
 
           // Prepare content for Native renderer
           if (!rc && Preferences::inlineNativeContent) {
-              QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
+              future = QtConcurrent::run([&] () {
                   QStringList futureModel = rotatedModel;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
                   renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI, step ? step->displayStep : false);
@@ -431,7 +427,8 @@ int SubModel::createSubModelImage(
                   return futureModel;
               });
 
-              rotatedModel = RenderFuture.result();
+              rotatedModel = asynchronous(future);
+
               rc = rotatedModel.isEmpty();
           }
 
@@ -446,7 +443,7 @@ int SubModel::createSubModelImage(
 
       // Update smi file
       if (!rc) {
-        QFuture<int> RenderFuture = QtConcurrent::run([&] () {
+        QFuture<int> future = QtConcurrent::run([&] () {
             int frc = 0;
             // If not nativeRenderer use preview name coverPagePreview
             QString ldrName = ldrNames.first();
@@ -461,7 +458,7 @@ int SubModel::createSubModelImage(
             return frc;
         });
 
-        rc = RenderFuture.result();
+        rc = asynchronous(future);
       }
 
       // set viewer display options

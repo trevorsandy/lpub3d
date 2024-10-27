@@ -51,6 +51,7 @@
 #include "updatecheck.h"
 #include "step.h"
 #include "texteditdialog.h"
+#include "stickerparts.h"
 #include "blenderpreferences.h"
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
@@ -135,6 +136,8 @@ QString      Gui::pageRangeText;          // page range parameters
 QList<Where> Gui::topOfPages;             // topOfStep list of modelName and lineNumber for each page
 QList<Where> Gui::parsedMessages;         // previously parsed messages within the current session
 QStringList  Gui::messageList;            // message list used when exporting or continuous processing
+QStringList  Gui::bomParts;               // list of part strings configured for BOM setup
+QList<PliPartGroupMeta> Gui::bomPartGroups;// list of BOM part groups used for multi-page BOMs
 
 bool         Gui::m_exportingContent;     // indicate export/printing underway
 bool         Gui::m_exportingObjects;     // indicate exporting non-image object file content

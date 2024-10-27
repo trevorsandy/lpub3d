@@ -786,11 +786,14 @@ int POVRay::renderCsi(
   cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
                          meta.LPub.assem.cameraAngles.value(1));
 
-  // RotateParts #2 - 8 parms
-  int rc;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
-      return rc;
-   }
+  // RotateParts #2 - 8 parms;
+  QFuture<int> future = QtConcurrent::run([&]() {
+      return rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,DT_DEFAULT,Options::CSI);
+  });
+
+  int rc = asynchronous(future);
+  if (rc)
+    return rc;
 
   // Populate render attributes
   QStringList ldviewParmslist = splitParms(meta.LPub.assem.ldviewParms.value());
@@ -1529,9 +1532,13 @@ int LDGLite::   renderCsi(
   cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
                          meta.LPub.assem.cameraAngles.value(1));
   // RotateParts #2 - 8 parms
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
-     return rc;
-  }
+  QFuture<int> future = QtConcurrent::run([&]() {
+      return rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),cameraAngles,DT_DEFAULT,Options::CSI);
+  });
+
+  rc = asynchronous(future);
+  if (rc)
+    return rc;
 
   /* determine camera distance */
   int cd = int(meta.LPub.assem.cameraDistance.value());
@@ -2248,7 +2255,12 @@ int LDView::renderCsi(
                                meta.LPub.assem.cameraAngles.value(1));
 
         // RotateParts #2 - 8 parms
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, cameraAngles,DT_DEFAULT,Options::CSI)) < 0) {
+        QFuture<int> future = QtConcurrent::run([&]() {
+            return rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, cameraAngles,DT_DEFAULT,Options::CSI);
+        });
+
+        rc = asynchronous(future);
+        if (rc) {
             emit gui->messageSig(LOG_ERROR,QObject::tr("LDView CSI rotate parts failed!"));
             return rc;
         } else
@@ -3058,10 +3070,13 @@ int Native::renderCsi(
                                      meta.LPub.assem.cameraAngles.value(1));
 
               // RotateParts #2 - 8 parms, rotate parts for ldvExport - apply camera angles
-              int rc;
-              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,ldvExport,Options::CSI)) < 0) {
-                  return rc;
-              }
+              QFuture<int> future = QtConcurrent::run([&]() {
+                  return rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,ldvExport,Options::CSI);
+              });
+
+              int rc = asynchronous(future);
+              if (rc)
+                return rc;
 
               /* determine camera distance */
               int cd = int(meta.LPub.assem.cameraDistance.value());
@@ -4115,8 +4130,12 @@ const QString Render::getRenderModelFile(int renderType, bool saveCurrentModel) 
 
         modelFile = QDir::toNativeSeparators(filePath + "csi_blender.ldr");
 
-        if (saveCurrentModel)
-            gui->saveCurrent3DViewerModel(modelFile);
+        if (saveCurrentModel) {
+            QFuture<void> future = QtConcurrent::run([&]() {
+                gui->saveCurrent3DViewerModel(modelFile);
+            });
+            asynchronous(future);
+        }
     }
     return modelFile;
 }

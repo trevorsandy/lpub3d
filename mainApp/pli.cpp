@@ -1164,7 +1164,7 @@ int Pli::createPartImage(
             if (pT != NORMAL_PART && (isSubModel || isColorPart))
                 typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
-            QFuture<QStringList> RenderFuture = QtConcurrent::run([this,pT,keySub,&typeName,&nameKeys,&rotStep,&type] () {
+            QFuture<QStringList> future = QtConcurrent::run([this,pT,keySub,&typeName,&nameKeys,&rotStep,&type] () {
                 // generate PLI Part file
                 QStringList futureFile = configurePLIPart(pT,typeName,nameKeys,keySub);
                 // add ROTSTEP command
@@ -1184,7 +1184,7 @@ int Pli::createPartImage(
                 return futureFile;
             });
 
-            QStringList pliFile = RenderFuture.result();
+            QStringList pliFile = asynchronous(future);
 
             // unrotated part
             QStringList pliFileU = QStringList()
@@ -1556,9 +1556,13 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         FloatPairMeta cameraAngles;
         cameraAngles.setValues(latitude,longitude);
 
-        bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
-        // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
-        if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
+        QFuture<int> future = QtConcurrent::run([&]() {
+            bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
+            // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
+            return renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/);
+        });
+
+        if (asynchronous(future))
             emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate type: %1.").arg(typeName));
 
         out << rotatedType;
@@ -2182,10 +2186,10 @@ int Pli::sortPli()
     if (! bom)
         pliMeta.sort.setValue(true);
 
-    QFuture<void> SortFuture = QtConcurrent::run([this] {
+    QFuture<void> future = QtConcurrent::run([this] {
         sortParts(parts);
     });
-    SortFuture.waitForFinished();
+    asynchronous(future);
 
     return rc;
 }
@@ -2685,7 +2689,7 @@ int Pli::partSizeLDViewSCall() {
                     if (pT != NORMAL_PART && (isSubModel || isColorPart))
                         typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
-                    QFuture<QStringList> RenderFuture = QtConcurrent::run([this,pT,keySub,&typeName,&nameKeys,&rotStep,&pliPart,&imageName] () {
+                    QFuture<QStringList> future = QtConcurrent::run([this,pT,keySub,&typeName,&nameKeys,&rotStep,&pliPart,&imageName] () {
                         // generate PLI Part file
                         QStringList futureFile = configurePLIPart(pT,typeName,nameKeys,keySub);
                         // add ROTSTEP command
@@ -2705,7 +2709,7 @@ int Pli::partSizeLDViewSCall() {
                         return futureFile;
                     });
 
-                    QStringList pliFile = RenderFuture.result();
+                    QStringList pliFile = asynchronous(future);
                     rc = pliFile.isEmpty();
 
                     // unrotated part
@@ -2839,13 +2843,12 @@ int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
   if (rc)
       return rc;
 
-  ConstrainData constrainData = pliMeta.constrain.value();
-
-  QFuture<int> ResizeFuture = QtConcurrent::run([this, &constrainData] {
+  QFuture<int> future = QtConcurrent::run([this] {
+      ConstrainData constrainData = pliMeta.constrain.value();
       return resizePli(meta,constrainData);
   });
 
-  return ResizeFuture.result();
+  return asynchronous(future);
 }
 
 int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
@@ -2855,15 +2858,14 @@ int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
       return rc;
 
   if (meta) {
-      ConstrainData constrainData;
-      constrainData.type = constrain;
-      constrainData.constraint = height;
-
-      QFuture<int> PartsFuture = QtConcurrent::run([this, &constrainData] {
+      QFuture<int> future = QtConcurrent::run([&] {
+          ConstrainData constrainData;
+          constrainData.type = constrain;
+          constrainData.constraint = height;
           return resizePli(meta,constrainData);
       });
 
-      return PartsFuture.result();
+      return asynchronous(future);
   }
 
   return rc;

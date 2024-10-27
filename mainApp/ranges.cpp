@@ -878,7 +878,10 @@ int Steps::setCsiAnnotationMetas(bool force)
 
   // add annotation metas for the process list of parts
   if (parts.size()) {
-      lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
+      QFuture<void> future = QtConcurrent::run([&]() {
+          lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
+      });
+      asynchronous(future);
       rc = HitCsiAnnotation;
   }
 

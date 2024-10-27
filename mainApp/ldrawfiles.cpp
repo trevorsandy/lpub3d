@@ -49,12 +49,10 @@
 
 #include "lpub.h"
 #include "ldrawfilesload.h"
-
 #include "QsLog.h"
 
 #include "lc_library.h"
 #include "pieceinf.h"
-
 #include "lc_previewwidget.h"
 
 QList<QRegExp> LDrawFile::_fileRegExp;
@@ -1459,7 +1457,7 @@ int LDrawFile::loadFile(const QString &fileName)
 
     _modelFile = fileInfo.fileName();
 
-    QFuture<void> loadFuture = QtConcurrent::run([this, fileInfo, type]() {
+    QFuture<void> future = QtConcurrent::run([this, fileInfo, type]() {
         if (type == MPD_FILE)
             loadMPDFile(fileInfo.absoluteFilePath());
         else
@@ -1471,20 +1469,20 @@ int LDrawFile::loadFile(const QString &fileName)
                 emit gui->messageSig(LOG_INFO, QObject::tr("Added custom textures directory: %1").arg(textureDir));
             }
             PartWorker partWorkerLDSearchDirs;
-            partWorkerLDSearchDirs.updateLDSearchDirs(true /*archive*/, true/*custom directory*/);
+            partWorkerLDSearchDirs.updateLDSearchDirs(true, true);
         }
-    });
-    loadFuture.waitForFinished();
+    } );
+    asynchronous(future);
 
     QApplication::restoreOverrideCursor();
 
-    QFuture<void> colorPartsFuture = QtConcurrent::run([this](){ addCustomColorParts(topLevelFile()); });
-    colorPartsFuture.waitForFinished();
+    future = QtConcurrent::run( [this](){ addCustomColorParts(topLevelFile()); } );
+    asynchronous(future);
 
     buildModLevel = 0 /*false*/;
 
-    QFuture<void> countPartsFuture = QtConcurrent::run([this](){ countParts(topLevelFile()); });
-    countPartsFuture.waitForFinished();
+    future = QtConcurrent::run( [this](){ countParts(topLevelFile()); } );
+    asynchronous(future);
 
     _loadedItems.sort(Qt::CaseInsensitive);
 
@@ -1536,9 +1534,11 @@ int LDrawFile::loadStatus(bool menuAction)
         }
     } else if (Preferences::recountParts) {
         emit lpub->messageSig(LOG_STATUS, QObject::tr("Recounting LDraw parts..."));
-        QFuture<void> recountPartsFuture = QtConcurrent::run([this](){ recountParts(); });
-        recountPartsFuture.waitForFinished();
-        _loadedItems.sort(Qt::CaseInsensitive);
+        QFuture<void> future = QtConcurrent::run([this]() {
+            recountParts();
+            _loadedItems.sort(Qt::CaseInsensitive);
+        });
+        asynchronous(future);
     }
 
     if (showLoadStatus || menuAction) {
@@ -3369,8 +3369,7 @@ void LDrawFile::countInstances()
                      false/*isMirrored*/,
                      false/*callout*/);
   });
-
-  future.waitForFinished();
+  asynchronous(future);
 
   _buildModStepIndexes.append({ 0/*SubmodelIndex*/, size(topLevelFile()) });
 
@@ -6194,6 +6193,46 @@ bool isSubstitute(const QString &line)
   return isSubstitute(line, dummy);
 }
 
+bool isGhost(const QString &line)
+{
+  QRegExp ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
+  if (line.contains(ghostMeta))
+      return true;
+  return false;
+}
+
+void asynchronous(const QFuture<void> &future)
+{
+  QEventLoop wait;
+  QFutureWatcher<void> fw;
+  QObject::connect   ( &fw, &QFutureWatcher<void>::finished, &wait, &QEventLoop::quit );
+  fw.setFuture(future);
+  wait.exec();
+  QObject::disconnect( &fw, &QFutureWatcher<void>::finished, &wait, &QEventLoop::quit );
+}
+
+int asynchronous(const QFuture<int> &future)
+{
+  QEventLoop wait;
+  QFutureWatcher<int> fw;
+  QObject::connect   ( &fw, &QFutureWatcher<int>::finished, &wait, &QEventLoop::quit );
+  fw.setFuture(future);
+  wait.exec();
+  QObject::disconnect( &fw, &QFutureWatcher<int>::finished, &wait, &QEventLoop::quit );
+  return fw.result();
+}
+
+QStringList asynchronous(const QFuture<QStringList> &future)
+{
+  QEventLoop wait;
+  QFutureWatcher<QStringList> fw;
+  QObject::connect   ( &fw, &QFutureWatcher<QStringList>::finished, &wait, &QEventLoop::quit );
+  fw.setFuture(future);
+  wait.exec();
+  QObject::disconnect( &fw, &QFutureWatcher<QStringList>::finished, &wait, &QEventLoop::quit );
+  return fw.result();
+}
+
 int getUnofficialFileType(QString &line)
 {
   if (line.contains(QRegExp("^0\\s+!?(LDCAD GENERATED)[^\n]*"))) {
@@ -6227,11 +6266,4 @@ int getUnofficialFileType(QString &line)
     return UNOFFICIAL_DATA;
 
   return UNOFFICIAL_UNKNOWN;
-}
-
-bool isGhost(const QString &line) {
-  QRegExp ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
-  if (line.contains(ghostMeta))
-      return true;
-  return false;
 }

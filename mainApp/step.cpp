@@ -520,12 +520,12 @@ int Step::createCsi(
           bool doHighlightStep = csiStepMeta.highlightStep.enable.value();
           bool singleSubfile = renderer->isSingleSubfile(viewerParts);
 
-          // process part list with single submodel
-          if (singleSubfile)
-              renderer->createNativeModelFile(viewerParts,doFadeSteps,doHighlightStep,Options::CSI,singleSubfile);
-
           // set rotated parts - input is csiParts
-          QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
+          QFuture<QStringList> future = QtConcurrent::run([&] () {
+              // process part list with single submodel
+              if (singleSubfile)
+                  renderer->createNativeModelFile(viewerParts,doFadeSteps,doHighlightStep,Options::CSI,singleSubfile);
+
               QStringList futureParts = viewerParts;
               // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
               if (renderer->rotateParts(
@@ -545,7 +545,8 @@ int Step::createCsi(
               return futureParts;
           });
 
-          QStringList rotatedParts = RenderFuture.result();
+          QStringList rotatedParts = asynchronous(future);
+
           rc = rotatedParts.isEmpty();
 
           // rotated parts without ROTSTEP
@@ -556,7 +557,7 @@ int Step::createCsi(
           // process part list for Native renderer - if not already processed in singleSubfile above
           if (!singleSubfile) {
               if (!rc && Preferences::inlineNativeContent) {
-                  QFuture<QStringList> RenderFuture = QtConcurrent::run([&] () {
+                  future = QtConcurrent::run([&] () {
                       QStringList futureParts = rotatedParts;
                       // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
                       renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,displayStep);
@@ -569,7 +570,8 @@ int Step::createCsi(
                       return futureParts;
                   });
 
-                  rotatedParts = RenderFuture.result();
+                  rotatedParts = asynchronous(future);
+
                   rc = rotatedParts.isEmpty();
               }
           }
@@ -665,7 +667,7 @@ int Step::createCsi(
             ldrName = csiLdrFile;
 
          // set rotated parts
-         QFuture<int> RenderFuture = QtConcurrent::run([&] () {
+         QFuture<int> future = QtConcurrent::run([&] () {
              int rcf = 0;
              QStringList futureParts = csiParts;
              // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
@@ -685,7 +687,7 @@ int Step::createCsi(
              return rcf;
          });
 
-         rc = RenderFuture.result();
+         rc = asynchronous(future);
      }
 
      bool showStatus = gui->m_partListCSIFile;
@@ -1223,8 +1225,8 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
      (enableFadeSteps || enableHighlightStep) &&
      (highlightFirstStep ? true : stepNum > 1)) {
 
-    QFuture<void> processFuture = QtConcurrent::run([&] () { processCsiParts(csiParts); });
-    processFuture.waitForFinished();
+    QFuture<void> future = QtConcurrent::run([&] () { processCsiParts(csiParts); });
+    asynchronous(future);
 
   } else {
 
@@ -1438,7 +1440,10 @@ int Step::setCsiAnnotationMetas(Meta &_meta, int &_adjust, bool force)
     // process parts
     if (parts.size()) {
         _adjust += parts.size();
-        lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,force);
+        QFuture<void> future = QtConcurrent::run([&]() {
+            lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,force);
+        });
+        asynchronous(future);
         trc = HitCsiAnnotation;
     }
 

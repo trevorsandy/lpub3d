@@ -38,9 +38,9 @@
 #include <QList>
 #include <QMutex>
 #include <QDateTime>
+#include <QFuture>
 
 #include "excludedparts.h"
-#include "stickerparts.h"
 
 extern QList<QRegExp> LDrawHeaderRegExp;
 extern QList<QRegExp> LDrawUnofficialPartRegExp;
@@ -672,5 +672,8 @@ bool isGhost(const QString &line);
 bool isSubstitute(const QString &line);
 bool isSubstitute(const QString &line, QString &lineOut);
 QString joinLine(const QStringList &argv);
+void asynchronous(const QFuture<void> &future);
+int asynchronous(const QFuture<int> &future);
+QStringList asynchronous(const QFuture<QStringList> &future);
 
 #endif

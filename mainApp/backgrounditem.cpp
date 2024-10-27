@@ -231,7 +231,7 @@ void BackgroundItem::setBackground(
           }
           painter.drawPoints(points.data(), points.size());
       });
-      future.waitForFinished();
+      asynchronous(future);
   }
 
   painter.end();

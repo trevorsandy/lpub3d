@@ -1708,8 +1708,8 @@ private:
 
   static int              boms;            // the number of pli BOMs in the document
   static int              bomOccurrence;   // the actual occurrence of each pli BOM
-  QStringList             bomParts;        // list of part strings configured for BOM setup
-  QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
+  static QStringList             bomParts;        // list of part strings configured for BOM setup
+  static QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
   lcPreview*              preview;
 
   bool                   okToInvokeProgressBar()

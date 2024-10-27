@@ -991,10 +991,12 @@ void Gui::enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightSt
   QFuture<int> future = QtConcurrent::run([&]()->int{
       bool enableFade = (m_fadeStepsSetup || enableFadeSteps) ? true : lpub->setFadeStepsFromCommand();
       bool enableHighlight = (m_highlightStepSetup || enableHighlightStep) ? true : lpub->setHighlightStepFromCommand();
-
       return gui->setupFadeOrHighlight(enableFade, enableHighlight);
   });
-  waitForFinish ? future.waitForFinished() : gui->futureWatcher.setFuture(future);
+  if (waitForFinish)
+      asynchronous(future);
+  else
+      gui->futureWatcher.setFuture(future);
 }
 
 void Gui::updateRecentFileActions()

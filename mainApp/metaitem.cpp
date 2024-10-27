@@ -4496,7 +4496,10 @@ void MetaItem::addPointerTipMetas(
   int csiSize[2]  = { 0,0 };
   int partSize[2] = { 0,0 };
 
-  if (offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize))
+  QFuture<int> future = QtConcurrent::run([&]() {
+    return static_cast<int>(offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize));
+  });
+  if (asynchronous(future))
       centerOffset = QPointF(qreal(partLoc[XX])/csiSize[XX], qreal(partLoc[YY])/csiSize[YY]);
 
   QString pointerType;
@@ -4793,15 +4796,17 @@ bool MetaItem::offsetPoint(
   cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
                          meta.LPub.assem.cameraAngles.value(1));
 
-
   // this block has been refactored to reflect that this function exclusively uses the Native Renderer
-  if (renderer->useLDViewSCall()) {
+  if (Render::useLDViewSCall()) {
       ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.ldr";
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + label + "Mono.png";
       ldrNames << ldrName;
       csiKeys << title + "Mono";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
+      QFuture<int> future = QtConcurrent::run([&]() {
+          return Render::rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON);
+      });
+      ok[0] = (asynchronous(future) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       ok[0] = true;
@@ -4809,7 +4814,10 @@ bool MetaItem::offsetPoint(
       if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
           // RotateParts #2 - 8 parms
-          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
+          QFuture<int> future = QtConcurrent::run([&]() {
+              return Render::rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON);
+          });
+          ok[0] = (asynchronous(future) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
@@ -5287,13 +5295,16 @@ QPointF MetaItem::defaultPointerTip(
   FloatPairMeta cameraAngles;
   cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
                          meta.LPub.assem.cameraAngles.value(1));
-  if (renderer->useLDViewSCall()) {
+  if (Render::useLDViewSCall()) {
       csiKeys << "mono";
       ldrNames << monoOutName;
       ldrName = ldrNames.first();
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
+      QFuture<int> future = QtConcurrent::run([&]() {
+          return Render::rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON);
+      });
+      ok[0] = (asynchronous(future) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
   } else {
       ok[0] = true;
@@ -5301,7 +5312,10 @@ QPointF MetaItem::defaultPointerTip(
       if (Preferences::preferredRenderer == RENDERER_NATIVE) {
          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
          // RotateParts #2 - 8 parms
-         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON) == 0);
+         QFuture<int> future = QtConcurrent::run([&]() {
+             return Render::rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,DT_DEFAULT,Options::MON);
+         });
+         ok[0] = (asynchronous(future) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
   }
