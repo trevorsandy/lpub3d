@@ -2161,7 +2161,7 @@ int Gui::drawPage(
 
                   emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
 
-                  if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
+                  if (Render::useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
                       QElapsedTimer timer;
                       timer.start();
                       QString empty("");
@@ -2492,7 +2492,7 @@ int Gui::drawPage(
                       return returnValue;
                   }
 
-                  if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
+                  if (Render::useLDViewSCall() && ! step->ldrName.isNull()) {
                       opts.ldrStepFiles << step->ldrName;
                       opts.csiKeys << step->csiKey; // No parts to process
                     }
@@ -2692,7 +2692,7 @@ int Gui::drawPage(
                                   return static_cast<int>(returnValue);
                           }
 
-                          if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
+                          if (Render::useLDViewSCall() && ! step->ldrName.isNull()) {
                               opts.ldrStepFiles << step->ldrName;
                               opts.csiKeys << step->csiKey;
                           }
@@ -2815,7 +2815,7 @@ int Gui::drawPage(
 
                           emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
 
-                          if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
+                          if (Render::useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
 
                               QElapsedTimer timer;
                               timer.start();

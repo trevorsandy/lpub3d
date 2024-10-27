@@ -935,7 +935,7 @@ int Pli::createSubModelIcons()
         return key;
     };
 
-    if (renderer->useLDViewSCall()) {
+    if (Render::useLDViewSCall()) {
 
         for (int i = 0; i < iconCount; i++) {
             setSubmodel(i);
@@ -2198,7 +2198,7 @@ int Pli::partSize()
     if (step)
         lpub->setCurrentStep(step);
 
-    if (renderer->useLDViewSCall()) {
+    if (Render::useLDViewSCall()) {
       if (partSizeLDViewSCall() != 0)
           return -1;
     } else {

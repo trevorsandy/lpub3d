@@ -313,7 +313,7 @@ int Step::createCsi(
 
   // populate csiKey - Add CompareKey and NameAndStepKey if LDView Single Call
   // key components: compareKey|nameAndStepKey|rendererParms
-  if (renderer->useLDViewSCall()) {
+  if (Render::useLDViewSCall()) {
       QString compareKey = keyPart2;
       // append rotate type if specified
       if (rotStepMeta.isPopulated())
@@ -659,7 +659,7 @@ int Step::createCsi(
      ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key));
 
      // rotate parts and create the CSI file for LDView single call and Native renderering
-     if (renderer->useLDViewSCall() || nativeRenderer) {
+     if (Render::useLDViewSCall() || nativeRenderer) {
 
          if (nativeRenderer)
             ldrName = csiLdrFile;
@@ -690,7 +690,7 @@ int Step::createCsi(
 
      bool showStatus = gui->m_partListCSIFile;
 
-     if (!rc && !renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
+     if (!rc && !Render::useLDViewSCall() && ! gui->m_partListCSIFile) {
          showStatus = true;
 
          // set camera
@@ -786,7 +786,7 @@ int Step::createCsi(
       updateViewer = true;
 
   // If not using LDView SCall, populate pixmap
-  if (! renderer->useLDViewSCall()) {
+  if (! Render::useLDViewSCall()) {
       pixmap->load(pngName);
       csiPlacement.size[0] = pixmap->width();
       csiPlacement.size[1] = pixmap->height();

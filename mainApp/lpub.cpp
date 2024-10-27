@@ -2293,7 +2293,7 @@ void Gui::clearStepCSICache(QString &pngName) {
             emit messageSig(LOG_TRACE,tr("-File %1 removed").arg(fileInfo.fileName()));
 #endif
     }
-    if (renderer->useLDViewSCall())
+    if (Render::useLDViewSCall())
         ldrName = tmpDirName + QDir::separator() + fileInfo.completeBaseName() + QLatin1String(".ldr");
     file.setFileName(ldrName);
     if (file.exists()) {
@@ -2361,7 +2361,7 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
     const bool clearAll = stepOption == MON;
 
     if (stepOption == CSI || clearAll) {
-        if (renderer->useLDViewSCall())
+        if (Render::useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QFileInfo(step->pngName).completeBaseName() + QLatin1String(".ldr"));
          else
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QLatin1String("csi.ldr"));
@@ -2369,7 +2369,7 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
     }
 
     if (stepOption == PLI || clearAll) {
-        if (!renderer->useLDViewSCall())
+        if (!Render::useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + QLatin1String("pli.ldr"));
         QHash<QString, PliPart*> pliParts;
         step->pli.getParts(pliParts);
@@ -2377,7 +2377,7 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
             Q_FOREACH (PliPart* part, pliParts) {
                 QString key = QString("%1;%2;%3").arg(QFileInfo(part->type).completeBaseName()).arg(part->color).arg(step->stepNumber.number);
                 if (lpub->ldrawFile.viewerStepContentExist(key)) {
-                    if (renderer->useLDViewSCall())
+                    if (Render::useLDViewSCall())
                         fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
                     fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));
                 }
@@ -2386,7 +2386,7 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
     }
 
     if (stepOption == SMI || clearAll) {
-        if (!renderer->useLDViewSCall()) {
+        if (!Render::useLDViewSCall()) {
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + SUBMODEL_IMAGE_BASENAME + QLatin1String(".ldr"));
             fileNames << QDir::toNativeSeparators(tmpDirName + QDir::separator() + SUBMODEL_COVER_PAGE_PREVIEW_BASENAME + QLatin1String(".ldr"));
         }
@@ -2398,7 +2398,7 @@ void Gui::clearStepGraphicsItems(Step *step, int option) {
                                         .arg(step->stepNumber.number)
                                         .arg(SUBMODEL_IMAGE_BASENAME);
             if (lpub->ldrawFile.viewerStepContentExist(key)) {
-                if (renderer->useLDViewSCall())
+                if (Render::useLDViewSCall())
                     fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
                 fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));
             }

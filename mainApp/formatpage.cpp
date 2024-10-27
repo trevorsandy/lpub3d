@@ -645,7 +645,7 @@ int Gui::addGraphicsPageItems(
                 page->pli.setParts(bomParts,bomPartGroups,page->meta,true/*isBOM*/,(boms > 1/*Split BOM Parts*/));
                 if (Preferences::modeGUI && !exporting()) {
                     int partCount = page->pli.getPartCount();
-                    if (renderer->useLDViewSCall()) {
+                    if (Render::useLDViewSCall()) {
                         partCount++; // normal parts
                         if (Preferences::enableFadeSteps)
                             partCount++;
