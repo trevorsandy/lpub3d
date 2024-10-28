@@ -382,7 +382,6 @@ void Gui::displayPage()
 {
   if (macroNesting == 0) {
     Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
-    emit gui->messageSig(LOG_STATUS, "Display page...");
     displayPageTimer.start();
     Gui::setAbortProcess(false);
     clearPage(); // this includes freeSteps() so harvest old step items before calling

@@ -688,7 +688,8 @@ int Gui::drawPage(
                 buildMod.ignore,
                 buildModItems);
 
-    drawPageStatus(begin);
+    if (!Gui::ContinuousPage())
+        drawPageStatus(begin);
 
   /*
    * do until end of page
@@ -1040,7 +1041,8 @@ int Gui::drawPage(
 
                 /* remind user what file we're working on */
 
-                emit messageSig(LOG_STATUS, "Processing " + opts.current.modelName + "...");
+                if (!Gui::ContinuousPage())
+                    emit messageSig(LOG_STATUS, "Processing " + opts.current.modelName + "...");
 
             } // Process called out submodel
 
@@ -2079,7 +2081,8 @@ int Gui::drawPage(
                         steps->pli.placement = steps->groupStepMeta.LPub.multiStep.pli.placement;
                         steps->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->groupStepMeta);
 
-                        emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + opts.current.modelName);
+                        if (!Gui::ContinuousPage())
+                            emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + opts.current.modelName);
 
                         if (steps->pli.sizePli(&steps->groupStepMeta, StepGroupType, false) != 0)
                             emit messageSig(LOG_ERROR, "Failed to set PLI (per Page) for " + topOfStep.modelName + "...");
@@ -2091,7 +2094,8 @@ int Gui::drawPage(
                             steps->subModel.placement = steps->groupStepMeta.LPub.multiStep.subModel.placement;
                             steps->subModel.setSubModel(opts.current.modelName,steps->groupStepMeta);
 
-                            emit messageSig(LOG_INFO_STATUS, "Add Submodel Preview for multi-step page " + opts.current.modelName);
+                            if (!Gui::ContinuousPage())
+                                emit messageSig(LOG_INFO_STATUS, "Add Submodel Preview for multi-step page " + opts.current.modelName);
 
                             steps->subModel.displayInstanceCount = displayInstanceCount;
                             if (steps->subModel.sizeSubModel(&steps->groupStepMeta,StepGroupType,false) != 0)
@@ -2160,7 +2164,8 @@ int Gui::drawPage(
                         page->selectedSceneItems   = selectedSceneItems;
                     }
 
-                    emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
+                    if (!Gui::ContinuousPage())
+                        emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
 
                     if (Render::useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
                         QElapsedTimer timer;
@@ -2215,7 +2220,8 @@ int Gui::drawPage(
                     if ((returnValue = static_cast<TraverseRc>(addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
                         returnValue = HitEndOfPage;
 
-                    drawPageElapsedTime();
+                    if (!Gui::ContinuousPage())
+                        drawPageElapsedTime();
 
                     if (Gui::abortProcess())
                         returnValue = HitAbortProcess;
@@ -2555,7 +2561,8 @@ int Gui::drawPage(
                                 page->selectedSceneItems   = selectedSceneItems;
                             }
 
-                            emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
+                            if (!Gui::ContinuousPage())
+                                emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
 
                             if (opts.displayModel)
                                 step->showStepNumber = curMeta.LPub.assem.showStepNumber.value();
@@ -2919,7 +2926,8 @@ int Gui::drawPage(
 
                             steps->setBottomOfSteps(opts.current);
 
-                            drawPageElapsedTime();
+                            if (!Gui::ContinuousPage())
+                                drawPageElapsedTime();
 
                             if (Gui::abortProcess()) {
                                 return HitAbortProcess;
@@ -2930,7 +2938,8 @@ int Gui::drawPage(
 #ifdef WRITE_PARTS_DEBUG
                         writeDrawPartsFile();
 #endif
-                        drawPageStatus(end);
+                        if (!Gui::ContinuousPage())
+                            drawPageStatus(end);
 
                         lightList.clear();
 
@@ -3083,7 +3092,8 @@ int Gui::drawPage(
     } // for every line
 
     // if we get here it's likely and empty page or cover page...
-    drawPageElapsedTime();
+    if (!Gui::ContinuousPage())
+        drawPageElapsedTime();
 
     if (Gui::abortProcess()) {
         Gui::revertPageProcess();
@@ -3107,7 +3117,8 @@ int Gui::findPage(
 
     Gui::setPageProcessRunning(PROC_FIND_PAGE);
 
-    emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
+    if (!Gui::ContinuousPage())
+        emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
     skipHeader(opts.current);
 
@@ -5826,7 +5837,7 @@ int Gui::setBuildModForNextStep(
         Q_UNUSED(ldrawFile)
 #endif
         //*/
-        emit gui->messageSig(LOG_INFO_STATUS, QString("Build Modification Next Step Check - Index: %1, Model: '%2', Line '%3'...")
+        emit gui->messageSig(LOG_INFO, QString("Build Modification Next Step Check - Index: %1, Model: '%2', Line '%3'...")
                                                       .arg(buildModNextStepIndex).arg(topOfStep.modelName).arg(topOfStep.lineNumber));
 
         startLine = topOfStep.lineNumber;           // set starting line number
@@ -6358,7 +6369,8 @@ void Gui::writeToTmp()
 
           writeToTmpFutures.append(QtConcurrent::run([ i,message, progressMessage, fileName, fileType,
               sourceFilePath, externalFile, fadeColor, displayModel, getExternalFileContent ] () {
-              emit gui->messageSig(LOG_INFO_STATUS, message);
+              if (!Gui::ContinuousPage())
+                  emit gui->messageSig(LOG_INFO_STATUS, message);
               if (!Gui::ContinuousPage()) {
                   emit gui->progressPermMessageSig(progressMessage);
                   emit gui->progressPermSetValueSig(i + 1);
@@ -6436,13 +6448,14 @@ void Gui::writeToTmp()
       // complete and close progress
       emit gui->progressPermSetValueSig(subFileCount);
       emit gui->progressPermStatusRemoveSig();
+
+      QString const writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
+      emit gui->messageSig(LOG_INFO_STATUS, tr("%1 %2 written to temp folder. %3")
+                                               .arg(writtenFiles ? QString::number(writtenFiles) : tr("No"))
+                                               .arg(writtenFiles == 1 ? tr("file") : tr("files"))
+                                               .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
   }
 
-  QString const writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
-  emit gui->messageSig(LOG_INFO_STATUS, tr("%1 %2 written to temp folder. %3")
-                                           .arg(writtenFiles ? QString::number(writtenFiles) : tr("No"))
-                                           .arg(writtenFiles == 1 ? tr("file") : tr("files"))
-                                           .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
   Gui::revertPageProcess();
 }
 
