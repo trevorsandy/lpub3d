@@ -20,11 +20,13 @@
 
 class LGraphicsScene : public QGraphicsScene
 {
-    Q_OBJECT
-    Q_ENUMS(ObjItem)
+  Q_OBJECT
+  Q_ENUMS(ObjItem)
 
 public:
   LGraphicsScene(QObject *parent = nullptr);
+  LGraphicsScene& operator=(const LGraphicsScene& rhs);
+  ~LGraphicsScene() {}
   bool setSelectedItem(const QPointF &);
 
 public slots:

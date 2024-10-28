@@ -29,6 +29,8 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     mValidItem(false),
     mPliPartGroup(false),
     mSceneGuides(false),
+    mGuidePos(0.0f,0.0f),
+    mItemType(UndefinedObj),
     mBaseItem(nullptr),
     mSnapToGrid(false),
     mRulerTracking(false),
@@ -36,12 +38,43 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     mTrackingCoordinates(false),
     mGridSize(GridSizeTable[GRID_SIZE_INDEX_DEFAULT]),
     mGuidesPlacement(GUIDES_TOP_LEFT),
-    mCoordMargin(0.125) // inches
+    mCoordMargin(0.125), // inches
+    mVertCursorPos(0.0f,0.0f),
+    mHorzCursorPos(0.0f,0.0f),
+    mMouseUpPos(0.0f,0.0f)
 {
-    Q_ASSERT(mGridSize > 0);
+  Q_ASSERT(mGridSize > 0);
 }
 
-void LGraphicsScene::updateGuidePos() {
+LGraphicsScene& LGraphicsScene::operator=(const LGraphicsScene& rhs)
+{
+    if(this != &rhs)
+    {
+        guidePen = rhs.guidePen;
+        gridPen = rhs.gridPen;
+        rulerTrackingPen = rhs.rulerTrackingPen;
+        mValidItem = rhs.mValidItem;
+        mPliPartGroup = rhs.mPliPartGroup;
+        mSceneGuides = rhs.mSceneGuides;
+        mGuidePos = rhs.mGuidePos;
+        mItemType = rhs.mItemType;
+        mBaseItem = rhs.mBaseItem;
+        mSnapToGrid = rhs.mSnapToGrid;
+        mRulerTracking = rhs.mRulerTracking;
+        mGuidesCoordinates = rhs.mGuidesCoordinates;
+        mTrackingCoordinates = rhs.mTrackingCoordinates;
+        mGridSize = rhs.mGridSize;
+        mGuidesPlacement = rhs.mGuidesPlacement;
+        mCoordMargin = rhs.mCoordMargin;
+        mVertCursorPos = rhs.mVertCursorPos;
+        mHorzCursorPos = rhs.mHorzCursorPos;
+        mMouseUpPos = rhs.mMouseUpPos;
+    }
+    return *this;
+}
+
+void LGraphicsScene::updateGuidePos()
+{
     if (!mSceneGuides)
         return;
 
@@ -92,7 +125,8 @@ void LGraphicsScene::updateGuidePos() {
     update();
 }
 
-bool LGraphicsScene::setSelectedItem(const QPointF &scenePos) {
+bool LGraphicsScene::setSelectedItem(const QPointF &scenePos)
+{
     mBaseItem = itemAt(scenePos, QTransform());
 
     auto checkPliPartGroupSceneObject = [this]()
@@ -164,7 +198,8 @@ QTransform LGraphicsScene::stableTransform(const QTransform &transform, const QP
     return newTransform;
 }
 
-void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect) {
+void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
+{
 
     QGraphicsScene::drawBackground(painter, rect);
 
@@ -186,7 +221,8 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect) {
     update();
 }
 
-void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
+void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
+{
 
     QPen guidPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN])), 0, Qt::SolidLine));
     QPen rulerTrackingPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN])), 0, Qt::SolidLine));
@@ -320,13 +356,15 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect) {
     }
 }
 
-void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
+void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
     updateGuidePos();
     snapToGrid();
     QGraphicsScene::mouseMoveEvent(event);
 }
 
-void LGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+void LGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
     if (event->button() == Qt::LeftButton) {
         updateGuidePos();
         snapToGrid();
@@ -336,7 +374,8 @@ void LGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
-void LGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+void LGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
     if (setSelectedItem(event->scenePos())) {
         if (event->button() == Qt::LeftButton) {
             updateGuidePos();

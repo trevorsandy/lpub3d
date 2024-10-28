@@ -20,7 +20,6 @@
 
 #include "qgraphicsscene.h"
 #include "lgraphicsscene.h"
-#include "declarations.h"
 
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 
@@ -32,7 +31,11 @@ class LGraphicsView : public QGraphicsView
   Q_OBJECT
 
 public:
+  LGraphicsView();
   LGraphicsView(LGraphicsScene *scene);
+  LGraphicsView& operator=(const LGraphicsView&);
+  ~LGraphicsView() {};
+
   PageBackgroundItem *pageBackgroundItem;   // page background used for sizing
   FitMode             fitMode;              // how to fit the scene into the view
 
