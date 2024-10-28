@@ -384,11 +384,11 @@ void Gui::displayPage()
     Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
     emit gui->messageSig(LOG_STATUS, "Display page...");
     displayPageTimer.start();
+    Gui::setAbortProcess(false);
+    clearPage(); // this includes freeSteps() so harvest old step items before calling
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
-    Gui::setAbortProcess(false);
-    clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
-    drawPage(KpageView,KpageScene,dpFlags);
+    drawPage(dpFlags);
     Gui::pageProcessRunning = PROC_NONE;
     if (Gui::abortProcess()) {
       QApplication::restoreOverrideCursor();
@@ -3323,6 +3323,8 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
                               QPainter::TextAntialiasing |
                               QPainter::SmoothPixmapTransform);
     KpageView->setResolution(resolution());
+
+    KexportView = LGraphicsView(&KexportScene);
 
     if (Preferences::modeGUI) {
         QColor spinnerColor(

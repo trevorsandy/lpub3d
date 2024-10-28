@@ -555,10 +555,9 @@ public:
 
   /* We need to send ourselves these, to eliminate recursion and the model
    * changing under foot */
-  void drawPage(                   // this is the workhorse for preparing a
-    LGraphicsView *view,           // page for viewing.  It depends heavily
-    LGraphicsScene *scene,         // on the next two functions
-    DrawPageFlags  &dpFlags);
+  void drawPage(DrawPageFlags &dpFlags);  // this is the workhorse for preparing a
+                                          // page for viewing.  It depends heavily
+                                          // on the next two functions
 
   /*--------------------------------------------------------------------*
    * These are the work horses for back annotating user changes into    *
@@ -1671,7 +1670,8 @@ protected:
 private:
   LGraphicsScene        *KpageScene;         // top of displayed page's graphics items
   LGraphicsView         *KpageView;          // the visual representation of the scene
-  WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
+  LGraphicsScene         KexportScene;       // top of displayed export and print page's graphics items
+  LGraphicsView          KexportView;        // the visual representation of the export and print view
 
   Meta                  &meta = getMetaRef();   // meta command container
   Where                  current;            // current line being parsed by drawPage
@@ -1684,6 +1684,7 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  // 
+  WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   
   QMutex                 pageMutex;          // recursive drawPage, buildModNextStep, and findPage mutex,
@@ -1735,16 +1736,12 @@ private:
 
   bool isUserSceneObject(const int so);
 
-  int findPage(                     // traverse the hierarchy until we get to the
-    LGraphicsView   *view,          // page of interest, let traverse process the
-    LGraphicsScene  *scene,         // page, and then finish by counting the rest
-    Meta             meta,
-    QString const   &addLine,
+  int findPage(                              // traverse the hierarchy until we get to the
+    Meta             meta,                   // page of interest, let traverse process the
+    QString const   &addLine,                // page, and then finish by counting the rest
     FindPageOptions &opts);
 
-  int drawPage(// process the page of interest and any callouts
-    LGraphicsView  *view,
-    LGraphicsScene *scene,
+  int drawPage(                              // process the page of interest and any callouts
     Steps          *steps,
     QString const   &addLine,
     DrawPageOptions &opts);
@@ -1774,8 +1771,6 @@ private:
     Steps          *steps,         // a graphics view
     bool            coverPage,
     bool            endOfSubmodel,
-    LGraphicsView  *view,
-    LGraphicsScene *scene,
     bool            printing);
 
   int addContentPageAttributes(
@@ -1978,10 +1973,7 @@ private slots:
     void archivePartsOnLaunch();
     void writeGeneratedColorPartsToTemp();
 
-    void clearPage(
-      LGraphicsView  *view,
-      LGraphicsScene *scene,
-      bool clearViewPageBg = false);
+    void clearPage(bool clearPageBg = false);
 
     void enableActions();
     void enableEditActions();

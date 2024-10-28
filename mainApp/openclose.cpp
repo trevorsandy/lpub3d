@@ -803,7 +803,7 @@ void Gui::closeModelFile()
     // Editor
     emit clearEditorWindowSig();
     // Gui
-    clearPage(KpageView,KpageScene,true);
+    clearPage(true);
     disableActions();
     disableEditActions();
     closeFile();           // perform LPub3D file close operations here...
@@ -851,7 +851,7 @@ bool Gui::openFile(const QString &fileName)
   Preferences::setInitFadeSteps();
   Preferences::setInitHighlightStep();
   Preferences::setInitPreferredRenderer();
-  clearPage(KpageView,KpageScene,true);
+  clearPage(true);
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
