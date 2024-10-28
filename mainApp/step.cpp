@@ -288,7 +288,7 @@ int Step::createCsi(
   // define csi file paths
   QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
-  QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?
+  QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(Gui::m_partListCSIFile ?
                                QFileInfo(Gui::getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
@@ -690,9 +690,9 @@ int Step::createCsi(
          rc = asynchronous(future);
      }
 
-     bool showStatus = gui->m_partListCSIFile;
+     bool showStatus = Gui::m_partListCSIFile;
 
-     if (!rc && !Render::useLDViewSCall() && ! gui->m_partListCSIFile) {
+     if (!rc && !Render::useLDViewSCall() && ! Gui::m_partListCSIFile) {
          showStatus = true;
 
          // set camera
@@ -775,7 +775,7 @@ int Step::createCsi(
                                           .arg(gui->stepPageNum));
      }
 
-     if (Gui::exportingObjects() && gui->m_partListCSIFile) {
+     if (Gui::exportingObjects() && Gui::m_partListCSIFile) {
          pixmap->load(":/resources/placeholderimage.png");  // image placeholder
          csiPlacement.size[0] = pixmap->width();
          csiPlacement.size[1] = pixmap->height();

@@ -205,7 +205,7 @@ int Render::rotateParts(
           int                option,
           int                type)
 {
-  bool ldvFunction     = option == DT_LDV_FUNCTION || gui->m_partListCSIFile;
+  bool ldvFunction     = option == DT_LDV_FUNCTION || Gui::m_partListCSIFile;
   bool doFadeStep      = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || lpub->page.meta.LPub.highlightStep.setup.value()) && !Gui::suppressColourMeta();
   bool doImageMatting  = Preferences::enableImageMatting;

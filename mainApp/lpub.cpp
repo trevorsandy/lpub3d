@@ -144,6 +144,7 @@ bool         Gui::m_exportingObjects;     // indicate exporting non-image object
 bool         Gui::m_contPageProcessing;   // indicate continuous page processing underway
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
 bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage()
+bool         Gui::m_partListCSIFile;      // processing part list CSI file
 bool         Gui::m_abort;                // set to true when response to critcal error is abort
 
 bool         Gui::doFadeStep;

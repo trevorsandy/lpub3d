@@ -621,7 +621,7 @@ void Gui::exportAsHtml()
     Meta meta;
     MetaItem mi;
     DrawPageFlags dpFlags;
-    m_partListCSIFile  = true;
+    Gui::m_partListCSIFile = true;
     bool modelFound    = false;
     int pageNum        = Gui::maxPages;
 
@@ -682,7 +682,7 @@ void Gui::exportAsHtml()
     meta = Meta();
 
     // return to whatever page we were viewing before capturing the CSI
-    m_partListCSIFile = false;
+    Gui::m_partListCSIFile = false;
     Gui::displayPageNum  = Gui::prevDisplayPageNum;
     displayPage();
 
