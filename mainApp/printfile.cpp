@@ -669,11 +669,11 @@ void Gui::exportAsHtml()
     Gui::displayPageNum = pageNum;
 
     // setup and export the last CSI on the page
-    LGraphicsScene scene;
-    LGraphicsView view(&scene);
+    KexportScene = LGraphicsScene(this);
+    KexportView = LGraphicsView(&KexportScene);
 
-    drawPage(&view,&scene,dpFlags);
-    clearPage(&view,&scene);
+    drawPage(dpFlags);
+    clearPage();
 
     restorePreferredRenderer();
     emit setExportingSig(false);
@@ -924,14 +924,14 @@ void Gui::exportAsPdf()
   QString messageIntro = exportPdfElements ? tr("Exporting page ") : tr("Step 1. Creating image for page ");
 
   // instantiate the scene and view
-  LGraphicsScene scene;
-  LGraphicsView view(&scene);
+  KexportScene = LGraphicsScene(this);
+  KexportView = LGraphicsView(&KexportScene);
 
   // initialize page sizes
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
-  drawPage(&view,&scene,dpFlags);
-  clearPage(&view,&scene);
+  drawPage(dpFlags);
+  clearPage();
   Gui::displayPageNum = Gui::prevDisplayPageNum;
 
   int _displayPageNum = 0;
@@ -1052,17 +1052,17 @@ void Gui::exportAsPdf()
           // set up the view - use unscaled page size
           QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
           QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
-          view.scale(1.0,1.0);
-          view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-          view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-          view.setGeometry(bounding);
-          view.setSceneRect(boundingRect);
-          view.setRenderHints(
+          KexportView.scale(1.0,1.0);
+          KexportView.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+          KexportView.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+          KexportView.setGeometry(bounding);
+          KexportView.setSceneRect(boundingRect);
+          KexportView.setRenderHints(
                 QPainter::Antialiasing |
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
-          view.centerOn(boundingRect.center());
-          clearPage(&view,&scene);
+          KexportView.centerOn(boundingRect.center());
+          clearPage();
 
           // paint to the image the scene we view
           if (!exportPdfElements) {
@@ -1074,10 +1074,10 @@ void Gui::exportAsPdf()
 
           // render this page
           dpFlags.printing = true;
-          drawPage(&view,&scene,dpFlags);
-          scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
-          scene.render(&painter);
-          clearPage(&view,&scene);
+          drawPage(dpFlags);
+          KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
+          KexportScene.render(&painter);
+          clearPage();
 
           if (exportPdfElements) {
               // prepare pdfWriter to render next page
@@ -1276,17 +1276,17 @@ void Gui::exportAsPdf()
           // set up the view - use unscaled page size
           QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
           QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
-          view.scale(1.0,1.0);
-          view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-          view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-          view.setGeometry(bounding);
-          view.setSceneRect(boundingRect);
-          view.setRenderHints(
+          KexportView.scale(1.0,1.0);
+          KexportView.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+          KexportView.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+          KexportView.setGeometry(bounding);
+          KexportView.setSceneRect(boundingRect);
+          KexportView.setRenderHints(
                 QPainter::Antialiasing |
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
-          view.centerOn(boundingRect.center());
-          clearPage(&view,&scene);
+          KexportView.centerOn(boundingRect.center());
+          clearPage();
 
           // paint to the image the scene we view
           if (!exportPdfElements) {
@@ -1298,10 +1298,10 @@ void Gui::exportAsPdf()
 
           // render this page
           dpFlags.printing = true;
-          drawPage(&view,&scene,dpFlags);
-          scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
-          scene.render(&painter);
-          clearPage(&view,&scene);
+          drawPage(dpFlags);
+          KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
+          KexportScene.render(&painter);
+          clearPage();
 
           if (exportPdfElements) {
               // prepare pdfWriter to render next page
@@ -1535,8 +1535,8 @@ void Gui::exportAs(const QString &_suffix)
       dpiInfo += QString("_%1x").arg(exportPixelRatio);
   }
 
-  LGraphicsScene scene;
-  LGraphicsView view(&scene);
+  KexportScene = LGraphicsScene(this);
+  KexportView = LGraphicsView(&KexportScene);
 
   float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
   int adjPageWidthPx = 0, adjPageHeightPx = 0;
@@ -1549,8 +1549,8 @@ void Gui::exportAs(const QString &_suffix)
   // initialize page sizes
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
-  drawPage(&view,&scene,dpFlags);
-  clearPage(&view,&scene);
+  drawPage(dpFlags);
+  clearPage();
   Gui::displayPageNum = Gui::prevDisplayPageNum;
 
   if (Gui::processOption != EXPORT_PAGE_RANGE) {
@@ -1671,8 +1671,8 @@ void Gui::exportAs(const QString &_suffix)
 
               // execute drawPage to prperly process csiParts for content generation
               dpFlags.printing = false;
-              drawPage(&view,&scene,dpFlags);
-              clearPage(&view,&scene);
+              drawPage(dpFlags);
+              clearPage();
 
           } else {
               // determine size of output image, in pixels
@@ -1703,17 +1703,17 @@ void Gui::exportAs(const QString &_suffix)
               // set up the view
               QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
               QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
-              view.scale(1.0,1.0);
-              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setGeometry(bounding);
-              view.setSceneRect(boundingRect);
-              view.setRenderHints(
+              KexportView.scale(1.0,1.0);
+              KexportView.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+              KexportView.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+              KexportView.setGeometry(bounding);
+              KexportView.setSceneRect(boundingRect);
+              KexportView.setRenderHints(
                     QPainter::Antialiasing |
                     QPainter::TextAntialiasing |
                     QPainter::SmoothPixmapTransform);
-              view.centerOn(boundingRect.center());
-              clearPage(&view,&scene);
+              KexportView.centerOn(boundingRect.center());
+              clearPage();
 
               // clear the pixels of the image, just in case the background is
               // transparent or uses a PNG image with transparency. This will
@@ -1724,10 +1724,10 @@ void Gui::exportAs(const QString &_suffix)
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
               dpFlags.printing = true;
-              drawPage(&view,&scene,dpFlags);
-              scene.setSceneRect(0.0,0.0,image.width(),image.height());
-              scene.render(&painter);
-              clearPage(&view,&scene);
+              drawPage(dpFlags);
+              KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
+              KexportScene.render(&painter);
+              clearPage();
 
               // save the image to the selected directory
               // internationalization of "_page_"?
@@ -1792,8 +1792,8 @@ void Gui::exportAs(const QString &_suffix)
 
               // execute drawPage to prperly process csiParts for content generation
               dpFlags.printing = false;
-              drawPage(&view,&scene,dpFlags);
-              clearPage(&view,&scene);
+              drawPage(dpFlags);
+              clearPage();
 
           } else {
               // determine size of output image, in pixels
@@ -1823,17 +1823,17 @@ void Gui::exportAs(const QString &_suffix)
 
               QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
               QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
-              view.scale(1.0,1.0);
-              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-              view.setGeometry(bounding);
-              view.setSceneRect(boundingRect);
-              view.setRenderHints(
+              KexportView.scale(1.0,1.0);
+              KexportView.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+              KexportView.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+              KexportView.setGeometry(bounding);
+              KexportView.setSceneRect(boundingRect);
+              KexportView.setRenderHints(
                     QPainter::Antialiasing |
                     QPainter::TextAntialiasing |
                     QPainter::SmoothPixmapTransform);
-              view.centerOn(boundingRect.center());
-              clearPage(&view,&scene);
+              KexportView.centerOn(boundingRect.center());
+              clearPage();
 
               // clear the pixels of the image, just in case the background is
               // transparent or uses a PNG image with transparency. This will
@@ -1844,10 +1844,10 @@ void Gui::exportAs(const QString &_suffix)
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
               dpFlags.printing = true;
-              drawPage(&view,&scene,dpFlags);
-              scene.setSceneRect(0.0,0.0,image.width(),image.height());
-              scene.render(&painter);
-              clearPage(&view,&scene);
+              drawPage(dpFlags);
+              KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
+              KexportScene.render(&painter);
+              clearPage();
 
               // save the image to the selected directory
               // internationalization of "_page_"?
@@ -2025,14 +2025,14 @@ void Gui::Print(QPrinter* Printer)
   // send signal to halt Visual Editor
   setExportingSig(true);
 
-  LGraphicsScene scene;
-  LGraphicsView view(&scene);
+  KexportScene = LGraphicsScene(this);
+  KexportView = LGraphicsView(&KexportScene);
 
   // initialize page sizes
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
-  drawPage(&view,&scene,dpFlags);
-  clearPage(&view,&scene);
+  drawPage(dpFlags);
+  clearPage();
 
   // check if mixed page size and orientation
   checkMixedPageSizeStatus();
@@ -2139,17 +2139,17 @@ void Gui::Print(QPrinter* Printer)
         // set up the view
         QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
         QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
-        view.scale(1.0,1.0);
-        view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-        view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-        view.setGeometry(bounding);
-        view.setSceneRect(boundingRect);
-        view.setRenderHints(
+        KexportView.scale(1.0,1.0);
+        KexportView.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+        KexportView.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+        KexportView.setGeometry(bounding);
+        KexportView.setSceneRect(boundingRect);
+        KexportView.setRenderHints(
               QPainter::Antialiasing |
               QPainter::TextAntialiasing |
               QPainter::SmoothPixmapTransform);
-        view.centerOn(boundingRect.center());
-        clearPage(&view,&scene);
+        KexportView.centerOn(boundingRect.center());
+        clearPage();
 
         for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
         {
@@ -2184,10 +2184,10 @@ void Gui::Print(QPrinter* Printer)
 
           // render this page
           dpFlags.printing = true;
-          drawPage(&view,&scene,dpFlags);
-          scene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
-          scene.render(&Painter);
-          clearPage(&view,&scene);
+          drawPage(dpFlags);
+          KexportScene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
+          KexportScene.render(&Painter);
+          clearPage();
 
           // TODO: export header and footer
 
@@ -2297,17 +2297,17 @@ void Gui::Print(QPrinter* Printer)
         // set up the view
         QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
         QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
-        view.scale(1.0,1.0);
-        view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
-        view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
-        view.setGeometry(bounding);
-        view.setSceneRect(boundingRect);
-        view.setRenderHints(
+        KexportView.scale(1.0,1.0);
+        KexportView.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+        KexportView.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
+        KexportView.setGeometry(bounding);
+        KexportView.setSceneRect(boundingRect);
+        KexportView.setRenderHints(
               QPainter::Antialiasing |
               QPainter::TextAntialiasing |
               QPainter::SmoothPixmapTransform);
-        view.centerOn(boundingRect.center());
-        clearPage(&view,&scene);
+        KexportView.centerOn(boundingRect.center());
+        clearPage();
 
         for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
           {
@@ -2342,10 +2342,10 @@ void Gui::Print(QPrinter* Printer)
 
             // render this page
             dpFlags.printing = true;
-            drawPage(&view,&scene,dpFlags);
-            scene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
-            scene.render(&Painter);
-            clearPage(&view,&scene);
+            drawPage(dpFlags);
+            KexportScene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
+            KexportScene.render(&Painter);
+            clearPage();
 
             // TODO: export header and footer
 
@@ -2374,7 +2374,7 @@ void Gui::Print(QPrinter* Printer)
   // return to whatever page we were viewing before output
   Gui::displayPageNum = Gui::prevDisplayPageNum;
   dpFlags.printing = false;
-  drawPage(KpageView,KpageScene,dpFlags);
+  drawPage(dpFlags);
 
   // hide progress bar
   if (Preferences::modeGUI) {
