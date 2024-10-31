@@ -556,7 +556,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 					QFileInfo OutFileInfo(FileName);
 					const QString RenderType = OutFileInfo.completeBaseName().replace(".ldr", QString());
 					const QString RenderName = QString("%1_%2%3_%4_%5")
-							.arg(gui->stepPageNum)
+							.arg(Gui::stepPageNum)
 							.arg(IsPli ? QString() : QString("%1_").arg(QFileInfo(PieceName).fileName()))
 							.arg(IsPli ? PieceName : QString::number(lpub->ldrawFile.getSubmodelIndex(PieceName)))
 							.arg(Keys.at(BM_STEP_LINE_KEY))	// ColourNumber when IsPLI

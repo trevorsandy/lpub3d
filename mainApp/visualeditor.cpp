@@ -3234,7 +3234,7 @@ void Gui::ReloadVisualEditor() {
              int ModStepIndex      = getBuildModStepIndex(currentStep->topOfStep());
              int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
              int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
-             int ModDisplayPageNum = displayPageNum;
+             int ModDisplayPageNum = Gui::displayPageNum;
              QString ModelName     = getSubmodelName(ModelIndex);
              buildModificationKey     = QString(); // clear the change key
              int Top               = currentStep->topOfStep().lineNumber;
@@ -4634,7 +4634,7 @@ void Gui::loadBuildModification()
 
         const QString buildModStepKey = getBuildModStepKey(buildModKey);
 
-        const int displayPageNumber = displayPageNum;
+        const int displayPageNumber = Gui::displayPageNum;
 
         if (buildModDisplayPageNum && ! buildModStepKey.isEmpty()) {
 

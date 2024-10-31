@@ -520,7 +520,7 @@ int SubModel::createSubModelImage(
                       .arg(callout ? "called out," : "simple,")
                       .arg(multistep ? "step group" : "single step")
                       .arg(step ? step->stepNumber.number : 0)
-                      .arg(gui->stepPageNum));
+                      .arg(Gui::stepPageNum));
               imageName = QString(":/resources/missingimage.png");
               /*f*/rc = -1;
           }
@@ -540,7 +540,7 @@ int SubModel::createSubModelImage(
                                    .arg(callout ? "called out," : "simple,")
                                    .arg(multistep ? "step group" : "single step")
                                    .arg(step ? step->stepNumber.number : 0)
-                                   .arg(gui->stepPageNum));
+                                   .arg(Gui::stepPageNum));
           }
       }
   }

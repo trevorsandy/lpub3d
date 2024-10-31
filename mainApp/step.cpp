@@ -772,7 +772,7 @@ int Step::createCsi(
                                           .arg(calledOut ? "called out," : "simple,")
                                           .arg(multiStep ? "step group" : "single step")
                                           .arg(stepNumber.number)
-                                          .arg(gui->stepPageNum));
+                                          .arg(Gui::stepPageNum));
      }
 
      if (Gui::exportingObjects() && Gui::m_partListCSIFile) {
@@ -895,7 +895,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
             "\n - HighlightStepLineWidth.....%22"
             "\n - HighlightStepGuiSetup......%23"
             "\n - HighlightStepMetaSetup.....%24"
-           ).arg(gui->stepPageNum)                                                     //01
+           ).arg(Gui::stepPageNum)                                                     //01
             .arg(stepNum)                                                              //02
             .arg(fromSavePrev ? "SavePrevStep" : "GetPrevStep")                        //03
             .arg(prevStepPosition)                                                     //04

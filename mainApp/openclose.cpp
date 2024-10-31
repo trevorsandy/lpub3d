@@ -48,7 +48,7 @@ enum FileOpts {
 
 void Gui::open()
 {  
-  if (maybeSave() && saveBuildModification()) {
+  if (gui->maybeSave() && gui->saveBuildModification()) {
     QSettings Settings;
     QString modelDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath"))) {
@@ -209,11 +209,11 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
 }
 
 void Gui::openWorkingFolder() {
-    if (sender() == getAct("openWorkingFolderAct.1")) {
+    if (sender() == gui->getAct("openWorkingFolderAct.1")) {
         if (!Gui::getCurFile().isEmpty())
-            openFolderSelect(Gui::getCurFile());
-    } else if (sender() == getAct("openParameterFileFolderAct.1")) {
-        openFolderSelect(QDir::toNativeSeparators(Preferences::pliControlFile));
+            gui->openFolderSelect(Gui::getCurFile());
+    } else if (sender() == gui->getAct("openParameterFileFolderAct.1")) {
+        gui->openFolderSelect(QDir::toNativeSeparators(Preferences::pliControlFile));
     }
 }
 
@@ -223,12 +223,12 @@ void Gui::updateOpenWithActions()
     QString const openWithProgramListKey("OpenWithProgramList");
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
 
-      programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+      gui->programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
 
-      numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
+      gui->numPrograms = qMin(gui->programEntries.size(), Preferences::maxOpenWithPrograms);
 
       if (Preferences::debugLogging) {
-          emit lpub->messageSig(LOG_DEBUG, tr("- Number of default openWith programs: %1").arg(numPrograms));
+          emit lpub->messageSig(LOG_DEBUG, tr("- Number of default openWith programs: %1").arg(gui->numPrograms));
       }
 
       QString programData, programName, programPath;
@@ -251,30 +251,30 @@ void Gui::updateOpenWithActions()
       };
 
       // filter programPaths that don't exist
-      for (int i = 0; i < numPrograms; ) {
-        programData = programEntries.at(i).split("|").last();
+      for (int i = 0; i < gui->numPrograms; ) {
+        programData = gui->programEntries.at(i).split("|").last();
         programPath = programData;
         QStringList arguments;
         if (!programData.isEmpty())
-            openWithProgramAndArgs(programPath,arguments);
+            gui->openWithProgramAndArgs(programPath,arguments);
         QFileInfo fileInfo(programPath);
         if (fileInfo.exists() && fileInfo.isFile()) {
-          programName = programEntries.at(i).split("|").first();
+          programName = gui->programEntries.at(i).split("|").first();
           QString text = programName;
           if (text.isEmpty())
               text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-          openWithActList[i]->setText(text);
-          openWithActList[i]->setData(programData); // includes arguments
-          openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
-          openWithActList[i]->setVisible(true);
+          gui->openWithActList[i]->setText(text);
+          gui->openWithActList[i]->setData(programData); // includes arguments
+          gui->openWithActList[i]->setIcon(getProgramIcon());
+          gui->openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
+          gui->openWithActList[i]->setVisible(true);
           i++;
           if (Preferences::debugLogging) {
               lpub->messageSig(LOG_DEBUG, tr("- Add openWith program: %1. %2").arg(i).arg(programData));
           }
         } else {
-          programEntries.removeOne(programEntries.at(i));
-          --numPrograms;
+          gui->programEntries.removeOne(gui->programEntries.at(i));
+          --gui->numPrograms;
         }
       }
 
@@ -285,7 +285,7 @@ void Gui::updateOpenWithActions()
           QString arguments;
           if (Preferences::usingNPP)
             arguments = QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
-          const int i = numPrograms;
+          const int i = gui->numPrograms;
           programPath = fileInfo.absoluteFilePath();
           programName = fileInfo.completeBaseName();
           programName.replace(programName[0],programName[0].toUpper());
@@ -293,13 +293,13 @@ void Gui::updateOpenWithActions()
           QString text = programName;
           if (text.isEmpty())
               text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-          openWithActList[i]->setText(text);
-          openWithActList[i]->setData(programData);
-          openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
-          openWithActList[i]->setVisible(true);
-          programEntries.append(QString("%1|%2").arg(programName).arg(programData));
-          numPrograms = programEntries.size();
+          gui->openWithActList[i]->setText(text);
+          gui->openWithActList[i]->setData(programData);
+          gui->openWithActList[i]->setIcon(getProgramIcon());
+          gui->openWithActList[i]->setStatusTip(tr("Open current file with %2").arg(fileInfo.fileName()));
+          gui->openWithActList[i]->setVisible(true);
+          gui->programEntries.append(QString("%1|%2").arg(programName).arg(programData));
+          gui->numPrograms = gui->programEntries.size();
           if (Preferences::debugLogging) {
               lpub->messageSig(LOG_DEBUG, tr("- Add openWith system editor: %1").arg(programData));
           }
@@ -307,20 +307,20 @@ void Gui::updateOpenWithActions()
       }
 
       if (Preferences::debugLogging) {
-          lpub->messageSig(LOG_DEBUG, tr("- Number of loaded openWith programs: %1").arg(numPrograms));
+          lpub->messageSig(LOG_DEBUG, tr("- Number of loaded openWith programs: %1").arg(gui->numPrograms));
       }
 
       // hide empty program actions - redundant
-      for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++)
-        openWithActList[j]->setVisible(false);
+      for (int j = gui->numPrograms; j < Preferences::maxOpenWithPrograms; j++)
+        gui->openWithActList[j]->setVisible(false);
 
       // clear old menu actions
-      if (openWithMenu->actions().size())
-          openWithMenu->clear();
+      if (gui->openWithMenu->actions().size())
+          gui->openWithMenu->clear();
 
       // add menu actions from updated list
-      for (int k = 0; k < numPrograms; k++) {
-        openWithMenu->addAction(openWithActList.at(k));
+      for (int k = 0; k < gui->numPrograms; k++) {
+        gui->openWithMenu->addAction(gui->openWithActList.at(k));
       }
     }
 }
@@ -369,7 +369,7 @@ void Gui::openWith(const QString &filePath)
     if (program.isEmpty()) {
         program = Preferences::systemEditor;
         if (!program.isEmpty()) {
-            openWithProgramAndArgs(program,arguments);
+            gui->openWithProgramAndArgs(program,arguments);
         }
 #ifdef Q_OS_MACOS
         else {
@@ -382,7 +382,7 @@ void Gui::openWith(const QString &filePath)
         }
 #endif
     } else {
-        openWithProgramAndArgs(program,arguments);
+        gui->openWithProgramAndArgs(program,arguments);
     }
     qint64 pid;
     QString workingDirectory = QDir::currentPath() + QDir::separator();
@@ -398,8 +398,8 @@ void Gui::openWith()
 {
     QString file = Gui::curFile;
     if (whichFile(OPT_OPEN_WITH) == OPT_USE_INCLUDE)
-        file = curSubFile;
-    openWith(file);
+        file = Gui::curSubFile;
+    gui->openWith(file);
 }
 
 void Gui::openRecentFile()
@@ -431,19 +431,19 @@ void Gui::clearRecentFiles()
     files.clear();
     Settings.setValue(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY), files);
   }
-  updateRecentFileActions();
+  gui->updateRecentFileActions();
 }
 
 bool Gui::loadFile(const QString &file)
 {
-    return loadFile(file, false/*commandLine*/);
+    return gui->loadFile(file, false/*commandLine*/);
 }
 
 bool Gui::loadFile(const QString &file, bool console)
 {
     if(Gui::resetCache) {
         emit lpub->messageSig(LOG_INFO,tr("Reset parts cache specified."));
-        resetModelCache(QFileInfo(file).absoluteFilePath(), console);
+        gui->resetModelCache(QFileInfo(file).absoluteFilePath(), console);
     }
 
     QString fileName = file;
@@ -452,30 +452,30 @@ bool Gui::loadFile(const QString &file, bool console)
         QElapsedTimer timer;
         timer.start();
         if (!openFile(fileName)) {
-            emit fileLoadedSig(false);
+            emit gui->fileLoadedSig(false);
             return false;
         }
         // check if possible to load page number
         QSettings Settings;
-        int inputPageNum = displayPageNum;
+        int inputPageNum = Gui::displayPageNum;
         if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY))) {
             inputPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY)).toInt();
             Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
         }
         Paths::mkDirs();
-        cyclePageDisplay(inputPageNum);
-        enableActions();
+        gui->cyclePageDisplay(inputPageNum);
+        gui->enableActions();
         emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                              .arg(fileInfo.fileName())
                                              .arg(Gui::maxPages)
                                              .arg(lpub->ldrawFile.getPartCount())
                                              .arg(Gui::elapsedTime(timer.elapsed())));
-        emit fileLoadedSig(true);
+        emit gui->fileLoadedSig(true);
         return true;
     } else {
-        emit messageSig(LOG_ERROR,tr("Unable to load file %1.").arg(fileName));
+        emit gui->messageSig(LOG_ERROR,tr("Unable to load file %1.").arg(fileName));
     }
-    emit fileLoadedSig(false);
+    emit gui->fileLoadedSig(false);
     return false;
 }
 
@@ -512,7 +512,7 @@ void Gui::disableWatcher()
 }
 
 int Gui::whichFile(int option) {
-    bool includeFile    = lpub->ldrawFile.isIncludeFile(curSubFile);
+    bool includeFile    = lpub->ldrawFile.isIncludeFile(Gui::curSubFile);
     bool dirtyUndoStack = ! undoStack->isClean();
     bool curFileExists    = ! Gui::curFile.isEmpty();
     bool showDialog     = false;
@@ -557,7 +557,7 @@ int Gui::whichFile(int option) {
         QRadioButton * includeButton = new QRadioButton("", dialog);
         includeButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         QFontMetrics includeMetrics(includeButton->font());
-        elidedText = includeMetrics.elidedText(QFileInfo(curSubFile).fileName(),
+        elidedText = includeMetrics.elidedText(QFileInfo(Gui::curSubFile).fileName(),
                                                Qt::ElideRight, includeButton->width());
         includeButton->setText(tr("Include file: %1").arg(elidedText));
         includeButton->setChecked(includeChecked);
@@ -583,28 +583,28 @@ int Gui::whichFile(int option) {
 
 void Gui::save()
 {
-  disableWatcher();
+  gui->disableWatcher();
 
   QString file = Gui::curFile;
-  if (whichFile(OPT_SAVE) == OPT_USE_INCLUDE)
-      file = curSubFile;
+  if (gui->whichFile(OPT_SAVE) == OPT_USE_INCLUDE)
+      file = Gui::curSubFile;
 
   if (file.isEmpty()) {
-    saveAs();
+    gui->saveAs();
   } else {
-    saveFile(file);
+    gui->saveFile(file);
   }
 
- enableWatcher();
+ gui->enableWatcher();
 }
 
 void Gui::saveAs()
 {
-  disableWatcher();
+  gui->disableWatcher();
 
   QString file = Gui::curFile;
-  if (whichFile(OPT_SAVE_AS) == OPT_USE_INCLUDE)
-      file = curSubFile;
+  if (gui->whichFile(OPT_SAVE_AS) == OPT_USE_INCLUDE)
+      file = Gui::curSubFile;
 
   QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),file,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
   if (fileName.isEmpty()) {
@@ -617,8 +617,8 @@ void Gui::saveAs()
       extension == "ldr" ||
       extension == "dat" ||
       extension.isEmpty()) {
-    saveFile(fileName);
-    closeFile();
+    gui->saveFile(fileName);
+    gui->closeFile();
     int loadMsgType = Preferences::ldrawFilesLoadMsgs;
     if (loadMsgType)
         Preferences::ldrawFilesLoadMsgs = static_cast<int>(NEVER_SHOW);
@@ -632,14 +632,14 @@ void Gui::saveAs()
                                 .arg(extension));
 
   }
-  enableWatcher();
+  gui->enableWatcher();
 } 
 
 void Gui::saveCopy()
 {
     QString file = Gui::curFile;
-    if (whichFile(OPT_SAVE_COPY) == OPT_USE_INCLUDE)
-        file = curSubFile;
+    if (gui->whichFile(OPT_SAVE_COPY) == OPT_USE_INCLUDE)
+        file = Gui::curSubFile;
 
   QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),file,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
   if (fileName.isEmpty()) {
@@ -653,7 +653,7 @@ void Gui::saveCopy()
       extension == "ldr" ||
       extension == "dat" ||
       extension.isEmpty()) {
-    saveFile(fileName);
+    gui->saveFile(fileName);
   } else {
     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
                               QMessageBox::tr("Unsupported LDraw file extension %1 specified.  File not saved.")
@@ -675,7 +675,7 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
      proceed = Preferences::showSaveOnUpdate;
   }
 
-  if ( ! undoStack->isClean() && proceed) {
+  if ( ! gui->undoStack->isClean() && proceed) {
     if (Preferences::modeGUI && prompt) {
 
       QMessageBoxResizable box;
@@ -710,14 +710,14 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 
       int ExecReturn = box.exec();
       if (ExecReturn == QMessageBox::Save) {
-        saveBuildModification();
-        save();
+        gui->saveBuildModification();
+        gui->save();
       } else
       if (ExecReturn == QMessageBox::Cancel) {
         return false;
       }
     } else {
-      save();
+      gui->save();
       emit lpub->messageSig(LOG_INFO,tr("Open document has been saved!"));
     }
   }
@@ -728,14 +728,14 @@ bool Gui::saveFile(const QString &fileName)
 {
   bool rc;
   rc = lpub->ldrawFile.saveFile(fileName);
-  setCurrentFile(fileName);
+  gui->setCurrentFile(fileName);
   undoStack->setClean();
   if (rc) {
     int lines = lpub->ldrawFile.savedLines();
     const QString message = tr("File %1 saved (%2 lines)")
                                 .arg(QFileInfo(fileName).fileName()).arg(lines);
     emit lpub->messageSig(LOG_INFO, message);
-    statusBar()->showMessage(message, 2000);
+    gui->statusBar()->showMessage(message, 2000);
   }
   return rc;
 }
@@ -750,17 +750,17 @@ void Gui::closeFile()
   Gui::pageProcessParent = PROC_NONE;
   Gui::pageProcessRunning = PROC_NONE;
   lpub->ldrawFile.empty();
-  editWindow->clearWindow();
-  mpdCombo->clear();
-  mpdCombo->setEnabled(false);
-  setGoToPageCombo->clear();
-  setGoToPageCombo->setEnabled(false);
-  setPageLineEdit->clear();
-  setPageLineEdit->setEnabled(false);
-  openWithMenu->setEnabled(false);
+  gui->editWindow->clearWindow();
+  gui->mpdCombo->clear();
+  gui->mpdCombo->setEnabled(false);
+  gui->setGoToPageCombo->clear();
+  gui->setGoToPageCombo->setEnabled(false);
+  gui->setPageLineEdit->clear();
+  gui->setPageLineEdit->setEnabled(false);
+  gui->openWithMenu->setEnabled(false);
   Gui::topOfPages.clear();
   Gui::pageSizes.clear();
-  undoStack->clear();
+  gui->undoStack->clear();
   Gui::pageDirection = PAGE_NEXT;
   Gui::buildModJumpForward = false;
   Gui::setAbortProcess(false);
@@ -783,33 +783,33 @@ void Gui::closeFile()
   Preferences::highlightstepPreferences();
   if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
       LDrawColourParts::clearGeneratedColorParts();
-      partWorkerLDSearchDirs.removeCustomDirs();
+      gui->partWorkerLDSearchDirs.removeCustomDirs();
   }
-  submodelIconsLoaded = false;
-  SetSubmodelIconsLoaded(submodelIconsLoaded);
+  Gui::submodelIconsLoaded = false;
+  gui->SetSubmodelIconsLoaded(Gui::submodelIconsLoaded);
   if (!Gui::curFile.isEmpty())
       emit lpub->messageSig(LOG_DEBUG, tr("File closed - %1.").arg(Gui::curFile));
-  getAct("loadStatusAct.1")->setEnabled(false);
-  ReloadVisualEditor();
+  gui->getAct("loadStatusAct.1")->setEnabled(false);
+  gui->ReloadVisualEditor();
 }
 
 // This call definitively closes and clears from Gui::curFile, the current model file
 void Gui::closeModelFile()
 {
-  if (maybeSave()) {
-    disableWatcher();
+  if (gui->maybeSave()) {
+    gui->disableWatcher();
     QString const topModel = lpub->ldrawFile.topLevelFile();
     Gui::curFile.clear();       // clear file from Gui::curFile here...
     // Editor
-    emit clearEditorWindowSig();
+    emit gui->clearEditorWindowSig();
     // Gui
-    clearPage(true);
-    disableActions();
-    disableEditActions();
-    closeFile();           // perform LPub3D file close operations here...
-    editModeWindow->close();
-    getAct("editModelFileAct.1")->setText(tr("Edit current model file"));
-    getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file with detached LDraw Editor"));
+    Gui::clearPage(true);
+    gui->disableActions();
+    gui->disableEditActions();
+    gui->closeFile();           // perform LPub3D file close operations here...
+    gui->editModeWindow->close();
+    gui->getAct("editModelFileAct.1")->setText(tr("Edit current model file"));
+    gui->getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file with detached LDraw Editor"));
     if (!topModel.isEmpty())
         emit lpub->messageSig(LOG_INFO, tr("Model unloaded. File closed - %1.").arg(topModel));
     QString windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
@@ -824,7 +824,7 @@ void Gui::closeModelFile()
                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
 
-    setWindowTitle(QString("%1[*] - %2").arg(windowTitle).arg(versionInfo));
+    gui->setWindowTitle(QString("%1[*] - %2").arg(windowTitle).arg(versionInfo));
   }
 }
 
@@ -835,14 +835,14 @@ void Gui::closeModelFile()
 bool Gui::openFile(const QString &fileName)
 {
 
-  if (maybeSave() && saveBuildModification()) {
+  if (gui->maybeSave() && gui->saveBuildModification()) {
     if (Preferences::modeGUI)
-      waitingSpinner->start();
+      gui->waitingSpinner->start();
   } else {
     return false;
   }
 
-  disableWatcher();
+  gui->disableWatcher();
 
   Gui::setCountWaitForFinished(false);
   Gui::suspendFileDisplay = true;
@@ -851,31 +851,31 @@ bool Gui::openFile(const QString &fileName)
   Preferences::setInitFadeSteps();
   Preferences::setInitHighlightStep();
   Preferences::setInitPreferredRenderer();
-  clearPage(true);
-  closeFile();
+  Gui::clearPage(true);
+  gui->closeFile();
   if (lcGetPreferences().mViewPieceIcons)
-      mPliIconsPath.clear();
+      gui->mPliIconsPath.clear();
   QFileInfo fileInfo(fileName);
   emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading file '%1'...").arg(fileInfo.fileName()));
-  setPageLineEdit->setText(tr("Loading..."));
-  setGoToPageCombo->addItem(tr("Loading..."));
-  mpdCombo->addItem(tr("Loading..."));
+  gui->setPageLineEdit->setText(tr("Loading..."));
+  gui->setGoToPageCombo->addItem(tr("Loading..."));
+  gui->mpdCombo->addItem(tr("Loading..."));
   QDir::setCurrent(fileInfo.absolutePath());
   if (lpub->ldrawFile.loadFile(fileInfo.absoluteFilePath()) != 0) {
       emit lpub->messageSig(LOG_INFO_STATUS, lpub->ldrawFile._loadAborted ?
                                 tr("Load LDraw file '%1' aborted.").arg(fileInfo.absoluteFilePath()) :
                                 tr("Load LDraw file '%1' failed.").arg(fileInfo.absoluteFilePath()));
-      closeModelFile();
-      if (waitingSpinner->isSpinning())
-          waitingSpinner->stop();
+      gui->closeModelFile();
+      if (gui->waitingSpinner->isSpinning())
+          gui->waitingSpinner->stop();
       return false;
   }
   Gui::displayPageNum = 1 + Gui::pa;
   Gui::prevDisplayPageNum = Gui::displayPageNum;
   Paths::mkDirs();
-  getAct("loadStatusAct.1")->setEnabled(true);
-  getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
-  getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(fileInfo.fileName()));
+  gui->getAct("loadStatusAct.1")->setEnabled(true);
+  gui->getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
+  gui->getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(fileInfo.fileName()));
   if (lpub->ldrawFile.getHelperPartsNotInArchive()) {
       QMessageBoxResizable box;
       box.setWindowIcon(QIcon());
@@ -900,7 +900,7 @@ bool Gui::openFile(const QString &fileName)
       box.setDefaultButton   (QMessageBox::Yes);
 
       if (box.exec() == QMessageBox::Yes) {
-          loadLDSearchDirParts(false/*Process*/, true/*OnDemand*/, false/*Update*/);
+          gui->loadLDSearchDirParts(false/*Process*/, true/*OnDemand*/, false/*Update*/);
       }
   }
 
@@ -909,32 +909,32 @@ bool Gui::openFile(const QString &fileName)
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
   emit lpub->messageSig(LOG_INFO, tr("Loading user interface items..."));
-  attitudeAdjustment();
-  mpdCombo->clear();
+  gui->attitudeAdjustment();
+  gui->mpdCombo->clear();
   for (int i = 0; i < lpub->ldrawFile.subFileOrder().count(); i++) {
       const QString &subFile = lpub->ldrawFile.subFileOrder().at(i);
-      mpdCombo->addItem(subFile);
+      gui->mpdCombo->addItem(subFile);
       if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
-          mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
+          gui->mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
   }
-  mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
-  connect(mpdCombo,SIGNAL(activated(int)), this,    SLOT(mpdComboChanged(int)));
-  connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
-  setCurrentFile(fileInfo.absoluteFilePath());
-  undoStack->setClean();
-  openWithMenu->setEnabled(numPrograms);
-  for (int i = 0; i < numPrograms; i++) {
-    QFileInfo programFileInfo(programEntries.at(i).split("|").last());
-    openWithActList[i]->setStatusTip(tr("Open %1 with %2")
+  gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
+  gui->connect(gui->mpdCombo,SIGNAL(activated(int)), gui, SLOT(mpdComboChanged(int)));
+  gui->connect(gui->setGoToPageCombo,SIGNAL(activated(int)), gui, SLOT(setGoToPage(int)));
+  gui->setCurrentFile(fileInfo.absoluteFilePath());
+  gui->undoStack->setClean();
+  gui->openWithMenu->setEnabled(gui->numPrograms);
+  for (int i = 0; i < gui->numPrograms; i++) {
+    QFileInfo programFileInfo(gui->programEntries.at(i).split("|").last());
+    gui->openWithActList[i]->setStatusTip(tr("Open %1 with %2")
                                         .arg(fileInfo.fileName())
                                         .arg(programFileInfo.fileName()));
   }
 
-  insertFinalModelStep();  //insert final fully coloured model if fadeSteps turned on
+  gui->insertFinalModelStep();  //insert final fully coloured model if fadeSteps turned on
 
-  generateCoverPages();    //auto-generate cover page
+  gui->generateCoverPages();    //auto-generate cover page
 
-  enableWatcher();
+  gui->enableWatcher();
 
   defaultResolutionType(Preferences::preferCentimeters);
 
@@ -957,22 +957,22 @@ int Gui::setupFadeOrHighlight(bool setupFadeSteps, bool setupHighlightStep)
   }
 
   if (!Gui::m_fadeStepsSetup && !Gui::m_highlightStepSetup) {
-    ldrawColorPartsLoad();
-    writeGeneratedColorPartsToTemp();
-    partWorkerLDSearchDirs.addCustomDirs();
+    gui->ldrawColorPartsLoad();
+    gui->writeGeneratedColorPartsToTemp();
+    gui->partWorkerLDSearchDirs.addCustomDirs();
   }
 
   if (setupFadeSteps && !Gui::m_fadeStepsSetup) {
     if (Preferences::enableImageMatting)
       LDVImageMatte::clearMatteCSIImages();
-    partWorkerLDSearchDirs.setDoFadeStep(true);
-    processFadeColourParts(true/*overwrite*/, setupFadeSteps);
+    gui->partWorkerLDSearchDirs.setDoFadeStep(true);
+    gui->processFadeColourParts(true/*overwrite*/, setupFadeSteps);
     Gui::m_fadeStepsSetup = true;
   }
 
   if (setupHighlightStep && !Gui::m_highlightStepSetup) {
-    partWorkerLDSearchDirs.setDoHighlightStep(true);
-    processHighlightColourParts(false/*overwrite*/, setupHighlightStep);
+    gui->partWorkerLDSearchDirs.setDoHighlightStep(true);
+    gui->processHighlightColourParts(false/*overwrite*/, setupHighlightStep);
     Gui::m_highlightStepSetup = true;
   }
   return 0;
@@ -1023,15 +1023,15 @@ void Gui::updateRecentFileActions()
     for (int i = 0; i < numRecentFiles; i++) {
       QFileInfo fileInfo(files[i]);
       QString text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-      recentFilesActs[i]->setText(text);
-      recentFilesActs[i]->setData(files[i]);
-      recentFilesActs[i]->setStatusTip(fileInfo.absoluteFilePath());
-      recentFilesActs[i]->setVisible(true);
+      gui->recentFilesActs[i]->setText(text);
+      gui->recentFilesActs[i]->setData(files[i]);
+      gui->recentFilesActs[i]->setStatusTip(fileInfo.absoluteFilePath());
+      gui->recentFilesActs[i]->setVisible(true);
     }
     for (int j = numRecentFiles; j < MAX_RECENT_FILES; j++) {
-      recentFilesActs[j]->setVisible(false);
+      gui->recentFilesActs[j]->setVisible(false);
     }
-    recentFilesSeparatorAct->setVisible(numRecentFiles > 0);
+    gui->recentFilesSeparatorAct->setVisible(numRecentFiles > 0);
   }
 }
 
@@ -1056,7 +1056,7 @@ void Gui::setCurrentFile(const QString &fileName)
                         .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), REV ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
 
-  setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));
+  gui->setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));
 
   if (fileName.size() > 0) {
     QSettings Settings;
@@ -1069,17 +1069,17 @@ void Gui::setCurrentFile(const QString &fileName)
     }
     Settings.setValue(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY), files);
   }
-  updateRecentFileActions();
+  gui->updateRecentFileActions();
 }
 
 void Gui::loadLastOpenedFile() {
-  updateRecentFileActions();
+  gui->updateRecentFileActions();
   int const fileIndex = 0;
   QAction *fileAction = recentFilesActs[fileIndex];
   if (fileAction) {
     QString const recentFile = fileAction->data().toString();
     if (QFileInfo(recentFile).isReadable()) {
-      loadFile(recentFile);
+      gui->loadFile(recentFile);
     }
   }
 }
@@ -1139,9 +1139,9 @@ void Gui::writeGeneratedColorPartsToTemp() {
     if (LDrawColourParts::isLDrawColourPart(fileName)) {
       count++;
       lpub->ldrawFile.normalizeHeader(fileName);
-      QStringList content = lpub->ldrawFile.contents(fileName);
+      QStringList const content = lpub->ldrawFile.contents(fileName);
       emit lpub->messageSig(LOG_INFO, tr("Writing generated part %1 to temp directory: %2...").arg(count).arg(fileName));
-      writeToTmp(fileName,content);
+      gui->writeToTmp(fileName,content);
     }
   }
   if (!count)

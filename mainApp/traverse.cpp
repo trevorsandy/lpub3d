@@ -569,7 +569,7 @@ int Gui::drawPage(
         int  fileNameIndex = topOfStep.modelIndex;
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildMod.level);
         if (i == buildModAttributes.end()) {
-            QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0/*step pieces*/, fileNameIndex, topOfStep.lineNumber, opts.stepNum };
+            QVector<int> modAttributes = { 0, 0, 0, Gui::displayPageNum, 0/*step pieces*/, fileNameIndex, topOfStep.lineNumber, opts.stepNum };
             modAttributes[index] = here.lineNumber;
             buildModAttributes.insert(buildMod.level, modAttributes);
         } else {
@@ -1515,7 +1515,7 @@ int Gui::drawPage(
                 if (assemAnnotation) {
                     emit gui->parseErrorSig(tr("Nested ASSEM ANNOTATION ICON not allowed"),opts.current);
                 } else {
-                    if (step && ! exportingObjects())
+                    if (step && ! Gui::exportingObjects())
                         step->appendCsiAnnotation(opts.current,curMeta.LPub.assem.annotation/*,view*/);
                     assemAnnotation = false;
                 }
@@ -1914,7 +1914,7 @@ int Gui::drawPage(
                         callout->parentRelativeType = step->relativeType;
                     }
                     // set csi annotations - callout
-                    //if (! exportingObjects())
+                    //if (! Gui::exportingObjects())
                     //    callout->setCsiAnnotationMetas();
                     callout->pli.clear();
                     callout->placement = curMeta.LPub.callout.placement;
@@ -2145,7 +2145,7 @@ int Gui::drawPage(
                                 opts.stepNum - 1 >= lpub->ldrawFile.numSteps(opts.current.modelName);
 
                     // set csi annotations - multistep
-                    if (! exportingObjects()) {
+                    if (! Gui::exportingObjects()) {
                         Gui::suspendFileDisplay = true;
                         //steps->setCsiAnnotationMetas();
                         returnValue = static_cast<TraverseRc>(lpub->mi.setCsiAnnotationMetas(steps));
@@ -2187,7 +2187,7 @@ int Gui::drawPage(
                                         .arg(opts.stepNum)
                                         .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
                                         .arg(opts.calledOut ? "called out," : "simple,")
-                                        .arg(stepPageNum));
+                                        .arg(Gui::stepPageNum));
                     }
 
                     if (Preferences::modeGUI) {
@@ -2206,17 +2206,17 @@ int Gui::drawPage(
                         if (lastStep && !lastStep->csiPixmap.isNull()) {
                             emit gui->messageSig(LOG_DEBUG, tr("Step group last step number %1").arg(lastStep->stepNumber.number));
                             lpub->setCurrentStep(lastStep);
-                            if (!exportingObjects()) {
-                                showLine(lastStep->topOfStep());
+                            if (!Gui::exportingObjects()) {
+                                gui->showLine(lastStep->topOfStep());
                                 lastStep->loadTheViewer();
                             }
-                        } else if (!exportingObjects() && step) {
+                        } else if (!Gui::exportingObjects() && step) {
                             lpub->setCurrentStep(step);
-                            showLine(steps->topOfSteps());
+                            gui->showLine(steps->topOfSteps());
                         }
                     }
 
-                    if ((returnValue = static_cast<TraverseRc>(addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
+                    if ((returnValue = static_cast<TraverseRc>(gui->addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
                         returnValue = HitEndOfPage;
 
                     if (!Gui::ContinuousPage())
@@ -2242,11 +2242,11 @@ int Gui::drawPage(
                 if (partsAdded)
                     emit gui->parseErrorSig(tr("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                opts.current,Preferences::BuildModErrors);
-                buildModStepIndex = getBuildModStepIndex(topOfStep);
+                buildModStepIndex = gui->getBuildModStepIndex(topOfStep);
                 buildModActionMeta = curMeta.LPub.buildMod;
                 buildMod.key = curMeta.LPub.buildMod.key();
-                if (buildModContains(buildMod.key)) {
-                    if (getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
+                if (gui->buildModContains(buildMod.key)) {
+                    if (gui->getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
                         emit gui->parseErrorSig(tr("Redundant build modification meta command '%1' - this command can be removed.")
                                    .arg(buildMod.key),opts.current,Preferences::BuildModErrors);
                 } else {
@@ -2259,7 +2259,7 @@ int Gui::drawPage(
                 if (multiStep || opts.calledOut)
                     buildModChange = topOfStep != steps->topOfSteps(); // uses list[0].topOfStep for both multiStep and callout
                 if (buildModChange) {
-                    buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, buildModStepIndex));
+                    buildModActions.insert(buildMod.level, gui->getBuildModAction(buildMod.key, buildModStepIndex));
                     if (buildModActions.value(buildMod.level) != rc) {
 /*
 #ifdef QT_DEBUG_MODE
@@ -2272,20 +2272,20 @@ int Gui::drawPage(
 #endif
 //*/
                         // set BuildMod step key for previous (e.g. BEGIN) action
-                        const QString buildModStepKey = getViewerStepKey(getBuildModStepIndex(buildMod.key));
+                        const QString buildModStepKey = gui->getViewerStepKey(gui->getBuildModStepIndex(buildMod.key));
 
                         // set BuildMod action for current step
                         if (lpub->ldrawFile.setViewerStepHasBuildModAction(buildModStepKey, true))
-                            setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                            gui->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                         else
                             emit gui->parseErrorSig(tr("Could not preserve previous BuildMod %1 action for key '%2'.<br>Step or key was not found.")
                                        .arg(rc == BuildModApplyRc ? tr("Remove") : tr("Apply")).arg(buildMod.key),
                                        opts.current,Preferences::BuildModErrors, true, false, QMessageBox::Warning);
-                        setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                        gui->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                         // set buildModStepIndex for writeToTmp() and findPage() content
-                        setBuildModNextStepIndex(topOfStep);
+                        gui->setBuildModNextStepIndex(topOfStep);
                         // Check if CsiAnnotation and process them if any
-                        if (! exportingObjects() && (multiStep || opts.calledOut))
+                        if (! Gui::exportingObjects() && (multiStep || opts.calledOut))
                             lpub->mi.setCsiAnnotationMetas(steps);
                         // Rerun to findPage() to regenerate parts and options for buildMod action
                         Gui::revertPageProcess();
@@ -2302,7 +2302,7 @@ int Gui::drawPage(
                 }
                 buildModMeta = curMeta.LPub.buildMod;
                 buildMod.key = curMeta.LPub.buildMod.key();
-                buildModExists = buildModContains(buildMod.key);
+                buildModExists = gui->buildModContains(buildMod.key);
                 buildMod.level = getLevel(buildMod.key, BM_BEGIN);
                 // assign buildMod key
                 if (! buildModKeys.contains(buildMod.level))
@@ -2318,9 +2318,9 @@ int Gui::drawPage(
                 // set buildModActions
                 if (buildModExists) {
                     if (multiStep || opts.calledOut) // the last action is appended at each step so it should always be current
-                        buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, BM_LAST_ACTION));
+                        buildModActions.insert(buildMod.level, gui->getBuildModAction(buildMod.key, BM_LAST_ACTION));
                     else // take the action for the current step if exists or last action
-                        buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
+                        buildModActions.insert(buildMod.level, gui->getBuildModAction(buildMod.key, gui->getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
                 } else if (buildModInsert) {
                     buildModActions.insert(buildMod.level, BuildModApplyRc);
                 } else
@@ -2403,7 +2403,7 @@ int Gui::drawPage(
                         int nsNumLines = nsContent.size();
                         Where nsWalkBack(nsTokens[14],nsNumLines);
                         for (; nsWalkBack.lineNumber >= 0; nsWalkBack--) {
-                            QString nsLine = readLine(nsWalkBack);
+                            QString nsLine = gui->readLine(nsWalkBack);
                             if (isHeader(nsLine)) {
                                 // if we reached the top of the submodel so break
                                 break;
@@ -2694,7 +2694,7 @@ int Gui::drawPage(
                             }
 
                             // Set CSI annotations - single step only
-                            if (! exportingObjects() &&  ! multiStep && ! opts.calledOut) {
+                            if (! Gui::exportingObjects() &&  ! multiStep && ! opts.calledOut) {
                                 suspendFileDisplay = true;
                                 returnValue = static_cast<TraverseRc>(step->setCsiAnnotationMetas(steps->meta));
                                 suspendFileDisplay = false;
@@ -2848,7 +2848,7 @@ int Gui::drawPage(
                                                 .arg(opts.stepNum)
                                                 .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"))
                                                 .arg(opts.calledOut ? tr("called out,") : tr("simple,"))
-                                                .arg(stepPageNum));
+                                                .arg(Gui::stepPageNum));
                             } // useLDViewSCall()
 
                             // Load the Visual Editor on Step - callouts and multistep Steps are not loaded
@@ -2857,8 +2857,8 @@ int Gui::drawPage(
                                 if (Preferences::modeGUI) {
                                     if (partsAdded && !coverPage) {
                                         lpub->setCurrentStep(step);
-                                        if (!exportingObjects()) {
-                                            showLine(topOfStep);
+                                        if (!Gui::exportingObjects()) {
+                                            gui->showLine(topOfStep);
                                             step->loadTheViewer();
                                         }
                                     }
@@ -2866,7 +2866,7 @@ int Gui::drawPage(
                             } // Load the Visual Editor on Step
 
                             // Load the top model into the visual editor on cover page
-                            if (coverPage && Preferences::modeGUI && !exportingObjects()) {
+                            if (coverPage && Preferences::modeGUI && !Gui::exportingObjects()) {
                                 if (curMeta.LPub.coverPageViewEnabled.value()) {
                                     bool frontCover = lpub->page.frontCover;
                                     int stepNum = frontCover ? 0 : opts.stepNum;
@@ -2901,7 +2901,7 @@ int Gui::drawPage(
                                             lpub->setCurrentStep(step);
                                             if (lpub->currentStep) {
                                                 if (step->subModel.viewerSubmodelKey == lpub->currentStep->viewerStepKey) {
-                                                    showLine(topOfStep);
+                                                    gui->showLine(topOfStep);
                                                     const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
                                                     emit gui->previewModelSig(modelFileName);
                                                     /*
@@ -2919,14 +2919,14 @@ int Gui::drawPage(
                                 } // cover page view enabled
                             } // cover page
 
-                            if ((returnValue = static_cast<TraverseRc>(addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
+                            if ((returnValue = static_cast<TraverseRc>(gui->addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
                                 returnValue = HitEndOfPage;
 
                             if (opts.displayModel) {
                                 lpub->meta.rotStep.setValue(saveRotStep);
                             }
 
-                            stepPageNum += ! coverPage;
+                            Gui::stepPageNum += ! coverPage;
 
                             steps->setBottomOfSteps(opts.current);
 
@@ -3051,7 +3051,7 @@ int Gui::drawPage(
 
             case RangeErrorRc:
             {
-                showLine(opts.current);
+                gui->showLine(opts.current);
                 QString message;
                 if (Preferences::preferredRenderer == RENDERER_NATIVE &&
                         line.indexOf("CAMERA_FOV") != -1)
@@ -3156,7 +3156,7 @@ int Gui::findPage(
     Where        topOfStep = opts.current;
     Where        stepGroupCurrent;
 
-    saveStepPageNum = stepPageNum;
+    Gui::saveStepPageNum = Gui::stepPageNum;
 
     Meta         saveMeta = meta;
 
@@ -3538,18 +3538,18 @@ int Gui::findPage(
                                     else if (meta.submodelStack.size())
                                         meta.submodelStack.pop_back();
 
-                                    saveStepPageNum = stepPageNum;
+                                    Gui::saveStepPageNum = Gui::stepPageNum;
                                     meta.rotStep  = saveRotStep2;             // restore old rotstep
 
                                     opts.flags.parentCallout = saveCallout2;  // restore parent called and stepGroup flags
                                     opts.flags.parentStepGroup = saveStepGroup2;
 
                                     if (opts.contStepNumber) {                // capture continuous step number from exited submodel
-                                        opts.contStepNumber = saveContStepNum;
+                                        opts.contStepNumber = Gui::saveContStepNum;
                                     }
 
                                     if (opts.groupStepNumber) {               // capture group step number from exited submodel
-                                        opts.groupStepNumber = saveGroupStepNum;
+                                        opts.groupStepNumber = Gui::saveGroupStepNum;
                                     }
 
                                     if (isPreDisplayPage) {
@@ -3642,11 +3642,11 @@ int Gui::findPage(
                                 lpub->mi.scanForwardStepGroup(walk);
                                 if (opts.current.lineNumber > walk.lineNumber) {
                                     opts.groupStepNumber += 1 + Gui::sa;
-                                    saveGroupStepNum = opts.groupStepNumber;
+                                    Gui::saveGroupStepNum = opts.groupStepNumber;
                                 }
                             } else {
                                 opts.groupStepNumber = opts.stepNumber;
-                                saveGroupStepNum = opts.groupStepNumber;
+                                Gui::saveGroupStepNum = opts.groupStepNumber;
                             }
                         }
                     }
@@ -3677,7 +3677,7 @@ int Gui::findPage(
                     } else if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
                         // ignored when processing a buildModDisplay
                         Gui::savePrevStepPosition = saveCsiParts.size();
-                        stepPageNum = saveStepPageNum;
+                        Gui::stepPageNum = Gui::saveStepPageNum;
                         if (opts.pageNum == 1 + Gui::pa) {
                             lpub->page.meta = meta;
                         } else {
@@ -3685,10 +3685,10 @@ int Gui::findPage(
                         }
                         if (opts.contStepNumber) {  // pass continuous step number to drawPage
                             lpub->page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
-                            saveStepNumber = saveContStepNum;
+                            saveStepNumber = Gui::saveContStepNum;
                         }
                         if (opts.groupStepNumber) { // persist step group step number
-                            saveGroupStepNum = opts.groupStepNumber;
+                            Gui::saveGroupStepNum = opts.groupStepNumber;
                         }
                         lpub->page.meta.pop();
                         lpub->page.meta.rotStep = saveRotStep;
@@ -3770,7 +3770,7 @@ int Gui::findPage(
 //*/
                     ++opts.pageNum;
                     Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
-                    saveStepPageNum = ++stepPageNum;
+                    Gui::saveStepPageNum = ++Gui::stepPageNum;
 
                     opts.flags.noStep2 = false;
 
@@ -3894,7 +3894,7 @@ int Gui::findPage(
                         }
 
                         opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
-                        stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
+                        Gui::stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
                         if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                             if ( ! opts.flags.stepGroup) {
@@ -3905,12 +3905,12 @@ int Gui::findPage(
                                 saveBfx                = bfx;
                                 saveBfxParts           = bfxParts;
                                 saveBfxLineTypeIndexes = bfxLineTypeIndexes;
-                                saveStepPageNum        = stepPageNum;
+                                Gui::saveStepPageNum   = Gui::stepPageNum;
                                 // bfxParts.clear();
                                 if (opts.groupStepNumber &&
                                         meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
                                     opts.groupStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
-                                    saveGroupStepNum      = opts.groupStepNumber;
+                                    Gui::saveGroupStepNum = opts.groupStepNumber;
                                 }
 #ifdef WRITE_PARTS_DEBUG
                                 writeFindPartsFile("a_find_csi_parts", csiParts);
@@ -3933,7 +3933,7 @@ int Gui::findPage(
                             } // StepGroup
 
                             if (opts.contStepNumber) { // save continuous step number from current model
-                                saveContStepNum = opts.contStepNumber;
+                                Gui::saveContStepNum = opts.contStepNumber;
                             }
                             saveCurrent = opts.current;
                             saveRotStep = meta.rotStep;
@@ -3944,7 +3944,7 @@ int Gui::findPage(
                                 lineTypeIndexes.clear();
                                 csiParts.clear();
                                 Gui::savePrevStepPosition = saveCsiParts.size();
-                                stepPageNum = saveStepPageNum;
+                                Gui::stepPageNum = Gui::saveStepPageNum;
                                 if (opts.pageNum == 1 + Gui::pa) {
                                     lpub->page.meta = meta;
                                 } else {
@@ -3955,7 +3955,7 @@ int Gui::findPage(
                                     saveStepNumber    = opts.contStepNumber;
                                 }
                                 if (opts.groupStepNumber) { // persist group step number
-                                    saveGroupStepNum  = opts.groupStepNumber;
+                                    Gui::saveGroupStepNum  = opts.groupStepNumber;
                                 }
                                 lpub->page.meta.pop();
                                 lpub->page.meta.LPub.buildMod.clear();
@@ -4370,17 +4370,17 @@ int Gui::findPage(
                 saveMeta.LPub.contModelStepNum.setValue(saveStepNumber);
                 saveStepNumber = opts.contStepNumber;
             }
-            saveContStepNum = opts.contStepNumber;
+            Gui::saveContStepNum = opts.contStepNumber;
         }
         if (isPreDisplayPage && opts.groupStepNumber &&
                 meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
             opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
-            saveGroupStepNum     = opts.contStepNumber;
+            Gui::saveGroupStepNum = opts.contStepNumber;
         }
 
         if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
             if (opts.groupStepNumber)                   // pass group step number to drawPage
-                saveStepNumber = saveGroupStepNum;
+                saveStepNumber = Gui::saveGroupStepNum;
 
             Gui::savePrevStepPosition = saveCsiParts.size();
             lpub->page.meta = saveMeta;
@@ -4451,12 +4451,12 @@ int Gui::findPage(
 #endif
 //*/
             ++opts.pageNum;
-            ++stepPageNum;
-            topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
+            ++Gui::stepPageNum;
+            Gui::topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
 
             if (opts.current.modelName == topLevelFile()) {
                 if (! opts.pageDisplayed)
-                    opts.pageDisplayed = opts.pageNum > displayPageNum;
+                    opts.pageDisplayed = opts.pageNum > Gui::displayPageNum;
             }
         } // ! opts.flags.noStep (last step in submodel)
 
@@ -4943,13 +4943,13 @@ void Gui::countPages()
       PageSizeData emptyPageSize;
       QList<SubmodelStack> modelStack;
 
-      current               =  Where(lpub->ldrawFile.topLevelFile(),0,0);
-      saveDisplayPageNum    =  Gui::displayPageNum;
-      Gui::displayPageNum   =  1 << 24; // really large number: 16777216
-      Gui::firstStepPageNum = -1;       // for front cover page
-      Gui::lastStepPageNum  = -1;       // for back cover page
-      Gui::maxPages         =  1 + Gui::pa;
-      stepPageNum           =  1 + Gui::pa;
+      current                 =  Where(lpub->ldrawFile.topLevelFile(),0,0);
+      Gui::saveDisplayPageNum =  Gui::displayPageNum;
+      Gui::displayPageNum     =  1 << 24; // really large number: 16777216
+      Gui::firstStepPageNum   = -1;       // for front cover page
+      Gui::lastStepPageNum    = -1;       // for back cover page
+      Gui::maxPages           =  1 + Gui::pa;
+      Gui::stepPageNum        =  1 + Gui::pa;
 
       skipHeader(current);
 
@@ -4959,7 +4959,7 @@ void Gui::countPages()
       QString message = tr("Counting pages...");
       if (Gui::buildModJumpForward) {
           fpFlags.parseBuildMods = true;
-          message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
+          message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(Gui::saveDisplayPageNum);
       }
 
       emit gui->messageSig(LOG_TRACE, message);
@@ -4999,10 +4999,10 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
     if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::ContinuousPage())
         enableNavigationActions(false);
 
-    current      = Where(lpub->ldrawFile.topLevelFile(),0,0);
-    saveMaxPages = Gui::maxPages;
+    current           = Where(lpub->ldrawFile.topLevelFile(),0,0);
+    Gui::saveMaxPages = Gui::maxPages;
     Gui::maxPages     = 1 + Gui::pa;
-    stepPageNum  = Gui::maxPages;
+    Gui::stepPageNum  = Gui::maxPages;
     lpub->page.relativeType = SingleStepType;
 
     // set submodels unrendered
@@ -5069,7 +5069,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
                 Gui::displayPageNum = saveJumpDisplayPageNum;
                 current     = saveJumpCurrent;
                 Gui::maxPages    = 1 + Gui::pa;
-                stepPageNum = Gui::maxPages;
+                Gui::stepPageNum = Gui::maxPages;
                 Gui::topOfPages  = saveJumpTopOfPages;
                 lpub->ldrawFile.unrendered();
 
@@ -5134,8 +5134,8 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
     Gui::firstStepPageNum     = -1;
     Gui::lastStepPageNum      = -1;
     Gui::savePrevStepPosition =  0;
-    saveGroupStepNum          =  1 + Gui::sa;
-    saveContStepNum           =  1 + Gui::sa;
+    Gui::saveGroupStepNum     =  1 + Gui::sa;
+    Gui::saveContStepNum      =  1 + Gui::sa;
 
     // reset buildModActionChange
     dpFlags.buildModActionChange = false;
@@ -5395,7 +5395,7 @@ void Gui::finishedCountingPages()
         Gui::setAbortProcess(true);
         return;
     }
-    pagesCounted();
+    gui->pagesCounted();
 }
 
 void Gui::pagesCounted()
@@ -5409,7 +5409,7 @@ void Gui::pagesCounted()
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
                     .arg(Gui::maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
-    if (!saveDisplayPageNum) {
+    if (!Gui::saveDisplayPageNum) {
         emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
         emit gui->messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(Gui::maxPages));
         emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
@@ -5428,23 +5428,23 @@ void Gui::pagesCounted()
 //*/
     if (Preferences::modeGUI && ! Gui::exporting()) {
         QString message;
-        if (saveDisplayPageNum)
-            message = QString("%1 of %2") .arg(saveDisplayPageNum) .arg(saveMaxPages);
+        if (Gui::saveDisplayPageNum)
+            message = QString("%1 of %2") .arg(Gui::saveDisplayPageNum) .arg(Gui::saveMaxPages);
         else
             message = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
 
-        getAct("setPageLineEditResetAct.1")->setEnabled(false);
-        setPageLineEdit->setText(message);
+        gui->getAct("setPageLineEditResetAct.1")->setEnabled(false);
+        gui->setPageLineEdit->setText(message);
     } // modeGUI and not exporting - countPage and drawPage
 
     // countPage
-    if (saveDisplayPageNum) {
+    if (Gui::saveDisplayPageNum) {
         if (Gui::displayPageNum > Gui::maxPages)
             Gui::displayPageNum = Gui::maxPages;
         else
-            Gui::displayPageNum = saveDisplayPageNum;
+            Gui::displayPageNum = Gui::saveDisplayPageNum;
 
-        saveDisplayPageNum = 0;
+        Gui::saveDisplayPageNum = 0;
 
         emit gui->messageSig(LOG_STATUS,QString());
     }
@@ -5464,7 +5464,7 @@ void Gui::pagesCounted()
                 if (!Gui::maxPages && !lpub->ldrawFile.getPartCount()) {
                     emit gui->messageSig(LOG_ERROR, tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
-                    closeModelFile();
+                    gui->closeModelFile();
                     if (waitingSpinner->isSpinning())
                         waitingSpinner->stop();
                 }
@@ -5477,9 +5477,9 @@ void Gui::pagesCounted()
         }
 
         if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
-            enableEditActions();
+            gui->enableEditActions();
             if (!Gui::ContinuousPage())
-                enableNavigationActions(true);
+                gui->enableNavigationActions(true);
             if (Gui::m_exportMode == GENERATE_BOM) {
                 emit gui->clearViewerWindowSig();
                 Gui::m_exportMode = Gui::m_saveExportMode;
@@ -5491,7 +5491,7 @@ void Gui::pagesCounted()
 
     if (Gui::suspendFileDisplay) {
         Gui::suspendFileDisplay = false;
-        enableActions();
+        gui->enableActions();
     }
 
     // reset countPage future wait on last drawPage call from export 'printfile' where exporting() is reset to false

@@ -464,12 +464,12 @@ public:
   ~Gui();
 
 
-  int             stepPageNum;      // the number displayed on the page
-  int             saveStepPageNum;  // saved instance of the number displayed on the page
-  int             saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
-  int             saveGroupStepNum; // saved step group step number when pli per step is false
-  int             saveDisplayPageNum; // saved display page number when counting pages
-  int             saveMaxPages;     // saved page count when count (actually parse) build mods requested
+  static int      stepPageNum;      // the number displayed on the page
+  static int      saveStepPageNum;  // saved instance of the number displayed on the page
+  static int      saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
+  static int      saveGroupStepNum; // saved step group step number when pli per step is false
+  static int      saveDisplayPageNum; // saved display page number when counting pages
+  static int      saveMaxPages;     // saved page count when count (actually parse) build mods requested
   static int      firstStepPageNum; // the first Step page number - used to specify frontCover page
   static int      lastStepPageNum;  // the last Step page number - used to specify backCover page
 
@@ -1451,7 +1451,6 @@ public slots:
   void setContinuousPageAct(PageActType p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
 
-
   // left side progress bar
   void progressBarInit();
   void progressBarSetText(const QString &progressText);
@@ -1677,9 +1676,10 @@ private:
 
   Meta                  &meta = getMetaRef();   // meta command container
   Where                  current;            // current line being parsed by drawPage
-  QString                exportedFile;       // the print preview produced pdf file
+
   QElapsedTimer          displayPageTimer;   // measure elapsed time for slow functions
-  QString                curSubFile;         // whats being displayed in the edit window
+
+  lcPreview             *preview;
   EditWindow            *editWindow;         // the sub file editable by the user
   EditWindow            *editModeWindow;     // the model file editable by the user in
   QProgressBar          *progressBar;        // left side progress bar
@@ -1695,25 +1695,26 @@ private:
   QTimer                 updateTimer;        // keep UI responsive when exporting or using continuous page processing
 
   static QString         curFile;                // the file name for MPD, or top level file
+  static QString         curSubFile;             // whats being displayed in the edit window
   static bool            m_exportingContent;     // indicate export/printing underway
   static bool            m_exportingObjects;     // indicate exporting non-image object file content
   static bool            m_contPageProcessing;   // indicate continuous page processing underway
   static bool            m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
   static bool            m_abort;                // set to true when response to critcal error is abort
 
-  QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
-  QString                buildModificationKey;   // populated at buildMod change and cleared at buildMod create
-  QStringList            programEntries;      // list of 'open with' programs populated on startup
+  static int             boms;                   // the number of pli BOMs in the document
+  static int             bomOccurrence;          // the actual occurrence of each pli BOM
+  static QStringList     bomParts;               // list of part strings configured for BOM setup
+  static QList<PliPartGroupMeta> bomPartGroups;  // list of BOM part groups used for multi-page BOMs
 
-  int                    m_workerJobResult;
+  QString                exportedFile;           // the print preview produced pdf file
+  QString                buildModClearStepKey;   // the step key indicating the step to start build mod clear actions
+  QString                buildModificationKey;   // populated at buildMod change and cleared at buildMod create
+  QStringList            programEntries;         // list of 'open with' programs populated on startup
 
   int                    numPrograms;
 
-  static int              boms;            // the number of pli BOMs in the document
-  static int              bomOccurrence;   // the actual occurrence of each pli BOM
-  static QStringList             bomParts;        // list of part strings configured for BOM setup
-  static QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
-  lcPreview*              preview;
+  int                    m_workerJobResult;
 
   bool                   okToInvokeProgressBar()
   {
@@ -1735,6 +1736,10 @@ private:
 
   bool     previousPageContinuousIsRunning;  // stop the continuous previous page action
   bool     nextPageContinuousIsRunning;      // stop the continuous next page action
+  static QStringList configureModelSubFile(
+    const QStringList &,
+    const QString &,
+    const PartType partType);                // fade and or highlight all parts in subfile
 
   bool isUserSceneObject(const int so);
 
@@ -1753,13 +1758,8 @@ private:
           Meta &curMeta,
     const QString &line);
 
-  void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
 
   int include(Meta &meta, int &lineNumber, bool &includeFileFound);
-
-  int  createLDVieiwCsiImage(
-            QPixmap            *pixmap,
-            Meta               &meta);
 
   int addStepImageGraphics(Step    *step); //recurse the step's model - including callouts to add images.
 
@@ -1808,18 +1808,14 @@ private:
   bool generateBOMPartsFile(
           const QString &);
 
-  QStringList writeToTmp(const QString &fileName, const QStringList &, bool = true);
-
   void writeToTmp();
 
-  void addCsiTypeLine();
+  QStringList writeToTmp(const QString &fileName, const QStringList &, bool = true);
 
-  static QStringList configureModelSubFile(
-    const QStringList &,
-    const QString &,
-    const PartType partType);         // fade and or highlight all parts in subfile
+  void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
 
   int whichFile(int option = 0);
+
   void openWithProgramAndArgs(QString &program, QStringList &arguments);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);

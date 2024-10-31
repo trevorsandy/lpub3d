@@ -76,7 +76,7 @@ void Gui::endMacro()
   --macroNesting;
   if (macroNesting == 0) {
     if (!suspendFileDisplay)
-      cyclePageDisplay(displayPageNum);
+      cyclePageDisplay(Gui::displayPageNum);
   }
 }
 

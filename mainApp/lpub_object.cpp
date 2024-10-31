@@ -1006,16 +1006,17 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
           emit lpub->messageSig(LOG_WARNING,tr("Step number is not an integer [%1]. Using 0").arg(keyArgs[2]), true);
           stepNumber = 0;
       }
-
-//      if (Preferences::debugLogging) {
-//          QString messsage = QString("Step Key parse OK, modelName: %1, lineNumber: %2, stepNumber: %3")
-//                                     .arg(modelName).arg(lineNumber).arg(stepNumber);
-//          if (!stepNumber && page.pli.tsize() && page.pli.bom)
-//              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
-//                                 .arg(stepPageNum);
-//          emit lpub->messageSig(LOG_DEBUG, messsage);
-//      }
-
+/*
+#ifdef QT_DEBUG_MODE
+          QString messsage = QString("Step Key parse OK, modelName: %1, lineNumber: %2, stepNumber: %3")
+                                     .arg(modelName).arg(lineNumber).arg(stepNumber);
+          if (!stepNumber && page.pli.tsize() && page.pli.bom)
+              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
+                                 .arg(Gui::stepPageNum);
+          emit lpub->messageSig(LOG_DEBUG, messsage);
+      }
+#endif
+//*/
       return true;
   }
 

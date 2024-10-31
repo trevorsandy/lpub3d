@@ -80,11 +80,11 @@ void Gui::clearPage(bool clearPageBg)
     // This call is also performed at the end of GraphicsPageItems()
     // It is here for Gui::closeModelFile() and Gui::openFile()
     if (clearPageBg) {
-        if (KpageView->pageBackgroundItem) {
-            delete KpageView->pageBackgroundItem;
-            KpageView->pageBackgroundItem = nullptr;
+        if (gui->KpageView->pageBackgroundItem) {
+            delete gui->KpageView->pageBackgroundItem;
+            gui->KpageView->pageBackgroundItem = nullptr;
         }
-        KpageScene->clear();
+        gui->KpageScene->clear();
     }
 }
 
@@ -347,7 +347,7 @@ int Gui::addGraphicsPageItems(
     bool singleStepPage = page->relativeType == SingleStepType && page->list.size();
 
     //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
-    //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
+    //                .arg(QString::number(pW), QString::number(pH)).arg(Gui::stepPageNum);
 
     pageBkGrndItem = new PageBackgroundItem(page, pW, pH, Gui::exporting());
 
@@ -403,7 +403,7 @@ int Gui::addGraphicsPageItems(
                     page,
                     page->meta.LPub.page.number,
                     "%d",
-                    stepPageNum,
+                    Gui::stepPageNum,
                     pageBkGrndItem);
 
         pageNumber->relativeType = PageNumberType;
@@ -417,7 +417,7 @@ int Gui::addGraphicsPageItems(
                 placementData.relativeTo == PageFooterType;
 
         if (pageNumberRelativeToPageItem) {
-            if (page->meta.LPub.page.togglePnPlacement.value() && ! (stepPageNum & 1)) {
+            if (page->meta.LPub.page.togglePnPlacement.value() && ! (Gui::stepPageNum & 1)) {
                 switch (placementData.placement) {
                 case TopLeft:
                     placementData.placement = TopRight;
@@ -2293,7 +2293,7 @@ int Gui::addContentPageAttributes(
                   }
               } else if (validPageNumber && icPld.relativeTo == PageNumberType) {
                   if (page->meta.LPub.page.togglePnPlacement.value() &&
-                          ! (stepPageNum % 2 /* if page is odd */)) {
+                          ! (Gui::stepPageNum % 2 /* if page is odd */)) {
                       switch (icPld.rectPlacement) {
                       case (TopLeftOutsideCorner):
                           instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);

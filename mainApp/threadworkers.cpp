@@ -2163,12 +2163,12 @@ int CountPageWorker::countPage(
 
   opts.flags.countInstances = meta->LPub.countInstance.value();
 
-  //* local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
+/* local displayPageNum used to set breakpoint condition (e.g. Gui::displayPageNum > 7)
 #ifdef QT_DEBUG_MODE
-  int displayPageNum = Gui::displayPageNum;
-  Q_UNUSED(displayPageNum)
+  int debugPageNum = Gui::displayPageNum;
+  Q_UNUSED(debugPageNum)
 #endif
-  //*/
+//*/
 
   Where topOfStep = opts.current;
   if (opts.flags.countPageContains) {
@@ -2184,10 +2184,12 @@ int CountPageWorker::countPage(
   if (opts.pageNum == 1 + Gui::pa && opts.current.modelName == ldrawFile->topLevelFile()) {
       if (!opts.stepNumber)
           opts.stepNumber = 1 + Gui::sa;
+/*
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page 000 topOfPage First Page         (opt) - LineNumber %2, ModelName %3")
                                                .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
+//*/
       Gui::topOfPages.clear();
       Gui::topOfPages.append(opts.current);
   }
@@ -2246,12 +2248,12 @@ int CountPageWorker::countPage(
       }
       modAttributes = i.value();
 
-      modAttributes[BM_DISPLAY_PAGE_NUM] = gui->saveDisplayPageNum;
+      modAttributes[BM_DISPLAY_PAGE_NUM] = Gui::saveDisplayPageNum;
       modAttributes[BM_STEP_PIECES]      = opts.flags.partsAdded;
       modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
       modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
       modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNumber;
-
+/*
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_TRACE, QString(
                   "Insert CountPage BuildMod StepIndex: %1, "
@@ -2273,33 +2275,33 @@ int CountPageWorker::countPage(
                   .arg(buildModLevel)
                   .arg(topOfStep.modelName));
 #endif
-
+//*/
       ldrawFile->insertBuildMod(buildModKey,
                                 modAttributes,
                                 buildModStepIndex);
   };
 
-//#ifndef QT_DEBUG_MODE
-//  auto documentPageCount = [&] ()
-//  {
-//      emit gui->messageSig(LOG_INFO_STATUS, tr("Counting document page %1...")
-//                           .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
-//  };
-//#endif
-
+/*
+#ifndef QT_DEBUG_MODE
+  auto documentPageCount = [&] ()
+  {
+      emit gui->messageSig(LOG_INFO_STATUS, tr("Counting document page %1...")
+                           .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
+  };
+#endif
+//*/
   for ( ;
         opts.current.lineNumber < opts.flags.numLines && ! Gui::abortProcess();
         opts.current.lineNumber++) {
 
-//* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
+/* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
 #ifdef QT_DEBUG_MODE
       int optsPageNum = opts.pageNum;
-      int saveDisplayPageNum = gui->saveDisplayPageNum;
+      int saveDebugPageNum = Gui::saveDisplayPageNum;
       Q_UNUSED(optsPageNum)
-      Q_UNUSED(saveDisplayPageNum)
+      Q_UNUSED(saveDebugPageNum)
 #endif
 //*/
-
       // if reading include file, return to current line, do not advance
 
       if (static_cast<Rc>(opts.flags.includeFileRc) != EndOfIncludeFileRc && opts.flags.includeFileFound) {
@@ -2450,7 +2452,7 @@ int CountPageWorker::countPage(
                                       meta->submodelStack.pop_back();       // remove where we stopped in the parent model
 
                                   // terminate build modification countPage at end of submodel
-                                  if (Gui::buildModJumpForward && ! opts.flags.callout && modelOpts.pageNum >= gui->saveDisplayPageNum) {
+                                  if (Gui::buildModJumpForward && ! opts.flags.callout && modelOpts.pageNum >= Gui::saveDisplayPageNum) {
                                       opts.flags.parseBuildMods = modelOpts.flags.parseBuildMods;
                                       if (! opts.flags.parseBuildMods)
                                           return static_cast<int>(drc);
@@ -2537,7 +2539,7 @@ int CountPageWorker::countPage(
                           // we will be at the bottom of the current (display) page as pageNum is advanced at the end of the page step,
                           // so set pageNum + 1 to use the correct page number to determine when to terminate the buildMod parse.
                           // Use <= comparison between (pageNum + 1 and displayPageNum) to parse buildMod up to display page.
-                          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
+                          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= Gui::saveDisplayPageNum);
                       }
                       // terminate parse build modification for steps after first step in step group
                       else if (opts.flags.parseStepGroupBM) {
@@ -2569,22 +2571,25 @@ int CountPageWorker::countPage(
 #endif
                       }
                   } // Exporting
-
+/*
 #ifdef QT_DEBUG_MODE
                   emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
                                        .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
+//*/
                   ++opts.pageNum;
                   Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
-//#ifndef QT_DEBUG_MODE
-//                  if (Preferences::debugLogging)
-//                      documentPageCount();
-//#endif
+/*
+#ifndef QT_DEBUG_MODE
+                  if (Preferences::debugLogging)
+                      documentPageCount();
+#endif
+//*/
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
 
               // terminate build modification countPage at end of step group
-              if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > gui->saveDisplayPageNum) {
+              if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > Gui::saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods)
                       opts.flags.numLines = opts.current.lineNumber;
               }
@@ -2595,8 +2600,8 @@ int CountPageWorker::countPage(
               if (Preferences::buildModEnabled) {
                   Where current = opts.current;
                   if (lpub->mi.scanForwardNoParts(current, StepMask|StepGroupMask) == StepGroupEndRc)
-                      gui->parseErrorSig(QString("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
-                                                 .arg(rc == BuildModRemoveRc ? QString("REMOVE") : QString("APPLY"))
+                      gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
+                                                 .arg(rc == BuildModRemoveRc ? QLatin1String("REMOVE") : QLatin1String("APPLY"))
                                                  .arg(meta->LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
                   // special case where we have BUILD_MOD and NOSTEP commands in the same single STEP
                   if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
@@ -2611,7 +2616,7 @@ int CountPageWorker::countPage(
                   // page processing step-groups STEPs after the first STEP.
                   if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM && ! opts.flags.callout) {
                       if (opts.flags.partsAdded)
-                          emit gui->parseErrorSig(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
+                          emit gui->parseErrorSig(tr("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                                   opts.current,Preferences::BuildModErrors,false,false);
                       buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber, true/*index check*/);
                       // if we are processing lines in the last step of a submodel, the topOfStep.lineNumber
@@ -2633,14 +2638,15 @@ int CountPageWorker::countPage(
                                                   opts.current,Preferences::BuildModErrors,false,false);
                       }
                       if ((Rc)buildMod.action != rc) {
-#ifdef QT_DEBUG_MODE 
+/*
+#ifdef QT_DEBUG_MODE
                       const QString message = tr("Jump forward Build Mod Reset Setup - Key: '%1', Current Action: %2, Next Action: %3") 
                                                  .arg(buildMod.key) 
                                                  .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)") 
-                                                 .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"); 
+                                                 .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)");
                       emit gui->messageSig(LOG_NOTICE, message); 
-                      //qDebug() << qPrintable(QString("DEBUG: %1").arg(message)); 
-#endif 
+#endif
+//*/
                           // get the viewerStepKey for the current step
                           const QString viewerStepKey = QString("%1;%2;%3%4")
                                                         .arg(topOfStep.modelIndex)
@@ -2703,10 +2709,10 @@ int CountPageWorker::countPage(
               // parse build modifications
               if (opts.flags.parseBuildMods) {
                   if (buildMod.level > 1 && buildMod.key.isEmpty())
-                      emit gui->parseErrorSig("Key required for nested build mod meta command",
+                      emit gui->parseErrorSig(tr("Key required for nested build mod meta command"),
                                               opts.current,Preferences::BuildModErrors,false,false);
                   if (buildMod.state != BM_BEGIN)
-                      emit gui->parseErrorSig(QString("Required meta BUILD_MOD BEGIN not found"),
+                      emit gui->parseErrorSig(tr("Required meta BUILD_MOD BEGIN not found"),
                                               opts.current, Preferences::BuildModErrors,false,false);
                   insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
               }
@@ -2719,7 +2725,7 @@ int CountPageWorker::countPage(
               // parse build modifications
               if (opts.flags.parseBuildMods) {
                   if (buildMod.state != BM_END_MOD)
-                      emit gui->parseErrorSig(QString("Required meta BUILD_MOD END_MOD not found"),
+                      emit gui->parseErrorSig(tr("Required meta BUILD_MOD END_MOD not found"),
                                               opts.current, Preferences::BuildModErrors,false,false);
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               }
@@ -2741,14 +2747,14 @@ int CountPageWorker::countPage(
                           // we will be at the bottom of the current (display) page as pageNum is advanced at the end of the page step,
                           // so set pageNum + 1 to use the correct page number to determine when to terminate the buildMod parse.
                           // Use <= comparison between (pageNum + 1 and displayPageNum) to parse buildMod up to display page.
-                          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
+                          opts.flags.parseBuildMods = ((opts.pageNum + 1) <= Gui::saveDisplayPageNum);
                       }
                       // BuildMod create
                       if (buildModKeys.size()) {
                           if (buildMod.state != BM_END)
-                              emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
+                              emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                       opts.current, Preferences::BuildModErrors,false,false);
-                          Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                          for (int buildModLevel : buildModKeys.keys())
                               insertBuildModification(buildModLevel);
                       }
                       buildModKeys.clear();
@@ -2783,17 +2789,20 @@ int CountPageWorker::countPage(
 #endif
                           }
                       } // Exporting
-
+/*
 #ifdef QT_DEBUG_MODE
-                      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
+                      emit gui->messageSig(LOG_NOTICE, tr("COUNTPAGE - Page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
                                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
+//*/
                       ++opts.pageNum;
                       Gui::topOfPages.append(opts.current); // Set TopOfStep (Step)
-//#ifndef QT_DEBUG_MODE
-//                      if (Preferences::debugLogging)
-//                          documentPageCount();
-//#endif
+/*
+#ifndef QT_DEBUG_MODE
+                      if (Preferences::debugLogging)
+                          documentPageCount();
+#endif
+//*/
 
                   } // ! StepGroup and ! Callout (Single step)
 
@@ -2825,7 +2834,7 @@ int CountPageWorker::countPage(
               opts.displayModel = false;
 
               // terminate build modification countPage at end of step
-              if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > gui->saveDisplayPageNum) {
+              if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > Gui::saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods && ! opts.flags.stepGroup)
                       opts.flags.numLines = opts.current.lineNumber;
               }
@@ -2898,8 +2907,7 @@ int CountPageWorker::countPage(
             case LeoCadGroupEndRc:
                opts.flags.partsAdded = true;
                break;
-
-            /*
+/*
             case IncludeRc:
               opts.flags.includeFileRc = gui->includePub(*meta,opts.flags.includeLineNum,opts.flags.includeFileFound); // includeHere and inserted are include(...) vars
               if (opts.flags.includeFileRc == static_cast<int>(IncludeFileErrorRc)) {
@@ -2911,8 +2919,7 @@ int CountPageWorker::countPage(
                   continue;
               }
               break;
-            */
-
+//*/
             case PageSizeRc:
               {
                 if (Gui::exporting()) {
@@ -2990,8 +2997,8 @@ int CountPageWorker::countPage(
           if (Gui::buildModJumpForward && ! opts.flags.stepGroup) {
               // we will be at the bottom of the current (display) page as pageNum is advanced at the end of the page step,
               // so set pageNum + 1 to use the correct page number to determine when to terminate the buildMod parse.
-              // Use <= comparison between (pageNum + 1 and displayPageNum) to parse buildMod up to display page.
-              opts.flags.parseBuildMods = ((opts.pageNum + 1) <= gui->saveDisplayPageNum);
+              // Use <= comparison between (pageNum + 1 and Gui::displayPageNum) to parse buildMod up to display page.
+              opts.flags.parseBuildMods = ((opts.pageNum + 1) <= Gui::saveDisplayPageNum);
           }
       }
       // Added callout step parse for parse build modifications so
@@ -3024,22 +3031,26 @@ int CountPageWorker::countPage(
           // BuildMod create
           if (buildModKeys.size()) {
               if (buildMod.state != BM_END)
-                  emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
+                  emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                           opts.current, Preferences::BuildModErrors,false,false);
-              Q_FOREACH (int buildModLevel, buildModKeys.keys())
+              for (int buildModLevel : buildModKeys.keys())
                   insertBuildModification(buildModLevel);
           }
+/*
 #ifdef QT_DEBUG_MODE
-          emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
+          emit gui->messageSig(LOG_NOTICE, tr("COUNTPAGE - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
                                .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
+//*/
           ++opts.pageNum;
           opts.flags.parseNoStep = false;
           Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
-//#ifndef QT_DEBUG_MODE
-//          if (Preferences::debugLogging)
-//              documentPageCount();
-//#endif
+/*
+#ifndef QT_DEBUG_MODE
+          if (Preferences::debugLogging)
+              documentPageCount();
+#endif
+//*/
       } // Last Step in Submodel
   } // ! abortProcess
 
@@ -3096,10 +3107,6 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
 {
     QMutexLocker loadLocker(&loadMutex);
 
-#ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG,QString("3.  Editor loading..."));
-#endif
-
     int lineCount = 0;
     QString content;
     QStringList contentList;
@@ -3112,8 +3119,8 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
             // open file for read
             QFile file(fileName);
             if (!file.open(QFile::ReadOnly | QFile::Text)) {
-                emit gui->messageSig(LOG_ERROR,QString("Cannot read editor display file %1:\n%2.")
-                                                       .arg(file.fileName()).arg(file.errorString()));
+                emit gui->messageSig(LOG_ERROR, tr("Cannot read editor display file %1:\n%2.")
+                                                  .arg(file.fileName()).arg(file.errorString()));
                 return 1;
             }
 
@@ -3130,7 +3137,7 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
             contentList = ldrawFile->contents(fileName);
             content = contentList.join("\n");
         } else {
-            emit gui->messageSig(LOG_ERROR,QString("No suitable data source detected for %1").arg(fileName));
+            emit gui->messageSig(LOG_ERROR, tr("No suitable data source detected for %1").arg(fileName));
             return 1;
         }
 
@@ -3146,9 +3153,6 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
     // set line count
     lineCount = contentList.size();
     if (lineCount) {
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("3a. Editor set line count to %1").arg(lineCount));
-#endif
         setLineCount(lineCount);
     } else {
         emit gui->messageSig(LOG_ERROR,QString("No lines detected in %1").arg(fileName));
@@ -3157,15 +3161,9 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
 
     // set content
     if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("3b. Editor load paged text started..."));
-#endif
         if (contentList.size())
             setPagedContent(contentList);
     } else {
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("3b. Editor load plain text started..."));
-#endif
         if (!content.isEmpty())
             setPlainText(content);
     }
