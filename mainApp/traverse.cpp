@@ -111,8 +111,8 @@ void Gui::remove_group(
   QStringList lids;
 
   if ((tinNull = in.size() != tin.size())) {
-    QString message(tr("CSI part list size [%1] does not match line index size [%2].")
-                       .arg(in.size()).arg(tin.size()));
+    QString const message(tr("CSI part list size [%1] does not match line index size [%2].")
+                             .arg(in.size()).arg(tin.size()));
     emit gui->messageSig(LOG_NOTICE, message);
   }
 
@@ -203,7 +203,7 @@ void Gui::remove_parttype(
   bool tinNull  = false;
 
   if ((tinNull = in.size() != tin.size())) {
-    QString message(tr("CSI part list size [%1] does not match line index size [%2].")
+    QString const message(tr("CSI part list size [%1] does not match line index size [%2].")
                             .arg(in.size()).arg(tin.size()));
     emit gui->messageSig(LOG_NOTICE, message);
   }
@@ -244,8 +244,8 @@ void Gui::remove_partname(
   name = name.toLower();
 
   if ((tinNull = in.size() != tin.size())) {
-    QString message(QString("CSI part list size [%1] does not match line index size [%2].")
-                            .arg(in.size()).arg(tin.size()));
+    QString const message(tr("CSI part list size [%1] does not match line index size [%2].")
+                             .arg(in.size()).arg(tin.size()));
     emit gui->messageSig(LOG_NOTICE, message);
   }
 
@@ -532,33 +532,32 @@ int Gui::drawPage(
         bool fin = status == end;
         QRegExp multiStepRx(" MULTI_STEP BEGIN$");
         bool stepGroup = fin ? multiStep : Gui::stepContains(where, multiStepRx);
-        QString message = QString("%1 %2 draw-page for page %3, step %4, model '%5'%6")
-                .arg(fin ? "Processed" : "Processing").arg(stepGroup ? "multi-step" : opts.calledOut ? "called out" : coverPage ? "cover page" : "single-step")
-                .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
-        emit messageSig(LOG_STATUS, message);
-        emit messageSig(fin ? LOG_TRACE : LOG_INFO, message);
-        //QApplication::processEvents();
+        QString const message = tr("%1 %2 draw-page for page %3, step %4, model '%5'%6")
+                .arg(fin ? tr("Processed") : tr("Processing")).arg(stepGroup ? "multi-step" : opts.calledOut ? tr("called out") : coverPage ? tr("cover page") : tr("single-step"))
+                .arg(Gui::displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
+        emit gui->messageSig(LOG_STATUS, message);
+        emit gui->messageSig(fin ? LOG_TRACE : LOG_INFO, message);
     };
 
     auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage]() {
         QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
         if (!lpub->page.coverPage && partsAdded) {
-            pageRenderMessage += QString("using %1 ").arg(rendererNames[Render::getRenderer()]);
+            pageRenderMessage += tr("using %1 ").arg(rendererNames[Render::getRenderer()]);
             QString renderAttributes;
             if (Render::getRenderer() == RENDERER_LDVIEW) {
                 if (Preferences::enableLDViewSingleCall)
-                    renderAttributes += QString("Single Call");
+                    renderAttributes += tr("Single Call");
                 if (Preferences::enableLDViewSnaphsotList)
-                    renderAttributes += QString(", Snapshot List");
+                    renderAttributes += tr(", Snapshot List");
             }
             if (!renderAttributes.isEmpty())
                 pageRenderMessage += QString("(%1) ").arg(renderAttributes);
-            pageRenderMessage += QString("render ");
+            pageRenderMessage += tr("render ");
         }
-        pageRenderMessage += QString("rendered page %1 - %2")
-                .arg(QString("%1%2").arg(displayPageNum).arg(coverPage ? " (Cover Page)" : ""))
-                .arg(elapsedTime(pageRenderTimer.elapsed()));
-        emit messageSig(LOG_TRACE, pageRenderMessage);
+        pageRenderMessage += tr("rendered page %1 - %2")
+                .arg(QString("%1%2").arg(Gui::displayPageNum).arg(coverPage ? tr(" (Cover Page)") : ""))
+                .arg(Gui::elapsedTime(pageRenderTimer.elapsed()));
+        emit gui->messageSig(LOG_TRACE, pageRenderMessage);
         Gui::revertPageProcess();
         //QApplication::processEvents();
     };
@@ -595,7 +594,7 @@ int Gui::drawPage(
 
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
         if (i == buildModAttributes.end()) {
-            emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+            emit gui->messageSig(LOG_ERROR, tr("Invalid BuildMod Entry for key: %1").arg(buildModKey));
             return;
         }
         modAttributes = i.value();
@@ -605,9 +604,9 @@ int Gui::drawPage(
         modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
         modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
         modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNum;
-
+/*
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString(
+        emit gui->messageSig(LOG_DEBUG, tr(
                             "Insert DrawPage BuildMod StepIndex: %1, "
                             "Action: Apply(64), "
                             "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
@@ -625,10 +624,10 @@ int Gui::drawPage(
                         .arg(buildModKey)
                         .arg(buildModLevel));
 #endif
-
-        insertBuildMod(buildModKey,
-                       modAttributes,
-                       buildModStepIndex);
+//*/
+        gui->insertBuildMod(buildModKey,
+                            modAttributes,
+                            buildModStepIndex);
         if (step->submodelStack().size())
             setBuildModSubmodelStack(buildModKey,step->submodelStack());
     };
@@ -1042,7 +1041,7 @@ int Gui::drawPage(
                 /* remind user what file we're working on */
 
                 if (!Gui::ContinuousPage())
-                    emit messageSig(LOG_STATUS, "Processing " + opts.current.modelName + "...");
+                    emit gui->messageSig(LOG_STATUS, tr("Processing %1...").arg(opts.current.modelName));
 
             } // Process called out submodel
 
@@ -1449,8 +1448,8 @@ int Gui::drawPage(
                         if (!Preferences::modeGUI && Preferences::lpub3dLoaded) {
                             lpub->ldrawFile.setUnofficialPart(curMeta.LPub.pli.begin.sub.value().part, UNOFFICIAL_PART);
                             message = tr("Substitute part %1 detected as a submodel %2. Subfile set to Unofficial Part")
-                                    .arg(curMeta.LPub.pli.begin.sub.value().part).arg(here);
-                            emit messageSig(LOG_WARNING, message);
+                                         .arg(curMeta.LPub.pli.begin.sub.value().part).arg(here);
+                            emit gui->messageSig(LOG_WARNING, message);
                         } else {
                             message = tr("Substitute part '%1' detected as a submodel %2.<br>"
                                          "Consider adding an !LDRAW_ORG unofficial part header to this subfile.<br>"
@@ -1838,7 +1837,7 @@ int Gui::drawPage(
                         pagePointers.insert(position,pp);
                     }
                 } else {
-                    emit messageSig(LOG_ERROR, tr("Page Position %1 does not exist.").arg(PositionNames[position]));
+                    emit gui->messageSig(LOG_ERROR, tr("Page Position %1 does not exist.").arg(PositionNames[position]));
                 }
             }
                 break;
@@ -1991,13 +1990,16 @@ int Gui::drawPage(
                         else
                             instances = lpub->mi.countInstances(&steps->meta, opts.current.modelName, opts.renderModelColour, countInstances);
                     }
-
+/*
 #ifdef QT_DEBUG_MODE
                     if (steps->meta.LPub.multiStep.pli.perStep.value() !=
                             steps->groupStepMeta.LPub.multiStep.pli.perStep.value())
-                        emit messageSig(LOG_TRACE, QString("COMPARE - StepGroup PLI per step: stepsMeta %1")
-                                        .arg(steps->meta.LPub.multiStep.pli.perStep.value() ? "[On], groupStepMeta [Off]" : "[Off], groupStepMeta [On]"));
+                        emit gui->messageSig(LOG_TRACE, QString("COMPARE - StepGroup PLI per step: stepsMeta %1")
+                                                                .arg(steps->meta.LPub.multiStep.pli.perStep.value()
+                                                                ? QString("[On], groupStepMeta [Off]")
+                                                                : QString("[Off], groupStepMeta [On]")));
 #endif
+//*/
                     // Pli per Step settings
                     if (opts.pliParts.size() && /*steps->meta*/steps->groupStepMeta.LPub.multiStep.pli.perStep.value() == false) {
                         PlacementData placementData;
@@ -2027,7 +2029,7 @@ int Gui::drawPage(
                                 steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(StepNumberType);
                             }
 #ifdef QT_DEBUG_MODE
-                            emit messageSig(LOG_DEBUG, "Add Step group step number for multi-step page " + opts.current.modelName);
+                            emit gui->messageSig(LOG_DEBUG, QString("Add Step group step number for multi-step page %1").arg(opts.current.modelName));
 #endif
                             // if PLI and Submodel Preview are relative to StepNumber or PLI relative to CSI (default)
                             placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
@@ -2082,10 +2084,10 @@ int Gui::drawPage(
                         steps->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->groupStepMeta);
 
                         if (!Gui::ContinuousPage())
-                            emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + opts.current.modelName);
+                            emit gui->messageSig(LOG_STATUS, tr("Add PLI images for multi-step page %1").arg(opts.current.modelName));
 
                         if (steps->pli.sizePli(&steps->groupStepMeta, StepGroupType, false) != 0)
-                            emit messageSig(LOG_ERROR, "Failed to set PLI (per Page) for " + topOfStep.modelName + "...");
+                            emit gui->messageSig(LOG_ERROR, tr("Failed to set PLI (per Page) for %1...").arg(topOfStep.modelName));
 
                         // SubModel Preview
                         if (steps->placeSubModel && steps->groupStepMeta.LPub.multiStep.subModel.show.value()) {
@@ -2095,11 +2097,11 @@ int Gui::drawPage(
                             steps->subModel.setSubModel(opts.current.modelName,steps->groupStepMeta);
 
                             if (!Gui::ContinuousPage())
-                                emit messageSig(LOG_INFO_STATUS, "Add Submodel Preview for multi-step page " + opts.current.modelName);
+                                emit gui->messageSig(LOG_INFO_STATUS, tr("Add Submodel Preview for multi-step page %1").arg(opts.current.modelName));
 
                             steps->subModel.displayInstanceCount = displayInstanceCount;
                             if (steps->subModel.sizeSubModel(&steps->groupStepMeta,StepGroupType,false) != 0)
-                                emit messageSig(LOG_ERROR, "Failed to set Submodel Preview for " + topOfStep.modelName + "...");
+                                emit gui->messageSig(LOG_ERROR, tr("Failed to set Submodel Preview for %1...").arg(topOfStep.modelName));
                         }
                     } // pli per step = false
                     else
@@ -2147,10 +2149,10 @@ int Gui::drawPage(
 
                     // set csi annotations - multistep
                     if (! exportingObjects()) {
-                        suspendFileDisplay = true;
+                        Gui::suspendFileDisplay = true;
                         //steps->setCsiAnnotationMetas();
                         returnValue = static_cast<TraverseRc>(lpub->mi.setCsiAnnotationMetas(steps));
-                        suspendFileDisplay = false;
+                        Gui::suspendFileDisplay = false;
                         if (Preferences::buildModEnabled && returnValue == HitCsiAnnotation)
                             return static_cast<int>(returnValue);
                     }
@@ -2165,7 +2167,7 @@ int Gui::drawPage(
                     }
 
                     if (!Gui::ContinuousPage())
-                        emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
+                        emit gui->messageSig(LOG_STATUS, tr("Generate CSI images for multi-step page  %1").arg(opts.current.modelName));
 
                     if (Render::useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
                         QElapsedTimer timer;
@@ -2175,13 +2177,13 @@ int Gui::drawPage(
                         // renderer parms are added to csiKeys in createCsi call
 
                         if (static_cast<TraverseRc>(renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta)) != HitNothing) {
-                            emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
+                            emit gui->messageSig(LOG_ERROR, tr("Render CSI images failed."));
                         }
 
-                        emit messageSig(LOG_INFO,
-                                        QString("%1 CSI (Single Call) render took "
-                                                "%2 milliseconds to render %3 [Step %4] %5 "
-                                                "for %6 step group on page %7.")
+                        emit gui->messageSig(LOG_INFO,
+                                        tr("%1 CSI (Single Call) render took "
+                                           "%2 milliseconds to render %3 [Step %4] %5 "
+                                           "for %6 step group on page %7.")
                                         .arg(rendererNames[Render::getRenderer()])
                                         .arg(timer.elapsed())
                                         .arg(opts.ldrStepFiles.size())
@@ -2205,7 +2207,7 @@ int Gui::drawPage(
                         }
 
                         if (lastStep && !lastStep->csiPixmap.isNull()) {
-                            emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
+                            emit gui->messageSig(LOG_DEBUG, tr("Step group last step number %1").arg(lastStep->stepNumber.number));
                             lpub->setCurrentStep(lastStep);
                             if (!exportingObjects()) {
                                 showLine(lastStep->topOfStep());
@@ -2262,6 +2264,7 @@ int Gui::drawPage(
                 if (buildModChange) {
                     buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, buildModStepIndex));
                     if (buildModActions.value(buildMod.level) != rc) {
+/*
 #ifdef QT_DEBUG_MODE
                         const QString message = tr("Build Mod Reset Setup - Key: '%1', Current Action: %2, Next Action: %3")
                                 .arg(buildMod.key)
@@ -2270,6 +2273,7 @@ int Gui::drawPage(
                         emit gui->messageSig(LOG_NOTICE, message);
                         //qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
+//*/
                         // set BuildMod step key for previous (e.g. BEGIN) action
                         const QString buildModStepKey = getViewerStepKey(getBuildModStepIndex(buildMod.key));
 
@@ -2482,7 +2486,7 @@ int Gui::drawPage(
                         if (buildModActionMeta.action())
                             step->buildModActionMeta = buildModActionMeta;
                     }
-                    emit messageSig(LOG_INFO, QString("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
+                    emit gui->messageSig(LOG_INFO, tr("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
 
                     step->updateViewer = opts.updateViewer;
 
@@ -2562,7 +2566,7 @@ int Gui::drawPage(
                             }
 
                             if (!Gui::ContinuousPage())
-                                emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
+                                emit gui->messageSig(LOG_INFO_STATUS, tr("Processing CSI for %1...").arg(topOfStep.modelName));
 
                             if (opts.displayModel)
                                 step->showStepNumber = curMeta.LPub.assem.showStepNumber.value();
@@ -2579,7 +2583,7 @@ int Gui::drawPage(
 
                             configuredCsiParts = step->configureModelStep(opts.csiParts, topOfStep);
 
-                            returnValue = static_cast<TraverseRc>(step->createCsi(opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                            returnValue = static_cast<TraverseRc>(step->createCsi(opts.isMirrored ? addLine : QLatin1String("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr"),
                                                                                   configuredCsiParts,
                                                                                   opts.lineTypeIndexes,
                                                                                   &step->csiPixmap,
@@ -2606,14 +2610,14 @@ int Gui::drawPage(
                                 opts.pliParts.clear();
                                 opts.pliPartGroups.clear();
 
-                                emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
+                                emit gui->messageSig(LOG_INFO, tr("Processing PLI for %1...").arg(topOfStep.modelName));
 
                                 step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                             } // Pli per Step
 
                             // Place SubModel at Step 1
                             if (!opts.displayModel && step->placeSubModel) {
-                                emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+                                emit gui->messageSig(LOG_INFO, tr("Set first step submodel display for %1...").arg(topOfStep.modelName));
 
                                 // get the number of submodel instances in the model file
                                 instances = lpub->ldrawFile.instances(opts.current.modelName, opts.isMirrored);
@@ -2637,7 +2641,7 @@ int Gui::drawPage(
                                 step->subModel.displayInstanceCount = displayInstanceCount;
 
                                 if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                    emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                                    emit gui->messageSig(LOG_ERROR, tr("Failed to set first step submodel display for %1...").arg(topOfStep.modelName));
                             }
                             else
                             {
@@ -2676,7 +2680,7 @@ int Gui::drawPage(
                             step->placeRotateIcon = rotateIcon;
 
                             if (returnValue != HitNothing)
-                                emit messageSig(LOG_ERROR, tr("Create CSI failed to create file."));
+                                emit gui->messageSig(LOG_ERROR, tr("Create CSI failed to create file."));
 
                             // BuildMod create and update - performed after createCsi to enable viewerStepKey
                             if (buildModKeys.size()) {
@@ -2801,13 +2805,13 @@ int Gui::drawPage(
                                             opts.pliParts.clear();
                                             opts.pliPartGroups.clear();
 
-                                            emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
+                                            emit gui->messageSig(LOG_INFO, tr("Add PLI images for single-step page..."));
 
                                             step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
 
                                             // SM
                                             if (step->placeSubModel) {
-                                                emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+                                                emit gui->messageSig(LOG_INFO, tr("Set first step submodel display for %1...").arg(topOfStep.modelName));
 
                                                 steps->meta.LPub.subModel.instance.setValue(instances);
                                                 step->subModel.setSubModel(opts.current.modelName,steps->meta);
@@ -2815,14 +2819,14 @@ int Gui::drawPage(
                                                 step->subModel.displayInstanceCount = displayInstanceCount;
 
                                                 if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                                    emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                                                    emit gui->messageSig(LOG_ERROR, tr("Failed to set first step submodel display for %1...").arg(topOfStep.modelName));
                                             }
                                         }
                                     } // Not PLI per step
                                 } // Valid page
                             }  // Submodel instances greater than 1
 
-                            emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
+                            emit gui->messageSig(LOG_INFO, tr("Generate CSI image for single-step page..."));
 
                             if (Render::useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
 
@@ -2835,18 +2839,18 @@ int Gui::drawPage(
                                 // render the partially assembled model
                                 returnValue = static_cast<TraverseRc>(renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta));
                                 if (returnValue != HitNothing)
-                                    emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
+                                    emit gui->messageSig(LOG_ERROR, tr("Render CSI images failed."));
 
-                                emit messageSig(LOG_INFO,
-                                                QString("%1 CSI (Single Call) render took "
-                                                        "%2 milliseconds to render %3 [Step %4] %5 for %6 "
-                                                        "single step on page %7.")
+                                emit gui->messageSig(LOG_INFO,
+                                                tr("%1 CSI (Single Call) render took "
+                                                   "%2 milliseconds to render %3 [Step %4] %5 for %6 "
+                                                   "single step on page %7.")
                                                 .arg(rendererNames[Render::getRenderer()])
                                                 .arg(timer.elapsed())
                                                 .arg(opts.ldrStepFiles.size())
                                                 .arg(opts.stepNum)
-                                                .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
-                                                .arg(opts.calledOut ? "called out," : "simple,")
+                                                .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"))
+                                                .arg(opts.calledOut ? tr("called out,") : tr("simple,"))
                                                 .arg(stepPageNum));
                             } // useLDViewSCall()
 
@@ -2884,7 +2888,7 @@ int Gui::drawPage(
 
                                     if (step) {
                                         const QString cover = frontCover ? tr("front cover") : tr("back cover");
-                                        emit messageSig(LOG_INFO, QString("Set cover page preview model display at %1 for %2, step number %3...")
+                                        emit gui->messageSig(LOG_INFO, tr("Set cover page preview model display at %1 for %2, step number %3...")
                                                         .arg(cover).arg(topOfStep.modelName).arg(stepNum));
                                         step->setBottomOfStep(opts.current);
                                         step->displayStep = DT_MODEL_COVER_PAGE_PREVIEW;
@@ -3051,21 +3055,21 @@ int Gui::drawPage(
                 QString message;
                 if (Preferences::preferredRenderer == RENDERER_NATIVE &&
                         line.indexOf("CAMERA_FOV") != -1)
-                    message = QString("Native renderer CAMERA_FOV value is out of range [%1:%2]"
-                                      "<br>Meta command: %3"
-                                      "<br>Valid values: minimum 1.0, maximum 359.0")
+                    message = tr("Native renderer CAMERA_FOV value is out of range [%1:%2]"
+                                 "<br>Meta command: %3"
+                                 "<br>Valid values: minimum 1.0, maximum 359.0")
                             .arg(opts.current.modelName)
                             .arg(opts.current.lineNumber)
                             .arg(line);
                 else
-                    message = QString("Parameter(s) out of range: %1:%2<br>Meta command: %3")
-                            .arg(opts.current.modelName)
-                            .arg(opts.current.lineNumber)
-                            .arg(line);
+                    message = tr("Parameter(s) out of range: %1:%2<br>Meta command: %3")
+                                 .arg(opts.current.modelName)
+                                 .arg(opts.current.lineNumber)
+                                 .arg(line);
 
                 returnValue = HitRangeError;
 
-                emit messageSig(LOG_ERROR,message);
+                emit gui->messageSig(LOG_ERROR,message);
 
             }
             default:
@@ -3118,17 +3122,19 @@ int Gui::findPage(
     Gui::setPageProcessRunning(PROC_FIND_PAGE);
 
     if (!Gui::ContinuousPage())
-        emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
+        emit gui->messageSig(LOG_STATUS, tr("Processing find page for %1...").arg(opts.current.modelName));
 
     skipHeader(opts.current);
 
     opts.stepNumber = 1 + Gui::sa;
 
     if (opts.pageNum == 1 + Gui::pa) {
+/*
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_NOTICE, QString("FINDPAGE  - Page 000 topOfPage First Page Start   (ops) - LineNumber %1, ModelName %2")
-                        .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+        emit gui->messageSig(LOG_NOTICE, tr("FINDPAGE  - Page 000 topOfPage First Page Start   (ops) - LineNumber %1, ModelName %2")
+                                            .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
+//*/
         Gui::topOfPages.clear();
         Gui::topOfPages.append(opts.current);
         LDrawFile::_currentLevels.clear();
@@ -3205,7 +3211,7 @@ int Gui::findPage(
 
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
         if (i == buildModAttributes.end()) {
-            emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+            emit gui->messageSig(LOG_ERROR, tr("Invalid BuildMod Entry for key: %1").arg(buildModKey));
             return;
         }
         modAttributes = i.value();
@@ -3215,7 +3221,7 @@ int Gui::findPage(
         modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
         modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
         modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNumber;
-
+/*
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString(
                                  "Insert FindPage BuildMod StepIndex: %1, "
@@ -3235,7 +3241,7 @@ int Gui::findPage(
                              .arg(buildModKey)
                              .arg(buildModLevel));
 #endif
-
+//*/
         insertBuildMod(buildModKey,
                        modAttributes,
                        buildModStepIndex);
@@ -3756,11 +3762,12 @@ int Gui::findPage(
 #endif
                         }
                     } // Exporting
-
+/*
 #ifdef QT_DEBUG_MODE
-                    emit messageSig(LOG_NOTICE, QString("FINDPAGE  - Page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
+                    emit gui->messageSig(LOG_NOTICE, tr("FINDPAGE  - Page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
                                     .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
+//*/
                     ++opts.pageNum;
                     Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                     saveStepPageNum = ++stepPageNum;
@@ -4022,11 +4029,12 @@ int Gui::findPage(
 #endif
                                     }
                                 } // Exporting
-
+/*
 #ifdef QT_DEBUG_MODE
-                                emit messageSig(LOG_NOTICE, QString("FINDPAGE  - Page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
+                                emit gui->messageSig(LOG_NOTICE, QString("FINDPAGE  - Page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
                                                 .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
+//*/
                                 ++opts.pageNum;
                                 Gui::topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
                             } // ! opts.flags.noStep && ! StepGroup (StepRc,RotStepRc)
@@ -4285,8 +4293,8 @@ int Gui::findPage(
                     if (Preferences::buildModEnabled != enabled) {
                         Preferences::buildModEnabled  = enabled;
                         enableVisualBuildModification();
-                        emit messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                        .arg(enabled ? "Enabled" : "Disabled"));
+                        emit gui->messageSig(LOG_INFO, tr("Build Modifications are %1")
+                                                          .arg(enabled ? tr("Enabled") : tr("Disabled")));
                     }
                 }
                 break;
@@ -4298,8 +4306,8 @@ int Gui::findPage(
                     if (Preferences::finalModelEnabled != enabled) {
                         Preferences::finalModelEnabled  = enabled;
                         enableVisualBuildModification();
-                        emit messageSig(LOG_INFO, QString("Fade/Highlight final model step is %1")
-                                        .arg(enabled ? "Enabled" : "Disabled"));
+                        emit gui->messageSig(LOG_INFO, tr("Fade/Highlight final model step is %1")
+                                                          .arg(enabled ? tr("Enabled") : tr("Disabled")));
                     }
                 }
                 break;
@@ -4436,11 +4444,12 @@ int Gui::findPage(
 #endif
                 }
             } // Exporting
-
+/*
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_NOTICE, QString("FINDPAGE  - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
+            emit gui->messageSig(LOG_NOTICE, QString("FINDPAGE  - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
                             .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
+//*/
             ++opts.pageNum;
             ++stepPageNum;
             topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
@@ -4541,8 +4550,8 @@ int Gui::getBOMParts(
                   int i;
                   for (i = 0; i < bfxParts.size(); i++) {
                       if (bfxParts[i] == colorPart) {
-                          emit messageSig(LOG_NOTICE, QString("Duplicate PliPart at line [%1] removed [%2].")
-                                          .arg(current.lineNumber).arg(line));
+                          emit gui->messageSig(LOG_NOTICE, tr("Duplicate PliPart at line [%1] removed [%2].")
+                                                              .arg(current.lineNumber).arg(line));
                           bfxParts.removeAt(i);
                           removed = true;
                           break;
@@ -4834,7 +4843,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
     });
     asynchronous(future);
     if (! Gui::bomParts.size()) {
-        emit lpub->messageSig(LOG_ERROR,QMessageBox::tr("No BOM parts were detected."));
+        emit lpub->messageSig(LOG_ERROR, tr("No BOM parts were detected."));
         return false;
     }
 
@@ -4846,15 +4855,15 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
         if (bomPartsString.startsWith("1")) {
             QStringList partComponents = bomPartsString.split(";");
             Gui::bomParts << partComponents.at(0);
-            emit lpub->messageSig(LOG_DEBUG,QMessageBox::tr("%1 added to export list.").arg(partComponents.at(0)));
+            emit lpub->messageSig(LOG_DEBUG, tr("%1 added to export list.").arg(partComponents.at(0)));
         }
     }
-    emit messageSig(LOG_INFO,QMessageBox::tr("%1 BOM parts processed.").arg(Gui::bomParts.size()));
+    emit gui->messageSig(LOG_INFO, tr("%1 BOM parts processed.").arg(Gui::bomParts.size()));
 
     // create a BOM parts file
     QFile bomFile(bomFileName);
     if ( ! bomFile.open(QIODevice::WriteOnly)) {
-        emit lpub->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open BOM parts file for writing: %1, %2.")
+        emit lpub->messageSig(LOG_ERROR, tr("Cannot open BOM parts file for writing: %1, %2.")
                               .arg(bomFileName)
                               .arg(bomFile.errorString()));
         return false;
@@ -4953,7 +4962,7 @@ void Gui::countPages()
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
       }
 
-      emit messageSig(LOG_TRACE, message);
+      emit gui->messageSig(LOG_TRACE, message);
 
       FindPageOptions opts(
                   Gui::maxPages,      /*pageNum*/
@@ -5009,8 +5018,8 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         lpub->meta           = Meta();
 /*
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-    emit messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(displayPageNum));
+    emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+    emit gui->messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(displayPageNum));
 #endif
 //*/
         // set next step index and test index is display page index - i.e. refresh a page
@@ -5090,7 +5099,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
     if (!buildModClearStepKey.isEmpty()) {
 /*
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_DEBUG, QString("Reset BuildMod images from step key %1...").arg(buildModClearStepKey));
+    emit gui->messageSig(LOG_DEBUG, QString("Reset BuildMod images from step key %1...").arg(buildModClearStepKey));
 #endif
 //*/
 
@@ -5398,17 +5407,17 @@ void Gui::pagesCounted()
 
 /*
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
+    emit gui->messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
                     .arg(Gui::maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     if (!saveDisplayPageNum) {
-        emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-        emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(Gui::maxPages));
-        emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+        emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+        emit gui->messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(Gui::maxPages));
+        emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
 
 //        for (int i = 0; i < Gui::topOfPages.size(); i++)
 //        {
 //            Where top = Gui::topOfPages.at(i);
-//            emit messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+//            emit gui->messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
 //                            .arg(i, 3, 10, QChar('0'))               // index
 //                            .arg(top.modelIndex, 3, 10, QChar('0'))  // modelIndex
 //                            .arg(top.lineNumber, 3, 10, QChar('0'))  // lineNumber
@@ -5453,7 +5462,7 @@ void Gui::pagesCounted()
                                        .arg(lpub->ldrawFile.getPartCount())
                                        .arg(elapsedTime(displayPageTimer.elapsed())));
                 if (!Gui::maxPages && !lpub->ldrawFile.getPartCount()) {
-                    emit gui->messageSig(LOG_ERROR,tr("LDraw file '%1' is invalid - nothing loaded.")
+                    emit gui->messageSig(LOG_ERROR, tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
                     closeModelFile();
                     if (waitingSpinner->isSpinning())
@@ -5461,7 +5470,7 @@ void Gui::pagesCounted()
                 }
             } // modeGUI and not exporting
         } else if (! Gui::ContinuousPage()) {
-            emit gui->messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
+            emit gui->messageSig(LOG_INFO_STATUS, tr("Page %1 %2. %3.")
                             .arg(Gui::exporting() && Gui::displayPageNum < Gui::maxPages ? Gui::displayPageNum + 1 : Gui::displayPageNum)
                             .arg(Gui::exporting() ? tr("exported") : tr("loaded"))
                             .arg(gui->elapsedTime(displayPageTimer.elapsed())));
@@ -5587,14 +5596,14 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
         if (fileInfo.isReadable()) {
             QFile file(filePath);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                emit messageSig(LOG_ERROR, QString("Cannot read include file %1<br>%2")
+                emit gui->messageSig(LOG_ERROR, tr("Cannot read include file %1<br>%2")
                                                    .arg(filePath)
                                                    .arg(file.errorString()));
                 meta.LPub.include.setValue(QString());
                 return static_cast<int>(IncludeFileErrorRc);
             }
 
-            emit messageSig(LOG_TRACE, QString("Loading include file '%1'...").arg(filePath));
+            emit gui->messageSig(LOG_TRACE, tr("Loading include file '%1'...").arg(filePath));
 
             QTextStream in(&file);
             in.setCodec(lpub->ldrawFile._currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
@@ -5632,7 +5641,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 
             updateMpdCombo();
 
-            emit messageSig(LOG_TRACE, QString("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
+            emit gui->messageSig(LOG_TRACE, tr("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
 
             rc = EndOfIncludeFileRc;
 
@@ -5735,7 +5744,7 @@ int Gui::setBuildModForNextStep(
 
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
         if (i == buildModAttributes.end()) {
-            emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+            emit gui->messageSig(LOG_ERROR, tr("Invalid BuildMod Entry for key: %1").arg(buildModKey));
             return;
         }
         modAttributes = i.value();
@@ -5744,7 +5753,7 @@ int Gui::setBuildModForNextStep(
         modAttributes[BM_STEP_PIECES]      = partsAdded;
         modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
         modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
-
+/*
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG, QString(
                            "Insert NextStep BuildMod StepIndex: %1, "
@@ -5766,7 +5775,7 @@ int Gui::setBuildModForNextStep(
                            .arg(buildModLevel)
                            .arg(topOfStep.modelName));
 #endif
-
+//*/
         insertBuildMod(buildModKey,
                        modAttributes,
                        buildModStepIndex);
@@ -5826,19 +5835,19 @@ int Gui::setBuildModForNextStep(
         startLine  = topOfSubmodel.lineNumber;
         startModel = topOfSubmodel.modelName;
         topOfStep  = topOfSubmodel;
-
+/*)
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_NOTICE, QString("Build Modification Next Step Check - Index: %1, Submodel: '%2'...")
                                                  .arg(buildModNextStepIndex).arg(topOfSubmodel.modelName));
 #endif
-
+//*/
     } else {
-        //* local ldrawFile used for debugging
+/* LOCAL LDRAWFILE USED FOR DEBUGGING
 #ifdef QT_DEBUG_MODE
         LDrawFile *ldrawFile = &lpub->ldrawFile;
         Q_UNUSED(ldrawFile)
 #endif
-        //*/
+ //*/
         emit gui->messageSig(LOG_INFO, QString("Build Modification Next Step Check - Index: %1, Model: '%2', Line '%3'...")
                                                       .arg(buildModNextStepIndex).arg(topOfStep.modelName).arg(topOfStep.lineNumber));
 
@@ -5851,18 +5860,19 @@ int Gui::setBuildModForNextStep(
 
         deleteBuildMods(startIndex);                // clear all build mods at and after delete index - used after jump ahead and for backward navigation
 
-
+/*
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Next StartStep - Index: %1, ModelName: %2, LineNumber: %3")
                                                 .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
-
+//*/
         if (Gui::buildModJumpForward)                    // jump forward by more than one step/page
             emit gui->countPagesSig();              // set build mods in countPages call
         else if (Gui::pageDirection != PAGE_FORWARD)     // jump backward by one or more steps/pages
             setBuildModNavBackward();               // set build mod last action for mods up to next step index
 
         if (Gui::pageDirection != PAGE_FORWARD) {
+/*
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_TRACE, QString("BuildMod Next Jump %1 - Amount: %2 (Steps), StartModel: %3, "
                                                     "StartLine: %4, ModelName: %5, LineNumber: %6")
@@ -5872,6 +5882,7 @@ int Gui::setBuildModForNextStep(
                                                     .arg(topOfNextStep.modelName)
                                                     .arg(topOfNextStep.lineNumber));
 #endif
+//*/
             return HitBottomOfStep;
         }
     }
@@ -5883,10 +5894,12 @@ int Gui::setBuildModForNextStep(
     int hitEndOfSubmodel = 0;
     while (walk.lineNumber == numLines && walk.modelName != topLevelFile()) {
         int nextStepIndex = getStepIndex(walk);
+/*
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Skip BuildMod Next StepIndex %1, hit end of submodel at ModelName: %2, LineNumber: %3.")
                            .arg(nextStepIndex).arg(walk.modelName).arg(walk.lineNumber));
 #endif
+//*/
         if (hitEndOfSubmodel > 1)
             setBuildModNextStepIndex(walk);
         if (getBuildModStepIndexWhere(++nextStepIndex, walk)) {
@@ -5896,12 +5909,14 @@ int Gui::setBuildModForNextStep(
     }
 
     if (hitEndOfSubmodel) {
+/*
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Next EndStep - Index: %1, ModelName: %2, LineNumber: %3")
                              .arg(buildModNextStepIndex)
                              .arg(walk.modelName)
                              .arg(walk.lineNumber));
 #endif
+//*/
         return HitEndOfSubmodel;
     }
 
@@ -6058,12 +6073,14 @@ int Gui::setBuildModForNextStep(
         if (Gui::abortProcess()) {
             returnValue = HitAbortProcess;
         } else if (bottomOfStep) {
+/*
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_TRACE, QString("BuildMod Next EndStep - Index: %1, ModelName: %2, LineNumber: %3")
                                                     .arg(buildModNextStepIndex)
                                                     .arg(walk.modelName)
                                                     .arg(walk.lineNumber));
 #endif
+//*/
             returnValue = HitBottomOfStep;
         } else {
             returnValue = HitEndOfFile;
@@ -6094,7 +6111,7 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
   QFile file(filePath);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
       emit gui->messageSig(LOG_ERROR, tr("Failed to open %1 for writing:<br>%2")
-                                              .arg(filePath).arg(file.errorString()));
+                                         .arg(filePath).arg(file.errorString()));
       return QStringList();
     } else if (!parseContent) {
       QTextStream out(&file);
@@ -6355,7 +6372,7 @@ void Gui::writeToTmp()
                       ? tr("unofficial %1part ").arg(displayModel ? tr("display ") : QString())
                       : tr("%1submodel ").arg(displayModel ? tr("display ") : QString());
 
-          QString const message = QString("Writing %1'%2' to temp folder...").arg(fileType).arg(fileName);
+          QString const message = tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fileName);
 
           QString progressMessage = message;
 
