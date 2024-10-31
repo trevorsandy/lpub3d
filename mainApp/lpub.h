@@ -1747,7 +1747,7 @@ private:
     QString const   &addLine,                // page, and then finish by counting the rest
     FindPageOptions &opts);
 
-  int drawPage(                              // process the page of interest and any callouts
+  static int drawPage(                              // process the page of interest and any callouts
     Steps          *steps,
     QString const   &addLine,
     DrawPageOptions &opts);
