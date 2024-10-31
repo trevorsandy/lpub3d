@@ -645,7 +645,7 @@ void Gui::nextPageContinuous()
       Gui::cancelContinuousPage();
       return;
     } else {                              // Oops, do not want to terminate
-      setPageContinuousIsRunning(true, PAGE_NEXT);
+      Gui::setPageContinuousIsRunning(true, PAGE_NEXT);
     }
   }
   // If user clicks Next page process while Previous page process is still running
@@ -660,12 +660,12 @@ void Gui::nextPageContinuous()
 
     // User wants to stop Previous page process
     if (box.exec() == QMessageBox::Yes) {
-      setPageContinuousIsRunning(false, PAGE_PREVIOUS);
+      Gui::setPageContinuousIsRunning(false, PAGE_PREVIOUS);
       Gui::continuousPageDialog(PAGE_NEXT);
     }
     // User wants to continue running Previous page process so stop Next
     else {
-      setPageContinuousIsRunning(false, PAGE_NEXT);
+      Gui::setPageContinuousIsRunning(false, PAGE_NEXT);
       return;
     }
   // No conflicts, everything looks good, let's go
@@ -742,7 +742,7 @@ void Gui::previousPageContinuous()
       Gui::cancelContinuousPage();
       return;
     } else {                                // Oops, do not want to terminate
-      setPageContinuousIsRunning(true, PAGE_PREVIOUS);
+      Gui::setPageContinuousIsRunning(true, PAGE_PREVIOUS);
     }
   }
   // If user clicks Previous page process while Next page process is still running
@@ -757,12 +757,12 @@ void Gui::previousPageContinuous()
 
     // User wants to stop Next page process
     if (box.exec() == QMessageBox::Yes) {
-      setPageContinuousIsRunning(false, PAGE_NEXT);
+      Gui::setPageContinuousIsRunning(false, PAGE_NEXT);
       continuousPageDialog(PAGE_PREVIOUS);
     }
     // User wants to continue running Next page process so stop Previous
     else {
-      setPageContinuousIsRunning(false, PAGE_PREVIOUS);
+      Gui::setPageContinuousIsRunning(false, PAGE_PREVIOUS);
       return;
     }
   // No conflicts, everything looks good, let's go

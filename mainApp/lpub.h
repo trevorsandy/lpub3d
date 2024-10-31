@@ -1445,7 +1445,7 @@ public slots:
   static void setContinuousPage(bool b) { m_contPageProcessing = b; m_abort = m_contPageProcessing && !b ? true : m_abort; }
   static void cancelContinuousPage() { m_contPageProcessing = false; m_abort = m_contPageProcessing ? true : m_abort; }
   void setContinuousPageAct(PageActType p = SET_DEFAULT_ACTION);
-  void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
+  static void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
 
   // left side progress bar
   void progressBarInit();
