@@ -1736,6 +1736,9 @@ private:
 
   bool     previousPageContinuousIsRunning;  // stop the continuous previous page action
   bool     nextPageContinuousIsRunning;      // stop the continuous next page action
+
+  static int include(Meta &meta, int &lineNumber, bool &includeFileFound);
+
   static QStringList configureModelSubFile(
     const QStringList &,
     const QString &,
@@ -1757,9 +1760,6 @@ private:
           QMap<Where, SceneObjectData> *selectedSceneItems,
           Meta &curMeta,
     const QString &line);
-
-
-  int include(Meta &meta, int &lineNumber, bool &includeFileFound);
 
   int addStepImageGraphics(Step    *step); //recurse the step's model - including callouts to add images.
 

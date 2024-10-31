@@ -1402,7 +1402,7 @@ int Gui::drawPage(
                 break;
 
             case IncludeRc:
-                includeFileRc = Rc(include(curMeta,includeHere.lineNumber,includeFileFound)); // includeHere and inserted are include(...) vars
+                includeFileRc = Rc(Gui::include(curMeta,includeHere.lineNumber,includeFileFound)); // includeHere and inserted are include(...) vars
                 if (includeFileRc == IncludeFileErrorRc) {
                     includeFileRc = EndOfIncludeFileRc;
                     emit gui->parseErrorSig(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors);  // file parse error
@@ -5515,7 +5515,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
     {
         Rc prc = InvalidLineRc;
         Where here(fileName,lineNumber);
-        QString line = readLine(here);
+        QString line = gui->readLine(here);
 
         if (line.isEmpty())
            return prc;
@@ -5556,18 +5556,18 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 
     auto updateMpdCombo = [&] ()
     {
-        QString const includeFile = QString("%1 - Include File").arg(fileName);
-        int includeIndex = mpdCombo->findText(includeFile);
+        QString const includeFile = tr("%1 - Include File").arg(fileName);
+        int includeIndex = gui->mpdCombo->findText(includeFile);
 
         if (includeIndex == -1) {
-            int comboIndex = mpdCombo->count() - 1;
+            int comboIndex = gui->mpdCombo->count() - 1;
             if (lpub->ldrawFile.includeFileList().size() == 1) {
-                mpdCombo->addSeparator();
+                gui->mpdCombo->addSeparator();
                 comboIndex++;
             }
-            mpdCombo->addItem(includeFile, fileName);
+            gui->mpdCombo->addItem(includeFile, fileName);
             comboIndex++;
-            mpdCombo->setItemData(comboIndex, QBrush(Preferences::darkTheme ? Qt::cyan : Qt::blue), Qt::TextColorRole);
+            gui->mpdCombo->setItemData(comboIndex, QBrush(Preferences::darkTheme ? Qt::cyan : Qt::blue), Qt::TextColorRole);
             return true;
         }
         return false;
@@ -5624,7 +5624,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             file.close();
 
             if (contents.size()) {
-                disableWatcher();
+                gui->disableWatcher();
                 QDateTime datetime = fileInfo.lastModified();
                 lpub->ldrawFile.insert(fileInfo.fileName(),
                                        contents,
@@ -5636,7 +5636,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
                                        false/*dataFile*/,
                                        fileInfo.absoluteFilePath(),
                                        fileInfo.completeBaseName());
-                enableWatcher();
+                gui->enableWatcher();
             }
 
             updateMpdCombo();
