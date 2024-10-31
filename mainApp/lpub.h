@@ -1756,7 +1756,7 @@ private:
     QString const   &addLine,
     DrawPageOptions &opts);
 
-  void setSceneItemZValueDirection(
+  static void setSceneItemZValueDirection(
           QMap<Where, SceneObjectData> *selectedSceneItems,
           Meta &curMeta,
     const QString &line);

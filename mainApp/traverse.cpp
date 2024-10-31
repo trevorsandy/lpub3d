@@ -1726,7 +1726,7 @@ int Gui::drawPage(
                 break;
 
             case SceneItemZValueDirectionRc:
-                setSceneItemZValueDirection(&selectedSceneItems, curMeta, line);
+                Gui::setSceneItemZValueDirection(&selectedSceneItems, curMeta, line);
                 break;
 
             case PliPartGroupRc:
