@@ -103,7 +103,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
     }
 
-    ui->spinPixelRatio->setValue(gui->exportPixelRatio);
+    ui->spinPixelRatio->setValue(Gui::exportPixelRatio);
     ui->spinPixelRatio->setToolTip(tr("Change the export DPI pixel ratio. When not 1.0, Use Page Image is automatically is selected."));
 
     ui->checkBoxResetCache->setChecked(false);
@@ -237,7 +237,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     case EXPORT_PNG:
     case EXPORT_JPG:
     case EXPORT_BMP:
-        getPixelRatioMsg(gui->exportPixelRatio);
+        getPixelRatioMsg(Gui::exportPixelRatio);
         groupBoxPixelRatio(true);
     break;
     default:

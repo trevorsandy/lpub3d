@@ -133,6 +133,7 @@ int          Gui::saveContStepNum;        // saved continuous step number for st
 int          Gui::saveGroupStepNum;       // saved step group step number when pli per step is false
 int          Gui::saveDisplayPageNum;     // saved display page number when counting pages
 int          Gui::saveMaxPages;           // saved page count when count (actually parse) build mods requested
+qreal        Gui::exportPixelRatio;       // export resolution pixel density
 
 bool         Gui::saveProjection;         // saved projection when temporarily switching to Native renderer
 bool         Gui::buildModJumpForward;    // parse build mods in countPage call - special case for jump forward
