@@ -1822,8 +1822,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             Q_FOREACH (QGraphicsItem *item, overlapItems) {
                 qreal itemZValue = item->zValue() ;
                 SceneObject itemObjO = SceneObject(item->data(ObjectId).toInt());
-                bool itemIsUserSceneObject = isUserSceneObject(itemObjO);
-                if (itemIsUserSceneObject) {
+                if (Gui::isUserSceneObject(itemObjO)) {
                     if (direction == SendToBack) {
                         if (itemZValue <= zValue)
                             zValue = item->zValue() - 1.0;

@@ -1737,7 +1737,7 @@ private:
     return (Preferences::lpub3dLoaded && Preferences::modeGUI && !Gui::exporting());
   }
 
-  bool isUserSceneObject(const int so);
+  static bool isUserSceneObject(const int so);
 
   static int include(Meta &meta, int &lineNumber, bool &includeFileFound);
 
