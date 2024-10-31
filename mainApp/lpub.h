@@ -1113,9 +1113,9 @@ public:
   void endMacro();
 
   static void scanPast(    Where &here, const QRegExp &lineRx);
-  static bool stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp = 0, bool displayModel = false);
-  static bool stepContains(Where &here, const QRegExp &lineRx, bool displayModel = false);
   static bool stepContains(Where &here, const QString &value);
+  static bool stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp = 0, bool displayModel = false);
+  static bool stepContains(Where &here, QRegExp &lineRx, bool displayModel = false);
 
   void getRequireds();
   void initialize();

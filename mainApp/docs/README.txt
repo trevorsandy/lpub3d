@@ -1,4 +1,4 @@
-LPub3D 2.4.8.40.3763 (28 10 2024 22:45:51)
+LPub3D 2.4.8.41.3764 (31 10 2024 04:45:39)
 
 Features, enhancements, fixes and changes
 ------------
@@ -17,6 +17,7 @@ Revisions:
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
+- Fix - False Fade Steps, Highlight Step message #777
 
 --------------------------------------------------------------------------------------------------
 

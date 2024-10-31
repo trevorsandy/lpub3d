@@ -270,11 +270,10 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
 
 // special case - return specified capture group in result
 bool Gui::stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp, bool displayModel) {
-    bool found = false;
-    if (Gui::stepContains(here,lineRx,displayModel))
-        found = true;
-    if (capGrp)
-        result = lineRx.cap(capGrp).trimmed();
+    QRegExp rx = lineRx;
+    bool found = Gui::stepContains(here,rx,displayModel);
+    if (found && capGrp)
+        result = rx.cap(capGrp).trimmed();
     return found;
 }
 
@@ -286,7 +285,7 @@ bool Gui::stepContains(Where &topOfStep, const QString &value)
 }
 
 // general case regex
-bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx, bool displayModel)
+bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx, bool displayModel)
 {
   bool found = false;
   Where walk = topOfStep;
