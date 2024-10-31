@@ -942,7 +942,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                            .arg(direction)
                            .arg(d == PAGE_NEXT ? (Gui::displayPageNum - 1) : (Gui::maxPages - (Gui::displayPageNum - 1)))
                            .arg(Gui::maxPages)
-                           .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+                           .arg(QString(". %1").arg(Gui::elapsedTime(continuousTimer.elapsed())));
               emit gui->messageSig(LOG_STATUS,message);
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
@@ -1053,7 +1053,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                            .arg(direction)
                            .arg(d == PAGE_NEXT ? pageCount : (_maxPages - pageCount))
                            .arg(_maxPages)
-                           .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+                           .arg(QString(". %1").arg(Gui::elapsedTime(continuousTimer.elapsed())));
               emit gui->messageSig(LOG_STATUS,message);
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
@@ -1106,7 +1106,7 @@ bool Gui::continuousPageDialog(PageDirection d)
                    .arg(d == PAGE_NEXT ? pageCount : _maxPages)
                    .arg(_maxPages)
                    .arg(_maxPages > 1 ? tr("pages") : tr("page"))
-                   .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+                   .arg(QString(". %1").arg(Gui::elapsedTime(continuousTimer.elapsed())));
       emit gui->messageSig(LOG_INFO_STATUS,message);
 
       if (Preferences::modeGUI) {
@@ -1594,7 +1594,7 @@ void Gui::displayFile(
                                 .arg(modelName)
                                 .arg(top.lineNumber + 1    /*adjust for 0-index*/)
                                 .arg(bottom.lineNumber + 1 /*adjust for 0-index*/)
-                                .arg(elapsedTime(t.elapsed())));
+                                .arg(Gui::elapsedTime(t.elapsed())));
 #endif
 
             if (displayStartPage) {
@@ -1783,7 +1783,7 @@ void Gui::reloadCurrentPage(bool prompt) {
     // displayPage();
     cyclePageDisplay(Gui::displayPageNum, false/*silent*/);
 
-    emit gui->messageSig(LOG_STATUS, tr("Page %1 reloaded. %2").arg(Gui::displayPageNum).arg(elapsedTime(timer.elapsed())));
+    emit gui->messageSig(LOG_STATUS, tr("Page %1 reloaded. %2").arg(Gui::displayPageNum).arg(Gui::elapsedTime(timer.elapsed())));
 
 }
 
@@ -1812,7 +1812,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
 
     emit gui->messageSig(LOG_STATUS, tr("Model file reloaded (%1 parts). %2")
                                    .arg(lpub->ldrawFile.getPartCount())
-                                   .arg(elapsedTime(timer.elapsed())));
+                                   .arg(Gui::elapsedTime(timer.elapsed())));
 }
 
 void Gui::clearWorkingFiles(const QStringList &filePaths)
@@ -1871,7 +1871,7 @@ void Gui::resetModelCache(QString file, bool commandLine)
             emit gui->messageSig(LOG_INFO, tr("All caches reset (%1 models, %2 parts). %3")
                                          .arg(lpub->ldrawFile.getSubModels().size())
                                          .arg(lpub->ldrawFile.getPartCount())
-                                         .arg(elapsedTime(timer.elapsed())));
+                                         .arg(Gui::elapsedTime(timer.elapsed())));
     }
 }
 
@@ -1911,7 +1911,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     emit gui->messageSig(LOG_INFO_STATUS, tr("All caches reset and model file reloaded (%1 models, %2 parts). %3")
                                         .arg(lpub->ldrawFile.getSubModels().size())
                                         .arg(lpub->ldrawFile.getPartCount())
-                                        .arg(elapsedTime(timer.elapsed())));
+                                        .arg(Gui::elapsedTime(timer.elapsed())));
 
     changeAccepted = saveChange;
 }
@@ -1960,7 +1960,7 @@ void Gui::clearAllCaches()
                     tr("Parts, bill of material, assembly, submodel and temporary LDraw file caches reset (%1 models, %2 parts).%3")
                                  .arg(lpub->ldrawFile.getSubModels().size())
                                  .arg(lpub->ldrawFile.getPartCount())
-                                 .arg(showMsg ? "" : QString(" %1").arg(elapsedTime(timer.elapsed()))),showMsg);
+                                 .arg(showMsg ? "" : QString(" %1").arg(Gui::elapsedTime(timer.elapsed()))),showMsg);
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -3848,7 +3848,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 emit gui->messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 models, %2 parts). %3")
                                                     .arg(lpub->ldrawFile.getSubModels().size())
                                                     .arg(lpub->ldrawFile.getPartCount())
-                                                    .arg(elapsedTime(timer.elapsed())));
+                                                    .arg(Gui::elapsedTime(timer.elapsed())));
             }
         } else {
             box.setDefaultButton   (QMessageBox::Ok);
@@ -4393,7 +4393,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       emit gui->messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
                       .arg(message)
                       .arg(QFileInfo(Gui::getCurFile()).fileName())
-                      .arg(elapsedTime(timer.elapsed())));
+                      .arg(Gui::elapsedTime(timer.elapsed())));
   }
 }
 

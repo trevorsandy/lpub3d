@@ -559,7 +559,6 @@ int Gui::drawPage(
                 .arg(Gui::elapsedTime(pageRenderTimer.elapsed()));
         emit gui->messageSig(LOG_TRACE, pageRenderMessage);
         Gui::revertPageProcess();
-        //QApplication::processEvents();
     };
 
     auto insertAttribute =
@@ -5460,7 +5459,7 @@ void Gui::pagesCounted()
                                        .arg(fileInfo.fileName())
                                        .arg(Gui::maxPages)
                                        .arg(lpub->ldrawFile.getPartCount())
-                                       .arg(elapsedTime(displayPageTimer.elapsed())));
+                                       .arg(Gui::elapsedTime(displayPageTimer.elapsed())));
                 if (!Gui::maxPages && !lpub->ldrawFile.getPartCount()) {
                     emit gui->messageSig(LOG_ERROR, tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));
@@ -5473,7 +5472,7 @@ void Gui::pagesCounted()
             emit gui->messageSig(LOG_INFO_STATUS, tr("Page %1 %2. %3.")
                             .arg(Gui::exporting() && Gui::displayPageNum < Gui::maxPages ? Gui::displayPageNum + 1 : Gui::displayPageNum)
                             .arg(Gui::exporting() ? tr("exported") : tr("loaded"))
-                            .arg(gui->elapsedTime(displayPageTimer.elapsed())));
+                            .arg(Gui::elapsedTime(displayPageTimer.elapsed())));
         }
 
         if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
@@ -6468,7 +6467,7 @@ void Gui::writeToTmp()
       emit gui->progressPermSetValueSig(subFileCount);
       emit gui->progressPermStatusRemoveSig();
 
-      QString const writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
+      QString const writeToTmpElapsedTime = Gui::elapsedTime(writeToTmpTimer.elapsed());
       emit gui->messageSig(LOG_INFO_STATUS, tr("%1 %2 written to temp folder. %3")
                                                .arg(writtenFiles ? QString::number(writtenFiles) : tr("No"))
                                                .arg(writtenFiles == 1 ? tr("file") : tr("files"))

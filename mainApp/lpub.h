@@ -1117,6 +1117,8 @@ public:
   static bool stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp = 0, bool displayModel = false);
   static bool stepContains(Where &here, QRegExp &lineRx, bool displayModel = false);
 
+  static QString elapsedTime(const qint64 &duration);
+
   void getRequireds();
   void initialize();
   void initiaizeVisualEditor();
@@ -1128,7 +1130,6 @@ public:
       bool displayStartPage = false,
       bool cycleSilent = false);
   void displayParmsFile(const QString &fileName);
-  QString elapsedTime(const qint64 &duration);
 
   LGraphicsView *pageview()
   {

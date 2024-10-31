@@ -77,7 +77,7 @@ void Gui::open()
                                            .arg(fileInfo.fileName())
                                            .arg(Gui::maxPages)
                                            .arg(lpub->ldrawFile.getPartCount())
-                                           .arg(elapsedTime(timer.elapsed())));
+                                           .arg(Gui::elapsedTime(timer.elapsed())));
       return;
     }
   }
@@ -106,7 +106,7 @@ void Gui::openDropFile(QString &fileName) {
                                                .arg(fileInfo.fileName())
                                                .arg(Gui::maxPages)
                                                .arg(lpub->ldrawFile.getPartCount())
-                                               .arg(elapsedTime(timer.elapsed())));
+                                               .arg(Gui::elapsedTime(timer.elapsed())));
         } else {
           QString noExtension;
           if (extension.isEmpty())
@@ -419,7 +419,7 @@ void Gui::openRecentFile()
                                          .arg(fileInfo.fileName())
                                          .arg(Gui::maxPages)
                                          .arg(lpub->ldrawFile.getPartCount())
-                                         .arg(elapsedTime(timer.elapsed())));
+                                         .arg(Gui::elapsedTime(timer.elapsed())));
   }
 }
 
@@ -469,7 +469,7 @@ bool Gui::loadFile(const QString &file, bool console)
                                              .arg(fileInfo.fileName())
                                              .arg(Gui::maxPages)
                                              .arg(lpub->ldrawFile.getPartCount())
-                                             .arg(elapsedTime(timer.elapsed())));
+                                             .arg(Gui::elapsedTime(timer.elapsed())));
         emit fileLoadedSig(true);
         return true;
     } else {
