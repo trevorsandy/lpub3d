@@ -1801,7 +1801,7 @@ private:
   static int getBOMOccurrence(
           Where  current);
 
-  bool generateBOMPartsFile(
+  static bool generateBOMPartsFile(
           const QString &);
 
   void writeToTmp();

@@ -702,7 +702,7 @@ void Gui::exportAsHtml()
     // generate HTML parts list
     QString ldrBaseFile = QDir::currentPath()+QDir::separator()+Paths::tmpDir+QDir::separator()+QFileInfo(Gui::curFile).completeBaseName();
     QString partListFile = QDir::toNativeSeparators(ldrBaseFile+"_parts.ldr");
-    if (! generateBOMPartsFile(partListFile))
+    if (! Gui::generateBOMPartsFile(partListFile))
         return;
 
     // setup snapshot image generation arguments
@@ -761,7 +761,7 @@ void Gui::exportAsCsv()
     }
     lpub->Options->InputFileName = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
                                    Paths::tmpDir+QDir::separator()+QFileInfo(Gui::curFile).completeBaseName()+"_parts.ldr");
-    if (! generateBOMPartsFile(lpub->Options->InputFileName))
+    if (! Gui::generateBOMPartsFile(lpub->Options->InputFileName))
         return;
     if (! renderer->NativeExport(lpub->Options)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSV parts list export failed."));
@@ -794,7 +794,7 @@ void Gui::exportAsBricklinkXML()
     }
     lpub->Options->InputFileName = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
                                    Paths::tmpDir+QDir::separator()+QFileInfo(Gui::curFile).completeBaseName()+"_parts.ldr");
-    if (! generateBOMPartsFile(lpub->Options->InputFileName))
+    if (! Gui::generateBOMPartsFile(lpub->Options->InputFileName))
         return;
     if (! renderer->NativeExport(lpub->Options)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Bricklink XML parts list export failed."));
