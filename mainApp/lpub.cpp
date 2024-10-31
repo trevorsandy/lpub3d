@@ -918,7 +918,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   }
 
   // Process is running - configure to stop
-  setContinuousPageAct(SET_STOP_ACTION);
+  Gui::setContinuousPageAct(SET_STOP_ACTION);
 
   if(Gui::resetCache)
       gui->resetModelCache();
@@ -1111,7 +1111,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           QApplication::restoreOverrideCursor();
       }
 
-      setContinuousPageAct(SET_DEFAULT_ACTION);
+      Gui::setContinuousPageAct(SET_DEFAULT_ACTION);
 
       message = tr("%1 page processing completed. %2 of %3 %4 processed%5.")
                    .arg(direction)
