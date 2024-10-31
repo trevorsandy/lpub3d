@@ -138,6 +138,8 @@ qreal        Gui::exportPixelRatio;       // export resolution pixel density
 bool         Gui::saveProjection;         // saved projection when temporarily switching to Native renderer
 bool         Gui::buildModJumpForward;    // parse build mods in countPage call - special case for jump forward
 bool         Gui::resetCache;             // reset model, fade and highlight parts
+bool         Gui::submodelIconsLoaded;    // load submodel images
+
 QString      Gui::curFile;                // the file name for MPD, or top level file
 QString      Gui::curSubFile;             // whats being displayed in the edit window
 QString      Gui::saveFileName;           // user specified output file Name [commandline only]

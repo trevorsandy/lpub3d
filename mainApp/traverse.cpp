@@ -6450,14 +6450,14 @@ void Gui::writeToTmp()
   writeToTmpFutures.clear();
 
   if (Preferences::modeGUI && !Gui::exporting() && !Gui::ContinuousPage() && !Gui::abortProcess()) {
-      if (lcGetPreferences().mViewPieceIcons && !submodelIconsLoaded) {
+      if (lcGetPreferences().mViewPieceIcons && !Gui::submodelIconsLoaded) {
           // complete previous progress
           emit gui->progressPermSetValueSig(subFileCount);
           // generate submodel icons...
           emit gui->messageSig(LOG_INFO_STATUS, tr("Creating submodel icons..."));
           Pli pli;
           if (pli.createSubModelIcons() == 0)
-              gui->SetSubmodelIconsLoaded(submodelIconsLoaded = true);
+              gui->SetSubmodelIconsLoaded(Gui::submodelIconsLoaded = true);
           else
               emit gui->messageSig(LOG_ERROR, tr("Could not create submodel icons..."));
       }

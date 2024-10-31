@@ -500,7 +500,7 @@ public:
   static int          pageProcessParent; // the page process that triggers another process - e.g. drawPage -> writeToTmp
   static qreal        exportPixelRatio;     // export resolution pixel density
 
-  bool            submodelIconsLoaded;  // load submodel images
+  static bool         submodelIconsLoaded;  // load submodel images
 
   static bool     buildModJumpForward;  // parse build mods in countPage call - special case for jump forward
 

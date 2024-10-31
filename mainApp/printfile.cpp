@@ -493,7 +493,7 @@ bool Gui::exportAsDialog(ExportMode m)
           return false;
         }
 
-      exportPixelRatio = dialog->exportPixelRatio();
+      Gui::exportPixelRatio = dialog->exportPixelRatio();
 
       Gui::resetCache = dialog->resetCache();
 
@@ -823,8 +823,8 @@ void Gui::exportAsPdf()
 
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
-  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0) {
-      dpiInfo += QString("_%1x").arg(exportPixelRatio);
+  if (Gui::exportPixelRatio > 1.0 || Gui::exportPixelRatio < 1.0) {
+      dpiInfo += QString("_%1x").arg(Gui::exportPixelRatio);
   }
 
   // determine location for output file
@@ -915,7 +915,7 @@ void Gui::exportAsPdf()
                        .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR)));
 
   // calculate device pixel ratio
-  qreal dpr = exportPixelRatio;
+  qreal dpr = Gui::exportPixelRatio;
 
   // set export page elements or image
   bool exportPdfElements = !Preferences::pdfPageImage && dpr == 1.0;
@@ -1529,8 +1529,8 @@ void Gui::exportAs(const QString &_suffix)
 
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
-  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0) {
-      dpiInfo += QString("_%1x").arg(exportPixelRatio);
+  if (Gui::exportPixelRatio > 1.0 || Gui::exportPixelRatio < 1.0) {
+      dpiInfo += QString("_%1x").arg(Gui::exportPixelRatio);
   }
 
   gui->KexportScene = LGraphicsScene(gui);
@@ -1611,7 +1611,7 @@ void Gui::exportAs(const QString &_suffix)
   bool fillPng = suffix.compare("png", Qt::CaseInsensitive) == 0;
 
   // calculate device pixel ratio
-  qreal dpr = exportPixelRatio;
+  qreal dpr = Gui::exportPixelRatio;
 
   // initialize progress dialogue
   QString message = tr("instructions to %1 to %2...").arg(type).arg(suffix);
