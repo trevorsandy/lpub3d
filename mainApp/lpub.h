@@ -500,27 +500,27 @@ public:
   static int          pageProcessParent; // the page process that triggers another process - e.g. drawPage -> writeToTmp
   static qreal        exportPixelRatio;     // export resolution pixel density
 
-  static bool         submodelIconsLoaded;  // load submodel images
-
-  static bool     buildModJumpForward;  // parse build mods in countPage call - special case for jump forward
+  static bool      submodelIconsLoaded;  // load submodel images
+  static bool      suspendFileDisplay;   // when true, the endMacro() call will not call displayPage()
+  static bool      buildModJumpForward;  // parse build mods in countPage call - special case for jump forward
 
   static bool      doFadeStep;
   static bool      doHighlightStep;
 
   static bool      m_fadeStepsSetup;    // enable fade previous steps locally
   static bool      m_highlightStepSetup;// enable highlight current step locally
+
   static int       m_exportMode;        // export mode
   static int       m_saveExportMode;    // saved export mode used when exporting BOM
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
-
-  bool             m_previewDialog;
-  ProgressDialog  *m_progressDialog;    // general use progress dialogue
-
   static bool      m_partListCSIFile;   // processing part list CSI file
-  static bool      suspendFileDisplay;  // when true, the endMacro() call will not call displayPage()
+  static bool      m_previewDialog;
+
   void            *noData;
 
-  FadeStepsMeta      *fadeStepsMeta;     // propagate fade step settings
+  ProgressDialog  *m_progressDialog;    // general use progress dialogue
+
+  FadeStepsMeta   *fadeStepsMeta;     // propagate fade step settings
 
   HighlightStepMeta *highlightStepMeta;  // propagate highlight step settings
 

@@ -37,7 +37,6 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       tr("Backward")     //PAGE_JUMP_BACKWARD
     };
 
-    bool preview = gui->m_previewDialog;
     setLineEditResetAct = ui->lineEditPageRange->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
     setLineEditResetAct->setEnabled(false);
     connect(ui->lineEditPageRange, SIGNAL(textEdited(const QString &)), this, SLOT(enableLineEditPageRangeReset(const QString &)));
@@ -84,7 +83,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     connect(ui->displayPageProcessingErrorsChk, SIGNAL(clicked(bool)),
             this,                               SLOT(displayPageProcessingErrors(bool)));
 
-    if ((! preview) &&
+    if ((! Gui::m_previewDialog) &&
         (Gui::m_exportMode == EXPORT_POVRAY ||
          Gui::m_exportMode == EXPORT_STL    ||
          Gui::m_exportMode == EXPORT_3DS_MAX)) {
@@ -97,7 +96,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->gropuBoxLDVExport->hide();
     }
 
-    if (! preview && Gui::m_exportMode != EXPORT_PDF) {
+    if (! Gui::m_previewDialog && Gui::m_exportMode != EXPORT_PDF) {
         ui->groupBoxMixedPageSizes->hide();
     } else {
         ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
@@ -140,17 +139,17 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
     switch(Gui::m_exportMode) {
     case PRINT_FILE:
-        setWindowTitle(preview ? tr("Print Preview File") : tr("Print To File"));
-        ui->groupBoxPrintOptions->setTitle(preview ? tr("Print preview options") : tr("Print to file options"));
-        ui->checkBoxResetCache->setText(preview ? tr("Reset all caches before previewing file") : tr("Reset all caches before exporting file"));
-        ui->checkBoxResetCache->setToolTip(preview ? tr("Check to reset all caches before previewing file"): tr("Check to reset all caches before exporting file"));
+        setWindowTitle(Gui::m_previewDialog ? tr("Print Preview File") : tr("Print To File"));
+        ui->groupBoxPrintOptions->setTitle(Gui::m_previewDialog ? tr("Print preview options") : tr("Print to file options"));
+        ui->checkBoxResetCache->setText(Gui::m_previewDialog ? tr("Reset all caches before previewing file") : tr("Reset all caches before exporting file"));
+        ui->checkBoxResetCache->setToolTip(Gui::m_previewDialog ? tr("Check to reset all caches before previewing file"): tr("Check to reset all caches before exporting file"));
         ui->displayPageProcessingErrorsChk->setToolTip(tr("Display print to file warnings and errors in a message box, messages will also be logged."));
         break;
     case EXPORT_PDF:
-        setWindowTitle(preview ? tr("Export Preview PDF") : tr("Export To PDF"));
-        ui->groupBoxPrintOptions->setTitle(preview ? tr("Export preview options") : tr("Export to pdf options"));
-        ui->checkBoxResetCache->setText(preview ? tr("Reset all caches before previewing pdf") : tr("Reset all caches before exporting pdf"));
-        ui->checkBoxResetCache->setToolTip(preview ? tr("Check to reset all caches before previewing pdf"): tr("Check to reset all caches before exporting pdf"));
+        setWindowTitle(Gui::m_previewDialog ? tr("Export Preview PDF") : tr("Export To PDF"));
+        ui->groupBoxPrintOptions->setTitle(Gui::m_previewDialog ? tr("Export preview options") : tr("Export to pdf options"));
+        ui->checkBoxResetCache->setText(Gui::m_previewDialog ? tr("Reset all caches before previewing pdf") : tr("Reset all caches before exporting pdf"));
+        ui->checkBoxResetCache->setToolTip(Gui::m_previewDialog ? tr("Check to reset all caches before previewing pdf"): tr("Check to reset all caches before exporting pdf"));
         ui->displayPageProcessingErrorsChk->setToolTip(tr("Display export to PDF warnings and errors in a message box, messages will also be logged."));
         break;
     case EXPORT_PNG:

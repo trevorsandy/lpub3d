@@ -514,7 +514,7 @@ bool Gui::exportAsDialog(ExportMode m)
   if(Gui::resetCache)
       gui->resetModelCache(QFileInfo(Gui::curFile).absoluteFilePath());
 
-  if (! m_previewDialog) {
+  if (! Gui::m_previewDialog) {
       switch (m)
       {
       case EXPORT_PDF:
@@ -2094,7 +2094,7 @@ void Gui::Print(QPrinter* Printer)
           message = tr("%1 %2 terminated before completion.").arg(action, mode);
           emit gui->messageSig(LOG_INFO_STATUS,message);
           if (preview) {
-            m_previewDialog = false;
+            Gui::m_previewDialog = false;
             exportPdf = exportPreview = true;
           }
           if (Preferences::modeGUI) {
@@ -2156,7 +2156,7 @@ void Gui::Print(QPrinter* Printer)
             message = tr("%1 %2 terminated before completion.").arg(action, mode);
             emit gui->messageSig(LOG_INFO_STATUS,message);
             if (preview) {
-              m_previewDialog = false;
+              Gui::m_previewDialog = false;
               exportPdf = exportPreview = false;
             }
             if (Preferences::modeGUI) {
@@ -2247,7 +2247,7 @@ void Gui::Print(QPrinter* Printer)
           message = tr("%1 %2 terminated before completion.").arg(action, mode);
           emit gui->messageSig(LOG_INFO_STATUS,message);
           if (preview) {
-            m_previewDialog = false;
+            Gui::m_previewDialog = false;
             exportPdf = exportPreview = false;
           }
           if (Preferences::modeGUI) {
@@ -2314,7 +2314,7 @@ void Gui::Print(QPrinter* Printer)
               message = tr("%1 %2 terminated before completion.").arg(action, mode);
               emit gui->messageSig(LOG_INFO_STATUS,message);
               if (preview) {
-                m_previewDialog = false;
+                Gui::m_previewDialog = false;
                 exportPdf = exportPreview = false;
               }
               if (Preferences::modeGUI) {
@@ -2381,7 +2381,7 @@ void Gui::Print(QPrinter* Printer)
   }
 
   if (preview) {
-    m_previewDialog = false;
+    Gui::m_previewDialog = false;
     exportPdf = exportPreview = false;
   }
 
@@ -2471,7 +2471,7 @@ void Gui::ShowPrintDialog()
 
     QPrintDialog PrintDialog(&Printer, gui);
 
-    m_previewDialog = false;
+    Gui::m_previewDialog = false;
 
     if (PrintDialog.exec() == QDialog::Accepted) {
         exportPdf = exportPreview = false;
@@ -2491,10 +2491,10 @@ void Gui::TogglePrintToFilePreview()
 
 void Gui::TogglePrintPreview(ExportMode m)
 {
-    m_previewDialog = true;
+    Gui::m_previewDialog = true;
 
     if (! exportAsDialog(m)) {
-        m_previewDialog = false;
+        Gui::m_previewDialog = false;
         return;
     }
 
@@ -2540,5 +2540,5 @@ void Gui::TogglePrintPreview(ExportMode m)
         }
     }
 
-    m_previewDialog = false;
+    Gui::m_previewDialog = false;
 }

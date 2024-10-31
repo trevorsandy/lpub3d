@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3783" date="2024-10-31">
+            <release version="2.4.8.3784" date="2024-10-31">
                 <description>
-                    <p>LPub3D 31.10.2024 v2.4.8 r60 Continuous Build.
+                    <p>LPub3D 31.10.2024 v2.4.8 r61 Continuous Build.
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
                         Fix - Abnormal end on app close after view preference dialogue #773

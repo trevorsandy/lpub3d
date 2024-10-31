@@ -139,6 +139,7 @@ bool         Gui::saveProjection;         // saved projection when temporarily s
 bool         Gui::buildModJumpForward;    // parse build mods in countPage call - special case for jump forward
 bool         Gui::resetCache;             // reset model, fade and highlight parts
 bool         Gui::submodelIconsLoaded;    // load submodel images
+bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage()
 
 QString      Gui::curFile;                // the file name for MPD, or top level file
 QString      Gui::curSubFile;             // whats being displayed in the edit window
@@ -154,9 +155,9 @@ bool         Gui::m_exportingContent;     // indicate export/printing underway
 bool         Gui::m_exportingObjects;     // indicate exporting non-image object file content
 bool         Gui::m_contPageProcessing;   // indicate continuous page processing underway
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
-bool         Gui::suspendFileDisplay;     // when true, the endMacro() call will not call displayPage()
 bool         Gui::m_partListCSIFile;      // processing part list CSI file
 bool         Gui::m_abort;                // set to true when response to critcal error is abort
+bool         Gui::m_previewDialog;
 
 bool         Gui::doFadeStep;
 bool         Gui::doHighlightStep;
