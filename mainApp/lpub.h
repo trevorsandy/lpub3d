@@ -1794,7 +1794,7 @@ private:
     bool            endOfSubmodel,
     bool            printing);
 
-  int getBOMParts(
+  static int getBOMParts(
     Where                    current,
     const QString           &addLine);
 

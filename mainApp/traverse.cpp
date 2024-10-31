@@ -4490,7 +4490,7 @@ int Gui::getBOMParts(
 
   Meta meta;
 
-  skipHeader(current);
+  gui->skipHeader(current);
 
   QHash<QString, QStringList> bfx;
 
@@ -4563,7 +4563,7 @@ int Gui::getBOMParts(
 
                       Where current2(type,0);
 
-                      getBOMParts(current2,line);
+                      Gui::getBOMParts(current2,line);
 
                     } else {
 
@@ -4674,7 +4674,7 @@ int Gui::getBOMParts(
               break;
 
               /*
-               * For getBOMParts(), the BuildMod behaviour only processes
+               * For Gui::getBOMParts(), the BuildMod behaviour only processes
                * top level mods for pliParts, nested mods are ignored.
                * The aim is to process original pli parts and ignore those
                * that are in the build modification block.
@@ -4837,7 +4837,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
     QFuture<void> future = QtConcurrent::run([current]() {
         Gui::bomParts.clear();
         Gui::bomPartGroups.clear();
-        gui->getBOMParts(current, QString());
+        Gui::getBOMParts(current, QString());
     });
     asynchronous(future);
     if (! Gui::bomParts.size()) {
