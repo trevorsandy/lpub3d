@@ -1968,7 +1968,7 @@ private slots:
     void archivePartsOnLaunch();
     void writeGeneratedColorPartsToTemp();
 
-    void clearPage(bool clearPageBg = false);
+    static void clearPage(bool clearPageBg = false);
 
     void enableActions();
     void enableEditActions();

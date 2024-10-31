@@ -5192,7 +5192,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         dpFlags.buildModActionChange = frc == HitBuildModAction;
         dpFlags.csiAnnotation = frc == HitCsiAnnotation;
         Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
-        clearPage();
+        Gui::clearPage();
         QApplication::restoreOverrideCursor();
         drawPage(dpFlags);
 

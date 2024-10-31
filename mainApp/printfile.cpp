@@ -672,7 +672,7 @@ void Gui::exportAsHtml()
     gui->KexportView = LGraphicsView(&gui->KexportScene);
 
     drawPage(dpFlags);
-    clearPage();
+    Gui::clearPage();
 
     Gui::restorePreferredRenderer();
     emit gui->setExportingSig(false);
@@ -930,7 +930,7 @@ void Gui::exportAsPdf()
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
   drawPage(dpFlags);
-  clearPage();
+  Gui::clearPage();
   Gui::displayPageNum = Gui::prevDisplayPageNum;
 
   int _displayPageNum = 0;
@@ -1060,8 +1060,8 @@ void Gui::exportAsPdf()
                 QPainter::Antialiasing |
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
-          KexportView.centerOn(boundingRect.center());
-          clearPage();
+          gui->KexportView.centerOn(boundingRect.center());
+          Gui::clearPage();
 
           // paint to the image the scene we view
           if (!exportPdfElements) {
@@ -1074,9 +1074,9 @@ void Gui::exportAsPdf()
           // render this page
           dpFlags.printing = true;
           drawPage(dpFlags);
-          KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
-          KexportScene.render(&painter);
-          clearPage();
+          gui->KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
+          gui->KexportScene.render(&painter);
+          Gui::clearPage();
 
           if (exportPdfElements) {
               // prepare pdfWriter to render next page
@@ -1284,7 +1284,7 @@ void Gui::exportAsPdf()
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
           gui->KexportView.centerOn(boundingRect.center());
-          clearPage();
+          Gui::clearPage();
 
           // paint to the image the scene we view
           if (!exportPdfElements) {
@@ -1297,9 +1297,9 @@ void Gui::exportAsPdf()
           // render this page
           dpFlags.printing = true;
           drawPage(dpFlags);
-          KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
-          KexportScene.render(&painter);
-          clearPage();
+          gui->KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
+          gui->KexportScene.render(&painter);
+          Gui::clearPage();
 
           if (exportPdfElements) {
               // prepare pdfWriter to render next page
@@ -1548,7 +1548,7 @@ void Gui::exportAs(const QString &_suffix)
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
   drawPage(dpFlags);
-  clearPage();
+  Gui::clearPage();
   Gui::displayPageNum = Gui::prevDisplayPageNum;
 
   if (Gui::processOption != EXPORT_PAGE_RANGE) {
@@ -1670,7 +1670,7 @@ void Gui::exportAs(const QString &_suffix)
               // execute drawPage to prperly process csiParts for content generation
               dpFlags.printing = false;
               drawPage(dpFlags);
-              clearPage();
+              Gui::clearPage();
 
           } else {
               // determine size of output image, in pixels
@@ -1711,7 +1711,7 @@ void Gui::exportAs(const QString &_suffix)
                     QPainter::TextAntialiasing |
                     QPainter::SmoothPixmapTransform);
               gui->KexportView.centerOn(boundingRect.center());
-              clearPage();
+              Gui::clearPage();
 
               // clear the pixels of the image, just in case the background is
               // transparent or uses a PNG image with transparency. This will
@@ -1723,9 +1723,9 @@ void Gui::exportAs(const QString &_suffix)
               // scene.render instead of view.render resolves "warm up" issue
               dpFlags.printing = true;
               drawPage(dpFlags);
-              KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
-              KexportScene.render(&painter);
-              clearPage();
+              gui->KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
+              gui->KexportScene.render(&painter);
+              Gui::clearPage();
 
               // save the image to the selected directory
               // internationalization of "_page_"?
@@ -1791,7 +1791,7 @@ void Gui::exportAs(const QString &_suffix)
               // execute drawPage to prperly process csiParts for content generation
               dpFlags.printing = false;
               drawPage(dpFlags);
-              clearPage();
+              Gui::clearPage();
 
           } else {
               // determine size of output image, in pixels
@@ -1831,7 +1831,7 @@ void Gui::exportAs(const QString &_suffix)
                     QPainter::TextAntialiasing |
                     QPainter::SmoothPixmapTransform);
               gui->KexportView.centerOn(boundingRect.center());
-              clearPage();
+              Gui::clearPage();
 
               // clear the pixels of the image, just in case the background is
               // transparent or uses a PNG image with transparency. This will
@@ -1843,9 +1843,9 @@ void Gui::exportAs(const QString &_suffix)
               // scene.render instead of view.render resolves "warm up" issue
               dpFlags.printing = true;
               drawPage(dpFlags);
-              KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
-              KexportScene.render(&painter);
-              clearPage();
+              gui->KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
+              gui->KexportScene.render(&painter);
+              Gui::clearPage();
 
               // save the image to the selected directory
               // internationalization of "_page_"?
@@ -2030,7 +2030,7 @@ void Gui::Print(QPrinter* Printer)
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
   drawPage(dpFlags);
-  clearPage();
+  Gui::clearPage();
 
   // check if mixed page size and orientation
   gui->checkMixedPageSizeStatus();
@@ -2147,7 +2147,7 @@ void Gui::Print(QPrinter* Printer)
               QPainter::TextAntialiasing |
               QPainter::SmoothPixmapTransform);
         gui->KexportView.centerOn(boundingRect.center());
-        clearPage();
+        Gui::clearPage();
 
         for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
         {
@@ -2183,9 +2183,9 @@ void Gui::Print(QPrinter* Printer)
           // render this page
           dpFlags.printing = true;
           drawPage(dpFlags);
-          KexportScene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
-          KexportScene.render(&Painter);
-          clearPage();
+          gui->KexportScene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
+          gui->KexportScene.render(&Painter);
+          Gui::clearPage();
 
           // TODO: export header and footer
 
@@ -2305,7 +2305,7 @@ void Gui::Print(QPrinter* Printer)
               QPainter::TextAntialiasing |
               QPainter::SmoothPixmapTransform);
         gui->KexportView.centerOn(boundingRect.center());
-        clearPage();
+        Gui::clearPage();
 
         for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
           {
@@ -2341,9 +2341,9 @@ void Gui::Print(QPrinter* Printer)
             // render this page
             dpFlags.printing = true;
             drawPage(dpFlags);
-            KexportScene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
-            KexportScene.render(&Painter);
-            clearPage();
+            gui->KexportScene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
+            gui->KexportScene.render(&Painter);
+            Gui::clearPage();
 
             // TODO: export header and footer
 
