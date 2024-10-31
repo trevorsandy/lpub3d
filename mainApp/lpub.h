@@ -1394,12 +1394,12 @@ public slots:
   /* This must be called from the Gui thread */
   void parseError(const QString &errorMsg,
                   const Where &here,
-                  Preferences::MsgKey msgKey = Preferences::ParseErrors,
-                  bool option = false,
-                  bool override = false,
-                  int icon = 0,/*NoIcon*/
-                  const QString &title = "",
-                  const QString &type = "");
+                  Preferences::MsgKey msgKey,
+                  bool option,
+                  bool override,
+                  int icon,
+                  const QString &title,
+                  const QString &type);
 
   void statusBarMsg(QString msg);
   void statusMessage(LogType logType, const QString &statusMessage, int msgBox = 0);
@@ -1572,10 +1572,10 @@ signals:
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile, const StepLines &lineScope);
   void parseErrorSig(const QString &,
                      const Where &,
-                     Preferences::MsgKey,
-                     bool/*option*/,
-                     bool/*override*/,
-                     int = 3/*critical*/,
+                     Preferences::MsgKey = Preferences::ParseErrors,
+                     bool = false/*option*/,
+                     bool = false/*override*/,
+                     int = 0     /*NoIcon*/,
                      const QString &  = "",/*title*/
                      const QString &  = ""/*type*/);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);

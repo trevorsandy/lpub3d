@@ -342,9 +342,9 @@ void Gui::set_divider_pointers(
                 p = rd ? range->rangeDividerPointerList[i] :
                          range->stepDividerPointerList[i];
             } else {
-                gui->parseError(QString("Invalid Divider pointer attribute index.<br>"
-                                        "Expected value &#60;= %1, received %2")
-                                        .arg(validIndex).arg(i),current);
+                emit gui->parseErrorSig(tr("Invalid Divider pointer attribute index.<br>"
+                                           "Expected value &#60;= %1, received %2")
+                                           .arg(validIndex).arg(i),current);
                 break;
             }
             if (p && pam.value().id == p->id) {
@@ -670,7 +670,7 @@ int Gui::drawPage(
 #endif
 
     // Update buildMod intiialized in setBuildModForNextStep
-    auto updateBuildModification = [this, &step, &opts, &buildModKeys] (int buildModLevel)
+    auto updateBuildModification = [&step, &opts, &buildModKeys] (int buildModLevel)
     {
         const QString buildModKey = buildModKeys.value(buildModLevel);
         setBuildModStepKey(buildModKey, step->viewerStepKey);
@@ -749,7 +749,7 @@ int Gui::drawPage(
 
 //* local optsPageNum used to set breakpoint condition (e.g. optsPageNum > 7)
 #ifdef QT_DEBUG_MODE
-        int debugDisplayPageNum = displayPageNum;
+        int debugDisplayPageNum = Gui::displayPageNum;
         Q_UNUSED(debugDisplayPageNum)
 #endif
 //*/
@@ -1203,10 +1203,10 @@ int Gui::drawPage(
                          /*rc == EnableFadeStepsAssemRc*/
                          !curMeta.LPub.assem.fadeSteps.enable.global &&
                          !curMeta.LPub.assem.fadeSteps.setup.value())) {
-                    parseError(tr("Fade previous steps command IGNORED."
-                                  "<br>FADE_STEPS SETUP must be set to TRUE."
-                                  "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    emit gui->parseErrorSig(tr("Fade previous steps command IGNORED."
+                                               "<br>FADE_STEPS SETUP must be set to TRUE."
+                                               "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
+                                               "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                     break;
                 }
                 if (rc == EnableFadeStepsCalloutAssemRc) {
@@ -1227,10 +1227,10 @@ int Gui::drawPage(
                 if (!curMeta.LPub.fadeSteps.enable.global &&
                         !curMeta.LPub.fadeSteps.setup.value() &&
                         step->csiStepMeta.fadeSteps.lpubFade.value()) {
-                    parseError(tr("Fade previous steps command IGNORED."
-                                  "<br>FADE_STEPS SETUP must be set to TRUE."
-                                  "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    emit gui->parseErrorSig(tr("Fade previous steps command IGNORED."
+                                               "<br>FADE_STEPS SETUP must be set to TRUE."
+                                               "<br>FADE_STEPS SETUP must precede FADE_STEPS ENABLED."
+                                               "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                     break;
                 }
                 curMeta.LPub.fadeSteps.setPreferences();
@@ -1260,10 +1260,10 @@ int Gui::drawPage(
                          /*rc == EnableHighlightStepAssemRc*/
                          !curMeta.LPub.assem.highlightStep.enable.global &&
                          !curMeta.LPub.assem.highlightStep.setup.value())) {
-                    parseError(tr("Highlight current step command IGNORED."
-                                  "<br>HIGHLIGHT_STEP SETUP TRUE not deteced."
-                                  "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    emit gui->parseErrorSig(tr("Highlight current step command IGNORED."
+                                               "<br>HIGHLIGHT_STEP SETUP TRUE not deteced."
+                                               "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
+                                               "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                     break;
                 }
                 if (rc == EnableHighlightStepCalloutAssemRc) {
@@ -1284,10 +1284,10 @@ int Gui::drawPage(
                 if (!curMeta.LPub.highlightStep.enable.global &&
                         !curMeta.LPub.highlightStep.setup.value() &&
                         step->csiStepMeta.highlightStep.lpubHighlight.value()) {
-                    parseError(tr("Highlight current step command IGNORED."
-                                  "<br>HIGHLIGHT_STEP SETUP must be set to TRUE."
-                                  "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
-                                  "<br>GLOBAL command must appear in the header of the top model."),opts.current);
+                    emit gui->parseErrorSig(tr("Highlight current step command IGNORED."
+                                               "<br>HIGHLIGHT_STEP SETUP must be set to TRUE."
+                                               "<br>HIGHLIGHT_STEP SETUP must precede HIGHLIGHT_STEP ENABLED."
+                                               "<br>GLOBAL command must appear in the header of the top model."),opts.current);
                     break;
                 }
                 curMeta.LPub.highlightStep.setPreferences();
@@ -1341,9 +1341,9 @@ int Gui::drawPage(
                         step->csiStepMeta.highlightStep.lpubHighlight.setValue(true);
                     if (error) {
                         QString const command = line.contains("LPUB_FADE") ? QLatin1String("LPUB_FADE") : QLatin1String("LPUB_HIGHLIGHT");
-                        parseError(tr("%1 command IGNORED."
-                                      "<br>%1 command requires preferred render RENDERER_NATIVE."
-                                      "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
+                        emit gui->parseErrorSig(tr("%1 command IGNORED."
+                                                   "<br>%1 command requires preferred render RENDERER_NATIVE."
+                                                   "<br>PREFERRED_RENDERER command must precede %1.").arg(command),opts.current);
                     }
                 }
                 break;
@@ -1409,7 +1409,7 @@ int Gui::drawPage(
                 includeFileRc = Rc(include(curMeta,includeHere.lineNumber,includeFileFound)); // includeHere and inserted are include(...) vars
                 if (includeFileRc == IncludeFileErrorRc) {
                     includeFileRc = EndOfIncludeFileRc;
-                    parseError(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors);  // file parse error
+                    emit gui->parseErrorSig(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors);  // file parse error
                 } else if (includeFileRc != EndOfIncludeFileRc) {                             // still reading so continue
                     resetIncludeRc = false;                                                   // do not reset, allow includeFileRc to execute
                     continue;
@@ -1427,7 +1427,7 @@ int Gui::drawPage(
             case PliBeginSub7Rc:
             case PliBeginSub8Rc:
                 if (pliIgnore)
-                    parseError("Nested PLI BEGIN/ENDS not allowed",opts.current);
+                    emit gui->parseErrorSig(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current);
 
                 if (steps->meta.LPub.pli.show.value()
                         && ! excludedPart
@@ -1503,13 +1503,13 @@ int Gui::drawPage(
                 /* do not put subsequent parts into PLI */
             case PliBeginIgnRc:
                 if (pliIgnore)
-                    parseError(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current);
 
                 pliIgnore = true;
                 break;
             case PliEndRc:
                 if ( ! pliIgnore)
-                    parseError(tr("PLI END with no PLI BEGIN"),opts.current);
+                    emit gui->parseErrorSig(tr("PLI END with no PLI BEGIN"),opts.current);
 
                 pliIgnore = false;
                 curMeta.LPub.pli.begin.sub.clearAttributes();
@@ -1517,7 +1517,7 @@ int Gui::drawPage(
 
             case AssemAnnotationIconRc:
                 if (assemAnnotation) {
-                    parseError(tr("Nested ASSEM ANNOTATION ICON not allowed"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested ASSEM ANNOTATION ICON not allowed"),opts.current);
                 } else {
                     if (step && ! exportingObjects())
                         step->appendCsiAnnotation(opts.current,curMeta.LPub.assem.annotation/*,view*/);
@@ -1529,7 +1529,7 @@ int Gui::drawPage(
             case PartBeginIgnRc:
             case MLCadSkipBeginRc:
                 if (partIgnore)
-                    parseError(tr("Nested BEGIN/ENDS not allowed"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested BEGIN/ENDS not allowed"),opts.current);
 
                 partIgnore = true;
                 break;
@@ -1537,21 +1537,21 @@ int Gui::drawPage(
             case PartEndRc:
             case MLCadSkipEndRc:
                 if (! partIgnore)
-                    parseError(tr("Ignore ending with no ignore begin"),opts.current);
+                    emit gui->parseErrorSig(tr("Ignore ending with no ignore begin"),opts.current);
 
                 partIgnore = false;
                 break;
 
             case SynthBeginRc:
                 if (synthBegin)
-                    parseError(tr("Nested LSynth BEGIN/ENDS not allowed"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested LSynth BEGIN/ENDS not allowed"),opts.current);
 
                 synthBegin = true;
                 break;
 
             case SynthEndRc:
                 if ( ! synthBegin)
-                    parseError(tr("LSynth ignore ending with no ignore begin"),opts.current);
+                    emit gui->parseErrorSig(tr("LSynth ignore ending with no ignore begin"),opts.current);
 
                 synthBegin = false;
                 break;
@@ -1629,7 +1629,7 @@ int Gui::drawPage(
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
                     if (Gui::stepContains(top,partTypeLineRx)) {
                         QString const message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5)");
-                        parseError(message, opts.current, Preferences::InsertErrors);
+                        emit gui->parseErrorSig(message, opts.current, Preferences::InsertErrors);
                     }
                 } else { /*InsertDisplayModelRc*/
                     curMeta.LPub.assem.showStepNumber.setValue(false);
@@ -1685,7 +1685,7 @@ int Gui::drawPage(
                     message = message.arg(QLatin1String("INSERT COVER_PAGE"));
                 }
                 if (Gui::stepContains(top,partTypeLineRx))
-                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/);
+                    emit gui->parseErrorSig(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors, false, false/*override*/);
             }
                 break;
 
@@ -1741,7 +1741,7 @@ int Gui::drawPage(
             case PagePointerRc:
             {
                 if (pagePointer) {
-                    parseError("Nested page pointers not allowed within the same page",opts.current);
+                    emit gui->parseErrorSig(tr("Nested page pointers not allowed within the same page."),opts.current);
                 } else {
                     Positions position    = PP_LEFT;
                     PointerMeta ppm       = curMeta.LPub.page.pointer;
@@ -1819,14 +1819,14 @@ int Gui::drawPage(
 
                 PagePointer *pp = pagePointers.value(position);
                 if (pp) {
-                    Pointer          *p = nullptr;
-                    int i               = pam.value().id - 1;
-                    int validIndex      = pp->pointerList.size() - 1; /*0-index*/
+                    Pointer *p = nullptr;
+                    int i  = pam.value().id - 1;
+                    int validIndex = pp->pointerList.size() - 1; /*0-index*/
                     if (i <= validIndex) {
                         p = pp->pointerList[i];
                     } else {
-                        parseError(QString("Invalid Page pointer attribute index.<br>"
-                                           "Expected value &#60;= %1, received %2")
+                        emit gui->parseErrorSig(tr("Invalid Page pointer attribute index.<br>"
+                                                   "Expected value &#60;= %1, received %2")
                                    .arg(validIndex).arg(i),opts.current);
                         break;
                     }
@@ -1838,16 +1838,16 @@ int Gui::drawPage(
                         pagePointers.insert(position,pp);
                     }
                 } else {
-                    emit messageSig(LOG_ERROR, QString("Page Position %1 does not exist.").arg(PositionNames[position]));
+                    emit messageSig(LOG_ERROR, tr("Page Position %1 does not exist.").arg(PositionNames[position]));
                 }
             }
                 break;
 
             case CalloutBeginRc:
                 if (callout) {
-                    parseError("Nested CALLOUT not allowed within the same file",opts.current);
+                    emit gui->parseErrorSig(tr("Nested CALLOUT not allowed within the same file"),opts.current);
                 } else if (! buildModIgnoreOverride(buildMod.ignore, buildModTypeIgnore)) {
-                    parseError("Failed to process previous BUILD_MOD action for CALLOUT.",opts.current);
+                    emit gui->parseErrorSig(tr("Failed to process previous BUILD_MOD action for CALLOUT."),opts.current);
                 } else {
                     callout = new Callout(curMeta,view);
                     callout->setTopOfCallout(opts.current);
@@ -1874,9 +1874,9 @@ int Gui::drawPage(
                     if (i <= validIndex) {
                         p = callout->pointerList[i];
                     } else {
-                        parseError(QString("Invalid Callout pointer attribute index.<br>"
-                                           "Expected value &#60;= %1, received %2")
-                                   .arg(validIndex).arg(i),opts.current);
+                        emit gui->parseErrorSig(tr("Invalid Callout pointer attribute index.<br>"
+                                                   "Expected value &#60;= %1, received %2")
+                                                   .arg(validIndex).arg(i),opts.current);
                         break;
                     }
                     if (p && pam.value().id == p->id) {
@@ -1901,11 +1901,11 @@ int Gui::drawPage(
 
             case CalloutEndRc:
                 if ( ! callout) {
-                    parseError("CALLOUT END without a CALLOUT BEGIN",opts.current);
+                    emit gui->parseErrorSig(tr("CALLOUT END without a CALLOUT BEGIN"),opts.current);
                 }
                 else
                 if (! step) {
-                    parseError("CALLOUT does not contain a valid STEP",opts.current);
+                    emit gui->parseErrorSig(tr("CALLOUT does not contain a valid STEP"),opts.current);
                 }
                 else
                 {
@@ -1930,11 +1930,11 @@ int Gui::drawPage(
 
             case StepGroupBeginRc:
                 if (opts.calledOut) {
-                    parseError("MULTI_STEP not allowed inside callout models",opts.current);
+                    emit gui->parseErrorSig(tr("MULTI_STEP not allowed inside callout models"),opts.current);
                 } else if (multiStep) {
-                    parseError("Nested MULTI_STEP not allowed",opts.current);
+                    emit gui->parseErrorSig(tr("Nested MULTI_STEP not allowed"),opts.current);
                 } else if (! (multiStep = buildModIgnoreOverride(buildMod.ignore, buildModTypeIgnore))) {
-                    parseError("Failed to process previous BUILD_MOD action for MULTI_STEP.",opts.current);
+                    emit gui->parseErrorSig(tr("Failed to process previous BUILD_MOD action for MULTI_STEP."),opts.current);
                 } else {
                     steps->relativeType = StepGroupType;
                     steps->setTopOfSteps(opts.current);
@@ -1959,7 +1959,7 @@ int Gui::drawPage(
                     // save the current meta as the meta for step group
                     // PLI for non-pli-per-step
                     if (partsAdded)
-                        parseError("Expected STEP before MULTI_STEP END", opts.current);
+                        emit gui->parseErrorSig(tr("Expected STEP before MULTI_STEP END"), opts.current);
 
                     multiStep = false;
 
@@ -2125,7 +2125,7 @@ int Gui::drawPage(
                                     .arg(placementNames[  TopLeft])
                                     .arg(relativeNames [  CsiType])
                                     .arg(prepositionNames[Outside]);
-                            parseError(message, opts.current,Preferences::ParseErrors,false,true/*overide*/);
+                            emit gui->parseErrorSig(message, opts.current,Preferences::ParseErrors,false,true/*overide*/);
                         }
                     }
 
@@ -2241,18 +2241,18 @@ int Gui::drawPage(
                 if (!Preferences::buildModEnabled)
                     break;
                 if (partsAdded)
-                    parseError(tr("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
+                    emit gui->parseErrorSig(tr("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                opts.current,Preferences::BuildModErrors);
                 buildModStepIndex = getBuildModStepIndex(topOfStep);
                 buildModActionMeta = curMeta.LPub.buildMod;
                 buildMod.key = curMeta.LPub.buildMod.key();
                 if (buildModContains(buildMod.key)) {
                     if (getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
-                        parseError(tr("Redundant build modification meta command '%1' - this command can be removed.")
+                        emit gui->parseErrorSig(tr("Redundant build modification meta command '%1' - this command can be removed.")
                                    .arg(buildMod.key),opts.current,Preferences::BuildModErrors);
                 } else {
                     const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                    parseError(tr("DrawPage BuildMod key '%1' for %2 action was not found.")
+                    emit gui->parseErrorSig(tr("DrawPage BuildMod key '%1' for %2 action was not found.")
                                .arg(buildMod.key).arg(action),
                                opts.current,Preferences::BuildModErrors);
                 }
@@ -2277,7 +2277,7 @@ int Gui::drawPage(
                         if (lpub->ldrawFile.setViewerStepHasBuildModAction(buildModStepKey, true))
                             setBuildModAction(buildMod.key, buildModStepIndex, rc);
                         else
-                            parseError(tr("Could not preserve previous BuildMod %1 action for key '%2'.<br>Step or key was not found.")
+                            emit gui->parseErrorSig(tr("Could not preserve previous BuildMod %1 action for key '%2'.<br>Step or key was not found.")
                                        .arg(rc == BuildModApplyRc ? tr("Remove") : tr("Apply")).arg(buildMod.key),
                                        opts.current,Preferences::BuildModErrors, true, false, QMessageBox::Warning);
                         setBuildModAction(buildMod.key, buildModStepIndex, rc);
@@ -2323,7 +2323,7 @@ int Gui::drawPage(
                 } else if (buildModInsert) {
                     buildModActions.insert(buildMod.level, BuildModApplyRc);
                 } else
-                    parseError(tr("Build modification '%1' is not registered. BuildMod key was not found.").arg(buildMod.key),
+                    emit gui->parseErrorSig(tr("Build modification '%1' is not registered. BuildMod key was not found.").arg(buildMod.key),
                                opts.current,Preferences::BuildModErrors);
                 // set buildMod and buildModPli ignore
                 if (buildModActions.value(buildMod.level) == BuildModApplyRc) {
@@ -2343,10 +2343,10 @@ int Gui::drawPage(
                     break;
                 }
                 if (buildMod.level > 1 && buildMod.key.isEmpty())
-                    parseError("Key required for nested build mod meta command",
+                    emit gui->parseErrorSig(tr("Key required for nested build mod meta command"),
                                opts.current,Preferences::BuildModErrors);
                 if (buildMod.state != BM_BEGIN)
-                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), opts.current, Preferences::BuildModErrors);
+                    emit gui->parseErrorSig(tr("Required meta BUILD_MOD BEGIN not found"), opts.current, Preferences::BuildModErrors);
                 if (buildModInsert)
                     insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
                 // set buildMod and buildModPli ignore
@@ -2366,7 +2366,7 @@ int Gui::drawPage(
                 if (!Preferences::buildModEnabled)
                     break;
                 if (buildMod.state != BM_END_MOD)
-                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), opts.current, Preferences::BuildModErrors);
+                    emit gui->parseErrorSig(tr("Required meta BUILD_MOD END_MOD not found"), opts.current, Preferences::BuildModErrors);
                 if (buildModInsert)
                     insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
                 buildMod.level = getLevel(QString(), BM_END);
@@ -2524,15 +2524,15 @@ int Gui::drawPage(
                         }
 
                         if (pliIgnore) {
-                            parseError("PLI BEGIN then STEP. Expected PLI END",opts.current);
+                            emit gui->parseErrorSig(tr("PLI BEGIN then STEP. Expected PLI END"),opts.current);
                             pliIgnore = false;
                         }
                         if (partIgnore) {
-                            parseError("PART BEGIN then STEP. Expected PART END",opts.current);
+                            emit gui->parseErrorSig(tr("PART BEGIN then STEP. Expected PART END"),opts.current);
                             partIgnore = false;
                         }
                         if (synthBegin) {
-                            parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",opts.current);
+                            emit gui->parseErrorSig(tr("SYNTH BEGIN then STEP. Expected SYNTH_END"),opts.current);
                             synthBegin = false;
                         }
 
@@ -2676,12 +2676,12 @@ int Gui::drawPage(
                             step->placeRotateIcon = rotateIcon;
 
                             if (returnValue != HitNothing)
-                                emit messageSig(LOG_ERROR, QMessageBox::tr("Create CSI failed to create file."));
+                                emit messageSig(LOG_ERROR, tr("Create CSI failed to create file."));
 
                             // BuildMod create and update - performed after createCsi to enable viewerStepKey
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
-                                    parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
+                                    emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
                                 for (int buildModLevel : buildModKeys.keys()) {
                                     if (buildModInsert)
                                         insertBuildModification(buildModLevel);
@@ -3079,7 +3079,7 @@ int Gui::drawPage(
         else if (line != "") {
             const QChar type = line.at(0);
 
-            parseError(QString("Invalid LDraw type %1 line. Expected %2 elements, got \"%3\".")
+            emit gui->parseErrorSig(tr("Invalid LDraw type %1 line. Expected %2 elements, got \"%3\".")
                        .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),opts.current);
 
             returnValue = HitInvalidLDrawLine;
@@ -3784,7 +3784,7 @@ int Gui::findPage(
                         opts.flags.parseNoStep = meta.LPub.parseNoStep.value();
                     Where current = opts.current;
                     if (lpub->mi.scanForwardNoParts(current, StepMask|StepGroupMask) == StepGroupEndRc)
-                        gui->parseErrorSig(QString("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
+                        gui->parseErrorSig(tr("BUILD_MOD %1 '%2' must be placed after MULTI_STEP END")
                                            .arg(rc == BuildModRemoveRc ? QString("REMOVE") : QString("APPLY"))
                                            .arg(meta.LPub.buildMod.key()), opts.current,Preferences::ParseErrors,false,false);
                 }
@@ -3840,10 +3840,10 @@ int Gui::findPage(
                 }
                 if (buildModInsert) {
                     if (buildMod.level > 1 && buildMod.key.isEmpty())
-                        parseError("Key required for nested build mod meta command",
+                        emit gui->parseErrorSig(tr("Key required for nested build mod meta command"),
                                    opts.current,Preferences::BuildModErrors);
                     if (buildMod.state != BM_BEGIN)
-                        parseError(QString("Required meta BUILD_MOD BEGIN not found"),
+                        emit gui->parseErrorSig(tr("Required meta BUILD_MOD BEGIN not found"),
                                    opts.current, Preferences::BuildModErrors);
                     insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
                 }
@@ -3861,7 +3861,7 @@ int Gui::findPage(
                 }
                 if (buildModInsert) {
                     if (buildMod.state != BM_END_MOD)
-                        parseError(QString("Required meta BUILD_MOD END_MOD not found"),
+                        emit gui->parseErrorSig(tr("Required meta BUILD_MOD END_MOD not found"),
                                    opts.current, Preferences::BuildModErrors);
                     insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
                 }
@@ -3915,7 +3915,7 @@ int Gui::findPage(
                                 // insert build modifications
                                 if (buildModKeys.size()) {
                                     if (buildMod.state != BM_END)
-                                        parseError(QString("Required meta BUILD_MOD END not found"),
+                                        emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                    opts.current, Preferences::BuildModErrors);
                                     Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
                                         insertBuildModification(buildModLevel);
@@ -4036,7 +4036,7 @@ int Gui::findPage(
                                 // insert build modifications
                                 if (buildModKeys.size()) {
                                     if (buildMod.state != BM_END)
-                                        parseError(QString("Required meta BUILD_MOD END not found"),
+                                        emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
                                                    opts.current, Preferences::BuildModErrors);
 
                                     for (int buildModLevel : buildModKeys.keys())
@@ -4207,7 +4207,7 @@ int Gui::findPage(
                 opts.flags.includeFileRc = include(meta,opts.flags.includeLineNum,opts.flags.includeFileFound);  // includeHere and inserted are include(...) vars
                 if (opts.flags.includeFileRc == static_cast<int>(IncludeFileErrorRc)) {
                     opts.flags.includeFileRc = static_cast<int>(EndOfIncludeFileRc);
-                    parseError(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors); // file parse error
+                    emit gui->parseErrorSig(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors); // file parse error
                 } else if (static_cast<Rc>(opts.flags.includeFileRc) != EndOfIncludeFileRc) { // still reading so continue
                     opts.flags.resetIncludeRc = false;                                        // do not reset, allow includeFileRc to execute
                     continue;
@@ -4263,7 +4263,7 @@ int Gui::findPage(
                 {
                     if ((opts.current.modelName == lpub->ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                          opts.current.modelName != lpub->ldrawFile.topLevelFile())
-                        parseError("Start step number must be specified in the top model header.", opts.current);
+                        emit gui->parseErrorSig(tr("Start step number must be specified in the top model header."), opts.current);
                     sa = meta.LPub.startStepNumber.value() - 1;
                 }
                 break;
@@ -4273,7 +4273,7 @@ int Gui::findPage(
                 {
                     if ((opts.current.modelName == lpub->ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                          opts.current.modelName != lpub->ldrawFile.topLevelFile())
-                        parseError("Start page number must be specified in the top model header.", opts.current);
+                        emit gui->parseErrorSig(tr("Start page number must be specified in the top model header."), opts.current);
                     Gui::pa = meta.LPub.startPageNumber.value() - 1;
                 }
                 break;
@@ -5517,8 +5517,9 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
         case '3':
         case '4':
         case '5':
-            parseError(QString("Invalid include line [%1].<br>"
-                               "Part lines (type 1 to 5) are ignored in include file.").arg(line),here,Preferences::IncludeFileErrors);
+            emit gui->parseErrorSig(tr("Invalid include line [%1].<br>"
+                                       "Part lines (type 1 to 5) are ignored in "
+                                       "include file.").arg(line),here,Preferences::IncludeFileErrors);
             return prc;
         case '0':
             prc = meta.parse(line,here);
@@ -5532,8 +5533,9 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
             case PliBeginSub6Rc:
             case PliBeginSub7Rc:
             case PliBeginSub8Rc:
-                parseError(QString("Substitute part meta commands are not supported in include file: [%1].<br>"
-                                   "Add this command to the model file or to a submodel.").arg(line),here,Preferences::IncludeFileErrors);
+                emit gui->parseErrorSig(tr("Substitute part meta commands are not supported in include file: [%1].<br>"
+                                           "Add this command to the model file or to a submodel.")
+                                           .arg(line),here,Preferences::IncludeFileErrors);
                 prc = InvalidLineRc;
             default:
                 break;
@@ -5935,9 +5937,9 @@ int Gui::setBuildModForNextStep(
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 } else {
                     const QString action = rc == BuildModApplyRc ? tr("Apply") : tr("Remove");
-                    gui->parseErrorSig(QString("Next Step BuildMod key '%1' for %2 action was not found.")
-                                               .arg(buildMod.key).arg(action),
-                                               walk,Preferences::ParseErrors,false,false);
+                    gui->parseErrorSig(tr("Next Step BuildMod key '%1' for %2 action was not found.")
+                                          .arg(buildMod.key).arg(action),
+                                           walk,Preferences::ParseErrors,false,false);
                 }
                 if ((Rc)buildMod.action != rc) {
                     setBuildModAction(buildMod.key, buildModStepIndex, rc);
@@ -5948,8 +5950,8 @@ int Gui::setBuildModForNextStep(
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
             case BuildModBeginRc:
                 if (buildMod.state == BM_BEGIN) {
-                    QString const message = QString("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
-                                                    "Multiple build modifications per STEP are not allowed.")
+                    QString const message = tr("BUILD_MOD BEGIN '%1' encountered but '%2' was already defined in this STEP.<br><br>"
+                                               "Multiple build modifications per STEP are not allowed.")
                                                     .arg(meta.LPub.buildMod.key()).arg(buildMod.key);
                     emit gui->parseErrorSig(message, walk,Preferences::BuildModErrors,false,false);
                 }
@@ -5963,11 +5965,11 @@ int Gui::setBuildModForNextStep(
             // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
             case BuildModEndModRc:
                 if (buildMod.level > BM_FIRST_LEVEL && buildMod.key.isEmpty())
-                    emit gui->parseErrorSig(QString("Key required for nested build mod meta command"),
-                                                    walk,Preferences::BuildModErrors,false,false);
+                    emit gui->parseErrorSig(tr("Key required for nested build mod meta command"),
+                                            walk,Preferences::BuildModErrors,false,false);
                 if (buildMod.state != BM_BEGIN)
-                    emit gui->parseErrorSig(QString("Required meta BUILD_MOD BEGIN for key '%1' not found")
-                                                    .arg(buildMod.key), walk, Preferences::BuildModErrors,false,false);
+                    emit gui->parseErrorSig(tr("Required meta BUILD_MOD BEGIN for key '%1' not found")
+                                            .arg(buildMod.key), walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
                 buildMod.state = BM_END_MOD;
                 break;
@@ -5975,8 +5977,8 @@ int Gui::setBuildModForNextStep(
             // Insert buildModAttributes and reset buildMod.level and buildModIgnore to default
             case BuildModEndRc:
                 if (buildMod.state != BM_END_MOD)
-                    emit gui->parseErrorSig(QString("Required meta BUILD_MOD END_MOD for key '%1' not found")
-                                                   .arg(buildMod.key), walk, Preferences::BuildModErrors,false,false);
+                    emit gui->parseErrorSig(tr("Required meta BUILD_MOD END_MOD for key '%1' not found")
+                                            .arg(buildMod.key), walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
                 buildMod.level = getLevel(QString(), BM_END);
                 buildMod.state = BM_END;
@@ -5993,8 +5995,8 @@ int Gui::setBuildModForNextStep(
             case StepRc:
                 if (buildModKeys.size()) {
                     if (buildMod.state != BM_END)
-                        emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
-                                                        walk, Preferences::BuildModErrors,false,false);
+                        emit gui->parseErrorSig(tr("Required meta BUILD_MOD END not found"),
+                                                walk, Preferences::BuildModErrors,false,false);
                     Q_FOREACH (int buildModLevel, buildModKeys.keys())
                         insertBuildModification(buildModLevel);
                 }

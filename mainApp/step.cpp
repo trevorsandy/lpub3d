@@ -1073,7 +1073,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
                   else if (line.contains(invalidMetaRx)) {
                     Where where(submodelName, lpub->ldrawFile.getSubmodelIndex(submodelName), i);
                     QString const &message = QObject::tr("Meta command not supported in STEP for display submodel '%1'.<br>Line [%2]").arg(submodelName).arg(line);
-                    gui->parseError(message,where,Preferences::ParseErrors,true,false,QMessageBox::Warning);
+                    emit gui->parseErrorSig(message,where,Preferences::ParseErrors,true,false,QMessageBox::Warning);
                   } else {
                     QStringList argv;
                     split(line, argv);
