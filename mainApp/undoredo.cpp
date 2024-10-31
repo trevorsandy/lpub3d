@@ -147,7 +147,7 @@ void Gui::undo()
     macroNesting++;
     undoStack->undo();
     macroNesting--;
-    displayPage();
+    Gui::displayPage();
   }
 }
 
@@ -171,7 +171,7 @@ void Gui::redo()
     macroNesting++;
     undoStack->redo();
     macroNesting--;
-    displayPage();
+    Gui::displayPage();
   }
 }
 

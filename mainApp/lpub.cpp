@@ -235,9 +235,9 @@ void Gui::insertCoverPage()
 void Gui::appendCoverPage()
 {
   lpub->mi.appendCoverPage();
-  countPages();
+  gui->countPages();
   Gui::displayPageNum = Gui::maxPages;
-  displayPage();
+  Gui::displayPage();
 }
 
 void Gui::generateCoverPages()
@@ -270,7 +270,7 @@ void Gui::deleteFinalModelStep(bool force) {
 //  lpub->mi.appendCoverPage();
 //  countPages();
 //  ++Gui::displayPageNum;
-//  displayPage();  // display the page we just added
+//  Gui::displayPage();  // display the page we just added
 //}
 
 void Gui::insertNumberedPage()
@@ -283,7 +283,7 @@ void Gui::appendNumberedPage()
   lpub->mi.appendNumberedPage();
 //countPages();
 //++Gui::displayPageNum;
-//displayPage();    // display the page we just added
+//Gui::displayPage();    // display the page we just added
 }
 
 void Gui::deletePage()
@@ -388,11 +388,11 @@ void Gui::updateClipboard()
 
 void Gui::displayPage()
 {
-  if (macroNesting == 0) {
+  if (gui->macroNesting == 0) {
     Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
-    displayPageTimer.start();
+    gui->displayPageTimer.start();
     Gui::setAbortProcess(false);
-    clearPage(); // this includes freeSteps() so harvest old step items before calling
+    gui->clearPage(); // this includes freeSteps() so harvest old step items before calling
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     drawPage(dpFlags);
@@ -401,12 +401,12 @@ void Gui::displayPage()
       QApplication::restoreOverrideCursor();
       if (Preferences::modeGUI) {
         if (Gui::displayPageNum > (1 + Gui::pa)) {
-          restorePreviousPage();
+          gui->restorePreviousPage();
         } else {
           Gui::setAbortProcess(false);
-          closeModelFile();
-          if (waitingSpinner->isSpinning())
-            waitingSpinner->stop();
+          gui->closeModelFile();
+          if (gui->waitingSpinner->isSpinning())
+            gui->waitingSpinner->stop();
         }
       }
     } else if (!Gui::exporting()) {
@@ -436,7 +436,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   auto cycleDisplay = [&] ()
   {
     if (Preferences::modeGUI && !Gui::exporting())
-        enableNavigationActions(false);
+        gui->enableNavigationActions(false);
     bool savedDlgOpt = Preferences::doNotShowPageProcessDlg;
     int savedProc = Gui::pageProcessRunning;
     Gui::pageProcessRunning = PROC_NONE;
@@ -494,17 +494,17 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   t.start();
   if (operation == FILE_RELOAD) {
     int savePage = Gui::displayPageNum;
-    if (openFile(Gui::curFile)) {
+    if (gui->openFile(Gui::curFile)) {
       goToPageNum = Gui::pa ? savePage + Gui::pa : savePage;
       Gui::displayPageNum = 1 + Gui::pa;
       if (!move)
         setDirection(move);
       if (move > 1) {
         cycleDisplay();
-        enableActions();
+        gui->enableActions();
       } else {
         Gui::displayPageNum = goToPageNum;
-        displayPage();
+        Gui::displayPage();
       }
     }
   } else {
@@ -514,7 +514,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       cycleDisplay();
     } else {
       Gui::displayPageNum = goToPageNum;
-      displayPage();
+      Gui::displayPage();
     }
   }
 
@@ -592,21 +592,21 @@ void Gui::nextPage()
         gui->cyclePageDisplay(inputPageNum, !Preferences::buildModEnabled);
         return;
       } else {
-        statusBarMsg("Page number entered is higher than total pages");
+        gui->statusBarMsg("Page number entered is higher than total pages");
       }
       string = tr("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
       setPageLineEdit->setText(string);
       return;
   } else {   // numbers are same so goto next page
-      countPages();
+      gui->countPages();
       if (Gui::displayPageNum < Gui::maxPages) {
-        if (!saveBuildModification())
+        if (!gui->saveBuildModification())
           return;
         Gui::pageDirection = PAGE_NEXT;
         ++Gui::displayPageNum;
-        displayPage();
+        Gui::displayPage();
       } else {
-        statusBarMsg(tr("You are on the last page"));
+        gui->statusBarMsg(tr("You are on the last page"));
       }
     }
   }
@@ -686,23 +686,23 @@ void Gui::previousPage()
         const int move = inputPageNum - Gui::displayPageNum;
         Gui::pageDirection  = move < -1 ? PAGE_JUMP_BACKWARD : PAGE_PREVIOUS;
         Gui::displayPageNum = inputPageNum;
-        displayPage();
+        Gui::displayPage();
         return;
       } else {
-        statusBarMsg(tr("Page number entered is invalid"));
+        gui->statusBarMsg(tr("Page number entered is invalid"));
       }
       string = tr("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
       setPageLineEdit->setText(string);
       return;
     } else {               // numbers are same so goto previous page
       if (Gui::displayPageNum > 1 + Gui::pa) {
-        if (!saveBuildModification())
+        if (!gui->saveBuildModification())
           return;
         Gui::pageDirection = PAGE_PREVIOUS;
         Gui::displayPageNum--;
-        displayPage();
+        Gui::displayPage();
       } else {
-        statusBarMsg("You are on the first page");
+        gui->statusBarMsg("You are on the first page");
       }
     }
   }
@@ -968,9 +968,9 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           gui->setPageLineEdit->setText(QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages));
 
-          pageCount = displayPageNum;
+          pageCount = Gui::displayPageNum;
 
-          displayPage();
+          Gui::displayPage();
 
           message = tr("%1 Page Processing - Processed page %2 of %3.")
                        .arg(direction)
@@ -1081,7 +1081,7 @@ bool Gui::continuousPageDialog(PageDirection d)
 
           pageCount++;
 
-          displayPage();
+          Gui::displayPage();
 
           message = tr("%1 Page Processing - Processed page %2 (%3 of %4) from the range of %5")
                        .arg(direction)
@@ -1224,7 +1224,7 @@ void Gui::firstPage()
     else if ((1 + Gui::pa) - Gui::displayPageNum == -1)
         Gui::pageDirection = PAGE_PREVIOUS;
     Gui::displayPageNum = 1 + Gui::pa;
-    displayPage();
+    Gui::displayPage();
   }
 }
 

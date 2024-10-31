@@ -43,7 +43,7 @@ void InsertLineCommand::redo()
   ldrawFile->insertLine(here.modelName,here.lineNumber,line);
   gui->showLine(here);
   if (!isHeader(line))
-     gui->displayPage();
+     Gui::displayPage();
 }
 
 AppendLineCommand::AppendLineCommand(
@@ -63,14 +63,14 @@ void AppendLineCommand::undo()
 {
   ldrawFile->deleteLine(here.modelName,here.lineNumber+1);
   gui->showLine(here);
-  gui->displayPage();
+  Gui::displayPage();
 }
 
 void AppendLineCommand::redo()
 {
   ldrawFile->insertLine(here.modelName,here.lineNumber+1,line);
   gui->showLine(here);
-  gui->displayPage();
+  Gui::displayPage();
 }
 
 DeleteLineCommand::DeleteLineCommand(
@@ -88,7 +88,7 @@ void DeleteLineCommand::undo()
 {
   ldrawFile->insertLine(here.modelName,here.lineNumber,deletedLine);
   gui->showLine(here);
-  gui->displayPage();
+  Gui::displayPage();
 }
 
 void DeleteLineCommand::redo()
@@ -96,7 +96,7 @@ void DeleteLineCommand::redo()
   deletedLine = ldrawFile->readLine(here.modelName, here.lineNumber);
   ldrawFile->deleteLine(here.modelName,here.lineNumber);
   gui->showLine(here);
-  gui->displayPage();
+  Gui::displayPage();
 }
 
 ReplaceLineCommand::ReplaceLineCommand(
@@ -117,7 +117,7 @@ void ReplaceLineCommand::undo()
 {
   ldrawFile->replaceLine(here.modelName,here.lineNumber,oldLine);
   gui->showLine(here);
-  gui->displayPage();
+  Gui::displayPage();
 }
 
 void ReplaceLineCommand::redo()
@@ -126,7 +126,7 @@ void ReplaceLineCommand::redo()
                          here.lineNumber,
                          newLine);
   gui->showLine(here);
-  gui->displayPage();
+  Gui::displayPage();
 }
 
 ContentsChangeCommand::ContentsChangeCommand(
@@ -159,7 +159,7 @@ void ContentsChangeCommand::redo()
     isRedo = true;
   } else {
     Gui::maxPages = -1;
-    gui->displayPage();
+    Gui::displayPage();
   }
 }
 
@@ -172,5 +172,5 @@ void ContentsChangeCommand::undo()
     position,
     addedChars.size(),
     removedChars);
-  gui->displayPage();
+  Gui::displayPage();
 }

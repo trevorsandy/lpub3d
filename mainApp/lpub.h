@@ -545,11 +545,7 @@ public:
 
   static bool processPageRange(const QString &range);
 
-  void    changePageNum(int offset)
-  {
-    displayPageNum += offset;
-  }
-  void  displayPage();
+  static void displayPage();
 
   bool continuousPageDialog(PageDirection d);
 

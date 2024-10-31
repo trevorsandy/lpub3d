@@ -69,10 +69,10 @@ void Gui::open()
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
-      if (!openFile(fileName))
+      if (!gui->openFile(fileName))
           return;
-      displayPage();
-      enableActions();
+      Gui::displayPage();
+      gui->enableActions();
       emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                            .arg(fileInfo.fileName())
                                            .arg(Gui::maxPages)
@@ -86,7 +86,7 @@ void Gui::open()
 
 void Gui::openDropFile(QString &fileName) {
 
-  if (maybeSave() && saveBuildModification()) {
+  if (gui->maybeSave() && gui->saveBuildModification()) {
       QElapsedTimer timer;
       timer.start();
       QFileInfo fileInfo(fileName);
@@ -98,10 +98,10 @@ void Gui::openDropFile(QString &fileName) {
       if (fileInfo.exists() && (ldr || mpd || dat)) {
           QSettings Settings;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
-          if (!openFile(fileName))
+          if (!gui->openFile(fileName))
               return;
-          displayPage();
-          enableActions();
+          gui->displayPage();
+          gui->enableActions();
           emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                                .arg(fileInfo.fileName())
                                                .arg(Gui::maxPages)
@@ -111,8 +111,8 @@ void Gui::openDropFile(QString &fileName) {
           QString noExtension;
           if (extension.isEmpty())
               noExtension = tr("<br>No file exension specified. Set the file extension to .mpd,.ldr, or .dat.");
-          emit messageSig(LOG_ERROR, tr("File not supported!<br>%1%2")
-                                        .arg(fileName).arg(noExtension));
+          emit gui->messageSig(LOG_ERROR, tr("File not supported!<br>%1%2")
+                                             .arg(fileName).arg(noExtension));
         }
     }
 }
@@ -410,11 +410,11 @@ void Gui::openRecentFile()
     timer.start();
     QString fileName = action->data().toString();
     QFileInfo fileInfo(fileName);
-    if (!openFile(fileName))
+    if (!gui->openFile(fileName))
         return;
     Paths::mkDirs();
-    displayPage();
-    enableActions();
+    Gui::displayPage();
+    gui->enableActions();
     emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                          .arg(fileInfo.fileName())
                                          .arg(Gui::maxPages)
@@ -622,10 +622,10 @@ void Gui::saveAs()
     int loadMsgType = Preferences::ldrawFilesLoadMsgs;
     if (loadMsgType)
         Preferences::ldrawFilesLoadMsgs = static_cast<int>(NEVER_SHOW);
-    openFile(fileName);
+    gui->openFile(fileName);
     if (loadMsgType)
         Preferences::ldrawFilesLoadMsgs = loadMsgType;
-    displayPage();
+    Gui::displayPage();
   } else {
     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
                               QMessageBox::tr("Unsupported LDraw file extension %1 specified.  File not saved.")
@@ -1089,10 +1089,10 @@ void Gui::reloadFromDisk()
   if (!QFileInfo(Gui::curFile).isReadable())
     return;
   int goToPage = Gui::displayPageNum;
-  if (!openFile(Gui::curFile))
+  if (!gui->openFile(Gui::curFile))
     return;
   Gui::displayPageNum = goToPage;
-  displayPage();
+  Gui::displayPage();
 }
 
 void Gui::fileChanged(const QString &path)
@@ -1124,10 +1124,10 @@ void Gui::fileChanged(const QString &path)
     QString fileName = QFileInfo(path).fileName();
     if (lpub->ldrawFile.isIncludeFile(fileName) || static_cast<bool>(lpub->ldrawFile.isUnofficialPart(fileName)))
       absoluteFilePath = Gui::curFile;
-    if (!openFile(absoluteFilePath))
+    if (!gui->openFile(absoluteFilePath))
       return;
     Gui::displayPageNum = goToPage;
-    displayPage();
+    Gui::displayPage();
   }
 }
 

@@ -816,9 +816,9 @@ void Gui::exportAsPdf()
   {
       Gui::displayPageNum = Gui::prevDisplayPageNum;
       if (Gui::abortProcess())
-          restorePreviousPage();
+          gui->restorePreviousPage();
       else if (restoreKpage)
-          displayPage();
+          Gui::displayPage();
   };
 
   // add pixel ratio info to file name
@@ -1502,9 +1502,9 @@ void Gui::exportAs(const QString &_suffix)
   {
       Gui::displayPageNum = Gui::prevDisplayPageNum;
       if (Gui::abortProcess())
-          restorePreviousPage();
+          gui->restorePreviousPage();
       else
-          displayPage();
+          Gui::displayPage();
   };
 
   // Switch to Native Renderer for fast processing
@@ -1978,9 +1978,9 @@ void Gui::Print(QPrinter* Printer)
   {
     Gui::displayPageNum = Gui::prevDisplayPageNum;
     if (Gui::abortProcess())
-      restorePreviousPage();
+      gui->restorePreviousPage();
     else
-      displayPage();
+      Gui::displayPage();
   };
 
   if (Printer->collateCopies())

@@ -215,7 +215,7 @@ void TextItem::contextMenuEvent(
         endMacro();
 
     } else {
-        gui->displayPage();
+        Gui::displayPage();
     }
 
   } else if (selectedAction == colorAction) {
