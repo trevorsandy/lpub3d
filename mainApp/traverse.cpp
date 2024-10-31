@@ -809,7 +809,7 @@ int Gui::drawPage(
 
                 if (step == nullptr  && ! noStep) {
                     if (range == nullptr) {
-                        range = newRange(steps,opts.calledOut);
+                        range = Gui::newRange(steps,opts.calledOut);
                         steps->append(range);
                     }
 
@@ -1084,7 +1084,7 @@ int Gui::drawPage(
 
                 if (step == nullptr && ! noStep) {
                     if (range == nullptr) {
-                        range = newRange(steps,opts.calledOut);
+                        range = Gui::newRange(steps,opts.calledOut);
                         steps->append(range);
                     }
 
@@ -1481,7 +1481,7 @@ int Gui::drawPage(
 
                 if (step == nullptr && ! noStep && ! buildMod.ignore) {
                     if (range == nullptr) {
-                        range = newRange(steps,opts.calledOut);
+                        range = Gui::newRange(steps,opts.calledOut);
                         steps->append(range);
                     }
                     step = new Step(topOfStep,
@@ -1572,7 +1572,7 @@ int Gui::drawPage(
 
                     if (step == nullptr && ! noStep) {
                         if (range == nullptr) {
-                            range = newRange(steps,opts.calledOut);
+                            range = Gui::newRange(steps,opts.calledOut);
                             steps->append(range);
                         }
                         step = new Step(topOfStep,
@@ -1594,7 +1594,7 @@ int Gui::drawPage(
                     step = nullptr;
                     Reserve *reserve = new Reserve(topOfStep/*opts.current*/,steps->meta.LPub);
                     if (range == nullptr) {
-                        range = newRange(steps,opts.calledOut);
+                        range = Gui::newRange(steps,opts.calledOut);
                         steps->append(range);
                     }
                     range->append(reserve);
@@ -1641,7 +1641,7 @@ int Gui::drawPage(
                     opts.stepNum--;
                     if (step == nullptr) {
                         if (range == nullptr) {
-                            range = newRange(steps,opts.calledOut);
+                            range = Gui::newRange(steps,opts.calledOut);
                             steps->append(range);
                         }
                         step = new Step(topOfStep,
@@ -2459,7 +2459,7 @@ int Gui::drawPage(
                 if (! partsAdded && ! noStep && (bfxLoad || buildModActionStep)) {
                     if (step == nullptr) {
                         if (range == nullptr) {
-                            range = newRange(steps,opts.calledOut);
+                            range = Gui::newRange(steps,opts.calledOut);
                             steps->append(range);
                         }
                         step = new Step(topOfStep,
@@ -2873,7 +2873,7 @@ int Gui::drawPage(
 
                                     if (step == nullptr) {
                                         if (range == nullptr) {
-                                            range = newRange(steps,opts.calledOut);
+                                            range = Gui::newRange(steps,opts.calledOut);
                                         }
                                         step = new Step(topOfStep,
                                                         range,

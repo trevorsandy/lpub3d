@@ -536,7 +536,7 @@ public:
           DividerType dividerType,
           int stepNum,
           Rc rct);
-  Range *newRange(
+  static Range *newRange(
           Steps  *steps,
           bool    calledOut);
 
