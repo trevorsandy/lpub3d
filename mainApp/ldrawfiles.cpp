@@ -1834,7 +1834,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     else
         emit gui->progressBarPermReset();
     emit gui->progressPermRangeSig(1, lineCount);
-    emit gui->progressPermMessageSig(QObject::tr("Loading MPD subfile '%1'...").arg( fileInfo.fileName()));
+    emit gui->progressPermMessageSig(QObject::tr("Loading MPD Model '%1'...").arg( fileInfo.fileName()));
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1").arg(lineCount));
@@ -2117,9 +2117,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     contents << smLine;
                 }
                 unofficialPart = isDatafile ? UNOFFICIAL_DATA : UNOFFICIAL_UNKNOWN;
-                if (! alreadyLoaded) {
-                    emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading MPD subfile '%1'...").arg(subfileName));
-                }
+                if (! alreadyLoaded)
+                    emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading subfile '%1'...").arg(subfileName));
                 if (isDatafile) {
                     if (subfileName.isEmpty()) {
                         const QString id = QString("DATA%1").arg(lineIndx + 1);
@@ -2442,7 +2441,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         else
             emit gui->progressBarPermReset();
         emit gui->progressPermRangeSig(1, lineCount);
-        emit gui->progressPermMessageSig(QString("Loading LDR subfile '%1'...").arg(fileInfo.fileName()));
+        emit gui->progressPermMessageSig(QObject::tr("Loading LDR Model '%1'...").arg(fileInfo.fileName()));
 
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1").arg(lineCount));
@@ -2624,7 +2623,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             }
 
             if ((alreadyLoaded = LDrawFile::contains(subfileName))) {
-                emit gui->messageSig(LOG_TRACE, QString("LDR %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
+                emit gui->messageSig(LOG_TRACE, QObject::tr("LDR %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
                     stagedSubfiles.removeAt(subfileIndx);
@@ -2692,9 +2691,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     partHeaderFinished = subfileFound ? true : false;
                     subfileName = _fileRegExp[NAM_RX].cap(1);
                     contents << smLine;
-                    if (! alreadyLoaded) {
-                        emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading LDR '%1'...").arg(subfileName));
-                    }
+                    if (! alreadyLoaded)
+                        emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading '%1'...").arg(subfileName));
                 } else if (eosf) {
                     /* - at the end of inline part
                     */
@@ -2929,6 +2927,9 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
 {
   if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep)
       return;
+ 
+  emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Loading Custom Colour Parts..."));
+  
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
   if (f != _subFiles.end()) {
