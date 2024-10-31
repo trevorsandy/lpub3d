@@ -1244,6 +1244,12 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
     return true;
 }
 
+void Gui::previewModel(QString const &modelFileName)
+{
+    if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
+        emit gui->messageSig(LOG_WARNING, tr("Could not load cover page preview file '%1'.").arg(modelFileName));
+}
+
 void Gui::updatePreview()
 {
     if (previewDockWindow) {

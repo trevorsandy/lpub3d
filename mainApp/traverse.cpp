@@ -2903,8 +2903,11 @@ int Gui::drawPage(
                                                 if (step->subModel.viewerSubmodelKey == lpub->currentStep->viewerStepKey) {
                                                     showLine(topOfStep);
                                                     const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
+                                                    emit gui->previewModelSig(modelFileName);
+                                                    /*
                                                     if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
                                                         emit gui->messageSig(LOG_WARNING, tr("Could not load cover page preview (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
+                                                    //*/
                                                 } else {
                                                     QString const currentStepKey = lpub->currentStep->viewerStepKey;
                                                     emit gui->messageSig(LOG_WARNING, QObject::tr("The specified submodel step key: '%1' does not match the current step key: '%2'")

@@ -3649,6 +3649,8 @@ void Gui::initialize()
           this, SLOT(halt3DViewer(bool)));
   connect(this, SIGNAL(updateAllViewsSig()),
           this, SLOT(UpdateAllViews()));
+  connect(this, SIGNAL(previewModelSig(QString const &)),
+          this, SLOT(previewModel(QString const &)));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
   connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)),

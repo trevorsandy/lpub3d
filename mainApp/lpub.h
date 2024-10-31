@@ -1586,6 +1586,7 @@ signals:
   void showLineSig(int lineNumber, int type);
   void setSubFilesSig(const QStringList &subFiles);
   void setLineScopeSig(const StepLines& lineScope);
+  void previewModelSig(const QString &);
   void clearEditorWindowSig();
   void setTextEditHighlighterSig();
   void updateAllViewsSig();
@@ -1939,6 +1940,7 @@ private slots:
 
     void ShowPrintDialog();
     void Print(QPrinter* Printer);
+    void previewModel(QString const &);
 
     void importLDD();
     void importInventory();
