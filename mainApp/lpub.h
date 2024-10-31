@@ -1742,7 +1742,7 @@ private:
     const QString &,
     const PartType partType);                // fade and or highlight all parts in subfile
 
-  int findPage(                              // traverse the hierarchy until we get to the
+  static int findPage(                              // traverse the hierarchy until we get to the
     Meta             meta,                   // page of interest, let traverse process the
     QString const   &addLine,                // page, and then finish by counting the rest
     FindPageOptions &opts);

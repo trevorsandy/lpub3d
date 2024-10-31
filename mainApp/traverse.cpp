@@ -3124,7 +3124,7 @@ int Gui::findPage(
     if (!Gui::ContinuousPage())
         emit gui->messageSig(LOG_STATUS, tr("Processing find page for %1...").arg(opts.current.modelName));
 
-    skipHeader(opts.current);
+    gui->skipHeader(opts.current);
 
     opts.stepNumber = 1 + Gui::sa;
 
@@ -3199,13 +3199,12 @@ int Gui::findPage(
     };
 
     auto insertBuildModification =
-            [this,
-            &opts,
-            &buildModAttributes,
-            &buildModKeys,
-            &topOfStep] (int buildModLevel)
+            [&opts,
+             &buildModAttributes,
+             &buildModKeys,
+             &topOfStep] (int buildModLevel)
     {
-        int buildModStepIndex = getBuildModStepIndex(topOfStep);
+        int buildModStepIndex = gui->getBuildModStepIndex(topOfStep);
         QString buildModKey = buildModKeys.value(buildModLevel);
         QVector<int> modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
 
@@ -3242,9 +3241,9 @@ int Gui::findPage(
                              .arg(buildModLevel));
 #endif
 //*/
-        insertBuildMod(buildModKey,
-                       modAttributes,
-                       buildModStepIndex);
+        gui->insertBuildMod(buildModKey,
+                            modAttributes,
+                            buildModStepIndex);
     };
 
     PartLineAttributes pla(
@@ -3413,7 +3412,7 @@ int Gui::findPage(
                                                                      opts.flags.countInstances);
 
                             // check if submodel is in current step build modification
-                            buildModRendered = Preferences::buildModEnabled && (buildMod.ignore || getBuildModRendered(buildMod.key, colorType));
+                            buildModRendered = Preferences::buildModEnabled && (buildMod.ignore || gui->getBuildModRendered(buildMod.key, colorType));
 
                             // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
                             if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -3425,7 +3424,7 @@ int Gui::findPage(
                                     // add submodel to the model stack - it can't be a callout
                                     SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                                     meta.submodelStack << tos;
-                                    Where current2(type,getSubmodelIndex(type),0);
+                                    Where current2(type,gui->getSubmodelIndex(type),0);
 
                                     // add buildMod settings for this step, needed for submodels in a buildMod.
                                     const QString levelKey = QString("FindPage BuildMod Key: %1, ParentModel: %2, LineNumber: %3")
@@ -3579,7 +3578,7 @@ int Gui::findPage(
                                 buildMod.state == BM_BEGIN   &&
                                 ! partiallyRendered          &&
                                 ! buildModRendered) {
-                            setBuildModRendered(buildMod.key, colorType);
+                            gui->setBuildModRendered(buildMod.key, colorType);
                         }
 
                     } // Contains [IsSubmodel]
@@ -3661,7 +3660,7 @@ int Gui::findPage(
             case StepGroupEndRc:
                 if (opts.flags.stepGroup && ! opts.flags.noStep2) {
                     opts.flags.stepGroup = false;
-                    if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                    if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                         saveLineTypeIndexes    = lineTypeIndexes;
                         saveCsiParts           = csiParts;
                         saveStepNumber         = opts.stepNumber;
@@ -3674,7 +3673,7 @@ int Gui::findPage(
 #ifdef WRITE_PARTS_DEBUG
                         writeFindPartsFile("a_find_csi_parts", csiParts);
 #endif
-                    } else if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
+                    } else if (isDisplayPage/*opts.pageNum == Gui::displayPageNum*/) {
                         // ignored when processing a buildModDisplay
                         Gui::savePrevStepPosition = saveCsiParts.size();
                         Gui::stepPageNum = Gui::saveStepPageNum;
@@ -3736,7 +3735,7 @@ int Gui::findPage(
                         saveCurrent.modelIndex = -1;
                         saveCsiParts.clear();
                         saveLineTypeIndexes.clear();
-                    } // IsDisplayPage /*opts.pageNum == displayPageNum*/
+                    } // IsDisplayPage /*opts.pageNum == Gui::displayPageNum*/
 
                     // ignored when processing buildMod display
                     if (Gui::exporting()) {
@@ -3776,7 +3775,7 @@ int Gui::findPage(
 
                 } // StepGroup && ! NoStep2 (StepGroupEndRc)
 
-                if (opts.current.modelName == topLevelFile())
+                if (opts.current.modelName == gui->topLevelFile())
                     opts.pageDisplayed = opts.pageNum > Gui::displayPageNum;
 
                 opts.flags.noStep2 = false;
@@ -3812,11 +3811,11 @@ int Gui::findPage(
                 buildMod.key    = meta.LPub.buildMod.key();
                 buildMod.level  = getLevel(buildMod.key, BM_BEGIN);
                 buildMod.action = BuildModApplyRc;
-                buildModInsert  = ! buildModContains(buildMod.key);
+                buildModInsert  = ! gui->buildModContains(buildMod.key);
                 if (! opts.pageDisplayed) {
                     if (! buildModInsert)
                         buildModActions.insert(buildMod.level,
-                                               getBuildModAction(buildMod.key, getBuildModNextStepIndex(), BM_PREVIOUS_ACTION));
+                                               gui->getBuildModAction(buildMod.key, gui->getBuildModNextStepIndex(), BM_PREVIOUS_ACTION));
                     else
                         buildModActions.insert(buildMod.level, BuildModApplyRc);
                     if (buildModActions.value(buildMod.level) == BuildModApplyRc)
@@ -3880,12 +3879,12 @@ int Gui::findPage(
                 if (opts.flags.partsAdded && (! opts.flags.noStep || opts.flags.parseNoStep)) {
                     if (! buildMod.ignore) {
                         if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
-                            if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-                                    (opts.stepNumber > FIRST_STEP + Gui::sa || displayPageNum > FIRST_PAGE + Gui::sa)) { // skip the first step
+                            if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/ &&
+                                    (opts.stepNumber > FIRST_STEP + Gui::sa || Gui::displayPageNum > FIRST_PAGE + Gui::sa)) { // skip the first step
                                 opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                             }
                             if (! opts.flags.stepGroup && opts.stepNumber == 1 + Gui::sa) {
-                                if (opts.pageNum == 1 + Gui::pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
+                                if (opts.pageNum == 1 + Gui::pa && topOfStep.modelName == gui->topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
                                     meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
                                 } else {
                                     saveMeta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
@@ -3896,7 +3895,7 @@ int Gui::findPage(
                         opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
                         Gui::stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
-                        if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                        if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                             if ( ! opts.flags.stepGroup) {
                                 saveLineTypeIndexes    = lineTypeIndexes;
                                 saveStepNumber         = opts.stepNumber;
@@ -3937,7 +3936,7 @@ int Gui::findPage(
                             }
                             saveCurrent = opts.current;
                             saveRotStep = meta.rotStep;
-                        } // isPreDisplayPage/*opts.pageNum < displayPageNum*/
+                        } // isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/
 
                         if ( ! opts.flags.stepGroup) {
                             if (isDisplayPage) {
@@ -4003,7 +4002,7 @@ int Gui::findPage(
                                 saveLineTypeIndexes.clear();
                                 //buildModActions.clear();
 
-                            } // IsDisplayPage /*opts.pageNum == displayPageNum*/
+                            } // IsDisplayPage /*opts.pageNum == Gui::displayPageNum*/
 
                             if (! opts.flags.noStep) {
                                 if (Gui::exporting() && ! opts.flags.noStep) {
@@ -4076,8 +4075,8 @@ int Gui::findPage(
                     saveCurrent = opts.current;
                 } // ! StepGroup
 
-                if (opts.current.modelName == topLevelFile())
-                    opts.pageDisplayed = opts.pageNum > displayPageNum;
+                if (opts.current.modelName == gui->topLevelFile())
+                    opts.pageDisplayed = opts.pageNum > Gui::displayPageNum;
 
                 buildMod.clear();
                 meta.LPub.buildMod.clear();
@@ -4104,12 +4103,12 @@ int Gui::findPage(
             case InsertPageRc:
                 opts.flags.stepPage   = true;
                 opts.flags.partsAdded = true;
-                lastStepPageNum       = opts.pageNum;
+                Gui::lastStepPageNum  = opts.pageNum;
                 break;
 
             case InsertFinalModelRc:
             case InsertDisplayModelRc:
-                lastStepPageNum = opts.pageNum;
+                Gui::lastStepPageNum = opts.pageNum;
                 if (rc == InsertDisplayModelRc)
                     opts.displayModel = true;
                 break;
@@ -4126,7 +4125,7 @@ int Gui::findPage(
                 // to be processed here
 
             case ClearRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                     csiParts.clear();
                     saveCsiParts.clear();
                     lineTypeIndexes.clear();
@@ -4141,7 +4140,7 @@ int Gui::findPage(
                                             opts.current,Preferences::BuildModErrors,false,false);
                     break;
                 }
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                     bfx[meta.bfx.value()] = csiParts;
                     bfxLineTypeIndexes[meta.bfx.value()] = lineTypeIndexes;
                 }
@@ -4150,7 +4149,7 @@ int Gui::findPage(
                 break;
 
             case BufferLoadRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                     csiParts = bfx[meta.bfx.value()];
                     lineTypeIndexes = bfxLineTypeIndexes[meta.bfx.value()];
                 }
@@ -4169,7 +4168,7 @@ int Gui::findPage(
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                     CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
                 }
                 opts.flags.partsAdded = true;
@@ -4181,7 +4180,7 @@ int Gui::findPage(
             case LeoCadLightPOVRayRc:
             case LeoCadLightShadowless:
                 isLocalMeta = line.contains(" LOCAL ");
-                if ((isDisplayPage && isLocalMeta) || (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && !isLocalMeta))
+                if ((isDisplayPage && isLocalMeta) || (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/ && !isLocalMeta))
                 {
                     if (isLocalMeta)
                         line.remove("LOCAL ");
@@ -4194,7 +4193,7 @@ int Gui::findPage(
             case RemoveGroupRc:
             case RemovePartTypeRc:
             case RemovePartNameRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/) {
                     if (! buildMod.ignore) {
                         QStringList newCSIParts;
                         QVector<int> newLineTypeIndexes;
@@ -4255,7 +4254,7 @@ int Gui::findPage(
                 break;
 
             case ContStepNumRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/)
                 {
                     if (meta.LPub.contStepNumbers.value()) {
                         if (! opts.contStepNumber)
@@ -4267,7 +4266,7 @@ int Gui::findPage(
                 break;
 
             case StartStepNumberRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/)
                 {
                     if ((opts.current.modelName == lpub->ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                          opts.current.modelName != lpub->ldrawFile.topLevelFile())
@@ -4277,7 +4276,7 @@ int Gui::findPage(
                 break;
 
             case StartPageNumberRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/)
                 {
                     if ((opts.current.modelName == lpub->ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                          opts.current.modelName != lpub->ldrawFile.topLevelFile())
@@ -4287,12 +4286,12 @@ int Gui::findPage(
                 break;
 
             case BuildModEnableRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/)
                 {
                     bool enabled = meta.LPub.buildModEnabled.value() && !opts.displayModel;
                     if (Preferences::buildModEnabled != enabled) {
                         Preferences::buildModEnabled  = enabled;
-                        enableVisualBuildModification();
+                        gui->enableVisualBuildModification();
                         emit gui->messageSig(LOG_INFO, tr("Build Modifications are %1")
                                                           .arg(enabled ? tr("Enabled") : tr("Disabled")));
                     }
@@ -4300,12 +4299,12 @@ int Gui::findPage(
                 break;
 
             case FinalModelEnableRc:
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+                if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/)
                 {
                     bool enabled = meta.LPub.finalModelEnabled.value();
                     if (Preferences::finalModelEnabled != enabled) {
                         Preferences::finalModelEnabled  = enabled;
-                        enableVisualBuildModification();
+                        gui->enableVisualBuildModification();
                         emit gui->messageSig(LOG_INFO, tr("Fade/Highlight final model step is %1")
                                                           .arg(enabled ? tr("Enabled") : tr("Disabled")));
                     }
@@ -4356,17 +4355,17 @@ int Gui::findPage(
             opts.flags.partsAdded &&
             ! opts.pageDisplayed &&
             (! opts.flags.noStep || opts.flags.parseNoStep)) {
-        isPreDisplayPage = opts.pageNum < displayPageNum;
-        isDisplayPage = opts.pageNum == displayPageNum;
+        isPreDisplayPage = opts.pageNum < Gui::displayPageNum;
+        isDisplayPage = opts.pageNum == Gui::displayPageNum;
         // increment continuous step number
         // save continuous step number from current model
         // pass continuous step number to drawPage
         if (opts.contStepNumber) {
-            if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && ! opts.flags.countInstances &&
-                    (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) {
+            if (isPreDisplayPage/*opts.pageNum < Gui::displayPageNum*/ && ! opts.flags.countInstances &&
+                    (opts.stepNumber > FIRST_STEP + sa || Gui::displayPageNum > FIRST_PAGE + sa)) {
                 opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
             }
-            if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
+            if (isDisplayPage/*opts.pageNum == Gui::displayPageNum*/) {
                 saveMeta.LPub.contModelStepNum.setValue(saveStepNumber);
                 saveStepNumber = opts.contStepNumber;
             }
@@ -4378,7 +4377,7 @@ int Gui::findPage(
             Gui::saveGroupStepNum = opts.contStepNumber;
         }
 
-        if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
+        if (isDisplayPage/*opts.pageNum == Gui::displayPageNum*/) {
             if (opts.groupStepNumber)                   // pass group step number to drawPage
                 saveStepNumber = Gui::saveGroupStepNum;
 
@@ -4454,7 +4453,7 @@ int Gui::findPage(
             ++Gui::stepPageNum;
             Gui::topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
 
-            if (opts.current.modelName == topLevelFile()) {
+            if (opts.current.modelName == gui->topLevelFile()) {
                 if (! opts.pageDisplayed)
                     opts.pageDisplayed = opts.pageNum > Gui::displayPageNum;
             }
