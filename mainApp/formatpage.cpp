@@ -634,8 +634,8 @@ int Gui::addGraphicsPageItems(
                 QFuture<void> future = QtConcurrent::run([&]() {
                     Gui::bomParts.clear();
                     Gui::bomPartGroups.clear();
-                    gui->getBOMParts(current, QString());
-                    gui->getBOMOccurrence(current);
+                    Gui::getBOMParts(current, QString());
+                    Gui::getBOMOccurrence(current);
                 });
                 asynchronous(future);
                 page->pli.steps = steps;

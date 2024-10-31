@@ -4762,7 +4762,7 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
   // key=modelName_LineNumber, value=occurrence
   QHash<QString, int> bom_Occurrence;
 
-  skipHeader(current);
+  gui->skipHeader(current);
 
   int numLines        = lpub->ldrawFile.size(current.modelName);
   int occurrenceNum   = 0;
@@ -4784,7 +4784,7 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
 
               if (lpub->ldrawFile.isSubmodel(type)) {
                   Where current2(type,0);
-                  getBOMOccurrence(current2);
+                  Gui::getBOMOccurrence(current2);
               }
               break;
           }
@@ -4815,7 +4815,7 @@ int Gui::getBOMOccurrence(Where current) {      // start at top of ldrawFile
       // now set the bom occurrance based on our current position
       Where here = Gui::topOfPages[Gui::displayPageNum-1];
       for (++here; here.lineNumber < lpub->ldrawFile.size(here.modelName); here++) {
-          QString line = readLine(here);
+          QString line = gui->readLine(here);
           rc = meta.parse(line,here);
           if (rc == InsertRc) {
               InsertData insertData = meta.LPub.insert.value();

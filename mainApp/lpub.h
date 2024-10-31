@@ -1798,7 +1798,7 @@ private:
     Where                    current,
     const QString           &addLine);
 
-  int getBOMOccurrence(
+  static int getBOMOccurrence(
           Where  current);
 
   bool generateBOMPartsFile(
