@@ -547,7 +547,7 @@ public:
 
   static void displayPage();
 
-  bool continuousPageDialog(PageDirection d);
+  static bool continuousPageDialog(PageDirection d);
 
   /* We need to send ourselves these, to eliminate recursion and the model
    * changing under foot */

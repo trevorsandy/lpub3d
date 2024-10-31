@@ -394,7 +394,7 @@ void Gui::consoleCommand(int mode, int* result)
     int savePause = Preferences::pageDisplayPause;
     if (mode == PAGE_PROCESS) {
         Preferences::pageDisplayPause = 1;
-        continuousPageDialog(PAGE_NEXT);
+        Gui::continuousPageDialog(PAGE_NEXT);
     } else if (mode > PAGE_PROCESS && mode < EXPORT_BRICKLINK)
         gui->exportAsDialog(ExportMode(mode));
     else if (mode == EXPORT_BRICKLINK)

@@ -661,7 +661,7 @@ void Gui::nextPageContinuous()
     // User wants to stop Previous page process
     if (box.exec() == QMessageBox::Yes) {
       setPageContinuousIsRunning(false, PAGE_PREVIOUS);
-      continuousPageDialog(PAGE_NEXT);
+      Gui::continuousPageDialog(PAGE_NEXT);
     }
     // User wants to continue running Previous page process so stop Next
     else {
@@ -670,7 +670,7 @@ void Gui::nextPageContinuous()
     }
   // No conflicts, everything looks good, let's go
   } else {
-      continuousPageDialog(PAGE_NEXT);
+      Gui::continuousPageDialog(PAGE_NEXT);
   }
 }
 
@@ -767,7 +767,7 @@ void Gui::previousPageContinuous()
     }
   // No conflicts, everything looks good, let's go
   } else {
-    continuousPageDialog(PAGE_PREVIOUS);
+    Gui::continuousPageDialog(PAGE_PREVIOUS);
   }
 }
 
