@@ -4997,7 +4997,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::ContinuousPage())
-        enableNavigationActions(false);
+        gui->enableNavigationActions(false);
 
     current           = Where(lpub->ldrawFile.topLevelFile(),0,0);
     Gui::saveMaxPages = Gui::maxPages;
@@ -5019,7 +5019,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
 /*
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-    emit gui->messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(displayPageNum));
+    emit gui->messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(Gui::displayPageNum));
 #endif
 //*/
         // set next step index and test index is display page index - i.e. refresh a page
@@ -5036,22 +5036,22 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
             }
 
             if (!topOfStep.lineNumber)
-                skipHeader(topOfStep);
+                gui->skipHeader(topOfStep);
 
-            nextStepIndex = getStepIndex(topOfStep);
+            nextStepIndex = gui->getStepIndex(topOfStep);
 
-            setBuildModNextStepIndex(topOfStep);
+            gui->setBuildModNextStepIndex(topOfStep);
 
             if (!firstPage)
-                adjustTopOfStep  = nextStepIndex == getBuildModNextStepIndex();
+                adjustTopOfStep  = nextStepIndex == gui->getBuildModNextStepIndex();
 
             lpub->ldrawFile.clearBuildModRendered();
 
             if (adjustTopOfStep)
-                if (! getBuildModStepIndexWhere(nextStepIndex, topOfStep))
-                    topOfStep = firstPage ? current : Gui::topOfPages[displayPageIndx];
+                if (! gui->getBuildModStepIndexWhere(nextStepIndex, topOfStep))
+                    topOfStep = firstPage ? gui->current : Gui::topOfPages[displayPageIndx];
 
-            QFuture<int> future = QtConcurrent::run([&](){ return setBuildModForNextStep(topOfStep);});
+            QFuture<int> future = QtConcurrent::run([&](){ return gui->setBuildModForNextStep(topOfStep);});
 
             // if page direction is jump forward, reset vars that may be updated by the count page call
             if ((Gui::buildModJumpForward = Gui::pageDirection == PAGE_JUMP_FORWARD)) {
@@ -5083,7 +5083,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         } // buildModEnabled
 
         // populate buildMod registers
-        setLoadBuildMods(false); // turn off parsing BuildMods in countInstance call until future update
+        gui->setLoadBuildMods(false); // turn off parsing BuildMods in countInstance call until future update
         lpub->ldrawFile.countInstances();
 
         // set model start page - used to enable mpd combo to jump to start page
@@ -5096,37 +5096,37 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
     }
 
     // this call is used primarily by the undo/redo calls when editing BuildMods
-    if (!buildModClearStepKey.isEmpty()) {
+    if (!gui->buildModClearStepKey.isEmpty()) {
 /*
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, QString("Reset BuildMod images from step key %1...").arg(buildModClearStepKey));
 #endif
 //*/
 
-        QStringList keys = buildModClearStepKey.split("_");
+        QStringList keys = gui->buildModClearStepKey.split("_");
         QString key      = keys.first();
         QString option   = keys.last();
         // reset key to avoid endless loop - displayPage called in clear... calls
-        buildModClearStepKey.clear();
+        gui->buildModClearStepKey.clear();
 
         // viewer step key or clear submodel (cm) - clear step(s) image and flag submodel stack item(s) as modified
         if (keys.size() == 1 || option == "cm") {
-            clearWorkingFiles(getPathsFromViewerStepKey(key));
+            gui->clearWorkingFiles(gui->getPathsFromViewerStepKey(key));
 
             // clear page
         } else if (option == "cp") {
-            bool multiStepPage = isViewerStepMultiStep(key);
+            bool multiStepPage = gui->isViewerStepMultiStep(key);
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-            clearPageCache(relativeType, &lpub->page, Options::CSI);
+            gui->clearPageCache(relativeType, &lpub->page, Options::CSI);
 
             // clear step
         } else if (option == "cs") {
-            QString csiPngName = getViewerStepImagePath(key);
-            clearStepCSICache(csiPngName);
+            QString csiPngName = gui->getViewerStepImagePath(key);
+            gui->clearStepCSICache(csiPngName);
         }
     }
 
-    writeToTmp();
+    gui->writeToTmp();
 
     if (Gui::abortProcess())
         return;
@@ -5177,10 +5177,12 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
                 LDRAW_MAIN_MATERIAL_COLOUR,/*renderModelColour*/
                 "model~origin"); /*renderParentModel*/
 
+    //QFuture<int> future = QtConcurrent::run([&](){ return findPage(lpub->meta,addLine,opts); });
+    //const TraverseRc frc = static_cast<TraverseRc>(asynchronous(future));
     const TraverseRc frc = static_cast<TraverseRc>(findPage(lpub->meta,addLine,opts));
     if (frc == HitAbortProcess) {
         if (Gui::m_exportMode == GENERATE_BOM) {
-            emit clearViewerWindowSig();
+            emit gui->clearViewerWindowSig();
             Gui::m_exportMode = Gui::m_saveExportMode;
         }
         Gui::setAbortProcess(true);
@@ -5194,7 +5196,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         Gui::setPageProcessRunning(PROC_DISPLAY_PAGE);
         Gui::clearPage();
         QApplication::restoreOverrideCursor();
-        drawPage(dpFlags);
+        Gui::drawPage(dpFlags);
 
     } else {
 
@@ -5231,7 +5233,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
                 if (static_cast<TraverseRc>(asynchronous(future)) == HitAbortProcess)
                     return static_cast<int>(HitAbortProcess);
                 if (!modelStackCount)
-                    pagesCounted();
+                    gui->pagesCounted();
             } else {
 /*
 #ifdef QT_DEBUG_MODE
@@ -5239,7 +5241,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         qDebug() << qPrintable(QString("DEBUG: %1").arg(message));
 #endif
 //*/
-                futureWatcher.setFuture(future);
+                gui->futureWatcher.setFuture(future);
             }
             return static_cast<int>(HitNothing);
         };
@@ -5288,12 +5290,12 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         for (int i = 0; i < modelStackCount && !Gui::abortProcess(); i++) {
             // set the step number where the submodel will be rendered
             opts.current = Where(opts.modelStack.last().modelName,
-                                 getSubmodelIndex(opts.modelStack.last().modelName),
+                                 gui->getSubmodelIndex(opts.modelStack.last().modelName),
                                  opts.modelStack.last().lineNumber);
 
             // set parent model of the submodel being rendered
-            opts.renderParentModel = QString(opts.modelStack.last().modelName == topLevelFile() ?
-                                                 QString() : opts.modelStack.last().modelName);
+            opts.renderParentModel = QString(opts.modelStack.last().modelName == gui->topLevelFile()
+                                             ? QString() : opts.modelStack.last().modelName);
 /*
 #ifdef QT_DEBUG_MODE
       message = QString(" COUNTING  - Submodel Page (Model Stack Entry %1%2) LineNumber %3, ModelName %4, PageNum %5")
@@ -5379,8 +5381,8 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
         if (Preferences::modeGUI && ! Gui::exporting() && ! Gui::abortProcess()) {
             bool enable =  Gui::m_exportMode != GENERATE_BOM &&
                     (!lpub->page.coverPage || (lpub->page.coverPage &&
-                                               !lpub->page.meta.LPub.coverPageViewEnabled.value()));
-            enable3DActions(enable);
+                                              !lpub->page.meta.LPub.coverPageViewEnabled.value()));
+            gui->enable3DActions(enable);
         } // modeGUI and not exporting
 
         QCoreApplication::processEvents();
@@ -5411,7 +5413,7 @@ void Gui::pagesCounted()
                     .arg(Gui::maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     if (!Gui::saveDisplayPageNum) {
         emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-        emit gui->messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(Gui::maxPages));
+        emit gui->messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(Gui::displayPageNum).arg(Gui::maxPages));
         emit gui->messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
 
 //        for (int i = 0; i < Gui::topOfPages.size(); i++)

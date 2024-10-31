@@ -551,9 +551,9 @@ public:
 
   /* We need to send ourselves these, to eliminate recursion and the model
    * changing under foot */
-  void drawPage(DrawPageFlags &dpFlags);  // this is the workhorse for preparing a
-                                          // page for viewing.  It depends heavily
-                                          // on the next two functions
+  static void drawPage(DrawPageFlags &dpFlags);  // this is the workhorse for preparing a
+                                                 // page for viewing.  It depends heavily
+                                                 // on the next two functions
 
   /*--------------------------------------------------------------------*
    * These are the work horses for back annotating user changes into    *

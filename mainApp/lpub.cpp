@@ -395,7 +395,7 @@ void Gui::displayPage()
     gui->clearPage(); // this includes freeSteps() so harvest old step items before calling
     DrawPageFlags dpFlags;
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
-    drawPage(dpFlags);
+    Gui::drawPage(dpFlags);
     Gui::pageProcessRunning = PROC_NONE;
     if (Gui::abortProcess()) {
       QApplication::restoreOverrideCursor();

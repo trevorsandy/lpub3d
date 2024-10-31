@@ -671,7 +671,7 @@ void Gui::exportAsHtml()
     gui->KexportScene = LGraphicsScene(gui);
     gui->KexportView = LGraphicsView(&gui->KexportScene);
 
-    drawPage(dpFlags);
+    Gui::drawPage(dpFlags);
     Gui::clearPage();
 
     Gui::restorePreferredRenderer();
@@ -929,7 +929,7 @@ void Gui::exportAsPdf()
   // initialize page sizes
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
-  drawPage(dpFlags);
+  Gui::drawPage(dpFlags);
   Gui::clearPage();
   Gui::displayPageNum = Gui::prevDisplayPageNum;
 
@@ -1073,7 +1073,7 @@ void Gui::exportAsPdf()
 
           // render this page
           dpFlags.printing = true;
-          drawPage(dpFlags);
+          Gui::drawPage(dpFlags);
           gui->KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           gui->KexportScene.render(&painter);
           Gui::clearPage();
@@ -1296,7 +1296,7 @@ void Gui::exportAsPdf()
 
           // render this page
           dpFlags.printing = true;
-          drawPage(dpFlags);
+          Gui::drawPage(dpFlags);
           gui->KexportScene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           gui->KexportScene.render(&painter);
           Gui::clearPage();
@@ -1547,7 +1547,7 @@ void Gui::exportAs(const QString &_suffix)
   // initialize page sizes
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
-  drawPage(dpFlags);
+  Gui::drawPage(dpFlags);
   Gui::clearPage();
   Gui::displayPageNum = Gui::prevDisplayPageNum;
 
@@ -1669,7 +1669,7 @@ void Gui::exportAs(const QString &_suffix)
 
               // execute drawPage to prperly process csiParts for content generation
               dpFlags.printing = false;
-              drawPage(dpFlags);
+              Gui::drawPage(dpFlags);
               Gui::clearPage();
 
           } else {
@@ -1722,7 +1722,7 @@ void Gui::exportAs(const QString &_suffix)
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
               dpFlags.printing = true;
-              drawPage(dpFlags);
+              Gui::drawPage(dpFlags);
               gui->KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
               gui->KexportScene.render(&painter);
               Gui::clearPage();
@@ -1790,7 +1790,7 @@ void Gui::exportAs(const QString &_suffix)
 
               // execute drawPage to prperly process csiParts for content generation
               dpFlags.printing = false;
-              drawPage(dpFlags);
+              Gui::drawPage(dpFlags);
               Gui::clearPage();
 
           } else {
@@ -1842,7 +1842,7 @@ void Gui::exportAs(const QString &_suffix)
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
               dpFlags.printing = true;
-              drawPage(dpFlags);
+              Gui::drawPage(dpFlags);
               gui->KexportScene.setSceneRect(0.0,0.0,image.width(),image.height());
               gui->KexportScene.render(&painter);
               Gui::clearPage();
@@ -2029,7 +2029,7 @@ void Gui::Print(QPrinter* Printer)
   // initialize page sizes
   Gui::displayPageNum = 0;
   dpFlags.printing = true;
-  drawPage(dpFlags);
+  Gui::drawPage(dpFlags);
   Gui::clearPage();
 
   // check if mixed page size and orientation
@@ -2182,7 +2182,7 @@ void Gui::Print(QPrinter* Printer)
 
           // render this page
           dpFlags.printing = true;
-          drawPage(dpFlags);
+          Gui::drawPage(dpFlags);
           gui->KexportScene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
           gui->KexportScene.render(&Painter);
           Gui::clearPage();
@@ -2340,7 +2340,7 @@ void Gui::Print(QPrinter* Printer)
 
             // render this page
             dpFlags.printing = true;
-            drawPage(dpFlags);
+            Gui::drawPage(dpFlags);
             gui->KexportScene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
             gui->KexportScene.render(&Painter);
             Gui::clearPage();
@@ -2372,7 +2372,7 @@ void Gui::Print(QPrinter* Printer)
   // return to whatever page we were viewing before output
   Gui::displayPageNum = Gui::prevDisplayPageNum;
   dpFlags.printing = false;
-  drawPage(dpFlags);
+  Gui::drawPage(dpFlags);
 
   // hide progress bar
   if (Preferences::modeGUI) {
