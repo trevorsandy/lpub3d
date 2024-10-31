@@ -2216,7 +2216,7 @@ int Gui::drawPage(
                         }
                     }
 
-                    if ((returnValue = static_cast<TraverseRc>(gui->addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
+                    if ((returnValue = static_cast<TraverseRc>(Gui::addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
                         returnValue = HitEndOfPage;
 
                     if (!Gui::ContinuousPage())
@@ -2919,7 +2919,7 @@ int Gui::drawPage(
                                 } // cover page view enabled
                             } // cover page
 
-                            if ((returnValue = static_cast<TraverseRc>(gui->addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
+                            if ((returnValue = static_cast<TraverseRc>(Gui::addGraphicsPageItems(steps,coverPage,endOfSubmodel,opts.printing))) != HitAbortProcess)
                                 returnValue = HitEndOfPage;
 
                             if (opts.displayModel) {

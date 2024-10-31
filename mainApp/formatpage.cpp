@@ -323,20 +323,20 @@ int Gui::addGraphicsPageItems(
     LGraphicsScene     *scene = nullptr;
 
     if (page->coverPage && !page->meta.LPub.coverPageViewEnabled.value()) {
-        emit clearViewerWindowSig();
-        emit updateAllViewsSig();
+        emit gui->clearViewerWindowSig();
+        emit gui->updateAllViewsSig();
     }
 
     int pW, pH;
 
     if (printing) {
-        view = &KexportView;
-        scene = &KexportScene;
+        view = &gui->KexportView;
+        scene = &gui->KexportScene;
         pW = view->maximumWidth();
         pH = view->maximumHeight();
     } else {
-        view = KpageView;
-        scene = KpageScene;
+        view = gui->KpageView;
+        scene = gui->KpageScene;
         // Flip page size per orientation and return size in pixels
         pW = lpub->pageSize(page->meta.LPub.page, XX);
         pH = lpub->pageSize(page->meta.LPub.page, YY);
@@ -389,7 +389,7 @@ int Gui::addGraphicsPageItems(
 
     // Process Cover Page Attriutes
 
-    addCoverPageAttributes(page,pageBkGrndItem,pageHeader,pageFooter,plPage);
+    Gui::addCoverPageAttributes(page,pageBkGrndItem,pageHeader,pageFooter,plPage);
 
     // Display the page number
 
@@ -475,7 +475,7 @@ int Gui::addGraphicsPageItems(
 
     // Process last page instance count and page attributes
 
-    addContentPageAttributes(page,pageBkGrndItem,pageHeader,pageFooter,pageNumber,plPage,endOfSubmodel);
+    Gui::addContentPageAttributes(page,pageBkGrndItem,pageHeader,pageFooter,pageNumber,plPage,endOfSubmodel);
 
     /* Create any graphics items in the insert list */
 
@@ -521,7 +521,7 @@ int Gui::addGraphicsPageItems(
                         pixmap->relativeToSize[0] = plPage.size[XX];
                         pixmap->relativeToSize[1] = plPage.size[YY];
                     } else {
-                        emit messageSig(LOG_ERROR, QString("Unable to locate picture %1. Be sure picture file "
+                        emit gui->messageSig(LOG_ERROR, tr("Unable to locate picture %1. Be sure picture file "
                                                            "is located relative to model file or use an absolute path.")
                                         .arg(fileInfo.absoluteFilePath()));
                     }
@@ -1057,7 +1057,7 @@ int Gui::addGraphicsPageItems(
         if (page->pli.tsize()/*we have a pli per page*/) {
 
             // Add pli per page items
-            addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
+            Gui::addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
 
             // Place the Bill of materials on the page if specified
 
@@ -1118,7 +1118,7 @@ int Gui::addGraphicsPageItems(
 
     scene->addItem(pageBkGrndItem);
 
-    addPliPartGroupsToScene(page, scene);
+    Gui::addPliPartGroupsToScene(page, scene);
 
     view->setSceneRect(pageBkGrndItem->sceneBoundingRect());
 
@@ -1136,21 +1136,21 @@ int Gui::addGraphicsPageItems(
     }
 
     if (page->selectedSceneItems.size()) {
-        setSceneItemZValue(page, scene);
+        gui->setSceneItemZValue(page, scene);
     }
 
     //page->relativeType = SingleStepType;
 
     if (Preferences::modeGUI) {
-        if (waitingSpinner->isSpinning())
-            waitingSpinner->stop();
+        if (gui->waitingSpinner->isSpinning())
+            gui->waitingSpinner->stop();
     }
 
-    statusBarMsg("");
+    gui->statusBarMsg("");
 
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_DEBUG,QString("Draw page graphics - %1")
-                    .arg(elapsedTime(t.elapsed())));
+    emit gui->messageSig(LOG_DEBUG,QString("Draw page graphics - %1")
+                                           .arg(elapsedTime(t.elapsed())));
 #endif
 
     return Gui::abortProcess() ? static_cast<int>(HitAbortProcess) : static_cast<int>(HitNothing);
@@ -1190,8 +1190,6 @@ int Gui::addStepImageGraphics(Step *step) {
 int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene) {
     // add Pli part group to scene
     QHash<QString, PliPart*> pliParts;
-    PliPart *part;
-    QString key;
     if (step->pli.pliMeta.enablePliPartGroup.value() &&
         step->pli.pliMeta.show.value() &&
         step->pli.tsize()) {
@@ -1200,7 +1198,8 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene) {
             Where top = step->topOfStep();
             Where bottom = step->bottomOfStep();
             int lineNumber = step->stepNumber.number;
-            Q_FOREACH (key,pliParts.keys()) {
+            PliPart *part;
+            for (QString const &key : pliParts.keys()) {
                 part = pliParts[key];
                 part->addPartGroupToScene(scene,top,bottom,lineNumber);
             }
@@ -1216,7 +1215,7 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene) {
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[m]);
                         if (step && step->relativeType == StepType) {
-                            addStepPliPartGroupsToScene(step,scene);
+                            Gui::addStepPliPartGroupsToScene(step,scene);
                         }
                     }
                 }
@@ -1238,7 +1237,7 @@ int Gui::addPliPartGroupsToScene(
                 if (range->relativeType == RangeType) {
                     Step *step = dynamic_cast<Step *>(range->list[0]);
                     if (step && step->relativeType == StepType) {
-                        addStepPliPartGroupsToScene(step,scene);
+                        Gui::addStepPliPartGroupsToScene(step,scene);
                     }
                 }
             }
@@ -1252,7 +1251,7 @@ int Gui::addPliPartGroupsToScene(
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[j]);
                         if (step && step->relativeType == StepType) {
-                            addStepPliPartGroupsToScene(step,scene);
+                            Gui::addStepPliPartGroupsToScene(step,scene);
                         }
                     }
                 }

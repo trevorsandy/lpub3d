@@ -1761,21 +1761,15 @@ private:
           Meta &curMeta,
     const QString &line);
 
-  int addStepImageGraphics(Step    *step); //recurse the step's model - including callouts to add images.
+  static int addStepImageGraphics(Step    *step); //recurse the step's model - including callouts to add images.
 
-  int addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene);  //recurse the step's PLI - including callout PLIs to add PartGroups
+  static int addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene);  //recurse the step's PLI - including callout PLIs to add PartGroups
 
-  int addPliPartGroupsToScene(
+  static int addPliPartGroupsToScene(
           Page           *page,
           LGraphicsScene *scene);
 
-  int addGraphicsPageItems(        // this converts the abstract page into
-    Steps          *steps,         // a graphics view
-    bool            coverPage,
-    bool            endOfSubmodel,
-    bool            printing);
-
-  int addContentPageAttributes(
+  static int addContentPageAttributes(
     Page                *page,
     PageBackgroundItem  *pageBg,
     PlacementHeader     *pageHeader,
@@ -1784,19 +1778,25 @@ private:
     Placement           &plPage,
     bool                 endOfSubmodel = false);
 
-  int addPliPerPageItems(
+  static int addPliPerPageItems(
     Page                *page,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
     PageNumberItem      *pageNumber,
     Placement           &plPage);
 
-  int addCoverPageAttributes(
+  static int addCoverPageAttributes(
     Page                *page,
     PageBackgroundItem  *pageBg,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
     Placement           &plPage);
+
+  static int addGraphicsPageItems( // this converts the abstract page into
+    Steps          *steps,         // a graphics view
+    bool            coverPage,
+    bool            endOfSubmodel,
+    bool            printing);
 
   int getBOMParts(
     Where                    current,
