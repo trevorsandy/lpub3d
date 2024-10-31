@@ -1716,11 +1716,6 @@ private:
 
   int                    m_workerJobResult;
 
-  bool                   okToInvokeProgressBar()
-  {
-    return               (Preferences::lpub3dLoaded && Preferences::modeGUI && !Gui::exporting());
-  }
-
 #ifdef WATCHER
   QFileSystemWatcher watcher;                // watch the file system for external
                                              // changes to the ldraw files currently
@@ -1737,14 +1732,19 @@ private:
   bool     previousPageContinuousIsRunning;  // stop the continuous previous page action
   bool     nextPageContinuousIsRunning;      // stop the continuous next page action
 
+  static bool okToInvokeProgressBar()
+  {
+    return (Preferences::lpub3dLoaded && Preferences::modeGUI && !Gui::exporting());
+  }
+
+  bool isUserSceneObject(const int so);
+
   static int include(Meta &meta, int &lineNumber, bool &includeFileFound);
 
   static QStringList configureModelSubFile(
     const QStringList &,
     const QString &,
     const PartType partType);                // fade and or highlight all parts in subfile
-
-  bool isUserSceneObject(const int so);
 
   int findPage(                              // traverse the hierarchy until we get to the
     Meta             meta,                   // page of interest, let traverse process the
