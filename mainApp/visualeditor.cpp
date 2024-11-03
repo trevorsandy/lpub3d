@@ -1177,7 +1177,7 @@ bool Gui::createPreviewWidget()
 
         return true;
     } else {
-        emit messageSig(LOG_ERROR, tr("Preview failed."));
+        emit gui->messageSig(LOG_ERROR, tr("Preview failed."));
     }
     return false;
 }
@@ -1189,14 +1189,14 @@ void Gui::PreviewPiece(const QString &partType, int colorCode, bool dockable, QR
             gMainWindow->PreviewPiece(partType, colorCode, false);
         return;
     } else {
-        preview = new lcPreview();
-        lcViewWidget* viewWidget = new lcViewWidget(nullptr, preview);
+        gui->preview = new lcPreview();
+        lcViewWidget* viewWidget = new lcViewWidget(nullptr, gui->preview);
 
-        if (preview && viewWidget)
+        if (gui->preview && viewWidget)
         {
             viewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 
-            if (preview->SetCurrentPiece(partType, colorCode))
+            if (gui->preview->SetCurrentPiece(partType, colorCode))
             {
                 viewWidget->SetPreviewPosition(parentRect, position);
                 return;
@@ -1204,7 +1204,7 @@ void Gui::PreviewPiece(const QString &partType, int colorCode, bool dockable, QR
         }
     }
 
-    emit messageSig(LOG_WARNING, tr("Part preview for '%1' failed.").arg(partType));
+    emit gui->messageSig(LOG_WARNING, tr("Part preview for '%1' failed.").arg(partType));
 }
 
 bool Gui::PreviewPiece(const QString &type, int colorCode)
@@ -1221,7 +1221,7 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
     } else {
         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(typeInfo.completeBaseName().toLatin1().constData(), nullptr, false, false);
         if (! pieceInfo)
-            emit messageSig(LOG_ERROR, tr("Preview file path '%1' is invalid.").arg(typePath.absolutePath()));
+            emit gui->messageSig(LOG_ERROR, tr("Preview file path '%1' is invalid.").arg(typePath.absolutePath()));
     }
 
     // Load preview
@@ -1252,24 +1252,24 @@ void Gui::previewModel(QString const &modelFileName)
 
 void Gui::updatePreview()
 {
-    if (previewDockWindow) {
+    if (gui->previewDockWindow) {
         gMainWindow->GetPreviewWidget()->UpdatePreview();
-        RaisePreviewDockWindow();
-    } else if (preview) {
-        preview->UpdatePreview();
+        gui->RaisePreviewDockWindow();
+    } else if (gui->preview) {
+        gui->preview->UpdatePreview();
     }
 }
 
 void Gui::togglePreviewWidget(bool visible)
 {
-    if (previewDockWindow) {
+    if (gui->previewDockWindow) {
         if (visible)
-            previewDockWindow->show();
+            gui->previewDockWindow->show();
         else
-            previewDockWindow->hide();
-        QList<QAction*> viewActions = viewMenu->actions();
-        Q_FOREACH (QAction *viewAct, viewActions) {
-            if (viewAct->text() == "Preview") {
+            gui->previewDockWindow->hide();
+        QList<QAction*> viewActions = gui->viewMenu->actions();
+        for (QAction *viewAct : viewActions) {
+            if (viewAct->text() == QLatin1String("Preview")) {
                 viewAct->setChecked(visible);
                 viewAct->setVisible(visible);
 //* DEBUG - COMMENT TO ENABLE

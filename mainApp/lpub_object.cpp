@@ -1230,7 +1230,7 @@ void LPub::loadSnippetCollection()
                     .arg(builtinSnippetCount)
                     .arg(userSnippetCollection.count())
                     .arg(builtinSnippetCount + userSnippetCollection.count())
-                    .arg(elapsedTime(timer.elapsed())));
+                    .arg(LPub::elapsedTime(timer.elapsed())));
 }
 
 /****************************************************************************
@@ -1330,7 +1330,7 @@ void LPub::loadCommandCollection()
                     .arg(builtinCommandCount)
                     .arg(userCommandCount)
                     .arg(commands.count())
-                    .arg(elapsedTime(timer.elapsed())));
+                    .arg(LPub::elapsedTime(timer.elapsed())));
 }
 
 /****************************************************************************
@@ -1853,7 +1853,7 @@ void LPub::setShortcutKeywords()
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_NOTICE, tr("Loaded %1 shortcut keywords.%2")
                                         .arg(shortcutIdKeywords.size())
-                                        .arg(elapsedTime(timer.elapsed())));
+                                        .arg(LPub::elapsedTime(timer.elapsed())));
 #endif
 }
 

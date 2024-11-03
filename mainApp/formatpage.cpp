@@ -1149,8 +1149,8 @@ int Gui::addGraphicsPageItems(
     gui->statusBarMsg("");
 
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG,QString("Draw page graphics - %1")
-                                           .arg(elapsedTime(t.elapsed())));
+    emit gui->messageSig(LOG_DEBUG,QString("Draw page graphics: %1")
+                                           .arg(Gui::elapsedTime(t.elapsed())));
 #endif
 
     return Gui::abortProcess() ? static_cast<int>(HitAbortProcess) : static_cast<int>(HitNothing);

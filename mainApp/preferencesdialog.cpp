@@ -1604,7 +1604,7 @@ void PreferencesDialog::on_updateChangeLogBtn_clicked()
     while (!m_updateFinished)
         QApplication::processEvents();
     emit gui->messageSig(LOG_NOTICE, tr("Download release notes completed. %1")
-                                        .arg(lpub->elapsedTime(timer.elapsed())));
+                                        .arg(LPub::elapsedTime(timer.elapsed())));
 }
 
 void PreferencesDialog::checkForUpdates ()
@@ -1652,7 +1652,7 @@ void PreferencesDialog::checkForUpdates ()
     while (!m_updateFinished)
         QApplication::processEvents();
     emit gui->messageSig(LOG_NOTICE, tr("Check for updates completed. %1")
-                                        .arg(lpub->elapsedTime(timer.elapsed())));
+                                        .arg(LPub::elapsedTime(timer.elapsed())));
 }
 
 void PreferencesDialog::messageManagement()
@@ -3280,7 +3280,7 @@ void PreferencesDialog::updateCommandList(bool loadDefaultShortcuts)
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_NOTICE, QString("Loaded %1 %2. %3")
                                              .arg(count).arg(loadDefaultShortcuts ? tr("default shortcuts") : tr("shortcuts"))
-                                             .arg(lpub->elapsedTime(timer.elapsed())));
+                                             .arg(LPub::elapsedTime(timer.elapsed())));
 #endif
 }
 

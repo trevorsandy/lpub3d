@@ -500,9 +500,8 @@ int SubModel::createSubModelImage(
       viewerOptions->ZoomExtents    = viewerSubmodel; // veiwer submodel (no image file generated)
 
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_INFO,
-                           QString("Generate Visual Editor submodel options entry took %1 milliseconds.")
-                                   .arg(timer.elapsed()));
+      emit gui->messageSig(LOG_INFO, QObject::tr("Generate Visual Editor submodel options entry: %1")
+                                                 .arg(LPub::elapsedTime(timer.elapsed())));
 #endif
   } // !Gui::exportingObjects() || nativeRenderer
 
@@ -514,11 +513,11 @@ int SubModel::createSubModelImage(
       if ( ! viewerSubmodel) {
           // feed DAT to renderer
           if (rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0/*keySub*/) != 0)) {
-              emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
+              emit gui->messageSig(LOG_ERROR, QObject::tr("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
                                    .arg(rendererNames[Render::getRenderer()])
                       .arg(imageName)
-                      .arg(callout ? "called out," : "simple,")
-                      .arg(multistep ? "step group" : "single step")
+                      .arg(callout ? QObject::tr("called out,") : QObject::tr("simple,"))
+                      .arg(multistep ? QObject::tr("step group") : QObject::tr("single step"))
                       .arg(step ? step->stepNumber.number : 0)
                       .arg(Gui::stepPageNum));
               imageName = QString(":/resources/missingimage.png");
@@ -532,13 +531,13 @@ int SubModel::createSubModelImage(
 
           if (!rc) {
               emit gui->messageSig(LOG_INFO,
-                                   QObject::tr("%1 Submodel render call took %2 milliseconds "
+                                   QObject::tr("%1 Submodel render call took %2 "
                                                "to render %3 for %4 %5 %6 on page %7.")
                                    .arg(rendererNames[Render::getRenderer()])
-                                   .arg(timer.elapsed())
+                                   .arg(LPub::elapsedTime(timer.elapsed(), false/*pretty*/))
                                    .arg(imageName)
-                                   .arg(callout ? "called out," : "simple,")
-                                   .arg(multistep ? "step group" : "single step")
+                                   .arg(callout ? QObject::tr("called out,") : QObject::tr("simple,"))
+                                   .arg(multistep ? QObject::tr("step group") : QObject::tr("single step"))
                                    .arg(step ? step->stepNumber.number : 0)
                                    .arg(Gui::stepPageNum));
           }
@@ -582,8 +581,7 @@ int SubModel::generateSubModelItem()
         if (createSubModelImage(key,part->type,part->color,pixmap)) {
             QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
                                                          Paths::submodelDir + QDir::separator() + key.toLower() + ".png");
-            emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to create submodel image %1")
-                                 .arg(imageName));
+            emit gui->messageSig(LOG_ERROR, QObject::tr("Failed to create submodel image %1").arg(imageName));
             return -1;
         }
 

@@ -1137,7 +1137,7 @@ void Gui::exportAsPdf()
               if (! Gui::exporting()) {
                   painter.end();
                   message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
-                                .arg(page).arg(pages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
+                                .arg(page).arg(pages.count()).arg(Gui::elapsedTime(exportTimer.elapsed()));
                   emit gui->messageSig(LOG_INFO_STATUS,message);
                   if (Preferences::modeGUI) {
                       QApplication::restoreOverrideCursor();
@@ -1221,7 +1221,7 @@ void Gui::exportAsPdf()
               if (exportPdfElements)
                   painter.end();
               message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
-                            .arg(_pageCount).arg(printPages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
+                            .arg(_pageCount).arg(printPages.count()).arg(Gui::elapsedTime(exportTimer.elapsed()));
               emit gui->messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1361,7 +1361,7 @@ void Gui::exportAsPdf()
               if (! Gui::exporting()) {
                   painter.end();
                   message = tr("Export to pdf terminated before completion. %2 pages of %3 processed%4.")
-                                .arg(page).arg(pages.count()).arg(gui->elapsedTime(exportTimer.elapsed()));
+                                .arg(page).arg(pages.count()).arg(Gui::elapsedTime(exportTimer.elapsed()));
                   emit gui->messageSig(LOG_INFO_STATUS,message);
                   if (Preferences::modeGUI) {
                       QApplication::restoreOverrideCursor();
@@ -1405,7 +1405,7 @@ void Gui::exportAsPdf()
   emit gui->setExportingSig(false);
 
   // set elapsed time
-  exportTime = gui->elapsedTime(exportTimer.elapsed());
+  exportTime = Gui::elapsedTime(exportTimer.elapsed());
 
   // return to whatever page we were viewing before printing
   restoreCurrentPage();
@@ -1641,7 +1641,7 @@ void Gui::exportAs(const QString &_suffix)
 
           if (! Gui::exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
-                            .arg(Gui::displayPageNum - 1).arg(_maxPages).arg(type).arg(gui->elapsedTime(exportTimer.elapsed()));
+                            .arg(Gui::displayPageNum - 1).arg(_maxPages).arg(type).arg(Gui::elapsedTime(exportTimer.elapsed()));
               emit gui->messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1760,7 +1760,7 @@ void Gui::exportAs(const QString &_suffix)
 
           if (! Gui::exporting()) {
               message = tr("Export to pdf terminated before completion. %1 %2 of %3 processed%%4.")
-                           .arg(_pageCount).arg(printPages.count()).arg(type).arg(gui->elapsedTime(exportTimer.elapsed()));
+                           .arg(_pageCount).arg(printPages.count()).arg(type).arg(Gui::elapsedTime(exportTimer.elapsed()));
               emit gui->messageSig(LOG_INFO_STATUS,message);
               if (Preferences::modeGUI) {
                   QApplication::restoreOverrideCursor();
@@ -1884,7 +1884,7 @@ void Gui::exportAs(const QString &_suffix)
     emit gui->setExportingSig(false);
 
     // set elapsed time
-    exportTime = gui->elapsedTime(exportTimer.elapsed());
+    exportTime = Gui::elapsedTime(exportTimer.elapsed());
 
     // return to whatever page we were viewing before output
     restoreCurrentPage();
@@ -2385,7 +2385,7 @@ void Gui::Print(QPrinter* Printer)
     exportPdf = exportPreview = false;
   }
 
-  exportTime = gui->elapsedTime(exportTimer.elapsed());
+  exportTime = Gui::elapsedTime(exportTimer.elapsed());
 }
 
 void Gui::showExportedFile()

@@ -1673,7 +1673,8 @@ private:
   Meta                  &meta = getMetaRef();   // meta command container
   Where                  current;            // current line being parsed by drawPage
 
-  QElapsedTimer          displayPageTimer;   // measure elapsed time for slow functions
+  QElapsedTimer          fileLoadTimer;      // measure fileLoad elapsed time
+  QElapsedTimer          displayPageTimer;   // measure page display elapsed time
 
   lcPreview             *preview;
   EditWindow            *editWindow;         // the sub file editable by the user

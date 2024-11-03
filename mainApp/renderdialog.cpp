@@ -496,7 +496,7 @@ void RenderDialog::on_RenderButton_clicked()
             ui->RenderLabel->setText(tr("Rendering POV-Ray scene..."));
         }
 
-        message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));
+        message = tr("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(Gui::elapsedTime(mRenderTime.elapsed()));
         emit gui->messageSig(LOG_INFO, message);
 
         /* set POV-Ray arguments */
@@ -768,7 +768,7 @@ void RenderDialog::on_RenderButton_clicked()
             ui->RenderButton->setText(tr("Cancel"));
             ui->RenderProgress->setValue(ui->RenderProgress->minimum());
             ui->RenderLabel->setText(tr("Loading LDraw model... %1")
-                                      .arg(gui->elapsedTime(mRenderTime.elapsed())));
+                                      .arg(Gui::elapsedTime(mRenderTime.elapsed())));
             QApplication::processEvents();
             emit gui->messageSig(LOG_INFO, tr("Blender render process [%1] running...").arg(mProcess->processId()));
         }
@@ -1070,7 +1070,7 @@ void RenderDialog::ShowResult()
                       .arg(Success ? mImportOnly ? tr("completed") :
                                                    tr("generated %1").arg(FileName) :
                                                    tr("failed (unknown reason)"))
-                      .arg(gui->elapsedTime(mRenderTime.elapsed()));
+                      .arg(Gui::elapsedTime(mRenderTime.elapsed()));
     emit gui->messageSig(Success ? LOG_INFO : LOG_ERROR, message);
 }
 
@@ -1100,7 +1100,7 @@ void RenderDialog::UpdateElapsedTime()
                                   .arg(renderType)
                                   .arg(mBlendProgValue)
                                   .arg(mBlendProgMax)
-                                  .arg(gui->elapsedTime(mRenderTime.elapsed())));
+                                  .arg(Gui::elapsedTime(mRenderTime.elapsed())));
     }
 }
 

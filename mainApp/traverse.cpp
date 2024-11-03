@@ -2181,11 +2181,11 @@ int Gui::drawPage(
                                            "%2 milliseconds to render %3 [Step %4] %5 "
                                            "for %6 step group on page %7.")
                                         .arg(rendererNames[Render::getRenderer()])
-                                        .arg(timer.elapsed())
+                                        .arg(Gui::elapsedTime(timer.elapsed(),false))
                                         .arg(opts.ldrStepFiles.size())
                                         .arg(opts.stepNum)
-                                        .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
-                                        .arg(opts.calledOut ? "called out," : "simple,")
+                                        .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"))
+                                        .arg(opts.calledOut ? tr("called out,") : tr("simple,"))
                                         .arg(Gui::stepPageNum));
                     }
 
@@ -2842,7 +2842,7 @@ int Gui::drawPage(
                                                    "%2 milliseconds to render %3 [Step %4] %5 for %6 "
                                                    "single step on page %7.")
                                                 .arg(rendererNames[Render::getRenderer()])
-                                                .arg(timer.elapsed())
+                                                .arg(Gui::elapsedTime(timer.elapsed(),false))
                                                 .arg(opts.ldrStepFiles.size())
                                                 .arg(opts.stepNum)
                                                 .arg(opts.ldrStepFiles.size() == 1 ? tr("image") : tr("images"))

@@ -3389,7 +3389,7 @@ void LDrawFile::countInstances()
                            .arg(getSubmodelName(key.at(0),false))); // modelName
     }
     emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
-                         .arg(gui->elapsedTime(timer.elapsed())));
+                         .arg(Gui::elapsedTime(timer.elapsed())));
     emit gui->messageSig(LOG_DEBUG, "----------------------------");
   }
 #endif
@@ -3772,7 +3772,7 @@ void LDrawFile::recountParts()
                                     .arg(_uniquePartCount)
                                     .arg(_partCount == 1 ? QObject::tr("Part") : QObject::tr("Parts"))
                                     .arg(_partCount)
-                                    .arg(gui->elapsedTime(t.elapsed()));
+                                    .arg(Gui::elapsedTime(t.elapsed()));
     emit gui->messageSig(LOG_INFO_STATUS, recountMessage);
 }
 
@@ -4870,7 +4870,8 @@ void LDrawFile::setBuildModNavBackward()
 #ifdef QT_DEBUG_MODE
     keys.chop(1);
     emit gui->messageSig(LOG_TRACE, QString("BuildMod Jump Backward Updated %1 %2 %3 %4")
-                                            .arg(count).arg(count == 1 ? "Key:" : "Keys:").arg(keys).arg(lpub->elapsedTime(timer.elapsed())));
+                                            .arg(count).arg(count == 1 ? "Key:" : "Keys:").arg(keys)
+                                            .arg(Gui::elapsedTime(timer.elapsed())));
 #endif
 }
 

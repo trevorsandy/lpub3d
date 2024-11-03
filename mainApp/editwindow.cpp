@@ -2257,7 +2257,7 @@ void EditWindow::showLine(int lineNumber, int lineType)
 
           emit lpub->messageSig(LOG_STATUS,QString());
 #ifdef QT_DEBUG_MODE
-          emit lpub->messageSig(LOG_DEBUG,QString("ShowLine add %1 %2 to line %3 from line %4.")
+          emit lpub->messageSig(LOG_DEBUG,QString("Show Line add %1 %2 to line %3 from line %4.")
                                      .arg(pages).arg(pages == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
 #endif
           waitingSpinnerStop();
@@ -2449,7 +2449,7 @@ void EditWindow::loadFinished()
             .arg(reloaded ? "Updated" : "Loaded")
             .arg(QFileInfo(fileName).fileName())
             .arg(lineCount)
-            .arg(lpub->elapsedTime(displayTimer.elapsed()));
+            .arg(LPub::elapsedTime(displayTimer.elapsed()));
 
     if (modelFileEdit()) {  // Detached Editor
         bool enableMpdCombo = !isIncludeFile && _subFileList.size();
@@ -2901,7 +2901,7 @@ void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) 
         emit lpub->messageSig(LOG_DEBUG,tr("Load content block %1, lines %2 - %3")
                                    .arg(i)
                                    .arg(blockLineCount)
-                                   .arg(lpub->elapsedTime(t.elapsed())));
+                                   .arg(LPub::elapsedTime(t.elapsed())));
 #endif
             blockIndx = maxBlockIndx;
             QApplication::processEvents();
@@ -2929,7 +2929,7 @@ void EditWindow::loadPagedContent()
 #ifdef QT_DEBUG_MODE
    emit lpub->messageSig(LOG_DEBUG,tr("Load page line count %1 - %2")
                               .arg(pageLineCount)
-                              .arg(lpub->elapsedTime(t.elapsed())));
+                              .arg(LPub::elapsedTime(t.elapsed())));
 #endif
 
    const bool wasBlocked = _textEdit->blockSignals(true);
@@ -2943,14 +2943,14 @@ void EditWindow::loadPagedContent()
 #ifdef QT_DEBUG_MODE
    emit lpub->messageSig(LOG_DEBUG,tr("Load page set %1 plain text lines - %2")
                               .arg(pageLineCount)
-                              .arg(lpub->elapsedTime(t.elapsed())));
+                              .arg(LPub::elapsedTime(t.elapsed())));
 #endif
    } else {
        _textEdit->appendPlainText(page);
 #ifdef QT_DEBUG_MODE
    emit lpub->messageSig(LOG_DEBUG,QString("Load page append %1 text lines - %2")
                               .arg(pageLineCount)
-                              .arg(lpub->elapsedTime(t.elapsed())));
+                              .arg(LPub::elapsedTime(t.elapsed())));
 #endif
    }
 // */
@@ -2963,7 +2963,7 @@ void EditWindow::loadPagedContent()
                               .arg(maxPageIndx + 1)
                               .arg(_pageContent.size())
                               .arg(_contentLoaded ? "Yes" : "No")
-                              .arg(lpub->elapsedTime(t.elapsed())));
+                              .arg(LPub::elapsedTime(t.elapsed())));
 
    _pageIndx = maxPageIndx;
 

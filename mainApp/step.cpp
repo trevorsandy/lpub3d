@@ -635,8 +635,8 @@ int Step::createCsi(
 
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_INFO,
-                           QString("Generate Visual Editor step options entry took %1 milliseconds.")
-                                   .arg(timer.elapsed()));
+                           QString("Generate Visual Editor step options entry took %1.")
+                                   .arg(Gui::elapsedTime(timer.elapsed(),false)));
 #endif
 //      moved to drawPage::StepRc
 //      if (!calledOut && !multiStep && updateViewer)
@@ -764,10 +764,10 @@ int Step::createCsi(
 
      if (!rc && showStatus) {
          emit gui->messageSig(LOG_INFO,
-                                  QString("%1 CSI render call took %2 milliseconds "
+                                  QString("%1 CSI render call took %2 "
                                           "to render %3 for %4 %5 %6 on page %7.")
                                           .arg(rendererNames[Render::getRenderer()])
-                                          .arg(timer.elapsed())
+                                          .arg(Gui::elapsedTime(timer.elapsed(),false))
                                           .arg(pngName)
                                           .arg(calledOut ? "called out," : "simple,")
                                           .arg(multiStep ? "step group" : "single step")

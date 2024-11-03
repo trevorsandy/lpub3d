@@ -124,7 +124,7 @@ bool ArchiveParts::Archive(
       QStringList zipFileList;
       GetExistingArchiveFileList(zipFileList, validDirFiles, zipArchive);
 
-      emit gui->messageSig(LOG_DEBUG, tr("Get Existing Archive File List %1").arg(gui->elapsedTime(t.elapsed())));
+      emit gui->messageSig(LOG_DEBUG, tr("Get Existing Archive File List %1").arg(Gui::elapsedTime(t.elapsed())));
 
       //Create an array of archive file QFileInfo objects
       Q_FOREACH (QString const &zipFile, zipFileList) zipFiles << QFileInfo(zipFile);

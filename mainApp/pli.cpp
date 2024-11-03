@@ -1258,11 +1258,10 @@ int Pli::createPartImage(
 
         if (showElapsedTime) {
             if (!ptRc) {
-                emit gui->messageSig(LOG_INFO,QObject::tr("%1 PLI [%2] render took %3 milliseconds "
-                                                          "to render image [%4].")
+                emit gui->messageSig(LOG_INFO,QObject::tr("%1 PLI [%2] render took %3 to render image [%4].")
                                                           .arg(rendererNames[Render::getRenderer()])
                                                           .arg(PartTypeNames[pT])
-                                                          .arg(timer.elapsed())
+                                                          .arg(Gui::elapsedTime(timer.elapsed(),false))
                                                           .arg(imageName));
             } else {
                rc = ptRc;
@@ -2803,11 +2802,10 @@ int Pli::partSizeLDViewSCall() {
 
         if (!ia.ldrNames[pT].isEmpty()) {
             if (!ptRc) {
-                emit gui->messageSig(LOG_INFO, QObject::tr("%1 PLI (Single Call) for [%2] render took "
-                                                           "%3 milliseconds to render %4.")
+                emit gui->messageSig(LOG_INFO, QObject::tr("%1 PLI (Single Call) for [%2] render took %3 to render %4.")
                                                            .arg(rendererNames[Render::getRenderer()])
                                                            .arg(PartTypeNames[pT])
-                                                           .arg(timer.elapsed())
+                                                           .arg(Gui::elapsedTime(timer.elapsed(),false))
                                                            .arg(QString("%1 %2")
                                                                 .arg(ia.ldrNames[pT].size())
                                                                 .arg(ia.ldrNames[pT].size() == 1 ? QObject::tr("image") : QObject::tr("images"))));

@@ -63,8 +63,7 @@ void Gui::open()
       modelDir,
       tr("LDraw Files (*.dat *.ldr *.mpd);;All Files (*.*)"));
 
-    QElapsedTimer timer;
-    timer.start();
+    fileLoadTimer.start();
 
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
@@ -77,7 +76,7 @@ void Gui::open()
                                            .arg(fileInfo.fileName())
                                            .arg(Gui::maxPages)
                                            .arg(lpub->ldrawFile.getPartCount())
-                                           .arg(Gui::elapsedTime(timer.elapsed())));
+                                           .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
       return;
     }
   }
@@ -87,8 +86,7 @@ void Gui::open()
 void Gui::openDropFile(QString &fileName) {
 
   if (gui->maybeSave() && gui->saveBuildModification()) {
-      QElapsedTimer timer;
-      timer.start();
+      fileLoadTimer.start();
       QFileInfo fileInfo(fileName);
       QString extension = fileInfo.suffix().toLower();
       bool ldr = false, mpd = false, dat= false;
@@ -106,7 +104,7 @@ void Gui::openDropFile(QString &fileName) {
                                                .arg(fileInfo.fileName())
                                                .arg(Gui::maxPages)
                                                .arg(lpub->ldrawFile.getPartCount())
-                                               .arg(Gui::elapsedTime(timer.elapsed())));
+                                               .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
         } else {
           QString noExtension;
           if (extension.isEmpty())
@@ -406,8 +404,7 @@ void Gui::openRecentFile()
 {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
-    QElapsedTimer timer;
-    timer.start();
+    fileLoadTimer.start();
     QString fileName = action->data().toString();
     QFileInfo fileInfo(fileName);
     if (!gui->openFile(fileName))
@@ -419,7 +416,7 @@ void Gui::openRecentFile()
                                          .arg(fileInfo.fileName())
                                          .arg(Gui::maxPages)
                                          .arg(lpub->ldrawFile.getPartCount())
-                                         .arg(Gui::elapsedTime(timer.elapsed())));
+                                         .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
   }
 }
 
@@ -449,8 +446,7 @@ bool Gui::loadFile(const QString &file, bool console)
     QString fileName = file;
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
-        QElapsedTimer timer;
-        timer.start();
+        fileLoadTimer.start();
         if (!openFile(fileName)) {
             emit gui->fileLoadedSig(false);
             return false;
@@ -469,7 +465,7 @@ bool Gui::loadFile(const QString &file, bool console)
                                              .arg(fileInfo.fileName())
                                              .arg(Gui::maxPages)
                                              .arg(lpub->ldrawFile.getPartCount())
-                                             .arg(Gui::elapsedTime(timer.elapsed())));
+                                             .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
         emit gui->fileLoadedSig(true);
         return true;
     } else {

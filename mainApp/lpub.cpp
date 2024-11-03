@@ -1600,13 +1600,13 @@ void Gui::displayFile(
             emit gui->displayFileSig(ldrawFile, modelName, lineScope);
 
 #ifdef QT_DEBUG_MODE
-                emit gui->messageSig(LOG_DEBUG,tr("Editor loaded page: %1, step: %2, model: %3, line scope: %4-%5 - %6")
+                emit gui->messageSig(LOG_DEBUG,tr("Editor loaded page: %1, step: %2, model: %3, line scope: %4-%5%6")
                                 .arg(Gui::displayPageNum)
                                 .arg(lpub->currentStep ? lpub->currentStep->stepNumber.number : 0)
                                 .arg(modelName)
                                 .arg(top.lineNumber + 1    /*adjust for 0-index*/)
                                 .arg(bottom.lineNumber + 1 /*adjust for 0-index*/)
-                                .arg(Gui::elapsedTime(t.elapsed())));
+                                .arg(t.elapsed() > 0.0 ? QString(" - %1").arg(Gui::elapsedTime(t.elapsed())): QString()));
 #endif
 
             if (displayStartPage) {
