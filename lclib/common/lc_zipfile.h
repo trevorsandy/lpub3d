@@ -86,3 +86,4 @@ protected:
 	quint64 mBytesBeforeZipFile;
 	quint64 mCentralPos;
 };
+

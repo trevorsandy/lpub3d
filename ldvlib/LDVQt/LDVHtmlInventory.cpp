@@ -1683,3 +1683,4 @@ std::string LDVHtmlInventory::defaultFilename(const char *modelFilename)
 	delete[] filePart;
 	return htmlFilename;
 }
+
