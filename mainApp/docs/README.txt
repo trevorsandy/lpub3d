@@ -1,4 +1,4 @@
-LPub3D 2.4.8.81.3804 (03 11 2024 09:01:18)
+LPub3D 2.4.8.82.3805 (03 11 2024 09:05:58)
 
 Features, enhancements, fixes and changes
 ------------
@@ -21,6 +21,7 @@ Revisions:
 - Fix - False Fade Steps, Highlight Step message #777
 - Fix - Parts in PLI are not always drawn on model #780
 - Fix - TopOfStep modelIndex below model start #778
+- Fix - Treat submodel as substitute part error #747
 
 --------------------------------------------------------------------------------------------------
 

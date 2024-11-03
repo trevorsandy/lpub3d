@@ -252,22 +252,25 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int type, int displayType)
+int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int _type, int displayType)
 {
     QStringList tokens;
-    Options::Mt imageType = static_cast<Options::Mt>(type);
+    Options::Mt imageType = static_cast<Options::Mt>(_type);
     DisplayType modelType = static_cast<DisplayType>(displayType);
-    QString baseName = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
-    bool isMPD       = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
-    baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
+    QString baseName  = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
+    bool isMPD        = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
+    baseName          = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
+    QString modelName = _modelName;
+    QFileInfo fileInfo(modelName);
+    QString type;
 
-    // Test for MPD - if single subfile line
-    if (!isMPD) {
-        for (int i = 0; i < lines.size(); i++) {
-            QString line = lines.at(i);
-            split(line, tokens);
-            if (tokens[0] == "1" && tokens.size() == 15) {
-                QString type = tokens[tokens.size()-1];
+    // Capture type name and test if MPD is a single subfile line
+    for (int i = 0; i < lines.size(); i++) {
+        QString line = lines.at(i);
+        split(line, tokens);
+        if (tokens[0] == "1" && tokens.size() == 15) {
+            type = tokens[tokens.size()-1];
+            if (!isMPD) {
                 if (Preferences::enableFadeSteps) {
                     QString fadeSfx = QString("%1.").arg(FADE_SFX);
                     if (type.contains(fadeSfx)) {
@@ -290,14 +293,17 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
         }
     }
 
+    bool appendModelName = isMPD && type.toLower() == modelName.toLower();
+
     // special case where the modelName will match the line type name so we append '-Smi' to the modelName
     if (imageType == Options::SMI) {
          QString smi(SUBMODEL_IMAGE_BASENAME);
          baseName = baseName.append(QString("-%1").arg(smi.toUpper()));
+         if (appendModelName)
+            modelName = fileInfo.baseName().append(QString("-%1.%2").arg(smi.toUpper()).arg(fileInfo.suffix()));
     }
 
     // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround Visual Editor abend
-    QString modelName = _modelName;
     if (imageType == Options::PLI && isMPD) {
         modelName.prepend("Pli_");
         baseName.prepend("Pli_");
@@ -306,6 +312,8 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
     // special case where model file is a display model or final step in fade step document
     if (modelType >= DT_MODEL_DEFAULT) {
         baseName = baseName.append("_Display_Model");
+        if (appendModelName)
+           modelName = fileInfo.baseName().append(QString("_Display_Model.%1").arg(fileInfo.suffix()));
     }
 
     // description and name are already added to mono image
@@ -3599,7 +3607,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                                             .arg(O->OutputFileName)
                                             .arg(Writer.errorString());
                 emit gui->messageSig(LOG_ERROR,message);
-                rc = false;
+                return false;
             }
             else
             {
@@ -3614,6 +3622,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         {
             emit gui->messageSig(LOG_ERROR,QObject::tr("Begin Native %1 image render returned code %2 - "
                                                        "Unable to bind render framebuffer.").arg(ImageType).arg(rc));
+            return false;
         }
 
         bool DoNativeExport = O->ExportMode != EXPORT_NONE &&
@@ -3626,7 +3635,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             if (!NativeExport(O))
             {
                 emit gui->messageSig(LOG_ERROR,QObject::tr("%1 Objects render failed.").arg(ImageType));
-                rc = false;
+                return false;
             }
         }
     }
