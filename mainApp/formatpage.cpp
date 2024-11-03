@@ -521,9 +521,9 @@ int Gui::addGraphicsPageItems(
                         pixmap->relativeToSize[0] = plPage.size[XX];
                         pixmap->relativeToSize[1] = plPage.size[YY];
                     } else {
-                        emit gui->messageSig(LOG_ERROR, tr("Unable to locate picture %1. Be sure picture file "
-                                                           "is located relative to model file or use an absolute path.")
-                                        .arg(fileInfo.absoluteFilePath()));
+                        emit gui->messageSig(LOG_WARNING, tr("Unable to locate image %1. Be sure image file is located "
+                                                             "relative to the model file or use an absolute path.")
+                                                             .arg(insert.picName));
                     }
                 }
             }
