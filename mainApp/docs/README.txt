@@ -1,4 +1,4 @@
-LPub3D 2.4.8.70.3793 (03 11 2024 08:45:42)
+LPub3D 2.4.8.71.3794 (03 11 2024 08:46:46)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Add renderer arguments and environment vars to global settings #775
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
+- Change - Errors loading files with MODEL_PIECES meta-command #779
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
 - Fix - False Fade Steps, Highlight Step message #777

@@ -7389,9 +7389,16 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
 
 void Meta::processSpecialCases(QString &line, Where &here) {
   /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
-  QRegExp parseRx("\\s+(VIEW_ANGLE)\\s+");
-  if (line.contains(parseRx)) {
+  parseRx.setPattern("\\s+(VIEW_ANGLE)\\s+");
+  if (parseRx.cap(1) == QLatin1String("VIEW_ANGLE")) {
     line.replace(parseRx.cap(1),"CAMERA_ANGLES");
+    return;
+  }
+
+  /* Legacy LPub backward compatibilty. Replace MODEL_PIECES with MODEL_PARTS */
+  parseRx.setPattern("\\s+(MODEL_PIECES)\\s+");
+  if (line.contains(parseRx)) {
+    line.replace(parseRx.cap(1),"MODEL_PARTS");
     return;
   }
 
@@ -7410,19 +7417,20 @@ void Meta::processSpecialCases(QString &line, Where &here) {
   }
 
   /* Native camera distance deprecated. Command ignored if not GLOBAL */
-  if (line.contains("CAMERA_DISTANCE_NATIVE")) {
+  parseRx.setPattern("\\s+(CAMERA_DISTANCE_NATIVE)\\s*");
+  if (line.contains(parseRx)) {
     if (Gui::parsedMessages.contains(here)) {
       line = "0 // IGNORED";
     } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
       here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
       parseRx.setPattern("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
       if (line.contains(parseRx)) {
-        QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
-                                  "Only application at GLOBAL scope is permitted. "
-                                  "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
-                                  "This command will be ignored. %2")
-                                  .arg(parseRx.cap(1))
-                                  .arg(line);
+        QString const message = QObject::tr("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
+                                            "Only application at GLOBAL scope is permitted. "
+                                            "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
+                                            "This command will be ignored. %2")
+                                            .arg(parseRx.cap(1))
+                                            .arg(line);
         emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
         line = "0 // IGNORED";
       }
