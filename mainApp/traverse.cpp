@@ -3491,50 +3491,45 @@ int Gui::findPage(
                                         return static_cast<int>(frc);
                                     }
 
-                                    opts.pageDisplayed = modelOpts.pageDisplayed;
+                                    partiallyRendered = modelOpts.current.lineNumber < modelOpts.flags.numLines;
                                     // when we stop before the end of a child submodel,
                                     // capture the child submodel flags for countPages
-                                    partiallyRendered = modelOpts.current.lineNumber < modelOpts.flags.numLines;
-                                    if (opts.pageDisplayed) {   // capture where we stopped in the submodel
-                                        // when we stop at the end of a child submodel and the current modelStack is empty,
-                                        // capture the child submodel flags for countPagese
-                                        partiallyRendered |= (modelOpts.current.lineNumber == modelOpts.flags.numLines &&
-                                                              modelOpts.modelStack.size() > opts.modelStack.size() &&
-                                                              opts.modelStack.size() == 0);
-                                        if (partiallyRendered) {
-                                            opts.pageNum           = modelOpts.pageNum;
-                                            opts.current           = modelOpts.current;
-                                            opts.pageSize          = modelOpts.pageSize;
-                                            opts.flags             = modelOpts.flags;
-                                            opts.modelStack        = modelOpts.modelStack;
-                                            opts.stepNumber        = modelOpts.stepNumber;
-                                            opts.renderModelColour = modelOpts.renderModelColour;
-                                            opts.renderParentModel = modelOpts.renderParentModel;
-                                            // decrement current lineNumber by 1 line to account for
-                                            // lineNumber increment as we iterate to terminate the
-                                            // line processing loop at 'pageDisplayed'
+                                    if (partiallyRendered) {
+                                        opts.pageDisplayed     = modelOpts.pageDisplayed;
+                                        opts.pageNum           = modelOpts.pageNum;
+                                        opts.current           = modelOpts.current;
+                                        opts.pageSize          = modelOpts.pageSize;
+                                        opts.flags             = modelOpts.flags;
+                                        opts.modelStack        = modelOpts.modelStack;
+                                        opts.stepNumber        = modelOpts.stepNumber;
+                                        opts.renderModelColour = modelOpts.renderModelColour;
+                                        opts.renderParentModel = modelOpts.renderParentModel;
+                                        // decrement current lineNumber by 1 line to account for
+                                        // lineNumber increment as we iterate to terminate the
+                                        // line processing loop at 'pageDisplayed'
+                                        if (opts.pageDisplayed)
                                             opts.current--;
-                                            // if we are at the last step of the submodel, with no parts added, turn
-                                            // on parseBuildMods in countPage in case ther is a BUILD_MOD REMOVE command.
-                                            bool partsAdded;
-                                            Where walk = modelOpts.current;
-                                            Rc rc = lpub->mi.scanForward(walk,StepMask,partsAdded);
-                                            opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
-                                            // if no parts added to the last step,
-                                            // set partsAdded to -1 so later increment
-                                            // will result in a value of 0.
-                                            if (opts.flags.parseBuildMods) {
-                                                if (! opts.flags.partsAdded)
-                                                    opts.flags.partsAdded = -1;
-                                                opts.flags.buildModLevel = modelOpts.flags.buildModLevel;
-                                            }
-                                        } else {
-                                            // capture the final buildMod flags for this page
-                                            opts.flags.buildModStack << buildMod;
+                                        // if we are at the last step of the submodel, with no parts added, turn
+                                        // on parseBuildMods in countPage in case there is a BUILD_MOD REMOVE command.
+                                        bool partsAdded;
+                                        Where walk = modelOpts.current;
+                                        Rc rc = lpub->mi.scanForward(walk,StepMask,partsAdded);
+                                        opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
+                                        // if no parts added to the last step,
+                                        // set partsAdded to -1 so later increment
+                                        // will result in a value of 0.
+                                        if (opts.flags.parseBuildMods) {
+                                            if (! opts.flags.partsAdded)
+                                                opts.flags.partsAdded = -1;
+                                            opts.flags.buildModLevel = modelOpts.flags.buildModLevel;
                                         }
-                                    } // opts.pageDisplayed
-                                    else if (meta.submodelStack.size())
+                                    } else
                                         meta.submodelStack.pop_back();
+
+                                    // capture the final buildMod flags for this page
+                                    if (isDisplayPage) {
+                                        opts.flags.buildModStack << buildMod;
+                                    }
 
                                     Gui::saveStepPageNum = Gui::stepPageNum;
                                     meta.rotStep  = saveRotStep2;             // restore old rotstep
@@ -3724,8 +3719,6 @@ int Gui::findPage(
                             Gui::revertPageProcess();
                             return static_cast<int>(drc);;
                         }
-
-                        opts.pageDisplayed = true;
 
                         lineTypeIndexes.clear();
                         csiParts.clear();
@@ -3992,8 +3985,6 @@ int Gui::findPage(
                                     Gui::revertPageProcess();
                                     return static_cast<int>(drc);
                                 }
-
-                                opts.pageDisplayed = true;
 
                                 saveCurrent.modelName.clear();
                                 saveCurrent.modelIndex = -1;
@@ -4414,8 +4405,6 @@ int Gui::findPage(
                 Gui::revertPageProcess();
                 return static_cast<int>(drc);
             }
-
-            opts.pageDisplayed = true;
 
         } // IsDisplayPage
 
