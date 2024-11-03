@@ -1579,6 +1579,7 @@ signals:
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
+  void showLineSig(const Where &here, int type);
   void setSubFilesSig(const QStringList &subFiles);
   void setLineScopeSig(const StepLines& lineScope);
   void previewModelSig(const QString &);

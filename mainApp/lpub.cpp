@@ -3392,6 +3392,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
             this,           SLOT(statusMessage(LogType,const QString &,int)),
             Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
+    connect(this,           SIGNAL(showLineSig(const Where &, int)),
+            this,           SLOT(  showLine(   const Where &, int)));
+
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
 
