@@ -1624,16 +1624,7 @@ void Gui::displayFile(
             else
                 Gui::curSubFile = modelName;
 
-            const int currentIndex = gui->mpdCombo->currentIndex();
-            for (int i = 0; i < gui->mpdCombo->count(); i++) {
-                if (gui->mpdCombo->itemText(i) == modelName) { // will never equal Include File
-                    if (i != currentIndex) {
-                        gui->mpdCombo->setCurrentIndex(i);
-                        gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
-                    }
-                    break;
-                }
-            }
+            emit gui->setMpdComboSig(modelName);
 
             ldrawFile->setModified(modelName.toLower(), false);
         }
@@ -3394,6 +3385,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
 
     connect(this,           SIGNAL(showLineSig(const Where &, int)),
             this,           SLOT(  showLine(   const Where &, int)));
+
+    connect(this,           SIGNAL(setMpdComboSig(const QString &)),
+            this,           SLOT(  setMpdCombo(   const QString &)));
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
@@ -7577,6 +7571,20 @@ void Gui::showLine(const Where &here, int type)
       emit gui->showLineSig(here.lineNumber, type);
     }
   }
+}
+
+void Gui::setMpdCombo(const QString &modelName)
+{
+    const int currentIndex = gui->mpdCombo->currentIndex();
+    for (int i = 0; i < gui->mpdCombo->count(); i++) {
+        if (gui->mpdCombo->itemText(i) == modelName) { // will never equal Include File
+            if (i != currentIndex) {
+                gui->mpdCombo->setCurrentIndex(i);
+                gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
+            }
+            break;
+        }
+    }
 }
 
 void Gui::parseError(const QString &message,

@@ -1402,6 +1402,7 @@ public slots:
   void statusMessage(LogType logType, const QString &statusMessage, int msgBox = 0);
   void showExportedFile();
   void showLine(const Where &here, int type = LINE_HIGHLIGHT);
+  void setMpdCombo(const QString &modelName);
   void openDropFile(QString &fileName);
   void enableApplyLightAction();
 
@@ -1580,6 +1581,7 @@ signals:
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
   void showLineSig(const Where &here, int type);
+  void setMpdComboSig(const QString &modelName);
   void setSubFilesSig(const QStringList &subFiles);
   void setLineScopeSig(const StepLines& lineScope);
   void previewModelSig(const QString &);
