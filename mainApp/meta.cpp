@@ -7365,14 +7365,14 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
   if (highlighter)
     metaKeywords << highlighterKeyWords;
   else
-      metaKeywords
-      << ldrawKeywords
-      << leocadKeyWords
-      << ldcadKeyWords
-      << mlcadKeyWords
-      << lsynthKeyWords
-      << miscellaneousKeyWords
-      ;
+    metaKeywords
+    << ldrawKeywords
+    << leocadKeyWords
+    << ldcadKeyWords
+    << mlcadKeyWords
+    << lsynthKeyWords
+    << miscellaneousKeyWords
+    ;
   Q_FOREACH (const QString &keywordString, metaKeywords) {
     cleanedKeywords << keywordString.split(" ");
   }
@@ -7388,42 +7388,40 @@ void Meta::metaKeywords(QStringList &out, bool highlighter)
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {
+  QRegExp parseRx("\\s+(VIEW_ANGLE|MODEL_PIECES|BLENDER_DIRECTIONAL_ANGLE|COLOR_RGB|CAMERA_DISTANCE_NATIVE)\\s+");
+  if (!line.contains(parseRx))
+    return;
+
   /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
-  parseRx.setPattern("\\s+(VIEW_ANGLE)\\s+");
-  if (parseRx.cap(1) == QLatin1String("VIEW_ANGLE")) {
+  else if (parseRx.cap(1) == QLatin1String("VIEW_ANGLE")) {
     line.replace(parseRx.cap(1),"CAMERA_ANGLES");
     return;
   }
 
   /* Legacy LPub backward compatibilty. Replace MODEL_PIECES with MODEL_PARTS */
-  parseRx.setPattern("\\s+(MODEL_PIECES)\\s+");
-  if (line.contains(parseRx)) {
+  else if (parseRx.cap(1) == QLatin1String("MODEL_PIECES")) {
     line.replace(parseRx.cap(1),"MODEL_PARTS");
     return;
   }
 
   /* LPub LeoCAD light compatibilty. Replace _DIRECTIONAL_ with _SUN_ */
-  parseRx.setPattern("\\s+(BLENDER_DIRECTIONAL_ANGLE)\\s+");
-  if (line.contains(parseRx)) {
+  else if (parseRx.cap(1) == QLatin1String("BLENDER_DIRECTIONAL_ANGLE")) {
     line.replace(parseRx.cap(1),"BLENDER_SUN_ANGLE");
     return;
   }
 
   /* LPub LeoCAD light compatibilty. Replace COLOR_RGB with COLOR */
-  parseRx.setPattern("\\s+(COLOR_RGB)\\s+");
-  if (line.contains(parseRx)) {
+  else if (parseRx.cap(1) == QLatin1String("COLOR_RGB")) {
     line.replace(parseRx.cap(1),"COLOR");
     return;
   }
 
   /* Native camera distance deprecated. Command ignored if not GLOBAL */
-  parseRx.setPattern("\\s+(CAMERA_DISTANCE_NATIVE)\\s*");
-  if (line.contains(parseRx)) {
+  else if (parseRx.cap(1) == QLatin1String("CAMERA_DISTANCE_NATIVE")) {
     if (Gui::parsedMessages.contains(here)) {
       line = "0 // IGNORED";
     } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
-      here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-      parseRx.setPattern("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
+      parseRx.setPattern("\\s+(ASSEM|PLI|BOM|SUBMODEL|LOCAL)\\s+");
       if (line.contains(parseRx)) {
         QString const message = QObject::tr("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
                                             "Only application at GLOBAL scope is permitted. "
@@ -7431,6 +7429,7 @@ void Meta::processSpecialCases(QString &line, Where &here) {
                                             "This command will be ignored. %2")
                                             .arg(parseRx.cap(1))
                                             .arg(line);
+        here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
         emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
         line = "0 // IGNORED";
       }
