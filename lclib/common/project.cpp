@@ -635,7 +635,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			return false;
 		}
 
-		foreach(QString line, Content)
+		for (QString const &line : Content)
 		{
 			FileData.append(line.toUtf8()+"\n");
 		}
@@ -690,6 +690,9 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			}
 			else
 				delete Model;
+/*** LPub3D Mod - unblock UI on large file load ***/
+			QCoreApplication::processEvents();
+/*** LPub3D Mod end ***/
 		}
 
 		for (size_t ModelIdx = 0; ModelIdx < Models.size(); ModelIdx++)
@@ -698,6 +701,9 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			lcModel* Model = Models[ModelIdx].second;
 			Model->LoadLDraw(Buffer, this);
 			Model->SetSaved();
+/*** LPub3D Mod - unblock UI on large file load ***/
+			QCoreApplication::processEvents();
+/*** LPub3D Mod end ***/
 		}
 	}
 	else
@@ -743,6 +749,9 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	{
 		Model->UpdateMesh();
 		Model->UpdatePieceInfo(UpdatedModels);
+/*** LPub3D Mod - unblock UI on large file load ***/
+		QCoreApplication::processEvents();
+/*** LPub3D Mod end ***/
 	}
 
 	mModified = false;

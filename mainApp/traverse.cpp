@@ -2884,33 +2884,33 @@ int Gui::drawPage(
 
                                     if (step) {
                                         const QString cover = frontCover ? tr("front cover") : tr("back cover");
-                                        emit gui->messageSig(LOG_INFO, tr("Set cover page preview model display at %1 for %2, step number %3...")
-                                                        .arg(cover).arg(topOfStep.modelName).arg(stepNum));
+                                        emit gui->messageSig(LOG_INFO_STATUS, tr("Set cover page model preview..."));
+                                        emit gui->messageSig(LOG_INFO, tr("Set cover page model preview at %1 for %2, step number %3...")
+                                                                          .arg(cover).arg(topOfStep.modelName).arg(stepNum));
+                                        const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
                                         step->setBottomOfStep(opts.current);
                                         step->displayStep = DT_MODEL_COVER_PAGE_PREVIEW;
-                                        step->subModel.viewerSubmodel = true;
                                         steps->meta.LPub.subModel.showStepNum.setValue(stepNum);
-                                        step->subModel.setSubModel(topOfStep.modelName,steps->meta);
-                                        const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
-                                        if (step->subModel.sizeSubModel(&steps->meta,relativeType,true) != 0) {
-                                            emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page preview display at %1 for %2, stepNum %3 (%4.ldr).")
-                                                                 .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(fileName));
+                                        QFuture<int> future = QtConcurrent::run([&]() {
+                                            step->subModel.viewerSubmodel = true;
+                                            step->subModel.setSubModel(topOfStep.modelName,steps->meta);
+                                            return step->subModel.sizeSubModel(&steps->meta,relativeType,true);
+                                        });
+                                        if (asynchronous(future)) {
+                                            emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page model preview at %1 for %2, stepNum %3 (%4.ldr).")
+                                                                               .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(fileName));
                                         } else {
                                             // set the current step - enable access from other parts of the application - e.g. Renderer
                                             lpub->setCurrentStep(step);
                                             if (lpub->currentStep) {
                                                 if (step->subModel.viewerSubmodelKey == lpub->currentStep->viewerStepKey) {
-                                                    gui->showLine(topOfStep);
+                                                    emit gui->showLineSig(topOfStep, LINE_HIGHLIGHT);
                                                     const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
                                                     emit gui->previewModelSig(modelFileName);
-                                                    /*
-                                                    if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
-                                                        emit gui->messageSig(LOG_WARNING, tr("Could not load cover page preview (%1) file '%2'.").arg(topOfStep.modelName).arg(modelFileName));
-                                                    //*/
                                                 } else {
                                                     QString const currentStepKey = lpub->currentStep->viewerStepKey;
-                                                    emit gui->messageSig(LOG_WARNING, QObject::tr("The specified submodel step key: '%1' does not match the current step key: '%2'")
-                                                                         .arg(step->subModel.viewerSubmodelKey).arg(currentStepKey));
+                                                    emit gui->messageSig(LOG_WARNING, tr("The specified submodel step key: '%1' does not match the current step key: '%2'")
+                                                                                         .arg(step->subModel.viewerSubmodelKey).arg(currentStepKey));
                                                 }
                                             }
                                         }
@@ -2925,7 +2925,7 @@ int Gui::drawPage(
                                 lpub->meta.rotStep.setValue(saveRotStep);
                             }
 
-                            Gui::stepPageNum += ! coverPage;
+                            Gui::stepPageNum += !coverPage;
 
                             steps->setBottomOfSteps(opts.current);
 
@@ -5449,7 +5449,7 @@ void Gui::pagesCounted()
                                        .arg(fileInfo.fileName())
                                        .arg(Gui::maxPages)
                                        .arg(lpub->ldrawFile.getPartCount())
-                                       .arg(Gui::elapsedTime(displayPageTimer.elapsed())));
+									   .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
                 if (!Gui::maxPages && !lpub->ldrawFile.getPartCount()) {
                     emit gui->messageSig(LOG_ERROR, tr("LDraw file '%1' is invalid - nothing loaded.")
                                                  .arg(fileInfo.absoluteFilePath()));

@@ -559,12 +559,10 @@ int SubModel::createSubModelImage(
 
 int SubModel::generateSubModelItem()
 {
-  QString key;
-
   widestPart = 0;
   tallestPart = 0;
 
-  Q_FOREACH (key,parts.keys()) { // There's only one
+  for (QString &key : parts.keys()) { // There's only one
     SubModelPart *part;
 
     part = parts[key];

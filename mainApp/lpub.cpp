@@ -7567,6 +7567,7 @@ void Gui::showLine(const Where &here, int type)
 {
   if (Preferences::modeGUI && ! Gui::exporting()) {
     if (gui->macroNesting == 0) {
+      emit gui->messageSig(LOG_INFO_STATUS, tr("Load command editor..."));
       gui->displayFile(&lpub->ldrawFile, here);
       emit gui->showLineSig(here.lineNumber, type);
     }

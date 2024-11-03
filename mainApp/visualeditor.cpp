@@ -1246,8 +1246,11 @@ bool Gui::PreviewPiece(const QString &type, int colorCode)
 
 void Gui::previewModel(QString const &modelFileName)
 {
-    if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
-        emit gui->messageSig(LOG_WARNING, tr("Could not load cover page preview file '%1'.").arg(modelFileName));
+    if (Preferences::modeGUI && ! Gui::exporting()) {
+        emit gui->messageSig(LOG_INFO_STATUS, tr("Render model preview..."));
+        if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))
+            emit gui->messageSig(LOG_WARNING, tr("Could not load cover page preview file '%1'.").arg(modelFileName));
+    }
 }
 
 void Gui::updatePreview()
