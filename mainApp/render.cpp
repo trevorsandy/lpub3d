@@ -4152,10 +4152,10 @@ bool Render::isSingleSubfile(const QStringList &partLines)
         int partCount = 0;
         for (int i = 0; i < partLines.count(); i++) {
             const QString &partLine = partLines[i];
+            if (!partLine.contains(QRegExp("^[1-5]\\s+")))
+                partCount++;
             if (partCount > 1)
                 return false;
-            if (!partLine.isEmpty() && !partLine.startsWith("0 "))
-                partCount++;
             if (partCount == 1 && partLine.startsWith("1 ")) {
                 singleSubfile = lpub->ldrawFile.isSingleSubfileLine(partLine);
                 lineIndex = i;
