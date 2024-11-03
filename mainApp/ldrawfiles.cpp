@@ -5175,11 +5175,10 @@ int LDrawFile::getTopOfStep(const QString &modelName, int &modelIndex, int &line
     if (modelIndex == BM_INVALID_INDEX)
         modelIndex = getSubmodelIndex(modelName);
 
-    QVector<int> topOfStep = { modelIndex, lineNumber };
-    int stepIndex = _buildModStepIndexes.indexOf(topOfStep);
+    int stepIndex = _buildModStepIndexes.indexOf({ modelIndex, lineNumber });
 
     if (stepIndex == BM_INVALID_INDEX) {
-        int topLineNumber = 0;
+        int topLineNumber = -1;
         for (QVector<int> &topOfStep : _buildModStepIndexes) {
             if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
                 topLineNumber = topOfStep.at(BM_STEP_LINE_KEY);
@@ -5192,22 +5191,36 @@ int LDrawFile::getTopOfStep(const QString &modelName, int &modelIndex, int &line
                         if (topModelIndex == modelIndex) {
                             lineNumber = _buildModStepIndexes[stepIndex].at(BM_STEP_LINE_KEY);
                         } else {
-                            emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 is below model start, returned modelIndex %4 (%5).")
-                                                                        .arg(modelIndex).arg(modelName).arg(lineNumber).arg(topModelIndex).arg(getSubmodelName(topModelIndex)));
+                            emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 is below model "
+                                                                        "start line %4, returned modelIndex %5 (%6).")
+                                                                        .arg(modelIndex).arg(modelName).arg(lineNumber).arg(topLineNumber)
+                                                                        .arg(topModelIndex).arg(getSubmodelName(topModelIndex)));
                             return BM_INVALID_INDEX;
                         }
+                    }
+                }
+                // When topLineNumber is 0, the topOfStep is the first step in the submodel.
+                // If lineNumber is greater than 0, but less than the topLineNumber of
+                // the next step in buildModStepIndexes, or the next step modelIndex
+                // is not equal to modelIndex, we take the topOfStep stepIndex.
+                else if (!topLineNumber && lineNumber) {
+                    int nextStepIndex = _buildModStepIndexes.indexOf(topOfStep) + 1;
+                    if (nextStepIndex > BM_INVALID_INDEX) {
+                        QVector<int> topOfNextStep = _buildModStepIndexes.at(nextStepIndex);
+                        if ((lineNumber < topOfNextStep.last()) || (topOfStep.first() != topOfNextStep.first()))
+                            stepIndex = _buildModStepIndexes.indexOf(topOfStep);
                     }
                 }
             }
             // When lineNumber is greater than last step topOfStep lineNumber but
             // less than model max lines, set the stepIndex of the last step topOfStep
-            else if (stepIndex == BM_INVALID_INDEX && topLineNumber) {
+            else if (stepIndex == BM_INVALID_INDEX && topLineNumber > 0) {
                 int modelLines = size(modelName);
                 if (lineNumber <= modelLines) {
                     lineNumber = topLineNumber;
                     stepIndex = getTopOfStep(modelName, modelIndex, lineNumber);
                 } else {
-                    emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 exceedes model lines %4.")
+                    emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 exceedes the total model lines %4.")
                                                                 .arg(modelIndex).arg(modelName).arg(lineNumber).arg(modelLines));
                     return stepIndex;
                 }
@@ -5266,7 +5279,7 @@ QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lin
     int bottomStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
 
     if (stepIndex >= topStepIndex && stepIndex <= bottomStepIndex)
-        return getViewerStepKeyWhere(modelIndex, lineNumber);
+        return getViewerStepKey(stepIndex);
 
     return QString();
 }
