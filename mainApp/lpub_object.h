@@ -51,7 +51,7 @@ class LPub : public QObject
 public:
   LPub();
   ~LPub();
-  static QString elapsedTime(const qint64 &duration);
+  static QString elapsedTime(const qint64 &duration, bool pretty = true);
 
   /// Open project to enable native visual editor or image render
   bool OpenProject(const NativeOptions*, int = NATIVE_VIEW, bool = false);

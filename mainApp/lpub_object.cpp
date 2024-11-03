@@ -1750,8 +1750,8 @@ void LPub::httpDownloadFinished()
     mHttpManager = nullptr;
 }
 
-QString LPub::elapsedTime(const qint64 &duration) {
-
+QString LPub::elapsedTime(const qint64 &duration, bool pretty)
+{
     qint64 elapsed = duration;
     int milliseconds = int(elapsed % 1000);
     elapsed /= 1000;
@@ -1761,21 +1761,23 @@ QString LPub::elapsedTime(const qint64 &duration) {
     elapsed /= 60;
     int hours = int(elapsed % 24);
 
-    return tr("Elapsed time: %1%2%3")
-                   .arg(hours   >   0 ?
-                                  QString("%1 %2 ")
-                                          .arg(hours)
-                                          .arg(hours   > 1 ? tr("hours")   : tr("hour")) :
-                                  QString())
-                   .arg(minutes > 0 ?
-                                  QString("%1 %2 ")
-                                          .arg(minutes)
-                                          .arg(minutes > 1 ? tr("minutes") : tr("minute")) :
-                                  QString())
-                   .arg(QString("%1.%2 %3")
-                                .arg(seconds)
-                                .arg(milliseconds,3,10,QLatin1Char('0'))
-                                .arg(seconds > 1 ? tr("seconds") : tr("second")));
+    return tr("%1%2%3%4")
+              .arg(pretty        ?
+                             tr("Elapsed time: ") : QString())
+              .arg(hours   >   0 ?
+                             QString("%1 %2 ")
+                                     .arg(hours)
+                                     .arg(hours   > 1 ? tr("hours")   : tr("hour")) :
+                             QString())
+              .arg(minutes > 0 ?
+                             QString("%1 %2 ")
+                                     .arg(minutes)
+                                     .arg(minutes > 1 ? tr("minutes") : tr("minute")) :
+                             QString())
+              .arg(QString("%1.%2 %3")
+                   .arg(seconds)
+                   .arg(milliseconds,3,10,QLatin1Char('0'))
+                   .arg(seconds > 1 ? tr("seconds") : tr("second")));
 
 }
 

@@ -1113,7 +1113,7 @@ public:
   static bool stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp = 0, bool displayModel = false);
   static bool stepContains(Where &here, QRegExp &lineRx, bool displayModel = false);
 
-  static QString elapsedTime(const qint64 &duration);
+  static QString elapsedTime(const qint64 &duration, bool pretty = true);
 
   void getRequireds();
   void initialize();
