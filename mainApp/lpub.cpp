@@ -5253,6 +5253,7 @@ void Gui::createActions()
     QAction *cycleEachPageAct = new QAction(QIcon(":/resources/cycleeachpage.png"),tr("Cycle Each Page"), gui);
     cycleEachPageAct->setObjectName("cycleEachPageAct.1");
     cycleEachPageAct->setStatusTip(tr("Cycle each page step(s) when navigating forward by more than one page - click to enable"));
+    cycleEachPageAct->setShortcut(QStringLiteral("Ctrl+Alt+C"));
     cycleEachPageAct->setCheckable(true);
     cycleEachPageAct->setChecked(Preferences::cycleEachPage);
     lpub->actions.insert(cycleEachPageAct->objectName(), Action(QStringLiteral("Edit.Cycle Each Page"), cycleEachPageAct));
