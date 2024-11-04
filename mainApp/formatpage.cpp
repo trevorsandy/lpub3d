@@ -369,7 +369,7 @@ int Gui::addGraphicsPageItems(
     // Set up page header and footer
 
     int which = page->meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
-    float _pW = page->meta.LPub.page.size.value(which) - plPage.margin.value(YY)*2;
+    float _pW = page->meta.LPub.page.size.value(which) - plPage.margin.value(which)*2;
     page->meta.LPub.page.pageHeader.size.setValue(0,_pW);
     page->meta.LPub.page.pageFooter.size.setValue(0,_pW);
 
@@ -673,6 +673,7 @@ int Gui::addGraphicsPageItems(
                 if (step && step->relativeType == StepType) {
 
                     bool showStepNumber = step->showStepNumber && (! step->onlyChild() || step->displayStep >= DT_MODEL_DEFAULT);
+                    int pliMargin[2] = { 0, 0 };
 
                     if (showStepNumber)
                         page->stepNumber = step->stepNumber.number;
@@ -699,12 +700,12 @@ int Gui::addGraphicsPageItems(
                         // if Submodel and Pli relative to StepNumber
 
                         if (step->placeSubModel &&
-                                step->subModel.placement.value().relativeTo == StepNumberType) {
+                            step->subModel.placement.value().relativeTo == StepNumberType) {
 
                             // Redirect Pli relative to SubModel
 
                             if (step->pli.pliMeta.show.value() &&
-                                    step->pli.placement.value().relativeTo == StepNumberType) {
+                                step->pli.placement.value().relativeTo == StepNumberType) {
 
                                 step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                                 step->subModel.appendRelativeTo(&step->pli);
@@ -746,6 +747,7 @@ int Gui::addGraphicsPageItems(
                                 step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
                                 pageHeader->appendRelativeTo(&step->pli);
                                 pageHeader->placeRelative(&step->pli);
+                                pliMargin[XX] = plPage.margin.valuePixels(XX);
                             }
                         }
                     }
@@ -854,8 +856,8 @@ int Gui::addGraphicsPageItems(
 
                     // place the PLI relative to the entire step's box
 
-                    step->pli.setPos(step->pli.loc[XX],
-                                     step->pli.loc[YY]);
+                    step->pli.setPos(step->pli.loc[XX] + pliMargin[XX],
+                                     step->pli.loc[YY] + pliMargin[YY]);
 
                     // place the RotateIcon
 
