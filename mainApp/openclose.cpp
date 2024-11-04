@@ -254,7 +254,7 @@ void Gui::updateOpenWithActions()
         programPath = programData;
         QStringList arguments;
         if (!programData.isEmpty())
-            gui->openWithProgramAndArgs(programPath,arguments);
+          gui->setOpenWithProgramAndArgs(programPath,arguments);
         QFileInfo fileInfo(programPath);
         if (fileInfo.exists() && fileInfo.isFile()) {
           programName = gui->programEntries.at(i).split("|").first();
@@ -316,6 +316,12 @@ void Gui::updateOpenWithActions()
       if (gui->openWithMenu->actions().size())
           gui->openWithMenu->clear();
 
+#ifdef Q_OS_WIN
+      // add open with choice menu action first
+      openWithMenu->addAction(getAct("openWithChoiceAct.1"));
+      openWithMenu->addSeparator();
+#endif
+
       // add menu actions from updated list
       for (int k = 0; k < gui->numPrograms; k++) {
         gui->openWithMenu->addAction(gui->openWithActList.at(k));
@@ -330,7 +336,7 @@ void Gui::openWithSetup()
     updateOpenWithActions();
 }
 
-void Gui::openWithProgramAndArgs(QString &program, QStringList &arguments)
+void Gui::setOpenWithProgramAndArgs(QString &program, QStringList &arguments)
 {
     QRegExp quoteRx("\"|'");
     QString valueAt0 = program.at(0);
@@ -354,6 +360,16 @@ void Gui::openWithProgramAndArgs(QString &program, QStringList &arguments)
     }
 }
 
+void Gui::openWithChoice()
+{
+#ifdef Q_OS_WIN
+    TCHAR sysdir[MAX_PATH]{};
+    if (!GetSystemDirectory(sysdir, MAX_PATH)) return;
+    std::wstring argwstr = L"shell32.dll,OpenAs_RunDLL " + QDir::toNativeSeparators(curFile).toStdWString();
+    ShellExecute(::GetDesktopWindow(), 0, L"RUNDLL32.EXE", (LPCWSTR)argwstr.c_str(), sysdir, SW_SHOWNORMAL);
+#endif
+}
+
 void Gui::openWith(const QString &filePath)
 {
 
@@ -367,7 +383,7 @@ void Gui::openWith(const QString &filePath)
     if (program.isEmpty()) {
         program = Preferences::systemEditor;
         if (!program.isEmpty()) {
-            gui->openWithProgramAndArgs(program,arguments);
+            gui->setOpenWithProgramAndArgs(program,arguments);
         }
 #ifdef Q_OS_MACOS
         else {
@@ -380,12 +396,13 @@ void Gui::openWith(const QString &filePath)
         }
 #endif
     } else {
-        gui->openWithProgramAndArgs(program,arguments);
+        gui->setOpenWithProgramAndArgs(program,arguments);
     }
+
     qint64 pid;
     QString workingDirectory = QDir::currentPath() + QDir::separator();
     QProcess::startDetached(program, arguments, workingDirectory, &pid);
-    emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
+    emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4")
                                         .arg(QFileInfo(filePath).fileName()).arg(pid)
                                         .arg(QFileInfo(program).fileName())
                                         .arg(arguments.size() ? " "+arguments.join(" ") : ""));

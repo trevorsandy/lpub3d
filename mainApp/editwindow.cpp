@@ -355,7 +355,7 @@ void EditWindow::updateOpenWithActions()
             programPath = programData;
             QStringList arguments;
             if (!programData.isEmpty())
-                openWithProgramAndArgs(programPath,arguments);
+                setOpenWithProgramAndArgs(programPath,arguments);
             QFileInfo fileInfo(programPath);
             if (fileInfo.exists() && fileInfo.isFile()) {
                 programName = programEntries.at(i).split("|").first();
@@ -408,7 +408,7 @@ void EditWindow::updateOpenWithActions()
     }
 }
 
-void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments)
+void EditWindow::setOpenWithProgramAndArgs(QString &program, QStringList &arguments)
 {
     QRegExp quoteRx("\"|'");
     QString valueAt0 = program.at(0);
@@ -442,7 +442,7 @@ void EditWindow::openWith()
         if (program.isEmpty()) {
             program = Preferences::systemEditor;
             if (!program.isEmpty()) {
-                openWithProgramAndArgs(program,arguments);
+                setOpenWithProgramAndArgs(program,arguments);
             }
 #ifdef Q_OS_MACOS
             else {
@@ -456,7 +456,7 @@ void EditWindow::openWith()
             }
 #endif
         } else {
-            openWithProgramAndArgs(program,arguments);
+            setOpenWithProgramAndArgs(program,arguments);
         }
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();

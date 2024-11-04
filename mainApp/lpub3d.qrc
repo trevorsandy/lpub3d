@@ -206,6 +206,7 @@
         <file alias="onlinemanual.png">resources/onlinemanual.png</file>
         <file alias="open.png">resources/open.png</file>
         <file alias="openwith.png">resources/openwith.png</file>
+        <file alias="openwithchoice.png">resources/openwithchoice.png</file>
         <file alias="openwithsetup.png">resources/openwithsetup.png</file>
         <file alias="openworkingfolder.png">resources/openworkingfolder.png</file>
         <file alias="pageguides.png">resources/pageguides.png</file>

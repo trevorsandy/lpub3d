@@ -4830,7 +4830,7 @@ void Gui::exportMetaCommands()
 }
 
 void Gui::createOpenWithActions(int maxPrograms)
-{
+{        
     // adjust for separator and system editor
     const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
     const int maxOpenWithPrograms = maxPrograms ? maxPrograms + systemEditor : Preferences::maxOpenWithPrograms + systemEditor;
@@ -4886,6 +4886,12 @@ void Gui::createActions()
     openAct->setStatusTip(tr("Open an existing file"));
     lpub->actions.insert(openAct->objectName(), Action(QStringLiteral("File.Open"), openAct));
     connect(openAct, SIGNAL(triggered()), gui, SLOT(open()));
+
+    QAction *openWithChoiceAct = new QAction(QIcon(":/resources/openwithchoice.png"),tr("Choose Application..."), this);
+    openWithChoiceAct->setObjectName("openWithChoiceAct.1");
+    openWithChoiceAct->setStatusTip(tr("Receive the system prompt to choose the application to open the model file with"));
+    lpub->actions.insert(openWithChoiceAct->objectName(), Action(QStringLiteral("File.Open With Choice"), openWithChoiceAct));
+    connect(openWithChoiceAct, SIGNAL(triggered()), this, SLOT(openWithChoice()));
 
     createOpenWithActions();
 

@@ -189,7 +189,7 @@ protected:
     void clearEditorHighlightLines(bool = false);
     void openFolderSelect(const QString &absoluteFilePath);
     void highlightSelectedLines(QVector<LineHighlight> &lines, bool isEditor);
-    void openWithProgramAndArgs(QString &program, QStringList &arguments);
+    void setOpenWithProgramAndArgs(QString &program, QStringList &arguments);
     void updateOpenWithActions();
     void disableActions();
     void enableActions();

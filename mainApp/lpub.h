@@ -1815,8 +1815,8 @@ private:
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
 
   int whichFile(int option = 0);
-
-  void openWithProgramAndArgs(QString &program, QStringList &arguments);
+  
+  void setOpenWithProgramAndArgs(QString &program, QStringList &arguments);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);
   void setSceneItemZValue(SceneObjectDirection direction);
@@ -1838,6 +1838,7 @@ private slots:
 
     void fullScreenView();
     void openWithSetup();
+    void openWithChoice();
     void openWorkingFolder();
     void openRecentFile();
     void clearRecentFiles();
