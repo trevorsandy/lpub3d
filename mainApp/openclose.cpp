@@ -847,7 +847,6 @@ void Gui::closeModelFile()
 
 bool Gui::openFile(const QString &fileName)
 {
-
   if (gui->maybeSave() && gui->saveBuildModification()) {
     if (Preferences::modeGUI)
       gui->waitingSpinner->start();
@@ -931,6 +930,17 @@ bool Gui::openFile(const QString &fileName)
           gui->mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
   }
   gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
+  gui->mpdCombo->setFocusPolicy(Qt::StrongFocus);
+  gui->mpdCombo->setEditable(true);
+  gui->mpdCombo->setInsertPolicy(QComboBox::NoInsert);
+  QSortFilterProxyModel *mpdFilterModel = new QSortFilterProxyModel(gui->mpdCombo);
+  mpdFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+  mpdFilterModel->setSourceModel(gui->mpdCombo->model());
+  QCompleter *mpdCompleter = new QCompleter(mpdFilterModel, gui->mpdCombo);
+  gui->mpdCombo->setCompleter(mpdCompleter);
+  gui->mpdCombo->completer()->setFilterMode(Qt::MatchContains);
+  gui->mpdCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
+  gui->connect(gui->mpdCombo,SIGNAL(editTextChanged(const QString&)), mpdFilterModel, SLOT([&] (const QString& input) { mpdFilterModel->setFilterRegExp('^'+input); }), Qt::QueuedConnection);
   gui->connect(gui->mpdCombo,SIGNAL(activated(int)), gui, SLOT(mpdComboChanged(int)));
   gui->connect(gui->setGoToPageCombo,SIGNAL(activated(int)), gui, SLOT(setGoToPage(int)));
   gui->setCurrentFile(fileInfo.absoluteFilePath());
