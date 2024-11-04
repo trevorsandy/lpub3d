@@ -523,7 +523,7 @@ int Gui::addGraphicsPageItems(
                     } else {
                         emit gui->messageSig(LOG_WARNING, tr("Unable to locate image %1. Be sure image file is located "
                                                              "relative to the model file or use an absolute path.")
-                                                             .arg(insert.picName));
+                                                             .arg(insert.picName), true/*msgBox*/);
                     }
                 }
             }

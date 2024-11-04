@@ -7810,7 +7810,10 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
                 Gui::messageList << QString("<FONT COLOR='#FFBF00'>WARNING</FONT>: %1<br>").arg(message);
                 gui->statusBarMsg(QString(message).replace("<br>"," ").prepend("WARNING: "));
             } else if (((!Gui::exporting() && !Gui::ContinuousPage()) || Preferences::displayPageProcessingErrors) && msgBox != 2 && !abortInProgress) {
-                QMessageBox::warning(gui,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message);
+                abortProcess = QMessageBox::warning(gui,tr("%1 Warning").arg(VER_PRODUCTNAME_STR),message,
+                                                    QMessageBox::Abort | QMessageBox::Ignore,QMessageBox::Ignore) == QMessageBox::Abort;
+                if (abortProcess)
+                    Gui::setAbortProcess(abortProcess);
             }
         }
     } else
