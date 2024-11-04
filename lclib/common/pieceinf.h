@@ -29,6 +29,7 @@ struct lcModelPartsEntry
 };
 
 class lcSynthInfo;
+class lcTrainTrackInfo;
 enum class lcZipFileType;
 
 class PieceInfo
@@ -61,6 +62,16 @@ public:
 	void SetSynthInfo(lcSynthInfo* SynthInfo)
 	{
 		mSynthInfo = SynthInfo;
+	}
+
+	lcTrainTrackInfo* GetTrainTrackInfo() const
+	{
+		return mTrainTrackInfo;
+	}
+
+	void SetTrainTrackInfo(lcTrainTrackInfo* TrainTrackInfo)
+	{
+		mTrainTrackInfo = TrainTrackInfo;
 	}
 
 	lcMesh* GetMesh() const
@@ -208,15 +219,15 @@ public:
 protected:
 	void ReleaseMesh();
 
-	int mRefCount;
 /*** LPub3D Mod - project piece ***/
-	bool mProjectPiece;
+	bool mProjectPiece = false;
 /*** LPub3D Mod end ***/
-	lcPieceInfoType mType;
-	lcModel* mModel;
-	Project* mProject;
-	lcMesh* mMesh;
+	int mRefCount = 0;
+	lcPieceInfoType mType = lcPieceInfoType::Part;
+	lcModel* mModel = nullptr;
+	Project* mProject = nullptr;
+	lcMesh* mMesh = nullptr;
 	lcBoundingBox mBoundingBox;
-	lcSynthInfo* mSynthInfo;
+	lcSynthInfo* mSynthInfo = nullptr;
+	lcTrainTrackInfo* mTrainTrackInfo = nullptr;
 };
-

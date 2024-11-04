@@ -57,6 +57,7 @@ HEADERS += \
     $$PWD/common/lc_texture.h \
 	$$PWD/common/lc_thumbnailmanager.h \
     $$PWD/common/lc_timelinewidget.h \
+	$$PWD/common/lc_traintrack.h \
     $$PWD/common/lc_view.h \
     $$PWD/common/lc_viewmanipulator.h \
     $$PWD/common/lc_viewsphere.h \
@@ -128,6 +129,7 @@ SOURCES += \
     $$PWD/common/lc_texture.cpp \
 	$$PWD/common/lc_thumbnailmanager.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
+	$$PWD/common/lc_traintrack.cpp \
     $$PWD/common/lc_view.cpp \
     $$PWD/common/lc_viewmanipulator.cpp \
     $$PWD/common/lc_viewsphere.cpp \

@@ -11,6 +11,7 @@
 #include "lc_context.h"
 #include "lc_glextensions.h"
 #include "lc_synth.h"
+#include "lc_traintrack.h"
 #include "project.h"
 #include "lc_profile.h"
 #include "lc_meshloader.h"
@@ -301,6 +302,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	UpdateStudStyleSource();
 	lcLoadDefaultCategories();
 	lcSynthInit();
+	lcTrainTrackInit(this);
 
 	return true;
 }
@@ -1986,6 +1988,7 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	lcLoadDefaultColors(lcStudStyle::Plain);
 	lcLoadDefaultCategories(true);
 	lcSynthInit();
+	lcTrainTrackInit(this);
 
 	return true;
 }
