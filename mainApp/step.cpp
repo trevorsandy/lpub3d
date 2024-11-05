@@ -1039,7 +1039,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
         type_1_5_line = true;
         if (argv.size() == 15 && argv[0] == "1") {
           type_1_line = true;
-          is_helper_part = ExcludedParts::isExcludedHelperPart(argv[argv.size()-1]);
+          is_helper_part = ExcludedParts::isExcludedSupportPart(argv[argv.size()-1]) == ExcludedParts::EP_HELPER;
         }
       }
 

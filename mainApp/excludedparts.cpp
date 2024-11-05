@@ -29,10 +29,14 @@ QList<ExcludedParts::Part> ExcludedParts::excludedParts;
 
 ExcludedParts::ExcludedParts()
 {
+    qRegisterMetaType<Part>("Part");
+    qRegisterMetaType<ExcludedPartType>("ExcludedPartType");
     if (excludedParts.size() == 0) {
         bool rxFound = false;
         QString excludedPartsFile = Preferences::excludedPartsFile;
         QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        QRegExp helperRx("^Helper", Qt::CaseInsensitive);
+        QRegExp lsynthRx("^~?LSynth",Qt::CaseInsensitive);
         if (!excludedPartsFile.isEmpty()) {
             QFile file(excludedPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -56,12 +60,16 @@ ExcludedParts::ExcludedParts()
 
             if (rxFound) {
                 in.seek(0);
-
                 // Load input values
                 while ( ! in.atEnd()) {
                     QString sLine = in.readLine(0);
                     if (sLine.contains(rx)) {
-                        Part excludedPart(rx.cap(1), rx.cap(2).toLower().startsWith("helper") ? EP_HELPER : EP_STANDARD);
+                        ExcludedPartType type = rx.cap(2).contains(helperRx)
+                                ? EP_HELPER
+                                : rx.cap(2).contains(lsynthRx)
+                                  ? EP_LSYNTH
+                                  : EP_STANDARD;
+                        Part excludedPart(rx.cap(1), type);
                         excludedParts.append(excludedPart);
                         //logDebug() << "** ExcludedPartName: " << excludedPartID.id;
                     }
@@ -89,7 +97,12 @@ ExcludedParts::ExcludedParts()
                 if (comment == '#' || comment == ' ')
                     continue;
                 if (sLine.contains(rx)) {
-                    Part excludedPart(rx.cap(1), rx.cap(2).trimmed().toLower().startsWith("helper") ? EP_HELPER : EP_STANDARD);
+                    ExcludedPartType type = rx.cap(2).contains(helperRx)
+                            ? EP_HELPER
+                            : rx.cap(2).contains(lsynthRx)
+                              ? EP_LSYNTH
+                              : EP_STANDARD;
+                    Part excludedPart(rx.cap(1), type);
                     excludedParts.append(excludedPart);
                 }
             }
@@ -122,14 +135,14 @@ bool ExcludedParts::isExcludedPart(const QString &part)
     return false;
 }
 
-bool ExcludedParts::isExcludedHelperPart(const QString &part)
+int ExcludedParts::isExcludedSupportPart(const QString &part)
 {
     for (Part &excludedPart : excludedParts) {
         if (excludedPart.id.toLower() == part.toLower().trimmed()) {
-            return excludedPart.type == EP_HELPER;
+            return excludedPart.type;
         }
     }
-    return false;
+    return EP_STANDARD;
 }
 
 bool ExcludedParts::lineHasExcludedPart(const QString &line)
@@ -228,6 +241,13 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
         "Hn9.dat           Helper Hn9\n"
         "Mark-Cross.dat    Helper Mark-Cross\n"
         "Mark-Tick.dat     Helper Mark-Tick\n"
+        "LS00.dat          ~LSynth Moved to LS01\n"
+        "LS01.dat          LSynth Constraint Part - Type 1 - \"Hose\"\n"
+        "LS02.dat          LSynth Constraint Part - Type 2 - \"Hose\"\n"
+        "LS03.dat          LSynth Constraint Part - Type 3 - \"Hose\"\n"
+        "LS04.dat          LSynth Constraint Part - Type 4 - \"String\"\n"
+        "LS05.dat          LSynth Constraint Part - Type 5 - \"NXT Cable\"\n"
+        "LS06.dat          LSynth Constraint Part - Type 6 - \"Power Functions Cable\"\n"
         "LS07.dat          LSynth Constraint Part - Type 7 - \"RCX Cable\"\n"
         "LS08.dat          LSynth Constraint Part - Type 8 - \"Minifig Chain\"\n"
         "LS09.dat          LSynth Constraint Part - Type 9 - \"String Minifig Grip\"\n"
@@ -247,7 +267,7 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
         "LS61.dat          ~LSynth Straight String Segment for STRING_WITH_GRIPS_21L\n"
         "LS70.dat          ~LSynth Electric Power Functions Cable Segment\n"
         "LS71.dat          ~LSynth Electric Power Functions 2-Wires Cable Segment\n"
-        "LS80.dat          ~LSYNTH Technic Tread Crawler Segment Straight\n"
+        "LS80.dat          ~LSynth Technic Tread Crawler Segment Straight\n"
         "LS90.dat          ~LSynth Hose Flexible 19M End Segment\n"
         "LS91.dat          ~LSynth Hose Flexible 19M Segment\n"
         "LS100.dat         LSynth Constraint Part - Type 10 - \"HOSE_FLEXIBLE_8.5L\"\n"
@@ -255,13 +275,6 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
         "LS102.dat         LSynth Constraint Part - Type 12 - \"HOSE_FLEXIBLE_19L\"\n"
         "572a.dat          LSynth String End Stud\n"
         "757.dat           LSynth Hose Flexible 12L Top  1 x  1 x  2/3 with Stud\n"
-        "LS00.dat          ~LSynth Moved to LS01\n"
-        "LS01.dat          LSynth Constraint Part - Type 1 - \"Hose\"\n"
-        "LS02.dat          LSynth Constraint Part - Type 2 - \"Hose\"\n"
-        "LS03.dat          LSynth Constraint Part - Type 3 - \"Hose\"\n"
-        "LS04.dat          LSynth Constraint Part - Type 4 - \"String\"\n"
-        "LS05.dat          LSynth Constraint Part - Type 5 - \"NXT Cable\"\n"
-        "LS06.dat          LSynth Constraint Part - Type 6 - \"Power Functions Cable\"\n"
     };
 
     Buffer.append(ExcludedPartsList, sizeof(ExcludedPartsList));

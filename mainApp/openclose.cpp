@@ -888,25 +888,31 @@ bool Gui::openFile(const QString &fileName)
   gui->getAct("loadStatusAct.1")->setEnabled(true);
   gui->getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(fileInfo.fileName()));
   gui->getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file %1 with detached LDraw Editor").arg(fileInfo.fileName()));
-  if (lpub->ldrawFile.getHelperPartsNotInArchive()) {
+  int unarchivedParts = lpub->ldrawFile.getSupportPartsNotInArchive();
+  if (unarchivedParts) {
       QMessageBoxResizable box;
       box.setWindowIcon(QIcon());
       box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
       box.setTextFormat (Qt::RichText);
       box.setWindowTitle(tr ("Update LDraw Unofficial Archive Library"));
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      QString title = "<b>" + tr ("LDraw unofficial parts in loaded model are not in archive library.") + "</b><br>" +
-                              tr ("Would you like to archive your LDraw unofficial parts now?");
+      QString const missingParts = unarchivedParts == ExcludedParts::EP_HELPER_AND_LSYNTH
+              ? tr("Helper and LSynth")
+              : unarchivedParts == ExcludedParts::EP_HELPER
+                ? tr("Helper")
+                : tr("LSynth");
+      QString const title = "<b>" + tr ("%1 parts in loaded model are not in archive library.").arg(missingParts) + "</b><br>" +
+                                    tr ("Would you like to archive your LDraw unofficial parts now?");
       box.setText (title);
       QString searchDirs;
       QFontMetrics fontMetrics = box.fontMetrics();
       for (const QString &ldDir: Preferences::ldSearchDirs)
           searchDirs.append(QString(" - %1<br>").arg(fontMetrics.elidedText(ldDir, Qt::ElideMiddle, box.width())));
-      QString text = tr("LDraw <b>helper</b> parts were detected in the loaded model file <i>%1</i>.<br><br>"
-                        "Parts not in the archive library will not be rendered by the "
-                        "%2 Visual Editor or Native renderer.<br><br>"
-                        "%2 will archive parts from your search directory paths.<br>"
-                        "%3").arg(fileInfo.fileName()).arg(VER_PRODUCTNAME_STR).arg(searchDirs);
+      QString const text = tr("LDraw <b>%1</b> parts were detected in the loaded model file <i>%2</i>.<br><br>"
+                              "Parts not in the archive library will not be rendered by the "
+                              "%3 Visual Editor or Native renderer.<br><br>"
+                              "%3 will archive parts from your search directory paths.<br>"
+                              "%4").arg(missingParts).arg(fileInfo.fileName()).arg(VER_PRODUCTNAME_STR).arg(searchDirs);
       box.setInformativeText (text);
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);

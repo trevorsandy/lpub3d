@@ -280,6 +280,7 @@ class LDrawFile {
     int                         _buildModPrevStepIndex;
     bool                        _mpd;
     static bool                 _helperPartsNotInArchive;
+    static bool                 _lsynthPartsNotInArchive;
     static bool                 _lpubFadeHighlight;
     static bool                 _buildModDetected;
     static int                  _savedLines;
@@ -299,6 +300,7 @@ class LDrawFile {
     bool metaStartPageNumNotFound;
     bool metaStartStepNumNotFound;
     bool helperPartsNotFound;
+    bool lsynthPartsNotFound;
     bool updatePartsArchive;
     bool topLevelModel;
     bool displayModel;
@@ -388,10 +390,7 @@ class LDrawFile {
       _loadBuildMods = b;
     }
 
-    bool getHelperPartsNotInArchive()
-    {
-      return _helperPartsNotInArchive;
-    }
+    int getSupportPartsNotInArchive();
 
     bool saveFile(const QString &fileName);
     bool saveModelFile(const QString &filename);
