@@ -46,6 +46,145 @@ enum FileOpts {
     OPT_USE_INCLUDE
 };
 
+void Gui::configureMpdCombo()
+{
+    gui->mpdCombo->clear();
+
+    for (int i = 0; i < lpub->ldrawFile.subFileOrder().count(); i++) {
+        const QString &subFile = lpub->ldrawFile.subFileOrder().at(i);
+        gui->mpdCombo->addItem(subFile);
+        if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
+            gui->mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
+    }
+
+    gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
+
+    if (gui->mpdCombo->count() < 6)
+        return;
+
+    gui->mComboDefaultText = gui->mpdCombo->currentText();
+
+    gui->mpdCombo->setFocusPolicy(Qt::StrongFocus);
+    gui->mpdCombo->setEditable(true);
+    gui->mpdCombo->setInsertPolicy(QComboBox::NoInsert);
+
+    QLineEdit *comboFilterEdit = gui->mpdCombo->lineEdit();
+
+    gui->mComboPatternGroup = new QActionGroup(comboFilterEdit);
+    gui->mComboFilterAction = comboFilterEdit->addAction(QIcon(":/resources/filter.png"), QLineEdit::TrailingPosition);
+    gui->mComboFilterAction->setCheckable(true);
+    gui->mComboFilterAction->setChecked(false);
+    gui->connect(gui->mComboFilterAction, &QAction::triggered, gui, &Gui::comboFilterTriggered);
+
+    QMenu *comboFilterMenu = new QMenu(comboFilterEdit);
+
+    gui->mComboCaseSensitivityAction = comboFilterMenu->addAction(tr("Match Case"));
+    gui->mComboCaseSensitivityAction->setCheckable(true);
+    gui->connect(gui->mComboCaseSensitivityAction, &QAction::toggled, gui, &Gui::comboFilterChanged);
+
+    comboFilterMenu->addSeparator();
+    gui->mComboPatternGroup->setExclusive(true);
+    QAction *patternAction = comboFilterMenu->addAction("Fixed String");
+    patternAction->setData(QVariant(int(QRegExp::FixedString)));
+    patternAction->setCheckable(true);
+    patternAction->setChecked(true);
+    gui->mComboPatternGroup->addAction(patternAction);
+    patternAction = comboFilterMenu->addAction("Regular Expression");
+    patternAction->setCheckable(true);
+    patternAction->setData(QVariant(int(QRegExp::RegExp2)));
+    gui->mComboPatternGroup->addAction(patternAction);
+    patternAction = comboFilterMenu->addAction("Wildcard");
+    patternAction->setCheckable(true);
+    patternAction->setData(QVariant(int(QRegExp::Wildcard)));
+    gui->mComboPatternGroup->addAction(patternAction);
+    gui->connect(gui->mComboPatternGroup, &QActionGroup::triggered, gui, &Gui::comboFilterChanged);
+
+    QToolButton *optionsButton = new QToolButton;
+#ifndef QT_NO_CURSOR
+    optionsButton->setCursor(Qt::ArrowCursor);
+#endif
+    optionsButton->setFocusPolicy(Qt::NoFocus);
+    optionsButton->setStyleSheet("* { border: none; }");
+    optionsButton->setIcon(QIcon(":/resources/gear_in.png"));
+    optionsButton->setToolTip(tr("Filter Options..."));
+    optionsButton->setMenu(comboFilterMenu);
+    optionsButton->setPopupMode(QToolButton::InstantPopup);
+
+    QWidgetAction *optionsAction = new QWidgetAction(this);
+    optionsAction->setDefaultWidget(optionsButton);
+    comboFilterEdit->addAction(optionsAction, QLineEdit::LeadingPosition);
+    gui->connect(comboFilterEdit, &QLineEdit::textChanged, gui, &Gui::comboFilterTextChanged);
+
+    gui->mComboFilterModel = new QSortFilterProxyModel(gui->mpdCombo);
+    gui->mComboFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    gui->mComboFilterModel->setSourceModel(gui->mpdCombo->model());
+
+    gui->mpdCombo->setCompleter(new QCompleter(gui->mComboFilterModel, gui->mpdCombo));
+    gui->mpdCombo->completer()->setFilterMode(Qt::MatchContains);
+    gui->mpdCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
+
+    gui->connect(gui->mpdCombo,SIGNAL(activated(int)), gui, SLOT(mpdComboChanged(int)));
+}
+
+void Gui::comboFilterTextChanged(const QString& Text)
+{
+    if (gui->mComboFilterAction) {
+        if (Text != gui->mComboDefaultText) {
+            gui->mComboFilterAction->setIcon(QIcon(":/resources/resetaction.png"));
+            gui->mComboFilterAction->setToolTip(tr("Reset"));
+        } else {
+            gui->mComboFilterAction->setIcon(QIcon(":/resources/filter.png"));
+            gui->mComboFilterAction->setToolTip(tr(""));
+        }
+        QRegExp comboFilterRx(gui->mpdCombo->lineEdit()->text(),
+                              gui->comboCaseSensitivity(),
+                              gui->comboPatternSyntax());
+        gui->mComboFilterModel->setFilterRegExp(comboFilterRx);
+    }
+}
+
+void Gui::comboFilterTriggered()
+{
+    int index = gui->mpdCombo->currentIndex();
+    gui->mpdCombo->setCurrentIndex(0);
+    gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
+    gui->mComboFilterAction->setIcon(QIcon(":/resources/filter.png"));
+    gui->mComboFilterAction->setToolTip(tr(""));
+    if (index)
+        mpdComboChanged(index);
+}
+
+Qt::CaseSensitivity Gui::comboCaseSensitivity() const
+{
+    return gui->mComboCaseSensitivityAction->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+}
+
+void Gui::setComboCaseSensitivity(Qt::CaseSensitivity cs)
+{
+    gui->mComboCaseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
+}
+
+static inline QRegExp::PatternSyntax patternSyntaxFromAction(const QAction *a)
+{
+    return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
+}
+
+QRegExp::PatternSyntax Gui::comboPatternSyntax() const
+{
+    return patternSyntaxFromAction(gui->mComboPatternGroup->checkedAction());
+}
+
+void Gui::setComboPatternSyntax(QRegExp::PatternSyntax s)
+{
+    const QList<QAction*> actions = gui->mComboPatternGroup->actions();
+    for (QAction *a : actions) {
+        if (patternSyntaxFromAction(a) == s) {
+            a->setChecked(true);
+            break;
+        }
+    }
+}
+
 void Gui::open()
 {  
   if (gui->maybeSave() && gui->saveBuildModification()) {
@@ -928,28 +1067,9 @@ bool Gui::openFile(const QString &fileName)
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
   emit lpub->messageSig(LOG_INFO, tr("Loading user interface items..."));
   gui->attitudeAdjustment();
-  gui->mpdCombo->clear();
-  for (int i = 0; i < lpub->ldrawFile.subFileOrder().count(); i++) {
-      const QString &subFile = lpub->ldrawFile.subFileOrder().at(i);
-      gui->mpdCombo->addItem(subFile);
-      if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
-          gui->mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
-  }
-  gui->mpdCombo->setToolTip(tr("Current Submodel: %1").arg(gui->mpdCombo->currentText()));
-  gui->mpdCombo->setFocusPolicy(Qt::StrongFocus);
-  gui->mpdCombo->setEditable(true);
-  gui->mpdCombo->setInsertPolicy(QComboBox::NoInsert);
-  QSortFilterProxyModel *mpdFilterModel = new QSortFilterProxyModel(gui->mpdCombo);
-  mpdFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-  mpdFilterModel->setSourceModel(gui->mpdCombo->model());
-  QCompleter *mpdCompleter = new QCompleter(mpdFilterModel, gui->mpdCombo);
-  gui->mpdCombo->setCompleter(mpdCompleter);
-  gui->mpdCombo->completer()->setFilterMode(Qt::MatchContains);
-  gui->mpdCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
-  gui->connect(gui->mpdCombo,SIGNAL(editTextChanged(const QString&)), mpdFilterModel, SLOT([&] (const QString& input) { mpdFilterModel->setFilterRegExp('^'+input); }), Qt::QueuedConnection);
-  gui->connect(gui->mpdCombo,SIGNAL(activated(int)), gui, SLOT(mpdComboChanged(int)));
-  gui->connect(gui->setGoToPageCombo,SIGNAL(activated(int)), gui, SLOT(setGoToPage(int)));
+  gui->configureMpdCombo();
   gui->setCurrentFile(fileInfo.absoluteFilePath());
+  gui->connect(gui->setGoToPageCombo,SIGNAL(activated(int)), gui, SLOT(setGoToPage(int)));
   gui->undoStack->setClean();
   gui->openWithMenu->setEnabled(gui->numPrograms);
   for (int i = 0; i < gui->numPrograms; i++) {

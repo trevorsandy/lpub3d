@@ -1090,6 +1090,12 @@ public:
       exportedFile = fileName;
   }
 
+  void configureMpdCombo();
+  Qt::CaseSensitivity comboCaseSensitivity() const;
+  void setComboCaseSensitivity(Qt::CaseSensitivity);
+  QRegExp::PatternSyntax comboPatternSyntax() const;
+  void setComboPatternSyntax(QRegExp::PatternSyntax);
+
   static bool suppressColourMeta()
   {
     return false; // Preferences::preferredRenderer == RENDERER_NATIVE;
@@ -1643,6 +1649,8 @@ signals:
   void fileLoadedSig(bool);
   void consoleCommandFromOtherThreadSig(int, int *);
 
+  void comboFilterChanged();
+
 public:
   ParmsWindow           *parmsWindow;                 // the parameter file editor
 
@@ -1991,6 +1999,9 @@ private slots:
 
     void getSubFileList();
 
+    void comboFilterTriggered();
+    void comboFilterTextChanged(const QString&);
+
     /******************************************************************
      * File management functions
      *****************************************************************/
@@ -2114,6 +2125,11 @@ private:
 
   SeparatorComboBox *mpdCombo;
   QComboBox         *setGoToPageCombo;
+  QAction           *mComboCaseSensitivityAction;
+  QAction           *mComboFilterAction;
+  QActionGroup      *mComboPatternGroup;
+  QSortFilterProxyModel *mComboFilterModel;
+  QString            mComboDefaultText;
 
   QSlider           *zoomSliderWidget;
   QSlider           *viewerZoomSliderWidget;
