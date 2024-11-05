@@ -139,6 +139,9 @@ void FilterLineEdit::initialize()
 
 void FilterLineEdit::completerChanged()
 {
+    if (!text().isEmpty())
+        return;
+
     static const QLatin1String COMMAND("command");
     static const QLatin1String SETTINGS("Settings");
     static const QLatin1String COMMANDSKEY("CommandsDialogCompleter");
@@ -155,9 +158,12 @@ void FilterLineEdit::completerChanged()
     else
         m_useCompleterAction->setChecked(Settings.value(QString("%1/%2").arg(SETTINGS,KEY)).toBool());
     if (!m_useCompleterAction->isChecked()) {
+        m_useCompleterAction->setIcon(QIcon(":/resources/filter.png"));
         setCompleter(nullptr);
         return;
     }
+
+    m_useCompleterAction->setIcon(QIcon(":/resources/filtercompleter.png"));
 
     QCompleter *completer = new QCompleter(this);
     if (commands)
@@ -175,7 +181,8 @@ void FilterLineEdit::filterTextChanged(const QString& Text)
 {
     if (m_useCompleterAction) {
         if (Text.isEmpty()) {
-            m_useCompleterAction->setIcon(QIcon(":/resources/filter.png"));
+            bool enabled = m_useCompleterAction->isChecked();
+            m_useCompleterAction->setIcon(enabled ? QIcon(":/resources/filtercompleter.png") : QIcon(":/resources/filter.png"));
             m_useCompleterAction->setToolTip("");
         } else {
             m_useCompleterAction->setIcon(QIcon(":/resources/resetaction.png"));

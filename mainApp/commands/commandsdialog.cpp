@@ -377,7 +377,7 @@ void CommandsDialog::customMenuRequested(QPoint pos) {
 void CommandsDialog::snippetFilterEditChanged()
 {
   const static QString TIP(tr("Add a new command snippet"));
-  const static QString NOFILTER(tr(" - remove filter to enable"));
+  const static QString NOFILTER(tr(" - reset filter to enable"));
   const bool canAdd = snippetFilterEdit->text().isEmpty();
   addSnippetButton->setEnabled(canAdd);
   addSnippetButton->setToolTip(canAdd ? TIP : TIP + NOFILTER);
@@ -450,7 +450,7 @@ void CommandsDialog::addSnippetButtonClicked()
           snippetFilterEdit->clear();
           modelIndex = snippetsProxyTableModel->mapFromSource(sourceIndex);
           if (modelIndex.isValid())
-              QMessageBox::information(this, tr("Add Snippet"), tr("View is filtered, remove filter to add snippet.."));
+              QMessageBox::information(this, tr("Add Snippet"), tr("View is filtered, reset filter to add snippet.."));
           snippetFilterEdit->setText(filterText);
       }
       if (!modelIndex.isValid())

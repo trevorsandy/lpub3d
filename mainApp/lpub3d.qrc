@@ -151,6 +151,7 @@
         <file alias="fadesteps.png">resources/fadesteps.png</file>
         <file alias="fadestepsetup.png">resources/fadestepsetup.png</file>
         <file alias="filter.png">resources/filter.png</file>
+        <file alias="filtercompleter.png">resources/filtercompleter.png</file>
         <file alias="find.png">resources/find.png</file>
         <file alias="first.png">resources/first.png</file>
         <file alias="fitPage.png">resources/fitPage.png</file>
