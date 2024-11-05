@@ -1240,7 +1240,7 @@ StudStyleGui::StudStyleGui(
       parent->setWhatsThis(lpubWT(WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR, parent->title()));
   } else {
       setLayout(gridLayout);
-      setWhatsThis(lpubWT(WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR, tr("Stud Style And Automate Edge Color")));
+      setWhatsThis(lpubWT(WT_GUI_STUD_STYLE_AUTOMATE_EDGE_COLOR, tr("Stud Style and Automate Edge Color")));
   }
 
   checkbox = new QCheckBox(parent);
@@ -1293,9 +1293,13 @@ StudStyleGui::StudStyleGui(
 
   lightDarkIndexModified = false;
   studCylinderColorModified = false;
+  studCylinderColorEnabledModified = false;
   partEdgeColorModified = false;
+  partEdgeColorEnabledModified = false;
   blackEdgeColorModified = false;
+  blackEdgeColorEnabledModified = false;
   darkEdgeColorModified = false;
+  darkEdgeColorEnabledModified = false;
 
   studStyleModified = false;
   contrastModified = false;
@@ -1362,14 +1366,26 @@ void StudStyleGui::processToolButtonClick()
       if ((studCylinderColorModified = Dialog.mStudCylinderColor != highContrastMeta->studCylinderColor.value())) {
         highContrastMeta->studCylinderColor.setValue(Dialog.mStudCylinderColor);
       }
+      if ((studCylinderColorEnabledModified = Dialog.mStudCylinderColorEnabled != highContrastMeta->studCylinderColorEnabled.value())) {
+        highContrastMeta->studCylinderColorEnabled.setValue(Dialog.mStudCylinderColorEnabled);
+      }
       if ((partEdgeColorModified = Dialog.mPartEdgeColor != highContrastMeta->partEdgeColor.value())) {
         highContrastMeta->partEdgeColor.setValue(Dialog.mPartEdgeColor);
+      }
+      if ((partEdgeColorEnabledModified = Dialog.mPartEdgeColorEnabled != highContrastMeta->partEdgeColorEnabled.value())) {
+        highContrastMeta->partEdgeColorEnabled.setValue(Dialog.mPartEdgeColorEnabled);
       }
       if ((blackEdgeColorModified = Dialog.mBlackEdgeColor != highContrastMeta->blackEdgeColor.value())) {
         highContrastMeta->blackEdgeColor.setValue(Dialog.mBlackEdgeColor);
       }
+      if ((blackEdgeColorEnabledModified = Dialog.mBlackEdgeColorEnabled != highContrastMeta->blackEdgeColorEnabled.value())) {
+        highContrastMeta->blackEdgeColorEnabled.setValue(Dialog.mBlackEdgeColorEnabled);
+      }
       if ((darkEdgeColorModified = Dialog.mDarkEdgeColor != highContrastMeta->darkEdgeColor.value())) {
         highContrastMeta->darkEdgeColor.setValue(Dialog.mDarkEdgeColor);
+      }
+      if ((darkEdgeColorEnabledModified = Dialog.mDarkEdgeColorEnabled != highContrastMeta->darkEdgeColorEnabled.value())) {
+        highContrastMeta->darkEdgeColorEnabled.setValue(Dialog.mDarkEdgeColorEnabled);
       }
     } else {
       if ((contrastModified = Dialog.mPartEdgeContrast != autoEdgeMeta->contrast.value())) {
@@ -1379,10 +1395,17 @@ void StudStyleGui::processToolButtonClick()
         autoEdgeMeta->saturation.setValue(Dialog.mPartColorValueLDIndex);
       }
     }
-    modified = (lightDarkIndexModified || studCylinderColorModified ||
-                partEdgeColorModified || blackEdgeColorModified ||
-                darkEdgeColorModified || contrastModified ||
-                saturationModified);
+    modified = (contrastModified                 ||
+                saturationModified               ||
+                lightDarkIndexModified           ||
+                studCylinderColorModified        ||
+                studCylinderColorEnabledModified ||
+                partEdgeColorModified            ||
+                partEdgeColorEnabledModified     ||
+                blackEdgeColorModified           ||
+                blackEdgeColorEnabledModified    ||
+                darkEdgeColorModified            ||
+                darkEdgeColorEnabledModified);
     emit settingsChanged(modified);
   }
 }
@@ -1391,24 +1414,36 @@ void StudStyleGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;
+    // Stud style
     if (studStyleModified)
         mi.setGlobalMeta(modelName,studStyleMeta);
+    // Auto edge
     if (autoEdgeModified)
         mi.setGlobalMeta(modelName,&autoEdgeMeta->enable);
     if (contrastModified)
         mi.setGlobalMeta(modelName,&autoEdgeMeta->contrast);
     if (saturationModified)
         mi.setGlobalMeta(modelName,&autoEdgeMeta->saturation);
+    // High contrast
     if (lightDarkIndexModified)
         mi.setGlobalMeta(modelName,&highContrastMeta->lightDarkIndex);
+
     if (studCylinderColorModified)
         mi.setGlobalMeta(modelName,&highContrastMeta->studCylinderColor);
+    if (studCylinderColorEnabledModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->studCylinderColorEnabled);
     if (partEdgeColorModified)
         mi.setGlobalMeta(modelName,&highContrastMeta->partEdgeColor);
+    if (partEdgeColorEnabledModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->partEdgeColorEnabled);
     if (blackEdgeColorModified)
         mi.setGlobalMeta(modelName,&highContrastMeta->blackEdgeColor);
+    if (blackEdgeColorEnabledModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->blackEdgeColorEnabled);
     if (darkEdgeColorModified)
         mi.setGlobalMeta(modelName,&highContrastMeta->darkEdgeColor);
+    if (darkEdgeColorEnabledModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->darkEdgeColorEnabled);
   }
 }
 

@@ -623,9 +623,13 @@ int Step::createCsi(
       viewerOptions->LineWidth      = lcGetPreferences().mLineWidth;
       viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
       viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+      viewerOptions->StudCylinderColorEnabled = hccm->studCylinderColorEnabled.value();
       viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+      viewerOptions->PartEdgeColorEnabled = hccm->partEdgeColorEnabled.value();
       viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+      viewerOptions->BlackEdgeColorEnabled = hccm->blackEdgeColorEnabled.value();
       viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
+      viewerOptions->DarkEdgeColorEnabled = hccm->darkEdgeColorEnabled.value();
       viewerOptions->Target         = Vector3(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
       viewerOptions->UpVector       = Vector3(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerStepKey;

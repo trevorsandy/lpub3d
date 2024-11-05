@@ -1136,9 +1136,13 @@ int Pli::createPartImage(
             viewerOptions->StudStyle      = ssm->value();
             viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
             viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+            viewerOptions->StudCylinderColorEnabled = hccm->studCylinderColorEnabled.value();
             viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+            viewerOptions->PartEdgeColorEnabled = hccm->partEdgeColorEnabled.value();
             viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+            viewerOptions->BlackEdgeColorEnabled = hccm->blackEdgeColorEnabled.value();
             viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
+            viewerOptions->DarkEdgeColorEnabled = hccm->darkEdgeColorEnabled.value();
             viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
             viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
             viewerOptions->ViewerStepKey  = viewerPliPartKey;
@@ -2658,9 +2662,13 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->StudStyle      = ssm->value();
                     viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
                     viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+                    viewerOptions->StudCylinderColorEnabled = hccm->studCylinderColorEnabled.value();
                     viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+                    viewerOptions->PartEdgeColorEnabled = hccm->partEdgeColorEnabled.value();
                     viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+                    viewerOptions->BlackEdgeColorEnabled = hccm->blackEdgeColorEnabled.value();
                     viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
+                    viewerOptions->DarkEdgeColorEnabled = hccm->darkEdgeColorEnabled.value();
                     viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
                     viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
                     viewerOptions->ViewerStepKey  = viewerPliPartKey;

@@ -2977,9 +2977,13 @@ class HighContrastColorMeta : public BranchMeta
 public:
   FloatMeta lightDarkIndex;
   ColorMeta studCylinderColor;
+  BoolMeta  studCylinderColorEnabled;
   ColorMeta partEdgeColor;
+  BoolMeta  partEdgeColorEnabled;
   ColorMeta blackEdgeColor;
+  BoolMeta  blackEdgeColorEnabled;
   ColorMeta darkEdgeColor;
+  BoolMeta  darkEdgeColorEnabled;
 
   HighContrastColorMeta();
   HighContrastColorMeta(const HighContrastColorMeta &rhs) : BranchMeta(rhs)

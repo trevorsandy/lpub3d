@@ -1,4 +1,4 @@
-LPub3D 2.4.8.95.3818 (05 11 2024 04:48:27)
+LPub3D 2.4.8.96.3819 (05 11 2024 04:49:21)
 
 Features, enhancements, fixes and changes
 ------------
@@ -19,6 +19,7 @@ Revisions:
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
 - Fix - False Fade Steps, Highlight Step message #777
+- Fix - High contrast stud style setting does not persist #781
 - Fix - Parts in PLI are not always drawn on model #780
 - Fix - TopOfStep modelIndex below model start #778
 - Fix - Treat submodel as substitute part error #747

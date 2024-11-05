@@ -398,16 +398,23 @@ private:
   QToolButton           *studStyleButton;
   QToolButton           *autoEdgeButton;
 
-  bool    lightDarkIndexModified;
-  bool    studCylinderColorModified;
-  bool    partEdgeColorModified;
-  bool    blackEdgeColorModified;
-  bool    darkEdgeColorModified;
   bool    contrastModified;
   bool    saturationModified;
 
-  bool    studStyleModified;
+  bool    lightDarkIndexModified;
+
+  bool    studCylinderColorModified;
+  bool    studCylinderColorEnabledModified;
+  bool    partEdgeColorModified;
+  bool    partEdgeColorEnabledModified;
+  bool    blackEdgeColorModified;
+  bool    blackEdgeColorEnabledModified;
+  bool    darkEdgeColorModified;
+  bool    darkEdgeColorEnabledModified;
+
   bool    autoEdgeModified;
+  bool    studStyleModified;
+
 
 public slots:
   void comboChanged(int);

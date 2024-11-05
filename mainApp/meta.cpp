@@ -4134,9 +4134,13 @@ HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
   lightDarkIndex.setFormats(1,2,"#9.99");
   lightDarkIndex.setValue(lpub->GetPartColorLightDarkIndex());
   studCylinderColor.setValue(lpub->GetStudCylinderColor());
+  studCylinderColorEnabled.setValue(lpub->GetStudCylinderColorEnabled());
   partEdgeColor.setValue(lpub->GetPartEdgeColor());
+  partEdgeColorEnabled.setValue(lpub->GetPartEdgeColorEnabled());
   blackEdgeColor.setValue(lpub->GetBlackEdgeColor());
+  blackEdgeColorEnabled.setValue(lpub->GetBlackEdgeColorEnabled());
   darkEdgeColor.setValue(lpub->GetDarkEdgeColor());
+  darkEdgeColorEnabled.setValue(lpub->GetDarkEdgeColorEnabled());
 }
 
 void HighContrastColorMeta::init(BranchMeta *parent, QString name)
@@ -4144,9 +4148,13 @@ void HighContrastColorMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   lightDarkIndex    .init(this,"COLOR_LIGHT_DARK_INDEX");
   studCylinderColor .init(this,"STUD_CYLINDER_COLOR");
+  studCylinderColorEnabled.init(this,"STUD_CYLINDER_COLOR_ENABLED");
   partEdgeColor     .init(this,"EDGE_COLOR");
+  partEdgeColorEnabled.init(this,"EDGE_COLOR_ENABLED");
   blackEdgeColor    .init(this,"BLACK_EDGE_COLOR");
+  blackEdgeColorEnabled.init(this,"BLACK_EDGE_COLOR_ENABLED");
   darkEdgeColor     .init(this,"DARK_EDGE_COLOR");
+  darkEdgeColorEnabled.init(this,"DARK_EDGE_COLOR_ENABLED");
 }
 
 /*------------------------*/

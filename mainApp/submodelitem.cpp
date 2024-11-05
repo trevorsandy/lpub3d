@@ -488,9 +488,13 @@ int SubModel::createSubModelImage(
       viewerOptions->StudStyle      = ssm->value();
       viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
       viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+      viewerOptions->StudCylinderColorEnabled = hccm->studCylinderColorEnabled.value();
       viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+      viewerOptions->PartEdgeColorEnabled = hccm->partEdgeColorEnabled.value();
       viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+      viewerOptions->BlackEdgeColorEnabled = hccm->blackEdgeColorEnabled.value();
       viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
+      viewerOptions->DarkEdgeColorEnabled = hccm->darkEdgeColorEnabled.value();
       viewerOptions->Target         = Vector3(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
       viewerOptions->UpVector       = Vector3(subModelMeta.upvector.x(),subModelMeta.upvector.y(),subModelMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;
