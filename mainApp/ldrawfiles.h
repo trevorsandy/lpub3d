@@ -348,6 +348,7 @@ class LDrawFile {
     static QList<HiarchLevel*>  _currentLevels;
     static QList<HiarchLevel*>  _allLevels;
     static QStringList          _loadedItems;
+    static QStringList          _processedSubfiles;
     static QString              _file;
     static QString              _description;
     static QString              _name;

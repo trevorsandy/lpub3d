@@ -165,6 +165,7 @@ QStringList LDrawFile::_displayModelList;
 QStringList LDrawFile::_includeFileOrder;
 QStringList LDrawFile::_buildModList;
 QStringList LDrawFile::_loadedItems;
+QStringList LDrawFile::_processedSubfiles;
 QString LDrawFile::_file           = "";
 QString LDrawFile::_description    = PUBLISH_DESCRIPTION_DEFAULT;
 QString LDrawFile::_name           = "";
@@ -327,6 +328,7 @@ void LDrawFile::empty()
   _displayModelList.clear();
   _missingItems.clear();
   _loadedItems.clear();
+  _processedSubfiles.clear();
   _name.clear();
   _author.clear();
   _file.clear();
@@ -1488,6 +1490,8 @@ int LDrawFile::loadFile(const QString &fileName)
     } );
     asynchronous(future);
 
+    _processedSubfiles.clear();
+
     QApplication::restoreOverrideCursor();
 
     future = QtConcurrent::run( [this](){ addCustomColorParts(topLevelFile()); } );
@@ -1881,40 +1885,43 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         split(smLine,tokens);
 
-        // indicate submodel in display model step
-        if (displayModel) {
-            displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
-        } else if (tokens.size() > 1 && tokens[0] == "0") {
-            displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
-        }
-        // type and substitute check
-        if ((subfileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
-                modelHeaderFinished = partHeaderFinished = true;
-                subFile = tokens.at(14);
-            } else if (isSubstitute(smLine,subFile)) {
+        // indicate submodel in display model step or substitute type
+        if (tokens.size() && tokens.at(0) == "0") {
+            if (displayModel)
+                displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
+            else
+                displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
+
+            if (isSubstitute(smLine,subFile))
                 subfileFound = !subFile.isEmpty();
-            }
-        // subfile and helper part check
-        if (subfileFound) {
+        }
+        // part type 1-5 check
+        else if ((subfileFound = tokens.size() == 15)) {
+            modelHeaderFinished = partHeaderFinished = true;
+            subFile = tokens.at(14);
+        }
+
+        // subfile, helper and lsynth part check
+        if (subfileFound && ! _processedSubfiles.contains(subFile)) {
+            _processedSubfiles.append(subFile);
             PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
             if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                 if (displayModel) {
-                        stagedSubfiles.append(QString("%1|displaymodel").arg(subFile));
-                        displayModel = false;
-                    } else {
-                        stagedSubfiles.append(subFile);
-                    }
-                    stagedSubfilesFound = true;
-                    // determine if missing helper or lsynth part
-                    if (helperPartsNotFound || lsynthPartsNotFound) {
-                        int is_support_file = ExcludedParts::isExcludedSupportPart(subFile);
-                        if (is_support_file == ExcludedParts::EP_HELPER) {
-                            helperPartsNotFound = false;
-                            _helperPartsNotInArchive = true;
-                        } else if (is_support_file == ExcludedParts::EP_LSYNTH) {
-                            lsynthPartsNotFound = false;
-                            _lsynthPartsNotInArchive = true;
-                        }
+                    stagedSubfiles.append(QString("%1|displaymodel").arg(subFile));
+                    displayModel = false;
+                } else {
+                    stagedSubfiles.append(subFile);
+                }
+                stagedSubfilesFound = true;
+                // determine if missing helper or lsynth part
+                if (helperPartsNotFound || lsynthPartsNotFound) {
+                    int is_support_file = ExcludedParts::isExcludedSupportPart(subFile);
+                    if (is_support_file == ExcludedParts::EP_HELPER) {
+                        helperPartsNotFound = false;
+                        _helperPartsNotInArchive = true;
+                    } else if (is_support_file == ExcludedParts::EP_LSYNTH) {
+                        lsynthPartsNotFound = false;
+                        _lsynthPartsNotInArchive = true;
                     }
                 }
             }
@@ -2514,19 +2521,45 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
             split(smLine,tokens);
 
-            // indicate submodel in display model step
-            if (displayModel) {
-                displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
-            } else if (tokens.size() > 1 && tokens[0] == "0") {
-                displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
-            }
+            // indicate submodel in display model step or substitute type
+            if (tokens.size() && tokens.at(0) == "0") {
+                if (displayModel)
+                    displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
+                else
+                    displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
 
-            // type and substitute check
-            if ((subfileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
+                if (isSubstitute(smLine,subFile))
+                    subfileFound = !subFile.isEmpty();
+            }
+            // part type 1-5 check
+            else if ((subfileFound = tokens.size() == 15)) {
                 topHeaderFinished = partHeaderFinished = true;
                 subFile = tokens.at(14);
-            } else if (isSubstitute(smLine,subFile)) {
-                subfileFound = !subFile.isEmpty();
+            }
+
+            // subfile, helper and lsynth part check
+            if (subfileFound && ! _processedSubfiles.contains(subFile)) {
+                _processedSubfiles.append(subFile);
+                PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
+                if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
+                    if (displayModel) {
+                        stagedSubfiles.append(QString("%1|displaymodel").arg(subFile));
+                        displayModel = false;
+                    } else {
+                        stagedSubfiles.append(subFile);
+                    }
+                    // determine if missing helper or lsynth part
+                    if (helperPartsNotFound || lsynthPartsNotFound) {
+                        int is_support_file = ExcludedParts::isExcludedSupportPart(subFile);
+                        if (is_support_file == ExcludedParts::EP_HELPER) {
+                            helperPartsNotFound = false;
+                            _helperPartsNotInArchive = true;
+                        } else if (is_support_file == ExcludedParts::EP_LSYNTH) {
+                            lsynthPartsNotFound = false;
+                            _lsynthPartsNotInArchive = true;
+                        }
+                    }
+                }
             }
 
             // header check
@@ -2619,30 +2652,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     if (hdrDescNotFound && !hdrNameKey && !hdrAuthorKey)
                         hdrDescLine = lineIndx;
                 contents << smLine;
-            }
-
-            // subfile and helper part check
-            if (subfileFound) {
-                PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
-                if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
-                    if (displayModel) {
-                        stagedSubfiles.append(QString("%1|displaymodel").arg(subFile));
-                        displayModel = false;
-                    } else {
-                        stagedSubfiles.append(subFile);
-                    }
-                    // determine if missing helper or lsynth part
-                    if (helperPartsNotFound || lsynthPartsNotFound) {
-                        int is_support_file = ExcludedParts::isExcludedSupportPart(subFile);
-                        if (is_support_file == ExcludedParts::EP_HELPER) {
-                            helperPartsNotFound = false;
-                            _helperPartsNotInArchive = true;
-                        } else if (is_support_file == ExcludedParts::EP_LSYNTH) {
-                            lsynthPartsNotFound = false;
-                            _lsynthPartsNotInArchive = true;
-                        }
-                    }
-                }
             }
 
             if ((alreadyLoaded = LDrawFile::contains(subfileName))) {
