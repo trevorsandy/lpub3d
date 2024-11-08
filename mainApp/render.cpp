@@ -708,25 +708,25 @@ void Render::getStudStyleAndAutoEdgeSettings(
         if (hccm->lightDarkIndex.value() != LIGHT_DARK_INDEX_DEFAULT)
             ac = QString(ldv ? "-PartColorValueLDIndex=%1" : "-laI%1").arg(hccm->lightDarkIndex.value());
         if (hccm->studCylinderColor.value() != hccm->studCylinderColor.getRGBAFromString(HIGH_CONTRAST_STUD_CYLINDER_DEFAULT))
-            hs = QString(ldv ? "--StudCylinderColor=%1" : "-lhS%1")
+            hs = QString(ldv ? "-StudCylinderColor=%1" : "-lhS%1")
                     .arg(hccm->studCylinderColor.validStringValue(HIGH_CONTRAST_STUD_CYLINDER_DEFAULT));
         if (!hccm->studCylinderColorEnabled.value())
-            hsd = QString(ldv ? "--StudCylinderColorDisabled=1" : "-lhSd");
+            hsd = QString(ldv ? "-StudCylinderColorEnabled=0" : "-lhSd");
         if (hccm->partEdgeColor.value() != hccm->partEdgeColor.getRGBAFromString(HIGH_CONTRAST_PART_EDGE_DEFAULT))
             hp = QString(ldv ? "-PartEdgeColor=%1" : "-lhP%1")
                         .arg(hccm->partEdgeColor.validStringValue(HIGH_CONTRAST_PART_EDGE_DEFAULT));
         if (!hccm->partEdgeColorEnabled.value())
-            hpd = QString(ldv ? "--PartEdgeColorDisabled=1" : "-lhPd");
+            hpd = QString(ldv ? "-PartEdgeColorEnabled=0" : "-lhPd");
         if (hccm->blackEdgeColor.value() != hccm->blackEdgeColor.getRGBAFromString(HIGH_CONTRAST_BLACK_EDGE_DEFAULT))
             hb = QString(ldv ? "-BlackEdgeColor=%1" : "-lhB%1")
                         .arg(hccm->blackEdgeColor.validStringValue(HIGH_CONTRAST_BLACK_EDGE_DEFAULT));
         if (!hccm->blackEdgeColorEnabled.value())
-            hbd = QString(ldv ? "--BlackEdgeColorDisabled=1" : "-lhBd");
+            hbd = QString(ldv ? "-BlackEdgeColorEnabled=0" : "-lhBd");
         if (hccm->darkEdgeColor.value() != hccm->darkEdgeColor.getRGBAFromString(HIGH_CONTRAST_DARK_EDGE_DEFAULT))
             hd = QString(ldv ? "-DarkEdgeColor=%1" : "-lhD%1")
                         .arg(hccm->darkEdgeColor.validStringValue(HIGH_CONTRAST_DARK_EDGE_DEFAULT));
         if (!hccm->darkEdgeColorEnabled.value())
-            hdd = QString(ldv ? "--DarkEdgeColorDisabled=1" : "-lhDd");
+            hdd = QString(ldv ? "-DarkEdgeColorEnabled=0" : "-lhDd");
     }
 }
 
