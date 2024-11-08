@@ -1667,10 +1667,12 @@ int LDGLite::   renderCsi(
   QStringList ldgliteEnvVars = splitParms(meta.LPub.assem.ldgliteEnvVars.value());
   ldgliteEnvVars << "LDRAWDIR=" + Preferences::ldrawLibPath;
   //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
+#ifndef Q_OS_WIN
   if (!Preferences::ldgliteSearchDirs.isEmpty()) {
     ldgliteEnvVars << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
     //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
+#endif
   emit gui->messageSig(LOG_INFO,QObject::tr("LDGLite CSI renderer environment variables: %1")
                                             .arg(ldgliteEnvVars.join(" ")));
 
@@ -1846,10 +1848,12 @@ int LDGLite::renderPli(
   QStringList ldgliteEnvVars = splitParms(meta.LPub.assem.ldgliteEnvVars.value());
   ldgliteEnvVars << "LDRAWDIR=" + Preferences::ldrawLibPath;
   //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
+#ifndef Q_OS_WIN
   if (!Preferences::ldgliteSearchDirs.isEmpty()) {
     ldgliteEnvVars << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
     //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
+#endif
   emit gui->messageSig(LOG_INFO,QObject::tr("LDGLite additional CSI renderer environment variables: %1")
                                             .arg(ldgliteEnvVars.join(" ")));
 

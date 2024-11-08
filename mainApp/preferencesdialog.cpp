@@ -696,6 +696,9 @@ void PreferencesDialog::setRenderers()
     nativeRendererIndex = ui.preferredRenderer->count();
     ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
 
+    disconnect(ui.preferredRenderer, SIGNAL(currentIndexChanged(QString)),
+               this, SLOT(on_preferredRenderer_currentIndexChanged(QString)));
+
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
       ui.preferredRenderer->setCurrentIndex(ldviewIndex);
       ui.preferredRenderer->setEnabled(true);
@@ -722,6 +725,9 @@ void PreferencesDialog::setRenderers()
           ui.preferredRenderer->setEnabled(false);
         }
     }
+
+    connect(ui.preferredRenderer, SIGNAL(currentIndexChanged(QString)),
+            this, SLOT(on_preferredRenderer_currentIndexChanged(QString)));
 
     if (Preferences::preferredRenderer != RENDERER_LDGLITE) {
         ui.highlightStepLineWidthSpin->setVisible(false);
@@ -1268,12 +1274,24 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         box.setStandardButtons (QMessageBox::Ok | QMessageBox::Ignore | QMessageBox::Cancel);
         box.setDefaultButton   (QMessageBox::Ok);
-        const QString message = tr("On Windows 11, the %1 renderer is beginning to show its 26 year-old age.<br>"
-                                   "Users have reported random crashes and unstable behavoiur.<br>"
-                                   "If you care about this, consider using the %2 Renderer.<br>"
-                                   "Select <b>OK</b> to use the %2 renderer, <b>Ignore</b> to keep the "
-                                   "previous renderer or <b>Cancel</b> to continue.").arg(LDGLite, Native);
+        const QString message = tr("<b>%1 functionality is limited on Windows!</b><br><br>"
+                        "LDRAWSEARCH environment variable is no longer passed to %1 "
+                        "which may affect the fade previous step and highlight current "
+                        "step behaviour.<br>"
+                        "If you care about this, consider using the <b>%2</b> Renderer.<br><br>"
+                        "Select <b>OK</b> to set the %2 renderer, <b>Ignore</b> to continue "
+                        "or <b>Cancel</b> to keep the previous renderer.").arg(LDGLite, Native);
+
+        const QString information = tr("On Windows 11, the %1 renderer is beginning to show its 26 year-old age. "
+                        "Specifically, the LDRAWSEARCH environment variable used to pass part paths "
+                        "may cause %1 to crash with a heap corruption exception 0xC0000374. "
+                        "Fade and highlight instances of fixed-color parts are stored "
+                        "in the custom parts location which must be passed to %1 at image "
+                        "render. Until I implement a solution for %1 to independently detect "
+                        "the custom parts location, the fade and highlight feature using %1 "
+                        "will be limited with regards to rendering fixed-color parts.<br>").arg(LDGLite);
         box.setText (message);
+        box.setInformativeText (information);
         QCheckBox *cb = new QCheckBox(QString("Do not show this renderer message again."));
         box.setCheckBox(cb);
         QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
@@ -1282,10 +1300,20 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
         });
 
         int selection = box.exec();
-        if (selection == QMessageBox::Ok)
+        if (selection == QMessageBox::Ok) {
             ui.preferredRenderer->setCurrentIndex(nativeRendererIndex);
-        else if (selection == QMessageBox::Ignore)
-            ui.preferredRenderer->setCurrentIndex(previousRendererIndex);
+            ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
+        } else if (selection == QMessageBox::Cancel) {
+            if (previousRendererIndex != ui.preferredRenderer->currentIndex()) {
+                ui.preferredRenderer->setCurrentIndex(previousRendererIndex);
+                if (ui.preferredRenderer->currentText() == rendererNames[RENDERER_NATIVE])
+                    ui.renderersTabWidget->setCurrentWidget(ui.NativeTab);
+                else if (ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDVIEW])
+                    ui.renderersTabWidget->setCurrentWidget(ui.LDViewTab);
+                else if (ui.preferredRenderer->currentText() == rendererNames[RENDERER_POVRAY])
+                    ui.renderersTabWidget->setCurrentWidget(ui.POVRayTab);
+            }
+        }
     }
 #endif
     if (selectLDGLite) {
