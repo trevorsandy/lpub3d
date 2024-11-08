@@ -40,4 +40,3 @@ private:
 	void UpdateButtons();
 	Ui::lcModelListDialog* ui;
 };
-

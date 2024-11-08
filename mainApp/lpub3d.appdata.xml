@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3820" date="2024-11-05">
+            <release version="2.4.8.3821" date="2024-11-08">
                 <description>
-                    <p>LPub3D 05.11.2024 v2.4.8 r97 Continuous Build.
+                    <p>LPub3D 08.11.2024 v2.4.8 r98 Continuous Build.
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
                         Change - Errors loading files with MODEL_PIECES meta-command #779

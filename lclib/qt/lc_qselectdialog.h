@@ -33,4 +33,3 @@ private:
 
 	void AddChildren(QTreeWidgetItem* ParentItem, lcGroup* ParentGroup, lcModel* Model);
 };
-

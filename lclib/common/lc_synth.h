@@ -53,4 +53,3 @@ protected:
 };
 
 void lcSynthInit();
-

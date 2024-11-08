@@ -939,7 +939,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     // Enable available versions and available update online queries
     char *env_update_check;
     env_update_check = getenv("LPUB3D_DISABLE_UPDATE_CHECK");
-    m_enable_update_check = !env_update_check && env_update_check[0];
+    m_enable_update_check = !(env_update_check && env_update_check[0]);
 
     // Set loaded library flags and variables
     Preferences::setLPub3DAltLibPreferences(ldrawLibrary);

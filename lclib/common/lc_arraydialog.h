@@ -24,4 +24,3 @@ public slots:
 private:
 	Ui::lcArrayDialog *ui;
 };
-
