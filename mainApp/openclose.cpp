@@ -905,6 +905,7 @@ void Gui::closeFile()
   gui->editWindow->clearWindow();
   gui->mpdCombo->clear();
   gui->mpdCombo->setEnabled(false);
+  gui->mpdCombo->setEditable(false);
   gui->setGoToPageCombo->clear();
   gui->setGoToPageCombo->setEnabled(false);
   gui->setPageLineEdit->clear();
