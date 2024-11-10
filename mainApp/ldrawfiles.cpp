@@ -1690,34 +1690,57 @@ void LDrawFile::processMetaCommand(const QStringList &tokens)
     if (tokens.size() < 4)
         return;
 
+    QString const enabled = QObject::tr("Enabled");
+    QString const disabled = QObject::tr("Disabled");
+
     // Check if load external parts in command editor is disabled
     if (metaLoadUnoffPartsNotFound) {
         if (tokens.at(2) == QLatin1String("LOAD_UNOFFICIAL_PARTS_IN_EDITOR")) {
-            _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
+            _loadUnofficialParts = tokens.last() == QLatin1String("FALSE") ? false : true ;
             emit gui->messageSig(LOG_INFO, QObject::tr("Load Custom Unofficial Parts In Command Editor is %1")
-                                                       .arg(_loadUnofficialParts ? QObject::tr("Enabled") : QObject::tr("Disabled")));
+                                                       .arg(_loadUnofficialParts ? enabled : disabled));
             metaLoadUnoffPartsNotFound = false;
         }
     }
 
-    // Check if BuildMod is disabled
+    // Check if BuildMod is enabled
     if (metaBuildModNotFund) {
         if (tokens.at(2) == QLatin1String("BUILD_MOD_ENABLED")) {
-            _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
+            _loadBuildMods  = tokens.last() == QLatin1String("FALSE") ? false : true ;
             Preferences::buildModEnabled = _loadBuildMods;
             emit gui->messageSig(LOG_INFO, QObject::tr("Build Modifications are %1")
-                                                       .arg(Preferences::buildModEnabled ? QObject::tr("Enabled") : QObject::tr("Disabled")));
+                                                       .arg(Preferences::buildModEnabled ? enabled : disabled));
             metaBuildModNotFund = false;
         }
     }
 
-    // Check if insert final model is disabled
+    // Check if FadeSteps is enabled
+    if (metaFadeStepsNotFound) {
+        if (tokens.at(2) == QLatin1String("FADE_STEPS")) {
+            Preferences::enableFadeSteps = tokens.last() == QLatin1String("ENABLED") ? true : false ;
+            emit gui->messageSig(LOG_INFO, QObject::tr("Fade Steps are %1")
+                                                       .arg(Preferences::enableFadeSteps ? enabled : disabled));
+            metaFadeStepsNotFound = false;
+        }
+    }
+
+    // Check if HighlightStep is enabled
+    if (metaHighlightStepNotFound) {
+        if (tokens.at(2) == QLatin1String("HIGHLIGHT_STEP")) {
+            Preferences::enableHighlightStep = tokens.last() == QLatin1String("ENABLED") ? true : false ;
+            emit gui->messageSig(LOG_INFO, QObject::tr("Highlight Step is %1")
+                                                       .arg(Preferences::enableHighlightStep ? enabled : disabled));
+            metaHighlightStepNotFound = false;
+        }
+    }
+
+    // Check if insert final model is enabled
     if (metaFinalModelNotFound) {
         if (tokens.at(2) == QLatin1String("FINAL_MODEL_ENABLED")) {
-            Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
+            Preferences::finalModelEnabled = tokens.last() == QLatin1String("FALSE") ? false : true ;
             if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
                 emit gui->messageSig(LOG_INFO, QObject::tr("Display Final Model is %1")
-                                                           .arg(Preferences::finalModelEnabled ? QObject::tr("Enabled") : QObject::tr("Disabled")));
+                                                           .arg(Preferences::finalModelEnabled ? enabled : disabled));
             metaFinalModelNotFound = false;
         }
     }
@@ -1803,6 +1826,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         helperPartsNotFound        = true;
         lsynthPartsNotFound        = true;
         metaLoadUnoffPartsNotFound = true;
+        metaFadeStepsNotFound      = true;
+        metaHighlightStepNotFound  = true;
         metaBuildModNotFund        = true;
         metaFinalModelNotFound     = true;
         metaStartPageNumNotFound   = true;
@@ -2408,6 +2433,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             lsynthPartsNotFound        = true;
             metaLoadUnoffPartsNotFound = true;
             metaBuildModNotFund        = true;
+            metaFadeStepsNotFound      = true;
+            metaHighlightStepNotFound  = true;
             metaFinalModelNotFound     = true;
             metaStartPageNumNotFound   = true;
             metaStartStepNumNotFound   = true;
