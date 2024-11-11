@@ -1259,13 +1259,16 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
   if (ldgliteEnabled) {
     bool selectLDGLite = true;
 #ifdef Q_OS_WIN
-    Where msgKey = Where(0,25968728,0);
+    Preferences::MsgKey msgKey(Preferences::ConfigurationErrors);
+    Preferences::MsgID msgID = Preferences::MsgID(msgKey,"25968728 0");
     const QString LDGLite = rendererNames[RENDERER_LDGLITE];
     const QString Native = rendererNames[RENDERER_NATIVE];
     bool showMessage = true;
     for (const QString &messageNotShown : Preferences::messagesNotShown)
-        if (messageNotShown.startsWith(msgKey.toString()))
+        if (messageNotShown.startsWith(msgID.toString())) {
             showMessage = false;
+            break;
+        }
     if (showMessage) {
         QMessageBoxResizable box;
         box.setWindowIcon(QIcon());
@@ -1282,7 +1285,6 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
                         "If you care about this, consider using the <b>%2</b> Renderer.<br><br>"
                         "Select <b>OK</b> to set the %2 renderer, <b>Ignore</b> to continue "
                         "or <b>Cancel</b> to keep the previous renderer.").arg(LDGLite, Native);
-
         const QString information = tr("On Windows 11, the %1 renderer is beginning to show its 26 year-old age. "
                         "Specifically, the LDRAWSEARCH environment variable used to pass part paths "
                         "may cause %1 to crash with a heap corruption exception 0xC0000374. "
@@ -1293,11 +1295,11 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
                         "will be limited with regards to rendering fixed-color parts.<br>").arg(LDGLite);
         box.setText (message);
         box.setInformativeText (information);
-        QCheckBox *cb = new QCheckBox(QString("Do not show this renderer message again."));
+        QCheckBox *cb = new QCheckBox(tr("Do not show this renderer message again."));
         box.setCheckBox(cb);
         QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
             if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-                Preferences::messagesNotShown.append(QString(msgKey.toString() + "|" + message));
+                Preferences::messagesNotShown.append(msgID.toString() + "|" + message);
         });
 
         int selection = box.exec();
