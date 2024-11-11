@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 10, 2024
+# Last Update: November 10, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -324,12 +324,15 @@ echo "- change LDrawIni and QuaZIP mapping to LPub3D..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
 /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/MacOS/LPub3D
 
-echo "- bundle LPub3D..."
+echo "- bundle LPub3D to add Qt framework..."
 macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
 
-echo "- change LDrawIni and QuaZIP library dependency mapping..."
+echo "- change LDrawIni and QuaZIP library dependency mapping to Qt framework..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+
+echo "- reapply the code signature..."
+/usr/bin/codesign -f --deep -s - LPub3D.app
 
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
@@ -385,7 +388,7 @@ Library versions for LPub3D built from source may differ.
 ========================
 LDView:
 
-- XQuartz version 2.7.11 (11.0) or above (needed for OSMesa)
+- XQuartz version 11.0 (2.7.11) or above (needed for OSMesa)
   https://www.xquartz.org
 
 - LibPNG version 1.6.37 or above
@@ -405,7 +408,7 @@ LDView:
 
 POVRay:
 
-- XQuartz version 2.7.11 (11.0)  or above (needed for X11)
+- XQuartz version 11.0 (2.7.11)  or above (needed for X11)
   https://www.xquartz.org
 
 - LibTIFF version 4.0.10 or above
