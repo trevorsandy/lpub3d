@@ -49,10 +49,11 @@ script:
   - echo; $QMAKE_EXEC -v; echo; $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
   - make clean && make -j$(nproc)
   - make INSTALL_ROOT=$BUILD_APPDIR -j$(nproc) install
+  - cp builds/linux/obs/alldeps/AppRun $BUILD_APPDIR
   - echo "AppImage Input Files:" && find $BUILD_APPDIR -type f && echo
   - renderers=$(find $BUILD_APPDIR/opt -type f)
   - for r in $renderers; do executables="$executables -executable=$r"; done
-  - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
+  - unset QTDIR; unset QT_PLUGIN_PATH
   - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 1-3 | sed s/" "/./g)
   - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 1-3 | sed s/" "/./g)
   - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2

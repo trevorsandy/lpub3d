@@ -1,4 +1,4 @@
-LPub3D 2.4.8.105.3828 (11 11 2024 09:14:05)
+LPub3D 2.4.8.106.3829 (11 11 2024 09:15:03)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Add renderer arguments and environment vars to global settings #775
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
+- Change - AppImage build Qt Network SSL limitation #784
 - Change - Errors loading files with MODEL_PIECES meta-command #779
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774

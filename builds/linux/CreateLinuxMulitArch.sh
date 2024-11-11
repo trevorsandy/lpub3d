@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 20, 2024
+# Last Update November 10, 2024
 # Copyright (C) 2022 - 2024 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -21,7 +21,7 @@ SECONDS=0
 FinishElapsedTime() {
   # Elapsed execution time
   set +x
-  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  ELAPSED="Elapsed build time: (($SECONDS / 3600))hrs ((($SECONDS / 60) % 60))min (($SECONDS % 60))sec"
   echo "----------------------------------------------------"
   ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH})"
   [ "${LP3D_APPIMAGE}" = "true" ] && ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH}-appimage)" || :
@@ -102,7 +102,9 @@ else
   TEMP_BASE=/tmp
 fi
 
-export BUILD_DIR="$(mktemp -d -p "${TEMP_BASE}" build-XXXXXX)"
+BUILD_DIR="$(mktemp -d -p "${TEMP_BASE}" build-XXXXXX)"
+
+export BUILD_DIR=$BUILD_DIR
 
 finish () {
   if [ -d "${BUILD_DIR}" ]; then
@@ -114,7 +116,7 @@ finish () {
 trap finish EXIT
 
 # Move to build directory
-cd $BUILD_DIR
+cd $BUILD_DIR || exit 1
 
 export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_PATH:-/dist/${LP3D_BASE}_${LP3D_ARCH}}
 export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}
@@ -249,14 +251,14 @@ if [ "${DOCKER}" = "true" ]; then
   # Pull latest
   [ "${CI}" = "true" ] && ${GIT_CMD} pull || :
   #1. Get the latest version tag - check across all branches
-  BUILD_TAG=$(${GIT_CMD} describe --tags --match v* $(${GIT_CMD} rev-list --tags --max-count=1) 2> /dev/null)
+  BUILD_TAG="$(${GIT_CMD} describe --tags --match v* "$(${GIT_CMD} rev-list --tags --max-count=1)" 2> /dev/null)"
   if [ -n "${BUILD_TAG}" ]; then
     #2. Get the tag datetime
     BUILD_TAG_TIME=$(${GIT_CMD} log -1 --format=%ai $BUILD_TAG 2> /dev/null)
     #3. Get the latest commit datetime from the build branch
     GIT_COMMIT_TIME=$(${GIT_CMD} log -1 --format=%ai 2> /dev/null)
     #4. If tag is newer than commit, check out the tag
-    if [ $(date -d "${GIT_COMMIT_TIME}" +%s) -lt $(date -d "${BUILD_TAG_TIME}" +%s) ]; then
+    if [[ "$(date -d "${GIT_COMMIT_TIME}" +%s)" -lt "$(date -d "${BUILD_TAG_TIME}" +%s)" ]]; then
       Info "2a. checking out build tag ${BUILD_TAG}..."
       ${GIT_CMD} checkout -qf ${BUILD_TAG}
     fi
@@ -302,7 +304,8 @@ chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRender
 
 # Set application build path
 [ ! -d AppDir ] && mkdir -p AppDir || :
-export AppDirBuildPath=$(readlink -f AppDir/)
+AppDirBuildPath=$(readlink -f AppDir/)
+export AppDirBuildPath=$AppDirBuildPath
 
 # Build LPub3D
 if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/AppDir/usr)" ]]; then
@@ -332,6 +335,13 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
   ${QMAKE_EXEC} -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
   make
   make INSTALL_ROOT=${AppDirBuildPath} install
+
+  # copy AppRun to AppDir
+  if [ "${LP3D_APPIMAGE}" = "true" ]; then
+    Info "Copy personalized AppRun script to AppDir"
+    cp -af builds/linux/obs/alldeps/AppRun ${AppDirBuildPath}
+    chmod a+x ${AppDirBuildPath}/AppRun
+  fi
 
   # backup build artifacts in case of failure
   if [[ "${CI}" != "true" && $? = 0 ]]; then
@@ -379,7 +389,7 @@ fi
 # Setup AppImage tools - linuxdeployqt, lconvert
 Info && Info "Installing AppImage tools..."
 if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
-  cd ${AppDirBuildPath}
+  cd "${AppDirBuildPath}" || exit 1
   CommandArg=-version
   if [ ! -e linuxdeployqt ]; then
     Info "Insalling linuxdeployqt for ${LP3D_ARCH}..."
@@ -395,7 +405,7 @@ if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}"
   fi
   SaveAppImageSetupProgress
 elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
-  cd ${WD}/
+  cd "${WD}/" || exit 1
   [ ! -d bin ] && mkdir bin || :
   export PATH="${WD}/bin":"${PATH}"
   CommandArg=-version
@@ -549,7 +559,7 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
 fi
 
 # Build AppImage
-cd ${AppDirBuildPath}
+cd "${AppDirBuildPath}" || exit 1
 Info && Info "Building AppImage from AppDirBuildPath: ${AppDirBuildPath}..."
 renderers=$(find ./opt -type f);
 for r in $renderers; do executables="$executables -executable=$r" && Info "Set executable $executables"; done;
@@ -590,11 +600,13 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
     fi
   fi
 
-  cd $WD
+  cd "$WD" || exit 1
 
   # AppRun
   a=AppRun
-  if [ -f "bin/$a" ]; then
+  if [ -f "${AppDirBuildPath}/$a" ]; then
+    Info "Using personalized AppRun script"
+  elif [ -f "bin/$a" ]; then
    ( cp -f bin/$a ${AppDirBuildPath}/usr/bin/ && \
      cd ${AppDirBuildPath} && ln -sf ./usr/bin/$a $a \
    ) >$a.out 2>&1 && rm -f $a.out
@@ -641,14 +653,15 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
   fi
 fi
 
-Info && Info "AppImage Dynamic Library Dependencies:" && \
+#Info && Info "AppImage Dynamic Library Dependencies:" && \
 #find ./ -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && Info
 
+Info && Info "Confirm AppImage..."
 if [ -f "${AppImage}" ]; then
   CommandArg=--appimage-version
   chmod a+x ${AppImage}
   if [[ ("${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64") && -z "${LP3D_AI_MAGIC_BYTES}" ]]; then
-    # Patch out AppImage magic bytes
+    Info "Patch out AppImage magic bytes"
     p=AppImagePatch
     AppImageMagicBytes="$(hexdump -Cv ${AppImage} | head -n 1 | grep '41 49 02 00')"
     if [ -n "${AppImageMagicBytes}" ]; then
@@ -731,7 +744,7 @@ else
   exit 8
 fi
 
-cd $WD
+cd "$WD" || exit 1
 
 AppImage=$(find ./ -name ${AppImageName} -type f)
 

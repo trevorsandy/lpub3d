@@ -40,6 +40,7 @@ OTHER_FILES += \
     $$PWD/../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora \
     $$PWD/../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu \
     $$PWD/../builds/linux/obs/alldeps/appimage.yml \
+    $$PWD/../builds/linux/obs/alldeps/AppRun \
     $$PWD/../builds/linux/obs/alldeps/debian/changelog \
     $$PWD/../builds/linux/obs/alldeps/debian/control \
     $$PWD/../builds/linux/obs/alldeps/debian/lpub3d.dsc \
