@@ -2639,13 +2639,9 @@ void Preferences::rendererPreferences()
 
 #ifdef Q_OS_MAC
     emit Application::instance()->splashMsgSig(QObject::tr("25% - %1 macOS Required Library Check...").arg(VER_PRODUCTNAME_STR));
-    QMessageBoxResizable box;
-    box.setWindowIcon(QIcon());
-    box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
-    box.setTextFormat (Qt::RichText);
-    box.setWindowTitle(QMessageBox::tr ("Missing Libraries"));
-    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    box.setStandardButtons (QMessageBox::Close);
+    MsgKey msgKey(ConfigurationErrors);
+    MsgID msgID = MsgID(msgKey,"87918723 0");
+    bool showMessage = true;
 
     const QString missing = QStringLiteral(" - not found.");
     const QString invalid = QStringLiteral(" - invalid version.");
@@ -2658,8 +2654,7 @@ void Preferences::rendererPreferences()
         logInfo() << qUtf8Printable(QObject::tr("LDView  : %1").arg(ldviewExe));
 
 #ifdef Q_OS_MAC
-// Check macOS LDView Libraries
-
+        // Check macOS LDView Libraries
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"))) {
             missingRendererLibs = true;
             QVariant eValue(missingRendererLibs);
@@ -2696,23 +2691,44 @@ void Preferences::rendererPreferences()
             }
             else
             {
-                QString libraryString = QString("%2-%1%2").arg(missingLibs.join("\n -"), (modeGUI ? "<br>" : "\n"));
-                QString header = QMessageBox::tr ("<b>Required libraries were not validated!</b>");
-                QString body = QMessageBox::tr ("The following LDView libraries were not validated: %1"
-                                                "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
-                                                .arg(libraryString, VER_PRODUCTNAME_STR);
-                box.setText (header);
-                box.setInformativeText (body);
-
+                QString const libraryString = QString("%2-%1%2").arg(missingLibs.join("\n -"), (modeGUI ? "<br>" : "\n"));
+                QString const body = QMessageBox::tr ("The following LDView libraries were not validated: %1"
+                                                      "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
+                                                      .arg(libraryString, VER_PRODUCTNAME_STR);
                 if (modeGUI) {
-                    if (! lpub3dLoaded && Application::instance()->splash->isVisible())
-                        Application::instance()->splash->hide();
-                    if (box.exec() == QMessageBox::Close) {
-                        if (! lpub3dLoaded && Application::instance()->splash->isHidden())
-                            Application::instance()->splash->show();
+                    for (const QString &messageNotShown : messagesNotShown)
+                        if (messageNotShown.startsWith(msgID.toString())) {
+                            showMessage = false;
+                            break;
+                        }
+                    if (showMessage) {
+                        QString const header = QMessageBox::tr ("<b>Required LDView libraries were not validated!</b>");
+                        QMessageBoxResizable box;
+                        box.setWindowIcon(QIcon());
+                        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
+                        box.setTextFormat (Qt::RichText);
+                        box.setWindowTitle(QMessageBox::tr ("Missing LDView Libraries"));
+                        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                        box.setStandardButtons (QMessageBox::Close);
+                        box.setText (header);
+                        box.setInformativeText (body);
+
+                        QCheckBox *cb = new QCheckBox(QMessageBox::tr ("Do not show this LDView message again."));
+                        box.setCheckBox(cb);
+                        QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
+                            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                                Preferences::messagesNotShown.append(msgID.toString() + "|" + header);
+                        });
+
+                        if (! lpub3dLoaded && Application::instance()->splash->isVisible())
+                            Application::instance()->splash->hide();
+                        if (box.exec() == QMessageBox::Close) {
+                            if (! lpub3dLoaded && Application::instance()->splash->isHidden())
+                                Application::instance()->splash->show();
+                        }
                     }
                 } else {
-                    fprintf(stdout,"%s\n",qUtf8Printable(body.replace("\n", " ")));
+                    fprintf(stdout,"%s\n",qUtf8Printable(QString(body).replace("\n", " ")));
                     fflush(stdout);
 #ifdef QT_DEBUG_MODE
                     logDebug() << qUtf8Printable(QObject::tr("LDView Missing Libs: %1").arg(missingLibs.join("\n -")));
@@ -2731,14 +2747,13 @@ void Preferences::rendererPreferences()
         logInfo() << qUtf8Printable(QObject::tr("POVRay  : %1").arg(povrayExe));
 
 #ifdef Q_OS_MAC
-// Check POVRay libraries on macOS
-
+        // Check POVRay libraries on macOS
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"))) {
-          missingRendererLibs = true;
-          QVariant eValue(missingRendererLibs);
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
+            missingRendererLibs = true;
+            QVariant eValue(missingRendererLibs);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
         } else {
-          missingRendererLibs = Settings.value(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs")).toBool();
+            missingRendererLibs = Settings.value(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs")).toBool();
         }
 
         if (missingRendererLibs) {
@@ -2746,55 +2761,78 @@ void Preferences::rendererPreferences()
 
             const QStringList Libraries[] =
             {
-              { QStringLiteral("/opt/X11/lib/libX11.dylib"), LIBXQUARTZ_MACOS_VERSION },
-              { QStringLiteral("/libtiff/lib/libtiff.dylib"), LIBTIFF_MACOS_VERSION },
-              { QStringLiteral("/sdl2/lib/libSDL2.dylib"), LIBSDL_MACOS_VERSION },
-              { QStringLiteral("/openexr/lib/libOpenEXR.dylib"), LIBOPENEXR_MACOS_VERSION }, // OpenEXR v3
-              { QStringLiteral("/openexr/lib/libIlmImf.dylib"), LIBOPENEXR_MACOS_VERSION },  // OpenEXR v2
-              { QStringLiteral("/ilmbase/lib/libHalf.dylib"), LIBILMBASE_MACOS_VERSION }     // OpenEXR v2
+                { QStringLiteral("/opt/X11/lib/libX11.dylib"), LIBXQUARTZ_MACOS_VERSION },
+                { QStringLiteral("/libtiff/lib/libtiff.dylib"), LIBTIFF_MACOS_VERSION },
+                { QStringLiteral("/sdl2/lib/libSDL2.dylib"), LIBSDL_MACOS_VERSION },
+                { QStringLiteral("/openexr/lib/libOpenEXR.dylib"), LIBOPENEXR_MACOS_VERSION }, // OpenEXR v3
+                { QStringLiteral("/openexr/lib/libIlmImf.dylib"), LIBOPENEXR_MACOS_VERSION },  // OpenEXR v2
+                { QStringLiteral("/ilmbase/lib/libHalf.dylib"), LIBILMBASE_MACOS_VERSION }     // OpenEXR v2
             };
             int i = 0;
             bool OpenEXRv3 = QFile::exists(homebrewPathPrefix + Libraries[3].first());
             for (const QStringList &library : Libraries) {
-              if ((OpenEXRv3 && i > 3) || (! OpenEXRv3 && i == 3)) continue;
-              const QString libPath = i ? homebrewPathPrefix + library.first() : library.first();
-              LibFlag flag = validRendererLib(libPath, library.last());
-              if (flag) missingLibs << libPath + (flag == LibMissing ? missing : flag == LibInvalid ? invalid : errored);
-              i++;
+                if ((OpenEXRv3 && i > 3) || (! OpenEXRv3 && i == 3)) continue;
+                const QString libPath = i ? homebrewPathPrefix + library.first() : library.first();
+                LibFlag flag = validRendererLib(libPath, library.last());
+                if (flag) missingLibs << libPath + (flag == LibMissing ? missing : flag == LibInvalid ? invalid : errored);
+                i++;
             }
 
             missingRendererLibs = missingLibs.size() > 0;
 
             QVariant eValue(missingRendererLibs);
             if (!missingRendererLibs) {
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
             }
             else
             {
-              QString libraryString = QString("%2-%1%2").arg(missingLibs.join("\n -"), (modeGUI ? "<br>" : "\n"));
-              QString header = QMessageBox::tr ("<b>Required libraries were not found!</b>");
-              QString body = QMessageBox::tr ("The following required POVRay libraries were not found: %1"
-                                              "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
-                                              .arg(libraryString, VER_PRODUCTNAME_STR);
-              box.setText (header);
-              box.setInformativeText (body);
+                QString const libraryString = QString("%2-%1%2").arg(missingLibs.join("\n -"), (modeGUI ? "<br>" : "\n"));
+                QString const body = QMessageBox::tr ("The following required POVRay libraries were not validated: %1"
+                                                      "See /Applications/%2.app/Contents/Resources/README_macOS.txt for details.")
+                        .arg(libraryString, VER_PRODUCTNAME_STR);
 
-              if (modeGUI) {
-                if (!lpub3dLoaded && Application::instance()->splash->isVisible())
-                  Application::instance()->splash->hide();
-                if (box.exec() == QMessageBox::Close) {
-                    if (! lpub3dLoaded && Application::instance()->splash->isHidden())
-                      Application::instance()->splash->show();
-                }
-              } else {
-                const QString message = body.replace("\n", " ");
-                fprintf(stdout,"%s\n",qUtf8Printable(message));
-                fflush(stdout);
+                if (modeGUI) {
+                    showMessage = true;
+                    msgID = MsgID(msgKey,"52619720 0");
+                    for (const QString &messageNotShown : messagesNotShown)
+                        if (messageNotShown.startsWith(msgID.toString())) {
+                            showMessage = false;
+                            break;
+                        }
+                    if (showMessage) {
+                        QString const header = QMessageBox::tr ("<b>Required POVRay libraries were not validated!</b>");
+                        QMessageBoxResizable box;
+                        box.setWindowIcon(QIcon());
+                        box.setIconPixmap (QPixmap(LPUB3D_MESSAGE_ICON));
+                        box.setTextFormat (Qt::RichText);
+                        box.setWindowTitle(QMessageBox::tr ("Missing LDView Libraries"));
+                        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                        box.setStandardButtons (QMessageBox::Close);
+                        box.setText (header);
+                        box.setInformativeText (body);
+
+                        QCheckBox *cb = new QCheckBox(QMessageBox::tr ("Do not show this POVRay message again."));
+                        box.setCheckBox(cb);
+                        QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
+                            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                                Preferences::messagesNotShown.append(msgID.toString() + "|" + header);
+                        });
+
+                        if (!lpub3dLoaded && Application::instance()->splash->isVisible())
+                            Application::instance()->splash->hide();
+                        if (box.exec() == QMessageBox::Close) {
+                            if (! lpub3dLoaded && Application::instance()->splash->isHidden())
+                                Application::instance()->splash->show();
+                        }
+                    }
+                } else {
+                    fprintf(stdout,"%s\n",qUtf8Printable(QString(body).replace("\n", " ")));
+                    fflush(stdout);
 #ifdef QT_DEBUG_MODE
-                logDebug() << qUtf8Printable(QObject::tr("POVRay Missing Libraries: %1").arg(missingLibs.join("\n -")));
+                    logDebug() << qUtf8Printable(QObject::tr("POVRay Missing Libraries: %1").arg(missingLibs.join("\n -")));
 #endif
-              }
-           }
+                }
+            }
         }
         emit Application::instance()->splashMsgSig(QObject::tr("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 #endif
