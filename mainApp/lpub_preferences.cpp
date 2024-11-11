@@ -79,7 +79,8 @@ const QString MsgKeys[Preferences::NumKeys] =
     "ShowIncludeLineErrors",        // IncludeFileErrors
     "ShowBuildModErrors",           // BuildModErrors
     "ShowBuildModEditErrors",       // BuildModEditErrors
-    "ShowAnnotationErrors"          // AnnotationErrors
+    "ShowAnnotationErrors",         // AnnotationErrors
+    "ShowConfigurationErrors"       // ConfigurationErrors
 };
 
 const QString msgKeyTypes [][2] =
@@ -90,7 +91,8 @@ const QString msgKeyTypes [][2] =
     {"Include File",              "include file message" },     //IncludeFileErrors
     {"Build Modification",        "build modification"},        //BuildModErrors
     {"Build Modification Edit",   "build modification edit"},   //BuildModEditErrors
-    {"Annoatation",               "annotation message"}         //AnnotationErrors
+    {"Annoatation",               "annotation message"},        //AnnotationErrors
+    {"Configuration",             "configuration message"}      //AnnotationErrors
 };
 
 Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
@@ -437,6 +439,7 @@ bool    Preferences::showBuildModErrors         = true;
 bool    Preferences::showBuildModEditErrors     = true;
 bool    Preferences::showIncludeFileErrors      = true;
 bool    Preferences::showAnnotationErrors       = true;
+bool    Preferences::showConfigurationErrors    = true;
 
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
@@ -4017,6 +4020,14 @@ void Preferences::userInterfacePreferences()
       showAnnotationErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey)).toBool();
   }
 
+  QString const showConfigurationErrorsKey("ShowConfigurationErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showConfigurationErrorsKey))) {
+      QVariant uValue(showConfigurationErrors);
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,showConfigurationErrorsKey),uValue);
+  } else {
+      showConfigurationErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showConfigurationErrorsKey)).toBool();
+  }
+
   QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey))) {
       QVariant uValue(showSaveOnRedraw);
@@ -4300,6 +4311,9 @@ bool Preferences::getShowMessagePreference(MsgKey key)
         break;
     case AnnotationErrors:
         showAnnotationErrors = result;
+        break;
+    case ConfigurationErrors:
+        showConfigurationErrors = result;
         break;
     default:
         break;
@@ -5447,18 +5461,12 @@ bool Preferences::getPreferences()
         {
             lineParseErrors = dialog->showLineParseErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowLineParseErrors"),lineParseErrors);
-
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show Parse Errors is %1")
-                                  .arg(lineParseErrors? On : Off));
         }
 
         if (showInsertErrors != dialog->showInsertErrors())
         {
             showInsertErrors = dialog->showInsertErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowInsertErrors"),showInsertErrors);
-
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show Insert Errors is %1")
-                                  .arg(showInsertErrors    ? On : Off));
         }
 
         if (showBuildModErrors != dialog->showBuildModErrors())
@@ -5483,9 +5491,12 @@ bool Preferences::getPreferences()
         {
             showAnnotationErrors = dialog->showAnnotationErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowAnnotationErrors"),showAnnotationErrors);
+        }
 
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Show Parse Errors is %1")
-                                  .arg(showAnnotationErrors? On : Off));
+        if (showConfigurationErrors != dialog->showConfigurationErrors())
+        {
+            showConfigurationErrors = dialog->showConfigurationErrors();
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowConfigurationErrors"),showConfigurationErrors);
         }
 
         if (showSaveOnRedraw != dialog->showSaveOnRedraw())

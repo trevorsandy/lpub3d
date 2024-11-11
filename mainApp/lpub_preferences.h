@@ -38,6 +38,7 @@ class Preferences
         BuildModErrors,
         BuildModEditErrors,
         AnnotationErrors,
+        ConfigurationErrors,
         NumKeys
     };
 
@@ -390,6 +391,7 @@ class Preferences
     static bool    showBuildModEditErrors;
     static bool    showIncludeFileErrors;
     static bool    showAnnotationErrors;
+    static bool    showConfigurationErrors;
     static bool    showSaveOnRedraw;
     static bool    showSaveOnUpdate;
     static bool    suppressFPrint;

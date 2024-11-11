@@ -145,6 +145,7 @@ class PreferencesDialog : public QDialog
     bool          showBuildModEditErrors();
     bool          showIncludeFileErrors();
     bool          showAnnotationErrors();
+    bool          showConfigurationErrors();
     bool          showSaveOnRedraw();
     bool          showSaveOnUpdate();
     bool          addLSynthSearchDir();
@@ -318,6 +319,8 @@ private:
     QLabel      *includeErrorLbl;
     QToolButton *annotationErrorTBtn;
     QLabel      *annotationErrorLbl;
+    QToolButton *configurationErrorTBtn;
+    QLabel      *configurationErrorLbl;
     QToolButton *clearDetailErrorsTBtn;
     QLabel      *clearDetailErrorsLbl;
     QDialogButtonBox *messageButtonBox;
@@ -335,6 +338,7 @@ private:
     bool mShowBuildModEditErrors;
     bool mShowIncludeFileErrors;
     bool mShowAnnotationErrors;
+    bool mShowConfigurationErrors;
 
     QString ldrawLibPathTitle;
     QString mLDrawLibPath;

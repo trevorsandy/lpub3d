@@ -628,6 +628,7 @@ void PreferencesDialog::setPreferences()
   mShowBuildModEditErrors   = Preferences::showBuildModEditErrors;
   mShowIncludeFileErrors    = Preferences::showIncludeFileErrors;
   mShowAnnotationErrors     = Preferences::showAnnotationErrors;
+  mShowConfigurationErrors  = Preferences::showConfigurationErrors;
 }
 
 void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
@@ -1589,12 +1590,26 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     separator->setFrameShape(QFrame::HLine);
     parseErrorLayout->addWidget(separator,17,0,1,2);
 
+    // options - configuration errors
+    QCheckBox * configurationErrorChkBox = new QCheckBox(tr("Show configuration errors"), messageDialog);
+    configurationErrorChkBox->setChecked(Preferences::showAnnotationErrors);
+    parseErrorLayout->addWidget(configurationErrorChkBox,18,0,1,2);
+    configurationErrorTBtn = new QToolButton(messageDialog);
+    configurationErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
+    parseErrorLayout->addWidget(configurationErrorTBtn,19,0);
+    configurationErrorLbl = new QLabel("", messageDialog);
+    parseErrorLayout->addWidget(configurationErrorLbl,19,1);
+    QObject::connect(configurationErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
+    separator = new QFrame();
+    separator->setFrameShape(QFrame::HLine);
+    parseErrorLayout->addWidget(separator,20,0,1,2);
+
     // options - clear all detail messages
     clearDetailErrorsTBtn = new QToolButton(messageDialog);
     clearDetailErrorsTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
-    parseErrorLayout->addWidget(clearDetailErrorsTBtn,18,0);
+    parseErrorLayout->addWidget(clearDetailErrorsTBtn,21,0);
     clearDetailErrorsLbl = new QLabel("", messageDialog);
-    parseErrorLayout->addWidget(clearDetailErrorsLbl,18,1);
+    parseErrorLayout->addWidget(clearDetailErrorsLbl,21,1);
     QObject::connect(clearDetailErrorsTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
 
     // options - button box
@@ -1616,6 +1631,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
         mShowBuildModEditErrors    = buildModEditErrorChkBox->isChecked();
         mShowIncludeFileErrors     = includeFileErrorChkBox->isChecked();
         mShowAnnotationErrors      = annotationErrorChkBox->isChecked();
+        mShowConfigurationErrors   = configurationErrorChkBox->isChecked();
     }
 }
 
@@ -1700,6 +1716,7 @@ void PreferencesDialog::messageManagement()
         int buildModEditErrorCount   = 0;
         int includeFileErrorCount    = 0;
         int annotationErrorCount     = 0;
+        int configurationErrorCount  = 0;
 
         if (Preferences::messagesNotShown.size()) {
             bool ok;
@@ -1721,6 +1738,8 @@ void PreferencesDialog::messageManagement()
                         includeFileErrorCount++; break;
                     case Preferences::AnnotationErrors:
                         annotationErrorCount++; break;
+                    case Preferences::ConfigurationErrors:
+                        configurationErrorCount++; break;
                     default:
                         break;
                     }
@@ -1740,6 +1759,8 @@ void PreferencesDialog::messageManagement()
         includeErrorTBtn->setEnabled(includeFileErrorCount);
         annotationErrorLbl->setText(tr("Clear %1 annotation errors").arg(annotationErrorCount));
         annotationErrorTBtn->setEnabled(annotationErrorCount);
+        configurationErrorLbl->setText(tr("Clear %1 configuration errors").arg(configurationErrorCount));
+        configurationErrorTBtn->setEnabled(configurationErrorCount);
     };
 
     auto clearErrors = [](Preferences::MsgKey msgKey)
@@ -2181,6 +2202,11 @@ bool PreferencesDialog::inlineNativeContent()
 bool PreferencesDialog::showAnnotationErrors()
 {
   return mShowAnnotationErrors;
+}
+
+bool PreferencesDialog::showConfigurationErrors()
+{
+  return mShowConfigurationErrors;
 }
 
 bool PreferencesDialog::includeLogLevel()
