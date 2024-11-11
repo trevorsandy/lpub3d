@@ -1,4 +1,4 @@
-LPub3D 2.4.8.111.3834 (11 11 2024 09:20:03)
+LPub3D 2.4.8.112.3835 (11 11 2024 09:20:54)
 
 Features, enhancements, fixes and changes
 ------------
@@ -22,6 +22,7 @@ Revisions:
 - Fix - False Fade Steps, Highlight Step message #777
 - Fix - High contrast stud style setting does not persist #781
 - Fix - macOS app execution blocked because of invalid code signature #783
+- Fix - Message reset dialog does not show the number of messages to reset #785
 - Fix - Parts in PLI are not always drawn on model #780
 - Fix - TopOfStep modelIndex below model start #778
 - Fix - Treat submodel as substitute part error #747

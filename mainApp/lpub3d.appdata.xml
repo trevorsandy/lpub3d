@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3834" date="2024-11-11">
+            <release version="2.4.8.3835" date="2024-11-11">
                 <description>
-                    <p>LPub3D 11.11.2024 v2.4.8 r111 Continuous Build.
+                    <p>LPub3D 11.11.2024 v2.4.8 r112 Continuous Build.
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
                         Change - AppImage build Qt Network SSL limitation #784
@@ -90,6 +90,7 @@
                         Fix - False Fade Steps, Highlight Step message #777
                         Fix - High contrast stud style setting does not persist #781
                         Fix - macOS app execution blocked because of invalid code signature #783
+                        Fix - Message reset dialog does not show the number of messages to reset #785
                         Fix - Parts in PLI are not always drawn on model #780
                         Fix - TopOfStep modelIndex below model start #778
                         Fix - Treat submodel as substitute part error #747

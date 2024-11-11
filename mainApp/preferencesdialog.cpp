@@ -1495,7 +1495,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     // options dialogue
     messageDialog = new QDialog();
 
-    messageDialog->setWindowTitle(tr("File Parse Messages"));
+    messageDialog->setWindowTitle(tr("%1 Messages Reset").arg(VER_PRODUCTNAME_STR));
 
     messageDialog->setWhatsThis(lpubWT(WT_LPUB3D_PREFERENCES_MESSAGES,messageDialog->windowTitle()));
 
@@ -1722,8 +1722,8 @@ void PreferencesDialog::messageManagement()
 
         if (Preferences::messagesNotShown.size()) {
             bool ok;
-            Q_FOREACH (QString message,Preferences::messagesNotShown) {
-                int key = QString(message.at(0)).toInt(&ok);
+            for (QString const &message : Preferences::messagesNotShown) {
+                int key = message.split(" ").first().toInt(&ok);
                 if (ok) {
                     Preferences::MsgKey msgKey = Preferences::MsgKey(key);
                     switch(msgKey)
