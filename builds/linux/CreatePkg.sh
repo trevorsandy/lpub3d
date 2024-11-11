@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 22, 2024
+# Last Update November 11, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -308,9 +308,9 @@ done
 
 echo "8-1. build application package"
 if [ "${LP3D_QEMU}" != "true" ]; then
-    makepkg --syncdeps --noconfirm --needed
+    makepkg --syncdeps --noconfirm --needed || exit 1
 else
-    makepkg --noconfirm
+    makepkg --noconfirm || exit 1
 fi
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.zst`

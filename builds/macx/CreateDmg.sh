@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: November 10, 2024
+# Last Update: November 11, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -289,9 +289,9 @@ echo && echo "-  configure and build source from $(realpath .)..."
 echo && qmake -v && echo
 qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=sdk_no_version_check CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
 if [ -n "${LP3D_CPU_CORES}" ]; then
-  /usr/bin/make -j${LP3D_CPU_CORES}
+  /usr/bin/make -j${LP3D_CPU_CORES} || exit 1
 else
-  /usr/bin/make -j$(nproc)
+  /usr/bin/make -j$(nproc) || exit 1
 fi
 
 # Check if build is OK or stop and return error.

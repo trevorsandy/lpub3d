@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 10, 2024
+# Last Update November 11, 2024
 # Copyright (C) 2022 - 2024 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -333,8 +333,8 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
 
   # build command
   ${QMAKE_EXEC} -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
-  make
-  make INSTALL_ROOT=${AppDirBuildPath} install
+  make || exit 1
+  make INSTALL_ROOT=${AppDirBuildPath} install || exit 1
 
   # copy AppRun to AppDir
   if [ "${LP3D_APPIMAGE}" = "true" ]; then
@@ -563,7 +563,7 @@ cd "${AppDirBuildPath}" || exit 1
 Info && Info "Building AppImage from AppDirBuildPath: ${AppDirBuildPath}..."
 renderers=$(find ./opt -type f);
 for r in $renderers; do executables="$executables -executable=$r" && Info "Set executable $executables"; done;
-unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH; # no longer needed, superceded by AppRun
+unset QTDIR; unset QT_PLUGIN_PATH # no longer needed, superceded by AppRun
 export VERSION="$LP3D_VERSION"    # used to construct the file name
 ./linuxdeployqt ./usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
 if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then

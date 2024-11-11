@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 22, 2024
+# Last Update November 11, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -323,7 +323,7 @@ if [ "$GITHUB" = "true" ]; then
 fi
 echo "10-1. build application package from ${BUILD_DIR}/${WORK_DIR}/..."
 chmod 755 debian/rules
-/usr/bin/dpkg-buildpackage -us -uc
+/usr/bin/dpkg-buildpackage -us -uc || exit 1
 
 if [ "$LOCAL" = "true" ]; then
     cd ../
