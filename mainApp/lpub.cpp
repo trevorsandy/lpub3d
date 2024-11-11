@@ -7956,29 +7956,29 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   pushButtonAddDirectory = new QPushButton(dialog);
   pushButtonAddDirectory->setToolTip(tr("Add LDraw search directory"));
-  pushButtonAddDirectory->setIcon(QIcon(QIcon(":/resources/adddirectory.png")));
+  pushButtonAddDirectory->setIcon(QIcon(":/resources/adddirectory.png"));
   actionsLayout->addWidget(pushButtonAddDirectory);
 
   pushButtonOpenFolder = new QPushButton(dialog);
   pushButtonOpenFolder->setToolTip(tr("Open the selected LDraw search directory"));
-  pushButtonOpenFolder->setIcon(QIcon(QIcon(":/resources/openworkingfolder.png")));
+  pushButtonOpenFolder->setIcon(QIcon(":/resources/openworkingfolder.png"));
   actionsLayout->addWidget(pushButtonOpenFolder);
 
   pushButtonMoveUp = new QPushButton(dialog);
   pushButtonMoveUp->setToolTip(tr("Move selected directory up"));
-  pushButtonMoveUp->setIcon(QIcon(QIcon(":/resources/movedirectoryup.png")));
+  pushButtonMoveUp->setIcon(QIcon(":/resources/movedirectoryup.png"));
   pushButtonMoveUp->setEnabled(Preferences::ldSearchDirs.size());
   actionsLayout->addWidget(pushButtonMoveUp);
 
   pushButtonMoveDown = new QPushButton(dialog);
   pushButtonMoveDown->setToolTip(tr("Move selected directory down"));
-  pushButtonMoveDown->setIcon(QIcon(QIcon(":/resources/movedirectorydown.png")));
+  pushButtonMoveDown->setIcon(QIcon(":/resources/movedirectorydown.png"));
   pushButtonMoveDown->setEnabled(Preferences::ldSearchDirs.size());
   actionsLayout->addWidget(pushButtonMoveDown);
 
   pushButtonReset = new QPushButton(dialog);
   pushButtonReset->setToolTip(tr("Reset %1 LDraw search directories to default").arg(VER_PRODUCTNAME_STR));
-  pushButtonReset->setIcon(QIcon(QIcon(":/resources/resetsetting.png")));
+  pushButtonReset->setIcon(QIcon(":/resources/resetsetting.png"));
   actionsLayout->addWidget(pushButtonReset);
 
   actionsLayout->addSpacerItem(actionsSpacer);
