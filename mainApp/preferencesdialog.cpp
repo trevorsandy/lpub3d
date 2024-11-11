@@ -1508,6 +1508,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     parseErrorChkBox->setChecked(Preferences::lineParseErrors);
     parseErrorLayout->addWidget(parseErrorChkBox,0,0,1,2);
     parseErrorTBtn = new QToolButton(messageDialog);
+    parseErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(parseErrorTBtn,1,0);
     parseErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(parseErrorLbl,1,1);
@@ -1521,6 +1522,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     insertErrorChkBox ->setChecked(Preferences::showInsertErrors);
     parseErrorLayout->addWidget(insertErrorChkBox,3,0,1,2);
     insertErrorTBtn = new QToolButton(messageDialog);
+    insertErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(insertErrorTBtn,4,0);
     insertErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(insertErrorLbl,4,1);
@@ -1534,6 +1536,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     includeFileErrorChkBox->setChecked(Preferences::showIncludeFileErrors);
     parseErrorLayout->addWidget(includeFileErrorChkBox,6,0,1,2);
     includeErrorTBtn = new QToolButton(messageDialog);
+    includeErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(includeErrorTBtn,7,0);
     includeErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(includeErrorLbl,7,1);
@@ -1548,6 +1551,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
     parseErrorLayout->addWidget(buildModErrorChkBox,9,0,1,2);
     buildModErrorTBtn = new QToolButton(messageDialog);
+    buildModErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(buildModErrorTBtn,10,0);
     buildModErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(buildModErrorLbl,10,1);
@@ -1562,6 +1566,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     buildModEditErrorChkBox->setChecked(Preferences::showBuildModEditErrors);
     parseErrorLayout->addWidget(buildModEditErrorChkBox,12,0,1,2);
     buildModEditErrorTBtn = new QToolButton(messageDialog);
+    buildModEditErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(buildModEditErrorTBtn,13,0);
     buildModEditErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(buildModEditErrorLbl,13,1);
@@ -1575,6 +1580,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     annotationErrorChkBox->setChecked(Preferences::showAnnotationErrors);
     parseErrorLayout->addWidget(annotationErrorChkBox,15,0,1,2);
     annotationErrorTBtn = new QToolButton(messageDialog);
+    annotationErrorTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(annotationErrorTBtn,16,0);
     annotationErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(annotationErrorLbl,16,1);
@@ -1585,6 +1591,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
 
     // options - clear all detail messages
     clearDetailErrorsTBtn = new QToolButton(messageDialog);
+    clearDetailErrorsTBtn->setIcon(QIcon(":/resources/clearmessage.png"));
     parseErrorLayout->addWidget(clearDetailErrorsTBtn,18,0);
     clearDetailErrorsLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(clearDetailErrorsLbl,18,1);

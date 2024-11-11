@@ -1,11 +1,11 @@
 <RCC>
     <qresource prefix="/resources">
-        <file alias="1024px-Povray_logo_sphere.png">resources/1024px-Povray_logo_sphere.png</file>
-        <file alias="3ds32.png">resources/3ds32.png</file>    
         <file alias="ldraw_document.icns">ldraw_document.icns</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
         <file alias="lpub3d.ico">lpub3d.ico</file>
         <file alias="lpub3d_document.icns">lpub3d_document.icns</file>
+        <file alias="1024px-Povray_logo_sphere.png">resources/1024px-Povray_logo_sphere.png</file>
+        <file alias="3ds32.png">resources/3ds32.png</file>
         <file alias="LPub32.png">resources/LPub32.png</file>
         <file alias="LPub512Splash.png">resources/LPub512Splash.png</file>
         <file alias="LPub64.ico">resources/LPub64.ico</file>
@@ -81,6 +81,7 @@
         <file alias="clearcache.png">resources/clearcache.png</file>
         <file alias="clearcsicache.png">resources/clearcsicache.png</file>
         <file alias="clearcustompartcache.png">resources/clearcustompartcache.png</file>
+        <file alias="clearmessage.png">resources/clearmessage.png</file>
         <file alias="clearplicache.png">resources/clearplicache.png</file>
         <file alias="clearselection.png">resources/clearselection.png</file>
         <file alias="clearsmicache.png">resources/clearsmicache.png</file>
