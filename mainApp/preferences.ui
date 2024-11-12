@@ -126,6 +126,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>Select the instruction document units</string>
+            </property>
             <property name="title">
              <string>Units</string>
             </property>
@@ -154,6 +157,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Specify where camera angles will be determined</string>
             </property>
             <property name="title">
              <string>Camera Angles</string>
@@ -196,6 +202,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Manage show and reset options for displayed messages</string>
+            </property>
             <property name="title">
              <string>Messages</string>
             </property>
@@ -222,7 +231,7 @@
        <item row="2" column="0">
         <widget class="QGroupBox" name="generalSettingsGrpBox">
          <property name="toolTip">
-          <string>Save file when Redraw or Reset Cache menu action is triggered.</string>
+          <string/>
          </property>
          <property name="title">
           <string/>
@@ -232,6 +241,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_31">
             <item>
              <widget class="QCheckBox" name="loadLastOpenedFileCheck">
+              <property name="toolTip">
+               <string>Load the last open file on application startup</string>
+              </property>
               <property name="text">
                <string>Load Last Opened File On Startup</string>
               </property>
@@ -252,6 +264,9 @@
             </item>
             <item>
              <widget class="QLabel" name="label_20">
+              <property name="toolTip">
+               <string>Show the current LDraw file status after file load</string>
+              </property>
               <property name="text">
                <string>Show Load Status</string>
               </property>
@@ -606,6 +621,9 @@
              <width>0</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>This feature is not currently available</string>
            </property>
            <property name="title">
             <string>Enable Image Matting</string>
