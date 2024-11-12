@@ -62,7 +62,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "LODDistance", 750.0f),                                                     // LC_PROFILE_LOD_DISTANCE
 	lcProfileEntry("Settings", "ViewerFadeSteps", false),                                                  // LC_PROFILE_FADE_STEPS                                 /*** LPub3D Mod - designate viewer setting ***/
 	lcProfileEntry("Settings", "ViewerFadeStepsColor", LC_RGBA(128, 128, 128, 128)),                       // LC_PROFILE_FADE_STEPS_COLOR                           /*** LPub3D Mod - designate viewer colour ***/
-	lcProfileEntry("Settings", "ViewerHighlightNewParts", false),                                              // LC_PROFILE_HIGHLIGHT_NEW_PARTS                        /*** LPub3D Mod - designate viewer setting ***/
+	lcProfileEntry("Settings", "ViewerHighlightNewParts", false),                                          // LC_PROFILE_HIGHLIGHT_NEW_PARTS                        /*** LPub3D Mod - designate viewer setting ***/
 	lcProfileEntry("Settings", "ViewerHighlightNewPartsColor", LC_RGBA(255, 242, 0, 192)),                 // LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR                  /*** LPub3D Mod - designate viewer colour ***/
 	lcProfileEntry("Settings", "ShadingMode", static_cast<int>(lcShadingMode::DefaultLights)),             // LC_PROFILE_SHADING_MODE
 	lcProfileEntry("Settings", "BackgroundGradient", false),                                               // LC_PROFILE_BACKGROUND_GRADIENT
@@ -128,6 +128,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "PartsListDecorated", 1),                                                   // LC_PROFILE_PARTS_LIST_DECORATED
 	lcProfileEntry("Settings", "PartsListAliases", 1),                                                     // LC_PROFILE_PARTS_LIST_ALIASES
 	lcProfileEntry("Settings", "PartsListListMode", 0),                                                    // LC_PROFILE_PARTS_LIST_LISTMODE
+	lcProfileEntry("Settings", "PartsListPartFilter", 0),                                                  // LC_PROFILE_PARTS_LIST_PART_FILTER
+	lcProfileEntry("Settings", "PartsListCaseSensitiveFilter", 0),                                         // LC_PROFILE_PARTS_LIST_CASE_SENSITIVE_FILTER
+	lcProfileEntry("Settings", "PartsListFileNameFilter", 1),                                              // LC_PROFILE_PARTS_LIST_FILE_NAME_FILTER
+	lcProfileEntry("Settings", "PartsListPartDescriptionFilter", 1),                                       // LC_PROFILE_PARTS_LIST_PART_DESCRIPTION_FILTER
 	lcProfileEntry("Settings", "StudStyle", 0),                                                            // LC_PROFILE_STUD_STYLE
 
 	lcProfileEntry("Defaults", "Author", ""),                                                              // LC_PROFILE_DEFAULT_AUTHOR_NAME

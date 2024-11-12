@@ -1,4 +1,4 @@
-LPub3D 2.4.8.113.3836 (11 11 2024 09:21:47)
+LPub3D 2.4.8.114.3837 (12 11 2024 17:18:13)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add renderer arguments and environment vars to global settings #775
+- Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
 - Change - AppImage build Qt Network SSL limitation #784
 - Change - Errors loading files with MODEL_PIECES meta-command #779
