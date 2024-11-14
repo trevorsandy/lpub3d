@@ -279,11 +279,11 @@ void CommandsDialog::commandTextChanged()
 
   const QModelIndex &modelIndex = commandTableView->selectionModel()->currentIndex();
   if (modelIndex.isValid()) {
-    const QString command = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
+    const QString commandStr = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
     QString description = commandTextEdit->toPlainText();
 
     QRegExp rx("^([^\\[\\(<\\\n]*)");
-    if (description != command && command.contains(rx)) {
+    if (description != commandStr && commandStr.contains(rx)) {
       Command command = commandCollection->command(rx.cap(1).trimmed());
       command.description = commandTextEdit->toPlainText();
       command.modified = Command::Pending;
@@ -297,11 +297,11 @@ void CommandsDialog::resetCommandButtonClicked()
   const QModelIndex &modelIndex = commandTableView->selectionModel()->currentIndex();
 
   if (modelIndex.isValid()) {
-    const QString command = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
+    const QString commandStr = commandsProxyTableModel->data(modelIndex, Qt::DisplayRole).toString();
     const QString description = commandTextEdit->toPlainText();
 
     QRegExp rx("^([^\\[\\(<\\\n]*)");
-    if (description != command && command.contains(rx)) {
+    if (description != commandStr && commandStr.contains(rx)) {
       Command command = commandCollection->command(rx.cap(1).trimmed());
       command.description = command.command;
       command.modified = Command::Pending;
