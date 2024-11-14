@@ -279,7 +279,9 @@ public:
  * making changes to the LDraw file, and it also knows how to
  * document itself.
  */
-
+#if defined(_MSC_VER)
+#pragma warning(disable:4458)   // disable declaration hides class member
+#endif /*_MSC_VER */
 class AbstractMeta
 {
 public:
