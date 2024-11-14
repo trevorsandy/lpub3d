@@ -2533,7 +2533,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			{
 				QVector<TypeLine> LineTypeIndexes;
 
-				int Objects = Selection.size();
+				size_t Objects = Selection.size();
 				if (Objects > 0)
 				{
 					QString Message;

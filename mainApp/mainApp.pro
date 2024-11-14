@@ -555,7 +555,6 @@ HEADERS += \
     highlightersimple.h \
     historylineedit.h \
     hoverpoints.h \
-    ldrawcolordialog.cpp \
     ldrawcolordialog.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
