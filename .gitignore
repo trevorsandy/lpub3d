@@ -88,26 +88,55 @@ builds/utilities/ldrawlibraries/*
 builds/utilities/models/*
 
 # Releases/builds
-mainApp/info.plist
-mainApp/release/*
-mainApp/debug/*
+lclib/debug/*
+lclib/release/*
+lclib/64bit_debug/*
+lclib/64bit_release/*
+lclib/*.vcxproj.*
 ldrawini/release/*
 ldrawini/debug/*
+ldrawini/64bit_debug/*
+ldrawini/64bit_release/*
+ldrawini/*.vcxproj.*
+ldvlib/release/*
+ldvlib/debug/*
+ldvlib/64bit_debug/*
+ldvlib/64bit_release/*
+ldvlib/*.vcxproj.*
+ldvlib/LDViewMessages.ini
+mainApp/release/*
+mainApp/debug/*
+mainApp/64bit_debug/*
+mainApp/64bit_release/*
+mainApp/*.vcxproj.*
+mainApp/info.plist
+mainApp/LDViewMessages.h
+mainApp/StudStyle.h
 quazip/release/*
 quazip/debug/*
+quazip/64bit_debug/*
+quazip/64bit_release/*
+quazip/*.vcxproj.*
+
+waitingspinner/release/*
+waitingspinner/debug/*
+waitingspinner/64bit_debug/*
+waitingspinner/64bit_release/*
+waitingspinner/*.vcxproj.*
+
 builds/macx/dmgbuilds/*
 builds/windows/release/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*
-mainApp/LDViewMessages.h
-mainApp/StudStyle.h
-ldvlib/LDViewMessages.ini
 
-# Makefiles
+# 3rdParty assets
+builds/3rdparty/*
+
+quazip/Makefile
 mainApp/Makefile
 ldrawini/Makefile
-quazip/Makefile
+
 .vs
 LPub3D.sln
 
