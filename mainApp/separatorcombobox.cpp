@@ -101,10 +101,10 @@ void SeparatorComboBox::addParentItem( const QString& text ) const
     itemModel->appendRow( item );
 }
 
-void SeparatorComboBox::addChildItem( const QString& text, const QVariant& data ) const
+void SeparatorComboBox::addChildItem( const QString& text, const QVariant& cdata ) const
 {
     QStandardItem* item = new QStandardItem( text + QString( 4, QChar( ' ' ) ) );
-    item->setData( data, Qt::UserRole );
+    item->setData( cdata, Qt::UserRole );
     item->setData( "child", Qt::AccessibleDescriptionRole );
 
     QStandardItemModel* itemModel = (QStandardItemModel*)model();

@@ -80,10 +80,10 @@ QVariant SnippetListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void SnippetListModel::setWords(const QStringList &words)
+void SnippetListModel::setWords(const QStringList &_words)
 {
-    beginInsertRows(QModelIndex(), snippets.count(), snippets.count() + words.count());
-    this->words = words;
+    beginInsertRows(QModelIndex(), snippets.count(), snippets.count() + _words.count());
+    this->words = _words;
     endInsertRows();
 }
 
