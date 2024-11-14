@@ -44,7 +44,6 @@
 #include <QHash>
 #include <QRegExp>
 #include <float.h>
-#include <QStringList>
 #include <QMessageBox>
 #include "where.h"
 #include "metatypes.h"
@@ -1373,7 +1372,6 @@ public:
   }
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
-  QString formatOffset(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
   virtual void metaKeywords(QStringList &out, QString preamble);
 };
