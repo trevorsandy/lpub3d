@@ -273,18 +273,18 @@ int Placement::relativeToSg(
     }
 
     // Callout
-    for (int j = 0; j < steps->list.size(); j++) {
+    for (int i = 0; i < steps->list.size(); i++) {
       /* range (Steps) */
-      if (steps->list[j]->relativeType == RangeType) {
-        Range *range = dynamic_cast<Range *>(steps->list[j]);
-        for (int i = 0; i < range->list.size(); i++) {
+      if (steps->list[i]->relativeType == RangeType) {
+        Range *range = dynamic_cast<Range *>(steps->list[i]);
+        for (int j = 0; j < range->list.size(); j++) {
           /* step */
-          if (range->list[i]->relativeType == StepType) {
-            Step *step = dynamic_cast<Step *>(range->list[i]);
+          if (range->list[j]->relativeType == StepType) {
+            Step *step = dynamic_cast<Step *>(range->list[j]);
             /* callouts */
-            for (int i = 0; i < step->list.size(); i++) {
-              if (step->list[i]->relativeType == CalloutType) {
-                Callout *callout = dynamic_cast<Callout *>(step->list[i]);
+            for (int k = 0; k < step->list.size(); k++) {
+              if (step->list[k]->relativeType == CalloutType) {
+                Callout *callout = dynamic_cast<Callout *>(step->list[k]);
                 PlacementData placementData = callout->placement.value();
                 if (placementData.relativeTo == relativeType) {
                   placeRelative(callout);
