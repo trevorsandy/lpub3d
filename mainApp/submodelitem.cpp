@@ -201,23 +201,21 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
                               subModelMeta.cameraAngles.value(1));
 
    // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
-   QFuture<int> future = QtConcurrent::run([&]() {
-       return Render::rotateParts(
-                addLine,
-                subModelMeta.rotStep,
-                rotatedModel,
-                ldrName,
-                step ? step->top.modelName : steps ? steps->topOfSteps().modelName : Gui::topOfPage().modelName,
-                cameraAngles,
-                coverPagePreview ? DT_MODEL_COVER_PAGE_PREVIEW : DT_DEFAULT,
-                Options::SMI);
-   });
-
-   if (asynchronous(future) != 0) {
+   if ((renderer->rotateParts(
+            addLine,
+            subModelMeta.rotStep,
+            rotatedModel,
+            ldrName,
+            step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
+            cameraAngles,
+            coverPagePreview ? DT_MODEL_COVER_PAGE_PREVIEW : DT_DEFAULT,
+            Options::SMI)) != 0) {
        emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
        imageName = QString(":/resources/missingimage.png");
+
        return false;
    }
+
    return true;
 }
 
@@ -396,7 +394,7 @@ int SubModel::createSubModelImage(
               return futureModel;
           });
 
-          rotatedModel = asynchronous(future);
+          rotatedModel = future.result();
 
           rc = rotatedModel.isEmpty();
 
@@ -427,7 +425,7 @@ int SubModel::createSubModelImage(
                   return futureModel;
               });
 
-              rotatedModel = asynchronous(future);
+              rotatedModel = future.result();
 
               rc = rotatedModel.isEmpty();
           }
@@ -458,7 +456,7 @@ int SubModel::createSubModelImage(
             return frc;
         });
 
-        rc = asynchronous(future);
+        rc = future.result();
       }
 
       // set viewer display options
