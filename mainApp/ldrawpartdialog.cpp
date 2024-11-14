@@ -56,7 +56,7 @@ LDrawPartDialog::LDrawPartDialog(
      PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(partType.toLatin1().constData(), nullptr, false, false);
      if (Info) {
          lcPiecesLibrary* Library = lcGetPiecesLibrary();
-         int numCategories = gCategories.size();
+         size_t numCategories = gCategories.size();
          for (int categoryIndex = 0; categoryIndex < numCategories; categoryIndex++)
          {
              if (Library->PieceInCategory(Info, gCategories[categoryIndex].Keywords.constData())) {
