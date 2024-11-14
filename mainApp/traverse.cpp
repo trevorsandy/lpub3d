@@ -5164,8 +5164,6 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
                 LDRAW_MAIN_MATERIAL_COLOUR,/*renderModelColour*/
                 "model~origin"); /*renderParentModel*/
 
-    //QFuture<int> future = QtConcurrent::run([&](){ return findPage(lpub->meta,addLine,opts); });
-    //const TraverseRc frc = static_cast<TraverseRc>(asynchronous(future));
     const TraverseRc frc = static_cast<TraverseRc>(findPage(lpub->meta,addLine,opts));
     if (frc == HitAbortProcess) {
         if (Gui::m_exportMode == GENERATE_BOM) {

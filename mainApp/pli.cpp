@@ -1506,13 +1506,13 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
     if (fadeSteps && (pT == FADE_PART)) {
         updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
-		out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
+        out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
     }
     if (highlightStep && (pT == HIGHLIGHT_PART)) {
         updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(ia.partColor[pT]);
         out << QString("0 // %1 part custom colours").arg(VER_PRODUCTNAME_STR);
-		out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
+        out << Gui::createColourEntry(ia.partColor[pT], PartType(pT));
         out << QString("0 !SILHOUETTE %1 %2")
                        .arg(Preferences::highlightStepLineWidth)
                        .arg(Preferences::highlightStepColour);
@@ -2192,7 +2192,7 @@ int Pli::sortPli()
     QFuture<void> future = QtConcurrent::run([this] {
         sortParts(parts);
     });
-    asynchronous(future);
+    future.waitForFinished();;
 
     return rc;
 }
@@ -2854,7 +2854,7 @@ int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
       return resizePli(meta,constrainData);
   });
 
-  return asynchronous(future);
+  return future.result();
 }
 
 int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
@@ -2871,7 +2871,7 @@ int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
           return resizePli(meta,constrainData);
       });
 
-      return asynchronous(future);
+      return future.result();
   }
 
   return rc;
