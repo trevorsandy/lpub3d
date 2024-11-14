@@ -129,6 +129,8 @@ OTHER_FILES += \
     $$PWD/../.github/workflows/prod_ci_build.yml \
     $$PWD/../.github/workflows/codeql.yml
 
+!win32-msvc* {
 DISTFILES += \
     $$PWD/ldraw_document.icns \
     $$PWD/lpub3d.icns
+}
