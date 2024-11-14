@@ -15,7 +15,7 @@ unix:!macx {
   isEmpty(LP3D_LOCAL_LIBDIR_ETC):LP3D_LOCAL_LIBDIR_ETC = $$system("cd $$_PRO_FILE_PWD_/../../ && echo $PWD/etc")
 
   equals(install_qt_libs, 1) {
-    message("~~~ INSTALL QT $$QT_VERSION LIBS AND PLUGINS SPECIFIED ~~~")
+    message("~~~ $${TARGET} INSTALL QT $$QT_VERSION LIBS AND PLUGINS SPECIFIED ~~~")
 
     LP3D_QTCONF_FILE     = $$_PRO_FILE_PWD_/qt.conf
     LP3D_QTCONF_LINES   += [Paths]
@@ -24,26 +24,26 @@ unix:!macx {
     LP3D_QTCONF_LINES   += Plugins=plugins
 
     !write_file($$LP3D_QTCONF_FILE, LP3D_QTCONF_LINES ) {
-      message("~~~ ERROR - Could not create $$LP3D_QTCONF_FILE ~~~")
+      message("~~~ ERROR $${TARGET}: - Could not create $$LP3D_QTCONF_FILE ~~~")
     } else {
-      message("~~~ FILE $$LP3D_QTCONF_FILE CREATED ~~~")
+      message("~~~ $${TARGET} FILE $$LP3D_QTCONF_FILE CREATED ~~~")
     }
 
     LP3D_QTLDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-qtlibs.conf
     LP3D_QTLDCONF_LINES += $$LP3D_LIBDIR_QT5
 
     !write_file($$LP3D_QTLDCONF_FILE, LP3D_QTLDCONF_LINES) {
-      message("~~~ ERROR - Could not create $$LP3D_QTLDCONF_FILE ~~~")
+      message("~~~ ERROR $${TARGET}: - Could not create $$LP3D_QTLDCONF_FILE ~~~")
     } else {
-      message("~~~ FILE $$LP3D_QTLDCONF_FILE CREATED ~~~")
+      message("~~~ $${TARGET} FILE $$LP3D_QTLDCONF_FILE CREATED ~~~")
     }
 
     LP3D_QTQRC_FILE     = $$_PRO_FILE_PWD_/lpub3d.qrc
     exists($$LP3D_QTQRC_FILE) {
       system("sed -i '/<\/qresource>/a <qresource prefix=\"\/qt\/etc\"><file alias=\"qt.conf\">qt.conf<\/file><\/qresource>' $$LP3D_QTQRC_FILE >/dev/null")
-      message("~~~ FILE $$LP3D_QTQRC_FILE UDATED ~~~")
+      message("~~~ $${TARGET} FILE $$LP3D_QTQRC_FILE UDATED ~~~")
     } else {
-      message("~~~ ERROR - Could not create $$LP3D_QTQRC_FILE ~~~")
+      message("~~~ ERROR $${TARGET}: - Could not create $$LP3D_QTQRC_FILE ~~~")
     }
 
     qt5_conf_d.files += \
@@ -94,26 +94,26 @@ unix:!macx {
   }
 
   equals(install_local_el_libs, 1): exists($$LP3D_LOCAL_LIBDIR_USR) {
-    message("~~~ INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
-    message("~~~ LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_USR ~~~")
+    message("~~~ $${TARGET} INSTALL LOCAL LIBS (OSMESA,LLVM,OPENEXR,LIBDRM) SPECIFIED ~~~")
+    message("~~~ $${TARGET} LOCAL LIBS SOURCE DIR: $$LP3D_LOCAL_LIBDIR_USR ~~~")
     equals(skip_local_POVRay_libs, 1): \
-    message("~~~ SKIP LOCAL POVRAY LIBRARIES SPECIFIED ~~~")
+    message("~~~ $${TARGET} SKIP LOCAL POVRAY LIBRARIES SPECIFIED ~~~")
 
     LP3D_LDCONF_FILE   = $$_PRO_FILE_PWD_/lpub3d-libs.conf
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR
     LP3D_LDCONF_LINES += $$LP3D_LIBDIR_LLVM
 
     !write_file($$LP3D_LDCONF_FILE, LP3D_LDCONF_LINES) {
-      message("~~~ ERROR - Could not create $$LP3D_LDCONF_FILE ~~~")
+      message("~~~ ERROR $${TARGET}: - Could not create $$LP3D_LDCONF_FILE ~~~")
     } else {
-      message("~~~ FILE $$LP3D_LDCONF_FILE CREATED ~~~")
+      message("~~~ $${TARGET} FILE $$LP3D_LDCONF_FILE CREATED ~~~")
     }
 
     LP3D_PCS = $$system("find $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig -type f")
-    isEmpty(LP3D_PCS): message("~~~ ERROR - No .pc files found at $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig ~~~")
+    isEmpty(LP3D_PCS): message("~~~ ERROR $${TARGET}: - No .pc files found at $${LP3D_LOCAL_LIBDIR_USR}/lib64/pkgconfig ~~~")
     for(LP3D_PC, LP3D_PCS) {
         system("sed -i \"s,$${LP3D_LOCAL_LIBDIR_USR},$${LP3D_LIBDIR},g\" $${LP3D_PC} >/dev/null")
-        message("~~~ UPDATE PC FILE $${LP3D_PC} PATH PREFIX TO $${LP3D_LIBDIR} ~~~")
+        message("~~~ $${TARGET} UPDATE PC FILE $${LP3D_PC} PATH PREFIX TO $${LP3D_LIBDIR} ~~~")
     }
 
     local_el_llvm_conf_d.files += \
@@ -177,7 +177,7 @@ unix:!macx {
         local_el_libs_llvm \
         local_el_libs_pkgconfig
   } else {
-    equals(install_local_el_libs, 1): !exists($$LP3D_LOCAL_LIBDIR_USR): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_USR not found ~~~")
-    equals(install_local_el_libs, 1): !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
+    equals(install_local_el_libs, 1): !exists($$LP3D_LOCAL_LIBDIR_USR): message("~~~ ERROR $${TARGET}: - $$LP3D_LOCAL_LIBDIR_USR not found ~~~")
+    equals(install_local_el_libs, 1): !exists($$LP3D_LOCAL_LIBDIR_ETC): message("~~~ ERROR $${TARGET}: - $$LP3D_LOCAL_LIBDIR_ETC not found ~~~")
   }
 }

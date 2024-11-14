@@ -26,12 +26,13 @@ INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
 
 #~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# 3rd party executables, documentation and resources.
-!isEmpty(LP3D_3RD_DIST_DIR) {
+# 3rd party libraries, executables, documentation and resources.
+exists($$PWD/../builds/3rdparty) {
+    THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../builds/3rdparty ) )
+} else:!isEmpty(LP3D_3RD_DIST_DIR) {
     THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
 } else {
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    isEmpty(THIRD_PARTY_DIST_DIR_PATH): THIRD_PARTY_DIST_DIR_PATH="undefined"
 }
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
@@ -39,7 +40,7 @@ INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../$$DIST_DIR ) )
     !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH (LCLIB) WAS NOT FOUND! ~~~ ")
+        message("~~~ ERROR lib$${TARGET}: - THIRD_PARTY_DIST_DIR_PATH (LCLIB) WAS NOT FOUND! ~~~ ")
         THIRD_PARTY_DIST_DIR_PATH="undefined"
     }
 }

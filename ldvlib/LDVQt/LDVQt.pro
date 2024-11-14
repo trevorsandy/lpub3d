@@ -88,6 +88,8 @@ staticlib {
     BUILD    = Shared
 }
 
+VER_LDVIEW = ldview-4.5
+
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
     BUILD_CONF = Debug
@@ -98,20 +100,18 @@ CONFIG(debug, debug|release) {
     # The remaining lines in this block adds the LDView header and source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
     VER_USE_LDVIEW_DEV = True
-    equals(VER_USE_LDVIEW_DEV,True) {
-        # These lines defines the ldview git extract folder name, you can set as you like
-        unix: VER_LDVIEW_DEV = ldview
-        else:win32: VER_LDVIEW_DEV = ldview_vs_build
-        # This line defines the path of the ldview git extract relative to this project file
-        VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} ) )
-        exists($$VER_LDVIEW_DEV_REPOSITORY) {
-            message("~~~ BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
-            message("~~~ ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-            INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
-        } else {
-            VER_USE_LDVIEW_DEV = False
-            message("~~~ WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
-        }
+    # These lines defines the ldview git extract folder name, you can set as you like
+    unix: VER_LDVIEW_DEV = ldview
+    else:win32: VER_LDVIEW_DEV = ldview_vs_build
+    # This line defines the path of the ldview git extract relative to this project file
+    VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVIEW_DEV} ) )
+    exists($$VER_LDVIEW_DEV_REPOSITORY) {
+        message("~~~ lib$${TARGET} BUILD LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+        message("~~~ lib$${TARGET} ADD LDVIEW HEADERS TO INCLUDEPATH: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        INCLUDEPATH += $${VER_LDVIEW_DEV_REPOSITORY}
+    } else {
+        VER_USE_LDVIEW_DEV = False
+        message("~~~ WARNING lib$${TARGET}: - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
 } else {
     BUILD_CONF = Release

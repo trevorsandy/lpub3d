@@ -54,12 +54,12 @@ unix:!macx {
     contains(BUILD_ARCH, arm64): BUILD_ARCH_POVRAY = aarch64
     else: BUILD_ARCH_POVRAY = $${BUILD_ARCH}
 
-    isEmpty(HOST_VERSION):   message("~~~ ERROR - PLATFORM_VERSION NOT DETECTED ~~~")
-    isEmpty(_PLATFORM_CODE): message("~~~ ERROR - PLATFORM_CODE NOT DETECTED ~~~")
-    isEmpty(_TARGET_CPU):    message("~~~ ERROR - PLATFORM_CPU NOT DETECTED ~~~")
+    isEmpty(HOST_VERSION):   message("~~~ ERROR $${TARGET}: - PLATFORM_VERSION NOT DETECTED ~~~")
+    isEmpty(_PLATFORM_CODE): message("~~~ ERROR $${TARGET}: - PLATFORM_CODE NOT DETECTED ~~~")
+    isEmpty(_TARGET_CPU):    message("~~~ ERROR $${TARGET}: - PLATFORM_CPU NOT DETECTED ~~~")
 
     DISTRO_PACKAGE = $${BUILD_CODE}-$${_PLATFORM_CODE}-$${HOST_VERSION}-$${_TARGET_CPU}
-    message("~~~ DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
+    message("~~~ $${TARGET} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
     DEFINES += DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 
     MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR

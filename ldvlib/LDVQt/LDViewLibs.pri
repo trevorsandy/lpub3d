@@ -20,22 +20,22 @@ win32 {
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # 3rd party executables, documentation and resources.
-    isEmpty(THIRD_PARTY_DIST_DIR_PATH) {
-        !isEmpty(LP3D_3RD_DIST_DIR) {
-            THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
-        } else {
-            THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-            isEmpty(THIRD_PARTY_DIST_DIR_PATH): THIRD_PARTY_DIST_DIR_PATH="undefined"
-        }
+    !exists(THIRD_PARTY_DIST_DIR_PATH): \
+    exists($$PWD/../../builds/3rdparty) {
+        THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../../builds/3rdparty ) )
+    } else:!isEmpty(LP3D_3RD_DIST_DIR) {
+        THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
+    } else {
+        THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+    }
+    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+        else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+        else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+        THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../../$$DIST_DIR ) )
         !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-            unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-            else:macx: DIST_DIR       = lpub3d_macos_3rdparty
-            else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-            THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../../$$DIST_DIR ) )
-            !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-                message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH (LDVLIB) WAS NOT FOUND! ~~~ ")
-                THIRD_PARTY_DIST_DIR_PATH="undefined"
-            }
+            message("~~~ ERROR lib$${TARGET} - THIRD_PARTY_DIST_DIR_PATH (LDVLIB) WAS NOT FOUND! ~~~ ")
+            THIRD_PARTY_DIST_DIR_PATH="undefined"
         }
     }
 
@@ -52,7 +52,7 @@ contains(LOAD_LDV_HEADERS,True) {
         isEmpty(LDV3RDHDR):LDV3RDHDR = $$system_path( $${LDV3RDHDRDIR} )
     }
 
-    message("~~~ ADD LDVIEW 3RDPARTY HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR ) ~~~ ")
+    message("~~~ lib$${TARGET} ADD LDVIEW 3RDPARTY HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR ) ~~~ ")
 
     DEPENDPATH  += $${LDVHDRDIR}
     INCLUDEPATH += $${LDVHDRDIR}
@@ -61,17 +61,17 @@ contains(LOAD_LDV_HEADERS,True) {
         if(!contains(DEFINES,ARM_SKIP_GL_HEADERS)) {
             system( mkdir -p ./include/GL && touch ./include/GL/glext.h )
             INCLUDEPATH += $$system_path( ./include/GL )
-            message("~~~ ADD FAKE LDVIEW GLEXT HEADER TO INCLUDEPATH: $$system_path( ./include/GL ) ~~~ ")
+            message("~~~ lib$${TARGET} ADD FAKE LDVIEW GLEXT HEADER TO INCLUDEPATH: $$system_path( ./include/GL ) ~~~ ")
         }
         exists ($$system_path( $${LDVHDRDIR}/GL )): \
         system(rm -rf $$system_path( $${LDVHDRDIR}/GL ))
         !exists ($$system_path( $${LDVHDRDIR}/GL )): \
-        message("~~~ REMOVED LDVIEW GL HEADERS FOR $$upper($$QT_ARCH) BUILD ~~~ ")
-        message("~~~ USING SYSTEM GL HEADERS FOR $$upper($$QT_ARCH) BUILD ~~~ ")
+        message("~~~ lib$${TARGET} REMOVED LDVIEW GL HEADERS FOR $$upper($$QT_ARCH) BUILD ~~~ ")
+        message("~~~ lib$${TARGET} USING SYSTEM GL HEADERS FOR $$upper($$QT_ARCH) BUILD ~~~ ")
     } else {
         if (!contains(SKIP_LDV_GL_HEADERS,True)) {
             INCLUDEPATH += $$system_path( $${LDVHDRDIR}/GL )
-            message("~~~ ADD LDVIEW GL HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR/GL ) ~~~ ")
+            message("~~~ lib$${TARGET} ADD LDVIEW GL HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR/GL ) ~~~ ")
         }
     }
 
@@ -80,21 +80,21 @@ contains(LOAD_LDV_HEADERS,True) {
     } else:exists($${LDV3RDHDRDIR}/tinyxml.h) {
         message("~~~ lib$${TARGET} local library header for tinyxml found ~~~")
     } else {
-        message("~~~ ERROR: Library header for tinyxml not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for tinyxml not found ~~~")
     }
     if (unix:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX}/include/gl2ps.h)) {
         message("~~~ lib$${TARGET} system library gl2ps found ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for gl2ps found ~~~")
     } else {
-        message("~~~ ERROR: Library header for gl2ps not found, using local ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for gl2ps not found, using local ~~~")
     }
     if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX}/include/lib3ds.h)) {
         message("~~~ lib$${TARGET} system library 3ds found ~~~")
     } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
         message("~~~ lib$${TARGET} local library header for 3ds found ~~~")
     } else {
-        message("~~~ ERROR: Library header for 3ds not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for 3ds not found ~~~")
     }
     if (unix:macx:exists(/usr/include/minizip/unzip.h)|exists($${SYSTEM_PREFIX}/include/minizip/unzip.h)) {
         message("~~~ lib$${TARGET} system library minizip found ~~~")
@@ -104,21 +104,21 @@ contains(LOAD_LDV_HEADERS,True) {
         INCLUDEPATH += $${LDV3RDHDR}
         DEFINES += HAVE_MINIZIP
     } else {
-        message("~~~ ERROR: Library header for minizip not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for minizip not found ~~~")
     }
     if (unix:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX}/include/png.h)) {
         message("~~~ lib$${TARGET} system library png found ~~~")
     } else:exists($${LDV3RDHDRDIR}/png.h) {
         message("~~~ lib$${TARGET} local library header for png found ~~~")
     } else {
-        message("~~~ ERROR: Library header for png not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for png not found ~~~")
     }
     if (unix:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX}/include/jpeglib.h)) {
         message("~~~ lib$${TARGET} system library jpeg found ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for jpeg found ~~~")
     } else {
-        message("~~~ ERROR: Library header for jpeg not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for jpeg not found ~~~")
     }
 } # LOAD_LDV_HEADERS,True
 
@@ -137,14 +137,14 @@ contains(LOAD_LDV_LIBS,True) {
         LDV3RDLIBDIR = $$system_path( $$LDVLIBDIR )
     }
 
-    message("~~~ ADD LDVIEW LIBRARIES PATH TO LIBS: $$system_path( $$LDVLIBDIR ) ~~~ ")
+    message("~~~ $${LPUB3D} ADD LDVIEW LIBRARIES PATH TO LIBS: $$system_path( $$LDVLIBDIR ) ~~~ ")
     LIBS        += -L$${LDVLIBDIR}
 
-    message("~~~ ADD LDVIEW 3RDPARTY LIBRARIES PATH TO LIBS: $$system_path( $$LDV3RDLIBDIR ) ~~~ ")
+    message("~~~ $${LPUB3D} ADD LDVIEW 3RDPARTY LIBRARIES PATH TO LIBS: $$system_path( $$LDV3RDLIBDIR ) ~~~ ")
     LIBS        += -L$${LDV3RDLIBDIR}
 
 #    isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
-#    message("~~~ lib$${TARGET} Library path: $$LDVLIBRARY ~~~ ")
+#    message("~~~ $${LPUB3D} Library path: $$LDVLIBRARY ~~~ ")
 
     # Set library names, source paths and local paths
     win32-msvc* {
@@ -210,39 +210,39 @@ contains(LOAD_LDV_LIBS,True) {
     # Set 'use local' flags
     !exists($${GL2PS_SRC}) {
         USE_LOCAL_GL2PS_LIB = False
-        # message("~~~ GL2PS LIBRARY $${GL2PS_SRC} NOT FOUND ~~~")
-    } else:message("~~~ GL2PS LIBRARY $${GL2PS_SRC} FOUND ~~~")
+        # message("~~~ $${LPUB3D} GL2PS LIBRARY $${GL2PS_SRC} NOT FOUND ~~~")
+    } else:message("~~~ $${LPUB3D} GL2PS LIBRARY $${GL2PS_SRC} FOUND ~~~")
 
     !exists($${TINYXML_SRC}) {
         USE_LOCAL_TINYXML_LIB = False
-        # message("~~~ TINYXML LIBRARY $${TINYXML_SRC} NOT FOUND ~~~")
-    } else:message("~~~ TINYXML LIBRARY $${TINYXML_SRC} FOUND ~~~")
+        # message("~~~ $${LPUB3D} TINYXML LIBRARY $${TINYXML_SRC} NOT FOUND ~~~")
+    } else:message("~~~ $${LPUB3D} TINYXML LIBRARY $${TINYXML_SRC} FOUND ~~~")
 
     !exists($${3DS_SRC}) {
         USE_LOCAL_3DS_LIB = False
-        # message("~~~ 3DS LIBRARY $${3DS_SRC} NOT FOUND ~~~")
-    } else:message("~~~ 3DS LIBRARY $${3DS_SRC} FOUND ~~~")
+        # message("~~~ $${LPUB3D} 3DS LIBRARY $${3DS_SRC} NOT FOUND ~~~")
+    } else:message("~~~ $${LPUB3D} 3DS LIBRARY $${3DS_SRC} FOUND ~~~")
 
     !exists($${PNG_SRC}) {
         USE_LOCAL_PNG_LIB = False
-        # message("~~~ PNG LIBRARY $${PNG_SRC} NOT FOUND ~~~")
-    } else:message("~~~ PNG LIBRARY $${PNG_SRC} FOUND ~~~")
+        # message("~~~ $${LPUB3D} PNG LIBRARY $${PNG_SRC} NOT FOUND ~~~")
+    } else:message("~~~ $${LPUB3D} PNG LIBRARY $${PNG_SRC} FOUND ~~~")
 
     !exists($${JPEG_SRC}) {
         USE_LOCAL_JPEG_LIB = False
-        # message("~~~ JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
-    } else:message("~~~ JPEG LIBRARY $${JPEG_SRC} FOUND ~~~")
+        # message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
+    } else:message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} FOUND ~~~")
 
     !exists($${MINIZIP_SRC}) {
         USE_LOCAL_MINIZIP_LIB = False
-        # message("~~~ MINIZIP LIBRARY $${MINIZIP_SRC} NOT FOUND ~~~")
-    } else: message("~~~ MINIZIP LIBRARY $${MINIZIP_SRC} FOUND ~~~")
+        # message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} NOT FOUND ~~~")
+    } else: message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} FOUND ~~~")
 
     win32-msvc* {
         !exists($${ZLIB_SRC}) {
             USE_LOCAL_ZLIB_LIB = False
-            # message("~~~ Z LIBRARY $${ZLIB_SRC} NOT FOUND ~~~")
-        } else:message("~~~ Z LIBRARY $${ZLIB_SRC} FOUND ~~~")
+            # message("~~~ $${LPUB3D} Z LIBRARY $${ZLIB_SRC} NOT FOUND ~~~")
+        } else:message("~~~ $${LPUB3D} Z LIBRARY $${ZLIB_SRC} FOUND ~~~")
     }
 
     LIBS += \
@@ -300,7 +300,7 @@ contains(LOAD_LDV_LIBS,True) {
         LIBS               += $$ZLIB_LIB
     }
 
-    # message("~~~ INFO - LDVQt LIBRARIES: $${LIBS} ~~~")
+    # message("~~~ $${LPUB3D} INFO - LDVQt LIBRARIES: $${LIBS} ~~~")
 
 #~~ Merge ldv messages ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -317,8 +317,8 @@ contains(LOAD_LDV_LIBS,True) {
     isEmpty(LDVMESSAGESINI_DEP): \
     LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
     LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )
-    #message("~~~ lib$${TARGET} Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
-    #message("~~~ lib$${TARGET} Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
+    #message("~~~ $${LPUB3D} Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
+    #message("~~~ $${LPUB3D} Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
     LDVMSGINI_COPY_CMD = \
     $$COPY_CMD \
     $$system_path( $${LDVRESDIR}/LDViewMessages.ini ) $$PLUS_CMD \
@@ -329,7 +329,7 @@ contains(LOAD_LDV_LIBS,True) {
     contains(DEVL_LDV_MESSAGES_INI,True) {
         unix:COPY_CMD = cp -f
         LDVMESSAGESINI_DEVL = $$system_path( $$OUT_PWD/$$DESTDIR/extras/$$LDVMESSAGESINI )
-        message("~~~ COPY LDVMESSAGES.INI TO: $$LDVMESSAGESINI_DEVL) ~~~ ")
+        message("~~~ $${LPUB3D} COPY LDVMESSAGES.INI TO: ./$$DESTDIR/extras/$$LDVMESSAGESINI) ~~~ ")
         LDVMSGINI_COPY_CMD += \
         $$escape_expand(\n\t) \
         $$COPY_CMD \

@@ -9,10 +9,15 @@ isEmpty(HOST):HOST = UNKNOWN HOST
 BUILD_ARCH = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
 else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
-CONFIG(debug, debug|release): BUILD = DEBUG BUILD
-else:	                      BUILD = RELEASE BUILD
+CONFIG(debug, debug|release) {
+                              BUILD  = DEBUG BUILD
+                              LPUB3D = LPub3Dd
+} else {
+                              BUILD  = RELEASE BUILD
+                              LPUB3D = LPub3D
+}
 
-message("~~~ LPUB3D $$upper($$BUILD_ARCH) $${BUILD} ON $$upper($$HOST) ~~~")
+message("~~~ $${LPUB3D} $$upper($$BUILD_ARCH) $${BUILD} ON $$upper($$HOST) ~~~")
 
 SUBDIRS = ldrawini
 ldrawini.subdir   = $$PWD/ldrawini

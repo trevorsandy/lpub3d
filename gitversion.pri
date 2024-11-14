@@ -12,7 +12,7 @@ GIT_DIR = undefined
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR = $$PWD/.git
-    message("~~~ GIT_DIR FOUND AT $$GIT_DIR ~~~")
+    message("~~~ $${LPUB3D} GIT_DIR FOUND AT $$GIT_DIR ~~~")
 }
 
 # enable to Test
@@ -40,11 +40,11 @@ equals(GIT_DIR, undefined) {
 
     # Trying to get version from git tag / revision
     GIT_VERSION = $$system($$GIT_BASE_COMMAND describe --tags --match v* --long 2> $$NULL_DEVICE)
-    #message("~~~ DEBUG ~~ GIT_VERSION [RAW]: $$GIT_VERSION")
+    #message("~~~ $${LPUB3D} DEBUG ~~ GIT_VERSION [RAW]: $$GIT_VERSION")
 
     # Check if we do not have a valid version number (i.e. no version tag found)
     isEmpty(GIT_VERSION) {
-        GIT_REVISION = 116
+        GIT_REVISION = 117
         GIT_SHA      = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
         GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
@@ -55,15 +55,15 @@ equals(GIT_DIR, undefined) {
         } else {
             VERSION_INFO_VAR = $$(LP3D_VERSION_INFO)
             USING_GITHUB = $$(GITHUB)
-            # equals(USING_GITHUB, true): message("~~~ DEBUG ~~ NOTICE: USING GITHUB ~~~")
+            # equals(USING_GITHUB, true): message("~~~ $${LPUB3D} DEBUG ~~ NOTICE: USING GITHUB ~~~")
             !isEmpty(VERSION_INFO_VAR) {
                 USE_VERSION_INFO_VAR = true
-                message("~~~ ALERT! GIT TAG NOT FOUND, USING LP3D_VERSION_INFO $$VERSION_INFO_VAR ~~~")
+                message("~~~ ALERT LPUB3D! GIT TAG NOT FOUND, USING LP3D_VERSION_INFO $$VERSION_INFO_VAR ~~~")
             } else: equals(USING_GITHUB, true) {
                 USE_GIT_VER_FILE = true
-                message("~~~ ALERT! GIT TAG AND LP3D_VERSION_INFO NOT FOUND ~~~")
+                message("~~~ ALERT LPUB3D! GIT TAG AND LP3D_VERSION_INFO NOT FOUND ~~~")
             } else {
-                message("~~~ ALERT! GIT TAG AND LP3D_VERSION_INFO NOT FOUND, USING HEAD $$GIT_VERSION ~~~")
+                message("~~~ ALERT LPUB3D! GIT TAG AND LP3D_VERSION_INFO NOT FOUND, USING HEAD $$GIT_VERSION ~~~")
             }
         }
     }
@@ -72,8 +72,8 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 3839
-            message("~~~ ERROR! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
+            GIT_COMMIT = 3840
+            message("~~~ ERROR LPUB3D! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
         # Append commit count
@@ -108,7 +108,7 @@ equals(GIT_DIR, undefined) {
     # Get the git repository name
     GIT_BASE_NAME = $$system($$GIT_BASE_COMMAND rev-parse --show-toplevel 2> $$NULL_DEVICE)
     VER_BASE_NAME = $$basename(GIT_BASE_NAME)
-    message("~~~ USING GIT_BASE_NAME $$GIT_BASE_NAME ~~~")
+    message("~~~ $${LPUB3D} USING GIT_BASE_NAME $$GIT_BASE_NAME ~~~")
 }
 
 if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
@@ -116,12 +116,12 @@ if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
         GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
 
         exists($$GIT_VER_FILE) {
-            message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+            message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
             GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
         } else {
-            message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-            GIT_VERSION = $${VERSION}.116.3839.4396c787f
-            message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
+            message("~~~ ERROR LPUB3D! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
+            GIT_VERSION = $${VERSION}.117.3840.77171e68b
+            message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
             GIT_VERSION ~= s/\./" "
         }
     } else: equals(USE_VERSION_INFO_VAR, true) {
@@ -158,13 +158,13 @@ win32 {
 
 # Separate the date into 'DD/MM/YYYY' format
 if (github_ci_win | azure_ci_win | appveyor_ci_win) {
-    message("~~~ BUILD DATE 'Day MM/DD/YYYY': $$BUILD_DATE ~~~")
+    message("~~~ $${LPUB3D} BUILD DATE 'Day MM/DD/YYYY': $$BUILD_DATE ~~~")
     BUILD_DATE ~= s/[\sA-Za-z\s]/""
     DATE_MM = $$section(BUILD_DATE, /, 0, 0)
     DATE_DD = $$section(BUILD_DATE, /, 1, 1)
     DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 } else {
-    message("~~~ BUILD DATE 'DD/MM/YYYY': $$BUILD_DATE ~~~")
+    message("~~~ $${LPUB3D} BUILD DATE 'DD/MM/YYYY': $$BUILD_DATE ~~~")
     DATE_DD = $$section(BUILD_DATE, /, 0, 0)
     DATE_DD = $$last(DATE_DD)
     DATE_MM = $$section(BUILD_DATE, /, 1, 1)
@@ -190,14 +190,14 @@ contains(BUILD_TYPE,continuous) {
 
 if (contains(VER_BASE_NAME, $$lower("lpub3d-ci"))|contains(VER_BASE_NAME, $$lower("lpub3dnext"))) {
     contains(VER_BASE_NAME, $$lower("lpub3dnext")) {
-        message("~~~ USING NEXT DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
+        message("~~~ $${LPUB3D} USING NEXT DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
         DEFINES += LP3D_NEXT_BUILD
     } else {
-        message("~~~ USING CI DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
+        message("~~~ $${LPUB3D} USING CI DEVEL BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
         DEFINES += LP3D_DEVOPS_BUILD
     }
 } else {
-    message("~~~ USING RELEASE BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
+    message("~~~ $${LPUB3D} USING RELEASE BUILD VER_BASE_NAME $$VER_BASE_NAME ~~~")
 }
 
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
@@ -223,4 +223,4 @@ LP3D_VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION $$VER_COM
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH"."$$VER_REVISION
 
 # Display the complete version string
-message(~~~ LP3D_VERSION_INFO: $$LP3D_VERSION_INFO $$upper($$BUILD_TYPE) ~~~)
+message("~~~ $${LPUB3D} LP3D_VERSION_INFO: $$LP3D_VERSION_INFO $$upper($$BUILD_TYPE) ~~~")

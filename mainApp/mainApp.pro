@@ -32,6 +32,8 @@ GAMEPAD {
 
 CONFIG += exceptions
 
+CONFIG(debug, debug|release) { LPUB3D = LPub3Dd } else { LPUB3D = LPub3D }
+
 include(../gitversion.pri)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,20 +43,32 @@ else:       TARGET = LPub3D
 STG_TARGET         = $$TARGET
 DIST_TARGET        = $$TARGET
 
-#~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+VER_LDVIEW  = ldview-4.5
+VER_LDGLITE = ldglite-1.3
+VER_POVRAY  = lpub3d_trace_cui-3.8
+DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
-# 3rd party executables, documentation and resources.
-# When building on macOS, it is necessary to add CONFIG+=dmg at
-# Projects/Build Steps/Qmake/'Additional arguments' because,
-# macOS build will also bundle all deliverables.
-!isEmpty(LP3D_3RD_DIST_DIR) {
+#~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# - Set enviroinment variable LP3D_DIST_DIR_PATH as needed.
+# - 3rd party libraries, executables, documentation and resources.
+# - When building on macOS, it is necessary to add CONFIG+=dmg at
+#   Projects/Build Steps/Qmake/'Additional arguments' because,
+#   macOS build will also bundle all deliverables.
+#   Local variable - LP3D_3RD_DIST_DIR
+exists($$PWD/../builds/3rdparty) {
+    THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../builds/3rdparty ) )
+    3RD_DIR_SOURCE = LOCAL_3RD_PARTY_DIR
+} else:!isEmpty(LP3D_3RD_DIST_DIR) {
     THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
     3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
 } else {
+#   Environment variable LP3D_DIST_DIR_PATH
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
-    else: THIRD_PARTY_DIST_DIR_PATH="undefined"
+    !isEmpty(THIRD_PARTY_DIST_DIR_PATH) {
+        3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
+    }
 }
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
@@ -67,15 +81,8 @@ DIST_TARGET        = $$TARGET
         3RD_DIR_SOURCE_UNSPECIFIED = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
         THIRD_PARTY_DIST_DIR_PATH="undefined"
     }
-    3RD_DIR_SOURCE = LOCAL_DIR
+    3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR
 }
-
-VER_LDVIEW  = ldview-4.5
-VER_LDGLITE = ldglite-1.3
-VER_POVRAY  = lpub3d_trace_cui-3.8
-DEFINES    += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
-DEFINES    += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
-DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -111,9 +118,9 @@ CONFIG(debug, debug|release) {
     VER_LDVIEW_DEV_REPOSITORY = $$system_path( $$absolute_path( $$PWD/../../$${VER_LDVIEW_DEV} ) )
     exists($$VER_LDVIEW_DEV_REPOSITORY) {
         VER_USE_LDVIEW_DEV = True
-        message("~~~ LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
+        message("~~~ $${LPUB3D} LINK LDVQt USING LDVIEW DEVELOPMENT REPOSITORY ~~~ ")
     } else {
-        message("~~~ WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
+        message("~~~ $${LPUB3D} WARNING - COULD NOT LOAD LDVIEW DEV FROM: $$VER_LDVIEW_DEV_REPOSITORY ~~~ ")
     }
 }
 # Load LDView libraries for LDVQt
@@ -141,7 +148,7 @@ isEmpty(HOST_VERSION) {
     macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
 }
 
-message("~~~ LPUB3D $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
+message("~~~ $${LPUB3D} LPUB3D $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 
 # for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
@@ -176,7 +183,7 @@ contains(USE_CPP11,NO) {
     DEFINES += USE_CPP11
 }
 
-message("~~~ Building with Qt Version: $$QT_VERSION ~~~")
+message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
 
 contains(QT_VERSION, ^5\\..*) {
     unix:!macx {
@@ -313,7 +320,7 @@ CONFIG(debug, debug|release) {
 
         # For Linux builds, simplify debug ops by using runtime content in build folders
         DEFINES += DEBUG_MODE_USE_BUILD_FOLDERS
-        message("~~~ INFO - RUNTIME PATHS USING BUILD FOLDERS ~~~")
+        message("~~~ $${LPUB3D} INFO - RUNTIME PATHS USING BUILD FOLDERS ~~~")
     }
 
     # executable target name
@@ -365,12 +372,12 @@ BUILD += $$BUILD_CONF
 #manpage
 MAN_PAGE = $$join(TARGET,,,.1)
 
-message("~~~ LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIPSET} Chipset ~~~")
+message("~~~ $${LPUB3D} LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIPSET} Chipset ~~~")
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): message("~~~ $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
-message("~~~ 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+!isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): message("~~~ $${LPUB3D} $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
+message("~~~ $${LPUB3D} 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
 build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
@@ -402,7 +409,7 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|con|contains(build_package, yes)) {
         DISTRO_PACKAGE = ($$opt)
     }
 
-    message("~~~ BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
+    message("~~~ $${LPUB3D} BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
 
     if (unix|copy3rd) {
         CONFIG+=copy3rdexe

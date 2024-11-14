@@ -33,7 +33,7 @@ win32: stagewindistcontent {
         lpub3d_docs
 
     conda_build {
-        message("~~~ CONDA BUILD - Qt PLUGLINS AND LIBS WILL NOT BE STAGED ~~~")
+        message("~~~ $${TARGET} CONDA BUILD - Qt PLUGLINS AND LIBS WILL NOT BE STAGED ~~~")
     } else {
         lpub3d_plugin_bearer.files += \
             $$[QT_INSTALL_PLUGINS]/bearer/qgenericbearer.dll
@@ -102,7 +102,7 @@ win32: stagewindistcontent {
     stage3rdexe {
         # renderer executables
         CONFIG(release, debug|release) {
-            release: message("~~~ RELEASE BUILD - 3RD PARTY EXEs STAGED TO: $$system_path( $$absolute_path($$LPUB3D_STG_3RD_PATH) ) ~~~")
+            release: message("~~~ $${TARGET} RELEASE BUILD - 3RD PARTY EXEs STAGED TO: $$system_path( $$absolute_path($$LPUB3D_STG_3RD_PATH) ) ~~~")
             ldglite_stg.files += $$LDGLITE_INS_EXE
             ldglite_stg.path = $$LDGLITE_STG_DIR
 
@@ -118,11 +118,11 @@ win32: stagewindistcontent {
             raytracer_stg
 
         }
-        CONFIG(debug, debug|release): message("~~~ DEBUG BUILD - 3RD PARTY EXECUTABLES WILL NOT BE STAGED ~~~")
+        CONFIG(debug, debug|release): message("~~~ $${TARGET} DEBUG BUILD - 3RD PARTY EXECUTABLES WILL NOT BE STAGED ~~~")
     }
 
     stage3rdexeconfig {
-        message("~~~ 3RD PARTY EXECUTABLE CONFIG FILES WILL BE STAGED ~~~")
+        message("~~~ $${TARGET} 3RD PARTY EXECUTABLE CONFIG FILES WILL BE STAGED ~~~")
         # renderer configuration
         raytracer_stg_resources_config.files += \
             $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.conf \
@@ -141,7 +141,7 @@ win32: stagewindistcontent {
     }
 
     stage3rdcontent {
-        message("~~~ 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE STAGED ~~~")
+        message("~~~ $${TARGET} 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE STAGED ~~~")
         # renderer content and documentation
 
         # ldglite content

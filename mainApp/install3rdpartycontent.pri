@@ -2,17 +2,17 @@
 if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
     win32: THIRD_PARTY_DEST = $$LPUB3D_INS_CONTENT_PATH
      macx: THIRD_PARTY_DEST = $$DESTDIR/$${TARGET}.app/Contents/3rdParty
-    message("~~~ 3RD_INSTALL FROM REPO: $$THIRD_PARTY_SRC ~~~")
+    message("~~~ $${TARGET} 3RD_INSTALL FROM REPO: $$THIRD_PARTY_SRC ~~~")
     unix:!macx {
         THIRD_PARTY_DEST = $$RESOURCE_DIR/3rdParty
-        message("~~~ 3RD_INSTALL TO EXE DEST: $$THIRD_PARTY_EXE_DIR/3rdParty ~~~")
+        message("~~~ $${TARGET} 3RD_INSTALL TO EXE DEST: $$THIRD_PARTY_EXE_DIR/3rdParty ~~~")
     }
-    message("~~~ 3RD_INSTALL TO DEST: $$THIRD_PARTY_DEST ~~~")
+    message("~~~ $${TARGET} 3RD_INSTALL TO DEST: $$THIRD_PARTY_DEST ~~~")
 }
 
 copy3rdexe {
     # renderer executables
-    message("~~~ $$upper($${BUILD_CONF}) BUILD - 3RD PARTY $${BUILD} EXECUTABLES WILL BE INSTALLED ~~~")
+    message("~~~ $${TARGET} $$upper($${BUILD_CONF}) BUILD - 3RD PARTY $${BUILD} EXECUTABLES WILL BE INSTALLED ~~~")
     ldglite_ins.files += $$LDGLITE_INS_EXE
     ldglite_ins.path = $$LDGLITE_INS_DIR
 
@@ -36,7 +36,7 @@ copy3rdexe {
 }
 
 copy3rdexeconfig {
-    message("~~~ 3RD PARTY EXECUTABLE CONFIG FILES WILL BE INSTALLED ~~~")
+    message("~~~ $${TARGET} 3RD PARTY EXECUTABLE CONFIG FILES WILL BE INSTALLED ~~~")
     win32 {
         raytracer_ins_resources_config.files += \
             $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini \
@@ -66,7 +66,7 @@ copy3rdexeconfig {
 }
 
 copy3rdcontent {
-    message("~~~ 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE INSTALLED ~~~")
+    message("~~~ $${TARGET} 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE INSTALLED ~~~")
     win32: EXT = .txt
     else: EXT =
 
