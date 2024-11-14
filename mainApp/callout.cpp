@@ -599,10 +599,7 @@ QString Callout::wholeSubmodel(
   if ( ! isMirrored && meta.LPub.callout.begin.value() == CalloutBeginMeta::Rotated && depth == 0) {
     RotStepMeta emptyRotStep; FloatPairMeta emptyCameraAngles;
     // RotateParts #3 - 5 parms
-    QFuture<void> future = QtConcurrent::run([&]() {
-        Render::rotateParts(addLine,emptyRotStep,csiParts,emptyCameraAngles,false/*applyCA*/);
-    });
-    asynchronous(future);
+    Render::rotateParts(addLine,emptyRotStep,csiParts,emptyCameraAngles,false/*applyCA*/);
     //logDebug() << "Called rotateParts for Called out 'Rotated' parts;";
   }
 

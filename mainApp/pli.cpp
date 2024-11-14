@@ -1188,7 +1188,8 @@ int Pli::createPartImage(
                 return futureFile;
             });
 
-            QStringList pliFile = asynchronous(future);
+            QStringList pliFile = future.result();
+            rc = pliFile.isEmpty();
 
             // unrotated part
             QStringList pliFileU = QStringList()
@@ -1557,15 +1558,11 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
             latitude = 30.0; longitude = -45.0;
         }
         FloatPairMeta cameraAngles;
-        cameraAngles.setValues(latitude,longitude);
+         cameraAngles.setValues(latitude,longitude);
 
-        QFuture<int> future = QtConcurrent::run([&]() {
-            bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
-            // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
-            return renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/);
-        });
-
-        if (asynchronous(future))
+        bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
+        // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
+        if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
             emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to rotate type: %1.").arg(typeName));
 
         out << rotatedType;
@@ -2716,8 +2713,7 @@ int Pli::partSizeLDViewSCall() {
                         return futureFile;
                     });
 
-                    QStringList pliFile = asynchronous(future);
-                    rc = pliFile.isEmpty();
+                    QStringList pliFile = future.result();
 
                     // unrotated part
                     QStringList pliFileU = QStringList()

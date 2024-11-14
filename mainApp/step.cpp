@@ -545,7 +545,7 @@ int Step::createCsi(
               return futureParts;
           });
 
-          QStringList rotatedParts = asynchronous(future);
+          QStringList rotatedParts = future.result();
 
           rc = rotatedParts.isEmpty();
 
@@ -570,7 +570,7 @@ int Step::createCsi(
                       return futureParts;
                   });
 
-                  rotatedParts = asynchronous(future);
+                  rotatedParts = future.result();
 
                   rc = rotatedParts.isEmpty();
               }
@@ -691,7 +691,7 @@ int Step::createCsi(
              return rcf;
          });
 
-         rc = asynchronous(future);
+         rc = future.result();
      }
 
      bool showStatus = Gui::m_partListCSIFile;
@@ -1230,7 +1230,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
      (highlightFirstStep ? true : stepNum > 1)) {
 
     QFuture<void> future = QtConcurrent::run([&] () { processCsiParts(csiParts); });
-    asynchronous(future);
+    future.waitForFinished();
 
   } else {
 
@@ -1447,7 +1447,7 @@ int Step::setCsiAnnotationMetas(Meta &_meta, int &_adjust, bool force)
         QFuture<void> future = QtConcurrent::run([&]() {
             lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,force);
         });
-        asynchronous(future);
+        future.waitForFinished();
         trc = HitCsiAnnotation;
     }
 
