@@ -182,10 +182,10 @@ void Range::sizeitVert()
     if (list[i]->relativeType == StepType) {
       Step *step = dynamic_cast<Step *>(list[i]);
 
-      for (int i = 0; i < NumPlaces; i++) {
-        rows[i] = 0;
-        rowsMargin[i][0] = 0;
-        rowsMargin[i][1] = 0;
+      for (int j = 0; j < NumPlaces; j++) {
+        rows[j] = 0;
+        rowsMargin[j][0] = 0;
+        rowsMargin[j][1] = 0;
       }
 
       /* size the step both Vertically and Horizontally */
@@ -374,10 +374,10 @@ void Range::sizeitHoriz()
     if (list[i]->relativeType == StepType) {
       Step *step = dynamic_cast<Step *>(list[i]);
 
-      for (int i = 0; i < NumPlaces; i++) {
-        cols[i] = 0;
-        colsMargin[i][0] = 0;
-        colsMargin[i][1] = 0;
+      for (int j = 0; j < NumPlaces; j++) {
+        cols[j] = 0;
+        colsMargin[j][0] = 0;
+        colsMargin[j][1] = 0;
       }
 
       /* size the step both Vertically and Horizontally */
