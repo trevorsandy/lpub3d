@@ -56,20 +56,25 @@ DEFINES    += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 # - When building on macOS, it is necessary to add CONFIG+=dmg at
 #   Projects/Build Steps/Qmake/'Additional arguments' because,
 #   macOS build will also bundle all deliverables.
-#   Local variable - LP3D_3RD_DIST_DIR
-exists($$PWD/../builds/3rdparty) {
-    THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../builds/3rdparty ) )
-    3RD_DIR_SOURCE = LOCAL_3RD_PARTY_DIR
-} else:!isEmpty(LP3D_3RD_DIST_DIR) {
+
+#   Argument path - LP3D_3RD_DIST_DIR
+!isEmpty(LP3D_3RD_DIST_DIR) {
     THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
     3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
 } else {
-#   Environment variable LP3D_DIST_DIR_PATH
+#   Environment variable path - LP3D_DIST_DIR_PATH
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !isEmpty(THIRD_PARTY_DIST_DIR_PATH) {
+    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
         3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
-    }
 }
+#   Local path
+isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+exists($$PWD/../builds/3rdparty) {
+    THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../builds/3rdparty ) )
+    3RD_DIR_SOURCE = LOCAL_3RD_DIST_DIR
+}
+isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+THIRD_PARTY_DIST_DIR_PATH="undefined"
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
     else:macx: DIST_DIR       = lpub3d_macos_3rdparty

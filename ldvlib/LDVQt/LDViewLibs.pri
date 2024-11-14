@@ -20,14 +20,21 @@ win32 {
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # 3rd party executables, documentation and resources.
-    !exists(THIRD_PARTY_DIST_DIR_PATH): \
-    exists($$PWD/../../builds/3rdparty) {
-        THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../../builds/3rdparty ) )
-    } else:!isEmpty(LP3D_3RD_DIST_DIR) {
+
+    #   Argument path - LP3D_3RD_DIST_DIR
+    !isEmpty(LP3D_3RD_DIST_DIR) {
         THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
     } else {
+    #   Environment variable path - LP3D_DIST_DIR_PATH
         THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
     }
+    #   Local path
+    isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+    exists($$PWD/../../builds/3rdparty) {
+        THIRD_PARTY_DIST_DIR_PATH=$$system_path( $$absolute_path( $$PWD/../../builds/3rdparty ) )
+    }
+    isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+    THIRD_PARTY_DIST_DIR_PATH="undefined"
     !exists($$THIRD_PARTY_DIST_DIR_PATH) {
         unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
         else:macx: DIST_DIR       = lpub3d_macos_3rdparty
@@ -76,49 +83,49 @@ contains(LOAD_LDV_HEADERS,True) {
     }
 
     if (unix:exists(/usr/include/tinyxml.h)|exists($${SYSTEM_PREFIX}/include/tinyxml.h)) {
-        message("~~~ lib$${TARGET} system library tinyxml found ~~~")
+        message("~~~ lib$${TARGET} system library tinyxml FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/tinyxml.h) {
-        message("~~~ lib$${TARGET} local library header for tinyxml found ~~~")
+        message("~~~ lib$${TARGET} local library header for tinyxml FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for tinyxml not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for tinyxml NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX}/include/gl2ps.h)) {
-        message("~~~ lib$${TARGET} system library gl2ps found ~~~")
+        message("~~~ lib$${TARGET} system library gl2ps FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
-        message("~~~ lib$${TARGET} local library header for gl2ps found ~~~")
+        message("~~~ lib$${TARGET} local library header for gl2ps FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for gl2ps not found, using local ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for gl2ps NOT FOUND, using local ~~~")
     }
     if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX}/include/lib3ds.h)) {
-        message("~~~ lib$${TARGET} system library 3ds found ~~~")
+        message("~~~ lib$${TARGET} system library 3ds FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
-        message("~~~ lib$${TARGET} local library header for 3ds found ~~~")
+        message("~~~ lib$${TARGET} local library header for 3ds FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for 3ds not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for 3ds NOT FOUND ~~~")
     }
     if (unix:macx:exists(/usr/include/minizip/unzip.h)|exists($${SYSTEM_PREFIX}/include/minizip/unzip.h)) {
         message("~~~ lib$${TARGET} system library minizip found ~~~")
         DEFINES += HAVE_MINIZIP
     } else:exists($${LDV3RDHDR}/minizip/zip.h) {
-        message("~~~ lib$${TARGET} local library header for minizip found ~~~")
+        message("~~~ lib$${TARGET} local library header for minizip FOUND ~~~")
         INCLUDEPATH += $${LDV3RDHDR}
         DEFINES += HAVE_MINIZIP
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for minizip not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for minizip NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX}/include/png.h)) {
-        message("~~~ lib$${TARGET} system library png found ~~~")
+        message("~~~ lib$${TARGET} system library png FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/png.h) {
-        message("~~~ lib$${TARGET} local library header for png found ~~~")
+        message("~~~ lib$${TARGET} local library header for png FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for png not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for png NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX}/include/jpeglib.h)) {
-        message("~~~ lib$${TARGET} system library jpeg found ~~~")
+        message("~~~ lib$${TARGET} system library jpeg FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
-        message("~~~ lib$${TARGET} local library header for jpeg found ~~~")
+        message("~~~ lib$${TARGET} local library header for jpeg FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for jpeg not found ~~~")
+        message("~~~ ERROR lib$${TARGET}: Library header for jpeg NOT FOUND ~~~")
     }
 } # LOAD_LDV_HEADERS,True
 
@@ -126,8 +133,9 @@ contains(LOAD_LDV_HEADERS,True) {
 contains(LOAD_LDV_LIBS,True) {
     win32-msvc*:CONFIG(debug, debug|release) {
         equals(VER_USE_LDVIEW_DEV,True) {
+            contains(LIB_ARCH, 64): LDVLIB_ARCH = /x64
             LDVLIBDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/Build/Debug$$LIB_ARCH )
-            LDV3RDLIBDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/lib )
+            LDV3RDLIBDIR = $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/lib$$LDVLIB_ARCH )
         } else {
             LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
             LDV3RDLIBDIR = $$system_path( $$LDVLIBDIR )
@@ -210,38 +218,38 @@ contains(LOAD_LDV_LIBS,True) {
     # Set 'use local' flags
     !exists($${GL2PS_SRC}) {
         USE_LOCAL_GL2PS_LIB = False
-        # message("~~~ $${LPUB3D} GL2PS LIBRARY $${GL2PS_SRC} NOT FOUND ~~~")
+        message("~~~ $${LPUB3D} GL2PS LIBRARY $${GL2PS_SRC} NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} GL2PS LIBRARY $${GL2PS_SRC} FOUND ~~~")
 
     !exists($${TINYXML_SRC}) {
         USE_LOCAL_TINYXML_LIB = False
-        # message("~~~ $${LPUB3D} TINYXML LIBRARY $${TINYXML_SRC} NOT FOUND ~~~")
+        message("~~~ $${LPUB3D} TINYXML LIBRARY $${TINYXML_SRC} NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} TINYXML LIBRARY $${TINYXML_SRC} FOUND ~~~")
 
     !exists($${3DS_SRC}) {
         USE_LOCAL_3DS_LIB = False
-        # message("~~~ $${LPUB3D} 3DS LIBRARY $${3DS_SRC} NOT FOUND ~~~")
+        message("~~~ $${LPUB3D} 3DS LIBRARY $${3DS_SRC} NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} 3DS LIBRARY $${3DS_SRC} FOUND ~~~")
 
     !exists($${PNG_SRC}) {
         USE_LOCAL_PNG_LIB = False
-        # message("~~~ $${LPUB3D} PNG LIBRARY $${PNG_SRC} NOT FOUND ~~~")
+        message("~~~ $${LPUB3D} PNG LIBRARY $${PNG_SRC} NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} PNG LIBRARY $${PNG_SRC} FOUND ~~~")
 
     !exists($${JPEG_SRC}) {
         USE_LOCAL_JPEG_LIB = False
-        # message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
+        message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} FOUND ~~~")
 
     !exists($${MINIZIP_SRC}) {
         USE_LOCAL_MINIZIP_LIB = False
-        # message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} NOT FOUND ~~~")
+        message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} NOT FOUND ~~~")
     } else: message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} FOUND ~~~")
 
     win32-msvc* {
         !exists($${ZLIB_SRC}) {
             USE_LOCAL_ZLIB_LIB = False
-            # message("~~~ $${LPUB3D} Z LIBRARY $${ZLIB_SRC} NOT FOUND ~~~")
+            message("~~~ $${LPUB3D} Z LIBRARY $${ZLIB_SRC} NOT FOUND ~~~")
         } else:message("~~~ $${LPUB3D} Z LIBRARY $${ZLIB_SRC} FOUND ~~~")
     }
 
