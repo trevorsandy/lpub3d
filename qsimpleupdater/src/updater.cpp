@@ -685,15 +685,15 @@ void Updater::setUpdateAvailable (const bool available)
 
     } else {
 
-        QMessageBoxResizable box;
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-
-        box.setWindowTitle(tr ("Software Update"));
-
         if (updateAvailable() && (notifyOnUpdate() || notifyOnFinish())) {
+            QMessageBoxResizable box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+            box.setWindowTitle(tr ("Software Update"));
+
             QString versionStr = compare (latestRevision(), moduleRevision()) ? "revision" : "version";
             QString moduleDescStr = m_winPortable == 2 ? " x86_64 Windows Portable" : m_winPortable == 1 ? " x86 Windows Portable" : "" ;
             QString title = "<b>" + tr ("A new %1 of %2 is available!")
