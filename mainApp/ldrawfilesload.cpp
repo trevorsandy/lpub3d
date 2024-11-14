@@ -297,8 +297,8 @@ void LdrawFilesLoad::copy() const
     QModelIndex current;
     Q_FOREACH(current, selection)
     {
-        QVariant data = lm->data(previous);
-        QString text = data.toString();
+        QVariant ldata = lm->data(previous);
+        QString text = ldata.toString();
         selected_text.append(text);
 
         // If you are at the start of the row the row number of the previous index
