@@ -264,9 +264,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
         lpub->getAct("LightGroupAct.4")->setEnabled(ok);
 
-        if (Preferences::blenderImportModule.isEmpty())
-            ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
-        else if (ok)
+        if (ok || Preferences::blenderImportModule.isEmpty())
         {
             mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
 
@@ -282,7 +280,8 @@ void RenderDialog::on_RenderSettingsButton_clicked()
             }
 
             ui->RenderButton->setEnabled(true);
-        }
+        } else
+            ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
     }
 }
 
