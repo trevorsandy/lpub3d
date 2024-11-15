@@ -102,6 +102,7 @@ protected:
     QStringList mCsiKeyListData;
     QStringList mStdOutList;
 
+    bool mPopulatedFile;
     bool mHaveKeys;
     bool mTransBackground;
     int mWidth;

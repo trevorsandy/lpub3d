@@ -118,6 +118,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
         connect(ui->InputEdit,  SIGNAL(editingFinished()),
                 this,           SLOT(validateInput()));
+        mPopulatedFile = false;
     }
 
     if (mRenderType == POVRAY_RENDER) {
@@ -1174,11 +1175,14 @@ void RenderDialog::reject()
 
 void RenderDialog::on_InputBrowseButton_clicked()
 {
-    QString const startFile = ui->InputEdit->text().isEmpty() ? QFileInfo(Gui::getCurFile()).absoluteFilePath() : ui->InputEdit->text();
-    mModelFile = QFileDialog::getSaveFileName(this, tr("Select LDraw Input File"), startFile, tr("Supported LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+    if (ui->InputEdit->text().isEmpty())
+        mModelFile = QFileDialog::getOpenFileName(this, tr("Select LDraw Input File"), QFileInfo(Gui::getCurFile()).absoluteFilePath(), tr("Supported LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
 
-    if (!QFileInfo(mModelFile).exists())
-        ui->InputEdit->setText(QDir::toNativeSeparators(mModelFile));
+    QFile modelFile(mModelFile);
+    if (modelFile.open( QIODevice::WriteOnly|QIODevice::Append ))
+        mPopulatedFile = modelFile.pos() > 0;
+
+    ui->InputEdit->setText(QDir::toNativeSeparators(mModelFile));
 }
 
 void RenderDialog::on_OutputBrowseButton_clicked()
@@ -1193,10 +1197,13 @@ void RenderDialog::on_OutputBrowseButton_clicked()
 
 void RenderDialog::on_InputGenerateCheck_toggled()
 {
+    if (mPopulatedFile)
+        return;
+
     bool const generageModelFile = ui->InputGenerateCheck->isChecked();
     ui->InputEdit->setEnabled(!generageModelFile);
     ui->InputBrowseButton->setEnabled(!generageModelFile);
-    if (generageModelFile) {
+    if (generageModelFile && !mModelFile.isEmpty()) {
         mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
         ui->InputEdit->setText(mModelFile);
     } else {
