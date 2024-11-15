@@ -213,6 +213,7 @@ public:
 		return mContextInfo;
 	}
 
+	void UpdateInUseCategory();
 	void UpdateViewMode();
 
 public slots:
@@ -255,6 +256,7 @@ public:
 	void UpdateThumbnails();
 	void SetDefaultPart();
 	void UpdateModels();
+	void UpdateInUseCategory();
 	void UpdateCategories();
 	void LoadState(QSettings& Settings);
 	void SaveState(QSettings& Settings);

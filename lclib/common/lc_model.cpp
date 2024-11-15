@@ -2617,12 +2617,14 @@ void lcModel::DeleteSelectedObjects()
 	quint32 RemoveMask = 0;
 	if ((RemoveMask = RemoveSelectedObjects()))
 	{
-		if (!mIsPreview) {
+		if (!mIsPreview)
+		{
 			gMainWindow->UpdateTimeline(false, false);
 			int Rc = RemovedPieceRc;
 			bool IsPiece = ((RemoveMask >> Rc) & 1);
 			mModAction = IsPiece;
 			gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
+			gMainWindow->UpdateInUseCategory();
 /*** LPub3D Mod end ***/
 			UpdateAllViews();
 			SaveCheckpoint(tr("Deleting"));
@@ -3647,6 +3649,12 @@ void lcModel::SetObjectsProperty(const std::vector<lcObject*>& Objects, lcObject
 	if (PropertyId == lcObjectPropertyId::PieceId || PropertyId == lcObjectPropertyId::PieceColor)
 	{
 		gMainWindow->UpdateTimeline(false, true);
+	}
+
+	// todo: fix hacky category update
+	if (PropertyId == lcObjectPropertyId::PieceId)
+	{
+		gMainWindow->UpdateInUseCategory();
 	}
 }
 

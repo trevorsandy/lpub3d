@@ -2980,6 +2980,11 @@ void lcMainWindow::UpdateModels()
 			SetCurrentPieceInfo(nullptr);
 }
 
+void lcMainWindow::UpdateInUseCategory()
+{
+	mPartSelectionWidget->UpdateInUseCategory();
+}
+
 void lcMainWindow::UpdateCategories()
 {
 	mPartSelectionWidget->UpdateCategories();
