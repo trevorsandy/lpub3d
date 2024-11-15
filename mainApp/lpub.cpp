@@ -1631,12 +1631,6 @@ void Gui::displayFile(
     } // ! exporting
 }
 
-void Gui::displayParmsFile(
-  const QString &fileName)
-{
-    emit gui->displayParmsFileSig(fileName);
-}
-
 void Gui::refreshModelFile()
 {
      gui->editModelFile(/*saveBefore*/false);

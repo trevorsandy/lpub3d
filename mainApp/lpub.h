@@ -1131,7 +1131,11 @@ public:
       bool editModelFile = false,
       bool displayStartPage = false,
       bool cycleSilent = false);
-  void displayParmsFile(const QString &fileName);
+
+  void displayParmsFile(const QString &fileName)
+  {
+      emit gui->displayParmsFileSig(fileName);
+  }
 
   LGraphicsView *pageview()
   {
