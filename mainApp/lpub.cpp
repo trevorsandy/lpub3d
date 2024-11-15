@@ -8013,11 +8013,11 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
     excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(ldrawPath).arg("unofficial/p"));
   }
 
-  connect(textEditSearchDirs, SIGNAL(textChanged()),gui, SLOT(buttonSetState()));
-  connect(pushButtonMoveUp, SIGNAL(clicked()),gui, SLOT(buttonClicked()));
-  connect(pushButtonMoveDown, SIGNAL(clicked()),gui, SLOT(buttonClicked()));
-  connect(pushButtonAddDirectory, SIGNAL(clicked()),gui, SLOT(buttonClicked()));
-  connect(pushButtonOpenFolder, SIGNAL(clicked()),gui, SLOT(buttonClicked()));
+  connect(textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(buttonSetState()));
+  connect(pushButtonMoveUp, SIGNAL(clicked()),this, SLOT(buttonClicked()));
+  connect(pushButtonMoveDown, SIGNAL(clicked()),this, SLOT(buttonClicked()));
+  connect(pushButtonAddDirectory, SIGNAL(clicked()),this, SLOT(buttonClicked()));
+  connect(pushButtonOpenFolder, SIGNAL(clicked()),this, SLOT(buttonClicked()));
 
   QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                              Qt::Horizontal, dialog);
