@@ -1458,6 +1458,7 @@ public slots:
 
   static void restartApplication(bool changeLibrary = false, bool prompt = false);
   static void loadTheme();
+  static void preferences();
 
   static void UpdateAllViews();
   static void ReloadVisualEditor();
@@ -1480,7 +1481,6 @@ public slots:
 
   void workerJobResult(int value);
 
-  void preferences();
   void fadeStepsSetup();
   void highlightStepSetup();
   void generateCoverPages();

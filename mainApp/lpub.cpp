@@ -3106,18 +3106,18 @@ void Gui::preferences()
 
         commonMenus.setWhatsThis();
 
-        foreach (QAction *action, editWindow->actions()) {
+        foreach (QAction *action, gui->editWindow->actions()) {
             lpub->setKeyboardShortcut(action);
         }
-        foreach (QAction *action, editModeWindow->actions()) {
+        foreach (QAction *action, gui->editModeWindow->actions()) {
             lpub->setKeyboardShortcut(action);
         }
-        foreach (QAction *action, parmsWindow->actions()) {
+        foreach (QAction *action, gui->parmsWindow->actions()) {
             lpub->setKeyboardShortcut(action);
         }
 
         if (Preferences::loadTheme)
-            loadTheme();
+            gui->loadTheme();
 
         if (Preferences::setSceneTheme)
             gui->setSceneTheme();
