@@ -1454,6 +1454,8 @@ public slots:
   static void setContinuousPageAct(PageActType p = SET_DEFAULT_ACTION);
   static void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
 
+  static void restartApplication(bool changeLibrary = false, bool prompt = false);
+
   // left side progress bar
   void progressBarInit();
   void progressBarSetText(const QString &progressText);
@@ -1549,7 +1551,6 @@ public slots:
   void reloadCurrentPage(bool prompt = false);
   void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false);
   void loadTheme();
-  void restartApplication(bool changeLibrary = false, bool prompt = false);
   void resetModelCache(QString file = QString(), bool commandLine = false);
   bool removeDir(int &count,const QString &dirName);
 

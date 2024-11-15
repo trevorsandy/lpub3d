@@ -1727,7 +1727,7 @@ void Gui::mpdComboChanged(int index)
 }
 
 void  Gui::restartApplication(bool changeLibrary, bool prompt) {
-    if (prompt && QMessageBox::question(this, tr(VER_PRODUCTNAME_STR),
+    if (prompt && QMessageBox::question(gui, tr(VER_PRODUCTNAME_STR),
                                         tr("%1 must restart. Do you want to continue ?")
                                         .arg(VER_PRODUCTNAME_STR),
                                         QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
@@ -1746,7 +1746,7 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
     }
     QProcess::startDetached(QApplication::applicationFilePath(), args);
-    messageSig(LOG_INFO, tr("Restarted %1 with Command: %2 %3")
+    emit gui->messageSig(LOG_INFO, tr("Restarted %1 with Command: %2 %3")
                             .arg(VER_PRODUCTNAME_STR).arg(QApplication::applicationFilePath()).arg(args.join(" ")));
     QCoreApplication::quit();
 }
@@ -3104,9 +3104,8 @@ void Gui::preferences()
 {
     if (Preferences::getPreferences()) {
 
-        if (Preferences::restartApplication) {
-            return restartApplication(Preferences::libraryChangeRestart);
-        }
+        if (Preferences::restartApplication)
+            return Gui::restartApplication(Preferences::libraryChangeRestart);
 
         Meta meta;
         lpub->page.meta = meta;
@@ -3127,19 +3126,19 @@ void Gui::preferences()
             loadTheme();
 
         if (Preferences::setSceneTheme)
-            setSceneTheme();
+            gui->setSceneTheme();
 
         if (!Gui::getCurFile().isEmpty()) {
             if (Preferences::reloadPage) {
                 lpub->ldrawFile.clearViewerSteps();
-                reloadCurrentPage(true);
+                gui->reloadCurrentPage(true);
             }
             else
             if (Preferences::reloadFile) {
                 lpub->ldrawFile.clearViewerSteps();
                 if (Preferences::resetCustomCache)
-                    clearCustomPartCache(true);
-                clearAndReloadModelFile(false, true);
+                    gui->clearCustomPartCache(true);
+                gui->clearAndReloadModelFile(false, true);
             }
         }
 
@@ -4572,7 +4571,7 @@ void Gui::refreshLDrawUnoffParts() {
     }
 
     // Restart LDraw archive libraries
-    gui->restartApplication(false);
+    Gui::restartApplication(false);
 }
 
 void Gui::refreshLDrawOfficialParts() {
@@ -4684,7 +4683,7 @@ void Gui::refreshLDrawOfficialParts() {
     }
 
     // Restart LDraw archive libraries
-    gui->restartApplication(false);
+    Gui::restartApplication(false);
 }
 
 void Gui::updateCheck()
@@ -7860,7 +7859,7 @@ void Gui::statusMessage(LogType logType, const QString &statusMessage, int msgBo
             if (QMessageBox::critical(gui,tr("%1 Fatal Error").arg(VER_PRODUCTNAME_STR),message.append(tr("<br><br>Restart %1 ? ").arg(VER_PRODUCTNAME_STR)),
                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
                 Gui::displayPageNum = 1;
-                gui->restartApplication(false, false);
+                Gui::restartApplication(false, false);
             }
         }
     }
