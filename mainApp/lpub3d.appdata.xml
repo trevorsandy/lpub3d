@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3863" date="2024-11-15">
+            <release version="2.4.8.3864" date="2024-11-15">
                 <description>
-                    <p>LPub3D 15.11.2024 v2.4.8 r140 Continuous Build.
+                    <p>LPub3D 15.11.2024 v2.4.8 r141 Continuous Build.
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Expanded part filter options #786
                         Enhancement - Improve integration of BuildMods with fade steps and highlight step #776

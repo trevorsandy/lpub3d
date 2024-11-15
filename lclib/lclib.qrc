@@ -100,14 +100,13 @@
         <file alias="file_render_blender.png">resources/file_render_blender.png</file>
         <file alias="file_render_blender_16.png">resources/file_render_blender_16.png</file>
         <file alias="file_render_blender_logo_1280x720.png">resources/file_render_blender_logo_1280x720.png</file>
-        <file alias="file_render_open_in_blender_16.png">resources/file_render_open_in_blender_16.png</file>
         <file alias="file_render_open_in_blender.png">resources/file_render_open_in_blender.png</file>
-        <file alias="file_render_povray_16.png">resources/file_render_povray_16.png</file>
+        <file alias="file_render_open_in_blender_16.png">resources/file_render_open_in_blender_16.png</file>
         <file alias="file_render_povray.png">resources/file_render_povray.png</file>
+        <file alias="file_render_povray_16.png">resources/file_render_povray_16.png</file>
         <file alias="file_save.png">resources/file_save.png</file>
         <file alias="file_save_16.png">resources/file_save_16.png</file>
         <file alias="filter.png">resources/filter.png</file>
-        <file alias="flexible.png">resources/flexible.png</file>
         <file alias="gear_in.png">resources/gear_in.png</file>
         <file alias="help_homepage.png">resources/help_homepage.png</file>
         <file alias="leocad32.png">resources/icon/32x32/apps/leocad.png</file>
@@ -126,6 +125,8 @@
         <file alias="leocad_pt.ts">resources/leocad_pt.ts</file>
         <file alias="library.zip">resources/library.zip</file>
         <file alias="minifig.ini">resources/minifig.ini</file>
+        <file alias="part_flexible.png">resources/part_flexible.png</file>
+        <file alias="part_traintrack.png">resources/part_traintrack.png</file>
         <file alias="piece_show_earlier.png">resources/piece_show_earlier.png</file>
         <file alias="piece_show_later.png">resources/piece_show_later.png</file>
         <file alias="remove_view.png">resources/remove_view.png</file>
