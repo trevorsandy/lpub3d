@@ -1333,9 +1333,7 @@ bool lcPiecesLibrary::LoadPieceData(PieceInfo* Info)
 
 	if (Info->mZipFileType != lcZipFileType::Count && mZipFiles[static_cast<int>(Info->mZipFileType)])
 	{
-/*** LPub3D Mod - parts load order ***/
-		if (mPreferOfficialParts && LoadCachePiece(Info))
-/*** LPub3D Mod ***/
+		if (LoadCachePiece(Info))
 			return true;
 
 		lcMemFile PieceFile;
@@ -1343,7 +1341,7 @@ bool lcPiecesLibrary::LoadPieceData(PieceInfo* Info)
 		if (mZipFiles[static_cast<int>(Info->mZipFileType)]->ExtractFile(Info->mZipFileIndex, PieceFile))
 			Loaded = MeshLoader.LoadMesh(PieceFile, LC_MESHDATA_SHARED);
 
-		SaveCache = Loaded && (Info->mZipFileType == lcZipFileType::Official);
+		SaveCache = Loaded;
 	}
 	else
 	{
