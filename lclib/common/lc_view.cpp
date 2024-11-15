@@ -2046,16 +2046,19 @@ void lcView::Zoom(float Amount)
 void lcView::ZoomExtents()
 {
 	lcModel* ActiveModel = GetActiveModel();
+
 	if (ActiveModel)
-/*** LPub3D Mod - Update Default Camera ***/
 	{
-		ActiveModel->ZoomExtents(mCamera, (float)mWidth / (float)mHeight);
+		const lcMatrix44 WorldMatrix = mActiveSubmodelInstance ? mActiveSubmodelTransform : lcMatrix44Identity();
+
+		ActiveModel->ZoomExtents(mCamera, (float)mWidth / (float)mHeight, WorldMatrix);
+/*** LPub3D Mod - Update Default Camera ***/
 		if (mViewType == lcViewType::Preview)
 			Redraw();
 		else if (gMainWindow)
 			gMainWindow->UpdateDefaultCameraProperties();
-	}
 /*** LPub3D Mod end ***/
+	}
 }
 
 lcCursor lcView::GetCursor() const

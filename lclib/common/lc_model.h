@@ -407,7 +407,7 @@ public:
 	void ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const lcVector3& Position, const lcVector3& TargetPosition, const lcVector3* Corners);
 	void LookAt(lcCamera* Camera);
 	void MoveCamera(lcCamera* Camera, const lcVector3& Direction);
-	void ZoomExtents(lcCamera* Camera, float Aspect);
+	void ZoomExtents(lcCamera* Camera, float Aspect, const lcMatrix44& WorldMatrix);
 	void Zoom(lcCamera* Camera, float Amount);
 /*** LPub3D Mod - Camera Globe ***/
 	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);

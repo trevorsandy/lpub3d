@@ -1554,7 +1554,7 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 	SetTemporaryStep(Step);
 
 	if (Zoom)
-		ZoomExtents(Camera, (float)Width / (float)Height);
+		ZoomExtents(Camera, (float)Width / (float)Height, lcMatrix44Identity());
 
 	View.OnDraw();
 
@@ -5078,7 +5078,7 @@ void lcModel::MoveCamera(lcCamera* Camera, const lcVector3& Direction)
 		SaveCheckpoint(tr("Moving Camera"));
 }
 
-void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
+void lcModel::ZoomExtents(lcCamera* Camera, float Aspect, const lcMatrix44& WorldMatrix)
 {
 	std::vector<lcVector3> Points = GetPiecesBoundingBoxPoints();
 
@@ -5087,8 +5087,10 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	for (const lcVector3& Point : Points)
+	for (lcVector3& Point : Points)
 	{
+		Point = lcMul31(Point, WorldMatrix);
+
 		Min = lcMin(Point, Min);
 		Max = lcMax(Point, Max);
 	}
