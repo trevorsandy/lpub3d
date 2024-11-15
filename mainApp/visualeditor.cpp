@@ -2930,8 +2930,8 @@ void Gui::ShowStepRotationStatus()
 
 void Gui::loadTheme() {
   Application::instance()->setTheme();
-  emit setTextEditHighlighterSig();
-  ReloadVisualEditor();
+  emit gui->setTextEditHighlighterSig();
+  Gui::ReloadVisualEditor();
 }
 
 void Gui::ReloadVisualEditor() {
@@ -2939,7 +2939,7 @@ void Gui::ReloadVisualEditor() {
   if (currentStep) {
     if (currentStep->displayStep == DT_MODEL_COVER_PAGE_PREVIEW) {
       Where topOfStep = currentStep->topOfStep();
-      showLine(topOfStep);
+      Gui::showLine(topOfStep);
       const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
       const QString modelFileName = QDir::toNativeSeparators(QString("%1/%2/%3.ldr").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(fileName));
       if (!gui->PreviewPiece(modelFileName, LDRAW_MATERIAL_COLOUR))

@@ -1371,10 +1371,8 @@ public slots:
   void                   SetSubmodelIconsLoaded(bool);
   bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
-  void                   ReloadVisualEditor();
   void                   LoadColors();
   void                   LoadDefaults();
-  static void            UpdateAllViews();
   void                   UnloadOfficialPiecesLibrary();
   void                   UnloadUnofficialPiecesLibrary();
   // End native viewer calls
@@ -1411,7 +1409,6 @@ public slots:
   void statusBarMsg(QString msg);
   void statusMessage(LogType logType, const QString &statusMessage, int msgBox = 0);
   void showExportedFile();
-  void showLine(const Where &here, int type = LINE_HIGHLIGHT);
   void setMpdCombo(const QString &modelName);
   void openDropFile(QString &fileName);
   void enableApplyLightAction();
@@ -1436,6 +1433,7 @@ public slots:
      return LDrawColourParts::isLDrawColourPart(fileName);
   }
 
+  static void showLine(const Where &here, int type = LINE_HIGHLIGHT);
   static void deployBanner(bool b);
   static bool loadBanner(const int &type, const QString &bannerPath);
   static void setExporting(bool b) { m_exportingContent = b; m_abort = m_exportingContent && !b ? true : m_abort; if (!b) { m_exportingObjects = b; }; if (b) { m_countWaitForFinished = b; } }
@@ -1459,6 +1457,10 @@ public slots:
   static void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
 
   static void restartApplication(bool changeLibrary = false, bool prompt = false);
+  static void loadTheme();
+
+  static void UpdateAllViews();
+  static void ReloadVisualEditor();
 
   // left side progress bar
   void progressBarInit();
@@ -1554,7 +1556,6 @@ public slots:
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage(bool prompt = false);
   void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false);
-  void loadTheme();
   void resetModelCache(QString file = QString(), bool commandLine = false);
   bool removeDir(int &count,const QString &dirName);
 

@@ -3088,7 +3088,7 @@ void Gui::viewLog()
 #endif
             openWith(Preferences::logFilePath);
     } else {
-        displayParmsFile(Preferences::logFilePath);
+        gui->displayParmsFile(Preferences::logFilePath);
         parmsWindow->setWindowTitle(tr(VER_PRODUCTNAME_STR " log",VER_PRODUCTNAME_STR " logs"));
         parmsWindow->show();
     }
