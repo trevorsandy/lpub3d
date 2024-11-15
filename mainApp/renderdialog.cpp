@@ -1174,7 +1174,8 @@ void RenderDialog::reject()
 
 void RenderDialog::on_InputBrowseButton_clicked()
 {
-    mModelFile = QFileDialog::getSaveFileName(this, tr("Select LDraw Input File"), ui->InputEdit->text(), tr("Supported LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+    QString const startFile = ui->InputEdit->text().isEmpty() ? QFileInfo(Gui::getCurFile()).absoluteFilePath() : ui->InputEdit->text();
+    mModelFile = QFileDialog::getSaveFileName(this, tr("Select LDraw Input File"), startFile, tr("Supported LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
 
     if (!QFileInfo(mModelFile).exists())
         ui->InputEdit->setText(QDir::toNativeSeparators(mModelFile));
