@@ -54,6 +54,8 @@ void PreferencesDialog::lcQPreferencesInit()
         ui.ConditionalLinesCheckBox->setChecked(false);
         ui.ConditionalLinesCheckBox->setEnabled(false);
     }
+
+    float Max = mOptions->Preferences.mLineWidthMaxGranularity;
 #ifndef LC_OPENGLES
     if (QSurfaceFormat::defaultFormat().samples() > 1) {
         glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
@@ -63,10 +65,10 @@ void PreferencesDialog::lcQPreferencesInit()
 #endif
     {
         glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
-        mLineWidthGranularity = 1.0f;
+        mLineWidthGranularity = Max;
     }
 
-    ui.LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(mLineWidthGranularity, 1.0f));
+    ui.LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(Max, mLineWidthGranularity));
     ui.LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
 
     ui.FadeSteps->setChecked(mOptions->Preferences.mFadeSteps);
@@ -124,6 +126,7 @@ void PreferencesDialog::lcQPreferencesInit()
     ui.cameraDistanceFactor->setPalette(readOnlyPalette);
 }
 
+
 void PreferencesDialog::lcQPreferencesAccept()
 {
     if (!ui.antiAliasing->isChecked())
@@ -134,10 +137,9 @@ void PreferencesDialog::lcQPreferencesAccept()
         mOptions->AASamples = 4;
     else
         mOptions->AASamples = 2;
-    float const LineWidth = mLineWidthRange[0] + static_cast<float>(ui.LineWidthSlider->value()) * mLineWidthGranularity;
     mOptions->Preferences.mAllowLOD = ui.MeshLOD->isChecked();
     mOptions->Preferences.mDrawEdgeLines = ui.edgeLines->isChecked();
-    mOptions->Preferences.mLineWidth = LineWidth > 0.9f && LineWidth < 1.09f ? 1.0f : LineWidth;
+    mOptions->Preferences.mLineWidth = mLineWidthRange[0] + static_cast<float>(ui.LineWidthSlider->value()) * mLineWidthGranularity;
     mOptions->Preferences.mMeshLODDistance = ui.MeshLODSlider->value() * mMeshLODMultiplier;
     mOptions->Preferences.mShadingMode = (lcShadingMode)ui.ShadingMode->currentIndex();
     mOptions->StudStyle = static_cast<lcStudStyle>(ui.studStyleCombo->currentIndex());
@@ -182,7 +184,7 @@ void PreferencesDialog::on_ConditionalLinesCheckBox_toggled()
 void PreferencesDialog::on_LineWidthSlider_valueChanged()
 {
     float Value = mLineWidthRange[0] + static_cast<float>(ui.LineWidthSlider->value()) * mLineWidthGranularity;
-    ui.LineWidthLabel->setText(QString::number((Value > 0.9f && Value < 1.09f) ? 1.0f : Value));
+    ui.LineWidthLabel->setText(QString::number(Value, 'f', 5));
 }
 
 void PreferencesDialog::on_MeshLODSlider_valueChanged()

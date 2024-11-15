@@ -303,6 +303,8 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
           this,                             SLOT(AutomateEdgeColor()));
   connect(ui.AutomateEdgeColorButton,       SIGNAL(clicked()),
           this,                             SLOT(AutomateEdgeColor()));
+  connect(ui.LineWidthMaxGranularityButton, SIGNAL(clicked()),
+          this,                             SLOT(lineWidthMaxGranularity()));
   connect(ui.ResetFadeStepsButton,          SIGNAL(clicked()),
           this,                             SLOT(ResetFadeHighlightColor()));
   connect(ui.ResetHighlightNewPartsButton,  SIGNAL(clicked()),
@@ -642,6 +644,30 @@ void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
     // LcLib Preferences
     lcQPreferencesInit();
     mSetOptions = false;
+}
+
+void PreferencesDialog::lineWidthMaxGranularity()
+{
+    float Max = mOptions->Preferences.mLineWidthMaxGranularity;
+    QString const Header = tr("%1 Maximum Granularity");
+    QInputDialog Dialog(this);
+    Dialog.setInputMode(QInputDialog::DoubleInput);
+    Dialog.setWindowTitle(tr("Edge Line Width"));
+    Dialog.setWhatsThis(lpubWT(WT_GUI_LINE_WIDTH_MAX_GRANULARITY, Header.arg(Dialog.windowTitle())));
+    Dialog.setLabelText(tr("Maximum Slider Granularity:"));
+    Dialog.setDoubleValue(Max);
+    Dialog.setDoubleRange(0.0f, 1.0f);
+    Dialog.setDoubleDecimals(4);
+    Dialog.setDoubleStep(0.001);
+    if (Dialog.exec() == QDialog::Accepted)
+    {
+        if (Dialog.doubleValue() != Max)
+        {
+            Max = Dialog.doubleValue();
+            mOptions->Preferences.mLineWidthMaxGranularity = Max;
+            ui.LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(Max, mLineWidthGranularity));
+        }
+    }
 }
 
 void PreferencesDialog::setRenderers()

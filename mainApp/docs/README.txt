@@ -1,4 +1,4 @@
-LPub3D 2.4.8.142.3865 (15 11 2024 23:38:39)
+LPub3D 2.4.8.143.3866 (15 11 2024 23:39:37)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Feature - Increase the capability to change Edge Lines size #772
 - Enhancement - Add renderer arguments and environment vars to global settings #775
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776

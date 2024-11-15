@@ -223,6 +223,9 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "PreferOfficialParts", 1),                                                  // LC_PROFILE_PREFER_OFFICIAL_PARTS                     /*** LPub3D Mod - parts load order ***/
 	lcProfileEntry("Settings", "UpdateCacheIndex", 0),                                                     // LC_PROFILE_UPDATE_CACHE_INDEX                        /*** LPub3D Mod - parts load order ***/
 /*** LPub3D Mod - ***/
+/*** LPub3D Mod - line width max granularity ***/
+	lcProfileEntry("Settings", "LineWidthMaxGranularity", 1.0f),                                           // LC_PROFILE_LINE_WIDTH_MAX_GRANULARITY                /*** LPub3D Mod - line width max granularity ***/
+/*** LPub3D Mod - ***/
 };
 
 void lcRemoveProfileKey(LC_PROFILE_KEY Key)

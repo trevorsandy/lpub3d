@@ -83,6 +83,9 @@ public slots:
 /*** LPub3D Mod - disabled, there is not BlenderAddonSettingsButton ***/
 /*  void on_BlenderAddonSettingsButton_clicked(); */
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - line width max granularity ***/
+	void LineWidthMaxGranularity();
+/*** LPub3D Mod end ***/
 	void on_studStyleCombo_currentIndexChanged(int index);
 	void on_antiAliasing_toggled();
 	void on_edgeLines_toggled();

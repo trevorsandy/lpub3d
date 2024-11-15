@@ -137,6 +137,10 @@ void lcPreferences::LoadDefaults()
 /*** LPub3D Mod - lpub fade highlight ***/
 	mLPubFadeHighlight = lcGetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT);
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - line width max granularity ***/
+	mLineWidthMaxGranularity = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH_MAX_GRANULARITY);
+/*** LPub3D Mod - ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -244,6 +248,10 @@ void lcPreferences::SaveDefaults()
 /*** LPub3D Mod - lpub fade highlight ***/
 	lcSetProfileInt(LC_PROFILE_LPUB_FADE_HIGHLIGHT, mLPubFadeHighlight);
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - line width max granularity ***/
+	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH_MAX_GRANULARITY, mLineWidthMaxGranularity);
+/*** LPub3D Mod - ***/
 }
 
 void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
@@ -1621,7 +1629,7 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preferences save message ***/
-	lpub->messageSig(LOG_STATUS, QString("Saving Visual Editor preferences. Please wait..."));
+	lpub->messageSig(LOG_STATUS, tr("Saving Visual Editor preferences. Please wait..."));
 /*** LPub3D Mod end ***/
 
 	bool LanguageChanged = Options.Language != lcGetProfileString(LC_PROFILE_LANGUAGE);
@@ -1731,7 +1739,7 @@ void lcApplication::ShowPreferencesDialog()
 	}
 
 	if ((ViewPieceIconsChangd ||
-		 LPubFadeHighlightChanged  ||
+		 LPubFadeHighlightChanged ||
 		 DefaultCameraChanged ||
 		 DrawConditionalLinesChanged) && !restartApp && !reloadFile)
 		reloadPage = true;
@@ -1750,79 +1758,79 @@ void lcApplication::ShowPreferencesDialog()
 			switch (int(Options.Preferences.mShadingMode))
 			{
 			case int(lcShadingMode::Flat):
-				newShadingMode = "flat";
+				newShadingMode = tr("flat");
 				break;
 			case int(lcShadingMode::DefaultLights):
-				newShadingMode = "default lights";
+				newShadingMode = tr("default lights");
 				break;
 			case int(lcShadingMode::Full):
-				newShadingMode = "full";
+				newShadingMode = tr("full");
 				break;
 			case int(lcShadingMode::Wireframe):
-				newShadingMode = "wire frame";
+				newShadingMode = tr("wire frame");
 				break;
 			default:
-				newShadingMode = "unknown";
+				newShadingMode = tr("unknown");
 			}
 
 			switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
 			{
 			case int(lcShadingMode::Flat):
-				oldShadingMode = "flat";
+				oldShadingMode = tr("flat");
 				break;
 			case int(lcShadingMode::DefaultLights):
-				oldShadingMode = "default lights";
+				oldShadingMode = tr("default lights");
 				break;
 			case int(lcShadingMode::Full):
-				oldShadingMode = "full";
+				oldShadingMode = tr("full");
 				break;
 			case int(lcShadingMode::Wireframe):
-				oldShadingMode = "wire frame";
+				oldShadingMode = tr("wire frame");
 				break;
 			default:
-				oldShadingMode = "unknown";
+				oldShadingMode = tr("unknown");
 			}
 
 			if (shadingModeChanged)
-				logInfo() << QString("Shading mode changed from %1 to %2.")
+				logInfo() << tr("Shading mode changed from %1 to %2.")
 							 .arg(oldShadingMode)
 							 .arg(newShadingMode);
 			if (lineWidthChanged)
-				logInfo() << QString("Edge line width changed from %1 to %2.")
+				logInfo() << tr("Edge line width changed from %1 to %2.")
 							 .arg(double(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH)))
 							 .arg(double(Options.Preferences.mLineWidth));
 			if (drawEdgeLinesChanged)
-				logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
+				logInfo() << tr("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? tr("ON") : tr("OFF"));
 
 			if (NativeViewpointChanged) {
 				QString Viewpoint;
 				switch (lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT))
 				{
 				case 0:
-					Viewpoint = "Front";
+					Viewpoint = tr("Front");
 					break;
 				case 1:
-					Viewpoint = "Back";
+					Viewpoint = tr("Back");
 					break;
 				case 2:
-					Viewpoint = "Top";
+					Viewpoint = tr("Top");
 					break;
 				case 3:
-					Viewpoint = "Bottom";
+					Viewpoint = tr("Bottom");
 					break;
 				case 4:
-					Viewpoint = "Left";
+					Viewpoint = tr("Left");
 					break;
 				case 5:
-					Viewpoint = "Right";
+					Viewpoint = tr("Right");
 					break;
 				case 6:
-					Viewpoint = "Home";
+					Viewpoint = tr("Home");
 					break;
 				default:
-					Viewpoint = "Front";
+					Viewpoint = tr("Front");
 				}
-				logInfo() << QString("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
+				logInfo() << tr("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
 
 			}
 
@@ -1832,17 +1840,17 @@ void lcApplication::ShowPreferencesDialog()
 				switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
 				{
 				case 0:
-					Projection = "Perscpective";
+					Projection = tr("Perscpective");
 					break;
 				case 1:
-					Projection = "Ortographic";
+					Projection = tr("Ortographic");
 					uValue = false;
 					break;
 				default:
-					Projection = "Perscpective";
+					Projection = tr("Perscpective");
 					break;
 				}
-				logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
+				logInfo() << tr("Native Projection changed to '%1'.").arg(Projection.toUpper());
 				if (Preferences::preferredRenderer == RENDERER_NATIVE) {
 					QSettings Settings;
 					Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
@@ -1907,7 +1915,7 @@ void lcApplication::ShowPreferencesDialog()
 	lcView::UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
-	lpub->messageSig(LOG_STATUS, QString("Visual Editor preferences saved"));
+	lpub->messageSig(LOG_STATUS, tr("Visual Editor preferences saved"));
 	if (restartApp) {
 		lpub->restartApplication();
 	}

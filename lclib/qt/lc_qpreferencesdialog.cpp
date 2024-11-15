@@ -117,6 +117,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 	connect(ui->ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 	connect(ui->ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - line width max granularity ***/
+	connect(ui->LineWidthMaxGranularityButton, SIGNAL(clicked()), this, SLOT(LineWidthMaxGranularity()));
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - set preferences dialog properties ***/
 	ui->MinifigSettingsEdit->hide();
@@ -192,6 +195,9 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 		ui->ConditionalLinesCheckBox->setEnabled(false);
 	}
 
+/*** LPub3D Mod - line width max granularity ***/
+	float Max = mOptions->Preferences.mLineWidthMaxGranularity;
+/*** LPub3D Mod - ***/
 #ifndef LC_OPENGLES
 	if (QSurfaceFormat::defaultFormat().samples() > 1)
 	{
@@ -202,10 +208,14 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 #endif
 	{
 		glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
-		mLineWidthGranularity = 1.0f;
+/*** LPub3D Mod - line width max granularity ***/
+		mLineWidthGranularity = Max;
+/*** LPub3D Mod - ***/
 	}
 
-	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(1.0f, mLineWidthGranularity));
+/*** LPub3D Mod - line width max granularity ***/
+	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(Max, mLineWidthGranularity));
+/*** LPub3D Mod - ***/
 	ui->LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
 
 	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
@@ -498,11 +508,9 @@ void lcQPreferencesDialog::accept()
 	else
 		mOptions->AASamples = 2;
 
-	float const LineWidth = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
-
 	mOptions->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
 	mOptions->Preferences.mDrawConditionalLines = ui->ConditionalLinesCheckBox->isChecked();
-	mOptions->Preferences.mLineWidth = LineWidth > 0.9f && LineWidth < 1.09f ? 1.0f : LineWidth;
+	mOptions->Preferences.mLineWidth = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
 	mOptions->Preferences.mAllowLOD = ui->MeshLOD->isChecked();
 	mOptions->Preferences.mMeshLODDistance = ui->MeshLODSlider->value() * mMeshLODMultiplier;
 	mOptions->Preferences.mFadeSteps = ui->FadeSteps->isChecked();
@@ -899,7 +907,7 @@ void lcQPreferencesDialog::on_ConditionalLinesCheckBox_toggled()
 void lcQPreferencesDialog::on_LineWidthSlider_valueChanged()
 {
 	float Value = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
-	ui->LineWidthLabel->setText(QString::number((Value > 0.9f && Value < 1.09f) ? 1.0f : Value));
+	ui->LineWidthLabel->setText(QString::number(Value, 'f', 5));
 }
 
 void lcQPreferencesDialog::on_MeshLODSlider_valueChanged()
@@ -1000,6 +1008,32 @@ void lcQPreferencesDialog::AutomateEdgeColor()
 		mOptions->Preferences.mPartColorValueLDIndex = Dialog.mPartColorValueLDIndex;
 	}
 }
+
+/*** LPub3D Mod - line width max granularity ***/
+void lcQPreferencesDialog::LineWidthMaxGranularity()
+{
+	float Max = mOptions->Preferences.mLineWidthMaxGranularity;
+	QString const Header = tr("%1 Maximum Granularity");
+	QInputDialog Dialog(this);
+	Dialog.setInputMode(QInputDialog::DoubleInput);
+	Dialog.setWindowTitle(tr("Edge Line Width"));
+	Dialog.setWhatsThis(lpubWT(WT_GUI_LINE_WIDTH_MAX_GRANULARITY, Header.arg(Dialog.windowTitle())));
+	Dialog.setLabelText(tr("Maximum Slider Granularity:"));
+	Dialog.setDoubleValue(Max);
+	Dialog.setDoubleRange(0.0f, 1.0f);
+	Dialog.setDoubleDecimals(4);
+	Dialog.setDoubleStep(0.001);
+	if (Dialog.exec() == QDialog::Accepted)
+	{
+		if (Dialog.doubleValue() != Max)
+		{
+			Max = Dialog.doubleValue();
+			mOptions->Preferences.mLineWidthMaxGranularity = Max;
+			ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / qMax(Max, mLineWidthGranularity));
+		}
+	}
+}
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>593</width>
+    <width>583</width>
     <height>558</height>
    </rect>
   </property>
@@ -409,13 +409,130 @@
      <item row="0" column="0" colspan="2">
       <widget class="QWidget" name="RenderingWidget" native="true">
        <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="MeshLOD">
+          <property name="toolTip">
+           <string>Enable switching from high to low level of detail during zoom</string>
+          </property>
+          <property name="statusTip">
+           <string>Enable mesh level of detail</string>
+          </property>
+          <property name="text">
+           <string>Mesh LOD:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4">
+         <widget class="QCheckBox" name="AutomateEdgeColor">
+          <property name="text">
+           <string>Automate Edge Color:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QCheckBox" name="FadeSteps">
+          <property name="toolTip">
+           <string>Enable visual editor fade parts behaviour</string>
+          </property>
+          <property name="text">
+           <string>Native Fade Parts:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4" colspan="3">
+         <widget class="QCheckBox" name="LPubFadeHighlight">
+          <property name="toolTip">
+           <string>Make faded parts translucent but do not draw back faces or highlight part edges</string>
+          </property>
+          <property name="text">
+           <string>LPub3D Fade and Highlight Parts</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_39">
+          <property name="text">
+           <string>Stud Style:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="MeshLODLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="QCheckBox" name="HighlightNewParts">
+          <property name="toolTip">
+           <string>Enable visual editor highlight parts behaviour</string>
+          </property>
+          <property name="text">
+           <string>Native Highlight Parts:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="edgeLines">
+          <property name="toolTip">
+           <string>Enable edge lines</string>
+          </property>
+          <property name="text">
+           <string>Edge Lines:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Shading Mode:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="antiAliasing">
+          <property name="toolTip">
+           <string>Enable anti-aliasing</string>
+          </property>
+          <property name="text">
+           <string>Anti-aliasing:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4" colspan="2">
+         <widget class="QCheckBox" name="ConditionalLinesCheckBox">
+          <property name="toolTip">
+           <string>Draw conditional lines </string>
+          </property>
+          <property name="text">
+           <string>Draw Conditional Lines</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="6">
+         <widget class="QToolButton" name="ResetHighlightNewPartsButton">
+          <property name="toolTip">
+           <string>Reset</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="QSlider" name="LineWidthSlider">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
+            <horstretch>1</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>140</width>
+            <height>0</height>
+           </size>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -425,7 +542,71 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="2">
+         <widget class="QLabel" name="LineWidthLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QToolButton" name="ResetFadeStepsButton">
+          <property name="toolTip">
+           <string>Reset</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QToolButton" name="FadeStepsColor">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="QToolButton" name="HighlightNewPartsColor">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSlider" name="MeshLODSlider">
+          <property name="toolTip">
+           <string>Set mesh level of detail distance</string>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QToolButton" name="LineWidthMaxGranularityButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="6">
+         <widget class="QToolButton" name="AutomateEdgeColorButton">
+          <property name="toolTip">
+           <string>Automate edge color settings</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="2">
          <widget class="QComboBox" name="antiAliasingSamples">
           <property name="toolTip">
            <string/>
@@ -447,37 +628,29 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QCheckBox" name="MeshLOD">
+        <item row="3" column="1" colspan="2">
+         <widget class="QComboBox" name="ShadingMode">
           <property name="toolTip">
-           <string>Enable switching from high to low level of detail during zoom</string>
+           <string>Select shading mode</string>
           </property>
-          <property name="statusTip">
-           <string>Enable mesh level of detail</string>
-          </property>
-          <property name="text">
-           <string>Mesh LOD:</string>
-          </property>
+          <item>
+           <property name="text">
+            <string>Wireframe</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Flat Shading</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Default Lights</string>
+           </property>
+          </item>
          </widget>
         </item>
-        <item row="1" column="3" colspan="2">
-         <widget class="QCheckBox" name="ConditionalLinesCheckBox">
-          <property name="toolTip">
-           <string>Draw conditional lines </string>
-          </property>
-          <property name="text">
-           <string>Draw Conditional Lines</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="LineWidthLabel">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
+        <item row="4" column="1" colspan="2">
          <widget class="QComboBox" name="studStyleCombo">
           <property name="toolTip">
            <string>Select LEGO stud logo version</string>
@@ -527,51 +700,13 @@
           </item>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="edgeLines">
-          <property name="toolTip">
-           <string>Enable edge lines</string>
-          </property>
-          <property name="text">
-           <string>Edge Lines:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_39">
-          <property name="text">
-           <string>Stud Style:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="MeshLODLabel">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSlider" name="MeshLODSlider">
-          <property name="toolTip">
-           <string>Set mesh level of detail distance</string>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Shading Mode:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
+        <item row="0" column="3">
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -581,126 +716,13 @@
           </property>
          </spacer>
         </item>
-        <item row="3" column="1">
-         <widget class="QComboBox" name="ShadingMode">
-          <property name="toolTip">
-           <string>Select shading mode</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Wireframe</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Flat Shading</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Default Lights</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="antiAliasing">
-          <property name="toolTip">
-           <string>Enable anti-aliasing</string>
-          </property>
-          <property name="text">
-           <string>Anti-aliasing:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QCheckBox" name="FadeSteps">
-          <property name="toolTip">
-           <string>Enable visual editor fade parts behaviour</string>
-          </property>
-          <property name="text">
-           <string>Native Fade Parts:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QToolButton" name="FadeStepsColor">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="5">
-         <widget class="QToolButton" name="ResetFadeStepsButton">
-          <property name="toolTip">
-           <string>Reset</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="QCheckBox" name="HighlightNewParts">
-          <property name="toolTip">
-           <string>Enable visual editor highlight parts behaviour</string>
-          </property>
-          <property name="text">
-           <string>Native Highlight Parts:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="QToolButton" name="HighlightNewPartsColor">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="5">
-         <widget class="QToolButton" name="ResetHighlightNewPartsButton">
-          <property name="toolTip">
-           <string>Reset</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="4">
-         <widget class="QToolButton" name="AutomateEdgeColorButton">
-          <property name="toolTip">
-           <string>Automate edge color settings</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="3">
-         <widget class="QCheckBox" name="AutomateEdgeColor">
-          <property name="text">
-           <string>Automate Edge Color:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
          <widget class="QToolButton" name="HighContrastButton">
           <property name="toolTip">
            <string>High contrast stud and edge color settings</string>
           </property>
           <property name="text">
            <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3" colspan="3">
-         <widget class="QCheckBox" name="LPubFadeHighlight">
-          <property name="toolTip">
-           <string>Make faded parts translucent but do not draw back faces or highlight part edges</string>
-          </property>
-          <property name="text">
-           <string>LPub3D Fade and Highlight Parts</string>
           </property>
          </widget>
         </item>
@@ -2606,6 +2628,7 @@
   <tabstop>antiAliasingSamples</tabstop>
   <tabstop>edgeLines</tabstop>
   <tabstop>LineWidthSlider</tabstop>
+  <tabstop>LineWidthMaxGranularityButton</tabstop>
   <tabstop>MeshLOD</tabstop>
   <tabstop>MeshLODSlider</tabstop>
   <tabstop>ShadingMode</tabstop>
@@ -2637,8 +2660,8 @@
   <tabstop>resetDefaultPosition</tabstop>
   <tabstop>cameraDistanceFactor</tabstop>
   <tabstop>tabWidgetViews</tabstop>
-  <tabstop>AxisIconCheckBox</tabstop>
   <tabstop>AxisIconLocationCombo</tabstop>
+  <tabstop>AxisIconCheckBox</tabstop>
   <tabstop>gridStuds</tabstop>
   <tabstop>gridLines</tabstop>
   <tabstop>gridLineSpacing</tabstop>

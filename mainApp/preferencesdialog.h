@@ -272,6 +272,7 @@ class PreferencesDialog : public QDialog
     void ColorButtonClicked();
     void ResetFadeHighlightColor();
     void cameraPropertyReset();
+    void lineWidthMaxGranularity();
 
     void lcQPreferencesInit();
     void lcQPreferencesAccept();

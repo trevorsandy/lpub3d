@@ -161,12 +161,18 @@ public:
 /*** LPub3D Mod - Timeline part icons ***/
 	bool mViewPieceIcons;
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - lpub fade highlight ***/
 	bool mLPubFadeHighlight;
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Selected Parts ***/
 	bool mBuildModificationEnabled;
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - line width max granularity ***/
+	float mLineWidthMaxGranularity;
+/*** LPub3D Mod - ***/
 };
 
 struct lcCommandLineOptions
@@ -260,6 +266,7 @@ public:
 /*** LPub3D Mod - add parent, remove ShowWindow ***/
 	lcStartupMode Initialize(const QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - process command line ***/
 	int Process3DViewerCommandLine();
 /*** LPub3D Mod end ***/
@@ -275,6 +282,7 @@ public:
 /*** LPub3D Mod - load color entry ***/
 	bool LPubHighlightParts();
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - lpub fade highlight ***/
 	bool LPubFadeParts();
 	bool LPubFadeHighlight();

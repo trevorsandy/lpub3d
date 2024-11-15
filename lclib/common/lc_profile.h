@@ -170,6 +170,9 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_PREFER_OFFICIAL_PARTS,
 	LC_PROFILE_UPDATE_CACHE_INDEX,
 /*** LPub3D Mod - ***/
+/*** LPub3D Mod - line width max granularity ***/
+	LC_PROFILE_LINE_WIDTH_MAX_GRANULARITY,
+/*** LPub3D Mod - ***/
 
 	LC_NUM_PROFILE_KEYS
 };

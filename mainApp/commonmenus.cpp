@@ -7896,6 +7896,30 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
+        // WT_GUI_LINE_WIDTH_MAX_GRANULARITY
+        {
+            QObject::tr(
+            "  Set the maximum line width slider granularity and range.<br>"
+            "  The granularity setting is automatically specified by your<br>"
+            "  platform's graphics system; however, there are cases where<br>"
+            "  the specified value is too granular making it difficult to<br>"
+            "  manually set your desired line width in the specified range.<br>"
+            "  Conversely, the specified range may not be enough to allow<br>"
+            "  you to specify your desired line width.<br><br>"
+            "  In these cases, use this setting to enable a range with the<br>"
+            "  granularity that allows you to better set your line width.<br><br>"
+            "  The slider range calculation will use the maximum granularity<br>"
+            "  value measured between this setting and the value specified<br>"
+            "  by your graphics system. So if you wish to use the system<br>"
+            "  specified granularity, simply set this value to 0.0.%1<br>")
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("<br><br>  WT_GUI_LINE_WIDTH_MAX_GRANULARITY")
+#else
+                 ""
+#endif
+                )
+        },
         // WT_GUI_PART_ANNOTATION_OPTIONS
         {
             QObject::tr(
