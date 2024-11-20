@@ -637,7 +637,7 @@ int Gui::addGraphicsPageItems(
                     Gui::getBOMParts(current, QString());
                     Gui::getBOMOccurrence(current);
                 });
-                asynchronous(future);
+                future.waitForFinished();
                 page->pli.steps = steps;
                 page->pli.setParts(Gui::bomParts,Gui::bomPartGroups,page->meta,true/*isBOM*/,(Gui::boms > 1/*Split BOM Parts*/));
                 if (Preferences::modeGUI && !Gui::exporting()) {

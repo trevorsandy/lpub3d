@@ -881,7 +881,7 @@ int Steps::setCsiAnnotationMetas(bool force)
       QFuture<void> future = QtConcurrent::run([&]() {
           lpub->mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
       });
-      asynchronous(future);
+      future.waitForFinished();
       rc = HitCsiAnnotation;
   }
 

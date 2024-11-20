@@ -232,7 +232,7 @@ void BackgroundItem::setBackground(
           }
           painter.drawPoints(points.data(), points.size());
       });
-      asynchronous(future);
+      future.waitForFinished();
   }
 
   painter.end();

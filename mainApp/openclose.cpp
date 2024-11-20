@@ -1144,7 +1144,7 @@ void Gui::enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightSt
       return gui->setupFadeOrHighlight(enableFade, enableHighlight);
   });
   if (waitForFinish)
-      asynchronous(future);
+      future.waitForFinished();
   else
       gui->futureWatcher.setFuture(future);
 }

@@ -4499,7 +4499,7 @@ void MetaItem::addPointerTipMetas(
   QFuture<int> future = QtConcurrent::run([&]() {
     return static_cast<int>(offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize));
   });
-  if (asynchronous(future))
+  if (future.result())
       centerOffset = QPointF(qreal(partLoc[XX])/csiSize[XX], qreal(partLoc[YY])/csiSize[YY]);
 
   QString pointerType;

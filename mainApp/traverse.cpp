@@ -2896,7 +2896,7 @@ int Gui::drawPage(
                                             step->subModel.setSubModel(topOfStep.modelName,steps->meta);
                                             return step->subModel.sizeSubModel(&steps->meta,relativeType,true);
                                         });
-                                        if (asynchronous(future)) {
+                                        if (future.result()) {
                                             emit gui->messageSig(LOG_ERROR, tr("Failed to set cover page model preview at %1 for %2, stepNum %3 (%4.ldr).")
                                                                                .arg(cover).arg(topOfStep.modelName).arg(stepNum).arg(fileName));
                                         } else {
@@ -4828,7 +4828,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName) {
         Gui::bomPartGroups.clear();
         Gui::getBOMParts(current, QString());
     });
-    asynchronous(future);
+    future.waitForFinished();
     if (! Gui::bomParts.size()) {
         emit lpub->messageSig(LOG_ERROR, tr("No BOM parts were detected."));
         return false;
@@ -4971,7 +4971,7 @@ void Gui::countPages()
       LDrawFile::_currentLevels.clear();
 
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &lpub->ldrawFile, opts, empty);
-      asynchronous(future);
+      future.waitForFinished();
 
       pagesCounted();
    }
@@ -5045,7 +5045,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
                 const int saveJumpDisplayPageNum = Gui::displayPageNum;
                 const QList<Where> saveJumpTopOfPages = Gui::topOfPages;
                 const Where saveJumpCurrent = gui->current;
-                if (static_cast<TraverseRc>(asynchronous(future)) == HitAbortProcess) {
+                if (static_cast<TraverseRc>(future.result()) == HitAbortProcess) {
                     QApplication::restoreOverrideCursor();
                     Gui::setAbortProcess(true);
                     return;
@@ -5061,7 +5061,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
                 lpub->ldrawFile.unrendered();
 
             } else {
-                if (static_cast<TraverseRc>(asynchronous(future)) == HitAbortProcess) {
+                if (static_cast<TraverseRc>(future.result()) == HitAbortProcess) {
                     QApplication::restoreOverrideCursor();
                     Gui::setAbortProcess(true);
                     return;
@@ -5215,7 +5215,7 @@ void Gui::drawPage(DrawPageFlags &dpFlags)
           }
 #endif
 //*/
-                if (static_cast<TraverseRc>(asynchronous(future)) == HitAbortProcess)
+                if (static_cast<TraverseRc>(future.result()) == HitAbortProcess)
                     return static_cast<int>(HitAbortProcess);
                 if (!modelStackCount)
                     gui->pagesCounted();
@@ -6432,7 +6432,7 @@ void Gui::writeToTmp()
 
   for (QFuture<void> &future : writeToTmpFutures)
       if (!Gui::abortProcess())
-          asynchronous(future);
+          future.waitForFinished();
 
   writeToTmpFutures.clear();
 
