@@ -649,12 +649,12 @@ void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
 void PreferencesDialog::lineWidthMaxGranularity()
 {
     float Max = mOptions->Preferences.mLineWidthMaxGranularity;
-    QString const Header = tr("%1 Maximum Granularity");
+    QString const Header = tr("%1 Smoothing Granularity");
     QInputDialog Dialog(this);
     Dialog.setInputMode(QInputDialog::DoubleInput);
     Dialog.setWindowTitle(tr("Edge Line Width"));
     Dialog.setWhatsThis(lpubWT(WT_GUI_LINE_WIDTH_MAX_GRANULARITY, Header.arg(Dialog.windowTitle())));
-    Dialog.setLabelText(tr("Maximum Slider Granularity:"));
+    Dialog.setLabelText(tr("Smoothing Granularity:"));
     Dialog.setDoubleValue(Max);
     Dialog.setDoubleRange(0.0f, 1.0f);
     Dialog.setDoubleDecimals(4);
