@@ -163,7 +163,6 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml_STL
-        ZIP_LIB          = -lminizip
         3DS_LIB          = -llib3ds-$${VSVER}
         PNG_LIB          = -llibpng16-$${VSVER}
         JPEG_LIB         = -llibjpeg-$${VSVER}
@@ -178,7 +177,6 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_SRC        = $$system_path( $${LDVLIBDIR}/gl2ps.lib )
         TINYXML_SRC      = $$system_path( $${LDVLIBDIR}/tinyxml_STL.lib )
-        MINIZIP_SRC      = $$system_path( $${LDVLIBDIR}/minizip.lib )
         3DS_SRC          = $$system_path( $${LDV3RDLIBDIR}/lib3ds-$${VSVER}.lib )
         PNG_SRC          = $$system_path( $${LDV3RDLIBDIR}/libpng16-$${VSVER}.lib )
         JPEG_SRC         = $$system_path( $${LDV3RDLIBDIR}/libjpeg-$${VSVER}.lib )
@@ -194,7 +192,6 @@ contains(LOAD_LDV_LIBS,True) {
         GL2PS_LIB        = -lgl2ps
         TINYXML_LIB      = -ltinyxml
         3DS_LIB          = -l3ds
-        ZIP_LIB          = -lminizip
         PNG_LIB          = -lpng16
         JPEG_LIB         = -ljpeg
 
@@ -207,7 +204,6 @@ contains(LOAD_LDV_LIBS,True) {
 
         GL2PS_SRC        = $$system_path( $${LDVLIBDIR}/libgl2ps.a )
         TINYXML_SRC      = $$system_path( $${LDVLIBDIR}/libtinyxml.a )
-        MINIZIP_SRC      = $$system_path( $${LDVLIBDIR}/libminizip.a )
         3DS_SRC          = $$system_path( $${LDV3RDLIBDIR}/lib3ds.a )
         PNG_SRC          = $$system_path( $${LDV3RDLIBDIR}/libpng16.a )
         JPEG_SRC         = $$system_path( $${LDV3RDLIBDIR}/libjpeg.a )
@@ -238,11 +234,6 @@ contains(LOAD_LDV_LIBS,True) {
         USE_LOCAL_JPEG_LIB = False
         message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
     } else:message("~~~ $${LPUB3D} JPEG LIBRARY $${JPEG_SRC} FOUND ~~~")
-
-    !exists($${MINIZIP_SRC}) {
-        USE_LOCAL_MINIZIP_LIB = False
-        message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} NOT FOUND ~~~")
-    } else: message("~~~ $${LPUB3D} MINIZIP LIBRARY $${MINIZIP_SRC} FOUND ~~~")
 
     win32-msvc* {
         !exists($${ZLIB_SRC}) {
@@ -286,13 +277,6 @@ contains(LOAD_LDV_LIBS,True) {
         else:LIBS          += -ljpeg
     } else {
         LIBS               += $$JPEG_LIB
-    }
-
-    if (contains(USE_LOCAL_MINIZIP_LIB,False)) {
-        macx:LIBS          += $${SYSTEM_PREFIX}/lib/libminizip.dylib
-        else:LIBS          += -lminizip
-    } else {
-        LIBS               += $$ZIP_LIB
     }
 
     if (contains(USE_LOCAL_3DS_LIB,False)) {

@@ -126,6 +126,12 @@ CONFIG(debug, debug|release) {
 LOAD_LDV_LIBS = True
 LDVMESSAGESINI = ldvMessages.ini
 
+#~~ ldsearchDirs (uses LDView's LDrawIni)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if (equals(VER_USE_LDVIEW_DEV,True)) {
+    INCLUDEPATH += $$system_path( $${VER_LDVIEW_DEV_REPOSITORY}/3rdParty)
+} else {
+    INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include/3rdParty )
+}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HOST_VERSION   = $$(PLATFORM_VER)
