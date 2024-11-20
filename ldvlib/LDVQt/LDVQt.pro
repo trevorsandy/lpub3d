@@ -126,7 +126,7 @@ DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 # Load LDView headers
 LOAD_LDV_HEADERS = True
 
-include(LDViewLibs.pri)
+include(LDVQtLibs.pri)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

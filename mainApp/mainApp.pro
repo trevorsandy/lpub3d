@@ -483,8 +483,8 @@ LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
 # WPngImage must follow LDVQT or else there will be compile errors
 LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
 
-# LDViewLibs uses minizip which must follow the QuaZip lib to avoid LNK4006 warnings
-include(../ldvlib/LDVQt/LDViewLibs.pri)
+# LDViewLibs uses minizip which must follow the QuaZip lib to avoid LNK4006 warnings 
+include(../ldvlib/LDVQt/LDVQtLibs.pri) 
 
 win32 {
     DEFINES += _WIN_UTF8_PATHS

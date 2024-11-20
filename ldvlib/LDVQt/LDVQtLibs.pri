@@ -87,21 +87,21 @@ contains(LOAD_LDV_HEADERS,True) {
     } else:exists($${LDV3RDHDRDIR}/tinyxml.h) {
         message("~~~ lib$${TARGET} local library header for tinyxml FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for tinyxml NOT FOUND ~~~")
+        message("~~~ ERROR lib$${TARGET}: library header for tinyxml NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/gl2ps.h)|exists($${SYSTEM_PREFIX}/include/gl2ps.h)) {
         message("~~~ lib$${TARGET} system library gl2ps FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for gl2ps FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for gl2ps NOT FOUND, using local ~~~")
+        message("~~~ ERROR lib$${TARGET}: library header for gl2ps NOT FOUND, using local ~~~")
     }
     if (unix:exists(/usr/include/lib3ds.h)|exists($${SYSTEM_PREFIX}/include/lib3ds.h)) {
         message("~~~ lib$${TARGET} system library 3ds FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
         message("~~~ lib$${TARGET} local library header for 3ds FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for 3ds NOT FOUND ~~~")
+        message("~~~ ERROR lib$${TARGET}: library header for 3ds NOT FOUND ~~~")
     }
     if (unix:macx:exists(/usr/include/minizip/unzip.h)|exists($${SYSTEM_PREFIX}/include/minizip/unzip.h)) {
         message("~~~ lib$${TARGET} system library minizip found ~~~")
@@ -111,23 +111,24 @@ contains(LOAD_LDV_HEADERS,True) {
         INCLUDEPATH += $${LDV3RDHDR}
         DEFINES += HAVE_MINIZIP
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for minizip NOT FOUND ~~~")
+        message("~~~ ERROR lib$${TARGET}: library header for minizip NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/png.h)|exists($${SYSTEM_PREFIX}/include/png.h)) {
         message("~~~ lib$${TARGET} system library png FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/png.h) {
         message("~~~ lib$${TARGET} local library header for png FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for png NOT FOUND ~~~")
+        message("~~~ ERROR lib$${TARGET}: library header for png NOT FOUND ~~~")
     }
     if (unix:exists(/usr/include/jpeglib.h)|exists($${SYSTEM_PREFIX}/include/jpeglib.h)) {
         message("~~~ lib$${TARGET} system library jpeg FOUND ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
         message("~~~ lib$${TARGET} local library header for jpeg FOUND ~~~")
     } else {
-        message("~~~ ERROR lib$${TARGET}: Library header for jpeg NOT FOUND ~~~")
+        message("~~~ ERROR lib$${TARGET}: library header for jpeg NOT FOUND ~~~")
     }
 } # LOAD_LDV_HEADERS,True
+
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
 contains(LOAD_LDV_LIBS,True) {
@@ -355,4 +356,4 @@ contains(LOAD_LDV_LIBS,True) {
     QMAKE_EXTRA_TARGETS += ldvmsg_copy ldvmsg_copy_msg
     PRE_TARGETDEPS      += $$LDVMESSAGESINI_DEP
     QMAKE_CLEAN         += $$LDVMESSAGESINI_DEP
-} # LOAD_LDV_LIBS,True
+} # LPub3D LOAD_LDV_LIBS,True
