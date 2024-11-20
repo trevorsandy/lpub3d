@@ -57,7 +57,7 @@ LDrawPartDialog::LDrawPartDialog(
      if (Info) {
          lcPiecesLibrary* Library = lcGetPiecesLibrary();
          size_t numCategories = gCategories.size();
-         for (int categoryIndex = 0; categoryIndex < numCategories; categoryIndex++)
+         for (size_t categoryIndex = 0; categoryIndex < numCategories; categoryIndex++)
          {
              if (Library->PieceInCategory(Info, gCategories[categoryIndex].Keywords.constData())) {
                  mPartSelectionWidget->SetCategory(categoryIndex);
