@@ -1,4 +1,4 @@
-LPub3D 2.4.8.160.3883 (20 11 2024 22:54:44)
+LPub3D 2.4.8.161.3884 (20 11 2024 22:55:39)
 
 Features, enhancements, fixes and changes
 ------------
@@ -17,6 +17,7 @@ Revisions:
 - Enhancement - Add renderer arguments and environment vars to global settings #775
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
+- Change - Add minizip unzOpen to quazip to avoid violating ODR #787
 - Change - AppImage build Qt Network SSL limitation #784
 - Change - Errors loading files with MODEL_PIECES meta-command #779
 - Fix - Abnormal end on app close after view preference dialogue #773

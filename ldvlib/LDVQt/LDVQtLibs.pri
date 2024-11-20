@@ -103,10 +103,7 @@ contains(LOAD_LDV_HEADERS,True) {
     } else {
         message("~~~ ERROR lib$${TARGET}: library header for 3ds NOT FOUND ~~~")
     }
-    if (unix:macx:exists(/usr/include/minizip/unzip.h)|exists($${SYSTEM_PREFIX}/include/minizip/unzip.h)) {
-        message("~~~ lib$${TARGET} system library minizip found ~~~")
-        DEFINES += HAVE_MINIZIP
-    } else:exists($${LDV3RDHDR}/minizip/zip.h) {
+    if (exists($${LDV3RDHDR}/minizip/unzip.h)) {
         message("~~~ lib$${TARGET} local library header for minizip FOUND ~~~")
         INCLUDEPATH += $${LDV3RDHDR}
         DEFINES += HAVE_MINIZIP

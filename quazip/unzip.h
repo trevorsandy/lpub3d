@@ -43,6 +43,8 @@
   As per the requirement above, this file is plainly marked as modified
   by Sergey A. Tachenov. Most modifications include the I/O API redesign
   to support QIODevice interface. Some improvements and small fixes were also made.
+
+  18/11/2024 - LPub3D Mod - add minizip unzOpen and unzOpen64 calls to accommodate LDView
 */
 
 #ifndef _unz64_H
@@ -171,9 +173,10 @@ extern int ZEXPORT unzStringFileNameCompare OF ((const char* fileName1,
     (like 1 on Unix, 2 on Windows)
 */
 
-
-extern unzFile ZEXPORT unzOpen OF((voidpf file));
-extern unzFile ZEXPORT unzOpen64 OF((voidpf file));
+/*** LPub3D Mod - use minizip unzOpen and unzOpen64 calls to accommodate LDView ***/
+extern unzFile ZEXPORT unzOpen OF((const char *path));
+extern unzFile ZEXPORT unzOpen64 OF((const void *path));
+/*** LPub3D Mod End ***/
 /*
   Open a Zip file. path contain the full pathname (by example,
      on a Windows XP computer "c:\\zlib\\zlib113.zip" or on an Unix computer

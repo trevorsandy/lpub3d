@@ -102,14 +102,8 @@ macx:contains(QT_ARCH,arm64): SYSTEM_PREFIX = /opt/homebrew
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# If quazip is alredy installed you can suppress building it again by
-# adding CONFIG+=quazipnobuild to the qmake arguments
-# Update the quazip header path if not installed at default location specified
-quazipnobuild {
-    INCLUDEPATH += $$SYSTEM_PREFIX/include/quazip
-} else {
-    INCLUDEPATH += ../quazip
-}
+# 18/11/2024 - Always use local QuaZip for added minizip unzOpen calls to accommodate LDView
+INCLUDEPATH += ../quazip
 
 #~~ LDVQt dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -286,8 +280,6 @@ static {                                     # everything below takes effect wit
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
-# If quazip is already installed, set CONFIG+=quazipnobuild to use installed library
 # NOTE: Reminder to update MacOS library links on QuaZip and LDrawIni major version change
 #       - Files inpacted: build_checks.sh, CreateDmg.sh and macosfiledistro.pri
 
@@ -467,9 +459,6 @@ include(../qsimpleupdater/QSimpleUpdater.pri)
 
 #~~~ libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-quazipnobuild: \
-LIBS += -lquazip
-else: \
 LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
 
 LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
@@ -483,7 +472,6 @@ LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
 # WPngImage must follow LDVQT or else there will be compile errors
 LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
 
-# LDViewLibs uses minizip which must follow the QuaZip lib to avoid LNK4006 warnings 
 include(../ldvlib/LDVQt/LDVQtLibs.pri) 
 
 win32 {

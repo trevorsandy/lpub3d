@@ -18,12 +18,14 @@
     Oct-2009 - Defined fxxxx64 calls to normal fopen/ftell/fseek so they would compile on windows.
                           (but you should use iowin32.c for windows instead)
 
+    18/11/2024 - LPub3D Mod - add minizip unzOpen and unzOpen64 calls to accommodate LDView
+
 */
 
 #ifndef _ZLIBIOAPI64_H
 #define _ZLIBIOAPI64_H
 
-#if (!defined(_WIN32)) && (!defined(WIN32))
+#if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
 
   // Linux needs this to support file operation on files larger then 4+GB
   // But might need better if/def to select just the platforms that needs them.
@@ -51,6 +53,11 @@
 #define ftello64 ftell
 #define fseeko64 fseek
 #else
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__HAIKU__) || defined(MINIZIP_FOPEN_NO_64)
+#define fopen64 fopen
+#define ftello64 ftello
+#define fseeko64 fseeko
+#endif
 #ifdef _MSC_VER
  #define fopen64 fopen
  #if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
@@ -135,8 +142,8 @@ typedef uLong    (ZCALLBACK *write_file_func)     OF((voidpf opaque, voidpf stre
 typedef int      (ZCALLBACK *close_file_func)     OF((voidpf opaque, voidpf stream));
 typedef int      (ZCALLBACK *testerror_file_func) OF((voidpf opaque, voidpf stream));
 
-typedef uLong     (ZCALLBACK *tell_file_func)      OF((voidpf opaque, voidpf stream));
-typedef int     (ZCALLBACK *seek_file_func)      OF((voidpf opaque, voidpf stream, uLong offset, int origin));
+typedef uLong    (ZCALLBACK *tell_file_func)      OF((voidpf opaque, voidpf stream));
+typedef int      (ZCALLBACK *seek_file_func)      OF((voidpf opaque, voidpf stream, uLong offset, int origin));
 
 
 /* here is the "old" 32 bits structure structure */
@@ -153,7 +160,7 @@ typedef struct zlib_filefunc_def_s
 } zlib_filefunc_def;
 
 typedef ZPOS64_T (ZCALLBACK *tell64_file_func)    OF((voidpf opaque, voidpf stream));
-typedef int     (ZCALLBACK *seek64_file_func)    OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin));
+typedef int      (ZCALLBACK *seek64_file_func)    OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin));
 typedef voidpf   (ZCALLBACK *open64_file_func)    OF((voidpf opaque, voidpf file, int mode));
 
 typedef struct zlib_filefunc64_def_s
@@ -171,6 +178,10 @@ typedef struct zlib_filefunc64_def_s
 
 void fill_qiodevice64_filefunc OF((zlib_filefunc64_def* pzlib_filefunc_def));
 void fill_qiodevice_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def));
+/*** LPub3D Mod - use minizip unzOpen and unzOpen64 calls to accommodate LDView ***/
+void fill_fopen64_filefunc OF((zlib_filefunc64_def* pzlib_filefunc_def));
+void fill_fopen_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def));
+/*** LPub3D Mod End ***/
 
 /* now internal definition, only for zip.c and unzip.h */
 typedef struct zlib_filefunc64_32_def_s
@@ -187,7 +198,7 @@ typedef struct zlib_filefunc64_32_def_s
 //#define ZTELL64(filefunc,filestream)            ((*((filefunc).ztell64_file)) ((filefunc).opaque,filestream))
 //#define ZSEEK64(filefunc,filestream,pos,mode)   ((*((filefunc).zseek64_file)) ((filefunc).opaque,filestream,pos,mode))
 #define ZCLOSE64(filefunc,filestream)             ((*((filefunc).zfile_func64.zclose_file))  ((filefunc).zfile_func64.opaque,filestream))
-#define ZFAKECLOSE64(filefunc,filestream)             ((*((filefunc).zfile_func64.zfakeclose_file))  ((filefunc).zfile_func64.opaque,filestream))
+#define ZFAKECLOSE64(filefunc,filestream)         ((*((filefunc).zfile_func64.zfakeclose_file))  ((filefunc).zfile_func64.opaque,filestream))
 #define ZERROR64(filefunc,filestream)             ((*((filefunc).zfile_func64.zerror_file))  ((filefunc).zfile_func64.opaque,filestream))
 
 voidpf call_zopen64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf file,int mode));
