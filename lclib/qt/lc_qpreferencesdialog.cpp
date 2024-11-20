@@ -1022,7 +1022,9 @@ void lcQPreferencesDialog::LineWidthMaxGranularity()
 	Dialog.setDoubleValue(Max);
 	Dialog.setDoubleRange(0.0f, 1.0f);
 	Dialog.setDoubleDecimals(4);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 	Dialog.setDoubleStep(0.001);
+#endif
 	if (Dialog.exec() == QDialog::Accepted)
 	{
 		if (Dialog.doubleValue() != Max)
