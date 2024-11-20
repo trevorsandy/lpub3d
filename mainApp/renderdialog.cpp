@@ -264,7 +264,7 @@ void RenderDialog::on_RenderSettingsButton_clicked()
 
         lpub->getAct("LightGroupAct.4")->setEnabled(ok);
 
-        if (ok || Preferences::blenderImportModule.isEmpty())
+        if (ok)
         {
             mCsiKeyList[K_MODELSCALE] = QString::number(renderPercentage);
 
@@ -572,12 +572,12 @@ void RenderDialog::on_RenderButton_clicked()
 
         QString const option = mImportOnly ? tr("import") : tr("render");
 
-        ui->RenderLabel->setText(tr("Saving Blender %1 model...").arg(option));
+        if (!mPopulatedFile && ui->InputGenerateCheck->isChecked()) {
 
-        QApplication::processEvents();
+            ui->RenderLabel->setText(tr("Saving Blender %1 model...").arg(option));
 
-        if (ui->InputGenerateCheck->isChecked())
             mModelFile = Render::getRenderModelFile(mRenderType);
+        }
 
         mBlendProgValue = 0;
         mBlendProgMax   = 0;
@@ -587,8 +587,8 @@ void RenderDialog::on_RenderButton_clicked()
             BlenderPreferences::saveSettings();
 
         QString defaultBlendFile = QString("%1/Blender/config/%2")
-                .arg(Preferences::lpub3d3rdPartyConfigDir)
-                .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
+                                           .arg(Preferences::lpub3d3rdPartyConfigDir)
+                                           .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
         bool searchCustomDir = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
         int renderPercentage = mHaveKeys ? qRound(mCsiKeyList.at(K_MODELSCALE).toDouble() * 100) : 100;
 

@@ -278,6 +278,8 @@ BlenderPreferencesDialog::BlenderPreferencesDialog(
 
 BlenderPreferencesDialog::~BlenderPreferencesDialog()
 {
+    delete mPreferences;
+    mPreferences = nullptr;
 }
 
 bool BlenderPreferencesDialog::getBlenderPreferences(
@@ -289,10 +291,9 @@ bool BlenderPreferencesDialog::getBlenderPreferences(
 {
     BlenderPreferencesDialog *dialog = new BlenderPreferencesDialog(width,height,renderPercentage,docRender,parent);
 
-    bool ok = dialog->exec() == QDialog::Accepted;
+    bool ok = dialog->exec() == QDialog::Accepted || !Preferences::blenderImportModule.isEmpty();
 
     if (ok) {
-        dialog->mPreferences->apply(ok);
         width            = dialog->mPreferences->mImageWidth;
         height           = dialog->mPreferences->mImageHeight;
         renderPercentage = dialog->mPreferences->mRenderPercentage;
@@ -311,8 +312,10 @@ void BlenderPreferencesDialog::showPathsGroup()
 
 void BlenderPreferencesDialog::enableButton(bool change)
 {
-    mApplyButton->setEnabled(change);
-    mResetButton->setEnabled(change);
+    if (change) {
+        mApplyButton->setEnabled(true);
+        mResetButton->setEnabled(true);
+    }
     mPathsButton->setText(tr("Hide Paths"));
     mPathsButton->setToolTip(tr("Hide addon path preferences dialog"));
 }
@@ -325,9 +328,9 @@ void BlenderPreferencesDialog::resetSettings()
 
 void BlenderPreferencesDialog::accept()
 {
-    if (mPreferences->settingsModified()) {
+    if (BlenderPreferences::settingsModified()) {
         mApplyButton->setEnabled(false);
-        mPreferences->saveSettings();
+        mPreferences->apply(QDialog::Accepted);
         QDialog::accept();
     } else
         QDialog::reject();

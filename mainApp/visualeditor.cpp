@@ -2782,10 +2782,8 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
             }
 
             Camera = new lcCamera(true);
-            ActiveView->SetCamera(Camera, true);
+            ActiveView->SetCamera(Camera, false);
         }
-
-        Camera = nullptr;
     }
 }
 
