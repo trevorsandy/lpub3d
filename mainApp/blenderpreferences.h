@@ -113,7 +113,7 @@ protected:
     static int numSettings(bool defaultSettings = false);
     static int numSettingsMM(bool defaultSettings = false);
     static int getBlenderAddon(const QString &blenderDir);
-    static bool extractBlenderAddon(const QString &blenderDir);
+    static bool downloadAndExtractBlenderAddon(const QString &blenderDir);
     static void loadDefaultParameters(QByteArray& buffer, int which);
     static bool overwriteFile(const QString &file);
 
